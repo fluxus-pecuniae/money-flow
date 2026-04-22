@@ -497,9 +497,13 @@ class PreparedVenueOrderResponse(BaseModel):
 
 class RoutedSubmittedOrderLineageResponse(BaseModel):
     routed_origin: bool
+    intent_id: str | None
     desired_trade_key: str | None
     routing_assessment_id: str | None
+    route_readiness_audit_id: str | None = None
+    routing_target_recommendation_id: str | None = None
     routing_target_choice_id: str | None
+    recommendation_policy_name: str | None = None
     selected_binding_ref_id: str | None
     selected_binding_key: str | None
     selected_venue_account_ref_id: str | None
@@ -510,8 +514,11 @@ class RoutedSubmittedOrderLineageResponse(BaseModel):
     explicit_action_required: bool | None
     auto_submit: bool | None
     fanout_created: bool | None
+    allocation_created: bool | None = None
     scoring_created: bool | None
+    route_executor_created: bool | None = None
     target_reselection: bool | None
+    submitted_order_created: bool | None = None
     route_lineage_malformed: bool = False
     missing_lineage_fields: list[str] = Field(default_factory=list)
     malformed_lineage_fields: list[str] = Field(default_factory=list)
@@ -519,9 +526,13 @@ class RoutedSubmittedOrderLineageResponse(BaseModel):
 
 class RoutedSubmittedOrderLifecycleContextResponse(BaseModel):
     routed_origin: bool
+    intent_id: str | None
     desired_trade_key: str | None
     routing_assessment_id: str | None
+    route_readiness_audit_id: str | None = None
+    routing_target_recommendation_id: str | None = None
     routing_target_choice_id: str | None
+    recommendation_policy_name: str | None = None
     selected_binding_ref_id: str | None
     selected_binding_key: str | None
     selected_venue_account_ref_id: str | None
@@ -532,8 +543,11 @@ class RoutedSubmittedOrderLifecycleContextResponse(BaseModel):
     explicit_action_required: bool | None
     auto_submit: bool | None
     fanout_created: bool | None
+    allocation_created: bool | None = None
     scoring_created: bool | None
+    route_executor_created: bool | None = None
     target_reselection: bool | None
+    submitted_order_created: bool | None = None
     same_target_only: bool = True
     same_account_only: bool = True
     same_venue_only: bool = True
@@ -542,6 +556,29 @@ class RoutedSubmittedOrderLifecycleContextResponse(BaseModel):
     missing_lineage_fields: list[str] = Field(default_factory=list)
     malformed_lineage_fields: list[str] = Field(default_factory=list)
     routed_order_shape_policy: dict[str, object] | None = None
+
+
+class RoutedWorkflowInspectionResponse(BaseModel):
+    desired_trade_key: str
+    found: bool
+    current_status_summary: dict[str, object]
+    desired_trade: dict[str, object] | None = None
+    routing_assessments: list[dict[str, object]] = Field(default_factory=list)
+    route_readiness_audits: list[dict[str, object]] = Field(default_factory=list)
+    routing_target_recommendations: list[dict[str, object]] = Field(default_factory=list)
+    routing_target_choices: list[dict[str, object]] = Field(default_factory=list)
+    child_intents: list[dict[str, object]] = Field(default_factory=list)
+    readiness_evaluations: list[dict[str, object]] = Field(default_factory=list)
+    submitted_orders: list[dict[str, object]] = Field(default_factory=list)
+    lifecycle_events: list[dict[str, object]] = Field(default_factory=list)
+    actionability_summary: dict[str, object] | None = None
+    recovery_summary: dict[str, object] | None = None
+    routed_lineage: dict[str, object] | None = None
+    blocking_reason_codes: list[str] = Field(default_factory=list)
+    missing_data: list[str] = Field(default_factory=list)
+    stale_data: list[str] = Field(default_factory=list)
+    artifact_counts: dict[str, int] = Field(default_factory=dict)
+    artifacts_created_by_inspection: bool = False
 
 
 class SubmittedOrderResponse(BaseModel):

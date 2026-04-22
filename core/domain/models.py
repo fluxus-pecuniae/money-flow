@@ -480,9 +480,13 @@ class SubmittedOrderLifecycleUpdate:
 @dataclass(slots=True)
 class SubmittedOrderRoutedLifecycleContext:
     routed_origin: bool
+    intent_id: str | None
     desired_trade_key: str | None
     routing_assessment_id: str | None
+    route_readiness_audit_id: str | None
+    routing_target_recommendation_id: str | None
     routing_target_choice_id: str | None
+    recommendation_policy_name: str | None
     selected_binding_ref_id: str | None
     selected_binding_key: str | None
     selected_venue_account_ref_id: str | None
@@ -493,8 +497,11 @@ class SubmittedOrderRoutedLifecycleContext:
     explicit_action_required: bool | None
     auto_submit: bool | None
     fanout_created: bool | None
+    allocation_created: bool | None
     scoring_created: bool | None
+    route_executor_created: bool | None
     target_reselection: bool | None
+    submitted_order_created: bool | None
     same_target_only: bool = True
     same_account_only: bool = True
     same_venue_only: bool = True

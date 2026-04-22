@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-04-22T21:27:03Z`
+Last reviewed: `2026-04-22T22:18:00Z`
 
 ## Active Follow-Ups
 
@@ -104,7 +104,7 @@ Last reviewed: `2026-04-22T21:27:03Z`
 
 - `priority`: `medium`
 - `status`: `future`
-- `summary`: `Consider a narrow persistence-level uniqueness guard or serialized acceptance/conversion path for concurrent Phase 6.2+ recommendation acceptance and Phase 6.3 accepted target-choice conversion if multiple workers can act on the same route-readiness audit simultaneously. Phase 6.2.1 uses application-level idempotency to return the existing target choice for repeated same-recommendation and duplicate successful same-audit acceptance, Phase 6.2.2 gates that same-audit reuse so blocked recommendations cannot appear accepted, and Phase 6.3 uses service-level same-desired-trade/same-audit child-intent reuse to prevent duplicate child intents in normal controlled flow. These phases preserve original timestamps and add no broad workflow engine; future DB-level serialization remains a possible hardening item before automation.`
+- `summary`: `Consider a narrow persistence-level uniqueness guard or serialized acceptance/conversion/submission path for concurrent Phase 6 recommendation acceptance, accepted target-choice conversion, and explicit submitted-order handoff if multiple workers can act on the same route-readiness audit or child intent simultaneously. Phase 6.2.1 uses application-level idempotency to return the existing target choice for repeated same-recommendation and duplicate successful same-audit acceptance, Phase 6.2.2 gates that same-audit reuse so blocked recommendations cannot appear accepted, Phase 6.3 uses service-level same-desired-trade/same-audit child-intent reuse, and Phase 6.7 relies on existing submitted-order idempotency for repeated explicit submits of the same child intent. These phases preserve original timestamps and add no broad workflow engine; future DB-level serialization remains a hardening item before automation or multi-worker route execution.`
 
 ### T-027
 
@@ -135,6 +135,12 @@ Last reviewed: `2026-04-22T21:27:03Z`
 - `priority`: `high`
 - `status`: `done`
 - `summary`: `Phase 6.6 added local per-step timing visibility to the manual routed-flow harness. scripts/manual_routed_flow.py now emits top-level timing_ms, including total runtime, and adds elapsed_ms to each executed step using monotonic timing. Default inspect-only still runs only the desired-trade step, --run-through-readiness still stops before submission, and --submit without the danger-confirmation flag still blocks locally before service submission while recording local submission-block timing. Tests verify timing shape, non-negative numeric values, omitted skipped-step timing, and continued no-submission behavior. No smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor, auto-submit, new exchange behavior, telemetry persistence, config, or migration was added.`
+
+### T-032
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 6.7 through Phase 6.10 close Phase 6 as controlled explicit single-target recommendation-backed routed execution. The accepted recommendation-backed child intent can create exactly one SubmittedOrder only through the existing explicit gated child-intent submit path, submitted-order and lifecycle/actionability/recovery/reconciliation surfaces expose recommendation/audit/target-choice/intent/readiness lineage, reconciliation payload collisions cannot overwrite platform-owned routed lineage or fabricate recommendation lineage on non-routed orders, and a read-only routed workflow inspection endpoint aggregates existing records by desired trade without creating or mutating artifacts. Closeout regression proves exactly one target choice, one child intent, one submitted order, selected account/venue/symbol consistency, and no hidden auto-submit, route executor, fanout, allocation, ranking/scoring, CBBO, target reselection, cross-binding recovery, or cross-venue retry.`
 
 ### T-002
 

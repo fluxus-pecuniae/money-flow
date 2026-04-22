@@ -13,6 +13,54 @@ Entry schema:
 
 ---
 
+## v2026.04.22.006
+
+- `recorded_at_utc`: `2026-04-22T22:08:27Z`
+- `scope`: `Phase 6.7-6.10 closeout explicit recommendation-backed routed execution`
+- `intent`: `Native entry. Closed Phase 6 as controlled explicit single-target recommendation-backed routed execution without adding smart routing or automation. Recommendation-backed child intents can now create exactly one SubmittedOrder only through the existing explicit child-intent submit path after routed/live gates and readiness pass; submitted-order raw payload and typed lifecycle-lineage responses preserve desired-trade, routing assessment, route-readiness audit, routing target recommendation, target choice, child intent, readiness, selected binding/account/venue/symbol, recommendation policy, routed order-shape policy, and no-fanout/no-allocation/no-scoring/no-target-reselection/no-auto-submit flags. Recommendation/source-audit submitted-order-created truth is updated after successful explicit submit. Post-submit detail/list/actionability/recovery/reconciliation/lifecycle-event and same-target retry surfaces remain recommendation-aware while reconciliation payload collisions cannot overwrite platform-owned routed lineage or fabricate recommendation lineage on non-routed orders. Added read-only `GET /api/v1/routed-workflows/by-desired-trade/{desired_trade_key}` aggregation over existing desired trade, assessment, audit, recommendation, target-choice, child-intent, readiness, submitted-order, and lifecycle-event records; the endpoint creates no artifacts and advances no workflow state. Added Phase 6.7, 6.8, 6.9, and 6.10 tests covering gated submitted-order handoff, lifecycle/reconciliation lineage, workflow inspection, and end-to-end closeout. No migration, config, new exchange behavior, best-binding selection, ranking, scoring, CBBO, fanout, target reselection, route executor behavior, auto-submit, cross-binding recovery, cross-venue retry, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `apps/api/app/api/routes.py`
+  - `core/domain/models.py`
+  - `core/domain/routed_lifecycle.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `services/execution/service.py`
+  - `services/routing/service.py`
+  - `tests/test_phase67_recommendation_backed_submission.py`
+  - `tests/test_phase68_recommendation_backed_lifecycle.py`
+  - `tests/test_phase69_routed_workflow_inspection.py`
+  - `tests/test_phase610_phase6_closeout.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_phase67_recommendation_backed_submission.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase68_recommendation_backed_lifecycle.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase69_routed_workflow_inspection.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase610_phase6_closeout.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase65_manual_routed_flow.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase64_recommendation_backed_readiness.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase63_recommendation_target_choice_conversion.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase62_recommendation_acceptance.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase600_routing_target_recommendation.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase5101_route_readiness_audit.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase54_routed_submission_handoff.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase55_routed_submitted_order_lineage.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase59_routed_reconciliation_lifecycle_audit.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python -c 'ephemeral test-session manual harness run-through-readiness smoke'`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-6-closeout-review.zip`
+  - `verified /Users/tercirafael/money-flow-phase-6-closeout-review.zip excludes .env, virtualenv, cache, nested archive, sqlite, and db artifacts`
+
 ## v2026.04.22.005
 
 - `recorded_at_utc`: `2026-04-22T21:27:03Z`

@@ -1415,6 +1415,9 @@ class DefaultExecutionService(ExecutionService):
                     route_lineage["routing_target_recommendation_ref_id"] = (
                         recommendation_model.id
                     )
+                    route_lineage["submitted_order_created"] = bool(
+                        recommendation_model.submitted_order_created
+                    )
                     if (
                         recommendation_model.status
                         != RoutingTargetRecommendationStatus.RECOMMENDED_SINGLE_READY_CANDIDATE
@@ -1425,10 +1428,6 @@ class DefaultExecutionService(ExecutionService):
                     if not recommendation_model.child_intent_created:
                         reason_codes.append(
                             "routing_target_recommendation_child_intent_not_created"
-                        )
-                    if recommendation_model.submitted_order_created:
-                        reason_codes.append(
-                            "routing_target_recommendation_submitted_order_created"
                         )
                     recommendation_checks = {
                         "recommendation_route_readiness_audit_id_mismatch": (
@@ -1494,6 +1493,9 @@ class DefaultExecutionService(ExecutionService):
                         reason_codes.append("route_readiness_audit_not_found")
                     else:
                         route_lineage["route_readiness_audit_ref_id"] = audit_model.id
+                        route_lineage["route_readiness_audit_submitted_order_created"] = bool(
+                            audit_model.submitted_order_created
+                        )
                         if (
                             audit_model.overall_status
                             != RouteReadinessAuditStatus.READY_FOR_RECOMMENDATION
@@ -2293,16 +2295,36 @@ class DefaultExecutionService(ExecutionService):
         routed_order_shape_policy = intent_provenance.get("routed_order_shape_policy")
         routed_submission_payload = {
             "phase_boundary": "phase_5_4_explicit_routed_submission_handoff",
+            "source": (
+                "routing_target_recommendation"
+                if routed_lineage.get("recommendation_backed_child_intent")
+                else "routing_target_choice"
+            ),
             "explicit_action_required": True,
+            "explicit_submit_action": True,
             "auto_submit": False,
             "fanout_created": False,
+            "allocation_created": False,
             "scoring_created": False,
+            "route_executor_created": False,
             "target_reselection": False,
+            "same_target_only": True,
+            "same_account_only": True,
+            "same_venue_only": True,
+            "submitted_order_created": True,
             "routed_submission_enabled": True,
+            "intent_id": intent.intent_id,
             "readiness_evaluation_id": readiness.readiness_evaluation_id,
             "desired_trade_key": intent.desired_trade_key,
             "routing_assessment_id": routed_lineage.get("routing_assessment_id"),
+            "route_readiness_audit_id": routed_lineage.get("route_readiness_audit_id"),
+            "routing_target_recommendation_id": routed_lineage.get(
+                "routing_target_recommendation_id"
+            ),
             "routing_target_choice_id": routed_lineage.get("routing_target_choice_id"),
+            "recommendation_policy_name": routed_lineage.get(
+                "recommendation_policy_name"
+            ),
             "selected_binding_ref_id": routed_lineage.get("selected_binding_ref_id"),
             "selected_binding_key": routed_lineage.get("selected_binding_key"),
             "selected_venue_account_ref_id": routed_lineage.get("selected_venue_account_ref_id"),
@@ -2480,8 +2502,106 @@ class DefaultExecutionService(ExecutionService):
                     else OrderIntentStatus.SUBMITTED
                 )
                 session.add(intent_model)
+                self._mark_recommendation_submitted_order_created(
+                    session,
+                    intent_model=intent_model,
+                    submitted=submitted,
+                    readiness=readiness,
+                )
             session.commit()
             return self._submitted_order_from_model(model)
+
+    def _mark_recommendation_submitted_order_created(
+        self,
+        session: Any,
+        *,
+        intent_model: OrderIntentModel,
+        submitted: SubmittedOrder,
+        readiness: ExecutionReadinessAssessment,
+    ) -> None:
+        intent_provenance = dict(intent_model.provenance or {})
+        recommendation_id = intent_provenance.get("routing_target_recommendation_id")
+        if not isinstance(recommendation_id, str) or not recommendation_id:
+            return
+        recommendation_model = session.scalar(
+            select(RoutingTargetRecommendationModel).where(
+                RoutingTargetRecommendationModel.environment == self.settings.app.environment,
+                RoutingTargetRecommendationModel.routing_target_recommendation_id
+                == recommendation_id,
+            )
+        )
+        if recommendation_model is None:
+            return
+        submitted_at = submitted.submitted_at or _utcnow()
+        submitted_at_iso = submitted_at.isoformat()
+        recommendation_model.submitted_order_created = True
+        recommendation_provenance = dict(recommendation_model.provenance_json or {})
+        original_submitted_at = (
+            recommendation_provenance.get("submitted_order_created_at")
+            or submitted_at_iso
+        )
+        recommendation_provenance.update(
+            {
+                "submitted_order_created": True,
+                "submitted_order_id": submitted.submitted_order_id,
+                "intent_id": intent_model.intent_id,
+                "readiness_evaluation_id": readiness.readiness_evaluation_id,
+                "submitted_order_created_at": str(original_submitted_at),
+                "submitted_order_last_checked_at": submitted_at_iso,
+                "explicit_submit_action": True,
+                "auto_submit": False,
+                "fanout_created": False,
+                "allocation_created": False,
+                "scoring_created": False,
+                "route_executor_created": False,
+                "target_reselection": False,
+            }
+        )
+        recommendation_model.provenance_json = _jsonable(recommendation_provenance)
+        session.add(recommendation_model)
+
+        audit_model = None
+        if recommendation_model.route_readiness_audit_ref_id is not None:
+            audit_model = session.get(
+                RouteReadinessAuditModel,
+                recommendation_model.route_readiness_audit_ref_id,
+            )
+        if audit_model is None and recommendation_model.route_readiness_audit_id:
+            audit_model = session.scalar(
+                select(RouteReadinessAuditModel).where(
+                    RouteReadinessAuditModel.environment == self.settings.app.environment,
+                    RouteReadinessAuditModel.route_readiness_audit_id
+                    == recommendation_model.route_readiness_audit_id,
+                )
+            )
+        if audit_model is None:
+            return
+        audit_model.submitted_order_created = True
+        audit_provenance = dict(audit_model.provenance_json or {})
+        audit_original_submitted_at = (
+            audit_provenance.get("submitted_order_created_at")
+            or original_submitted_at
+        )
+        audit_provenance.update(
+            {
+                "submitted_order_created": True,
+                "submitted_order_id": submitted.submitted_order_id,
+                "intent_id": intent_model.intent_id,
+                "readiness_evaluation_id": readiness.readiness_evaluation_id,
+                "routing_target_recommendation_id": recommendation_id,
+                "submitted_order_created_at": str(audit_original_submitted_at),
+                "submitted_order_last_checked_at": submitted_at_iso,
+                "explicit_submit_action": True,
+                "auto_submit": False,
+                "fanout_created": False,
+                "allocation_created": False,
+                "scoring_created": False,
+                "route_executor_created": False,
+                "target_reselection": False,
+            }
+        )
+        audit_model.provenance_json = _jsonable(audit_provenance)
+        session.add(audit_model)
 
     def _default_recovery_action(
         self,

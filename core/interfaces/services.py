@@ -560,6 +560,11 @@ class RoutingAssessmentService(Protocol):
         order_shape_policy: RoutedOrderShapePolicyInput | None = None,
     ) -> RoutingTargetChoiceConversionResult: ...
 
+    async def inspect_routed_workflow_by_desired_trade(
+        self,
+        desired_trade_key: str,
+    ) -> dict[str, object]: ...
+
 
 class AlertService(Protocol):
     async def send_alert(self, event_type: str, message: str, severity: str) -> None: ...

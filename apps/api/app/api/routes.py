@@ -113,6 +113,7 @@ from core.schemas.api import (
     RoutingTargetChoiceConversionRequest,
     RoutingTargetChoiceConversionResponse,
     RoutingTargetChoiceResponse,
+    RoutedWorkflowInspectionResponse,
     RoutedSubmittedOrderLifecycleContextResponse,
     RoutedSubmittedOrderLineageResponse,
     SubmittedOrderResponse,
@@ -609,9 +610,13 @@ def _routed_lifecycle_context_response(
         return None
     return RoutedSubmittedOrderLifecycleContextResponse(
         routed_origin=item.routed_origin,
+        intent_id=item.intent_id,
         desired_trade_key=item.desired_trade_key,
         routing_assessment_id=item.routing_assessment_id,
+        route_readiness_audit_id=item.route_readiness_audit_id,
+        routing_target_recommendation_id=item.routing_target_recommendation_id,
         routing_target_choice_id=item.routing_target_choice_id,
+        recommendation_policy_name=item.recommendation_policy_name,
         selected_binding_ref_id=item.selected_binding_ref_id,
         selected_binding_key=item.selected_binding_key,
         selected_venue_account_ref_id=item.selected_venue_account_ref_id,
@@ -622,8 +627,11 @@ def _routed_lifecycle_context_response(
         explicit_action_required=item.explicit_action_required,
         auto_submit=item.auto_submit,
         fanout_created=item.fanout_created,
+        allocation_created=item.allocation_created,
         scoring_created=item.scoring_created,
+        route_executor_created=item.route_executor_created,
         target_reselection=item.target_reselection,
+        submitted_order_created=item.submitted_order_created,
         same_target_only=item.same_target_only,
         same_account_only=item.same_account_only,
         same_venue_only=item.same_venue_only,
@@ -647,9 +655,13 @@ def _routed_submitted_order_lineage_response(
 
     return True, RoutedSubmittedOrderLineageResponse(
         routed_origin=item.routed_origin,
+        intent_id=item.intent_id,
         desired_trade_key=item.desired_trade_key,
         routing_assessment_id=item.routing_assessment_id,
+        route_readiness_audit_id=item.route_readiness_audit_id,
+        routing_target_recommendation_id=item.routing_target_recommendation_id,
         routing_target_choice_id=item.routing_target_choice_id,
+        recommendation_policy_name=item.recommendation_policy_name,
         selected_binding_ref_id=item.selected_binding_ref_id,
         selected_binding_key=item.selected_binding_key,
         selected_venue_account_ref_id=item.selected_venue_account_ref_id,
@@ -660,8 +672,11 @@ def _routed_submitted_order_lineage_response(
         explicit_action_required=item.explicit_action_required,
         auto_submit=item.auto_submit,
         fanout_created=item.fanout_created,
+        allocation_created=item.allocation_created,
         scoring_created=item.scoring_created,
+        route_executor_created=item.route_executor_created,
         target_reselection=item.target_reselection,
+        submitted_order_created=item.submitted_order_created,
         route_lineage_malformed=item.route_lineage_malformed,
         missing_lineage_fields=list(item.missing_lineage_fields),
         malformed_lineage_fields=list(item.malformed_lineage_fields),
@@ -2299,6 +2314,21 @@ async def list_routing_target_choices_for_assessment(
 ) -> list[RoutingTargetChoiceResponse]:
     choices = await routing_service.list_routing_target_choices_for_assessment(assessment_id)
     return [_routing_target_choice_response(choice) for choice in choices]
+
+
+@v1.get(
+    "/routed-workflows/by-desired-trade/{desired_trade_key}",
+    response_model=RoutedWorkflowInspectionResponse,
+    tags=["routed-workflows"],
+)
+async def routed_workflow_by_desired_trade(
+    desired_trade_key: str,
+    routing_service: RoutingAssessmentService = Depends(get_routing_assessment_service),
+) -> RoutedWorkflowInspectionResponse:
+    inspection = await routing_service.inspect_routed_workflow_by_desired_trade(
+        desired_trade_key
+    )
+    return RoutedWorkflowInspectionResponse(**inspection)
 
 
 @v1.get(

@@ -44,6 +44,7 @@ from core.domain.models import (
 )
 from core.interfaces.services import MandateTradePlanningService, RoutingAssessmentService
 from db.models import (
+    ExecutionReadinessEvaluationModel,
     MandateAccountBindingModel,
     MandateDesiredTradeModel,
     ExchangeAccountSnapshotModel,
@@ -56,6 +57,8 @@ from db.models import (
     RoutingTargetRecommendationModel,
     RoutingTargetChoiceModel,
     StrategyMandateModel,
+    SubmittedOrderLifecycleEventModel,
+    SubmittedOrderModel,
     SymbolModel,
     VenueAccountModel,
 )
@@ -161,6 +164,678 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             self.settings,
             session_factory=session_factory,
         )
+
+    async def inspect_routed_workflow_by_desired_trade(
+        self,
+        desired_trade_key: str,
+    ) -> dict[str, object]:
+        """Read-only operator aggregation for the existing routed workflow chain."""
+
+        with self._session_factory() as session:
+            desired_model = session.scalar(
+                select(MandateDesiredTradeModel).where(
+                    MandateDesiredTradeModel.environment == self.settings.app.environment,
+                    MandateDesiredTradeModel.desired_trade_key == desired_trade_key,
+                )
+            )
+            if desired_model is None:
+                return {
+                    "desired_trade_key": desired_trade_key,
+                    "found": False,
+                    "current_status_summary": {
+                        "state": "desired_trade_not_found",
+                        "reason_codes": ["desired_trade_not_found"],
+                    },
+                    "desired_trade": None,
+                    "routing_assessments": [],
+                    "route_readiness_audits": [],
+                    "routing_target_recommendations": [],
+                    "routing_target_choices": [],
+                    "child_intents": [],
+                    "readiness_evaluations": [],
+                    "submitted_orders": [],
+                    "lifecycle_events": [],
+                    "actionability_summary": None,
+                    "recovery_summary": None,
+                    "routed_lineage": None,
+                    "blocking_reason_codes": ["desired_trade_not_found"],
+                    "missing_data": [],
+                    "stale_data": [],
+                    "artifact_counts": self._routed_workflow_counts(),
+                    "artifacts_created_by_inspection": False,
+                }
+
+            assessments = list(
+                session.scalars(
+                    select(RoutingAssessmentModel)
+                    .where(
+                        RoutingAssessmentModel.environment == self.settings.app.environment,
+                        RoutingAssessmentModel.desired_trade_key == desired_trade_key,
+                    )
+                    .order_by(RoutingAssessmentModel.created_at.asc())
+                )
+            )
+            audits = list(
+                session.scalars(
+                    select(RouteReadinessAuditModel)
+                    .where(
+                        RouteReadinessAuditModel.environment == self.settings.app.environment,
+                        RouteReadinessAuditModel.desired_trade_key == desired_trade_key,
+                    )
+                    .order_by(RouteReadinessAuditModel.created_at.asc())
+                )
+            )
+            recommendations = list(
+                session.scalars(
+                    select(RoutingTargetRecommendationModel)
+                    .where(
+                        RoutingTargetRecommendationModel.environment
+                        == self.settings.app.environment,
+                        RoutingTargetRecommendationModel.desired_trade_key
+                        == desired_trade_key,
+                    )
+                    .order_by(RoutingTargetRecommendationModel.created_at.asc())
+                )
+            )
+            target_choices = list(
+                session.scalars(
+                    select(RoutingTargetChoiceModel)
+                    .where(
+                        RoutingTargetChoiceModel.environment == self.settings.app.environment,
+                        RoutingTargetChoiceModel.desired_trade_key == desired_trade_key,
+                    )
+                    .order_by(RoutingTargetChoiceModel.created_at.asc())
+                )
+            )
+            child_intents = list(
+                session.scalars(
+                    select(OrderIntentModel)
+                    .where(
+                        OrderIntentModel.environment == self.settings.app.environment,
+                        OrderIntentModel.desired_trade_key == desired_trade_key,
+                    )
+                    .order_by(OrderIntentModel.created_at.asc())
+                )
+            )
+            readiness_evaluations = list(
+                session.scalars(
+                    select(ExecutionReadinessEvaluationModel)
+                    .where(
+                        ExecutionReadinessEvaluationModel.environment
+                        == self.settings.app.environment,
+                        ExecutionReadinessEvaluationModel.desired_trade_key
+                        == desired_trade_key,
+                    )
+                    .order_by(ExecutionReadinessEvaluationModel.created_at.asc())
+                )
+            )
+            intent_ids = [model.intent_id for model in child_intents]
+            submitted_orders = (
+                list(
+                    session.scalars(
+                        select(SubmittedOrderModel)
+                        .where(
+                            SubmittedOrderModel.environment == self.settings.app.environment,
+                            SubmittedOrderModel.intent_id.in_(intent_ids),
+                        )
+                        .order_by(SubmittedOrderModel.created_at.asc())
+                    )
+                )
+                if intent_ids
+                else []
+            )
+            submitted_order_ids = [model.submitted_order_id for model in submitted_orders]
+            lifecycle_events = (
+                list(
+                    session.scalars(
+                        select(SubmittedOrderLifecycleEventModel)
+                        .where(
+                            SubmittedOrderLifecycleEventModel.environment
+                            == self.settings.app.environment,
+                            SubmittedOrderLifecycleEventModel.submitted_order_id.in_(
+                                submitted_order_ids
+                            ),
+                        )
+                        .order_by(SubmittedOrderLifecycleEventModel.observed_at.asc())
+                    )
+                )
+                if submitted_order_ids
+                else []
+            )
+
+            blocking_reason_codes = sorted(
+                set(
+                    self._model_reason_codes(assessments)
+                    + self._model_reason_codes(audits, attr="global_blocking_reasons_json")
+                    + self._model_reason_codes(recommendations, attr="blocking_reasons_json")
+                    + self._model_reason_codes(target_choices)
+                    + self._model_reason_codes(readiness_evaluations, attr="reason_codes")
+                    + self._model_reason_codes(submitted_orders, attr="reason_codes")
+                )
+            )
+            missing_data = sorted(
+                set(
+                    self._model_reason_codes(assessments, attr="missing_data_json")
+                    + self._model_reason_codes(audits, attr="global_missing_data_json")
+                    + self._model_reason_codes(recommendations, attr="missing_data_json")
+                    + self._model_reason_codes(target_choices, attr="missing_data_json")
+                )
+            )
+            stale_data = sorted(
+                set(
+                    self._model_reason_codes(audits, attr="global_stale_data_json")
+                    + self._model_reason_codes(recommendations, attr="stale_data_json")
+                )
+            )
+            routed_lineage = self._latest_routed_workflow_lineage(
+                submitted_orders=submitted_orders,
+                readiness_evaluations=readiness_evaluations,
+                child_intents=child_intents,
+            )
+
+            return {
+                "desired_trade_key": desired_trade_key,
+                "found": True,
+                "current_status_summary": self._routed_workflow_status_summary(
+                    desired_model=desired_model,
+                    assessments=assessments,
+                    audits=audits,
+                    recommendations=recommendations,
+                    target_choices=target_choices,
+                    child_intents=child_intents,
+                    readiness_evaluations=readiness_evaluations,
+                    submitted_orders=submitted_orders,
+                ),
+                "desired_trade": self._desired_trade_workflow_record(desired_model),
+                "routing_assessments": [
+                    self._routing_assessment_workflow_record(model)
+                    for model in assessments
+                ],
+                "route_readiness_audits": [
+                    self._route_readiness_audit_workflow_record(model)
+                    for model in audits
+                ],
+                "routing_target_recommendations": [
+                    self._routing_target_recommendation_workflow_record(model)
+                    for model in recommendations
+                ],
+                "routing_target_choices": [
+                    self._routing_target_choice_workflow_record(model)
+                    for model in target_choices
+                ],
+                "child_intents": [
+                    self._child_intent_workflow_record(model) for model in child_intents
+                ],
+                "readiness_evaluations": [
+                    self._readiness_workflow_record(model)
+                    for model in readiness_evaluations
+                ],
+                "submitted_orders": [
+                    self._submitted_order_workflow_record(model)
+                    for model in submitted_orders
+                ],
+                "lifecycle_events": [
+                    self._lifecycle_event_workflow_record(model)
+                    for model in lifecycle_events
+                ],
+                "actionability_summary": self._same_target_inspection_summary(routed_lineage),
+                "recovery_summary": self._same_target_inspection_summary(routed_lineage),
+                "routed_lineage": routed_lineage,
+                "blocking_reason_codes": blocking_reason_codes,
+                "missing_data": missing_data,
+                "stale_data": stale_data,
+                "artifact_counts": self._routed_workflow_counts(
+                    assessments=assessments,
+                    audits=audits,
+                    recommendations=recommendations,
+                    target_choices=target_choices,
+                    child_intents=child_intents,
+                    readiness_evaluations=readiness_evaluations,
+                    submitted_orders=submitted_orders,
+                    lifecycle_events=lifecycle_events,
+                ),
+                "artifacts_created_by_inspection": False,
+            }
+
+    @staticmethod
+    def _workflow_value(value: object) -> object:
+        if isinstance(value, Decimal):
+            return str(value)
+        if isinstance(value, datetime):
+            return value.isoformat()
+        enum_value = getattr(value, "value", None)
+        if enum_value is not None:
+            return enum_value
+        if isinstance(value, dict):
+            return {str(key): DefaultRoutingAssessmentService._workflow_value(item) for key, item in value.items()}
+        if isinstance(value, (list, tuple, set)):
+            return [DefaultRoutingAssessmentService._workflow_value(item) for item in value]
+        return value
+
+    @classmethod
+    def _workflow_record(cls, model: object, fields: tuple[str, ...]) -> dict[str, object]:
+        return {field: cls._workflow_value(getattr(model, field)) for field in fields}
+
+    @staticmethod
+    def _model_reason_codes(models: list[object], *, attr: str = "reason_codes_json") -> list[str]:
+        reason_codes: list[str] = []
+        for model in models:
+            values = getattr(model, attr, []) or []
+            if isinstance(values, list):
+                reason_codes.extend(str(item) for item in values)
+        return reason_codes
+
+    @staticmethod
+    def _routed_workflow_counts(
+        *,
+        assessments: list[object] | None = None,
+        audits: list[object] | None = None,
+        recommendations: list[object] | None = None,
+        target_choices: list[object] | None = None,
+        child_intents: list[object] | None = None,
+        readiness_evaluations: list[object] | None = None,
+        submitted_orders: list[object] | None = None,
+        lifecycle_events: list[object] | None = None,
+    ) -> dict[str, int]:
+        return {
+            "routing_assessments": len(assessments or []),
+            "route_readiness_audits": len(audits or []),
+            "routing_target_recommendations": len(recommendations or []),
+            "routing_target_choices": len(target_choices or []),
+            "child_intents": len(child_intents or []),
+            "readiness_evaluations": len(readiness_evaluations or []),
+            "submitted_orders": len(submitted_orders or []),
+            "lifecycle_events": len(lifecycle_events or []),
+        }
+
+    @classmethod
+    def _desired_trade_workflow_record(
+        cls,
+        model: MandateDesiredTradeModel,
+    ) -> dict[str, object]:
+        return cls._workflow_record(
+            model,
+            (
+                "desired_trade_key",
+                "id",
+                "status",
+                "status_reason_code",
+                "action",
+                "target_scope",
+                "side",
+                "desired_quantity",
+                "client_ref_id",
+                "strategy_mandate_ref_id",
+                "mandate_key",
+                "instrument_ref_id",
+                "instrument_key",
+                "symbol",
+                "created_at",
+                "updated_at",
+            ),
+        )
+
+    @classmethod
+    def _routing_assessment_workflow_record(
+        cls,
+        model: RoutingAssessmentModel,
+    ) -> dict[str, object]:
+        record = cls._workflow_record(
+            model,
+            (
+                "assessment_id",
+                "desired_trade_key",
+                "decision_status",
+                "eligible_binding_count",
+                "ineligible_binding_count",
+                "reason_codes_json",
+                "missing_data_json",
+                "evaluated_at",
+                "created_at",
+            ),
+        )
+        record["reason_codes"] = record.pop("reason_codes_json")
+        record["missing_data"] = record.pop("missing_data_json")
+        return record
+
+    @classmethod
+    def _route_readiness_audit_workflow_record(
+        cls,
+        model: RouteReadinessAuditModel,
+    ) -> dict[str, object]:
+        record = cls._workflow_record(
+            model,
+            (
+                "route_readiness_audit_id",
+                "routing_assessment_id",
+                "desired_trade_key",
+                "overall_status",
+                "candidate_count",
+                "ready_candidate_count",
+                "global_reason_codes_json",
+                "global_blocking_reasons_json",
+                "global_missing_data_json",
+                "global_stale_data_json",
+                "recommendation_created",
+                "target_choice_created",
+                "child_intent_created",
+                "submitted_order_created",
+                "evaluated_at",
+                "created_at",
+                "provenance_json",
+            ),
+        )
+        record["reason_codes"] = record.pop("global_reason_codes_json")
+        record["blocking_reasons"] = record.pop("global_blocking_reasons_json")
+        record["missing_data"] = record.pop("global_missing_data_json")
+        record["stale_data"] = record.pop("global_stale_data_json")
+        record["provenance"] = record.pop("provenance_json")
+        return record
+
+    @classmethod
+    def _routing_target_recommendation_workflow_record(
+        cls,
+        model: RoutingTargetRecommendationModel,
+    ) -> dict[str, object]:
+        record = cls._workflow_record(
+            model,
+            (
+                "routing_target_recommendation_id",
+                "route_readiness_audit_id",
+                "routing_assessment_id",
+                "desired_trade_key",
+                "status",
+                "policy_name",
+                "recommended_binding_ref_id",
+                "recommended_binding_key",
+                "recommended_venue_account_ref_id",
+                "recommended_venue_account_key",
+                "recommended_venue",
+                "recommended_exchange_symbol",
+                "candidate_count",
+                "ready_candidate_count",
+                "reason_codes_json",
+                "blocking_reasons_json",
+                "missing_data_json",
+                "stale_data_json",
+                "non_executing",
+                "target_choice_created",
+                "child_intent_created",
+                "submitted_order_created",
+                "created_at",
+                "provenance_json",
+            ),
+        )
+        record["reason_codes"] = record.pop("reason_codes_json")
+        record["blocking_reasons"] = record.pop("blocking_reasons_json")
+        record["missing_data"] = record.pop("missing_data_json")
+        record["stale_data"] = record.pop("stale_data_json")
+        record["provenance"] = record.pop("provenance_json")
+        return record
+
+    @classmethod
+    def _routing_target_choice_workflow_record(
+        cls,
+        model: RoutingTargetChoiceModel,
+    ) -> dict[str, object]:
+        record = cls._workflow_record(
+            model,
+            (
+                "target_choice_id",
+                "routing_assessment_id",
+                "desired_trade_key",
+                "selected_binding_ref_id",
+                "selected_binding_key",
+                "selected_venue_account_ref_id",
+                "selected_venue_account_key",
+                "selected_venue",
+                "status",
+                "reason_codes_json",
+                "missing_data_json",
+                "non_executing",
+                "selected_at",
+                "created_at",
+                "provenance_json",
+            ),
+        )
+        record["reason_codes"] = record.pop("reason_codes_json")
+        record["missing_data"] = record.pop("missing_data_json")
+        record["provenance"] = record.pop("provenance_json")
+        return record
+
+    @classmethod
+    def _child_intent_workflow_record(
+        cls,
+        model: OrderIntentModel,
+    ) -> dict[str, object]:
+        return cls._workflow_record(
+            model,
+            (
+                "intent_id",
+                "desired_trade_key",
+                "status",
+                "binding_key",
+                "venue_account_ref_id",
+                "instrument_ref_id",
+                "instrument_key",
+                "symbol",
+                "side",
+                "order_type",
+                "limit_price",
+                "reduce_only",
+                "created_at",
+                "provenance",
+            ),
+        )
+
+    @classmethod
+    def _readiness_workflow_record(
+        cls,
+        model: ExecutionReadinessEvaluationModel,
+    ) -> dict[str, object]:
+        return cls._workflow_record(
+            model,
+            (
+                "readiness_evaluation_id",
+                "intent_id",
+                "desired_trade_key",
+                "venue",
+                "preview_status",
+                "outcome",
+                "eligible_for_submission_in_principle",
+                "live_submission_phase_enabled",
+                "reason_codes",
+                "message",
+                "evaluated_at",
+                "created_at",
+                "provenance",
+            ),
+        )
+
+    @classmethod
+    def _submitted_order_workflow_record(
+        cls,
+        model: SubmittedOrderModel,
+    ) -> dict[str, object]:
+        raw_payload = cls._workflow_value(dict(model.raw_payload or {}))
+        routed_submission = (
+            raw_payload.get("routed_submission") if isinstance(raw_payload, dict) else None
+        )
+        return {
+            **cls._workflow_record(
+                model,
+                (
+                    "submitted_order_id",
+                    "intent_id",
+                    "client_order_id",
+                    "exchange_order_id",
+                    "venue_account_ref_id",
+                    "venue",
+                    "symbol",
+                    "status",
+                    "reconciliation_status",
+                    "reason_codes",
+                    "submitted_at",
+                    "acknowledged_at",
+                    "last_reconciled_at",
+                    "created_at",
+                ),
+            ),
+            "routed_origin": isinstance(routed_submission, dict),
+            "routed_submission": routed_submission if isinstance(routed_submission, dict) else None,
+        }
+
+    @classmethod
+    def _lifecycle_event_workflow_record(
+        cls,
+        model: SubmittedOrderLifecycleEventModel,
+    ) -> dict[str, object]:
+        return cls._workflow_record(
+            model,
+            (
+                "event_id",
+                "submitted_order_id",
+                "intent_id",
+                "venue_account_ref_id",
+                "venue",
+                "status",
+                "reconciliation_status",
+                "event_type",
+                "reason_codes",
+                "message",
+                "observed_at",
+                "created_at",
+                "raw_payload",
+            ),
+        )
+
+    @staticmethod
+    def _latest_routed_workflow_lineage(
+        *,
+        submitted_orders: list[SubmittedOrderModel],
+        readiness_evaluations: list[ExecutionReadinessEvaluationModel],
+        child_intents: list[OrderIntentModel],
+    ) -> dict[str, object] | None:
+        for submitted_order in reversed(submitted_orders):
+            raw_payload = dict(submitted_order.raw_payload or {})
+            routed_submission = raw_payload.get("routed_submission")
+            if isinstance(routed_submission, dict):
+                routed_lineage = routed_submission.get("routed_lineage")
+                return (
+                    DefaultRoutingAssessmentService._jsonable_dict(routed_lineage)
+                    if isinstance(routed_lineage, dict)
+                    else DefaultRoutingAssessmentService._jsonable_dict(routed_submission)
+                )
+        for readiness in reversed(readiness_evaluations):
+            provenance = dict(readiness.provenance or {})
+            routed_lineage = provenance.get("routed_lineage")
+            if isinstance(routed_lineage, dict) and routed_lineage:
+                return DefaultRoutingAssessmentService._jsonable_dict(routed_lineage)
+        for intent in reversed(child_intents):
+            provenance = dict(intent.provenance or {})
+            if provenance.get("routing_target_choice_id"):
+                return {
+                    "intent_id": intent.intent_id,
+                    "desired_trade_key": intent.desired_trade_key,
+                    "routing_assessment_id": provenance.get("routing_assessment_id"),
+                    "route_readiness_audit_id": provenance.get("route_readiness_audit_id"),
+                    "routing_target_recommendation_id": provenance.get(
+                        "routing_target_recommendation_id"
+                    ),
+                    "routing_target_choice_id": provenance.get("routing_target_choice_id"),
+                    "selected_binding_ref_id": provenance.get("selected_binding_ref_id"),
+                    "selected_binding_key": provenance.get("selected_binding_key"),
+                    "selected_venue_account_ref_id": provenance.get(
+                        "selected_venue_account_ref_id"
+                    ),
+                    "selected_venue_account_key": provenance.get(
+                        "selected_venue_account_key"
+                    ),
+                    "selected_venue": provenance.get("selected_venue"),
+                    "selected_exchange_symbol": provenance.get(
+                        "selected_exchange_symbol"
+                    ),
+                }
+        return None
+
+    @staticmethod
+    def _same_target_inspection_summary(
+        routed_lineage: dict[str, object] | None,
+    ) -> dict[str, object] | None:
+        if routed_lineage is None:
+            return None
+        return {
+            "routed_origin": True,
+            "same_target_only": True,
+            "same_account_only": True,
+            "same_venue_only": True,
+            "target_reselection": False,
+            "fanout_created": False,
+            "allocation_created": False,
+            "scoring_created": False,
+            "route_executor_created": False,
+            "selected_binding_ref_id": routed_lineage.get("selected_binding_ref_id"),
+            "selected_venue_account_ref_id": routed_lineage.get(
+                "selected_venue_account_ref_id"
+            ),
+            "selected_venue": routed_lineage.get("selected_venue"),
+            "selected_exchange_symbol": routed_lineage.get("selected_exchange_symbol"),
+        }
+
+    @staticmethod
+    def _routed_workflow_status_summary(
+        *,
+        desired_model: MandateDesiredTradeModel,
+        assessments: list[RoutingAssessmentModel],
+        audits: list[RouteReadinessAuditModel],
+        recommendations: list[RoutingTargetRecommendationModel],
+        target_choices: list[RoutingTargetChoiceModel],
+        child_intents: list[OrderIntentModel],
+        readiness_evaluations: list[ExecutionReadinessEvaluationModel],
+        submitted_orders: list[SubmittedOrderModel],
+    ) -> dict[str, object]:
+        if submitted_orders:
+            state = "submitted_order_created"
+        elif readiness_evaluations:
+            state = "readiness_inspected"
+        elif child_intents:
+            state = "child_intent_created"
+        elif target_choices:
+            state = "target_choice_recorded"
+        elif recommendations:
+            state = "recommendation_created"
+        elif audits:
+            state = "route_readiness_audited"
+        elif assessments:
+            state = "routing_assessed"
+        else:
+            state = "desired_trade_only"
+        return {
+            "state": state,
+            "desired_trade_status": desired_model.status.value,
+            "latest_routing_assessment_id": assessments[-1].assessment_id if assessments else None,
+            "latest_route_readiness_audit_id": (
+                audits[-1].route_readiness_audit_id if audits else None
+            ),
+            "latest_routing_target_recommendation_id": (
+                recommendations[-1].routing_target_recommendation_id
+                if recommendations
+                else None
+            ),
+            "latest_routing_target_choice_id": (
+                target_choices[-1].target_choice_id if target_choices else None
+            ),
+            "latest_intent_id": child_intents[-1].intent_id if child_intents else None,
+            "latest_readiness_evaluation_id": (
+                readiness_evaluations[-1].readiness_evaluation_id
+                if readiness_evaluations
+                else None
+            ),
+            "latest_submitted_order_id": (
+                submitted_orders[-1].submitted_order_id if submitted_orders else None
+            ),
+            "artifacts_created_by_inspection": False,
+        }
 
     async def create_assessment_from_desired_trade(
         self,

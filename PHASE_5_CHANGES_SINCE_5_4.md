@@ -1,6 +1,6 @@
-# Phase 5 Changes Since Phase 5.4 And Phase 6.6 Handoff
+# Phase 5 Changes Since Phase 5.4 And Phase 6 Closeout Handoff
 
-Generated for handoff. This file summarizes changes after the Phase 5.4 baseline, covering Phase 5.4.1 through Phase 5.10.2, Phase 6.0.0, Phase 6.0.1, Phase 6.0.2, Phase 6.1, Phase 6.1.1, Phase 6.2, Phase 6.2.1, Phase 6.2.2, Phase 6.3, Phase 6.4, Phase 6.4.1, Phase 6.5, Phase 6.6, and the operational handoff-bundle workflow added after Phase 5.4.
+Generated for handoff. This file summarizes changes after the Phase 5.4 baseline, covering Phase 5.4.1 through Phase 5.10.2, Phase 6.0.0, Phase 6.0.1, Phase 6.0.2, Phase 6.1, Phase 6.1.1, Phase 6.2, Phase 6.2.1, Phase 6.2.2, Phase 6.3, Phase 6.4, Phase 6.4.1, Phase 6.5, Phase 6.6, Phase 6.7 through Phase 6.10 closeout, and the operational handoff-bundle workflow added after Phase 5.4.
 
 Source of truth reviewed: `CHANGELOG.md`, `README.md`, `docs/architecture.md`, `docs/strategy.md`, `REPO_TREE.md`, `KNOWN_ISSUES.md`, and `TODO.md`.
 
@@ -18,6 +18,45 @@ Phase 5.4 introduced the first controlled explicit routed submission handoff:
 - no CBBO, venue ranking, execution-quality scoring, or smart routing
 
 Everything below is after that baseline.
+
+## Phase 6.7-6.10: Explicit Recommendation-Backed Routed Execution Closeout
+
+Changelog entry: `v2026.04.22.006`.
+
+Implemented:
+
+- Closed Phase 6 as controlled explicit single-target recommendation-backed routed execution.
+- Recommendation-backed child intents can create exactly one `SubmittedOrder` only through the existing explicit child-intent submit path after readiness, live-submit, routed-submit, adapter, and account gates pass.
+- Submitted-order routed payload and typed API lifecycle-lineage surfaces now preserve desired-trade, routing assessment, route-readiness audit, routing target recommendation, routing target choice, child intent, readiness, selected binding/account/venue/symbol, recommendation policy, routed order-shape policy, and no-fanout/no-allocation/no-scoring/no-target-reselection/no-auto-submit flags.
+- Recommendation and source route-readiness audit inspection truth set `submitted_order_created=true` only after successful explicit submitted-order persistence.
+- Submitted-order detail/list, actionability, recovery, reconciliation, lifecycle-event, and same-target retry surfaces preserve recommendation-backed routed context.
+- Reconciliation/update payload collisions cannot overwrite platform-owned recommendation-backed routed lineage, and non-routed orders cannot fabricate recommendation lineage from update payloads.
+- Added read-only `GET /api/v1/routed-workflows/by-desired-trade/{desired_trade_key}` inspection, aggregating existing desired trade, routing assessment, route-readiness audit, recommendation, target choice, child intent, readiness, submitted-order, lifecycle-event, reason-code, missing-data, stale-data, status, and same-target summary facts without creating or mutating artifacts.
+- Added Phase 6.7, Phase 6.8, Phase 6.9, and Phase 6.10 focused tests plus closeout regression proving exactly one target choice, one child intent, one submitted order, selected target consistency, platform-owned lineage preservation, and no hidden automation.
+
+Touched files:
+
+- `apps/api/app/api/routes.py`
+- `core/domain/models.py`
+- `core/domain/routed_lifecycle.py`
+- `core/interfaces/services.py`
+- `core/schemas/api.py`
+- `services/execution/service.py`
+- `services/routing/service.py`
+- `tests/test_phase67_recommendation_backed_submission.py`
+- `tests/test_phase68_recommendation_backed_lifecycle.py`
+- `tests/test_phase69_routed_workflow_inspection.py`
+- `tests/test_phase610_phase6_closeout.py`
+- `README.md`
+- `docs/architecture.md`
+- `docs/strategy.md`
+- `CHANGELOG.md`
+- `REPO_TREE.md`
+- `KNOWN_ISSUES.md`
+- `TODO.md`
+- `PHASE_5_CHANGES_SINCE_5_4.md`
+
+No migration, config, new exchange behavior, smart routing, best-binding selection, ranking, scoring, CBBO, fanout, target reselection, route executor behavior, auto-submit, cross-binding recovery, cross-venue retry, or `money_flow_project_memory.md` update was added.
 
 ## Phase 6.6: Manual Routed-Flow Timing Visibility
 
@@ -1022,4 +1061,4 @@ The routed flow now supports:
 - routed same-target retry lineage preservation
 - final Phase 5 closeout regression coverage proving the substrate stays coherent, selected-account scoped, and non-routing
 
-Phase 5 is closed as routing substrate plus route-readiness audit. Phase 6.5 keeps controlled recommendation limited to default single-ready-candidate behavior plus optional explicit binding-priority operator preference when multiple candidates are ready, explicit acceptance into target choice, explicit accepted target-choice conversion into one child intent, existing preview/readiness inspection, and manual operator/developer trace tooling only. The platform still does not implement smart order routing, best-binding selection, price/fee/venue-quality ranking, scoring, CBBO, fanout, route execution orchestration, automatic target-choice creation, automatic child-intent conversion, readiness auto-creation, submitted-order creation from recommendation, prepared-order auto-creation, or auto-submit. Route lineage remains audit metadata, `ready_for_recommendation` means data-sufficient only, and a `RoutingTargetRecommendation` remains non-executing.
+Phase 6 is closed as controlled explicit single-target recommendation-backed routed execution. The platform now supports default single-ready-candidate recommendation, optional explicit binding-priority operator preference, explicit recommendation acceptance into target choice, explicit accepted target-choice conversion into one child intent, existing preview/readiness inspection, explicit gated submitted-order handoff for the already selected child intent, recommendation-aware post-submit inspection, read-only routed workflow aggregation, and manual operator/developer trace tooling. It still does not implement smart order routing, best-binding selection, price/fee/venue-quality ranking, scoring, CBBO, fanout, route execution orchestration, automatic target-choice creation, automatic child-intent conversion, readiness auto-creation, automatic submitted-order creation directly from recommendation/acceptance/conversion/readiness, prepared-order auto-creation, or auto-submit. Route lineage remains audit metadata, `ready_for_recommendation` means data-sufficient only, and a `RoutingTargetRecommendation` remains non-executing.
