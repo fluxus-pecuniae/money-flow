@@ -13,6 +13,35 @@ Entry schema:
 
 ---
 
+## v2026.04.22.002
+
+- `recorded_at_utc`: `2026-04-22T19:49:16Z`
+- `scope`: `Phase 6.4 recommendation-backed readiness inspection`
+- `intent`: `Native entry. Implemented the controlled recommendation-backed child-intent preparation/readiness inspection handoff without adding submission behavior. Accepted recommendation-backed child intents now use the existing child-intent prepared-order preview and submission-readiness paths with stronger routed-lineage validation for source RoutingTargetRecommendation, RouteReadinessAudit, route-readiness candidate, current mandate, binding/account, active/trading-eligible symbol mapping, and stored quote-observation freshness. Prepared-order preview and execution-readiness API responses now expose routed lineage as a top-level response field so operators can inspect recommendation/audit/target-choice/order-shape lineage without parsing raw payload/provenance. Added focused Phase 6.4 tests for happy-path preview/readiness, API lineage, disabled binding/account and inactive/non-trading symbol blockers, stale quote blockers, explicit LIMIT order-shape preservation, and no SubmittedOrder/exchange-submit boundary. No migration, config, new endpoint, submitted-order creation, exchange submit call, route executor behavior, fanout, allocation, ranking, scoring, CBBO, target reselection, auto-submit, new exchange support, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `services/execution/service.py`
+  - `core/schemas/api.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_phase64_recommendation_backed_readiness.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_phase64_recommendation_backed_readiness.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase53_routed_child_intent_readiness.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase63_recommendation_target_choice_conversion.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase54_routed_submission_handoff.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py tests/test_phase59_routed_reconciliation_lifecycle_audit.py tests/test_phase510_routing_substrate_closeout.py tests/test_phase5101_route_readiness_audit.py tests/test_phase600_routing_target_recommendation.py tests/test_phase62_recommendation_acceptance.py tests/test_phase63_recommendation_target_choice_conversion.py tests/test_phase64_recommendation_backed_readiness.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-6.4-review.zip`
+
 ## v2026.04.22.001
 
 - `recorded_at_utc`: `2026-04-22T19:33:23Z`

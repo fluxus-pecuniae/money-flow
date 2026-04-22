@@ -1,6 +1,6 @@
-# Phase 5 Changes Since Phase 5.4 And Phase 6.3 Handoff
+# Phase 5 Changes Since Phase 5.4 And Phase 6.4 Handoff
 
-Generated for handoff. This file summarizes changes after the Phase 5.4 baseline, covering Phase 5.4.1 through Phase 5.10.2, Phase 6.0.0, Phase 6.0.1, Phase 6.0.2, Phase 6.1, Phase 6.1.1, Phase 6.2, Phase 6.2.1, Phase 6.2.2, Phase 6.3, and the operational handoff-bundle workflow added after Phase 5.4.
+Generated for handoff. This file summarizes changes after the Phase 5.4 baseline, covering Phase 5.4.1 through Phase 5.10.2, Phase 6.0.0, Phase 6.0.1, Phase 6.0.2, Phase 6.1, Phase 6.1.1, Phase 6.2, Phase 6.2.1, Phase 6.2.2, Phase 6.3, Phase 6.4, and the operational handoff-bundle workflow added after Phase 5.4.
 
 Source of truth reviewed: `CHANGELOG.md`, `README.md`, `docs/architecture.md`, `docs/strategy.md`, `REPO_TREE.md`, `KNOWN_ISSUES.md`, and `TODO.md`.
 
@@ -18,6 +18,37 @@ Phase 5.4 introduced the first controlled explicit routed submission handoff:
 - no CBBO, venue ranking, execution-quality scoring, or smart routing
 
 Everything below is after that baseline.
+
+## Phase 6.4: Recommendation-Backed Preview/Readiness Inspection
+
+Changelog entry: `v2026.04.22.002`.
+
+Implemented:
+
+- Added the controlled recommendation-backed child-intent preparation/readiness inspection handoff.
+- Accepted recommendation-backed child intents now use the existing prepared-order preview and submission-readiness paths.
+- Routed lineage validation now includes source `RoutingTargetRecommendation`, source `RouteReadinessAudit`, route-readiness candidate quote freshness, current mandate, current binding/account, active/trading-eligible symbol mapping, target choice, routing assessment, desired trade, selected-target provenance, and routed order-shape facts before eligible readiness.
+- Prepared-order preview and execution-readiness API responses expose routed lineage as a top-level field so operators can inspect recommendation id, route-readiness audit id, routing assessment id, target-choice id, selected binding/account/venue/symbol, recommendation policy, order-shape policy, and no-downstream-artifact flags without parsing raw payload/provenance.
+- Disabled binding/account truth, inactive/non-trading symbol mapping truth, and stale stored quote observations block readiness before adapter preparation.
+- Explicit positive finite LIMIT order-shape policy remains visible through preview/readiness.
+- Phase 6.4 may create/return prepared-order preview data and `ExecutionReadinessAssessment` inspection records through existing paths, but creates no `SubmittedOrder`.
+
+Touched files:
+
+- `services/execution/service.py`
+- `core/schemas/api.py`
+- `apps/api/app/api/routes.py`
+- `tests/test_phase64_recommendation_backed_readiness.py`
+- `README.md`
+- `docs/architecture.md`
+- `docs/strategy.md`
+- `CHANGELOG.md`
+- `REPO_TREE.md`
+- `KNOWN_ISSUES.md`
+- `TODO.md`
+- `PHASE_5_CHANGES_SINCE_5_4.md`
+
+No migration, config, new endpoint, submitted-order creation, exchange submit call, route executor, fanout, allocation, ranking, scoring, CBBO, target reselection, auto-submit, new exchange support, or `money_flow_project_memory.md` update was added.
 
 ## Phase 6.3: Explicit Accepted Recommendation Target-Choice Conversion
 

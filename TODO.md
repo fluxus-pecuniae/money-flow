@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-04-22T19:33:23Z`
+Last reviewed: `2026-04-22T19:49:16Z`
 
 ## Active Follow-Ups
 
@@ -111,6 +111,12 @@ Last reviewed: `2026-04-22T19:33:23Z`
 - `priority`: `medium`
 - `status`: `done`
 - `summary`: `Initialized source-control hygiene for the Phase 6.3 baseline on the `master` branch. The baseline tracks source, tests, migrations, docs, operational memory, `.gitignore`, and `.env.example`, while `.env`, virtualenvs, caches, local database/runtime state, logs, review ZIPs, and handoff archives are intentionally ignored. Future phase work should use short-lived branches off `master`.`
+
+### T-028
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 6.4 implemented the recommendation-backed child-intent preparation/readiness inspection handoff. Accepted recommendation-backed child intents now use the existing prepared-order preview and submission-readiness paths with additional validation for source recommendation, route-readiness audit, candidate quote freshness, current mandate, binding/account, and active/trading-eligible symbol mapping. Preview/readiness API responses expose routed lineage including recommendation/audit/target-choice/selected-target/order-shape facts. The phase creates no submitted orders, exchange submit calls, route executor behavior, fanout, allocation, ranking/scoring, CBBO, target reselection, or auto-submit.`
 
 ### T-002
 

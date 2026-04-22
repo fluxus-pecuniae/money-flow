@@ -490,6 +490,8 @@ def _venue_order_constraints_response(item: VenueOrderConstraints) -> VenueOrder
 
 
 def _prepared_venue_order_response(item: PreparedVenueOrder) -> PreparedVenueOrderResponse:
+    payload = dict(item.payload or {})
+    routed_lineage = payload.get("routed_lineage")
     return PreparedVenueOrderResponse(
         intent_id=item.intent_id,
         desired_trade_key=item.desired_trade_key,
@@ -511,6 +513,7 @@ def _prepared_venue_order_response(item: PreparedVenueOrder) -> PreparedVenueOrd
         preview_status=item.preview_status,
         reason_codes=list(item.reason_codes),
         payload=item.payload,
+        routed_lineage=routed_lineage if isinstance(routed_lineage, dict) else None,
         constraints=(
             _venue_order_constraints_response(item.constraints) if item.constraints is not None else None
         ),
@@ -800,6 +803,7 @@ def _desired_trade_response(item: MandateDesiredTrade) -> MandateDesiredTradeRes
 def _execution_readiness_response(
     item: ExecutionReadinessAssessment,
 ) -> ExecutionReadinessAssessmentResponse:
+    routed_lineage = item.provenance.get("routed_lineage")
     return ExecutionReadinessAssessmentResponse(
         readiness_evaluation_id=item.readiness_evaluation_id,
         readiness_evaluation_key=item.readiness_evaluation_key,
@@ -837,6 +841,7 @@ def _execution_readiness_response(
             if item.prepared_order is not None
             else None
         ),
+        routed_lineage=routed_lineage if isinstance(routed_lineage, dict) else None,
         evaluated_at=item.evaluated_at,
         provenance=item.provenance,
     )

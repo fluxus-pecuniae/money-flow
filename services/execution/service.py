@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import asdict, replace
 from collections.abc import Sequence
 from datetime import UTC, datetime
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 import hashlib
 import json
 from typing import Any
@@ -20,8 +20,10 @@ from core.domain.enums import (
     OrderIntentStatus,
     OrderSide,
     OrderType,
+    RouteReadinessAuditStatus,
     RoutingAssessmentDecisionStatus,
     RoutingCandidateEligibilityStatus,
+    RoutingTargetRecommendationStatus,
     RoutingTargetChoiceStatus,
     SubmittedOrderReconciliationStatus,
     SubmittedOrderRecoveryCategory,
@@ -55,9 +57,13 @@ from db.models import (
     MandateAccountBindingModel,
     MandateDesiredTradeModel,
     OrderIntentModel,
+    RouteReadinessAuditModel,
+    RouteReadinessCandidateAuditModel,
     RoutingAssessmentCandidateModel,
     RoutingAssessmentModel,
+    RoutingTargetRecommendationModel,
     RoutingTargetChoiceModel,
+    StrategyMandateModel,
     SubmittedOrderLifecycleEventModel,
     SubmittedOrderModel,
     SymbolModel,
@@ -79,6 +85,9 @@ def _json_fingerprint(payload: dict[str, object]) -> str:
 
 def _jsonable(payload: dict[str, object]) -> dict[str, object]:
     return json.loads(json.dumps(payload, default=str))
+
+
+_ROUTED_QUOTE_FRESHNESS_SECONDS = 60
 
 
 class ChildIntentPreparationError(ValueError):
@@ -1026,27 +1035,51 @@ class DefaultExecutionService(ExecutionService):
             return False, [], [], {}
 
         provenance = dict(model.provenance or {})
+        route_readiness_audit_id = provenance.get("route_readiness_audit_id")
+        routing_target_recommendation_id = provenance.get(
+            "routing_target_recommendation_id"
+        )
+        recommendation_policy_name = provenance.get("recommendation_policy_name")
+        routed_order_shape_policy_raw = provenance.get("routed_order_shape_policy")
+        routed_order_shape_policy = (
+            dict(routed_order_shape_policy_raw)
+            if isinstance(routed_order_shape_policy_raw, dict)
+            else {}
+        )
+        recommendation_backed_child_intent = bool(
+            routing_target_recommendation_id
+            or provenance.get("accepted_recommendation_target_choice_conversion")
+            or provenance.get("child_intent_created_from_accepted_recommendation")
+        )
         reason_codes: list[str] = []
         missing_data: list[str] = []
+        stale_data: list[str] = []
         route_lineage: dict[str, object] = {
             "phase_boundary": "phase_5_3_routed_preparation_readiness",
             "routed_child_intent": True,
+            "recommendation_backed_child_intent": recommendation_backed_child_intent,
             "non_submitting": True,
             "intent_id": model.intent_id,
             "desired_trade_key": model.desired_trade_key,
             "routing_assessment_id": provenance.get("routing_assessment_id"),
+            "route_readiness_audit_id": route_readiness_audit_id,
+            "routing_target_recommendation_id": routing_target_recommendation_id,
             "routing_target_choice_id": provenance.get("routing_target_choice_id"),
+            "recommendation_policy_name": recommendation_policy_name,
+            "target_choice_source": provenance.get("target_choice_source"),
             "selected_binding_ref_id": provenance.get("selected_binding_ref_id"),
             "selected_binding_key": provenance.get("selected_binding_key"),
             "selected_venue_account_ref_id": provenance.get("selected_venue_account_ref_id"),
             "selected_venue_account_key": provenance.get("selected_venue_account_key"),
             "selected_venue": provenance.get("selected_venue"),
             "selected_exchange_symbol": provenance.get("selected_exchange_symbol"),
+            "routed_order_shape_policy": _jsonable(routed_order_shape_policy),
             "prepared_order_created": False,
             "readiness_assessment_created": False,
             "submitted_order_created": False,
             "auto_submit": False,
             "fanout_created": False,
+            "allocation_created": False,
             "scoring_created": False,
             "target_reselection": False,
         }
@@ -1164,6 +1197,27 @@ class DefaultExecutionService(ExecutionService):
                 if model.symbol != assessment_model.symbol:
                     reason_codes.append("intent_symbol_assessment_mismatch")
 
+        mandate_model = (
+            session.get(StrategyMandateModel, model.strategy_mandate_ref_id)
+            if model.strategy_mandate_ref_id is not None
+            else None
+        )
+        if mandate_model is None:
+            reason_codes.append("mandate_missing")
+        else:
+            route_lineage["current_mandate_ref_id"] = mandate_model.id
+            route_lineage["current_mandate_key"] = mandate_model.mandate_key
+            if not mandate_model.enabled:
+                reason_codes.append("mandate_inactive")
+            if desired_trade_model is not None and (
+                mandate_model.id != desired_trade_model.strategy_mandate_ref_id
+            ):
+                reason_codes.append("mandate_desired_trade_mismatch")
+            if assessment_model is not None and (
+                mandate_model.id != assessment_model.strategy_mandate_ref_id
+            ):
+                reason_codes.append("mandate_assessment_mismatch")
+
         if choice_model is not None:
             target_choice_desired_trade_ref_mismatch = False
             target_choice_desired_trade_key_mismatch = False
@@ -1235,8 +1289,11 @@ class DefaultExecutionService(ExecutionService):
                 for reason_code, (left, right) in candidate_comparisons.items():
                     if left != right:
                         reason_codes.append(reason_code)
-                if not self._candidate_symbol_mapping_still_matches(session, candidate_model):
-                    missing_data.append("symbol_mapping_missing_or_changed")
+                symbol_reason_codes, symbol_missing_data = (
+                    self._candidate_symbol_mapping_blockers(session, candidate_model)
+                )
+                reason_codes.extend(symbol_reason_codes)
+                missing_data.extend(symbol_missing_data)
 
         if choice_model is not None:
             choice_comparisons = {
@@ -1329,6 +1386,203 @@ class DefaultExecutionService(ExecutionService):
             ):
                 reason_codes.append("venue_account_client_mismatch")
 
+        recommendation_model = None
+        audit_model = None
+        readiness_candidate_model = None
+        if recommendation_backed_child_intent:
+            if not routing_target_recommendation_id:
+                reason_codes.append("routing_target_recommendation_id_missing")
+            else:
+                recommendation_model = session.scalar(
+                    select(RoutingTargetRecommendationModel).where(
+                        RoutingTargetRecommendationModel.environment
+                        == self.settings.app.environment,
+                        RoutingTargetRecommendationModel.routing_target_recommendation_id
+                        == routing_target_recommendation_id,
+                    )
+                )
+                if recommendation_model is None:
+                    reason_codes.append("routing_target_recommendation_not_found")
+                else:
+                    route_lineage["routing_target_recommendation_ref_id"] = (
+                        recommendation_model.id
+                    )
+                    if (
+                        recommendation_model.status
+                        != RoutingTargetRecommendationStatus.RECOMMENDED_SINGLE_READY_CANDIDATE
+                    ):
+                        reason_codes.append("routing_target_recommendation_not_recommended")
+                    if not recommendation_model.non_executing:
+                        reason_codes.append("routing_target_recommendation_not_non_executing")
+                    if not recommendation_model.child_intent_created:
+                        reason_codes.append(
+                            "routing_target_recommendation_child_intent_not_created"
+                        )
+                    if recommendation_model.submitted_order_created:
+                        reason_codes.append(
+                            "routing_target_recommendation_submitted_order_created"
+                        )
+                    recommendation_checks = {
+                        "recommendation_route_readiness_audit_id_mismatch": (
+                            route_readiness_audit_id,
+                            recommendation_model.route_readiness_audit_id,
+                        ),
+                        "recommendation_routing_assessment_id_mismatch": (
+                            assessment_id,
+                            recommendation_model.routing_assessment_id,
+                        ),
+                        "recommendation_desired_trade_key_mismatch": (
+                            model.desired_trade_key,
+                            recommendation_model.desired_trade_key,
+                        ),
+                        "recommendation_binding_ref_mismatch": (
+                            model.mandate_account_binding_ref_id,
+                            recommendation_model.recommended_binding_ref_id,
+                        ),
+                        "recommendation_binding_key_mismatch": (
+                            model.binding_key,
+                            recommendation_model.recommended_binding_key,
+                        ),
+                        "recommendation_venue_account_ref_mismatch": (
+                            model.venue_account_ref_id,
+                            recommendation_model.recommended_venue_account_ref_id,
+                        ),
+                        "recommendation_venue_account_key_mismatch": (
+                            provenance_selected_venue_account_key,
+                            recommendation_model.recommended_venue_account_key,
+                        ),
+                        "recommendation_venue_mismatch": (
+                            provenance_selected_venue,
+                            recommendation_model.recommended_venue,
+                        ),
+                        "recommendation_exchange_symbol_mismatch": (
+                            provenance_selected_exchange_symbol,
+                            recommendation_model.recommended_exchange_symbol,
+                        ),
+                        "recommendation_policy_name_mismatch": (
+                            recommendation_policy_name,
+                            recommendation_model.policy_name,
+                        ),
+                    }
+                    for reason_code, (left, right) in recommendation_checks.items():
+                        if left != right:
+                            reason_codes.append(reason_code)
+
+                    if recommendation_model.route_readiness_audit_ref_id is not None:
+                        audit_model = session.get(
+                            RouteReadinessAuditModel,
+                            recommendation_model.route_readiness_audit_ref_id,
+                        )
+                    if audit_model is None and recommendation_model.route_readiness_audit_id:
+                        audit_model = session.scalar(
+                            select(RouteReadinessAuditModel).where(
+                                RouteReadinessAuditModel.environment
+                                == self.settings.app.environment,
+                                RouteReadinessAuditModel.route_readiness_audit_id
+                                == recommendation_model.route_readiness_audit_id,
+                            )
+                        )
+                    if audit_model is None:
+                        reason_codes.append("route_readiness_audit_not_found")
+                    else:
+                        route_lineage["route_readiness_audit_ref_id"] = audit_model.id
+                        if (
+                            audit_model.overall_status
+                            != RouteReadinessAuditStatus.READY_FOR_RECOMMENDATION
+                        ):
+                            reason_codes.append("route_readiness_audit_not_ready")
+                            reason_codes.append(
+                                f"route_readiness_audit_status_{audit_model.overall_status.value}"
+                            )
+                        if not audit_model.child_intent_created:
+                            reason_codes.append(
+                                "route_readiness_audit_child_intent_not_created"
+                            )
+                        audit_checks = {
+                            "audit_routing_assessment_id_mismatch": (
+                                assessment_id,
+                                audit_model.routing_assessment_id,
+                            ),
+                            "audit_desired_trade_key_mismatch": (
+                                model.desired_trade_key,
+                                audit_model.desired_trade_key,
+                            ),
+                            "audit_instrument_ref_mismatch": (
+                                model.instrument_ref_id,
+                                audit_model.instrument_ref_id,
+                            ),
+                            "audit_instrument_key_mismatch": (
+                                model.instrument_key,
+                                audit_model.instrument_key,
+                            ),
+                            "audit_symbol_mismatch": (model.symbol, audit_model.symbol),
+                        }
+                        for reason_code, (left, right) in audit_checks.items():
+                            if left != right:
+                                reason_codes.append(reason_code)
+
+                        readiness_candidate_model = session.scalar(
+                            select(RouteReadinessCandidateAuditModel).where(
+                                RouteReadinessCandidateAuditModel.route_readiness_audit_ref_id
+                                == audit_model.id,
+                                RouteReadinessCandidateAuditModel.binding_ref_id
+                                == model.mandate_account_binding_ref_id,
+                                RouteReadinessCandidateAuditModel.venue_account_ref_id
+                                == model.venue_account_ref_id,
+                            )
+                        )
+                        if readiness_candidate_model is None:
+                            reason_codes.append("route_readiness_candidate_not_found")
+                        else:
+                            route_lineage["route_readiness_candidate_ref_id"] = (
+                                readiness_candidate_model.id
+                            )
+                            if (
+                                readiness_candidate_model.status
+                                != RouteReadinessAuditStatus.READY_FOR_RECOMMENDATION
+                            ):
+                                reason_codes.append("route_readiness_candidate_not_ready")
+                            candidate_checks = {
+                                "route_readiness_candidate_binding_ref_mismatch": (
+                                    model.mandate_account_binding_ref_id,
+                                    readiness_candidate_model.binding_ref_id,
+                                ),
+                                "route_readiness_candidate_binding_key_mismatch": (
+                                    model.binding_key,
+                                    readiness_candidate_model.binding_key,
+                                ),
+                                "route_readiness_candidate_venue_account_ref_mismatch": (
+                                    model.venue_account_ref_id,
+                                    readiness_candidate_model.venue_account_ref_id,
+                                ),
+                                "route_readiness_candidate_venue_account_key_mismatch": (
+                                    provenance_selected_venue_account_key,
+                                    readiness_candidate_model.venue_account_key,
+                                ),
+                                "route_readiness_candidate_venue_mismatch": (
+                                    provenance_selected_venue,
+                                    readiness_candidate_model.venue,
+                                ),
+                                "route_readiness_candidate_exchange_symbol_mismatch": (
+                                    provenance_selected_exchange_symbol,
+                                    readiness_candidate_model.exchange_symbol,
+                                ),
+                            }
+                            for reason_code, (left, right) in candidate_checks.items():
+                                if left != right:
+                                    reason_codes.append(reason_code)
+                            (
+                                quote_reason_codes,
+                                quote_missing_data,
+                                quote_stale_data,
+                            ) = self._route_readiness_candidate_quote_freshness_blockers(
+                                readiness_candidate_model,
+                                checked_at=_utcnow(),
+                            )
+                            reason_codes.extend(quote_reason_codes)
+                            missing_data.extend(quote_missing_data)
+                            stale_data.extend(quote_stale_data)
+
         provenance_binding_ref_targets = [model.mandate_account_binding_ref_id]
         provenance_binding_key_targets = [model.binding_key]
         provenance_venue_account_ref_targets = [model.venue_account_ref_id]
@@ -1389,29 +1643,98 @@ class DefaultExecutionService(ExecutionService):
 
         reason_codes = sorted(set(reason_codes))
         missing_data = sorted(set(missing_data))
-        route_lineage["valid"] = not reason_codes and not missing_data
+        stale_data = sorted(set(stale_data))
+        route_lineage["valid"] = not reason_codes and not missing_data and not stale_data
         route_lineage["reason_codes"] = reason_codes
         route_lineage["missing_data"] = missing_data
+        route_lineage["stale_data"] = stale_data
         return True, reason_codes, missing_data, route_lineage
 
     @staticmethod
-    def _candidate_symbol_mapping_still_matches(
+    def _candidate_symbol_mapping_blockers(
         session: Any,
         candidate_model: RoutingAssessmentCandidateModel,
-    ) -> bool:
+    ) -> tuple[list[str], list[str]]:
         if candidate_model.instrument_ref_id is None or candidate_model.exchange_symbol is None:
-            return False
-        return (
-            session.scalar(
-                select(SymbolModel.id).where(
-                    SymbolModel.instrument_ref_id == candidate_model.instrument_ref_id,
-                    SymbolModel.venue == candidate_model.venue,
-                    SymbolModel.symbol == candidate_model.symbol,
-                    SymbolModel.exchange_symbol == candidate_model.exchange_symbol,
-                )
+            return [], ["symbol_mapping_missing_or_changed"]
+        symbol_model = session.scalar(
+            select(SymbolModel).where(
+                SymbolModel.instrument_ref_id == candidate_model.instrument_ref_id,
+                SymbolModel.venue == candidate_model.venue,
+                SymbolModel.symbol == candidate_model.symbol,
+                SymbolModel.exchange_symbol == candidate_model.exchange_symbol,
             )
-            is not None
         )
+        if symbol_model is None:
+            return [], ["symbol_mapping_missing_or_changed"]
+        reason_codes: list[str] = []
+        if not symbol_model.is_active:
+            reason_codes.append("symbol_inactive")
+        if not symbol_model.is_trading_eligible:
+            reason_codes.append("symbol_not_trading_eligible")
+        return sorted(set(reason_codes)), []
+
+    @classmethod
+    def _route_readiness_candidate_quote_freshness_blockers(
+        cls,
+        candidate_model: RouteReadinessCandidateAuditModel,
+        *,
+        checked_at: datetime,
+    ) -> tuple[list[str], list[str], list[str]]:
+        fact_snapshot = dict(candidate_model.fact_snapshot_json or {})
+        observed_at_raw = fact_snapshot.get("quote_observed_at")
+        if observed_at_raw is None or observed_at_raw == "":
+            return ["quote_freshness_unknown"], ["quote_freshness_unknown"], []
+        observed_at = cls._parse_routed_quote_observed_at(observed_at_raw)
+        if observed_at is None:
+            return ["quote_observed_at_malformed"], ["quote_observed_at_malformed"], []
+        threshold_seconds = cls._routed_quote_freshness_threshold_seconds(
+            fact_snapshot.get("quote_freshness_threshold_seconds")
+        )
+        if threshold_seconds is None:
+            return (
+                ["quote_freshness_threshold_invalid"],
+                ["quote_freshness_threshold_invalid"],
+                [],
+            )
+        checked_at_aware = (
+            checked_at if checked_at.tzinfo is not None else checked_at.replace(tzinfo=UTC)
+        )
+        age_seconds = Decimal(str((checked_at_aware - observed_at).total_seconds()))
+        if age_seconds > threshold_seconds:
+            return ["quote_stale_at_recommendation"], [], ["quote_stale_at_recommendation"]
+        return [], [], []
+
+    @staticmethod
+    def _parse_routed_quote_observed_at(value: object) -> datetime | None:
+        if isinstance(value, datetime):
+            if value.tzinfo is None or value.utcoffset() is None:
+                return None
+            return value.astimezone(UTC)
+        if not isinstance(value, str) or not value:
+            return None
+        try:
+            parsed = datetime.fromisoformat(value)
+        except ValueError:
+            return None
+        if parsed.tzinfo is None or parsed.utcoffset() is None:
+            return None
+        return parsed.astimezone(UTC)
+
+    @staticmethod
+    def _routed_quote_freshness_threshold_seconds(value: object) -> Decimal | None:
+        if value is None or value == "":
+            return Decimal(str(_ROUTED_QUOTE_FRESHNESS_SECONDS))
+        try:
+            parsed = Decimal(str(value))
+        except (InvalidOperation, ValueError):
+            return None
+        try:
+            if not parsed.is_finite() or parsed <= Decimal("0"):
+                return None
+        except InvalidOperation:
+            return None
+        return parsed
 
     def _attach_routed_lineage_to_preview(
         self,

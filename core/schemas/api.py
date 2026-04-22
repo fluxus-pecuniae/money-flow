@@ -488,6 +488,7 @@ class PreparedVenueOrderResponse(BaseModel):
     preview_status: VenueOrderPreviewStatus
     reason_codes: list[str]
     payload: dict[str, object] | None
+    routed_lineage: dict[str, object] | None = None
     constraints: VenueOrderConstraintsResponse | None
     venue_capabilities: ExchangeCapabilitiesResponse | None
     account_connectivity: VenueAccountConnectivityResponse | None
@@ -721,6 +722,7 @@ class ExecutionReadinessAssessmentResponse(BaseModel):
     reason_codes: list[str]
     message: str | None
     prepared_order: PreparedVenueOrderResponse | None
+    routed_lineage: dict[str, object] | None = None
     evaluated_at: datetime | None
     provenance: dict[str, object]
 
