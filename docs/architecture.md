@@ -1,0 +1,538 @@
+# Architecture
+
+This is the canonical architecture document at head.
+
+## Current System Posture
+
+The platform is a client-centric, mandate-driven, multi-account, multi-venue trading system.
+
+It is not:
+- a single-exchange bot
+- a routing engine
+- a best-binding selector
+- a CBBO engine
+- a mandate-scoped open auto-submission or bypass-submission engine
+
+At head, the platform has a controlled routing substrate with non-executing routing assessment / target-choice audit, non-selecting route-readiness/data-sufficiency audit, controlled non-executing target recommendation, explicit recommendation acceptance into a non-executing target choice, one explicit target-choice-to-child-intent conversion path, routed child-intent preparation/readiness inspection, a controlled explicit routed submission handoff, routed post-submit lifecycle/actionability inspection, routed reconciliation/lifecycle-event audit visibility, explicit routed order-shape policy input, and Phase 5.10 closeout regression coverage across that lifecycle. Phase 5.10.1 adds durable `RouteReadinessAudit` records that answer whether required facts are present before recommendation; Phase 5.10.2 tightens that audit so quote source labels describe the audit runtime path, desired-trade side/quantity validity blocks readiness, malformed/non-finite/non-positive quote prices block without crashing, and default MARKET order shape is labeled defaulted rather than explicit. Phase 6.0.0 adds durable `RoutingTargetRecommendation` records created only from a `RouteReadinessAudit` under the default `single_ready_candidate_only`: exactly one ready candidate can be recommended, zero ready candidates block, and multiple ready candidates block without ranking, scoring, price comparison, CBBO, allocation, fanout, target-choice creation, child-intent creation, readiness creation, or submission. Phase 6.0.1 hotpatches that recommendation boundary so success also revalidates current mandate enablement, desired-trade symbol identity, and active/trading-eligible venue symbol mapping truth before recording `recommended_single_ready_candidate`; Phase 6.0.2 also rechecks the recommended candidate's stored quote observation freshness at recommendation time and marks the source route-readiness audit as having a recommendation record after persistence. Phase 6.1 adds the optional `explicit_binding_priority` policy: callers must request it explicitly, priority comes from nullable `MandateAccountBinding.target_recommendation_priority`, lower positive integers win, missing/malformed priorities block, and priority ties block. Phase 6.1.1 bounds recommendation `policy_name` input to the accepted policies, rejects malformed direct policy names before persistence, makes priority clearing explicit through `clear_target_recommendation_priority`, and verifies priority-selected candidates still obey recommendation-time quote freshness. Phase 6.2 adds explicit operator-triggered acceptance of a successful recommendation into exactly one `RoutingTargetChoice`; acceptance revalidates recommendation status, audit freshness, quote freshness, desired-trade/mandate/binding/account/symbol truth, and idempotency, then stops at target choice. Phase 6.2.1 hardens that acceptance idempotency so one route-readiness audit cannot produce multiple accepted target choices, duplicate successful same-audit recommendations return the original target choice, and original recommendation/audit acceptance timestamps remain stable while idempotent checks are recorded separately. Phase 6.2.2 gates same-audit idempotency behind successful-recommendation preflight so blocked same-audit recommendations cannot be marked `target_choice_created` or stamped with accepted-looking provenance. Phase 6.3 adds explicit operator-triggered conversion from an accepted recommendation-backed target choice into exactly one routed child `OrderIntent`, reusing the existing target-choice conversion path, preserving recommendation/audit/target-choice lineage, revalidating current truth before new child-intent creation, and returning an existing child intent on repeated or same-audit duplicate conversion attempts. This is operator preference and audit workflow only, not venue quality, price, fee, spread, liquidity, rank, score, CBBO, best-binding selection, route execution, or execution automation. Phase 5.4 allows routed submission only for the already converted child intent when route-lineage validation, normal readiness, the normal live-submit gate, and the separate routed-submit gate all pass. Reconciliation remains venue/account truth; route lineage and target recommendations are audit metadata, not execution instructions. It is still before auto-submit, fanout, target reselection, smart routing, route executor behavior, cross-binding recovery, cross-venue retry, and cross-binding execution orchestration.
+
+## Core Hierarchy
+
+The active hierarchy is:
+
+- `Client`
+- `VenueAccount`
+- `StrategyMandate`
+- `MandateAccountBinding`
+- `StrategyComponentConfig`
+
+What that means:
+
+- one client can own many venue accounts
+- one client can own many mandates
+- one venue account can participate in many mandates
+- bindings are the future account-group / routing surface
+- components are the generic family-specific internal configuration model
+
+`VenueAccount` remains exchange/account truth.
+Balances, positions, orders, fills, snapshots, and venue-private state stay venue-account scoped.
+Strategy attribution remains a separate overlay concern.
+
+## Load-Bearing Execution Boundary
+
+The current execution boundary is:
+
+- `StrategyDecision`
+- `MandateDesiredTrade`
+- `OrderIntent`
+- `PreparedVenueOrder`
+- `ExecutionReadinessAssessment`
+- `SubmittedOrder`
+
+Below `SubmittedOrder`, the platform now supports bounded post-submit lifecycle work:
+
+- reconciliation
+- cancel
+- selective amend
+- recovery recommendation
+- same-target recovery execution
+- polling-based private order/account-state inspection
+
+This boundary must not collapse back into direct strategy-to-order behavior.
+
+Above and at the child-intent boundary, Phases 5.0 through 5.2 add a controlled routing substrate:
+
+- `RoutingRequest`
+- `RoutingAssessment`
+- `RoutingCandidateAssessment`
+- `RouteReadinessAudit`
+- `RoutingTargetRecommendation`
+- `RoutingTargetChoice`
+
+Routing assessment and target choice are assessment/audit surfaces only. They enumerate candidate bindings, eligibility/ineligibility facts, missing data, and operator-requested single-binding target-choice records for routing-required mandate-scoped opens. Phase 5.2 can convert one explicit valid target choice into exactly one binding/account-targeted `OrderIntent`. Phase 5.8 makes that conversion call a bounded routed order-shape policy helper that accepts optional explicit MARKET/LIMIT input and records the selected or blocked shape decision in provenance. Phase 5.3 lets that converted child intent enter existing prepared-order preview/readiness inspection only after route-lineage revalidation, and Phase 5.3.1 tightens that validation against mutable provenance / intent / target-choice drift. Phase 5.4 can submit that same selected child intent only through an explicit submit action when both submission gates pass. It does not create splits, ranked venue lists, price-quality comparisons, target reselection, fanout, or smart routing.
+
+`RouteReadinessAudit` is distinct from `RoutingAssessment`: assessments enumerate candidates, while route-readiness audits evaluate data sufficiency for recommendation. They expose global and per-candidate missing, stale, unsupported, unavailable, policy-blocked, and blocking facts with data-source labels. They are non-selecting, non-ranking, non-scoring, and non-executing; they do not create target choices, child intents, prepared orders, readiness evaluations, submitted orders, route plans, allocations, or recommendations.
+
+`RoutingTargetRecommendation` is distinct from `RoutingTargetChoice`: recommendations are persisted system-generated audit records from a route-readiness audit, while target choices remain explicit operator-requested audit records. `single_ready_candidate_only` remains the default, so multiple ready candidates still block unless the caller explicitly requests `explicit_binding_priority`. The API accepts only those two recommendation policy names, while direct service policy input is bounded before persistence. The priority policy uses only operator-configured binding priority; lower positive integers win, missing or malformed priority data blocks, ties block, omitted priority updates preserve existing priority, and `clear_target_recommendation_priority=true` intentionally clears it. Phase 6.0.1/6.0.2 current-truth revalidation still applies before success. Phase 6.2 lets an operator explicitly accept a successful recommendation into one `RoutingTargetChoice`; Phase 6.2.1 makes acceptance idempotent across successful recommendations from the same route-readiness audit. Repeated or duplicate successful same-audit acceptance returns the original target choice, marks the later successful recommendation as `target_choice_created`, and preserves original acceptance timestamp truth in recommendation/audit provenance while recording later checks separately. Phase 6.2.2 ensures blocked recommendations cannot use that same-audit idempotency path; they remain blocked, retain `target_choice_created=false`, and do not receive accepted-looking provenance. Phase 6.3 lets an operator explicitly convert an accepted recommendation-backed target choice through the same target-choice-to-child-intent machinery used by Phase 5.2. That conversion stops at `OrderIntent`, marks recommendation/source-audit `child_intent_created=true` only after a valid child intent exists, and does not automatically prepare, assess readiness, submit, route execute, fan out, score, rank, or reselect targets. A recommendation does not automatically create a target choice, child intent, readiness evaluation, submitted order, route plan, allocation, fanout, or submit instruction.
+
+## Service Boundaries
+
+- `services.exchange.hyperliquid`: perpetual adapter with truthful submit, deeper reconciliation, cancel acknowledgement, and native limit-order amend for the current proven scope
+- `services.exchange.aster`: perpetual adapter with truthful submit, reconcile, cancel, and strict client-order-id retry truth; native amend remains unsupported
+- `services.exchange.okx`: spot and perpetual/swap adapter with truthful submit, reconcile, cancel lifecycle, and native amend for the current scoped limit-order path
+- `services.exchange.coinbase`: Coinbase Advanced Trade spot adapter with truthful JWT submit, reconcile, cancel lifecycle, and native amend for the current spot limit-order path
+- `services.exchange.binance`: spot adapter with truthful submit, reconcile, cancel, and strict client-order-id retry truth; native amend remains unsupported
+- `services.exchange.kraken`: spot adapter with truthful submit, reconcile, cancel lifecycle, and native amend for the current spot limit-order scope
+- `services.exchange.registry`: venue registry and capability inspection surface
+- `services.market_data`: candle ingestion, checkpointing, and freshness handling
+- `services.indicators`: deterministic indicator computation and snapshot persistence
+- `services.strategy`: family-level evaluation and component-level orchestration
+- `services.planning`: mandate-level desired-trade drafting, source-policy inspection, convertibility checks, routing-candidate inspection, and quote normalization ahead of routing assessment and target-choice audit
+- `services.risk`: first-pass desired-trade approval and rejection
+- `services.routing`: routing assessment, route-readiness/data-sufficiency audit, controlled single-ready-candidate recommendation, target-choice audit, and explicit one-child-intent conversion substrate over routing-required mandate-scoped opens
+- `services.portfolio`: venue/account truth loaders and portfolio summaries
+- `services.execution`: child-intent preparation, routed child-intent route-lineage validation before preview/readiness/submission, prepared-order preview/preflight, readiness gating, explicit non-routed submission, explicit gated routed submission for already selected child intents, submitted-order lifecycle, routed post-submit lifecycle/actionability/reconciliation-event context derivation through the shared domain parser, reconciliation, cancel, selective amend, recovery recommendation, and bounded same-target recovery execution
+- `apps.api`: operator-facing inspection and control plane, including adapter/runtime session-state and private order/account-state visibility below routing
+- `apps.api`: also exposes routing assessment, target-choice creation/inspection, explicit target-choice conversion endpoints, and existing child-intent preview/readiness endpoints for converted routed child-intent inspection
+
+## Canonical Identity And Planning Rules
+
+The platform keeps canonical instrument identity separate from venue-native symbol identity:
+
+- `instrument_key` is the canonical business identity
+- `instrument_ref_id` is the persistence row identity
+- venue symbol mappings remain venue/product specific
+
+This matters because the current venue set mixes:
+
+- Hyperliquid perpetuals
+- Aster perpetuals
+- OKX spot plus perpetual/swap
+- Coinbase Advanced Trade spot
+- Binance spot
+- Kraken spot
+
+The planning/source venue is also distinct from future routing venues.
+`MandateMarketDataSourcePolicy` defines where the mandate currently gets planning truth.
+That does not imply later execution venue or binding choice.
+
+## Current Venue Matrix
+
+Current integrated venues:
+
+- Hyperliquid
+- Aster
+- OKX
+- Coinbase Advanced Trade
+- Binance
+- Kraken
+
+Current truthful scope at head:
+
+- all six are on the execution-preparable branch
+- all six have code/test-proven account-targeted submit paths for their currently implemented scopes
+- all six have meaningful post-submit reconciliation depth, but lifecycle parity is still uneven
+- cancel depth is broader than amend depth
+- amend is currently native only where code/test-proven in the implemented account/product path
+- public capability surfaces now report cancel and amend separately instead of using one misleading combined capability flag
+- private order/account-state depth is now explicit and polling-first rather than implied through one fake maturity flag
+
+Current amend truth:
+
+- Hyperliquid: native amend for the current perpetual limit-order scope
+- OKX: native amend for the current scoped limit-order path
+- Coinbase Advanced Trade: native amend for the current spot limit-order scope
+- Kraken: native amend for the current spot limit-order scope
+- Aster: amend unsupported
+- Binance: amend unsupported
+
+Current retry truth:
+
+- retry remains same-target, same-account, same-venue only
+- Binance and Aster use fresh retry client order ids because their venue semantics make naive reuse unsafe
+- retry is still blocked when duplicate exposure risk cannot be ruled out
+- Aster and Binance private trade checks use submitted-at-bounded `startTime` queries and block retry conservatively on same-account/same-symbol ambiguity when the submitted order has no exchange order id; this is not represented as targeted order fill proof
+- stale same-account/same-symbol private fills before `SubmittedOrder.submitted_at` do not block retry on those time-bounded paths, while exact exchange-order-id matches remain `order_scoped`
+- ambiguous Aster/Binance retry evidence stays inside the scoped `SubmittedOrderPrivateFillEvidence` envelope and is not exposed as plain submitted-order fill truth
+- if a direct private fill evidence query fails during retry safety checks, retry blocks with an explicit unavailable-evidence lifecycle event instead of proceeding optimistically
+
+## Current Routing Substrate
+
+Phase 5.0 introduced routing assessment. Phase 5.1 adds operator-requested target-choice audit records. Phase 5.2 adds explicit target-choice-to-child-intent conversion without preparation, readiness assessment, submission, fanout, scoring, or target reselection. Phase 5.2.1 hardens conversion lineage checks without adding new routing behavior. Phase 5.3 lets converted routed child intents use existing prepared-order preview and readiness inspection after route-lineage revalidation. Phase 5.3.1 tightens that routed readiness validation. Phase 5.4 adds a controlled explicit routed submission handoff for the already selected child intent, gated separately from normal live submission. Phase 5.5 exposes routed submitted-order lineage, Phase 5.6 makes routed conversion order shape explicit through a policy-backed current default, Phase 5.7 exposes routed post-submit lifecycle/actionability context while keeping recovery same-target only, Phase 5.7.1 preserves routed lineage through same-target retry without adding target reselection, Phase 5.8 expands routed order-shape policy to optional explicit MARKET/LIMIT input without routing behavior, Phase 5.8.1 hardens non-finite LIMIT price validation without adding routing scope, Phase 5.8.2 cleans the blocked-policy reason surface so malformed/non-finite prices are not labeled as accepted explicit prices, Phase 5.9 deepens routed reconciliation/lifecycle audit visibility without changing reconciliation or recovery semantics, Phase 5.9.1 makes current platform routed lineage authoritative over colliding reconciliation/update payloads, Phase 5.9.2 prevents update payloads from fabricating platform routed lineage on non-routed submitted orders, Phase 5.10 closes the routed lifecycle substrate with end-to-end regression coverage, Phase 5.10.1 adds route-readiness/data-sufficiency audit as a non-selecting gate before recommendation, Phase 5.10.2 fixes route-readiness audit source/shape/quote-price truth, Phase 6.0.0 adds controlled non-executing target recommendation only when one route-readiness audit has exactly one ready candidate, Phase 6.0.1 hardens recommendation success against stale mandate and symbol truth after the audit, and Phase 6.0.2 rechecks stored quote observation freshness at recommendation time while updating source-audit recommendation-created truth.
+
+Allowed current output:
+
+- routing request facts for one existing `routing_required` mandate desired trade
+- evaluated `MandateAccountBinding` candidate inventory
+- binary per-binding status:
+  - `eligible_for_future_selection`
+  - `ineligible_for_future_selection`
+- route-readiness/data-sufficiency audit status:
+  - `ready_for_recommendation`
+  - `blocked`
+  - `insufficient_data`
+  - `stale_data`
+  - `policy_blocked`
+  - `unsupported`
+- routing target recommendation status:
+  - `recommended_single_ready_candidate`
+  - `blocked_audit_not_found`
+  - `blocked_audit_not_ready`
+  - `blocked_no_ready_candidate`
+  - `blocked_multiple_ready_candidates`
+  - `blocked_stale_audit`
+  - `blocked_stale_desired_trade`
+  - `blocked_stale_candidate`
+  - `blocked_invalid_audit`
+- explicit reason codes
+- explicit missing-data facts
+- explicit stale, unsupported, unavailable, policy-blocked, and blocking facts
+- explicit data-source labels such as `persistence`, `venue_query`, `adapter_capability`, `static_config`, `derived_from_existing_assessment`, and `unavailable`; current route-readiness audits derived from routing-assessment snapshots label quote facts as `derived_from_existing_assessment` rather than pretending a fresh venue query occurred
+- persisted audit trail in `routing_assessments` and `routing_assessment_candidates`
+- persisted audit trail in `route_readiness_audits` and `route_readiness_candidate_audits`
+- persisted audit trail in `routing_target_recommendations`
+
+Allowed current assessment status:
+
+- `assessment_only`
+- `no_eligible_bindings`
+- `insufficient_data`
+
+Current routing assessment uses only truth the platform already has:
+
+- desired-trade identity and status
+- mandate and source-policy context
+- binding enablement and routing eligibility
+- venue-account active/trading flags
+- symbol mapping availability
+- venue and adapter submission capability truth
+- account identifier / connectivity facts
+- quote availability as missing-data truth, not as ranking input
+
+Current routing assessment does not:
+
+- rank venues
+- produce allocation weights
+- compare execution quality
+- create `OrderIntent` records
+- prepare venue orders
+- submit
+- split one desired trade across bindings
+- perform cross-venue or cross-binding retry
+
+Current route-readiness audit can:
+
+- start from a routing-required desired trade or an existing routing assessment
+- create candidate enumeration from the desired trade only as assessment input
+- re-check current desired-trade side, desired quantity, mandate, binding, venue-account, symbol, capability, quote, economic, private-state, and order-shape facts
+- block recommendation-readiness when desired-trade side is missing, quantity is missing/zero/negative, or persisted quote prices are malformed, non-finite, zero, or negative
+- expose per-candidate missing, stale, unsupported, unavailable, policy-blocked, and blocking facts
+- expose data-source labels so persistence-backed, adapter-capability, venue-query, static-config, and unavailable truth are not conflated
+- report `ready_for_recommendation` only as data sufficiency for a future recommendation phase
+
+Current route-readiness audit does not:
+
+- recommend a target
+- choose or rank a binding
+- score venue quality
+- compare prices or use CBBO
+- create `RoutingTargetChoice`, `OrderIntent`, `PreparedVenueOrder`, `ExecutionReadinessAssessment`, or `SubmittedOrder`
+- submit, fan out, split, or execute
+
+Current routing target recommendation can:
+
+- start only from an existing `RouteReadinessAudit`
+- require the audit to be fresh under the current quote-freshness threshold
+- require the recommended candidate's stored `quote_observed_at` to still be fresh at recommendation creation time
+- require exactly one candidate with `ready_for_recommendation`
+- re-check current desired-trade status, target scope, action, side, and positive finite quantity
+- re-check current mandate existence and enablement
+- re-check current desired-trade symbol / symbol-id / instrument identity against the audit
+- re-check current binding enabled/trading/routing eligibility and venue-account active/trading truth
+- re-check current venue symbol mapping existence, active flag, trading eligibility, platform symbol, exchange symbol, venue, and instrument truth
+- persist a non-executing recommendation for the one ready candidate under `single_ready_candidate_only`
+- persist a non-executing recommendation for an explicitly requested `explicit_binding_priority` result only when exactly one ready candidate has the winning lower positive binding priority and all current-truth checks still pass
+- persist blocked recommendation records for zero ready candidates, default-policy multiple ready candidates, missing/malformed/tied binding priority, stale/not-ready/invalid audits, stale desired-trade truth, and stale candidate truth
+- reject oversized or whitespace policy names before recommendation persistence
+- preserve existing binding priority when an update omits `target_recommendation_priority`, and clear it only through `clear_target_recommendation_priority=true`
+- mark the source route-readiness audit `recommendation_created=true` after any recommendation record is persisted from it
+- be explicitly accepted into exactly one non-executing `RoutingTargetChoice` only after current truth and stored quote freshness are revalidated again
+
+Current routing target recommendation does not:
+
+- recommend among multiple ready candidates unless `explicit_binding_priority` is explicitly requested and one operator-priority winner exists
+- choose among bindings, venues, or price outcomes by price, fee, spread, liquidity, venue quality, rank, score, or CBBO
+- rank, score, compare prices, or use CBBO
+- automatically create `RoutingTargetChoice`, `OrderIntent`, `PreparedVenueOrder`, `ExecutionReadinessAssessment`, or `SubmittedOrder`
+- submit, fan out, split, allocate, reselect targets, or execute
+
+Current target choice can:
+
+- reference one persisted routing assessment
+- record one explicitly requested candidate binding from that assessment
+- record one explicitly accepted successful routing target recommendation, with source recommendation, route-readiness audit, policy, selected binding/account/venue/symbol, and accepted-at lineage in provenance
+- validate that the assessment is still `assessment_only`
+- validate that the candidate is still `eligible_for_future_selection`
+- validate that candidate missing-data facts are empty
+- re-check that the source desired trade still exists, is still `routing_required`, is still mandate-scoped/open, and is not already binding/account targeted
+- re-check that the binding and venue account still exist and are enabled / active / trading eligible
+- persist recorded and blocked outcomes as audit facts in `routing_target_choices`
+
+Current target choice status:
+
+- `target_choice_recorded`
+- `blocked_no_eligible_binding`
+- `blocked_candidate_ineligible`
+- `blocked_assessment_insufficient_data`
+- `blocked_assessment_not_found`
+- `blocked_candidate_not_found`
+- `blocked_stale_assessment`
+
+Current target choice does not:
+
+- auto-pick a candidate
+- automatically accept a recommendation
+- mutate `MandateDesiredTrade.status`; the desired trade remains `routing_required`
+- create `OrderIntent`, `PreparedVenueOrder`, `ExecutionReadinessAssessment`, or `SubmittedOrder`
+- submit
+- split one desired trade across bindings
+- compare venue prices or quality
+- perform cross-venue or cross-binding recovery
+
+Current target-choice conversion can:
+
+- consume one explicit `target_choice_id`
+- revalidate current target-choice, assessment, candidate, desired-trade, binding, venue-account, and symbol-mapping truth
+- block when routing assessment id/ref/environment lineage, desired-trade client/mandate/source identity, or selected binding mandate ownership has drifted
+- create exactly one binding/account-targeted `OrderIntent`
+- preserve routing assessment / target-choice / selected binding-account lineage in child-intent provenance
+- mark the source desired trade `routed`, meaning one child intent was created from the recorded target choice, not that anything was submitted
+- return the existing child intent on repeated conversion of the same target choice
+
+Current target-choice conversion does not:
+
+- infer or auto-pick a target choice
+- create `PreparedVenueOrder`, `ExecutionReadinessAssessment`, or `SubmittedOrder`
+- submit
+- fan out or split across bindings
+- rank venues
+- score venue quality or price
+- use CBBO
+- replace a target choice with a different binding
+
+Current routed preparation/readiness can:
+
+- inspect a converted routed `OrderIntent` through the existing child-intent prepared-order preview path
+- inspect routed child-intent readiness through the existing readiness evaluation path
+- revalidate `OrderIntent` provenance, source desired trade, routing assessment, target choice, selected candidate, current binding, current venue account, and symbol mapping before preview/readiness
+- block selected-target provenance drift, child-intent client/mandate drift, target-choice desired-trade linkage drift, and explicit routed submit attempts before adapter submission
+- return blocked preview/readiness facts with explicit reason codes when desired-trade status, route lineage, binding/account state, or symbol mapping has drifted
+- preserve routing assessment / target-choice lineage in preview payload and readiness provenance
+- keep routed preview non-submitting and explicit-submit-only while reporting actual routed/live gate state; `submission_deferred` is true only when one or both phase gates still block explicit routed submission
+- phase-block valid routed readiness with `routed_submission_deferred` while `EXECUTION_ROUTED_SUBMISSION_PHASE_ENABLED=false`, or `phase_live_submit_deferred` while the normal live-submit gate remains disabled
+- return eligible routed readiness when route-lineage validation, normal readiness checks, `EXECUTION_LIVE_SUBMISSION_PHASE_ENABLED`, and `EXECUTION_ROUTED_SUBMISSION_PHASE_ENABLED` all pass
+
+Current explicit routed submission can:
+
+- start only from an already converted routed child intent and an explicit submit call
+- re-run route-lineage validation and existing readiness immediately before adapter submission
+- submit only the selected binding/account/venue/instrument already stored on the child intent
+- create exactly one `SubmittedOrder` through the existing venue submit path when all gates pass
+- preserve desired-trade, routing assessment, target-choice, selected binding/account, selected venue, selected exchange symbol, and readiness evaluation lineage in submitted-order raw payload
+- expose that routed submitted-order lineage as read-only API audit fields derived from the submitted-order raw payload, without making route lineage a primary submitted-order identity or execution instruction
+- bound missing, partial, or wrong-typed routed payloads with explicit missing/malformed-lineage facts instead of breaking submitted-order list/detail inspection
+- expose read-only routed lifecycle context on submitted-order detail/list, recovery recommendation, recovery execution response, and actionability responses; this context repeats selected binding/account/venue/exchange-symbol and routed order-shape policy facts only as audit metadata
+- preserve existing platform-owned `routed_submission` audit payload through reconciliation/lifecycle updates, strip colliding update-payload `routed_submission` keys from submitted-order raw payloads, keep non-routed submitted orders from becoming routed-origin through update payloads, and expose read-only routed lifecycle context on submitted-order lifecycle-event responses
+- preserve that routed lifecycle context on a same-target retry result when the original/retry intent and readiness carry routed lineage
+- keep routed recovery/actionability same-target, same-account, and same-venue only; routed lineage never authorizes target reselection, alternate binding recovery, alternate venue recovery, fanout, or route execution behavior
+- keep routed target-choice conversion order shape in child-intent provenance as the current defaulted `MARKET`, no limit price, and `reduce_only=false`; explicit wording is reserved for actual explicit order-shape policy input
+- record routed phase-boundary submit attempts, including routed-gate and normal live-gate deferrals, as `last_submission_block` without marking the child intent as `submission_failed`
+
+Current routed preparation/readiness/submission does not:
+
+- create additional child intents
+- fan out or split across bindings
+- rank or score venues
+- use CBBO
+- reselect or repair stale routing targets
+- infer LIMIT, price, or venue quality from market data; explicit LIMIT requires a positive finite requested limit price and modeled order-type support
+- implement slippage guard semantics or market-data-derived routed limit-price sources
+- create a route executor or route plan
+- auto-submit
+- submit when the routed submission gate is disabled
+- use routed lifecycle context to choose a different target, widen account scope, or recover across bindings/venues
+
+Phase 5 is closed as routing substrate plus data-sufficiency audit only. Phase 6.0.x adds controlled single-target recommendation deliberately above this substrate and requires the Phase 5.10.1 / 5.10.2 route-readiness audit to prove data sufficiency first; Phase 6.1 adds one optional deterministic operator-priority policy for multiple ready candidates; Phase 6.1.1 tightens input/clearing truth around that policy; Phase 6.2 adds explicit recommendation acceptance into target choice only; Phase 6.2.1 prevents one route-readiness audit from producing multiple accepted target choices while preserving original acceptance timestamps; and Phase 6.2.2 prevents blocked recommendations from being marked accepted through same-audit idempotency. Recommendation acceptance is still not best-binding selection, venue ranking, price ranking, CBBO, fanout, route execution orchestration, child-intent creation, readiness creation, submitted-order creation, or automatic submission.
+
+Operator endpoints:
+
+- `POST /api/v1/routing-assessments/from-desired-trade`
+- `GET /api/v1/routing-assessments/{assessment_id}`
+- `POST /api/v1/route-readiness-audits/from-desired-trade`
+- `POST /api/v1/route-readiness-audits/from-assessment`
+- `GET /api/v1/route-readiness-audits/{route_readiness_audit_id}`
+- `POST /api/v1/routing-target-recommendations/from-route-readiness-audit`
+- `GET /api/v1/routing-target-recommendations/{routing_target_recommendation_id}`
+- `POST /api/v1/routing-target-recommendations/{routing_target_recommendation_id}/accept`
+- `POST /api/v1/routing-target-choices/from-assessment`
+- `GET /api/v1/routing-target-choices/{target_choice_id}`
+- `POST /api/v1/routing-target-choices/{target_choice_id}/convert-to-child-intent`
+- `GET /api/v1/routing-assessments/{assessment_id}/target-choices`
+- `GET /api/v1/child-intents/{intent_id}/prepared-order-preview`
+- `GET /api/v1/child-intents/{intent_id}/submission-readiness`
+- `POST /api/v1/child-intents/{intent_id}/submit` for explicit non-routed submission and Phase 5.4 gated explicit routed submission
+- `GET /api/v1/submitted-orders/{submitted_order_id}/actionability` and `/recovery` expose Phase 5.7 routed lifecycle context where the submitted order has routed-origin audit payload
+
+## Current Private-State And Session Truth
+
+Current head stays explicit about the difference between venue semantics and adapter implementation:
+
+- `supports_user_streams` can be true semantically for a venue without claiming adapter-level stream parity
+- `adapter_supports_user_streams` remains false for the current six adapters
+- `private_lifecycle_update_mode` is `polling` across the current venue set
+
+Current per-venue private-state truth:
+
+- venue-private open-order views are distinct from platform `SubmittedOrder` records
+- optional linkage back to persisted `SubmittedOrder` or `OrderIntent` is correlation-only
+- `open_orders_source` and `recent_fills_source` now report the runtime path actually used for the summary call, not just static adapter capability
+
+- Hyperliquid:
+  - adapter/runtime session-state inspection exists
+  - account snapshot remains persistence-backed
+  - open-order visibility uses direct venue query
+  - recent-fill visibility uses direct venue query
+  - open-position visibility uses direct venue query when an account address is available
+  - direct open-position `mark_price` uses `markPx` when present, derives from `positionValue / abs(szi)` when possible, and remains `None` when no truthful mark price exists
+- Aster:
+  - adapter/runtime session-state inspection exists
+  - open-order visibility now uses direct venue query
+  - recent-fill summary remains persistence-backed
+  - same-target retry safety can use submitted-at-bounded direct same-account/same-symbol private trade ambiguity checks
+- OKX:
+  - adapter/runtime session-state inspection exists
+  - open-order visibility uses direct venue query
+  - recent-fill visibility uses direct venue query
+- Coinbase Advanced Trade:
+  - adapter/runtime session-state inspection exists
+  - open-order visibility uses direct venue query
+  - recent-fill visibility uses direct venue query
+- Binance:
+  - adapter/runtime session-state inspection exists
+  - open-order visibility uses direct venue query
+  - recent-fill summary remains persistence-backed
+  - same-target retry safety can use submitted-at-bounded direct same-account/same-symbol private trade ambiguity checks
+- Kraken:
+  - adapter/runtime session-state inspection exists
+  - open-order visibility uses direct venue query
+  - recent-fill visibility uses direct venue query
+  - native amend is currently limited to spot limit orders in the implemented scope
+
+Current venue-by-venue private-state matrix at head:
+
+| Venue | Open Orders | Recent Fills | Open Positions | Account Snapshot | Session / Runtime State | User Streams | Native Amend | Same-Target Retry Safety Evidence | Fallback Mode |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Hyperliquid | direct venue query | direct venue query | direct venue query when account address is available | persistence-backed snapshot/sync path | adapter/runtime only | semantic only, adapter not implemented | perpetual limit orders only | live open-order proof and order-id fill proof where ids exist | persistence fallback when account context or direct query is unavailable |
+| Aster | direct venue query | persistence-backed summary | persistence-backed | persistence-backed | adapter/runtime only | semantic only, adapter not implemented | unsupported | live open-order proof; submitted-at-bounded direct same-account/same-symbol fill ambiguity when no exchange order id exists; exact order-id matches remain order-scoped; ambiguous evidence is retry-scoped only | persistence fallback for summary fills/positions and unavailable direct paths |
+| OKX | direct venue query | direct venue query | persistence-backed | persistence-backed | adapter/runtime only | semantic only, adapter not implemented | current scoped limit-order path | live open-order proof plus direct fill evidence where available | persistence fallback for positions and unavailable direct paths |
+| Coinbase Advanced Trade | direct venue query | direct venue query | persistence-backed | persistence-backed | adapter/runtime only | semantic only, adapter not implemented | spot limit orders only | live open-order proof plus direct fill evidence where available | persistence fallback for positions and unavailable direct paths |
+| Binance | direct venue query | persistence-backed summary | persistence-backed | persistence-backed | adapter/runtime only | semantic only, adapter not implemented | unsupported | live open-order proof; submitted-at-bounded direct same-account/same-symbol fill ambiguity when no exchange order id exists; exact order-id matches remain order-scoped; ambiguous evidence is retry-scoped only | persistence fallback for summary fills/positions and unavailable direct paths |
+| Kraken | direct venue query | direct venue query | persistence-backed | persistence-backed | adapter/runtime only | semantic only, adapter not implemented | spot limit orders only | live open-order proof plus direct fill evidence where available | persistence fallback for positions and unavailable direct paths |
+
+This is deeper venue/account truth below routing, but it is still not full user-stream parity.
+
+Current cancel truth:
+
+- cancel request and cancel acknowledgement remain distinct from final canceled state where venue semantics require later reconciliation
+- partially filled canceled or expired orders remain terminal after persisted fill merge; fill evidence now updates quantities without rewriting terminal or cancel-pending truth
+
+## Current Post-Submit Layer
+
+Below `SubmittedOrder`, the platform now supports:
+
+- explicit reconciliation state
+- lifecycle event history
+- cancel request and cancel acknowledgement tracking
+- final canceled state only after later reconciliation where venue semantics require it
+- rejection classification and recovery recommendation
+- bounded same-target recovery execution:
+  - `reconcile_now`
+  - `cancel_now`
+  - `retry_same_target`
+- selective amend execution where the adapter path is truthful
+
+Recovery execution remains deliberately narrow:
+
+- same submitted order
+- same venue
+- same account
+- same target path
+- no routing
+- no failover
+- no cross-binding retry
+
+The 4.8 change at this layer is substrate depth, not a new routing-like action set:
+
+- existing same-target actions still reconcile against one already-targeted venue/account path
+- deeper adapter/runtime session-state, venue-private open-order, recent-fill, and open-position inspection now exist to support operator inspection and later reconciliation depth
+- no cross-venue or target-reselection behavior was added
+
+## Hyperliquid Status
+
+Hyperliquid is no longer a special-case holdout for cancel/amend at head.
+
+Current truthful Hyperliquid scope:
+
+- account-targeted submit for perpetuals
+- order-state-plus-fill reconciliation
+- cancel acknowledgement with later reconciliation-driven final state
+- native limit-order amend for the current perpetual scope
+- capability and status surfaces now report cancel and amend support explicitly for that current proven scope
+
+What is still not implied:
+
+- full venue parity with every other exchange
+- routing
+- cross-binding recovery
+- hidden cancel-and-replace mislabeled as amend
+
+## What Remains Deferred
+
+Still deferred at head:
+
+- live routing execution
+- best-binding selection
+- CBBO
+- child-intent fanout or splitting across bindings
+- mandate-scoped open submission that bypasses routing assessment / target choice / conversion / readiness
+- routed auto-submit or routed submission orchestration beyond one explicit already-selected child intent
+- target reselection, route executor behavior, cross-binding recovery, and cross-venue retry/failover
+- multi-binding execution orchestration
+- broader amend parity for Aster and Binance unless support is proven later
+- user-stream / event-driven private lifecycle parity
+- fuller account-wide recent-fill parity for Aster and Binance
+- routing-grade execution-market-data depth
+- portfolio-grade risk and exposure parity beyond the current approval boundary
+
+## Operational Memory
+
+The repo uses explicit operational-memory files:
+
+- `AGENTS.md`
+- `CHANGELOG.md`
+- `REPO_TREE.md`
+- `KNOWN_ISSUES.md`
+- `TODO.md`
+
+Required read-only strategic memory:
+
+- `money_flow_project_memory.md`
+
+## Review Bundle Workflow
+
+Use the committed review-bundle workflow instead of manual zipping:
+
+```bash
+.venv/bin/python scripts/create_review_bundle.py --output /tmp/money-flow-review.zip
+```
+
+`.archiveignore` defines which local artifacts must stay out of the review bundle.

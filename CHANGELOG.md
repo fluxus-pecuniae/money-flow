@@ -1,0 +1,2066 @@
+# CHANGELOG
+
+Canonical repo changelog. This is the single changelog file for the repository.
+
+Entry schema:
+
+- `version`
+- `recorded_at_utc`
+- `scope`
+- `intent`
+- `affected_files`
+- `validation_performed`
+
+---
+
+## v2026.04.22.001
+
+- `recorded_at_utc`: `2026-04-22T19:33:23Z`
+- `scope`: `Repository source-control baseline hygiene`
+- `intent`: `Native entry. Hardened source-control hygiene before creating the Phase 6.3 baseline Git commit on `master`. Expanded `.gitignore` so local secrets, virtualenvs, Python/test caches, local database/runtime state, logs, OS/editor files, build artifacts, review ZIPs, handoff archives, and optional Node artifacts are excluded while `.env.example` remains trackable. Added concise repo documentation that review bundles and handoff archives stay outside source control and future phase work should use short-lived branches from `master`. No product behavior, source refactor, migration, config expansion, endpoint, exchange behavior, routing behavior, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `.gitignore`
+  - `README.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `git status`
+  - `git init`
+  - `git branch -M master`
+  - `git check-ignore -v .env`
+  - `git check-ignore -v .venv`
+  - `git check-ignore -v "*.zip"`
+  - `grep pass for API_KEY, SECRET, PRIVATE_KEY, PASSWORD, TOKEN, COINBASE, BINANCE, KRAKEN, OKX, HYPERLIQUID, ASTER`
+  - `git add .`
+  - `git status --short`
+  - `git diff --cached --stat`
+  - `git commit -m "Baseline Money Flow platform through Phase 6.3"`
+  - `git branch --show-current`
+  - `git log --oneline -1`
+  - `git ls-files | grep -E '(^|/)(.env|.venv|__pycache__|.pytest_cache|.*\.zip|.*\.sqlite|.*\.db)$' || true`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+
+## v2026.04.20.004
+
+- `recorded_at_utc`: `2026-04-20T10:12:52Z`
+- `scope`: `Phase 6.3 explicit accepted recommendation target-choice conversion`
+- `intent`: `Native entry. Added the first controlled post-recommendation child-intent action without adding execution automation. Accepted recommendation-backed RoutingTargetChoice records can now be explicitly converted through the existing target-choice conversion path into exactly one routed child OrderIntent. Conversion validates recommendation-backed target-choice provenance, linked successful RoutingTargetRecommendation truth, source RouteReadinessAudit and RoutingAssessment lineage, stored quote freshness, desired-trade/mandate/binding/account/symbol truth, and routed order-shape policy before any new child intent is created. The child intent preserves recommendation, route-readiness audit, routing assessment, target-choice, selected binding/account/venue/symbol, recommendation policy, operator conversion timestamp, and routed order-shape lineage. Repeated conversion of the same target choice returns the existing child intent, and duplicate same-audit target-choice paths cannot create a second child intent in normal controlled flow. Recommendation/source-audit `child_intent_created` truth is updated only after a valid child intent exists. No migration, config, prepared-order creation, readiness evaluation, submitted-order creation, exchange adapter call, route executor behavior, fanout, ranking, scoring, CBBO, target reselection, auto-submit, new exchange support, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `core/domain/models.py`
+  - `core/schemas/api.py`
+  - `apps/api/app/api/routes.py`
+  - `services/routing/service.py`
+  - `tests/test_phase63_recommendation_target_choice_conversion.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase63_recommendation_target_choice_conversion.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase52_target_choice_conversion.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase62_recommendation_acceptance.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase600_routing_target_recommendation.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase5101_route_readiness_audit.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py tests/test_phase59_routed_reconciliation_lifecycle_audit.py tests/test_phase510_routing_substrate_closeout.py tests/test_phase5101_route_readiness_audit.py tests/test_phase600_routing_target_recommendation.py tests/test_phase62_recommendation_acceptance.py tests/test_phase63_recommendation_target_choice_conversion.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-6.3-review.zip`
+  - `verified /Users/tercirafael/money-flow-phase-6.3-review.zip contains 150 files with no .env, virtualenv, cache, .DS_Store, or nested archive matches`
+  - `copied /Users/tercirafael/money-flow-phase-6.3-review.zip to /Users/tercirafael/CODEX-files-MF/MF-handoffs/Phase 6/money-flow-phase-6.3-review.zip`
+  - `copied /Users/tercirafael/money-flow-phase-6.3-review.zip to /Users/tercirafael/phase5_handoffs/review_bundles/money-flow-phase-6.3-review.zip`
+  - `copied PHASE_5_CHANGES_SINCE_5_4.md to /Users/tercirafael/CODEX-files-MF/MF-handoffs/Phase 6/PHASE_5_CHANGES_SINCE_5_4.md`
+  - `copied PHASE_5_CHANGES_SINCE_5_4.md to /Users/tercirafael/phase5_handoffs/PHASE_5_CHANGES_SINCE_5_4.md`
+
+## v2026.04.20.003
+
+- `recorded_at_utc`: `2026-04-20T07:11:21Z`
+- `scope`: `Phase 6.2.2 recommendation acceptance same-audit validity hotpatch`
+- `intent`: `Native entry. Fixed the Phase 6.2.1 same-audit idempotency truth bug without adding downstream execution behavior. Recommendation acceptance now runs a basic successful-recommendation validity preflight before same-audit idempotency can return an existing target choice. A blocked or malformed RoutingTargetRecommendation from a route-readiness audit that already has an accepted target choice now fails through the normal acceptance blocker path, remains target_choice_created=false, and is not stamped with accepted-looking same-audit idempotency provenance. Duplicate successful recommendations from the same audit still return the original target choice, preserve original recommendation/audit acceptance timestamps, and create no duplicate target choices. No migration, config, new recommendation policy, child-intent creation, prepared-order creation, readiness creation, submitted-order creation, ranking, scoring, CBBO, fanout, route executor behavior, target reselection, auto-submit, new exchange support, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `services/routing/service.py`
+  - `tests/test_phase62_recommendation_acceptance.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_phase62_recommendation_acceptance.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase600_routing_target_recommendation.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase5101_route_readiness_audit.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py tests/test_phase59_routed_reconciliation_lifecycle_audit.py tests/test_phase510_routing_substrate_closeout.py tests/test_phase5101_route_readiness_audit.py tests/test_phase600_routing_target_recommendation.py tests/test_phase62_recommendation_acceptance.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-6.2.2-review.zip`
+  - `verified /Users/tercirafael/money-flow-phase-6.2.2-review.zip contains 149 files with no .env, virtualenv, cache, .DS_Store, or nested archive matches`
+  - `copied /Users/tercirafael/money-flow-phase-6.2.2-review.zip to /Users/tercirafael/CODEX-files-MF/MF-handoffs/Phase 6/money-flow-phase-6.2.2-review.zip`
+  - `copied /Users/tercirafael/money-flow-phase-6.2.2-review.zip to /Users/tercirafael/phase5_handoffs/review_bundles/money-flow-phase-6.2.2-review.zip`
+  - `copied PHASE_5_CHANGES_SINCE_5_4.md to /Users/tercirafael/CODEX-files-MF/MF-handoffs/Phase 6/PHASE_5_CHANGES_SINCE_5_4.md`
+  - `copied PHASE_5_CHANGES_SINCE_5_4.md to /Users/tercirafael/phase5_handoffs/PHASE_5_CHANGES_SINCE_5_4.md`
+
+## v2026.04.20.002
+
+- `recorded_at_utc`: `2026-04-20T06:40:02Z`
+- `scope`: `Phase 6.2.1 recommendation acceptance idempotency hotpatch`
+- `intent`: `Native entry. Fixed the Phase 6.2 recommendation-acceptance idempotency and audit-time truth gaps without adding downstream execution behavior. Recommendation acceptance now checks for an existing target choice produced by any recommendation tied to the same RouteReadinessAudit before creating a new target choice. Duplicate successful recommendations from one audit return the original target choice, mark the later recommendation as target_choice_created, and record idempotent/cross-recommendation acceptance provenance instead of creating another choice. Re-accepting the same recommendation or a duplicate same-audit recommendation preserves the original recommendation/audit recommendation_accepted_at timestamp and records retry/check time separately. No migration, config, new recommendation policy, child-intent creation, prepared-order creation, readiness creation, submitted-order creation, ranking, scoring, CBBO, fanout, route executor behavior, target reselection, auto-submit, new exchange support, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `services/routing/service.py`
+  - `tests/test_phase62_recommendation_acceptance.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_phase62_recommendation_acceptance.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase600_routing_target_recommendation.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase5101_route_readiness_audit.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py tests/test_phase59_routed_reconciliation_lifecycle_audit.py tests/test_phase510_routing_substrate_closeout.py tests/test_phase5101_route_readiness_audit.py tests/test_phase600_routing_target_recommendation.py tests/test_phase62_recommendation_acceptance.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-6.2.1-review.zip`
+  - `verified /Users/tercirafael/money-flow-phase-6.2.1-review.zip contains 149 files with no .env, virtualenv, cache, .DS_Store, or nested archive matches`
+  - `copied /Users/tercirafael/money-flow-phase-6.2.1-review.zip to /Users/tercirafael/CODEX-files-MF/MF-handoffs/Phase 6/money-flow-phase-6.2.1-review.zip`
+  - `copied /Users/tercirafael/money-flow-phase-6.2.1-review.zip to /Users/tercirafael/phase5_handoffs/review_bundles/money-flow-phase-6.2.1-review.zip`
+  - `copied PHASE_5_CHANGES_SINCE_5_4.md to /Users/tercirafael/CODEX-files-MF/MF-handoffs/Phase 6/PHASE_5_CHANGES_SINCE_5_4.md`
+  - `copied PHASE_5_CHANGES_SINCE_5_4.md to /Users/tercirafael/phase5_handoffs/PHASE_5_CHANGES_SINCE_5_4.md`
+
+## v2026.04.20.001
+
+- `recorded_at_utc`: `2026-04-20T05:44:07Z`
+- `scope`: `Phase 6.2 explicit recommendation acceptance into target choice`
+- `intent`: `Native entry. Added the first controlled recommendation-to-target-choice workflow without adding execution automation. A successful non-executing RoutingTargetRecommendation can now be explicitly accepted by an operator into exactly one existing RoutingTargetChoice audit record. Acceptance requires the recommendation to be recommended_single_ready_candidate and non_executing, revalidates source audit freshness, recommendation freshness, stored candidate quote observation freshness, desired-trade/mandate/binding/account/symbol truth, and routing-assessment candidate lineage, records recommendation/audit/policy/selected-target lineage in target-choice provenance, and updates recommendation plus source route-readiness audit target_choice_created truth. Repeated acceptance returns the existing target choice instead of creating a duplicate. Blocked, unknown, stale, or drifted recommendations fail before target-choice creation. No migration, config, new recommendation policy, smart routing, best-binding selection, CBBO, ranking, scoring, fanout, split allocation, route executor behavior, automatic target-choice creation, child-intent creation, prepared-order creation, readiness creation, submitted-order creation, auto-submit, target reselection, cross-binding recovery, cross-venue retry/failover, new exchange support, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `apps/api/app/api/routes.py`
+  - `services/routing/service.py`
+  - `tests/test_phase62_recommendation_acceptance.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase62_recommendation_acceptance.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase600_routing_target_recommendation.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase5101_route_readiness_audit.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py tests/test_phase59_routed_reconciliation_lifecycle_audit.py tests/test_phase510_routing_substrate_closeout.py tests/test_phase5101_route_readiness_audit.py tests/test_phase600_routing_target_recommendation.py tests/test_phase62_recommendation_acceptance.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-6.2-review.zip`
+  - `verified /Users/tercirafael/money-flow-phase-6.2-review.zip contains 149 files with no .env, virtualenv, cache, .DS_Store, or nested archive matches`
+  - `copied /Users/tercirafael/money-flow-phase-6.2-review.zip to /Users/tercirafael/CODEX-files-MF/MF-handoffs/Phase 6/money-flow-phase-6.2-review.zip`
+  - `copied /Users/tercirafael/money-flow-phase-6.2-review.zip to /Users/tercirafael/phase5_handoffs/review_bundles/money-flow-phase-6.2-review.zip`
+  - `copied PHASE_5_CHANGES_SINCE_5_4.md to /Users/tercirafael/CODEX-files-MF/MF-handoffs/Phase 6/PHASE_5_CHANGES_SINCE_5_4.md`
+  - `copied PHASE_5_CHANGES_SINCE_5_4.md to /Users/tercirafael/phase5_handoffs/PHASE_5_CHANGES_SINCE_5_4.md`
+
+## v2026.04.19.011
+
+- `recorded_at_utc`: `2026-04-19T13:20:43Z`
+- `scope`: `Phase 6.1.1 recommendation-policy input and binding-priority cleanup hotpatch`
+- `intent`: `Native entry. Cleaned up the Phase 6.1 deterministic binding-priority recommendation policy without adding new recommendation behavior or downstream workflow. Recommendation API input now validates `policy_name` against only `single_ready_candidate_only` or `explicit_binding_priority`, so oversized, whitespace-only, and unsupported policy names return client validation errors instead of reaching persistence; direct service calls also reject malformed or oversized policy names before any database write, while short unknown internal policy attempts remain controlled blocked records. Binding upsert semantics are now explicit: omitting `target_recommendation_priority` preserves the existing priority, `clear_target_recommendation_priority=true` intentionally clears it, and clear-plus-value requests are rejected. Strengthened Phase 6 recommendation tests for invalid policy input, direct service malformed policy rejection, priority clear/preserve semantics, and `explicit_binding_priority` blocking when the selected candidate's stored quote observation is stale at recommendation time. No migration, config, new recommendation policy, target-choice creation, child-intent creation, readiness creation, submitted-order creation, ranking, scoring, CBBO, fanout, route executor behavior, auto-submit, target reselection, new exchange support, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `apps/api/app/api/routes.py`
+  - `services/runtime/context.py`
+  - `services/routing/service.py`
+  - `tests/test_api.py`
+  - `tests/test_phase600_routing_target_recommendation.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_phase600_routing_target_recommendation.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase5101_route_readiness_audit.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py tests/test_phase59_routed_reconciliation_lifecycle_audit.py tests/test_phase510_routing_substrate_closeout.py tests/test_phase5101_route_readiness_audit.py tests/test_phase600_routing_target_recommendation.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-6.1.1-review.zip`
+  - `verified /Users/tercirafael/money-flow-phase-6.1.1-review.zip contains 148 files with no .env, virtualenv, cache, or nested archive matches`
+  - `copied /Users/tercirafael/money-flow-phase-6.1.1-review.zip to /Users/tercirafael/CODEX-files-MF/MF-handoffs/Phase 6/money-flow-phase-6.1.1-review.zip`
+  - `copied /Users/tercirafael/money-flow-phase-6.1.1-review.zip to /Users/tercirafael/phase5_handoffs/review_bundles/money-flow-phase-6.1.1-review.zip`
+  - `copied PHASE_5_CHANGES_SINCE_5_4.md to /Users/tercirafael/CODEX-files-MF/MF-handoffs/Phase 6/PHASE_5_CHANGES_SINCE_5_4.md`
+  - `copied PHASE_5_CHANGES_SINCE_5_4.md to /Users/tercirafael/phase5_handoffs/PHASE_5_CHANGES_SINCE_5_4.md`
+
+## v2026.04.19.010
+
+- `recorded_at_utc`: `2026-04-19T12:30:36Z`
+- `scope`: `Phase 6.1 explicit binding-priority recommendation policy`
+- `intent`: `Native entry. Added one controlled deterministic recommendation policy above the Phase 5 routing substrate and Phase 6.0.x recommendation truth layer without adding execution behavior. `single_ready_candidate_only` remains the default: exactly one ready candidate can recommend, zero ready candidates block, and multiple ready candidates still block by default. Added request-level `explicit_binding_priority`, backed by nullable operator-configured `MandateAccountBinding.target_recommendation_priority`; lower positive integer priority wins only when exactly one ready candidate has the winning priority, missing priority blocks, malformed/out-of-range priority blocks, and priority ties block. The policy reuses Phase 6.0.2 current-truth safeguards before success, including audit freshness, stored candidate quote observation freshness, desired-trade truth, mandate enablement, binding/account truth, and active/trading-eligible symbol mapping truth. Added a small migration for the nullable binding priority field, exposed the field through binding API/domain surfaces, added optional recommendation `policy_name` request input, and strengthened recommendation tests for default multiple-ready blocking, explicit priority success, missing priority, tie, malformed priority, current-truth blocking after priority selection, unknown policy blocking, API compatibility, and continued absence of downstream artifacts. No smart routing, best-binding selection, price/fee/venue-quality ranking, scoring, CBBO, fanout, split allocation, route executor behavior, target-choice auto-creation, child-intent auto-creation, readiness creation, submitted-order creation, auto-submit, target reselection, cross-binding recovery, cross-venue retry/failover, new exchange support, config expansion, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `db/models/trading.py`
+  - `db/migrations/versions/20260419_0021_phase61_binding_recommendation_priority.py`
+  - `apps/api/app/api/routes.py`
+  - `services/runtime/context.py`
+  - `services/routing/service.py`
+  - `tests/test_api.py`
+  - `tests/test_phase600_routing_target_recommendation.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_phase600_routing_target_recommendation.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase5101_route_readiness_audit.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py tests/test_phase59_routed_reconciliation_lifecycle_audit.py tests/test_phase510_routing_substrate_closeout.py tests/test_phase5101_route_readiness_audit.py tests/test_phase600_routing_target_recommendation.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-6.1-review.zip`
+  - `verified /Users/tercirafael/money-flow-phase-6.1-review.zip contains 148 files with no .env, virtualenv, cache, or nested archive matches`
+  - `copied /Users/tercirafael/money-flow-phase-6.1-review.zip to /Users/tercirafael/CODEX-files-MF/MF-handoffs/Phase 6/money-flow-phase-6.1-review.zip`
+  - `copied /Users/tercirafael/money-flow-phase-6.1-review.zip to /Users/tercirafael/phase5_handoffs/review_bundles/money-flow-phase-6.1-review.zip`
+  - `copied PHASE_5_CHANGES_SINCE_5_4.md to /Users/tercirafael/CODEX-files-MF/MF-handoffs/Phase 6/PHASE_5_CHANGES_SINCE_5_4.md`
+  - `copied PHASE_5_CHANGES_SINCE_5_4.md to /Users/tercirafael/phase5_handoffs/PHASE_5_CHANGES_SINCE_5_4.md`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+
+## v2026.04.19.009
+
+- `recorded_at_utc`: `2026-04-19T12:10:08Z`
+- `scope`: `Phase 6.0.2 recommendation quote-freshness and audit-linkage hotpatch`
+- `intent`: `Native entry. Fixed the remaining Phase 6.0/6.0.1 recommendation truth gaps without adding recommendation-policy expansion or execution behavior. `RoutingTargetRecommendation` creation now rechecks the recommended candidate's stored `fact_snapshot["quote_observed_at"]` freshness at recommendation time, using the stored `quote_freshness_threshold_seconds` when valid and the existing route-readiness freshness threshold only when that candidate threshold is absent. Missing, malformed, timezone-invalid, or stale quote observation facts block recommendation with explicit reason/stale-data codes such as `quote_freshness_unknown`, `quote_observed_at_malformed`, and `quote_stale_at_recommendation`; audit age alone is no longer enough for success. Persisting any recommendation record from a source route-readiness audit now marks `RouteReadinessAuditModel.recommendation_created=True`, including blocked recommendation records. Added direct tests for quote fresh-at-audit but stale-at-recommendation, missing/malformed quote observation facts, service/API audit `recommendation_created` truth, and continued absence of downstream artifacts. No migration, config, endpoint, smart routing, recommendation among multiple ready candidates, ranking, scoring, CBBO, fanout, target-choice creation, child-intent creation, readiness creation, submission, route executor behavior, auto-submit, target reselection, new exchange support, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `services/routing/service.py`
+  - `tests/test_phase600_routing_target_recommendation.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase600_routing_target_recommendation.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase5101_route_readiness_audit.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py tests/test_phase59_routed_reconciliation_lifecycle_audit.py tests/test_phase510_routing_substrate_closeout.py tests/test_phase5101_route_readiness_audit.py tests/test_phase600_routing_target_recommendation.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-6.0.2-review.zip`
+  - `verified /Users/tercirafael/money-flow-phase-6.0.2-review.zip contains 147 files with no .env, virtualenv, cache, or nested archive matches`
+  - `copied /Users/tercirafael/money-flow-phase-6.0.2-review.zip to /Users/tercirafael/phase5_handoffs/review_bundles/money-flow-phase-6.0.2-review.zip`
+  - `copied PHASE_5_CHANGES_SINCE_5_4.md to /Users/tercirafael/phase5_handoffs/PHASE_5_CHANGES_SINCE_5_4.md`
+
+## v2026.04.19.008
+
+- `recorded_at_utc`: `2026-04-19T08:26:25Z`
+- `scope`: `Phase 6.0.1 recommendation current-truth hotpatch`
+- `intent`: `Native entry. Fixed the Phase 6.0.0 `RoutingTargetRecommendation` current-truth gap without adding routing or execution behavior. Recommendation success now revalidates the current `StrategyMandate` before `recommended_single_ready_candidate`, blocking with `mandate_missing` or `mandate_inactive` when the mandate is gone or disabled after the source route-readiness audit. It also blocks stale desired-trade symbol drift with `desired_trade_symbol_mismatch` / symbol-id mismatch checks, and revalidates current venue symbol mapping active/trading-eligible truth with `symbol_inactive`, `symbol_not_trading_eligible`, or `symbol_mapping_missing_or_changed` before recording a recommended target. Blocked recommendation outputs now retain audit-level not-ready/global blocker reason codes even when zero-ready or multiple-ready candidate status is the primary outcome. Added direct regression tests for disabled mandate, inactive symbol mapping, non-trading symbol mapping, desired-trade symbol drift, and audit-level blocker visibility. No migration, config, endpoint, target-choice creation, child-intent creation, readiness creation, submission, ranking, scoring, CBBO, fanout, route plan, route executor behavior, auto-submit, target reselection, new exchange support, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `services/routing/service.py`
+  - `tests/test_phase600_routing_target_recommendation.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_phase600_routing_target_recommendation.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase5101_route_readiness_audit.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py tests/test_phase59_routed_reconciliation_lifecycle_audit.py tests/test_phase510_routing_substrate_closeout.py tests/test_phase5101_route_readiness_audit.py tests/test_phase600_routing_target_recommendation.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-6.0.1-review.zip`
+  - `verified /Users/tercirafael/money-flow-phase-6.0.1-review.zip contains 147 files with no .env, virtualenv, cache, or nested archive matches`
+  - `copied /Users/tercirafael/money-flow-phase-6.0.1-review.zip to /Users/tercirafael/phase5_handoffs/review_bundles/money-flow-phase-6.0.1-review.zip`
+  - `copied PHASE_5_CHANGES_SINCE_5_4.md to /Users/tercirafael/phase5_handoffs/PHASE_5_CHANGES_SINCE_5_4.md`
+
+## v2026.04.19.007
+
+- `recorded_at_utc`: `2026-04-19T07:52:23Z`
+- `scope`: `Phase 6.0.0 controlled single-ready-candidate recommendation`
+- `intent`: `Native entry. Added the first persisted non-executing routing target recommendation layer above the Phase 5.10.2 route-readiness audit gate. `RoutingTargetRecommendation` records are created only from an existing `RouteReadinessAudit` and use the `single_ready_candidate_only` policy: exactly one `ready_for_recommendation` candidate records that candidate as the recommended target, zero ready candidates blocks, and more than one ready candidate blocks as ambiguous without sort-order selection, ranking, scoring, best-binding selection, price comparison, CBBO, allocation, fanout, route plans, target-choice creation, child-intent creation, readiness creation, or submission. Recommendation creation re-checks audit freshness, desired-trade status/scope/action/side/quantity, current binding/account truth, and symbol mapping before recording success, and persists blocked outcomes for stale/not-ready/invalid audit or stale desired-trade/candidate truth. Added narrow API endpoints for create-from-route-readiness-audit and get-by-id plus direct tests for success, zero/multiple ready blockers, stale audit/desired-trade/binding/account blockers, API inspection, and no downstream routing artifacts.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `db/models/__init__.py`
+  - `db/models/trading.py`
+  - `db/migrations/versions/20260419_0020_phase600_routing_target_recommendation.py`
+  - `apps/api/app/api/routes.py`
+  - `services/routing/service.py`
+  - `tests/test_phase600_routing_target_recommendation.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_phase600_routing_target_recommendation.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase5101_route_readiness_audit.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py tests/test_phase59_routed_reconciliation_lifecycle_audit.py tests/test_phase510_routing_substrate_closeout.py tests/test_phase5101_route_readiness_audit.py tests/test_phase600_routing_target_recommendation.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-6.0.0-review.zip`
+  - `verified /Users/tercirafael/money-flow-phase-6.0.0-review.zip contains 147 files with no .env, virtualenv, cache, or nested archive matches`
+  - `copied /Users/tercirafael/money-flow-phase-6.0.0-review.zip to /Users/tercirafael/phase5_handoffs/review_bundles/money-flow-phase-6.0.0-review.zip`
+  - `copied PHASE_5_CHANGES_SINCE_5_4.md to /Users/tercirafael/phase5_handoffs/PHASE_5_CHANGES_SINCE_5_4.md`
+
+## v2026.04.19.006
+
+- `recorded_at_utc`: `2026-04-19T07:05:21Z`
+- `scope`: `Phase 5.10.2 route-readiness audit truth hotpatch`
+- `intent`: `Native entry. Fixed narrow Phase 5.10.1 route-readiness audit truth issues without adding recommendation or execution behavior. Route-readiness audits now label quote facts read from persisted routing-assessment snapshots as `derived_from_existing_assessment` instead of overclaiming a fresh `venue_query`; desired-trade missing side, missing quantity, zero quantity, and negative quantity now block recommendation-readiness through global reason codes; malformed, non-finite, zero, or negative quote prices are reason-coded and do not enter notional math; and default MARKET order-shape readiness now reports `market_order_policy_defaulted` rather than `market_order_policy_explicit`. Strengthened Phase 5.10.1 tests for quote source truth, desired-trade shape blockers, quote-price safety, default MARKET wording, API payload truth, and no downstream routing artifacts. No target recommendation, best-binding selection, smart routing, CBBO, ranking, scoring, fanout, split allocation, route executor behavior, auto-submit, target reselection, cross-binding/cross-venue recovery, new live execution behavior, new exchange support, migration, config, endpoint, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `services/routing/service.py`
+  - `tests/test_phase5101_route_readiness_audit.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase5101_route_readiness_audit.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py tests/test_phase59_routed_reconciliation_lifecycle_audit.py tests/test_phase510_routing_substrate_closeout.py tests/test_phase5101_route_readiness_audit.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-5.10.2-review.zip`
+  - `verified /Users/tercirafael/money-flow-phase-5.10.2-review.zip contains 145 files with no .env, virtualenv, cache, or nested archive matches`
+  - `copied /Users/tercirafael/money-flow-phase-5.10.2-review.zip to /Users/tercirafael/phase5_handoffs/review_bundles/money-flow-phase-5.10.2-review.zip`
+  - `copied PHASE_5_CHANGES_SINCE_5_4.md to /Users/tercirafael/phase5_handoffs/PHASE_5_CHANGES_SINCE_5_4.md`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+
+## v2026.04.19.005
+
+- `recorded_at_utc`: `2026-04-19T06:13:09Z`
+- `scope`: `Phase 5.10.1 route-readiness data-sufficiency audit`
+- `intent`: `Native entry. Added a first-class non-selecting route-readiness / data-sufficiency audit layer beside the Phase 5 routing substrate. The new persisted RouteReadinessAudit and per-candidate audit records can be created from a routing-required desired trade or an existing routing assessment, inspected by id, and exposed through narrow operator APIs without recommending, ranking, scoring, choosing, converting, preparing, assessing execution readiness, submitting, or executing anything. The audit reports overall and per-candidate statuses, missing/stale/unsupported/unavailable/policy/blocking facts, data-source labels, quote freshness truth, same-venue multi-account account-scoped facts, default routed order-shape readiness facts, and explicit no-recommendation / no-target-choice / no-child-intent / no-submission provenance. Added tests for missing and stale quotes, inactive binding/account and missing symbol mapping blockers, unsupported order-shape facts, economic/balance/fee visibility, same-venue multi-account separation, API inspection, and absence of downstream artifacts. Added a small migration for durable audit inspection. No target recommendation, best-binding selection, smart routing, CBBO, ranking, scoring, fanout, split allocation, route executor behavior, auto-submit, target reselection, cross-binding/cross-venue recovery, new exchange support, new live execution behavior, config, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `db/models/__init__.py`
+  - `db/models/trading.py`
+  - `db/migrations/versions/20260419_0019_phase5101_route_readiness_audit.py`
+  - `apps/api/app/api/routes.py`
+  - `services/routing/service.py`
+  - `tests/test_phase5101_route_readiness_audit.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core/domain/enums.py core/domain/models.py db/models services/routing/service.py core/schemas/api.py apps/api/app/api/routes.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase5101_route_readiness_audit.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py tests/test_phase59_routed_reconciliation_lifecycle_audit.py tests/test_phase510_routing_substrate_closeout.py tests/test_phase5101_route_readiness_audit.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase42_execution_readiness.py tests/test_phase43_submission.py tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-5.10.1-review.zip`
+  - `verified /Users/tercirafael/money-flow-phase-5.10.1-review.zip contains 145 files with no .env, virtualenv, cache, or nested archive matches`
+  - `copied /Users/tercirafael/money-flow-phase-5.10.1-review.zip to /Users/tercirafael/phase5_handoffs/review_bundles/money-flow-phase-5.10.1-review.zip`
+  - `copied PHASE_5_CHANGES_SINCE_5_4.md to /Users/tercirafael/phase5_handoffs/PHASE_5_CHANGES_SINCE_5_4.md`
+
+## v2026.04.19.004
+
+- `recorded_at_utc`: `2026-04-19T05:13:15Z`
+- `scope`: `Phase 5.10 routing-substrate closeout audit`
+- `intent`: `Native entry. Closed Phase 5 with a focused routing-substrate audit and regression pass without adding routing behavior. Added an end-to-end Phase 5.10 closeout test that exercises the accepted routed chain from routing-required desired trade through routing assessment, explicit target choice, exactly-one child-intent conversion, routed preview/readiness, explicit gated routed submission, submitted-order detail/list, actionability/recovery, reconciliation with a colliding update-payload routed_submission key, and lifecycle-event routed context. The test proves typed routed lineage agrees across submitted-order lineage, routed lifecycle context, actionability/recovery, reconciliation, and lifecycle-event surfaces; the selected same-venue secondary account is the only submitted target; update-payload routed_submission remains non-authoritative; and no extra child intents/submitted orders, fanout, allocation, scoring, CBBO, target reselection, route plan, route executor behavior, or auto-submit appear. Updated operational and canonical docs to mark Phase 5 as routing substrate only and closed for handoff to Phase 6 controlled single-target selection. No service behavior, endpoint, migration, config, exchange support, target selection, fanout, scoring, CBBO, route executor, auto-submit, cross-binding/cross-venue recovery, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `tests/test_phase510_routing_substrate_closeout.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_phase510_routing_substrate_closeout.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py tests/test_phase59_routed_reconciliation_lifecycle_audit.py tests/test_phase510_routing_substrate_closeout.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-5.10-review.zip`
+  - `.venv/bin/python -c 'import zipfile, re; from pathlib import Path; p=Path("/Users/tercirafael/money-flow-phase-5.10-review.zip"); bad=re.compile(r"(^|/)(\\.env$|\\.venv/|__pycache__/|\\.pytest_cache/|\\.mypy_cache/|\\.ruff_cache/|\\.pgdata/|\\.pgsocket/|\\.DS_Store$)|\\.(zip|tar|tgz)$"); z=zipfile.ZipFile(p); names=z.namelist(); matches=[n for n in names if bad.search(n)]; print(f"files={len(names)}"); print("blocked_matches=" + (", ".join(matches[:20]) if matches else "none")); print(f"size={p.stat().st_size}")'`
+  - `.venv/bin/python -c 'from pathlib import Path; import shutil; dst=Path("/Users/tercirafael/phase5_handoffs/review_bundles"); dst.mkdir(parents=True, exist_ok=True); target=dst / "money-flow-phase-5.10-review.zip"; shutil.copyfile("/Users/tercirafael/money-flow-phase-5.10-review.zip", target); print(target)'`
+  - `.venv/bin/python -c 'from pathlib import Path; import shutil; dst=Path("/Users/tercirafael/phase5_handoffs"); dst.mkdir(parents=True, exist_ok=True); target=dst / "PHASE_5_CHANGES_SINCE_5_4.md"; shutil.copyfile("PHASE_5_CHANGES_SINCE_5_4.md", target); print(target)'`
+
+## v2026.04.19.003
+
+- `recorded_at_utc`: `2026-04-19T04:28:37Z`
+- `scope`: `Phase 5.9.2 routed_submission namespace reservation hotpatch`
+- `intent`: `Native entry. Fixed the inverse Phase 5.9.1 routed-lineage collision issue without widening routing scope. Reconciliation/lifecycle raw-payload merging now reserves top-level `routed_submission` for platform-authored routed audit lineage only: update payloads cannot create it on non-routed submitted orders, and existing routed submitted orders still keep their current platform lineage over update payload collisions. Event raw payload may retain adapter collision facts, but lifecycle-event routed context remains derived from the associated SubmittedOrder raw payload and non-routed events remain non-routed. Added direct regression coverage proving a non-routed submitted order reconciled with an update-payload `routed_submission` collision remains `routed_origin=false` with no routed lineage or lifecycle context, while venue reconciliation facts are preserved. No routing behavior, target reselection, fanout, CBBO, scoring, route executor behavior, auto-submit, cross-binding/cross-venue recovery, endpoint, migration, config, new exchange, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `services/execution/service.py`
+  - `tests/test_phase59_routed_reconciliation_lifecycle_audit.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_phase59_routed_reconciliation_lifecycle_audit.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase56_routed_order_shape_policy.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py tests/test_phase59_routed_reconciliation_lifecycle_audit.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-5.9.2-review.zip`
+  - `.venv/bin/python -c 'import zipfile, re; from pathlib import Path; p=Path("/Users/tercirafael/money-flow-phase-5.9.2-review.zip"); bad=re.compile(r"(^|/)(\\.env$|\\.venv/|__pycache__/|\\.pytest_cache/|\\.mypy_cache/|\\.ruff_cache/|\\.pgdata/|\\.pgsocket/|\\.DS_Store$)|\\.(zip|tar|tgz)$"); z=zipfile.ZipFile(p); names=z.namelist(); matches=[n for n in names if bad.search(n)]; print(f"files={len(names)}"); print("blocked_matches=" + (", ".join(matches[:20]) if matches else "none")); print(f"size={p.stat().st_size}")'`
+  - `.venv/bin/python -c 'from pathlib import Path; import shutil; dst=Path("/Users/tercirafael/phase5_handoffs/review_bundles"); dst.mkdir(parents=True, exist_ok=True); target=dst / "money-flow-phase-5.9.2-review.zip"; shutil.copyfile("/Users/tercirafael/money-flow-phase-5.9.2-review.zip", target); print(target)'`
+  - `.venv/bin/python -c 'from pathlib import Path; import shutil; dst=Path("/Users/tercirafael/phase5_handoffs"); dst.mkdir(parents=True, exist_ok=True); target=dst / "PHASE_5_CHANGES_SINCE_5_4.md"; shutil.copyfile("PHASE_5_CHANGES_SINCE_5_4.md", target); print(target)'`
+
+## v2026.04.19.002
+
+- `recorded_at_utc`: `2026-04-19T03:37:45Z`
+- `scope`: `Phase 5.9.1 routed reconciliation payload-collision hotpatch`
+- `intent`: `Native entry. Fixed the Phase 5.9 routed-lineage preservation bug without widening routing scope. Reconciliation/lifecycle raw-payload merging now treats existing platform `raw_payload["routed_submission"]` as authoritative: update payloads may still add or replace venue reconciliation facts, but a colliding top-level `routed_submission` from an adapter/update payload cannot erase or mutate the platform route lineage. Lifecycle-event routed context remains derived from the associated SubmittedOrder raw payload rather than event raw payload. Added direct regression coverage proving routed reconciliation responses and lifecycle-event responses preserve original routing assessment, target choice, selected binding/account, selected venue, selected exchange symbol, and routed order-shape policy context after a collision payload. No routing behavior, target reselection, fanout, CBBO, scoring, route executor behavior, auto-submit, cross-binding/cross-venue recovery, endpoint, migration, config, new exchange, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `services/execution/service.py`
+  - `tests/test_phase59_routed_reconciliation_lifecycle_audit.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_phase59_routed_reconciliation_lifecycle_audit.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase56_routed_order_shape_policy.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py tests/test_phase59_routed_reconciliation_lifecycle_audit.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-5.9.1-review.zip`
+  - `.venv/bin/python -c 'import zipfile, re; from pathlib import Path; p=Path("/Users/tercirafael/money-flow-phase-5.9.1-review.zip"); bad=re.compile(r"(^|/)(\\.env$|\\.venv/|__pycache__/|\\.pytest_cache/|\\.mypy_cache/|\\.ruff_cache/|\\.pgdata/|\\.pgsocket/|\\.DS_Store$)|\\.(zip|tar|tgz)$"); z=zipfile.ZipFile(p); names=z.namelist(); matches=[n for n in names if bad.search(n)]; print(f"files={len(names)}"); print("blocked_matches=" + (", ".join(matches[:20]) if matches else "none")); print(f"size={p.stat().st_size}")'`
+  - `.venv/bin/python -c 'from pathlib import Path; import shutil; dst=Path("/Users/tercirafael/phase5_handoffs/review_bundles"); dst.mkdir(parents=True, exist_ok=True); target=dst / "money-flow-phase-5.9.1-review.zip"; shutil.copyfile("/Users/tercirafael/money-flow-phase-5.9.1-review.zip", target); print(target)'`
+  - `.venv/bin/python -c 'from pathlib import Path; import shutil; dst=Path("/Users/tercirafael/phase5_handoffs"); dst.mkdir(parents=True, exist_ok=True); target=dst / "PHASE_5_CHANGES_SINCE_5_4.md"; shutil.copyfile("PHASE_5_CHANGES_SINCE_5_4.md", target); print(target)'`
+
+## v2026.04.19.001
+
+- `recorded_at_utc`: `2026-04-19T03:12:32Z`
+- `scope`: `Phase 5.9 routed reconciliation and lifecycle-event audit visibility`
+- `intent`: `Native entry. Deepened routed post-submit reconciliation and lifecycle audit visibility for already submitted routed child intents without adding routing behavior. Submitted-order reconciliation updates now preserve an existing `routed_submission` audit payload when venue reconciliation returns its own raw payload, so routed origin remains inspectable after reconciliation. Submitted-order lifecycle-event responses now expose read-only routed lifecycle context derived from the associated SubmittedOrder through the shared routed parser, including missing/malformed lineage facts and routed order-shape policy facts where present. Non-routed reconciliation/events do not fabricate route context, malformed routed payloads remain bounded, same-venue multi-account reconciliation context remains selected-account scoped, and Phase 5.8.2 malformed LIMIT reason-code truth remains intact. No target reselection, fanout, CBBO, scoring, route executor behavior, auto-submit, cross-binding/cross-venue recovery, new endpoint, migration, config, new exchange, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `core/domain/models.py`
+  - `core/schemas/api.py`
+  - `apps/api/app/api/routes.py`
+  - `services/execution/service.py`
+  - `tests/test_phase59_routed_reconciliation_lifecycle_audit.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_phase59_routed_reconciliation_lifecycle_audit.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase56_routed_order_shape_policy.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase59_routed_reconciliation_lifecycle_audit.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-5.9-review.zip`
+  - `.venv/bin/python -c 'import zipfile, re; from pathlib import Path; p=Path("/Users/tercirafael/money-flow-phase-5.9-review.zip"); bad=re.compile(r"(^|/)(\\.env$|\\.venv/|__pycache__/|\\.pytest_cache/|\\.mypy_cache/|\\.ruff_cache/|\\.pgdata/|\\.pgsocket/|\\.DS_Store$)|\\.(zip|tar|tgz)$"); z=zipfile.ZipFile(p); names=z.namelist(); matches=[n for n in names if bad.search(n)]; print(f"files={len(names)}"); print("blocked_matches=" + (", ".join(matches[:20]) if matches else "none")); print(f"size={p.stat().st_size}")'`
+  - `.venv/bin/python -c 'from pathlib import Path; import shutil; dst=Path("/Users/tercirafael/phase5_handoffs/review_bundles"); dst.mkdir(parents=True, exist_ok=True); target=dst / "money-flow-phase-5.9-review.zip"; shutil.copyfile("/Users/tercirafael/money-flow-phase-5.9-review.zip", target); print(target)'`
+  - `.venv/bin/python -c 'from pathlib import Path; import shutil; dst=Path("/Users/tercirafael/phase5_handoffs"); dst.mkdir(parents=True, exist_ok=True); target=dst / "PHASE_5_CHANGES_SINCE_5_4.md"; shutil.copyfile("PHASE_5_CHANGES_SINCE_5_4.md", target); print(target)'`
+
+## v2026.04.18.052
+
+- `recorded_at_utc`: `2026-04-18T19:57:33Z`
+- `scope`: `Phase 5.8.2 routed LIMIT malformed price reason-surface cleanup`
+- `intent`: `Native entry. Cleaned the Phase 5.8.1 routed order-shape policy reason surface without widening routing scope. Malformed or non-finite LIMIT price input still blocks safely with malformed_limit_price and routed_order_shape_policy_blocked before child-intent creation, but no longer includes the contradictory limit_price_explicit reason code. Finite positive LIMIT input still records limit_price_explicit when accepted, including independent blocker cases where the explicit finite price is valid but another policy fact blocks conversion. No routing behavior, fanout, CBBO, auto-submit, target reselection, route executor behavior, migration, config, endpoint, new exchange, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `services/routing/service.py`
+  - `tests/test_phase56_routed_order_shape_policy.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall services/routing/service.py tests/test_phase56_routed_order_shape_policy.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase56_routed_order_shape_policy.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase56_routed_order_shape_policy.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-5.8.2-review.zip`
+  - `.venv/bin/python -c 'import zipfile, re; from pathlib import Path; p=Path("/Users/tercirafael/money-flow-phase-5.8.2-review.zip"); bad=re.compile(r"(^|/)(\\.env$|\\.venv/|__pycache__/|\\.pytest_cache/|\\.mypy_cache/|\\.ruff_cache/|\\.pgdata/|\\.pgsocket/|\\.DS_Store$)|\\.(zip|tar|tgz)$"); z=zipfile.ZipFile(p); names=z.namelist(); matches=[n for n in names if bad.search(n)]; print(f"files={len(names)}"); print("blocked_matches=" + (", ".join(matches[:20]) if matches else "none"))'`
+  - `.venv/bin/python -c 'from pathlib import Path; import shutil; dst=Path("/Users/tercirafael/phase5_handoffs/review_bundles"); dst.mkdir(parents=True, exist_ok=True); target=dst / "money-flow-phase-5.8.2-review.zip"; shutil.copyfile("/Users/tercirafael/money-flow-phase-5.8.2-review.zip", target); print(target)'`
+  - `.venv/bin/python -c 'from pathlib import Path; import shutil; dst=Path("/Users/tercirafael/phase5_handoffs"); dst.mkdir(parents=True, exist_ok=True); target=dst / "PHASE_5_CHANGES_SINCE_5_4.md"; shutil.copyfile("PHASE_5_CHANGES_SINCE_5_4.md", target); print(target)'`
+
+## v2026.04.18.051
+
+- `recorded_at_utc`: `2026-04-18T19:10:58Z`
+- `scope`: `Phase 5.8.1 routed LIMIT non-finite price validation hotpatch`
+- `intent`: `Native entry. Fixed the Phase 5.8 P0 routed order-shape policy bug without widening routing scope. Routed conversion API input no longer models LIMIT price as a plain float, and the routing service now rejects non-finite LIMIT prices such as NaN, sNaN, Infinity, and -Infinity before any Decimal comparison or child-intent persistence. Non-finite LIMIT policy input returns blocked_order_shape_policy with malformed_limit_price and routed_order_shape_policy_blocked in direct service conversion, leaves the desired trade routing_required, and creates no OrderIntent, PreparedVenueOrder, ExecutionReadinessAssessment, or SubmittedOrder. API non-finite representations are rejected as client errors rather than 500s, while finite explicit LIMIT conversion remains unchanged. No routing behavior, fanout, CBBO, auto-submit, target reselection, route executor behavior, migration, config, new endpoint, new exchange, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `core/schemas/api.py`
+  - `apps/api/app/api/routes.py`
+  - `services/routing/service.py`
+  - `tests/test_phase56_routed_order_shape_policy.py`
+  - `tests/test_api.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core/schemas/api.py apps/api/app/api/routes.py services/routing/service.py tests/test_phase56_routed_order_shape_policy.py tests/test_api.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase56_routed_order_shape_policy.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py -k "routing_conversion_api or routing_assessment_and_target_choice_endpoints"`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase56_routed_order_shape_policy.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-5.8.1-review.zip`
+  - `.venv/bin/python -c 'import zipfile, re; from pathlib import Path; p=Path("/Users/tercirafael/money-flow-phase-5.8.1-review.zip"); bad=re.compile(r"(^|/)(\\.env$|\\.venv/|__pycache__/|\\.pytest_cache/|\\.mypy_cache/|\\.ruff_cache/|\\.pgdata/|\\.pgsocket/|\\.DS_Store$)|\\.(zip|tar|tgz)$"); z=zipfile.ZipFile(p); names=z.namelist(); matches=[n for n in names if bad.search(n)]; print(f"files={len(names)}"); print("blocked_matches=" + (", ".join(matches[:20]) if matches else "none"))'`
+  - `.venv/bin/python -c 'from pathlib import Path; import shutil; dst=Path("/Users/tercirafael/phase5_handoffs/review_bundles"); dst.mkdir(parents=True, exist_ok=True); target=dst / "money-flow-phase-5.8.1-review.zip"; shutil.copyfile("/Users/tercirafael/money-flow-phase-5.8.1-review.zip", target); print(target)'`
+  - `.venv/bin/python -c 'from pathlib import Path; import shutil; dst=Path("/Users/tercirafael/phase5_handoffs"); dst.mkdir(parents=True, exist_ok=True); target=dst / "PHASE_5_CHANGES_SINCE_5_4.md"; shutil.copyfile("PHASE_5_CHANGES_SINCE_5_4.md", target); print(target)'`
+
+## v2026.04.18.050
+
+- `recorded_at_utc`: `2026-04-18T18:35:06Z`
+- `scope`: `Phase 5.8 routed order-shape policy v2`
+- `intent`: `Native entry. Added explicit routed order-shape policy input and decision output for the controlled target-choice-to-child-intent conversion boundary without adding routing behavior. Conversion now accepts optional MARKET/LIMIT order-shape policy input; omitted input remains backward-compatible as MARKET / no limit price / reduce_only=false. Explicit LIMIT requires a positive limit_price and current modeled order-type support from the candidate assessment; missing, malformed, zero, negative, unsupported, MARKET+limit ambiguity, or reduce_only=true for mandate-scoped OPEN blocks before any child intent is created. Accepted and blocked order-shape decisions are visible in conversion provenance, and accepted decisions are persisted in child-intent provenance. Repeated conversion remains idempotent, and a different policy after conversion cannot create a second child intent or silently mutate the existing one. No auto-submit, target reselection, fanout, route executor, best-binding selection, smart routing, CBBO, venue ranking, execution-quality scoring, migration, config, new exchange, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `apps/api/app/api/routes.py`
+  - `services/routing/service.py`
+  - `tests/test_phase56_routed_order_shape_policy.py`
+  - `tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `tests/test_api.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core/domain/enums.py core/domain/models.py core/interfaces/services.py core/schemas/api.py apps/api/app/api/routes.py services/routing/service.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py tests/test_api.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase56_routed_order_shape_policy.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase56_routed_order_shape_policy.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-5.8-review.zip`
+  - `.venv/bin/python -c 'import zipfile, re; p="/Users/tercirafael/money-flow-phase-5.8-review.zip"; bad=re.compile(r"(^|/)(\\.env$|\\.venv/|__pycache__/|\\.pytest_cache/|\\.mypy_cache/|\\.ruff_cache/|\\.pgdata/|\\.pgsocket/|\\.DS_Store$)|\\.(zip|tar|tgz)$"); z=zipfile.ZipFile(p); names=z.namelist(); matches=[n for n in names if bad.search(n)]; print(f"files={len(names)}"); print("blocked_matches=" + (", ".join(matches[:20]) if matches else "none"))'`
+  - `.venv/bin/python -c 'from pathlib import Path; import shutil; dst=Path("/Users/tercirafael/phase5_handoffs/review_bundles"); dst.mkdir(parents=True, exist_ok=True); target=dst / "money-flow-phase-5.8-review.zip"; shutil.copyfile("/Users/tercirafael/money-flow-phase-5.8-review.zip", target); print(target)'`
+  - `.venv/bin/python -c 'from pathlib import Path; import re; root=Path("/Users/tercirafael/phase5_handoffs"); bad=re.compile(r"(^|/)(\\.env$|\\.venv/|__pycache__/|\\.pytest_cache/|\\.mypy_cache/|\\.ruff_cache/|\\.pgdata/|\\.pgsocket/|\\.DS_Store$)"); matches=[]; [matches.append(str(p.relative_to(root))) for p in root.rglob("*") if bad.search(str(p.relative_to(root)))]; print("handoff_forbidden_matches=" + (", ".join(matches[:20]) if matches else "none"))'`
+
+## v2026.04.18.049
+
+- `recorded_at_utc`: `2026-04-18T18:07:25Z`
+- `scope`: `Phase 5.7.1 routed same-target retry lineage and parser deduplication hotpatch`
+- `intent`: `Native entry. Fixed the Phase 5.7 review issues without widening routing scope. Same-target retry of a routed submitted order now stamps the existing routed lineage onto the retried SubmittedOrder before persistence, so routed retry results remain inspectable as routed-origin while preserving recovery_parent_submitted_order_id provenance and same-target / same-account / same-venue retry semantics. Non-routed same-target retry still does not fabricate routed lineage. Routed submitted-order lineage/lifecycle parsing was collapsed into one shared domain helper used by both execution service and API response mapping, preserving missing/malformed lineage handling and routed order-shape policy validation without duplicate parser logic. No target reselection, fanout, route executor behavior, auto-submit, CBBO, scoring, LIMIT/slippage expansion, migration, config, endpoint, new exchange, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `core/domain/routed_lifecycle.py`
+  - `services/execution/service.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core/domain/routed_lifecycle.py services/execution/service.py apps/api/app/api/routes.py tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-5.7.1-review.zip`
+  - `.venv/bin/python -c 'import zipfile, re; p="/Users/tercirafael/money-flow-phase-5.7.1-review.zip"; bad=re.compile(r"(^|/)(\\.env$|\\.venv/|__pycache__/|\\.pytest_cache/|\\.mypy_cache/|\\.ruff_cache/|\\.pgdata/|\\.pgsocket/|\\.DS_Store$)|\\.(zip|tar|tgz)$"); z=zipfile.ZipFile(p); names=z.namelist(); matches=[n for n in names if bad.search(n)]; print(f"files={len(names)}"); print("blocked_matches=" + (", ".join(matches[:20]) if matches else "none"))'`
+  - `.venv/bin/python -c 'from pathlib import Path; import shutil; dst=Path("/Users/tercirafael/phase5_handoffs/review_bundles"); dst.mkdir(parents=True, exist_ok=True); target=dst / "money-flow-phase-5.7.1-review.zip"; shutil.copyfile("/Users/tercirafael/money-flow-phase-5.7.1-review.zip", target); print(target)'`
+  - `.venv/bin/python -c 'from pathlib import Path; import re; root=Path("/Users/tercirafael/phase5_handoffs"); bad=re.compile(r"(^|/)(\\.env$|\\.venv/|__pycache__/|\\.pytest_cache/|\\.mypy_cache/|\\.ruff_cache/|\\.pgdata/|\\.pgsocket/|\\.DS_Store$)"); matches=[]; [matches.append(str(p.relative_to(root))) for p in root.rglob("*") if bad.search(str(p.relative_to(root)))]; print("handoff_forbidden_matches=" + (", ".join(matches[:20]) if matches else "none"))'`
+
+## v2026.04.18.048
+
+- `recorded_at_utc`: `2026-04-18T17:28:56Z`
+- `scope`: `Phase 5.7 routed post-submit lifecycle/actionability inspection`
+- `intent`: `Native entry. Added the first routed post-submit lifecycle/actionability inspection layer for already submitted routed child intents without adding routing behavior. Submitted-order detail/list responses now expose read-only routed_lifecycle_context alongside routed lineage; recovery recommendation, recovery execution response, and actionability responses expose the same selected route context so operators can inspect desired-trade, routing assessment, target-choice, selected binding/account, selected venue, selected exchange symbol, readiness, and routed order-shape policy facts without parsing raw payload manually. Routed recovery/actionability remains same-target, same-account, and same-venue only; malformed routed payloads stay bounded with missing/malformed lineage facts; non-routed submitted orders do not fabricate routed context. No auto-submit, fanout, CBBO, venue ranking/scoring, target reselection, route executor behavior, LIMIT/slippage routed order-shape expansion, cross-binding recovery, cross-venue retry/failover, new exchange, migration, config change, endpoint, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `core/domain/models.py`
+  - `core/schemas/api.py`
+  - `services/execution/service.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core/domain/models.py core/schemas/api.py services/execution/service.py apps/api/app/api/routes.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase42_execution_readiness.py tests/test_phase43_submission.py tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py tests/test_api.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-5.7-review.zip`
+  - `.venv/bin/python -c 'import zipfile, re; p="/Users/tercirafael/money-flow-phase-5.7-review.zip"; bad=re.compile(r"(^|/)(\\.env$|\\.venv/|__pycache__/|\\.pytest_cache/|\\.mypy_cache/|\\.ruff_cache/|\\.pgdata/|\\.pgsocket/|\\.DS_Store$)|\\.(zip|tar|tgz)$"); z=zipfile.ZipFile(p); names=z.namelist(); matches=[n for n in names if bad.search(n)]; print(f"files={len(names)}"); print("blocked_matches=" + (", ".join(matches[:20]) if matches else "none"))'`
+  - `.venv/bin/python -c 'from pathlib import Path; import shutil; dst=Path("/Users/tercirafael/phase5_handoffs/review_bundles"); dst.mkdir(parents=True, exist_ok=True); target=dst / "money-flow-phase-5.7-review.zip"; shutil.copyfile("/Users/tercirafael/money-flow-phase-5.7-review.zip", target); print(target)'`
+  - `.venv/bin/python -c 'from pathlib import Path; import re; root=Path("/Users/tercirafael/phase5_handoffs"); bad=re.compile(r"(^|/)(\\.env$|\\.venv/|__pycache__/|\\.pytest_cache/|\\.mypy_cache/|\\.ruff_cache/|\\.pgdata/|\\.pgsocket/|\\.DS_Store$)"); matches=[]; [matches.append(str(p.relative_to(root))) for p in root.rglob("*") if bad.search(str(p.relative_to(root)))]; print("handoff_forbidden_matches=" + (", ".join(matches[:20]) if matches else "none"))'`
+
+## v2026.04.18.047
+
+- `recorded_at_utc`: `2026-04-18T16:47:33Z`
+- `scope`: `Phase 5.6 routed order-shape policy and lineage malformed-type truth`
+- `intent`: `Native entry. Fixed the Phase 5.5 routed submitted-order lineage P2 issue by marking wrong-typed routed lineage fields as malformed, exposing malformed_lineage_fields alongside missing_lineage_fields while keeping submitted-order list/detail responses bounded and non-crashing. Added the first explicit routed order-shape policy for the current target-choice conversion path: converted routed child intents now get MARKET / no limit price / reduce_only=false from a policy-backed RoutedOrderShapeDecision with visible child-intent provenance instead of an implicit hardcoded default. LIMIT routed order-shape policy, routed limit-price source, and slippage guard semantics remain deferred. No smart routing, target reselection, best-binding selection, CBBO, venue ranking, price/quality scoring, fanout, route executor behavior, auto-submit, cross-binding recovery, cross-venue retry/failover, new exchange, migration, config change, API endpoint, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `core/schemas/api.py`
+  - `apps/api/app/api/routes.py`
+  - `services/routing/service.py`
+  - `tests/test_phase55_routed_submitted_order_lineage.py`
+  - `tests/test_phase56_routed_order_shape_policy.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core/schemas/api.py apps/api/app/api/routes.py services/routing/service.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase55_routed_submitted_order_lineage.py -k "malformed or wrong_typed or non_routed"`
+  - `.venv/bin/python -m pytest -q tests/test_phase55_routed_submitted_order_lineage.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase56_routed_order_shape_policy.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase42_execution_readiness.py tests/test_phase43_submission.py tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py tests/test_api.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-5.6-review.zip`
+  - `.venv/bin/python -c 'import zipfile, re; p="/Users/tercirafael/money-flow-phase-5.6-review.zip"; bad=re.compile(r"(^|/)(\\.env$|\\.venv/|__pycache__/|\\.pytest_cache/|\\.mypy_cache/|\\.ruff_cache/|\\.pgdata/|\\.pgsocket/|\\.DS_Store$)|\\.(zip|tar|tgz)$"); z=zipfile.ZipFile(p); names=z.namelist(); matches=[n for n in names if bad.search(n)]; print(f"files={len(names)}"); print("blocked_matches=" + (", ".join(matches[:20]) if matches else "none"))'`
+
+## v2026.04.18.046
+
+- `recorded_at_utc`: `2026-04-18T15:53:17Z`
+- `scope`: `Phase 5.5 routed submitted-order lineage inspection`
+- `intent`: `Native entry. Added read-only routed submitted-order lineage inspection without adding routing behavior. SubmittedOrder API responses now expose derived routed-origin lineage from existing raw_payload["routed_submission"], including desired-trade, routing assessment, routing target-choice, selected binding/account, selected venue, selected exchange symbol, readiness evaluation, and no-auto-submit / no-fanout / no-scoring / no-target-reselection audit flags. Non-routed submitted orders do not fabricate routing ids, and malformed routed payloads are bounded with route_lineage_malformed / missing_lineage_fields rather than breaking list/detail responses. Documented routed order-shape policy as deferred while preserving the current controlled target-choice conversion default of market, no limit price, and non-reduce-only. No migration, config change, endpoint expansion, target reselection, fanout, scoring, CBBO, auto-submit, route executor behavior, new exchange, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `core/schemas/api.py`
+  - `apps/api/app/api/routes.py`
+  - `services/routing/service.py`
+  - `tests/test_phase55_routed_submitted_order_lineage.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core/schemas/api.py apps/api/app/api/routes.py tests/test_phase55_routed_submitted_order_lineage.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase55_routed_submitted_order_lineage.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase54_routed_submission_handoff.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase42_execution_readiness.py tests/test_phase43_submission.py tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py tests/test_api.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-5.5-review.zip`
+  - `.venv/bin/python -c 'import zipfile, re; p="/Users/tercirafael/money-flow-phase-5.5-review.zip"; bad=re.compile(r"(^|/)(\\.env$|\\.venv/|__pycache__/|\\.pytest_cache/|\\.mypy_cache/|\\.ruff_cache/|\\.pgdata/|\\.pgsocket/|\\.DS_Store$)|\\.(zip|tar|tgz)$"); z=zipfile.ZipFile(p); names=z.namelist(); matches=[n for n in names if bad.search(n)]; print(f"files={len(names)}"); print("blocked_matches=" + (", ".join(matches[:20]) if matches else "none"))'`
+
+## v2026.04.18.045
+
+- `recorded_at_utc`: `2026-04-18T14:43:49Z`
+- `scope`: `Operational handoff bundle workflow`
+- `intent`: `Native entry. Persisted the operator handoff requirement that each completed phase must produce a clean review ZIP in /Users/tercirafael/ using scripts/create_review_bundle.py and .archiveignore. This keeps phase handoff archives deterministic and avoids including .env files, keys, local virtualenvs, caches, generated archives, database/socket data, or other unnecessary local artifacts. No application behavior, routing scope, API endpoint, migration, or exchange behavior was changed.`
+- `affected_files`:
+  - `AGENTS.md`
+  - `CHANGELOG.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-5.4.1-cleanup-review.zip`
+  - `.venv/bin/python -c 'import zipfile, re; p="/Users/tercirafael/money-flow-phase-5.4.1-cleanup-review.zip"; bad=re.compile(r"(^|/)(\\.env$|\\.venv/|__pycache__/|\\.pytest_cache/|\\.mypy_cache/|\\.ruff_cache/|\\.pgdata/|\\.pgsocket/|\\.DS_Store$)|\\.(zip|tar|tgz)$"); z=zipfile.ZipFile(p); names=z.namelist(); matches=[n for n in names if bad.search(n)]; print(f"files={len(names)}"); print("blocked_matches=" + (", ".join(matches[:20]) if matches else "none"))'`
+
+## v2026.04.18.044
+
+- `recorded_at_utc`: `2026-04-18T14:25:05Z`
+- `scope`: `Phase 5.4.1 routed submission dual-gate truth cleanup`
+- `intent`: `Native entry. Fixed the remaining Phase 5.4.1 routed phase-gate truth inconsistency without adding routing scope. Routed child-intent readiness now records both routed_submission_deferred and phase_live_submit_deferred when both the separate routed-submit gate and the normal live-submit gate are disabled, so later submit-block provenance truthfully records routed_submission_deferred=true, live_submission_deferred=true, routed_submission_enabled=false, and live_submission_enabled=false. Phase-blocked routed submit attempts still preserve the child intent status, avoid last_submission_failure, skip adapter submission, and create no SubmittedOrder. No smart routing, target reselection, best-binding selection, CBBO, venue ranking, price/quality scoring, fanout, route executor behavior, auto-submit, new endpoint, migration, or new exchange behavior was added.`
+- `affected_files`:
+  - `services/execution/service.py`
+  - `tests/test_phase54_routed_submission_handoff.py`
+  - `CHANGELOG.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall services/execution/service.py tests/test_phase54_routed_submission_handoff.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase54_routed_submission_handoff.py -k "both_gates or routed_submission_disabled or live_gate or routed_submission_enabled_creates"`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase54_routed_submission_handoff.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase42_execution_readiness.py tests/test_phase43_submission.py tests/test_api.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+
+## v2026.04.18.043
+
+- `recorded_at_utc`: `2026-04-18T12:53:28Z`
+- `scope`: `Phase 5.4.1 routed submission phase-boundary truth hotpatch`
+- `intent`: `Native entry. Fixed two Phase 5.4 routed-submission truth leaks without adding routing scope. Routed child-intent submit attempts blocked by phase boundaries now preserve child-intent status and record last_submission_block for both routed_submission_deferred and phase_live_submit_deferred, avoiding misleading submission_failed status and last_submission_failure provenance when no adapter submission was attempted. Routed prepared-order preview payloads now remain non-submitting and explicit-submit-only while reporting the actual routed/live gate state; submission_deferred is true only when one or both phase gates still block explicit routed submission. No smart routing, target reselection, best-binding selection, CBBO, venue ranking, price/quality scoring, fanout, route executor behavior, auto-submit, new exchange, migration, or new API endpoint was added.`
+- `affected_files`:
+  - `services/execution/service.py`
+  - `tests/test_phase54_routed_submission_handoff.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase54_routed_submission_handoff.py`
+  - `.venv/bin/python -m compileall services/execution/service.py tests/test_phase54_routed_submission_handoff.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase53_routed_child_intent_readiness.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase42_execution_readiness.py tests/test_phase43_submission.py tests/test_api.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py tests/test_api.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_phase43_submission.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+
+## v2026.04.18.042
+
+- `recorded_at_utc`: `2026-04-18T12:18:30Z`
+- `scope`: `Phase 5.4 explicit routed submission handoff`
+- `intent`: `Native entry. Added the first controlled explicit routed submission handoff without adding smart routing or target reselection. A converted routed child intent now remains phase-blocked with routed_submission_deferred while the new EXECUTION_ROUTED_SUBMISSION_PHASE_ENABLED gate is false; disabled routed submit attempts are recorded as phase-boundary blocks without marking the child intent submission_failed. When the normal live-submit gate and the separate routed-submit gate are both enabled, an explicit submit action can submit only the already selected routed child intent after Phase 5.3.1 route-lineage validation and normal readiness pass. Successful routed submission creates exactly one SubmittedOrder through the existing venue submit path and preserves desired-trade, routing assessment, target-choice, selected binding/account, selected venue, selected exchange symbol, and readiness lineage in submitted-order raw payload. No auto-submit, fanout, split allocation, CBBO, venue ranking, price/quality scoring, target reselection, route executor, new exchange, or schema migration was added.`
+- `affected_files`:
+  - `core/config/settings.py`
+  - `core/schemas/api.py`
+  - `services/execution/service.py`
+  - `.env.example`
+  - `tests/test_config.py`
+  - `tests/test_phase54_routed_submission_handoff.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_phase54_routed_submission_handoff.py`
+  - `.venv/bin/pytest -q tests/test_phase53_routed_child_intent_readiness.py`
+  - `.venv/bin/pytest -q tests/test_phase42_execution_readiness.py tests/test_phase43_submission.py`
+  - `.venv/bin/pytest -q tests/test_phase42_execution_readiness.py tests/test_phase43_submission.py tests/test_api.py tests/test_interfaces.py tests/test_operational_docs.py`
+  - `.venv/bin/pytest -q tests/test_config.py`
+  - `.venv/bin/pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py`
+  - `.venv/bin/pytest -q tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py tests/test_api.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_phase43_submission.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py`
+
+## v2026.04.18.041
+
+- `recorded_at_utc`: `2026-04-18T11:23:19Z`
+- `scope`: `Phase 5.3.1 routed child-intent readiness lineage hardening`
+- `intent`: `Native entry. Hardened the accepted Phase 5.3 routed child-intent preparation/readiness boundary without adding routed submission or new routing behavior. Routed lineage validation now blocks selected-target provenance drift across binding/account/venue/exchange-symbol fields, child-intent client/mandate identity drift, target-choice desired-trade linkage drift, and venue-account client mismatch before adapter preparation. Added direct regression coverage proving provenance drift, intent ownership drift, target-choice desired-trade drift, and explicit routed submit attempts are blocked before adapter preparation/submission; valid routed readiness remains phase-blocked with routed_submission_deferred. No routed submission, route executor, fanout, CBBO, scoring, target reselection, schema migration, new exchange, or auto-submit behavior was added.`
+- `affected_files`:
+  - `services/execution/service.py`
+  - `tests/test_phase53_routed_child_intent_readiness.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/pytest -q tests/test_phase53_routed_child_intent_readiness.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py`
+  - `.venv/bin/pytest -q tests/test_phase42_execution_readiness.py tests/test_api.py tests/test_interfaces.py tests/test_operational_docs.py`
+  - `.venv/bin/pytest -q tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py tests/test_api.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py`
+
+## v2026.04.18.040
+
+- `recorded_at_utc`: `2026-04-18T10:44:09Z`
+- `scope`: `Phase 5.3 routed child-intent preparation/readiness handoff`
+- `intent`: `Native entry. Added the controlled Phase 5.3 handoff that lets child intents created from explicit routing target-choice conversion enter the existing prepared-order preview and execution-readiness inspection paths without creating submitted orders. Routed preview/readiness now validates route-origin lineage from OrderIntent provenance, the current source desired trade, routing assessment, target choice, selected candidate, binding, venue account, and symbol mapping before preparing or assessing; stale desired-trade status, stale binding/account truth, or mismatched route lineage returns blocked preview/readiness facts with explicit reason codes. Valid routed readiness preserves routing assessment / target-choice lineage in provenance and remains phase-blocked with routed_submission_deferred. No live routed submission, extra child intent, fanout, split allocation, CBBO, price/quality scoring, venue ranking, target reselection, route executor, route plan, migration, or new exchange behavior was added.`
+- `affected_files`:
+  - `services/execution/service.py`
+  - `tests/test_phase53_routed_child_intent_readiness.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall services/execution/service.py`
+  - `.venv/bin/pytest -q tests/test_phase52_target_choice_conversion.py`
+  - `.venv/bin/pytest -q tests/test_phase53_routed_child_intent_readiness.py`
+  - `.venv/bin/pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py`
+  - `.venv/bin/pytest -q tests/test_phase42_execution_readiness.py tests/test_api.py tests/test_interfaces.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/pytest -q tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py tests/test_api.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py`
+
+## v2026.04.18.039
+
+- `recorded_at_utc`: `2026-04-18T10:14:13Z`
+- `scope`: `Phase 5.2.1 target-choice conversion lineage hardening`
+- `intent`: `Native entry. Hardened the Phase 5.2 target-choice-to-child-intent conversion path before Phase 5.3 by validating routing assessment id/ref/environment consistency, desired-trade client/mandate/source-policy/planning-source identity, and selected binding mandate ownership before any OrderIntent can be created. Added direct blocker tests for assessment id/environment drift, desired-trade ownership drift, binding mandate drift, missing desired-trade linkage, symbol-mapping drift, assessment status drift, incomplete target-choice fields, and existing happy-path/idempotency behavior. No routed preparation, readiness assessment, submitted order, submission, fanout, scoring, CBBO, target reselection, route-plan, route-executor, migration, or new routing behavior was added.`
+- `affected_files`:
+  - `services/routing/service.py`
+  - `tests/test_phase52_target_choice_conversion.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_phase52_target_choice_conversion.py`
+  - `.venv/bin/pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py`
+  - `.venv/bin/pytest -q tests/test_api.py tests/test_interfaces.py`
+  - `.venv/bin/pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/pytest -q tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py tests/test_api.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py`
+
+## v2026.04.18.038
+
+- `recorded_at_utc`: `2026-04-18T09:49:12Z`
+- `scope`: `Phase 5.2 controlled target-choice-to-child-intent conversion`
+- `intent`: `Native entry. Added the first controlled conversion step from an explicit recorded RoutingTargetChoice to exactly one binding/account-targeted OrderIntent. The conversion revalidates current target-choice, routing assessment, candidate, desired-trade, binding, venue-account, and symbol-mapping truth before creating a child intent; preserves routing assessment / target-choice / selected binding-account lineage in OrderIntent provenance; marks the source desired trade routed only to mean a child intent now exists; and is idempotent so repeated conversion of the same target choice returns the existing child intent instead of creating duplicates. No prepared venue order, execution-readiness assessment, submitted order, submission, fanout, split allocation, CBBO, price/quality scoring, target reselection, or smart routing behavior was added.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `services/routing/service.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_phase52_target_choice_conversion.py`
+  - `tests/test_api.py`
+  - `tests/test_interfaces.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_phase50_routing_substrate.py`
+  - `.venv/bin/pytest -q tests/test_phase51_routing_target_choice.py`
+  - `.venv/bin/pytest -q tests/test_phase52_target_choice_conversion.py`
+  - `.venv/bin/pytest -q tests/test_api.py tests/test_interfaces.py`
+  - `.venv/bin/pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/pytest -q tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py tests/test_api.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py`
+
+## v2026.04.18.037
+
+- `recorded_at_utc`: `2026-04-18T08:46:44Z`
+- `scope`: `Phase 5.1.1 target-choice desired-trade truth hotpatch`
+- `intent`: `Native entry. Tightened the Phase 5.1 non-executing target-choice substrate so a successful RoutingTargetChoice now revalidates current MandateDesiredTrade truth before recording success: the source desired trade must still exist, remain routing_required, remain mandate-scoped, remain an open action, and remain unbound to any target binding/account. Stale desired-trade drift now persists blocked_stale_assessment audit facts with explicit desired_trade_* reason codes while preserving existing assessment/candidate/binding/account stale checks. Wording was narrowed from operator-approved to operator-requested / explicit audit metadata because no auth or approval-policy enforcement exists. No child-intent conversion, execution readiness, submission, fanout, scoring, CBBO, or routing execution was added.`
+- `affected_files`:
+  - `services/routing/service.py`
+  - `tests/test_phase51_routing_target_choice.py`
+  - `core/schemas/api.py`
+  - `db/models/trading.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_phase51_routing_target_choice.py`
+  - `.venv/bin/pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py`
+  - `.venv/bin/pytest -q tests/test_api.py tests/test_interfaces.py`
+  - `.venv/bin/pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/pytest -q tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py tests/test_api.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py`
+
+## v2026.04.18.036
+
+- `recorded_at_utc`: `2026-04-18T08:16:40Z`
+- `scope`: `Phase 5.1 non-executing routing target-choice substrate`
+- `intent`: `Native entry. Cleaned up Phase 5.0 candidate semantics so RoutingCandidateAssessment.assessment_id always carries the persisted routing assessment id rather than the routing request id, then added the controlled Phase 5.1 target-choice layer: RoutingTargetChoice domain/API/persistence surfaces, a routing_target_choices audit table, operator-facing target-choice endpoints, explicit assessment/candidate/binding/account validation, recorded and blocked target-choice statuses, and tests proving target choice is non-executing. Target choice leaves MandateDesiredTrade.status at routing_required and does not create OrderIntent, PreparedVenueOrder, ExecutionReadinessAssessment, SubmittedOrder, fanout, allocation, venue scoring, CBBO, or submission behavior.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `db/models/trading.py`
+  - `db/models/__init__.py`
+  - `db/migrations/versions/20260418_0018_phase51_routing_target_choice.py`
+  - `services/routing/service.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_phase50_routing_substrate.py`
+  - `tests/test_phase51_routing_target_choice.py`
+  - `tests/test_api.py`
+  - `tests/test_interfaces.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_phase50_routing_substrate.py`
+  - `.venv/bin/pytest -q tests/test_phase51_routing_target_choice.py`
+  - `.venv/bin/pytest -q tests/test_api.py tests/test_interfaces.py`
+  - `.venv/bin/pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/pytest -q tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py tests/test_api.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+
+## v2026.04.16.035
+
+- `recorded_at_utc`: `2026-04-16T19:24:34Z`
+- `scope`: `Phase 5.0 non-executing routing assessment substrate`
+- `intent`: `Native entry. Added the first controlled routing substrate above the current execution layer without implementing target choice or live routing execution. Phase 5.0 introduces RoutingRequest, RoutingAssessment, and RoutingCandidateAssessment domain/API surfaces; persists routing_assessments and routing_assessment_candidates as assessment facts only; exposes non-executing routing-assessment creation/inspection endpoints for routing-required mandate-scoped open desired trades; enumerates eligible_for_future_selection and ineligible_for_future_selection binding candidates with explicit reason codes and missing-data facts; preserves same-venue multi-account candidate inventory; and adds tests proving assessments do not create OrderIntent or SubmittedOrder records and do not expose target-choice, ranking, scoring, fanout, or submission fields.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `db/models/trading.py`
+  - `db/models/__init__.py`
+  - `db/migrations/versions/20260417_0017_phase50_routing_assessment_substrate.py`
+  - `services/routing/__init__.py`
+  - `services/routing/service.py`
+  - `apps/api/app/dependencies.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_phase50_routing_substrate.py`
+  - `tests/test_api.py`
+  - `tests/test_interfaces.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_phase50_routing_substrate.py`
+  - `.venv/bin/pytest -q tests/test_api.py tests/test_interfaces.py`
+  - `.venv/bin/pytest -q tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_api.py tests/test_interfaces.py tests/test_phase50_routing_substrate.py`
+  - `.venv/bin/pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/pytest -q tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py tests/test_api.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py tests/test_phase50_routing_substrate.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+
+## v2026.04.16.034
+
+- `recorded_at_utc`: `2026-04-16T18:16:49Z`
+- `scope`: `Phase 4.10.2 scoped retry-fill evidence hotpatch`
+- `intent`: `Native entry. Removed the unsafe submitted-order private-fill convenience wrapper from the base, Aster, Binance, and Hyperliquid adapters so Aster/Binance same-account/same-symbol ambiguous retry evidence cannot be collapsed into plain submitted-order fills after losing evidence_scope. Kept retry safety unchanged by preserving ambiguous evidence inside SubmittedOrderPrivateFillEvidence, kept exact exchange-order-id matches order_scoped, tightened zero-match exact-id messages so they no longer claim a match occurred, and added direct regression coverage for Aster/Binance ambiguity leakage, order-scoped fills, zero-match messages, and unchanged retry blocking behavior. No routing, stream framework, target selection, fanout, native amend expansion, new exchange, migration, or orchestration action was added.`
+- `affected_files`:
+  - `services/exchange/base.py`
+  - `services/exchange/aster/adapter.py`
+  - `services/exchange/binance/adapter.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `tests/test_phase45_execution_lifecycle.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/pytest -q tests/test_phase45_execution_lifecycle.py -k "retry or private_state or open_positions or hyperliquid or binance or aster"`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/pytest -q tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py tests/test_api.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py`
+
+## v2026.04.16.033
+
+- `recorded_at_utc`: `2026-04-16T18:01:04Z`
+- `scope`: `Phase 4.10.1 retry-evidence time-bound and Hyperliquid mark-price truth hotpatch`
+- `intent`: `Native entry. Closed the remaining Phase 4.10 review issues without widening scope: Hyperliquid direct open-position parsing no longer emits mark_price=0 when clearinghouseState omits markPx and instead derives from positionValue / abs(szi) only when possible; Aster and Binance same-target retry private-fill checks now pass startTime from SubmittedOrder.submitted_at and defensively ignore pre-submit same-symbol fills while still blocking submitted-at-or-after ambiguity; exact exchange-order-id matches remain order_scoped; and Binance private-trade query failures are now directly covered so retry_same_target blocks before any new SubmittedOrder can be created. No routing, stream framework, target selection, fanout, new exchange, or orchestration action was added.`
+- `affected_files`:
+  - `services/exchange/hyperliquid/adapter.py`
+  - `services/exchange/aster/adapter.py`
+  - `services/exchange/binance/adapter.py`
+  - `services/execution/service.py`
+  - `tests/test_phase45_execution_lifecycle.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/pytest -q tests/test_phase45_execution_lifecycle.py -k "retry or private_state or open_positions or hyperliquid or binance or aster"`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py tests/test_api.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py`
+  - `.venv/bin/pytest -q tests/test_operational_docs.py`
+
+## v2026.04.16.032
+
+- `recorded_at_utc`: `2026-04-16T15:25:15Z`
+- `scope`: `Phase 4.10.0 final below-routing retry-evidence truth cleanup and Hyperliquid direct position parity`
+- `intent`: `Native entry. Closed the remaining Phase 4.9 truth drift by making Aster/Binance retry private-fill evidence explicitly scope-aware: when a rejected submitted order has no exchange order id, direct private trade evidence is now recorded and surfaced as same-account/same-symbol ambiguity instead of targeted order fill proof, and failed direct fill-evidence queries now block retry rather than proceeding optimistically. Deepened one code/test-proven private-state path by moving Hyperliquid open-position visibility to direct account-targeted clearinghouseState polling where account context exists, while preserving persistence fallback, keeping adapter-level user streams unimplemented, leaving Aster/Binance native amend unsupported, and avoiding routing, target selection, CBBO, fanout, or new exchanges.`
+- `affected_files`:
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `services/exchange/base.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `services/exchange/aster/adapter.py`
+  - `services/exchange/binance/adapter.py`
+  - `services/execution/service.py`
+  - `tests/test_phase45_execution_lifecycle.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_phase45_execution_lifecycle.py -k 'retry or private_state or open_positions or hyperliquid'`
+  - `.venv/bin/pytest -q tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py tests/test_api.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py`
+  - `.venv/bin/pytest -q tests/test_operational_docs.py`
+
+## v2026.04.16.031
+
+- `recorded_at_utc`: `2026-04-15T20:06:12Z`
+- `scope`: `Phase 4.9 below-routing private-state parity, scoped Kraken amend, and deeper same-target retry safety`
+- `intent`: `Native entry. Deepened the execution substrate below routing without widening into routing by moving Hyperliquid private open-order truth onto direct account-targeted venue query, adding direct private trade checks for Aster and Binance to harden same-target retry safety, broadening native amend parity to Kraken spot limit orders only, exposing per-surface runtime source truth on private-state operator endpoints, and updating docs/repo-memory to describe the narrower code/test-proven six-venue matrix honestly. Phase 4.10.0 later narrowed the Aster/Binance retry-fill wording to same-account/same-symbol ambiguity when no exchange order id exists.`
+- `affected_files`:
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `services/exchange/base.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `services/exchange/aster/adapter.py`
+  - `services/exchange/binance/adapter.py`
+  - `services/exchange/kraken/adapter.py`
+  - `services/execution/service.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_api.py`
+  - `tests/test_phase45_execution_lifecycle.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `python3 -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_phase45_execution_lifecycle.py -k 'private_state or open_orders or recent_fills or retry or amend or kraken or hyperliquid'`
+  - `.venv/bin/pytest -q tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py tests/test_api.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py`
+
+## v2026.04.16.030
+
+- `recorded_at_utc`: `2026-04-15T18:51:33Z`
+- `scope`: `Phase 4.8.1 private-state truth boundary hotfix`
+- `intent`: `Native entry. Corrected the remaining 4.8 boundary-truth issues without widening scope by separating venue-private open-order snapshots from platform SubmittedOrder identity end to end, removing fabricated live-* submitted-order ids from private open-order surfaces, making private-state source/availability fields describe the runtime path actually used for each summary call, narrowing /session-state to explicit adapter/runtime connection bookkeeping, and realigning tests/docs/repo-memory around that sharper below-routing private-state boundary while preserving all accepted 4.7.1 execution behavior and accepted 4.8 private-state depth that remains truthful.`
+- `affected_files`:
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `services/exchange/base.py`
+  - `services/exchange/aster/adapter.py`
+  - `services/exchange/binance/adapter.py`
+  - `services/exchange/coinbase/adapter.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `services/exchange/kraken/adapter.py`
+  - `services/exchange/okx/adapter.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_api.py`
+  - `tests/test_phase45_execution_lifecycle.py`
+  - `tests/test_operational_docs.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `python3 -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_api.py tests/test_phase45_execution_lifecycle.py -k 'private_state or open_orders or recent_fills or session_state or hyperliquid_recent_fills or binance_private_open_orders or okx_recent_fills'`
+  - `.venv/bin/pytest -q tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py tests/test_api.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py`
+
+## v2026.04.13.029
+
+- `recorded_at_utc`: `2026-04-13T05:40:04Z`
+- `scope`: `Phase 4.8 polling-first private-state and deeper venue/account order-state truth below routing`
+- `intent`: `Native entry. Deepened the execution substrate below routing by adding explicit polling-first private-state truth surfaces for session state, open orders, recent fills, and open positions; extending direct account-targeted private open-order polling to Aster/Binance/OKX/Coinbase Advanced Trade/Kraken; extending direct recent-fill polling to Hyperliquid/OKX/Coinbase Advanced Trade/Kraken; keeping user-stream parity explicit rather than implied; and tightening tests/docs around the narrower code/test-proven per-venue matrix without adding routing, target reselection, or new execution semantics above SubmittedOrder.`
+- `affected_files`:
+  - `core/domain/models.py`
+  - `core/schemas/api.py`
+  - `services/exchange/base.py`
+  - `services/exchange/aster/adapter.py`
+  - `services/exchange/binance/adapter.py`
+  - `services/exchange/coinbase/adapter.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `services/exchange/kraken/adapter.py`
+  - `services/exchange/okx/adapter.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_api.py`
+  - `tests/test_phase401_trade_planning.py`
+  - `tests/test_phase411_venue_preparation.py`
+  - `tests/test_phase41_risk.py`
+  - `tests/test_phase42_execution_readiness.py`
+  - `tests/test_phase45_execution_lifecycle.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `python3 -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_api.py tests/test_phase45_execution_lifecycle.py`
+  - `.venv/bin/pytest -q tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_operational_docs.py`
+
+## v2026.04.13.028
+
+- `recorded_at_utc`: `2026-04-13T04:01:26Z`
+- `scope`: `Phase 4.7.1 canonical-doc and repo-memory stale draft-reference cleanup`
+- `intent`: `Native entry. Removed the remaining stale references to deleted draft architecture/strategy docs from the canonical docs and repo-memory surfaces, kept the canonical documents self-contained, and added an operational-doc guard so future changes fail if they reintroduce references to nonexistent *_updated.md or *_preserve_refresh.md files.`
+- `affected_files`:
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `REPO_TREE.md`
+  - `CHANGELOG.md`
+  - `tests/test_operational_docs.py`
+- `validation_performed`:
+  - `.venv/bin/pytest -q tests/test_operational_docs.py`
+
+## v2026.04.13.027
+
+- `recorded_at_utc`: `2026-04-13T01:36:14Z`
+- `scope`: `Phase 4.7.1 submitted-order fill-merge truth and cancel-vs-amend capability-surface hotfix`
+- `intent`: `Native entry. Fixed the remaining 4.7 review blockers without widening scope by preserving terminal and cancel-pending submitted-order truth when persisted fill evidence is merged into lifecycle updates, correcting Hyperliquid exchange-status and capability surfaces so they report the current proven cancel/amend support truthfully, splitting the misleading public cancel/amend capability surface into explicit cancel and amend fields, and realigning the canonical docs and tests around the narrower code/test-proven post-4.7 boundary.`
+- `affected_files`:
+  - `core/domain/models.py`
+  - `core/schemas/api.py`
+  - `services/exchange/base.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `services/exchange/aster/adapter.py`
+  - `services/exchange/binance/adapter.py`
+  - `services/exchange/okx/adapter.py`
+  - `services/exchange/coinbase/adapter.py`
+  - `services/exchange/kraken/adapter.py`
+  - `services/execution/service.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_api.py`
+  - `tests/test_phase401_trade_planning.py`
+  - `tests/test_phase41_risk.py`
+  - `tests/test_phase411_venue_preparation.py`
+  - `tests/test_phase42_execution_readiness.py`
+  - `tests/test_phase45_execution_lifecycle.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `KNOWN_ISSUES.md`
+  - `REPO_TREE.md`
+  - `CHANGELOG.md`
+- `validation_performed`:
+  - `python3 -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_phase45_execution_lifecycle.py tests/test_phase44_submission_lifecycle.py tests/test_phase42_execution_readiness.py tests/test_api.py tests/test_operational_docs.py`
+  - `.venv/bin/pytest -q tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_interfaces.py`
+
+## v2026.04.13.026
+
+- `recorded_at_utc`: `2026-04-13T01:04:08Z`
+- `scope`: `Canonical docs consolidation for architecture and strategy at current head`
+- `intent`: `Native entry. Consolidated the architecture and strategy documentation into one current canonical source of truth for each topic by rewriting docs/architecture.md and docs/strategy.md around the actual 4.7 boundary, removing stale phase-forward wording, and updating repo-memory so future work treated those canonical docs as the only live architecture/strategy references.`
+- `affected_files`:
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+- `validation_performed`:
+  - `.venv/bin/pytest -q tests/test_operational_docs.py`
+
+## v2026.04.13.025
+
+- `recorded_at_utc`: `2026-04-12T17:21:48Z`
+- `scope`: `Phase 4.7 deeper post-submit cancel/amend parity and reconciliation truth below routing`
+- `intent`: `Native entry. Extended the post-submit execution layer without crossing into routing by adding truthful Hyperliquid cancel acknowledgement and native limit-order amend for the current perpetual scope, adding native Coinbase Advanced Trade amend for the current spot limit-order scope, tightening Hyperliquid reconciliation so canceled zero-remaining orders no longer misclassify as filled without fill evidence, deepening Aster canceled/expired-after-partial-fill truth and Kraken cancel acknowledgement truth, and broadening recovery/actionability semantics so amend acknowledgement now drives explicit reconcile-now follow-up while docs and repo-memory stay aligned with the narrower code/test-proven venue matrix.`
+- `affected_files`:
+  - `services/exchange/hyperliquid/adapter.py`
+  - `services/exchange/coinbase/adapter.py`
+  - `services/exchange/kraken/adapter.py`
+  - `services/exchange/okx/adapter.py`
+  - `services/exchange/aster/adapter.py`
+  - `services/execution/service.py`
+  - `tests/test_phase44_submission_lifecycle.py`
+  - `tests/test_phase45_execution_lifecycle.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `python3 -m compileall services/exchange/hyperliquid/adapter.py services/exchange/coinbase/adapter.py services/exchange/kraken/adapter.py services/exchange/okx/adapter.py services/exchange/aster/adapter.py services/execution/service.py tests/test_phase44_submission_lifecycle.py tests/test_phase45_execution_lifecycle.py`
+  - `.venv/bin/pytest -q tests/test_phase45_execution_lifecycle.py -k 'hyperliquid or amend or kraken or aster_canceled or recovery_execute_reconciles_amend'`
+  - `.venv/bin/pytest -q tests/test_phase45_execution_lifecycle.py tests/test_phase44_submission_lifecycle.py tests/test_api.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py`
+
+## v2026.04.09.024
+
+- `recorded_at_utc`: `2026-04-08T20:05:37Z`
+- `scope`: `Phase 4.6.1 same-target retry client-order-id truth hotpatch`
+- `intent`: `Native entry. Closed the remaining narrow 4.6 execution-truth gap by making same-target retry venue-scoped around strict client-order-id reuse semantics: Aster and Binance now generate a fresh retry client order id instead of silently reusing the original deterministic submission id, existing OKX retry behavior remains intact, retry/account-targeting tests were strengthened accordingly, and docs/repo-memory wording was narrowed to only the recovery parity the code and tests now prove.`
+- `affected_files`:
+  - `services/exchange/base.py`
+  - `services/exchange/aster/adapter.py`
+  - `services/exchange/binance/adapter.py`
+  - `services/execution/service.py`
+  - `tests/test_phase45_execution_lifecycle.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `python3 -m compileall services tests`
+  - `.venv/bin/pytest -q tests/test_phase45_execution_lifecycle.py -k 'retry'`
+
+## v2026.04.09.023
+
+- `recorded_at_utc`: `2026-04-08T18:21:54Z`
+- `scope`: `Phase 4.6 bounded post-submit orchestration, retry safety, and selective amend depth`
+- `intent`: `Native entry. Extended the post-submit execution layer without crossing into routing by adding explicit same-target recovery execution on top of the existing recovery recommendations, conservative retry safety checks that block when duplicate exposure cannot be ruled out, native OKX limit-order amend for the current scoped path, expanded lifecycle-event audit history for recovery/amend actions, and matching operator API surfaces/docs while keeping Hyperliquid cancel/amend and broader amend parity explicitly deferred.`
+- `affected_files`:
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `services/exchange/base.py`
+  - `services/exchange/okx/adapter.py`
+  - `services/execution/service.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_phase45_execution_lifecycle.py`
+  - `tests/test_interfaces.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `python3 -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_phase45_execution_lifecycle.py tests/test_interfaces.py`
+  - `.venv/bin/pytest -q tests/test_api.py tests/test_phase44_submission_lifecycle.py tests/test_phase43_submission.py tests/test_phase42_execution_readiness.py tests/test_config.py tests/test_operational_docs.py`
+
+## v2026.04.08.022
+
+- `recorded_at_utc`: `2026-04-08T13:34:27Z`
+- `scope`: `Phase 4.5.1 review-bundle hygiene enforcement`
+- `intent`: `Native entry. Finished the remaining 4.5.1 archive-hygiene condition by adding a deterministic review-bundle creation script that reads .archiveignore, prunes ignored local-artifact trees during the walk, and produces a real ZIP whose contents are now test-verified to exclude local developer artifacts such as .env, .venv, .pgdata, .pgsocket, .pytest_cache, .DS_Store, and __MACOSX without touching any execution logic.`
+- `affected_files`:
+  - `scripts/create_review_bundle.py`
+  - `.archiveignore`
+  - `tests/test_operational_docs.py`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `CHANGELOG.md`
+- `validation_performed`:
+  - `.venv/bin/pytest -q tests/test_operational_docs.py`
+  - `python3 -m compileall scripts tests`
+
+## v2026.04.08.021
+
+- `recorded_at_utc`: `2026-04-08T12:09:00Z`
+- `scope`: `Phase 4.5.1 cancel lifecycle truth hotfix`
+- `intent`: `Native entry. Corrected the narrow cancel-lifecycle overclaim from Phase 4.5 by introducing explicit intermediate submitted-order states for cancel request and cancel acknowledgement, making OKX and Coinbase Advanced Trade cancellation success remain non-terminal until later reconciliation confirms final canceled state, persisting lifecycle events for those stages, and realigning docs/archive hygiene notes with the corrected post-submit truth without broadening scope into routing, fanout, amend execution, or orchestration.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `services/exchange/base.py`
+  - `services/exchange/okx/adapter.py`
+  - `services/exchange/coinbase/adapter.py`
+  - `services/execution/service.py`
+  - `db/migrations/versions/20260408_0016_phase451_cancel_lifecycle_truth.py`
+  - `tests/test_phase45_execution_lifecycle.py`
+  - `tests/test_operational_docs.py`
+  - `.archiveignore`
+  - `README.md`
+  - `docs/architecture.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+- `validation_performed`:
+  - `python3 -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_phase45_execution_lifecycle.py`
+  - `.venv/bin/pytest -q tests/test_phase45_execution_lifecycle.py tests/test_phase44_submission_lifecycle.py tests/test_api.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py`
+  - `/bin/zsh -lc "TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py"`
+
+## v2026.04.08.020
+
+- `recorded_at_utc`: `2026-04-08T06:18:00Z`
+- `scope`: `Phase 4.5 deeper submitted-order lifecycle parity, recovery guidance, live cancel, and hygiene hardening`
+- `intent`: `Native entry. Extended the post-submit execution layer by adding venue-by-venue reconciliation beyond the existing Hyperliquid-first path, explicit submitted-order recovery recommendations, truthful live cancel execution for the currently supportable HTTP venues while keeping Hyperliquid cancel explicitly blocked, operator-facing recovery/actionability/cancel APIs, hermetic pytest isolation from workspace .env files, and review/archive hygiene via a dedicated .archiveignore surface without broadening scope into routing, mandate-scoped open target selection, or broad amend execution claims.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `services/exchange/base.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `services/exchange/aster/adapter.py`
+  - `services/exchange/okx/adapter.py`
+  - `services/exchange/coinbase/adapter.py`
+  - `services/exchange/binance/adapter.py`
+  - `services/exchange/kraken/adapter.py`
+  - `services/execution/service.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/conftest.py`
+  - `tests/test_phase3_strategy.py`
+  - `tests/test_phase45_execution_lifecycle.py`
+  - `tests/test_interfaces.py`
+  - `tests/test_config.py`
+  - `tests/test_operational_docs.py`
+  - `.archiveignore`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `python3 -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_phase45_execution_lifecycle.py tests/test_phase44_submission_lifecycle.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py`
+  - `.venv/bin/pytest -q tests/test_phase45_execution_lifecycle.py tests/test_phase44_submission_lifecycle.py tests/test_phase43_submission.py tests/test_phase431_submission_truth.py tests/test_phase42_execution_readiness.py tests/test_phase411_venue_preparation.py tests/test_phase4a_venues.py tests/test_api.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py`
+
+## v2026.04.08.019
+
+- `recorded_at_utc`: `2026-04-07T19:56:29Z`
+- `scope`: `Phase 4.4.1 narrow submitted-order lifecycle truth fixes`
+- `intent`: `Native entry. Corrected the remaining 4.4 lifecycle blockers by making Hyperliquid reconciliation combine open-order truth with fill truth before finalizing status, aligning immediate venue rejection so child intents no longer remain submitted when the venue rejected at submit time, tightening lifecycle-event coverage around those cases, and updating operator docs to describe the corrected execution-lifecycle truth without broadening scope into routing or cancel/amend behavior.`
+- `affected_files`:
+  - `services/exchange/base.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `services/execution/service.py`
+  - `tests/test_phase44_submission_lifecycle.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `python3 -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_phase44_submission_lifecycle.py`
+  - `.venv/bin/pytest -q tests/test_phase43_submission.py tests/test_phase431_submission_truth.py tests/test_phase42_execution_readiness.py tests/test_phase44_submission_lifecycle.py tests/test_api.py tests/test_interfaces.py tests/test_operational_docs.py`
+
+## v2026.04.08.018
+
+- `recorded_at_utc`: `2026-04-07T18:34:35Z`
+- `scope`: `Phase 4.4 submitted-order lifecycle, reconciliation, and cancel/amend groundwork`
+- `intent`: `Native entry. Added the first real post-submit execution lifecycle above the existing truthful submit boundary by extending submitted-order state with explicit reconciliation status and lifecycle rollups, persisting submitted-order lifecycle events for auditability, wiring execution-service reconciliation and single-target post-submit orchestration, adding the first Hyperliquid venue-truth reconciliation path plus honest lifecycle-unavailable handling for thinner venues, exposing submitted-order lifecycle inspection APIs, and updating docs/tests to describe the new 4.4 boundary without implying routing or live cancel/amend behavior.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `db/models/trading.py`
+  - `db/models/__init__.py`
+  - `db/migrations/versions/20260408_0015_phase44_post_submit_lifecycle.py`
+  - `services/exchange/base.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `services/execution/service.py`
+  - `services/portfolio/service.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_interfaces.py`
+  - `tests/test_phase44_submission_lifecycle.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `python3 -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_phase43_submission.py tests/test_phase431_submission_truth.py tests/test_phase44_submission_lifecycle.py tests/test_api.py tests/test_interfaces.py`
+  - `.venv/bin/pytest -q tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_phase43_submission.py tests/test_phase431_submission_truth.py tests/test_phase44_submission_lifecycle.py tests/test_phase4a_venues.py tests/test_phase41_risk.py tests/test_phase401_trade_planning.py tests/test_api.py tests/test_interfaces.py tests/test_config.py tests/test_operational_docs.py`
+
+## v2026.04.07.017
+
+- `recorded_at_utc`: `2026-04-07T16:50:46Z`
+- `scope`: `Phase 4.3.3 exact submit-body fidelity and final execution-truth cleanup`
+- `intent`: `Native entry. Closed the remaining narrow execution-truth gap by adding exact JSON/form submission helpers so the signed payload representation and transmitted payload representation match for the claimed venue submit scopes, tightening submission-truth tests around raw transmitted bodies and same-venue account targeting, and narrowing docs/capability wording to code/test-proven submit-path truth without implying broader live-validation than the repo actually has.`
+- `affected_files`:
+  - `services/exchange/base.py`
+  - `services/exchange/aster/adapter.py`
+  - `services/exchange/binance/adapter.py`
+  - `services/exchange/okx/adapter.py`
+  - `services/exchange/coinbase/adapter.py`
+  - `services/exchange/kraken/adapter.py`
+  - `tests/test_phase43_submission.py`
+  - `tests/test_phase431_submission_truth.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/pytest -q tests/test_phase431_submission_truth.py tests/test_phase43_submission.py`
+  - `python3 -m compileall services tests core`
+  - `.venv/bin/pytest -q tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_phase43_submission.py tests/test_phase431_submission_truth.py tests/test_phase4a_venues.py tests/test_config.py tests/test_api.py tests/test_interfaces.py tests/test_operational_docs.py`
+
+## v2026.04.07.016
+
+- `recorded_at_utc`: `2026-04-07T10:13:16Z`
+- `scope`: `Phase 4.3.2 execution-truth fixes and scoped auth/account-targeting hardening`
+- `intent`: `Native entry. Corrected the remaining 4.3.1 execution-truth gaps by making credential resolution explicit instead of treating reference labels as raw secret material, fixing Coinbase Advanced Trade to use the documented JWT bearer auth model, moving Hyperliquid to an SDK-faithful L1 signing flow, tightening Aster/OKX/Binance/Kraken account-targeted signing and account-snapshot behavior, adding stronger auth/signing/account-targeting tests, and realigning docs/config guidance with the actual submission boundary at head.`
+- `affected_files`:
+  - `core/config/settings.py`
+  - `services/exchange/base.py`
+  - `services/exchange/coinbase/jwt_auth.py`
+  - `services/exchange/coinbase/adapter.py`
+  - `services/exchange/hyperliquid/signing.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `services/exchange/aster/adapter.py`
+  - `services/exchange/okx/adapter.py`
+  - `services/exchange/binance/adapter.py`
+  - `services/exchange/kraken/adapter.py`
+  - `pyproject.toml`
+  - `tests/test_phase411_venue_preparation.py`
+  - `tests/test_phase43_submission.py`
+  - `tests/test_phase431_submission_truth.py`
+  - `tests/test_phase4a_venues.py`
+  - `.env.example`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `python3 -m compileall services tests core`
+  - `.venv/bin/pytest -q tests/test_phase431_submission_truth.py tests/test_phase43_submission.py tests/test_phase4a_venues.py tests/test_config.py`
+  - `.venv/bin/pytest -q tests/test_phase42_execution_readiness.py tests/test_phase411_venue_preparation.py tests/test_api.py tests/test_interfaces.py tests/test_operational_docs.py tests/test_phase431_submission_truth.py tests/test_phase43_submission.py tests/test_phase4a_venues.py tests/test_config.py`
+
+## v2026.04.07.015
+
+- `recorded_at_utc`: `2026-04-07T07:46:11Z`
+- `scope`: `Phase 4.3.1 truthful account-targeted submission and Binance/Kraken maturity`
+- `intent`: `Native entry. Corrected the overclaimed 4.3 submission boundary by moving submit-path truth into venue-specific authenticated adapters, making submission resolve the targeted VenueAccount instead of a venue-global integration account, adding Binance and Kraken to the current execution-preparable maturity branch with scoped preview/preflight and submit support, and realigning tests/docs with code reality.`
+- `affected_files`:
+  - `core/config/settings.py`
+  - `services/exchange/base.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `services/exchange/aster/adapter.py`
+  - `services/exchange/okx/adapter.py`
+  - `services/exchange/coinbase/adapter.py`
+  - `services/exchange/registry.py`
+  - `services/exchange/binance/__init__.py`
+  - `services/exchange/binance/adapter.py`
+  - `services/exchange/kraken/__init__.py`
+  - `services/exchange/kraken/adapter.py`
+  - `tests/test_config.py`
+  - `tests/test_phase4a_venues.py`
+  - `tests/test_phase43_submission.py`
+  - `tests/test_phase431_submission_truth.py`
+  - `.env.example`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `python3 -m compileall core services tests`
+  - `.venv/bin/pytest -q tests/test_phase431_submission_truth.py tests/test_phase43_submission.py tests/test_phase42_execution_readiness.py tests/test_phase4a_venues.py tests/test_config.py`
+  - `.venv/bin/pytest -q tests/test_config.py tests/test_interfaces.py tests/test_api.py tests/test_phase4a_venues.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_phase43_submission.py tests/test_phase431_submission_truth.py tests/test_operational_docs.py`
+
+## v2026.04.07.014
+
+- `recorded_at_utc`: `2026-04-06T20:25:57Z`
+- `scope`: `Phase 4.3 live-submission path and submitted-order truth`
+- `intent`: `Native entry. Added the first explicit live-submission transition from prepared child intent to persisted submitted-order truth, implemented real submit-order adapter paths for the current venue set, added per-venue submission enablement controls, widened execution/API surfaces for submitted orders, and preserved the readiness gate as the mandatory precondition to any submission attempt.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/config/settings.py`
+  - `core/schemas/api.py`
+  - `db/migrations/versions/20260407_0014_phase43_submission_lifecycle.py`
+  - `services/exchange/base.py`
+  - `services/exchange/registry.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `services/exchange/aster/adapter.py`
+  - `services/exchange/okx/adapter.py`
+  - `services/exchange/coinbase/adapter.py`
+  - `services/execution/service.py`
+  - `services/portfolio/service.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_phase43_submission.py`
+  - `tests/test_phase4a_venues.py`
+  - `tests/test_interfaces.py`
+  - `tests/test_config.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `.env.example`
+- `validation_performed`:
+  - `python3 -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_phase43_submission.py tests/test_phase4a_venues.py tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_interfaces.py tests/test_config.py tests/test_api.py`
+
+## v2026.04.03.001
+
+- `recorded_at_utc`: `2026-04-03T19:10:00Z`
+- `scope`: `Phase 1 scaffold`
+- `intent`: `Reconstructed entry. Established the initial production-minded scaffold for a Hyperliquid-first multi-strategy trading platform.`
+- `affected_files`:
+  - `README.md`
+  - `docs/architecture.md`
+  - `apps/api/`
+  - `core/`
+  - `db/`
+  - `services/`
+  - `tests/`
+- `validation_performed`:
+  - `Reconstructed from repo structure and later phase documentation. No original phase-time changelog entry existed.`
+
+## v2026.04.03.002
+
+- `recorded_at_utc`: `2026-04-03T19:11:00Z`
+- `scope`: `Phase 1.1 cleanup`
+- `intent`: `Reconstructed entry. Hardened Phase 1 documentation, config, Hyperliquid contract coverage, and smoke validation.`
+- `affected_files`:
+  - `README.md`
+  - `docs/architecture.md`
+  - `core/config/settings.py`
+  - `core/interfaces/hyperliquid.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `tests/test_api.py`
+  - `tests/test_config.py`
+  - `tests/test_interfaces.py`
+  - `tests/test_migrations.py`
+- `validation_performed`:
+  - `Reconstructed from repo state and prior phase summaries.`
+
+## v2026.04.03.003
+
+- `recorded_at_utc`: `2026-04-03T19:12:00Z`
+- `scope`: `Phase 2 exchange/data/state foundation`
+- `intent`: `Reconstructed entry. Added Hyperliquid exchange integration boundaries, market-data ingestion foundation, reconciliation, persistence wiring, and operator endpoints.`
+- `affected_files`:
+  - `services/exchange/hyperliquid/adapter.py`
+  - `services/market_data/service.py`
+  - `services/portfolio/service.py`
+  - `db/models/trading.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_phase2_services.py`
+- `validation_performed`:
+  - `Reconstructed from implemented code and Phase 2 handoff summary.`
+
+## v2026.04.03.004
+
+- `recorded_at_utc`: `2026-04-03T19:13:00Z`
+- `scope`: `Phase 2.1 hardening`
+- `intent`: `Reconstructed entry. Hardened instrument normalization, venue readiness, checkpoint semantics, exchange truth vs attribution separation, and execution-quality data foundations.`
+- `affected_files`:
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `db/models/trading.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `services/market_data/service.py`
+  - `services/portfolio/service.py`
+  - `db/migrations/versions/20260402_0003_phase21_hardening.py`
+- `validation_performed`:
+  - `Reconstructed from repo state and prior phase documentation.`
+
+## v2026.04.03.005
+
+- `recorded_at_utc`: `2026-04-03T19:14:00Z`
+- `scope`: `Phase 3 indicator and strategy layer`
+- `intent`: `Reconstructed entry. Added deterministic indicator computation, persisted indicator snapshots, the modular strategy framework, and Money Flow sleeves for 15m/1h/4h.`
+- `affected_files`:
+  - `services/indicators/service.py`
+  - `services/strategy/base.py`
+  - `services/strategy/engine.py`
+  - `services/strategy/money_flow.py`
+  - `docs/strategy.md`
+  - `tests/test_phase3_strategy.py`
+- `validation_performed`:
+  - `Reconstructed from implemented code and prior phase summary.`
+
+## v2026.04.03.006
+
+- `recorded_at_utc`: `2026-04-03T19:15:00Z`
+- `scope`: `Phase 3.1 strategy hardening`
+- `intent`: `Reconstructed entry. Hardened instrument identity semantics, stale-indicator rejection, decision idempotency, Money Flow exit logic, portfolio summary semantics, and builder-asset policy.`
+- `affected_files`:
+  - `core/domain/models.py`
+  - `core/config/settings.py`
+  - `db/models/trading.py`
+  - `db/migrations/versions/20260403_0005_phase31_strategy_hardening.py`
+  - `services/strategy/engine.py`
+  - `services/strategy/money_flow.py`
+  - `services/portfolio/service.py`
+  - `tests/test_phase2_services.py`
+  - `tests/test_phase3_strategy.py`
+- `validation_performed`:
+  - `Reconstructed from implemented code and Phase 3.1 completion summary.`
+
+## v2026.04.03.007
+
+- `recorded_at_utc`: `2026-04-03T19:16:00Z`
+- `scope`: `Phase 3.2 documentation governance`
+- `intent`: `Native entry. Added operational-memory docs, standardized changelog governance, required startup/shutdown doc workflow, and lightweight validation for documentation presence and references.`
+- `affected_files`:
+  - `AGENTS.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `tests/test_operational_docs.py`
+- `validation_performed`:
+  - `python3 -m compileall tests`
+  - `.venv/bin/pytest -q tests/test_operational_docs.py`
+
+## v2026.04.04.008
+
+- `recorded_at_utc`: `2026-04-04T07:08:00Z`
+- `scope`: `Phase 3.3 client/account/deployment hierarchy hardening`
+- `intent`: `Native entry. Replaced the remaining single-account assumptions with first-class client, venue account, strategy deployment, and deployment-scoped sleeve configuration models; wired the active deployment context through portfolio, strategy, API, and migration/backfill paths so Phase 4 can operate on account/deployment-scoped state.`
+- `affected_files`:
+  - `core/config/settings.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `db/models/trading.py`
+  - `db/models/__init__.py`
+  - `db/migrations/versions/20260404_0006_phase33_client_account_deployment.py`
+  - `services/runtime/context.py`
+  - `services/portfolio/service.py`
+  - `services/strategy/engine.py`
+  - `services/strategy/money_flow.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `apps/api/app/dependencies.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_config.py`
+  - `tests/test_api.py`
+  - `tests/test_phase3_strategy.py`
+  - `tests/test_phase33_hierarchy.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `.env.example`
+- `validation_performed`:
+  - `python3 -m compileall apps core db services tests`
+  - `.venv/bin/pytest -q`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase33 .venv/bin/pytest -q tests/test_migrations.py`
+
+## v2026.04.05.009
+
+- `recorded_at_utc`: `2026-04-05T03:55:00Z`
+- `scope`: `Phase 3.4 mandate hierarchy refactor`
+- `intent`: `Native entry. Replaced the deployment-top runtime model with a mandate-top hierarchy so one logical strategy umbrella can span many venue accounts through bindings, while keeping VenueAccount as the exchange-truth boundary and preparing Phase 4 for mandate/binding-scoped risk and intents.`
+- `affected_files`:
+  - `core/config/settings.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `db/models/trading.py`
+  - `db/models/__init__.py`
+  - `db/migrations/versions/20260405_0007_phase34_mandate_hierarchy.py`
+  - `services/runtime/context.py`
+  - `services/strategy/engine.py`
+  - `services/strategy/money_flow.py`
+  - `services/portfolio/service.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `apps/api/app/api/routes.py`
+  - `.env.example`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `tests/test_api.py`
+  - `tests/test_config.py`
+  - `tests/test_phase34_mandates.py`
+- `validation_performed`:
+  - `python3 -m compileall apps core db services tests`
+  - `.venv/bin/pytest -q tests/test_interfaces.py tests/test_phase2_services.py tests/test_config.py tests/test_api.py tests/test_phase3_strategy.py tests/test_phase34_mandates.py tests/test_operational_docs.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+
+## v2026.04.05.010
+
+- `recorded_at_utc`: `2026-04-05T11:45:00Z`
+- `scope`: `Phase 3.5 mandate hierarchy cleanup and consolidation`
+- `intent`: `Native entry. Removed active deployment-era baggage from the mandate/binding/component model, dropped legacy deployment tables and columns from the active schema, removed the deployment-key runtime fallback, tightened tests around many-mandates-per-client and reusable accounts, and updated repo/docs language to describe the platform as signal generation plus future routing/execution preparation.`
+- `affected_files`:
+  - `core/config/settings.py`
+  - `db/models/trading.py`
+  - `db/models/__init__.py`
+  - `db/migrations/versions/20260405_0008_phase35_cleanup_legacy_deployments.py`
+  - `services/strategy/engine.py`
+  - `apps/api/app/dependencies.py`
+  - `tests/test_config.py`
+  - `tests/test_phase3_strategy.py`
+  - `tests/test_phase34_mandates.py`
+  - `tests/test_phase35_cleanup.py`
+  - `.gitignore`
+  - `.env.example`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `python3 -m compileall apps core db services tests`
+  - `.venv/bin/pytest -q tests/test_config.py tests/test_api.py tests/test_phase3_strategy.py tests/test_phase34_mandates.py tests/test_phase35_cleanup.py tests/test_operational_docs.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+
+## v2026.04.05.011
+
+- `recorded_at_utc`: `2026-04-05T15:50:00Z`
+- `scope`: `Phase 4A multi-venue read-only adapter hardening`
+- `intent`: `Native entry. Added first-class read-only / QA adapters for Aster, OKX, and Coinbase Advanced Trade, introduced a venue registry and multi-venue QA inspection endpoints, widened the shared capability/status/account-connectivity model, and fixed the symbol uniqueness model so one venue can carry multiple product mappings for the same canonical asset.`
+- `affected_files`:
+  - `core/config/settings.py`
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `services/exchange/base.py`
+  - `services/exchange/common.py`
+  - `services/exchange/registry.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `services/exchange/aster/adapter.py`
+  - `services/exchange/okx/adapter.py`
+  - `services/exchange/coinbase/adapter.py`
+  - `apps/api/app/dependencies.py`
+  - `apps/api/app/api/routes.py`
+  - `db/models/trading.py`
+  - `db/migrations/versions/20260405_0009_phase4a_symbol_uniqueness.py`
+  - `.env.example`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `tests/test_config.py`
+  - `tests/test_api.py`
+  - `tests/test_phase4a_venues.py`
+- `validation_performed`:
+  - `python3 -m compileall apps core db services tests`
+  - `.venv/bin/pytest -q tests/test_config.py tests/test_api.py tests/test_phase2_services.py tests/test_phase3_strategy.py tests/test_phase34_mandates.py tests/test_phase35_cleanup.py tests/test_phase4a_venues.py tests/test_operational_docs.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+
+## v2026.04.05.012
+
+- `recorded_at_utc`: `2026-04-05T16:59:53Z`
+- `scope`: `Phase 4.0.1 mandate desired-trade and routing-candidate boundary`
+- `intent`: `Native entry. Added the mandate-level desired-trade boundary above downstream child intents, introduced derived routing-candidate and normalized quote inspection models/services, clarified `OrderIntent` as the future binding/account-targeted child-intent object, and added planning inspection endpoints so Phase 4B can build risk approval on the correct architectural split.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `db/models/trading.py`
+  - `db/models/__init__.py`
+  - `db/migrations/versions/20260405_0010_phase401_mandate_desired_trade_boundary.py`
+  - `services/planning/service.py`
+  - `services/execution/service.py`
+  - `apps/api/app/dependencies.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_api.py`
+  - `tests/test_phase401_trade_planning.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `python3 -m compileall apps core db services tests`
+  - `.venv/bin/pytest -q tests/test_api.py tests/test_phase401_trade_planning.py tests/test_operational_docs.py`
+  - `.venv/bin/pytest -q tests/test_config.py tests/test_phase3_strategy.py tests/test_phase34_mandates.py tests/test_phase35_cleanup.py tests/test_phase4a_venues.py tests/test_interfaces.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+
+## v2026.04.05.013
+
+- `recorded_at_utc`: `2026-04-05T19:38:42Z`
+- `scope`: `Phase 4.0.2 source-policy and desired-trade boundary hardening`
+- `intent`: `Native entry. Added first-class mandate market-data source policy, hardened mandate desired-trade aggregation/idempotency and convertibility rules, refactored shared risk/execution interfaces off the old direct decision->intent teaching path, tightened planning around canonical instrument identity, and updated the docs to describe the explicit split between planning/source venue, desired trades, routing candidates, and future child intents.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/config/settings.py`
+  - `core/schemas/api.py`
+  - `db/models/trading.py`
+  - `db/models/__init__.py`
+  - `db/migrations/versions/20260406_0011_phase402_source_policy_and_trade_aggregation.py`
+  - `services/runtime/context.py`
+  - `services/planning/service.py`
+  - `services/strategy/engine.py`
+  - `services/strategy/money_flow.py`
+  - `services/risk/engine.py`
+  - `services/execution/service.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_config.py`
+  - `tests/test_interfaces.py`
+  - `tests/test_api.py`
+  - `tests/test_phase401_trade_planning.py`
+  - `.env.example`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `python3 -m compileall apps core db services tests`
+  - `.venv/bin/pytest -q tests/test_config.py tests/test_interfaces.py tests/test_api.py tests/test_phase2_services.py tests/test_phase3_strategy.py tests/test_phase34_mandates.py tests/test_phase35_cleanup.py tests/test_phase4a_venues.py tests/test_phase401_trade_planning.py tests/test_operational_docs.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+
+## v2026.04.06.014
+
+- `recorded_at_utc`: `2026-04-06T10:49:23Z`
+- `scope`: `Phase 4.1 risk evaluation, desired-trade approval, and selective child-intent preparation`
+- `intent`: `Native entry. Added the first real risk-evaluation layer over persisted strategy decisions using convertibility and mandate source-policy context, introduced explicit approved/rejected/routing-required desired-trade lifecycle handling, created binding/account-targeted child intents only for naturally binding-scoped actions when the target is already known, and updated the docs/API around the desired-trade-first architecture.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/config/settings.py`
+  - `core/schemas/api.py`
+  - `services/planning/service.py`
+  - `services/risk/engine.py`
+  - `services/execution/service.py`
+  - `apps/api/app/dependencies.py`
+  - `apps/api/app/api/routes.py`
+  - `db/models/trading.py`
+  - `db/models/__init__.py`
+  - `db/migrations/versions/20260406_0012_phase41_risk_approval_and_child_intents.py`
+  - `tests/test_interfaces.py`
+  - `tests/test_api.py`
+  - `tests/test_phase41_risk.py`
+  - `.env.example`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `python3 -m compileall apps core db services tests`
+  - `.venv/bin/pytest -q tests/test_interfaces.py tests/test_api.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py`
+  - `.venv/bin/pytest -q tests/test_config.py tests/test_interfaces.py tests/test_api.py tests/test_phase2_services.py tests/test_phase3_strategy.py tests/test_phase34_mandates.py tests/test_phase35_cleanup.py tests/test_phase4a_venues.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_operational_docs.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+
+## v2026.04.06.015
+
+- `recorded_at_utc`: `2026-04-06T13:56:49Z`
+- `scope`: `Phase 4.1.1 venue maturity and prepared-order preflight hardening`
+- `intent`: `Native entry. Matured Hyperliquid, Aster, OKX, and Coinbase Advanced Trade from weak QA-only posture into explicit execution-preparable integrations for this phase, added venue-native prepared-order preview/preflight below child intents, widened venue capability and private-state inspection truth, and updated the docs to distinguish prepared from submission-ready while keeping future new venues free to remain qa_read_only.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `services/exchange/base.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `services/exchange/aster/adapter.py`
+  - `services/exchange/okx/adapter.py`
+  - `services/exchange/coinbase/adapter.py`
+  - `services/exchange/registry.py`
+  - `services/planning/service.py`
+  - `services/execution/service.py`
+  - `services/risk/engine.py`
+  - `apps/api/app/dependencies.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_interfaces.py`
+  - `tests/test_phase4a_venues.py`
+  - `tests/test_phase401_trade_planning.py`
+  - `tests/test_phase41_risk.py`
+  - `tests/test_phase411_venue_preparation.py`
+  - `tests/test_api.py`
+  - `tests/test_config.py`
+  - `.env.example`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `python3 -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_phase411_venue_preparation.py tests/test_phase4a_venues.py tests/test_phase41_risk.py tests/test_api.py tests/test_interfaces.py tests/test_phase401_trade_planning.py tests/test_config.py`
+  - `.venv/bin/pytest -q tests/test_interfaces.py tests/test_phase4a_venues.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_api.py tests/test_config.py tests/test_operational_docs.py`
+  - `.venv/bin/pytest -q tests/test_config.py tests/test_interfaces.py tests/test_api.py tests/test_phase2_services.py tests/test_phase3_strategy.py tests/test_phase34_mandates.py tests/test_phase35_cleanup.py tests/test_phase4a_venues.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_operational_docs.py`
+  - `No Alembic migration added. Prepared-order previews remain derived/ephemeral in Phase 4.1.1.`
+
+## v2026.04.06.016
+
+- `recorded_at_utc`: `2026-04-06T16:46:09Z`
+- `scope`: `Phase 4.2 execution-readiness gating above prepared child intents`
+- `intent`: `Native entry. Added a first-class persisted execution-readiness assessment above prepared child intents, separated venue semantic support from adapter submission implementation and environment/account authorization truth, exposed readiness inspection endpoints, and updated the repo/docs to distinguish prepared child intents from submission-eligible or phase-blocked intents without enabling live submission.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/config/settings.py`
+  - `core/schemas/api.py`
+  - `services/exchange/base.py`
+  - `services/exchange/registry.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `services/exchange/aster/adapter.py`
+  - `services/exchange/okx/adapter.py`
+  - `services/exchange/coinbase/adapter.py`
+  - `services/planning/service.py`
+  - `services/execution/service.py`
+  - `apps/api/app/api/routes.py`
+  - `db/models/trading.py`
+  - `db/models/__init__.py`
+  - `db/migrations/versions/20260406_0013_phase42_execution_readiness_gate.py`
+  - `tests/test_interfaces.py`
+  - `tests/test_config.py`
+  - `tests/test_api.py`
+  - `tests/test_phase4a_venues.py`
+  - `tests/test_phase401_trade_planning.py`
+  - `tests/test_phase41_risk.py`
+  - `tests/test_phase411_venue_preparation.py`
+  - `tests/test_phase42_execution_readiness.py`
+  - `.env.example`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `python3 -m compileall core services apps tests`
+  - `.venv/bin/pytest -q tests/test_phase42_execution_readiness.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_phase401_trade_planning.py tests/test_api.py tests/test_config.py tests/test_interfaces.py`
+  - `.venv/bin/pytest -q tests/test_config.py tests/test_interfaces.py tests/test_api.py tests/test_phase2_services.py tests/test_phase3_strategy.py tests/test_phase34_mandates.py tests/test_phase35_cleanup.py tests/test_phase4a_venues.py tests/test_phase401_trade_planning.py tests/test_phase41_risk.py tests/test_phase411_venue_preparation.py tests/test_phase42_execution_readiness.py tests/test_operational_docs.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+
+## v2026.04.06.017
+
+- `recorded_at_utc`: `2026-04-06T19:30:23Z`
+- `scope`: `Phase 4.2.1 execution-readiness semantic hardening and strategic-memory governance`
+- `intent`: `Native entry. Corrected readiness handling so `live_enabled` support advances beyond venue-level gating, enforced binding/account active-state policy in readiness evaluation, tightened the capability-vs-adapter-vs-authorization-vs-phase test matrix, and added `money_flow_project_memory.md` as required read-only pre-task strategic context in repo governance.`
+- `affected_files`:
+  - `services/execution/service.py`
+  - `tests/test_phase42_execution_readiness.py`
+  - `tests/test_operational_docs.py`
+  - `AGENTS.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `python3 -m compileall services tests`
+  - `.venv/bin/pytest -q tests/test_phase42_execution_readiness.py tests/test_operational_docs.py`
+  - `.venv/bin/pytest -q tests/test_api.py tests/test_config.py tests/test_interfaces.py tests/test_phase411_venue_preparation.py tests/test_phase41_risk.py tests/test_phase401_trade_planning.py tests/test_phase42_execution_readiness.py tests/test_operational_docs.py`

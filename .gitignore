@@ -1,0 +1,70 @@
+# Python / test / cache
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.p8
+
+# Local databases / runtime state
+*.db
+*.sqlite
+*.sqlite3
+*.log
+logs/
+tmp/
+temp/
+.pgdata/
+.pgsocket/
+
+# OS/editor files
+.DS_Store
+__MACOSX/
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build / generated artifacts
+dist/
+build/
+site/
+.eggs/
+*.egg-info/
+
+# Archives / review bundles / handoffs
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+review_bundles/
+phase*_handoffs/
+MF-handoffs/
+CODEX-files-MF/
+money-flow-phase-*-review.zip
+
+# Node/frontend artifacts if introduced later
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
