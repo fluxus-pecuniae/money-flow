@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-04-22T19:49:16Z`
+Last reviewed: `2026-04-22T20:23:37Z`
 
 ## Active Follow-Ups
 
@@ -117,6 +117,12 @@ Last reviewed: `2026-04-22T19:49:16Z`
 - `priority`: `high`
 - `status`: `done`
 - `summary`: `Phase 6.4 implemented the recommendation-backed child-intent preparation/readiness inspection handoff. Accepted recommendation-backed child intents now use the existing prepared-order preview and submission-readiness paths with additional validation for source recommendation, route-readiness audit, candidate quote freshness, current mandate, binding/account, and active/trading-eligible symbol mapping. Preview/readiness API responses expose routed lineage including recommendation/audit/target-choice/selected-target/order-shape facts. The phase creates no submitted orders, exchange submit calls, route executor behavior, fanout, allocation, ranking/scoring, CBBO, target reselection, or auto-submit.`
+
+### T-029
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 6.4.1 hotpatched recommendation-backed preview/readiness truth. Routed child-intent lineage validation now blocks when stored routed order-shape policy is missing, malformed, or mismatched against the current OrderIntent order_type, limit_price, or reduce_only fields; readiness-time stale stored quote observations now use quote_stale_at_readiness. Tests prove order-type, LIMIT-price, reduce-only, missing-policy, and stale-quote blockers occur before adapter preparation/submission. No migration, config, endpoint, submitted order, exchange submit call, route executor, fanout, allocation, ranking/scoring, CBBO, target reselection, or auto-submit was added.`
 
 ### T-002
 

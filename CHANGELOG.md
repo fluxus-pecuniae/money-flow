@@ -13,6 +13,34 @@ Entry schema:
 
 ---
 
+## v2026.04.22.003
+
+- `recorded_at_utc`: `2026-04-22T20:23:37Z`
+- `scope`: `Phase 6.4.1 recommendation-backed readiness truth hotpatch`
+- `intent`: `Native entry. Fixed Phase 6.4 readiness truth issues without adding routing or submission scope. Routed child-intent lineage validation now blocks preview/readiness when stored routed order-shape policy is missing, malformed, or no longer matches the current OrderIntent order_type, limit_price, or reduce_only fields. Recommendation-backed quote freshness failures during preview/readiness now emit the readiness-time reason/stale-data code quote_stale_at_readiness instead of the recommendation-time code. Strengthened Phase 6.4 tests for order-type, LIMIT-price, reduce-only, missing-policy, and stale-quote readiness blockers, all before adapter preparation or submission. Cleaned stale docs that still described recommendation-to-child-intent conversion as future work; docs now state Phase 6.3 already added explicit accepted recommendation-backed target-choice conversion to one child intent and Phase 6.4/6.4.1 harden preview/readiness inspection. No migration, config, endpoint, submitted-order creation, exchange submit call, route executor behavior, fanout, allocation, ranking, scoring, CBBO, target reselection, auto-submit, new exchange support, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `services/execution/service.py`
+  - `tests/test_phase64_recommendation_backed_readiness.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_phase64_recommendation_backed_readiness.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase53_routed_child_intent_readiness.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase63_recommendation_target_choice_conversion.py`
+  - `.venv/bin/python -m compileall core services apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_phase54_routed_submission_handoff.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-6.4.1-review.zip`
+  - `verified /Users/tercirafael/money-flow-phase-6.4.1-review.zip contains 393 files with no .env, virtualenv, cache, nested archive, sqlite, or db matches`
+
 ## v2026.04.22.002
 
 - `recorded_at_utc`: `2026-04-22T19:49:16Z`

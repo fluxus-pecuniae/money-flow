@@ -68,6 +68,29 @@ def _assert_no_submission_boundary(session_factory, *, child_intents: int, readi
     assert counts["submitted_orders"] == 0
 
 
+def _mutate_child_intent(session_factory, intent_id: str, **updates) -> None:
+    with session_factory() as session:
+        intent = session.scalar(
+            select(OrderIntentModel).where(OrderIntentModel.intent_id == intent_id)
+        )
+        assert intent is not None
+        for field_name, value in updates.items():
+            setattr(intent, field_name, value)
+        session.commit()
+
+
+def _remove_routed_order_shape_policy(session_factory, intent_id: str) -> None:
+    with session_factory() as session:
+        intent = session.scalar(
+            select(OrderIntentModel).where(OrderIntentModel.intent_id == intent_id)
+        )
+        assert intent is not None
+        provenance = dict(intent.provenance or {})
+        provenance.pop("routed_order_shape_policy", None)
+        intent.provenance = provenance
+        session.commit()
+
+
 def test_recommendation_backed_child_intent_uses_existing_preview_and_readiness_paths() -> None:
     session_factory = build_test_session_factory()
     _routing, audit, recommendation, choice, _desired_trade_key, result = (
@@ -177,11 +200,122 @@ def test_recommendation_backed_readiness_blocks_stale_quote_observation() -> Non
     readiness = asyncio.run(execution.assess_child_intent_readiness(result.intent_id))
 
     assert preview.preview_status == VenueOrderPreviewStatus.REJECTED
-    assert "quote_stale_at_recommendation" in preview.reason_codes
-    assert "quote_stale_at_recommendation" in readiness.reason_codes
+    assert "quote_stale_at_readiness" in preview.reason_codes
+    assert "quote_stale_at_readiness" in readiness.reason_codes
     assert readiness.provenance["routed_lineage"]["stale_data"] == [
-        "quote_stale_at_recommendation"
+        "quote_stale_at_readiness"
     ]
+    assert adapter.prepare_calls == 0
+    assert adapter.submit_calls == 0
+    _assert_no_submission_boundary(session_factory, child_intents=1, readiness=1)
+
+
+def test_recommendation_backed_readiness_blocks_order_type_policy_drift() -> None:
+    session_factory = build_test_session_factory()
+    _routing, _audit, _recommendation, _choice, _desired_trade_key, result = (
+        _recommendation_backed_child_intent(session_factory)
+    )
+    _mutate_child_intent(session_factory, result.intent_id, order_type=OrderType.LIMIT)
+    execution, adapter = _build_execution(session_factory)
+
+    preview = asyncio.run(execution.preview_child_intent(result.intent_id))
+    readiness = asyncio.run(execution.assess_child_intent_readiness(result.intent_id))
+
+    expected = {
+        "routed_order_shape_policy_intent_mismatch",
+        "routed_order_type_policy_mismatch",
+        "routed_lineage_invalid",
+    }
+    assert preview.preview_status == VenueOrderPreviewStatus.REJECTED
+    assert expected.issubset(set(preview.reason_codes))
+    assert readiness.outcome == ExecutionReadinessOutcome.BLOCKED_BY_POLICY
+    assert expected.issubset(set(readiness.reason_codes))
+    assert adapter.prepare_calls == 0
+    assert adapter.submit_calls == 0
+    _assert_no_submission_boundary(session_factory, child_intents=1, readiness=1)
+
+
+def test_recommendation_backed_readiness_blocks_limit_price_policy_drift() -> None:
+    session_factory = build_test_session_factory()
+    _routing, _audit, _recommendation, _choice, _desired_trade_key, result = (
+        _recommendation_backed_child_intent(
+            session_factory,
+            policy_input=RoutedOrderShapePolicyInput(
+                order_type=OrderType.LIMIT,
+                limit_price=Decimal("101.25"),
+                policy_source="operator_requested",
+                requested_by="phase_6_4_1_test_operator",
+            ),
+        )
+    )
+    _mutate_child_intent(
+        session_factory,
+        result.intent_id,
+        limit_price=Decimal("102.00"),
+    )
+    execution, adapter = _build_execution(session_factory)
+
+    preview = asyncio.run(execution.preview_child_intent(result.intent_id))
+    readiness = asyncio.run(execution.assess_child_intent_readiness(result.intent_id))
+
+    expected = {
+        "routed_order_shape_policy_intent_mismatch",
+        "routed_limit_price_policy_mismatch",
+        "routed_lineage_invalid",
+    }
+    assert preview.preview_status == VenueOrderPreviewStatus.REJECTED
+    assert expected.issubset(set(preview.reason_codes))
+    assert readiness.outcome == ExecutionReadinessOutcome.BLOCKED_BY_POLICY
+    assert expected.issubset(set(readiness.reason_codes))
+    assert adapter.prepare_calls == 0
+    assert adapter.submit_calls == 0
+    _assert_no_submission_boundary(session_factory, child_intents=1, readiness=1)
+
+
+def test_recommendation_backed_readiness_blocks_reduce_only_policy_drift() -> None:
+    session_factory = build_test_session_factory()
+    _routing, _audit, _recommendation, _choice, _desired_trade_key, result = (
+        _recommendation_backed_child_intent(session_factory)
+    )
+    _mutate_child_intent(session_factory, result.intent_id, reduce_only=True)
+    execution, adapter = _build_execution(session_factory)
+
+    preview = asyncio.run(execution.preview_child_intent(result.intent_id))
+    readiness = asyncio.run(execution.assess_child_intent_readiness(result.intent_id))
+
+    expected = {
+        "routed_order_shape_policy_intent_mismatch",
+        "routed_reduce_only_policy_mismatch",
+        "routed_lineage_invalid",
+    }
+    assert preview.preview_status == VenueOrderPreviewStatus.REJECTED
+    assert expected.issubset(set(preview.reason_codes))
+    assert readiness.outcome == ExecutionReadinessOutcome.BLOCKED_BY_POLICY
+    assert expected.issubset(set(readiness.reason_codes))
+    assert adapter.prepare_calls == 0
+    assert adapter.submit_calls == 0
+    _assert_no_submission_boundary(session_factory, child_intents=1, readiness=1)
+
+
+def test_recommendation_backed_readiness_blocks_missing_order_shape_policy() -> None:
+    session_factory = build_test_session_factory()
+    _routing, _audit, _recommendation, _choice, _desired_trade_key, result = (
+        _recommendation_backed_child_intent(session_factory)
+    )
+    _remove_routed_order_shape_policy(session_factory, result.intent_id)
+    execution, adapter = _build_execution(session_factory)
+
+    preview = asyncio.run(execution.preview_child_intent(result.intent_id))
+    readiness = asyncio.run(execution.assess_child_intent_readiness(result.intent_id))
+
+    expected = {
+        "routed_order_shape_policy_missing",
+        "routed_lineage_invalid",
+    }
+    assert preview.preview_status == VenueOrderPreviewStatus.REJECTED
+    assert expected.issubset(set(preview.reason_codes))
+    assert readiness.outcome == ExecutionReadinessOutcome.BLOCKED_BY_POLICY
+    assert expected.issubset(set(readiness.reason_codes))
     assert adapter.prepare_calls == 0
     assert adapter.submit_calls == 0
     _assert_no_submission_boundary(session_factory, child_intents=1, readiness=1)

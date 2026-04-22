@@ -1090,6 +1090,14 @@ class DefaultExecutionService(ExecutionService):
             reason_codes.append("routed_lineage_missing_routing_assessment_id")
         if not target_choice_id:
             reason_codes.append("routed_lineage_missing_routing_target_choice_id")
+        shape_reason_codes, shape_missing_data = (
+            self._routed_order_shape_policy_blockers(
+                model,
+                routed_order_shape_policy_raw,
+            )
+        )
+        reason_codes.extend(shape_reason_codes)
+        missing_data.extend(shape_missing_data)
 
         assessment_model = None
         if assessment_id:
@@ -1650,6 +1658,90 @@ class DefaultExecutionService(ExecutionService):
         route_lineage["stale_data"] = stale_data
         return True, reason_codes, missing_data, route_lineage
 
+    @classmethod
+    def _routed_order_shape_policy_blockers(
+        cls,
+        model: OrderIntentModel,
+        policy_raw: object,
+    ) -> tuple[list[str], list[str]]:
+        if policy_raw is None:
+            return ["routed_order_shape_policy_missing"], [
+                "routed_order_shape_policy_missing"
+            ]
+        if not isinstance(policy_raw, dict) or not policy_raw:
+            return ["routed_order_shape_policy_malformed"], []
+
+        reason_codes: list[str] = []
+        mismatch_codes: list[str] = []
+
+        policy_order_type = cls._coerce_routed_policy_order_type(
+            policy_raw.get("order_type")
+        )
+        if policy_order_type is None:
+            reason_codes.append("routed_order_shape_policy_malformed")
+        elif policy_order_type != model.order_type:
+            mismatch_codes.append("routed_order_type_policy_mismatch")
+
+        policy_limit_price, limit_price_malformed = (
+            cls._coerce_routed_policy_limit_price(policy_raw.get("limit_price"))
+        )
+        if limit_price_malformed:
+            reason_codes.append("routed_order_shape_policy_malformed")
+        else:
+            if policy_order_type == OrderType.LIMIT:
+                if policy_limit_price is None or policy_limit_price <= Decimal("0"):
+                    reason_codes.append("routed_order_shape_policy_malformed")
+            elif policy_order_type == OrderType.MARKET and policy_limit_price is not None:
+                reason_codes.append("routed_order_shape_policy_malformed")
+            if policy_limit_price != model.limit_price:
+                mismatch_codes.append("routed_limit_price_policy_mismatch")
+
+        policy_reduce_only = policy_raw.get("reduce_only")
+        if not isinstance(policy_reduce_only, bool):
+            reason_codes.append("routed_order_shape_policy_malformed")
+        elif policy_reduce_only != bool(model.reduce_only):
+            mismatch_codes.append("routed_reduce_only_policy_mismatch")
+
+        if policy_raw.get("blocked") is not False:
+            reason_codes.append("routed_order_shape_policy_malformed")
+
+        if mismatch_codes:
+            reason_codes.append("routed_order_shape_policy_intent_mismatch")
+            reason_codes.extend(mismatch_codes)
+
+        return sorted(set(reason_codes)), []
+
+    @staticmethod
+    def _coerce_routed_policy_order_type(value: object) -> OrderType | None:
+        if isinstance(value, OrderType):
+            return value
+        if isinstance(value, str) and value:
+            try:
+                return OrderType(value)
+            except ValueError:
+                try:
+                    return OrderType[value.upper()]
+                except KeyError:
+                    return None
+        return None
+
+    @staticmethod
+    def _coerce_routed_policy_limit_price(
+        value: object,
+    ) -> tuple[Decimal | None, bool]:
+        if value is None or value == "":
+            return None, False
+        try:
+            parsed = Decimal(str(value))
+        except (InvalidOperation, ValueError):
+            return None, True
+        try:
+            if not parsed.is_finite():
+                return None, True
+        except InvalidOperation:
+            return None, True
+        return parsed, False
+
     @staticmethod
     def _candidate_symbol_mapping_blockers(
         session: Any,
@@ -1702,7 +1794,7 @@ class DefaultExecutionService(ExecutionService):
         )
         age_seconds = Decimal(str((checked_at_aware - observed_at).total_seconds()))
         if age_seconds > threshold_seconds:
-            return ["quote_stale_at_recommendation"], [], ["quote_stale_at_recommendation"]
+            return ["quote_stale_at_readiness"], [], ["quote_stale_at_readiness"]
         return [], [], []
 
     @staticmethod

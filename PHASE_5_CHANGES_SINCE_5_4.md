@@ -1,6 +1,6 @@
-# Phase 5 Changes Since Phase 5.4 And Phase 6.4 Handoff
+# Phase 5 Changes Since Phase 5.4 And Phase 6.4.1 Handoff
 
-Generated for handoff. This file summarizes changes after the Phase 5.4 baseline, covering Phase 5.4.1 through Phase 5.10.2, Phase 6.0.0, Phase 6.0.1, Phase 6.0.2, Phase 6.1, Phase 6.1.1, Phase 6.2, Phase 6.2.1, Phase 6.2.2, Phase 6.3, Phase 6.4, and the operational handoff-bundle workflow added after Phase 5.4.
+Generated for handoff. This file summarizes changes after the Phase 5.4 baseline, covering Phase 5.4.1 through Phase 5.10.2, Phase 6.0.0, Phase 6.0.1, Phase 6.0.2, Phase 6.1, Phase 6.1.1, Phase 6.2, Phase 6.2.1, Phase 6.2.2, Phase 6.3, Phase 6.4, Phase 6.4.1, and the operational handoff-bundle workflow added after Phase 5.4.
 
 Source of truth reviewed: `CHANGELOG.md`, `README.md`, `docs/architecture.md`, `docs/strategy.md`, `REPO_TREE.md`, `KNOWN_ISSUES.md`, and `TODO.md`.
 
@@ -18,6 +18,33 @@ Phase 5.4 introduced the first controlled explicit routed submission handoff:
 - no CBBO, venue ranking, execution-quality scoring, or smart routing
 
 Everything below is after that baseline.
+
+## Phase 6.4.1: Recommendation-Backed Readiness Truth Hotpatch
+
+Changelog entry: `v2026.04.22.003`.
+
+Implemented:
+
+- Added routed order-shape policy/current-intent drift validation to the existing routed child-intent lineage validator used before preview/readiness.
+- Preview/readiness now block if stored routed order-shape policy is missing, malformed, or mismatched against current `OrderIntent` `order_type`, `limit_price`, or `reduce_only`.
+- Recommendation-backed stale stored quote observations at preview/readiness time now emit `quote_stale_at_readiness` in reason codes and routed-lineage stale data.
+- Strengthened Phase 6.4 tests for order-type drift, explicit LIMIT price drift, reduce-only drift, missing order-shape policy, readiness-time stale quote reason codes, and the no-submission/no-adapter-submit boundary.
+- Cleaned stale roadmap/docs wording that still described recommendation-to-child-intent conversion as future work; Phase 6.3 already added explicit accepted recommendation-backed target-choice conversion into one child intent, and Phase 6.4/6.4.1 only harden preview/readiness inspection.
+
+Touched files:
+
+- `services/execution/service.py`
+- `tests/test_phase64_recommendation_backed_readiness.py`
+- `README.md`
+- `docs/architecture.md`
+- `docs/strategy.md`
+- `CHANGELOG.md`
+- `REPO_TREE.md`
+- `KNOWN_ISSUES.md`
+- `TODO.md`
+- `PHASE_5_CHANGES_SINCE_5_4.md`
+
+No migration, config, endpoint, submitted-order creation, exchange submit call, route executor, fanout, allocation, ranking, scoring, CBBO, target reselection, auto-submit, new exchange support, or `money_flow_project_memory.md` update was added.
 
 ## Phase 6.4: Recommendation-Backed Preview/Readiness Inspection
 
@@ -894,13 +921,13 @@ The following remain intentionally unimplemented:
 - CoinRoutes
 - mandate-scoped OPEN bypass
 
-## Current Head Summary After Phase 6.3
+## Current Head Summary After Phase 6.4.1
 
 The platform has a controlled routed flow:
 
 `StrategyDecision -> MandateDesiredTrade -> RoutingAssessment -> RouteReadinessAudit -> RoutingTargetRecommendation -> RoutingTargetChoice -> OrderIntent -> PreparedVenueOrder -> ExecutionReadinessAssessment -> SubmittedOrder`
 
-`RouteReadinessAudit` sits beside `RoutingAssessment` as a non-selecting data-sufficiency audit. `RoutingTargetRecommendation` now sits above that audit as a non-executing recommendation record under default `single_ready_candidate_only` or explicit `explicit_binding_priority`, with bounded policy-name input and explicit binding-priority clear semantics. Phase 6.2 can explicitly accept a successful recommendation into one non-executing `RoutingTargetChoice`, Phase 6.2.1 ensures one route-readiness audit cannot produce multiple accepted target choices through duplicate successful recommendation records, and Phase 6.2.2 ensures blocked same-audit recommendations cannot be marked accepted by that idempotency path. Phase 6.3 can explicitly convert an accepted recommendation-backed target choice into exactly one routed child `OrderIntent` through the existing target-choice conversion path. Recommendation remains non-executing and is not a readiness, submission, reconciliation, or lifecycle instruction.
+`RouteReadinessAudit` sits beside `RoutingAssessment` as a non-selecting data-sufficiency audit. `RoutingTargetRecommendation` now sits above that audit as a non-executing recommendation record under default `single_ready_candidate_only` or explicit `explicit_binding_priority`, with bounded policy-name input and explicit binding-priority clear semantics. Phase 6.2 can explicitly accept a successful recommendation into one non-executing `RoutingTargetChoice`, Phase 6.2.1 ensures one route-readiness audit cannot produce multiple accepted target choices through duplicate successful recommendation records, and Phase 6.2.2 ensures blocked same-audit recommendations cannot be marked accepted by that idempotency path. Phase 6.3 can explicitly convert an accepted recommendation-backed target choice into exactly one routed child `OrderIntent` through the existing target-choice conversion path. Phase 6.4/6.4.1 allow that child intent to use existing preview/readiness inspection only after recommendation/audit/current-truth, stored quote, and routed order-shape policy/current-intent validation. Recommendation remains non-executing and is not a readiness, submission, reconciliation, or lifecycle instruction.
 
 The routed flow now supports:
 
@@ -921,6 +948,9 @@ The routed flow now supports:
 - same-target-choice and same-audit child-intent conversion idempotency: repeated or duplicate accepted target-choice conversion returns the existing child intent instead of creating a second one
 - recommendation/source-audit `child_intent_created=true` truth only after a valid child intent exists
 - child-intent provenance preserves routing target recommendation id, route-readiness audit id, routing assessment id, routing target choice id, selected binding/account/venue/symbol, recommendation policy name, operator conversion timestamp, and routed order-shape policy facts
+- recommendation-backed preview/readiness through existing child-intent endpoints, with direct routed-lineage response fields
+- order-shape policy/current-intent drift blocking for order type, explicit LIMIT price, and reduce_only before adapter preparation
+- readiness-time stale quote reason code `quote_stale_at_readiness`
 - operator-requested target-choice audit records
 - exactly-one child-intent conversion
 - explicit routed order-shape policy input and decision output
@@ -935,4 +965,4 @@ The routed flow now supports:
 - routed same-target retry lineage preservation
 - final Phase 5 closeout regression coverage proving the substrate stays coherent, selected-account scoped, and non-routing
 
-Phase 5 is closed as routing substrate plus route-readiness audit. Phase 6.3 keeps controlled recommendation limited to default single-ready-candidate behavior plus optional explicit binding-priority operator preference when multiple candidates are ready, explicit acceptance into target choice, and explicit accepted target-choice conversion into one child intent only. The platform still does not implement smart order routing, best-binding selection, price/fee/venue-quality ranking, scoring, CBBO, fanout, route execution orchestration, automatic target-choice creation, automatic child-intent conversion, readiness auto-creation, submitted-order creation from recommendation, prepared-order auto-creation, or auto-submit. Route lineage remains audit metadata, `ready_for_recommendation` means data-sufficient only, and a `RoutingTargetRecommendation` remains non-executing.
+Phase 5 is closed as routing substrate plus route-readiness audit. Phase 6.4.1 keeps controlled recommendation limited to default single-ready-candidate behavior plus optional explicit binding-priority operator preference when multiple candidates are ready, explicit acceptance into target choice, explicit accepted target-choice conversion into one child intent, and existing preview/readiness inspection only. The platform still does not implement smart order routing, best-binding selection, price/fee/venue-quality ranking, scoring, CBBO, fanout, route execution orchestration, automatic target-choice creation, automatic child-intent conversion, readiness auto-creation, submitted-order creation from recommendation, prepared-order auto-creation, or auto-submit. Route lineage remains audit metadata, `ready_for_recommendation` means data-sufficient only, and a `RoutingTargetRecommendation` remains non-executing.
