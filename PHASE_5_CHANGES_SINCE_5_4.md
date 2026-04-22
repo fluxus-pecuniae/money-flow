@@ -1,6 +1,6 @@
-# Phase 5 Changes Since Phase 5.4 And Phase 6.5 Handoff
+# Phase 5 Changes Since Phase 5.4 And Phase 6.6 Handoff
 
-Generated for handoff. This file summarizes changes after the Phase 5.4 baseline, covering Phase 5.4.1 through Phase 5.10.2, Phase 6.0.0, Phase 6.0.1, Phase 6.0.2, Phase 6.1, Phase 6.1.1, Phase 6.2, Phase 6.2.1, Phase 6.2.2, Phase 6.3, Phase 6.4, Phase 6.4.1, Phase 6.5, and the operational handoff-bundle workflow added after Phase 5.4.
+Generated for handoff. This file summarizes changes after the Phase 5.4 baseline, covering Phase 5.4.1 through Phase 5.10.2, Phase 6.0.0, Phase 6.0.1, Phase 6.0.2, Phase 6.1, Phase 6.1.1, Phase 6.2, Phase 6.2.1, Phase 6.2.2, Phase 6.3, Phase 6.4, Phase 6.4.1, Phase 6.5, Phase 6.6, and the operational handoff-bundle workflow added after Phase 5.4.
 
 Source of truth reviewed: `CHANGELOG.md`, `README.md`, `docs/architecture.md`, `docs/strategy.md`, `REPO_TREE.md`, `KNOWN_ISSUES.md`, and `TODO.md`.
 
@@ -18,6 +18,34 @@ Phase 5.4 introduced the first controlled explicit routed submission handoff:
 - no CBBO, venue ranking, execution-quality scoring, or smart routing
 
 Everything below is after that baseline.
+
+## Phase 6.6: Manual Routed-Flow Timing Visibility
+
+Changelog entry: `v2026.04.22.005`.
+
+Implemented:
+
+- Added local monotonic per-step timing to `scripts/manual_routed_flow.py`.
+- Trace output now includes top-level `timing_ms`, including `total`, and every executed step includes `elapsed_ms`.
+- Default inspect-only output records desired-trade and total timing only; skipped steps are omitted rather than reported as fake zero-latency work.
+- `--run-through-readiness` records timing for desired-trade load, routing assessment, route-readiness audit, routing target recommendation, recommendation acceptance, target-choice conversion, prepared-order preview, execution-readiness inspection, and total runtime.
+- `--submit` without `--i-understand-this-can-place-a-live-order` still blocks locally before service submission and now records timing for that local submission-confirmation block.
+- Strengthened manual harness tests for timing shape, non-negative numeric elapsed values, omitted skipped-step timing, and continued no-default-submission behavior.
+
+Touched files:
+
+- `scripts/manual_routed_flow.py`
+- `tests/test_phase65_manual_routed_flow.py`
+- `README.md`
+- `docs/architecture.md`
+- `docs/strategy.md`
+- `CHANGELOG.md`
+- `REPO_TREE.md`
+- `KNOWN_ISSUES.md`
+- `TODO.md`
+- `PHASE_5_CHANGES_SINCE_5_4.md`
+
+Timing is local harness/service-call timing only. No migration, config, production telemetry framework, service-wide instrumentation, smart routing, best-binding selection, ranking, scoring, CBBO, fanout, target reselection, route executor behavior, auto-submit, new exchange support, or `money_flow_project_memory.md` update was added.
 
 ## Phase 6.5: Manual Routed-Flow Inspection Harness
 

@@ -13,6 +13,7 @@ from dataclasses import asdict, is_dataclass
 from datetime import date, datetime
 from decimal import Decimal
 import json
+from time import perf_counter
 from typing import Any
 
 from sqlalchemy import select
@@ -46,6 +47,15 @@ from services.routing.service import DefaultRoutingAssessmentService, RoutingAss
 
 SUBMISSION_CONFIRMATION_REASON = "manual_submission_confirmation_required"
 SUBMISSION_SKIPPED_REASON = "manual_harness_default_no_submission"
+
+
+def _elapsed_ms(started_at: float) -> float:
+    return round(max((perf_counter() - started_at) * 1000, 0.0), 3)
+
+
+def _finish_trace(trace: dict[str, Any], started_at: float) -> dict[str, Any]:
+    trace.setdefault("timing_ms", {})["total"] = _elapsed_ms(started_at)
+    return _json_safe(trace)
 
 
 def _json_safe(value: Any) -> Any:
@@ -260,11 +270,15 @@ def _add_step(
     status: str,
     details: dict[str, Any] | None = None,
     reason_codes: list[str] | None = None,
+    elapsed_ms: float | None = None,
 ) -> None:
     step: dict[str, Any] = {
         "name": name,
         "status": status,
     }
+    if elapsed_ms is not None:
+        step["elapsed_ms"] = elapsed_ms
+        trace.setdefault("timing_ms", {})[name] = elapsed_ms
     if details:
         step.update(_json_safe(details))
     if reason_codes:
@@ -305,6 +319,7 @@ async def _run_manual_routed_flow_async(
     routing_service: RoutingAssessmentService | None = None,
     execution_service: ExecutionService | None = None,
 ) -> dict[str, Any]:
+    total_started_at = perf_counter()
     if run_through_readiness:
         create_assessment = True
         create_audit = True
@@ -344,6 +359,7 @@ async def _run_manual_routed_flow_async(
             "auto_submit": False,
         },
         "steps": [],
+        "timing_ms": {},
         "artifacts": {},
         "submission": {
             "requested": submit,
@@ -357,14 +373,45 @@ async def _run_manual_routed_flow_async(
         "ok": True,
     }
 
+    active_step_name: str | None = None
+    active_step_started_at: float | None = None
+
+    def _begin_step(name: str) -> float:
+        nonlocal active_step_name, active_step_started_at
+        active_step_name = name
+        active_step_started_at = perf_counter()
+        return active_step_started_at
+
+    def _end_step(started_at: float) -> float:
+        nonlocal active_step_name, active_step_started_at
+        elapsed = _elapsed_ms(started_at)
+        active_step_name = None
+        active_step_started_at = None
+        return elapsed
+
+    def _consume_active_step_elapsed(
+        *, default_name: str = "error"
+    ) -> tuple[str, float | None]:
+        nonlocal active_step_name, active_step_started_at
+        if active_step_started_at is None:
+            return default_name, None
+        name = active_step_name or default_name
+        elapsed = _elapsed_ms(active_step_started_at)
+        active_step_name = None
+        active_step_started_at = None
+        return name, elapsed
+
+    step_started_at = _begin_step("desired_trade")
     desired_trade_model = _load_desired_trade_model(session_factory, desired_trade_key)
     desired_summary = _desired_trade_summary(desired_trade_model)
+    elapsed_ms = _end_step(step_started_at)
     _add_step(
         trace,
         "desired_trade",
         status="inspected" if desired_trade_model is not None else "blocked",
         details=desired_summary,
         reason_codes=None if desired_trade_model is not None else ["desired_trade_not_found"],
+        elapsed_ms=elapsed_ms,
     )
     trace["artifacts"].update(
         {
@@ -374,7 +421,7 @@ async def _run_manual_routed_flow_async(
     )
     if desired_trade_model is None:
         trace["ok"] = False
-        return _json_safe(trace)
+        return _finish_trace(trace, total_started_at)
 
     assessment: RoutingAssessment | None = None
     audit: RouteReadinessAudit | None = None
@@ -385,14 +432,23 @@ async def _run_manual_routed_flow_async(
 
     try:
         if create_assessment:
+            step_started_at = _begin_step("routing_assessment")
             assessment = await routing_service.create_assessment_from_desired_trade(
                 desired_trade_key
             )
             assessment_details = _assessment_summary(assessment)
-            _add_step(trace, "routing_assessment", status="created", details=assessment_details)
+            elapsed_ms = _end_step(step_started_at)
+            _add_step(
+                trace,
+                "routing_assessment",
+                status="created",
+                details=assessment_details,
+                elapsed_ms=elapsed_ms,
+            )
             trace["artifacts"].update(assessment_details)
 
         if create_audit:
+            step_started_at = _begin_step("route_readiness_audit")
             if assessment is not None:
                 audit = await routing_service.create_route_readiness_audit_from_assessment(
                     assessment.assessment_id
@@ -401,29 +457,43 @@ async def _run_manual_routed_flow_async(
                 audit = await routing_service.create_route_readiness_audit_from_desired_trade(
                     desired_trade_key
                 )
+            audit_elapsed_ms = _end_step(step_started_at)
+            if assessment is None:
                 if audit.routing_assessment_id is not None:
+                    step_started_at = _begin_step("routing_assessment")
                     assessment = await routing_service.get_routing_assessment(
                         audit.routing_assessment_id
                     )
                     assessment_details = _assessment_summary(assessment)
+                    elapsed_ms = _end_step(step_started_at)
                     _add_step(
                         trace,
                         "routing_assessment",
                         status="created_by_audit",
                         details=assessment_details,
+                        elapsed_ms=elapsed_ms,
                     )
                     trace["artifacts"].update(assessment_details)
             audit_details = _audit_summary(audit)
-            _add_step(trace, "route_readiness_audit", status="created", details=audit_details)
+            _add_step(
+                trace,
+                "route_readiness_audit",
+                status="created",
+                details=audit_details,
+                elapsed_ms=audit_elapsed_ms,
+            )
             trace["artifacts"].update(audit_details)
 
         if create_recommendation:
+            step_started_at = _begin_step("routing_target_recommendation")
             if audit is None:
+                elapsed_ms = _end_step(step_started_at)
                 _add_step(
                     trace,
                     "routing_target_recommendation",
                     status="blocked",
                     reason_codes=["manual_harness_route_readiness_audit_required"],
+                    elapsed_ms=elapsed_ms,
                 )
                 trace["ok"] = False
             else:
@@ -434,27 +504,33 @@ async def _run_manual_routed_flow_async(
                     )
                 )
                 recommendation_details = _recommendation_summary(recommendation)
+                elapsed_ms = _end_step(step_started_at)
                 _add_step(
                     trace,
                     "routing_target_recommendation",
                     status="created",
                     details=recommendation_details,
+                    elapsed_ms=elapsed_ms,
                 )
                 trace["artifacts"].update(recommendation_details)
 
         if accept_recommendation:
+            step_started_at = _begin_step("routing_target_choice")
             if recommendation is None:
+                elapsed_ms = _end_step(step_started_at)
                 _add_step(
                     trace,
                     "routing_target_choice",
                     status="blocked",
                     reason_codes=["manual_harness_recommendation_required"],
+                    elapsed_ms=elapsed_ms,
                 )
                 trace["ok"] = False
             elif (
                 recommendation.status
                 != RoutingTargetRecommendationStatus.RECOMMENDED_SINGLE_READY_CANDIDATE
             ):
+                elapsed_ms = _end_step(step_started_at)
                 _add_step(
                     trace,
                     "routing_target_choice",
@@ -463,6 +539,7 @@ async def _run_manual_routed_flow_async(
                         "manual_harness_recommendation_not_successful",
                         _json_safe(recommendation.status),
                     ],
+                    elapsed_ms=elapsed_ms,
                 )
                 trace["ok"] = False
             else:
@@ -474,19 +551,30 @@ async def _run_manual_routed_flow_async(
                     )
                 )
                 choice_details = _target_choice_summary(target_choice)
-                _add_step(trace, "routing_target_choice", status="created", details=choice_details)
+                elapsed_ms = _end_step(step_started_at)
+                _add_step(
+                    trace,
+                    "routing_target_choice",
+                    status="created",
+                    details=choice_details,
+                    elapsed_ms=elapsed_ms,
+                )
                 trace["artifacts"].update(choice_details)
 
         if convert_target_choice:
+            step_started_at = _begin_step("child_intent_conversion")
             if target_choice is None:
+                elapsed_ms = _end_step(step_started_at)
                 _add_step(
                     trace,
                     "child_intent_conversion",
                     status="blocked",
                     reason_codes=["manual_harness_target_choice_required"],
+                    elapsed_ms=elapsed_ms,
                 )
                 trace["ok"] = False
             elif target_choice.status != RoutingTargetChoiceStatus.TARGET_CHOICE_RECORDED:
+                elapsed_ms = _end_step(step_started_at)
                 _add_step(
                     trace,
                     "child_intent_conversion",
@@ -495,6 +583,7 @@ async def _run_manual_routed_flow_async(
                         "manual_harness_target_choice_not_recorded",
                         _json_safe(target_choice.status),
                     ],
+                    elapsed_ms=elapsed_ms,
                 )
                 trace["ok"] = False
             else:
@@ -502,11 +591,13 @@ async def _run_manual_routed_flow_async(
                     target_choice.target_choice_id
                 )
                 conversion_details = _conversion_summary(conversion)
+                elapsed_ms = _end_step(step_started_at)
                 _add_step(
                     trace,
                     "child_intent_conversion",
                     status="created_or_reused",
                     details=conversion_details,
+                    elapsed_ms=elapsed_ms,
                 )
                 trace["artifacts"].update(conversion_details)
                 if conversion.status in {
@@ -518,22 +609,27 @@ async def _run_manual_routed_flow_async(
                     trace["ok"] = False
 
         if preview:
+            step_started_at = _begin_step("prepared_order_preview")
             if intent_id is None:
+                elapsed_ms = _end_step(step_started_at)
                 _add_step(
                     trace,
                     "prepared_order_preview",
                     status="blocked",
                     reason_codes=["manual_harness_child_intent_required"],
+                    elapsed_ms=elapsed_ms,
                 )
                 trace["ok"] = False
             else:
                 preview_result = await execution_service.preview_child_intent(intent_id)
                 preview_details = _preview_summary(preview_result)
+                elapsed_ms = _end_step(step_started_at)
                 _add_step(
                     trace,
                     "prepared_order_preview",
                     status="inspected",
                     details=preview_details,
+                    elapsed_ms=elapsed_ms,
                 )
                 trace["artifacts"].update(
                     {
@@ -548,22 +644,27 @@ async def _run_manual_routed_flow_async(
                 )
 
         if assess_readiness:
+            step_started_at = _begin_step("execution_readiness")
             if intent_id is None:
+                elapsed_ms = _end_step(step_started_at)
                 _add_step(
                     trace,
                     "execution_readiness",
                     status="blocked",
                     reason_codes=["manual_harness_child_intent_required"],
+                    elapsed_ms=elapsed_ms,
                 )
                 trace["ok"] = False
             else:
                 readiness = await execution_service.assess_child_intent_readiness(intent_id)
                 readiness_details = _readiness_summary(readiness)
+                elapsed_ms = _end_step(step_started_at)
                 _add_step(
                     trace,
                     "execution_readiness",
                     status="inspected",
                     details=readiness_details,
+                    elapsed_ms=elapsed_ms,
                 )
                 trace["artifacts"].update(
                     {
@@ -577,6 +678,7 @@ async def _run_manual_routed_flow_async(
                 )
 
         if submit:
+            step_started_at = _begin_step("submission")
             trace["submission"]["skipped"] = False
             if not danger_confirmed:
                 trace["submission"].update(
@@ -587,11 +689,13 @@ async def _run_manual_routed_flow_async(
                         "reason_codes": [SUBMISSION_CONFIRMATION_REASON],
                     }
                 )
+                elapsed_ms = _end_step(step_started_at)
                 _add_step(
                     trace,
                     "submission",
                     status="blocked_before_service_submission",
                     reason_codes=[SUBMISSION_CONFIRMATION_REASON],
+                    elapsed_ms=elapsed_ms,
                 )
                 trace["ok"] = False
             elif intent_id is None:
@@ -603,11 +707,13 @@ async def _run_manual_routed_flow_async(
                         "reason_codes": ["manual_harness_child_intent_required"],
                     }
                 )
+                elapsed_ms = _end_step(step_started_at)
                 _add_step(
                     trace,
                     "submission",
                     status="blocked",
                     reason_codes=["manual_harness_child_intent_required"],
+                    elapsed_ms=elapsed_ms,
                 )
                 trace["ok"] = False
             else:
@@ -615,6 +721,7 @@ async def _run_manual_routed_flow_async(
                 trace["submission"]["attempted"] = True
                 submitted = await execution_service.submit_prepared_intent(intent)
                 submitted_details = _submitted_order_summary(submitted)
+                elapsed_ms = _end_step(step_started_at)
                 trace["submission"].update(
                     {
                         "blocked": False,
@@ -623,20 +730,29 @@ async def _run_manual_routed_flow_async(
                         "reason_codes": submitted_details["reason_codes"],
                     }
                 )
-                _add_step(trace, "submission", status="submitted", details=submitted_details)
+                _add_step(
+                    trace,
+                    "submission",
+                    status="submitted",
+                    details=submitted_details,
+                    elapsed_ms=elapsed_ms,
+                )
                 trace["artifacts"].update(submitted_details)
 
     except RoutingAssessmentError as exc:
         trace["ok"] = False
+        step_name, elapsed_ms = _consume_active_step_elapsed()
         _add_step(
             trace,
-            "error",
+            step_name,
             status="blocked",
             details={"message": str(exc)},
             reason_codes=[exc.reason_code],
+            elapsed_ms=elapsed_ms,
         )
     except SubmissionBlockedError as exc:
         trace["ok"] = False
+        _step_name, elapsed_ms = _consume_active_step_elapsed(default_name="submission")
         reason_codes = list(exc.readiness.reason_codes or [exc.readiness.outcome.value])
         trace["submission"].update(
             {
@@ -652,9 +768,11 @@ async def _run_manual_routed_flow_async(
             status="blocked_by_existing_readiness_gates",
             details=_readiness_summary(exc.readiness),
             reason_codes=reason_codes,
+            elapsed_ms=elapsed_ms,
         )
     except SubmissionFailedError as exc:
         trace["ok"] = False
+        _step_name, elapsed_ms = _consume_active_step_elapsed(default_name="submission")
         trace["submission"].update(
             {
                 "blocked": False,
@@ -669,18 +787,21 @@ async def _run_manual_routed_flow_async(
             status="failed",
             details={"message": str(exc), "venue": exc.venue},
             reason_codes=list(exc.reason_codes),
+            elapsed_ms=elapsed_ms,
         )
     except ValueError as exc:
         trace["ok"] = False
+        step_name, elapsed_ms = _consume_active_step_elapsed()
         _add_step(
             trace,
-            "error",
+            step_name,
             status="blocked",
             details={"message": str(exc)},
             reason_codes=["manual_harness_value_error"],
+            elapsed_ms=elapsed_ms,
         )
 
-    return _json_safe(trace)
+    return _finish_trace(trace, total_started_at)
 
 
 def run_manual_routed_flow(

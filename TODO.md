@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-04-22T20:50:22Z`
+Last reviewed: `2026-04-22T21:27:03Z`
 
 ## Active Follow-Ups
 
@@ -129,6 +129,12 @@ Last reviewed: `2026-04-22T20:50:22Z`
 - `priority`: `high`
 - `status`: `done`
 - `summary`: `Phase 6.5 added a manual routed-flow inspection harness in scripts/manual_routed_flow.py. It starts from an existing desired trade key, emits JSON artifact traces, can explicitly call the current routing assessment, route-readiness audit, target recommendation, recommendation acceptance, target-choice conversion, prepared-order preview, and execution-readiness service paths through --run-through-readiness, and skips submission by default. Submit attempts are locally blocked without --i-understand-this-can-place-a-live-order and any confirmed submit still relies on existing service gates. Tests cover readiness-through flow output, default no-submission behavior, no SubmittedOrder creation, and local submit blocking. No smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor, auto-submit, new exchange behavior, config, or migration was added.`
+
+### T-031
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 6.6 added local per-step timing visibility to the manual routed-flow harness. scripts/manual_routed_flow.py now emits top-level timing_ms, including total runtime, and adds elapsed_ms to each executed step using monotonic timing. Default inspect-only still runs only the desired-trade step, --run-through-readiness still stops before submission, and --submit without the danger-confirmation flag still blocks locally before service submission while recording local submission-block timing. Tests verify timing shape, non-negative numeric values, omitted skipped-step timing, and continued no-submission behavior. No smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor, auto-submit, new exchange behavior, telemetry persistence, config, or migration was added.`
 
 ### T-002
 

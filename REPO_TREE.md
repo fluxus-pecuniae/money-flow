@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-04-22T20:50:22Z`
+Last reviewed: `2026-04-22T21:27:03Z`
 
 ## Top-Level Structure
 
@@ -69,7 +69,7 @@ Last reviewed: `2026-04-22T20:50:22Z`
 - Phase 6.0.0 adds `20260419_0020_phase600_routing_target_recommendation.py`, a small durable audit migration for `routing_target_recommendations`; the table stores non-executing `single_ready_candidate_only` recommendation/block outcomes and does not store rankings, scores, allocations, route plans, target choices, child intents, readiness evaluations, submitted orders, fanout, CBBO, or submit instructions.
 - Phase 6.0.1 adds no migration; it hotpatches recommendation current-truth revalidation in service/tests/docs only.
 - Phase 6.0.2 adds no migration; it hotpatches recommendation-time quote observation freshness checks and source audit `recommendation_created` truth in service/tests/docs only.
-- Phase 6.1 adds `20260419_0021_phase61_binding_recommendation_priority.py`, a minimal nullable `target_recommendation_priority` field on `mandate_account_bindings` for the optional `explicit_binding_priority` recommendation policy. The field is operator preference only and does not store rank, score, venue quality, allocation, route plan, submit instruction, or execution behavior. Phase 6.1.1 adds no migration; it bounds accepted recommendation `policy_name` input, rejects malformed direct service policy names before persistence, and makes priority clearing explicit through existing binding APIs. Phase 6.2 adds no migration; recommendation acceptance uses existing routing target-choice rows plus existing recommendation/audit `target_choice_created` flags and provenance linkage. Phase 6.2.1 adds no migration; it hardens same-audit acceptance idempotency and timestamp provenance in service/tests/docs only. Phase 6.2.2 adds no migration; it gates same-audit idempotency so blocked recommendations cannot be marked accepted by an already accepted audit. Phase 6.3 adds no migration; accepted recommendation-backed target-choice conversion reuses existing `order_intents`, recommendation/audit `child_intent_created` flags, idempotency keys, and provenance lineage. Phase 6.4 adds no migration; recommendation-backed preview/readiness reuses existing `PreparedVenueOrder` and `ExecutionReadinessEvaluationModel` paths plus provenance-derived routed-lineage response fields. Phase 6.4.1 adds no migration; it hotpatches routed order-shape policy/current-intent drift checks plus readiness-time stale quote reason codes in service/tests/docs only. Phase 6.5 adds no migration; the manual routed-flow harness is tooling/tests/docs only and reuses existing service paths.
+- Phase 6.1 adds `20260419_0021_phase61_binding_recommendation_priority.py`, a minimal nullable `target_recommendation_priority` field on `mandate_account_bindings` for the optional `explicit_binding_priority` recommendation policy. The field is operator preference only and does not store rank, score, venue quality, allocation, route plan, submit instruction, or execution behavior. Phase 6.1.1 adds no migration; it bounds accepted recommendation `policy_name` input, rejects malformed direct service policy names before persistence, and makes priority clearing explicit through existing binding APIs. Phase 6.2 adds no migration; recommendation acceptance uses existing routing target-choice rows plus existing recommendation/audit `target_choice_created` flags and provenance linkage. Phase 6.2.1 adds no migration; it hardens same-audit acceptance idempotency and timestamp provenance in service/tests/docs only. Phase 6.2.2 adds no migration; it gates same-audit idempotency so blocked recommendations cannot be marked accepted by an already accepted audit. Phase 6.3 adds no migration; accepted recommendation-backed target-choice conversion reuses existing `order_intents`, recommendation/audit `child_intent_created` flags, idempotency keys, and provenance lineage. Phase 6.4 adds no migration; recommendation-backed preview/readiness reuses existing `PreparedVenueOrder` and `ExecutionReadinessEvaluationModel` paths plus provenance-derived routed-lineage response fields. Phase 6.4.1 adds no migration; it hotpatches routed order-shape policy/current-intent drift checks plus readiness-time stale quote reason codes in service/tests/docs only. Phase 6.5 adds no migration; the manual routed-flow harness is tooling/tests/docs only and reuses existing service paths. Phase 6.6 adds no migration; manual harness timing is local tooling/tests/docs only and adds no telemetry persistence, route executor, config, or service-wide instrumentation.
 - Phases 4.6 through 4.10.2 add no new migration and instead deepen lifecycle/private-state truth in service/adapter code.
 
 `docs/architecture.md`
@@ -86,7 +86,7 @@ Last reviewed: `2026-04-22T20:50:22Z`
 
 `PHASE_5_CHANGES_SINCE_5_4.md`
 - Handoff summary of changes made after the Phase 5.4 baseline.
-- Phase 6.5 updates it to include manual routed-flow inspection tooling on top of the Phase 6.4.1 recommendation-backed readiness path, with no submission by default, route executor, fanout, ranking, scoring, CBBO, target reselection, or auto-submit.
+- Phase 6.6 updates it to include local per-step timing for the manual routed-flow inspection tooling on top of the Phase 6.5 harness, with no submission by default, route executor, fanout, ranking, scoring, CBBO, target reselection, or auto-submit.
 
 `services/exchange/hyperliquid/`
 - Most mature venue adapter for reconciliation depth and current perpetual submit scope.
@@ -158,7 +158,7 @@ Last reviewed: `2026-04-22T20:50:22Z`
 `scripts/`
 - Local developer and review-support utilities.
 - Includes `scripts/create_review_bundle.py` for deterministic review ZIP creation based on `.archiveignore`.
-- Includes `scripts/manual_routed_flow.py` for Phase 6.5 manual routed-flow inspection from an existing desired trade key through optional existing service calls to readiness. It emits JSON, skips submission by default, and blocks submit attempts unless the explicit danger-confirmation flag is supplied.
+- Includes `scripts/manual_routed_flow.py` for Phase 6.5 manual routed-flow inspection from an existing desired trade key through optional existing service calls to readiness. It emits JSON, includes Phase 6.6 local `timing_ms` / per-step `elapsed_ms` fields, skips submission by default, and blocks submit attempts unless the explicit danger-confirmation flag is supplied.
 
 ## Operational Entrypoints
 
@@ -261,7 +261,7 @@ Last reviewed: `2026-04-22T20:50:22Z`
 - Phase 6.4 / 6.4.1 recommendation-backed child-intent preview/readiness inspection: verifies accepted recommendation-backed child intents use existing prepared-order preview and submission-readiness paths, preview/readiness API responses expose recommendation/audit/target-choice/selected-target/order-shape lineage, disabled binding/account and inactive/non-trading symbol truth block before adapter preparation, stale stored quote observations block readiness with `quote_stale_at_readiness`, stored routed order-shape policy drift for order_type / LIMIT price / reduce_only blocks before adapter preparation, missing policy blocks, explicit positive finite LIMIT policy remains visible through readiness, and no submitted order, exchange submit call, route executor behavior, fanout, allocation, ranking/scoring, CBBO, target reselection, or auto-submit is created.
 
 `tests/test_phase65_manual_routed_flow.py`
-- Phase 6.5 manual routed-flow harness coverage: verifies the internal JSON harness can run from an existing routing-required desired trade through readiness inspection using existing services, output key artifact ids/statuses/reason codes/routed lineage, skip submission by default, create no `SubmittedOrder` by default, and block `--submit` without the danger-confirmation flag before service submission.
+- Phase 6.5 / 6.6 manual routed-flow harness coverage: verifies the internal JSON harness can run from an existing routing-required desired trade through readiness inspection using existing services, output key artifact ids/statuses/reason codes/routed lineage, include local top-level `timing_ms` and per-step `elapsed_ms` for executed steps, omit skipped-step timing rather than fabricating zero work, skip submission by default, create no `SubmittedOrder` by default, and block `--submit` without the danger-confirmation flag before service submission while recording local submission-block timing.
 
 `tests/conftest.py`
 - pytest bootstrap isolation from local `.env` and developer-machine env contamination

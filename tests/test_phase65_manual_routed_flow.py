@@ -56,6 +56,25 @@ def _counts(session_factory) -> dict[str, int]:
         }
 
 
+def _assert_non_negative_timing(value) -> None:
+    assert isinstance(value, (int, float))
+    assert not isinstance(value, bool)
+    assert value >= 0
+
+
+def _assert_executed_step_timings(trace: dict, expected_step_names: list[str]) -> None:
+    timing = trace["timing_ms"]
+    for step in trace["steps"]:
+        assert "elapsed_ms" in step
+        _assert_non_negative_timing(step["elapsed_ms"])
+        assert timing[step["name"]] == step["elapsed_ms"]
+    for step_name in expected_step_names:
+        assert step_name in timing
+        _assert_non_negative_timing(timing[step_name])
+    assert "total" in timing
+    _assert_non_negative_timing(timing["total"])
+
+
 def test_manual_routed_flow_runs_from_desired_trade_through_readiness() -> None:
     session_factory = build_test_session_factory()
     routing, _seed_audit, desired_trade_key = _ready_audit(session_factory)
@@ -84,6 +103,20 @@ def test_manual_routed_flow_runs_from_desired_trade_through_readiness() -> None:
         "prepared_order_preview",
         "execution_readiness",
     ]
+    _assert_executed_step_timings(
+        trace,
+        [
+            "desired_trade",
+            "routing_assessment",
+            "route_readiness_audit",
+            "routing_target_recommendation",
+            "routing_target_choice",
+            "child_intent_conversion",
+            "prepared_order_preview",
+            "execution_readiness",
+        ],
+    )
+    assert "submission" not in trace["timing_ms"]
 
     artifacts = trace["artifacts"]
     assert artifacts["desired_trade_key"] == desired_trade_key
@@ -148,6 +181,8 @@ def test_manual_routed_flow_default_inspects_only_and_does_not_submit() -> None:
 
     assert trace["ok"] is True
     assert [step["name"] for step in trace["steps"]] == ["desired_trade"]
+    _assert_executed_step_timings(trace, ["desired_trade"])
+    assert set(trace["timing_ms"]) == {"desired_trade", "total"}
     assert trace["artifacts"]["desired_trade_key"] == desired_trade_key
     assert "routing_assessment_id" not in trace["artifacts"]
     assert trace["submission"]["requested"] is False
@@ -189,6 +224,20 @@ def test_manual_routed_flow_submit_without_danger_confirmation_blocks_locally() 
     assert trace["steps"][-1]["name"] == "submission"
     assert trace["steps"][-1]["status"] == "blocked_before_service_submission"
     assert trace["steps"][-1]["reason_codes"] == [SUBMISSION_CONFIRMATION_REASON]
+    _assert_executed_step_timings(
+        trace,
+        [
+            "desired_trade",
+            "routing_assessment",
+            "route_readiness_audit",
+            "routing_target_recommendation",
+            "routing_target_choice",
+            "child_intent_conversion",
+            "prepared_order_preview",
+            "execution_readiness",
+            "submission",
+        ],
+    )
     assert adapter.submit_calls == 0
     counts = _counts(session_factory)
     assert counts["child_intents"] == 1

@@ -13,6 +13,35 @@ Entry schema:
 
 ---
 
+## v2026.04.22.005
+
+- `recorded_at_utc`: `2026-04-22T21:27:03Z`
+- `scope`: `Phase 6.6 manual routed-flow timing visibility`
+- `intent`: `Native entry. Added local per-step timing visibility to the Phase 6.5 manual routed-flow harness without changing routing or execution semantics. `scripts/manual_routed_flow.py` now uses monotonic timing to emit a top-level `timing_ms` object, records `elapsed_ms` on every executed step, records total harness runtime, times the local submission-confirmation block when `--submit` is requested without the danger confirmation, and keeps skipped steps omitted rather than fabricating zero-latency timings. Strengthened the manual harness tests to verify inspect-only timing, run-through-readiness timing, non-negative numeric elapsed values on each executed step, and local submit-block timing while preserving no default submission and no SubmittedOrder creation. Timing is local harness/service-call timing only; it is not production routing latency, route-executor telemetry, or exchange/network latency unless an operator explicitly triggers live submit paths. No migration, config, service-wide telemetry framework, route executor, smart routing, best-binding selection, ranking, scoring, CBBO, fanout, target reselection, auto-submit, new exchange behavior, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `scripts/manual_routed_flow.py`
+  - `tests/test_phase65_manual_routed_flow.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_phase65_manual_routed_flow.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase64_recommendation_backed_readiness.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase63_recommendation_target_choice_conversion.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python -c 'ephemeral test-session manual harness run-through-readiness timing smoke'`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-6.6-review.zip`
+  - `verified /Users/tercirafael/money-flow-phase-6.6-review.zip contains 430 files with no forbidden .env files beyond tracked .env.example, virtualenv, cache, nested archive, sqlite, or db matches`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+
 ## v2026.04.22.004
 
 - `recorded_at_utc`: `2026-04-22T20:50:22Z`
