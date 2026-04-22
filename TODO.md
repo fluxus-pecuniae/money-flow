@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-04-22T20:23:37Z`
+Last reviewed: `2026-04-22T20:50:22Z`
 
 ## Active Follow-Ups
 
@@ -123,6 +123,12 @@ Last reviewed: `2026-04-22T20:23:37Z`
 - `priority`: `high`
 - `status`: `done`
 - `summary`: `Phase 6.4.1 hotpatched recommendation-backed preview/readiness truth. Routed child-intent lineage validation now blocks when stored routed order-shape policy is missing, malformed, or mismatched against the current OrderIntent order_type, limit_price, or reduce_only fields; readiness-time stale stored quote observations now use quote_stale_at_readiness. Tests prove order-type, LIMIT-price, reduce-only, missing-policy, and stale-quote blockers occur before adapter preparation/submission. No migration, config, endpoint, submitted order, exchange submit call, route executor, fanout, allocation, ranking/scoring, CBBO, target reselection, or auto-submit was added.`
+
+### T-030
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 6.5 added a manual routed-flow inspection harness in scripts/manual_routed_flow.py. It starts from an existing desired trade key, emits JSON artifact traces, can explicitly call the current routing assessment, route-readiness audit, target recommendation, recommendation acceptance, target-choice conversion, prepared-order preview, and execution-readiness service paths through --run-through-readiness, and skips submission by default. Submit attempts are locally blocked without --i-understand-this-can-place-a-live-order and any confirmed submit still relies on existing service gates. Tests cover readiness-through flow output, default no-submission behavior, no SubmittedOrder creation, and local submit blocking. No smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor, auto-submit, new exchange behavior, config, or migration was added.`
 
 ### T-002
 

@@ -13,6 +13,38 @@ Entry schema:
 
 ---
 
+## v2026.04.22.004
+
+- `recorded_at_utc`: `2026-04-22T20:50:22Z`
+- `scope`: `Phase 6.5 manual routed-flow inspection harness`
+- `intent`: `Native entry. Added an internal developer/operator manual routed-flow harness without changing routing or execution semantics. The new `scripts/manual_routed_flow.py` tool starts from an existing desired trade key, can explicitly run the current controlled chain through routing assessment, route-readiness audit, target recommendation, recommendation acceptance, target-choice conversion, prepared-order preview, and execution-readiness inspection, and emits a JSON artifact trace with ids, statuses, reason codes, selected target fields, routed lineage, no-routing-intelligence flags, and submission state. Default behavior is inspection-only and creates no downstream artifacts; `--run-through-readiness` creates only the existing explicit artifacts through readiness and still skips submission. `--submit` is locally blocked unless `--i-understand-this-can-place-a-live-order` is supplied, and any confirmed submission still uses the existing execution service gates. Added direct Phase 6.5 tests proving the harness can exercise the route through readiness, exposes key artifact lineage, does not submit by default, creates no SubmittedOrder by default, and blocks submit attempts without the danger confirmation before service submission. No migration, config, API endpoint, smart routing, best-binding selection, ranking, scoring, CBBO, fanout, target reselection, route executor behavior, auto-submit, new exchange support, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `scripts/manual_routed_flow.py`
+  - `tests/test_phase65_manual_routed_flow.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_phase65_manual_routed_flow.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase64_recommendation_backed_readiness.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase63_recommendation_target_choice_conversion.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase62_recommendation_acceptance.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase600_routing_target_recommendation.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase5101_route_readiness_audit.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase50_routing_substrate.py tests/test_phase51_routing_target_choice.py tests/test_phase52_target_choice_conversion.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py tests/test_phase55_routed_submitted_order_lineage.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase57_routed_post_submit_lifecycle.py tests/test_phase59_routed_reconciliation_lifecycle_audit.py tests/test_phase510_routing_substrate_closeout.py tests/test_phase5101_route_readiness_audit.py tests/test_phase600_routing_target_recommendation.py tests/test_phase62_recommendation_acceptance.py tests/test_phase63_recommendation_target_choice_conversion.py tests/test_phase64_recommendation_backed_readiness.py tests/test_phase65_manual_routed_flow.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-6.5-review.zip`
+  - `verified /Users/tercirafael/money-flow-phase-6.5-review.zip contains 413 files with no .env, virtualenv, cache, nested archive, sqlite, or db matches`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+
 ## v2026.04.22.003
 
 - `recorded_at_utc`: `2026-04-22T20:23:37Z`
