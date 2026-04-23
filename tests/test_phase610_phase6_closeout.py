@@ -158,11 +158,12 @@ def test_phase6_closeout_recommendation_backed_single_target_execution_flow() ->
     for key, value in expected.items():
         assert workflow_lineage[key] == value
     assert workflow["submitted_orders"][0]["submitted_order_id"] == submitted.submitted_order_id
-    assert workflow["actionability_summary"]["same_target_only"] is True
-    assert workflow["recovery_summary"]["same_venue_only"] is True
-    assert workflow["actionability_summary"]["fanout_created"] is False
-    assert workflow["actionability_summary"]["allocation_created"] is False
-    assert workflow["actionability_summary"]["scoring_created"] is False
-    assert workflow["actionability_summary"]["route_executor_created"] is False
-    assert workflow["actionability_summary"]["target_reselection"] is False
-
+    assert "actionability_summary" not in workflow
+    assert "recovery_summary" not in workflow
+    assert workflow["same_target_lifecycle_summary"]["same_target_only"] is True
+    assert workflow["same_target_lifecycle_summary"]["same_venue_only"] is True
+    assert workflow["same_target_lifecycle_summary"]["fanout_created"] is False
+    assert workflow["same_target_lifecycle_summary"]["allocation_created"] is False
+    assert workflow["same_target_lifecycle_summary"]["scoring_created"] is False
+    assert workflow["same_target_lifecycle_summary"]["route_executor_created"] is False
+    assert workflow["same_target_lifecycle_summary"]["target_reselection"] is False

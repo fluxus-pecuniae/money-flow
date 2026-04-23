@@ -195,8 +195,7 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                     "readiness_evaluations": [],
                     "submitted_orders": [],
                     "lifecycle_events": [],
-                    "actionability_summary": None,
-                    "recovery_summary": None,
+                    "same_target_lifecycle_summary": None,
                     "routed_lineage": None,
                     "blocking_reason_codes": ["desired_trade_not_found"],
                     "missing_data": [],
@@ -378,8 +377,9 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                     self._lifecycle_event_workflow_record(model)
                     for model in lifecycle_events
                 ],
-                "actionability_summary": self._same_target_inspection_summary(routed_lineage),
-                "recovery_summary": self._same_target_inspection_summary(routed_lineage),
+                "same_target_lifecycle_summary": self._same_target_lifecycle_summary(
+                    routed_lineage
+                ),
                 "routed_lineage": routed_lineage,
                 "blocking_reason_codes": blocking_reason_codes,
                 "missing_data": missing_data,
@@ -759,7 +759,7 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
         return None
 
     @staticmethod
-    def _same_target_inspection_summary(
+    def _same_target_lifecycle_summary(
         routed_lineage: dict[str, object] | None,
     ) -> dict[str, object] | None:
         if routed_lineage is None:

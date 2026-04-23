@@ -571,8 +571,7 @@ class RoutedWorkflowInspectionResponse(BaseModel):
     readiness_evaluations: list[dict[str, object]] = Field(default_factory=list)
     submitted_orders: list[dict[str, object]] = Field(default_factory=list)
     lifecycle_events: list[dict[str, object]] = Field(default_factory=list)
-    actionability_summary: dict[str, object] | None = None
-    recovery_summary: dict[str, object] | None = None
+    same_target_lifecycle_summary: dict[str, object] | None = None
     routed_lineage: dict[str, object] | None = None
     blocking_reason_codes: list[str] = Field(default_factory=list)
     missing_data: list[str] = Field(default_factory=list)

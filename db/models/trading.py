@@ -17,6 +17,7 @@ from sqlalchemy import (
     Numeric,
     String,
     Text,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -1224,6 +1225,43 @@ class SubmittedOrderModel(Base):
     cancelable_in_principle: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     amendable_in_principle: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     raw_payload: Mapped[dict[str, object]] = mapped_column(JSON, default=dict)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class OrderIntentSubmissionLeaseModel(Base):
+    """Short-lived guard for explicit child-intent submit calls.
+
+    This is deliberately not a submitted-order reservation. It serializes the
+    adapter-call boundary while SubmittedOrder remains post-submit truth only.
+    """
+
+    __tablename__ = "order_intent_submission_leases"
+    __table_args__ = (
+        UniqueConstraint(
+            "environment",
+            "intent_id",
+            "purpose",
+            name="uq_order_intent_submission_leases_env_intent_purpose",
+        ),
+        Index(
+            "ix_order_intent_submission_leases_status_expires",
+            "status",
+            "expires_at",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    environment: Mapped[Environment] = mapped_column(enum_column(Environment), index=True)
+    lease_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    intent_id: Mapped[str] = mapped_column(String(64), index=True)
+    purpose: Mapped[str] = mapped_column(String(64), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), index=True)
+    acquired_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    released_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    reason_code: Mapped[str | None] = mapped_column(String(128))
+    metadata_json: Mapped[dict[str, object]] = mapped_column(JSON, default=dict)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 

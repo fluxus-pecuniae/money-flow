@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-04-22T22:18:00Z`
+Last reviewed: `2026-04-23T05:14:35Z`
 
 ## Active Follow-Ups
 
@@ -104,7 +104,7 @@ Last reviewed: `2026-04-22T22:18:00Z`
 
 - `priority`: `medium`
 - `status`: `future`
-- `summary`: `Consider a narrow persistence-level uniqueness guard or serialized acceptance/conversion/submission path for concurrent Phase 6 recommendation acceptance, accepted target-choice conversion, and explicit submitted-order handoff if multiple workers can act on the same route-readiness audit or child intent simultaneously. Phase 6.2.1 uses application-level idempotency to return the existing target choice for repeated same-recommendation and duplicate successful same-audit acceptance, Phase 6.2.2 gates that same-audit reuse so blocked recommendations cannot appear accepted, Phase 6.3 uses service-level same-desired-trade/same-audit child-intent reuse, and Phase 6.7 relies on existing submitted-order idempotency for repeated explicit submits of the same child intent. These phases preserve original timestamps and add no broad workflow engine; future DB-level serialization remains a hardening item before automation or multi-worker route execution.`
+- `summary`: `Consider remaining persistence-level uniqueness guards or serialized paths for concurrent Phase 6 recommendation acceptance and accepted target-choice conversion if multiple workers can act on the same route-readiness audit or child intent simultaneously. Phase 6.2.1 uses application-level idempotency to return the existing target choice for repeated same-recommendation and duplicate successful same-audit acceptance, Phase 6.2.2 gates that same-audit reuse so blocked recommendations cannot appear accepted, Phase 6.3 uses service-level same-desired-trade/same-audit child-intent reuse, and Phase 6.10.1 adds a narrow persistence-backed explicit child-intent submit lease so concurrent submit calls for one intent cannot both reach adapter submission before a SubmittedOrder exists. These phases preserve original timestamps and add no broad workflow engine; future DB-level serialization for recommendation acceptance/conversion remains a hardening item before automation or multi-worker route execution.`
 
 ### T-027
 
@@ -140,7 +140,7 @@ Last reviewed: `2026-04-22T22:18:00Z`
 
 - `priority`: `high`
 - `status`: `done`
-- `summary`: `Phase 6.7 through Phase 6.10 close Phase 6 as controlled explicit single-target recommendation-backed routed execution. The accepted recommendation-backed child intent can create exactly one SubmittedOrder only through the existing explicit gated child-intent submit path, submitted-order and lifecycle/actionability/recovery/reconciliation surfaces expose recommendation/audit/target-choice/intent/readiness lineage, reconciliation payload collisions cannot overwrite platform-owned routed lineage or fabricate recommendation lineage on non-routed orders, and a read-only routed workflow inspection endpoint aggregates existing records by desired trade without creating or mutating artifacts. Closeout regression proves exactly one target choice, one child intent, one submitted order, selected account/venue/symbol consistency, and no hidden auto-submit, route executor, fanout, allocation, ranking/scoring, CBBO, target reselection, cross-binding recovery, or cross-venue retry.`
+- `summary`: `Phase 6.7 through Phase 6.10 close Phase 6 as controlled explicit single-target recommendation-backed routed execution, and Phase 6.10.1 hotpatches submit/workflow truth before merge. The accepted recommendation-backed child intent can create exactly one SubmittedOrder only through the existing explicit gated child-intent submit path; concurrent explicit submit calls are serialized with a persistence-backed child-intent submit lease before adapter submission; submitted-order and lifecycle/actionability/recovery/reconciliation surfaces expose recommendation/audit/target-choice/intent/readiness lineage; same-target retry preserves the first submitted-order id while exposing latest/retry submitted ids separately; reconciliation payload collisions cannot overwrite platform-owned routed lineage or fabricate recommendation lineage on non-routed orders; and a read-only routed workflow inspection endpoint aggregates existing records by desired trade without creating or mutating artifacts. Closeout regression proves exactly one target choice, one child intent, one submitted order, selected account/venue/symbol consistency, and no hidden auto-submit, route executor, fanout, allocation, ranking/scoring, CBBO, target reselection, cross-binding recovery, or cross-venue retry.`
 
 ### T-002
 

@@ -122,9 +122,11 @@ def test_routed_workflow_inspection_returns_full_submitted_recommendation_chain_
     assert lineage["selected_venue_account_ref_id"] == choice.selected_venue_account_ref_id
     assert lineage["selected_venue"] == choice.selected_venue
     assert lineage["selected_exchange_symbol"] == conversion.selected_exchange_symbol
-    assert payload["actionability_summary"]["same_target_only"] is True
-    assert payload["recovery_summary"]["same_account_only"] is True
-    assert payload["actionability_summary"]["route_executor_created"] is False
+    assert "actionability_summary" not in payload
+    assert "recovery_summary" not in payload
+    assert payload["same_target_lifecycle_summary"]["same_target_only"] is True
+    assert payload["same_target_lifecycle_summary"]["same_account_only"] is True
+    assert payload["same_target_lifecycle_summary"]["route_executor_created"] is False
     assert _repo_counts(session_factory) == before_counts
 
 
@@ -153,8 +155,9 @@ def test_routed_workflow_inspection_returns_partial_recommendation_chain_without
         "routing_target_recommendation_id"
     ] == recommendation.routing_target_recommendation_id
     assert payload["routed_lineage"] is None
-    assert payload["actionability_summary"] is None
-    assert payload["recovery_summary"] is None
+    assert "actionability_summary" not in payload
+    assert "recovery_summary" not in payload
+    assert payload["same_target_lifecycle_summary"] is None
     assert payload["artifacts_created_by_inspection"] is False
     assert _repo_counts(session_factory) == before_counts
 
@@ -214,5 +217,8 @@ def test_routed_workflow_inspection_unknown_desired_trade_is_clean_and_read_only
     assert payload["readiness_evaluations"] == []
     assert payload["submitted_orders"] == []
     assert payload["lifecycle_events"] == []
+    assert "actionability_summary" not in payload
+    assert "recovery_summary" not in payload
+    assert payload["same_target_lifecycle_summary"] is None
     assert payload["artifacts_created_by_inspection"] is False
     assert _repo_counts(session_factory) == before_counts

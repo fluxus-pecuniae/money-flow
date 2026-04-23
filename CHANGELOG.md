@@ -13,6 +13,41 @@ Entry schema:
 
 ---
 
+## v2026.04.23.001
+
+- `recorded_at_utc`: `2026-04-23T05:14:35Z`
+- `scope`: `Phase 6.10.1 routed submit and workflow truth hotpatch`
+- `intent`: `Native entry. Hotpatched the Phase 6 closeout before merge. Added a narrow persistence-backed `order_intent_submission_leases` guard so concurrent explicit submit calls for the same child intent cannot both pass through to the venue adapter before a SubmittedOrder exists; the guard is acquired after readiness/live/routed gates pass, rechecks existing submitted-order truth before adapter submission, releases on existing/success/failure paths, and does not turn SubmittedOrder into a pre-submit reservation. Preserved first-submitted-order truth on recommendation/source-audit provenance when same-target retry creates a later submitted order: `submitted_order_id` remains the first submitted order, with `first_submitted_order_id`, `first_submitted_order_created_at`, `latest_submitted_order_id`, `latest_submitted_order_checked_at`, and `submitted_order_ids` exposing retry/latest truth separately. Renamed routed workflow inspection's static `actionability_summary` / `recovery_summary` fields to `same_target_lifecycle_summary` so the read-only workflow API no longer implies real actionability or recovery evaluations. Strengthened Phase 6.7, 6.8, 6.9, and 6.10 tests for concurrent submit, retry provenance, read-only workflow response shape, and closeout boundaries. No new routing policy, smart routing, best-binding selection, ranking, scoring, CBBO, fanout, target reselection, route executor behavior, auto-submit, cross-binding recovery, cross-venue retry, new exchange behavior, config, broad workflow framework, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `db/models/trading.py`
+  - `db/models/__init__.py`
+  - `db/migrations/versions/20260423_0022_phase6101_submission_leases.py`
+  - `core/schemas/api.py`
+  - `services/execution/service.py`
+  - `services/routing/service.py`
+  - `tests/test_phase67_recommendation_backed_submission.py`
+  - `tests/test_phase68_recommendation_backed_lifecycle.py`
+  - `tests/test_phase69_routed_workflow_inspection.py`
+  - `tests/test_phase610_phase6_closeout.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase67_recommendation_backed_submission.py` passed: `8 passed`.
+  - `.venv/bin/python -m pytest -q tests/test_phase68_recommendation_backed_lifecycle.py` passed: `4 passed`.
+  - `.venv/bin/python -m pytest -q tests/test_phase69_routed_workflow_inspection.py` passed: `4 passed`.
+  - `.venv/bin/python -m pytest -q tests/test_phase610_phase6_closeout.py` passed: `1 passed`.
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py` passed: `21 passed`.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: `372 passed`.
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py` passed: `1 passed`.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-6.10.1-review.zip` created a clean review bundle; bundle inspection found 488 files and no `.env` other than `.env.example`, virtualenvs, caches, local DBs, logs, or nested archives.
+
 ## v2026.04.22.006
 
 - `recorded_at_utc`: `2026-04-22T22:08:27Z`

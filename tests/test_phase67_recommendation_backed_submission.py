@@ -16,6 +16,7 @@ from core.domain.enums import (
     SubmittedOrderStatus,
 )
 from db.models import (
+    OrderIntentSubmissionLeaseModel,
     OrderIntentModel,
     RouteReadinessAuditModel,
     RoutingTargetRecommendationModel,
@@ -155,6 +156,67 @@ def test_recommendation_backed_child_intent_submits_through_existing_gated_submi
     assert duplicate.submitted_order_id == submitted.submitted_order_id
     assert adapter.submit_calls == 1
     assert _submitted_order_count(session_factory) == 1
+
+
+def test_concurrent_explicit_submit_for_same_routed_child_intent_calls_adapter_once() -> None:
+    session_factory = build_test_session_factory()
+    (
+        _routing,
+        _audit,
+        _recommendation,
+        _choice,
+        _desired_trade_key,
+        conversion,
+        execution,
+        adapter,
+    ) = _recommendation_backed_submission_context(session_factory)
+    intent = asyncio.run(execution.get_child_intent(conversion.intent_id))
+
+    async def run_concurrent_submits():
+        started = asyncio.Event()
+        release = asyncio.Event()
+        original_submit_order = adapter.submit_order
+        adapter_invocations = 0
+
+        async def slow_submit_order(submit_intent):
+            nonlocal adapter_invocations
+            adapter_invocations += 1
+            started.set()
+            await release.wait()
+            return await original_submit_order(submit_intent)
+
+        adapter.submit_order = slow_submit_order
+        first_submit = asyncio.create_task(execution.submit_prepared_intent(intent))
+        await started.wait()
+
+        with pytest.raises(SubmissionBlockedError) as exc:
+            await execution.submit_prepared_intent(intent)
+
+        assert "submission_in_progress" in exc.value.readiness.reason_codes
+        assert adapter_invocations == 1
+        assert adapter.submit_calls == 0
+        assert _submitted_order_count(session_factory) == 0
+
+        release.set()
+        submitted = await first_submit
+        duplicate = await execution.submit_prepared_intent(intent)
+        return submitted, duplicate, adapter_invocations
+
+    submitted, duplicate, adapter_invocations = asyncio.run(run_concurrent_submits())
+
+    assert submitted.submitted_order_id == duplicate.submitted_order_id
+    assert adapter_invocations == 1
+    assert adapter.submit_calls == 1
+    assert _submitted_order_count(session_factory) == 1
+    with session_factory() as session:
+        lease = session.scalar(
+            select(OrderIntentSubmissionLeaseModel).where(
+                OrderIntentSubmissionLeaseModel.intent_id == conversion.intent_id
+            )
+        )
+        assert lease is not None
+        assert lease.status == "submitted"
+        assert lease.reason_code == "submitted_order_persisted"
 
 
 @pytest.mark.parametrize(

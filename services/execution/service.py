@@ -4,13 +4,15 @@ from __future__ import annotations
 
 from dataclasses import asdict, replace
 from collections.abc import Sequence
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal, InvalidOperation
 import hashlib
 import json
 from typing import Any
+from uuid import uuid4
 
-from sqlalchemy import select
+from sqlalchemy import or_, select, update
+from sqlalchemy.exc import IntegrityError
 
 from core.config.settings import AppSettings, get_settings
 from core.domain.enums import (
@@ -57,6 +59,7 @@ from db.models import (
     MandateAccountBindingModel,
     MandateDesiredTradeModel,
     OrderIntentModel,
+    OrderIntentSubmissionLeaseModel,
     RouteReadinessAuditModel,
     RouteReadinessCandidateAuditModel,
     RoutingAssessmentCandidateModel,
@@ -88,6 +91,8 @@ def _jsonable(payload: dict[str, object]) -> dict[str, object]:
 
 
 _ROUTED_QUOTE_FRESHNESS_SECONDS = 60
+_SUBMISSION_LEASE_PURPOSE = "explicit_child_intent_submit"
+_SUBMISSION_LEASE_TTL_SECONDS = 15 * 60
 
 
 class ChildIntentPreparationError(ValueError):
@@ -310,7 +315,27 @@ class DefaultExecutionService(ExecutionService):
             )
             raise SubmissionBlockedError(current_intent.intent_id, readiness)
 
+        lease_id = self._acquire_intent_submission_lease(
+            current_intent.intent_id,
+            readiness=readiness,
+        )
+        adapter_called = False
         with self._session_factory() as session:
+            existing = session.scalar(
+                select(SubmittedOrderModel).where(
+                    SubmittedOrderModel.environment == self.settings.app.environment,
+                    SubmittedOrderModel.intent_id == current_intent.intent_id,
+                )
+            )
+            if existing is not None:
+                self._release_intent_submission_lease(
+                    current_intent.intent_id,
+                    lease_id,
+                    status="existing_submitted_order",
+                    reason_code="submitted_order_already_exists",
+                    metadata={"submitted_order_id": existing.submitted_order_id},
+                )
+                return self._submitted_order_from_model(existing)
             model = session.scalar(
                 select(OrderIntentModel).where(
                     OrderIntentModel.environment == self.settings.app.environment,
@@ -318,13 +343,37 @@ class DefaultExecutionService(ExecutionService):
                 )
             )
             if model is None:
+                self._release_intent_submission_lease(
+                    current_intent.intent_id,
+                    lease_id,
+                    status="failed",
+                    reason_code="child_intent_missing_after_lease",
+                )
                 raise ValueError(f"Child intent not found: {current_intent.intent_id}")
             venue = self._resolve_venue_for_intent(session, model)
-        adapter = await self.venue_registry_service.get_adapter(venue)
         try:
+            adapter = await self.venue_registry_service.get_adapter(venue)
+        except Exception:
+            self._release_intent_submission_lease(
+                current_intent.intent_id,
+                lease_id,
+                status="failed",
+                reason_code="adapter_unavailable_before_submit",
+                metadata={"venue": venue},
+            )
+            raise
+        try:
+            adapter_called = True
             submitted = await adapter.submit_order(current_intent)
         except VenueAdapterError as exc:
             reason_codes = list(getattr(exc, "reason_codes", []) or ["submission_failed"])
+            self._release_intent_submission_lease(
+                current_intent.intent_id,
+                lease_id,
+                status="failed",
+                reason_code=reason_codes[0],
+                metadata={"venue": venue},
+            )
             await self._mark_submission_failure(
                 intent_id=current_intent.intent_id,
                 readiness=readiness,
@@ -343,7 +392,206 @@ class DefaultExecutionService(ExecutionService):
             intent=current_intent,
             readiness=readiness,
         )
-        return self._persist_submitted_order(current_intent, readiness, submitted)
+        try:
+            persisted = self._persist_submitted_order(current_intent, readiness, submitted)
+        except Exception:
+            if not adapter_called:
+                self._release_intent_submission_lease(
+                    current_intent.intent_id,
+                    lease_id,
+                    status="failed",
+                    reason_code="submission_failed_before_adapter",
+                    metadata={"venue": venue},
+                )
+            raise
+        self._release_intent_submission_lease(
+            current_intent.intent_id,
+            lease_id,
+            status="submitted",
+            reason_code="submitted_order_persisted",
+            metadata={"submitted_order_id": persisted.submitted_order_id, "venue": venue},
+        )
+        return persisted
+
+    @staticmethod
+    def _lease_expires_at_is_stale(expires_at: datetime, now_value: datetime) -> bool:
+        comparable = expires_at
+        if comparable.tzinfo is None:
+            comparable = comparable.replace(tzinfo=UTC)
+        return comparable <= now_value
+
+    @staticmethod
+    def _submission_in_progress_readiness(
+        readiness: ExecutionReadinessAssessment,
+        lease: OrderIntentSubmissionLeaseModel | None,
+    ) -> ExecutionReadinessAssessment:
+        reason_codes = list(readiness.reason_codes or [])
+        if "submission_in_progress" not in reason_codes:
+            reason_codes.append("submission_in_progress")
+        provenance = dict(readiness.provenance or {})
+        provenance["submission_lease"] = {
+            "purpose": _SUBMISSION_LEASE_PURPOSE,
+            "status": "active",
+            "lease_id": lease.lease_id if lease is not None else None,
+            "acquired_at": lease.acquired_at.isoformat() if lease is not None else None,
+            "expires_at": lease.expires_at.isoformat() if lease is not None else None,
+            "reason_code": "submission_in_progress",
+        }
+        return replace(
+            readiness,
+            outcome=ExecutionReadinessOutcome.PHASE_BLOCKED,
+            reason_codes=reason_codes,
+            message=(
+                "Another explicit child-intent submission is already in progress. "
+                "No adapter submit call was made for this request."
+            ),
+            provenance=provenance,
+        )
+
+    def _acquire_intent_submission_lease(
+        self,
+        intent_id: str,
+        *,
+        readiness: ExecutionReadinessAssessment,
+    ) -> str:
+        now_value = _utcnow()
+        expires_at = now_value + timedelta(seconds=_SUBMISSION_LEASE_TTL_SECONDS)
+        for _attempt in range(2):
+            lease_id = f"sublease_{uuid4().hex}"
+            with self._session_factory() as session:
+                existing = session.scalar(
+                    select(OrderIntentSubmissionLeaseModel).where(
+                        OrderIntentSubmissionLeaseModel.environment
+                        == self.settings.app.environment,
+                        OrderIntentSubmissionLeaseModel.intent_id == intent_id,
+                        OrderIntentSubmissionLeaseModel.purpose
+                        == _SUBMISSION_LEASE_PURPOSE,
+                    )
+                )
+                if existing is None:
+                    lease = OrderIntentSubmissionLeaseModel(
+                        environment=self.settings.app.environment,
+                        lease_id=lease_id,
+                        intent_id=intent_id,
+                        purpose=_SUBMISSION_LEASE_PURPOSE,
+                        status="active",
+                        acquired_at=now_value,
+                        expires_at=expires_at,
+                        released_at=None,
+                        reason_code=None,
+                        metadata_json={
+                            "purpose": _SUBMISSION_LEASE_PURPOSE,
+                            "acquire_reason": "explicit_submit_ready",
+                        },
+                        created_at=now_value,
+                        updated_at=now_value,
+                    )
+                    session.add(lease)
+                    try:
+                        session.commit()
+                    except IntegrityError:
+                        session.rollback()
+                        continue
+                    return lease_id
+
+                lease_is_active = (
+                    existing.status == "active"
+                    and existing.released_at is None
+                    and not self._lease_expires_at_is_stale(existing.expires_at, now_value)
+                )
+                if lease_is_active:
+                    raise SubmissionBlockedError(
+                        intent_id,
+                        self._submission_in_progress_readiness(readiness, existing),
+                    )
+
+                reason_code = (
+                    "stale_submission_lease_replaced"
+                    if existing.status == "active"
+                    else "submission_lease_reacquired"
+                )
+                result = session.execute(
+                    update(OrderIntentSubmissionLeaseModel)
+                    .where(
+                        OrderIntentSubmissionLeaseModel.id == existing.id,
+                        or_(
+                            OrderIntentSubmissionLeaseModel.status != "active",
+                            OrderIntentSubmissionLeaseModel.released_at.is_not(None),
+                            OrderIntentSubmissionLeaseModel.expires_at <= now_value,
+                        ),
+                    )
+                    .values(
+                        lease_id=lease_id,
+                        status="active",
+                        acquired_at=now_value,
+                        expires_at=expires_at,
+                        released_at=None,
+                        reason_code=reason_code,
+                        metadata_json={
+                            "purpose": _SUBMISSION_LEASE_PURPOSE,
+                            "acquire_reason": reason_code,
+                            "previous_lease_id": existing.lease_id,
+                        },
+                        updated_at=now_value,
+                    )
+                )
+                if result.rowcount == 1:
+                    session.commit()
+                    return lease_id
+                session.rollback()
+
+        with self._session_factory() as session:
+            lease = session.scalar(
+                select(OrderIntentSubmissionLeaseModel).where(
+                    OrderIntentSubmissionLeaseModel.environment
+                    == self.settings.app.environment,
+                    OrderIntentSubmissionLeaseModel.intent_id == intent_id,
+                    OrderIntentSubmissionLeaseModel.purpose == _SUBMISSION_LEASE_PURPOSE,
+                )
+            )
+        raise SubmissionBlockedError(
+            intent_id,
+            self._submission_in_progress_readiness(readiness, lease),
+        )
+
+    def _release_intent_submission_lease(
+        self,
+        intent_id: str,
+        lease_id: str,
+        *,
+        status: str,
+        reason_code: str,
+        metadata: dict[str, object] | None = None,
+    ) -> None:
+        now_value = _utcnow()
+        with self._session_factory() as session:
+            lease = session.scalar(
+                select(OrderIntentSubmissionLeaseModel).where(
+                    OrderIntentSubmissionLeaseModel.environment
+                    == self.settings.app.environment,
+                    OrderIntentSubmissionLeaseModel.intent_id == intent_id,
+                    OrderIntentSubmissionLeaseModel.lease_id == lease_id,
+                    OrderIntentSubmissionLeaseModel.purpose == _SUBMISSION_LEASE_PURPOSE,
+                )
+            )
+            if lease is None:
+                return
+            lease.status = status
+            lease.released_at = now_value
+            lease.reason_code = reason_code
+            lease.updated_at = now_value
+            metadata_json = dict(lease.metadata_json or {})
+            metadata_json.update(
+                {
+                    "release_reason": reason_code,
+                    "released_at": now_value.isoformat(),
+                }
+            )
+            if metadata:
+                metadata_json.update(_jsonable(metadata))
+            lease.metadata_json = _jsonable(metadata_json)
+            session.add(lease)
+            session.commit()
 
     async def list_submitted_orders(
         self,
@@ -2536,17 +2784,35 @@ class DefaultExecutionService(ExecutionService):
         submitted_at_iso = submitted_at.isoformat()
         recommendation_model.submitted_order_created = True
         recommendation_provenance = dict(recommendation_model.provenance_json or {})
-        original_submitted_at = (
-            recommendation_provenance.get("submitted_order_created_at")
+        submitted_order_ids = [
+            str(item)
+            for item in recommendation_provenance.get("submitted_order_ids", [])
+            if isinstance(item, str) and item
+        ]
+        first_submitted_order_id = (
+            recommendation_provenance.get("first_submitted_order_id")
+            or recommendation_provenance.get("submitted_order_id")
+            or submitted.submitted_order_id
+        )
+        first_submitted_at = (
+            recommendation_provenance.get("first_submitted_order_created_at")
+            or recommendation_provenance.get("submitted_order_created_at")
             or submitted_at_iso
         )
+        if submitted.submitted_order_id not in submitted_order_ids:
+            submitted_order_ids.append(submitted.submitted_order_id)
         recommendation_provenance.update(
             {
                 "submitted_order_created": True,
-                "submitted_order_id": submitted.submitted_order_id,
+                "submitted_order_id": str(first_submitted_order_id),
+                "first_submitted_order_id": str(first_submitted_order_id),
+                "first_submitted_order_created_at": str(first_submitted_at),
+                "latest_submitted_order_id": submitted.submitted_order_id,
+                "latest_submitted_order_checked_at": submitted_at_iso,
+                "submitted_order_ids": submitted_order_ids,
                 "intent_id": intent_model.intent_id,
                 "readiness_evaluation_id": readiness.readiness_evaluation_id,
-                "submitted_order_created_at": str(original_submitted_at),
+                "submitted_order_created_at": str(first_submitted_at),
                 "submitted_order_last_checked_at": submitted_at_iso,
                 "explicit_submit_action": True,
                 "auto_submit": False,
@@ -2578,18 +2844,36 @@ class DefaultExecutionService(ExecutionService):
             return
         audit_model.submitted_order_created = True
         audit_provenance = dict(audit_model.provenance_json or {})
-        audit_original_submitted_at = (
-            audit_provenance.get("submitted_order_created_at")
-            or original_submitted_at
+        audit_submitted_order_ids = [
+            str(item)
+            for item in audit_provenance.get("submitted_order_ids", [])
+            if isinstance(item, str) and item
+        ]
+        audit_first_submitted_order_id = (
+            audit_provenance.get("first_submitted_order_id")
+            or audit_provenance.get("submitted_order_id")
+            or first_submitted_order_id
         )
+        audit_first_submitted_at = (
+            audit_provenance.get("first_submitted_order_created_at")
+            or audit_provenance.get("submitted_order_created_at")
+            or first_submitted_at
+        )
+        if submitted.submitted_order_id not in audit_submitted_order_ids:
+            audit_submitted_order_ids.append(submitted.submitted_order_id)
         audit_provenance.update(
             {
                 "submitted_order_created": True,
-                "submitted_order_id": submitted.submitted_order_id,
+                "submitted_order_id": str(audit_first_submitted_order_id),
+                "first_submitted_order_id": str(audit_first_submitted_order_id),
+                "first_submitted_order_created_at": str(audit_first_submitted_at),
+                "latest_submitted_order_id": submitted.submitted_order_id,
+                "latest_submitted_order_checked_at": submitted_at_iso,
+                "submitted_order_ids": audit_submitted_order_ids,
                 "intent_id": intent_model.intent_id,
                 "readiness_evaluation_id": readiness.readiness_evaluation_id,
                 "routing_target_recommendation_id": recommendation_id,
-                "submitted_order_created_at": str(audit_original_submitted_at),
+                "submitted_order_created_at": str(audit_first_submitted_at),
                 "submitted_order_last_checked_at": submitted_at_iso,
                 "explicit_submit_action": True,
                 "auto_submit": False,

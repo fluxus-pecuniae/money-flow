@@ -6,6 +6,8 @@ from sqlalchemy import func, select
 from core.domain.enums import SubmittedOrderStatus
 from db.models import (
     OrderIntentModel,
+    RouteReadinessAuditModel,
+    RoutingTargetRecommendationModel,
     SubmittedOrderLifecycleEventModel,
     SubmittedOrderModel,
 )
@@ -290,3 +292,36 @@ def test_same_target_retry_preserves_recommendation_backed_lineage() -> None:
     assert routed_payload["route_executor_created"] is False
     assert routed_payload["target_reselection"] is False
 
+    with session_factory() as session:
+        recommendation_model = session.scalar(
+            select(RoutingTargetRecommendationModel).where(
+                RoutingTargetRecommendationModel.routing_target_recommendation_id
+                == recommendation.routing_target_recommendation_id
+            )
+        )
+        audit_model = session.scalar(
+            select(RouteReadinessAuditModel).where(
+                RouteReadinessAuditModel.route_readiness_audit_id
+                == audit.route_readiness_audit_id
+            )
+        )
+        assert recommendation_model is not None
+        assert audit_model is not None
+        for provenance in (
+            recommendation_model.provenance_json,
+            audit_model.provenance_json,
+        ):
+            assert provenance["submitted_order_id"] == submitted.submitted_order_id
+            assert provenance["first_submitted_order_id"] == submitted.submitted_order_id
+            assert provenance["first_submitted_order_created_at"] == (
+                provenance["submitted_order_created_at"]
+            )
+            assert provenance["latest_submitted_order_id"] == retried.submitted_order_id
+            assert provenance["submitted_order_ids"] == [
+                submitted.submitted_order_id,
+                retried.submitted_order_id,
+            ]
+            assert provenance["auto_submit"] is False
+            assert provenance["fanout_created"] is False
+            assert provenance["route_executor_created"] is False
+            assert provenance["target_reselection"] is False
