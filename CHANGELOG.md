@@ -13,6 +13,36 @@ Entry schema:
 
 ---
 
+## v2026.04.23.002
+
+- `recorded_at_utc`: `2026-04-23T06:16:36Z`
+- `scope`: `Phase 6.10.2 submit lease uncertainty hotpatch`
+- `intent`: `Native entry. Hotpatched the explicit child-intent submit lease so a successful adapter submit response followed by local SubmittedOrder persistence failure is preserved as terminal operational uncertainty instead of a normal stale active lease. The lease now records `adapter_submit_persistence_unknown` with reason `adapter_submit_returned_persistence_failed`, reconciliation metadata, adapter/submitted-order ids when available, and persistence exception details. Future submit attempts for that child intent block before adapter submission with `submission_state_uncertain`, `adapter_submit_persistence_unknown`, and `manual_reconciliation_required`, even after the lease TTL has elapsed. Normal successful submit, concurrent submit blocking, existing submitted-order idempotency, gate blocks, adapter submit failures, and stale pre-adapter active lease replacement remain unchanged. Added a minimal migration widening the lease `status` column to fit the terminal uncertainty status. No smart routing, best-binding selection, ranking, scoring, CBBO, fanout, target reselection, route executor behavior, auto-submit, cross-binding recovery, cross-venue retry, new exchange behavior, new config, broad workflow framework, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `db/models/trading.py`
+  - `db/migrations/versions/20260423_0023_phase6102_submission_lease_uncertainty.py`
+  - `services/execution/service.py`
+  - `tests/test_phase67_recommendation_backed_submission.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase67_recommendation_backed_submission.py` passed: `10 passed`.
+  - `.venv/bin/python -m pytest -q tests/test_phase68_recommendation_backed_lifecycle.py` passed: `4 passed`.
+  - `.venv/bin/python -m pytest -q tests/test_phase69_routed_workflow_inspection.py` passed: `4 passed`.
+  - `.venv/bin/python -m pytest -q tests/test_phase610_phase6_closeout.py` passed: `1 passed`.
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py` passed: `21 passed`.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: `374 passed`.
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py` passed: `1 passed`.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed after final docs update: `8 passed`.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-6.10.2-review.zip` created a clean review bundle; bundle inspection found 522 files and no `.env` other than `.env.example`, virtualenvs, caches, local DBs, SQLite files, logs, or nested archives.
+
 ## v2026.04.23.001
 
 - `recorded_at_utc`: `2026-04-23T05:14:35Z`

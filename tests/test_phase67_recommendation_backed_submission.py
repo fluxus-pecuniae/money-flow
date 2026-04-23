@@ -219,6 +219,127 @@ def test_concurrent_explicit_submit_for_same_routed_child_intent_calls_adapter_o
         assert lease.reason_code == "submitted_order_persisted"
 
 
+def test_adapter_returned_persistence_failure_marks_submission_lease_uncertain(
+    monkeypatch,
+) -> None:
+    session_factory = build_test_session_factory()
+    (
+        _routing,
+        _audit,
+        _recommendation,
+        _choice,
+        _desired_trade_key,
+        conversion,
+        execution,
+        adapter,
+    ) = _recommendation_backed_submission_context(session_factory)
+    intent = asyncio.run(execution.get_child_intent(conversion.intent_id))
+
+    def fail_persist(*_args, **_kwargs):
+        raise RuntimeError("local submitted-order persistence failed after adapter return")
+
+    monkeypatch.setattr(execution, "_persist_submitted_order", fail_persist)
+
+    with pytest.raises(RuntimeError, match="persistence failed"):
+        asyncio.run(execution.submit_prepared_intent(intent))
+
+    assert adapter.submit_calls == 1
+    assert _submitted_order_count(session_factory) == 0
+
+    with session_factory() as session:
+        lease = session.scalar(
+            select(OrderIntentSubmissionLeaseModel).where(
+                OrderIntentSubmissionLeaseModel.intent_id == conversion.intent_id
+            )
+        )
+        assert lease is not None
+        assert lease.status == "adapter_submit_persistence_unknown"
+        assert lease.reason_code == "adapter_submit_returned_persistence_failed"
+        assert lease.metadata_json["intent_id"] == conversion.intent_id
+        assert lease.metadata_json["adapter_submit_called"] is True
+        assert lease.metadata_json["adapter_submit_returned"] is True
+        assert lease.metadata_json["submitted_order_persisted"] is False
+        assert lease.metadata_json["requires_reconciliation"] is True
+        assert lease.metadata_json["submitted_order_id"] == f"submitted-{conversion.intent_id}"
+        assert lease.metadata_json["exchange_order_id"] == f"exchange-{conversion.intent_id}"
+        assert lease.metadata_json["client_order_id"] == f"client-{conversion.intent_id}"
+        assert lease.metadata_json["persistence_failure_class"] == "RuntimeError"
+        assert "persistence failed" in lease.metadata_json["persistence_failure_message"]
+
+        lease.expires_at = datetime.now(UTC) - timedelta(minutes=30)
+        session.add(lease)
+        session.commit()
+
+    with pytest.raises(SubmissionBlockedError) as exc:
+        asyncio.run(execution.submit_prepared_intent(intent))
+
+    assert "submission_state_uncertain" in exc.value.readiness.reason_codes
+    assert "adapter_submit_persistence_unknown" in exc.value.readiness.reason_codes
+    assert "manual_reconciliation_required" in exc.value.readiness.reason_codes
+    assert (
+        exc.value.readiness.provenance["submission_lease"]["status"]
+        == "adapter_submit_persistence_unknown"
+    )
+    assert (
+        exc.value.readiness.provenance["submission_lease"]["requires_reconciliation"]
+        is True
+    )
+    assert adapter.submit_calls == 1
+    assert _submitted_order_count(session_factory) == 0
+
+
+def test_stale_pre_adapter_active_submission_lease_can_still_be_replaced() -> None:
+    session_factory = build_test_session_factory()
+    (
+        _routing,
+        _audit,
+        _recommendation,
+        _choice,
+        _desired_trade_key,
+        conversion,
+        execution,
+        adapter,
+    ) = _recommendation_backed_submission_context(session_factory)
+    stale_time = datetime.now(UTC) - timedelta(minutes=30)
+    with session_factory() as session:
+        session.add(
+            OrderIntentSubmissionLeaseModel(
+                environment=execution.settings.app.environment,
+                lease_id="stale-pre-adapter-lease",
+                intent_id=conversion.intent_id,
+                purpose="explicit_child_intent_submit",
+                status="active",
+                acquired_at=stale_time,
+                expires_at=stale_time,
+                released_at=None,
+                reason_code=None,
+                metadata_json={"purpose": "explicit_child_intent_submit"},
+                created_at=stale_time,
+                updated_at=stale_time,
+            )
+        )
+        session.commit()
+
+    intent = asyncio.run(execution.get_child_intent(conversion.intent_id))
+    submitted = asyncio.run(execution.submit_prepared_intent(intent))
+
+    assert submitted.submitted_order_id == f"submitted-{conversion.intent_id}"
+    assert adapter.submit_calls == 1
+    assert _submitted_order_count(session_factory) == 1
+    with session_factory() as session:
+        lease = session.scalar(
+            select(OrderIntentSubmissionLeaseModel).where(
+                OrderIntentSubmissionLeaseModel.intent_id == conversion.intent_id
+            )
+        )
+        assert lease is not None
+        assert lease.lease_id != "stale-pre-adapter-lease"
+        assert lease.status == "submitted"
+        assert lease.reason_code == "submitted_order_persisted"
+        assert lease.metadata_json["previous_lease_id"] == "stale-pre-adapter-lease"
+        assert lease.metadata_json["acquire_reason"] == "stale_submission_lease_replaced"
+
+
 @pytest.mark.parametrize(
     ("routed_submission_enabled", "live_submission_enabled", "expected_reason"),
     [

@@ -93,6 +93,10 @@ def _jsonable(payload: dict[str, object]) -> dict[str, object]:
 _ROUTED_QUOTE_FRESHNESS_SECONDS = 60
 _SUBMISSION_LEASE_PURPOSE = "explicit_child_intent_submit"
 _SUBMISSION_LEASE_TTL_SECONDS = 15 * 60
+_SUBMISSION_LEASE_STATUS_UNCERTAIN = "adapter_submit_persistence_unknown"
+_SUBMISSION_LEASE_TERMINAL_UNCERTAIN_STATUSES = {
+    _SUBMISSION_LEASE_STATUS_UNCERTAIN,
+}
 
 
 class ChildIntentPreparationError(ValueError):
@@ -319,7 +323,6 @@ class DefaultExecutionService(ExecutionService):
             current_intent.intent_id,
             readiness=readiness,
         )
-        adapter_called = False
         with self._session_factory() as session:
             existing = session.scalar(
                 select(SubmittedOrderModel).where(
@@ -363,7 +366,6 @@ class DefaultExecutionService(ExecutionService):
             )
             raise
         try:
-            adapter_called = True
             submitted = await adapter.submit_order(current_intent)
         except VenueAdapterError as exc:
             reason_codes = list(getattr(exc, "reason_codes", []) or ["submission_failed"])
@@ -387,22 +389,22 @@ class DefaultExecutionService(ExecutionService):
                 reason_codes=reason_codes,
                 message=str(exc),
             ) from exc
-        submitted = self._submitted_order_with_routed_lineage(
-            submitted,
-            intent=current_intent,
-            readiness=readiness,
-        )
         try:
+            submitted = self._submitted_order_with_routed_lineage(
+                submitted,
+                intent=current_intent,
+                readiness=readiness,
+            )
             persisted = self._persist_submitted_order(current_intent, readiness, submitted)
-        except Exception:
-            if not adapter_called:
-                self._release_intent_submission_lease(
-                    current_intent.intent_id,
-                    lease_id,
-                    status="failed",
-                    reason_code="submission_failed_before_adapter",
-                    metadata={"venue": venue},
-                )
+        except Exception as exc:
+            self._mark_intent_submission_lease_uncertain(
+                current_intent.intent_id,
+                lease_id,
+                readiness=readiness,
+                venue=venue,
+                submitted=submitted,
+                exception=exc,
+            )
             raise
         self._release_intent_submission_lease(
             current_intent.intent_id,
@@ -444,6 +446,46 @@ class DefaultExecutionService(ExecutionService):
             message=(
                 "Another explicit child-intent submission is already in progress. "
                 "No adapter submit call was made for this request."
+            ),
+            provenance=provenance,
+        )
+
+    @staticmethod
+    def _submission_state_uncertain_readiness(
+        readiness: ExecutionReadinessAssessment,
+        lease: OrderIntentSubmissionLeaseModel | None,
+    ) -> ExecutionReadinessAssessment:
+        reason_codes = list(readiness.reason_codes or [])
+        for code in (
+            "submission_state_uncertain",
+            _SUBMISSION_LEASE_STATUS_UNCERTAIN,
+            "manual_reconciliation_required",
+        ):
+            if code not in reason_codes:
+                reason_codes.append(code)
+        provenance = dict(readiness.provenance or {})
+        metadata = dict(lease.metadata_json or {}) if lease is not None else {}
+        provenance["submission_lease"] = {
+            "purpose": _SUBMISSION_LEASE_PURPOSE,
+            "status": lease.status if lease is not None else _SUBMISSION_LEASE_STATUS_UNCERTAIN,
+            "lease_id": lease.lease_id if lease is not None else None,
+            "acquired_at": lease.acquired_at.isoformat() if lease is not None else None,
+            "expires_at": lease.expires_at.isoformat() if lease is not None else None,
+            "released_at": lease.released_at.isoformat()
+            if lease is not None and lease.released_at is not None
+            else None,
+            "reason_code": lease.reason_code if lease is not None else None,
+            "requires_reconciliation": True,
+            "metadata": _jsonable(metadata),
+        }
+        return replace(
+            readiness,
+            outcome=ExecutionReadinessOutcome.PHASE_BLOCKED,
+            reason_codes=reason_codes,
+            message=(
+                "A prior explicit child-intent submit reached the adapter and returned, "
+                "but local SubmittedOrder persistence failed. Manual reconciliation is "
+                "required before another submit attempt for this intent."
             ),
             provenance=provenance,
         )
@@ -494,6 +536,12 @@ class DefaultExecutionService(ExecutionService):
                         continue
                     return lease_id
 
+                if existing.status in _SUBMISSION_LEASE_TERMINAL_UNCERTAIN_STATUSES:
+                    raise SubmissionBlockedError(
+                        intent_id,
+                        self._submission_state_uncertain_readiness(readiness, existing),
+                    )
+
                 lease_is_active = (
                     existing.status == "active"
                     and existing.released_at is None
@@ -534,6 +582,7 @@ class DefaultExecutionService(ExecutionService):
                         },
                         updated_at=now_value,
                     )
+                    .execution_options(synchronize_session=False)
                 )
                 if result.rowcount == 1:
                     session.commit()
@@ -551,7 +600,12 @@ class DefaultExecutionService(ExecutionService):
             )
         raise SubmissionBlockedError(
             intent_id,
-            self._submission_in_progress_readiness(readiness, lease),
+            (
+                self._submission_state_uncertain_readiness(readiness, lease)
+                if lease is not None
+                and lease.status in _SUBMISSION_LEASE_TERMINAL_UNCERTAIN_STATUSES
+                else self._submission_in_progress_readiness(readiness, lease)
+            ),
         )
 
     def _release_intent_submission_lease(
@@ -592,6 +646,37 @@ class DefaultExecutionService(ExecutionService):
             lease.metadata_json = _jsonable(metadata_json)
             session.add(lease)
             session.commit()
+
+    def _mark_intent_submission_lease_uncertain(
+        self,
+        intent_id: str,
+        lease_id: str,
+        *,
+        readiness: ExecutionReadinessAssessment,
+        venue: str,
+        submitted: SubmittedOrder,
+        exception: Exception,
+    ) -> None:
+        self._release_intent_submission_lease(
+            intent_id,
+            lease_id,
+            status=_SUBMISSION_LEASE_STATUS_UNCERTAIN,
+            reason_code="adapter_submit_returned_persistence_failed",
+            metadata={
+                "intent_id": intent_id,
+                "readiness_evaluation_id": readiness.readiness_evaluation_id,
+                "venue": venue,
+                "adapter_submit_called": True,
+                "adapter_submit_returned": True,
+                "submitted_order_persisted": False,
+                "requires_reconciliation": True,
+                "submitted_order_id": submitted.submitted_order_id,
+                "exchange_order_id": submitted.exchange_order_id,
+                "client_order_id": submitted.client_order_id,
+                "persistence_failure_class": exception.__class__.__name__,
+                "persistence_failure_message": str(exception),
+            },
+        )
 
     async def list_submitted_orders(
         self,

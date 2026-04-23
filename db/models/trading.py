@@ -1256,7 +1256,7 @@ class OrderIntentSubmissionLeaseModel(Base):
     lease_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
     intent_id: Mapped[str] = mapped_column(String(64), index=True)
     purpose: Mapped[str] = mapped_column(String(64), nullable=False)
-    status: Mapped[str] = mapped_column(String(32), index=True)
+    status: Mapped[str] = mapped_column(String(64), index=True)
     acquired_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     released_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
