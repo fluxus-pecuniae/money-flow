@@ -188,6 +188,33 @@ class RoutingTargetChoiceConversionStatus(StrEnum):
     BLOCKED_INVALID_DESIRED_TRADE = "blocked_invalid_desired_trade"
 
 
+class RoutingAutomationMode(StrEnum):
+    DISABLED = "disabled"
+    DRY_RUN_ONLY = "dry_run_only"
+    APPROVAL_REQUIRED = "approval_required"
+    EXPLICIT_AUTOMATION_PERMITTED = "explicit_automation_permitted"
+
+
+class RoutingAutomationPlanOutcome(StrEnum):
+    DISABLED = "disabled"
+    DRY_RUN_ONLY = "dry_run_only"
+    APPROVAL_REQUIRED = "approval_required"
+    AUTOMATION_ELIGIBLE = "automation_eligible"
+    MANUAL_REVIEW_ONLY = "manual_review_only"
+    BLOCKED = "blocked"
+
+
+class RoutingAutomationStepStatus(StrEnum):
+    ALREADY_SATISFIED = "already_satisfied"
+    DISABLED = "disabled"
+    DRY_RUN_ONLY = "dry_run_only"
+    APPROVAL_REQUIRED = "approval_required"
+    AUTOMATION_ELIGIBLE = "automation_eligible"
+    MANUAL_ONLY = "manual_only"
+    BLOCKED = "blocked"
+    DEFERRED = "deferred"
+
+
 class RiskEvaluationOutcome(StrEnum):
     APPROVED_DESIRED_TRADE = "approved_desired_trade"
     REJECTED_DESIRED_TRADE = "rejected_desired_trade"

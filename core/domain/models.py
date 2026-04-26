@@ -26,6 +26,9 @@ from core.domain.enums import (
     RiskSeverity,
     RouteReadinessAuditStatus,
     RoutingAssessmentDecisionStatus,
+    RoutingAutomationMode,
+    RoutingAutomationPlanOutcome,
+    RoutingAutomationStepStatus,
     RoutingCandidateEligibilityStatus,
     RoutingTargetChoiceConversionStatus,
     RoutingTargetRecommendationStatus,
@@ -1042,6 +1045,63 @@ class RoutingTargetChoiceConversionResult:
     readiness_assessment_created: bool = False
     submitted_order_created: bool = False
     converted_at: datetime | None = None
+    provenance: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
+class RoutingAutomationPolicy:
+    mode: RoutingAutomationMode
+    policy_name: str
+    dry_run_supported: bool
+    operator_approval_required: bool
+    recommendation_acceptance: RoutingAutomationStepStatus
+    target_choice_conversion: RoutingAutomationStepStatus
+    preview_readiness: RoutingAutomationStepStatus
+    submit: RoutingAutomationStepStatus
+    reason_codes: list[str] = field(default_factory=list)
+    boundary_flags: dict[str, bool] = field(default_factory=dict)
+    provenance: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
+class RoutingAutomationPlanStep:
+    name: str
+    status: RoutingAutomationStepStatus
+    artifact_id: str | None = None
+    would_create_artifact_type: str | None = None
+    reason_codes: list[str] = field(default_factory=list)
+    manual_only: bool = False
+    approval_required: bool = False
+    automatable: bool = False
+    dry_run_only: bool = False
+    blocked: bool = False
+    lineage: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
+class RoutingAutomationPlan:
+    automation_plan_id: str
+    desired_trade_key: str
+    environment: Environment
+    generated_at: datetime
+    dry_run: bool
+    persisted: bool
+    found: bool
+    outcome: RoutingAutomationPlanOutcome
+    policy: RoutingAutomationPolicy
+    current_status_summary: dict[str, Any]
+    steps: list[RoutingAutomationPlanStep]
+    reason_codes: list[str] = field(default_factory=list)
+    blocking_reason_codes: list[str] = field(default_factory=list)
+    manual_only_reason_codes: list[str] = field(default_factory=list)
+    approval_required_reason_codes: list[str] = field(default_factory=list)
+    automatable_action_names: list[str] = field(default_factory=list)
+    manual_action_names: list[str] = field(default_factory=list)
+    blocked_action_names: list[str] = field(default_factory=list)
+    routed_lineage: dict[str, Any] | None = None
+    same_target_lifecycle_summary: dict[str, Any] | None = None
+    boundary_flags: dict[str, bool] = field(default_factory=dict)
+    artifacts_created_by_plan: bool = False
     provenance: dict[str, Any] = field(default_factory=dict)
 
 

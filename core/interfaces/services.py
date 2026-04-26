@@ -37,6 +37,8 @@ from core.domain.models import (
     RiskEvaluation,
     RiskEvent,
     RouteReadinessAudit,
+    RoutingAutomationPlan,
+    RoutingAutomationPolicy,
     RoutingAssessment,
     RoutingTargetRecommendation,
     RoutingTargetChoice,
@@ -564,6 +566,19 @@ class RoutingAssessmentService(Protocol):
         self,
         desired_trade_key: str,
     ) -> dict[str, object]: ...
+
+    async def inspect_routing_automation_policy(
+        self,
+        policy: RoutingAutomationPolicy | None = None,
+    ) -> RoutingAutomationPolicy: ...
+
+    async def plan_routing_automation_for_desired_trade(
+        self,
+        desired_trade_key: str,
+        *,
+        policy: RoutingAutomationPolicy | None = None,
+        dry_run: bool = True,
+    ) -> RoutingAutomationPlan: ...
 
 
 class AlertService(Protocol):

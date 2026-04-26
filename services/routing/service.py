@@ -22,6 +22,9 @@ from core.domain.enums import (
     OrderType,
     RouteReadinessAuditStatus,
     RoutingAssessmentDecisionStatus,
+    RoutingAutomationMode,
+    RoutingAutomationPlanOutcome,
+    RoutingAutomationStepStatus,
     RoutingCandidateEligibilityStatus,
     RoutingTargetRecommendationStatus,
     RoutingTargetChoiceConversionStatus,
@@ -35,6 +38,9 @@ from core.domain.models import (
     RouteReadinessAudit,
     RouteReadinessCandidateAudit,
     RoutingAssessment,
+    RoutingAutomationPlan,
+    RoutingAutomationPlanStep,
+    RoutingAutomationPolicy,
     RoutingCandidateAssessment,
     RoutingRequest,
     RoutingTargetRecommendation,
@@ -163,6 +169,201 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
         self.planning_service = planning_service or DefaultTradePlanningService(
             self.settings,
             session_factory=session_factory,
+        )
+
+    def routing_automation_policy(
+        self,
+        *,
+        mode: RoutingAutomationMode = RoutingAutomationMode.DISABLED,
+        policy_name: str = "phase_7_0_single_target_operator_controlled",
+        allow_recommendation_acceptance: bool = False,
+        allow_target_choice_conversion: bool = False,
+        allow_preview_readiness: bool = False,
+        allow_submit: bool = False,
+    ) -> RoutingAutomationPolicy:
+        """Return an explicit Phase 7.0 automation policy without executing work."""
+
+        reason_codes: list[str] = ["phase_7_0_automation_policy"]
+        operator_approval_required = mode in {
+            RoutingAutomationMode.DISABLED,
+            RoutingAutomationMode.DRY_RUN_ONLY,
+            RoutingAutomationMode.APPROVAL_REQUIRED,
+        }
+        recommendation_acceptance = RoutingAutomationStepStatus.MANUAL_ONLY
+        target_choice_conversion = RoutingAutomationStepStatus.MANUAL_ONLY
+        preview_readiness = RoutingAutomationStepStatus.MANUAL_ONLY
+        submit = RoutingAutomationStepStatus.MANUAL_ONLY
+
+        if mode == RoutingAutomationMode.DISABLED:
+            reason_codes.append("routing_automation_disabled")
+            recommendation_acceptance = RoutingAutomationStepStatus.DISABLED
+            target_choice_conversion = RoutingAutomationStepStatus.DISABLED
+            preview_readiness = RoutingAutomationStepStatus.DISABLED
+            submit = RoutingAutomationStepStatus.DISABLED
+        elif mode == RoutingAutomationMode.DRY_RUN_ONLY:
+            reason_codes.append("routing_automation_dry_run_only")
+            recommendation_acceptance = RoutingAutomationStepStatus.DRY_RUN_ONLY
+            target_choice_conversion = RoutingAutomationStepStatus.DRY_RUN_ONLY
+            preview_readiness = RoutingAutomationStepStatus.DRY_RUN_ONLY
+            submit = RoutingAutomationStepStatus.MANUAL_ONLY
+        elif mode == RoutingAutomationMode.APPROVAL_REQUIRED:
+            reason_codes.append("routing_automation_operator_approval_required")
+            recommendation_acceptance = RoutingAutomationStepStatus.APPROVAL_REQUIRED
+            target_choice_conversion = RoutingAutomationStepStatus.APPROVAL_REQUIRED
+            preview_readiness = RoutingAutomationStepStatus.APPROVAL_REQUIRED
+            submit = RoutingAutomationStepStatus.MANUAL_ONLY
+        elif mode == RoutingAutomationMode.EXPLICIT_AUTOMATION_PERMITTED:
+            reason_codes.append("routing_automation_explicitly_permitted")
+            operator_approval_required = False
+            recommendation_acceptance = (
+                RoutingAutomationStepStatus.AUTOMATION_ELIGIBLE
+                if allow_recommendation_acceptance
+                else RoutingAutomationStepStatus.MANUAL_ONLY
+            )
+            target_choice_conversion = (
+                RoutingAutomationStepStatus.AUTOMATION_ELIGIBLE
+                if allow_target_choice_conversion
+                else RoutingAutomationStepStatus.MANUAL_ONLY
+            )
+            preview_readiness = (
+                RoutingAutomationStepStatus.AUTOMATION_ELIGIBLE
+                if allow_preview_readiness
+                else RoutingAutomationStepStatus.MANUAL_ONLY
+            )
+            submit = RoutingAutomationStepStatus.MANUAL_ONLY
+            if allow_submit:
+                reason_codes.append("routing_automation_submit_requires_explicit_operator_gate")
+                reason_codes.append("routing_automation_submit_deferred_phase_7_0")
+
+        if submit != RoutingAutomationStepStatus.AUTOMATION_ELIGIBLE:
+            reason_codes.append("auto_submit_not_enabled_by_phase_7_0")
+
+        return RoutingAutomationPolicy(
+            mode=mode,
+            policy_name=policy_name,
+            dry_run_supported=True,
+            operator_approval_required=operator_approval_required,
+            recommendation_acceptance=recommendation_acceptance,
+            target_choice_conversion=target_choice_conversion,
+            preview_readiness=preview_readiness,
+            submit=submit,
+            reason_codes=reason_codes,
+            boundary_flags=self._routing_automation_boundary_flags(),
+            provenance={
+                "phase": "phase_7_0",
+                "non_executing_policy": True,
+                "same_target_only": True,
+                "policy_source": "request_or_default",
+            },
+        )
+
+    async def inspect_routing_automation_policy(
+        self,
+        policy: RoutingAutomationPolicy | None = None,
+    ) -> RoutingAutomationPolicy:
+        return policy or self.routing_automation_policy()
+
+    async def plan_routing_automation_for_desired_trade(
+        self,
+        desired_trade_key: str,
+        *,
+        policy: RoutingAutomationPolicy | None = None,
+        dry_run: bool = True,
+    ) -> RoutingAutomationPlan:
+        """Build a non-executing Phase 7.0 automation plan over existing artifacts."""
+
+        generated_at = _utcnow()
+        active_policy = policy or self.routing_automation_policy()
+        workflow = await self.inspect_routed_workflow_by_desired_trade(desired_trade_key)
+        steps = self._routing_automation_steps_from_workflow(
+            workflow,
+            policy=active_policy,
+        )
+        reason_codes = sorted(
+            set(active_policy.reason_codes + [code for step in steps for code in step.reason_codes])
+        )
+        blocking_reason_codes = sorted(
+            set(
+                list(workflow.get("blocking_reason_codes") or [])
+                + [code for step in steps if step.blocked for code in step.reason_codes]
+            )
+        )
+        approval_required_reason_codes = sorted(
+            {
+                code
+                for step in steps
+                if step.approval_required
+                for code in step.reason_codes
+            }
+        )
+        manual_only_reason_codes = sorted(
+            {
+                code
+                for step in steps
+                if step.manual_only
+                for code in step.reason_codes
+            }
+        )
+        automatable_action_names = [step.name for step in steps if step.automatable]
+        manual_action_names = [step.name for step in steps if step.manual_only]
+        blocked_action_names = [step.name for step in steps if step.blocked]
+        found = bool(workflow.get("found"))
+        if not found:
+            outcome = RoutingAutomationPlanOutcome.BLOCKED
+        elif active_policy.mode == RoutingAutomationMode.DISABLED:
+            outcome = RoutingAutomationPlanOutcome.DISABLED
+        elif blocked_action_names:
+            outcome = RoutingAutomationPlanOutcome.BLOCKED
+        elif active_policy.mode == RoutingAutomationMode.DRY_RUN_ONLY:
+            outcome = RoutingAutomationPlanOutcome.DRY_RUN_ONLY
+        elif any(step.approval_required for step in steps):
+            outcome = RoutingAutomationPlanOutcome.APPROVAL_REQUIRED
+        elif automatable_action_names:
+            outcome = RoutingAutomationPlanOutcome.AUTOMATION_ELIGIBLE
+        else:
+            outcome = RoutingAutomationPlanOutcome.MANUAL_REVIEW_ONLY
+
+        return RoutingAutomationPlan(
+            automation_plan_id=f"rtauto_{uuid4().hex}",
+            desired_trade_key=desired_trade_key,
+            environment=self.settings.app.environment,
+            generated_at=generated_at,
+            dry_run=dry_run,
+            persisted=False,
+            found=found,
+            outcome=outcome,
+            policy=active_policy,
+            current_status_summary=dict(workflow.get("current_status_summary") or {}),
+            steps=steps,
+            reason_codes=reason_codes,
+            blocking_reason_codes=blocking_reason_codes,
+            manual_only_reason_codes=manual_only_reason_codes,
+            approval_required_reason_codes=approval_required_reason_codes,
+            automatable_action_names=automatable_action_names,
+            manual_action_names=manual_action_names,
+            blocked_action_names=blocked_action_names,
+            routed_lineage=(
+                dict(workflow["routed_lineage"])
+                if isinstance(workflow.get("routed_lineage"), dict)
+                else None
+            ),
+            same_target_lifecycle_summary=(
+                dict(workflow["same_target_lifecycle_summary"])
+                if isinstance(workflow.get("same_target_lifecycle_summary"), dict)
+                else None
+            ),
+            boundary_flags=self._routing_automation_boundary_flags(),
+            artifacts_created_by_plan=False,
+            provenance={
+                "phase": "phase_7_0",
+                "dry_run_first_class": dry_run,
+                "non_executing_plan": True,
+                "persisted": False,
+                "workflow_inspection_artifacts_created": workflow.get(
+                    "artifacts_created_by_inspection",
+                    False,
+                ),
+            },
         )
 
     async def inspect_routed_workflow_by_desired_trade(
@@ -396,6 +597,394 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 ),
                 "artifacts_created_by_inspection": False,
             }
+
+    @staticmethod
+    def _routing_automation_boundary_flags() -> dict[str, bool]:
+        return {
+            "same_target_only": True,
+            "same_account_only": True,
+            "same_venue_only": True,
+            "dry_run_first_class": True,
+            "operator_approval_first_class": True,
+            "smart_routing": False,
+            "best_binding_selection": False,
+            "cbbo": False,
+            "fanout": False,
+            "split_allocation": False,
+            "ranking": False,
+            "scoring": False,
+            "target_reselection": False,
+            "route_executor": False,
+            "auto_submit": False,
+            "cross_binding_recovery": False,
+            "cross_venue_retry": False,
+        }
+
+    def _routing_automation_steps_from_workflow(
+        self,
+        workflow: dict[str, object],
+        *,
+        policy: RoutingAutomationPolicy,
+    ) -> list[RoutingAutomationPlanStep]:
+        lineage = (
+            dict(workflow["routed_lineage"])
+            if isinstance(workflow.get("routed_lineage"), dict)
+            else {}
+        )
+        if not workflow.get("found"):
+            return [
+                RoutingAutomationPlanStep(
+                    name="desired_trade",
+                    status=RoutingAutomationStepStatus.BLOCKED,
+                    reason_codes=["desired_trade_not_found"],
+                    blocked=True,
+                    lineage={},
+                )
+            ]
+
+        recommendations = [
+            item for item in workflow.get("routing_target_recommendations", []) if isinstance(item, dict)
+        ]
+        target_choices = [
+            item for item in workflow.get("routing_target_choices", []) if isinstance(item, dict)
+        ]
+        child_intents = [
+            item for item in workflow.get("child_intents", []) if isinstance(item, dict)
+        ]
+        readiness_evaluations = [
+            item for item in workflow.get("readiness_evaluations", []) if isinstance(item, dict)
+        ]
+        submitted_orders = [
+            item for item in workflow.get("submitted_orders", []) if isinstance(item, dict)
+        ]
+        latest_recommendation = recommendations[-1] if recommendations else None
+        latest_target_choice = target_choices[-1] if target_choices else None
+        latest_child_intent = child_intents[-1] if child_intents else None
+        latest_readiness = readiness_evaluations[-1] if readiness_evaluations else None
+        latest_submission = submitted_orders[-1] if submitted_orders else None
+
+        steps = [
+            RoutingAutomationPlanStep(
+                name="route_readiness_audit",
+                status=(
+                    RoutingAutomationStepStatus.ALREADY_SATISFIED
+                    if workflow.get("route_readiness_audits")
+                    else RoutingAutomationStepStatus.MANUAL_ONLY
+                ),
+                artifact_id=self._latest_artifact_id(
+                    workflow.get("route_readiness_audits"),
+                    "route_readiness_audit_id",
+                ),
+                reason_codes=(
+                    ["route_readiness_audit_already_exists"]
+                    if workflow.get("route_readiness_audits")
+                    else ["route_readiness_audit_creation_remains_manual_phase_7_0"]
+                ),
+                manual_only=not bool(workflow.get("route_readiness_audits")),
+                lineage=lineage,
+            ),
+            RoutingAutomationPlanStep(
+                name="routing_target_recommendation",
+                status=(
+                    RoutingAutomationStepStatus.ALREADY_SATISFIED
+                    if latest_recommendation is not None
+                    else RoutingAutomationStepStatus.MANUAL_ONLY
+                ),
+                artifact_id=(
+                    str(latest_recommendation.get("routing_target_recommendation_id"))
+                    if latest_recommendation is not None
+                    else None
+                ),
+                reason_codes=(
+                    ["routing_target_recommendation_already_exists"]
+                    if latest_recommendation is not None
+                    else ["routing_target_recommendation_creation_remains_manual_phase_7_0"]
+                ),
+                manual_only=latest_recommendation is None,
+                lineage=lineage,
+            ),
+        ]
+
+        recommendation_acceptance_step = self._automation_action_step(
+            name="recommendation_acceptance",
+            policy_status=policy.recommendation_acceptance,
+            already_satisfied=latest_target_choice is not None,
+            artifact_id=(
+                str(latest_target_choice.get("target_choice_id"))
+                if latest_target_choice is not None
+                else None
+            ),
+            would_create_artifact_type="RoutingTargetChoice",
+            feasible=self._recommendation_is_successful(latest_recommendation),
+            missing_reason="successful_recommendation_required",
+            already_reason="routing_target_choice_already_exists",
+            blocked_reason="routing_target_recommendation_not_recommended",
+            lineage=self._automation_lineage_from_recommendation(
+                latest_recommendation,
+                lineage,
+            ),
+        )
+        steps.append(recommendation_acceptance_step)
+        target_choice_conversion_deferred = (
+            latest_target_choice is None and not recommendation_acceptance_step.blocked
+        )
+        target_choice_conversion_step = (
+            self._deferred_automation_step(
+                name="target_choice_conversion",
+                depends_on="recommendation_acceptance",
+                would_create_artifact_type="OrderIntent",
+                lineage=recommendation_acceptance_step.lineage,
+            )
+            if target_choice_conversion_deferred
+            else
+            self._automation_action_step(
+                name="target_choice_conversion",
+                policy_status=policy.target_choice_conversion,
+                already_satisfied=latest_child_intent is not None,
+                artifact_id=(
+                    str(latest_child_intent.get("intent_id"))
+                    if latest_child_intent is not None
+                    else None
+                ),
+                would_create_artifact_type="OrderIntent",
+                feasible=latest_target_choice is not None,
+                missing_reason="accepted_target_choice_required",
+                already_reason="child_intent_already_exists",
+                blocked_reason="routing_target_choice_missing",
+                lineage=lineage
+                or self._automation_lineage_from_target_choice(latest_target_choice),
+            )
+        )
+        steps.append(target_choice_conversion_step)
+        preview_readiness_deferred = (
+            latest_child_intent is None
+            and not target_choice_conversion_step.blocked
+            and target_choice_conversion_step.status
+            != RoutingAutomationStepStatus.ALREADY_SATISFIED
+        )
+        steps.append(
+            self._deferred_automation_step(
+                name="prepared_order_preview_and_readiness",
+                depends_on="target_choice_conversion",
+                would_create_artifact_type="PreparedVenueOrderPreviewAndExecutionReadinessAssessment",
+                lineage=target_choice_conversion_step.lineage,
+            )
+            if preview_readiness_deferred
+            else
+            self._automation_action_step(
+                name="prepared_order_preview_and_readiness",
+                policy_status=policy.preview_readiness,
+                already_satisfied=latest_readiness is not None,
+                artifact_id=(
+                    str(latest_readiness.get("readiness_evaluation_id"))
+                    if latest_readiness is not None
+                    else None
+                ),
+                would_create_artifact_type="PreparedVenueOrderPreviewAndExecutionReadinessAssessment",
+                feasible=latest_child_intent is not None,
+                missing_reason="child_intent_required",
+                already_reason="execution_readiness_already_inspected",
+                blocked_reason="child_intent_missing",
+                lineage=lineage,
+            )
+        )
+        steps.append(
+            RoutingAutomationPlanStep(
+                name="submitted_order_handoff",
+                status=(
+                    RoutingAutomationStepStatus.ALREADY_SATISFIED
+                    if latest_submission is not None
+                    else RoutingAutomationStepStatus.MANUAL_ONLY
+                ),
+                artifact_id=(
+                    str(latest_submission.get("submitted_order_id"))
+                    if latest_submission is not None
+                    else None
+                ),
+                would_create_artifact_type="SubmittedOrder",
+                reason_codes=(
+                    ["submitted_order_already_exists"]
+                    if latest_submission is not None
+                    else [
+                        "submitted_order_handoff_remains_explicit_manual_phase_7_0",
+                        "auto_submit_not_enabled_by_phase_7_0",
+                    ]
+                ),
+                manual_only=latest_submission is None,
+                approval_required=latest_submission is None
+                and policy.submit == RoutingAutomationStepStatus.APPROVAL_REQUIRED,
+                automatable=False,
+                lineage=lineage,
+            )
+        )
+        return steps
+
+    @staticmethod
+    def _latest_artifact_id(items: object, key: str) -> str | None:
+        if isinstance(items, list) and items and isinstance(items[-1], dict):
+            value = items[-1].get(key)
+            return str(value) if value is not None else None
+        return None
+
+    @staticmethod
+    def _recommendation_is_successful(recommendation: dict[str, object] | None) -> bool:
+        return (
+            recommendation is not None
+            and recommendation.get("status")
+            == RoutingTargetRecommendationStatus.RECOMMENDED_SINGLE_READY_CANDIDATE.value
+            and recommendation.get("non_executing") is True
+        )
+
+    def _automation_action_step(
+        self,
+        *,
+        name: str,
+        policy_status: RoutingAutomationStepStatus,
+        already_satisfied: bool,
+        artifact_id: str | None,
+        would_create_artifact_type: str,
+        feasible: bool,
+        missing_reason: str,
+        already_reason: str,
+        blocked_reason: str,
+        lineage: dict[str, object],
+    ) -> RoutingAutomationPlanStep:
+        if already_satisfied:
+            return RoutingAutomationPlanStep(
+                name=name,
+                status=RoutingAutomationStepStatus.ALREADY_SATISFIED,
+                artifact_id=artifact_id,
+                reason_codes=[already_reason],
+                lineage=lineage,
+            )
+        if not feasible:
+            return RoutingAutomationPlanStep(
+                name=name,
+                status=RoutingAutomationStepStatus.BLOCKED,
+                would_create_artifact_type=would_create_artifact_type,
+                reason_codes=[missing_reason, blocked_reason],
+                blocked=True,
+                lineage=lineage,
+            )
+        if policy_status == RoutingAutomationStepStatus.DISABLED:
+            return RoutingAutomationPlanStep(
+                name=name,
+                status=RoutingAutomationStepStatus.DISABLED,
+                would_create_artifact_type=would_create_artifact_type,
+                reason_codes=["routing_automation_disabled"],
+                blocked=True,
+                lineage=lineage,
+            )
+        if policy_status == RoutingAutomationStepStatus.DRY_RUN_ONLY:
+            return RoutingAutomationPlanStep(
+                name=name,
+                status=RoutingAutomationStepStatus.DRY_RUN_ONLY,
+                would_create_artifact_type=would_create_artifact_type,
+                reason_codes=["routing_automation_dry_run_only", "dry_run_no_state_mutation"],
+                dry_run_only=True,
+                lineage=lineage,
+            )
+        if policy_status == RoutingAutomationStepStatus.APPROVAL_REQUIRED:
+            return RoutingAutomationPlanStep(
+                name=name,
+                status=RoutingAutomationStepStatus.APPROVAL_REQUIRED,
+                would_create_artifact_type=would_create_artifact_type,
+                reason_codes=["operator_approval_required"],
+                approval_required=True,
+                lineage=lineage,
+            )
+        if policy_status == RoutingAutomationStepStatus.AUTOMATION_ELIGIBLE:
+            return RoutingAutomationPlanStep(
+                name=name,
+                status=RoutingAutomationStepStatus.AUTOMATION_ELIGIBLE,
+                would_create_artifact_type=would_create_artifact_type,
+                reason_codes=["explicit_policy_allows_same_target_automation"],
+                automatable=True,
+                lineage=lineage,
+            )
+        return RoutingAutomationPlanStep(
+            name=name,
+            status=RoutingAutomationStepStatus.MANUAL_ONLY,
+            would_create_artifact_type=would_create_artifact_type,
+            reason_codes=["manual_only_by_policy"],
+            manual_only=True,
+            lineage=lineage,
+        )
+
+    @staticmethod
+    def _deferred_automation_step(
+        *,
+        name: str,
+        depends_on: str,
+        would_create_artifact_type: str,
+        lineage: dict[str, object],
+    ) -> RoutingAutomationPlanStep:
+        return RoutingAutomationPlanStep(
+            name=name,
+            status=RoutingAutomationStepStatus.DEFERRED,
+            would_create_artifact_type=would_create_artifact_type,
+            reason_codes=[f"depends_on_{depends_on}"],
+            lineage=lineage,
+        )
+
+    @staticmethod
+    def _automation_lineage_from_recommendation(
+        recommendation: dict[str, object] | None,
+        routed_lineage: dict[str, object],
+    ) -> dict[str, object]:
+        if routed_lineage:
+            return dict(routed_lineage)
+        if recommendation is None:
+            return {}
+        return {
+            "desired_trade_key": recommendation.get("desired_trade_key"),
+            "routing_assessment_id": recommendation.get("routing_assessment_id"),
+            "route_readiness_audit_id": recommendation.get("route_readiness_audit_id"),
+            "routing_target_recommendation_id": recommendation.get(
+                "routing_target_recommendation_id"
+            ),
+            "selected_binding_ref_id": recommendation.get("recommended_binding_ref_id"),
+            "selected_binding_key": recommendation.get("recommended_binding_key"),
+            "selected_venue_account_ref_id": recommendation.get(
+                "recommended_venue_account_ref_id"
+            ),
+            "selected_venue_account_key": recommendation.get(
+                "recommended_venue_account_key"
+            ),
+            "selected_venue": recommendation.get("recommended_venue"),
+            "selected_exchange_symbol": recommendation.get("recommended_exchange_symbol"),
+            "recommendation_policy_name": recommendation.get("policy_name"),
+        }
+
+    @staticmethod
+    def _automation_lineage_from_target_choice(
+        target_choice: dict[str, object] | None,
+    ) -> dict[str, object]:
+        if target_choice is None:
+            return {}
+        provenance = target_choice.get("provenance")
+        if not isinstance(provenance, dict):
+            provenance = {}
+        return {
+            "desired_trade_key": target_choice.get("desired_trade_key"),
+            "routing_assessment_id": target_choice.get("routing_assessment_id"),
+            "route_readiness_audit_id": provenance.get("route_readiness_audit_id"),
+            "routing_target_recommendation_id": provenance.get(
+                "routing_target_recommendation_id"
+            ),
+            "routing_target_choice_id": target_choice.get("target_choice_id"),
+            "selected_binding_ref_id": target_choice.get("selected_binding_ref_id"),
+            "selected_binding_key": target_choice.get("selected_binding_key"),
+            "selected_venue_account_ref_id": target_choice.get(
+                "selected_venue_account_ref_id"
+            ),
+            "selected_venue_account_key": target_choice.get(
+                "selected_venue_account_key"
+            ),
+            "selected_venue": target_choice.get("selected_venue"),
+            "selected_exchange_symbol": provenance.get("selected_exchange_symbol"),
+            "recommendation_policy_name": provenance.get("recommendation_policy_name"),
+        }
 
     @staticmethod
     def _workflow_value(value: object) -> object:

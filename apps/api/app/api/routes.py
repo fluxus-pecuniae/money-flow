@@ -38,6 +38,7 @@ from core.domain.models import (
     RouteReadinessAudit,
     RiskEvaluation,
     RoutingAssessment,
+    RoutingAutomationPolicy,
     RoutingCandidateAssessment,
     RoutingRequest,
     RoutingTargetRecommendation,
@@ -107,6 +108,10 @@ from core.schemas.api import (
     RoutingTargetRecommendationResponse,
     RoutingAssessmentFromDesiredTradeRequest,
     RoutingAssessmentResponse,
+    RoutingAutomationPlanRequest,
+    RoutingAutomationPlanResponse,
+    RoutingAutomationPolicyRequest,
+    RoutingAutomationPolicyResponse,
     RoutingCandidateAssessmentResponse,
     RoutingRequestResponse,
     RoutingTargetChoiceFromAssessmentRequest,
@@ -2329,6 +2334,61 @@ async def routed_workflow_by_desired_trade(
         desired_trade_key
     )
     return RoutedWorkflowInspectionResponse(**inspection)
+
+
+def _routing_automation_policy_from_request(
+    routing_service: RoutingAssessmentService,
+    request: RoutingAutomationPolicyRequest | None,
+) -> RoutingAutomationPolicy | None:
+    if request is None:
+        return None
+    if not hasattr(routing_service, "routing_automation_policy"):
+        raise HTTPException(
+            status_code=500,
+            detail="Routing service does not expose automation policy inspection.",
+        )
+    return routing_service.routing_automation_policy(
+        mode=request.mode,
+        policy_name=request.policy_name,
+        allow_recommendation_acceptance=request.allow_recommendation_acceptance,
+        allow_target_choice_conversion=request.allow_target_choice_conversion,
+        allow_preview_readiness=request.allow_preview_readiness,
+        allow_submit=request.allow_submit,
+    )
+
+
+@v1.get(
+    "/routing-automation/policy",
+    response_model=RoutingAutomationPolicyResponse,
+    tags=["routing-automation"],
+)
+async def routing_automation_policy(
+    routing_service: RoutingAssessmentService = Depends(get_routing_assessment_service),
+) -> RoutingAutomationPolicyResponse:
+    policy = await routing_service.inspect_routing_automation_policy()
+    return RoutingAutomationPolicyResponse(**asdict(policy))
+
+
+@v1.post(
+    "/routing-automation/plans/by-desired-trade/{desired_trade_key}",
+    response_model=RoutingAutomationPlanResponse,
+    tags=["routing-automation"],
+)
+async def routing_automation_plan_by_desired_trade(
+    desired_trade_key: str,
+    request: RoutingAutomationPlanRequest | None = None,
+    routing_service: RoutingAssessmentService = Depends(get_routing_assessment_service),
+) -> RoutingAutomationPlanResponse:
+    policy = _routing_automation_policy_from_request(
+        routing_service,
+        request.policy if request is not None else None,
+    )
+    plan = await routing_service.plan_routing_automation_for_desired_trade(
+        desired_trade_key,
+        policy=policy,
+        dry_run=True if request is None else request.dry_run,
+    )
+    return RoutingAutomationPlanResponse(**asdict(plan))
 
 
 @v1.get(

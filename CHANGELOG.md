@@ -13,6 +13,34 @@ Entry schema:
 
 ---
 
+## v2026.04.26.003
+
+- `recorded_at_utc`: `2026-04-26T14:31:44Z`
+- `scope`: `Phase 7.0 controlled routing automation substrate`
+- `intent`: `Native entry. Added the first non-executing routing automation substrate above the accepted single-target recommendation-backed path. Introduced explicit automation modes (`disabled`, `dry_run_only`, `approval_required`, `explicit_automation_permitted`), policy/plan domain models, API schemas, default disabled policy inspection at `GET /api/v1/routing-automation/policy`, and dry-run plan inspection at `POST /api/v1/routing-automation/plans/by-desired-trade/{desired_trade_key}`. Plans read existing routed workflow records only, preserve desired-trade, route-readiness audit, recommendation, target-choice, child-intent, readiness, submitted-order, selected binding/account/venue/symbol lineage, classify bounded same-target steps as already satisfied, disabled, dry-run-only, approval-required, automation-eligible, manual-only, deferred, or blocked, and expose no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit boundary flags. Phase 7.0 adds no migration, config, target choice creation, child-intent conversion, readiness creation, submitted-order creation, exchange call, route executor behavior, smart routing, best-binding selection, ranking, scoring, CBBO, fanout, target reselection, cross-binding recovery, cross-venue retry, new exchange behavior, or money_flow_project_memory.md update.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `services/routing/service.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_phase70_routing_automation.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase70_routing_automation.py` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase69_routed_workflow_inspection.py tests/test_phase67_recommendation_backed_submission.py tests/test_api.py tests/test_operational_docs.py` passed.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed.
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-7.0-review.zip` created a clean review bundle.
+
 ## v2026.04.26.002
 
 - `recorded_at_utc`: `2026-04-26T14:21:36Z`

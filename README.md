@@ -6,6 +6,8 @@ At current head, public execution capability/status surfaces report cancel and a
 
 Phase 6.10.3 seals the explicit submit adapter-in-flight uncertainty gap. After readiness, live, and routed gates pass and the child-intent submit lease is acquired, the execution service writes terminal `adapter_submit_may_have_started` before calling `adapter.submit_order()`. Transport failures, timeouts, unknown adapter exceptions, or crashes after that point block later submits for that child intent with manual reconciliation required; `adapter_submit_persistence_unknown` still covers the separate adapter-returned/local-persistence-failed case. Stale pre-adapter `active` leases remain replaceable. The lease is a serialization and uncertainty guard only, not a `SubmittedOrder` reservation; `SubmittedOrder` remains post-submit exchange/account truth.
 
+Phase 7.0 adds the first controlled automation substrate above the accepted single-target recommendation-backed path. It introduces explicit automation modes (`disabled`, `dry_run_only`, `approval_required`, and `explicit_automation_permitted`), a kill-switch-default policy inspection surface, and a dry-run automation plan API that reads the existing routed workflow and classifies each bounded same-target step as already satisfied, disabled, dry-run-only, approval-required, automation-eligible, manual-only, deferred, or blocked. The plan preserves recommendation/audit/target-choice/child-intent/readiness/submitted-order lineage and no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit boundary flags. Phase 7.0 creates no target choice, child intent, readiness evaluation, submitted order, exchange call, route executor, ranking, scoring, CBBO, fanout, target reselection, or auto-submit behavior.
+
 ## Operational Memory
 
 This repo now uses explicit operational-memory files. Future work is expected to read them before changes and update them after changes.
@@ -35,6 +37,17 @@ The harness emits JSON by default. It starts from an existing desired trade key,
 Phase 6.6 timing is local harness timing only. Output includes top-level `timing_ms` values, including `total`, and each executed step includes `elapsed_ms`. Skipped steps are omitted from `timing_ms` rather than represented as fake zero-latency work. These timings measure local harness/service-call overhead and are not production routing latency, route-executor telemetry, or exchange/network latency unless an operator explicitly triggers a live submit path.
 
 Submission is intentionally hard to trigger from the harness. A submit attempt requires both `--submit` and `--i-understand-this-can-place-a-live-order`, and even then the existing execution service readiness, live-submit, routed-submit, adapter, and account gates still decide the outcome. Without the danger-confirmation flag, the harness blocks locally with `manual_submission_confirmation_required` before service submission is called and records timing for that local block. This is manual inspection tooling only, not best-binding selection, smart routing, a route executor, target reselection, fanout, ranking/scoring, CBBO, or auto-submit.
+
+## Routing Automation Planning
+
+Phase 7.0 exposes non-executing automation policy and dry-run planning:
+
+```bash
+GET /api/v1/routing-automation/policy
+POST /api/v1/routing-automation/plans/by-desired-trade/{desired_trade_key}
+```
+
+The default policy is `disabled`. A plan request can supply an explicit policy mode, but Phase 7.0 still only reports what would be disabled, dry-run-only, approval-required, automation-eligible, manual-only, deferred, or blocked. It does not advance the workflow and does not submit.
 
 Required operational docs:
 
@@ -989,7 +1002,8 @@ Control-plane endpoints currently include:
 
 ### Phase 6 And Later Routing / Execution Phases
 
-- future Phase 7 work may add controlled automation/dry-run route-executor design only after remaining DB-level concurrency/serialization hardening for acceptance/conversion, slippage/price guard policy, richer market-data quality, and operator reconciliation procedures for `adapter_submit_may_have_started` / `adapter_submit_persistence_unknown` leases; Phase 6 is closed as explicit recommendation-backed single-target routed execution through existing gated submit plus read-only inspection, with Phase 6.10.1/6.10.2/6.10.3 serializing explicit child-intent submit calls before adapter submission and preserving post-adapter or in-flight uncertainty without auto-submit, fanout, CBBO, venue scoring, route executor behavior, target reselection, automatic target-choice creation, child-intent auto-creation, or submitted-order creation directly from recommendation
+- Phase 7.0 adds controlled automation policy and dry-run planning only. The default policy is disabled; dry-run plans create no artifacts, submit remains manual-only, and future action-taking automation still needs operator approval records, reversible gates, remaining DB-level concurrency/serialization hardening for acceptance/conversion, slippage/price guard policy, richer market-data quality, and operator reconciliation procedures for `adapter_submit_may_have_started` / `adapter_submit_persistence_unknown` leases.
+- Phase 6 is closed as explicit recommendation-backed single-target routed execution through existing gated submit plus read-only inspection, with Phase 6.10.1/6.10.2/6.10.3 serializing explicit child-intent submit calls before adapter submission and preserving post-adapter or in-flight uncertainty without auto-submit, fanout, CBBO, venue scoring, route executor behavior, target reselection, automatic target-choice creation, child-intent auto-creation, or submitted-order creation directly from recommendation
 - deepen routed order-shape policy only where truthful, including slippage guards and richer limit-price source semantics without venue ranking or CBBO
 - child-intent fanout/splitting across bindings when routing selects more than one target
 - market-wide best-price and CBBO-style decision support

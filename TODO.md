@@ -1,8 +1,20 @@
 # TODO
 
-Last reviewed: `2026-04-26T05:52:07Z`
+Last reviewed: `2026-04-26T14:31:44Z`
 
 ## Active Follow-Ups
+
+### T-033
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 7.0 implemented the first controlled automation substrate without executing automation. It adds explicit routing automation modes (`disabled`, `dry_run_only`, `approval_required`, `explicit_automation_permitted`), a disabled-by-default policy inspection surface, and dry-run automation plans by desired trade that classify existing same-target recommendation-backed workflow steps as already satisfied, disabled, dry-run-only, approval-required, automation-eligible, manual-only, deferred, or blocked. Plans preserve desired-trade, route-readiness audit, recommendation, target-choice, child-intent, readiness, submitted-order, selected target, and no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit truth. Phase 7.0 creates no target choice, child intent, readiness assessment, submitted order, exchange call, route executor behavior, fanout, ranking/scoring, CBBO, target reselection, or auto-submit.`
+
+### T-034
+
+- `priority`: `high`
+- `status`: `future`
+- `summary`: `Next controlled automation work should remain below smart routing and should add operator approval records / reversible action gating before any action-taking automation. Recommendation acceptance, target-choice conversion, preview/readiness, and submitted-order handoff must continue to preserve same-target lineage, current-truth revalidation, submit-lease uncertainty behavior, and explicit no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit boundaries.`
 
 ### T-001
 

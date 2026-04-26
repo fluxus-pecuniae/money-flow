@@ -24,6 +24,9 @@ from core.domain.enums import (
     RiskEvaluationOutcome,
     RouteReadinessAuditStatus,
     RoutingAssessmentDecisionStatus,
+    RoutingAutomationMode,
+    RoutingAutomationPlanOutcome,
+    RoutingAutomationStepStatus,
     RoutingCandidateEligibilityStatus,
     RoutingTargetChoiceConversionStatus,
     RoutingTargetRecommendationStatus,
@@ -578,6 +581,84 @@ class RoutedWorkflowInspectionResponse(BaseModel):
     stale_data: list[str] = Field(default_factory=list)
     artifact_counts: dict[str, int] = Field(default_factory=dict)
     artifacts_created_by_inspection: bool = False
+
+
+class RoutingAutomationPolicyRequest(BaseModel):
+    mode: RoutingAutomationMode = Field(
+        default=RoutingAutomationMode.DISABLED,
+        description=(
+            "Explicit automation mode. Disabled is the kill-switch default; dry-run-only "
+            "plans but cannot automate; approval-required keeps operator approval first; "
+            "explicit-automation-permitted only marks allowed same-target steps eligible."
+        ),
+    )
+    policy_name: str = Field(default="phase_7_0_single_target_operator_controlled")
+    allow_recommendation_acceptance: bool = Field(default=False)
+    allow_target_choice_conversion: bool = Field(default=False)
+    allow_preview_readiness: bool = Field(default=False)
+    allow_submit: bool = Field(default=False)
+
+
+class RoutingAutomationPolicyResponse(BaseModel):
+    mode: RoutingAutomationMode
+    policy_name: str
+    dry_run_supported: bool
+    operator_approval_required: bool
+    recommendation_acceptance: RoutingAutomationStepStatus
+    target_choice_conversion: RoutingAutomationStepStatus
+    preview_readiness: RoutingAutomationStepStatus
+    submit: RoutingAutomationStepStatus
+    reason_codes: list[str]
+    boundary_flags: dict[str, bool]
+    provenance: dict[str, object]
+
+
+class RoutingAutomationPlanRequest(BaseModel):
+    dry_run: bool = Field(
+        default=True,
+        description="Phase 7.0 dry-run planning creates no routing or execution artifacts.",
+    )
+    policy: RoutingAutomationPolicyRequest | None = None
+
+
+class RoutingAutomationPlanStepResponse(BaseModel):
+    name: str
+    status: RoutingAutomationStepStatus
+    artifact_id: str | None = None
+    would_create_artifact_type: str | None = None
+    reason_codes: list[str]
+    manual_only: bool
+    approval_required: bool
+    automatable: bool
+    dry_run_only: bool
+    blocked: bool
+    lineage: dict[str, object]
+
+
+class RoutingAutomationPlanResponse(BaseModel):
+    automation_plan_id: str
+    desired_trade_key: str
+    environment: Environment
+    generated_at: datetime
+    dry_run: bool
+    persisted: bool
+    found: bool
+    outcome: RoutingAutomationPlanOutcome
+    policy: RoutingAutomationPolicyResponse
+    current_status_summary: dict[str, object]
+    steps: list[RoutingAutomationPlanStepResponse]
+    reason_codes: list[str]
+    blocking_reason_codes: list[str]
+    manual_only_reason_codes: list[str]
+    approval_required_reason_codes: list[str]
+    automatable_action_names: list[str]
+    manual_action_names: list[str]
+    blocked_action_names: list[str]
+    routed_lineage: dict[str, object] | None = None
+    same_target_lifecycle_summary: dict[str, object] | None = None
+    boundary_flags: dict[str, bool]
+    artifacts_created_by_plan: bool
+    provenance: dict[str, object]
 
 
 class SubmittedOrderResponse(BaseModel):
