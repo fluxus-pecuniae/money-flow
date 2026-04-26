@@ -474,7 +474,7 @@ Current private-state truth below strategy:
 - OKX, Coinbase Advanced Trade, and Kraken expose direct open-order and recent-fill truth for the current implemented scopes
 - private-state summary source fields now describe the runtime path actually used for the call: `venue_query`, `persistence`, or `unavailable`
 
-The venue-by-venue private-state matrix at head lives in [docs/architecture.md](/Users/tercirafael/money-flow/docs/architecture.md).
+The venue-by-venue private-state matrix at head lives in [docs/architecture.md](architecture.md).
 
 Current capability-surface truth below strategy:
 

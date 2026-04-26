@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-04-26T05:52:07Z`
+Last reviewed: `2026-04-26T14:21:36Z`
 
 ## Top-Level Structure
 
@@ -12,7 +12,6 @@ Last reviewed: `2026-04-26T05:52:07Z`
 ├── AGENTS.md
 ├── CHANGELOG.md
 ├── KNOWN_ISSUES.md
-├── PHASE_5_CHANGES_SINCE_5_4.md
 ├── TODO.md
 ├── REPO_TREE.md
 ├── money_flow_project_memory.md
@@ -83,10 +82,6 @@ Last reviewed: `2026-04-26T05:52:07Z`
 `money_flow_project_memory.md`
 - Read-only strategic chronicle maintained by the architecture review team.
 - Required pre-task context for substantial work, but not part of the normal post-task update workflow.
-
-`PHASE_5_CHANGES_SINCE_5_4.md`
-- Handoff summary of changes made after the Phase 5.4 baseline.
-- Phase 6 closeout updates it to include explicit recommendation-backed submitted-order handoff, recommendation-aware lifecycle/reconciliation inspection, read-only routed workflow aggregation, and closeout regression on top of the Phase 6.5/6.6 manual harness work, with no route executor, fanout, ranking, scoring, CBBO, target reselection, or auto-submit.
 
 `services/exchange/hyperliquid/`
 - Most mature venue adapter for reconciliation depth and current perpetual submit scope.

@@ -2260,3 +2260,615 @@ The current team stance:
 > Phase 5 is now safely inside routing territory,
 > but still not full SOR.
 > Keep building inspectable routing lineage and audit truth before adding route intelligence.
+
+## 68. Phase 5.5 — routed submitted-order lineage inspection
+
+Phase 5.5 made routed submitted orders inspectable without changing execution behavior.
+
+Before this phase, routed submitted-order lineage existed mostly inside `SubmittedOrder.raw_payload["routed_submission"]`. That was acceptable for the first routed-submission handoff, but too hidden for operators and future reviewers.
+
+Phase 5.5 added read-only routed lineage inspection on submitted-order API surfaces.
+
+What became inspectable:
+- desired trade key
+- routing assessment id
+- routing target choice id
+- selected binding/account
+- selected venue
+- selected exchange symbol
+- readiness evaluation id
+- no-auto-submit / no-fanout / no-scoring / no-target-reselection boundary facts
+
+Important boundary:
+- non-routed submitted orders do not fabricate routed lineage
+- malformed routed payloads are bounded instead of crashing list/detail responses
+- no new endpoint expansion, auto-submit, target reselection, fanout, scoring, CBBO, route executor behavior, or exchange behavior was added
+
+The key lesson from 5.5 was:
+
+> routed lineage must be operator-inspectable before routing behavior becomes more powerful.
+
+## 69. Phase 5.6 — routed order-shape policy became explicit
+
+Phase 5.6 started addressing an important routed-execution concern:
+
+> a routed child intent should not silently inherit an unexamined order shape forever.
+
+Earlier routed conversion used the current default:
+- market order
+- no limit price
+- reduce_only false
+
+Phase 5.6 made that default explicit through a `RoutedOrderShapeDecision` instead of leaving it as hardcoded silent behavior.
+
+It also hardened malformed routed lineage handling:
+- missing routed lineage fields are tracked
+- malformed routed lineage fields are tracked
+- submitted-order list/detail responses stay bounded and non-crashing
+
+Important boundary:
+- LIMIT routed order-shape policy remained deferred in 5.6
+- slippage guards remained deferred
+- market-data-derived limit-price sources remained deferred
+- no target reselection, fanout, scoring, CBBO, auto-submit, route executor, or exchange changes were added
+
+The key lesson from 5.6 was:
+
+> even if the platform still defaults to market order shape, that default must be named, audited, and visible.
+
+## 70. Phase 5.7 / 5.7.1 — routed post-submit lifecycle and retry lineage
+
+Phase 5.7 made post-submit lifecycle and actionability route-aware.
+
+That means routed submitted orders, routed recovery recommendations, routed recovery execution responses, and actionability responses can now expose selected route context without forcing operators to parse raw payloads.
+
+What became inspectable:
+- desired trade
+- routing assessment
+- target choice
+- selected binding/account
+- selected venue
+- selected exchange symbol
+- readiness id
+- routed order-shape policy facts
+- same-target / same-account / same-venue recovery boundaries
+
+Important boundary:
+- routed recovery/actionability remains same-target only
+- route lineage does not authorize target reselection
+- no alternate binding recovery
+- no alternate venue recovery
+- no fanout
+- no route executor
+- no auto-submit
+
+Phase 5.7.1 then fixed routed retry lineage:
+- same-target routed retry now preserves routed lineage on the retried `SubmittedOrder`
+- non-routed retry still does not fabricate routed lineage
+- duplicated routed lineage parsing was consolidated into `core/domain/routed_lifecycle.py`
+
+The key lesson from 5.7 / 5.7.1 was:
+
+> routed lineage must survive post-submit lifecycle actions, especially retry, without turning retry into hidden routing.
+
+## 71. Phase 5.8 / 5.8.1 / 5.8.2 — routed order-shape policy v2
+
+Phase 5.8 added explicit routed order-shape policy input for controlled target-choice-to-child-intent conversion.
+
+The conversion path now accepts optional:
+- `MARKET`
+- `LIMIT`
+
+Current behavior:
+- omitted input remains backward-compatible:
+  - market
+  - no limit price
+  - reduce_only false
+- explicit LIMIT requires:
+  - a positive limit price
+  - modeled order-type support from the candidate assessment
+- invalid or unsupported policy blocks before child-intent creation
+
+Blocked cases include:
+- missing limit price for LIMIT
+- malformed price
+- zero or negative price
+- unsupported order type
+- MARKET with limit price
+- reduce_only true for mandate-scoped OPEN
+- unsupported LIMIT order type on the selected candidate
+
+Phase 5.8.1 hardened non-finite LIMIT price validation:
+- NaN / sNaN / Infinity / -Infinity block before child-intent creation
+- API non-finite values are rejected as client errors rather than internal server errors
+- no child intent, prepared order, readiness evaluation, or submitted order is created
+
+Phase 5.8.2 cleaned the reason surface:
+- malformed/non-finite LIMIT inputs no longer claim `limit_price_explicit`
+- valid finite LIMIT prices still record `limit_price_explicit`
+- blocked policy facts stay clearer and less contradictory
+
+Important idempotency behavior:
+- repeated conversion remains idempotent
+- a different policy after conversion cannot create a second child intent from the same target choice
+- the existing child intent is preserved rather than silently mutated
+
+Important boundary:
+- this is still not best-binding
+- still not price discovery
+- still not CBBO
+- still not slippage-guarded routing
+- still not route execution
+- still no fanout
+- still no auto-submit
+
+The key lesson from 5.8 / 5.8.1 / 5.8.2 was:
+
+> routed order shape can become explicit before the platform is ready for smart routing, but price inputs must be decimal-safe, finite, and truthfully described.
+
+## 72. Phase 5.9 / 5.9.1 / 5.9.2 — routed reconciliation and lifecycle-event audit truth
+
+The originally discussed Phase 5.9 topic was route-readiness / routing-data sufficiency. The implemented 5.9 work instead focused on routed reconciliation and lifecycle-event audit visibility.
+
+What 5.9 added:
+- routed reconciliation responses preserve existing routed audit lineage
+- lifecycle-event responses expose routed lifecycle context
+- non-routed events do not fabricate route context
+- malformed routed payloads remain bounded
+
+Phase 5.9.1 fixed a collision problem:
+- existing platform `raw_payload["routed_submission"]` remains authoritative
+- adapter/update payloads with colliding `routed_submission` keys cannot overwrite or mutate platform route lineage
+
+Phase 5.9.2 fixed the inverse collision problem:
+- update payloads cannot create routed lineage on non-routed submitted orders
+- top-level `routed_submission` remains reserved for platform-authored routed audit lineage only
+- event raw payload may retain adapter collision facts, but lifecycle-event routed context still derives from the associated `SubmittedOrder` truth
+
+Important boundary:
+- route lineage is audit metadata
+- it is not execution instruction
+- it is not target reselection
+- it is not route scoring
+- it is not route execution
+
+The key lesson from 5.9 / 5.9.1 / 5.9.2 was:
+
+> routed lineage must be protected as platform-authored audit truth, especially when venue reconciliation payloads contain colliding keys.
+
+## 73. Phase 5.10 — routing-substrate closeout regression
+
+Phase 5.10 closed the routed-substrate phase with an end-to-end regression pass rather than new behavior.
+
+The closeout regression exercises the accepted routed chain:
+
+`MandateDesiredTrade -> RoutingAssessment -> RoutingTargetChoice -> OrderIntent -> PreparedVenueOrder -> ExecutionReadinessAssessment -> SubmittedOrder -> actionability / recovery / reconciliation / lifecycle events`
+
+It verifies:
+- typed routed lineage agrees across submitted-order detail/list, lifecycle context, actionability/recovery, reconciliation, and lifecycle events
+- the selected same-venue secondary account is the only submitted target
+- update payload `routed_submission` collisions remain non-authoritative
+- no extra child intents or submitted orders are created
+- no fanout, allocation, scoring, CBBO, route plan, target reselection, route executor behavior, or auto-submit appears
+
+Phase 5.10 is best understood as:
+- substrate diligence
+- not new routing behavior
+
+The key lesson from 5.10 was:
+
+> closing Phase 5 means proving the substrate stayed bounded, not adding smart routing.
+
+## 74. Current Phase 5 state after 5.10 — controlled routed execution substrate
+
+After Phase 5.10, the platform has a controlled routed flow:
+
+`StrategyDecision -> MandateDesiredTrade -> RoutingAssessment -> RoutingTargetChoice -> OrderIntent -> PreparedVenueOrder -> ExecutionReadinessAssessment -> SubmittedOrder`
+
+The routed flow now supports:
+- non-executing routing assessment
+- operator-requested target-choice audit records
+- exactly-one child-intent conversion in the normal controlled flow
+- explicit routed order-shape policy input and decision output
+- routed readiness inspection
+- explicit gated routed submission of an already selected child intent
+- routed submitted-order lineage inspection
+- route-aware same-target post-submit lifecycle/actionability inspection
+- routed same-target retry lineage preservation
+- routed reconciliation and lifecycle-event audit visibility
+- route-lineage collision protection
+
+Still not implemented:
+- smart order routing
+- system-generated target recommendation
+- best-binding selection
+- CBBO
+- venue ranking
+- execution-quality scoring
+- fanout / split allocation
+- target reselection
+- cross-binding recovery
+- cross-venue failover
+- route executor behavior
+- auto-submit
+
+The current team view:
+
+> Phase 5 successfully built a controlled routed execution substrate. It is not yet SOR. That is good.
+
+## 75. Important review caution before Phase 6
+
+The architecture review found one important gap before Phase 6 should make system-generated target recommendations:
+
+> the originally planned routing data sufficiency / route-readiness audit layer is not present yet.
+
+Phase 5.9 became routed reconciliation/lifecycle audit work rather than a route-readiness audit. That work was useful, but it does not answer the question:
+
+> what facts must be present before the platform is allowed to recommend a target?
+
+Before Phase 6 recommends a binding/account/venue, the platform should have an inspectable route-readiness audit that checks facts such as:
+- market-data freshness
+- quote source confidence
+- fee availability
+- venue/account state visibility
+- product support
+- order-shape support
+- private-state visibility
+- source-policy compatibility
+- missing data that prevents safe recommendation
+
+This should still not be a selector. It should be an audit layer that Phase 6 can depend on.
+
+The standing caution is:
+
+> do not begin controlled target recommendation until route-readiness/data-sufficiency facts exist and are inspectable.
+
+That does not invalidate Phase 5. It means Phase 6 should begin with a route-readiness audit step, or there should be a tiny Phase 5 closeout hotpatch to add that audit before Phase 6.
+
+## 76. Phase 5.10.1 / 5.10.2 — route-readiness audit completed the missing Phase 5 gate
+
+After the Phase 5 closeout review, the main missing piece before Phase 6 was clear:
+
+> the platform needed a non-selecting route-readiness / data-sufficiency audit before it could recommend any target.
+
+Phase 5.10.1 added that missing audit layer.
+
+The route-readiness audit can inspect a routing-required desired trade or an existing routing assessment and classify candidate readiness facts without selecting, ranking, scoring, routing, converting, preparing, or submitting.
+
+It introduced a useful distinction:
+
+- ready for recommendation = data-sufficient under the current audit facts
+- recommendation = a later step
+- target choice = still a separate later operator/action layer
+- child intent / readiness / submitted order = still downstream execution
+
+The audit checks facts such as:
+- desired-trade validity
+- mandate/binding/account truth
+- symbol and product support
+- quote availability and freshness
+- private-state visibility
+- fee and balance availability
+- order-shape support
+- missing / stale / unavailable / unsupported / policy-blocking facts
+
+Phase 5.10.2 then corrected audit truth:
+- quote facts derived from existing routing-assessment snapshots are labeled as `derived_from_existing_assessment`, not fresh venue query
+- missing or invalid desired-trade side / quantity blocks readiness
+- malformed, non-finite, zero, or negative quote prices are reason-coded before any notional math
+- default MARKET order-shape policy is labeled defaulted rather than explicit
+
+The key lesson from 5.10.1 / 5.10.2 was:
+
+> a target recommendation needs an audit of data sufficiency first.
+> readiness audit is not a selector; it is the gate before the selector.
+
+## 77. Phase 6.0 / 6.0.1 — controlled single-ready-candidate target recommendation
+
+Phase 6.0 introduced the first system-generated target recommendation layer.
+
+This is still **not** smart order routing.
+
+The only recommendation policy currently implemented is:
+
+> `single_ready_candidate_only`
+
+That means:
+- exactly one ready candidate from a route-readiness audit can produce a recommendation
+- zero ready candidates blocks
+- multiple ready candidates block
+- no ranking
+- no scoring
+- no best-binding
+- no CBBO
+- no fanout
+- no route plan
+- no target-choice creation
+- no child-intent creation
+- no readiness creation
+- no submitted-order creation
+- no auto-submit
+
+Phase 6.0.1 then added current-truth hardening:
+- recommendation success revalidates the current `StrategyMandate`
+- missing or inactive mandate blocks
+- stale desired-trade symbol drift blocks
+- inactive or non-trading symbol mapping blocks
+- audit-level blockers remain visible even when zero-ready or multiple-ready candidate status is the primary outcome
+
+The important architectural boundary is:
+
+`RouteReadinessAudit -> RoutingTargetRecommendation`
+
+not:
+
+`Recommendation -> TargetChoice -> ChildIntent -> Submit`
+
+The recommendation is only an inspectable recommendation record. It does not execute anything.
+
+The key lesson from 6.0 / 6.0.1 was:
+
+> controlled target recommendation can begin without becoming SOR,
+> but only if it is non-executing, policy-narrow, and revalidates current truth.
+
+## 78. Current caution after Phase 6.0.1
+
+The platform has now crossed from pure routing substrate into the first controlled recommendation layer.
+
+That is a meaningful milestone.
+
+But the current recommendation policy is intentionally narrow:
+- it recommends only when there is exactly one ready candidate
+- it does not decide between multiple candidates
+- it does not score candidates
+- it does not compare venues
+- it does not evaluate execution quality
+- it does not create downstream target choices or orders
+
+The architecture review still sees three important hardening areas before recommendation-driven workflow becomes more powerful:
+
+1. Recommendation freshness should account for the underlying quote observation time, not only audit record age.
+2. Route-readiness audits should expose recommendation linkage truth once recommendations are created, or otherwise avoid misleading `recommendation_created` semantics.
+3. Recommendation-to-target-choice conversion, when introduced later, must remain explicit/operator-reviewed and must not auto-convert silently.
+
+The current north-star reminder is:
+
+> Phase 6 recommendation is allowed to be a controlled policy layer.
+> It must not become hidden best-binding, hidden scoring, or hidden route execution.
+
+## 79. Phase 6.0.2 / 6.1 / 6.1.1 — recommendation truth and explicit priority policy
+
+After Phase 6.0 / 6.0.1 introduced the first controlled recommendation layer, more truth-hardening was needed before recommendation could be trusted as a durable platform artifact.
+
+Phase 6.0.2 tightened recommendation-time truth:
+- recommendation freshness now depends on the candidate quote observation time, not just the age of the audit record
+- the source route-readiness audit now reflects that a recommendation record was actually created from it
+- recommendation therefore became less like a loose cached opinion and more like a bounded recommendation artifact with explicit freshness semantics
+
+Phase 6.1 then added the first optional multi-candidate recommendation policy:
+- `explicit_binding_priority`
+
+This is still not best-binding selection.
+It is not venue ranking.
+It is not scoring.
+
+It is simply:
+- an operator-configured binding preference
+- lower positive integer wins
+- missing priorities block
+- malformed priorities block
+- ties block
+
+That matters because the platform still refuses to fake route quality.
+If there are many acceptable candidates, the system will only break the tie if a declared operator policy says how.
+
+Phase 6.1.1 then hardened that policy surface:
+- bounded `policy_name` input
+- explicit priority clearing semantics
+- omitted priority updates preserve current values instead of erasing them silently
+
+The key lesson from 6.0.2 / 6.1 / 6.1.1 was:
+
+> recommendation can become slightly richer without becoming smart routing,
+> but only if policy remains explicit, inspectable, and operator-owned.
+
+## 80. Phase 6.2 / 6.2.1 / 6.2.2 — explicit recommendation acceptance into target choice
+
+Phase 6.2 added a very important workflow step:
+
+> recommendation is not action.
+> recommendation must be explicitly accepted before it becomes a routing target choice.
+
+That preserved a healthy boundary.
+
+What 6.2 added:
+- explicit operator-triggered recommendation acceptance
+- successful recommendation -> exactly one non-executing target choice
+- current-truth and quote-freshness revalidation before acceptance
+- no child intent yet
+- no prepared order yet
+- no readiness yet
+- no submitted order yet
+
+That means the system can now:
+- produce a recommendation
+- but still require a separate act before it becomes a chosen route
+
+Phase 6.2.1 then hardened same-audit idempotency:
+- one route-readiness audit cannot create many accepted target choices through duplicate successful recommendations
+- repeated successful same-audit acceptance returns the original target choice
+- the original acceptance timestamp is preserved instead of being overwritten
+
+Phase 6.2.2 then tightened that boundary further:
+- blocked recommendations cannot “inherit” accepted-looking truth merely because the same audit once produced a successful acceptance
+- successful and blocked recommendation outcomes now stay more semantically separate
+
+The key lesson from 6.2 / 6.2.1 / 6.2.2 was:
+
+> target choice must remain a deliberate acceptance boundary,
+> not a side effect of recommendation history.
+
+## 81. Phase 6.3 / 6.4 / 6.4.1 — recommendation-backed conversion and readiness
+
+Phase 6.3 connected recommendation-backed routing to the existing execution substrate.
+
+It added:
+- explicit conversion from an accepted recommendation-backed target choice into exactly one routed child `OrderIntent`
+- preservation of recommendation, audit, target-choice, selected binding/account/venue/symbol, and order-shape lineage in child-intent provenance
+- idempotent reuse of the same child intent on repeated conversion attempts from the same accepted recommendation path
+
+This was a major step because Phase 6 now had:
+- recommendation
+- acceptance
+- conversion
+
+without yet collapsing into submission.
+
+Phase 6.4 then allowed those recommendation-backed child intents to flow into:
+- existing prepared-order preview
+- existing execution-readiness inspection
+
+Again, the architecture discipline was good:
+- recommendation-backed execution reused existing substrate
+- it did not invent a parallel execution system
+
+Phase 6.4.1 then hotpatched a subtle but important truth issue:
+- routed order-shape policy drift vs current child-intent shape now blocks preview/readiness
+- stale stored quote observations at this layer now block readiness with the correct `quote_stale_at_readiness` semantics
+
+The key lesson from 6.3 / 6.4 / 6.4.1 was:
+
+> recommendation-backed workflow can move into execution inspection
+> without bypassing the normal prepared/readiness boundary,
+> but only if recommendation lineage and order-shape policy are revalidated again.
+
+## 82. Phase 6.5 / 6.6 — manual routed-flow harness and timing visibility
+
+Phase 6.5 and 6.6 did not deepen live execution semantics much, but they were still valuable.
+
+Phase 6.5 added:
+- a manual routed-flow inspection harness
+- a JSON trace of the controlled routed workflow
+- explicit operator/developer ability to walk the current chain through readiness without default submission
+
+That matters because the platform had become deep enough that a manual end-to-end inspection tool was useful for:
+- humans
+- debugging
+- demos
+- operational understanding
+
+Phase 6.6 then added:
+- local per-step timing visibility
+- top-level timing summary
+- step elapsed times
+- continued no-default-submission behavior
+
+The team should remember:
+this timing is:
+- local harness/service timing
+not:
+- production routing latency
+not:
+- route executor telemetry
+not:
+- exchange network latency
+
+The key lesson from 6.5 / 6.6 was:
+
+> once the routed substrate becomes deep enough, a controlled manual harness is useful,
+> but it must remain visibly a harness, not hidden automation.
+
+## 83. Phase 6.7 / 6.10.1 / 6.10.2 / 6.10.3 — explicit single-target recommendation-backed routed execution closeout
+
+Phase 6.7 through 6.10 completed the first recommendation-backed single-target execution path.
+
+This is still not smart routing.
+But it is much more than non-executing substrate.
+
+What the platform can now do in the accepted controlled path:
+- recommendation
+- acceptance
+- target choice
+- child-intent conversion
+- prepared-order preview
+- execution-readiness inspection
+- explicit gated submitted-order creation for that selected target
+- recommendation-aware post-submit lifecycle/actionability/reconciliation inspection
+- routed workflow aggregation by desired trade
+
+That is a serious milestone.
+
+Then 6.10.1 / 6.10.2 / 6.10.3 tightened the dangerous edge cases around submission:
+
+### 6.10.1
+- added a persistence-backed submit lease
+- concurrent explicit submit calls for one child intent cannot both reach adapter submission before a `SubmittedOrder` exists
+- first/latest submitted-order provenance stays separate and explicit
+
+### 6.10.2
+- if the adapter submit returns but local `SubmittedOrder` persistence fails,
+  the system records terminal uncertainty:
+  - `adapter_submit_persistence_unknown`
+- later submits for that child intent block with manual reconciliation required
+
+### 6.10.3
+- if the adapter call may already have started but no reliable return path exists,
+  the system records:
+  - `adapter_submit_may_have_started`
+- later submits again block with manual reconciliation required
+
+This is one of the strongest execution-discipline parts of the whole project.
+
+The key lesson from 6.7 through 6.10.3 was:
+
+> explicit recommendation-backed single-target execution can be allowed before SOR,
+> but only if ambiguity, concurrency, and lineage are handled more conservatively than most teams would tolerate.
+
+That is exactly the right instinct for a real trading platform.
+
+## 84. Current state after Phase 6.10.3 — Phase 6 is complete, but Phase 7 must stay disciplined
+
+At this point, Phase 6 has gone well beyond routing substrate.
+It now includes:
+
+- route-readiness/data-sufficiency audit
+- non-executing recommendation
+- recommendation acceptance
+- accepted-target conversion
+- recommendation-backed preview/readiness
+- explicit gated recommendation-backed submission
+- recommendation-aware post-submit lifecycle inspection
+- routed workflow aggregation
+- submit ambiguity and concurrency hardening
+
+That means Phase 6 is materially complete as a:
+
+> controlled single-target recommendation-backed execution phase
+
+The platform still does **not** have:
+- best-binding selection
+- scoring
+- CBBO
+- fanout
+- target reselection
+- route executor behavior
+- auto-submit
+- true smart order routing
+
+That is good.
+
+The next phase should not throw away that discipline.
+
+Phase 7 should be about:
+- controlled automation around the already-built single-target recommendation-backed path
+- operator approval and dry-run remaining first-class
+- strong reversibility and explicit config gates
+- no hidden smart routing
+- no fake “optimal execution” language
+- no fanout
+- no target reselection
+
+The standing reminder is:
+
+> Phase 7 should automate a narrow, truthful path the platform already understands.
+> It should not use automation as an excuse to jump into full SOR before the data, controls, and operator tooling are ready.
