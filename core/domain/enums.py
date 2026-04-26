@@ -215,6 +215,20 @@ class RoutingAutomationStepStatus(StrEnum):
     DEFERRED = "deferred"
 
 
+class RoutingAutomationApprovalAction(StrEnum):
+    RECOMMENDATION_ACCEPTANCE = "recommendation_acceptance"
+    TARGET_CHOICE_CONVERSION = "target_choice_conversion"
+    PREVIEW_READINESS = "prepared_order_preview_and_readiness"
+    SUBMITTED_ORDER_HANDOFF = "submitted_order_handoff"
+
+
+class RoutingAutomationApprovalStatus(StrEnum):
+    ACTIVE = "active"
+    REVOKED = "revoked"
+    CONSUMED = "consumed"
+    EXPIRED = "expired"
+
+
 class RiskEvaluationOutcome(StrEnum):
     APPROVED_DESIRED_TRADE = "approved_desired_trade"
     REJECTED_DESIRED_TRADE = "rejected_desired_trade"

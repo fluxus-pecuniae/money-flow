@@ -24,6 +24,8 @@ from core.domain.enums import (
     RiskEvaluationOutcome,
     RouteReadinessAuditStatus,
     RoutingAssessmentDecisionStatus,
+    RoutingAutomationApprovalAction,
+    RoutingAutomationApprovalStatus,
     RoutingAutomationMode,
     RoutingAutomationPlanOutcome,
     RoutingAutomationStepStatus,
@@ -654,11 +656,87 @@ class RoutingAutomationPlanResponse(BaseModel):
     automatable_action_names: list[str]
     manual_action_names: list[str]
     blocked_action_names: list[str]
+    approval_gate_states: dict[str, object]
     routed_lineage: dict[str, object] | None = None
     same_target_lifecycle_summary: dict[str, object] | None = None
     boundary_flags: dict[str, bool]
     artifacts_created_by_plan: bool
     provenance: dict[str, object]
+
+
+class RoutingAutomationApprovalCreateRequest(BaseModel):
+    desired_trade_key: str
+    action_name: RoutingAutomationApprovalAction
+    approved_by: str
+    notes: str | None = None
+    expires_at: datetime | None = None
+    policy: RoutingAutomationPolicyRequest | None = None
+
+
+class RoutingAutomationApprovalStateChangeRequest(BaseModel):
+    actor: str
+    reason: str | None = None
+
+
+class RoutingAutomationApprovalResponse(BaseModel):
+    approval_id: str
+    desired_trade_key: str
+    environment: Environment
+    action_name: RoutingAutomationApprovalAction
+    status: RoutingAutomationApprovalStatus
+    approved_by: str
+    approved_at: datetime
+    policy_name: str
+    automation_mode: RoutingAutomationMode
+    route_readiness_audit_id: str | None = None
+    routing_assessment_id: str | None = None
+    routing_target_recommendation_id: str | None = None
+    routing_target_choice_id: str | None = None
+    intent_id: str | None = None
+    readiness_evaluation_id: str | None = None
+    submitted_order_id: str | None = None
+    selected_binding_ref_id: str | None = None
+    selected_binding_key: str | None = None
+    selected_venue_account_ref_id: str | None = None
+    selected_venue_account_key: str | None = None
+    selected_venue: str | None = None
+    selected_exchange_symbol: str | None = None
+    expires_at: datetime | None = None
+    revoked_by: str | None = None
+    revoked_at: datetime | None = None
+    consumed_by: str | None = None
+    consumed_at: datetime | None = None
+    notes: str | None = None
+    reason_codes: list[str]
+    boundary_flags: dict[str, bool]
+    policy_snapshot: dict[str, object]
+    lineage: dict[str, object]
+    provenance: dict[str, object]
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class RoutingAutomationApprovalGateStateResponse(BaseModel):
+    action_name: RoutingAutomationApprovalAction
+    status: str
+    approval_id: str | None = None
+    artifact_id: str | None = None
+    reason_codes: list[str]
+    lineage: dict[str, object]
+
+
+class RoutingAutomationApprovalInspectionResponse(BaseModel):
+    desired_trade_key: str
+    environment: Environment
+    found: bool
+    generated_at: datetime
+    approvals: list[RoutingAutomationApprovalResponse]
+    step_gate_states: dict[str, RoutingAutomationApprovalGateStateResponse]
+    routed_lineage: dict[str, object] | None = None
+    same_target_lifecycle_summary: dict[str, object] | None = None
+    boundary_flags: dict[str, bool]
+    artifacts_created_by_inspection: bool
+    reason_codes: list[str]
 
 
 class SubmittedOrderResponse(BaseModel):

@@ -108,6 +108,10 @@ from core.schemas.api import (
     RoutingTargetRecommendationResponse,
     RoutingAssessmentFromDesiredTradeRequest,
     RoutingAssessmentResponse,
+    RoutingAutomationApprovalCreateRequest,
+    RoutingAutomationApprovalInspectionResponse,
+    RoutingAutomationApprovalResponse,
+    RoutingAutomationApprovalStateChangeRequest,
     RoutingAutomationPlanRequest,
     RoutingAutomationPlanResponse,
     RoutingAutomationPolicyRequest,
@@ -2389,6 +2393,126 @@ async def routing_automation_plan_by_desired_trade(
         dry_run=True if request is None else request.dry_run,
     )
     return RoutingAutomationPlanResponse(**asdict(plan))
+
+
+@v1.post(
+    "/routing-automation/approvals",
+    response_model=RoutingAutomationApprovalResponse,
+    tags=["routing-automation"],
+)
+async def create_routing_automation_approval(
+    request: RoutingAutomationApprovalCreateRequest,
+    routing_service: RoutingAssessmentService = Depends(get_routing_assessment_service),
+) -> RoutingAutomationApprovalResponse:
+    policy = _routing_automation_policy_from_request(routing_service, request.policy)
+    try:
+        approval = await routing_service.create_routing_automation_approval(
+            request.desired_trade_key,
+            action_name=request.action_name.value,
+            approved_by=request.approved_by,
+            policy=policy,
+            notes=request.notes,
+            expires_at=request.expires_at,
+        )
+    except RoutingAssessmentError as exc:
+        status_code = (
+            404
+            if exc.reason_code
+            in {
+                "routing_automation_approval_desired_trade_not_found",
+                "routing_automation_approval_not_found",
+            }
+            else 409
+        )
+        raise HTTPException(
+            status_code=status_code,
+            detail={"reason_code": exc.reason_code, "message": str(exc)},
+        ) from exc
+    return RoutingAutomationApprovalResponse(**asdict(approval))
+
+
+@v1.get(
+    "/routing-automation/approvals/{approval_id}",
+    response_model=RoutingAutomationApprovalResponse,
+    tags=["routing-automation"],
+)
+async def get_routing_automation_approval(
+    approval_id: str,
+    routing_service: RoutingAssessmentService = Depends(get_routing_assessment_service),
+) -> RoutingAutomationApprovalResponse:
+    try:
+        approval = await routing_service.get_routing_automation_approval(approval_id)
+    except RoutingAssessmentError as exc:
+        raise HTTPException(
+            status_code=404,
+            detail={"reason_code": exc.reason_code, "message": str(exc)},
+        ) from exc
+    return RoutingAutomationApprovalResponse(**asdict(approval))
+
+
+@v1.get(
+    "/routing-automation/approvals/by-desired-trade/{desired_trade_key}",
+    response_model=RoutingAutomationApprovalInspectionResponse,
+    tags=["routing-automation"],
+)
+async def routing_automation_approval_inspection_by_desired_trade(
+    desired_trade_key: str,
+    routing_service: RoutingAssessmentService = Depends(get_routing_assessment_service),
+) -> RoutingAutomationApprovalInspectionResponse:
+    inspection = await routing_service.inspect_routing_automation_approvals_for_desired_trade(
+        desired_trade_key
+    )
+    return RoutingAutomationApprovalInspectionResponse(**asdict(inspection))
+
+
+@v1.post(
+    "/routing-automation/approvals/{approval_id}/revoke",
+    response_model=RoutingAutomationApprovalResponse,
+    tags=["routing-automation"],
+)
+async def revoke_routing_automation_approval(
+    approval_id: str,
+    request: RoutingAutomationApprovalStateChangeRequest,
+    routing_service: RoutingAssessmentService = Depends(get_routing_assessment_service),
+) -> RoutingAutomationApprovalResponse:
+    try:
+        approval = await routing_service.revoke_routing_automation_approval(
+            approval_id,
+            revoked_by=request.actor,
+            reason=request.reason,
+        )
+    except RoutingAssessmentError as exc:
+        status_code = 404 if exc.reason_code == "routing_automation_approval_not_found" else 409
+        raise HTTPException(
+            status_code=status_code,
+            detail={"reason_code": exc.reason_code, "message": str(exc)},
+        ) from exc
+    return RoutingAutomationApprovalResponse(**asdict(approval))
+
+
+@v1.post(
+    "/routing-automation/approvals/{approval_id}/consume",
+    response_model=RoutingAutomationApprovalResponse,
+    tags=["routing-automation"],
+)
+async def consume_routing_automation_approval(
+    approval_id: str,
+    request: RoutingAutomationApprovalStateChangeRequest,
+    routing_service: RoutingAssessmentService = Depends(get_routing_assessment_service),
+) -> RoutingAutomationApprovalResponse:
+    try:
+        approval = await routing_service.consume_routing_automation_approval(
+            approval_id,
+            consumed_by=request.actor,
+            reason=request.reason,
+        )
+    except RoutingAssessmentError as exc:
+        status_code = 404 if exc.reason_code == "routing_automation_approval_not_found" else 409
+        raise HTTPException(
+            status_code=status_code,
+            detail={"reason_code": exc.reason_code, "message": str(exc)},
+        ) from exc
+    return RoutingAutomationApprovalResponse(**asdict(approval))
 
 
 @v1.get(

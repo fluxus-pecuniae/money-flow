@@ -10,6 +10,8 @@ Phase 6.10.3 closes the adapter-in-flight uncertainty gap in explicit submission
 
 Phase 7.0 introduces automation policy and dry-run automation planning without introducing automatic routing or automatic submission. The strategy/routing boundary now has explicit automation modes: `disabled`, `dry_run_only`, `approval_required`, and `explicit_automation_permitted`. Dry-run planning inspects an existing desired-trade routed workflow and reports which same-target steps are already satisfied, disabled, dry-run-only, approval-required, automation-eligible, manual-only, deferred, or blocked. Operator approval remains first-class, and submitted-order handoff remains manual-only in Phase 7.0. The plan preserves route-readiness audit, recommendation, target-choice, child-intent, readiness, submitted-order, selected binding/account/venue/symbol, and no-fanout/no-CBBO/no-scoring/no-ranking/no-target-reselection/no-route-executor/no-auto-submit truth.
 
+Phase 7.1 makes operator approval durable and reversible before any action-taking automation exists. Approval records authorize one same-target action stage only and can be active, revoked, consumed, or expired. They keep the plan/approval/action boundaries separate: approval records preserve lineage and policy snapshots, but they do not accept recommendations, convert target choices, create previews/readiness, submit orders, or call exchange adapters. Revocation is explicit while the approval is unused, and consumption only marks that a later action hook used the gate; it is not the action itself.
+
 The load-bearing strategy-to-execution boundary is:
 
 - `StrategyDecision`
@@ -131,6 +133,11 @@ Money Flow-specific `sleeve_*` naming remains family vocabulary only.
   - keeps the default automation policy disabled as an explicit kill switch
   - distinguishes dry-run-only, operator-approval-required, explicitly automation-eligible, manual-only, deferred, and blocked steps
   - creates no target choice, child intent, prepared order, readiness assessment, submitted order, exchange submit call, route executor behavior, fanout, ranking/scoring, CBBO, target reselection, or auto-submit
+- Phase 7.1 routing automation approval gates:
+  - persist one approval record per explicit same-target action stage
+  - expose approval creation, desired-trade inspection, revocation, and consumption state changes
+  - preserve routed lineage, policy snapshots, selected binding/account/venue/symbol, and no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit flags
+  - execute no approved action and create no target choice, child intent, readiness assessment, submitted order, exchange submit call, route executor behavior, fanout, ranking/scoring, CBBO, target reselection, or auto-submit
 - manual routed-flow inspection harness:
   - `scripts/manual_routed_flow.py` starts from an existing desired trade key and emits JSON trace output for operator/developer validation
   - default invocation inspects the desired trade only and skips submission
@@ -528,12 +535,12 @@ Still deferred:
 
 ## Forward-Looking Concern
 
-Phase 7.0 adds controlled automation policy and dry-run planning only. The next strategy-adjacent concerns are action-taking automation hardening, still short of smart routing:
+Phase 7.0 adds controlled automation policy and dry-run planning only, and Phase 7.1 adds durable approval/revocation gates only. The next strategy-adjacent concerns are action-taking automation hardening, still short of smart routing:
 
 - DB-level concurrency/serialization hardening should be considered before any automation uses recommendation acceptance or conversion paths
-- operator approval records and reversible action gates are required before any action-taking automation
+- future action hooks must consume one active approval record for exactly one same-target action and must preserve revocation/expiry truth
 - slippage/price guard policy and richer market-data quality are prerequisites before any price-aware routing work
 - continued mandate/account policy checks before any broader routed execution behavior
 - fanout/splitting remains a later explicit phase only
 
-Phase 7.0 does not make the platform a routing optimizer, route executor, or auto-submit system. It classifies existing same-target workflow steps under explicit policy modes and preserves the separate strategy, planning, routing assessment, route-readiness audit, recommendation, target choice, child-intent creation, readiness, explicit submission, and post-submit lifecycle boundaries.
+Phase 7.1 does not make the platform a routing optimizer, route executor, or auto-submit system. It records reversible operator authorization separately from action execution and preserves the separate strategy, planning, routing assessment, route-readiness audit, recommendation, target choice, child-intent creation, readiness, explicit submission, and post-submit lifecycle boundaries.

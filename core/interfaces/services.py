@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from datetime import datetime
 from decimal import Decimal
 from typing import Protocol
 
@@ -37,6 +38,8 @@ from core.domain.models import (
     RiskEvaluation,
     RiskEvent,
     RouteReadinessAudit,
+    RoutingAutomationApproval,
+    RoutingAutomationApprovalInspection,
     RoutingAutomationPlan,
     RoutingAutomationPolicy,
     RoutingAssessment,
@@ -579,6 +582,43 @@ class RoutingAssessmentService(Protocol):
         policy: RoutingAutomationPolicy | None = None,
         dry_run: bool = True,
     ) -> RoutingAutomationPlan: ...
+
+    async def create_routing_automation_approval(
+        self,
+        desired_trade_key: str,
+        *,
+        action_name: str,
+        approved_by: str,
+        policy: RoutingAutomationPolicy | None = None,
+        notes: str | None = None,
+        expires_at: datetime | None = None,
+    ) -> RoutingAutomationApproval: ...
+
+    async def get_routing_automation_approval(
+        self,
+        approval_id: str,
+    ) -> RoutingAutomationApproval: ...
+
+    async def inspect_routing_automation_approvals_for_desired_trade(
+        self,
+        desired_trade_key: str,
+    ) -> RoutingAutomationApprovalInspection: ...
+
+    async def revoke_routing_automation_approval(
+        self,
+        approval_id: str,
+        *,
+        revoked_by: str,
+        reason: str | None = None,
+    ) -> RoutingAutomationApproval: ...
+
+    async def consume_routing_automation_approval(
+        self,
+        approval_id: str,
+        *,
+        consumed_by: str,
+        reason: str | None = None,
+    ) -> RoutingAutomationApproval: ...
 
 
 class AlertService(Protocol):

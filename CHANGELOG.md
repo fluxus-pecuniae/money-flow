@@ -13,6 +13,38 @@ Entry schema:
 
 ---
 
+## v2026.04.26.004
+
+- `recorded_at_utc`: `2026-04-26T19:32:44Z`
+- `scope`: `Phase 7.1 routing automation approval and reversible gating substrate`
+- `intent`: `Native entry. Added durable operator approval records and reversible action gating above the Phase 7.0 dry-run automation substrate without executing actions. Introduced approval action/status enums, typed approval/gate domain models, API schemas, a narrow `routing_automation_approvals` table, and service/API methods to create, inspect, revoke, and consume one approval for one same-target action stage. Approval records preserve policy snapshots, desired-trade/recommendation/target-choice/child-intent/readiness/submitted-order lineage where present, selected binding/account/venue/symbol facts, and no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit boundary truth. Dry-run plans now include approval gate state snapshots. Approval creation, revocation, inspection, and consumption do not accept recommendations, convert target choices, create readiness, submit orders, call exchanges, create route executor behavior, fan out, rank/score, use CBBO, reselect targets, or auto-submit. money_flow_project_memory.md was read as strategic context and not modified.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `db/models/trading.py`
+  - `db/models/__init__.py`
+  - `db/migrations/versions/20260426_0024_phase71_routing_automation_approvals.py`
+  - `services/routing/service.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_phase71_routing_automation_approvals.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase71_routing_automation_approvals.py` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase70_routing_automation.py tests/test_phase71_routing_automation_approvals.py` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase69_routed_workflow_inspection.py tests/test_phase67_recommendation_backed_submission.py tests/test_api.py tests/test_operational_docs.py` passed.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed.
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-7.1-review.zip` created a clean review bundle.
+
 ## v2026.04.26.003
 
 - `recorded_at_utc`: `2026-04-26T14:31:44Z`

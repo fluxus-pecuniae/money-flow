@@ -918,6 +918,75 @@ class RoutingTargetChoiceModel(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
 
 
+class RoutingAutomationApprovalModel(Base):
+    """Durable operator approval gate for one explicit same-target automation action."""
+
+    __tablename__ = "routing_automation_approvals"
+    __table_args__ = (
+        Index(
+            "ix_routing_automation_approvals_desired_action_created",
+            "environment",
+            "desired_trade_key",
+            "action_name",
+            "created_at",
+        ),
+        Index(
+            "ix_routing_automation_approvals_status_created",
+            "environment",
+            "status",
+            "created_at",
+        ),
+        Index(
+            "ix_routing_automation_approvals_target_choice",
+            "routing_target_choice_id",
+            "action_name",
+        ),
+        Index(
+            "ix_routing_automation_approvals_intent",
+            "intent_id",
+            "action_name",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    environment: Mapped[Environment] = mapped_column(enum_column(Environment), index=True)
+    approval_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    desired_trade_ref_id: Mapped[str | None] = mapped_column(ForeignKey("mandate_desired_trades.id"), index=True)
+    desired_trade_key: Mapped[str] = mapped_column(String(128), index=True)
+    action_name: Mapped[str] = mapped_column(String(64), index=True)
+    status: Mapped[str] = mapped_column(String(32), index=True)
+    approved_by: Mapped[str] = mapped_column(String(128), index=True)
+    approved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    policy_name: Mapped[str] = mapped_column(String(128), index=True)
+    automation_mode: Mapped[str] = mapped_column(String(64), index=True)
+    route_readiness_audit_id: Mapped[str | None] = mapped_column(String(64), index=True)
+    routing_assessment_id: Mapped[str | None] = mapped_column(String(64), index=True)
+    routing_target_recommendation_id: Mapped[str | None] = mapped_column(String(64), index=True)
+    routing_target_choice_id: Mapped[str | None] = mapped_column(String(64), index=True)
+    intent_id: Mapped[str | None] = mapped_column(String(64), index=True)
+    readiness_evaluation_id: Mapped[str | None] = mapped_column(String(64), index=True)
+    submitted_order_id: Mapped[str | None] = mapped_column(String(64), index=True)
+    selected_binding_ref_id: Mapped[str | None] = mapped_column(String(36), index=True)
+    selected_binding_key: Mapped[str | None] = mapped_column(String(128), index=True)
+    selected_venue_account_ref_id: Mapped[str | None] = mapped_column(String(36), index=True)
+    selected_venue_account_key: Mapped[str | None] = mapped_column(String(128), index=True)
+    selected_venue: Mapped[str | None] = mapped_column(String(32), index=True)
+    selected_exchange_symbol: Mapped[str | None] = mapped_column(String(64), index=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
+    revoked_by: Mapped[str | None] = mapped_column(String(128), index=True)
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
+    consumed_by: Mapped[str | None] = mapped_column(String(128), index=True)
+    consumed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
+    notes: Mapped[str | None] = mapped_column(Text)
+    reason_codes_json: Mapped[list[str]] = mapped_column(JSON, default=list)
+    boundary_flags_json: Mapped[dict[str, object]] = mapped_column(JSON, default=dict)
+    policy_snapshot_json: Mapped[dict[str, object]] = mapped_column(JSON, default=dict)
+    lineage_json: Mapped[dict[str, object]] = mapped_column(JSON, default=dict)
+    provenance_json: Mapped[dict[str, object]] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
+
+
 class PositionModel(Base):
     __tablename__ = "positions"
     __table_args__ = (

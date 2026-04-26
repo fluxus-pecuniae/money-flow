@@ -22,6 +22,8 @@ from core.domain.enums import (
     OrderType,
     RouteReadinessAuditStatus,
     RoutingAssessmentDecisionStatus,
+    RoutingAutomationApprovalAction,
+    RoutingAutomationApprovalStatus,
     RoutingAutomationMode,
     RoutingAutomationPlanOutcome,
     RoutingAutomationStepStatus,
@@ -38,6 +40,9 @@ from core.domain.models import (
     RouteReadinessAudit,
     RouteReadinessCandidateAudit,
     RoutingAssessment,
+    RoutingAutomationApproval,
+    RoutingAutomationApprovalGateState,
+    RoutingAutomationApprovalInspection,
     RoutingAutomationPlan,
     RoutingAutomationPlanStep,
     RoutingAutomationPolicy,
@@ -58,6 +63,7 @@ from db.models import (
     OrderIntentModel,
     RouteReadinessAuditModel,
     RouteReadinessCandidateAuditModel,
+    RoutingAutomationApprovalModel,
     RoutingAssessmentCandidateModel,
     RoutingAssessmentModel,
     RoutingTargetRecommendationModel,
@@ -307,6 +313,10 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
         automatable_action_names = [step.name for step in steps if step.automatable]
         manual_action_names = [step.name for step in steps if step.manual_only]
         blocked_action_names = [step.name for step in steps if step.blocked]
+        approval_gate_states = self._routing_automation_plan_approval_gate_states(
+            desired_trade_key,
+            steps,
+        )
         found = bool(workflow.get("found"))
         if not found:
             outcome = RoutingAutomationPlanOutcome.BLOCKED
@@ -342,6 +352,7 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             automatable_action_names=automatable_action_names,
             manual_action_names=manual_action_names,
             blocked_action_names=blocked_action_names,
+            approval_gate_states=approval_gate_states,
             routed_lineage=(
                 dict(workflow["routed_lineage"])
                 if isinstance(workflow.get("routed_lineage"), dict)
@@ -365,6 +376,285 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 ),
             },
         )
+
+    async def create_routing_automation_approval(
+        self,
+        desired_trade_key: str,
+        *,
+        action_name: str,
+        approved_by: str,
+        policy: RoutingAutomationPolicy | None = None,
+        notes: str | None = None,
+        expires_at: datetime | None = None,
+    ) -> RoutingAutomationApproval:
+        """Create one durable operator approval gate without executing the action."""
+
+        action = self._routing_automation_action(action_name)
+        active_policy = policy or self.routing_automation_policy(
+            mode=RoutingAutomationMode.APPROVAL_REQUIRED
+        )
+        plan = await self.plan_routing_automation_for_desired_trade(
+            desired_trade_key,
+            policy=active_policy,
+            dry_run=True,
+        )
+        step = self._routing_automation_step_for_action(plan, action)
+        if not plan.found:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_desired_trade_not_found",
+                f"Desired trade {desired_trade_key} was not found.",
+            )
+        self._validate_approval_step(action, step)
+
+        now = _utcnow()
+        with self._session_factory() as session:
+            existing_active = session.scalar(
+                select(RoutingAutomationApprovalModel)
+                .where(
+                    RoutingAutomationApprovalModel.environment == self.settings.app.environment,
+                    RoutingAutomationApprovalModel.desired_trade_key == desired_trade_key,
+                    RoutingAutomationApprovalModel.action_name == action.value,
+                    RoutingAutomationApprovalModel.status
+                    == RoutingAutomationApprovalStatus.ACTIVE.value,
+                )
+                .order_by(RoutingAutomationApprovalModel.created_at.asc())
+            )
+            if existing_active is not None:
+                return self._routing_automation_approval_from_model(existing_active)
+
+            desired_model = session.scalar(
+                select(MandateDesiredTradeModel).where(
+                    MandateDesiredTradeModel.environment == self.settings.app.environment,
+                    MandateDesiredTradeModel.desired_trade_key == desired_trade_key,
+                )
+            )
+            lineage = dict(step.lineage)
+            if plan.routed_lineage:
+                lineage.setdefault("routed_lineage", plan.routed_lineage)
+            model = RoutingAutomationApprovalModel(
+                environment=self.settings.app.environment,
+                approval_id=f"rtaap_{uuid4().hex}",
+                desired_trade_ref_id=desired_model.id if desired_model is not None else None,
+                desired_trade_key=desired_trade_key,
+                action_name=action.value,
+                status=RoutingAutomationApprovalStatus.ACTIVE.value,
+                approved_by=approved_by,
+                approved_at=now,
+                policy_name=active_policy.policy_name,
+                automation_mode=active_policy.mode.value,
+                route_readiness_audit_id=lineage.get("route_readiness_audit_id"),
+                routing_assessment_id=lineage.get("routing_assessment_id"),
+                routing_target_recommendation_id=lineage.get(
+                    "routing_target_recommendation_id"
+                ),
+                routing_target_choice_id=lineage.get("routing_target_choice_id"),
+                intent_id=lineage.get("intent_id"),
+                readiness_evaluation_id=lineage.get("readiness_evaluation_id"),
+                submitted_order_id=lineage.get("submitted_order_id"),
+                selected_binding_ref_id=lineage.get("selected_binding_ref_id"),
+                selected_binding_key=lineage.get("selected_binding_key"),
+                selected_venue_account_ref_id=lineage.get(
+                    "selected_venue_account_ref_id"
+                ),
+                selected_venue_account_key=lineage.get("selected_venue_account_key"),
+                selected_venue=lineage.get("selected_venue"),
+                selected_exchange_symbol=lineage.get("selected_exchange_symbol"),
+                expires_at=expires_at,
+                notes=notes,
+                reason_codes_json=[
+                    "routing_automation_approval_created",
+                    "approval_does_not_execute_action",
+                    *list(step.reason_codes),
+                ],
+                boundary_flags_json=dict(plan.boundary_flags),
+                policy_snapshot_json=self._routing_automation_policy_snapshot(active_policy),
+                lineage_json=lineage,
+                provenance_json={
+                    "phase": "phase_7_1",
+                    "approval_created": True,
+                    "approval_is_action_gate_only": True,
+                    "action_executed": False,
+                    "artifacts_created_by_approval": False,
+                    "dry_run_plan_id": plan.automation_plan_id,
+                    "same_target_only": True,
+                    "same_account_only": True,
+                    "same_venue_only": True,
+                    "fanout": False,
+                    "cbbo": False,
+                    "ranking": False,
+                    "scoring": False,
+                    "target_reselection": False,
+                    "route_executor": False,
+                    "auto_submit": False,
+                },
+                created_at=now,
+                updated_at=now,
+            )
+            session.add(model)
+            session.commit()
+            session.refresh(model)
+            return self._routing_automation_approval_from_model(model)
+
+    async def get_routing_automation_approval(
+        self,
+        approval_id: str,
+    ) -> RoutingAutomationApproval:
+        with self._session_factory() as session:
+            model = self._load_routing_automation_approval_model(session, approval_id)
+            self._expire_approval_if_needed(session, model)
+            return self._routing_automation_approval_from_model(model)
+
+    async def inspect_routing_automation_approvals_for_desired_trade(
+        self,
+        desired_trade_key: str,
+    ) -> RoutingAutomationApprovalInspection:
+        plan = await self.plan_routing_automation_for_desired_trade(
+            desired_trade_key,
+            policy=self.routing_automation_policy(mode=RoutingAutomationMode.APPROVAL_REQUIRED),
+            dry_run=True,
+        )
+        with self._session_factory() as session:
+            models = list(
+                session.scalars(
+                    select(RoutingAutomationApprovalModel)
+                    .where(
+                        RoutingAutomationApprovalModel.environment
+                        == self.settings.app.environment,
+                        RoutingAutomationApprovalModel.desired_trade_key == desired_trade_key,
+                    )
+                    .order_by(RoutingAutomationApprovalModel.created_at.asc())
+                )
+            )
+            for model in models:
+                self._expire_approval_if_needed(session, model)
+            approvals = [self._routing_automation_approval_from_model(model) for model in models]
+
+        step_gate_states: dict[str, RoutingAutomationApprovalGateState] = {}
+        for action in RoutingAutomationApprovalAction:
+            step = self._routing_automation_step_for_action(plan, action)
+            matching = [approval for approval in approvals if approval.action_name == action]
+            active = next(
+                (
+                    approval
+                    for approval in reversed(matching)
+                    if approval.status == RoutingAutomationApprovalStatus.ACTIVE
+                ),
+                None,
+            )
+            latest = matching[-1] if matching else None
+            selected = active or latest
+            gate_status = "approved" if active is not None else "unapproved"
+            if active is None and latest is not None:
+                gate_status = latest.status.value
+            if step.blocked:
+                gate_status = "blocked"
+            elif step.status == RoutingAutomationStepStatus.ALREADY_SATISFIED:
+                gate_status = "already_satisfied"
+            step_gate_states[action.value] = RoutingAutomationApprovalGateState(
+                action_name=action,
+                status=gate_status,
+                approval_id=selected.approval_id if selected is not None else None,
+                artifact_id=step.artifact_id,
+                reason_codes=(
+                    list(selected.reason_codes)
+                    if selected is not None
+                    else ["routing_automation_approval_missing"]
+                )
+                + (list(step.reason_codes) if step.blocked else []),
+                lineage=dict(selected.lineage if selected is not None else step.lineage),
+            )
+
+        return RoutingAutomationApprovalInspection(
+            desired_trade_key=desired_trade_key,
+            environment=self.settings.app.environment,
+            found=plan.found,
+            generated_at=_utcnow(),
+            approvals=approvals,
+            step_gate_states=step_gate_states,
+            routed_lineage=plan.routed_lineage,
+            same_target_lifecycle_summary=plan.same_target_lifecycle_summary,
+            boundary_flags=plan.boundary_flags,
+            artifacts_created_by_inspection=False,
+            reason_codes=["routing_automation_approval_inspection_non_executing"],
+        )
+
+    async def revoke_routing_automation_approval(
+        self,
+        approval_id: str,
+        *,
+        revoked_by: str,
+        reason: str | None = None,
+    ) -> RoutingAutomationApproval:
+        with self._session_factory() as session:
+            model = self._load_routing_automation_approval_model(session, approval_id)
+            self._expire_approval_if_needed(session, model)
+            if model.status != RoutingAutomationApprovalStatus.ACTIVE.value:
+                raise RoutingAssessmentError(
+                    "routing_automation_approval_not_revocable",
+                    f"Routing automation approval {approval_id} is not active.",
+                )
+            now = _utcnow()
+            model.status = RoutingAutomationApprovalStatus.REVOKED.value
+            model.revoked_by = revoked_by
+            model.revoked_at = now
+            model.updated_at = now
+            reason_codes = list(model.reason_codes_json or [])
+            reason_codes.append("routing_automation_approval_revoked")
+            if reason:
+                reason_codes.append(reason)
+            model.reason_codes_json = reason_codes
+            provenance = dict(model.provenance_json or {})
+            provenance.update(
+                {
+                    "approval_revoked": True,
+                    "revoked_by": revoked_by,
+                    "revoked_at": now.isoformat(),
+                    "action_executed": False,
+                }
+            )
+            model.provenance_json = provenance
+            session.commit()
+            session.refresh(model)
+            return self._routing_automation_approval_from_model(model)
+
+    async def consume_routing_automation_approval(
+        self,
+        approval_id: str,
+        *,
+        consumed_by: str,
+        reason: str | None = None,
+    ) -> RoutingAutomationApproval:
+        with self._session_factory() as session:
+            model = self._load_routing_automation_approval_model(session, approval_id)
+            self._expire_approval_if_needed(session, model)
+            if model.status != RoutingAutomationApprovalStatus.ACTIVE.value:
+                raise RoutingAssessmentError(
+                    "routing_automation_approval_not_consumable",
+                    f"Routing automation approval {approval_id} is not active.",
+                )
+            now = _utcnow()
+            model.status = RoutingAutomationApprovalStatus.CONSUMED.value
+            model.consumed_by = consumed_by
+            model.consumed_at = now
+            model.updated_at = now
+            reason_codes = list(model.reason_codes_json or [])
+            reason_codes.append("routing_automation_approval_consumed")
+            if reason:
+                reason_codes.append(reason)
+            model.reason_codes_json = reason_codes
+            provenance = dict(model.provenance_json or {})
+            provenance.update(
+                {
+                    "approval_consumed": True,
+                    "consumed_by": consumed_by,
+                    "consumed_at": now.isoformat(),
+                    "action_execution_not_performed_by_approval_service": True,
+                }
+            )
+            model.provenance_json = provenance
+            session.commit()
+            session.refresh(model)
+            return self._routing_automation_approval_from_model(model)
 
     async def inspect_routed_workflow_by_desired_trade(
         self,
@@ -599,6 +889,234 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             }
 
     @staticmethod
+    def _routing_automation_action(action_name: str) -> RoutingAutomationApprovalAction:
+        try:
+            return RoutingAutomationApprovalAction(action_name)
+        except ValueError as exc:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_action_unknown",
+                f"Unknown routing automation approval action {action_name}.",
+            ) from exc
+
+    @staticmethod
+    def _routing_automation_step_for_action(
+        plan: RoutingAutomationPlan,
+        action: RoutingAutomationApprovalAction,
+    ) -> RoutingAutomationPlanStep:
+        for step in plan.steps:
+            if step.name == action.value:
+                return step
+        return RoutingAutomationPlanStep(
+            name=action.value,
+            status=RoutingAutomationStepStatus.BLOCKED,
+            reason_codes=["routing_automation_step_not_available"],
+            blocked=True,
+        )
+
+    def _routing_automation_plan_approval_gate_states(
+        self,
+        desired_trade_key: str,
+        steps: list[RoutingAutomationPlanStep],
+    ) -> dict[str, object]:
+        action_steps = {step.name: step for step in steps}
+        with self._session_factory() as session:
+            approval_models = list(
+                session.scalars(
+                    select(RoutingAutomationApprovalModel)
+                    .where(
+                        RoutingAutomationApprovalModel.environment
+                        == self.settings.app.environment,
+                        RoutingAutomationApprovalModel.desired_trade_key == desired_trade_key,
+                    )
+                    .order_by(RoutingAutomationApprovalModel.created_at.asc())
+                )
+            )
+        states: dict[str, object] = {}
+        now = _utcnow()
+        for action in RoutingAutomationApprovalAction:
+            step = action_steps.get(action.value)
+            matching = [model for model in approval_models if model.action_name == action.value]
+            active = next(
+                (
+                    model
+                    for model in reversed(matching)
+                    if model.status == RoutingAutomationApprovalStatus.ACTIVE.value
+                    and (model.expires_at is None or model.expires_at > now)
+                ),
+                None,
+            )
+            latest = matching[-1] if matching else None
+            selected = active or latest
+            status = "approved" if active is not None else "unapproved"
+            if active is None and latest is not None:
+                status = (
+                    RoutingAutomationApprovalStatus.EXPIRED.value
+                    if latest.status == RoutingAutomationApprovalStatus.ACTIVE.value
+                    and latest.expires_at is not None
+                    and latest.expires_at <= now
+                    else latest.status
+                )
+            if step is not None and step.blocked:
+                status = "blocked"
+            elif step is not None and step.status == RoutingAutomationStepStatus.ALREADY_SATISFIED:
+                status = "already_satisfied"
+            states[action.value] = {
+                "status": status,
+                "approval_id": selected.approval_id if selected is not None else None,
+                "artifact_id": step.artifact_id if step is not None else None,
+                "reason_codes": (
+                    list(selected.reason_codes_json or [])
+                    if selected is not None
+                    else ["routing_automation_approval_missing"]
+                ),
+                "lineage": (
+                    dict(selected.lineage_json or {})
+                    if selected is not None
+                    else dict(step.lineage if step is not None else {})
+                ),
+            }
+        return states
+
+    @staticmethod
+    def _validate_approval_step(
+        action: RoutingAutomationApprovalAction,
+        step: RoutingAutomationPlanStep,
+    ) -> None:
+        if step.status == RoutingAutomationStepStatus.ALREADY_SATISFIED:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_action_already_satisfied",
+                f"Routing automation action {action.value} is already satisfied.",
+            )
+        if step.status in {
+            RoutingAutomationStepStatus.BLOCKED,
+            RoutingAutomationStepStatus.DISABLED,
+            RoutingAutomationStepStatus.DEFERRED,
+        }:
+            reason = (
+                "routing_automation_approval_action_blocked"
+                if step.status == RoutingAutomationStepStatus.BLOCKED
+                else "routing_automation_approval_action_not_available"
+            )
+            raise RoutingAssessmentError(
+                reason,
+                f"Routing automation action {action.value} is not approvable.",
+            )
+        if action == RoutingAutomationApprovalAction.SUBMITTED_ORDER_HANDOFF:
+            if not step.artifact_id:
+                raise RoutingAssessmentError(
+                    "routing_automation_approval_missing_child_intent",
+                    "Submitted-order handoff approval requires an existing child intent.",
+                )
+            return
+        if step.status not in {
+            RoutingAutomationStepStatus.APPROVAL_REQUIRED,
+            RoutingAutomationStepStatus.AUTOMATION_ELIGIBLE,
+            RoutingAutomationStepStatus.DRY_RUN_ONLY,
+            RoutingAutomationStepStatus.MANUAL_ONLY,
+        }:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_action_not_available",
+                f"Routing automation action {action.value} is not approvable.",
+            )
+
+    @staticmethod
+    def _routing_automation_policy_snapshot(policy: RoutingAutomationPolicy) -> dict[str, object]:
+        return {
+            "mode": policy.mode.value,
+            "policy_name": policy.policy_name,
+            "dry_run_supported": policy.dry_run_supported,
+            "operator_approval_required": policy.operator_approval_required,
+            "recommendation_acceptance": policy.recommendation_acceptance.value,
+            "target_choice_conversion": policy.target_choice_conversion.value,
+            "preview_readiness": policy.preview_readiness.value,
+            "submit": policy.submit.value,
+            "reason_codes": list(policy.reason_codes),
+            "boundary_flags": dict(policy.boundary_flags),
+            "provenance": dict(policy.provenance),
+        }
+
+    @staticmethod
+    def _load_routing_automation_approval_model(
+        session: Any,
+        approval_id: str,
+    ) -> RoutingAutomationApprovalModel:
+        model = session.scalar(
+            select(RoutingAutomationApprovalModel).where(
+                RoutingAutomationApprovalModel.approval_id == approval_id,
+            )
+        )
+        if model is None:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_not_found",
+                f"Routing automation approval {approval_id} was not found.",
+            )
+        return model
+
+    @staticmethod
+    def _expire_approval_if_needed(
+        session: Any,
+        model: RoutingAutomationApprovalModel,
+    ) -> None:
+        if (
+            model.status == RoutingAutomationApprovalStatus.ACTIVE.value
+            and model.expires_at is not None
+            and model.expires_at <= _utcnow()
+        ):
+            now = _utcnow()
+            model.status = RoutingAutomationApprovalStatus.EXPIRED.value
+            model.updated_at = now
+            reason_codes = list(model.reason_codes_json or [])
+            reason_codes.append("routing_automation_approval_expired")
+            model.reason_codes_json = reason_codes
+            provenance = dict(model.provenance_json or {})
+            provenance.update({"approval_expired": True, "expired_at": now.isoformat()})
+            model.provenance_json = provenance
+            session.commit()
+            session.refresh(model)
+
+    @staticmethod
+    def _routing_automation_approval_from_model(
+        model: RoutingAutomationApprovalModel,
+    ) -> RoutingAutomationApproval:
+        return RoutingAutomationApproval(
+            approval_id=model.approval_id,
+            desired_trade_key=model.desired_trade_key,
+            environment=model.environment,
+            action_name=RoutingAutomationApprovalAction(model.action_name),
+            status=RoutingAutomationApprovalStatus(model.status),
+            approved_by=model.approved_by,
+            approved_at=model.approved_at,
+            policy_name=model.policy_name,
+            automation_mode=RoutingAutomationMode(model.automation_mode),
+            route_readiness_audit_id=model.route_readiness_audit_id,
+            routing_assessment_id=model.routing_assessment_id,
+            routing_target_recommendation_id=model.routing_target_recommendation_id,
+            routing_target_choice_id=model.routing_target_choice_id,
+            intent_id=model.intent_id,
+            readiness_evaluation_id=model.readiness_evaluation_id,
+            submitted_order_id=model.submitted_order_id,
+            selected_binding_ref_id=model.selected_binding_ref_id,
+            selected_binding_key=model.selected_binding_key,
+            selected_venue_account_ref_id=model.selected_venue_account_ref_id,
+            selected_venue_account_key=model.selected_venue_account_key,
+            selected_venue=model.selected_venue,
+            selected_exchange_symbol=model.selected_exchange_symbol,
+            expires_at=model.expires_at,
+            revoked_by=model.revoked_by,
+            revoked_at=model.revoked_at,
+            consumed_by=model.consumed_by,
+            consumed_at=model.consumed_at,
+            notes=model.notes,
+            reason_codes=list(model.reason_codes_json or []),
+            boundary_flags=dict(model.boundary_flags_json or {}),
+            policy_snapshot=dict(model.policy_snapshot_json or {}),
+            lineage=dict(model.lineage_json or {}),
+            provenance=dict(model.provenance_json or {}),
+            created_at=model.created_at,
+            updated_at=model.updated_at,
+        )
+
+    @staticmethod
     def _routing_automation_boundary_flags() -> dict[str, bool]:
         return {
             "same_target_only": True,
@@ -799,6 +1317,8 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 artifact_id=(
                     str(latest_submission.get("submitted_order_id"))
                     if latest_submission is not None
+                    else str(latest_child_intent.get("intent_id"))
+                    if latest_child_intent is not None
                     else None
                 ),
                 would_create_artifact_type="SubmittedOrder",

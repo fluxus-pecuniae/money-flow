@@ -26,6 +26,8 @@ from core.domain.enums import (
     RiskSeverity,
     RouteReadinessAuditStatus,
     RoutingAssessmentDecisionStatus,
+    RoutingAutomationApprovalAction,
+    RoutingAutomationApprovalStatus,
     RoutingAutomationMode,
     RoutingAutomationPlanOutcome,
     RoutingAutomationStepStatus,
@@ -1098,11 +1100,76 @@ class RoutingAutomationPlan:
     automatable_action_names: list[str] = field(default_factory=list)
     manual_action_names: list[str] = field(default_factory=list)
     blocked_action_names: list[str] = field(default_factory=list)
+    approval_gate_states: dict[str, Any] = field(default_factory=dict)
     routed_lineage: dict[str, Any] | None = None
     same_target_lifecycle_summary: dict[str, Any] | None = None
     boundary_flags: dict[str, bool] = field(default_factory=dict)
     artifacts_created_by_plan: bool = False
     provenance: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
+class RoutingAutomationApproval:
+    approval_id: str
+    desired_trade_key: str
+    environment: Environment
+    action_name: RoutingAutomationApprovalAction
+    status: RoutingAutomationApprovalStatus
+    approved_by: str
+    approved_at: datetime
+    policy_name: str
+    automation_mode: RoutingAutomationMode
+    route_readiness_audit_id: str | None = None
+    routing_assessment_id: str | None = None
+    routing_target_recommendation_id: str | None = None
+    routing_target_choice_id: str | None = None
+    intent_id: str | None = None
+    readiness_evaluation_id: str | None = None
+    submitted_order_id: str | None = None
+    selected_binding_ref_id: str | None = None
+    selected_binding_key: str | None = None
+    selected_venue_account_ref_id: str | None = None
+    selected_venue_account_key: str | None = None
+    selected_venue: str | None = None
+    selected_exchange_symbol: str | None = None
+    expires_at: datetime | None = None
+    revoked_by: str | None = None
+    revoked_at: datetime | None = None
+    consumed_by: str | None = None
+    consumed_at: datetime | None = None
+    notes: str | None = None
+    reason_codes: list[str] = field(default_factory=list)
+    boundary_flags: dict[str, bool] = field(default_factory=dict)
+    policy_snapshot: dict[str, Any] = field(default_factory=dict)
+    lineage: dict[str, Any] = field(default_factory=dict)
+    provenance: dict[str, Any] = field(default_factory=dict)
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+@dataclass(slots=True)
+class RoutingAutomationApprovalGateState:
+    action_name: RoutingAutomationApprovalAction
+    status: str
+    approval_id: str | None = None
+    artifact_id: str | None = None
+    reason_codes: list[str] = field(default_factory=list)
+    lineage: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
+class RoutingAutomationApprovalInspection:
+    desired_trade_key: str
+    environment: Environment
+    found: bool
+    generated_at: datetime
+    approvals: list[RoutingAutomationApproval]
+    step_gate_states: dict[str, RoutingAutomationApprovalGateState]
+    routed_lineage: dict[str, Any] | None = None
+    same_target_lifecycle_summary: dict[str, Any] | None = None
+    boundary_flags: dict[str, bool] = field(default_factory=dict)
+    artifacts_created_by_inspection: bool = False
+    reason_codes: list[str] = field(default_factory=list)
 
 
 @dataclass(slots=True)

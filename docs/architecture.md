@@ -19,6 +19,8 @@ Phase 6.10.3 seals the earlier explicit-submit adapter-in-flight uncertainty gap
 
 Phase 7.0 adds a non-executing automation substrate, not automation execution. The routing service exposes explicit automation policy modes (`disabled`, `dry_run_only`, `approval_required`, and `explicit_automation_permitted`) and a dry-run plan over the existing desired-trade routed workflow. The plan classifies recommendation acceptance, target-choice conversion, preview/readiness, and submitted-order handoff as already satisfied, disabled, dry-run-only, approval-required, automation-eligible, manual-only, deferred, or blocked while preserving lineage and boundary flags. The default policy is disabled. Phase 7.0 does not create artifacts, submit, select targets, rank venues, use CBBO, fan out, reselect targets, or introduce a route executor.
 
+Phase 7.1 adds durable routing automation approval records and reversible action gating below action-taking automation. Approval records are one-action gates for the existing same-target chain, with states `active`, `revoked`, `consumed`, and `expired`; they preserve desired-trade, recommendation, target-choice, child-intent, readiness/submitted-order lineage where present, policy snapshots, selected binding/account/venue/symbol facts, and explicit no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit flags. Approval creation, inspection, revocation, and consumption do not execute the approved action and do not create target choices, child intents, readiness evaluations, submitted orders, exchange calls, route executor behavior, fanout, ranking/scoring, CBBO, target reselection, or auto-submit.
+
 ## Core Hierarchy
 
 The active hierarchy is:
@@ -94,6 +96,7 @@ Routing assessment and target choice are assessment/audit surfaces only. They en
 - `services.risk`: first-pass desired-trade approval and rejection
 - `services.routing`: routing assessment, route-readiness/data-sufficiency audit, controlled single-ready-candidate recommendation, target-choice audit, and explicit one-child-intent conversion substrate over routing-required mandate-scoped opens
 - `services.routing`: also exposes Phase 7.0 non-executing automation policy and dry-run automation-plan inspection over the already accepted single-target recommendation-backed workflow
+- `services.routing`: also owns Phase 7.1 durable automation approval records, revocation, consumption, and approval-state inspection without executing the approved action
 - `services.portfolio`: venue/account truth loaders and portfolio summaries
 - `services.execution`: child-intent preparation, routed child-intent route-lineage validation before preview/readiness/submission, prepared-order preview/preflight, readiness gating, explicit non-routed submission, explicit gated routed submission for already selected child intents, submitted-order lifecycle, routed post-submit lifecycle/actionability/reconciliation-event context derivation through the shared domain parser, reconciliation, cancel, selective amend, recovery recommendation, and bounded same-target recovery execution
 - `apps.api`: operator-facing inspection and control plane, including adapter/runtime session-state and private order/account-state visibility below routing

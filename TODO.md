@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-04-26T14:31:44Z`
+Last reviewed: `2026-04-26T19:32:44Z`
 
 ## Active Follow-Ups
 
@@ -13,8 +13,14 @@ Last reviewed: `2026-04-26T14:31:44Z`
 ### T-034
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 7.1 implemented durable operator approval records and reversible action gating below action-taking automation. Approval records authorize exactly one same-target action stage, preserve policy snapshots plus desired-trade/recommendation/target-choice/child-intent/readiness/submitted-order lineage where present, and expose active/revoked/consumed/expired state through service/API inspection. Revocation is explicit while unused, consumption marks only that a future action hook used the gate, and approval creation/inspection/revocation/consumption does not accept recommendations, convert target choices, create readiness, submit orders, call exchanges, create a route executor, fan out, rank/score, use CBBO, reselect targets, or auto-submit.`
+
+### T-035
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `Next controlled automation work should remain below smart routing and should add operator approval records / reversible action gating before any action-taking automation. Recommendation acceptance, target-choice conversion, preview/readiness, and submitted-order handoff must continue to preserve same-target lineage, current-truth revalidation, submit-lease uncertainty behavior, and explicit no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit boundaries.`
+- `summary`: `Next controlled automation work must remain below smart routing and should add a narrow action hook that consumes one active approval for one same-target action without collapsing plan -> approval -> execution. Recommendation acceptance, target-choice conversion, preview/readiness, and submitted-order handoff must continue to preserve same-target lineage, current-truth revalidation, submit-lease uncertainty behavior, approval revocation/expiry/consumption truth, and explicit no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit boundaries.`
 
 ### T-001
 
