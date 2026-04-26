@@ -13,6 +13,31 @@ Entry schema:
 
 ---
 
+## v2026.04.26.001
+
+- `recorded_at_utc`: `2026-04-26T05:52:07Z`
+- `scope`: `Phase 6.10.3 adapter-in-flight submit uncertainty hotpatch`
+- `intent`: `Native entry. Hotpatched the explicit child-intent submit lease so adapter-in-flight ambiguity is preserved before any venue adapter submit call can begin. After readiness/live/routed gates pass and the lease is acquired, the execution service now writes terminal `adapter_submit_may_have_started` with intent, readiness, venue, lease, timestamp, adapter-call, non-returned, non-persisted, and reconciliation-required metadata before invoking `adapter.submit_order()`. Ambiguous transport failures, timeouts, unknown adapter exceptions, and non-classified `VenueAdapterError` results after that mark leave the lease terminal with `adapter_submit_outcome_unknown`; future submit attempts block before adapter submission with `submission_state_uncertain`, `adapter_submit_may_have_started`, `adapter_submit_outcome_unknown`, and `manual_reconciliation_required`, even after TTL. Known pre-adapter validation/auth/preparation failures remain retryable failed lease paths, stale pre-adapter active leases remain replaceable, normal success still persists one SubmittedOrder and releases the lease as submitted, and Phase 6.10.2 `adapter_submit_persistence_unknown` behavior remains unchanged. No migration, config, smart routing, best-binding selection, ranking, scoring, CBBO, fanout, target reselection, route executor behavior, auto-submit, cross-binding recovery, cross-venue retry, new exchange behavior, broad workflow framework, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `services/execution/service.py`
+  - `tests/test_phase67_recommendation_backed_submission.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `PHASE_5_CHANGES_SINCE_5_4.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase67_recommendation_backed_submission.py` passed: `11 passed`.
+  - `.venv/bin/python -m pytest -q tests/test_phase68_recommendation_backed_lifecycle.py tests/test_phase69_routed_workflow_inspection.py tests/test_phase610_phase6_closeout.py tests/test_api.py tests/test_operational_docs.py` passed: `30 passed`.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: `375 passed`.
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py` passed: `1 passed`.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed after final docs update: `8 passed`.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-6.10.3-review.zip` created a clean review bundle; bundle inspection found 546 files and no `.env` other than `.env.example`, virtualenvs, caches, local DBs, SQLite files, logs, or nested archives.
+
 ## v2026.04.23.002
 
 - `recorded_at_utc`: `2026-04-23T06:16:36Z`

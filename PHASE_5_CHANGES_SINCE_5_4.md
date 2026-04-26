@@ -1,6 +1,6 @@
 # Phase 5 Changes Since Phase 5.4 And Phase 6 Closeout Handoff
 
-Generated for handoff. This file summarizes changes after the Phase 5.4 baseline, covering Phase 5.4.1 through Phase 5.10.2, Phase 6.0.0, Phase 6.0.1, Phase 6.0.2, Phase 6.1, Phase 6.1.1, Phase 6.2, Phase 6.2.1, Phase 6.2.2, Phase 6.3, Phase 6.4, Phase 6.4.1, Phase 6.5, Phase 6.6, Phase 6.7 through Phase 6.10 closeout, Phase 6.10.1 submit/workflow truth hotpatch, Phase 6.10.2 submit-lease uncertainty hotpatch, and the operational handoff-bundle workflow added after Phase 5.4.
+Generated for handoff. This file summarizes changes after the Phase 5.4 baseline, covering Phase 5.4.1 through Phase 5.10.2, Phase 6.0.0, Phase 6.0.1, Phase 6.0.2, Phase 6.1, Phase 6.1.1, Phase 6.2, Phase 6.2.1, Phase 6.2.2, Phase 6.3, Phase 6.4, Phase 6.4.1, Phase 6.5, Phase 6.6, Phase 6.7 through Phase 6.10 closeout, Phase 6.10.1 submit/workflow truth hotpatch, Phase 6.10.2 submit-lease uncertainty hotpatch, Phase 6.10.3 adapter-in-flight submit uncertainty hotpatch, and the operational handoff-bundle workflow added after Phase 5.4.
 
 Source of truth reviewed: `CHANGELOG.md`, `README.md`, `docs/architecture.md`, `docs/strategy.md`, `REPO_TREE.md`, `KNOWN_ISSUES.md`, and `TODO.md`.
 
@@ -127,6 +127,32 @@ Touched files:
 - `PHASE_5_CHANGES_SINCE_5_4.md`
 
 `SubmittedOrder` remains post-submit exchange/account truth only. No route executor, smart routing, best-binding selection, ranking, scoring, CBBO, fanout, target reselection, auto-submit, cross-binding recovery, cross-venue retry, config, new exchange behavior, broad workflow framework, or `money_flow_project_memory.md` update was added.
+
+## Phase 6.10.3: Adapter-In-Flight Submit Uncertainty Hotpatch
+
+Implemented:
+
+- Sealed the remaining explicit child-intent submit uncertainty gap before architecture review.
+- After readiness, live, and routed gates pass and the child-intent submit lease is acquired, the execution service now persists terminal `adapter_submit_may_have_started` before calling `adapter.submit_order()`.
+- Crashes, transport timeouts, request ambiguity, unknown adapter exceptions, or ambiguous `VenueAdapterError` results after that mark block later submits for the intent with `submission_state_uncertain`, `adapter_submit_may_have_started`, `adapter_submit_outcome_unknown`, and `manual_reconciliation_required`.
+- Known pre-adapter validation/auth/preparation failures remain retryable failed lease paths where reason codes prove the adapter submit did not start.
+- Stale pre-adapter `active` leases remain replaceable.
+- Phase 6.10.2 `adapter_submit_persistence_unknown` behavior remains unchanged for adapter-returned/local-persistence-failed attempts.
+
+Touched files:
+
+- `services/execution/service.py`
+- `tests/test_phase67_recommendation_backed_submission.py`
+- `README.md`
+- `docs/architecture.md`
+- `docs/strategy.md`
+- `CHANGELOG.md`
+- `REPO_TREE.md`
+- `KNOWN_ISSUES.md`
+- `TODO.md`
+- `PHASE_5_CHANGES_SINCE_5_4.md`
+
+No migration, config, new exchange behavior, smart routing, best-binding selection, ranking, scoring, CBBO, fanout, target reselection, route executor behavior, auto-submit, cross-binding recovery, cross-venue retry, broad workflow framework, or `money_flow_project_memory.md` update was added.
 
 ## Phase 6.6: Manual Routed-Flow Timing Visibility
 
@@ -1086,7 +1112,7 @@ The following remain intentionally unimplemented:
 - CoinRoutes
 - mandate-scoped OPEN bypass
 
-## Current Head Summary After Phase 6.10.2
+## Current Head Summary After Phase 6.10.3
 
 The platform has a controlled routed flow:
 
@@ -1125,6 +1151,7 @@ The routed flow now supports:
 - routed readiness inspection
 - explicit gated routed submission of the already selected child intent
 - child-intent submit lease serialization before adapter submission so concurrent explicit submit calls for one child intent cannot both reach the adapter before a `SubmittedOrder` exists
+- terminal `adapter_submit_may_have_started` lease state before adapter submission can begin, blocking future submit attempts until operator reconciliation/manual cleanup if adapter-in-flight outcome is ambiguous
 - terminal `adapter_submit_persistence_unknown` lease state for adapter-returned/local-persistence-failed attempts, blocking future submit attempts until operator reconciliation/manual cleanup
 - routed submitted-order lineage inspection
 - first submitted-order id/timestamp preservation on recommendation/source-audit provenance, with latest/retry submitted-order ids exposed separately after same-target retry
@@ -1135,4 +1162,4 @@ The routed flow now supports:
 - routed same-target retry lineage preservation
 - final Phase 5 closeout regression coverage proving the substrate stays coherent, selected-account scoped, and non-routing
 
-Phase 6 is closed as controlled explicit single-target recommendation-backed routed execution. Phase 6.10.1 hardens the closeout by serializing concurrent explicit child-intent submit attempts before adapter submission, preserving first submitted-order provenance across same-target retry, and naming workflow static route facts truthfully. Phase 6.10.2 adds the post-adapter uncertainty guard: if adapter submit returned but local submitted-order persistence failed, the lease remains a manual-reconciliation blocker and cannot be cleared by TTL. The platform now supports default single-ready-candidate recommendation, optional explicit binding-priority operator preference, explicit recommendation acceptance into target choice, explicit accepted target-choice conversion into one child intent, existing preview/readiness inspection, explicit gated submitted-order handoff for the already selected child intent, recommendation-aware post-submit inspection, read-only routed workflow aggregation, and manual operator/developer trace tooling. It still does not implement smart order routing, best-binding selection, price/fee/venue-quality ranking, scoring, CBBO, fanout, route execution orchestration, automatic target-choice creation, automatic child-intent conversion, readiness auto-creation, automatic submitted-order creation directly from recommendation/acceptance/conversion/readiness, prepared-order auto-creation, or auto-submit. Route lineage remains audit metadata, `ready_for_recommendation` means data-sufficient only, and a `RoutingTargetRecommendation` remains non-executing.
+Phase 6 is closed as controlled explicit single-target recommendation-backed routed execution. Phase 6.10.1 hardens the closeout by serializing concurrent explicit child-intent submit attempts before adapter submission, preserving first submitted-order provenance across same-target retry, and naming workflow static route facts truthfully. Phase 6.10.2 adds the post-adapter uncertainty guard: if adapter submit returned but local submitted-order persistence failed, the lease remains a manual-reconciliation blocker and cannot be cleared by TTL. Phase 6.10.3 adds the adapter-in-flight uncertainty guard: before the adapter submit call can begin, the lease is marked `adapter_submit_may_have_started`, so crashes, timeouts, or ambiguous adapter failures after that point cannot become TTL-retryable. The platform now supports default single-ready-candidate recommendation, optional explicit binding-priority operator preference, explicit recommendation acceptance into target choice, explicit accepted target-choice conversion into one child intent, existing preview/readiness inspection, explicit gated submitted-order handoff for the already selected child intent, recommendation-aware post-submit inspection, read-only routed workflow aggregation, and manual operator/developer trace tooling. It still does not implement smart order routing, best-binding selection, price/fee/venue-quality ranking, scoring, CBBO, fanout, route execution orchestration, automatic target-choice creation, automatic child-intent conversion, readiness auto-creation, automatic submitted-order creation directly from recommendation/acceptance/conversion/readiness, prepared-order auto-creation, or auto-submit. Route lineage remains audit metadata, `ready_for_recommendation` means data-sufficient only, and a `RoutingTargetRecommendation` remains non-executing.

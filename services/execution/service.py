@@ -94,8 +94,22 @@ _ROUTED_QUOTE_FRESHNESS_SECONDS = 60
 _SUBMISSION_LEASE_PURPOSE = "explicit_child_intent_submit"
 _SUBMISSION_LEASE_TTL_SECONDS = 15 * 60
 _SUBMISSION_LEASE_STATUS_UNCERTAIN = "adapter_submit_persistence_unknown"
+_SUBMISSION_LEASE_STATUS_ADAPTER_MAY_HAVE_STARTED = "adapter_submit_may_have_started"
 _SUBMISSION_LEASE_TERMINAL_UNCERTAIN_STATUSES = {
     _SUBMISSION_LEASE_STATUS_UNCERTAIN,
+    _SUBMISSION_LEASE_STATUS_ADAPTER_MAY_HAVE_STARTED,
+}
+_PRE_ADAPTER_SAFE_FAILURE_REASON_CODES = {
+    "account_identifier_missing",
+    "account_not_authorized",
+    "adapter_submission_unimplemented",
+    "credentials_missing",
+    "dry_run_only",
+    "read_only_mode_enabled",
+    "submission_endpoint_missing",
+    "venue_integration_disabled",
+    "venue_not_execution_preparable",
+    "venue_submission_not_enabled",
 }
 
 
@@ -365,17 +379,37 @@ class DefaultExecutionService(ExecutionService):
                 metadata={"venue": venue},
             )
             raise
+        self._mark_intent_submission_lease_adapter_may_have_started(
+            current_intent.intent_id,
+            lease_id,
+            readiness=readiness,
+            venue=venue,
+        )
         try:
             submitted = await adapter.submit_order(current_intent)
         except VenueAdapterError as exc:
             reason_codes = list(getattr(exc, "reason_codes", []) or ["submission_failed"])
-            self._release_intent_submission_lease(
-                current_intent.intent_id,
-                lease_id,
-                status="failed",
-                reason_code=reason_codes[0],
-                metadata={"venue": venue},
-            )
+            if self._is_pre_adapter_safe_failure(reason_codes):
+                self._release_intent_submission_lease(
+                    current_intent.intent_id,
+                    lease_id,
+                    status="failed",
+                    reason_code=reason_codes[0],
+                    metadata={
+                        "venue": venue,
+                        "adapter_submit_may_have_started": False,
+                        "requires_reconciliation": False,
+                    },
+                )
+            else:
+                self._mark_intent_submission_lease_adapter_outcome_unknown(
+                    current_intent.intent_id,
+                    lease_id,
+                    readiness=readiness,
+                    venue=venue,
+                    exception=exc,
+                    reason_codes=reason_codes,
+                )
             await self._mark_submission_failure(
                 intent_id=current_intent.intent_id,
                 readiness=readiness,
@@ -389,6 +423,16 @@ class DefaultExecutionService(ExecutionService):
                 reason_codes=reason_codes,
                 message=str(exc),
             ) from exc
+        except Exception as exc:
+            self._mark_intent_submission_lease_adapter_outcome_unknown(
+                current_intent.intent_id,
+                lease_id,
+                readiness=readiness,
+                venue=venue,
+                exception=exc,
+                reason_codes=["adapter_submit_outcome_unknown"],
+            )
+            raise
         try:
             submitted = self._submitted_order_with_routed_lineage(
                 submitted,
@@ -456,18 +500,26 @@ class DefaultExecutionService(ExecutionService):
         lease: OrderIntentSubmissionLeaseModel | None,
     ) -> ExecutionReadinessAssessment:
         reason_codes = list(readiness.reason_codes or [])
+        uncertain_status = (
+            lease.status if lease is not None else _SUBMISSION_LEASE_STATUS_UNCERTAIN
+        )
         for code in (
             "submission_state_uncertain",
-            _SUBMISSION_LEASE_STATUS_UNCERTAIN,
+            uncertain_status,
             "manual_reconciliation_required",
         ):
             if code not in reason_codes:
                 reason_codes.append(code)
+        if (
+            uncertain_status == _SUBMISSION_LEASE_STATUS_ADAPTER_MAY_HAVE_STARTED
+            and "adapter_submit_outcome_unknown" not in reason_codes
+        ):
+            reason_codes.append("adapter_submit_outcome_unknown")
         provenance = dict(readiness.provenance or {})
         metadata = dict(lease.metadata_json or {}) if lease is not None else {}
         provenance["submission_lease"] = {
             "purpose": _SUBMISSION_LEASE_PURPOSE,
-            "status": lease.status if lease is not None else _SUBMISSION_LEASE_STATUS_UNCERTAIN,
+            "status": uncertain_status,
             "lease_id": lease.lease_id if lease is not None else None,
             "acquired_at": lease.acquired_at.isoformat() if lease is not None else None,
             "expires_at": lease.expires_at.isoformat() if lease is not None else None,
@@ -483,11 +535,16 @@ class DefaultExecutionService(ExecutionService):
             outcome=ExecutionReadinessOutcome.PHASE_BLOCKED,
             reason_codes=reason_codes,
             message=(
-                "A prior explicit child-intent submit reached the adapter and returned, "
-                "but local SubmittedOrder persistence failed. Manual reconciliation is "
+                "Venue may already have received this order. Manual reconciliation is "
                 "required before another submit attempt for this intent."
             ),
             provenance=provenance,
+        )
+
+    @staticmethod
+    def _is_pre_adapter_safe_failure(reason_codes: Sequence[str]) -> bool:
+        return bool(reason_codes) and all(
+            code in _PRE_ADAPTER_SAFE_FAILURE_REASON_CODES for code in reason_codes
         )
 
     def _acquire_intent_submission_lease(
@@ -646,6 +703,64 @@ class DefaultExecutionService(ExecutionService):
             lease.metadata_json = _jsonable(metadata_json)
             session.add(lease)
             session.commit()
+
+    def _mark_intent_submission_lease_adapter_may_have_started(
+        self,
+        intent_id: str,
+        lease_id: str,
+        *,
+        readiness: ExecutionReadinessAssessment,
+        venue: str,
+    ) -> None:
+        now_value = _utcnow()
+        self._release_intent_submission_lease(
+            intent_id,
+            lease_id,
+            status=_SUBMISSION_LEASE_STATUS_ADAPTER_MAY_HAVE_STARTED,
+            reason_code="adapter_submit_may_have_started",
+            metadata={
+                "intent_id": intent_id,
+                "readiness_evaluation_id": readiness.readiness_evaluation_id,
+                "venue": venue,
+                "adapter_submit_called": True,
+                "adapter_submit_may_have_started": True,
+                "adapter_submit_returned": False,
+                "submitted_order_persisted": False,
+                "requires_reconciliation": True,
+                "lease_id": lease_id,
+                "adapter_submit_may_have_started_at": now_value.isoformat(),
+            },
+        )
+
+    def _mark_intent_submission_lease_adapter_outcome_unknown(
+        self,
+        intent_id: str,
+        lease_id: str,
+        *,
+        readiness: ExecutionReadinessAssessment,
+        venue: str,
+        exception: Exception,
+        reason_codes: Sequence[str],
+    ) -> None:
+        self._release_intent_submission_lease(
+            intent_id,
+            lease_id,
+            status=_SUBMISSION_LEASE_STATUS_ADAPTER_MAY_HAVE_STARTED,
+            reason_code="adapter_submit_outcome_unknown",
+            metadata={
+                "intent_id": intent_id,
+                "readiness_evaluation_id": readiness.readiness_evaluation_id,
+                "venue": venue,
+                "adapter_submit_called": True,
+                "adapter_submit_may_have_started": True,
+                "adapter_submit_returned": False,
+                "submitted_order_persisted": False,
+                "requires_reconciliation": True,
+                "adapter_failure_class": exception.__class__.__name__,
+                "adapter_failure_message": str(exception),
+                "adapter_failure_reason_codes": list(reason_codes),
+            },
+        )
 
     def _mark_intent_submission_lease_uncertain(
         self,

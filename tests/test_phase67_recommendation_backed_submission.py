@@ -22,7 +22,8 @@ from db.models import (
     RoutingTargetRecommendationModel,
     SubmittedOrderModel,
 )
-from services.execution.service import SubmissionBlockedError
+from services.exchange.base import VenueAdapterError
+from services.execution.service import SubmissionBlockedError, SubmissionFailedError
 from tests.test_phase3_strategy import build_test_session_factory
 from tests.test_phase54_routed_submission_handoff import _build_execution
 from tests.test_phase600_routing_target_recommendation import (
@@ -192,7 +193,9 @@ def test_concurrent_explicit_submit_for_same_routed_child_intent_calls_adapter_o
         with pytest.raises(SubmissionBlockedError) as exc:
             await execution.submit_prepared_intent(intent)
 
-        assert "submission_in_progress" in exc.value.readiness.reason_codes
+        assert "submission_state_uncertain" in exc.value.readiness.reason_codes
+        assert "adapter_submit_may_have_started" in exc.value.readiness.reason_codes
+        assert "manual_reconciliation_required" in exc.value.readiness.reason_codes
         assert adapter_invocations == 1
         assert adapter.submit_calls == 0
         assert _submitted_order_count(session_factory) == 0
@@ -217,6 +220,96 @@ def test_concurrent_explicit_submit_for_same_routed_child_intent_calls_adapter_o
         assert lease is not None
         assert lease.status == "submitted"
         assert lease.reason_code == "submitted_order_persisted"
+
+
+def test_adapter_in_flight_uncertainty_is_written_before_adapter_call_and_survives_ttl() -> None:
+    session_factory = build_test_session_factory()
+    (
+        _routing,
+        _audit,
+        _recommendation,
+        _choice,
+        _desired_trade_key,
+        conversion,
+        execution,
+        adapter,
+    ) = _recommendation_backed_submission_context(session_factory)
+    intent = asyncio.run(execution.get_child_intent(conversion.intent_id))
+
+    async def ambiguous_submit_order(_submit_intent):
+        adapter.submit_calls += 1
+        with session_factory() as session:
+            lease = session.scalar(
+                select(OrderIntentSubmissionLeaseModel).where(
+                    OrderIntentSubmissionLeaseModel.intent_id == conversion.intent_id
+                )
+            )
+            assert lease is not None
+            assert lease.status == "adapter_submit_may_have_started"
+            assert lease.reason_code == "adapter_submit_may_have_started"
+            assert lease.metadata_json["intent_id"] == conversion.intent_id
+            assert lease.metadata_json["readiness_evaluation_id"] is not None
+            assert lease.metadata_json["venue"] == "hyperliquid"
+            assert lease.metadata_json["adapter_submit_called"] is True
+            assert lease.metadata_json["adapter_submit_may_have_started"] is True
+            assert lease.metadata_json["adapter_submit_returned"] is False
+            assert lease.metadata_json["submitted_order_persisted"] is False
+            assert lease.metadata_json["requires_reconciliation"] is True
+            assert lease.metadata_json["lease_id"] == lease.lease_id
+            assert lease.metadata_json["adapter_submit_may_have_started_at"]
+        raise VenueAdapterError(
+            "transport timeout after submit request may have been transmitted",
+            reason_codes=["transport_timeout"],
+        )
+
+    adapter.submit_order = ambiguous_submit_order
+
+    with pytest.raises(SubmissionFailedError) as exc:
+        asyncio.run(execution.submit_prepared_intent(intent))
+
+    assert exc.value.reason_codes == ["transport_timeout"]
+    assert adapter.submit_calls == 1
+    assert _submitted_order_count(session_factory) == 0
+
+    with session_factory() as session:
+        lease = session.scalar(
+            select(OrderIntentSubmissionLeaseModel).where(
+                OrderIntentSubmissionLeaseModel.intent_id == conversion.intent_id
+            )
+        )
+        assert lease is not None
+        assert lease.status == "adapter_submit_may_have_started"
+        assert lease.reason_code == "adapter_submit_outcome_unknown"
+        assert lease.metadata_json["adapter_submit_called"] is True
+        assert lease.metadata_json["adapter_submit_may_have_started"] is True
+        assert lease.metadata_json["adapter_submit_returned"] is False
+        assert lease.metadata_json["submitted_order_persisted"] is False
+        assert lease.metadata_json["requires_reconciliation"] is True
+        assert lease.metadata_json["adapter_failure_class"] == "VenueAdapterError"
+        assert lease.metadata_json["adapter_failure_reason_codes"] == ["transport_timeout"]
+        assert "transport timeout" in lease.metadata_json["adapter_failure_message"]
+
+        lease.expires_at = datetime.now(UTC) - timedelta(minutes=30)
+        session.add(lease)
+        session.commit()
+
+    with pytest.raises(SubmissionBlockedError) as blocked:
+        asyncio.run(execution.submit_prepared_intent(intent))
+
+    assert "submission_state_uncertain" in blocked.value.readiness.reason_codes
+    assert "adapter_submit_may_have_started" in blocked.value.readiness.reason_codes
+    assert "adapter_submit_outcome_unknown" in blocked.value.readiness.reason_codes
+    assert "manual_reconciliation_required" in blocked.value.readiness.reason_codes
+    assert (
+        "Venue may already have received this order"
+        in (blocked.value.readiness.message or "")
+    )
+    assert (
+        blocked.value.readiness.provenance["submission_lease"]["status"]
+        == "adapter_submit_may_have_started"
+    )
+    assert adapter.submit_calls == 1
+    assert _submitted_order_count(session_factory) == 0
 
 
 def test_adapter_returned_persistence_failure_marks_submission_lease_uncertain(
@@ -376,6 +469,11 @@ def test_recommendation_backed_submission_requires_existing_live_and_routed_gate
     assert expected_reason in exc.value.readiness.reason_codes
     assert adapter.submit_calls == 0
     assert _submitted_order_count(session_factory) == 0
+    with session_factory() as session:
+        lease_count = session.scalar(
+            select(func.count()).select_from(OrderIntentSubmissionLeaseModel)
+        )
+        assert lease_count == 0
 
 
 def test_recommendation_backed_submission_blocks_stale_quote_before_adapter_submit() -> None:
