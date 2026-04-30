@@ -1,4 +1,6 @@
 .env
+.git
+.git/**
 .pgdata
 .pgdata/**
 .pgsocket

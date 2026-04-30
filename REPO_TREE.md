@@ -34,7 +34,7 @@ Last reviewed: `2026-04-30T18:43:44Z`
 
 `.archiveignore`
 - Review-bundle hygiene guard consumed by `scripts/create_review_bundle.py`.
-- Excludes local secrets, virtualenvs, caches, generated archives, database/socket state, and nested local note/vault artifacts such as `money-flow/` from handoff ZIPs.
+- Excludes Git metadata, local secrets, virtualenvs, caches, generated archives, database/socket state, and nested local note/vault artifacts such as `money-flow/` from handoff ZIPs.
 
 `apps/api/`
 - FastAPI control plane.

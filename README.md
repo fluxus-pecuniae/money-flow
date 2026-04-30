@@ -18,7 +18,7 @@ Phase 7.1.2 closes the remaining approval-truth gap before action hooks exist. A
 
 This repo now uses explicit operational-memory files. Future work is expected to read them before changes and update them after changes.
 
-Machine-local artifacts such as `.venv/`, `.pgdata/`, `.pgsocket/`, `.pytest_cache/`, `.DS_Store`, and accidentally nested local note/vault folders such as `/money-flow/` are not part of the repo handoff surface and are ignored locally. Review/archive packaging now uses `.archiveignore` plus the committed bundling command below so those local artifacts and `.env` do not leak into future review bundles.
+Machine-local artifacts such as `.git/`, `.venv/`, `.pgdata/`, `.pgsocket/`, `.pytest_cache/`, `.DS_Store`, and accidentally nested local note/vault folders such as `/money-flow/` are not part of the repo handoff surface. Review/archive packaging now uses `.archiveignore` plus the committed bundling command below so those local artifacts and `.env` do not leak into future review bundles.
 
 ## Source Control Baseline
 
