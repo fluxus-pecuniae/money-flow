@@ -18,6 +18,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -946,6 +947,16 @@ class RoutingAutomationApprovalModel(Base):
             "intent_id",
             "action_name",
         ),
+        Index(
+            "ux_routing_automation_approvals_active_scope",
+            "environment",
+            "desired_trade_key",
+            "action_name",
+            "approval_scope_key",
+            unique=True,
+            sqlite_where=text("status = 'active' AND approval_scope_key IS NOT NULL"),
+            postgresql_where=text("status = 'active' AND approval_scope_key IS NOT NULL"),
+        ),
     )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
@@ -955,6 +966,8 @@ class RoutingAutomationApprovalModel(Base):
     desired_trade_key: Mapped[str] = mapped_column(String(128), index=True)
     action_name: Mapped[str] = mapped_column(String(64), index=True)
     status: Mapped[str] = mapped_column(String(32), index=True)
+    lineage_fingerprint: Mapped[str | None] = mapped_column(String(64), index=True)
+    approval_scope_key: Mapped[str | None] = mapped_column(String(64), index=True)
     approved_by: Mapped[str] = mapped_column(String(128), index=True)
     approved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     policy_name: Mapped[str] = mapped_column(String(128), index=True)

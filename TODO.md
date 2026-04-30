@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-04-26T19:32:44Z`
+Last reviewed: `2026-04-30T05:40:33Z`
 
 ## Active Follow-Ups
 
@@ -19,8 +19,14 @@ Last reviewed: `2026-04-26T19:32:44Z`
 ### T-035
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 7.1.1 hardened approval truth before action-taking automation. Approval creation and inspection now expire old active records before reuse, mark approvals whose stored lineage no longer matches the current action-stage lineage as stale_lineage, expose lineage_fingerprint / approval_scope_key on approval records, and use a narrow partial unique active-scope index so repeated or concurrent creation cannot produce multiple active approvals for one desired trade / action / current lineage scope. Approval remains separate from execution and still creates no target choice, child intent, readiness assessment, submitted order, exchange call, route executor, fanout, ranking/scoring, CBBO, target reselection, or auto-submit.`
+
+### T-036
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `Next controlled automation work must remain below smart routing and should add a narrow action hook that consumes one active approval for one same-target action without collapsing plan -> approval -> execution. Recommendation acceptance, target-choice conversion, preview/readiness, and submitted-order handoff must continue to preserve same-target lineage, current-truth revalidation, submit-lease uncertainty behavior, approval revocation/expiry/consumption truth, and explicit no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit boundaries.`
+- `summary`: `Phase 7.2 is the next controlled automation item after Phase 7.1.1. It must remain below smart routing and should add a narrow action hook that consumes one active, non-expired, current-lineage approval for one same-target action without collapsing plan -> approval -> execution. Recommendation acceptance, target-choice conversion, preview/readiness, and submitted-order handoff must continue to preserve same-target lineage, current-truth revalidation, submit-lease uncertainty behavior, approval revocation/expiry/stale-lineage/consumption truth, and explicit no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit boundaries.`
 
 ### T-001
 

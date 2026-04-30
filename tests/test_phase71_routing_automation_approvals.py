@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import asdict
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
@@ -113,6 +114,189 @@ def test_approval_creation_preserves_lineage_and_does_not_execute() -> None:
     )
     assert plan.approval_gate_states["recommendation_acceptance"]["status"] == "approved"
     assert plan.approval_gate_states["recommendation_acceptance"]["approval_id"] == approval.approval_id
+
+
+def test_expired_approval_is_not_reused_and_replacement_becomes_current() -> None:
+    session_factory = build_test_session_factory()
+    routing, audit, desired_trade_key = _ready_audit(session_factory)
+    asyncio.run(
+        routing.create_routing_target_recommendation_from_route_readiness_audit(
+            audit.route_readiness_audit_id
+        )
+    )
+    approval = asyncio.run(
+        routing.create_routing_automation_approval(
+            desired_trade_key,
+            action_name=RoutingAutomationApprovalAction.RECOMMENDATION_ACCEPTANCE.value,
+            approved_by="operator-a",
+            expires_at=datetime.now(UTC) + timedelta(seconds=1),
+        )
+    )
+    with session_factory() as session:
+        model = session.scalar(
+            select(RoutingAutomationApprovalModel).where(
+                RoutingAutomationApprovalModel.approval_id == approval.approval_id
+            )
+        )
+        assert model is not None
+        model.expires_at = datetime.now(UTC) - timedelta(seconds=1)
+        session.commit()
+
+    replacement = asyncio.run(
+        routing.create_routing_automation_approval(
+            desired_trade_key,
+            action_name=RoutingAutomationApprovalAction.RECOMMENDATION_ACCEPTANCE.value,
+            approved_by="operator-b",
+        )
+    )
+
+    assert replacement.approval_id != approval.approval_id
+    assert replacement.status == RoutingAutomationApprovalStatus.ACTIVE
+    with session_factory() as session:
+        models = list(
+            session.scalars(
+                select(RoutingAutomationApprovalModel)
+                .where(
+                    RoutingAutomationApprovalModel.desired_trade_key == desired_trade_key,
+                    RoutingAutomationApprovalModel.action_name
+                    == RoutingAutomationApprovalAction.RECOMMENDATION_ACCEPTANCE.value,
+                )
+                .order_by(RoutingAutomationApprovalModel.created_at.asc())
+            )
+        )
+    assert [model.status for model in models] == [
+        RoutingAutomationApprovalStatus.EXPIRED.value,
+        RoutingAutomationApprovalStatus.ACTIVE.value,
+    ]
+
+    inspection = asyncio.run(
+        routing.inspect_routing_automation_approvals_for_desired_trade(desired_trade_key)
+    )
+    gate = asdict(inspection)["step_gate_states"]["recommendation_acceptance"]
+    assert gate["status"] == "approved"
+    assert gate["approval_id"] == replacement.approval_id
+
+
+def test_stale_lineage_approval_is_not_reused_for_new_recommendation() -> None:
+    session_factory = build_test_session_factory()
+    routing, audit, desired_trade_key = _ready_audit(session_factory)
+    first_recommendation = asyncio.run(
+        routing.create_routing_target_recommendation_from_route_readiness_audit(
+            audit.route_readiness_audit_id
+        )
+    )
+    first_approval = asyncio.run(
+        routing.create_routing_automation_approval(
+            desired_trade_key,
+            action_name=RoutingAutomationApprovalAction.RECOMMENDATION_ACCEPTANCE.value,
+            approved_by="operator-a",
+        )
+    )
+
+    second_recommendation = asyncio.run(
+        routing.create_routing_target_recommendation_from_route_readiness_audit(
+            audit.route_readiness_audit_id
+        )
+    )
+    assert second_recommendation.routing_target_recommendation_id != (
+        first_recommendation.routing_target_recommendation_id
+    )
+
+    stale_inspection = asyncio.run(
+        routing.inspect_routing_automation_approvals_for_desired_trade(desired_trade_key)
+    )
+    stale_gate = asdict(stale_inspection)["step_gate_states"]["recommendation_acceptance"]
+    assert stale_gate["status"] == RoutingAutomationApprovalStatus.STALE_LINEAGE.value
+    assert stale_gate["approval_id"] == first_approval.approval_id
+    assert "routing_automation_approval_lineage_stale" in stale_gate["reason_codes"]
+
+    replacement = asyncio.run(
+        routing.create_routing_automation_approval(
+            desired_trade_key,
+            action_name=RoutingAutomationApprovalAction.RECOMMENDATION_ACCEPTANCE.value,
+            approved_by="operator-b",
+        )
+    )
+
+    assert replacement.approval_id != first_approval.approval_id
+    assert replacement.routing_target_recommendation_id == (
+        second_recommendation.routing_target_recommendation_id
+    )
+    with session_factory() as session:
+        models = list(
+            session.scalars(
+                select(RoutingAutomationApprovalModel)
+                .where(
+                    RoutingAutomationApprovalModel.desired_trade_key == desired_trade_key,
+                    RoutingAutomationApprovalModel.action_name
+                    == RoutingAutomationApprovalAction.RECOMMENDATION_ACCEPTANCE.value,
+                )
+                .order_by(RoutingAutomationApprovalModel.created_at.asc())
+            )
+        )
+    assert [model.status for model in models] == [
+        RoutingAutomationApprovalStatus.STALE_LINEAGE.value,
+        RoutingAutomationApprovalStatus.ACTIVE.value,
+    ]
+
+    current_inspection = asyncio.run(
+        routing.inspect_routing_automation_approvals_for_desired_trade(desired_trade_key)
+    )
+    current_gate = asdict(current_inspection)["step_gate_states"]["recommendation_acceptance"]
+    assert current_gate["status"] == "approved"
+    assert current_gate["approval_id"] == replacement.approval_id
+
+
+def test_repeated_create_reuses_one_active_approval_for_current_lineage_scope() -> None:
+    session_factory = build_test_session_factory()
+    routing, audit, desired_trade_key = _ready_audit(session_factory)
+    asyncio.run(
+        routing.create_routing_target_recommendation_from_route_readiness_audit(
+            audit.route_readiness_audit_id
+        )
+    )
+
+    first = asyncio.run(
+        routing.create_routing_automation_approval(
+            desired_trade_key,
+            action_name=RoutingAutomationApprovalAction.RECOMMENDATION_ACCEPTANCE.value,
+            approved_by="operator-a",
+        )
+    )
+    second = asyncio.run(
+        routing.create_routing_automation_approval(
+            desired_trade_key,
+            action_name=RoutingAutomationApprovalAction.RECOMMENDATION_ACCEPTANCE.value,
+            approved_by="operator-b",
+        )
+    )
+
+    assert second.approval_id == first.approval_id
+    assert second.approval_scope_key == first.approval_scope_key
+    with session_factory() as session:
+        active_count = session.scalar(
+            select(func.count())
+            .select_from(RoutingAutomationApprovalModel)
+            .where(
+                RoutingAutomationApprovalModel.desired_trade_key == desired_trade_key,
+                RoutingAutomationApprovalModel.action_name
+                == RoutingAutomationApprovalAction.RECOMMENDATION_ACCEPTANCE.value,
+                RoutingAutomationApprovalModel.status
+                == RoutingAutomationApprovalStatus.ACTIVE.value,
+                RoutingAutomationApprovalModel.approval_scope_key == first.approval_scope_key,
+            )
+        )
+        total_count = session.scalar(
+            select(func.count())
+            .select_from(RoutingAutomationApprovalModel)
+            .where(
+                RoutingAutomationApprovalModel.desired_trade_key == desired_trade_key,
+                RoutingAutomationApprovalModel.action_name
+                == RoutingAutomationApprovalAction.RECOMMENDATION_ACCEPTANCE.value,
+            )
+        )
+    assert active_count == 1
+    assert total_count == 1
 
 
 def test_approval_revocation_blocks_gate_and_does_not_consume_or_execute() -> None:

@@ -11,6 +11,7 @@ from typing import Any
 from uuid import uuid4
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from core.config.settings import AppSettings, get_settings
 from core.domain.enums import (
@@ -120,6 +121,22 @@ _ROUTING_TARGET_RECOMMENDATION_ALLOWED_POLICIES = {
 _ROUTING_TARGET_RECOMMENDATION_POLICY_NAME_MAX_LENGTH = 64
 _TARGET_RECOMMENDATION_PRIORITY_MIN = 1
 _TARGET_RECOMMENDATION_PRIORITY_MAX = 1_000_000
+_ROUTING_AUTOMATION_APPROVAL_SCOPE_FIELDS = (
+    "desired_trade_key",
+    "routing_assessment_id",
+    "route_readiness_audit_id",
+    "routing_target_recommendation_id",
+    "routing_target_choice_id",
+    "intent_id",
+    "readiness_evaluation_id",
+    "submitted_order_id",
+    "selected_binding_ref_id",
+    "selected_binding_key",
+    "selected_venue_account_ref_id",
+    "selected_venue_account_key",
+    "selected_venue",
+    "selected_exchange_symbol",
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -407,7 +424,48 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
         self._validate_approval_step(action, step)
 
         now = _utcnow()
+        lineage = dict(step.lineage)
+        if plan.routed_lineage:
+            lineage.setdefault("routed_lineage", plan.routed_lineage)
+        scope = self._routing_automation_approval_scope(
+            action=action,
+            desired_trade_key=desired_trade_key,
+            lineage=lineage,
+        )
         with self._session_factory() as session:
+            active_models = list(
+                session.scalars(
+                    select(RoutingAutomationApprovalModel)
+                    .where(
+                        RoutingAutomationApprovalModel.environment
+                        == self.settings.app.environment,
+                        RoutingAutomationApprovalModel.desired_trade_key == desired_trade_key,
+                        RoutingAutomationApprovalModel.action_name == action.value,
+                        RoutingAutomationApprovalModel.status
+                        == RoutingAutomationApprovalStatus.ACTIVE.value,
+                    )
+                    .order_by(RoutingAutomationApprovalModel.created_at.asc())
+                    .with_for_update()
+                )
+            )
+            changed = False
+            for active_model in active_models:
+                changed = self._expire_approval_if_needed(
+                    session,
+                    active_model,
+                    commit=False,
+                ) or changed
+            for active_model in active_models:
+                changed = self._mark_approval_stale_if_lineage_mismatch(
+                    session,
+                    active_model,
+                    action=action,
+                    current_scope_key=scope["approval_scope_key"],
+                    commit=False,
+                ) or changed
+            if changed:
+                session.commit()
+
             existing_active = session.scalar(
                 select(RoutingAutomationApprovalModel)
                 .where(
@@ -416,6 +474,8 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                     RoutingAutomationApprovalModel.action_name == action.value,
                     RoutingAutomationApprovalModel.status
                     == RoutingAutomationApprovalStatus.ACTIVE.value,
+                    RoutingAutomationApprovalModel.approval_scope_key
+                    == scope["approval_scope_key"],
                 )
                 .order_by(RoutingAutomationApprovalModel.created_at.asc())
             )
@@ -428,9 +488,6 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                     MandateDesiredTradeModel.desired_trade_key == desired_trade_key,
                 )
             )
-            lineage = dict(step.lineage)
-            if plan.routed_lineage:
-                lineage.setdefault("routed_lineage", plan.routed_lineage)
             model = RoutingAutomationApprovalModel(
                 environment=self.settings.app.environment,
                 approval_id=f"rtaap_{uuid4().hex}",
@@ -438,6 +495,8 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 desired_trade_key=desired_trade_key,
                 action_name=action.value,
                 status=RoutingAutomationApprovalStatus.ACTIVE.value,
+                lineage_fingerprint=scope["lineage_fingerprint"],
+                approval_scope_key=scope["approval_scope_key"],
                 approved_by=approved_by,
                 approved_at=now,
                 policy_name=active_policy.policy_name,
@@ -475,6 +534,10 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                     "approval_is_action_gate_only": True,
                     "action_executed": False,
                     "artifacts_created_by_approval": False,
+                    "lineage_scoped_approval": True,
+                    "lineage_fingerprint": scope["lineage_fingerprint"],
+                    "approval_scope_key": scope["approval_scope_key"],
+                    "approval_scope_payload": scope["scope_payload"],
                     "dry_run_plan_id": plan.automation_plan_id,
                     "same_target_only": True,
                     "same_account_only": True,
@@ -491,7 +554,27 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 updated_at=now,
             )
             session.add(model)
-            session.commit()
+            try:
+                session.commit()
+            except IntegrityError:
+                session.rollback()
+                existing_active = session.scalar(
+                    select(RoutingAutomationApprovalModel)
+                    .where(
+                        RoutingAutomationApprovalModel.environment
+                        == self.settings.app.environment,
+                        RoutingAutomationApprovalModel.desired_trade_key == desired_trade_key,
+                        RoutingAutomationApprovalModel.action_name == action.value,
+                        RoutingAutomationApprovalModel.status
+                        == RoutingAutomationApprovalStatus.ACTIVE.value,
+                        RoutingAutomationApprovalModel.approval_scope_key
+                        == scope["approval_scope_key"],
+                    )
+                    .order_by(RoutingAutomationApprovalModel.created_at.asc())
+                )
+                if existing_active is not None:
+                    return self._routing_automation_approval_from_model(existing_active)
+                raise
             session.refresh(model)
             return self._routing_automation_approval_from_model(model)
 
@@ -526,7 +609,24 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 )
             )
             for model in models:
-                self._expire_approval_if_needed(session, model)
+                self._expire_approval_if_needed(session, model, commit=False)
+            for action in RoutingAutomationApprovalAction:
+                step = self._routing_automation_step_for_action(plan, action)
+                scope = self._routing_automation_approval_scope(
+                    action=action,
+                    desired_trade_key=desired_trade_key,
+                    lineage=dict(step.lineage),
+                )
+                for model in models:
+                    if model.action_name == action.value:
+                        self._mark_approval_stale_if_lineage_mismatch(
+                            session,
+                            model,
+                            action=action,
+                            current_scope_key=scope["approval_scope_key"],
+                            commit=False,
+                        )
+            session.commit()
             approvals = [self._routing_automation_approval_from_model(model) for model in models]
 
         step_gate_states: dict[str, RoutingAutomationApprovalGateState] = {}
@@ -538,6 +638,17 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                     approval
                     for approval in reversed(matching)
                     if approval.status == RoutingAutomationApprovalStatus.ACTIVE
+                    and self._approval_matches_current_scope(
+                        approval_scope_key=approval.approval_scope_key,
+                        lineage=dict(approval.lineage),
+                        action=action,
+                        desired_trade_key=desired_trade_key,
+                        current_scope_key=self._routing_automation_approval_scope(
+                            action=action,
+                            desired_trade_key=desired_trade_key,
+                            lineage=dict(step.lineage),
+                        )["approval_scope_key"],
+                    )
                 ),
                 None,
             )
@@ -931,17 +1042,57 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                     .order_by(RoutingAutomationApprovalModel.created_at.asc())
                 )
             )
+            changed = False
+            for model in approval_models:
+                changed = self._expire_approval_if_needed(
+                    session,
+                    model,
+                    commit=False,
+                ) or changed
+            for action in RoutingAutomationApprovalAction:
+                step = action_steps.get(action.value)
+                scope = self._routing_automation_approval_scope(
+                    action=action,
+                    desired_trade_key=desired_trade_key,
+                    lineage=dict(step.lineage if step is not None else {}),
+                )
+                for model in approval_models:
+                    if model.action_name == action.value:
+                        changed = self._mark_approval_stale_if_lineage_mismatch(
+                            session,
+                            model,
+                            action=action,
+                            current_scope_key=scope["approval_scope_key"],
+                            commit=False,
+                        ) or changed
+            if changed:
+                session.commit()
         states: dict[str, object] = {}
         now = _utcnow()
         for action in RoutingAutomationApprovalAction:
             step = action_steps.get(action.value)
             matching = [model for model in approval_models if model.action_name == action.value]
+            current_scope_key = self._routing_automation_approval_scope(
+                action=action,
+                desired_trade_key=desired_trade_key,
+                lineage=dict(step.lineage if step is not None else {}),
+            )["approval_scope_key"]
             active = next(
                 (
                     model
                     for model in reversed(matching)
                     if model.status == RoutingAutomationApprovalStatus.ACTIVE.value
-                    and (model.expires_at is None or model.expires_at > now)
+                    and (
+                        model.expires_at is None
+                        or self._approval_datetime_utc(model.expires_at) > now
+                    )
+                    and self._approval_matches_current_scope(
+                        approval_scope_key=model.approval_scope_key,
+                        lineage=dict(model.lineage_json or {}),
+                        action=action,
+                        desired_trade_key=desired_trade_key,
+                        current_scope_key=current_scope_key,
+                    )
                 ),
                 None,
             )
@@ -953,7 +1104,7 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                     RoutingAutomationApprovalStatus.EXPIRED.value
                     if latest.status == RoutingAutomationApprovalStatus.ACTIVE.value
                     and latest.expires_at is not None
-                    and latest.expires_at <= now
+                    and self._approval_datetime_utc(latest.expires_at) <= now
                     else latest.status
                 )
             if step is not None and step.blocked:
@@ -1036,6 +1187,66 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
         }
 
     @staticmethod
+    def _routing_automation_approval_scope(
+        *,
+        action: RoutingAutomationApprovalAction,
+        desired_trade_key: str,
+        lineage: dict[str, object],
+    ) -> dict[str, object]:
+        scope_lineage: dict[str, object] = {}
+        nested_lineage = lineage.get("routed_lineage")
+        if isinstance(nested_lineage, dict):
+            scope_lineage.update(
+                {
+                    str(key): DefaultRoutingAssessmentService._workflow_value(value)
+                    for key, value in nested_lineage.items()
+                }
+            )
+        scope_lineage.update(
+            {
+                str(key): DefaultRoutingAssessmentService._workflow_value(value)
+                for key, value in lineage.items()
+                if key != "routed_lineage"
+            }
+        )
+        scope_payload = {
+            "action_name": action.value,
+            "desired_trade_key": desired_trade_key,
+            "lineage": {
+                field: scope_lineage.get(field)
+                for field in _ROUTING_AUTOMATION_APPROVAL_SCOPE_FIELDS
+            },
+        }
+        scope_payload["lineage"]["desired_trade_key"] = desired_trade_key
+        lineage_fingerprint = _json_fingerprint(scope_payload)
+        return {
+            "scope_payload": scope_payload,
+            "lineage_fingerprint": lineage_fingerprint,
+            "approval_scope_key": lineage_fingerprint,
+        }
+
+    @staticmethod
+    def _approval_datetime_utc(value: datetime) -> datetime:
+        return value.astimezone(UTC) if value.tzinfo is not None else value.replace(tzinfo=UTC)
+
+    @classmethod
+    def _approval_matches_current_scope(
+        cls,
+        *,
+        approval_scope_key: str | None,
+        lineage: dict[str, object],
+        action: RoutingAutomationApprovalAction,
+        desired_trade_key: str,
+        current_scope_key: str,
+    ) -> bool:
+        existing_scope_key = approval_scope_key or cls._routing_automation_approval_scope(
+            action=action,
+            desired_trade_key=desired_trade_key,
+            lineage=lineage,
+        )["approval_scope_key"]
+        return existing_scope_key == current_scope_key
+
+    @staticmethod
     def _load_routing_automation_approval_model(
         session: Any,
         approval_id: str,
@@ -1056,11 +1267,14 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
     def _expire_approval_if_needed(
         session: Any,
         model: RoutingAutomationApprovalModel,
-    ) -> None:
+        *,
+        commit: bool = True,
+    ) -> bool:
         if (
             model.status == RoutingAutomationApprovalStatus.ACTIVE.value
             and model.expires_at is not None
-            and model.expires_at <= _utcnow()
+            and DefaultRoutingAssessmentService._approval_datetime_utc(model.expires_at)
+            <= _utcnow()
         ):
             now = _utcnow()
             model.status = RoutingAutomationApprovalStatus.EXPIRED.value
@@ -1071,8 +1285,66 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             provenance = dict(model.provenance_json or {})
             provenance.update({"approval_expired": True, "expired_at": now.isoformat()})
             model.provenance_json = provenance
+            if commit:
+                session.commit()
+                session.refresh(model)
+            return True
+        return False
+
+    @classmethod
+    def _mark_approval_stale_if_lineage_mismatch(
+        cls,
+        session: Any,
+        model: RoutingAutomationApprovalModel,
+        *,
+        action: RoutingAutomationApprovalAction,
+        current_scope_key: str,
+        commit: bool = True,
+    ) -> bool:
+        if model.status != RoutingAutomationApprovalStatus.ACTIVE.value:
+            return False
+        existing_scope_key = model.approval_scope_key or cls._routing_automation_approval_scope(
+            action=action,
+            desired_trade_key=model.desired_trade_key,
+            lineage=dict(model.lineage_json or {}),
+        )["approval_scope_key"]
+        if existing_scope_key == current_scope_key:
+            if model.approval_scope_key is None or model.lineage_fingerprint is None:
+                model.approval_scope_key = existing_scope_key
+                model.lineage_fingerprint = existing_scope_key
+                if commit:
+                    session.commit()
+                    session.refresh(model)
+                return True
+            return False
+        now = _utcnow()
+        model.status = RoutingAutomationApprovalStatus.STALE_LINEAGE.value
+        model.updated_at = now
+        if model.approval_scope_key is None:
+            model.approval_scope_key = existing_scope_key
+        if model.lineage_fingerprint is None:
+            model.lineage_fingerprint = existing_scope_key
+        reason_codes = list(model.reason_codes_json or [])
+        if "routing_automation_approval_lineage_stale" not in reason_codes:
+            reason_codes.append("routing_automation_approval_lineage_stale")
+        if "approval_lineage_no_longer_current" not in reason_codes:
+            reason_codes.append("approval_lineage_no_longer_current")
+        model.reason_codes_json = reason_codes
+        provenance = dict(model.provenance_json or {})
+        provenance.update(
+            {
+                "approval_lineage_stale": True,
+                "stale_checked_at": now.isoformat(),
+                "stale_previous_scope_key": existing_scope_key,
+                "stale_current_scope_key": current_scope_key,
+                "action_executed": False,
+            }
+        )
+        model.provenance_json = provenance
+        if commit:
             session.commit()
             session.refresh(model)
+        return True
 
     @staticmethod
     def _routing_automation_approval_from_model(
@@ -1088,6 +1360,8 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             approved_at=model.approved_at,
             policy_name=model.policy_name,
             automation_mode=RoutingAutomationMode(model.automation_mode),
+            lineage_fingerprint=model.lineage_fingerprint,
+            approval_scope_key=model.approval_scope_key,
             route_readiness_audit_id=model.route_readiness_audit_id,
             routing_assessment_id=model.routing_assessment_id,
             routing_target_recommendation_id=model.routing_target_recommendation_id,

@@ -13,6 +13,37 @@ Entry schema:
 
 ---
 
+## v2026.04.30.001
+
+- `recorded_at_utc`: `2026-04-30T05:40:33Z`
+- `scope`: `Phase 7.1.1 routing automation approval truth hotfix`
+- `intent`: `Native entry. Hardened the Phase 7.1 approval substrate before any action-taking automation exists. Approval creation and approval-gate inspection now expire active records before reuse, compute deterministic lineage fingerprints / approval scope keys from the current desired-trade/action/recommendation/audit/target-choice/child-intent/readiness/submitted-order and selected binding/account/venue/symbol facts, mark old active approvals as `stale_lineage` when their stored scope no longer matches current workflow truth, and return/create approvals only for the current lineage. Added a narrow `routing_automation_approvals` active-scope uniqueness guard so repeated or concurrent creation cannot create multiple active approvals for one desired trade, action, and current lineage scope. Approval remains separate from execution: no recommendation acceptance, target-choice conversion, preview/readiness creation, submitted-order handoff, exchange call, route executor behavior, smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, cross-binding/cross-venue recovery, auto-submit, new exchange behavior, or money_flow_project_memory.md update was added.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `core/schemas/api.py`
+  - `db/models/trading.py`
+  - `db/migrations/versions/20260430_0025_phase711_approval_truth_scope.py`
+  - `services/routing/service.py`
+  - `tests/test_phase71_routing_automation_approvals.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall services/routing/service.py core/domain/models.py core/schemas/api.py db/models/trading.py tests/test_phase71_routing_automation_approvals.py` passed.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase71_routing_automation_approvals.py` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase70_routing_automation.py tests/test_phase71_routing_automation_approvals.py` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase69_routed_workflow_inspection.py tests/test_phase67_recommendation_backed_submission.py tests/test_api.py tests/test_operational_docs.py` passed.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed.
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py` passed.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed after docs update.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-7.1.1-review.zip` created a clean review bundle; bundle inspection found 642 files and no `.env` other than `.env.example`, virtualenvs, caches, local DBs, SQLite files, logs, or nested archives.
+
 ## v2026.04.26.004
 
 - `recorded_at_utc`: `2026-04-26T19:32:44Z`

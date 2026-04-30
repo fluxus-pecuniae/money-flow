@@ -227,6 +227,7 @@ class RoutingAutomationApprovalStatus(StrEnum):
     REVOKED = "revoked"
     CONSUMED = "consumed"
     EXPIRED = "expired"
+    STALE_LINEAGE = "stale_lineage"
 
 
 class RiskEvaluationOutcome(StrEnum):

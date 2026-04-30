@@ -688,6 +688,8 @@ class RoutingAutomationApprovalResponse(BaseModel):
     approved_at: datetime
     policy_name: str
     automation_mode: RoutingAutomationMode
+    lineage_fingerprint: str | None = None
+    approval_scope_key: str | None = None
     route_readiness_audit_id: str | None = None
     routing_assessment_id: str | None = None
     routing_target_recommendation_id: str | None = None

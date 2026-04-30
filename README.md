@@ -10,6 +10,8 @@ Phase 7.0 adds the first controlled automation substrate above the accepted sing
 
 Phase 7.1 adds the durable operator approval and reversible action-gating substrate above Phase 7.0 plans. Operators can create one approval record for a specific same-target action stage, inspect approval state by desired trade, revoke an unused approval, or mark an approval consumed for a future action hook. Approval records preserve policy snapshots, routed lineage, selected binding/account/venue/symbol facts, and no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit boundary truth. Approval is not execution: creating, revoking, inspecting, or consuming an approval does not accept a recommendation, convert a target choice, create readiness, submit an order, call an exchange, or advance workflow state.
 
+Phase 7.1.1 hardens approval truth before any action-taking automation exists. Approval reuse is now scoped to the current desired-trade/action/lineage fingerprint, including recommendation, audit, target choice, child intent, readiness/submitted-order ids where present, and selected binding/account/venue/symbol facts. Expired approvals are marked expired before create/inspection can reuse them, stale-lineage approvals are marked `stale_lineage` and stop authorizing the current gate, and a narrow active-scope uniqueness guard prevents duplicate active approvals for the same current action scope. This still executes no action and adds no smart routing, route executor, fanout, target reselection, ranking/scoring, CBBO, or auto-submit.
+
 ## Operational Memory
 
 This repo now uses explicit operational-memory files. Future work is expected to read them before changes and update them after changes.
@@ -55,6 +57,8 @@ POST /api/v1/routing-automation/approvals/{approval_id}/consume
 ```
 
 The default policy is `disabled`. A plan request can supply an explicit policy mode, but automation planning still only reports what would be disabled, dry-run-only, approval-required, automation-eligible, manual-only, deferred, blocked, approved, revoked, consumed, or expired. Approval records are durable gates for later explicit same-target action hooks; they are not the action itself and do not submit.
+
+Phase 7.1.1 makes those gate states current-truth-bound: an approval is shown as approved only when its active record has not expired and its lineage fingerprint still matches the current routed workflow stage. Stale approvals remain inspectable as history but are not reusable as current approval truth.
 
 Required operational docs:
 
@@ -1009,7 +1013,7 @@ Control-plane endpoints currently include:
 
 ### Phase 6 And Later Routing / Execution Phases
 
-- Phase 7.0 adds controlled automation policy and dry-run planning only, and Phase 7.1 adds durable operator approval / revocation / consumption gates only. The default policy is disabled; dry-run plans create no artifacts, approvals do not execute actions, submit remains manual-only, and future action-taking automation still needs narrow approval-consuming action hooks, remaining DB-level concurrency/serialization hardening for acceptance/conversion, slippage/price guard policy, richer market-data quality, and operator reconciliation procedures for `adapter_submit_may_have_started` / `adapter_submit_persistence_unknown` leases.
+- Phase 7.0 adds controlled automation policy and dry-run planning only, Phase 7.1 adds durable operator approval / revocation / consumption gates only, and Phase 7.1.1 scopes approvals to the current lineage fingerprint so expired or stale-lineage approvals cannot authorize a later workflow stage. The default policy is disabled; dry-run plans create no artifacts, approvals do not execute actions, submit remains manual-only, and Phase 7.2 future action-taking automation still needs narrow approval-consuming action hooks, remaining DB-level concurrency/serialization hardening for acceptance/conversion, slippage/price guard policy, richer market-data quality, and operator reconciliation procedures for `adapter_submit_may_have_started` / `adapter_submit_persistence_unknown` leases.
 - Phase 6 is closed as explicit recommendation-backed single-target routed execution through existing gated submit plus read-only inspection, with Phase 6.10.1/6.10.2/6.10.3 serializing explicit child-intent submit calls before adapter submission and preserving post-adapter or in-flight uncertainty without auto-submit, fanout, CBBO, venue scoring, route executor behavior, target reselection, automatic target-choice creation, child-intent auto-creation, or submitted-order creation directly from recommendation
 - deepen routed order-shape policy only where truthful, including slippage guards and richer limit-price source semantics without venue ranking or CBBO
 - child-intent fanout/splitting across bindings when routing selects more than one target
