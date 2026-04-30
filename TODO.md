@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-04-30T18:43:44Z`
+Last reviewed: `2026-04-30T19:30:37Z`
 
 ## Active Follow-Ups
 
@@ -31,8 +31,14 @@ Last reviewed: `2026-04-30T18:43:44Z`
 ### T-037
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 7.2 implemented the first approval-consuming action hook and kept it limited to recommendation acceptance. One active, non-expired, current-lineage `recommendation_acceptance` approval can now accept the exact approved recommendation into a created or reused target choice through the existing Phase 6.2 acceptance path, then mark the approval consumed with actor, target choice id, and no-downstream-artifact provenance. Expired, revoked, stale-lineage, wrong-action, wrong-recommendation, consumed-for-different-recommendation, dry-run-only, and manual-only cases block before target-choice creation. Phase 7.2 creates no child intent, readiness assessment, submitted order, exchange call, route executor, fanout, ranking/scoring, CBBO, target reselection, or auto-submit.`
+
+### T-038
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `Phase 7.2 is the next controlled automation item after Phase 7.1.2. It must remain below smart routing and should add a narrow action hook that consumes one active, non-expired, current-lineage approval for one same-target action only when the current step is still approvable, without collapsing plan -> approval -> execution. Recommendation acceptance, target-choice conversion, preview/readiness, and submitted-order handoff must continue to preserve same-target lineage, current-truth revalidation, submit-lease uncertainty behavior, approval revocation/expiry/stale-lineage/non-approvable-status/consumption truth, and explicit no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit boundaries.`
+- `summary`: `Phase 7.3 should remain below smart routing and decide the next narrow approval-consuming action, likely target-choice conversion only if acceptance/conversion concurrency hardening is sufficient. It must preserve Phase 7.2 approval consumption truth, current-lineage matching, dry-run/manual policy blocks, no child-intent fanout, no preview/readiness automation unless explicitly scoped, no submitted-order handoff automation, no route executor, no ranking/scoring, no CBBO, no target reselection, and no auto-submit.`
 
 ### T-001
 

@@ -14,6 +14,8 @@ Phase 7.1.1 hardens approval truth before any action-taking automation exists. A
 
 Phase 7.1.2 closes the remaining approval-truth gap before action hooks exist. Approval creation is allowed only for current steps that are truly `approval_required` or explicitly `automation_eligible`; `dry_run_only`, `manual_only`, `disabled`, `deferred`, `blocked`, and `already_satisfied` steps cannot receive active approvals. Gate-state inspection now keeps the current step policy authoritative, so a stored approval record is never surfaced as plain `approved` when the current plan says the step is manual-only or dry-run-only. This is still approval truth only and executes no action.
 
+Phase 7.2 adds the first narrow approval-consuming action hook. `POST /api/v1/routing-automation/approvals/{approval_id}/accept-recommendation` consumes one active, non-expired, current-lineage `recommendation_acceptance` approval to accept the exact approved `RoutingTargetRecommendation` into a created or reused `RoutingTargetChoice` through the existing Phase 6.2 acceptance logic. Consumption records who used the approval, the target choice id, and explicit no-child-intent/no-readiness/no-submission facts. It does not convert the target choice, create child intents, preview/readiness, submit, call exchanges, rank/score, use CBBO, fan out, reselect targets, create a route executor, or auto-submit.
+
 ## Operational Memory
 
 This repo now uses explicit operational-memory files. Future work is expected to read them before changes and update them after changes.
@@ -56,11 +58,14 @@ GET /api/v1/routing-automation/approvals/{approval_id}
 GET /api/v1/routing-automation/approvals/by-desired-trade/{desired_trade_key}
 POST /api/v1/routing-automation/approvals/{approval_id}/revoke
 POST /api/v1/routing-automation/approvals/{approval_id}/consume
+POST /api/v1/routing-automation/approvals/{approval_id}/accept-recommendation
 ```
 
 The default policy is `disabled`. A plan request can supply an explicit policy mode, but automation planning still only reports what would be disabled, dry-run-only, approval-required, automation-eligible, manual-only, deferred, blocked, approved, revoked, consumed, or expired. Approval records are durable gates for later explicit same-target action hooks; they are not the action itself and do not submit.
 
 Phase 7.1.1 makes those gate states current-truth-bound: an approval is shown as approved only when its active record has not expired and its lineage fingerprint still matches the current routed workflow stage. Stale approvals remain inspectable as history but are not reusable as current approval truth. Phase 7.1.2 also keeps current policy truth above stored approval metadata: manual-only and dry-run-only steps remain `manual_only` or `dry_run_only` in gate-state output and cannot be converted into active approvals.
+
+Phase 7.2 connects approval to exactly one action stage: recommendation acceptance. The acceptance hook requires a valid current `recommendation_acceptance` approval and reuses the existing recommendation acceptance service, so same-recommendation and same-audit target-choice idempotency remain intact. Consumed approvals expose the target choice they authorized, while dry-run-only/manual-only policy states, revoked/expired/stale-lineage approvals, wrong actions, and wrong recommendations block before action. Target-choice conversion, preview/readiness, and submitted-order handoff remain separate explicit phases.
 
 Required operational docs:
 
@@ -1015,7 +1020,7 @@ Control-plane endpoints currently include:
 
 ### Phase 6 And Later Routing / Execution Phases
 
-- Phase 7.0 adds controlled automation policy and dry-run planning only, Phase 7.1 adds durable operator approval / revocation / consumption gates only, Phase 7.1.1 scopes approvals to the current lineage fingerprint so expired or stale-lineage approvals cannot authorize a later workflow stage, and Phase 7.1.2 prevents manual-only or dry-run-only steps from receiving active approvals or appearing approved in gate-state output. The default policy is disabled; dry-run plans create no artifacts, approvals do not execute actions, submit remains manual-only, and Phase 7.2 future action-taking automation still needs narrow approval-consuming action hooks, remaining DB-level concurrency/serialization hardening for acceptance/conversion, slippage/price guard policy, richer market-data quality, and operator reconciliation procedures for `adapter_submit_may_have_started` / `adapter_submit_persistence_unknown` leases.
+- Phase 7.0 adds controlled automation policy and dry-run planning only, Phase 7.1 adds durable operator approval / revocation / consumption gates only, Phase 7.1.1 scopes approvals to the current lineage fingerprint so expired or stale-lineage approvals cannot authorize a later workflow stage, Phase 7.1.2 prevents manual-only or dry-run-only steps from receiving active approvals or appearing approved in gate-state output, and Phase 7.2 consumes a valid current recommendation-acceptance approval to create or reuse exactly one target choice. The default policy is disabled; dry-run plans create no artifacts, submit remains manual-only, and future action-taking automation still needs narrow approval-consuming hooks, remaining DB-level concurrency/serialization hardening for acceptance/conversion, slippage/price guard policy, richer market-data quality, and operator reconciliation procedures for `adapter_submit_may_have_started` / `adapter_submit_persistence_unknown` leases.
 - Phase 6 is closed as explicit recommendation-backed single-target routed execution through existing gated submit plus read-only inspection, with Phase 6.10.1/6.10.2/6.10.3 serializing explicit child-intent submit calls before adapter submission and preserving post-adapter or in-flight uncertainty without auto-submit, fanout, CBBO, venue scoring, route executor behavior, target reselection, automatic target-choice creation, child-intent auto-creation, or submitted-order creation directly from recommendation
 - deepen routed order-shape policy only where truthful, including slippage guards and richer limit-price source semantics without venue ranking or CBBO
 - child-intent fanout/splitting across bindings when routing selects more than one target

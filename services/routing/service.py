@@ -44,6 +44,7 @@ from core.domain.models import (
     RoutingAutomationApproval,
     RoutingAutomationApprovalGateState,
     RoutingAutomationApprovalInspection,
+    RoutingAutomationRecommendationAcceptanceResult,
     RoutingAutomationPlan,
     RoutingAutomationPlanStep,
     RoutingAutomationPolicy,
@@ -780,6 +781,128 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             session.refresh(model)
             return self._routing_automation_approval_from_model(model)
 
+    async def accept_routing_target_recommendation_with_approval(
+        self,
+        routing_target_recommendation_id: str,
+        *,
+        approval_id: str,
+        consumed_by: str,
+        approval_note: str | None = None,
+        policy: RoutingAutomationPolicy | None = None,
+    ) -> RoutingAutomationRecommendationAcceptanceResult:
+        """Consume one current approval to accept one existing recommendation into a target choice."""
+
+        action = RoutingAutomationApprovalAction.RECOMMENDATION_ACCEPTANCE
+        active_policy = policy or self.routing_automation_policy(
+            mode=RoutingAutomationMode.APPROVAL_REQUIRED
+        )
+        recommendation = await self.get_routing_target_recommendation(
+            routing_target_recommendation_id
+        )
+        if recommendation.desired_trade_key is None:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_missing_desired_trade",
+                "Recommendation approval-gated acceptance requires desired-trade lineage.",
+            )
+        plan = await self.plan_routing_automation_for_desired_trade(
+            recommendation.desired_trade_key,
+            policy=active_policy,
+            dry_run=True,
+        )
+        step = self._routing_automation_step_for_action(plan, action)
+
+        with self._session_factory() as session:
+            recommendation_model = session.scalar(
+                select(RoutingTargetRecommendationModel).where(
+                    RoutingTargetRecommendationModel.environment == self.settings.app.environment,
+                    RoutingTargetRecommendationModel.routing_target_recommendation_id
+                    == routing_target_recommendation_id,
+                )
+            )
+            if recommendation_model is None:
+                raise RoutingAssessmentError(
+                    "routing_target_recommendation_not_found",
+                    f"Routing target recommendation not found: {routing_target_recommendation_id}",
+                )
+            existing_choice = self._target_choice_for_recommendation(
+                session,
+                recommendation_model,
+            ) or self._target_choice_for_route_readiness_audit(session, recommendation_model)
+            approval_model = self._load_routing_automation_approval_model_for_update(
+                session,
+                approval_id,
+            )
+            self._validate_recommendation_acceptance_approval_for_action(
+                session,
+                approval_model,
+                recommendation_model,
+                step=step,
+                existing_choice=existing_choice,
+                action=action,
+            )
+            session.commit()
+
+        target_choice = await self.accept_routing_target_recommendation_to_target_choice(
+            routing_target_recommendation_id,
+            approval_note=approval_note
+            or f"approval-gated recommendation acceptance via {approval_id}",
+            requested_by=consumed_by,
+        )
+
+        approval = self._consume_recommendation_acceptance_approval(
+            approval_id=approval_id,
+            routing_target_recommendation_id=routing_target_recommendation_id,
+            target_choice=target_choice,
+            consumed_by=consumed_by,
+        )
+        return RoutingAutomationRecommendationAcceptanceResult(
+            approval_id=approval.approval_id,
+            routing_target_recommendation_id=routing_target_recommendation_id,
+            target_choice_id=target_choice.target_choice_id,
+            desired_trade_key=target_choice.desired_trade_key,
+            environment=target_choice.environment,
+            approval=approval,
+            target_choice=target_choice,
+            approval_consumed=approval.status == RoutingAutomationApprovalStatus.CONSUMED,
+            target_choice_created_or_reused=True,
+            child_intent_created=False,
+            prepared_order_created=False,
+            readiness_assessment_created=False,
+            submitted_order_created=False,
+            reason_codes=[
+                "routing_automation_recommendation_acceptance_approval_consumed",
+                "routing_target_choice_created_or_reused",
+                "child_intent_creation_deferred",
+                "prepared_order_creation_deferred",
+                "readiness_assessment_creation_deferred",
+                "submitted_order_creation_deferred",
+            ],
+            boundary_flags=self._routing_automation_boundary_flags(),
+            provenance={
+                "phase": "phase_7_2",
+                "approval_consuming_action": True,
+                "action_name": action.value,
+                "routing_target_recommendation_id": routing_target_recommendation_id,
+                "routing_target_choice_id": target_choice.target_choice_id,
+                "approval_id": approval.approval_id,
+                "consumed_by": consumed_by,
+                "same_target_only": True,
+                "child_intent_created": False,
+                "prepared_order_created": False,
+                "readiness_assessment_created": False,
+                "submitted_order_created": False,
+                "smart_routing": False,
+                "best_binding_selection": False,
+                "cbbo": False,
+                "fanout": False,
+                "ranking": False,
+                "scoring": False,
+                "target_reselection": False,
+                "route_executor": False,
+                "auto_submit": False,
+            },
+        )
+
     async def inspect_routed_workflow_by_desired_trade(
         self,
         desired_trade_key: str,
@@ -1299,6 +1422,265 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 f"Routing automation approval {approval_id} was not found.",
             )
         return model
+
+    def _load_routing_automation_approval_model_for_update(
+        self,
+        session: Any,
+        approval_id: str,
+    ) -> RoutingAutomationApprovalModel:
+        model = session.scalar(
+            select(RoutingAutomationApprovalModel)
+            .where(
+                RoutingAutomationApprovalModel.environment == self.settings.app.environment,
+                RoutingAutomationApprovalModel.approval_id == approval_id,
+            )
+            .with_for_update()
+        )
+        if model is None:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_not_found",
+                f"Routing automation approval {approval_id} was not found.",
+            )
+        return model
+
+    @staticmethod
+    def _approval_consumed_for_recommendation_acceptance(
+        model: RoutingAutomationApprovalModel,
+        routing_target_recommendation_id: str,
+    ) -> bool:
+        provenance = dict(model.provenance_json or {})
+        return (
+            model.status == RoutingAutomationApprovalStatus.CONSUMED.value
+            and model.action_name == RoutingAutomationApprovalAction.RECOMMENDATION_ACCEPTANCE.value
+            and model.routing_target_recommendation_id == routing_target_recommendation_id
+            and provenance.get("phase") == "phase_7_2"
+            and provenance.get("approval_gated_recommendation_acceptance") is True
+            and model.routing_target_choice_id is not None
+        )
+
+    def _validate_recommendation_acceptance_approval_for_action(
+        self,
+        session: Any,
+        model: RoutingAutomationApprovalModel,
+        recommendation_model: RoutingTargetRecommendationModel,
+        *,
+        step: RoutingAutomationPlanStep,
+        existing_choice: RoutingTargetChoiceModel | None,
+        action: RoutingAutomationApprovalAction,
+    ) -> None:
+        self._expire_approval_if_needed(session, model, commit=False)
+        if self._approval_consumed_for_recommendation_acceptance(
+            model,
+            recommendation_model.routing_target_recommendation_id,
+        ):
+            consumed_choice = session.scalar(
+                select(RoutingTargetChoiceModel).where(
+                    RoutingTargetChoiceModel.environment == self.settings.app.environment,
+                    RoutingTargetChoiceModel.target_choice_id == model.routing_target_choice_id,
+                )
+            )
+            if consumed_choice is None:
+                raise RoutingAssessmentError(
+                    "routing_automation_approval_consumed_target_choice_missing",
+                    "Consumed recommendation-acceptance approval no longer has target-choice truth.",
+                )
+            return
+        if model.action_name != action.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_wrong_action",
+                f"Approval {model.approval_id} is for {model.action_name}, not {action.value}.",
+            )
+        if model.status == RoutingAutomationApprovalStatus.REVOKED.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_revoked",
+                f"Approval {model.approval_id} has been revoked.",
+            )
+        if model.status == RoutingAutomationApprovalStatus.EXPIRED.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_expired",
+                f"Approval {model.approval_id} has expired.",
+            )
+        if model.status == RoutingAutomationApprovalStatus.STALE_LINEAGE.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_lineage_stale",
+                f"Approval {model.approval_id} is stale for the current workflow lineage.",
+            )
+        if model.status == RoutingAutomationApprovalStatus.CONSUMED.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_consumed_for_different_action",
+                f"Approval {model.approval_id} has already been consumed.",
+            )
+        if model.status != RoutingAutomationApprovalStatus.ACTIVE.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_not_consumable",
+                f"Approval {model.approval_id} is not active.",
+            )
+        if (
+            model.routing_target_recommendation_id
+            != recommendation_model.routing_target_recommendation_id
+        ):
+            raise RoutingAssessmentError(
+                "routing_automation_approval_wrong_recommendation",
+                "Approval is not scoped to this routing target recommendation.",
+            )
+        lineage_checks = {
+            "desired_trade_key": recommendation_model.desired_trade_key,
+            "route_readiness_audit_id": recommendation_model.route_readiness_audit_id,
+            "routing_assessment_id": recommendation_model.routing_assessment_id,
+            "selected_binding_ref_id": recommendation_model.recommended_binding_ref_id,
+            "selected_binding_key": recommendation_model.recommended_binding_key,
+            "selected_venue_account_ref_id": (
+                recommendation_model.recommended_venue_account_ref_id
+            ),
+            "selected_venue_account_key": (
+                recommendation_model.recommended_venue_account_key
+            ),
+            "selected_venue": recommendation_model.recommended_venue,
+            "selected_exchange_symbol": recommendation_model.recommended_exchange_symbol,
+        }
+        for field_name, current_value in lineage_checks.items():
+            approved_value = getattr(model, field_name)
+            if approved_value is not None and approved_value != current_value:
+                self._mark_approval_stale_if_lineage_mismatch(
+                    session,
+                    model,
+                    action=action,
+                    current_scope_key="recommendation_acceptance_lineage_mismatch",
+                    commit=False,
+                )
+                raise RoutingAssessmentError(
+                    "routing_automation_approval_lineage_stale",
+                    f"Approval {model.approval_id} no longer matches {field_name}.",
+                )
+        if existing_choice is not None and step.status == RoutingAutomationStepStatus.ALREADY_SATISFIED:
+            return
+
+        self._validate_approval_step(action, step)
+        current_scope_key = self._routing_automation_approval_scope(
+            action=action,
+            desired_trade_key=recommendation_model.desired_trade_key or "",
+            lineage=dict(step.lineage),
+        )["approval_scope_key"]
+        if not self._approval_matches_current_scope(
+            approval_scope_key=model.approval_scope_key,
+            lineage=dict(model.lineage_json or {}),
+            action=action,
+            desired_trade_key=recommendation_model.desired_trade_key or "",
+            current_scope_key=current_scope_key,
+        ):
+            self._mark_approval_stale_if_lineage_mismatch(
+                session,
+                model,
+                action=action,
+                current_scope_key=current_scope_key,
+                commit=False,
+            )
+            raise RoutingAssessmentError(
+                "routing_automation_approval_lineage_stale",
+                f"Approval {model.approval_id} is stale for the current workflow lineage.",
+            )
+
+    def _consume_recommendation_acceptance_approval(
+        self,
+        *,
+        approval_id: str,
+        routing_target_recommendation_id: str,
+        target_choice: RoutingTargetChoice,
+        consumed_by: str,
+    ) -> RoutingAutomationApproval:
+        with self._session_factory() as session:
+            model = self._load_routing_automation_approval_model_for_update(
+                session,
+                approval_id,
+            )
+            if self._approval_consumed_for_recommendation_acceptance(
+                model,
+                routing_target_recommendation_id,
+            ):
+                return self._routing_automation_approval_from_model(model)
+            self._expire_approval_if_needed(session, model, commit=False)
+            if model.status != RoutingAutomationApprovalStatus.ACTIVE.value:
+                raise RoutingAssessmentError(
+                    "routing_automation_approval_not_consumable",
+                    f"Routing automation approval {approval_id} is not active.",
+                )
+            if (
+                model.action_name
+                != RoutingAutomationApprovalAction.RECOMMENDATION_ACCEPTANCE.value
+                or model.routing_target_recommendation_id != routing_target_recommendation_id
+            ):
+                raise RoutingAssessmentError(
+                    "routing_automation_approval_wrong_recommendation",
+                    "Approval cannot consume this recommendation acceptance action.",
+                )
+
+            now = _utcnow()
+            model.status = RoutingAutomationApprovalStatus.CONSUMED.value
+            model.consumed_by = consumed_by
+            model.consumed_at = now
+            model.routing_target_choice_id = target_choice.target_choice_id
+            model.updated_at = now
+            reason_codes = list(model.reason_codes_json or [])
+            for reason_code in (
+                "routing_automation_approval_consumed",
+                "routing_automation_recommendation_acceptance_executed",
+                "routing_target_choice_created_or_reused",
+                "child_intent_creation_deferred",
+                "prepared_order_creation_deferred",
+                "readiness_assessment_creation_deferred",
+                "submitted_order_creation_deferred",
+            ):
+                if reason_code not in reason_codes:
+                    reason_codes.append(reason_code)
+            model.reason_codes_json = reason_codes
+            lineage = dict(model.lineage_json or {})
+            lineage.update(
+                {
+                    "routing_target_choice_id": target_choice.target_choice_id,
+                    "target_choice_status": target_choice.status.value,
+                    "child_intent_created": False,
+                    "prepared_order_created": False,
+                    "readiness_assessment_created": False,
+                    "submitted_order_created": False,
+                }
+            )
+            model.lineage_json = lineage
+            provenance = dict(model.provenance_json or {})
+            provenance.update(
+                {
+                    "phase": "phase_7_2",
+                    "approval_gated_recommendation_acceptance": True,
+                    "approval_consumed": True,
+                    "action_executed": True,
+                    "action_name": RoutingAutomationApprovalAction.RECOMMENDATION_ACCEPTANCE.value,
+                    "consumed_by": consumed_by,
+                    "consumed_at": now.isoformat(),
+                    "routing_target_recommendation_id": routing_target_recommendation_id,
+                    "routing_target_choice_id": target_choice.target_choice_id,
+                    "target_choice_created_or_reused": True,
+                    "approval_consumption_idempotent": False,
+                    "child_intent_created": False,
+                    "prepared_order_created": False,
+                    "readiness_assessment_created": False,
+                    "submitted_order_created": False,
+                    "same_target_only": True,
+                    "same_account_only": True,
+                    "same_venue_only": True,
+                    "smart_routing": False,
+                    "best_binding_selection": False,
+                    "cbbo": False,
+                    "fanout": False,
+                    "ranking": False,
+                    "scoring": False,
+                    "target_reselection": False,
+                    "route_executor": False,
+                    "auto_submit": False,
+                }
+            )
+            model.provenance_json = provenance
+            session.commit()
+            session.refresh(model)
+            return self._routing_automation_approval_from_model(model)
 
     @staticmethod
     def _expire_approval_if_needed(

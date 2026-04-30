@@ -1175,6 +1175,26 @@ class RoutingAutomationApprovalInspection:
 
 
 @dataclass(slots=True)
+class RoutingAutomationRecommendationAcceptanceResult:
+    approval_id: str
+    routing_target_recommendation_id: str
+    target_choice_id: str
+    desired_trade_key: str | None
+    environment: Environment
+    approval: RoutingAutomationApproval
+    target_choice: RoutingTargetChoice
+    approval_consumed: bool
+    target_choice_created_or_reused: bool
+    child_intent_created: bool = False
+    prepared_order_created: bool = False
+    readiness_assessment_created: bool = False
+    submitted_order_created: bool = False
+    reason_codes: list[str] = field(default_factory=list)
+    boundary_flags: dict[str, bool] = field(default_factory=dict)
+    provenance: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
 class RoutedOrderShapePolicyInput:
     order_type: OrderType | None = None
     limit_price: Decimal | None = None

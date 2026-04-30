@@ -40,6 +40,7 @@ from core.domain.models import (
     RouteReadinessAudit,
     RoutingAutomationApproval,
     RoutingAutomationApprovalInspection,
+    RoutingAutomationRecommendationAcceptanceResult,
     RoutingAutomationPlan,
     RoutingAutomationPolicy,
     RoutingAssessment,
@@ -619,6 +620,16 @@ class RoutingAssessmentService(Protocol):
         consumed_by: str,
         reason: str | None = None,
     ) -> RoutingAutomationApproval: ...
+
+    async def accept_routing_target_recommendation_with_approval(
+        self,
+        routing_target_recommendation_id: str,
+        *,
+        approval_id: str,
+        consumed_by: str,
+        approval_note: str | None = None,
+        policy: RoutingAutomationPolicy | None = None,
+    ) -> RoutingAutomationRecommendationAcceptanceResult: ...
 
 
 class AlertService(Protocol):

@@ -678,6 +678,13 @@ class RoutingAutomationApprovalStateChangeRequest(BaseModel):
     reason: str | None = None
 
 
+class RoutingAutomationRecommendationAcceptanceRequest(BaseModel):
+    routing_target_recommendation_id: str
+    actor: str
+    approval_note: str | None = None
+    policy: RoutingAutomationPolicyRequest | None = None
+
+
 class RoutingAutomationApprovalResponse(BaseModel):
     approval_id: str
     desired_trade_key: str
@@ -1404,6 +1411,25 @@ class RoutingTargetChoiceResponse(BaseModel):
     non_executing: bool
     created_at: datetime | None
     selected_at: datetime | None
+    provenance: dict[str, object]
+
+
+class RoutingAutomationRecommendationAcceptanceResponse(BaseModel):
+    approval_id: str
+    routing_target_recommendation_id: str
+    target_choice_id: str
+    desired_trade_key: str | None
+    environment: Environment
+    approval: RoutingAutomationApprovalResponse
+    target_choice: RoutingTargetChoiceResponse
+    approval_consumed: bool
+    target_choice_created_or_reused: bool
+    child_intent_created: bool
+    prepared_order_created: bool
+    readiness_assessment_created: bool
+    submitted_order_created: bool
+    reason_codes: list[str]
+    boundary_flags: dict[str, bool]
     provenance: dict[str, object]
 
 

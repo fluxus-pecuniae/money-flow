@@ -13,6 +13,33 @@ Entry schema:
 
 ---
 
+## v2026.04.30.003
+
+- `recorded_at_utc`: `2026-04-30T19:30:37Z`
+- `scope`: `Phase 7.2 approval-gated recommendation acceptance action hook`
+- `intent`: `Native entry. Added the first narrow approval-consuming automation action hook: one active, non-expired, current-lineage `recommendation_acceptance` approval can now be consumed to accept the exact approved `RoutingTargetRecommendation` into a created or reused `RoutingTargetChoice` through the existing Phase 6.2 acceptance path. The hook validates action name, approval status, expiry, revocation, consumption, recommendation id, desired-trade/audit/assessment/selected binding/account/venue/symbol lineage, and current automation step policy before acceptance; invalid, stale-lineage, revoked, expired, wrong-action, wrong-recommendation, dry-run-only, and manual-only cases block before target-choice creation. Successful consumption records the approval consumer, target choice id, target-choice-created-or-reused truth, and explicit no-child-intent/no-readiness/no-submission provenance. Added API response surfaces for `POST /api/v1/routing-automation/approvals/{approval_id}/accept-recommendation` and tests for successful consumption, idempotent repeat, invalid approvals, dry-run/manual policy blocks, and API behavior. This phase creates/reuses only `RoutingTargetChoice`; it adds no child intent, prepared order, readiness assessment, submitted order, exchange call, smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor, auto-submit, cross-binding/cross-venue recovery, migration, config, or money_flow_project_memory.md update.`
+- `affected_files`:
+  - `services/routing/service.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_phase72_approval_gated_recommendation_acceptance.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall services/routing/service.py core/domain/models.py core/interfaces/services.py core/schemas/api.py apps/api/app/api/routes.py tests/test_phase72_approval_gated_recommendation_acceptance.py` passed.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase72_approval_gated_recommendation_acceptance.py` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase70_routing_automation.py tests/test_phase71_routing_automation_approvals.py tests/test_phase72_approval_gated_recommendation_acceptance.py` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase62_recommendation_acceptance.py tests/test_phase63_recommendation_target_choice_conversion.py tests/test_phase69_routed_workflow_inspection.py tests/test_api.py tests/test_operational_docs.py` passed.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed.
+
 ## v2026.04.30.002
 
 - `recorded_at_utc`: `2026-04-30T18:43:44Z`
