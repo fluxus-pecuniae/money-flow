@@ -14,6 +14,8 @@ Phase 7.1 makes operator approval durable and reversible before any action-takin
 
 Phase 7.1.1 tightens approval truth before any action-taking automation exists. Approval records are reusable only when the current action-stage lineage fingerprint still matches the approval's stored scope; expired approvals are marked expired before reuse, stale-lineage approvals become `stale_lineage`, and gate inspection reports approved only for a non-expired active approval matching the current recommendation/audit/target-choice/child-intent/readiness/submitted-order and selected binding/account/venue/symbol facts. Approval remains separate from execution.
 
+Phase 7.1.2 tightens that gate truth against the current automation policy. Active approvals can be created only for current steps that are `approval_required` or explicitly `automation_eligible`; `dry_run_only` and `manual_only` steps remain non-approvable, and gate inspection reports them as `dry_run_only` or `manual_only` even if an old active approval row exists. Approval still cannot outrun current policy, and no action execution is added.
+
 The load-bearing strategy-to-execution boundary is:
 
 - `StrategyDecision`
@@ -139,6 +141,7 @@ Money Flow-specific `sleeve_*` naming remains family vocabulary only.
   - persist one approval record per explicit same-target action stage
   - expose approval creation, desired-trade inspection, revocation, and consumption state changes
   - Phase 7.1.1 scopes approval reuse to the current workflow lineage fingerprint, marks expired approvals expired before reuse, and marks stale-lineage approvals non-current
+  - Phase 7.1.2 keeps manual-only and dry-run-only steps non-approvable and prevents gate-state output from showing them as approved
   - preserve routed lineage, policy snapshots, selected binding/account/venue/symbol, and no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit flags
   - execute no approved action and create no target choice, child intent, readiness assessment, submitted order, exchange submit call, route executor behavior, fanout, ranking/scoring, CBBO, target reselection, or auto-submit
 - manual routed-flow inspection harness:
@@ -538,10 +541,10 @@ Still deferred:
 
 ## Forward-Looking Concern
 
-Phase 7.0 adds controlled automation policy and dry-run planning only, Phase 7.1 adds durable approval/revocation gates only, and Phase 7.1.1 hardens approval expiry, lineage scope, and active-scope uniqueness before action-taking automation. The next strategy-adjacent concerns are action-taking automation hardening, still short of smart routing:
+Phase 7.0 adds controlled automation policy and dry-run planning only, Phase 7.1 adds durable approval/revocation gates only, Phase 7.1.1 hardens approval expiry, lineage scope, and active-scope uniqueness before action-taking automation, and Phase 7.1.2 keeps approvals limited to truly approvable current policy states. The next strategy-adjacent concerns are action-taking automation hardening, still short of smart routing:
 
 - DB-level concurrency/serialization hardening should be considered before any automation uses recommendation acceptance or conversion paths
-- future action hooks must consume one active approval record for exactly one same-target action and must preserve revocation/expiry truth
+- future action hooks must consume one active, non-expired, current-lineage approval record for exactly one same-target action and must preserve revocation/expiry/stale-lineage/manual-only/dry-run-only truth
 - slippage/price guard policy and richer market-data quality are prerequisites before any price-aware routing work
 - continued mandate/account policy checks before any broader routed execution behavior
 - fanout/splitting remains a later explicit phase only

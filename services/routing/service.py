@@ -661,6 +661,10 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 gate_status = "blocked"
             elif step.status == RoutingAutomationStepStatus.ALREADY_SATISFIED:
                 gate_status = "already_satisfied"
+            elif step.status == RoutingAutomationStepStatus.MANUAL_ONLY:
+                gate_status = RoutingAutomationStepStatus.MANUAL_ONLY.value
+            elif step.status == RoutingAutomationStepStatus.DRY_RUN_ONLY:
+                gate_status = RoutingAutomationStepStatus.DRY_RUN_ONLY.value
             step_gate_states[action.value] = RoutingAutomationApprovalGateState(
                 action_name=action,
                 status=gate_status,
@@ -671,7 +675,16 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                     if selected is not None
                     else ["routing_automation_approval_missing"]
                 )
-                + (list(step.reason_codes) if step.blocked else []),
+                + (
+                    list(step.reason_codes)
+                    if step.blocked
+                    or step.status
+                    in {
+                        RoutingAutomationStepStatus.MANUAL_ONLY,
+                        RoutingAutomationStepStatus.DRY_RUN_ONLY,
+                    }
+                    else []
+                ),
                 lineage=dict(selected.lineage if selected is not None else step.lineage),
             )
 
@@ -1111,6 +1124,10 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 status = "blocked"
             elif step is not None and step.status == RoutingAutomationStepStatus.ALREADY_SATISFIED:
                 status = "already_satisfied"
+            elif step is not None and step.status == RoutingAutomationStepStatus.MANUAL_ONLY:
+                status = RoutingAutomationStepStatus.MANUAL_ONLY.value
+            elif step is not None and step.status == RoutingAutomationStepStatus.DRY_RUN_ONLY:
+                status = RoutingAutomationStepStatus.DRY_RUN_ONLY.value
             states[action.value] = {
                 "status": status,
                 "approval_id": selected.approval_id if selected is not None else None,
@@ -1119,6 +1136,19 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                     list(selected.reason_codes_json or [])
                     if selected is not None
                     else ["routing_automation_approval_missing"]
+                )
+                + (
+                    list(step.reason_codes)
+                    if step is not None
+                    and (
+                        step.blocked
+                        or step.status
+                        in {
+                            RoutingAutomationStepStatus.MANUAL_ONLY,
+                            RoutingAutomationStepStatus.DRY_RUN_ONLY,
+                        }
+                    )
+                    else []
                 ),
                 "lineage": (
                     dict(selected.lineage_json or {})
@@ -1152,21 +1182,28 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 reason,
                 f"Routing automation action {action.value} is not approvable.",
             )
+        if step.status == RoutingAutomationStepStatus.DRY_RUN_ONLY:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_action_dry_run_only",
+                f"Routing automation action {action.value} is dry-run only.",
+            )
+        if step.status == RoutingAutomationStepStatus.MANUAL_ONLY:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_action_manual_only",
+                f"Routing automation action {action.value} is manual-only.",
+            )
         if action == RoutingAutomationApprovalAction.SUBMITTED_ORDER_HANDOFF:
             if not step.artifact_id:
                 raise RoutingAssessmentError(
                     "routing_automation_approval_missing_child_intent",
                     "Submitted-order handoff approval requires an existing child intent.",
                 )
-            return
         if step.status not in {
             RoutingAutomationStepStatus.APPROVAL_REQUIRED,
             RoutingAutomationStepStatus.AUTOMATION_ELIGIBLE,
-            RoutingAutomationStepStatus.DRY_RUN_ONLY,
-            RoutingAutomationStepStatus.MANUAL_ONLY,
         }:
             raise RoutingAssessmentError(
-                "routing_automation_approval_action_not_available",
+                "routing_automation_approval_action_not_approvable",
                 f"Routing automation action {action.value} is not approvable.",
             )
 

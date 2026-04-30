@@ -299,6 +299,152 @@ def test_repeated_create_reuses_one_active_approval_for_current_lineage_scope() 
     assert total_count == 1
 
 
+def test_dry_run_only_step_cannot_receive_active_approval() -> None:
+    session_factory = build_test_session_factory()
+    routing, audit, desired_trade_key = _ready_audit(session_factory)
+    asyncio.run(
+        routing.create_routing_target_recommendation_from_route_readiness_audit(
+            audit.route_readiness_audit_id
+        )
+    )
+    before = _counts(session_factory)
+
+    with pytest.raises(RoutingAssessmentError) as exc:
+        asyncio.run(
+            routing.create_routing_automation_approval(
+                desired_trade_key,
+                action_name=RoutingAutomationApprovalAction.RECOMMENDATION_ACCEPTANCE.value,
+                approved_by="operator-a",
+                policy=routing.routing_automation_policy(
+                    mode=RoutingAutomationMode.DRY_RUN_ONLY
+                ),
+            )
+        )
+
+    assert exc.value.reason_code == "routing_automation_approval_action_dry_run_only"
+    assert _counts(session_factory) == before
+
+
+def test_manual_only_step_cannot_receive_active_approval_even_with_custom_policy() -> None:
+    session_factory = build_test_session_factory()
+    routing, audit, desired_trade_key = _ready_audit(session_factory)
+    asyncio.run(
+        routing.create_routing_target_recommendation_from_route_readiness_audit(
+            audit.route_readiness_audit_id
+        )
+    )
+    before = _counts(session_factory)
+
+    with pytest.raises(RoutingAssessmentError) as exc:
+        asyncio.run(
+            routing.create_routing_automation_approval(
+                desired_trade_key,
+                action_name=RoutingAutomationApprovalAction.RECOMMENDATION_ACCEPTANCE.value,
+                approved_by="operator-a",
+                policy=routing.routing_automation_policy(
+                    mode=RoutingAutomationMode.EXPLICIT_AUTOMATION_PERMITTED,
+                    allow_recommendation_acceptance=False,
+                ),
+            )
+        )
+
+    assert exc.value.reason_code == "routing_automation_approval_action_manual_only"
+    assert _counts(session_factory) == before
+
+
+def test_plan_gate_status_does_not_approve_dry_run_or_manual_current_steps() -> None:
+    session_factory = build_test_session_factory()
+    routing, audit, desired_trade_key = _ready_audit(session_factory)
+    asyncio.run(
+        routing.create_routing_target_recommendation_from_route_readiness_audit(
+            audit.route_readiness_audit_id
+        )
+    )
+    approval = asyncio.run(
+        routing.create_routing_automation_approval(
+            desired_trade_key,
+            action_name=RoutingAutomationApprovalAction.RECOMMENDATION_ACCEPTANCE.value,
+            approved_by="operator-a",
+        )
+    )
+
+    dry_run_plan = asyncio.run(
+        routing.plan_routing_automation_for_desired_trade(
+            desired_trade_key,
+            policy=routing.routing_automation_policy(mode=RoutingAutomationMode.DRY_RUN_ONLY),
+        )
+    )
+    dry_run_gate = dry_run_plan.approval_gate_states["recommendation_acceptance"]
+    assert dry_run_gate["status"] == "dry_run_only"
+    assert dry_run_gate["approval_id"] == approval.approval_id
+    assert "routing_automation_dry_run_only" in dry_run_gate["reason_codes"]
+
+    manual_plan = asyncio.run(
+        routing.plan_routing_automation_for_desired_trade(
+            desired_trade_key,
+            policy=routing.routing_automation_policy(
+                mode=RoutingAutomationMode.EXPLICIT_AUTOMATION_PERMITTED,
+                allow_recommendation_acceptance=False,
+            ),
+        )
+    )
+    manual_gate = manual_plan.approval_gate_states["recommendation_acceptance"]
+    assert manual_gate["status"] == "manual_only"
+    assert manual_gate["approval_id"] == approval.approval_id
+    assert "manual_only_by_policy" in manual_gate["reason_codes"]
+
+
+def test_approval_inspection_does_not_mark_manual_only_step_approved() -> None:
+    session_factory = build_test_session_factory()
+    routing, audit, desired_trade_key = _ready_audit(session_factory)
+    asyncio.run(
+        routing.create_routing_target_recommendation_from_route_readiness_audit(
+            audit.route_readiness_audit_id
+        )
+    )
+    now = datetime.now(UTC)
+    scope = routing._routing_automation_approval_scope(
+        action=RoutingAutomationApprovalAction.SUBMITTED_ORDER_HANDOFF,
+        desired_trade_key=desired_trade_key,
+        lineage={},
+    )
+    with session_factory() as session:
+        session.add(
+            RoutingAutomationApprovalModel(
+                environment=routing.settings.app.environment,
+                approval_id="rtaap_legacy_manual_submit",
+                desired_trade_key=desired_trade_key,
+                action_name=RoutingAutomationApprovalAction.SUBMITTED_ORDER_HANDOFF.value,
+                status=RoutingAutomationApprovalStatus.ACTIVE.value,
+                lineage_fingerprint=scope["lineage_fingerprint"],
+                approval_scope_key=scope["approval_scope_key"],
+                approved_by="legacy-operator",
+                approved_at=now,
+                policy_name="legacy_manual_submit_fixture",
+                automation_mode=RoutingAutomationMode.APPROVAL_REQUIRED.value,
+                reason_codes_json=["legacy_active_submit_approval_fixture"],
+                boundary_flags_json=routing._routing_automation_boundary_flags(),
+                policy_snapshot_json={},
+                lineage_json={},
+                provenance_json={
+                    "legacy_fixture": True,
+                    "action_executed": False,
+                },
+                created_at=now,
+                updated_at=now,
+            )
+        )
+        session.commit()
+
+    inspection = asyncio.run(
+        routing.inspect_routing_automation_approvals_for_desired_trade(desired_trade_key)
+    )
+    gate = asdict(inspection)["step_gate_states"]["submitted_order_handoff"]
+    assert gate["status"] == "manual_only"
+    assert gate["approval_id"] == "rtaap_legacy_manual_submit"
+    assert "submitted_order_handoff_remains_explicit_manual_phase_7_0" in gate["reason_codes"]
+
+
 def test_approval_revocation_blocks_gate_and_does_not_consume_or_execute() -> None:
     session_factory = build_test_session_factory()
     routing, audit, desired_trade_key = _ready_audit(session_factory)

@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-04-30T05:40:33Z`
+Last reviewed: `2026-04-30T18:43:44Z`
 
 ## Active Follow-Ups
 
@@ -25,8 +25,14 @@ Last reviewed: `2026-04-30T05:40:33Z`
 ### T-036
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 7.1.2 finished the approval-truth substrate before action hooks exist. Approval creation now rejects dry-run-only, manual-only, disabled, deferred, blocked, and already-satisfied current steps; only approval-required and explicitly automation-eligible steps can create active approvals. Gate-state inspection keeps current policy truth authoritative, so existing approval metadata cannot make a manual-only or dry-run-only step appear approved. Approval remains separate from execution and still creates no target choice, child intent, readiness assessment, submitted order, exchange call, route executor, fanout, ranking/scoring, CBBO, target reselection, or auto-submit.`
+
+### T-037
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `Phase 7.2 is the next controlled automation item after Phase 7.1.1. It must remain below smart routing and should add a narrow action hook that consumes one active, non-expired, current-lineage approval for one same-target action without collapsing plan -> approval -> execution. Recommendation acceptance, target-choice conversion, preview/readiness, and submitted-order handoff must continue to preserve same-target lineage, current-truth revalidation, submit-lease uncertainty behavior, approval revocation/expiry/stale-lineage/consumption truth, and explicit no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit boundaries.`
+- `summary`: `Phase 7.2 is the next controlled automation item after Phase 7.1.2. It must remain below smart routing and should add a narrow action hook that consumes one active, non-expired, current-lineage approval for one same-target action only when the current step is still approvable, without collapsing plan -> approval -> execution. Recommendation acceptance, target-choice conversion, preview/readiness, and submitted-order handoff must continue to preserve same-target lineage, current-truth revalidation, submit-lease uncertainty behavior, approval revocation/expiry/stale-lineage/non-approvable-status/consumption truth, and explicit no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit boundaries.`
 
 ### T-001
 
