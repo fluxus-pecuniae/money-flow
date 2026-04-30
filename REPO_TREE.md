@@ -30,7 +30,11 @@ Last reviewed: `2026-04-30T18:43:44Z`
 
 `.gitignore`
 - Source-control hygiene guard for the `master` baseline.
-- Excludes local secrets, virtualenvs, caches, local database/runtime state, logs, review bundles, handoff archives, OS/editor files, and build artifacts while keeping `.env.example` trackable.
+- Excludes local secrets, virtualenvs, caches, local database/runtime state, logs, review bundles, handoff archives, nested local note/vault artifacts such as `/money-flow/`, OS/editor files, and build artifacts while keeping `.env.example` trackable.
+
+`.archiveignore`
+- Review-bundle hygiene guard consumed by `scripts/create_review_bundle.py`.
+- Excludes local secrets, virtualenvs, caches, generated archives, database/socket state, and nested local note/vault artifacts such as `money-flow/` from handoff ZIPs.
 
 `apps/api/`
 - FastAPI control plane.

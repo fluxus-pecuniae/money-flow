@@ -62,6 +62,9 @@ MF-handoffs/
 CODEX-files-MF/
 money-flow-phase-*-review.zip
 
+# Local note/vault artifacts accidentally nested under the repo root
+/money-flow/
+
 # Node/frontend artifacts if introduced later
 node_modules/
 npm-debug.log*

@@ -17,8 +17,10 @@ Entry schema:
 
 - `recorded_at_utc`: `2026-04-30T18:43:44Z`
 - `scope`: `Phase 7.1.2 routing automation approval approvable-step truth hotfix`
-- `intent`: `Native entry. Finished the approval-truth substrate before action hooks exist. Approval creation now rejects current steps classified as `dry_run_only`, `manual_only`, `disabled`, `deferred`, `blocked`, or `already_satisfied`; only `approval_required` and explicitly `automation_eligible` steps can create active approvals. Automation approval gate-state inspection now keeps current policy truth ahead of stored approval metadata, so a current manual-only or dry-run-only step is reported as `manual_only` or `dry_run_only` rather than plain `approved` even if an old active approval row exists. Strengthened Phase 7.1 approval tests for dry-run-only rejection, manual-only rejection under custom policy input, gate-state truth under dry-run/manual current policies, and legacy approval metadata that must not make submitted-order handoff appear approved. This is approval truth only: no recommendation acceptance execution, target-choice conversion execution, preview/readiness execution, submitted-order execution, exchange call, route executor behavior, smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, cross-binding/cross-venue recovery, auto-submit, new exchange behavior, migration, config, or money_flow_project_memory.md update was added.`
+- `intent`: `Native entry. Finished the approval-truth substrate before action hooks exist. Approval creation now rejects current steps classified as `dry_run_only`, `manual_only`, `disabled`, `deferred`, `blocked`, or `already_satisfied`; only `approval_required` and explicitly `automation_eligible` steps can create active approvals. Automation approval gate-state inspection now keeps current policy truth ahead of stored approval metadata, so a current manual-only or dry-run-only step is reported as `manual_only` or `dry_run_only` rather than plain `approved` even if an old active approval row exists. Strengthened Phase 7.1 approval tests for dry-run-only rejection, manual-only rejection under custom policy input, gate-state truth under dry-run/manual current policies, and legacy approval metadata that must not make submitted-order handoff appear approved. Also hardened source/review hygiene so an accidentally nested local `money-flow/` note/vault artifact is ignored by Git and excluded from review bundles. This is approval truth only: no recommendation acceptance execution, target-choice conversion execution, preview/readiness execution, submitted-order execution, exchange call, route executor behavior, smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, cross-binding/cross-venue recovery, auto-submit, new exchange behavior, migration, config, or money_flow_project_memory.md update was added.`
 - `affected_files`:
+  - `.archiveignore`
+  - `.gitignore`
   - `services/routing/service.py`
   - `tests/test_phase71_routing_automation_approvals.py`
   - `README.md`
@@ -36,7 +38,8 @@ Entry schema:
   - `.venv/bin/python -m pytest -q tests/test_phase69_routed_workflow_inspection.py tests/test_phase67_recommendation_backed_submission.py tests/test_api.py tests/test_operational_docs.py` passed.
   - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed.
   - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed after final docs update.
-  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-7.1.2-review.zip` created a clean review bundle; bundle inspection found 677 files and no `.env` other than `.env.example`, virtualenvs, caches, local DBs, SQLite files, logs, or nested archives.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed after `.gitignore` / `.archiveignore` hygiene update.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-7.1.2-review.zip` created a clean review bundle; bundle inspection found 686 files and no `.env` other than `.env.example`, virtualenvs, caches, local DBs, SQLite files, logs, nested archives, or nested `money-flow/` local-note artifacts.
 
 ## v2026.04.30.001
 
