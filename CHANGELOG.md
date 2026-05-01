@@ -13,6 +13,36 @@ Entry schema:
 
 ---
 
+## v2026.05.01.012
+
+- `recorded_at_utc`: `2026-05-01T18:12:47Z`
+- `scope`: `SV1.0.1 strategy-validation research-truth and report hardening`
+- `intent`: `Native entry. Hardened the SV1.0 Money Flow validation report so founder/operator research review sees the simulation assumptions and limitations clearly. Reports now include explicit fill timing with `same_candle_close_research_only`, `next_candle_open`, and `next_candle_close`; same-candle close remains available but is labeled research-only and potentially optimistic. Metrics now expose closed-trade drawdown separately from mark-to-market drawdown, with mark-to-market drawdown derived from intrabar adverse open-position movement for long simulated trades. Markdown output now includes report context, assumptions, aggregate metrics, component comparison, component metrics, trade summary, no-trade/invalid reason counts, and prominent limitations. JSON output is extended deterministically with fill timing, drawdown methodology, closed-trade drawdown, mark-to-market drawdown, component comparison, and trade fill metadata. This phase changes validation/reporting truth only: Money Flow strategy rules were not optimized or changed, no live artifacts are created, no routing/execution automation is added, no exchange adapters are called, and simulated trades remain separate from `SubmittedOrder`.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `services/strategy_validation/service.py`
+  - `scripts/run_money_flow_backtest.py`
+  - `tests/test_sv10_strategy_validation.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py` passed with 7 tests during focused development.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 23 tests.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed with 474 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 9 tests after final docs updates.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.0.1-review.zip` created the SV1.0.1 review bundle; bundle inspection found no `.env`, virtualenvs, Git metadata, pytest caches, local DB/SQLite files, nested archives, secrets, or Obsidian app state.
+
 ## v2026.05.01.011
 
 - `recorded_at_utc`: `2026-05-01T17:40:40Z`

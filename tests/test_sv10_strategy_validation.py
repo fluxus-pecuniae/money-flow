@@ -9,7 +9,14 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from core.config.settings import AppSettings
-from core.domain.enums import Environment, MarketType, ProductType, StrategyFamily, Timeframe
+from core.domain.enums import (
+    Environment,
+    MarketType,
+    ProductType,
+    StrategyFamily,
+    StrategyValidationFillTiming,
+    Timeframe,
+)
 from core.domain.models import StrategyValidationAssumptions, StrategyValidationRequest
 from db.base import Base
 from db.models import (
@@ -25,7 +32,11 @@ from db.models import (
     SymbolModel,
 )
 from scripts.run_money_flow_backtest import build_parser, build_request
-from services.strategy_validation import MoneyFlowBacktestService, strategy_validation_report_to_dict
+from services.strategy_validation import (
+    MoneyFlowBacktestService,
+    strategy_validation_report_to_dict,
+    strategy_validation_report_to_markdown,
+)
 
 
 def build_test_session_factory():
@@ -108,6 +119,9 @@ def seed_candles(
     symbol: str,
     timeframe: Timeframe,
     closes: list[Decimal],
+    opens: list[Decimal] | None = None,
+    highs: list[Decimal] | None = None,
+    lows: list[Decimal] | None = None,
 ) -> tuple[datetime, timedelta]:
     start = datetime(2026, 1, 1, tzinfo=UTC)
     delta = {
@@ -119,7 +133,9 @@ def seed_candles(
         for index, close in enumerate(closes):
             open_time = start + (delta * index)
             close_time = open_time + delta
-            open_price = closes[index - 1] if index else close
+            open_price = opens[index] if opens is not None else closes[index - 1] if index else close
+            high = highs[index] if highs is not None else max(open_price, close) + Decimal("0.5")
+            low = lows[index] if lows is not None else min(open_price, close) - Decimal("0.5")
             session.add(
                 CandleModel(
                     environment=Environment.TESTNET,
@@ -131,8 +147,8 @@ def seed_candles(
                     open_time=open_time,
                     close_time=close_time,
                     open=open_price,
-                    high=max(open_price, close) + Decimal("0.5"),
-                    low=min(open_price, close) - Decimal("0.5"),
+                    high=high,
+                    low=low,
                     close=close,
                     volume=Decimal("100"),
                     trade_count=10,
@@ -206,6 +222,9 @@ def build_request_for_window(
     instrument_key: str,
     fee_bps: Decimal = Decimal("0"),
     slippage_bps: Decimal = Decimal("0"),
+    fill_timing: StrategyValidationFillTiming = (
+        StrategyValidationFillTiming.SAME_CANDLE_CLOSE_RESEARCH_ONLY
+    ),
 ) -> StrategyValidationRequest:
     return StrategyValidationRequest(
         strategy_family=StrategyFamily.MONEY_FLOW,
@@ -220,9 +239,14 @@ def build_request_for_window(
             initial_capital=Decimal("10000"),
             fee_bps=fee_bps,
             slippage_bps=slippage_bps,
+            fill_timing=fill_timing,
             position_notional_pct=Decimal("1.0"),
         ),
     )
+
+
+def _signal_index_from_close_time(start: datetime, delta: timedelta, close_time: datetime) -> int:
+    return int((close_time - start) / delta) - 1
 
 
 def test_money_flow_validation_produces_simulated_trade_without_live_artifacts() -> None:
@@ -263,7 +287,14 @@ def test_money_flow_validation_produces_simulated_trade_without_live_artifacts()
     payload = strategy_validation_report_to_dict(report)
     assert payload["assumptions"]["initial_capital"] == "10000"
     assert payload["assumptions"]["fee_bps"] == "0"
+    assert (
+        payload["assumptions"]["fill_timing"]
+        == StrategyValidationFillTiming.SAME_CANDLE_CLOSE_RESEARCH_ONLY.value
+    )
+    assert payload["assumptions"]["drawdown_methodology"] == "closed_trade_and_mark_to_market"
     assert payload["aggregate_metrics"]["number_of_trades"] == 4
+    assert "closed_trade_max_drawdown" in payload["aggregate_metrics"]
+    assert "mark_to_market_max_drawdown" in payload["aggregate_metrics"]
 
     with session_factory() as session:
         assert session.scalar(select(func.count()).select_from(MandateDesiredTradeModel)) == 0
@@ -273,6 +304,99 @@ def test_money_flow_validation_produces_simulated_trade_without_live_artifacts()
         assert session.scalar(select(func.count()).select_from(StrategyDecisionModel)) == 0
         assert session.scalar(select(func.count()).select_from(SignalEventModel)) == 0
         assert session.scalar(select(func.count()).select_from(IndicatorSnapshotModel)) == 0
+
+
+def test_fill_timing_assumption_changes_entry_price_and_is_reported() -> None:
+    settings = build_settings()
+    closes = bullish_then_break_closes()
+    opens = [close + Decimal("3") for close in closes]
+
+    reports = {}
+    for fill_timing in StrategyValidationFillTiming:
+        session_factory = build_test_session_factory()
+        instrument_ref_id, symbol_id, instrument_key = seed_symbol(session_factory)
+        start, delta = seed_candles(
+            session_factory,
+            instrument_ref_id=instrument_ref_id,
+            symbol_id=symbol_id,
+            symbol="BTC",
+            timeframe=Timeframe.M15,
+            closes=closes,
+            opens=opens,
+        )
+        service = MoneyFlowBacktestService(settings, session_factory=session_factory)
+        reports[fill_timing] = asyncio.run(
+            service.run_money_flow_backtest(
+                build_request_for_window(
+                    start=start,
+                    delta=delta,
+                    closes=closes,
+                    instrument_key=instrument_key,
+                    fill_timing=fill_timing,
+                )
+            )
+        )
+
+    same_trade = reports[
+        StrategyValidationFillTiming.SAME_CANDLE_CLOSE_RESEARCH_ONLY
+    ].component_reports[0].trades[0]
+    next_open_trade = reports[StrategyValidationFillTiming.NEXT_CANDLE_OPEN].component_reports[0].trades[0]
+    next_close_trade = reports[StrategyValidationFillTiming.NEXT_CANDLE_CLOSE].component_reports[0].trades[0]
+    signal_index = _signal_index_from_close_time(start, delta, same_trade.entry_signal_time)
+
+    assert same_trade.entry_price == closes[signal_index]
+    assert next_open_trade.entry_price == opens[signal_index + 1]
+    assert next_close_trade.entry_price == closes[signal_index + 1]
+    assert same_trade.entry_price != next_open_trade.entry_price
+    assert same_trade.entry_price != next_close_trade.entry_price
+
+    payload = strategy_validation_report_to_dict(reports[StrategyValidationFillTiming.NEXT_CANDLE_OPEN])
+    markdown = strategy_validation_report_to_markdown(
+        reports[StrategyValidationFillTiming.SAME_CANDLE_CLOSE_RESEARCH_ONLY]
+    )
+    assert payload["assumptions"]["fill_timing"] == "next_candle_open"
+    assert "Fill timing" in markdown
+    assert "same_candle_close_research_only" in markdown
+    assert "same_candle_close_fills_are_research_only_and_can_overstate_edge" in markdown
+
+
+def test_mark_to_market_drawdown_captures_intratrade_adverse_move() -> None:
+    settings = build_settings()
+    session_factory = build_test_session_factory()
+    instrument_ref_id, symbol_id, instrument_key = seed_symbol(session_factory)
+    closes = bullish_then_break_closes()
+    lows = [close - Decimal("0.5") for close in closes]
+    for index in range(36, len(lows)):
+        lows[index] = Decimal("70")
+    start, delta = seed_candles(
+        session_factory,
+        instrument_ref_id=instrument_ref_id,
+        symbol_id=symbol_id,
+        symbol="BTC",
+        timeframe=Timeframe.M15,
+        closes=closes,
+        lows=lows,
+    )
+    service = MoneyFlowBacktestService(settings, session_factory=session_factory)
+
+    report = asyncio.run(
+        service.run_money_flow_backtest(
+            build_request_for_window(
+                start=start,
+                delta=delta,
+                closes=closes,
+                instrument_key=instrument_key,
+            )
+        )
+    )
+
+    component_metrics = report.component_reports[0].metrics
+    assert component_metrics.mark_to_market_max_drawdown is not None
+    assert component_metrics.mark_to_market_max_drawdown > 0
+    assert component_metrics.mark_to_market_max_drawdown >= component_metrics.closed_trade_max_drawdown
+    payload = strategy_validation_report_to_dict(report)
+    assert payload["aggregate_metrics"]["drawdown_methodology"] == "closed_trade_and_mark_to_market"
+    assert payload["aggregate_metrics"]["mark_to_market_max_drawdown"] is not None
 
 
 def test_fees_and_slippage_reduce_net_pnl() -> None:
@@ -346,6 +470,52 @@ def test_no_trade_reasons_and_report_are_deterministic() -> None:
     assert strategy_validation_report_to_dict(first) == strategy_validation_report_to_dict(second)
 
 
+def test_markdown_report_exposes_research_review_sections_and_limitations() -> None:
+    settings = build_settings()
+    session_factory = build_test_session_factory()
+    instrument_ref_id, symbol_id, instrument_key = seed_symbol(session_factory)
+    closes = bullish_then_break_closes()
+    start, delta = seed_candles(
+        session_factory,
+        instrument_ref_id=instrument_ref_id,
+        symbol_id=symbol_id,
+        symbol="BTC",
+        timeframe=Timeframe.M15,
+        closes=closes,
+    )
+    service = MoneyFlowBacktestService(settings, session_factory=session_factory)
+    report = asyncio.run(
+        service.run_money_flow_backtest(
+            build_request_for_window(
+                start=start,
+                delta=delta,
+                closes=closes,
+                instrument_key=instrument_key,
+            )
+        )
+    )
+
+    markdown = strategy_validation_report_to_markdown(report)
+
+    assert "## Report Context" in markdown
+    assert "## Assumptions" in markdown
+    assert "## Aggregate Metrics" in markdown
+    assert "## Component Metrics" in markdown
+    assert "## Trade Summary" in markdown
+    assert "## Reason Counts" in markdown
+    assert "## Limitations" in markdown
+    assert "research-only validation report" in markdown
+    assert "does not create `SubmittedOrder` records" in markdown
+    assert "same_candle_close_fills_are_research_only_and_can_overstate_edge" in markdown
+    assert "Profit factor" in markdown
+    assert "Average win" in markdown
+    assert "Average loss" in markdown
+    assert "Best trade" in markdown
+    assert "Worst trade" in markdown
+    assert "Fees" in markdown
+    assert "Slippage cost" in markdown
+
+
 def test_cli_request_and_report_dict_expose_assumptions_and_metrics() -> None:
     parser = build_parser()
     args = parser.parse_args(
@@ -366,6 +536,8 @@ def test_cli_request_and_report_dict_expose_assumptions_and_metrics() -> None:
             "5",
             "--slippage-bps",
             "2",
+            "--fill-timing",
+            "next_candle_open",
         ]
     )
 
@@ -375,3 +547,4 @@ def test_cli_request_and_report_dict_expose_assumptions_and_metrics() -> None:
     assert request.assumptions.initial_capital == Decimal("10000")
     assert request.assumptions.fee_bps == Decimal("5")
     assert request.assumptions.slippage_bps == Decimal("2")
+    assert request.assumptions.fill_timing == StrategyValidationFillTiming.NEXT_CANDLE_OPEN

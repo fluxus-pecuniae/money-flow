@@ -2,9 +2,9 @@
 
 ## Phase
 
-Current implemented phase: `SV1.0`
+Current implemented phase: `SV1.0.1`
 
-Proposed next phase: `SV1.1` strategy-validation depth after SV1.0 report review. `Phase 8.1` remains deferred until explicitly scoped.
+Proposed next phase: `SV1.1` strategy-validation depth after SV1.0.1 report review. `Phase 8.1` remains deferred until explicitly scoped.
 
 ## Purpose
 
@@ -24,6 +24,8 @@ Phase 8.0.2 is a narrow operator-summary truth hotfix. It makes active unexpired
 
 SV1.0 pivots to Strategy Validation. It adds the first Money Flow backtesting/reporting framework over persisted historical candles, reuses current Money Flow rules without optimization, simulates research-only trades with explicit capital/fee/slippage/sizing assumptions, and emits deterministic operator-readable reports. It creates no live desired trades, child intents, prepared orders, readiness assessments, submitted orders, routing artifacts, approval changes, or exchange calls.
 
+SV1.0.1 hardens Strategy Validation research truth. It adds explicit fill timing assumptions, supports next-candle open/close fills in addition to same-candle close research-only fills, separates closed-trade drawdown from mark-to-market drawdown, and expands the Markdown report for founder/operator review. It changes no Money Flow rules, optimization, paper/live trading, routing, execution automation, exchange calls, or live artifacts.
+
 ## Accepted Baseline
 
 - Phase 7.0 added non-executing routing automation policy and dry-run plans.
@@ -42,6 +44,7 @@ SV1.0 pivots to Strategy Validation. It adds the first Money Flow backtesting/re
 - Phase 8.0.1 resolved the Obsidian memory / working-tree baseline without product behavior changes.
 - Phase 8.0.2 fixed active submit-lease operator-summary truth without product behavior changes.
 - SV1.0 added Money Flow strategy validation/backtesting reports without live execution artifacts or strategy-rule optimization.
+- SV1.0.1 hardened Money Flow validation fill-timing/drawdown/report truth without strategy-rule changes.
 
 ## Hard Boundaries
 
@@ -73,6 +76,8 @@ Phase 8.0.2 is successful when the operator summary reports an active unexpired 
 
 SV1.0 is successful when operators/researchers can run a deterministic Money Flow validation report over persisted candles, inspect assumptions and core metrics, compare component/timeframe output where data exists, and verify validation remains separate from live routing/execution.
 
+SV1.0.1 is successful when fill timing is explicit, same-candle close fills are labeled research-only/optimistic, closed-trade and mark-to-market drawdown are distinct, Markdown is useful for founder/operator review, and validation still creates no live artifacts or strategy-rule changes.
+
 ## Current Outcome
 
 - Obsidian command center/current phase/decision log/coordination notes are now part of the required agent workflow.
@@ -88,8 +93,9 @@ SV1.0 is successful when operators/researchers can run a deterministic Money Flo
 - Phase 8.0.1 accepts the prior Obsidian refresh as intentional memory baseline and updates it to current Phase 8.0/8.0.1 truth.
 - Phase 8.0.2 makes the operator summary block approval-gated submit as the next safe action while an unexpired `active` submit lease is already in progress.
 - SV1.0 adds `services/strategy_validation` and `scripts/run_money_flow_backtest.py` for deterministic Money Flow research reports from persisted candles.
+- SV1.0.1 adds selectable validation fill timing, mark-to-market drawdown, expanded Markdown/JSON report detail, and direct research-truth tests.
 - Recovery, route execution, fanout, scoring, CBBO, target reselection, cross-venue retry, and broad auto-submit remain deferred.
 
 ## Next Phase Shape
 
-SV1.1 should be scoped after reviewing SV1.0 output. Likely candidates are deeper historical data coverage, regime analysis, report persistence if useful, and paper-trading readiness. Phase 8.1 should remain deferred until explicitly scoped; when it resumes, it should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review, keep operator acknowledgement separate from exchange/account truth, and not attach submit/cancel/amend/retry behavior to inspection.
+SV1.1 should be scoped after reviewing SV1.0.1 output. Likely candidates are deeper historical data coverage, regime analysis, report persistence if useful, and paper-trading readiness. Phase 8.1 should remain deferred until explicitly scoped; when it resumes, it should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review, keep operator acknowledgement separate from exchange/account truth, and not attach submit/cancel/amend/retry behavior to inspection.

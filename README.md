@@ -34,6 +34,8 @@ Phase 8.0.2 hotpatches operator-summary truth for active submit leases. If an un
 
 SV1.0 starts the Strategy Validation track. It adds a separate Money Flow validation/backtesting boundary that reads persisted historical candles, computes indicators in memory, reuses the current Money Flow rules, simulates research-only trades, and emits deterministic JSON or Markdown reports with explicit initial-capital, fee, slippage, and sizing assumptions. Simulated trades are `StrategyValidationTrade` report artifacts, not `SubmittedOrder` rows. The runner does not create desired trades, child intents, prepared orders, readiness evaluations, submitted orders, routing artifacts, approval changes, or exchange adapter calls, and it does not optimize or change the Money Flow strategy rules.
 
+SV1.0.1 hardens the validation report truth without changing strategy rules. Fill timing is now explicit (`same_candle_close_research_only`, `next_candle_open`, or `next_candle_close`), same-candle close fills are labeled research-only and potentially optimistic, closed-trade drawdown is separated from mark-to-market drawdown, and the Markdown report now includes context, assumptions, aggregate metrics, component metrics/comparison, trade summary, reason counts, and prominent limitations. This remains research reporting only, not paper trading, live execution, routing, or proof of future profitability.
+
 ## Operational Memory
 
 This repo now uses explicit operational-memory files plus an Obsidian strategic brain. Future work is expected to read them before changes and update them after changes.
@@ -78,10 +80,11 @@ SV1.0 adds an operator/research CLI for Money Flow validation over persisted can
   --initial-capital 10000 \
   --fee-bps 5 \
   --slippage-bps 2 \
+  --fill-timing next_candle_open \
   --format markdown
 ```
 
-The report includes data range, instrument/source, component/timeframe, assumptions, simulated trade summaries, no-trade/invalid reason counts, net/gross PnL, fees, slippage cost, win/loss rates, profit factor, drawdown, average trade duration, best/worst trade, return on initial capital, and component/timeframe grouping. This is a research/backtest tool only. It is not paper trading, live execution, routing automation, smart routing, best-binding selection, fanout, target reselection, route-executor behavior, or proof of future profitability.
+The report includes data range, instrument/source, component/timeframe, assumptions, fill timing, simulated trade summaries, no-trade/invalid reason counts, net/gross PnL, fees, slippage cost, win/loss rates, profit factor, closed-trade drawdown, mark-to-market drawdown, average trade duration, best/worst trade, return on initial capital, component/timeframe grouping, and limitations. Use `same_candle_close_research_only` only as an explicitly optimistic research assumption; `next_candle_open` and `next_candle_close` are available for less optimistic fill timing checks. This is a research/backtest tool only. It is not paper trading, live execution, routing automation, smart routing, best-binding selection, fanout, target reselection, route-executor behavior, or proof of future profitability.
 
 ## Routing Automation Planning
 

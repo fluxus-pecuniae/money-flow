@@ -39,6 +39,7 @@ from core.domain.enums import (
     StackingPolicy,
     StrategyDecisionStatus,
     StrategyFamily,
+    StrategyValidationFillTiming,
     SubmittedOrderStatus,
     SubmittedOrderReconciliationStatus,
     SubmittedOrderRecoveryCategory,
@@ -1611,8 +1612,12 @@ class StrategyValidationAssumptions:
     fee_bps: Decimal
     slippage_bps: Decimal
     position_notional_pct: Decimal
+    fill_timing: StrategyValidationFillTiming = (
+        StrategyValidationFillTiming.SAME_CANDLE_CLOSE_RESEARCH_ONLY
+    )
     reduce_action_model: str = "full_exit"
     force_close_open_trade_at_end: bool = True
+    drawdown_methodology: str = "closed_trade_and_mark_to_market"
 
 
 @dataclass(slots=True)
@@ -1658,6 +1663,13 @@ class StrategyValidationTrade:
     entry_evaluation_key: str
     exit_evaluation_key: str
     duration_seconds: int
+    entry_signal_time: datetime | None = None
+    exit_signal_time: datetime | None = None
+    fill_timing: StrategyValidationFillTiming = (
+        StrategyValidationFillTiming.SAME_CANDLE_CLOSE_RESEARCH_ONLY
+    )
+    entry_fill_source: str = "signal_candle_close"
+    exit_fill_source: str = "signal_candle_close"
     forced_exit: bool = False
 
 
@@ -1677,6 +1689,11 @@ class StrategyValidationMetrics:
     total_slippage_cost: Decimal
     max_drawdown: Decimal
     max_drawdown_pct: Decimal | None
+    closed_trade_max_drawdown: Decimal
+    closed_trade_max_drawdown_pct: Decimal | None
+    mark_to_market_max_drawdown: Decimal | None
+    mark_to_market_max_drawdown_pct: Decimal | None
+    drawdown_methodology: str
     average_trade_duration_seconds: Decimal | None
     best_trade_id: str | None
     best_trade_net_pnl: Decimal | None
@@ -1715,6 +1732,7 @@ class StrategyValidationReport:
     assumptions: StrategyValidationAssumptions
     component_reports: list[StrategyValidationComponentReport]
     aggregate_metrics: StrategyValidationMetrics
+    component_comparison: dict[str, Any] = field(default_factory=dict)
     limitations: list[str] = field(default_factory=list)
     no_live_execution_artifacts_created: bool = True
     exchange_adapters_called: bool = False

@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-01T17:40:40Z`
+Last reviewed: `2026-05-01T18:12:47Z`
 
 ## Active Follow-Ups
 
@@ -106,11 +106,17 @@ Last reviewed: `2026-05-01T17:40:40Z`
 - `status`: `done`
 - `summary`: `SV1.0 adds the first Money Flow strategy-validation/backtesting framework. The new service reads persisted candles, computes indicators in memory, reuses current Money Flow strategy rules, simulates research-only trades with explicit capital/fee/slippage/sizing assumptions, and reports deterministic aggregate/component metrics plus no-trade and invalid reason counts. A CLI can emit JSON or Markdown reports. Validation artifacts remain separate from live execution: SV1.0 creates no desired trades, child intents, prepared orders, readiness assessments, submitted orders, routing artifacts, approval state changes, or exchange adapter calls, and it does not optimize strategy rules.`
 
+### T-051
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.0.1 hardens Money Flow validation report truth without changing strategy rules. Fill timing is now explicit and selectable as `same_candle_close_research_only`, `next_candle_open`, or `next_candle_close`; same-candle close is labeled research-only and potentially optimistic. Reports separate closed-trade drawdown from mark-to-market drawdown, add deterministic component comparison/reporting fields, expand Markdown with context, assumptions, aggregate metrics, component metrics, trade summary, reason counts, and limitations, and preserve validation as research-only output with no live desired trades, child intents, readiness, submitted orders, routing artifacts, approval changes, exchange calls, or strategy optimization.`
+
 ### T-050
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `Define SV1.1 after reviewing SV1.0 reports. Candidate work should deepen historical data coverage, market-regime labeling, paper-trading readiness, report persistence if needed, and founder/operator review workflows. Do not optimize Money Flow parameters, add new strategy families, create live trading artifacts, or connect validation to routing/execution automation until evidence and architecture review justify that scope.`
+- `summary`: `Define SV1.1 after reviewing SV1.0.1 reports. Candidate work should deepen historical data coverage, market-regime labeling, paper-trading readiness, report persistence if needed, and founder/operator review workflows. Do not optimize Money Flow parameters, add new strategy families, create live trading artifacts, or connect validation to routing/execution automation until evidence and architecture review justify that scope.`
 
 ### T-001
 

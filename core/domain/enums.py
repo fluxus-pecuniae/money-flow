@@ -77,6 +77,12 @@ class StrategyFamily(StrEnum):
     MONEY_FLOW = "money_flow"
 
 
+class StrategyValidationFillTiming(StrEnum):
+    SAME_CANDLE_CLOSE_RESEARCH_ONLY = "same_candle_close_research_only"
+    NEXT_CANDLE_OPEN = "next_candle_open"
+    NEXT_CANDLE_CLOSE = "next_candle_close"
+
+
 class OrderSide(StrEnum):
     BUY = "buy"
     SELL = "sell"

@@ -45,6 +45,8 @@ Phase 8.0.2 corrects that summary's active submit-lease truth. An unexpired `act
 
 SV1.0 adds a separate strategy-validation/backtesting boundary. `services/strategy_validation` reads existing persisted candle rows, computes indicator snapshots in memory, reuses current Money Flow strategy evaluation, simulates research-only trades with explicit assumptions, and returns deterministic report models plus JSON/Markdown CLI output. It is intentionally outside routing and execution: it does not create `MandateDesiredTrade`, `OrderIntent`, `PreparedVenueOrder`, `ExecutionReadinessAssessment`, `SubmittedOrder`, approval records, routing artifacts, exchange adapter calls, or live automation side effects. Simulated trades are report artifacts, not exchange/account truth.
 
+SV1.0.1 hardens that research boundary by making simulation truth more explicit. Strategy-validation assumptions now include fill timing (`same_candle_close_research_only`, `next_candle_open`, or `next_candle_close`), and reports label same-candle close fills as research-only and potentially optimistic. Metrics expose closed-trade drawdown separately from mark-to-market drawdown, with mark-to-market drawdown derived from intrabar adverse movement while simulated long positions are open. Markdown and JSON reports include expanded assumptions, limitations, component metrics/comparison, trade summary, and reason-count sections. No Money Flow strategy rules, routing behavior, execution automation, live artifacts, or exchange calls changed.
+
 ## Core Hierarchy
 
 The active hierarchy is:
