@@ -183,8 +183,8 @@ def test_explicit_policy_can_mark_same_target_conversion_eligible_without_conver
     assert conversion["lineage"]["route_readiness_audit_id"] == audit.route_readiness_audit_id
     assert conversion["lineage"]["routing_target_choice_id"] == choice.target_choice_id
     assert conversion["lineage"]["selected_venue"] == choice.selected_venue
-    assert submission["status"] == RoutingAutomationStepStatus.MANUAL_ONLY
-    assert "auto_submit_not_enabled_by_phase_7_0" in submission["reason_codes"]
+    assert submission["status"] == RoutingAutomationStepStatus.DEFERRED
+    assert "depends_on_target_choice_conversion" in submission["reason_codes"]
     assert plan.boundary_flags["same_target_only"] is True
     assert plan.boundary_flags["cbbo"] is False
     assert plan.boundary_flags["fanout"] is False

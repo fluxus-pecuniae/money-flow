@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-01T07:28:41Z`
+Last reviewed: `2026-05-01T08:45:00Z`
 
 ## Active Follow-Ups
 
@@ -61,8 +61,14 @@ Last reviewed: `2026-05-01T07:28:41Z`
 ### T-042
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 7.5 implemented the fourth narrow approval-consuming action hook: submitted-order handoff for one already-ready routed child intent only. One active, non-expired, current-lineage `submitted_order_handoff` approval can now call the existing explicit child-intent submit path, and only when current readiness, live-submit and routed-submit gates, adapter/account authorization, routed lineage/order-shape truth, and submit lease/uncertainty guards pass. Approval is consumed only after `SubmittedOrder` persistence or safe reuse; blocked readiness/gates and submit uncertainty remain reason-coded and authoritative. Phase 7.5 adds no smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor behavior, cross-binding/cross-venue recovery, new exchange behavior, or broad auto-submit.`
+
+### T-043
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `Phase 7.5 should consider the next narrow automation step only after Phase 7.4 review, likely approval-gated submitted-order handoff if architecture accepts extending action hooks beyond readiness. It must require current-lineage approval truth, current readiness truth, existing live/routed submit gates, existing submit leases/uncertainty guards, and no hidden route executor, smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, cross-binding/cross-venue recovery, or auto-submit.`
+- `summary`: `Phase 7.6 should harden or close out the controlled automation chain before any broader automation is considered. Candidate work should focus on regression, operator inspection, concurrency/serialization gaps, and approval/submit uncertainty observability, not new routing intelligence. It must preserve same-target/current-lineage approval truth and avoid smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor behavior, cross-binding/cross-venue recovery, or broad auto-submit.`
 
 ### T-001
 

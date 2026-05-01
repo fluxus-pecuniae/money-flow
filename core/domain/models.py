@@ -1239,6 +1239,28 @@ class RoutingAutomationPreviewReadinessResult:
 
 
 @dataclass(slots=True)
+class RoutingAutomationSubmittedOrderHandoffResult:
+    approval_id: str
+    intent_id: str
+    desired_trade_key: str | None
+    environment: Environment
+    approval: RoutingAutomationApproval
+    submitted_order: SubmittedOrder
+    submitted_order_id: str
+    readiness_evaluation_id: str | None
+    approval_consumed: bool
+    submitted_order_created_or_reused: bool
+    submitted_order_created: bool = False
+    submitted_order_reused: bool = False
+    exchange_submit_called: bool = True
+    auto_submit: bool = False
+    route_executor_used: bool = False
+    reason_codes: list[str] = field(default_factory=list)
+    boundary_flags: dict[str, bool] = field(default_factory=dict)
+    provenance: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
 class RoutedOrderShapePolicyInput:
     order_type: OrderType | None = None
     limit_price: Decimal | None = None

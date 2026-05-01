@@ -440,9 +440,9 @@ def test_approval_inspection_does_not_mark_manual_only_step_approved() -> None:
         routing.inspect_routing_automation_approvals_for_desired_trade(desired_trade_key)
     )
     gate = asdict(inspection)["step_gate_states"]["submitted_order_handoff"]
-    assert gate["status"] == "manual_only"
+    assert gate["status"] == "deferred"
     assert gate["approval_id"] == "rtaap_legacy_manual_submit"
-    assert "submitted_order_handoff_remains_explicit_manual_phase_7_0" in gate["reason_codes"]
+    assert "depends_on_target_choice_conversion" in gate["reason_codes"]
 
 
 def test_approval_revocation_blocks_gate_and_does_not_consume_or_execute() -> None:

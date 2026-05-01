@@ -114,6 +114,8 @@ from core.schemas.api import (
     RoutingAutomationRecommendationAcceptanceResponse,
     RoutingAutomationPreviewReadinessRequest,
     RoutingAutomationPreviewReadinessResponse,
+    RoutingAutomationSubmittedOrderHandoffRequest,
+    RoutingAutomationSubmittedOrderHandoffResponse,
     RoutingAutomationTargetChoiceConversionRequest,
     RoutingAutomationTargetChoiceConversionResponse,
     RoutingAutomationApprovalResponse,
@@ -2654,6 +2656,84 @@ async def preview_readiness_with_routing_automation_approval(
         readiness_assessment_created=result.readiness_assessment_created,
         readiness_assessment_reused=result.readiness_assessment_reused,
         submitted_order_created=result.submitted_order_created,
+        exchange_submit_called=result.exchange_submit_called,
+        auto_submit=result.auto_submit,
+        route_executor_used=result.route_executor_used,
+        reason_codes=list(result.reason_codes),
+        boundary_flags=dict(result.boundary_flags),
+        provenance=dict(result.provenance),
+    )
+
+
+@v1.post(
+    "/routing-automation/approvals/{approval_id}/submit",
+    response_model=RoutingAutomationSubmittedOrderHandoffResponse,
+    tags=["routing-automation"],
+)
+async def submit_child_intent_with_routing_automation_approval(
+    approval_id: str,
+    request: RoutingAutomationSubmittedOrderHandoffRequest,
+    routing_service: RoutingAssessmentService = Depends(get_routing_assessment_service),
+    execution_service: ExecutionService = Depends(get_execution_service),
+) -> RoutingAutomationSubmittedOrderHandoffResponse:
+    policy = _routing_automation_policy_from_request(routing_service, request.policy)
+    try:
+        result = await routing_service.submit_child_intent_with_approval(
+            request.intent_id,
+            approval_id=approval_id,
+            consumed_by=request.actor,
+            execution_service=execution_service,
+            policy=policy,
+        )
+    except RoutingAssessmentError as exc:
+        status_code = (
+            404
+            if exc.reason_code
+            in {
+                "routing_automation_approval_not_found",
+                "order_intent_not_found",
+                "submitted_order_not_found",
+            }
+            else 409
+        )
+        raise HTTPException(
+            status_code=status_code,
+            detail={"reason_code": exc.reason_code, "message": str(exc)},
+        ) from exc
+    except SubmissionBlockedError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "message": str(exc),
+                "intent_id": exc.intent_id,
+                "outcome": exc.readiness.outcome.value,
+                "reason_codes": list(exc.readiness.reason_codes),
+                "provenance": dict(exc.readiness.provenance),
+            },
+        ) from exc
+    except SubmissionFailedError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail={
+                "message": str(exc),
+                "intent_id": exc.intent_id,
+                "venue": exc.venue,
+                "reason_codes": list(exc.reason_codes),
+            },
+        ) from exc
+    return RoutingAutomationSubmittedOrderHandoffResponse(
+        approval_id=result.approval_id,
+        intent_id=result.intent_id,
+        desired_trade_key=result.desired_trade_key,
+        environment=result.environment,
+        approval=RoutingAutomationApprovalResponse(**asdict(result.approval)),
+        submitted_order=_submitted_order_response(result.submitted_order),
+        submitted_order_id=result.submitted_order_id,
+        readiness_evaluation_id=result.readiness_evaluation_id,
+        approval_consumed=result.approval_consumed,
+        submitted_order_created_or_reused=result.submitted_order_created_or_reused,
+        submitted_order_created=result.submitted_order_created,
+        submitted_order_reused=result.submitted_order_reused,
         exchange_submit_called=result.exchange_submit_called,
         auto_submit=result.auto_submit,
         route_executor_used=result.route_executor_used,

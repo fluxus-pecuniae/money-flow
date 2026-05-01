@@ -8,9 +8,9 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 
 ## Current Phase
 
-- Current phase: `Phase 7.4`
-- Purpose: add approval-gated prepared-order preview/readiness inspection for an already converted routed child `OrderIntent`.
-- Current accepted action hooks before this phase: approval-gated recommendation acceptance and approval-gated target-choice conversion.
+- Current phase: `Phase 7.5`
+- Purpose: add approval-gated submitted-order handoff for one already-ready routed child `OrderIntent` through the existing explicit submit path.
+- Current accepted action hooks before this phase: approval-gated recommendation acceptance, target-choice conversion, and prepared-order preview/readiness inspection.
 
 ## Current Architectural Boundary
 
@@ -27,13 +27,13 @@ MandateDesiredTrade
 -> SubmittedOrder
 ```
 
-Phase 7.4 is accepted as automating only:
+Phase 7.5 is accepted as automating only:
 
 ```text
-OrderIntent -> PreparedVenueOrder preview -> ExecutionReadinessAssessment
+ExecutionReadinessAssessment -> SubmittedOrder
 ```
 
-Phase 7.4 must not automate submission, recovery, route execution, target reselection, fanout, scoring, ranking, CBBO, best-binding selection, or auto-submit. Approval authorizes the preview/readiness inspection only; readiness may still be blocked or phase-blocked.
+Phase 7.5 must not automate target selection, recovery, route execution, target reselection, fanout, scoring, ranking, CBBO, best-binding selection, cross-venue retry, or broad auto-submit. Approval authorizes only the same-target submitted-order handoff and still cannot bypass readiness, live-submit, routed-submit, adapter/account, submit lease, or uncertainty gates.
 
 ## Repo Truth Sources
 
@@ -63,7 +63,8 @@ Obsidian is the long-horizon project brain for founder intent, phase context, de
 
 - Strategy alpha remains central.
 - Approval is not execution unless a narrow action endpoint consumes it.
-- Preview/readiness approval is not submitted-order authorization.
+- Submitted-order handoff approval does not bypass readiness or submit gates.
+- Preview/readiness approval is separate from submitted-order authorization.
 - Target-choice conversion is not readiness and not submission.
 - `SubmittedOrder` remains post-submit exchange/account truth.
 - Future agents must update their own coordination row instead of overwriting another agent's work.

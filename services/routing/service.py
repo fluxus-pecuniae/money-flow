@@ -16,6 +16,7 @@ from sqlalchemy.exc import IntegrityError
 from core.config.settings import AppSettings, get_settings
 from core.domain.enums import (
     DecisionAction,
+    ExecutionReadinessOutcome,
     MandateDesiredTradeStatus,
     MarketDataSourceMode,
     OrderIntentStatus,
@@ -46,6 +47,7 @@ from core.domain.models import (
     RoutingAutomationApprovalInspection,
     RoutingAutomationPreviewReadinessResult,
     RoutingAutomationRecommendationAcceptanceResult,
+    RoutingAutomationSubmittedOrderHandoffResult,
     RoutingAutomationTargetChoiceConversionResult,
     RoutingAutomationPlan,
     RoutingAutomationPlanStep,
@@ -64,6 +66,7 @@ from db.models import (
     MandateDesiredTradeModel,
     ExchangeAccountSnapshotModel,
     InstrumentModel,
+    OrderIntentSubmissionLeaseModel,
     OrderIntentModel,
     RouteReadinessAuditModel,
     RouteReadinessCandidateAuditModel,
@@ -237,7 +240,7 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             recommendation_acceptance = RoutingAutomationStepStatus.APPROVAL_REQUIRED
             target_choice_conversion = RoutingAutomationStepStatus.APPROVAL_REQUIRED
             preview_readiness = RoutingAutomationStepStatus.APPROVAL_REQUIRED
-            submit = RoutingAutomationStepStatus.MANUAL_ONLY
+            submit = RoutingAutomationStepStatus.APPROVAL_REQUIRED
         elif mode == RoutingAutomationMode.EXPLICIT_AUTOMATION_PERMITTED:
             reason_codes.append("routing_automation_explicitly_permitted")
             operator_approval_required = False
@@ -256,10 +259,13 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 if allow_preview_readiness
                 else RoutingAutomationStepStatus.MANUAL_ONLY
             )
-            submit = RoutingAutomationStepStatus.MANUAL_ONLY
+            submit = (
+                RoutingAutomationStepStatus.AUTOMATION_ELIGIBLE
+                if allow_submit
+                else RoutingAutomationStepStatus.MANUAL_ONLY
+            )
             if allow_submit:
                 reason_codes.append("routing_automation_submit_requires_explicit_operator_gate")
-                reason_codes.append("routing_automation_submit_deferred_phase_7_0")
 
         if submit != RoutingAutomationStepStatus.AUTOMATION_ELIGIBLE:
             reason_codes.append("auto_submit_not_enabled_by_phase_7_0")
@@ -664,6 +670,11 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 gate_status = "blocked"
             elif step.status == RoutingAutomationStepStatus.ALREADY_SATISFIED:
                 gate_status = "already_satisfied"
+            elif step.status in {
+                RoutingAutomationStepStatus.DISABLED,
+                RoutingAutomationStepStatus.DEFERRED,
+            }:
+                gate_status = step.status.value
             elif step.status == RoutingAutomationStepStatus.MANUAL_ONLY:
                 gate_status = RoutingAutomationStepStatus.MANUAL_ONLY.value
             elif step.status == RoutingAutomationStepStatus.DRY_RUN_ONLY:
@@ -683,6 +694,8 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                     if step.blocked
                     or step.status
                     in {
+                        RoutingAutomationStepStatus.DISABLED,
+                        RoutingAutomationStepStatus.DEFERRED,
                         RoutingAutomationStepStatus.MANUAL_ONLY,
                         RoutingAutomationStepStatus.DRY_RUN_ONLY,
                     }
@@ -1197,6 +1210,124 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             },
         )
 
+    async def submit_child_intent_with_approval(
+        self,
+        intent_id: str,
+        *,
+        approval_id: str,
+        consumed_by: str,
+        execution_service: Any,
+        policy: RoutingAutomationPolicy | None = None,
+    ) -> RoutingAutomationSubmittedOrderHandoffResult:
+        """Consume one current approval to submit one already-ready routed child intent."""
+
+        action = RoutingAutomationApprovalAction.SUBMITTED_ORDER_HANDOFF
+        active_policy = policy or self.routing_automation_policy(
+            mode=RoutingAutomationMode.APPROVAL_REQUIRED
+        )
+        with self._session_factory() as lookup_session:
+            intent_lookup = lookup_session.scalar(
+                select(OrderIntentModel).where(
+                    OrderIntentModel.environment == self.settings.app.environment,
+                    OrderIntentModel.intent_id == intent_id,
+                )
+            )
+            if intent_lookup is None:
+                raise RoutingAssessmentError(
+                    "order_intent_not_found",
+                    f"Child intent not found: {intent_id}",
+                )
+            desired_trade_key = intent_lookup.desired_trade_key
+        if desired_trade_key is None:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_missing_desired_trade",
+                "Submitted-order handoff approval requires desired-trade lineage.",
+            )
+        plan = await self.plan_routing_automation_for_desired_trade(
+            desired_trade_key,
+            policy=active_policy,
+            dry_run=True,
+        )
+        step = self._routing_automation_step_for_action(plan, action)
+
+        with self._session_factory() as session:
+            intent_model = session.scalar(
+                select(OrderIntentModel)
+                .where(
+                    OrderIntentModel.environment == self.settings.app.environment,
+                    OrderIntentModel.intent_id == intent_id,
+                )
+                .with_for_update()
+            )
+            if intent_model is None:
+                raise RoutingAssessmentError(
+                    "order_intent_not_found",
+                    f"Child intent not found: {intent_id}",
+                )
+            approval_model = self._load_routing_automation_approval_model_for_update(
+                session,
+                approval_id,
+            )
+            self._validate_submitted_order_handoff_approval_for_action(
+                session,
+                approval_model,
+                intent_model,
+                step=step,
+                action=action,
+            )
+            if self._approval_consumed_for_submitted_order_handoff(
+                approval_model,
+                intent_id,
+            ):
+                submitted_order_id = approval_model.submitted_order_id
+                approval = self._routing_automation_approval_from_model(approval_model)
+            else:
+                submitted_order_id = None
+                approval = self._routing_automation_approval_from_model(approval_model)
+
+        if submitted_order_id is not None:
+            submitted = await execution_service.get_submitted_order(submitted_order_id)
+            return self._submitted_order_handoff_result(
+                approval=approval,
+                submitted=submitted,
+                intent_id=intent_id,
+                desired_trade_key=desired_trade_key,
+                readiness_evaluation_id=approval.readiness_evaluation_id,
+                submitted_order_created=False,
+                submitted_order_reused=True,
+                consumed_by=consumed_by,
+            )
+
+        existing_submitted_order_id = self._submitted_order_id_for_intent(intent_id)
+        intent = await execution_service.get_child_intent(intent_id)
+        try:
+            submitted = await execution_service.submit_prepared_intent(intent)
+        except Exception as exc:
+            self._record_submitted_order_handoff_approval_attempt(
+                approval_id,
+                intent_id=intent_id,
+                exception=exc,
+            )
+            raise
+        submitted_order_created = existing_submitted_order_id is None
+        approval = self._consume_submitted_order_handoff_approval(
+            approval_id,
+            intent_id=intent_id,
+            submitted=submitted,
+            submitted_order_created=submitted_order_created,
+            consumed_by=consumed_by,
+        )
+        return self._submitted_order_handoff_result(
+            approval=approval,
+            submitted=submitted,
+            intent_id=intent_id,
+            desired_trade_key=desired_trade_key,
+            readiness_evaluation_id=approval.readiness_evaluation_id,
+            submitted_order_created=submitted_order_created,
+            submitted_order_reused=not submitted_order_created,
+            consumed_by=consumed_by,
+        )
+
     async def inspect_routed_workflow_by_desired_trade(
         self,
         desired_trade_key: str,
@@ -1541,6 +1672,11 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 status = "blocked"
             elif step is not None and step.status == RoutingAutomationStepStatus.ALREADY_SATISFIED:
                 status = "already_satisfied"
+            elif step is not None and step.status in {
+                RoutingAutomationStepStatus.DISABLED,
+                RoutingAutomationStepStatus.DEFERRED,
+            }:
+                status = step.status.value
             elif step is not None and step.status == RoutingAutomationStepStatus.MANUAL_ONLY:
                 status = RoutingAutomationStepStatus.MANUAL_ONLY.value
             elif step is not None and step.status == RoutingAutomationStepStatus.DRY_RUN_ONLY:
@@ -1561,6 +1697,8 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                         step.blocked
                         or step.status
                         in {
+                            RoutingAutomationStepStatus.DISABLED,
+                            RoutingAutomationStepStatus.DEFERRED,
                             RoutingAutomationStepStatus.MANUAL_ONLY,
                             RoutingAutomationStepStatus.DRY_RUN_ONLY,
                         }
@@ -2493,6 +2631,446 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
         return str(candidate)
 
     @staticmethod
+    def _approval_consumed_for_submitted_order_handoff(
+        model: RoutingAutomationApprovalModel,
+        intent_id: str,
+    ) -> bool:
+        provenance = dict(model.provenance_json or {})
+        return (
+            model.status == RoutingAutomationApprovalStatus.CONSUMED.value
+            and model.action_name == RoutingAutomationApprovalAction.SUBMITTED_ORDER_HANDOFF.value
+            and model.intent_id == intent_id
+            and provenance.get("phase") == "phase_7_5"
+            and provenance.get("approval_gated_submitted_order_handoff") is True
+            and model.submitted_order_id is not None
+        )
+
+    def _validate_submitted_order_handoff_approval_for_action(
+        self,
+        session: Any,
+        model: RoutingAutomationApprovalModel,
+        intent_model: OrderIntentModel,
+        *,
+        step: RoutingAutomationPlanStep,
+        action: RoutingAutomationApprovalAction,
+    ) -> None:
+        self._expire_approval_if_needed(session, model, commit=False)
+        if self._approval_consumed_for_submitted_order_handoff(
+            model,
+            intent_model.intent_id,
+        ):
+            consumed_order = session.scalar(
+                select(SubmittedOrderModel).where(
+                    SubmittedOrderModel.environment == self.settings.app.environment,
+                    SubmittedOrderModel.submitted_order_id == model.submitted_order_id,
+                    SubmittedOrderModel.intent_id == intent_model.intent_id,
+                )
+            )
+            if consumed_order is None:
+                raise RoutingAssessmentError(
+                    "routing_automation_approval_consumed_submitted_order_missing",
+                    "Consumed submitted-order handoff approval no longer has submitted-order truth.",
+                )
+            return
+        if model.action_name != action.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_wrong_action",
+                f"Approval {model.approval_id} is for {model.action_name}, not {action.value}.",
+            )
+        if model.status == RoutingAutomationApprovalStatus.REVOKED.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_revoked",
+                f"Approval {model.approval_id} has been revoked.",
+            )
+        if model.status == RoutingAutomationApprovalStatus.EXPIRED.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_expired",
+                f"Approval {model.approval_id} has expired.",
+            )
+        if model.status == RoutingAutomationApprovalStatus.STALE_LINEAGE.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_lineage_stale",
+                f"Approval {model.approval_id} is stale for the current workflow lineage.",
+            )
+        if model.status == RoutingAutomationApprovalStatus.CONSUMED.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_consumed_for_different_action",
+                f"Approval {model.approval_id} has already been consumed.",
+            )
+        if model.status != RoutingAutomationApprovalStatus.ACTIVE.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_not_consumable",
+                f"Approval {model.approval_id} is not active.",
+            )
+        if model.intent_id != intent_model.intent_id:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_wrong_child_intent",
+                "Approval is not scoped to this child intent.",
+            )
+        if model.readiness_evaluation_id is None:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_missing_readiness",
+                "Submitted-order handoff approval requires readiness lineage.",
+            )
+        if step.artifact_id is not None and model.readiness_evaluation_id != step.artifact_id:
+            self._mark_approval_stale_if_lineage_mismatch(
+                session,
+                model,
+                action=action,
+                current_scope_key="submitted_order_handoff_readiness_mismatch",
+                commit=True,
+            )
+            raise RoutingAssessmentError(
+                "routing_automation_approval_lineage_stale",
+                "Approval no longer matches the current readiness evaluation.",
+            )
+
+        intent_provenance = dict(intent_model.provenance or {})
+        lineage_checks = {
+            "desired_trade_key": intent_model.desired_trade_key,
+            "routing_assessment_id": intent_provenance.get("routing_assessment_id"),
+            "route_readiness_audit_id": intent_provenance.get("route_readiness_audit_id"),
+            "routing_target_recommendation_id": intent_provenance.get(
+                "routing_target_recommendation_id"
+            ),
+            "routing_target_choice_id": intent_provenance.get("routing_target_choice_id"),
+            "intent_id": intent_model.intent_id,
+            "readiness_evaluation_id": step.artifact_id,
+            "selected_binding_ref_id": intent_provenance.get("selected_binding_ref_id"),
+            "selected_binding_key": intent_model.binding_key,
+            "selected_venue_account_ref_id": intent_model.venue_account_ref_id,
+            "selected_venue_account_key": intent_provenance.get(
+                "selected_venue_account_key"
+            ),
+            "selected_venue": intent_provenance.get("selected_venue"),
+            "selected_exchange_symbol": intent_provenance.get("selected_exchange_symbol"),
+        }
+        for field_name, current_value in lineage_checks.items():
+            approved_value = getattr(model, field_name)
+            if approved_value is not None and approved_value != current_value:
+                self._mark_approval_stale_if_lineage_mismatch(
+                    session,
+                    model,
+                    action=action,
+                    current_scope_key="submitted_order_handoff_lineage_mismatch",
+                    commit=True,
+                )
+                raise RoutingAssessmentError(
+                    "routing_automation_approval_lineage_stale",
+                    f"Approval {model.approval_id} no longer matches {field_name}.",
+                )
+
+        self._validate_approval_step(action, step)
+        current_scope_key = self._routing_automation_approval_scope(
+            action=action,
+            desired_trade_key=intent_model.desired_trade_key or "",
+            lineage=dict(step.lineage),
+        )["approval_scope_key"]
+        if not self._approval_matches_current_scope(
+            approval_scope_key=model.approval_scope_key,
+            lineage=dict(model.lineage_json or {}),
+            action=action,
+            desired_trade_key=intent_model.desired_trade_key or "",
+            current_scope_key=current_scope_key,
+        ):
+            self._mark_approval_stale_if_lineage_mismatch(
+                session,
+                model,
+                action=action,
+                current_scope_key=current_scope_key,
+                commit=True,
+            )
+            raise RoutingAssessmentError(
+                "routing_automation_approval_lineage_stale",
+                f"Approval {model.approval_id} is stale for the current workflow lineage.",
+            )
+
+    def _submitted_order_id_for_intent(self, intent_id: str) -> str | None:
+        with self._session_factory() as session:
+            model = session.scalar(
+                select(SubmittedOrderModel).where(
+                    SubmittedOrderModel.environment == self.settings.app.environment,
+                    SubmittedOrderModel.intent_id == intent_id,
+                )
+            )
+            return model.submitted_order_id if model is not None else None
+
+    def _submission_lease_snapshot(self, intent_id: str) -> dict[str, object] | None:
+        with self._session_factory() as session:
+            lease = session.scalar(
+                select(OrderIntentSubmissionLeaseModel).where(
+                    OrderIntentSubmissionLeaseModel.environment
+                    == self.settings.app.environment,
+                    OrderIntentSubmissionLeaseModel.intent_id == intent_id,
+                )
+            )
+            if lease is None:
+                return None
+            return {
+                "lease_id": lease.lease_id,
+                "status": lease.status,
+                "reason_code": lease.reason_code,
+                "acquired_at": lease.acquired_at.isoformat()
+                if lease.acquired_at is not None
+                else None,
+                "expires_at": lease.expires_at.isoformat()
+                if lease.expires_at is not None
+                else None,
+                "released_at": lease.released_at.isoformat()
+                if lease.released_at is not None
+                else None,
+                "metadata": self._jsonable_dict(dict(lease.metadata_json or {})),
+            }
+
+    def _record_submitted_order_handoff_approval_attempt(
+        self,
+        approval_id: str,
+        *,
+        intent_id: str,
+        exception: Exception,
+    ) -> None:
+        now = _utcnow()
+        readiness = getattr(exception, "readiness", None)
+        reason_codes = list(getattr(readiness, "reason_codes", None) or [])
+        reason_codes.extend(list(getattr(exception, "reason_codes", None) or []))
+        if not reason_codes:
+            reason_codes.append("submitted_order_handoff_failed")
+        lease_snapshot = self._submission_lease_snapshot(intent_id)
+        lease_status = str(lease_snapshot.get("status")) if lease_snapshot else None
+        submission_uncertain = lease_status in {
+            "adapter_submit_may_have_started",
+            "adapter_submit_persistence_unknown",
+        } or "submission_state_uncertain" in reason_codes
+        if submission_uncertain:
+            for code in (
+                "submission_state_uncertain",
+                lease_status or "adapter_submit_outcome_unknown",
+                "manual_reconciliation_required",
+            ):
+                if code not in reason_codes:
+                    reason_codes.append(code)
+        with self._session_factory() as session:
+            model = self._load_routing_automation_approval_model(session, approval_id)
+            existing_codes = list(model.reason_codes_json or [])
+            for reason_code in [
+                "routing_automation_submitted_order_handoff_not_completed",
+                *reason_codes,
+            ]:
+                if reason_code not in existing_codes:
+                    existing_codes.append(reason_code)
+            model.reason_codes_json = existing_codes
+            provenance = dict(model.provenance_json or {})
+            provenance.update(
+                {
+                    "phase": provenance.get("phase") or "phase_7_5",
+                    "approval_gated_submitted_order_handoff_attempted": True,
+                    "approval_consumed": False,
+                    "submitted_order_created": False,
+                    "submitted_order_handoff_completed": False,
+                    "submitted_order_handoff_blocked": True,
+                    "submitted_order_handoff_blocked_at": now.isoformat(),
+                    "submitted_order_handoff_block_reason_codes": reason_codes,
+                    "submitted_order_handoff_failure_class": exception.__class__.__name__,
+                    "submitted_order_handoff_failure_message": str(exception),
+                    "submission_uncertain": submission_uncertain,
+                    "manual_reconciliation_required": submission_uncertain,
+                    "submission_lease": lease_snapshot,
+                    "auto_submit": False,
+                    "route_executor": False,
+                }
+            )
+            model.provenance_json = self._jsonable_dict(provenance)
+            model.updated_at = now
+            session.add(model)
+            session.commit()
+
+    def _consume_submitted_order_handoff_approval(
+        self,
+        approval_id: str,
+        *,
+        intent_id: str,
+        submitted: Any,
+        submitted_order_created: bool,
+        consumed_by: str,
+    ) -> RoutingAutomationApproval:
+        with self._session_factory() as session:
+            model = self._load_routing_automation_approval_model_for_update(
+                session,
+                approval_id,
+            )
+            model = self._consume_submitted_order_handoff_approval_model(
+                session,
+                model,
+                intent_id=intent_id,
+                submitted=submitted,
+                submitted_order_created=submitted_order_created,
+                consumed_by=consumed_by,
+            )
+            session.commit()
+            session.refresh(model)
+            return self._routing_automation_approval_from_model(model)
+
+    def _consume_submitted_order_handoff_approval_model(
+        self,
+        session: Any,
+        model: RoutingAutomationApprovalModel,
+        *,
+        intent_id: str,
+        submitted: Any,
+        submitted_order_created: bool,
+        consumed_by: str,
+    ) -> RoutingAutomationApprovalModel:
+        if self._approval_consumed_for_submitted_order_handoff(model, intent_id):
+            return model
+        self._expire_approval_if_needed(session, model, commit=False)
+        if model.status != RoutingAutomationApprovalStatus.ACTIVE.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_not_consumable",
+                f"Routing automation approval {model.approval_id} is not active.",
+            )
+        if (
+            model.action_name != RoutingAutomationApprovalAction.SUBMITTED_ORDER_HANDOFF.value
+            or model.intent_id != intent_id
+        ):
+            raise RoutingAssessmentError(
+                "routing_automation_approval_wrong_child_intent",
+                "Approval cannot consume this submitted-order handoff action.",
+            )
+
+        now = _utcnow()
+        model.status = RoutingAutomationApprovalStatus.CONSUMED.value
+        model.consumed_by = consumed_by
+        model.consumed_at = now
+        model.submitted_order_id = submitted.submitted_order_id
+        model.updated_at = now
+        reason_codes = list(model.reason_codes_json or [])
+        for reason_code in (
+            "routing_automation_approval_consumed",
+            "routing_automation_submitted_order_handoff_executed",
+            "submitted_order_created_or_reused",
+            "auto_submit_disabled",
+            "route_executor_not_used",
+        ):
+            if reason_code not in reason_codes:
+                reason_codes.append(reason_code)
+        for reason_code in list(submitted.reason_codes or []):
+            if reason_code not in reason_codes:
+                reason_codes.append(reason_code)
+        model.reason_codes_json = reason_codes
+        lineage = dict(model.lineage_json or {})
+        lineage.update(
+            {
+                "intent_id": intent_id,
+                "readiness_evaluation_id": model.readiness_evaluation_id,
+                "submitted_order_id": submitted.submitted_order_id,
+                "submitted_order_status": submitted.status.value,
+                "submitted_order_created_or_reused": True,
+                "submitted_order_created": submitted_order_created,
+                "submitted_order_reused": not submitted_order_created,
+                "exchange_submit_called": submitted_order_created,
+                "auto_submit": False,
+                "route_executor_used": False,
+            }
+        )
+        model.lineage_json = self._jsonable_dict(lineage)
+        provenance = dict(model.provenance_json or {})
+        provenance.update(
+            {
+                "phase": "phase_7_5",
+                "approval_gated_submitted_order_handoff": True,
+                "approval_consumed": True,
+                "action_executed": True,
+                "action_name": RoutingAutomationApprovalAction.SUBMITTED_ORDER_HANDOFF.value,
+                "consumed_by": consumed_by,
+                "consumed_at": now.isoformat(),
+                "intent_id": intent_id,
+                "readiness_evaluation_id": model.readiness_evaluation_id,
+                "submitted_order_id": submitted.submitted_order_id,
+                "submitted_order_status": submitted.status.value,
+                "submitted_order_created_or_reused": True,
+                "submitted_order_created": submitted_order_created,
+                "submitted_order_reused": not submitted_order_created,
+                "exchange_submit_called": submitted_order_created,
+                "approval_consumption_idempotent": False,
+                "same_target_only": True,
+                "same_account_only": True,
+                "same_venue_only": True,
+                "smart_routing": False,
+                "best_binding_selection": False,
+                "cbbo": False,
+                "fanout": False,
+                "ranking": False,
+                "scoring": False,
+                "target_reselection": False,
+                "route_executor": False,
+                "auto_submit": False,
+            }
+        )
+        model.provenance_json = self._jsonable_dict(provenance)
+        return model
+
+    def _submitted_order_handoff_result(
+        self,
+        *,
+        approval: RoutingAutomationApproval,
+        submitted: Any,
+        intent_id: str,
+        desired_trade_key: str | None,
+        readiness_evaluation_id: str | None,
+        submitted_order_created: bool,
+        submitted_order_reused: bool,
+        consumed_by: str,
+    ) -> RoutingAutomationSubmittedOrderHandoffResult:
+        return RoutingAutomationSubmittedOrderHandoffResult(
+            approval_id=approval.approval_id,
+            intent_id=intent_id,
+            desired_trade_key=desired_trade_key,
+            environment=self.settings.app.environment,
+            approval=approval,
+            submitted_order=submitted,
+            submitted_order_id=submitted.submitted_order_id,
+            readiness_evaluation_id=readiness_evaluation_id,
+            approval_consumed=approval.status == RoutingAutomationApprovalStatus.CONSUMED,
+            submitted_order_created_or_reused=True,
+            submitted_order_created=submitted_order_created,
+            submitted_order_reused=submitted_order_reused,
+            exchange_submit_called=submitted_order_created,
+            auto_submit=False,
+            route_executor_used=False,
+            reason_codes=[
+                "routing_automation_submitted_order_handoff_approval_consumed",
+                "submitted_order_created_or_reused",
+                "auto_submit_disabled",
+                *list(submitted.reason_codes or []),
+            ],
+            boundary_flags=self._routing_automation_boundary_flags(),
+            provenance={
+                "phase": "phase_7_5",
+                "approval_consuming_action": True,
+                "action_name": RoutingAutomationApprovalAction.SUBMITTED_ORDER_HANDOFF.value,
+                "intent_id": intent_id,
+                "readiness_evaluation_id": readiness_evaluation_id,
+                "submitted_order_id": submitted.submitted_order_id,
+                "approval_id": approval.approval_id,
+                "consumed_by": consumed_by,
+                "same_target_only": True,
+                "submitted_order_created_or_reused": True,
+                "submitted_order_created": submitted_order_created,
+                "submitted_order_reused": submitted_order_reused,
+                "exchange_submit_called": submitted_order_created,
+                "smart_routing": False,
+                "best_binding_selection": False,
+                "cbbo": False,
+                "fanout": False,
+                "ranking": False,
+                "scoring": False,
+                "target_reselection": False,
+                "route_executor": False,
+                "auto_submit": False,
+            },
+        )
+
+    @staticmethod
     def _expire_approval_if_needed(
         session: Any,
         model: RoutingAutomationApprovalModel,
@@ -2809,37 +3387,63 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 lineage=lineage,
             )
         )
-        steps.append(
-            RoutingAutomationPlanStep(
+        submit_lineage = dict(lineage or {})
+        if latest_child_intent is not None:
+            submit_lineage.setdefault("intent_id", latest_child_intent.get("intent_id"))
+        if latest_readiness is not None:
+            submit_lineage["readiness_evaluation_id"] = latest_readiness.get(
+                "readiness_evaluation_id"
+            )
+            submit_lineage["readiness_outcome"] = latest_readiness.get("outcome")
+        if latest_submission is None and latest_readiness is None:
+            submit_dependency = (
+                "prepared_order_preview_and_readiness"
+                if latest_child_intent is not None
+                else "target_choice_conversion"
+            )
+            steps.append(
+                self._deferred_automation_step(
+                    name="submitted_order_handoff",
+                    depends_on=submit_dependency,
+                    would_create_artifact_type="SubmittedOrder",
+                    lineage=submit_lineage,
+                )
+            )
+        else:
+            readiness_submit_feasible = (
+                latest_readiness is not None
+                and latest_readiness.get("outcome")
+                == ExecutionReadinessOutcome.ELIGIBLE_FOR_SUBMISSION.value
+            )
+            submitted_order_step = self._automation_action_step(
                 name="submitted_order_handoff",
-                status=(
-                    RoutingAutomationStepStatus.ALREADY_SATISFIED
-                    if latest_submission is not None
-                    else RoutingAutomationStepStatus.MANUAL_ONLY
-                ),
+                policy_status=policy.submit,
+                already_satisfied=latest_submission is not None,
                 artifact_id=(
                     str(latest_submission.get("submitted_order_id"))
                     if latest_submission is not None
-                    else str(latest_child_intent.get("intent_id"))
-                    if latest_child_intent is not None
+                    else str(latest_readiness.get("readiness_evaluation_id"))
+                    if latest_readiness is not None
                     else None
                 ),
                 would_create_artifact_type="SubmittedOrder",
-                reason_codes=(
-                    ["submitted_order_already_exists"]
-                    if latest_submission is not None
-                    else [
-                        "submitted_order_handoff_remains_explicit_manual_phase_7_0",
-                        "auto_submit_not_enabled_by_phase_7_0",
-                    ]
-                ),
-                manual_only=latest_submission is None,
-                approval_required=latest_submission is None
-                and policy.submit == RoutingAutomationStepStatus.APPROVAL_REQUIRED,
-                automatable=False,
-                lineage=lineage,
+                feasible=readiness_submit_feasible,
+                missing_reason="eligible_readiness_required",
+                already_reason="submitted_order_already_exists",
+                blocked_reason="execution_readiness_not_eligible",
+                lineage=submit_lineage,
             )
-        )
+            if latest_readiness is not None and not readiness_submit_feasible:
+                submitted_order_step.reason_codes = sorted(
+                    set(
+                        list(submitted_order_step.reason_codes)
+                        + [
+                            str(code)
+                            for code in latest_readiness.get("reason_codes", [])
+                        ]
+                    )
+                )
+            steps.append(submitted_order_step)
         return steps
 
     @staticmethod
@@ -2884,6 +3488,7 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             return RoutingAutomationPlanStep(
                 name=name,
                 status=RoutingAutomationStepStatus.BLOCKED,
+                artifact_id=artifact_id,
                 would_create_artifact_type=would_create_artifact_type,
                 reason_codes=[missing_reason, blocked_reason],
                 blocked=True,
@@ -2893,6 +3498,7 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             return RoutingAutomationPlanStep(
                 name=name,
                 status=RoutingAutomationStepStatus.DISABLED,
+                artifact_id=artifact_id,
                 would_create_artifact_type=would_create_artifact_type,
                 reason_codes=["routing_automation_disabled"],
                 blocked=True,
@@ -2902,6 +3508,7 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             return RoutingAutomationPlanStep(
                 name=name,
                 status=RoutingAutomationStepStatus.DRY_RUN_ONLY,
+                artifact_id=artifact_id,
                 would_create_artifact_type=would_create_artifact_type,
                 reason_codes=["routing_automation_dry_run_only", "dry_run_no_state_mutation"],
                 dry_run_only=True,
@@ -2911,6 +3518,7 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             return RoutingAutomationPlanStep(
                 name=name,
                 status=RoutingAutomationStepStatus.APPROVAL_REQUIRED,
+                artifact_id=artifact_id,
                 would_create_artifact_type=would_create_artifact_type,
                 reason_codes=["operator_approval_required"],
                 approval_required=True,
@@ -2920,6 +3528,7 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             return RoutingAutomationPlanStep(
                 name=name,
                 status=RoutingAutomationStepStatus.AUTOMATION_ELIGIBLE,
+                artifact_id=artifact_id,
                 would_create_artifact_type=would_create_artifact_type,
                 reason_codes=["explicit_policy_allows_same_target_automation"],
                 automatable=True,
@@ -2928,6 +3537,7 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
         return RoutingAutomationPlanStep(
             name=name,
             status=RoutingAutomationStepStatus.MANUAL_ONLY,
+            artifact_id=artifact_id,
             would_create_artifact_type=would_create_artifact_type,
             reason_codes=["manual_only_by_policy"],
             manual_only=True,

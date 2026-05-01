@@ -13,6 +13,42 @@ Entry schema:
 
 ---
 
+## v2026.05.01.005
+
+- `recorded_at_utc`: `2026-05-01T08:41:37Z`
+- `scope`: `Phase 7.5 approval-gated submitted-order handoff`
+- `intent`: `Native entry. Added the fourth narrow approval-consuming automation action hook. One active, non-expired, current-lineage `submitted_order_handoff` approval can now be consumed to call the existing explicit child-intent submit path for the exact approved routed child `OrderIntent`, and only when current readiness, live-submit and routed-submit gates, adapter/account authorization, routed lineage/order-shape truth, and submit lease/uncertainty guards still pass. Approval is consumed only after `SubmittedOrder` persistence or safe reuse; blocked readiness/gates leave approval unconsumed with reason-coded provenance, and adapter-submit uncertainty remains manual-reconciliation-required through existing lease truth. Added `POST /api/v1/routing-automation/approvals/{approval_id}/submit` plus focused Phase 7.5 tests for success, idempotency, blocked readiness, submit-gate blocks, invalid approvals, policy/status boundaries, submit lease concurrency, uncertainty preservation, API response shape, and no SOR leakage. This phase creates no extra child intent, selects no target, reselects no target, fans out nowhere, retries nowhere, and adds no smart routing, best-binding selection, ranking/scoring, CBBO, route executor behavior, cross-binding/cross-venue recovery, broad auto-submit, migration, config, new exchange behavior, or full project-memory edit.`
+- `affected_files`:
+  - `services/routing/service.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_phase70_routing_automation.py`
+  - `tests/test_phase71_routing_automation_approvals.py`
+  - `tests/test_phase75_approval_gated_submission_handoff.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall services/routing/service.py tests/test_phase75_approval_gated_submission_handoff.py` passed during focused development.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase75_approval_gated_submission_handoff.py` passed with 22 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase70_routing_automation.py tests/test_phase71_routing_automation_approvals.py tests/test_phase72_approval_gated_recommendation_acceptance.py tests/test_phase73_approval_gated_target_choice_conversion.py tests/test_phase74_approval_gated_preview_readiness.py tests/test_phase75_approval_gated_submission_handoff.py` passed with 79 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase67_recommendation_backed_submission.py tests/test_phase68_recommendation_backed_lifecycle.py tests/test_phase69_routed_workflow_inspection.py tests/test_phase610_phase6_closeout.py` passed with 20 tests.
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py` passed with 22 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed with 455 tests.
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py` passed with 1 test.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-7.5-review.zip` created the Phase 7.5 review bundle; bundle inspection found no `.env`, virtualenvs, Git metadata, pytest caches, local DBs, SQLite files, or nested archives.
+
 ## v2026.05.01.004
 
 - `recorded_at_utc`: `2026-05-01T07:28:41Z`

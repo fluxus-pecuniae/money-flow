@@ -42,6 +42,7 @@ from core.domain.models import (
     RoutingAutomationApprovalInspection,
     RoutingAutomationPreviewReadinessResult,
     RoutingAutomationRecommendationAcceptanceResult,
+    RoutingAutomationSubmittedOrderHandoffResult,
     RoutingAutomationTargetChoiceConversionResult,
     RoutingAutomationPlan,
     RoutingAutomationPolicy,
@@ -657,6 +658,16 @@ class RoutingAssessmentService(Protocol):
         execution_service: Any,
         policy: RoutingAutomationPolicy | None = None,
     ) -> RoutingAutomationPreviewReadinessResult: ...
+
+    async def submit_child_intent_with_approval(
+        self,
+        intent_id: str,
+        *,
+        approval_id: str,
+        consumed_by: str,
+        execution_service: Any,
+        policy: RoutingAutomationPolicy | None = None,
+    ) -> RoutingAutomationSubmittedOrderHandoffResult: ...
 
 
 class AlertService(Protocol):
