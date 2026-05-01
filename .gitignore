@@ -62,6 +62,9 @@ MF-handoffs/
 CODEX-files-MF/
 money-flow-phase-*-review.zip
 
+# Generated strategy-validation evidence packs
+reports/strategy_validation/
+
 # Obsidian strategic brain
 # Track project markdown notes, but keep local Obsidian app/workspace state out of Git.
 /money-flow/.obsidian/

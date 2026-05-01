@@ -13,6 +13,46 @@ Entry schema:
 
 ---
 
+## v2026.05.01.017
+
+- `recorded_at_utc`: `2026-05-01T21:08:26Z`
+- `scope`: `SV1.3 Money Flow research campaigns and evidence packs`
+- `intent`: `Native entry. Added repeatable Money Flow research campaign workflows on top of the existing Strategy Validation batch runner without changing Money Flow rules. SV1.3 fixes the remaining single-run CLI wording mismatch so `scripts/run_money_flow_backtest.py --start` no longer says inclusive and instead describes the accepted `(start_at, end_at]` candle-close convention. The new campaign config/runner layer parses explicit JSON campaign configs with symbols/instruments, components, fill timings, named windows, fee/slippage assumptions, capital, sizing, output directory, and report formats; expands them into existing `StrategyValidationBatchRequest` runs; writes timestamped evidence packs with normalized config, manifest, JSON report, Markdown report, and README; preserves blocked-run counts/reasons; records window convention and assumptions hash; and keeps generated packs out of Git/review bundles by default. This is research workflow only: no Money Flow rule changes, optimization, strategy recommendation, paper/live trading, live artifacts, routing, execution automation, exchange calls, route executor behavior, fanout, target reselection, or auto-submit were added.`
+- `affected_files`:
+  - `.archiveignore`
+  - `.gitignore`
+  - `configs/strategy_validation/money_flow_research_campaign.example.json`
+  - `services/strategy_validation/__init__.py`
+  - `services/strategy_validation/campaigns.py`
+  - `services/strategy_validation/service.py`
+  - `scripts/run_money_flow_backtest.py`
+  - `scripts/run_money_flow_research_campaign.py`
+  - `tests/test_sv13_research_campaigns.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed during development.
+  - `.venv/bin/python -m pytest -q tests/test_sv13_research_campaigns.py` passed with 6 tests during focused development.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py` passed with 7 tests during regression development.
+  - `.venv/bin/python -m pytest -q tests/test_sv11_strategy_validation_batch.py` passed with 4 tests during regression development.
+  - `.venv/bin/python -m pytest -q tests/test_sv12_strategy_validation_regimes.py` passed with 7 tests during regression development.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py` passed with 24 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 17 tests.
+  - `git diff --check` passed.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed with 492 tests.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.3-review.zip` created the SV1.3 review bundle; bundle inspection found 221 files, included the campaign script and sample config, and found no `.env`, virtualenvs, Git metadata, pytest caches, local DB/SQLite files, nested archives, secrets, Obsidian app state, or generated `reports/strategy_validation/` evidence packs.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 10 tests after final docs/Obsidian updates.
+  - `.venv/bin/python -m pytest -q tests/test_sv13_research_campaigns.py` passed with 6 tests after final docs/Obsidian updates.
+
 ## v2026.05.01.016
 
 - `recorded_at_utc`: `2026-05-01T20:17:05Z`

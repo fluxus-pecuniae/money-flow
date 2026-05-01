@@ -134,6 +134,16 @@ SV1.2 extends the same CLI with repeated date windows:
 
 Each window uses candle closes in `(start, end]`: the start boundary is excluded and the end boundary is included. Adjacent windows such as `Jan 1 -> Jan 15` and `Jan 15 -> Feb 1` therefore do not double-count the boundary candle. The resulting report includes data-coverage comparison, market-regime comparison, and date-window comparison sections. These outputs are research diagnostics only, not optimization, paper trading, live execution, or proof of profitability.
 
+SV1.3 adds repeatable Money Flow research campaigns and saved evidence packs. A campaign is a named JSON config that expands explicit symbols, components, fill timings, named windows, fee/slippage assumptions, initial capital, and sizing into the existing SV1.1/SV1.2 batch runner. Campaign windows use the same candle-close convention as all validation tools: `(start, end]`, so candle closes exactly at `start` are excluded and closes on or before `end` are included.
+
+```bash
+.venv/bin/python scripts/run_money_flow_research_campaign.py \
+  --config configs/strategy_validation/money_flow_research_campaign.example.json \
+  --format both
+```
+
+Evidence packs are written under `reports/strategy_validation/<campaign_name>/<run_timestamp>/` by default and include `campaign_config.json`, `manifest.json`, `batch_report.json`, `batch_report.md`, and a pack `README.md`. The manifest records the assumptions hash, symbols, components, named windows, fill timings, fees/slippage, window convention, blocked-run counts/reasons, and report paths. Generated evidence packs are ignored by Git and review bundles unless explicitly copied elsewhere for review. This is repeatable research workflow only: it does not change Money Flow rules, optimize parameters, recommend a variant, paper trade, live trade, route, submit, create live artifacts, or call exchange adapters.
+
 ## Routing Automation Planning
 
 Phase 7.0 exposes non-executing automation policy and dry-run planning:

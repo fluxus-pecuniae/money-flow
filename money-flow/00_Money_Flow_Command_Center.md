@@ -8,9 +8,9 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 
 ## Current Phase
 
-- Current implemented phase: `SV1.2.1`
+- Current implemented phase: `SV1.3`
 - Phase 7 status: accepted complete.
-- Proposed next phase: `SV1.3` research campaigns/evidence packs after SV1.2.1 research-truth acceptance; `Phase 8.1` remains deferred until explicitly scoped.
+- Proposed next phase: `SV1.4` evidence review / broader historical data coverage / paper-trading readiness design after SV1.3 campaign outputs are reviewed; `Phase 8.1` remains deferred until explicitly scoped.
 - Phase 8.0 status: implemented read-only operator observability/manual-resolution inspection.
 - Phase 8.0.1 status: Obsidian memory and working-tree baseline cleanup; no product behavior changed.
 - Phase 8.0.2 status: active submit-lease operator-summary truth hotfix; no product behavior changed.
@@ -19,6 +19,7 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 - SV1.1 status: comparative strategy-validation batch reporting; explicit components/fill-timing/symbol/window/cost matrix; descriptive research only with no optimization, recommendation, live artifacts, routing, or execution changes.
 - SV1.2 status: market-regime and data-coverage validation reporting; descriptive regimes and coverage diagnostics only with no strategy-rule changes, paper/live trading, routing, exchange calls, or execution changes.
 - SV1.2.1 status: window-boundary, coverage, and grouped-comparison research-truth hotfix; no strategy-rule changes, paper/live trading, routing, exchange calls, or execution changes.
+- SV1.3 status: repeatable research campaign/evidence-pack workflow; no strategy-rule changes, optimization, paper/live trading, routing, exchange calls, or execution changes.
 - Current accepted action hooks: approval-gated recommendation acceptance, target-choice conversion, prepared-order preview/readiness inspection, and submitted-order handoff.
 
 ## Current Architectural Boundary
@@ -59,6 +60,8 @@ SV1.1 adds comparative validation on top of the single-run report. Batch reports
 SV1.2 adds data-coverage and market-regime diagnostics. Reports now show requested versus available candles, missing/gap/coverage warnings, deterministic trend and volatility labels, and regime-grouped performance metrics. Regime labels are descriptive only and are not used to alter strategy behavior.
 
 SV1.2.1 fixes research-truth issues before campaign/evidence-pack work. Validation windows now use one convention everywhere: candle closes in `(start_at, end_at]`. Coverage counts expected close slots under that convention, unaligned boundaries are warning-coded, coverage cannot exceed 100%, and grouped comparisons keep blocked runs visible with blocked reason counts. Money Flow rules are unchanged.
+
+SV1.3 adds repeatable research campaign evidence packs on top of the existing Strategy Validation batch runner. Named JSON configs expand explicit symbols, components, fill timings, named `(start_at, end_at]` windows, fees, slippage, capital, and sizing into batch runs, then save normalized config, manifest, JSON, Markdown, and README outputs under timestamped evidence-pack directories. Blocked runs remain visible in manifests/reports. Campaign output is research evidence only, not optimization, not a recommendation, not paper/live trading, and not routing or execution input.
 
 ## Repo Truth Sources
 
@@ -101,6 +104,7 @@ Obsidian is the long-horizon project brain for founder intent, phase context, de
 - SV1.1 comparison reports are descriptive evidence, not optimization, not strategy recommendations, and not paper/live trading authorization.
 - SV1.2 regime labels are descriptive diagnostics, not filters, recommendations, or paper/live trading authorization.
 - SV1.2.1 window/coverage semantics are load-bearing for future campaign reports: adjacent windows must not double-count boundary candles, and blocked runs must not disappear from grouped comparisons.
+- SV1.3 evidence packs are repeatable research bundles, not proof of profitability, not optimization, and not authorization for paper/live trading.
 - Simulated validation trades must remain separate from `SubmittedOrder`.
 - Manual-resolution inspection must not silently resolve venue or approval truth.
 - Future agents must update their own coordination row instead of overwriting another agent's work.

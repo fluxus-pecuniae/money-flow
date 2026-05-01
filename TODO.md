@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-01T20:12:36Z`
+Last reviewed: `2026-05-01T21:08:26Z`
 
 ## Active Follow-Ups
 
@@ -134,7 +134,13 @@ Last reviewed: `2026-05-01T20:12:36Z`
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `Define the next Strategy Validation phase after reviewing SV1.2/SV1.2.1 reports. Candidate work should focus on broader historical data ingestion/coverage across symbols and venues, repeatable research campaign/evidence-pack workflows, richer market-regime review, report persistence if founder/operator review needs it, and paper-trading readiness only after evidence review. Do not optimize Money Flow parameters, add new strategy families, create live trading artifacts, or connect validation to routing/execution automation until evidence and architecture review justify that scope.`
+- `summary`: `Define the next Strategy Validation phase after reviewing SV1.3 campaign evidence packs. Candidate work should focus on broader historical data ingestion/coverage across symbols and venues, evidence-pack review discipline, richer regime/data-quality review, paper-trading readiness only after evidence review, and any report persistence/compare tooling that remains research-only. Do not optimize Money Flow parameters, add new strategy families, create live trading artifacts, or connect validation to routing/execution automation until evidence and architecture review justify that scope.`
+
+### T-055
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.3 adds repeatable Money Flow research campaigns and saved evidence packs. A JSON campaign config names explicit symbols/instruments, components, fill timings, named `(start_at, end_at]` windows, fee/slippage assumptions, capital, sizing, output directory, and report formats. The campaign runner expands that matrix through the existing Strategy Validation batch service, writes normalized config, manifest, JSON report, Markdown report, and README files under `reports/strategy_validation/<campaign_name>/<run_timestamp>/`, preserves blocked-run visibility, and fixes the remaining single-run CLI wording mismatch so `--start` is no longer described as inclusive. SV1.3 changes no Money Flow rules, performs no optimization, recommends no variant, creates no live artifacts, calls no exchanges, and does not connect validation to routing or execution automation.`
 
 ### T-001
 

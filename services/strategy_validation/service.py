@@ -59,7 +59,8 @@ _TREND_RETURN_THRESHOLD = Decimal("0.01")
 _HIGH_VOLATILITY_AVG_ABS_RETURN = Decimal("0.0125")
 _LOW_VOLATILITY_AVG_ABS_RETURN = Decimal("0.0025")
 _DATA_COVERAGE_WARNING_THRESHOLD = Decimal("0.80")
-_WINDOW_CONVENTION = "candle_close_time_start_exclusive_end_inclusive"
+STRATEGY_VALIDATION_WINDOW_CONVENTION = "candle_close_time_start_exclusive_end_inclusive"
+_WINDOW_CONVENTION = STRATEGY_VALIDATION_WINDOW_CONVENTION
 
 
 class StrategyValidationError(ValueError):

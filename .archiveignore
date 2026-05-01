@@ -17,6 +17,8 @@
 *.zip
 *.tar
 *.tgz
+reports/strategy_validation
+reports/strategy_validation/**
 __MACOSX
 __pycache__
 **/__pycache__

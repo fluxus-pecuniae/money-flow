@@ -44,6 +44,8 @@ SV1.2 adds data-coverage and market-regime analysis without changing strategy be
 
 SV1.2.1 fixes window/coverage/comparison research truth before SV1.3 campaign reports. Money Flow validation now uses candle closes in `(start_at, end_at]` everywhere: closes exactly at the start boundary are excluded and closes on or before the end boundary are included. Data coverage counts expected close slots under that convention, warning-codes unaligned window boundaries, and never reports coverage above 100%. Batch comparison groups now include blocked runs and blocked reason counts while computing performance metrics only from completed runs. This changes reporting truth only; it does not change Money Flow rules, optimize parameters, recommend variants, create live artifacts, route, submit, call exchange adapters, or add paper/live trading.
 
+SV1.3 operationalizes Money Flow research as repeatable named campaigns and evidence packs. A campaign JSON config expands explicit symbols, components, fill timings, named windows, fees, slippage, capital, and sizing into the existing batch validation runner, then saves normalized config, manifest, JSON, Markdown, and README files under a timestamped evidence-pack directory. Named windows retain the `(start_at, end_at]` candle-close convention, and human expected-regime annotations are report context only; they do not override computed regimes or alter Money Flow entries/exits. Campaign output remains descriptive research evidence, not optimization, not a strategy recommendation, not paper trading, not live trading, and not routing/execution input.
+
 The load-bearing strategy-to-execution boundary is:
 
 - `StrategyDecision`

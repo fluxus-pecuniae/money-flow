@@ -35,8 +35,22 @@ def build_parser() -> argparse.ArgumentParser:
         default=[],
         help="Money Flow component to evaluate. Repeat for multiple components or use 'all'.",
     )
-    parser.add_argument("--start", required=True, help="Inclusive ISO-8601 start timestamp.")
-    parser.add_argument("--end", required=True, help="Inclusive ISO-8601 end timestamp.")
+    parser.add_argument(
+        "--start",
+        required=True,
+        help=(
+            "ISO-8601 start timestamp for the candle-close window. "
+            "Closes exactly at start are excluded; window convention is (start, end]."
+        ),
+    )
+    parser.add_argument(
+        "--end",
+        required=True,
+        help=(
+            "ISO-8601 end timestamp for the candle-close window. "
+            "Closes on or before end are included; window convention is (start, end]."
+        ),
+    )
     parser.add_argument("--initial-capital", required=True, type=Decimal)
     parser.add_argument("--fee-bps", required=True, type=Decimal)
     parser.add_argument("--slippage-bps", required=True, type=Decimal)

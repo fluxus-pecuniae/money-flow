@@ -2,9 +2,9 @@
 
 ## Phase
 
-Current implemented phase: `SV1.2.1`
+Current implemented phase: `SV1.3`
 
-Proposed next phase: `SV1.3` research campaigns/evidence packs after SV1.2.1 research-truth acceptance. `Phase 8.1` remains deferred until explicitly scoped.
+Proposed next phase: `SV1.4` evidence review / broader historical data coverage / paper-trading readiness design after SV1.3 campaign outputs are reviewed. `Phase 8.1` remains deferred until explicitly scoped.
 
 ## Purpose
 
@@ -32,6 +32,8 @@ SV1.2 adds market-regime and data-coverage Strategy Validation. It reports reque
 
 SV1.2.1 is a narrow research-truth hotfix before SV1.3 campaigns. It standardizes all validation windows on candle closes in `(start_at, end_at]`, fixes expected coverage counts for unaligned windows, warning-codes unaligned boundaries, prevents coverage above 100%, and keeps blocked runs visible in grouped batch comparisons. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no live artifacts, calls no exchanges, and does not connect validation to routing or execution automation.
 
+SV1.3 adds repeatable Money Flow research campaigns and evidence packs. It fixes the remaining single-run CLI wording mismatch so `--start` no longer says inclusive, adds explicit JSON campaign configs, expands campaign matrices through the existing Strategy Validation batch runner, and writes timestamped evidence packs with normalized config, manifest, JSON report, Markdown report, and README. Campaigns preserve `(start_at, end_at]` window truth and blocked-run visibility. They change no Money Flow rules, perform no optimization, recommend no variant, create no live artifacts, call no exchanges, and do not connect validation to routing or execution automation.
+
 ## Accepted Baseline
 
 - Phase 7.0 added non-executing routing automation policy and dry-run plans.
@@ -54,6 +56,7 @@ SV1.2.1 is a narrow research-truth hotfix before SV1.3 campaigns. It standardize
 - SV1.1 added comparative Money Flow batch validation reports without optimization, recommendations, live artifacts, routing, or execution changes.
 - SV1.2 added Money Flow data-coverage and market-regime validation reports without optimization, recommendations, live artifacts, routing, or execution changes.
 - SV1.2.1 hardened Money Flow validation window/coverage/grouped-comparison truth without optimization, recommendations, live artifacts, routing, or execution changes.
+- SV1.3 added repeatable Money Flow research campaigns and saved evidence packs without optimization, recommendations, live artifacts, routing, or execution changes.
 
 ## Hard Boundaries
 
@@ -93,6 +96,8 @@ SV1.2 is successful when validation reports expose data coverage, deterministic 
 
 SV1.2.1 is successful when one window convention is used everywhere, adjacent windows do not double-count boundary candles, unaligned-window coverage cannot exceed 100%, blocked runs remain visible in grouped comparisons, and the validation boundary remains research-only with no Money Flow rule changes or live artifacts.
 
+SV1.3 is successful when the single-run CLI help matches `(start_at, end_at]` semantics, named campaign configs expand into batch requests, evidence packs save normalized config/manifest/JSON/Markdown/README outputs, blocked runs remain visible, and no Money Flow rules, optimization, paper/live trading, routing, exchange calls, or live artifacts are added.
+
 ## Current Outcome
 
 - Obsidian command center/current phase/decision log/coordination notes are now part of the required agent workflow.
@@ -112,8 +117,9 @@ SV1.2.1 is successful when one window convention is used everywhere, adjacent wi
 - SV1.1 adds `StrategyValidationBatchRequest`, `StrategyValidationBatchReport`, `MoneyFlowBacktestService.run_money_flow_batch_backtest()`, `scripts/run_money_flow_validation_batch.py`, and direct comparative validation tests.
 - SV1.2 adds data-coverage report fields, deterministic trend/volatility regime summaries, batch coverage/regime comparisons, repeated CLI `--window start,end` support, and direct coverage/regime tests.
 - SV1.2.1 applies the `(start_at, end_at]` candle-close convention to evaluation/coverage/regime/forced-close/batch surfaces, adds close-slot coverage counting and unaligned-boundary warnings, and keeps blocked-run counts/reasons in grouped comparisons.
+- SV1.3 adds `services/strategy_validation/campaigns.py`, `scripts/run_money_flow_research_campaign.py`, `configs/strategy_validation/money_flow_research_campaign.example.json`, and `tests/test_sv13_research_campaigns.py` for repeatable research campaign evidence packs.
 - Recovery, route execution, fanout, scoring, CBBO, target reselection, cross-venue retry, and broad auto-submit remain deferred.
 
 ## Next Phase Shape
 
-The next Strategy Validation phase should be scoped as SV1.3 research campaigns/evidence packs now that SV1.2.1 fixes window and coverage truth. Likely candidates are repeatable campaign configs, saved evidence packs, broader historical data ingestion/coverage across symbols and venues, richer regime review, report persistence if founder review needs it, and paper-trading readiness only after evidence review. Phase 8.1 should remain deferred until explicitly scoped; when it resumes, it should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review, keep operator acknowledgement separate from exchange/account truth, and not attach submit/cancel/amend/retry behavior to inspection.
+The next Strategy Validation phase should review SV1.3 campaign evidence packs before paper trading. Likely candidates are broader historical data ingestion/coverage across symbols and venues, richer regime/data-quality review, evidence-pack comparison discipline, and paper-trading readiness only after evidence review. Phase 8.1 should remain deferred until explicitly scoped; when it resumes, it should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review, keep operator acknowledgement separate from exchange/account truth, and not attach submit/cancel/amend/retry behavior to inspection.
