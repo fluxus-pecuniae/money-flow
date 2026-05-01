@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-01T19:20:34Z`
+Last reviewed: `2026-05-01T20:12:36Z`
 
 ## Active Follow-Ups
 
@@ -124,11 +124,17 @@ Last reviewed: `2026-05-01T19:20:34Z`
 - `status`: `done`
 - `summary`: `SV1.2 adds data-coverage and market-regime analysis to Money Flow validation. Single-run and batch reports now include requested-versus-available candle coverage, expected/actual/missing candle counts where timeframe spacing is derivable, warning reason codes for thin/missing/gapped data, deterministic trend and volatility regime labels, regime-grouped performance summaries, and repeated CLI `--window start,end` support for multi-window comparison. Regimes are descriptive only and assigned by entry signal candle for trade metrics; they do not change Money Flow rules, optimize parameters, recommend variants, add paper/live trading, create live artifacts, call exchanges, route, or execute.`
 
+### T-054
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.2.1 hardens Money Flow strategy-validation research truth before SV1.3 campaign/evidence-pack work. Validation windows now consistently use candle closes in `(start_at, end_at]` across strategy evaluation, data coverage, regime summaries, forced-close lookup, batch windows, CLI wording, JSON, and Markdown. Coverage expected counts now use expected close slots, unaligned window boundaries are warning-coded, coverage percent cannot exceed 100%, and grouped batch comparisons include blocked-run counts and reason counts while computing performance metrics only from completed runs. No Money Flow rules, optimization, strategy recommendations, paper/live trading, live artifacts, routing, execution automation, exchange calls, route executor behavior, fanout, or auto-submit were added.`
+
 ### T-053
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `Define the next Strategy Validation phase after reviewing SV1.2 reports. Candidate work should focus on broader historical data ingestion/coverage across symbols and venues, richer market-regime review, report persistence if founder/operator review needs it, and paper-trading readiness only after evidence review. Do not optimize Money Flow parameters, add new strategy families, create live trading artifacts, or connect validation to routing/execution automation until evidence and architecture review justify that scope.`
+- `summary`: `Define the next Strategy Validation phase after reviewing SV1.2/SV1.2.1 reports. Candidate work should focus on broader historical data ingestion/coverage across symbols and venues, repeatable research campaign/evidence-pack workflows, richer market-regime review, report persistence if founder/operator review needs it, and paper-trading readiness only after evidence review. Do not optimize Money Flow parameters, add new strategy families, create live trading artifacts, or connect validation to routing/execution automation until evidence and architecture review justify that scope.`
 
 ### T-001
 

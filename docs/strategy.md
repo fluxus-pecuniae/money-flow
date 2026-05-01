@@ -42,6 +42,8 @@ SV1.1 adds comparative validation without changing the Money Flow strategy. The 
 
 SV1.2 adds data-coverage and market-regime analysis without changing strategy behavior. Reports now show requested versus available candle coverage, missing-candle warnings where timeframe spacing is derivable, and deterministic trend/volatility labels such as `uptrend`, `downtrend`, `sideways`, `high_volatility`, `low_volatility`, and `unknown_or_insufficient_data`. Trade-level regime grouping uses the entry signal candle. These regimes are descriptive research labels only; they are not filters, optimization inputs, recommendations, paper-trading triggers, routing inputs, or execution instructions.
 
+SV1.2.1 fixes window/coverage/comparison research truth before SV1.3 campaign reports. Money Flow validation now uses candle closes in `(start_at, end_at]` everywhere: closes exactly at the start boundary are excluded and closes on or before the end boundary are included. Data coverage counts expected close slots under that convention, warning-codes unaligned window boundaries, and never reports coverage above 100%. Batch comparison groups now include blocked runs and blocked reason counts while computing performance metrics only from completed runs. This changes reporting truth only; it does not change Money Flow rules, optimize parameters, recommend variants, create live artifacts, route, submit, call exchange adapters, or add paper/live trading.
+
 The load-bearing strategy-to-execution boundary is:
 
 - `StrategyDecision`

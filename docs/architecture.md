@@ -51,6 +51,8 @@ SV1.1 adds a comparative strategy-validation batch layer on top of the single-ru
 
 SV1.2 adds data-coverage and market-regime analysis to that research boundary. Validation reports now include requested-versus-available candle coverage, missing-candle/gap warnings where timeframe spacing makes them derivable, deterministic trend and volatility regime labels from candle closes, and regime-grouped performance metrics. Regime labels are descriptive only, assigned to trade metrics by entry signal candle, and never feed back into Money Flow rules, routing, paper trading, live execution, exchange adapters, or automation.
 
+SV1.2.1 hardens the research-truth layer for windows, coverage, and batch comparisons before any SV1.3 campaign/evidence-pack work. The validation boundary now applies one candle-close interval convention everywhere: `(start_at, end_at]`. Strategy evaluation, data coverage, regime summaries, forced end-of-window close lookup, batch date-window comparison, CLI wording, JSON, and Markdown all treat the start boundary as excluded and the end boundary as included. Coverage expected counts are based on expected close slots, unaligned boundaries produce explicit warnings, coverage percent is capped at 100%, and grouped comparisons include blocked-run counts/reasons while computing metrics only from completed runs. Money Flow rules, optimization, paper/live trading, routing, execution automation, exchange calls, and live artifacts remain unchanged.
+
 ## Core Hierarchy
 
 The active hierarchy is:

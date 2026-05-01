@@ -59,6 +59,7 @@ _TREND_RETURN_THRESHOLD = Decimal("0.01")
 _HIGH_VOLATILITY_AVG_ABS_RETURN = Decimal("0.0125")
 _LOW_VOLATILITY_AVG_ABS_RETURN = Decimal("0.0025")
 _DATA_COVERAGE_WARNING_THRESHOLD = Decimal("0.80")
+_WINDOW_CONVENTION = "candle_close_time_start_exclusive_end_inclusive"
 
 
 class StrategyValidationError(ValueError):
@@ -273,7 +274,7 @@ class MoneyFlowBacktestService:
         for signal_index, (candle, snapshot) in enumerate(zip(candles, snapshots, strict=False)):
             history_index = signal_index + 1
             candle_close_time = _coerce_utc(candle.close_time)
-            if candle_close_time < start_at or candle_close_time > end_at:
+            if candle_close_time <= start_at or candle_close_time > end_at:
                 continue
             regime = regime_by_close_time.get(
                 candle_close_time,
@@ -683,9 +684,10 @@ def _data_coverage(
     largest_gap_seconds: int | None = None
     warning_reason_codes: list[str] = []
     if timeframe_delta is not None:
-        expected_count = max(
-            int((end_at - start_at).total_seconds() // timeframe_delta.total_seconds()),
-            0,
+        expected_count = _expected_close_slot_count(
+            start_at=start_at,
+            end_at=end_at,
+            timeframe_delta=timeframe_delta,
         )
         missing_count = max(expected_count - len(close_times), 0)
         coverage_percent = (
@@ -693,6 +695,8 @@ def _data_coverage(
             if expected_count > 0
             else None
         )
+        if coverage_percent is not None:
+            coverage_percent = min(coverage_percent, Decimal("1.00000000"))
         expected_gap_seconds = int(timeframe_delta.total_seconds())
         gaps = [
             int((later - earlier).total_seconds())
@@ -701,6 +705,14 @@ def _data_coverage(
         ]
         gap_count = len(gaps)
         largest_gap_seconds = max(gaps) if gaps else 0
+        if _has_unaligned_window_boundary(
+            start_at=start_at,
+            end_at=end_at,
+            timeframe_delta=timeframe_delta,
+        ):
+            warning_reason_codes.append("unaligned_window_boundary")
+        if expected_count is not None and len(close_times) > expected_count:
+            warning_reason_codes.append("actual_candles_exceed_expected_close_slots")
         if coverage_percent is not None and coverage_percent < _DATA_COVERAGE_WARNING_THRESHOLD:
             warning_reason_codes.append("data_coverage_below_warning_threshold")
         if missing_count > 0:
@@ -715,6 +727,7 @@ def _data_coverage(
     return StrategyValidationDataCoverage(
         requested_start_at=start_at,
         requested_end_at=end_at,
+        window_convention=_WINDOW_CONVENTION,
         first_candle_available_at=close_times[0] if close_times else None,
         last_candle_available_at=close_times[-1] if close_times else None,
         expected_candle_count=expected_count,
@@ -724,6 +737,40 @@ def _data_coverage(
         gap_count=gap_count,
         largest_gap_seconds=largest_gap_seconds,
         warning_reason_codes=sorted(set(warning_reason_codes)),
+    )
+
+
+def _expected_close_slot_count(
+    *,
+    start_at: datetime,
+    end_at: datetime,
+    timeframe_delta: timedelta,
+) -> int:
+    if end_at <= start_at:
+        return 0
+    delta_seconds = int(timeframe_delta.total_seconds())
+    if delta_seconds <= 0:
+        return 0
+    start_seconds = int(start_at.timestamp())
+    end_seconds = int(end_at.timestamp())
+    first_close_slot = ((start_seconds // delta_seconds) + 1) * delta_seconds
+    if first_close_slot > end_seconds:
+        return 0
+    return ((end_seconds - first_close_slot) // delta_seconds) + 1
+
+
+def _has_unaligned_window_boundary(
+    *,
+    start_at: datetime,
+    end_at: datetime,
+    timeframe_delta: timedelta,
+) -> bool:
+    delta_seconds = int(timeframe_delta.total_seconds())
+    if delta_seconds <= 0:
+        return False
+    return (
+        int(start_at.timestamp()) % delta_seconds != 0
+        or int(end_at.timestamp()) % delta_seconds != 0
     )
 
 
@@ -805,7 +852,7 @@ def _build_regime_summaries(
     window_regimes = [
         regime_by_close_time.get(_coerce_utc(candle.close_time), _CandleRegime.unknown(_coerce_utc(candle.close_time)))
         for candle in candles
-        if start_at <= _coerce_utc(candle.close_time) <= end_at
+        if start_at < _coerce_utc(candle.close_time) <= end_at
     ]
     summaries: list[StrategyValidationRegimeSummary] = []
     summaries.extend(
@@ -1209,6 +1256,7 @@ def _data_coverage_summary(component_reports: list[StrategyValidationComponentRe
         "methodology": (
             "coverage_counts_candle_closes_after_requested_start_and_on_or_before_requested_end"
         ),
+        "window_convention": _WINDOW_CONVENTION,
         "component_count": len(component_reports),
         "total_actual_candle_count": sum(coverage.actual_candle_count for coverage in coverages),
         "total_expected_candle_count": (
@@ -1339,6 +1387,7 @@ def _run_summary(run: StrategyValidationBatchRunReport) -> dict[str, Any]:
 def _assumptions_matrix(run_reports: list[StrategyValidationBatchRunReport]) -> dict[str, Any]:
     requests = [run.request for run in run_reports]
     return {
+        "window_convention": _WINDOW_CONVENTION,
         "components": sorted(
             {
                 component
@@ -1388,18 +1437,18 @@ def _comparison_summary(run_reports: list[StrategyValidationBatchRunReport]) -> 
         "most_trades_run": _select_run(completed, "number_of_trades", highest=True),
         "least_trades_run": _select_run(completed, "number_of_trades", highest=False),
         "fill_timing_comparison": _group_comparison(
-            completed,
+            run_reports,
             lambda run: run.request.assumptions.fill_timing.value,
             "fill_timing",
         ),
         "component_comparison": _group_comparison(
-            completed,
+            run_reports,
             lambda run: ",".join(run.request.component_keys or ("all",)),
             "component_keys",
         ),
-        "symbol_comparison": _group_comparison(completed, lambda run: run.request.symbol, "symbol"),
+        "symbol_comparison": _group_comparison(run_reports, lambda run: run.request.symbol, "symbol"),
         "date_window_comparison": _group_comparison(
-            completed,
+            run_reports,
             lambda run: (
                 f"{_coerce_utc(run.request.start_at).isoformat()}->"
                 f"{_coerce_utc(run.request.end_at).isoformat()}"
@@ -1463,6 +1512,10 @@ def _group_comparison(
     rows: list[dict[str, Any]] = []
     for value, runs in sorted(grouped.items()):
         metrics = [run.report.aggregate_metrics for run in runs if run.report is not None]
+        blocked_reason_counts: Counter[str] = Counter()
+        for run in runs:
+            if run.report is None:
+                blocked_reason_counts.update(run.reason_codes or ["strategy_validation_run_blocked"])
         run_count = len(runs)
         total_net_pnl = _money(sum((metric.net_pnl for metric in metrics), Decimal("0")))
         total_trades = sum(metric.number_of_trades for metric in metrics)
@@ -1482,6 +1535,7 @@ def _group_comparison(
                 "run_count": run_count,
                 "completed_run_count": len(metrics),
                 "blocked_run_count": run_count - len(metrics),
+                "blocked_reason_counts": dict(sorted(blocked_reason_counts.items())),
                 "total_trades": total_trades,
                 "total_net_pnl": total_net_pnl,
                 "average_net_pnl": average_net_pnl,
@@ -1695,8 +1749,8 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
             "",
             "## Fill-Timing Comparison",
             "",
-            "| fill timing | runs | completed | blocked | total trades | total net PnL | average net PnL | largest MTM drawdown |",
-            "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+            "| fill timing | runs | completed | blocked | blocked reasons | total trades | total net PnL | average net PnL | largest MTM drawdown |",
+            "| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |",
         ]
     )
     for row in summary["fill_timing_comparison"]:
@@ -1706,6 +1760,7 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
             f"{row['run_count']} | "
             f"{row['completed_run_count']} | "
             f"{row['blocked_run_count']} | "
+            f"`{row['blocked_reason_counts']}` | "
             f"{row['total_trades']} | "
             f"{row['total_net_pnl']} | "
             f"{row['average_net_pnl']} | "
@@ -1716,8 +1771,8 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
             "",
             "## Component Comparison",
             "",
-            "| component(s) | runs | completed | blocked | total trades | total net PnL | average net PnL | largest MTM drawdown |",
-            "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+            "| component(s) | runs | completed | blocked | blocked reasons | total trades | total net PnL | average net PnL | largest MTM drawdown |",
+            "| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |",
         ]
     )
     for row in summary["component_comparison"]:
@@ -1727,6 +1782,7 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
             f"{row['run_count']} | "
             f"{row['completed_run_count']} | "
             f"{row['blocked_run_count']} | "
+            f"`{row['blocked_reason_counts']}` | "
             f"{row['total_trades']} | "
             f"{row['total_net_pnl']} | "
             f"{row['average_net_pnl']} | "
@@ -1738,8 +1794,8 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
                 "",
                 "## Symbol Comparison",
                 "",
-                "| symbol | runs | completed | blocked | total trades | total net PnL | average net PnL | largest MTM drawdown |",
-                "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+                "| symbol | runs | completed | blocked | blocked reasons | total trades | total net PnL | average net PnL | largest MTM drawdown |",
+                "| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |",
             ]
         )
         for row in summary["symbol_comparison"]:
@@ -1749,6 +1805,7 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
                 f"{row['run_count']} | "
                 f"{row['completed_run_count']} | "
                 f"{row['blocked_run_count']} | "
+                f"`{row['blocked_reason_counts']}` | "
                 f"{row['total_trades']} | "
                 f"{row['total_net_pnl']} | "
                 f"{row['average_net_pnl']} | "
@@ -1760,8 +1817,8 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
                 "",
                 "## Date-Window Comparison",
                 "",
-                "| date window | runs | completed | blocked | total trades | total net PnL | average net PnL | largest MTM drawdown |",
-                "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+                "| date window | runs | completed | blocked | blocked reasons | total trades | total net PnL | average net PnL | largest MTM drawdown |",
+                "| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |",
             ]
         )
         for row in summary["date_window_comparison"]:
@@ -1771,6 +1828,7 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
                 f"{row['run_count']} | "
                 f"{row['completed_run_count']} | "
                 f"{row['blocked_run_count']} | "
+                f"`{row['blocked_reason_counts']}` | "
                 f"{row['total_trades']} | "
                 f"{row['total_net_pnl']} | "
                 f"{row['average_net_pnl']} | "
@@ -1836,6 +1894,7 @@ def strategy_validation_report_to_markdown(report: StrategyValidationReport) -> 
         "## Data Coverage",
         "",
         f"- Methodology: `{data['data_coverage_summary'].get('methodology')}`",
+        f"- Window convention: `{data['data_coverage_summary'].get('window_convention')}`",
         f"- Total actual candles: `{data['data_coverage_summary'].get('total_actual_candle_count')}`",
         f"- Total expected candles: `{data['data_coverage_summary'].get('total_expected_candle_count')}`",
         f"- Minimum coverage percent: `{data['data_coverage_summary'].get('minimum_coverage_percent')}`",
@@ -2063,7 +2122,7 @@ def _last_candle_in_window(
     matching = [
         candle
         for candle in candles
-        if start_at <= _coerce_utc(candle.close_time) <= end_at
+        if start_at < _coerce_utc(candle.close_time) <= end_at
     ]
     return matching[-1] if matching else None
 

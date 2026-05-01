@@ -13,6 +13,40 @@ Entry schema:
 
 ---
 
+## v2026.05.01.016
+
+- `recorded_at_utc`: `2026-05-01T20:17:05Z`
+- `scope`: `SV1.2.1 Money Flow validation window and coverage research-truth hotfix`
+- `intent`: `Native entry. Hardened the SV1.2 market-regime/data-coverage validation layer before SV1.3 campaign/evidence-pack work. Strategy Validation now applies one candle-close window convention everywhere: `(start_at, end_at]`, meaning candle closes exactly at the start boundary are excluded and closes on or before the end boundary are included. Strategy evaluation, data coverage, regime summaries, forced-close lookup, batch date-window comparison, CLI wording, JSON, and Markdown now share that convention. Coverage expected counts are derived from expected close slots, unaligned window boundaries produce explicit warnings, coverage percent is capped at 100%, and grouped batch comparisons include blocked-run counts and blocked reason counts while computing performance metrics only from completed runs. No Money Flow rules, optimization, strategy recommendations, paper/live trading, live artifacts, routing, execution automation, exchange calls, route executor behavior, fanout, target reselection, or auto-submit were added.`
+- `affected_files`:
+  - `core/domain/models.py`
+  - `services/strategy_validation/service.py`
+  - `scripts/run_money_flow_validation_batch.py`
+  - `tests/test_sv12_strategy_validation_regimes.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services scripts tests` passed during development.
+  - `.venv/bin/python -m pytest -q tests/test_sv12_strategy_validation_regimes.py` passed with 7 tests during focused development.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py` passed with 7 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv11_strategy_validation_batch.py` passed with 4 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 17 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py` passed with 18 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 35 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed with 486 tests.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 10 tests after final docs/Obsidian updates.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.2.1-review.zip` created the SV1.2.1 review bundle; bundle inspection found 217 files and no `.env`, virtualenvs, Git metadata, pytest caches, local DB/SQLite files, nested archives, secrets, or Obsidian app state.
+
 ## v2026.05.01.015
 
 - `recorded_at_utc`: `2026-05-01T19:20:34Z`

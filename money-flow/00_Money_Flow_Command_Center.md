@@ -8,9 +8,9 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 
 ## Current Phase
 
-- Current implemented phase: `SV1.2`
+- Current implemented phase: `SV1.2.1`
 - Phase 7 status: accepted complete.
-- Proposed next phase: deeper Strategy Validation after SV1.2 regime/coverage report review; `Phase 8.1` remains deferred until explicitly scoped.
+- Proposed next phase: `SV1.3` research campaigns/evidence packs after SV1.2.1 research-truth acceptance; `Phase 8.1` remains deferred until explicitly scoped.
 - Phase 8.0 status: implemented read-only operator observability/manual-resolution inspection.
 - Phase 8.0.1 status: Obsidian memory and working-tree baseline cleanup; no product behavior changed.
 - Phase 8.0.2 status: active submit-lease operator-summary truth hotfix; no product behavior changed.
@@ -18,6 +18,7 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 - SV1.0.1 status: strategy-validation report-truth hardening; explicit fill timing, explicit drawdown methodology, expanded Markdown; no strategy-rule changes.
 - SV1.1 status: comparative strategy-validation batch reporting; explicit components/fill-timing/symbol/window/cost matrix; descriptive research only with no optimization, recommendation, live artifacts, routing, or execution changes.
 - SV1.2 status: market-regime and data-coverage validation reporting; descriptive regimes and coverage diagnostics only with no strategy-rule changes, paper/live trading, routing, exchange calls, or execution changes.
+- SV1.2.1 status: window-boundary, coverage, and grouped-comparison research-truth hotfix; no strategy-rule changes, paper/live trading, routing, exchange calls, or execution changes.
 - Current accepted action hooks: approval-gated recommendation acceptance, target-choice conversion, prepared-order preview/readiness inspection, and submitted-order handoff.
 
 ## Current Architectural Boundary
@@ -56,6 +57,8 @@ SV1.0.1 hardens that report truth. Fill timing is explicit (`same_candle_close_r
 SV1.1 adds comparative validation on top of the single-run report. Batch reports compare explicit components/timeframes, fill timings, symbols, date windows, and cost assumptions using descriptive observed metrics only. They do not optimize, recommend a variant, alter Money Flow rules, create live artifacts, route, submit, or call exchange adapters.
 
 SV1.2 adds data-coverage and market-regime diagnostics. Reports now show requested versus available candles, missing/gap/coverage warnings, deterministic trend and volatility labels, and regime-grouped performance metrics. Regime labels are descriptive only and are not used to alter strategy behavior.
+
+SV1.2.1 fixes research-truth issues before campaign/evidence-pack work. Validation windows now use one convention everywhere: candle closes in `(start_at, end_at]`. Coverage counts expected close slots under that convention, unaligned boundaries are warning-coded, coverage cannot exceed 100%, and grouped comparisons keep blocked runs visible with blocked reason counts. Money Flow rules are unchanged.
 
 ## Repo Truth Sources
 
@@ -97,6 +100,7 @@ Obsidian is the long-horizon project brain for founder intent, phase context, de
 - SV1.0.1 reports are research evidence, not proof of profitability and not live execution truth.
 - SV1.1 comparison reports are descriptive evidence, not optimization, not strategy recommendations, and not paper/live trading authorization.
 - SV1.2 regime labels are descriptive diagnostics, not filters, recommendations, or paper/live trading authorization.
+- SV1.2.1 window/coverage semantics are load-bearing for future campaign reports: adjacent windows must not double-count boundary candles, and blocked runs must not disappear from grouped comparisons.
 - Simulated validation trades must remain separate from `SubmittedOrder`.
 - Manual-resolution inspection must not silently resolve venue or approval truth.
 - Future agents must update their own coordination row instead of overwriting another agent's work.

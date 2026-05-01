@@ -42,6 +42,8 @@ SV1.1 adds comparative Money Flow validation. The batch runner executes explicit
 
 SV1.2 adds market-regime and data-coverage analysis to Money Flow validation. Single-run and batch reports now show requested versus available candle coverage, missing-candle warnings where derivable from timeframe, deterministic trend/volatility regime labels, and regime-grouped performance metrics. Regimes are descriptive labels only and are assigned by entry signal candle for trade grouping; they do not alter entries, exits, parameters, routing, or execution. No paper trading, live execution, exchange calls, live artifacts, routing behavior, or Money Flow rule changes are added.
 
+SV1.2.1 hardens the Strategy Validation research-truth layer before campaign/evidence-pack work. Money Flow validation now uses one candle-close window convention everywhere: `(start, end]`, meaning candle closes exactly at `start` are excluded and closes on or before `end` are included. Coverage counts expected close slots under that convention, unaligned window boundaries are warning-coded, coverage percent is not allowed to exceed 100%, and batch grouped comparisons include blocked-run counts/reasons instead of hiding blocked runs. No Money Flow rules, optimization, paper/live trading, routing, execution automation, exchange calls, or live artifacts are added.
+
 ## Operational Memory
 
 This repo now uses explicit operational-memory files plus an Obsidian strategic brain. Future work is expected to read them before changes and update them after changes.
@@ -130,7 +132,7 @@ SV1.2 extends the same CLI with repeated date windows:
   --format markdown
 ```
 
-The resulting report includes data-coverage comparison, market-regime comparison, and date-window comparison sections. These outputs are research diagnostics only, not optimization, paper trading, live execution, or proof of profitability.
+Each window uses candle closes in `(start, end]`: the start boundary is excluded and the end boundary is included. Adjacent windows such as `Jan 1 -> Jan 15` and `Jan 15 -> Feb 1` therefore do not double-count the boundary candle. The resulting report includes data-coverage comparison, market-regime comparison, and date-window comparison sections. These outputs are research diagnostics only, not optimization, paper trading, live execution, or proof of profitability.
 
 ## Routing Automation Planning
 

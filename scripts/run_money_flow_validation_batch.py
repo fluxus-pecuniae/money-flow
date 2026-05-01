@@ -1,4 +1,4 @@
-"""Run an SV1.1/SV1.2 comparative Money Flow validation batch over persisted candles."""
+"""Run an SV1.1/SV1.2/SV1.2.1 comparative Money Flow validation batch."""
 
 from __future__ import annotations
 
@@ -55,14 +55,27 @@ def build_parser() -> argparse.ArgumentParser:
         choices=[item.value for item in StrategyValidationFillTiming],
         help="Fill timing assumption to compare. Repeat for multiple fill timings.",
     )
-    parser.add_argument("--start", help="Inclusive ISO-8601 start timestamp for a single window.")
-    parser.add_argument("--end", help="Inclusive ISO-8601 end timestamp for a single window.")
+    parser.add_argument(
+        "--start",
+        help=(
+            "ISO-8601 start timestamp for a single candle-close window. "
+            "Closes exactly at start are excluded."
+        ),
+    )
+    parser.add_argument(
+        "--end",
+        help=(
+            "ISO-8601 end timestamp for a single candle-close window. "
+            "Closes on or before end are included."
+        ),
+    )
     parser.add_argument(
         "--window",
         action="append",
         default=[],
         help=(
-            "Date window as start,end. Repeat for multi-window regime/coverage comparison. "
+            "Date window as start,end using candle closes in (start, end]. "
+            "Repeat for multi-window regime/coverage comparison. "
             "If omitted, --start and --end are required."
         ),
     )

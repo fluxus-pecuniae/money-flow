@@ -1681,6 +1681,7 @@ class StrategyValidationTrade:
 class StrategyValidationDataCoverage:
     requested_start_at: datetime
     requested_end_at: datetime
+    window_convention: str
     first_candle_available_at: datetime | None
     last_candle_available_at: datetime | None
     expected_candle_count: int | None
