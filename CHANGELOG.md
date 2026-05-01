@@ -13,6 +13,41 @@ Entry schema:
 
 ---
 
+## v2026.05.01.004
+
+- `recorded_at_utc`: `2026-05-01T07:28:41Z`
+- `scope`: `Phase 7.4 approval-gated prepared-order preview/readiness`
+- `intent`: `Native entry. Added the third narrow approval-consuming automation action hook. One active, non-expired, current-lineage `prepared_order_preview_and_readiness` approval can now be consumed to run the existing child-intent prepared-order preview and execution-readiness inspection path for the exact approved routed child `OrderIntent`; the action persists or reuses the readiness assessment, records the preview key, readiness id/outcome/reason codes, and consumes the approval with explicit no-submitted-order/no-exchange-submit/no-auto-submit/no-route-executor provenance. Approval authorizes inspection only and does not force readiness eligibility: blocked and phase-blocked readiness remain reason-coded. Expired, revoked, consumed-for-different-child, wrong-action, wrong-child-intent, stale-lineage, disabled, blocked, deferred, already-satisfied, dry-run-only, and manual-only cases block before action. Added `POST /api/v1/routing-automation/approvals/{approval_id}/preview-readiness` plus focused Phase 7.4 tests for success, idempotency, rollback on approval-consumption failure, invalid approvals, policy/status boundaries, readiness truth, API response shape, and no submission. This phase creates no `SubmittedOrder`, calls no adapter submit/exchange submit path, and adds no smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor, cross-binding/cross-venue recovery, auto-submit, migration, config, new exchange behavior, or full project-memory edit.`
+- `affected_files`:
+  - `services/routing/service.py`
+  - `services/execution/service.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_phase74_approval_gated_preview_readiness.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase74_approval_gated_preview_readiness.py` passed with 16 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase70_routing_automation.py tests/test_phase71_routing_automation_approvals.py tests/test_phase72_approval_gated_recommendation_acceptance.py tests/test_phase73_approval_gated_target_choice_conversion.py tests/test_phase74_approval_gated_preview_readiness.py` passed with 57 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase64_recommendation_backed_readiness.py tests/test_operational_docs.py` passed with 18 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase63_recommendation_target_choice_conversion.py tests/test_phase56_routed_order_shape_policy.py tests/test_phase53_routed_child_intent_readiness.py tests/test_phase54_routed_submission_handoff.py` passed with 56 tests.
+  - `.venv/bin/python -m pytest -q tests/test_api.py` passed with 13 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed with 433 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed after final docs and Obsidian coordination updates.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-7.4-review.zip` created the Phase 7.4 review bundle; bundle inspection found 204 files and no `.env`, virtualenvs, Git metadata, pytest caches, Obsidian app state, local DBs, SQLite files, or nested ZIPs.
+
 ## v2026.05.01.003
 
 - `recorded_at_utc`: `2026-05-01T06:45:26Z`

@@ -44,6 +44,7 @@ from core.domain.models import (
     RoutingAutomationApproval,
     RoutingAutomationApprovalGateState,
     RoutingAutomationApprovalInspection,
+    RoutingAutomationPreviewReadinessResult,
     RoutingAutomationRecommendationAcceptanceResult,
     RoutingAutomationTargetChoiceConversionResult,
     RoutingAutomationPlan,
@@ -1056,6 +1057,146 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             },
         )
 
+    async def preview_and_assess_child_intent_readiness_with_approval(
+        self,
+        intent_id: str,
+        *,
+        approval_id: str,
+        consumed_by: str,
+        execution_service: Any,
+        policy: RoutingAutomationPolicy | None = None,
+    ) -> RoutingAutomationPreviewReadinessResult:
+        """Consume one current approval to run existing preview/readiness for one child intent."""
+
+        action = RoutingAutomationApprovalAction.PREVIEW_READINESS
+        active_policy = policy or self.routing_automation_policy(
+            mode=RoutingAutomationMode.APPROVAL_REQUIRED
+        )
+        with self._session_factory() as lookup_session:
+            intent_lookup = lookup_session.scalar(
+                select(OrderIntentModel).where(
+                    OrderIntentModel.environment == self.settings.app.environment,
+                    OrderIntentModel.intent_id == intent_id,
+                )
+            )
+            if intent_lookup is None:
+                raise RoutingAssessmentError(
+                    "order_intent_not_found",
+                    f"Child intent not found: {intent_id}",
+                )
+            desired_trade_key = intent_lookup.desired_trade_key
+        if desired_trade_key is None:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_missing_desired_trade",
+                "Preview/readiness approval requires desired-trade lineage.",
+            )
+        plan = await self.plan_routing_automation_for_desired_trade(
+            desired_trade_key,
+            policy=active_policy,
+            dry_run=True,
+        )
+        step = self._routing_automation_step_for_action(plan, action)
+
+        with self._session_factory() as session:
+            intent_model = session.scalar(
+                select(OrderIntentModel)
+                .where(
+                    OrderIntentModel.environment == self.settings.app.environment,
+                    OrderIntentModel.intent_id == intent_id,
+                )
+                .with_for_update()
+            )
+            if intent_model is None:
+                raise RoutingAssessmentError(
+                    "order_intent_not_found",
+                    f"Child intent not found: {intent_id}",
+                )
+            approval_model = self._load_routing_automation_approval_model_for_update(
+                session,
+                approval_id,
+            )
+            self._validate_preview_readiness_approval_for_action(
+                session,
+                approval_model,
+                intent_model,
+                step=step,
+                action=action,
+            )
+            preview, readiness, readiness_created = (
+                await execution_service.preview_and_assess_child_intent_readiness_in_session(
+                    session,
+                    intent_model,
+                )
+            )
+            preview_key = self._prepared_order_preview_key(preview, readiness)
+            approval_model = self._consume_preview_readiness_approval_model(
+                session,
+                approval_model,
+                intent_id=intent_id,
+                preview_key=preview_key,
+                readiness=readiness,
+                readiness_created=readiness_created,
+                consumed_by=consumed_by,
+            )
+            session.commit()
+            session.refresh(approval_model)
+            approval = self._routing_automation_approval_from_model(approval_model)
+        return RoutingAutomationPreviewReadinessResult(
+            approval_id=approval.approval_id,
+            intent_id=intent_id,
+            desired_trade_key=readiness.desired_trade_key,
+            environment=readiness.environment,
+            approval=approval,
+            prepared_order_preview=preview,
+            readiness=readiness,
+            prepared_order_preview_key=preview_key,
+            readiness_evaluation_id=readiness.readiness_evaluation_id,
+            approval_consumed=approval.status == RoutingAutomationApprovalStatus.CONSUMED,
+            prepared_order_preview_created_or_reused=True,
+            readiness_assessment_created_or_reused=True,
+            readiness_assessment_created=readiness_created,
+            readiness_assessment_reused=not readiness_created,
+            submitted_order_created=False,
+            exchange_submit_called=False,
+            auto_submit=False,
+            route_executor_used=False,
+            reason_codes=[
+                "routing_automation_preview_readiness_approval_consumed",
+                "prepared_order_preview_created_or_reused",
+                "readiness_assessment_created_or_reused",
+                "submitted_order_creation_deferred",
+                *list(readiness.reason_codes),
+            ],
+            boundary_flags=self._routing_automation_boundary_flags(),
+            provenance={
+                "phase": "phase_7_4",
+                "approval_consuming_action": True,
+                "action_name": action.value,
+                "intent_id": intent_id,
+                "readiness_evaluation_id": readiness.readiness_evaluation_id,
+                "prepared_order_preview_key": preview_key,
+                "approval_id": approval.approval_id,
+                "consumed_by": consumed_by,
+                "same_target_only": True,
+                "prepared_order_preview_created_or_reused": True,
+                "readiness_assessment_created_or_reused": True,
+                "readiness_assessment_created": readiness_created,
+                "readiness_assessment_reused": not readiness_created,
+                "readiness_outcome": readiness.outcome.value,
+                "submitted_order_created": False,
+                "exchange_submit_called": False,
+                "smart_routing": False,
+                "best_binding_selection": False,
+                "cbbo": False,
+                "fanout": False,
+                "ranking": False,
+                "scoring": False,
+                "target_reselection": False,
+                "route_executor": False,
+                "auto_submit": False,
+            },
+        )
+
     async def inspect_routed_workflow_by_desired_trade(
         self,
         desired_trade_key: str,
@@ -1626,6 +1767,21 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             and model.intent_id is not None
         )
 
+    @staticmethod
+    def _approval_consumed_for_preview_readiness(
+        model: RoutingAutomationApprovalModel,
+        intent_id: str,
+    ) -> bool:
+        provenance = dict(model.provenance_json or {})
+        return (
+            model.status == RoutingAutomationApprovalStatus.CONSUMED.value
+            and model.action_name == RoutingAutomationApprovalAction.PREVIEW_READINESS.value
+            and model.intent_id == intent_id
+            and provenance.get("phase") == "phase_7_4"
+            and provenance.get("approval_gated_prepared_order_preview_and_readiness") is True
+            and model.readiness_evaluation_id is not None
+        )
+
     def _validate_recommendation_acceptance_approval_for_action(
         self,
         session: Any,
@@ -2092,6 +2248,249 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
         )
         model.provenance_json = self._jsonable_dict(provenance)
         return model
+
+    def _validate_preview_readiness_approval_for_action(
+        self,
+        session: Any,
+        model: RoutingAutomationApprovalModel,
+        intent_model: OrderIntentModel,
+        *,
+        step: RoutingAutomationPlanStep,
+        action: RoutingAutomationApprovalAction,
+    ) -> None:
+        self._expire_approval_if_needed(session, model, commit=False)
+        if self._approval_consumed_for_preview_readiness(model, intent_model.intent_id):
+            consumed_readiness = session.scalar(
+                select(ExecutionReadinessEvaluationModel).where(
+                    ExecutionReadinessEvaluationModel.environment
+                    == self.settings.app.environment,
+                    ExecutionReadinessEvaluationModel.readiness_evaluation_id
+                    == model.readiness_evaluation_id,
+                )
+            )
+            if consumed_readiness is None:
+                raise RoutingAssessmentError(
+                    "routing_automation_approval_consumed_readiness_missing",
+                    "Consumed preview/readiness approval no longer has readiness truth.",
+                )
+            return
+        if model.action_name != action.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_wrong_action",
+                f"Approval {model.approval_id} is for {model.action_name}, not {action.value}.",
+            )
+        if model.status == RoutingAutomationApprovalStatus.REVOKED.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_revoked",
+                f"Approval {model.approval_id} has been revoked.",
+            )
+        if model.status == RoutingAutomationApprovalStatus.EXPIRED.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_expired",
+                f"Approval {model.approval_id} has expired.",
+            )
+        if model.status == RoutingAutomationApprovalStatus.STALE_LINEAGE.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_lineage_stale",
+                f"Approval {model.approval_id} is stale for the current workflow lineage.",
+            )
+        if model.status == RoutingAutomationApprovalStatus.CONSUMED.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_consumed_for_different_action",
+                f"Approval {model.approval_id} has already been consumed.",
+            )
+        if model.status != RoutingAutomationApprovalStatus.ACTIVE.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_not_consumable",
+                f"Approval {model.approval_id} is not active.",
+            )
+        if model.intent_id != intent_model.intent_id:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_wrong_child_intent",
+                "Approval is not scoped to this child intent.",
+            )
+
+        intent_provenance = dict(intent_model.provenance or {})
+        lineage_checks = {
+            "desired_trade_key": intent_model.desired_trade_key,
+            "routing_assessment_id": intent_provenance.get("routing_assessment_id"),
+            "route_readiness_audit_id": intent_provenance.get("route_readiness_audit_id"),
+            "routing_target_recommendation_id": intent_provenance.get(
+                "routing_target_recommendation_id"
+            ),
+            "routing_target_choice_id": intent_provenance.get("routing_target_choice_id"),
+            "selected_binding_ref_id": intent_provenance.get("selected_binding_ref_id"),
+            "selected_binding_key": intent_model.binding_key,
+            "selected_venue_account_ref_id": intent_model.venue_account_ref_id,
+            "selected_venue_account_key": intent_provenance.get(
+                "selected_venue_account_key"
+            ),
+            "selected_venue": intent_provenance.get("selected_venue"),
+            "selected_exchange_symbol": intent_provenance.get("selected_exchange_symbol"),
+        }
+        for field_name, current_value in lineage_checks.items():
+            approved_value = getattr(model, field_name)
+            if approved_value is not None and approved_value != current_value:
+                self._mark_approval_stale_if_lineage_mismatch(
+                    session,
+                    model,
+                    action=action,
+                    current_scope_key="preview_readiness_lineage_mismatch",
+                    commit=True,
+                )
+                raise RoutingAssessmentError(
+                    "routing_automation_approval_lineage_stale",
+                    f"Approval {model.approval_id} no longer matches {field_name}.",
+                )
+
+        self._validate_approval_step(action, step)
+        current_scope_key = self._routing_automation_approval_scope(
+            action=action,
+            desired_trade_key=intent_model.desired_trade_key or "",
+            lineage=dict(step.lineage),
+        )["approval_scope_key"]
+        if not self._approval_matches_current_scope(
+            approval_scope_key=model.approval_scope_key,
+            lineage=dict(model.lineage_json or {}),
+            action=action,
+            desired_trade_key=intent_model.desired_trade_key or "",
+            current_scope_key=current_scope_key,
+        ):
+            self._mark_approval_stale_if_lineage_mismatch(
+                session,
+                model,
+                action=action,
+                current_scope_key=current_scope_key,
+                commit=True,
+            )
+            raise RoutingAssessmentError(
+                "routing_automation_approval_lineage_stale",
+                f"Approval {model.approval_id} is stale for the current workflow lineage.",
+            )
+
+    def _consume_preview_readiness_approval_model(
+        self,
+        session: Any,
+        model: RoutingAutomationApprovalModel,
+        *,
+        intent_id: str,
+        preview_key: str,
+        readiness: Any,
+        readiness_created: bool,
+        consumed_by: str,
+    ) -> RoutingAutomationApprovalModel:
+        if self._approval_consumed_for_preview_readiness(model, intent_id):
+            return model
+        self._expire_approval_if_needed(session, model, commit=False)
+        if model.status != RoutingAutomationApprovalStatus.ACTIVE.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_not_consumable",
+                f"Routing automation approval {model.approval_id} is not active.",
+            )
+        if (
+            model.action_name != RoutingAutomationApprovalAction.PREVIEW_READINESS.value
+            or model.intent_id != intent_id
+        ):
+            raise RoutingAssessmentError(
+                "routing_automation_approval_wrong_child_intent",
+                "Approval cannot consume this preview/readiness action.",
+            )
+
+        now = _utcnow()
+        model.status = RoutingAutomationApprovalStatus.CONSUMED.value
+        model.consumed_by = consumed_by
+        model.consumed_at = now
+        model.readiness_evaluation_id = readiness.readiness_evaluation_id
+        model.updated_at = now
+        reason_codes = list(model.reason_codes_json or [])
+        for reason_code in (
+            "routing_automation_approval_consumed",
+            "routing_automation_preview_readiness_executed",
+            "prepared_order_preview_created_or_reused",
+            "readiness_assessment_created_or_reused",
+            "submitted_order_creation_deferred",
+            "exchange_submit_deferred",
+            "auto_submit_disabled",
+        ):
+            if reason_code not in reason_codes:
+                reason_codes.append(reason_code)
+        for reason_code in list(readiness.reason_codes):
+            if reason_code not in reason_codes:
+                reason_codes.append(reason_code)
+        model.reason_codes_json = reason_codes
+        lineage = dict(model.lineage_json or {})
+        lineage.update(
+            {
+                "intent_id": intent_id,
+                "readiness_evaluation_id": readiness.readiness_evaluation_id,
+                "prepared_order_preview_key": preview_key,
+                "preview_status": (
+                    readiness.preview_status.value
+                    if readiness.preview_status is not None
+                    else None
+                ),
+                "readiness_outcome": readiness.outcome.value,
+                "readiness_reason_codes": list(readiness.reason_codes),
+                "prepared_order_preview_created_or_reused": True,
+                "prepared_order_preview_persisted": False,
+                "readiness_assessment_created": readiness_created,
+                "readiness_assessment_reused": not readiness_created,
+                "submitted_order_created": False,
+                "exchange_submit_called": False,
+            }
+        )
+        model.lineage_json = self._jsonable_dict(lineage)
+        provenance = dict(model.provenance_json or {})
+        provenance.update(
+            {
+                "phase": "phase_7_4",
+                "approval_gated_prepared_order_preview_and_readiness": True,
+                "approval_consumed": True,
+                "action_executed": True,
+                "action_name": RoutingAutomationApprovalAction.PREVIEW_READINESS.value,
+                "consumed_by": consumed_by,
+                "consumed_at": now.isoformat(),
+                "intent_id": intent_id,
+                "readiness_evaluation_id": readiness.readiness_evaluation_id,
+                "prepared_order_preview_key": preview_key,
+                "prepared_order_preview_created_or_reused": True,
+                "prepared_order_preview_persisted": False,
+                "readiness_assessment_created_or_reused": True,
+                "readiness_assessment_created": readiness_created,
+                "readiness_assessment_reused": not readiness_created,
+                "readiness_outcome": readiness.outcome.value,
+                "readiness_reason_codes": list(readiness.reason_codes),
+                "approval_consumption_idempotent": False,
+                "submitted_order_created": False,
+                "exchange_submit_called": False,
+                "same_target_only": True,
+                "same_account_only": True,
+                "same_venue_only": True,
+                "smart_routing": False,
+                "best_binding_selection": False,
+                "cbbo": False,
+                "fanout": False,
+                "ranking": False,
+                "scoring": False,
+                "target_reselection": False,
+                "route_executor": False,
+                "auto_submit": False,
+            }
+        )
+        model.provenance_json = self._jsonable_dict(provenance)
+        return model
+
+    @staticmethod
+    def _prepared_order_preview_key(preview: Any, readiness: Any) -> str:
+        preview_summary = readiness.provenance.get("prepared_order_preview")
+        if not isinstance(preview_summary, dict):
+            preview_summary = {}
+        candidate = (
+            preview_summary.get("client_order_id")
+            or getattr(preview, "client_order_id", None)
+            or f"preview-{readiness.readiness_evaluation_id}"
+        )
+        return str(candidate)
 
     @staticmethod
     def _expire_approval_if_needed(

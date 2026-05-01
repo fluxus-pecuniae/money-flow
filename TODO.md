@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-01T06:43:18Z`
+Last reviewed: `2026-05-01T07:28:41Z`
 
 ## Active Follow-Ups
 
@@ -55,8 +55,14 @@ Last reviewed: `2026-05-01T06:43:18Z`
 ### T-041
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 7.4 implemented the third narrow approval-consuming action hook and kept it limited to prepared-order preview plus execution-readiness inspection. One active, non-expired, current-lineage `prepared_order_preview_and_readiness` approval can now run the existing child-intent preview/readiness path for the exact routed child `OrderIntent`, persist or reuse the readiness assessment, and then consume the approval with actor, intent id, preview key, readiness id/outcome/reason codes, and explicit no-submitted-order/no-exchange-submit/no-auto-submit provenance. Expired, revoked, consumed-for-different-child, wrong-action, wrong-child-intent, stale-lineage, disabled, blocked, deferred, already-satisfied, dry-run-only, and manual-only cases block before preview/readiness execution. Phase 7.4 creates no `SubmittedOrder`, calls no adapter submit path, and adds no route executor, fanout, ranking/scoring, CBBO, target reselection, or auto-submit.`
+
+### T-042
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `Phase 7.4 should consider the next narrow approval-consuming action only after Phase 7.3 review, likely approval-gated prepared-order preview/readiness inspection if the conversion hook remains accepted. It must preserve current-lineage approval truth, dry-run/manual policy blocks, no submitted-order handoff automation, no route executor, no ranking/scoring, no CBBO, no fanout, no target reselection, and no auto-submit. Obsidian coordination notes must be updated before and after substantial work.`
+- `summary`: `Phase 7.5 should consider the next narrow automation step only after Phase 7.4 review, likely approval-gated submitted-order handoff if architecture accepts extending action hooks beyond readiness. It must require current-lineage approval truth, current readiness truth, existing live/routed submit gates, existing submit leases/uncertainty guards, and no hidden route executor, smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, cross-binding/cross-venue recovery, or auto-submit.`
 
 ### T-001
 

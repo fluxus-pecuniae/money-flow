@@ -1457,6 +1457,36 @@ class RoutingAutomationTargetChoiceConversionResponse(BaseModel):
     provenance: dict[str, object]
 
 
+class RoutingAutomationPreviewReadinessRequest(BaseModel):
+    intent_id: str
+    actor: str
+    policy: RoutingAutomationPolicyRequest | None = None
+
+
+class RoutingAutomationPreviewReadinessResponse(BaseModel):
+    approval_id: str
+    intent_id: str
+    desired_trade_key: str | None
+    environment: Environment
+    approval: RoutingAutomationApprovalResponse
+    prepared_order_preview: PreparedVenueOrderResponse
+    readiness: ExecutionReadinessAssessmentResponse
+    prepared_order_preview_key: str
+    readiness_evaluation_id: str
+    approval_consumed: bool
+    prepared_order_preview_created_or_reused: bool
+    readiness_assessment_created_or_reused: bool
+    readiness_assessment_created: bool
+    readiness_assessment_reused: bool
+    submitted_order_created: bool
+    exchange_submit_called: bool
+    auto_submit: bool
+    route_executor_used: bool
+    reason_codes: list[str]
+    boundary_flags: dict[str, bool]
+    provenance: dict[str, object]
+
+
 class RoutingTargetChoiceConversionResponse(BaseModel):
     target_choice_id: str
     environment: Environment

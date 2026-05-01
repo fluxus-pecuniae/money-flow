@@ -2,15 +2,16 @@
 
 ## Phase
 
-`Phase 7.3.1`
+`Phase 7.4`
 
 ## Purpose
 
-Phase 7.3.1 is a test-hardening hotfix only:
+Phase 7.4 adds the third narrow approval-consuming action hook:
 
-- Add direct negative tests for approval-gated target-choice conversion status blockers.
-- Add direct negative tests for wrong recommendation / audit / desired-trade lineage.
-- Preserve the Phase 7.3 behavior boundary without adding product behavior.
+- Consume one valid current `prepared_order_preview_and_readiness` approval.
+- Run existing prepared-order preview and execution-readiness inspection for the exact approved routed child `OrderIntent`.
+- Consume the approval only after preview/readiness inspection succeeds or reuses existing readiness.
+- Preserve no-submission and no-route-executor boundaries.
 
 ## Accepted Baseline
 
@@ -21,6 +22,7 @@ Phase 7.3.1 is a test-hardening hotfix only:
 - Phase 7.2 added approval-gated recommendation acceptance into one target choice.
 - Phase 7.2.1 made recommendation acceptance and approval consumption coherent in one commit.
 - Phase 7.3 added approval-gated target-choice conversion into one child intent and integrated Obsidian workflow.
+- Phase 7.3.1 hardened target-choice conversion negative tests.
 
 ## Hard Boundaries
 
@@ -33,7 +35,6 @@ Do not build:
 - fanout or split allocation
 - target reselection
 - route executor behavior
-- automatic preview/readiness
 - automatic submitted-order handoff
 - auto-submit
 - cross-binding or cross-venue recovery
@@ -41,7 +42,7 @@ Do not build:
 
 ## Success
 
-Phase 7.3.1 is successful when focused tests directly prove disabled, blocked, deferred, already-satisfied, and wrong-lineage approval-gated conversion cases reject before new child-intent/downstream artifacts, while existing Phase 7.3 success/idempotency behavior remains unchanged.
+Phase 7.4 is successful when one valid current approval can run preview/readiness for exactly one approved child intent, invalid approvals and non-approvable step states block before action, readiness truth remains reason-coded, and no submitted order or exchange submit call occurs.
 
 ## Current Outcome
 
@@ -49,9 +50,9 @@ Phase 7.3.1 is successful when focused tests directly prove disabled, blocked, d
 - Full strategic project memory lives at `money-flow/Project_Memory/money_flow_project_memory.md`.
 - Repo-root `money_flow_project_memory.md` is a compatibility pointer only.
 - The approval-gated `target_choice_conversion` action hook creates or reuses one child intent and consumes the matching approval.
-- Phase 7.3.1 adds direct test coverage for disabled, blocked, deferred, already-satisfied, and wrong-lineage conversion blockers.
-- Preview/readiness, submitted-order handoff, recovery, route execution, fanout, scoring, CBBO, target reselection, and auto-submit remain deferred.
+- Phase 7.4 adds approval-gated `prepared_order_preview_and_readiness` inspection for exactly one existing child intent.
+- Submitted-order handoff, recovery, route execution, fanout, scoring, CBBO, target reselection, and auto-submit remain deferred.
 
 ## Next Likely Phase
 
-The next controlled automation phase should consider approval-gated preview/readiness only after Phase 7.3.1 negative-test hardening is reviewed.
+The next controlled automation phase should consider approval-gated submitted-order handoff only after Phase 7.4 review and only through existing live/routed gates plus submit-lease uncertainty guards.

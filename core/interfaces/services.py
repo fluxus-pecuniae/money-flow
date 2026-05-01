@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from datetime import datetime
 from decimal import Decimal
-from typing import Protocol
+from typing import Any, Protocol
 
 from core.config.settings import AppSettings
 from core.domain.enums import ExecutionReadinessOutcome, MandateDesiredTradeStatus
@@ -40,6 +40,7 @@ from core.domain.models import (
     RouteReadinessAudit,
     RoutingAutomationApproval,
     RoutingAutomationApprovalInspection,
+    RoutingAutomationPreviewReadinessResult,
     RoutingAutomationRecommendationAcceptanceResult,
     RoutingAutomationTargetChoiceConversionResult,
     RoutingAutomationPlan,
@@ -448,6 +449,12 @@ class ExecutionService(Protocol):
         intent_id: str,
     ) -> ExecutionReadinessAssessment: ...
 
+    async def preview_and_assess_child_intent_readiness_in_session(
+        self,
+        session: Any,
+        intent_model: Any,
+    ) -> tuple[PreparedVenueOrder, ExecutionReadinessAssessment, bool]: ...
+
     async def list_readiness_assessments(
         self,
         *,
@@ -640,6 +647,16 @@ class RoutingAssessmentService(Protocol):
         consumed_by: str,
         policy: RoutingAutomationPolicy | None = None,
     ) -> RoutingAutomationTargetChoiceConversionResult: ...
+
+    async def preview_and_assess_child_intent_readiness_with_approval(
+        self,
+        intent_id: str,
+        *,
+        approval_id: str,
+        consumed_by: str,
+        execution_service: Any,
+        policy: RoutingAutomationPolicy | None = None,
+    ) -> RoutingAutomationPreviewReadinessResult: ...
 
 
 class AlertService(Protocol):

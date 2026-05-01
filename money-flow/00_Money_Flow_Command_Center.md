@@ -8,9 +8,9 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 
 ## Current Phase
 
-- Current phase: `Phase 7.3.1`
-- Purpose: harden approval-gated target-choice-to-child-intent conversion tests before Phase 7.4.
-- Current accepted action hook before this phase: approval-gated target-choice conversion into one child `OrderIntent`.
+- Current phase: `Phase 7.4`
+- Purpose: add approval-gated prepared-order preview/readiness inspection for an already converted routed child `OrderIntent`.
+- Current accepted action hooks before this phase: approval-gated recommendation acceptance and approval-gated target-choice conversion.
 
 ## Current Architectural Boundary
 
@@ -27,13 +27,13 @@ MandateDesiredTrade
 -> SubmittedOrder
 ```
 
-Phase 7.3 is accepted as automating only:
+Phase 7.4 is accepted as automating only:
 
 ```text
-RoutingTargetChoice -> OrderIntent
+OrderIntent -> PreparedVenueOrder preview -> ExecutionReadinessAssessment
 ```
 
-Phase 7.3.1 adds tests only. It must not automate preview/readiness, submission, recovery, route execution, target reselection, fanout, scoring, ranking, CBBO, best-binding selection, or auto-submit.
+Phase 7.4 must not automate submission, recovery, route execution, target reselection, fanout, scoring, ranking, CBBO, best-binding selection, or auto-submit. Approval authorizes the preview/readiness inspection only; readiness may still be blocked or phase-blocked.
 
 ## Repo Truth Sources
 
@@ -63,6 +63,7 @@ Obsidian is the long-horizon project brain for founder intent, phase context, de
 
 - Strategy alpha remains central.
 - Approval is not execution unless a narrow action endpoint consumes it.
+- Preview/readiness approval is not submitted-order authorization.
 - Target-choice conversion is not readiness and not submission.
 - `SubmittedOrder` remains post-submit exchange/account truth.
 - Future agents must update their own coordination row instead of overwriting another agent's work.

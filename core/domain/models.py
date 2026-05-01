@@ -1214,6 +1214,31 @@ class RoutingAutomationTargetChoiceConversionResult:
 
 
 @dataclass(slots=True)
+class RoutingAutomationPreviewReadinessResult:
+    approval_id: str
+    intent_id: str
+    desired_trade_key: str | None
+    environment: Environment
+    approval: RoutingAutomationApproval
+    prepared_order_preview: PreparedVenueOrder
+    readiness: ExecutionReadinessAssessment
+    prepared_order_preview_key: str
+    readiness_evaluation_id: str
+    approval_consumed: bool
+    prepared_order_preview_created_or_reused: bool
+    readiness_assessment_created_or_reused: bool
+    readiness_assessment_created: bool = False
+    readiness_assessment_reused: bool = False
+    submitted_order_created: bool = False
+    exchange_submit_called: bool = False
+    auto_submit: bool = False
+    route_executor_used: bool = False
+    reason_codes: list[str] = field(default_factory=list)
+    boundary_flags: dict[str, bool] = field(default_factory=dict)
+    provenance: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
 class RoutedOrderShapePolicyInput:
     order_type: OrderType | None = None
     limit_price: Decimal | None = None

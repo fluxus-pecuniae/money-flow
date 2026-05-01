@@ -112,6 +112,8 @@ from core.schemas.api import (
     RoutingAutomationApprovalInspectionResponse,
     RoutingAutomationRecommendationAcceptanceRequest,
     RoutingAutomationRecommendationAcceptanceResponse,
+    RoutingAutomationPreviewReadinessRequest,
+    RoutingAutomationPreviewReadinessResponse,
     RoutingAutomationTargetChoiceConversionRequest,
     RoutingAutomationTargetChoiceConversionResponse,
     RoutingAutomationApprovalResponse,
@@ -2592,6 +2594,69 @@ async def convert_target_choice_with_routing_automation_approval(
         prepared_order_created=result.prepared_order_created,
         readiness_assessment_created=result.readiness_assessment_created,
         submitted_order_created=result.submitted_order_created,
+        reason_codes=list(result.reason_codes),
+        boundary_flags=dict(result.boundary_flags),
+        provenance=dict(result.provenance),
+    )
+
+
+@v1.post(
+    "/routing-automation/approvals/{approval_id}/preview-readiness",
+    response_model=RoutingAutomationPreviewReadinessResponse,
+    tags=["routing-automation"],
+)
+async def preview_readiness_with_routing_automation_approval(
+    approval_id: str,
+    request: RoutingAutomationPreviewReadinessRequest,
+    routing_service: RoutingAssessmentService = Depends(get_routing_assessment_service),
+    execution_service: ExecutionService = Depends(get_execution_service),
+) -> RoutingAutomationPreviewReadinessResponse:
+    policy = _routing_automation_policy_from_request(routing_service, request.policy)
+    try:
+        result = await routing_service.preview_and_assess_child_intent_readiness_with_approval(
+            request.intent_id,
+            approval_id=approval_id,
+            consumed_by=request.actor,
+            execution_service=execution_service,
+            policy=policy,
+        )
+    except RoutingAssessmentError as exc:
+        status_code = (
+            404
+            if exc.reason_code
+            in {
+                "routing_automation_approval_not_found",
+                "order_intent_not_found",
+            }
+            else 409
+        )
+        raise HTTPException(
+            status_code=status_code,
+            detail={"reason_code": exc.reason_code, "message": str(exc)},
+        ) from exc
+    return RoutingAutomationPreviewReadinessResponse(
+        approval_id=result.approval_id,
+        intent_id=result.intent_id,
+        desired_trade_key=result.desired_trade_key,
+        environment=result.environment,
+        approval=RoutingAutomationApprovalResponse(**asdict(result.approval)),
+        prepared_order_preview=_prepared_venue_order_response(result.prepared_order_preview),
+        readiness=_execution_readiness_response(result.readiness),
+        prepared_order_preview_key=result.prepared_order_preview_key,
+        readiness_evaluation_id=result.readiness_evaluation_id,
+        approval_consumed=result.approval_consumed,
+        prepared_order_preview_created_or_reused=(
+            result.prepared_order_preview_created_or_reused
+        ),
+        readiness_assessment_created_or_reused=(
+            result.readiness_assessment_created_or_reused
+        ),
+        readiness_assessment_created=result.readiness_assessment_created,
+        readiness_assessment_reused=result.readiness_assessment_reused,
+        submitted_order_created=result.submitted_order_created,
+        exchange_submit_called=result.exchange_submit_called,
+        auto_submit=result.auto_submit,
+        route_executor_used=result.route_executor_used,
         reason_codes=list(result.reason_codes),
         boundary_flags=dict(result.boundary_flags),
         provenance=dict(result.provenance),

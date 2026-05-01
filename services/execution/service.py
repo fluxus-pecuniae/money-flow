@@ -1260,41 +1260,69 @@ class DefaultExecutionService(ExecutionService):
             )
             if model is None:
                 raise ValueError(f"Child intent not found: {intent_id}")
-            intent = self._order_intent_from_model(model)
-            routed, route_reason_codes, route_missing_data, route_lineage = (
-                self._validate_routed_child_intent_lineage(session, model)
+            _preview, assessment = await self._build_child_intent_readiness_in_session(
+                session,
+                model,
             )
-            if routed and (route_reason_codes or route_missing_data):
-                preview = self._blocked_routed_prepared_order(
-                    intent,
-                    reason_codes=route_reason_codes,
-                    missing_data=route_missing_data,
-                    route_lineage=route_lineage,
-                )
-                assessment = self._build_routed_lineage_blocked_readiness(
-                    intent=intent,
-                    intent_ref_id=model.id,
-                    preview=preview,
-                    reason_codes=route_reason_codes,
-                    missing_data=route_missing_data,
-                    route_lineage=route_lineage,
-                )
-                return self._persist_readiness_assessment(assessment)
-            venue = (
-                str(route_lineage.get("selected_venue") or route_lineage.get("venue"))
-                if routed
-                else self._resolve_venue_for_intent(session, model)
+        return self._persist_readiness_assessment(assessment)
+
+    async def preview_and_assess_child_intent_readiness_in_session(
+        self,
+        session: Any,
+        intent_model: OrderIntentModel,
+    ) -> tuple[PreparedVenueOrder, ExecutionReadinessAssessment, bool]:
+        """Build existing preview/readiness and persist readiness in the caller's transaction."""
+
+        preview, assessment = await self._build_child_intent_readiness_in_session(
+            session,
+            intent_model,
+        )
+        readiness, created = self._persist_readiness_assessment_in_session(
+            session,
+            assessment,
+        )
+        return preview, readiness, created
+
+    async def _build_child_intent_readiness_in_session(
+        self,
+        session: Any,
+        model: OrderIntentModel,
+    ) -> tuple[PreparedVenueOrder, ExecutionReadinessAssessment]:
+        intent = self._order_intent_from_model(model)
+        routed, route_reason_codes, route_missing_data, route_lineage = (
+            self._validate_routed_child_intent_lineage(session, model)
+        )
+        if routed and (route_reason_codes or route_missing_data):
+            preview = self._blocked_routed_prepared_order(
+                intent,
+                reason_codes=route_reason_codes,
+                missing_data=route_missing_data,
+                route_lineage=route_lineage,
             )
-            binding_model = (
-                session.get(MandateAccountBindingModel, model.mandate_account_binding_ref_id)
-                if model.mandate_account_binding_ref_id is not None
-                else None
+            assessment = self._build_routed_lineage_blocked_readiness(
+                intent=intent,
+                intent_ref_id=model.id,
+                preview=preview,
+                reason_codes=route_reason_codes,
+                missing_data=route_missing_data,
+                route_lineage=route_lineage,
             )
-            venue_account_model = (
-                session.get(VenueAccountModel, model.venue_account_ref_id)
-                if model.venue_account_ref_id is not None
-                else None
-            )
+            return preview, assessment
+        venue = (
+            str(route_lineage.get("selected_venue") or route_lineage.get("venue"))
+            if routed
+            else self._resolve_venue_for_intent(session, model)
+        )
+        binding_model = (
+            session.get(MandateAccountBindingModel, model.mandate_account_binding_ref_id)
+            if model.mandate_account_binding_ref_id is not None
+            else None
+        )
+        venue_account_model = (
+            session.get(VenueAccountModel, model.venue_account_ref_id)
+            if model.venue_account_ref_id is not None
+            else None
+        )
         preview = await self._prepare_preview_for_intent(intent, venue=venue)
         if routed:
             preview = self._attach_routed_lineage_to_preview(preview, route_lineage)
@@ -1307,58 +1335,74 @@ class DefaultExecutionService(ExecutionService):
             venue_account_model=venue_account_model,
             routed_lineage=route_lineage if routed else None,
         )
-        return self._persist_readiness_assessment(assessment)
+        return preview, assessment
 
     def _persist_readiness_assessment(
         self,
         assessment: ExecutionReadinessAssessment,
     ) -> ExecutionReadinessAssessment:
         with self._session_factory() as session:
-            existing = session.scalar(
-                select(ExecutionReadinessEvaluationModel).where(
-                    ExecutionReadinessEvaluationModel.readiness_evaluation_key
-                    == assessment.readiness_evaluation_key
-                )
+            readiness, _created = self._persist_readiness_assessment_in_session(
+                session,
+                assessment,
             )
-            if existing is not None:
-                return self._execution_readiness_from_model(existing)
-            stored = ExecutionReadinessEvaluationModel(
-                environment=assessment.environment,
-                readiness_evaluation_id=assessment.readiness_evaluation_id,
-                readiness_evaluation_key=assessment.readiness_evaluation_key,
-                intent_ref_id=assessment.intent_ref_id,
-                intent_id=assessment.intent_id,
-                mandate_desired_trade_ref_id=assessment.mandate_desired_trade_ref_id,
-                desired_trade_key=assessment.desired_trade_key,
-                client_ref_id=assessment.client_ref_id,
-                strategy_mandate_ref_id=assessment.strategy_mandate_ref_id,
-                mandate_account_binding_ref_id=assessment.mandate_account_binding_ref_id,
-                binding_key=assessment.binding_key,
-                venue_account_ref_id=assessment.venue_account_ref_id,
-                instrument_key=assessment.instrument_key,
-                instrument_ref_id=assessment.instrument_ref_id,
-                symbol=assessment.symbol,
-                venue=assessment.venue,
-                support_level=assessment.support_level.value,
-                preview_status=assessment.preview_status.value if assessment.preview_status is not None else None,
-                outcome=assessment.outcome,
-                eligible_for_submission_in_principle=assessment.eligible_for_submission_in_principle,
-                live_submission_phase_enabled=assessment.live_submission_phase_enabled,
-                venue_supports_order_submission=assessment.venue_supports_order_submission,
-                adapter_supports_order_submission=assessment.adapter_supports_order_submission,
-                adapter_supports_cancel_amend=assessment.adapter_supports_order_cancel,
-                submission_authorized=assessment.submission_authorized,
-                account_connected=assessment.account_connected,
-                private_state_required=assessment.private_state_required,
-                private_state_ready=assessment.private_state_ready,
-                reason_codes=list(assessment.reason_codes),
-                message=assessment.message,
-                provenance=_jsonable(assessment.provenance),
-                evaluated_at=assessment.evaluated_at or _utcnow(),
-            )
-            session.add(stored)
             session.commit()
-            return self._execution_readiness_from_model(stored)
+            return readiness
+
+    def _persist_readiness_assessment_in_session(
+        self,
+        session: Any,
+        assessment: ExecutionReadinessAssessment,
+    ) -> tuple[ExecutionReadinessAssessment, bool]:
+        existing = session.scalar(
+            select(ExecutionReadinessEvaluationModel).where(
+                ExecutionReadinessEvaluationModel.readiness_evaluation_key
+                == assessment.readiness_evaluation_key
+            )
+        )
+        if existing is not None:
+            return self._execution_readiness_from_model(existing), False
+        stored = ExecutionReadinessEvaluationModel(
+            environment=assessment.environment,
+            readiness_evaluation_id=assessment.readiness_evaluation_id,
+            readiness_evaluation_key=assessment.readiness_evaluation_key,
+            intent_ref_id=assessment.intent_ref_id,
+            intent_id=assessment.intent_id,
+            mandate_desired_trade_ref_id=assessment.mandate_desired_trade_ref_id,
+            desired_trade_key=assessment.desired_trade_key,
+            client_ref_id=assessment.client_ref_id,
+            strategy_mandate_ref_id=assessment.strategy_mandate_ref_id,
+            mandate_account_binding_ref_id=assessment.mandate_account_binding_ref_id,
+            binding_key=assessment.binding_key,
+            venue_account_ref_id=assessment.venue_account_ref_id,
+            instrument_key=assessment.instrument_key,
+            instrument_ref_id=assessment.instrument_ref_id,
+            symbol=assessment.symbol,
+            venue=assessment.venue,
+            support_level=assessment.support_level.value,
+            preview_status=(
+                assessment.preview_status.value
+                if assessment.preview_status is not None
+                else None
+            ),
+            outcome=assessment.outcome,
+            eligible_for_submission_in_principle=assessment.eligible_for_submission_in_principle,
+            live_submission_phase_enabled=assessment.live_submission_phase_enabled,
+            venue_supports_order_submission=assessment.venue_supports_order_submission,
+            adapter_supports_order_submission=assessment.adapter_supports_order_submission,
+            adapter_supports_cancel_amend=assessment.adapter_supports_order_cancel,
+            submission_authorized=assessment.submission_authorized,
+            account_connected=assessment.account_connected,
+            private_state_required=assessment.private_state_required,
+            private_state_ready=assessment.private_state_ready,
+            reason_codes=list(assessment.reason_codes),
+            message=assessment.message,
+            provenance=_jsonable(assessment.provenance),
+            evaluated_at=assessment.evaluated_at or _utcnow(),
+        )
+        session.add(stored)
+        session.flush()
+        return self._execution_readiness_from_model(stored), True
 
     async def list_readiness_assessments(
         self,
