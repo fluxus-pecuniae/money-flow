@@ -13,6 +13,24 @@ Entry schema:
 
 ---
 
+## v2026.05.01.013
+
+- `recorded_at_utc`: `2026-05-01T18:23:34Z`
+- `scope`: `Investor-facing plain-language overview merged into SV baseline`
+- `intent`: `Native merge entry. Brought the pre-SV investor overview branch into the SV baseline before SV1.1 work. The new `docs/investors.md` page explains Money Flow in plain language for non-trading-systems readers, including what exists today, what is intentionally not yet implemented, and where the product can go next. README and Obsidian business/product notes link to the page, and operational-doc tests keep it discoverable. This is documentation only: no product behavior, trading automation, routing logic, migration, config, exchange behavior, smart routing, best-binding selection, CBBO, ranking/scoring, fanout, target reselection, route executor, auto-submit, cross-binding recovery, cross-venue retry, strategy-rule change, or validation behavior change was added.`
+- `affected_files`:
+  - `docs/investors.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `tests/test_operational_docs.py`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/30 Strategy/Product North Star.md`
+  - `money-flow/30 Strategy/Business and Product Track.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `CHANGELOG.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed on the original investor overview branch.
+
 ## v2026.05.01.012
 
 - `recorded_at_utc`: `2026-05-01T18:12:47Z`
@@ -314,7 +332,6 @@ Entry schema:
   - `.venv/bin/python -m pytest -q tests/test_phase63_recommendation_target_choice_conversion.py tests/test_phase56_routed_order_shape_policy.py` passed with 34 tests.
   - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed with 417 tests.
   - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-7.3.1-review.zip` created the Phase 7.3.1 review bundle; bundle inspection found no `.env`, virtualenvs, Git metadata, pytest caches, Obsidian app state, local DBs, SQLite files, or nested ZIPs.
-
 ## v2026.05.01.002
 
 - `recorded_at_utc`: `2026-05-01T05:58:03Z`
