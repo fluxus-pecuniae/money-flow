@@ -17,6 +17,7 @@ Up: [[Money Flow Command Center]]
 - Execution behavior must be trustworthy and inspectable.
 - Operator controls must be clear.
 - User-facing claims must not outrun implemented behavior.
+- The plain-language investor overview lives at `docs/investors.md` and should be kept aligned with implemented repo truth.
 
 ## Dashboard Reality
 
@@ -24,6 +25,7 @@ Up: [[Money Flow Command Center]]
 
 ## Related Notes
 
+- [Investor Overview](../../docs/investors.md)
 - [[30 Strategy/Product North Star]]
 - [[40 Operations/Future Work Roadmap]]
 - [[10 Components/API Control Plane]]
