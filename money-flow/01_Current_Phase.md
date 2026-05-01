@@ -2,15 +2,15 @@
 
 ## Phase
 
-`Phase 7.5`
+`Phase 7.5.1`
 
 ## Purpose
 
-Phase 7.5 adds the fourth narrow approval-consuming action hook:
+Phase 7.5.1 hardens the fourth narrow approval-consuming action hook:
 
-- Consume one valid current `submitted_order_handoff` approval.
-- Submit the exact approved routed child `OrderIntent` through the existing explicit submit path.
-- Consume the approval only after `SubmittedOrder` persistence or safe reuse.
+- If `SubmittedOrder` persistence or safe reuse succeeds but approval consumption fails afterward, record explicit `consumption_pending` approval truth.
+- Link the pending approval to the child intent and submitted order.
+- Repeat the same approval-gated submit call by reusing the existing submitted order without another adapter submit.
 - Preserve readiness, live-submit, routed-submit, adapter/account, submit lease, and uncertainty gates as authoritative.
 
 ## Accepted Baseline
@@ -24,6 +24,7 @@ Phase 7.5 adds the fourth narrow approval-consuming action hook:
 - Phase 7.3 added approval-gated target-choice conversion into one child intent and integrated Obsidian workflow.
 - Phase 7.3.1 hardened target-choice conversion negative tests.
 - Phase 7.4 added approval-gated prepared-order preview/readiness inspection only.
+- Phase 7.5 added approval-gated submitted-order handoff only.
 
 ## Hard Boundaries
 
@@ -42,7 +43,7 @@ Do not build:
 
 ## Success
 
-Phase 7.5 is successful when one valid current approval can submit exactly one already-ready routed child intent through the existing explicit submit path, invalid approvals and non-approvable step states block before action, readiness and submit gates remain authoritative, submit uncertainty remains conservative, and no target reselection, fanout, route executor behavior, or broad auto-submit occurs.
+Phase 7.5.1 is successful when submitted-order persistence followed by approval-consumption failure becomes explicit `consumption_pending` truth, repeat calls do not resubmit, existing submit uncertainty behavior remains intact, and no target reselection, fanout, route executor behavior, or broad auto-submit occurs.
 
 ## Current Outcome
 
@@ -52,6 +53,7 @@ Phase 7.5 is successful when one valid current approval can submit exactly one a
 - The approval-gated `target_choice_conversion` action hook creates or reuses one child intent and consumes the matching approval.
 - Phase 7.4 adds approval-gated `prepared_order_preview_and_readiness` inspection for exactly one existing child intent.
 - Phase 7.5 adds approval-gated `submitted_order_handoff` for exactly one already-ready child intent through the existing explicit submit path.
+- Phase 7.5.1 records `consumption_pending` approval state if submitted-order persistence succeeds but approval consumption fails afterward.
 - Recovery, route execution, fanout, scoring, CBBO, target reselection, cross-venue retry, and broad auto-submit remain deferred.
 
 ## Next Likely Phase

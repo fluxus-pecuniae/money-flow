@@ -224,6 +224,161 @@ def test_approval_gated_submission_handoff_is_idempotent_for_same_approval() -> 
     assert after_repeat == before_repeat
 
 
+def test_submitted_order_persistence_then_approval_consumption_failure_is_bounded(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    session_factory = build_test_session_factory()
+    (
+        routing,
+        _audit,
+        _recommendation,
+        _choice,
+        _desired_trade_key,
+        conversion,
+        _readiness,
+        approval,
+        execution,
+        adapter,
+    ) = _submission_handoff_context(session_factory)
+    original_consume = routing._consume_submitted_order_handoff_approval
+
+    def fail_consumption(*args, **kwargs):
+        raise RuntimeError("forced approval consumption failure after submit")
+
+    monkeypatch.setattr(
+        routing,
+        "_consume_submitted_order_handoff_approval",
+        fail_consumption,
+    )
+    before = _counts(session_factory)
+
+    with pytest.raises(RuntimeError, match="forced approval consumption failure"):
+        asyncio.run(
+            routing.submit_child_intent_with_approval(
+                conversion.intent_id,
+                approval_id=approval.approval_id,
+                consumed_by="handoff-operator",
+                execution_service=execution,
+            )
+        )
+    after = _counts(session_factory)
+
+    assert adapter.submit_calls == 1
+    assert after["child_intents"] == before["child_intents"]
+    assert after["readiness_evaluations"] == before["readiness_evaluations"]
+    assert after["submitted_orders"] == before["submitted_orders"] + 1
+
+    with session_factory() as session:
+        submitted_order = session.scalar(
+            select(SubmittedOrderModel).where(
+                SubmittedOrderModel.intent_id == conversion.intent_id
+            )
+        )
+        assert submitted_order is not None
+        stored = session.scalar(
+            select(RoutingAutomationApprovalModel).where(
+                RoutingAutomationApprovalModel.approval_id == approval.approval_id
+            )
+        )
+        assert stored is not None
+        assert stored.status == RoutingAutomationApprovalStatus.CONSUMPTION_PENDING.value
+        assert stored.submitted_order_id == submitted_order.submitted_order_id
+        assert "submitted_order_handoff_consumption_failed" in stored.reason_codes_json
+        assert (
+            "submitted_order_created_approval_consumption_pending"
+            in stored.reason_codes_json
+        )
+        assert (
+            "approval_consumption_failed_after_submitted_order"
+            in stored.reason_codes_json
+        )
+        assert "manual_approval_reconciliation_required" in stored.reason_codes_json
+        assert stored.provenance_json["approval_consumed"] is False
+        assert stored.provenance_json["approval_consumption_pending"] is True
+        assert (
+            stored.provenance_json[
+                "submitted_order_created_approval_consumption_pending"
+            ]
+            is True
+        )
+        assert stored.provenance_json["submitted_order_id"] == (
+            submitted_order.submitted_order_id
+        )
+        assert stored.provenance_json["intent_id"] == conversion.intent_id
+        assert stored.provenance_json["manual_approval_reconciliation_required"] is True
+        assert stored.provenance_json["route_executor"] is False
+        assert stored.provenance_json["auto_submit"] is False
+
+    monkeypatch.setattr(
+        routing,
+        "_consume_submitted_order_handoff_approval",
+        original_consume,
+    )
+
+
+def test_repeat_after_approval_consumption_failure_reuses_order_and_completes_consumption(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    session_factory = build_test_session_factory()
+    (
+        routing,
+        _audit,
+        _recommendation,
+        _choice,
+        _desired_trade_key,
+        conversion,
+        _readiness,
+        approval,
+        execution,
+        adapter,
+    ) = _submission_handoff_context(session_factory)
+    original_consume = routing._consume_submitted_order_handoff_approval
+
+    def fail_consumption(*args, **kwargs):
+        raise RuntimeError("forced approval consumption failure after submit")
+
+    monkeypatch.setattr(
+        routing,
+        "_consume_submitted_order_handoff_approval",
+        fail_consumption,
+    )
+    with pytest.raises(RuntimeError, match="forced approval consumption failure"):
+        asyncio.run(
+            routing.submit_child_intent_with_approval(
+                conversion.intent_id,
+                approval_id=approval.approval_id,
+                consumed_by="handoff-operator",
+                execution_service=execution,
+            )
+        )
+    assert adapter.submit_calls == 1
+    before_repeat = _counts(session_factory)
+
+    monkeypatch.setattr(
+        routing,
+        "_consume_submitted_order_handoff_approval",
+        original_consume,
+    )
+    repeat = asyncio.run(
+        routing.submit_child_intent_with_approval(
+            conversion.intent_id,
+            approval_id=approval.approval_id,
+            consumed_by="handoff-operator",
+            execution_service=execution,
+        )
+    )
+    after_repeat = _counts(session_factory)
+
+    assert repeat.submitted_order_created is False
+    assert repeat.submitted_order_reused is True
+    assert repeat.approval.status == RoutingAutomationApprovalStatus.CONSUMED
+    assert repeat.approval.submitted_order_id == repeat.submitted_order_id
+    assert repeat.approval.provenance["approval_gated_submitted_order_handoff"] is True
+    assert repeat.approval.provenance["submitted_order_reused"] is True
+    assert adapter.submit_calls == 1
+    assert after_repeat == before_repeat
+
+
 def test_blocked_readiness_does_not_force_approval_gated_submission() -> None:
     session_factory = build_test_session_factory()
     (

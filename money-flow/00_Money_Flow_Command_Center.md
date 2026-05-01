@@ -8,9 +8,9 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 
 ## Current Phase
 
-- Current phase: `Phase 7.5`
-- Purpose: add approval-gated submitted-order handoff for one already-ready routed child `OrderIntent` through the existing explicit submit path.
-- Current accepted action hooks before this phase: approval-gated recommendation acceptance, target-choice conversion, and prepared-order preview/readiness inspection.
+- Current phase: `Phase 7.5.1`
+- Purpose: harden approval-consumption truth after approval-gated submitted-order handoff.
+- Current accepted action hooks before this phase: approval-gated recommendation acceptance, target-choice conversion, prepared-order preview/readiness inspection, and submitted-order handoff.
 
 ## Current Architectural Boundary
 
@@ -33,7 +33,7 @@ Phase 7.5 is accepted as automating only:
 ExecutionReadinessAssessment -> SubmittedOrder
 ```
 
-Phase 7.5 must not automate target selection, recovery, route execution, target reselection, fanout, scoring, ranking, CBBO, best-binding selection, cross-venue retry, or broad auto-submit. Approval authorizes only the same-target submitted-order handoff and still cannot bypass readiness, live-submit, routed-submit, adapter/account, submit lease, or uncertainty gates.
+Phase 7.5.1 does not add a new automation transition. It only bounds the failure case where `SubmittedOrder` persistence succeeds but approval consumption fails afterward. Such approvals become `consumption_pending` and repeat calls must reuse the existing submitted order before completing or preserving approval reconciliation truth. The platform still must not automate target selection, recovery, route execution, target reselection, fanout, scoring, ranking, CBBO, best-binding selection, cross-venue retry, or broad auto-submit.
 
 ## Repo Truth Sources
 
@@ -63,6 +63,7 @@ Obsidian is the long-horizon project brain for founder intent, phase context, de
 
 - Strategy alpha remains central.
 - Approval is not execution unless a narrow action endpoint consumes it.
+- `consumption_pending` approval truth means a submitted order already exists and approval reconciliation must be finished or inspected; it is not permission to submit again.
 - Submitted-order handoff approval does not bypass readiness or submit gates.
 - Preview/readiness approval is separate from submitted-order authorization.
 - Target-choice conversion is not readiness and not submission.

@@ -13,6 +13,37 @@ Entry schema:
 
 ---
 
+## v2026.05.01.006
+
+- `recorded_at_utc`: `2026-05-01T09:40:47Z`
+- `scope`: `Phase 7.5.1 submitted-order handoff approval-consumption truth hotpatch`
+- `intent`: `Native entry. Hardened the Phase 7.5 approval-gated submitted-order handoff without adding execution scope. If the existing explicit submit path persists or safely reuses a `SubmittedOrder` but approval consumption fails afterward, the approval is now moved to `consumption_pending`, linked to the submitted order and child intent, and stamped with `submitted_order_handoff_consumption_failed`, `submitted_order_created_approval_consumption_pending`, `approval_consumption_failed_after_submitted_order`, and `manual_approval_reconciliation_required` reason/provenance truth. A repeat call with the same approval reuses the existing submitted order and attempts to complete approval consumption without calling adapter submit again. Existing adapter-in-flight / adapter-returned persistence uncertainty and submit lease behavior remain intact. This phase adds no new action hook, route executor, broad auto-submit, fanout, ranking/scoring, CBBO, target reselection, cross-binding/cross-venue recovery, new exchange behavior, migration, config, or full project-memory edit.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `services/routing/service.py`
+  - `tests/test_phase75_approval_gated_submission_handoff.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase75_approval_gated_submission_handoff.py` passed with 24 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase70_routing_automation.py tests/test_phase71_routing_automation_approvals.py tests/test_phase72_approval_gated_recommendation_acceptance.py tests/test_phase73_approval_gated_target_choice_conversion.py tests/test_phase74_approval_gated_preview_readiness.py tests/test_phase75_approval_gated_submission_handoff.py` passed with 81 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase67_recommendation_backed_submission.py tests/test_phase68_recommendation_backed_lifecycle.py tests/test_phase69_routed_workflow_inspection.py tests/test_phase610_phase6_closeout.py` passed with 20 tests.
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_operational_docs.py` passed with 22 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed with 457 tests.
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py` passed with 1 test.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 9 tests after final docs updates.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-7.5.1-review.zip` created the Phase 7.5.1 review bundle; bundle inspection found no `.env`, virtualenvs, Git metadata, pytest caches, local DBs, SQLite files, or nested archives.
+
 ## v2026.05.01.005
 
 - `recorded_at_utc`: `2026-05-01T08:41:37Z`

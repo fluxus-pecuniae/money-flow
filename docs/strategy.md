@@ -26,6 +26,8 @@ Phase 7.4 adds the third approval-consuming action hook and keeps it limited to 
 
 Phase 7.5 adds the fourth approval-consuming action hook and keeps it limited to submitted-order handoff for one already-ready routed child intent. One valid current `submitted_order_handoff` approval can call the existing explicit child-intent submit path for the exact approved child `OrderIntent`, and only if current readiness, live-submit and routed-submit gates, adapter/account authorization, routed lineage/order-shape truth, and submit lease/uncertainty guards still pass. Approval does not select targets, force readiness eligibility, bypass submit gates, retry elsewhere, fan out, rank/score, use CBBO, reselect targets, create a route executor, or add broad auto-submit. If submission blocks or becomes uncertain, the reason-coded execution truth and manual-reconciliation lease state remain authoritative.
 
+Phase 7.5.1 hardens the approval side of that handoff. If the existing submit path persists or safely reuses a `SubmittedOrder` but the approval consumption update fails afterward, the approval becomes `consumption_pending` and records the submitted-order id, child-intent id, failure class/message, and manual approval reconciliation requirement. A repeat call with the same approval reuses that submitted order and attempts to complete consumption without another adapter submit. This preserves strategy/routing truth by making the partial approval state visible instead of leaving a clean active approval after a real handoff.
+
 The load-bearing strategy-to-execution boundary is:
 
 - `StrategyDecision`
@@ -157,6 +159,7 @@ Money Flow-specific `sleeve_*` naming remains family vocabulary only.
   - Phase 7.3 consumes a valid current target-choice-conversion approval for exactly one approved target choice and creates or reuses only the corresponding child intent
   - Phase 7.4 consumes a valid current preview/readiness approval for exactly one approved child intent and creates or reuses only the corresponding readiness inspection
   - Phase 7.5 consumes a valid current submitted-order-handoff approval for exactly one approved ready child intent and submits only through the existing explicit submit path when current readiness and submit gates pass
+  - Phase 7.5.1 records `consumption_pending` if the submitted order exists but approval consumption fails after handoff, and repeat calls reuse the submitted order instead of submitting again
   - preserve routed lineage, policy snapshots, selected binding/account/venue/symbol, and no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit flags
   - execute no target reselection, alternate-route retry, fanout, ranking/scoring, CBBO, route executor behavior, or broad auto-submit; Phase 7.5 uses the existing explicit submit path only after one valid current approval is consumed and existing gates pass
 - manual routed-flow inspection harness:
@@ -556,7 +559,7 @@ Still deferred:
 
 ## Forward-Looking Concern
 
-Phase 7.0 adds controlled automation policy and dry-run planning only, Phase 7.1 adds durable approval/revocation gates only, Phase 7.1.1 hardens approval expiry, lineage scope, and active-scope uniqueness before action-taking automation, Phase 7.1.2 keeps approvals limited to truly approvable current policy states, Phase 7.2 adds approval-gated recommendation acceptance only, Phase 7.2.1 makes that first action hook transactionally coherent, Phase 7.3 adds approval-gated target-choice conversion only, Phase 7.4 adds approval-gated preview/readiness inspection only, and Phase 7.5 adds approval-gated submitted-order handoff only through the existing explicit submit path. The next strategy-adjacent concerns are action-taking automation hardening, still short of smart routing:
+Phase 7.0 adds controlled automation policy and dry-run planning only, Phase 7.1 adds durable approval/revocation gates only, Phase 7.1.1 hardens approval expiry, lineage scope, and active-scope uniqueness before action-taking automation, Phase 7.1.2 keeps approvals limited to truly approvable current policy states, Phase 7.2 adds approval-gated recommendation acceptance only, Phase 7.2.1 makes that first action hook transactionally coherent, Phase 7.3 adds approval-gated target-choice conversion only, Phase 7.4 adds approval-gated preview/readiness inspection only, Phase 7.5 adds approval-gated submitted-order handoff only through the existing explicit submit path, and Phase 7.5.1 bounds post-submitted-order approval-consumption failure truth. The next strategy-adjacent concerns are action-taking automation hardening, still short of smart routing:
 
 - DB-level concurrency/serialization hardening should be considered before broader or multi-worker automation expands recommendation acceptance or conversion paths
 - future action hooks beyond submitted-order handoff must consume one active, non-expired, current-lineage approval record for exactly one same-target action and must preserve revocation/expiry/stale-lineage/manual-only/dry-run-only truth

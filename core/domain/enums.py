@@ -226,6 +226,7 @@ class RoutingAutomationApprovalStatus(StrEnum):
     ACTIVE = "active"
     REVOKED = "revoked"
     CONSUMED = "consumed"
+    CONSUMPTION_PENDING = "consumption_pending"
     EXPIRED = "expired"
     STALE_LINEAGE = "stale_lineage"
 

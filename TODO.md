@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-01T08:45:00Z`
+Last reviewed: `2026-05-01T09:40:47Z`
 
 ## Active Follow-Ups
 
@@ -65,6 +65,12 @@ Last reviewed: `2026-05-01T08:45:00Z`
 - `summary`: `Phase 7.5 implemented the fourth narrow approval-consuming action hook: submitted-order handoff for one already-ready routed child intent only. One active, non-expired, current-lineage `submitted_order_handoff` approval can now call the existing explicit child-intent submit path, and only when current readiness, live-submit and routed-submit gates, adapter/account authorization, routed lineage/order-shape truth, and submit lease/uncertainty guards pass. Approval is consumed only after `SubmittedOrder` persistence or safe reuse; blocked readiness/gates and submit uncertainty remain reason-coded and authoritative. Phase 7.5 adds no smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor behavior, cross-binding/cross-venue recovery, new exchange behavior, or broad auto-submit.`
 
 ### T-043
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 7.5.1 hardened approval-gated submitted-order handoff truth. If the existing explicit submit path persists or safely reuses a `SubmittedOrder` but approval consumption fails afterward, the approval is moved to `consumption_pending` with submitted-order id, child-intent id, failure provenance, and manual approval reconciliation reason codes. Repeating the same approval-gated submit call reuses the existing submitted order and attempts to complete approval consumption without another adapter submit. Existing adapter-in-flight / adapter-returned persistence uncertainty and submit lease behavior remain intact. No new action hook, route executor, broad auto-submit, fanout, ranking/scoring, CBBO, target reselection, cross-binding/cross-venue recovery, or new exchange behavior was added.`
+
+### T-044
 
 - `priority`: `high`
 - `status`: `future`
