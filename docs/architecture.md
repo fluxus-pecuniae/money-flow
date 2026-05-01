@@ -47,6 +47,8 @@ SV1.0 adds a separate strategy-validation/backtesting boundary. `services/strate
 
 SV1.0.1 hardens that research boundary by making simulation truth more explicit. Strategy-validation assumptions now include fill timing (`same_candle_close_research_only`, `next_candle_open`, or `next_candle_close`), and reports label same-candle close fills as research-only and potentially optimistic. Metrics expose closed-trade drawdown separately from mark-to-market drawdown, with mark-to-market drawdown derived from intrabar adverse movement while simulated long positions are open. Markdown and JSON reports include expanded assumptions, limitations, component metrics/comparison, trade summary, and reason-count sections. No Money Flow strategy rules, routing behavior, execution automation, live artifacts, or exchange calls changed.
 
+SV1.1 adds a comparative strategy-validation batch layer on top of the single-run report. `StrategyValidationBatchRequest` contains explicit Money Flow validation runs, and `StrategyValidationBatchReport` returns deterministic per-run metrics, an assumptions matrix, fill-timing comparison, component/timeframe comparison, optional symbol/date-window comparison, warnings, and limitations. The batch layer is descriptive research only: it reports observed outcomes across selected assumptions and does not optimize parameters, recommend a strategy variant, change Money Flow rules, create live trading artifacts, call exchanges, route, submit, or connect validation output to execution automation.
+
 ## Core Hierarchy
 
 The active hierarchy is:

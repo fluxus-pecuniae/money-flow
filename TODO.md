@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-01T18:12:47Z`
+Last reviewed: `2026-05-01T18:41:11Z`
 
 ## Active Follow-Ups
 
@@ -115,8 +115,14 @@ Last reviewed: `2026-05-01T18:12:47Z`
 ### T-050
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.1 adds comparative Money Flow validation batch reports. The batch runner executes explicit matrices of components/timeframes, fill-timing assumptions, symbols, date windows, fees, and slippage assumptions, then reports deterministic per-run metrics, assumptions matrix, fill-timing comparison, component comparison, optional symbol/date-window comparisons, observed top/bottom runs, warnings, and limitations. This is descriptive research only: it does not optimize Money Flow parameters, recommend a strategy variant, add paper/live trading, create live trading artifacts, call exchanges, route, or connect validation to execution automation.`
+
+### T-052
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `Define SV1.1 after reviewing SV1.0.1 reports. Candidate work should deepen historical data coverage, market-regime labeling, paper-trading readiness, report persistence if needed, and founder/operator review workflows. Do not optimize Money Flow parameters, add new strategy families, create live trading artifacts, or connect validation to routing/execution automation until evidence and architecture review justify that scope.`
+- `summary`: `Define SV1.2 after reviewing SV1.1 comparative reports. Candidate work should deepen historical data coverage, add explicit market-regime labels, improve multi-symbol/data-window fixture coverage, consider report persistence if founder review needs it, and prepare paper-trading readiness only after evidence review. Do not optimize Money Flow parameters, add new strategy families, create live trading artifacts, or connect validation to routing/execution automation until evidence and architecture review justify that scope.`
 
 ### T-001
 

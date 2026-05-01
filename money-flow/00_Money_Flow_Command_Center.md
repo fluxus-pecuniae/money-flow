@@ -8,14 +8,15 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 
 ## Current Phase
 
-- Current implemented phase: `SV1.0.1`
+- Current implemented phase: `SV1.1`
 - Phase 7 status: accepted complete.
-- Proposed next phase: `SV1.1` after SV1.0.1 report review; `Phase 8.1` remains deferred until explicitly scoped.
+- Proposed next phase: `SV1.2` after SV1.1 comparative report review; `Phase 8.1` remains deferred until explicitly scoped.
 - Phase 8.0 status: implemented read-only operator observability/manual-resolution inspection.
 - Phase 8.0.1 status: Obsidian memory and working-tree baseline cleanup; no product behavior changed.
 - Phase 8.0.2 status: active submit-lease operator-summary truth hotfix; no product behavior changed.
 - SV1.0 status: first Money Flow strategy-validation/backtesting framework; no live trading artifacts or strategy-rule optimization.
 - SV1.0.1 status: strategy-validation report-truth hardening; explicit fill timing, explicit drawdown methodology, expanded Markdown; no strategy-rule changes.
+- SV1.1 status: comparative strategy-validation batch reporting; explicit components/fill-timing/symbol/window/cost matrix; descriptive research only with no optimization, recommendation, live artifacts, routing, or execution changes.
 - Current accepted action hooks: approval-gated recommendation acceptance, target-choice conversion, prepared-order preview/readiness inspection, and submitted-order handoff.
 
 ## Current Architectural Boundary
@@ -50,6 +51,8 @@ Phase 8.0.2 fixes read-only operator-summary truth for active submit leases. An 
 SV1.0 adds a separate Strategy Validation boundary for Money Flow. It reads persisted candles, computes indicators in memory, reuses current strategy rules, simulates research-only trades with explicit assumptions, and emits deterministic reports. It does not create desired trades, child intents, prepared orders, readiness assessments, submitted orders, routing artifacts, approval changes, exchange calls, smart routing, or new automation behavior.
 
 SV1.0.1 hardens that report truth. Fill timing is explicit (`same_candle_close_research_only`, `next_candle_open`, or `next_candle_close`), same-candle close fills are labeled research-only and potentially optimistic, closed-trade drawdown is separated from mark-to-market drawdown, and Markdown reports include assumptions, component metrics/comparison, trade summaries, reason counts, and limitations. Money Flow strategy rules are unchanged.
+
+SV1.1 adds comparative validation on top of the single-run report. Batch reports compare explicit components/timeframes, fill timings, symbols, date windows, and cost assumptions using descriptive observed metrics only. They do not optimize, recommend a variant, alter Money Flow rules, create live artifacts, route, submit, or call exchange adapters.
 
 ## Repo Truth Sources
 
@@ -89,6 +92,7 @@ Obsidian is the long-horizon project brain for founder intent, phase context, de
 - Phase 8.0 is observability/manual-resolution inspection, not smart routing.
 - Phase 8.0.2 is a truth-surface hotfix only; SV1.0 now starts Strategy Validation while Phase 8.1 remains deferred.
 - SV1.0.1 reports are research evidence, not proof of profitability and not live execution truth.
+- SV1.1 comparison reports are descriptive evidence, not optimization, not strategy recommendations, and not paper/live trading authorization.
 - Simulated validation trades must remain separate from `SubmittedOrder`.
 - Manual-resolution inspection must not silently resolve venue or approval truth.
 - Future agents must update their own coordination row instead of overwriting another agent's work.

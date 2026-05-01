@@ -38,6 +38,8 @@ SV1.0 starts the Strategy Validation track. It adds a separate Money Flow valida
 
 SV1.0.1 hardens the validation report truth without changing strategy rules. Fill timing is now explicit (`same_candle_close_research_only`, `next_candle_open`, or `next_candle_close`), same-candle close fills are labeled research-only and potentially optimistic, closed-trade drawdown is separated from mark-to-market drawdown, and the Markdown report now includes context, assumptions, aggregate metrics, component metrics/comparison, trade summary, reason counts, and prominent limitations. This remains research reporting only, not paper trading, live execution, routing, or proof of future profitability.
 
+SV1.1 adds comparative Money Flow validation. The batch runner executes explicit matrices of components, fill-timing assumptions, symbols, date windows, fees, and slippage assumptions, then emits deterministic JSON or Markdown comparison reports. The comparison is descriptive research only: it highlights observed metrics such as highest observed net PnL, lowest observed net PnL, observed win rate, drawdown, trade count, and fill-timing sensitivity, but it does not optimize parameters, recommend a variant, change Money Flow rules, create live artifacts, route, submit, or call exchanges.
+
 ## Operational Memory
 
 This repo now uses explicit operational-memory files plus an Obsidian strategic brain. Future work is expected to read them before changes and update them after changes.
@@ -87,6 +89,28 @@ SV1.0 adds an operator/research CLI for Money Flow validation over persisted can
 ```
 
 The report includes data range, instrument/source, component/timeframe, assumptions, fill timing, simulated trade summaries, no-trade/invalid reason counts, net/gross PnL, fees, slippage cost, win/loss rates, profit factor, closed-trade drawdown, mark-to-market drawdown, average trade duration, best/worst trade, return on initial capital, component/timeframe grouping, and limitations. Use `same_candle_close_research_only` only as an explicitly optimistic research assumption; `next_candle_open` and `next_candle_close` are available for less optimistic fill timing checks. This is a research/backtest tool only. It is not paper trading, live execution, routing automation, smart routing, best-binding selection, fanout, target reselection, route-executor behavior, or proof of future profitability.
+
+SV1.1 adds an explicit comparative batch CLI:
+
+```bash
+.venv/bin/python scripts/run_money_flow_validation_batch.py \
+  --venue hyperliquid \
+  --symbol BTC \
+  --component sleeve_15m \
+  --component sleeve_1h \
+  --component sleeve_4h \
+  --fill-timing same_candle_close_research_only \
+  --fill-timing next_candle_open \
+  --fill-timing next_candle_close \
+  --start 2026-01-01T00:00:00Z \
+  --end 2026-02-01T00:00:00Z \
+  --initial-capital 10000 \
+  --fee-bps 5 \
+  --slippage-bps 2 \
+  --format markdown
+```
+
+The batch report includes an assumptions matrix, per-run metrics, fill-timing comparison, component comparison, optional symbol/date-window comparisons, observed top/bottom runs, warnings, and limitations. It is comparative validation, not optimization or a strategy recommendation.
 
 ## Routing Automation Planning
 

@@ -59,6 +59,8 @@ from core.domain.models import (
     StrategyEvaluationResult,
     StrategyDecision,
     StrategyFamilyStatus,
+    StrategyValidationBatchReport,
+    StrategyValidationBatchRequest,
     StrategyValidationReport,
     StrategyValidationRequest,
     SubmittedOrder,
@@ -690,6 +692,11 @@ class StrategyValidationService(Protocol):
         self,
         request: StrategyValidationRequest,
     ) -> StrategyValidationReport: ...
+
+    async def run_money_flow_batch_backtest(
+        self,
+        request: StrategyValidationBatchRequest,
+    ) -> StrategyValidationBatchReport: ...
 
 
 class HealthService(Protocol):

@@ -13,6 +13,39 @@ Entry schema:
 
 ---
 
+## v2026.05.01.014
+
+- `recorded_at_utc`: `2026-05-01T18:41:11Z`
+- `scope`: `SV1.1 comparative Money Flow strategy validation`
+- `intent`: `Native entry. Added comparative Money Flow strategy-validation batch reporting without changing Money Flow strategy rules. The new batch request/report models and service method run explicit sets of existing single-run validation requests across components/timeframes, fill-timing assumptions, symbols, date windows, fees, and slippage assumptions, then emit deterministic JSON/Markdown comparison output. Reports include an assumptions matrix, per-run metrics, fill-timing comparison, component comparison, optional symbol/date-window comparison, observed top/bottom runs, warnings, and limitations. The comparison is descriptive research only: it does not optimize parameters, recommend a strategy variant, create live desired trades, child intents, readiness evaluations, submitted orders, routing artifacts, approvals, exchange calls, paper trading, live execution, smart routing, best-binding selection, CBBO, ranking/scoring, fanout, target reselection, route executor behavior, or auto-submit.`
+- `affected_files`:
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `services/strategy_validation/__init__.py`
+  - `services/strategy_validation/service.py`
+  - `scripts/run_money_flow_validation_batch.py`
+  - `tests/test_sv11_strategy_validation_batch.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py` passed with 11 tests during focused development.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py` passed with 7 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv11_strategy_validation_batch.py` passed with 4 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 24 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 28 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed with 479 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 10 tests after final docs updates.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.1-review.zip` created the SV1.1 review bundle; bundle inspection found 216 files and no `.env`, virtualenvs, Git metadata, pytest caches, local DB/SQLite files, nested archives, secrets, or Obsidian app state.
+
 ## v2026.05.01.013
 
 - `recorded_at_utc`: `2026-05-01T18:23:34Z`

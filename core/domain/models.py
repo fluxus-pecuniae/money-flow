@@ -1739,6 +1739,38 @@ class StrategyValidationReport:
 
 
 @dataclass(slots=True)
+class StrategyValidationBatchRequest:
+    runs: tuple[StrategyValidationRequest, ...]
+    batch_name: str | None = None
+
+
+@dataclass(slots=True)
+class StrategyValidationBatchRunReport:
+    run_id: str
+    run_index: int
+    request: StrategyValidationRequest
+    status: str
+    report: StrategyValidationReport | None = None
+    report_id: str | None = None
+    reason_codes: list[str] = field(default_factory=list)
+    error_message: str | None = None
+
+
+@dataclass(slots=True)
+class StrategyValidationBatchReport:
+    batch_id: str
+    batch_name: str | None
+    strategy_family: StrategyFamily
+    run_reports: list[StrategyValidationBatchRunReport]
+    assumptions_matrix: dict[str, Any]
+    comparison_summary: dict[str, Any]
+    limitations: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    no_live_execution_artifacts_created: bool = True
+    exchange_adapters_called: bool = False
+
+
+@dataclass(slots=True)
 class StrategyFamilyStatus:
     family: StrategyFamily
     components: list[str]

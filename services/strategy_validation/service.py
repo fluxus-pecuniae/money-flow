@@ -36,6 +36,9 @@ from core.domain.models import (
     Position,
     StrategyEvaluationInput,
     StrategyValidationAssumptions,
+    StrategyValidationBatchReport,
+    StrategyValidationBatchRequest,
+    StrategyValidationBatchRunReport,
     StrategyValidationComponentReport,
     StrategyValidationMetrics,
     StrategyValidationReport,
@@ -162,6 +165,73 @@ class MoneyFlowBacktestService:
             aggregate_metrics=aggregate_metrics,
             component_comparison=_component_comparison(component_reports),
             limitations=limitations,
+        )
+
+    async def run_money_flow_batch_backtest(
+        self,
+        request: StrategyValidationBatchRequest,
+    ) -> StrategyValidationBatchReport:
+        if not request.runs:
+            raise StrategyValidationError("batch request must include at least one validation run.")
+
+        run_reports: list[StrategyValidationBatchRunReport] = []
+        for run_index, run_request in enumerate(request.runs):
+            run_payload = _request_payload(run_request)
+            run_id = f"svbr-{_stable_hash({'run_index': run_index, 'request': run_payload})[:24]}"
+            try:
+                report = await self.run_money_flow_backtest(run_request)
+            except StrategyValidationError as exc:
+                run_reports.append(
+                    StrategyValidationBatchRunReport(
+                        run_id=run_id,
+                        run_index=run_index,
+                        request=run_request,
+                        status="blocked",
+                        reason_codes=["strategy_validation_run_blocked"],
+                        error_message=str(exc),
+                    )
+                )
+                continue
+            run_reports.append(
+                StrategyValidationBatchRunReport(
+                    run_id=run_id,
+                    run_index=run_index,
+                    request=run_request,
+                    status="completed",
+                    report=report,
+                    report_id=report.report_id,
+                    reason_codes=[],
+                )
+            )
+
+        batch_payload = {
+            "batch_name": request.batch_name,
+            "runs": [_request_payload(run.request) for run in run_reports],
+            "statuses": [run.status for run in run_reports],
+            "report_ids": [run.report_id for run in run_reports],
+        }
+        completed_reports = [
+            run.report for run in run_reports if run.report is not None
+        ]
+        limitations = sorted(
+            {
+                limitation
+                for report in completed_reports
+                for limitation in report.limitations
+            }
+        )
+        if any(run.status != "completed" for run in run_reports):
+            limitations.append("one_or_more_batch_runs_blocked_and_reported_individually")
+        warnings = _batch_warnings(run_reports)
+        return StrategyValidationBatchReport(
+            batch_id=f"svb-{_stable_hash(batch_payload)[:24]}",
+            batch_name=request.batch_name,
+            strategy_family=StrategyFamily.MONEY_FLOW,
+            run_reports=run_reports,
+            assumptions_matrix=_assumptions_matrix(run_reports),
+            comparison_summary=_comparison_summary(run_reports),
+            limitations=limitations,
+            warnings=warnings,
         )
 
     async def _run_component(
@@ -828,8 +898,416 @@ def _component_comparison(component_reports: list[StrategyValidationComponentRep
     }
 
 
+def _request_payload(request: StrategyValidationRequest) -> dict[str, Any]:
+    return {
+        "strategy_family": request.strategy_family.value,
+        "environment": request.environment.value,
+        "venue": request.venue,
+        "symbol": request.symbol,
+        "instrument_key": request.instrument_key,
+        "instrument_ref_id": request.instrument_ref_id,
+        "component_keys": list(request.component_keys),
+        "start_at": _coerce_utc(request.start_at).isoformat(),
+        "end_at": _coerce_utc(request.end_at).isoformat(),
+        "assumptions": _json_ready(asdict(request.assumptions)),
+    }
+
+
+def _run_summary(run: StrategyValidationBatchRunReport) -> dict[str, Any]:
+    request = run.request
+    summary: dict[str, Any] = {
+        "run_id": run.run_id,
+        "run_index": run.run_index,
+        "status": run.status,
+        "report_id": run.report_id,
+        "component_keys": list(request.component_keys),
+        "fill_timing": request.assumptions.fill_timing,
+        "venue": request.venue,
+        "symbol": request.symbol,
+        "instrument_key": request.instrument_key,
+        "instrument_ref_id": request.instrument_ref_id,
+        "start_at": _coerce_utc(request.start_at),
+        "end_at": _coerce_utc(request.end_at),
+        "fee_bps": request.assumptions.fee_bps,
+        "slippage_bps": request.assumptions.slippage_bps,
+        "initial_capital": request.assumptions.initial_capital,
+        "position_notional_pct": request.assumptions.position_notional_pct,
+        "reason_codes": list(run.reason_codes),
+        "error_message": run.error_message,
+    }
+    if run.report is None:
+        summary["metrics"] = None
+        summary["limitations"] = []
+        return summary
+    metrics = run.report.aggregate_metrics
+    summary["metrics"] = {
+        "number_of_trades": metrics.number_of_trades,
+        "win_rate": metrics.win_rate,
+        "loss_rate": metrics.loss_rate,
+        "net_pnl": metrics.net_pnl,
+        "profit_factor": metrics.profit_factor,
+        "closed_trade_max_drawdown": metrics.closed_trade_max_drawdown,
+        "mark_to_market_max_drawdown": metrics.mark_to_market_max_drawdown,
+        "total_fees": metrics.total_fees,
+        "total_slippage_cost": metrics.total_slippage_cost,
+        "return_on_initial_capital": metrics.return_on_initial_capital,
+        "best_trade_id": metrics.best_trade_id,
+        "worst_trade_id": metrics.worst_trade_id,
+        "no_trade_reason_counts": metrics.no_trade_reason_counts,
+        "invalid_reason_counts": metrics.invalid_reason_counts,
+    }
+    summary["limitations"] = list(run.report.limitations)
+    return summary
+
+
+def _assumptions_matrix(run_reports: list[StrategyValidationBatchRunReport]) -> dict[str, Any]:
+    requests = [run.request for run in run_reports]
+    return {
+        "components": sorted(
+            {
+                component
+                for request in requests
+                for component in (request.component_keys or ("all",))
+            }
+        ),
+        "fill_timings": sorted({request.assumptions.fill_timing.value for request in requests}),
+        "venues": sorted({request.venue for request in requests}),
+        "symbols": sorted({request.symbol for request in requests}),
+        "instrument_keys": sorted(
+            {request.instrument_key for request in requests if request.instrument_key is not None}
+        ),
+        "date_windows": sorted(
+            {
+                f"{_coerce_utc(request.start_at).isoformat()}->{_coerce_utc(request.end_at).isoformat()}"
+                for request in requests
+            }
+        ),
+        "fee_bps_values": sorted({str(request.assumptions.fee_bps) for request in requests}),
+        "slippage_bps_values": sorted(
+            {str(request.assumptions.slippage_bps) for request in requests}
+        ),
+        "initial_capital_values": sorted(
+            {str(request.assumptions.initial_capital) for request in requests}
+        ),
+        "position_notional_pct_values": sorted(
+            {str(request.assumptions.position_notional_pct) for request in requests}
+        ),
+    }
+
+
+def _comparison_summary(run_reports: list[StrategyValidationBatchRunReport]) -> dict[str, Any]:
+    summaries = [_run_summary(run) for run in run_reports]
+    completed = [run for run in run_reports if run.report is not None]
+    return {
+        "methodology": "descriptive_research_reporting_only_no_parameter_optimization_or_recommendation",
+        "run_summaries": summaries,
+        "highest_observed_net_pnl_run": _select_run(completed, "net_pnl", highest=True),
+        "lowest_observed_net_pnl_run": _select_run(completed, "net_pnl", highest=False),
+        "highest_observed_win_rate_run": _select_run(completed, "win_rate", highest=True),
+        "largest_observed_mark_to_market_drawdown_run": _select_run(
+            completed,
+            "mark_to_market_max_drawdown",
+            highest=True,
+        ),
+        "most_trades_run": _select_run(completed, "number_of_trades", highest=True),
+        "least_trades_run": _select_run(completed, "number_of_trades", highest=False),
+        "fill_timing_comparison": _group_comparison(
+            completed,
+            lambda run: run.request.assumptions.fill_timing.value,
+            "fill_timing",
+        ),
+        "component_comparison": _group_comparison(
+            completed,
+            lambda run: ",".join(run.request.component_keys or ("all",)),
+            "component_keys",
+        ),
+        "symbol_comparison": _group_comparison(completed, lambda run: run.request.symbol, "symbol"),
+        "date_window_comparison": _group_comparison(
+            completed,
+            lambda run: (
+                f"{_coerce_utc(run.request.start_at).isoformat()}->"
+                f"{_coerce_utc(run.request.end_at).isoformat()}"
+            ),
+            "date_window",
+        ),
+    }
+
+
+def _select_run(
+    run_reports: list[StrategyValidationBatchRunReport],
+    metric_name: str,
+    *,
+    highest: bool,
+) -> dict[str, Any] | None:
+    metric_runs = [
+        run
+        for run in run_reports
+        if run.report is not None and _metric_value(run.report.aggregate_metrics, metric_name) is not None
+    ]
+    if not metric_runs:
+        return None
+    selected = max(
+        metric_runs,
+        key=lambda run: _metric_value(run.report.aggregate_metrics, metric_name),  # type: ignore[union-attr]
+    )
+    if not highest:
+        selected = min(
+            metric_runs,
+            key=lambda run: _metric_value(run.report.aggregate_metrics, metric_name),  # type: ignore[union-attr]
+        )
+    return _selected_run_ref(selected, metric_name)
+
+
+def _selected_run_ref(run: StrategyValidationBatchRunReport, metric_name: str) -> dict[str, Any]:
+    assert run.report is not None
+    return {
+        "run_id": run.run_id,
+        "report_id": run.report.report_id,
+        "component_keys": list(run.request.component_keys),
+        "fill_timing": run.request.assumptions.fill_timing,
+        "venue": run.request.venue,
+        "symbol": run.request.symbol,
+        "start_at": _coerce_utc(run.request.start_at),
+        "end_at": _coerce_utc(run.request.end_at),
+        "metric_name": metric_name,
+        "metric_value": _metric_value(run.report.aggregate_metrics, metric_name),
+    }
+
+
+def _group_comparison(
+    run_reports: list[StrategyValidationBatchRunReport],
+    key_fn: Any,
+    label: str,
+) -> list[dict[str, Any]]:
+    grouped: dict[str, list[StrategyValidationBatchRunReport]] = {}
+    for run in run_reports:
+        grouped.setdefault(str(key_fn(run)), []).append(run)
+    rows: list[dict[str, Any]] = []
+    for value, runs in sorted(grouped.items()):
+        metrics = [run.report.aggregate_metrics for run in runs if run.report is not None]
+        run_count = len(runs)
+        total_net_pnl = _money(sum((metric.net_pnl for metric in metrics), Decimal("0")))
+        total_trades = sum(metric.number_of_trades for metric in metrics)
+        total_fees = _money(sum((metric.total_fees for metric in metrics), Decimal("0")))
+        total_slippage = _money(
+            sum((metric.total_slippage_cost for metric in metrics), Decimal("0"))
+        )
+        average_net_pnl = _ratio(total_net_pnl, Decimal(len(metrics))) if metrics else None
+        max_mtm_drawdown_values = [
+            metric.mark_to_market_max_drawdown
+            for metric in metrics
+            if metric.mark_to_market_max_drawdown is not None
+        ]
+        rows.append(
+            {
+                label: value,
+                "run_count": run_count,
+                "completed_run_count": len(metrics),
+                "blocked_run_count": run_count - len(metrics),
+                "total_trades": total_trades,
+                "total_net_pnl": total_net_pnl,
+                "average_net_pnl": average_net_pnl,
+                "total_fees": total_fees,
+                "total_slippage_cost": total_slippage,
+                "largest_mark_to_market_drawdown": (
+                    max(max_mtm_drawdown_values) if max_mtm_drawdown_values else None
+                ),
+                "run_ids": [run.run_id for run in runs],
+            }
+        )
+    return rows
+
+
+def _metric_value(metrics: StrategyValidationMetrics, metric_name: str) -> Any:
+    return getattr(metrics, metric_name)
+
+
+def _batch_warnings(run_reports: list[StrategyValidationBatchRunReport]) -> list[str]:
+    warnings = [
+        "comparisons_are_descriptive_research_outputs_not_strategy_recommendations",
+        "results_do_not_prove_future_profitability",
+        "simulated_trades_are_not_submitted_orders",
+        "batch_runner_creates_no_live_trading_artifacts",
+    ]
+    if any(
+        run.request.assumptions.fill_timing
+        == StrategyValidationFillTiming.SAME_CANDLE_CLOSE_RESEARCH_ONLY
+        for run in run_reports
+    ):
+        warnings.append("same_candle_close_runs_are_research_only_and_can_overstate_edge")
+    if any(run.status != "completed" for run in run_reports):
+        warnings.append("blocked_runs_are_reported_per_run_and_not_hidden")
+    return sorted(set(warnings))
+
+
 def strategy_validation_report_to_dict(report: StrategyValidationReport) -> dict[str, Any]:
     return _json_ready(asdict(report))
+
+
+def strategy_validation_batch_report_to_dict(report: StrategyValidationBatchReport) -> dict[str, Any]:
+    return _json_ready(asdict(report))
+
+
+def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatchReport) -> str:
+    data = strategy_validation_batch_report_to_dict(report)
+    summary = data["comparison_summary"]
+    lines = [
+        f"# Money Flow Strategy Validation Batch Report `{data['batch_id']}`",
+        "",
+        "This is a comparative research report. It is not optimization, does not recommend a "
+        "strategy variant, does not create live trading artifacts, and does not prove future profitability.",
+        "",
+        "## Batch Context",
+        "",
+        f"- Batch id: `{data['batch_id']}`",
+        f"- Batch name: `{data['batch_name']}`",
+        f"- Strategy family: `{data['strategy_family']}`",
+        f"- Run count: `{len(data['run_reports'])}`",
+        f"- Live execution artifacts created: `{not data['no_live_execution_artifacts_created']}`",
+        f"- Exchange adapters called: `{data['exchange_adapters_called']}`",
+        "",
+        "## Assumptions Matrix",
+        "",
+    ]
+    for key, value in data["assumptions_matrix"].items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(
+        [
+            "",
+            "## Run Summary",
+            "",
+            "| run id | status | components | fill timing | venue | symbol | window | trades | net PnL | win rate | profit factor | MTM drawdown | fees | slippage | limitations |",
+            "| --- | --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+        ]
+    )
+    for run in summary["run_summaries"]:
+        metrics = run["metrics"] or {}
+        lines.append(
+            "| "
+            f"`{run['run_id']}` | "
+            f"`{run['status']}` | "
+            f"`{', '.join(run['component_keys'])}` | "
+            f"`{run['fill_timing']}` | "
+            f"`{run['venue']}` | "
+            f"`{run['symbol']}` | "
+            f"`{run['start_at']} -> {run['end_at']}` | "
+            f"{metrics.get('number_of_trades', '-')} | "
+            f"{metrics.get('net_pnl', '-')} | "
+            f"{metrics.get('win_rate', '-')} | "
+            f"{metrics.get('profit_factor', '-')} | "
+            f"{metrics.get('mark_to_market_max_drawdown', '-')} | "
+            f"{metrics.get('total_fees', '-')} | "
+            f"{metrics.get('total_slippage_cost', '-')} | "
+            f"{', '.join(run['limitations']) or run['error_message'] or 'none'} |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Fill-Timing Comparison",
+            "",
+            "| fill timing | runs | completed | blocked | total trades | total net PnL | average net PnL | largest MTM drawdown |",
+            "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        ]
+    )
+    for row in summary["fill_timing_comparison"]:
+        lines.append(
+            "| "
+            f"`{row['fill_timing']}` | "
+            f"{row['run_count']} | "
+            f"{row['completed_run_count']} | "
+            f"{row['blocked_run_count']} | "
+            f"{row['total_trades']} | "
+            f"{row['total_net_pnl']} | "
+            f"{row['average_net_pnl']} | "
+            f"{row['largest_mark_to_market_drawdown']} |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Component Comparison",
+            "",
+            "| component(s) | runs | completed | blocked | total trades | total net PnL | average net PnL | largest MTM drawdown |",
+            "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        ]
+    )
+    for row in summary["component_comparison"]:
+        lines.append(
+            "| "
+            f"`{row['component_keys']}` | "
+            f"{row['run_count']} | "
+            f"{row['completed_run_count']} | "
+            f"{row['blocked_run_count']} | "
+            f"{row['total_trades']} | "
+            f"{row['total_net_pnl']} | "
+            f"{row['average_net_pnl']} | "
+            f"{row['largest_mark_to_market_drawdown']} |"
+        )
+    if len(data["assumptions_matrix"]["symbols"]) > 1:
+        lines.extend(
+            [
+                "",
+                "## Symbol Comparison",
+                "",
+                "| symbol | runs | completed | blocked | total trades | total net PnL | average net PnL | largest MTM drawdown |",
+                "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+            ]
+        )
+        for row in summary["symbol_comparison"]:
+            lines.append(
+                "| "
+                f"`{row['symbol']}` | "
+                f"{row['run_count']} | "
+                f"{row['completed_run_count']} | "
+                f"{row['blocked_run_count']} | "
+                f"{row['total_trades']} | "
+                f"{row['total_net_pnl']} | "
+                f"{row['average_net_pnl']} | "
+                f"{row['largest_mark_to_market_drawdown']} |"
+            )
+    if len(data["assumptions_matrix"]["date_windows"]) > 1:
+        lines.extend(
+            [
+                "",
+                "## Date-Window Comparison",
+                "",
+                "| date window | runs | completed | blocked | total trades | total net PnL | average net PnL | largest MTM drawdown |",
+                "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+            ]
+        )
+        for row in summary["date_window_comparison"]:
+            lines.append(
+                "| "
+                f"`{row['date_window']}` | "
+                f"{row['run_count']} | "
+                f"{row['completed_run_count']} | "
+                f"{row['blocked_run_count']} | "
+                f"{row['total_trades']} | "
+                f"{row['total_net_pnl']} | "
+                f"{row['average_net_pnl']} | "
+                f"{row['largest_mark_to_market_drawdown']} |"
+            )
+    lines.extend(
+        [
+            "",
+            "## Top/Bottom Observed Runs",
+            "",
+            f"- Highest observed net PnL: `{summary['highest_observed_net_pnl_run']}`",
+            f"- Lowest observed net PnL: `{summary['lowest_observed_net_pnl_run']}`",
+            f"- Highest observed win rate: `{summary['highest_observed_win_rate_run']}`",
+            "- Largest observed mark-to-market drawdown: "
+            f"`{summary['largest_observed_mark_to_market_drawdown_run']}`",
+            f"- Most active run by trade count: `{summary['most_trades_run']}`",
+            f"- Least active run by trade count: `{summary['least_trades_run']}`",
+            "",
+            "## Warnings And Limitations",
+            "",
+        ]
+    )
+    lines.extend(f"- `{warning}`" for warning in data["warnings"])
+    lines.extend(f"- `{limitation}`" for limitation in data["limitations"])
+    if not data["limitations"]:
+        lines.append("- `none_recorded_beyond_standard_research_limitations`")
+    return "\n".join(lines) + "\n"
 
 
 def strategy_validation_report_to_markdown(report: StrategyValidationReport) -> str:
