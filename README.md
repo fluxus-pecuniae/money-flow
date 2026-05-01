@@ -30,7 +30,9 @@ Phase 7.6 closes controlled automation with safety-diligence regression instead 
 
 Phase 8.0 adds the first operator-grade observability and manual-resolution inspection layer. `GET /api/v1/operator-routed-workflows/by-desired-trade/{desired_trade_key}` is read-only and aggregates the existing routed workflow, approval states, gate truth, manual-resolution requirements, submitted-order handoff safety facts, and submit lease/concurrency state. It surfaces `consumption_pending`, stale-lineage/expired approvals, blocked recommendations/readiness, `adapter_submit_may_have_started`, `adapter_submit_persistence_unknown`, repeat-submit policy, and the next safe operator action without creating artifacts, consuming approvals, resolving manual states, submitting/canceling/amending/retrying, selecting/reselecting targets, ranking/scoring, using CBBO, fanning out, or introducing route executor behavior.
 
-Phase 8.0.2 hotpatches operator-summary truth for active submit leases. If an unexpired `active` child-intent submit lease exists, the read-only operator summary reports `submission_in_progress`, blocks repeat-submit safety with `repeat_submit_policy=blocked_while_submission_in_progress`, and reports `next_safe_operator_action.action=submission_in_progress` with `safe_to_automate=false`. Terminal uncertainty states remain manual-reconciliation-required, expired pre-adapter active leases remain stale-replaceable, and no trading behavior, new automation action stage, manual-resolution mutation, route executor behavior, fanout, target reselection, ranking/scoring, CBBO, cross-venue retry, or auto-submit is added. Phase 8.1 remains deferred; Strategy Validation can begin after this hotfix is accepted.
+Phase 8.0.2 hotpatches operator-summary truth for active submit leases. If an unexpired `active` child-intent submit lease exists, the read-only operator summary reports `submission_in_progress`, blocks repeat-submit safety with `repeat_submit_policy=blocked_while_submission_in_progress`, and reports `next_safe_operator_action.action=submission_in_progress` with `safe_to_automate=false`. Terminal uncertainty states remain manual-reconciliation-required, expired pre-adapter active leases remain stale-replaceable, and no trading behavior, new automation action stage, manual-resolution mutation, route executor behavior, fanout, target reselection, ranking/scoring, CBBO, cross-venue retry, or auto-submit is added. Phase 8.1 remains deferred; SV1.0 now begins Strategy Validation as a separate research track.
+
+SV1.0 starts the Strategy Validation track. It adds a separate Money Flow validation/backtesting boundary that reads persisted historical candles, computes indicators in memory, reuses the current Money Flow rules, simulates research-only trades, and emits deterministic JSON or Markdown reports with explicit initial-capital, fee, slippage, and sizing assumptions. Simulated trades are `StrategyValidationTrade` report artifacts, not `SubmittedOrder` rows. The runner does not create desired trades, child intents, prepared orders, readiness evaluations, submitted orders, routing artifacts, approval changes, or exchange adapter calls, and it does not optimize or change the Money Flow strategy rules.
 
 ## Operational Memory
 
@@ -61,6 +63,25 @@ The harness emits JSON by default. It starts from an existing desired trade key,
 Phase 6.6 timing is local harness timing only. Output includes top-level `timing_ms` values, including `total`, and each executed step includes `elapsed_ms`. Skipped steps are omitted from `timing_ms` rather than represented as fake zero-latency work. These timings measure local harness/service-call overhead and are not production routing latency, route-executor telemetry, or exchange/network latency unless an operator explicitly triggers a live submit path.
 
 Submission is intentionally hard to trigger from the harness. A submit attempt requires both `--submit` and `--i-understand-this-can-place-a-live-order`, and even then the existing execution service readiness, live-submit, routed-submit, adapter, and account gates still decide the outcome. Without the danger-confirmation flag, the harness blocks locally with `manual_submission_confirmation_required` before service submission is called and records timing for that local block. This is manual inspection tooling only, not best-binding selection, smart routing, a route executor, target reselection, fanout, ranking/scoring, CBBO, or auto-submit.
+
+## Strategy Validation
+
+SV1.0 adds an operator/research CLI for Money Flow validation over persisted candles:
+
+```bash
+.venv/bin/python scripts/run_money_flow_backtest.py \
+  --venue hyperliquid \
+  --symbol BTC \
+  --component sleeve_15m \
+  --start 2026-01-01T00:00:00Z \
+  --end 2026-02-01T00:00:00Z \
+  --initial-capital 10000 \
+  --fee-bps 5 \
+  --slippage-bps 2 \
+  --format markdown
+```
+
+The report includes data range, instrument/source, component/timeframe, assumptions, simulated trade summaries, no-trade/invalid reason counts, net/gross PnL, fees, slippage cost, win/loss rates, profit factor, drawdown, average trade duration, best/worst trade, return on initial capital, and component/timeframe grouping. This is a research/backtest tool only. It is not paper trading, live execution, routing automation, smart routing, best-binding selection, fanout, target reselection, route-executor behavior, or proof of future profitability.
 
 ## Routing Automation Planning
 

@@ -1606,6 +1606,121 @@ class StrategyEvaluationResult:
 
 
 @dataclass(slots=True)
+class StrategyValidationAssumptions:
+    initial_capital: Decimal
+    fee_bps: Decimal
+    slippage_bps: Decimal
+    position_notional_pct: Decimal
+    reduce_action_model: str = "full_exit"
+    force_close_open_trade_at_end: bool = True
+
+
+@dataclass(slots=True)
+class StrategyValidationRequest:
+    strategy_family: StrategyFamily
+    environment: Environment
+    venue: str
+    symbol: str
+    start_at: datetime
+    end_at: datetime
+    assumptions: StrategyValidationAssumptions
+    component_keys: tuple[str, ...] = ()
+    instrument_key: str | None = None
+    instrument_ref_id: str | None = None
+
+
+@dataclass(slots=True)
+class StrategyValidationTrade:
+    trade_id: str
+    strategy_family: StrategyFamily
+    component_key: str
+    timeframe: Timeframe
+    symbol: str
+    side: OrderSide
+    entry_time: datetime
+    exit_time: datetime
+    raw_entry_price: Decimal
+    raw_exit_price: Decimal
+    entry_price: Decimal
+    exit_price: Decimal
+    size: Decimal
+    entry_notional: Decimal
+    exit_notional: Decimal
+    fees: Decimal
+    slippage_cost: Decimal
+    gross_pnl: Decimal
+    net_pnl: Decimal
+    return_pct: Decimal
+    max_adverse_excursion: Decimal | None
+    max_favorable_excursion: Decimal | None
+    entry_reason: str | None
+    exit_reason: str | None
+    entry_evaluation_key: str
+    exit_evaluation_key: str
+    duration_seconds: int
+    forced_exit: bool = False
+
+
+@dataclass(slots=True)
+class StrategyValidationMetrics:
+    number_of_trades: int
+    winning_trades: int
+    losing_trades: int
+    win_rate: Decimal | None
+    loss_rate: Decimal | None
+    average_win: Decimal | None
+    average_loss: Decimal | None
+    profit_factor: Decimal | None
+    gross_pnl: Decimal
+    net_pnl: Decimal
+    total_fees: Decimal
+    total_slippage_cost: Decimal
+    max_drawdown: Decimal
+    max_drawdown_pct: Decimal | None
+    average_trade_duration_seconds: Decimal | None
+    best_trade_id: str | None
+    best_trade_net_pnl: Decimal | None
+    worst_trade_id: str | None
+    worst_trade_net_pnl: Decimal | None
+    return_on_initial_capital: Decimal
+    trades_by_component_timeframe: dict[str, int] = field(default_factory=dict)
+    no_trade_reason_counts: dict[str, int] = field(default_factory=dict)
+    invalid_reason_counts: dict[str, int] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
+class StrategyValidationComponentReport:
+    component_key: str
+    timeframe: Timeframe
+    candle_count: int
+    evaluated_candles: int
+    trades: list[StrategyValidationTrade]
+    metrics: StrategyValidationMetrics
+    no_trade_reason_counts: dict[str, int] = field(default_factory=dict)
+    invalid_reason_counts: dict[str, int] = field(default_factory=dict)
+    limitations: list[str] = field(default_factory=list)
+
+
+@dataclass(slots=True)
+class StrategyValidationReport:
+    report_id: str
+    strategy_family: StrategyFamily
+    environment: Environment
+    venue: str
+    symbol: str
+    instrument_key: str | None
+    instrument_ref_id: str | None
+    start_at: datetime
+    end_at: datetime
+    assumptions: StrategyValidationAssumptions
+    component_reports: list[StrategyValidationComponentReport]
+    aggregate_metrics: StrategyValidationMetrics
+    limitations: list[str] = field(default_factory=list)
+    no_live_execution_artifacts_created: bool = True
+    exchange_adapters_called: bool = False
+
+
+@dataclass(slots=True)
 class StrategyFamilyStatus:
     family: StrategyFamily
     components: list[str]

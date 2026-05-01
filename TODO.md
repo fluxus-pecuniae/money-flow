@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-01T15:04:52Z`
+Last reviewed: `2026-05-01T17:40:40Z`
 
 ## Active Follow-Ups
 
@@ -86,7 +86,7 @@ Last reviewed: `2026-05-01T15:04:52Z`
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `Define Phase 8.1 through architecture review before adding manual-resolution mutation. Candidate work should add explicit, actor-stamped, reason-coded manual-resolution markers or administrative reconciliation workflows for `consumption_pending` and submit-lease uncertainty, while keeping operator acknowledgement separate from exchange/account truth. After Phase 8.0.2 is accepted, Strategy Validation can begin before Phase 8.1; Phase 8.1 remains deferred until that work is explicitly scoped. Smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor behavior, cross-binding/cross-venue recovery, new action stages, and broad auto-submit remain deferred until explicitly designed and accepted.`
+- `summary`: `Define Phase 8.1 through architecture review before adding manual-resolution mutation. Candidate work should add explicit, actor-stamped, reason-coded manual-resolution markers or administrative reconciliation workflows for `consumption_pending` and submit-lease uncertainty, while keeping operator acknowledgement separate from exchange/account truth. SV1.0 begins Strategy Validation before Phase 8.1; Phase 8.1 remains deferred until that work is explicitly scoped. Smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor behavior, cross-binding/cross-venue recovery, new action stages, and broad auto-submit remain deferred until explicitly designed and accepted.`
 
 ### T-047
 
@@ -98,7 +98,19 @@ Last reviewed: `2026-05-01T15:04:52Z`
 
 - `priority`: `high`
 - `status`: `done`
-- `summary`: `Phase 8.0.2 fixed operator-summary truth for active unexpired child-intent submit leases. The read-only operator routed workflow summary now treats an active lease as `submission_in_progress`, blocks repeat-submit safety with `blocked_while_submission_in_progress`, and reports the next safe operator action as `submission_in_progress` / `safe_to_automate=false`. Terminal adapter uncertainty remains manual-reconciliation-required, expired pre-adapter active leases remain stale-replaceable, and no trading behavior, new action stage, manual-resolution mutation, route executor behavior, fanout, ranking/scoring, CBBO, target reselection, cross-venue retry, or auto-submit was added. Strategy Validation can begin after this hotfix is accepted; Phase 8.1 remains deferred until explicitly scoped.`
+- `summary`: `Phase 8.0.2 fixed operator-summary truth for active unexpired child-intent submit leases. The read-only operator routed workflow summary now treats an active lease as `submission_in_progress`, blocks repeat-submit safety with `blocked_while_submission_in_progress`, and reports the next safe operator action as `submission_in_progress` / `safe_to_automate=false`. Terminal adapter uncertainty remains manual-reconciliation-required, expired pre-adapter active leases remain stale-replaceable, and no trading behavior, new action stage, manual-resolution mutation, route executor behavior, fanout, ranking/scoring, CBBO, target reselection, cross-venue retry, or auto-submit was added. SV1.0 now begins Strategy Validation as a separate research track; Phase 8.1 remains deferred until explicitly scoped.`
+
+### T-049
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.0 adds the first Money Flow strategy-validation/backtesting framework. The new service reads persisted candles, computes indicators in memory, reuses current Money Flow strategy rules, simulates research-only trades with explicit capital/fee/slippage/sizing assumptions, and reports deterministic aggregate/component metrics plus no-trade and invalid reason counts. A CLI can emit JSON or Markdown reports. Validation artifacts remain separate from live execution: SV1.0 creates no desired trades, child intents, prepared orders, readiness assessments, submitted orders, routing artifacts, approval state changes, or exchange adapter calls, and it does not optimize strategy rules.`
+
+### T-050
+
+- `priority`: `high`
+- `status`: `future`
+- `summary`: `Define SV1.1 after reviewing SV1.0 reports. Candidate work should deepen historical data coverage, market-regime labeling, paper-trading readiness, report persistence if needed, and founder/operator review workflows. Do not optimize Money Flow parameters, add new strategy families, create live trading artifacts, or connect validation to routing/execution automation until evidence and architecture review justify that scope.`
 
 ### T-001
 

@@ -13,6 +13,38 @@ Entry schema:
 
 ---
 
+## v2026.05.01.011
+
+- `recorded_at_utc`: `2026-05-01T17:40:40Z`
+- `scope`: `SV1.0 Money Flow strategy validation framework`
+- `intent`: `Native entry. Added the first Strategy Validation framework for Money Flow. The new service boundary reads persisted historical candles, computes indicator snapshots in memory, reuses the current Money Flow strategy rules without optimization, simulates research-only trades with explicit initial-capital, fee, slippage, and sizing assumptions, and returns deterministic component/aggregate performance reports. The report includes simulated trades, win/loss rates, average win/loss, profit factor, net/gross PnL, fees, slippage cost, max drawdown, average duration, best/worst trade, return on initial capital, component/timeframe grouping, and no-trade/invalid reason counts. A CLI can emit JSON or Markdown reports. Validation artifacts are separate from live execution artifacts: SV1.0 creates no desired trades, child intents, prepared orders, readiness assessments, submitted orders, routing artifacts, approval changes, exchange calls, new automation behavior, smart routing, fanout, ranking/scoring, CBBO, target reselection, route executor behavior, new exchanges, or strategy-rule optimization.`
+- `affected_files`:
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `services/strategy_validation/__init__.py`
+  - `services/strategy_validation/service.py`
+  - `services/backtest/engine.py`
+  - `scripts/run_money_flow_backtest.py`
+  - `tests/test_sv10_strategy_validation.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py` passed with 4 tests during focused development.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed during focused development.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 20 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed with 471 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 9 tests after final docs updates.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.0-review.zip` created the SV1.0 review bundle; bundle inspection found no `.env`, virtualenvs, Git metadata, pytest caches, local DB/SQLite files, nested archives, secrets, or Obsidian app state.
+
 ## v2026.05.01.010
 
 - `recorded_at_utc`: `2026-05-01T15:04:52Z`

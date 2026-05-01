@@ -59,6 +59,8 @@ from core.domain.models import (
     StrategyEvaluationResult,
     StrategyDecision,
     StrategyFamilyStatus,
+    StrategyValidationReport,
+    StrategyValidationRequest,
     SubmittedOrder,
     SubmittedOrderActionability,
     SubmittedOrderLifecycleEvent,
@@ -681,6 +683,13 @@ class AlertService(Protocol):
 
 class BacktestEngine(Protocol):
     async def run_strategy_window(self, sleeve_id: str, start_at: str, end_at: str) -> str: ...
+
+
+class StrategyValidationService(Protocol):
+    async def run_money_flow_backtest(
+        self,
+        request: StrategyValidationRequest,
+    ) -> StrategyValidationReport: ...
 
 
 class HealthService(Protocol):

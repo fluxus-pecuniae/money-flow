@@ -43,6 +43,8 @@ Phase 8.0 adds operator-grade observability and manual-resolution inspection wit
 
 Phase 8.0.2 corrects that summary's active submit-lease truth. An unexpired `active` child-intent submit lease is now reported as `submission_in_progress`, makes `submission_safety.repeat_submit_blocked=true`, sets `repeat_submit_policy=blocked_while_submission_in_progress`, and changes the next safe operator action to `submission_in_progress` with `safe_to_automate=false`. Terminal submit uncertainty remains manual-reconciliation-required, expired pre-adapter active leases remain stale-replaceable, and the endpoint stays read-only with no artifact creation, approval consumption, manual-resolution mutation, adapter call, route executor behavior, fanout, target reselection, ranking/scoring, CBBO, or auto-submit.
 
+SV1.0 adds a separate strategy-validation/backtesting boundary. `services/strategy_validation` reads existing persisted candle rows, computes indicator snapshots in memory, reuses current Money Flow strategy evaluation, simulates research-only trades with explicit assumptions, and returns deterministic report models plus JSON/Markdown CLI output. It is intentionally outside routing and execution: it does not create `MandateDesiredTrade`, `OrderIntent`, `PreparedVenueOrder`, `ExecutionReadinessAssessment`, `SubmittedOrder`, approval records, routing artifacts, exchange adapter calls, or live automation side effects. Simulated trades are report artifacts, not exchange/account truth.
+
 ## Core Hierarchy
 
 The active hierarchy is:

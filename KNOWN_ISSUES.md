@@ -1,6 +1,6 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-05-01T15:04:52Z`
+Last reviewed: `2026-05-01T17:40:40Z`
 
 ## Open Items
 
@@ -86,4 +86,11 @@ Last reviewed: `2026-05-01T15:04:52Z`
 - `status`: `open`
 - `area`: `manual resolution workflow`
 - `summary`: `Phase 8.0 makes manual-resolution needs visible through read-only operator summary inspection, including `consumption_pending`, stale-lineage/expired approvals, blocked recommendations/readiness, and submit-lease uncertainty states such as `adapter_submit_may_have_started` and `adapter_submit_persistence_unknown`. Phase 8.0.2 fixes active submit-lease summary truth so unexpired `active` leases are surfaced as `submission_in_progress` repeat-submit blockers and next-safe-action blockers, while expired pre-adapter active leases remain stale-replaceable. It intentionally does not add manual-resolution marker mutation or administrative cleanup endpoints.`
-- `impact`: `Operators can now inspect what needs reconciliation and which repeat actions are unsafe, including an active submit already in progress. Explicit actor-stamped/manual-resolution state transitions remain a future Phase 8.1 design item; Strategy Validation can begin after the Phase 8.0.2 hotfix is accepted. Operator acknowledgement must remain separate from exchange/account truth, and no submit/cancel/amend/retry should be attached to inspection surfaces.`
+- `impact`: `Operators can now inspect what needs reconciliation and which repeat actions are unsafe, including an active submit already in progress. Explicit actor-stamped/manual-resolution state transitions remain a future Phase 8.1 design item; SV1.0 begins Strategy Validation separately from manual-resolution mutation. Operator acknowledgement must remain separate from exchange/account truth, and no submit/cancel/amend/retry should be attached to inspection surfaces.`
+
+### K-013
+
+- `status`: `open`
+- `area`: `strategy validation limitations`
+- `summary`: `SV1.0 adds deterministic Money Flow backtest reports, but the simulator is intentionally first-pass. It uses persisted candle close-price fill assumptions, explicit fee/slippage inputs, in-memory indicator snapshots, and research-only simulated trades. It does not model order-book replay, partial fills, funding, liquidation, borrow/financing, latency, market impact, venue outages, exchange-specific rejected-order behavior, paper-trading state, or parameter optimization.`
+- `impact`: `SV1.0 can help decide whether Money Flow appears worth deeper research or paper trading, but it must not be treated as proof of profitability or production execution quality. Future SV phases should deepen data coverage, market-regime analysis, paper-trading readiness, report persistence if useful, and assumption sensitivity before changing strategy rules or connecting validation outputs to live routing/execution.`

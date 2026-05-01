@@ -2,9 +2,9 @@
 
 ## Phase
 
-Current implemented phase: `Phase 8.0.2`
+Current implemented phase: `SV1.0`
 
-Proposed next phase: `Strategy Validation` after Phase 8.0.2 acceptance. `Phase 8.1` remains deferred until explicitly scoped.
+Proposed next phase: `SV1.1` strategy-validation depth after SV1.0 report review. `Phase 8.1` remains deferred until explicitly scoped.
 
 ## Purpose
 
@@ -21,6 +21,8 @@ Phase 8.0 is implemented as the first operator-grade observability and manual-re
 Phase 8.0.1 is workflow hygiene only. It resolves the dirty Obsidian project-memory baseline left after Phase 8.0 by accepting the earlier Obsidian refresh as intentional, updating stale proposed-Phase-8 wording, confirming the root memory file remains a pointer, and cleaning the working tree before Phase 8.1.
 
 Phase 8.0.2 is a narrow operator-summary truth hotfix. It makes active unexpired child-intent submit leases block repeat-submit safety and next-safe-action truth as `submission_in_progress`, while preserving terminal uncertainty and stale pre-adapter lease semantics. It adds no trading behavior, new action stage, manual-resolution mutation, route executor behavior, fanout, target reselection, ranking/scoring, CBBO, cross-venue retry, or auto-submit.
+
+SV1.0 pivots to Strategy Validation. It adds the first Money Flow backtesting/reporting framework over persisted historical candles, reuses current Money Flow rules without optimization, simulates research-only trades with explicit capital/fee/slippage/sizing assumptions, and emits deterministic operator-readable reports. It creates no live desired trades, child intents, prepared orders, readiness assessments, submitted orders, routing artifacts, approval changes, or exchange calls.
 
 ## Accepted Baseline
 
@@ -39,6 +41,7 @@ Phase 8.0.2 is a narrow operator-summary truth hotfix. It makes active unexpired
 - Phase 8.0 added read-only operator routed workflow summary inspection by desired trade.
 - Phase 8.0.1 resolved the Obsidian memory / working-tree baseline without product behavior changes.
 - Phase 8.0.2 fixed active submit-lease operator-summary truth without product behavior changes.
+- SV1.0 added Money Flow strategy validation/backtesting reports without live execution artifacts or strategy-rule optimization.
 
 ## Hard Boundaries
 
@@ -56,6 +59,9 @@ Do not build:
 - new exchange behavior
 - submission/cancel/amend/retry from read-only inspection
 - silent manual-resolution of exchange/account truth
+- live trading artifacts from strategy validation
+- Money Flow rule optimization before evidence review
+- treating backtest output as proof of future profitability
 
 ## Phase 8.0 Outcome
 
@@ -64,6 +70,8 @@ Phase 8.0 is successful when operators can inspect the full routed workflow by d
 Phase 8.0.1 is successful when the full Obsidian project memory is resolved, root memory remains pointer-only, Obsidian notes match implemented Phase 8.0 truth, review packaging remains clean, and the working tree is clean.
 
 Phase 8.0.2 is successful when the operator summary reports an active unexpired submit lease as `submission_in_progress`, blocks repeat-submit safety with `blocked_while_submission_in_progress`, reports the next safe operator action as not safe to automate, preserves terminal uncertainty behavior, leaves expired pre-adapter active leases stale-replaceable, and remains read-only.
+
+SV1.0 is successful when operators/researchers can run a deterministic Money Flow validation report over persisted candles, inspect assumptions and core metrics, compare component/timeframe output where data exists, and verify validation remains separate from live routing/execution.
 
 ## Current Outcome
 
@@ -79,8 +87,9 @@ Phase 8.0.2 is successful when the operator summary reports an active unexpired 
 - Phase 8.0 adds `GET /api/v1/operator-routed-workflows/by-desired-trade/{desired_trade_key}` as a read-only operator summary over existing routed workflow artifacts, approval states, gate truth, manual-resolution requirements, submitted-order handoff safety, and submit-lease/concurrency state.
 - Phase 8.0.1 accepts the prior Obsidian refresh as intentional memory baseline and updates it to current Phase 8.0/8.0.1 truth.
 - Phase 8.0.2 makes the operator summary block approval-gated submit as the next safe action while an unexpired `active` submit lease is already in progress.
+- SV1.0 adds `services/strategy_validation` and `scripts/run_money_flow_backtest.py` for deterministic Money Flow research reports from persisted candles.
 - Recovery, route execution, fanout, scoring, CBBO, target reselection, cross-venue retry, and broad auto-submit remain deferred.
 
 ## Next Phase Shape
 
-Strategy Validation can begin after Phase 8.0.2 is accepted. Phase 8.1 should remain deferred until explicitly scoped; when it resumes, it should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review, keep operator acknowledgement separate from exchange/account truth, and not attach submit/cancel/amend/retry behavior to inspection.
+SV1.1 should be scoped after reviewing SV1.0 output. Likely candidates are deeper historical data coverage, regime analysis, report persistence if useful, and paper-trading readiness. Phase 8.1 should remain deferred until explicitly scoped; when it resumes, it should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review, keep operator acknowledgement separate from exchange/account truth, and not attach submit/cancel/amend/retry behavior to inspection.

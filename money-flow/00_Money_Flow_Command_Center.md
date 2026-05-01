@@ -8,12 +8,13 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 
 ## Current Phase
 
-- Current implemented phase: `Phase 8.0.2`
+- Current implemented phase: `SV1.0`
 - Phase 7 status: accepted complete.
-- Proposed next phase: `Strategy Validation` after Phase 8.0.2 acceptance; `Phase 8.1` remains deferred until explicitly scoped.
+- Proposed next phase: `SV1.1` after SV1.0 report review; `Phase 8.1` remains deferred until explicitly scoped.
 - Phase 8.0 status: implemented read-only operator observability/manual-resolution inspection.
 - Phase 8.0.1 status: Obsidian memory and working-tree baseline cleanup; no product behavior changed.
 - Phase 8.0.2 status: active submit-lease operator-summary truth hotfix; no product behavior changed.
+- SV1.0 status: first Money Flow strategy-validation/backtesting framework; no live trading artifacts or strategy-rule optimization.
 - Current accepted action hooks: approval-gated recommendation acceptance, target-choice conversion, prepared-order preview/readiness inspection, and submitted-order handoff.
 
 ## Current Architectural Boundary
@@ -44,6 +45,8 @@ Phase 8.0 adds no new trading transition. It makes the existing chain easier to 
 Phase 8.0.1 resolves the dirty Obsidian memory baseline left after Phase 8.0. The earlier full-project-memory refresh is accepted as intentional strategic-memory work, stale "proposed Phase 8.0" wording is cleaned up, and the repo-root memory file remains a pointer only.
 
 Phase 8.0.2 fixes read-only operator-summary truth for active submit leases. An unexpired `active` child-intent submit lease is reported as `submission_in_progress`, blocks repeat-submit safety, and blocks the next safe operator action from reporting approval-gated submit as safe. Terminal submit uncertainty remains manual-reconciliation-required, expired pre-adapter active leases remain stale-replaceable, and no trading behavior or manual-resolution mutation is added.
+
+SV1.0 adds a separate Strategy Validation boundary for Money Flow. It reads persisted candles, computes indicators in memory, reuses current strategy rules, simulates research-only trades with explicit assumptions, and emits deterministic reports. It does not create desired trades, child intents, prepared orders, readiness assessments, submitted orders, routing artifacts, approval changes, exchange calls, smart routing, or new automation behavior.
 
 ## Repo Truth Sources
 
@@ -81,6 +84,8 @@ Obsidian is the long-horizon project brain for founder intent, phase context, de
 - Target-choice conversion is not readiness and not submission.
 - `SubmittedOrder` remains post-submit exchange/account truth.
 - Phase 8.0 is observability/manual-resolution inspection, not smart routing.
-- Phase 8.0.2 is a truth-surface hotfix only; Strategy Validation can start after acceptance while Phase 8.1 remains deferred.
+- Phase 8.0.2 is a truth-surface hotfix only; SV1.0 now starts Strategy Validation while Phase 8.1 remains deferred.
+- SV1.0 reports are research evidence, not proof of profitability and not live execution truth.
+- Simulated validation trades must remain separate from `SubmittedOrder`.
 - Manual-resolution inspection must not silently resolve venue or approval truth.
 - Future agents must update their own coordination row instead of overwriting another agent's work.
