@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-01T05:54:37Z`
+Last reviewed: `2026-05-01T06:43:18Z`
 
 ## Active Follow-Ups
 
@@ -47,6 +47,12 @@ Last reviewed: `2026-05-01T05:54:37Z`
 - `summary`: `Phase 7.3 implemented the second narrow approval-consuming action hook and integrated the Obsidian strategic brain. One active, non-expired, current-lineage `target_choice_conversion` approval can now convert the exact approved `RoutingTargetChoice` into a created or reused child `OrderIntent` through existing conversion validation/persistence helpers, then consume the approval with actor, child-intent id, routed order-shape policy, and no-downstream-artifact provenance in one coherent session/commit. Invalid, expired, revoked, stale-lineage, wrong-action, wrong-target-choice, dry-run-only, and manual-only cases block before child-intent creation. Phase 7.3 also moved full strategic memory into `money-flow/Project_Memory/money_flow_project_memory.md`, made Obsidian command/current-phase/decision/coordination notes part of the required agent workflow, and left repo-root `money_flow_project_memory.md` as a pointer only. It creates no prepared order, readiness assessment, submitted order, exchange call, route executor, fanout, ranking/scoring, CBBO, target reselection, or auto-submit.`
 
 ### T-040
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 7.3.1 hardened focused target-choice conversion tests before Phase 7.4. Direct tests now cover approval-gated conversion rejection for disabled, blocked, deferred, and already-satisfied current step states plus wrong recommendation id, wrong route-readiness audit id, and wrong desired-trade lineage. Each negative case asserts no new child intent, no readiness assessment, no submitted order, and truthful unconsumed or stale-lineage approval state. No product behavior, migration, config, preview/readiness automation, submission automation, route executor, fanout, ranking/scoring, CBBO, target reselection, or auto-submit was added.`
+
+### T-041
 
 - `priority`: `high`
 - `status`: `future`

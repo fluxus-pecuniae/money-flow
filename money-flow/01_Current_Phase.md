@@ -2,14 +2,15 @@
 
 ## Phase
 
-`Phase 7.3`
+`Phase 7.3.1`
 
 ## Purpose
 
-Phase 7.3 has two bounded responsibilities:
+Phase 7.3.1 is a test-hardening hotfix only:
 
-- Make the Obsidian vault the required strategic-memory and cross-agent coordination layer.
-- Add approval-gated target-choice-to-child-intent conversion only.
+- Add direct negative tests for approval-gated target-choice conversion status blockers.
+- Add direct negative tests for wrong recommendation / audit / desired-trade lineage.
+- Preserve the Phase 7.3 behavior boundary without adding product behavior.
 
 ## Accepted Baseline
 
@@ -19,6 +20,7 @@ Phase 7.3 has two bounded responsibilities:
 - Phase 7.1.2 prevented manual-only and dry-run-only steps from receiving active approvals.
 - Phase 7.2 added approval-gated recommendation acceptance into one target choice.
 - Phase 7.2.1 made recommendation acceptance and approval consumption coherent in one commit.
+- Phase 7.3 added approval-gated target-choice conversion into one child intent and integrated Obsidian workflow.
 
 ## Hard Boundaries
 
@@ -39,7 +41,7 @@ Do not build:
 
 ## Success
 
-Phase 7.3 is successful when a valid current-lineage `target_choice_conversion` approval can create or reuse exactly one child `OrderIntent`, then consume the approval with inspectable provenance, while creating no prepared order, readiness assessment, submitted order, exchange call, route executor, fanout, scoring, CBBO, target reselection, or auto-submit behavior.
+Phase 7.3.1 is successful when focused tests directly prove disabled, blocked, deferred, already-satisfied, and wrong-lineage approval-gated conversion cases reject before new child-intent/downstream artifacts, while existing Phase 7.3 success/idempotency behavior remains unchanged.
 
 ## Current Outcome
 
@@ -47,8 +49,9 @@ Phase 7.3 is successful when a valid current-lineage `target_choice_conversion` 
 - Full strategic project memory lives at `money-flow/Project_Memory/money_flow_project_memory.md`.
 - Repo-root `money_flow_project_memory.md` is a compatibility pointer only.
 - The approval-gated `target_choice_conversion` action hook creates or reuses one child intent and consumes the matching approval.
+- Phase 7.3.1 adds direct test coverage for disabled, blocked, deferred, already-satisfied, and wrong-lineage conversion blockers.
 - Preview/readiness, submitted-order handoff, recovery, route execution, fanout, scoring, CBBO, target reselection, and auto-submit remain deferred.
 
 ## Next Likely Phase
 
-The next controlled automation phase should consider approval-gated preview/readiness only after Phase 7.3 conversion truth is reviewed.
+The next controlled automation phase should consider approval-gated preview/readiness only after Phase 7.3.1 negative-test hardening is reviewed.

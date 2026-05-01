@@ -8,9 +8,9 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 
 ## Current Phase
 
-- Current phase: `Phase 7.3`
-- Purpose: integrate the Obsidian strategic-memory workflow and add approval-gated target-choice-to-child-intent conversion only.
-- Current accepted action hook before this phase: approval-gated recommendation acceptance into one `RoutingTargetChoice`.
+- Current phase: `Phase 7.3.1`
+- Purpose: harden approval-gated target-choice-to-child-intent conversion tests before Phase 7.4.
+- Current accepted action hook before this phase: approval-gated target-choice conversion into one child `OrderIntent`.
 
 ## Current Architectural Boundary
 
@@ -27,13 +27,13 @@ MandateDesiredTrade
 -> SubmittedOrder
 ```
 
-Phase 7.3 may automate only:
+Phase 7.3 is accepted as automating only:
 
 ```text
 RoutingTargetChoice -> OrderIntent
 ```
 
-It must not automate preview/readiness, submission, recovery, route execution, target reselection, fanout, scoring, ranking, CBBO, best-binding selection, or auto-submit.
+Phase 7.3.1 adds tests only. It must not automate preview/readiness, submission, recovery, route execution, target reselection, fanout, scoring, ranking, CBBO, best-binding selection, or auto-submit.
 
 ## Repo Truth Sources
 

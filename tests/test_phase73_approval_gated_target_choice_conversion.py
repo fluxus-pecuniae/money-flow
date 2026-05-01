@@ -13,8 +13,10 @@ from core.domain.enums import (
     RoutingAutomationApprovalAction,
     RoutingAutomationApprovalStatus,
     RoutingAutomationMode,
+    RoutingAutomationStepStatus,
     RoutingTargetChoiceConversionStatus,
 )
+from core.domain.models import RoutingAutomationPlanStep
 from db.models import (
     ExecutionReadinessEvaluationModel,
     OrderIntentModel,
@@ -55,6 +57,39 @@ def _accepted_choice_and_conversion_approval(session_factory):
         )
     )
     return routing, audit, recommendation, choice, desired_trade_key, approval
+
+
+def _approval_model(session_factory, approval_id: str) -> RoutingAutomationApprovalModel:
+    with session_factory() as session:
+        model = session.scalar(
+            select(RoutingAutomationApprovalModel).where(
+                RoutingAutomationApprovalModel.approval_id == approval_id
+            )
+        )
+        assert model is not None
+        session.expunge(model)
+        return model
+
+
+def _assert_counts_unchanged(session_factory, before: dict[str, int]) -> None:
+    after = _counts(session_factory)
+    assert after["child_intents"] == before["child_intents"]
+    assert after["readiness_evaluations"] == before["readiness_evaluations"]
+    assert after["submitted_orders"] == before["submitted_orders"]
+
+
+def _assert_approval_unconsumed(
+    session_factory,
+    approval_id: str,
+    *,
+    status: RoutingAutomationApprovalStatus = RoutingAutomationApprovalStatus.ACTIVE,
+) -> RoutingAutomationApprovalModel:
+    model = _approval_model(session_factory, approval_id)
+    assert model.status == status.value
+    assert model.intent_id is None
+    assert model.consumed_at is None
+    assert model.consumed_by is None
+    return model
 
 
 def test_approval_gated_target_choice_conversion_consumes_approval_only_to_child_intent() -> None:
@@ -380,6 +415,144 @@ def test_consumed_conversion_approval_cannot_authorize_a_different_target_choice
     assert exc.value.reason_code == "routing_automation_approval_consumed_for_different_action"
     assert _counts(session_factory)["child_intents"] == 1
     assert first.intent_id is not None
+
+
+def test_disabled_conversion_step_blocks_approval_gated_target_choice_conversion() -> None:
+    session_factory = build_test_session_factory()
+    routing, _audit, _recommendation, choice, _desired_trade_key, approval = (
+        _accepted_choice_and_conversion_approval(session_factory)
+    )
+    before = _counts(session_factory)
+
+    with pytest.raises(RoutingAssessmentError) as exc:
+        asyncio.run(
+            routing.convert_target_choice_to_child_intent_with_approval(
+                choice.target_choice_id,
+                approval_id=approval.approval_id,
+                consumed_by="automation-operator",
+                policy=routing.routing_automation_policy(mode=RoutingAutomationMode.DISABLED),
+            )
+        )
+
+    assert exc.value.reason_code == "routing_automation_approval_action_not_available"
+    _assert_counts_unchanged(session_factory, before)
+    model = _assert_approval_unconsumed(session_factory, approval.approval_id)
+    assert "routing_automation_approval_consumed" not in (model.reason_codes_json or [])
+
+
+@pytest.mark.parametrize(
+    ("step_status", "step_reason", "expected_reason"),
+    [
+        (
+            RoutingAutomationStepStatus.BLOCKED,
+            "forced_target_choice_conversion_blocked_for_test",
+            "routing_automation_approval_action_blocked",
+        ),
+        (
+            RoutingAutomationStepStatus.DEFERRED,
+            "forced_target_choice_conversion_deferred_for_test",
+            "routing_automation_approval_action_not_available",
+        ),
+        (
+            RoutingAutomationStepStatus.ALREADY_SATISFIED,
+            "forced_target_choice_conversion_already_satisfied_for_test",
+            "routing_automation_approval_action_already_satisfied",
+        ),
+    ],
+)
+def test_non_approvable_conversion_step_blocks_approval_gated_target_choice_conversion(
+    monkeypatch: pytest.MonkeyPatch,
+    step_status: RoutingAutomationStepStatus,
+    step_reason: str,
+    expected_reason: str,
+) -> None:
+    session_factory = build_test_session_factory()
+    routing, _audit, _recommendation, choice, _desired_trade_key, approval = (
+        _accepted_choice_and_conversion_approval(session_factory)
+    )
+    original_step_for_action = routing._routing_automation_step_for_action
+
+    def forced_target_choice_conversion_step(plan, action):
+        if action != RoutingAutomationApprovalAction.TARGET_CHOICE_CONVERSION:
+            return original_step_for_action(plan, action)
+        base_step = original_step_for_action(plan, action)
+        return RoutingAutomationPlanStep(
+            name=action.value,
+            status=step_status,
+            artifact_id=base_step.artifact_id,
+            would_create_artifact_type="OrderIntent",
+            reason_codes=[step_reason],
+            blocked=step_status == RoutingAutomationStepStatus.BLOCKED,
+            lineage=dict(base_step.lineage),
+        )
+
+    monkeypatch.setattr(
+        routing,
+        "_routing_automation_step_for_action",
+        forced_target_choice_conversion_step,
+    )
+    before = _counts(session_factory)
+
+    with pytest.raises(RoutingAssessmentError) as exc:
+        asyncio.run(
+            routing.convert_target_choice_to_child_intent_with_approval(
+                choice.target_choice_id,
+                approval_id=approval.approval_id,
+                consumed_by="automation-operator",
+            )
+        )
+
+    assert exc.value.reason_code == expected_reason
+    _assert_counts_unchanged(session_factory, before)
+    _assert_approval_unconsumed(session_factory, approval.approval_id)
+
+
+@pytest.mark.parametrize(
+    ("field_name", "bad_value"),
+    [
+        ("routing_target_recommendation_id", "wrong-routing-target-recommendation-id"),
+        ("route_readiness_audit_id", "wrong-route-readiness-audit-id"),
+        ("desired_trade_key", "wrong-desired-trade-key"),
+    ],
+)
+def test_wrong_approval_lineage_blocks_target_choice_conversion(
+    field_name: str,
+    bad_value: str,
+) -> None:
+    session_factory = build_test_session_factory()
+    routing, _audit, _recommendation, choice, _desired_trade_key, approval = (
+        _accepted_choice_and_conversion_approval(session_factory)
+    )
+    with session_factory() as session:
+        model = session.scalar(
+            select(RoutingAutomationApprovalModel).where(
+                RoutingAutomationApprovalModel.approval_id == approval.approval_id
+            )
+        )
+        assert model is not None
+        setattr(model, field_name, bad_value)
+        session.commit()
+    before = _counts(session_factory)
+
+    with pytest.raises(RoutingAssessmentError) as exc:
+        asyncio.run(
+            routing.convert_target_choice_to_child_intent_with_approval(
+                choice.target_choice_id,
+                approval_id=approval.approval_id,
+                consumed_by="automation-operator",
+            )
+        )
+
+    assert exc.value.reason_code == "routing_automation_approval_lineage_stale"
+    _assert_counts_unchanged(session_factory, before)
+    model = _assert_approval_unconsumed(
+        session_factory,
+        approval.approval_id,
+        status=RoutingAutomationApprovalStatus.STALE_LINEAGE,
+    )
+    assert "routing_automation_approval_lineage_stale" in (model.reason_codes_json or [])
+    assert dict(model.provenance_json or {}).get("approval_lineage_stale") is True
+    assert dict(model.provenance_json or {}).get("action_executed") is False
 
 
 def test_approval_gated_target_choice_conversion_api_returns_child_intent_and_consumed_approval() -> None:

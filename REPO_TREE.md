@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-01T05:39:34Z`
+Last reviewed: `2026-05-01T06:43:18Z`
 
 ## Top-Level Structure
 
@@ -290,7 +290,7 @@ Last reviewed: `2026-05-01T05:39:34Z`
 - Phase 7.2 / 7.2.1 approval-gated recommendation acceptance action hook: verifies a valid current recommendation-acceptance approval can create/reuse exactly one target choice and be consumed, repeated calls are idempotent, a forced failure between target-choice flush and approval consumption rolls back without misleading state, generic approval consumption is administrative only, expired/revoked/wrong-action/wrong-recommendation/consumed-for-different-recommendation approvals block, dry-run-only/manual-only policies cannot execute, API response exposes consumed approval plus target choice, and no child intent, readiness evaluation, submitted order, route executor, fanout, ranking/scoring, CBBO, target reselection, or auto-submit side effects occur.
 
 `tests/test_phase73_approval_gated_target_choice_conversion.py`
-- Phase 7.3 approval-gated target-choice conversion action hook: verifies a valid current target-choice-conversion approval can create/reuse exactly one child intent and be consumed, repeated calls are idempotent, a forced failure between child-intent flush and approval consumption rolls back without misleading state, expired/revoked/wrong-action/wrong-target-choice/stale-lineage/consumed-for-different-target-choice approvals block, dry-run-only/manual-only policies cannot execute, API response exposes consumed approval plus child intent, Obsidian workflow requirements are operational-test-covered, and no prepared order, readiness evaluation, submitted order, route executor, fanout, ranking/scoring, CBBO, target reselection, or auto-submit side effects occur.
+- Phase 7.3 approval-gated target-choice conversion action hook plus Phase 7.3.1 negative-test hardening: verifies a valid current target-choice-conversion approval can create/reuse exactly one child intent and be consumed, repeated calls are idempotent, a forced failure between child-intent flush and approval consumption rolls back without misleading state, expired/revoked/wrong-action/wrong-target-choice/stale-lineage/consumed-for-different-target-choice approvals block, dry-run-only/manual-only policies cannot execute, disabled/blocked/deferred/already-satisfied current step states reject conversion directly, wrong recommendation / route-readiness audit / desired-trade lineage rejects without consuming approval, API response exposes consumed approval plus child intent, Obsidian workflow requirements are operational-test-covered, and no prepared order, readiness evaluation, submitted order, route executor, fanout, ranking/scoring, CBBO, target reselection, or auto-submit side effects occur.
 
 `tests/test_phase610_phase6_closeout.py`
 - Phase 6.10 Phase 6 closeout regression: exercises the complete accepted explicit recommendation-backed single-target path through submitted order, detail/list, actionability/recovery, reconciliation collision protection, lifecycle events, and read-only workflow inspection while proving exactly one target choice, one child intent, and one submitted order with no fanout, allocation, scoring, CBBO, target reselection, route executor behavior, auto-submit, cross-binding recovery, or cross-venue retry.

@@ -13,6 +13,28 @@ Entry schema:
 
 ---
 
+## v2026.05.01.003
+
+- `recorded_at_utc`: `2026-05-01T06:45:26Z`
+- `scope`: `Phase 7.3.1 approval-gated target-choice conversion test hardening`
+- `intent`: `Native entry. Hardened the focused Phase 7.3 approval-gated target-choice conversion tests before Phase 7.4. Added direct negative coverage proving disabled, blocked, deferred, and already-satisfied current target-choice-conversion step states reject approval-gated conversion before new child-intent or downstream artifacts. Added direct wrong-lineage coverage for mismatched routing target recommendation id, route-readiness audit id, and desired-trade key, verifying stale-lineage truth and unconsumed approval state. No production service behavior changed: Phase 7.3.1 adds no prepared-order preview/readiness automation, submitted-order automation, exchange call, smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor, auto-submit, cross-binding/cross-venue recovery, migration, or config.`
+- `affected_files`:
+  - `tests/test_phase73_approval_gated_target_choice_conversion.py`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase73_approval_gated_target_choice_conversion.py` passed with 14 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase70_routing_automation.py tests/test_phase71_routing_automation_approvals.py tests/test_phase72_approval_gated_recommendation_acceptance.py tests/test_phase73_approval_gated_target_choice_conversion.py` passed with 41 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase63_recommendation_target_choice_conversion.py tests/test_phase56_routed_order_shape_policy.py` passed with 34 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed with 417 tests.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-7.3.1-review.zip` created the Phase 7.3.1 review bundle; bundle inspection found no `.env`, virtualenvs, Git metadata, pytest caches, Obsidian app state, local DBs, SQLite files, or nested ZIPs.
+
 ## v2026.05.01.002
 
 - `recorded_at_utc`: `2026-05-01T05:58:03Z`
