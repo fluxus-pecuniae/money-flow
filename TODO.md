@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-01T09:40:47Z`
+Last reviewed: `2026-05-01T12:02:56Z`
 
 ## Active Follow-Ups
 
@@ -73,8 +73,14 @@ Last reviewed: `2026-05-01T09:40:47Z`
 ### T-044
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 7.6 closed out the controlled automation chain with safety-diligence regression coverage and docs alignment rather than a new action hook. The closeout test walks the full approval-gated chain from existing recommendation through recommendation acceptance, target-choice conversion, preview/readiness, and submitted-order handoff; proves each step consumes only the correct current-lineage approval; proves dry-run, approval creation, administrative consumption, action hooks, and submitted-order handoff remain distinct; proves `consumption_pending` is bounded and repeat calls reuse the existing submitted order without another adapter submit; and asserts no smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor behavior, cross-binding/cross-venue recovery, or broad auto-submit. No production behavior, migration, config, or new action stage was added.`
+
+### T-045
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `Phase 7.6 should harden or close out the controlled automation chain before any broader automation is considered. Candidate work should focus on regression, operator inspection, concurrency/serialization gaps, and approval/submit uncertainty observability, not new routing intelligence. It must preserve same-target/current-lineage approval truth and avoid smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor behavior, cross-binding/cross-venue recovery, or broad auto-submit.`
+- `summary`: `Define the next major phase through architecture review before adding broader automation. Candidate Phase 8 work should focus on operator-grade automation observability, reconciliation/manual-resolution workflows, concurrency/serialization hardening, and dashboard/read-only inspection depth around the already accepted approval-gated same-target chain. Smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor behavior, cross-binding/cross-venue recovery, and broad auto-submit remain deferred until explicitly designed and accepted.`
 
 ### T-001
 

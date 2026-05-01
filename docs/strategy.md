@@ -28,6 +28,8 @@ Phase 7.5 adds the fourth approval-consuming action hook and keeps it limited to
 
 Phase 7.5.1 hardens the approval side of that handoff. If the existing submit path persists or safely reuses a `SubmittedOrder` but the approval consumption update fails afterward, the approval becomes `consumption_pending` and records the submitted-order id, child-intent id, failure class/message, and manual approval reconciliation requirement. A repeat call with the same approval reuses that submitted order and attempts to complete consumption without another adapter submit. This preserves strategy/routing truth by making the partial approval state visible instead of leaving a clean active approval after a real handoff.
 
+Phase 7.6 closes the controlled automation phase with safety-diligence regression. It does not add another action hook. The closeout proof exercises the full approval-gated chain and directly asserts that dry-run planning, approval creation, administrative approval consumption, action-specific consumption, `consumption_pending`, and submitted-order handoff remain distinct states. It also proves no best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor behavior, cross-binding/cross-venue recovery, or broad auto-submit has appeared.
+
 The load-bearing strategy-to-execution boundary is:
 
 - `StrategyDecision`
@@ -160,6 +162,7 @@ Money Flow-specific `sleeve_*` naming remains family vocabulary only.
   - Phase 7.4 consumes a valid current preview/readiness approval for exactly one approved child intent and creates or reuses only the corresponding readiness inspection
   - Phase 7.5 consumes a valid current submitted-order-handoff approval for exactly one approved ready child intent and submits only through the existing explicit submit path when current readiness and submit gates pass
   - Phase 7.5.1 records `consumption_pending` if the submitted order exists but approval consumption fails after handoff, and repeat calls reuse the submitted order instead of submitting again
+  - Phase 7.6 closes the controlled automation chain with regression proof and adds no new action stage
   - preserve routed lineage, policy snapshots, selected binding/account/venue/symbol, and no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit flags
   - execute no target reselection, alternate-route retry, fanout, ranking/scoring, CBBO, route executor behavior, or broad auto-submit; Phase 7.5 uses the existing explicit submit path only after one valid current approval is consumed and existing gates pass
 - manual routed-flow inspection harness:
@@ -559,7 +562,7 @@ Still deferred:
 
 ## Forward-Looking Concern
 
-Phase 7.0 adds controlled automation policy and dry-run planning only, Phase 7.1 adds durable approval/revocation gates only, Phase 7.1.1 hardens approval expiry, lineage scope, and active-scope uniqueness before action-taking automation, Phase 7.1.2 keeps approvals limited to truly approvable current policy states, Phase 7.2 adds approval-gated recommendation acceptance only, Phase 7.2.1 makes that first action hook transactionally coherent, Phase 7.3 adds approval-gated target-choice conversion only, Phase 7.4 adds approval-gated preview/readiness inspection only, Phase 7.5 adds approval-gated submitted-order handoff only through the existing explicit submit path, and Phase 7.5.1 bounds post-submitted-order approval-consumption failure truth. The next strategy-adjacent concerns are action-taking automation hardening, still short of smart routing:
+Phase 7.0 adds controlled automation policy and dry-run planning only, Phase 7.1 adds durable approval/revocation gates only, Phase 7.1.1 hardens approval expiry, lineage scope, and active-scope uniqueness before action-taking automation, Phase 7.1.2 keeps approvals limited to truly approvable current policy states, Phase 7.2 adds approval-gated recommendation acceptance only, Phase 7.2.1 makes that first action hook transactionally coherent, Phase 7.3 adds approval-gated target-choice conversion only, Phase 7.4 adds approval-gated preview/readiness inspection only, Phase 7.5 adds approval-gated submitted-order handoff only through the existing explicit submit path, Phase 7.5.1 bounds post-submitted-order approval-consumption failure truth, and Phase 7.6 closes the controlled automation safety proof. The next strategy-adjacent concerns are action-taking automation hardening, still short of smart routing:
 
 - DB-level concurrency/serialization hardening should be considered before broader or multi-worker automation expands recommendation acceptance or conversion paths
 - future action hooks beyond submitted-order handoff must consume one active, non-expired, current-lineage approval record for exactly one same-target action and must preserve revocation/expiry/stale-lineage/manual-only/dry-run-only truth
@@ -567,4 +570,4 @@ Phase 7.0 adds controlled automation policy and dry-run planning only, Phase 7.1
 - continued mandate/account policy checks before any broader routed execution behavior
 - fanout/splitting remains a later explicit phase only
 
-Phase 7.5 does not make the platform a routing optimizer, route executor, broad submitted-order automation system, or auto-submit system. It connects reversible operator authorization to the existing explicit submit path for one already-ready routed child intent only and preserves the separate strategy, planning, routing assessment, route-readiness audit, recommendation, target choice, child-intent creation, readiness, explicit submission, and post-submit lifecycle boundaries.
+Phase 7.5 and Phase 7.6 do not make the platform a routing optimizer, route executor, broad submitted-order automation system, or auto-submit system. They connect reversible operator authorization to the existing explicit submit path for one already-ready routed child intent only, then close that chain with safety assertions while preserving the separate strategy, planning, routing assessment, route-readiness audit, recommendation, target choice, child-intent creation, readiness, explicit submission, and post-submit lifecycle boundaries.

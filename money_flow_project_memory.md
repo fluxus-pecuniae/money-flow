@@ -6,7 +6,7 @@ The canonical strategic project memory has moved into the Obsidian brain:
 
 Use the Obsidian entrypoint before substantial work:
 
-- `money-flow/Money Flow Command Center.md`
+- `money-flow/00_Money_Flow_Command_Center.md`
 - `money-flow/01_Current_Phase.md`
 - `money-flow/05_Agent_Coordination.md`
 

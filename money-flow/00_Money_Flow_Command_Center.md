@@ -8,8 +8,8 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 
 ## Current Phase
 
-- Current phase: `Phase 7.5.1`
-- Purpose: harden approval-consumption truth after approval-gated submitted-order handoff.
+- Current phase: `Phase 7.6`
+- Purpose: close out controlled automation with safety-diligence regression and documentation alignment.
 - Current accepted action hooks before this phase: approval-gated recommendation acceptance, target-choice conversion, prepared-order preview/readiness inspection, and submitted-order handoff.
 
 ## Current Architectural Boundary
@@ -33,7 +33,7 @@ Phase 7.5 is accepted as automating only:
 ExecutionReadinessAssessment -> SubmittedOrder
 ```
 
-Phase 7.5.1 does not add a new automation transition. It only bounds the failure case where `SubmittedOrder` persistence succeeds but approval consumption fails afterward. Such approvals become `consumption_pending` and repeat calls must reuse the existing submitted order before completing or preserving approval reconciliation truth. The platform still must not automate target selection, recovery, route execution, target reselection, fanout, scoring, ranking, CBBO, best-binding selection, cross-venue retry, or broad auto-submit.
+Phase 7.6 adds no new automation transition. It closes out the Phase 7 controlled automation chain by proving the existing approval-gated stages remain exact-lineage-bound, same-target, non-fanout, non-reselecting, and distinct from dry-run / approval creation / generic administrative consumption. `consumption_pending` remains a bounded approval-reconciliation state; repeat calls must reuse the existing submitted order rather than submit again. The platform still must not automate target selection, recovery, route execution, target reselection, fanout, scoring, ranking, CBBO, best-binding selection, cross-venue retry, or broad auto-submit.
 
 ## Repo Truth Sources
 
