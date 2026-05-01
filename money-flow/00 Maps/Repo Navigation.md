@@ -29,4 +29,4 @@ Up: [[Money Flow Command Center]]
 
 ## Local Vault Note
 
-This vault lives in `money-flow/` under the repo root and is ignored by `.gitignore` and `.archiveignore`. It is an operator map, not a review-bundle artifact.
+This vault lives in `money-flow/` under the repo root. Tracked markdown notes are strategic memory and coordination surface; Obsidian app state under `.obsidian/` remains ignored and excluded from review bundles.

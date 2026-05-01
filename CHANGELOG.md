@@ -13,6 +13,65 @@ Entry schema:
 
 ---
 
+## v2026.05.01.009
+
+- `recorded_at_utc`: `2026-05-01T14:19:39Z`
+- `scope`: `Phase 8.0.1 Obsidian memory and working-tree cleanup`
+- `intent`: `Native entry. Resolved the dirty Obsidian full-project-memory and working-tree state left after accepted Phase 8.0. The pre-existing Obsidian brain refresh for accepted Phase 7.6 / proposed Phase 8.0 was inspected, accepted as intentional strategic-memory baseline, and updated so canonical Obsidian notes describe Phase 8.0 as implemented and Phase 8.0.1 as workflow hygiene only. The repo-root `money_flow_project_memory.md` remains a pointer only; the full strategic memory remains at `money-flow/Project_Memory/money_flow_project_memory.md`. This phase adds no product behavior, service logic, routing/execution/API behavior, schema, migration, test behavior, exchange behavior, smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor behavior, cross-venue/cross-binding recovery, auto-submit, or manual-resolution mutation.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/00 Maps/Component Map.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/System Map.md`
+  - `money-flow/20 Workflows/Operator Observability and Manual Resolution.md`
+  - `money-flow/40 Operations/Operational Memory.md`
+  - `money-flow/40 Operations/Phase 8 Focus.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_phase80_operator_observability.py` passed with 4 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-8.0.1-review.zip` created the Phase 8.0.1 review bundle; bundle inspection found no `.env`, virtualenvs, Git metadata, pytest caches, local DB files, SQLite files, nested archives, secrets, or Obsidian app state.
+
+## v2026.05.01.008
+
+- `recorded_at_utc`: `2026-05-01T13:20:57Z`
+- `scope`: `Phase 8.0 operator observability and manual-resolution inspection`
+- `intent`: `Native entry. Added the first operator-grade observability surface for the accepted controlled routed automation chain. The new read-only operator summary by desired trade aggregates existing routed workflow artifacts, approval states, approval gate truth, manual-resolution requirements, submitted-order handoff safety facts, and submit-lease/concurrency state without creating target choices, child intents, readiness evaluations, submitted orders, manual-resolution markers, exchange calls, or approval consumption. The summary surfaces `consumption_pending`, stale-lineage/expired approvals, blocked recommendations/readiness, `adapter_submit_may_have_started`, `adapter_submit_persistence_unknown`, repeat-submit safety policy, and the next safe operator action. This phase adds no smart routing, best-binding selection, ranking/scoring, CBBO, fanout, split allocation, target reselection, route executor behavior, cross-binding/cross-venue recovery, new automation action stage, broad auto-submit, migration, config, new exchange behavior, or full Obsidian project-memory edit.`
+- `affected_files`:
+  - `services/routing/service.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_phase80_operator_observability.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed during focused development.
+  - `.venv/bin/python -m pytest -q tests/test_phase80_operator_observability.py` passed with 4 tests during focused development.
+  - `.venv/bin/python -m pytest -q tests/test_phase80_operator_observability.py tests/test_phase76_automation_closeout.py tests/test_phase75_approval_gated_submission_handoff.py tests/test_phase69_routed_workflow_inspection.py tests/test_api.py tests/test_operational_docs.py` passed with 59 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase70_routing_automation.py tests/test_phase71_routing_automation_approvals.py tests/test_phase72_approval_gated_recommendation_acceptance.py tests/test_phase73_approval_gated_target_choice_conversion.py tests/test_phase74_approval_gated_preview_readiness.py tests/test_phase75_approval_gated_submission_handoff.py tests/test_phase76_automation_closeout.py tests/test_phase80_operator_observability.py` passed with 90 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase67_recommendation_backed_submission.py tests/test_phase68_recommendation_backed_lifecycle.py tests/test_phase69_routed_workflow_inspection.py tests/test_phase610_phase6_closeout.py` passed with 20 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed with 466 tests.
+  - `TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py` passed with 1 test.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 9 tests after final docs updates.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-8.0-review.zip` created the Phase 8.0 review bundle; bundle inspection found no `.env`, virtualenvs, Git metadata, pytest caches, local DBs, SQLite files, nested archives, or Obsidian app state.
+
 ## v2026.05.01.007
 
 - `recorded_at_utc`: `2026-05-01T12:02:56Z`

@@ -2,11 +2,18 @@
 
 Up: [[00 Maps/Workflow Map]]
 
-## Current Phase 7.2.1 Truth
+## Phase 7 Controlled Automation Truth
 
 One active, non-expired, current-lineage `recommendation_acceptance` approval can accept the exact approved `RoutingTargetRecommendation` into a created or reused `RoutingTargetChoice`.
 
 Phase 7.2.1 hardens atomicity: approval validation, target-choice creation/reuse, recommendation/audit marking, approval consumption, and approval provenance update happen in one coherent session/commit.
+
+Later Phase 7 hooks extend the same pattern without adding smart routing:
+
+- `target_choice_conversion`: exact target choice to one child `OrderIntent`.
+- `prepared_order_preview_and_readiness`: exact child intent to preview/readiness inspection.
+- `submitted_order_handoff`: exact already-ready child intent through the existing explicit submit path.
+- `consumption_pending`: submitted-order exists, but approval consumption needs manual reconciliation; repeat calls reuse the existing submitted order.
 
 ## Flow
 
@@ -48,6 +55,8 @@ flowchart TD
 ## Related Notes
 
 - [[40 Operations/Phase 7 Focus]]
+- [[40 Operations/Phase 8 Focus]]
+- [[20 Workflows/Operator Observability and Manual Resolution]]
 - [[10 Components/Routing Service]]
 - [[10 Components/API Control Plane]]
 - [[20 Workflows/Current Routed Workflow]]

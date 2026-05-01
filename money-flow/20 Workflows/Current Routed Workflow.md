@@ -36,10 +36,19 @@ The controlled routed path exists from mandate desired trade through explicit su
 - Exactly one submitted order after explicit gated submit.
 - Same-target retry preserves routed lineage.
 - Reconciliation payload collisions cannot overwrite platform-owned routed lineage.
+- Phase 7 approval-gated hooks remain current-lineage-bound and stage-specific.
+- `consumption_pending` is manual-reconciliation truth, not permission to submit again.
+
+## Phase 8 Proposed Inspection Layer
+
+Phase 8.0 adds operator-grade visibility over this existing workflow without mutating it.
+
+The desired inspection layer should show the current artifact chain, approval state by action stage, blocking and uncertainty reasons, submit lease state, and next safe manual operator action. It should not create target choices, child intents, readiness evaluations, submitted orders, exchange calls, retries, cancellations, amendments, route-executor actions, fanout, ranking/scoring, CBBO, or target reselection.
 
 ## Related Notes
 
 - [[10 Components/Routing Service]]
 - [[10 Components/Execution Service]]
+- [[20 Workflows/Operator Observability and Manual Resolution]]
 - [[20 Workflows/Execution Lifecycle]]
 - [[20 Workflows/Deferred Smart Routing]]

@@ -23,13 +23,18 @@ Tests are phase-shaped and boundary-focused. The suite repeatedly proves both wh
 - `test_phase70_routing_automation.py`: dry-run automation plans.
 - `test_phase71_routing_automation_approvals.py`: approval gates and lineage truth.
 - `test_phase72_approval_gated_recommendation_acceptance.py`: approval-gated recommendation acceptance atomicity.
+- `test_phase73_approval_gated_target_choice_conversion.py`: approval-gated target-choice conversion and negative lineage/status coverage.
+- `test_phase74_approval_gated_preview_readiness.py`: approval-gated preview/readiness boundary and no submission.
+- `test_phase75_approval_gated_submission_handoff.py`: approval-gated submitted-order handoff, submit gates, leases, uncertainty, and `consumption_pending`.
+- `test_phase76_automation_closeout.py`: full Phase 7 closeout safety proof.
 
 ## Operational Validation
 
-`tests/test_operational_docs.py` checks repo memory discipline and review-bundle hygiene. The vault is intentionally ignored by `.gitignore` and `.archiveignore`, so it is a local brain rather than a tracked review artifact.
+`tests/test_operational_docs.py` checks repo memory discipline, required Obsidian brain notes, and review-bundle hygiene. Tracked Obsidian markdown notes are part of the review surface; Obsidian app state under `money-flow/.obsidian/` remains ignored.
 
 ## Related Notes
 
 - [[40 Operations/Operational Memory]]
 - [[20 Workflows/Approval Gated Recommendation Acceptance]]
+- [[20 Workflows/Operator Observability and Manual Resolution]]
 - [[90 Reference/Canonical Repo Docs]]

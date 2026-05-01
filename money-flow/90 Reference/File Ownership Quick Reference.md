@@ -43,7 +43,11 @@ Up: [[Money Flow Command Center]]
 
 - `scripts/manual_routed_flow.py` - manual routed workflow trace.
 - `scripts/create_review_bundle.py` - review bundle creation.
-- `tests/test_phase72_approval_gated_recommendation_acceptance.py` - latest Phase 7.2/7.2.1 coverage.
+- `tests/test_phase72_approval_gated_recommendation_acceptance.py` - Phase 7.2/7.2.1 approval-gated recommendation acceptance coverage.
+- `tests/test_phase73_approval_gated_target_choice_conversion.py` - Phase 7.3/7.3.1 conversion coverage.
+- `tests/test_phase74_approval_gated_preview_readiness.py` - Phase 7.4 preview/readiness coverage.
+- `tests/test_phase75_approval_gated_submission_handoff.py` - Phase 7.5/7.5.1 submitted-order handoff and `consumption_pending` coverage.
+- `tests/test_phase76_automation_closeout.py` - Phase 7.6 closeout safety proof.
 - `tests/test_operational_docs.py` - operational-doc and bundle hygiene checks.
 
 ## Related Notes

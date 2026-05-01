@@ -2873,11 +2873,11 @@ The standing reminder is:
 > Phase 7 should automate a narrow, truthful path the platform already understands.
 > It should not use automation as an excuse to jump into full SOR before the data, controls, and operator tooling are ready.
 
-## 85. Phase 7.0 through 7.3 — controlled automation stays same-target and approval-bound
+## 85. Phase 7.0 through 7.6 — controlled automation stays same-target and approval-bound
 
 Phase 7 began correctly: it added automation substrate without pretending the platform has smart routing.
 
-The completed progression is:
+The completed Phase 7 progression is:
 
 - Phase 7.0: non-executing routing automation policy and dry-run plans.
 - Phase 7.1: durable approval records and reversible gates.
@@ -2886,29 +2886,41 @@ The completed progression is:
 - Phase 7.2: one approval-consuming action hook for recommendation acceptance into a target choice.
 - Phase 7.2.1: target-choice creation/reuse and approval consumption happen coherently in one commit.
 - Phase 7.3: one approval-consuming action hook for target-choice conversion into one child intent.
+- Phase 7.3.1: direct negative coverage for blocked states and wrong lineage around target-choice conversion.
+- Phase 7.4: one approval-consuming action hook for prepared-order preview/readiness inspection.
+- Phase 7.5: one approval-consuming action hook for submitted-order handoff through the existing explicit submit path.
+- Phase 7.5.1: `consumption_pending` approval truth when a submitted order exists but approval consumption fails afterward.
+- Phase 7.6: closeout safety regression and docs alignment only, with no new production behavior.
 
-The key Phase 7.3 action boundary is:
+The accepted Phase 7 action boundaries are:
 
 ```text
+RoutingTargetRecommendation -> RoutingTargetChoice
 RoutingTargetChoice -> OrderIntent
+OrderIntent -> PreparedVenueOrder preview -> ExecutionReadinessAssessment
+ExecutionReadinessAssessment -> SubmittedOrder handoff
 ```
 
-Only the exact approved target choice can be converted. The approval must be active, non-expired, not revoked, not stale-lineage, not already consumed for another target, and scoped to the current desired-trade / recommendation / audit / selected binding/account/venue/symbol truth.
+Each boundary consumes its own active, non-expired, non-revoked, non-stale-lineage, current-scope approval for exactly that stage.
 
-Phase 7.3 creates or reuses exactly one child `OrderIntent`.
+Phase 7.5 is the only Phase 7 stage that reaches the existing explicit submit path, and only for the exact already-ready child intent. Phase 7.5.1 makes post-submit approval-consumption failure inspectable as `consumption_pending`; repeat calls must reuse existing submitted-order truth rather than submit again.
 
-It does **not** create:
+Phase 7 still does **not** create:
 
-- prepared orders
-- execution-readiness assessments
-- submitted orders
 - route plans
 - route executor state
 - fanout/split allocations
 - ranking/scoring/CBBO artifacts
 - target reselection
+- best-binding selection
+- cross-venue retry
+- broad auto-submit
 
-The next likely phase should consider approval-gated preview/readiness only if review accepts the Phase 7.3 conversion boundary.
+The key lesson from Phase 7 is:
+
+> controlled automation is acceptable only when every transition is explicit,
+> approval-scoped, current-lineage-bound, same-target, and separately testable.
+> It must not become a hidden route executor.
 
 ## 86. Obsidian is now the strategic brain; repo docs remain code truth
 
@@ -2940,3 +2952,83 @@ It is not a substitute for:
 - `docs/strategy.md`
 
 The coordination rule is important: agents should update their own row in `money-flow/05_Agent_Coordination.md` before substantial work and after handoff, and they should not overwrite another agent's active row without an agreed handoff.
+
+## 87. Strategic position after Phase 7.6
+
+Phase 7 is now accepted complete.
+
+The platform has a full controlled routed automation chain:
+
+- dry-run automation plans
+- durable approval records
+- recommendation acceptance approval hook
+- target-choice conversion approval hook
+- preview/readiness approval hook
+- submitted-order handoff approval hook
+- `consumption_pending` approval truth
+- closeout regression proving same-target, current-lineage, no-SOR behavior
+
+This is powerful, but it is also operationally complex.
+
+The project should not move into smart routing yet. The next bottleneck is operator visibility:
+
+- Can an operator quickly see where one desired trade is in the chain?
+- Can they see what was recommended and accepted?
+- Can they see which approvals exist and why one is active, consumed, revoked, expired, stale-lineage, or `consumption_pending`?
+- Can they see readiness and submit blockers without parsing raw payloads?
+- Can they see adapter-submit uncertainty and submit lease state?
+- Can they tell what manual action is safe, unsafe, or unknowable?
+
+That is the right next problem.
+
+## 88. Phase 8.0 — operator observability and manual-resolution inspection
+
+Phase 8.0 implemented the right next step: read-only operator observability and manual-resolution inspection over the accepted Phase 7 chain.
+
+Phase 8.0 adds a read-only operator workflow summary by desired trade. It shows:
+
+- current routed workflow artifacts
+- approval states and approval-gate truth
+- manual-resolution requirements
+- submitted-order handoff safety facts
+- submit lease and concurrency facts
+- blocking and uncertainty reason codes
+- next safe operator action, where knowable
+
+The important design decision was to keep Phase 8.0 read-only. It does not add manual-resolution marker mutation, administrative cleanup endpoints, or any trading action from inspection.
+
+Phase 8.0 is not:
+
+- smart routing
+- best-binding selection
+- CBBO
+- ranking/scoring
+- fanout
+- target reselection
+- route executor behavior
+- cross-venue recovery
+- new exchange behavior
+- new action stages
+- auto-submit
+- auto-resolution of trading uncertainty
+
+The one important scope lesson remains:
+
+> Manual-resolution markers are mutation and should be treated as risky control-plane work.
+> Phase 8.1 should design them explicitly if needed, with actor stamps, timestamps, reason codes, audit visibility, and a hard separation between operator acknowledgement and exchange/account truth.
+
+Phase 8.0 makes the platform safer before future SOR by making uncertainty and operator responsibility visible without pretending to resolve it.
+
+## 89. Phase 8.0.1 — Obsidian memory baseline cleanup
+
+Phase 8.0 left the working tree dirty because an earlier Obsidian brain refresh had updated the full project memory and many Obsidian notes before Phase 8.0 was implemented.
+
+The cleanup decision is:
+
+- accept the earlier Obsidian refresh as intentional strategic-memory work
+- update stale "Phase 8.0 proposed" wording to reflect that Phase 8.0 is now implemented
+- keep repo-root `money_flow_project_memory.md` as a pointer only
+- keep full strategic memory in `money-flow/Project_Memory/money_flow_project_memory.md`
+- record the cleanup in Obsidian coordination/decision notes and repo operational docs
+
+This cleanup adds no product behavior. It is workflow hygiene so future agents start from a clean Phase 8.0/8.0.1 baseline before Phase 8.1.

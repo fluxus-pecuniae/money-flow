@@ -585,6 +585,30 @@ class RoutedWorkflowInspectionResponse(BaseModel):
     artifacts_created_by_inspection: bool = False
 
 
+class RoutedWorkflowOperatorSummaryResponse(BaseModel):
+    desired_trade_key: str
+    found: bool
+    generated_at: datetime
+    read_only: bool
+    workflow: dict[str, object]
+    artifact_states: dict[str, object]
+    approval_states: list[dict[str, object]] = Field(default_factory=list)
+    approval_gate_states: dict[str, object] = Field(default_factory=dict)
+    manual_resolution_requirements: list[dict[str, object]] = Field(
+        default_factory=list
+    )
+    submission_safety: dict[str, object]
+    concurrency: dict[str, object]
+    blocking_reason_codes: list[str] = Field(default_factory=list)
+    uncertainty_reason_codes: list[str] = Field(default_factory=list)
+    next_safe_operator_action: dict[str, object]
+    boundary_flags: dict[str, bool]
+    artifacts_created_by_inspection: bool = False
+    actions_executed_by_inspection: bool = False
+    approvals_consumed_by_inspection: bool = False
+    manual_resolution_markers_created: bool = False
+
+
 class RoutingAutomationPolicyRequest(BaseModel):
     mode: RoutingAutomationMode = Field(
         default=RoutingAutomationMode.DISABLED,

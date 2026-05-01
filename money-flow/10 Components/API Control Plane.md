@@ -19,7 +19,7 @@ The API is an operator control plane. It exposes inspection surfaces and explici
 - market data, indicators, strategy decisions
 - planning, risk, desired trades
 - routing assessments, route-readiness audits, recommendations, target choices, conversions
-- routing automation policy, plans, approvals, approval-gated recommendation acceptance
+- routing automation policy, plans, approvals, approval-gated recommendation acceptance, target-choice conversion, preview/readiness, and submitted-order handoff
 - child intents, previews, readiness, submitted orders, lifecycle/actionability/recovery/reconciliation
 
 ## Current Important Entrypoints
@@ -32,15 +32,21 @@ The API is an operator control plane. It exposes inspection surfaces and explici
 - `POST /api/v1/routing-automation/approvals/{approval_id}/revoke`
 - `POST /api/v1/routing-automation/approvals/{approval_id}/consume`
 - `POST /api/v1/routing-automation/approvals/{approval_id}/accept-recommendation`
+- `POST /api/v1/routing-automation/approvals/{approval_id}/convert-target-choice`
+- `POST /api/v1/routing-automation/approvals/{approval_id}/preview-readiness`
+- `POST /api/v1/routing-automation/approvals/{approval_id}/submit`
+- `GET /api/v1/routed-workflows/by-desired-trade/{desired_trade_key}`
 
 ## Boundaries
 
 - The API is not a dashboard UI.
 - Generic approval consumption is administrative state transition only.
-- Approval-gated recommendation acceptance is the only current approval-consuming workflow action.
+- Phase 7 approval-consuming workflow actions are limited to recommendation acceptance, target-choice conversion, preview/readiness inspection, and submitted-order handoff.
+- Phase 8.0 adds read-only operator observability/manual-resolution inspection before any dashboard UI or broader automation.
 
 ## Related Notes
 
 - [[20 Workflows/Approval Gated Recommendation Acceptance]]
+- [[20 Workflows/Operator Observability and Manual Resolution]]
 - [[10 Components/Routing Service]]
 - [[10 Components/Execution Service]]

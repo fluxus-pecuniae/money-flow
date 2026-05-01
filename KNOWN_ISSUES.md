@@ -1,6 +1,6 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-05-01T12:02:56Z`
+Last reviewed: `2026-05-01T14:19:39Z`
 
 ## Open Items
 
@@ -29,8 +29,8 @@ Last reviewed: `2026-05-01T12:02:56Z`
 
 - `status`: `open`
 - `area`: `operational docs discipline`
-- `summary`: `Phase 3.2 adds governance checks, and the Phase 6.3 source-control baseline now tracks repo memory on `master`, but future contributors must keep the docs updated for the process to remain useful.`
-- `impact`: `This is operational rather than code risk; drift will accumulate if changelog and repo-memory updates are skipped. Review bundles, handoff archives, local secrets, virtualenvs, caches, local database/runtime state, and logs are intentionally excluded from source control.`
+- `summary`: `Phase 3.2 adds governance checks, Phase 6.3 established a tracked repo-memory baseline on `master`, Phase 7.3 moved long-horizon strategic memory into Obsidian, and Phase 8.0.1 resolved the dirty Obsidian memory baseline left after Phase 8.0. Future contributors must keep both repo operational docs and Obsidian coordination notes updated for the process to remain useful.`
+- `impact`: `This is operational rather than code risk; drift will accumulate if changelog, repo memory, and Obsidian coordination updates are skipped. Review bundles, handoff archives, local secrets, virtualenvs, caches, local database/runtime state, Obsidian app state, and logs are intentionally excluded from source control/review bundles.`
 
 ### K-005
 
@@ -80,3 +80,10 @@ Last reviewed: `2026-05-01T12:02:56Z`
 - `area`: `routed order-shape policy`
 - `summary`: `Converted routed child intents now use explicit LIMIT routed order-shape policy input when supplied, or the conservative current default when omitted. Default conversion remains MARKET order, no limit price, and reduce_only=false for mandate-scoped OPEN conversion. Explicit LIMIT requires a positive finite limit_price and current modeled MARKET/LIMIT order-type support; missing, malformed, non-finite, zero, negative, unsupported order types, MARKET+limit ambiguity, and reduce_only=true for OPEN block before child-intent creation. Malformed/non-finite LIMIT policy blocks report malformed_limit_price and routed_order_shape_policy_blocked without claiming limit_price_explicit. Phase 6.4.1 also blocks recommendation-backed preview/readiness if stored routed order-shape policy is missing, malformed, or no longer matches the current child intent order_type, limit_price, or reduce_only. Slippage guard semantics and market-data-derived limit-price sources remain deferred.`
 - `impact`: `The policy-backed MARKET default remains backward-compatible for the controlled explicit/gated same-target routed handoff, while explicit LIMIT is now audit-visible order-shape policy only. This is not target selection, venue scoring, CBBO, or price discovery. Before broader routed execution, auto-submit, fanout, target reselection, or route-executor work can be considered, the platform still needs slippage expansion, richer limit-price source semantics, and price guard policy.`
+
+### K-012
+
+- `status`: `open`
+- `area`: `manual resolution workflow`
+- `summary`: `Phase 8.0 makes manual-resolution needs visible through read-only operator summary inspection, including `consumption_pending`, stale-lineage/expired approvals, blocked recommendations/readiness, and submit-lease uncertainty states such as `adapter_submit_may_have_started` and `adapter_submit_persistence_unknown`. It intentionally does not add manual-resolution marker mutation or administrative cleanup endpoints.`
+- `impact`: `Operators can now inspect what needs reconciliation and which repeat actions are unsafe, but explicit actor-stamped/manual-resolution state transitions remain a future Phase 8.1 design item. Operator acknowledgement must remain separate from exchange/account truth, and no submit/cancel/amend/retry should be attached to inspection surfaces.`

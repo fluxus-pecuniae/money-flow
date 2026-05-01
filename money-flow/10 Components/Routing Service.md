@@ -8,7 +8,7 @@ Up: [[00 Maps/Component Map]]
 
 ## Current Role
 
-Routing is the deepest and most actively phased layer. It handles non-executing candidate assessment, route-readiness audit, controlled recommendation, target-choice creation, target-choice conversion, automation planning, approval records, and the Phase 7.2 approval-gated recommendation acceptance hook.
+Routing is the deepest and most actively phased layer. It handles non-executing candidate assessment, route-readiness audit, controlled recommendation, target-choice creation, target-choice conversion, automation planning, approval records, four Phase 7 approval-consuming action hooks through submitted-order handoff, and read-only routed workflow inspection.
 
 ## Implemented Stack
 
@@ -26,6 +26,11 @@ Routing is the deepest and most actively phased layer. It handles non-executing 
 - Phase 7.1.1: expiry/stale-lineage/scope uniqueness.
 - Phase 7.1.2: approvable-step truth.
 - Phase 7.2 / 7.2.1: approval-gated recommendation acceptance into target choice only.
+- Phase 7.3 / 7.3.1: approval-gated target-choice conversion into one child intent and negative lineage coverage.
+- Phase 7.4: approval-gated preview/readiness inspection only.
+- Phase 7.5: approval-gated submitted-order handoff only.
+- Phase 7.5.1: `consumption_pending` approval truth after submitted-order handoff.
+- Phase 7.6: closeout safety regression, no production behavior.
 
 ## Core Non-Goals
 
@@ -41,5 +46,7 @@ Routing is the deepest and most actively phased layer. It handles non-executing 
 
 - [[20 Workflows/Current Routed Workflow]]
 - [[20 Workflows/Approval Gated Recommendation Acceptance]]
+- [[20 Workflows/Operator Observability and Manual Resolution]]
 - [[20 Workflows/Deferred Smart Routing]]
 - [[40 Operations/Phase 7 Focus]]
+- [[40 Operations/Phase 8 Focus]]

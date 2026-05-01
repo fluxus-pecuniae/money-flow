@@ -8,9 +8,12 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 
 ## Current Phase
 
-- Current phase: `Phase 7.6`
-- Purpose: close out controlled automation with safety-diligence regression and documentation alignment.
-- Current accepted action hooks before this phase: approval-gated recommendation acceptance, target-choice conversion, prepared-order preview/readiness inspection, and submitted-order handoff.
+- Current implemented phase: `Phase 8.0.1`
+- Phase 7 status: accepted complete.
+- Proposed next phase: `Phase 8.1`
+- Phase 8.0 status: implemented read-only operator observability/manual-resolution inspection.
+- Phase 8.0.1 status: Obsidian memory and working-tree baseline cleanup; no product behavior changed.
+- Current accepted action hooks: approval-gated recommendation acceptance, target-choice conversion, prepared-order preview/readiness inspection, and submitted-order handoff.
 
 ## Current Architectural Boundary
 
@@ -33,7 +36,11 @@ Phase 7.5 is accepted as automating only:
 ExecutionReadinessAssessment -> SubmittedOrder
 ```
 
-Phase 7.6 adds no new automation transition. It closes out the Phase 7 controlled automation chain by proving the existing approval-gated stages remain exact-lineage-bound, same-target, non-fanout, non-reselecting, and distinct from dry-run / approval creation / generic administrative consumption. `consumption_pending` remains a bounded approval-reconciliation state; repeat calls must reuse the existing submitted order rather than submit again. The platform still must not automate target selection, recovery, route execution, target reselection, fanout, scoring, ranking, CBBO, best-binding selection, cross-venue retry, or broad auto-submit.
+Phase 7.6 adds no new automation transition. It closes out the Phase 7 controlled automation chain by proving the existing approval-gated stages remain exact-lineage-bound, same-target, non-fanout, non-reselecting, and distinct from dry-run / approval creation / generic administrative consumption. `consumption_pending` remains a bounded approval-reconciliation state; repeat calls must reuse the existing submitted order rather than submit again.
+
+Phase 8.0 adds no new trading transition. It makes the existing chain easier to inspect, debug, reconcile, and manually manage through read-only operator summary inspection. It surfaces current workflow state, approval state, submit-lease uncertainty, `consumption_pending`, blocked readiness/recommendation facts, and next safe manual operator action without submitting, canceling, amending, retrying, selecting a new target, ranking, scoring, using CBBO, fanout, or route-executor behavior.
+
+Phase 8.0.1 resolves the dirty Obsidian memory baseline left after Phase 8.0. The earlier full-project-memory refresh is accepted as intentional strategic-memory work, stale "proposed Phase 8.0" wording is cleaned up, and the repo-root memory file remains a pointer only.
 
 ## Repo Truth Sources
 
@@ -57,6 +64,8 @@ Obsidian is the long-horizon project brain for founder intent, phase context, de
 - [[03_Decision_Log|Decision Log]]
 - [[05_Agent_Coordination|Agent Coordination]]
 - [[40 Operations/Future Work Roadmap|Future Work Roadmap]]
+- [[40 Operations/Phase 8 Focus|Phase 8 Focus]]
+- [[20 Workflows/Operator Observability and Manual Resolution|Operator Observability and Manual Resolution]]
 - [[20 Workflows/Deferred Smart Routing|Deferred Smart Routing]]
 
 ## Standing Reminders
@@ -68,4 +77,6 @@ Obsidian is the long-horizon project brain for founder intent, phase context, de
 - Preview/readiness approval is separate from submitted-order authorization.
 - Target-choice conversion is not readiness and not submission.
 - `SubmittedOrder` remains post-submit exchange/account truth.
+- Phase 8.0 is observability/manual-resolution inspection, not smart routing.
+- Manual-resolution inspection must not silently resolve venue or approval truth.
 - Future agents must update their own coordination row instead of overwriting another agent's work.

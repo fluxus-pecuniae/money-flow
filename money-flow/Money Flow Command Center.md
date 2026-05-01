@@ -11,17 +11,19 @@ Repo operational truth still lives one level up in the repo docs: `AGENTS.md`, `
 - [[00 Maps/Workflow Map|Workflow Map]] - the current strategy to submitted-order path.
 - [[00 Maps/Component Map|Component Map]] - landing page for every major subsystem.
 - [[40 Operations/Future Work Roadmap|Future Work Roadmap]] - what remains deferred.
+- [[40 Operations/Phase 8 Focus|Phase 8 Focus]] - current operator-control phase context and Phase 8.1 handoff.
 - [[01_Current_Phase|Current Phase]] - current phase purpose and boundaries.
 - [[05_Agent_Coordination|Agent Coordination]] - active agent/subagent work and handoffs.
 - [[90 Reference/Glossary|Glossary]] - project language in one place.
 
 ## Current Truth
 
-- Current branch observed: `phase-7.3`.
-- Current implemented posture after Phase 7.3 changes: Obsidian is the required strategic-memory / coordination layer, and approval-gated target-choice conversion can create or reuse one child `OrderIntent`.
+- Current branch observed: `phase-7.6`.
+- Current implemented posture after Phase 7.6: Phase 7 is accepted complete, with four narrow approval-consuming hooks and closeout safety coverage.
 - Money Flow is a Python/FastAPI strategy platform with Money Flow as the first strategy family.
-- The platform already has mandate-aware planning, risk boundaries, multi-venue execution substrate, non-executing routing assessment/audit/recommendation, explicit recommendation acceptance, target-choice conversion, readiness, explicit gated submitted-order handoff, routed lifecycle inspection, dry-run automation plans, approval gates, and one approval-consuming action hook.
-- Phase 7.3 added only one next narrow action hook: an active current-lineage `target_choice_conversion` approval can create or reuse one child `OrderIntent`.
+- The platform already has mandate-aware planning, risk boundaries, multi-venue execution substrate, non-executing routing assessment/audit/recommendation, explicit recommendation acceptance, target-choice conversion, readiness, explicit gated submitted-order handoff, routed lifecycle inspection, dry-run automation plans, approval gates, approval-gated action hooks through submitted-order handoff, `consumption_pending` approval truth, and Phase 7.6 no-SOR closeout tests.
+- Phase 8.0 is implemented as operator-grade observability and manual-resolution inspection only.
+- Phase 8.0.1 cleaned the Obsidian memory / working-tree baseline without product behavior changes.
 
 ## What It Is Not Yet
 
@@ -59,6 +61,9 @@ RoutingAutomationPolicy
 -> approval gate
 -> approval-gated recommendation acceptance
 -> approval-gated target-choice conversion
+-> approval-gated preview/readiness inspection
+-> approval-gated submitted-order handoff
+-> Phase 7.6 closeout safety proof
 ```
 
 ## Main Landing Pages
@@ -82,6 +87,7 @@ RoutingAutomationPolicy
 - [[20 Workflows/Manual Routed Flow Harness|Manual Routed Flow Harness]]
 - [[20 Workflows/Deferred Smart Routing|Deferred Smart Routing]]
 - [[40 Operations/Operational Memory|Operational Memory]]
+- [[40 Operations/Phase 8 Focus|Phase 8 Focus]]
 - [[Project_Memory/money_flow_project_memory|Project Memory]]
 - [[03_Decision_Log|Decision Log]]
 - [[05_Agent_Coordination|Agent Coordination]]

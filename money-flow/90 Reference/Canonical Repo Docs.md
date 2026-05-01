@@ -14,7 +14,8 @@ This vault is a map. These repo docs are canonical:
 - `../README.md`
 - `../docs/architecture.md`
 - `../docs/strategy.md`
-- `../money_flow_project_memory.md`
+- `../money_flow_project_memory.md` as the repo-root pointer to moved strategic memory
+- `Project_Memory/money_flow_project_memory.md` as the full Obsidian strategic memory
 
 ## How To Use Them
 
@@ -23,7 +24,8 @@ This vault is a map. These repo docs are canonical:
 - `REPO_TREE.md`: current code ownership map.
 - `KNOWN_ISSUES.md`: unresolved risks and deferred boundaries.
 - `TODO.md`: active and future follow-ups.
-- `money_flow_project_memory.md`: read-only strategic chronicle.
+- `money_flow_project_memory.md`: compatibility pointer at repo root.
+- `Project_Memory/money_flow_project_memory.md`: full read-only strategic chronicle unless the user explicitly asks to update memory.
 - `docs/architecture.md`: architecture truth.
 - `docs/strategy.md`: strategy/execution behavior truth.
 

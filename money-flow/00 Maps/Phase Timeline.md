@@ -17,12 +17,18 @@ Up: [[Money Flow Command Center]]
 - Phase 7.1.2: approvable-step truth.
 - Phase 7.2: approval-gated recommendation acceptance action hook.
 - Phase 7.2.1: atomicity hotpatch around approval-gated recommendation acceptance.
+- Phase 7.3: approval-gated target-choice conversion and Obsidian strategic brain.
+- Phase 7.3.1: target-choice conversion negative-test hardening.
+- Phase 7.4: approval-gated preview/readiness inspection only.
+- Phase 7.5: approval-gated submitted-order handoff only.
+- Phase 7.5.1: `consumption_pending` approval truth after submitted-order handoff.
+- Phase 7.6: controlled automation closeout safety proof.
 
 ## Current Next Shape
 
-See [[40 Operations/Phase 7 Focus]].
+See [[40 Operations/Phase 8 Focus]].
 
-The next likely phase is Phase 7.3, but only if it stays narrow. Repo TODO points toward deciding the next approval-consuming action, likely target-choice conversion, while preserving all no-SOR and no-auto-submit boundaries.
+Phase 7 is accepted complete. The next proposed phase is Phase 8.0: operator-grade observability, manual-resolution inspection, submit-lease/concurrency visibility, and dashboard/read-only inspection depth. It should not add smart routing, best-binding selection, fanout, target reselection, route-executor behavior, new action stages, or broad auto-submit.
 
 ## Strategic Memory
 

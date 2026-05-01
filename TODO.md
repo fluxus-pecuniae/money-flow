@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-01T12:02:56Z`
+Last reviewed: `2026-05-01T14:19:39Z`
 
 ## Active Follow-Ups
 
@@ -79,8 +79,20 @@ Last reviewed: `2026-05-01T12:02:56Z`
 ### T-045
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 8.0 implemented the first operator-grade observability/manual-resolution inspection layer without adding trading behavior. The new read-only operator summary by desired trade aggregates existing routed workflow artifacts, approval states, approval gate truth, manual-resolution requirements, submitted-order handoff safety facts, submit-lease/concurrency state, blocking/uncertainty reason codes, no-SOR boundary flags, and next safe operator action. It surfaces `consumption_pending`, stale-lineage/expired approvals, blocked recommendations/readiness, `adapter_submit_may_have_started`, and `adapter_submit_persistence_unknown` without creating artifacts, consuming approvals, resolving manual states, calling exchange adapters, submitting/canceling/amending/retrying, ranking/scoring, using CBBO, fanning out, reselecting targets, or adding route executor behavior.`
+
+### T-046
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `Define the next major phase through architecture review before adding broader automation. Candidate Phase 8 work should focus on operator-grade automation observability, reconciliation/manual-resolution workflows, concurrency/serialization hardening, and dashboard/read-only inspection depth around the already accepted approval-gated same-target chain. Smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor behavior, cross-binding/cross-venue recovery, and broad auto-submit remain deferred until explicitly designed and accepted.`
+- `summary`: `Define Phase 8.1 through architecture review before adding manual-resolution mutation. Candidate work should add explicit, actor-stamped, reason-coded manual-resolution markers or administrative reconciliation workflows for `consumption_pending` and submit-lease uncertainty, while keeping operator acknowledgement separate from exchange/account truth. Smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor behavior, cross-binding/cross-venue recovery, new action stages, and broad auto-submit remain deferred until explicitly designed and accepted.`
+
+### T-047
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 8.0.1 resolved the dirty Obsidian memory / working-tree baseline left after Phase 8.0. The earlier Obsidian refresh for accepted Phase 7.6 and proposed Phase 8.0 was accepted as intentional strategic-memory work, then updated to describe Phase 8.0 as implemented and Phase 8.0.1 as workflow hygiene only. The repo-root `money_flow_project_memory.md` remains a pointer only, the full project memory remains in `money-flow/Project_Memory/money_flow_project_memory.md`, and no product behavior, routing/execution logic, API behavior, schema, migration, smart routing, route executor behavior, auto-submit, or manual-resolution mutation was added.`
 
 ### T-001
 

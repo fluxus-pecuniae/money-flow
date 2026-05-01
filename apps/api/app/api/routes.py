@@ -131,6 +131,7 @@ from core.schemas.api import (
     RoutingTargetChoiceConversionResponse,
     RoutingTargetChoiceResponse,
     RoutedWorkflowInspectionResponse,
+    RoutedWorkflowOperatorSummaryResponse,
     RoutedSubmittedOrderLifecycleContextResponse,
     RoutedSubmittedOrderLineageResponse,
     SubmittedOrderResponse,
@@ -2346,6 +2347,21 @@ async def routed_workflow_by_desired_trade(
         desired_trade_key
     )
     return RoutedWorkflowInspectionResponse(**inspection)
+
+
+@v1.get(
+    "/operator-routed-workflows/by-desired-trade/{desired_trade_key}",
+    response_model=RoutedWorkflowOperatorSummaryResponse,
+    tags=["operator-observability"],
+)
+async def operator_routed_workflow_summary_by_desired_trade(
+    desired_trade_key: str,
+    routing_service: RoutingAssessmentService = Depends(get_routing_assessment_service),
+) -> RoutedWorkflowOperatorSummaryResponse:
+    summary = await routing_service.inspect_routed_workflow_operator_summary_by_desired_trade(
+        desired_trade_key
+    )
+    return RoutedWorkflowOperatorSummaryResponse(**summary)
 
 
 def _routing_automation_policy_from_request(

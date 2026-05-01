@@ -580,6 +580,11 @@ class RoutingAssessmentService(Protocol):
         desired_trade_key: str,
     ) -> dict[str, object]: ...
 
+    async def inspect_routed_workflow_operator_summary_by_desired_trade(
+        self,
+        desired_trade_key: str,
+    ) -> dict[str, object]: ...
+
     async def inspect_routing_automation_policy(
         self,
         policy: RoutingAutomationPolicy | None = None,

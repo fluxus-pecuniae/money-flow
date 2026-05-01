@@ -17,7 +17,7 @@ Primary paths:
 - Strategy objects: signals, indicators, `StrategyDecision`.
 - Planning/risk objects: `MandateDesiredTrade`, convertibility, `RiskEvaluation`.
 - Routing objects: `RoutingAssessment`, `RouteReadinessAudit`, `RoutingTargetRecommendation`, `RoutingTargetChoice`.
-- Automation objects: `RoutingAutomationPolicy`, dry-run plans, approval records, approval gate state, approval-gated recommendation acceptance result.
+- Automation objects: `RoutingAutomationPolicy`, dry-run plans, approval records, approval gate state, approval-gated recommendation acceptance/conversion/preview-readiness/submitted-order handoff results, and `consumption_pending` approval status truth.
 - Execution objects: `OrderIntent`, `PreparedVenueOrder`, `ExecutionReadinessAssessment`, `SubmittedOrder`.
 - Lifecycle objects: actionability, recovery, reconciliation, routed lifecycle context, lifecycle events.
 

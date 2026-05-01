@@ -54,3 +54,5 @@ Money Flow started as a Money Flow-inspired strategy, but the codebase is now a 
 - [[40 Operations/Operational Memory]] explains the repo memory discipline.
 - [[40 Operations/Known Issues Index]] keeps current risk areas visible.
 - [[40 Operations/Future Work Roadmap]] separates implemented behavior from future phases.
+- [[40 Operations/Phase 8 Focus]] frames the implemented operator observability/manual-resolution phase and Phase 8.1 handoff.
+- [[20 Workflows/Operator Observability and Manual Resolution]] captures the Phase 8.0 workflow target.

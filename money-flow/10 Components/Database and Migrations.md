@@ -27,11 +27,15 @@ Persistence stores canonical instruments, symbol mappings, clients, venue accoun
 
 ## Current Phase Notes
 
-- Phase 7.2 and 7.2.1 add no migration.
-- Phase 7.2 consumes existing approval rows and creates/reuses existing target-choice rows.
+- Phase 7.2 through Phase 7.6 add no new migrations after the Phase 7.1 / 7.1.1 approval table and scope columns.
+- Phase 7.2 through Phase 7.5 consume existing approval rows and existing routed workflow tables.
+- Phase 7.5.1 uses string-backed approval status plus approval JSON fields for `consumption_pending`.
+- Phase 7.6 is closeout tests/docs only.
+- Phase 8.0 stayed read-only and added no persistence; if Phase 8.1 adds manual-resolution markers, their persistence semantics need explicit design.
 
 ## Related Notes
 
 - [[20 Workflows/Approval Gated Recommendation Acceptance]]
+- [[20 Workflows/Operator Observability and Manual Resolution]]
 - [[10 Components/Routing Service]]
 - [[10 Components/Execution Service]]

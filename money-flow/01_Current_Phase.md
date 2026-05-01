@@ -2,17 +2,23 @@
 
 ## Phase
 
-`Phase 7.6`
+Current implemented phase: `Phase 8.0.1`
+
+Proposed next phase: `Phase 8.1`
 
 ## Purpose
 
-Phase 7.6 closes out the controlled automation chain with safety-diligence proof:
+Phase 7.6 is accepted complete. It closed out the controlled automation chain with safety-diligence proof:
 
 - Walk the full approval-gated chain from existing recommendation through submitted-order handoff.
 - Prove each action consumes only the exact current-lineage approval for its stage.
 - Prove dry-run, approval creation, generic administrative consumption, action-specific consumption, readiness, and submitted-order handoff remain distinct.
 - Prove `consumption_pending` is bounded and repeat calls reuse existing submitted-order truth without another adapter submit.
 - Preserve readiness, live-submit, routed-submit, adapter/account, submit lease, and uncertainty gates as authoritative.
+
+Phase 8.0 is implemented as the first operator-grade observability and manual-resolution inspection phase. It makes the existing chain easier to inspect, debug, reconcile, and manually manage without adding smart routing, new action stages, broad auto-submit, route-executor behavior, fanout, target reselection, or trading-action mutation from inspection.
+
+Phase 8.0.1 is workflow hygiene only. It resolves the dirty Obsidian project-memory baseline left after Phase 8.0 by accepting the earlier Obsidian refresh as intentional, updating stale proposed-Phase-8 wording, confirming the root memory file remains a pointer, and cleaning the working tree before Phase 8.1.
 
 ## Accepted Baseline
 
@@ -27,6 +33,9 @@ Phase 7.6 closes out the controlled automation chain with safety-diligence proof
 - Phase 7.4 added approval-gated prepared-order preview/readiness inspection only.
 - Phase 7.5 added approval-gated submitted-order handoff only.
 - Phase 7.5.1 recorded `consumption_pending` approval truth when submitted-order persistence succeeds but approval consumption fails afterward.
+- Phase 7.6 closed Phase 7 with end-to-end safety regression and docs alignment only.
+- Phase 8.0 added read-only operator routed workflow summary inspection by desired trade.
+- Phase 8.0.1 resolved the Obsidian memory / working-tree baseline without product behavior changes.
 
 ## Hard Boundaries
 
@@ -42,10 +51,14 @@ Do not build:
 - broad auto-submit
 - cross-binding or cross-venue recovery
 - new exchange behavior
+- submission/cancel/amend/retry from read-only inspection
+- silent manual-resolution of exchange/account truth
 
-## Success
+## Phase 8.0 Outcome
 
-Phase 7.6 is successful when the full Phase 7 chain has an end-to-end safety regression proving exact-stage approval consumption, current-lineage truth, same-target behavior, bounded `consumption_pending`, no hidden SOR behavior, and no new action stage or production behavior.
+Phase 8.0 is successful when operators can inspect the full routed workflow by desired trade, understand approval and automation state without raw payload parsing, see manual-resolution needs and submit-lease uncertainty, see current blocking/uncertainty reasons, and identify the next safe manual action without creating target choices, child intents, readiness evaluations, submitted orders, exchange calls, recovery actions, or route-executor behavior.
+
+Phase 8.0.1 is successful when the full Obsidian project memory is resolved, root memory remains pointer-only, Obsidian notes match implemented Phase 8.0 truth, review packaging remains clean, and the working tree is clean.
 
 ## Current Outcome
 
@@ -58,8 +71,10 @@ Phase 7.6 is successful when the full Phase 7 chain has an end-to-end safety reg
 - The approval-gated `submitted_order_handoff` hook submits exactly one already-ready child intent through the existing explicit submit path.
 - Phase 7.5.1 records `consumption_pending` approval state if submitted-order persistence succeeds but approval consumption fails afterward.
 - Phase 7.6 adds closeout regression coverage proving the accepted hooks remain stage-specific and no-SOR.
+- Phase 8.0 adds `GET /api/v1/operator-routed-workflows/by-desired-trade/{desired_trade_key}` as a read-only operator summary over existing routed workflow artifacts, approval states, gate truth, manual-resolution requirements, submitted-order handoff safety, and submit-lease/concurrency state.
+- Phase 8.0.1 accepts the prior Obsidian refresh as intentional memory baseline and updates it to current Phase 8.0/8.0.1 truth.
 - Recovery, route execution, fanout, scoring, CBBO, target reselection, cross-venue retry, and broad auto-submit remain deferred.
 
-## Next Likely Phase
+## Next Phase Shape
 
-The next major phase should be architecture-reviewed before implementation. Candidate Phase 8 work should focus on operator-grade automation observability, reconciliation/manual-resolution workflow, concurrency/serialization hardening, and dashboard/read-only inspection depth before any broader automation is considered.
+Phase 8.1 should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review. It should keep operator acknowledgement separate from exchange/account truth and must not attach submit/cancel/amend/retry behavior to inspection.

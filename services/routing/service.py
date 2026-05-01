@@ -1599,6 +1599,102 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 "artifacts_created_by_inspection": False,
             }
 
+    async def inspect_routed_workflow_operator_summary_by_desired_trade(
+        self,
+        desired_trade_key: str,
+    ) -> dict[str, object]:
+        """Read-only Phase 8.0 operator summary over routed automation state."""
+
+        generated_at = _utcnow()
+        workflow = await self.inspect_routed_workflow_by_desired_trade(desired_trade_key)
+        steps = self._routing_automation_steps_from_workflow(
+            workflow,
+            policy=self.routing_automation_policy(
+                mode=RoutingAutomationMode.APPROVAL_REQUIRED
+            ),
+        )
+        approval_states, approval_gate_states = self._operator_approval_states(
+            desired_trade_key,
+            steps,
+        )
+        submit_leases = self._operator_submit_lease_states(workflow)
+        manual_resolution = self._operator_manual_resolution_requirements(
+            workflow=workflow,
+            approval_states=approval_states,
+            submit_leases=submit_leases,
+        )
+        submission_safety = self._operator_submission_safety_inspection(
+            workflow=workflow,
+            approval_states=approval_states,
+            submit_leases=submit_leases,
+            manual_resolution=manual_resolution,
+        )
+        boundary_flags = {
+            **self._routing_automation_boundary_flags(),
+            "read_only_operator_inspection": True,
+            "manual_resolution_markers_created": False,
+            "trading_action_executed_by_inspection": False,
+        }
+        return {
+            "desired_trade_key": desired_trade_key,
+            "found": bool(workflow.get("found")),
+            "generated_at": generated_at.isoformat(),
+            "read_only": True,
+            "workflow": workflow,
+            "artifact_states": self._operator_artifact_states(workflow),
+            "approval_states": approval_states,
+            "approval_gate_states": approval_gate_states,
+            "manual_resolution_requirements": manual_resolution,
+            "submission_safety": submission_safety,
+            "concurrency": {
+                "submit_leases": submit_leases,
+                "submit_lease_count": len(submit_leases),
+                "terminal_uncertain_lease_count": sum(
+                    1
+                    for lease in submit_leases
+                    if lease.get("terminal_uncertainty") is True
+                ),
+                "active_or_in_flight_lease_count": sum(
+                    1
+                    for lease in submit_leases
+                    if lease.get("status")
+                    in {
+                        "active",
+                        "adapter_submit_may_have_started",
+                        "adapter_submit_persistence_unknown",
+                    }
+                ),
+                "blocked_concurrent_submit_reason_codes": sorted(
+                    {
+                        code
+                        for lease in submit_leases
+                        for code in lease.get("blocking_reason_codes", [])
+                        if isinstance(code, str)
+                    }
+                ),
+            },
+            "blocking_reason_codes": list(workflow.get("blocking_reason_codes") or []),
+            "uncertainty_reason_codes": sorted(
+                {
+                    code
+                    for item in manual_resolution
+                    for code in item.get("reason_codes", [])
+                    if isinstance(code, str)
+                }
+            ),
+            "next_safe_operator_action": self._operator_next_safe_action(
+                workflow=workflow,
+                steps=steps,
+                approval_gate_states=approval_gate_states,
+                manual_resolution=manual_resolution,
+            ),
+            "boundary_flags": boundary_flags,
+            "artifacts_created_by_inspection": False,
+            "actions_executed_by_inspection": False,
+            "approvals_consumed_by_inspection": False,
+            "manual_resolution_markers_created": False,
+        }
+
     @staticmethod
     def _routing_automation_action(action_name: str) -> RoutingAutomationApprovalAction:
         try:
@@ -3830,6 +3926,707 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             if isinstance(values, list):
                 reason_codes.extend(str(item) for item in values)
         return reason_codes
+
+    def _operator_artifact_states(
+        self,
+        workflow: dict[str, object],
+    ) -> dict[str, object]:
+        def latest(
+            collection_name: str,
+            id_key: str,
+            status_key: str = "status",
+        ) -> dict[str, object]:
+            values = workflow.get(collection_name)
+            items = values if isinstance(values, list) else []
+            record = items[-1] if items and isinstance(items[-1], dict) else None
+            return {
+                "present": record is not None,
+                "count": len(items),
+                "latest_artifact_id": record.get(id_key) if record is not None else None,
+                "latest_status": record.get(status_key) if record is not None else None,
+                "reason_codes": list(record.get("reason_codes") or [])
+                if record is not None
+                else [],
+            }
+
+        desired_trade = workflow.get("desired_trade")
+        desired_trade_record = desired_trade if isinstance(desired_trade, dict) else None
+        return {
+            "desired_trade": {
+                "present": desired_trade_record is not None,
+                "count": 1 if desired_trade_record is not None else 0,
+                "latest_artifact_id": (
+                    desired_trade_record.get("desired_trade_key")
+                    if desired_trade_record is not None
+                    else None
+                ),
+                "latest_status": (
+                    desired_trade_record.get("status")
+                    if desired_trade_record is not None
+                    else None
+                ),
+                "reason_codes": [
+                    desired_trade_record.get("status_reason_code")
+                ]
+                if desired_trade_record is not None
+                and desired_trade_record.get("status_reason_code")
+                else [],
+            },
+            "routing_assessment": latest("routing_assessments", "assessment_id", "decision_status"),
+            "route_readiness_audit": latest(
+                "route_readiness_audits",
+                "route_readiness_audit_id",
+                "overall_status",
+            ),
+            "target_recommendation": latest(
+                "routing_target_recommendations",
+                "routing_target_recommendation_id",
+                "status",
+            ),
+            "target_choice": latest("routing_target_choices", "target_choice_id", "status"),
+            "child_intent": latest("child_intents", "intent_id", "status"),
+            "readiness": latest(
+                "readiness_evaluations",
+                "readiness_evaluation_id",
+                "outcome",
+            ),
+            "submitted_order": latest(
+                "submitted_orders",
+                "submitted_order_id",
+                "status",
+            ),
+        }
+
+    def _operator_approval_states(
+        self,
+        desired_trade_key: str,
+        steps: list[RoutingAutomationPlanStep],
+    ) -> tuple[list[dict[str, object]], dict[str, object]]:
+        steps_by_action = {
+            step.name: step
+            for step in steps
+            if step.name in {action.value for action in RoutingAutomationApprovalAction}
+        }
+        now = _utcnow()
+        with self._session_factory() as session:
+            models = list(
+                session.scalars(
+                    select(RoutingAutomationApprovalModel)
+                    .where(
+                        RoutingAutomationApprovalModel.environment
+                        == self.settings.app.environment,
+                        RoutingAutomationApprovalModel.desired_trade_key
+                        == desired_trade_key,
+                    )
+                    .order_by(RoutingAutomationApprovalModel.created_at.asc())
+                )
+            )
+        states: list[dict[str, object]] = []
+        for model in models:
+            action = RoutingAutomationApprovalAction(model.action_name)
+            step = steps_by_action.get(action.value)
+            reason_codes = list(model.reason_codes_json or [])
+            effective_status = model.status
+            is_expired = (
+                model.status == RoutingAutomationApprovalStatus.ACTIVE.value
+                and model.expires_at is not None
+                and self._approval_datetime_utc(model.expires_at) <= now
+            )
+            if is_expired:
+                effective_status = RoutingAutomationApprovalStatus.EXPIRED.value
+                if "routing_automation_approval_expired" not in reason_codes:
+                    reason_codes.append("routing_automation_approval_expired")
+            current_scope_key = None
+            if step is not None:
+                current_scope_key = self._routing_automation_approval_scope(
+                    action=action,
+                    desired_trade_key=desired_trade_key,
+                    lineage=dict(step.lineage),
+                )["approval_scope_key"]
+                if (
+                    effective_status == RoutingAutomationApprovalStatus.ACTIVE.value
+                    and not self._approval_matches_current_scope(
+                        approval_scope_key=model.approval_scope_key,
+                        lineage=dict(model.lineage_json or {}),
+                        action=action,
+                        desired_trade_key=desired_trade_key,
+                        current_scope_key=current_scope_key,
+                    )
+                ):
+                    effective_status = RoutingAutomationApprovalStatus.STALE_LINEAGE.value
+                    if "routing_automation_approval_lineage_stale" not in reason_codes:
+                        reason_codes.append("routing_automation_approval_lineage_stale")
+            provenance = dict(model.provenance_json or {})
+            states.append(
+                {
+                    "approval_id": model.approval_id,
+                    "action_name": model.action_name,
+                    "stored_status": model.status,
+                    "effective_status": effective_status,
+                    "approval_scope_key": model.approval_scope_key,
+                    "current_scope_key": current_scope_key,
+                    "lineage_current": effective_status
+                    != RoutingAutomationApprovalStatus.STALE_LINEAGE.value,
+                    "active": effective_status
+                    == RoutingAutomationApprovalStatus.ACTIVE.value,
+                    "consumed": effective_status
+                    == RoutingAutomationApprovalStatus.CONSUMED.value,
+                    "revoked": effective_status
+                    == RoutingAutomationApprovalStatus.REVOKED.value,
+                    "expired": effective_status
+                    == RoutingAutomationApprovalStatus.EXPIRED.value,
+                    "stale_lineage": effective_status
+                    == RoutingAutomationApprovalStatus.STALE_LINEAGE.value,
+                    "consumption_pending": effective_status
+                    == RoutingAutomationApprovalStatus.CONSUMPTION_PENDING.value,
+                    "manual_follow_up_required": effective_status
+                    in {
+                        RoutingAutomationApprovalStatus.CONSUMPTION_PENDING.value,
+                        RoutingAutomationApprovalStatus.STALE_LINEAGE.value,
+                    },
+                    "approved_by": model.approved_by,
+                    "approved_at": self._workflow_value(model.approved_at),
+                    "expires_at": self._workflow_value(model.expires_at),
+                    "revoked_by": model.revoked_by,
+                    "revoked_at": self._workflow_value(model.revoked_at),
+                    "consumed_by": model.consumed_by,
+                    "consumed_at": self._workflow_value(model.consumed_at),
+                    "reason_codes": reason_codes,
+                    "artifact_refs": {
+                        "route_readiness_audit_id": model.route_readiness_audit_id,
+                        "routing_assessment_id": model.routing_assessment_id,
+                        "routing_target_recommendation_id": (
+                            model.routing_target_recommendation_id
+                        ),
+                        "routing_target_choice_id": model.routing_target_choice_id,
+                        "intent_id": model.intent_id,
+                        "readiness_evaluation_id": model.readiness_evaluation_id,
+                        "submitted_order_id": model.submitted_order_id,
+                        "selected_binding_ref_id": model.selected_binding_ref_id,
+                        "selected_venue_account_ref_id": (
+                            model.selected_venue_account_ref_id
+                        ),
+                        "selected_venue": model.selected_venue,
+                        "selected_exchange_symbol": model.selected_exchange_symbol,
+                    },
+                    "action_happened": bool(
+                        provenance.get("action_executed")
+                        or provenance.get("approval_gated_recommendation_acceptance")
+                        or provenance.get("approval_gated_target_choice_conversion")
+                        or provenance.get(
+                            "approval_gated_prepared_order_preview_and_readiness"
+                        )
+                        or provenance.get("approval_gated_submitted_order_handoff")
+                    ),
+                    "lineage": self._jsonable_dict(dict(model.lineage_json or {})),
+                    "provenance": self._jsonable_dict(provenance),
+                    "policy_snapshot": self._jsonable_dict(
+                        dict(model.policy_snapshot_json or {})
+                    ),
+                }
+            )
+
+        gate_states: dict[str, object] = {}
+        for action in RoutingAutomationApprovalAction:
+            step = steps_by_action.get(action.value)
+            matching = [state for state in states if state["action_name"] == action.value]
+            active = next(
+                (
+                    state
+                    for state in reversed(matching)
+                    if state["effective_status"]
+                    == RoutingAutomationApprovalStatus.ACTIVE.value
+                ),
+                None,
+            )
+            latest_state = matching[-1] if matching else None
+            selected = active or latest_state
+            status = "approved" if active is not None else "unapproved"
+            if active is None and latest_state is not None:
+                status = str(latest_state["effective_status"])
+            if step is not None and step.blocked:
+                status = RoutingAutomationStepStatus.BLOCKED.value
+            elif step is not None and step.status == RoutingAutomationStepStatus.ALREADY_SATISFIED:
+                status = RoutingAutomationStepStatus.ALREADY_SATISFIED.value
+            elif step is not None and step.status in {
+                RoutingAutomationStepStatus.DISABLED,
+                RoutingAutomationStepStatus.DEFERRED,
+                RoutingAutomationStepStatus.MANUAL_ONLY,
+                RoutingAutomationStepStatus.DRY_RUN_ONLY,
+            }:
+                status = step.status.value
+            gate_states[action.value] = {
+                "action_name": action.value,
+                "status": status,
+                "approval_id": selected.get("approval_id") if selected else None,
+                "artifact_id": step.artifact_id if step is not None else None,
+                "reason_codes": (
+                    list(selected.get("reason_codes") or [])
+                    if selected is not None
+                    else ["routing_automation_approval_missing"]
+                )
+                + (
+                    list(step.reason_codes)
+                    if step is not None
+                    and (
+                        step.blocked
+                        or step.status
+                        in {
+                            RoutingAutomationStepStatus.DISABLED,
+                            RoutingAutomationStepStatus.DEFERRED,
+                            RoutingAutomationStepStatus.MANUAL_ONLY,
+                            RoutingAutomationStepStatus.DRY_RUN_ONLY,
+                        }
+                    )
+                    else []
+                ),
+                "lineage": (
+                    dict(selected.get("lineage") or {})
+                    if selected is not None
+                    else dict(step.lineage if step is not None else {})
+                ),
+            }
+        return states, gate_states
+
+    def _operator_submit_lease_states(
+        self,
+        workflow: dict[str, object],
+    ) -> list[dict[str, object]]:
+        child_intents = [
+            item for item in workflow.get("child_intents", []) if isinstance(item, dict)
+        ]
+        intent_ids = [
+            str(item["intent_id"])
+            for item in child_intents
+            if item.get("intent_id") is not None
+        ]
+        if not intent_ids:
+            return []
+        with self._session_factory() as session:
+            leases = list(
+                session.scalars(
+                    select(OrderIntentSubmissionLeaseModel)
+                    .where(
+                        OrderIntentSubmissionLeaseModel.environment
+                        == self.settings.app.environment,
+                        OrderIntentSubmissionLeaseModel.intent_id.in_(intent_ids),
+                    )
+                    .order_by(OrderIntentSubmissionLeaseModel.acquired_at.asc())
+                )
+            )
+        now = _utcnow()
+        terminal_statuses = {
+            "adapter_submit_may_have_started",
+            "adapter_submit_persistence_unknown",
+        }
+        states: list[dict[str, object]] = []
+        for lease in leases:
+            terminal_uncertainty = lease.status in terminal_statuses
+            expired = (
+                lease.expires_at is not None
+                and self._approval_datetime_utc(lease.expires_at) <= now
+            )
+            blocking_reason_codes: list[str] = []
+            if terminal_uncertainty:
+                blocking_reason_codes = [
+                    "submission_state_uncertain",
+                    lease.status,
+                    "manual_reconciliation_required",
+                ]
+            elif lease.status == "active":
+                blocking_reason_codes = ["submission_in_progress"]
+                if expired:
+                    blocking_reason_codes.append(
+                        "stale_pre_adapter_active_lease_replaceable"
+                    )
+            states.append(
+                {
+                    "lease_id": lease.lease_id,
+                    "intent_id": lease.intent_id,
+                    "purpose": lease.purpose,
+                    "status": lease.status,
+                    "reason_code": lease.reason_code,
+                    "acquired_at": self._workflow_value(lease.acquired_at),
+                    "expires_at": self._workflow_value(lease.expires_at),
+                    "released_at": self._workflow_value(lease.released_at),
+                    "expired": expired,
+                    "terminal_uncertainty": terminal_uncertainty,
+                    "retry_blocked": terminal_uncertainty,
+                    "requires_manual_reconciliation": terminal_uncertainty,
+                    "stale_pre_adapter_active_lease_replaceable": (
+                        lease.status == "active" and expired
+                    ),
+                    "blocking_reason_codes": blocking_reason_codes,
+                    "metadata": self._jsonable_dict(dict(lease.metadata_json or {})),
+                }
+            )
+        return states
+
+    def _operator_manual_resolution_requirements(
+        self,
+        *,
+        workflow: dict[str, object],
+        approval_states: list[dict[str, object]],
+        submit_leases: list[dict[str, object]],
+    ) -> list[dict[str, object]]:
+        items: list[dict[str, object]] = []
+
+        def add_item(
+            *,
+            code: str,
+            severity: str,
+            artifact_type: str,
+            artifact_id: str | None,
+            summary: str,
+            reason_codes: list[str],
+            known_facts: dict[str, object],
+            unknown_facts: list[str],
+            operator_checks: list[str],
+            unsafe_actions: list[str],
+            safe_after_resolution: list[str],
+        ) -> None:
+            items.append(
+                {
+                    "code": code,
+                    "severity": severity,
+                    "artifact_type": artifact_type,
+                    "artifact_id": artifact_id,
+                    "summary": summary,
+                    "reason_codes": reason_codes,
+                    "known_facts": self._jsonable_dict(known_facts),
+                    "unknown_facts": unknown_facts,
+                    "operator_checks": operator_checks,
+                    "unsafe_actions": unsafe_actions,
+                    "safe_after_resolution": safe_after_resolution,
+                }
+            )
+
+        if not workflow.get("found"):
+            add_item(
+                code="desired_trade_not_found",
+                severity="blocked",
+                artifact_type="desired_trade",
+                artifact_id=str(workflow.get("desired_trade_key")),
+                summary="Desired trade was not found; no routed workflow can be inspected.",
+                reason_codes=["desired_trade_not_found"],
+                known_facts={"desired_trade_key": workflow.get("desired_trade_key")},
+                unknown_facts=["current routed workflow state"],
+                operator_checks=["confirm desired_trade_key"],
+                unsafe_actions=["automation action execution", "submitted_order_handoff"],
+                safe_after_resolution=["re-run inspection with a known desired trade"],
+            )
+
+        for approval in approval_states:
+            effective_status = approval.get("effective_status")
+            if effective_status == RoutingAutomationApprovalStatus.CONSUMPTION_PENDING.value:
+                add_item(
+                    code="approval_consumption_pending",
+                    severity="manual_reconciliation_required",
+                    artifact_type="routing_automation_approval",
+                    artifact_id=str(approval.get("approval_id")),
+                    summary=(
+                        "Approval authorized a submitted-order handoff, but approval "
+                        "consumption did not complete cleanly."
+                    ),
+                    reason_codes=list(approval.get("reason_codes") or []),
+                    known_facts={
+                        "action_name": approval.get("action_name"),
+                        "artifact_refs": approval.get("artifact_refs"),
+                        "provenance": approval.get("provenance"),
+                    },
+                    unknown_facts=["whether approval reconciliation has been completed"],
+                    operator_checks=[
+                        "confirm submitted order lineage",
+                        "reconcile approval status before any further submit attempt",
+                    ],
+                    unsafe_actions=[
+                        "repeat exchange submission",
+                        "treat approval as clean active",
+                    ],
+                    safe_after_resolution=[
+                        "administratively reconcile approval consumption truth",
+                        "continue read-only lifecycle inspection",
+                    ],
+                )
+            elif effective_status == RoutingAutomationApprovalStatus.STALE_LINEAGE.value:
+                add_item(
+                    code="stale_lineage_approval",
+                    severity="manual_review_required",
+                    artifact_type="routing_automation_approval",
+                    artifact_id=str(approval.get("approval_id")),
+                    summary="Approval lineage no longer matches the current workflow scope.",
+                    reason_codes=list(approval.get("reason_codes") or []),
+                    known_facts={
+                        "action_name": approval.get("action_name"),
+                        "approval_scope_key": approval.get("approval_scope_key"),
+                        "current_scope_key": approval.get("current_scope_key"),
+                    },
+                    unknown_facts=["operator intent for the new workflow lineage"],
+                    operator_checks=[
+                        "compare old and current routed lineage",
+                        "create a fresh approval if the current lineage is intended",
+                    ],
+                    unsafe_actions=["reuse approval for current action"],
+                    safe_after_resolution=["create lineage-current approval"],
+                )
+            elif effective_status == RoutingAutomationApprovalStatus.EXPIRED.value:
+                add_item(
+                    code="expired_approval",
+                    severity="operator_review",
+                    artifact_type="routing_automation_approval",
+                    artifact_id=str(approval.get("approval_id")),
+                    summary="Approval is expired and cannot authorize an action.",
+                    reason_codes=list(approval.get("reason_codes") or []),
+                    known_facts={"action_name": approval.get("action_name")},
+                    unknown_facts=[],
+                    operator_checks=["create a fresh approval if action is still desired"],
+                    unsafe_actions=["reuse expired approval"],
+                    safe_after_resolution=["create fresh approval"],
+                )
+
+        for lease in submit_leases:
+            if lease.get("terminal_uncertainty") is True:
+                add_item(
+                    code=str(lease.get("status")),
+                    severity="manual_reconciliation_required",
+                    artifact_type="order_intent_submission_lease",
+                    artifact_id=str(lease.get("lease_id")),
+                    summary=(
+                        "Adapter submission outcome is uncertain; venue may already "
+                        "have received this order."
+                    ),
+                    reason_codes=list(lease.get("blocking_reason_codes") or []),
+                    known_facts={
+                        "intent_id": lease.get("intent_id"),
+                        "lease_status": lease.get("status"),
+                        "reason_code": lease.get("reason_code"),
+                        "metadata": lease.get("metadata"),
+                    },
+                    unknown_facts=["venue-side acceptance/fill truth"],
+                    operator_checks=[
+                        "check venue order state by client/exchange order id",
+                        "reconcile before any retry",
+                    ],
+                    unsafe_actions=[
+                        "retry submit",
+                        "treat stale TTL as retry permission",
+                    ],
+                    safe_after_resolution=[
+                        "manual reconciliation or explicit operator cleanup",
+                    ],
+                )
+
+        recommendations = [
+            record
+            for record in workflow.get("routing_target_recommendations", [])
+            if isinstance(record, dict)
+        ]
+        latest_recommendation = recommendations[-1] if recommendations else None
+        if latest_recommendation is not None and latest_recommendation.get("status") != (
+            RoutingTargetRecommendationStatus.RECOMMENDED_SINGLE_READY_CANDIDATE.value
+        ):
+            add_item(
+                code="routing_target_recommendation_blocked",
+                severity="blocked",
+                artifact_type="routing_target_recommendation",
+                artifact_id=str(
+                    latest_recommendation.get("routing_target_recommendation_id")
+                ),
+                summary="Current target recommendation is blocked or not recommended.",
+                reason_codes=list(latest_recommendation.get("blocking_reasons") or [])
+                + list(latest_recommendation.get("reason_codes") or []),
+                known_facts=latest_recommendation,
+                unknown_facts=["operator-selected remediation"],
+                operator_checks=["inspect route-readiness audit blockers"],
+                unsafe_actions=["target reselection", "fanout", "submit"],
+                safe_after_resolution=[
+                    "repair input data and create a new explicit recommendation"
+                ],
+            )
+
+        readiness_records = [
+            record
+            for record in workflow.get("readiness_evaluations", [])
+            if isinstance(record, dict)
+        ]
+        latest_readiness = readiness_records[-1] if readiness_records else None
+        if latest_readiness is not None and latest_readiness.get("outcome") != (
+            ExecutionReadinessOutcome.ELIGIBLE_FOR_SUBMISSION.value
+        ):
+            add_item(
+                code="execution_readiness_blocked",
+                severity="blocked",
+                artifact_type="execution_readiness_assessment",
+                artifact_id=str(latest_readiness.get("readiness_evaluation_id")),
+                summary="Execution readiness is not eligible; approval cannot force submit.",
+                reason_codes=list(latest_readiness.get("reason_codes") or []),
+                known_facts=latest_readiness,
+                unknown_facts=["future readiness after operator remediation"],
+                operator_checks=["inspect readiness reason codes"],
+                unsafe_actions=["submit", "auto-submit", "cross-venue retry"],
+                safe_after_resolution=["run a fresh readiness assessment when inputs are fixed"],
+            )
+        return items
+
+    def _operator_submission_safety_inspection(
+        self,
+        *,
+        workflow: dict[str, object],
+        approval_states: list[dict[str, object]],
+        submit_leases: list[dict[str, object]],
+        manual_resolution: list[dict[str, object]],
+    ) -> dict[str, object]:
+        submitted_orders = [
+            record
+            for record in workflow.get("submitted_orders", [])
+            if isinstance(record, dict)
+        ]
+        latest_submitted_order = submitted_orders[-1] if submitted_orders else None
+        submit_approvals = [
+            approval
+            for approval in approval_states
+            if approval.get("action_name")
+            == RoutingAutomationApprovalAction.SUBMITTED_ORDER_HANDOFF.value
+        ]
+        terminal_uncertainty = any(
+            lease.get("terminal_uncertainty") is True for lease in submit_leases
+        )
+        approval_consumption_pending = any(
+            approval.get("effective_status")
+            == RoutingAutomationApprovalStatus.CONSUMPTION_PENDING.value
+            for approval in submit_approvals
+        )
+        approval_consumed = any(
+            approval.get("effective_status") == RoutingAutomationApprovalStatus.CONSUMED.value
+            for approval in submit_approvals
+        )
+        adapter_submit_called = bool(submitted_orders) or any(
+            dict(lease.get("metadata") or {}).get("adapter_submit_called") is True
+            or dict(lease.get("metadata") or {}).get("adapter_submit_may_have_started")
+            is True
+            for lease in submit_leases
+        )
+        reason_codes = sorted(
+            {
+                code
+                for source in (
+                    [
+                        code
+                        for approval in submit_approvals
+                        for code in approval.get("reason_codes", [])
+                    ],
+                    [
+                        code
+                        for lease in submit_leases
+                        for code in lease.get("blocking_reason_codes", [])
+                    ],
+                    [
+                        code
+                        for item in manual_resolution
+                        for code in item.get("reason_codes", [])
+                    ],
+                )
+                for code in source
+                if isinstance(code, str)
+            }
+        )
+        if terminal_uncertainty or approval_consumption_pending:
+            repeat_policy = "blocked_until_manual_reconciliation"
+        elif latest_submitted_order is not None:
+            repeat_policy = "reuse_existing_submitted_order_truth"
+        else:
+            repeat_policy = "requires_current_readiness_and_submit_gates"
+        return {
+            "adapter_submit_called": adapter_submit_called,
+            "submitted_order_persisted": latest_submitted_order is not None,
+            "submitted_order_id": (
+                latest_submitted_order.get("submitted_order_id")
+                if latest_submitted_order is not None
+                else None
+            ),
+            "approval_consumed": approval_consumed,
+            "approval_consumption_pending": approval_consumption_pending,
+            "submit_uncertainty": terminal_uncertainty,
+            "manual_reconciliation_required": terminal_uncertainty
+            or approval_consumption_pending,
+            "repeat_submit_policy": repeat_policy,
+            "repeat_submit_blocked": terminal_uncertainty,
+            "existing_submitted_order_reused_on_repeat": (
+                latest_submitted_order is not None and not terminal_uncertainty
+            ),
+            "route_lineage_collision_detected": False,
+            "reason_codes": reason_codes,
+        }
+
+    @staticmethod
+    def _operator_next_safe_action(
+        *,
+        workflow: dict[str, object],
+        steps: list[RoutingAutomationPlanStep],
+        approval_gate_states: dict[str, object],
+        manual_resolution: list[dict[str, object]],
+    ) -> dict[str, object]:
+        if any(
+            item.get("severity") == "manual_reconciliation_required"
+            for item in manual_resolution
+        ):
+            return {
+                "action": "manual_reconciliation_required",
+                "safe_to_automate": False,
+                "reason_codes": [
+                    "manual_reconciliation_required",
+                    "operator_must_inspect_uncertainty_before_action",
+                ],
+            }
+        if not workflow.get("found"):
+            return {
+                "action": "inspect_known_desired_trade",
+                "safe_to_automate": False,
+                "reason_codes": ["desired_trade_not_found"],
+            }
+        submitted_orders = workflow.get("submitted_orders")
+        if isinstance(submitted_orders, list) and submitted_orders:
+            return {
+                "action": "inspect_submitted_order_lifecycle",
+                "safe_to_automate": False,
+                "reason_codes": ["submitted_order_exists"],
+            }
+        action_names = {action.value for action in RoutingAutomationApprovalAction}
+        for step in steps:
+            if step.name not in action_names:
+                continue
+            if step.status == RoutingAutomationStepStatus.ALREADY_SATISFIED:
+                continue
+            gate = approval_gate_states.get(step.name)
+            gate_status = gate.get("status") if isinstance(gate, dict) else None
+            if gate_status == "approved":
+                return {
+                    "action": f"run_approval_gated_{step.name}",
+                    "safe_to_automate": True,
+                    "approval_id": gate.get("approval_id")
+                    if isinstance(gate, dict)
+                    else None,
+                    "reason_codes": ["valid_current_approval_exists"],
+                }
+            if step.status in {
+                RoutingAutomationStepStatus.APPROVAL_REQUIRED,
+                RoutingAutomationStepStatus.AUTOMATION_ELIGIBLE,
+            }:
+                return {
+                    "action": f"create_operator_approval_for_{step.name}",
+                    "safe_to_automate": False,
+                    "reason_codes": list(step.reason_codes),
+                }
+            return {
+                "action": f"resolve_{step.name}_blockers",
+                "safe_to_automate": False,
+                "reason_codes": list(step.reason_codes),
+            }
+        return {
+            "action": "manual_review",
+            "safe_to_automate": False,
+            "reason_codes": ["no_next_automation_action_available"],
+        }
 
     @staticmethod
     def _routed_workflow_counts(
