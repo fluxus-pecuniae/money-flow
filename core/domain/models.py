@@ -1671,6 +1671,39 @@ class StrategyValidationTrade:
     entry_fill_source: str = "signal_candle_close"
     exit_fill_source: str = "signal_candle_close"
     forced_exit: bool = False
+    entry_market_regime: str = "unknown_or_insufficient_data"
+    entry_volatility_regime: str = "unknown_or_insufficient_data"
+    exit_market_regime: str = "unknown_or_insufficient_data"
+    exit_volatility_regime: str = "unknown_or_insufficient_data"
+
+
+@dataclass(slots=True)
+class StrategyValidationDataCoverage:
+    requested_start_at: datetime
+    requested_end_at: datetime
+    first_candle_available_at: datetime | None
+    last_candle_available_at: datetime | None
+    expected_candle_count: int | None
+    actual_candle_count: int
+    missing_candle_count: int | None
+    coverage_percent: Decimal | None
+    gap_count: int | None
+    largest_gap_seconds: int | None
+    warning_reason_codes: list[str] = field(default_factory=list)
+
+
+@dataclass(slots=True)
+class StrategyValidationRegimeSummary:
+    regime_type: str
+    regime_label: str
+    candle_count: int
+    evaluated_candle_count: int
+    trade_count: int
+    net_pnl: Decimal
+    win_rate: Decimal | None
+    mark_to_market_max_drawdown: Decimal | None
+    no_trade_reason_counts: dict[str, int] = field(default_factory=dict)
+    invalid_reason_counts: dict[str, int] = field(default_factory=dict)
 
 
 @dataclass(slots=True)
@@ -1713,6 +1746,9 @@ class StrategyValidationComponentReport:
     evaluated_candles: int
     trades: list[StrategyValidationTrade]
     metrics: StrategyValidationMetrics
+    data_coverage: StrategyValidationDataCoverage | None = None
+    regime_methodology: dict[str, Any] = field(default_factory=dict)
+    regime_summaries: list[StrategyValidationRegimeSummary] = field(default_factory=list)
     no_trade_reason_counts: dict[str, int] = field(default_factory=dict)
     invalid_reason_counts: dict[str, int] = field(default_factory=dict)
     limitations: list[str] = field(default_factory=list)
@@ -1733,6 +1769,8 @@ class StrategyValidationReport:
     component_reports: list[StrategyValidationComponentReport]
     aggregate_metrics: StrategyValidationMetrics
     component_comparison: dict[str, Any] = field(default_factory=dict)
+    data_coverage_summary: dict[str, Any] = field(default_factory=dict)
+    regime_comparison: dict[str, Any] = field(default_factory=dict)
     limitations: list[str] = field(default_factory=list)
     no_live_execution_artifacts_created: bool = True
     exchange_adapters_called: bool = False

@@ -49,6 +49,8 @@ SV1.0.1 hardens that research boundary by making simulation truth more explicit.
 
 SV1.1 adds a comparative strategy-validation batch layer on top of the single-run report. `StrategyValidationBatchRequest` contains explicit Money Flow validation runs, and `StrategyValidationBatchReport` returns deterministic per-run metrics, an assumptions matrix, fill-timing comparison, component/timeframe comparison, optional symbol/date-window comparison, warnings, and limitations. The batch layer is descriptive research only: it reports observed outcomes across selected assumptions and does not optimize parameters, recommend a strategy variant, change Money Flow rules, create live trading artifacts, call exchanges, route, submit, or connect validation output to execution automation.
 
+SV1.2 adds data-coverage and market-regime analysis to that research boundary. Validation reports now include requested-versus-available candle coverage, missing-candle/gap warnings where timeframe spacing makes them derivable, deterministic trend and volatility regime labels from candle closes, and regime-grouped performance metrics. Regime labels are descriptive only, assigned to trade metrics by entry signal candle, and never feed back into Money Flow rules, routing, paper trading, live execution, exchange adapters, or automation.
+
 ## Core Hierarchy
 
 The active hierarchy is:

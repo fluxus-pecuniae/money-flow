@@ -2,9 +2,9 @@
 
 ## Phase
 
-Current implemented phase: `SV1.1`
+Current implemented phase: `SV1.2`
 
-Proposed next phase: `SV1.2` strategy-validation depth after comparative report review. `Phase 8.1` remains deferred until explicitly scoped.
+Proposed next phase: deeper Strategy Validation after SV1.2 regime/coverage report review. `Phase 8.1` remains deferred until explicitly scoped.
 
 ## Purpose
 
@@ -28,6 +28,8 @@ SV1.0.1 hardens Strategy Validation research truth. It adds explicit fill timing
 
 SV1.1 adds comparative Strategy Validation. It runs explicit batches of existing Money Flow validation requests across components/timeframes, fill-timing assumptions, symbols, date windows, fee assumptions, and slippage assumptions, then produces deterministic JSON/Markdown comparison reports. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no live artifacts, calls no exchanges, and does not connect validation to routing or execution automation.
 
+SV1.2 adds market-regime and data-coverage Strategy Validation. It reports requested-versus-available candle coverage, missing/gap/thin-coverage warnings, deterministic trend/volatility regime labels, regime-grouped performance summaries, and repeated CLI `--window start,end` support. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no live artifacts, calls no exchanges, and does not connect validation to routing or execution automation.
+
 ## Accepted Baseline
 
 - Phase 7.0 added non-executing routing automation policy and dry-run plans.
@@ -48,6 +50,7 @@ SV1.1 adds comparative Strategy Validation. It runs explicit batches of existing
 - SV1.0 added Money Flow strategy validation/backtesting reports without live execution artifacts or strategy-rule optimization.
 - SV1.0.1 hardened Money Flow validation fill-timing/drawdown/report truth without strategy-rule changes.
 - SV1.1 added comparative Money Flow batch validation reports without optimization, recommendations, live artifacts, routing, or execution changes.
+- SV1.2 added Money Flow data-coverage and market-regime validation reports without optimization, recommendations, live artifacts, routing, or execution changes.
 
 ## Hard Boundaries
 
@@ -83,6 +86,8 @@ SV1.0.1 is successful when fill timing is explicit, same-candle close fills are 
 
 SV1.1 is successful when comparative validation batches can compare selected components, fill timings, symbols, date windows, fees, and slippage assumptions; JSON output is deterministic; Markdown output is founder-readable; missing data is surfaced per run; and no strategy-rule changes, live artifacts, routing, exchange calls, optimization, or recommendation semantics appear.
 
+SV1.2 is successful when validation reports expose data coverage, deterministic descriptive regimes, regime-grouped metrics, and multi-window comparison support while preserving research-only boundaries and avoiding strategy-rule changes, live artifacts, routing, exchange calls, optimization, or recommendation semantics.
+
 ## Current Outcome
 
 - Obsidian command center/current phase/decision log/coordination notes are now part of the required agent workflow.
@@ -100,8 +105,9 @@ SV1.1 is successful when comparative validation batches can compare selected com
 - SV1.0 adds `services/strategy_validation` and `scripts/run_money_flow_backtest.py` for deterministic Money Flow research reports from persisted candles.
 - SV1.0.1 adds selectable validation fill timing, mark-to-market drawdown, expanded Markdown/JSON report detail, and direct research-truth tests.
 - SV1.1 adds `StrategyValidationBatchRequest`, `StrategyValidationBatchReport`, `MoneyFlowBacktestService.run_money_flow_batch_backtest()`, `scripts/run_money_flow_validation_batch.py`, and direct comparative validation tests.
+- SV1.2 adds data-coverage report fields, deterministic trend/volatility regime summaries, batch coverage/regime comparisons, repeated CLI `--window start,end` support, and direct coverage/regime tests.
 - Recovery, route execution, fanout, scoring, CBBO, target reselection, cross-venue retry, and broad auto-submit remain deferred.
 
 ## Next Phase Shape
 
-SV1.2 should be scoped after reviewing SV1.1 comparative output. Likely candidates are deeper historical data coverage, explicit market-regime labeling, broader multi-symbol/window fixtures, report persistence if founder review needs it, and paper-trading readiness only after evidence review. Phase 8.1 should remain deferred until explicitly scoped; when it resumes, it should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review, keep operator acknowledgement separate from exchange/account truth, and not attach submit/cancel/amend/retry behavior to inspection.
+The next Strategy Validation phase should be scoped after reviewing SV1.2 regime/coverage output. Likely candidates are broader historical data ingestion/coverage across symbols and venues, richer regime review, report persistence if founder review needs it, and paper-trading readiness only after evidence review. Phase 8.1 should remain deferred until explicitly scoped; when it resumes, it should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review, keep operator acknowledgement separate from exchange/account truth, and not attach submit/cancel/amend/retry behavior to inspection.

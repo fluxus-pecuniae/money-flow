@@ -12,6 +12,7 @@ import json
 from collections import Counter
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
+from datetime import timedelta
 from decimal import Decimal
 from typing import Any
 
@@ -40,7 +41,9 @@ from core.domain.models import (
     StrategyValidationBatchRequest,
     StrategyValidationBatchRunReport,
     StrategyValidationComponentReport,
+    StrategyValidationDataCoverage,
     StrategyValidationMetrics,
+    StrategyValidationRegimeSummary,
     StrategyValidationReport,
     StrategyValidationRequest,
     StrategyValidationTrade,
@@ -51,6 +54,11 @@ from services.indicators.service import DefaultIndicatorService
 from services.strategy.money_flow import MoneyFlowStrategyFamily
 
 _DECIMAL_PLACES = Decimal("0.00000001")
+_REGIME_LOOKBACK_CANDLES = 8
+_TREND_RETURN_THRESHOLD = Decimal("0.01")
+_HIGH_VOLATILITY_AVG_ABS_RETURN = Decimal("0.0125")
+_LOW_VOLATILITY_AVG_ABS_RETURN = Decimal("0.0025")
+_DATA_COVERAGE_WARNING_THRESHOLD = Decimal("0.80")
 
 
 class StrategyValidationError(ValueError):
@@ -164,6 +172,8 @@ class MoneyFlowBacktestService:
             component_reports=component_reports,
             aggregate_metrics=aggregate_metrics,
             component_comparison=_component_comparison(component_reports),
+            data_coverage_summary=_data_coverage_summary(component_reports),
+            regime_comparison=_regime_comparison(component_reports),
             limitations=limitations,
         )
 
@@ -244,9 +254,13 @@ class MoneyFlowBacktestService:
     ) -> StrategyValidationComponentReport:
         candles = self._load_candles(request=request, timeframe=sleeve.timeframe, end_at=end_at)
         snapshots = self._indicator_service._compute_snapshots(candles)
+        data_coverage = _data_coverage(candles, timeframe=sleeve.timeframe, start_at=start_at, end_at=end_at)
+        regime_by_close_time = _label_candle_regimes(candles)
         trades: list[StrategyValidationTrade] = []
         no_trade_reasons: Counter[str] = Counter()
         invalid_reasons: Counter[str] = Counter()
+        no_trade_reasons_by_regime: dict[str, Counter[str]] = {}
+        invalid_reasons_by_regime: dict[str, Counter[str]] = {}
         limitations: list[str] = []
         open_position: _SimulatedOpenPosition | None = None
         realized_equity = request.assumptions.initial_capital
@@ -254,12 +268,17 @@ class MoneyFlowBacktestService:
         evaluated_candles = 0
         if not candles:
             limitations.append("no_persisted_candles_for_component")
+        limitations.extend(data_coverage.warning_reason_codes)
 
         for signal_index, (candle, snapshot) in enumerate(zip(candles, snapshots, strict=False)):
             history_index = signal_index + 1
             candle_close_time = _coerce_utc(candle.close_time)
             if candle_close_time < start_at or candle_close_time > end_at:
                 continue
+            regime = regime_by_close_time.get(
+                candle_close_time,
+                _CandleRegime.unknown(candle_close_time),
+            )
             evaluated_candles += 1
             position_active_for_evaluation = (
                 open_position is not None and candle_close_time > open_position.entry_time
@@ -317,6 +336,8 @@ class MoneyFlowBacktestService:
                         exit_signal_time=candle_close_time,
                         exit_reason=decision.reason_code or decision.action.value,
                         exit_evaluation_key=decision.evaluation_key,
+                        exit_market_regime=regime.trend_label,
+                        exit_volatility_regime=regime.volatility_label,
                         forced_exit=False,
                     )
                     trades.append(trade)
@@ -326,10 +347,14 @@ class MoneyFlowBacktestService:
                 continue
 
             if decision.status == StrategyDecisionStatus.INVALID:
-                invalid_reasons[decision.reason_code or "invalid_without_reason"] += 1
+                reason = decision.reason_code or "invalid_without_reason"
+                invalid_reasons[reason] += 1
+                invalid_reasons_by_regime.setdefault(regime.trend_label, Counter())[reason] += 1
                 continue
             if decision.status == StrategyDecisionStatus.NO_TRADE:
-                no_trade_reasons[decision.reason_code or "no_trade_without_reason"] += 1
+                reason = decision.reason_code or "no_trade_without_reason"
+                no_trade_reasons[reason] += 1
+                no_trade_reasons_by_regime.setdefault(regime.trend_label, Counter())[reason] += 1
                 continue
             if decision.action == DecisionAction.OPEN:
                 fill = _resolve_fill(
@@ -349,6 +374,8 @@ class MoneyFlowBacktestService:
                     entry_signal_time=candle_close_time,
                     entry_reason=decision.reason_code,
                     entry_evaluation_key=decision.evaluation_key,
+                    entry_market_regime=regime.trend_label,
+                    entry_volatility_regime=regime.volatility_label,
                 )
                 if _coerce_utc(fill.candle.close_time) > open_position.entry_time:
                     open_position.record_excursion(fill.candle)
@@ -376,6 +403,14 @@ class MoneyFlowBacktestService:
                     exit_signal_time=_coerce_utc(last_candle.close_time),
                     exit_reason="end_of_window_forced_close",
                     exit_evaluation_key=f"{open_position.entry_evaluation_key}:forced_exit",
+                    exit_market_regime=regime_by_close_time.get(
+                        _coerce_utc(last_candle.close_time),
+                        _CandleRegime.unknown(_coerce_utc(last_candle.close_time)),
+                    ).trend_label,
+                    exit_volatility_regime=regime_by_close_time.get(
+                        _coerce_utc(last_candle.close_time),
+                        _CandleRegime.unknown(_coerce_utc(last_candle.close_time)),
+                    ).volatility_label,
                     forced_exit=True,
                 )
                 trades.append(trade)
@@ -401,6 +436,17 @@ class MoneyFlowBacktestService:
             evaluated_candles=evaluated_candles,
             trades=trades,
             metrics=metrics,
+            data_coverage=data_coverage,
+            regime_methodology=_regime_methodology(),
+            regime_summaries=_build_regime_summaries(
+                trades=trades,
+                candles=candles,
+                regime_by_close_time=regime_by_close_time,
+                start_at=start_at,
+                end_at=end_at,
+                no_trade_reason_counts_by_regime=no_trade_reasons_by_regime,
+                invalid_reason_counts_by_regime=invalid_reasons_by_regime,
+            ),
             no_trade_reason_counts=no_trade_counts,
             invalid_reason_counts=invalid_counts,
             limitations=sorted(set(limitations)),
@@ -560,6 +606,8 @@ class _SimulatedOpenPosition:
         entry_evaluation_key: str,
         fill_timing: StrategyValidationFillTiming,
         entry_fill_source: str,
+        entry_market_regime: str,
+        entry_volatility_regime: str,
     ) -> None:
         self.component_key = component_key
         self.timeframe = timeframe
@@ -575,6 +623,8 @@ class _SimulatedOpenPosition:
         self.entry_evaluation_key = entry_evaluation_key
         self.fill_timing = fill_timing
         self.entry_fill_source = entry_fill_source
+        self.entry_market_regime = entry_market_regime
+        self.entry_volatility_regime = entry_volatility_regime
         self.max_adverse_excursion = Decimal("0")
         self.max_favorable_excursion = Decimal("0")
         self.position_state_fingerprint = _stable_hash(
@@ -595,6 +645,235 @@ class _SimulatedOpenPosition:
     def mark_to_market_equity(self, realized_equity: Decimal, mark_price: Decimal) -> Decimal:
         unrealized = (mark_price - self.raw_entry_price) * self.size
         return _money(realized_equity + unrealized - self.entry_fee - self.entry_slippage_cost)
+
+
+@dataclass(slots=True)
+class _CandleRegime:
+    close_time: datetime
+    trend_label: str
+    volatility_label: str
+
+    @classmethod
+    def unknown(cls, close_time: datetime) -> "_CandleRegime":
+        return cls(
+            close_time=close_time,
+            trend_label="unknown_or_insufficient_data",
+            volatility_label="unknown_or_insufficient_data",
+        )
+
+
+def _data_coverage(
+    candles: list[Candle],
+    *,
+    timeframe: Timeframe,
+    start_at: datetime,
+    end_at: datetime,
+) -> StrategyValidationDataCoverage:
+    timeframe_delta = _timeframe_delta(timeframe)
+    window_candles = [
+        candle
+        for candle in candles
+        if start_at < _coerce_utc(candle.close_time) <= end_at
+    ]
+    close_times = sorted(_coerce_utc(candle.close_time) for candle in window_candles)
+    expected_count: int | None = None
+    missing_count: int | None = None
+    coverage_percent: Decimal | None = None
+    gap_count: int | None = None
+    largest_gap_seconds: int | None = None
+    warning_reason_codes: list[str] = []
+    if timeframe_delta is not None:
+        expected_count = max(
+            int((end_at - start_at).total_seconds() // timeframe_delta.total_seconds()),
+            0,
+        )
+        missing_count = max(expected_count - len(close_times), 0)
+        coverage_percent = (
+            _ratio(Decimal(len(close_times)), Decimal(expected_count))
+            if expected_count > 0
+            else None
+        )
+        expected_gap_seconds = int(timeframe_delta.total_seconds())
+        gaps = [
+            int((later - earlier).total_seconds())
+            for earlier, later in zip(close_times, close_times[1:], strict=False)
+            if int((later - earlier).total_seconds()) > expected_gap_seconds
+        ]
+        gap_count = len(gaps)
+        largest_gap_seconds = max(gaps) if gaps else 0
+        if coverage_percent is not None and coverage_percent < _DATA_COVERAGE_WARNING_THRESHOLD:
+            warning_reason_codes.append("data_coverage_below_warning_threshold")
+        if missing_count > 0:
+            warning_reason_codes.append("missing_candles_in_requested_window")
+        if gap_count > 0:
+            warning_reason_codes.append("candle_gaps_detected")
+    else:
+        warning_reason_codes.append("expected_candle_count_not_derivable_for_timeframe")
+    if not close_times:
+        warning_reason_codes.append("no_candles_in_requested_window")
+
+    return StrategyValidationDataCoverage(
+        requested_start_at=start_at,
+        requested_end_at=end_at,
+        first_candle_available_at=close_times[0] if close_times else None,
+        last_candle_available_at=close_times[-1] if close_times else None,
+        expected_candle_count=expected_count,
+        actual_candle_count=len(close_times),
+        missing_candle_count=missing_count,
+        coverage_percent=coverage_percent,
+        gap_count=gap_count,
+        largest_gap_seconds=largest_gap_seconds,
+        warning_reason_codes=sorted(set(warning_reason_codes)),
+    )
+
+
+def _label_candle_regimes(candles: list[Candle]) -> dict[datetime, _CandleRegime]:
+    ordered = sorted(candles, key=lambda candle: _coerce_utc(candle.close_time))
+    regimes: dict[datetime, _CandleRegime] = {}
+    for index, candle in enumerate(ordered):
+        close_time = _coerce_utc(candle.close_time)
+        if index < _REGIME_LOOKBACK_CANDLES:
+            regimes[close_time] = _CandleRegime.unknown(close_time)
+            continue
+        window = ordered[index - _REGIME_LOOKBACK_CANDLES : index + 1]
+        first_close = window[0].close
+        last_close = window[-1].close
+        trend_return = _ratio(last_close - first_close, first_close) if first_close != 0 else None
+        if trend_return is None:
+            trend_label = "unknown_or_insufficient_data"
+        elif trend_return > _TREND_RETURN_THRESHOLD:
+            trend_label = "uptrend"
+        elif trend_return < -_TREND_RETURN_THRESHOLD:
+            trend_label = "downtrend"
+        else:
+            trend_label = "sideways"
+
+        abs_returns: list[Decimal] = []
+        for previous, current in zip(window, window[1:], strict=False):
+            if previous.close == 0:
+                continue
+            abs_return = _ratio(abs(current.close - previous.close), previous.close)
+            if abs_return is not None:
+                abs_returns.append(abs_return)
+        avg_abs_return = (
+            sum(abs_returns, Decimal("0")) / Decimal(len(abs_returns))
+            if abs_returns
+            else None
+        )
+        if avg_abs_return is None:
+            volatility_label = "unknown_or_insufficient_data"
+        elif avg_abs_return >= _HIGH_VOLATILITY_AVG_ABS_RETURN:
+            volatility_label = "high_volatility"
+        elif avg_abs_return <= _LOW_VOLATILITY_AVG_ABS_RETURN:
+            volatility_label = "low_volatility"
+        else:
+            volatility_label = "normal_volatility"
+        regimes[close_time] = _CandleRegime(
+            close_time=close_time,
+            trend_label=trend_label,
+            volatility_label=volatility_label,
+        )
+    return regimes
+
+
+def _regime_methodology() -> dict[str, Any]:
+    return {
+        "methodology": "deterministic_descriptive_labels_only_not_strategy_filters",
+        "trade_assignment": "entry_signal_candle_regime",
+        "trend_lookback_candles": _REGIME_LOOKBACK_CANDLES,
+        "trend_return_threshold": _TREND_RETURN_THRESHOLD,
+        "uptrend_rule": "lookback_return_above_positive_threshold",
+        "downtrend_rule": "lookback_return_below_negative_threshold",
+        "sideways_rule": "absolute_lookback_return_within_threshold",
+        "volatility_rule": "average_absolute_close_to_close_return_over_lookback",
+        "high_volatility_threshold": _HIGH_VOLATILITY_AVG_ABS_RETURN,
+        "low_volatility_threshold": _LOW_VOLATILITY_AVG_ABS_RETURN,
+        "insufficient_data_rule": "fewer_than_lookback_candles_available",
+    }
+
+
+def _build_regime_summaries(
+    *,
+    trades: list[StrategyValidationTrade],
+    candles: list[Candle],
+    regime_by_close_time: dict[datetime, _CandleRegime],
+    start_at: datetime,
+    end_at: datetime,
+    no_trade_reason_counts_by_regime: dict[str, Counter[str]],
+    invalid_reason_counts_by_regime: dict[str, Counter[str]],
+) -> list[StrategyValidationRegimeSummary]:
+    window_regimes = [
+        regime_by_close_time.get(_coerce_utc(candle.close_time), _CandleRegime.unknown(_coerce_utc(candle.close_time)))
+        for candle in candles
+        if start_at <= _coerce_utc(candle.close_time) <= end_at
+    ]
+    summaries: list[StrategyValidationRegimeSummary] = []
+    summaries.extend(
+        _summaries_for_regime_type(
+            regime_type="trend",
+            labels=[regime.trend_label for regime in window_regimes],
+            trades=trades,
+            trade_label_fn=lambda trade: trade.entry_market_regime,
+            no_trade_reason_counts_by_regime=no_trade_reason_counts_by_regime,
+            invalid_reason_counts_by_regime=invalid_reason_counts_by_regime,
+        )
+    )
+    summaries.extend(
+        _summaries_for_regime_type(
+            regime_type="volatility",
+            labels=[regime.volatility_label for regime in window_regimes],
+            trades=trades,
+            trade_label_fn=lambda trade: trade.entry_volatility_regime,
+            no_trade_reason_counts_by_regime={},
+            invalid_reason_counts_by_regime={},
+        )
+    )
+    return sorted(summaries, key=lambda item: (item.regime_type, item.regime_label))
+
+
+def _summaries_for_regime_type(
+    *,
+    regime_type: str,
+    labels: list[str],
+    trades: list[StrategyValidationTrade],
+    trade_label_fn: Any,
+    no_trade_reason_counts_by_regime: dict[str, Counter[str]],
+    invalid_reason_counts_by_regime: dict[str, Counter[str]],
+) -> list[StrategyValidationRegimeSummary]:
+    candle_counts = Counter(labels)
+    trade_labels = {label for label in candle_counts}
+    trade_labels.update(trade_label_fn(trade) for trade in trades)
+    summaries: list[StrategyValidationRegimeSummary] = []
+    for label in sorted(trade_labels):
+        regime_trades = [trade for trade in trades if trade_label_fn(trade) == label]
+        wins = [trade for trade in regime_trades if trade.net_pnl > 0]
+        net_pnl = _money(sum((trade.net_pnl for trade in regime_trades), Decimal("0")))
+        adverse_values = [
+            abs(trade.max_adverse_excursion)
+            for trade in regime_trades
+            if trade.max_adverse_excursion is not None and trade.max_adverse_excursion < 0
+        ]
+        summaries.append(
+            StrategyValidationRegimeSummary(
+                regime_type=regime_type,
+                regime_label=label,
+                candle_count=candle_counts.get(label, 0),
+                evaluated_candle_count=candle_counts.get(label, 0),
+                trade_count=len(regime_trades),
+                net_pnl=net_pnl,
+                win_rate=_ratio(Decimal(len(wins)), Decimal(len(regime_trades))),
+                mark_to_market_max_drawdown=(
+                    _money(max(adverse_values)) if adverse_values else Decimal("0")
+                ),
+                no_trade_reason_counts=dict(
+                    sorted(no_trade_reason_counts_by_regime.get(label, Counter()).items())
+                ),
+                invalid_reason_counts=dict(
+                    sorted(invalid_reason_counts_by_regime.get(label, Counter()).items())
+                ),
+            )
+        )
+    return summaries
 
 
 def _resolve_fill(
@@ -640,6 +919,8 @@ def _open_trade(
     entry_signal_time: datetime,
     entry_reason: str | None,
     entry_evaluation_key: str,
+    entry_market_regime: str,
+    entry_volatility_regime: str,
 ) -> _SimulatedOpenPosition:
     slippage_rate = _bps_to_rate(request.assumptions.slippage_bps)
     fee_rate = _bps_to_rate(request.assumptions.fee_bps)
@@ -664,6 +945,8 @@ def _open_trade(
         entry_evaluation_key=entry_evaluation_key,
         fill_timing=request.assumptions.fill_timing,
         entry_fill_source=fill.source,
+        entry_market_regime=entry_market_regime,
+        entry_volatility_regime=entry_volatility_regime,
     )
     return open_position
 
@@ -676,6 +959,8 @@ def _close_trade(
     exit_signal_time: datetime,
     exit_reason: str,
     exit_evaluation_key: str,
+    exit_market_regime: str,
+    exit_volatility_regime: str,
     forced_exit: bool,
 ) -> StrategyValidationTrade:
     slippage_rate = _bps_to_rate(request.assumptions.slippage_bps)
@@ -733,6 +1018,10 @@ def _close_trade(
         exit_fill_source=fill.source,
         duration_seconds=duration_seconds,
         forced_exit=forced_exit,
+        entry_market_regime=open_position.entry_market_regime,
+        entry_volatility_regime=open_position.entry_volatility_regime,
+        exit_market_regime=exit_market_regime,
+        exit_volatility_regime=exit_volatility_regime,
     )
 
 
@@ -898,6 +1187,89 @@ def _component_comparison(component_reports: list[StrategyValidationComponentRep
     }
 
 
+def _data_coverage_summary(component_reports: list[StrategyValidationComponentReport]) -> dict[str, Any]:
+    coverages = [
+        report.data_coverage
+        for report in component_reports
+        if report.data_coverage is not None
+    ]
+    warning_codes = sorted(
+        {
+            warning
+            for coverage in coverages
+            for warning in coverage.warning_reason_codes
+        }
+    )
+    coverage_percents = [
+        coverage.coverage_percent
+        for coverage in coverages
+        if coverage.coverage_percent is not None
+    ]
+    return {
+        "methodology": (
+            "coverage_counts_candle_closes_after_requested_start_and_on_or_before_requested_end"
+        ),
+        "component_count": len(component_reports),
+        "total_actual_candle_count": sum(coverage.actual_candle_count for coverage in coverages),
+        "total_expected_candle_count": (
+            sum(coverage.expected_candle_count for coverage in coverages)
+            if all(coverage.expected_candle_count is not None for coverage in coverages)
+            else None
+        ),
+        "minimum_coverage_percent": min(coverage_percents) if coverage_percents else None,
+        "warning_reason_codes": warning_codes,
+        "components": [
+            {
+                "component_key": report.component_key,
+                "timeframe": report.timeframe,
+                "coverage": report.data_coverage,
+            }
+            for report in component_reports
+        ],
+    }
+
+
+def _regime_comparison(component_reports: list[StrategyValidationComponentReport]) -> dict[str, Any]:
+    grouped: dict[tuple[str, str], list[StrategyValidationRegimeSummary]] = {}
+    for report in component_reports:
+        for summary in report.regime_summaries:
+            grouped.setdefault((summary.regime_type, summary.regime_label), []).append(summary)
+    rows: list[dict[str, Any]] = []
+    for (regime_type, regime_label), summaries in sorted(grouped.items()):
+        trade_count = sum(summary.trade_count for summary in summaries)
+        winning_estimate = Decimal("0")
+        for summary in summaries:
+            if summary.win_rate is not None:
+                winning_estimate += Decimal(summary.trade_count) * summary.win_rate
+        rows.append(
+            {
+                "regime_type": regime_type,
+                "regime_label": regime_label,
+                "component_count": len(summaries),
+                "candle_count": sum(summary.candle_count for summary in summaries),
+                "evaluated_candle_count": sum(summary.evaluated_candle_count for summary in summaries),
+                "trade_count": trade_count,
+                "net_pnl": _money(sum((summary.net_pnl for summary in summaries), Decimal("0"))),
+                "win_rate": (
+                    _ratio(winning_estimate, Decimal(trade_count)) if trade_count else None
+                ),
+                "largest_mark_to_market_drawdown": max(
+                    (
+                        summary.mark_to_market_max_drawdown
+                        for summary in summaries
+                        if summary.mark_to_market_max_drawdown is not None
+                    ),
+                    default=None,
+                ),
+            }
+        )
+    return {
+        "methodology": "descriptive_regime_grouping_only_not_strategy_filtering",
+        "trade_assignment": "entry_signal_candle_regime",
+        "rows": rows,
+    }
+
+
 def _request_payload(request: StrategyValidationRequest) -> dict[str, Any]:
     return {
         "strategy_family": request.strategy_family.value,
@@ -937,6 +1309,8 @@ def _run_summary(run: StrategyValidationBatchRunReport) -> dict[str, Any]:
     }
     if run.report is None:
         summary["metrics"] = None
+        summary["data_coverage_summary"] = {}
+        summary["regime_comparison"] = {}
         summary["limitations"] = []
         return summary
     metrics = run.report.aggregate_metrics
@@ -957,6 +1331,8 @@ def _run_summary(run: StrategyValidationBatchRunReport) -> dict[str, Any]:
         "invalid_reason_counts": metrics.invalid_reason_counts,
     }
     summary["limitations"] = list(run.report.limitations)
+    summary["data_coverage_summary"] = run.report.data_coverage_summary
+    summary["regime_comparison"] = run.report.regime_comparison
     return summary
 
 
@@ -1030,6 +1406,8 @@ def _comparison_summary(run_reports: list[StrategyValidationBatchRunReport]) -> 
             ),
             "date_window",
         ),
+        "regime_comparison": _batch_regime_comparison(completed),
+        "data_coverage_comparison": _batch_data_coverage_comparison(completed),
     }
 
 
@@ -1118,6 +1496,69 @@ def _group_comparison(
     return rows
 
 
+def _batch_regime_comparison(
+    run_reports: list[StrategyValidationBatchRunReport],
+) -> list[dict[str, Any]]:
+    grouped: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for run in run_reports:
+        if run.report is None:
+            continue
+        rows = run.report.regime_comparison.get("rows", [])
+        for row in rows:
+            grouped.setdefault((row["regime_type"], row["regime_label"]), []).append(row)
+    output: list[dict[str, Any]] = []
+    for (regime_type, regime_label), rows in sorted(grouped.items()):
+        trade_count = sum(row["trade_count"] for row in rows)
+        winning_estimate = Decimal("0")
+        for row in rows:
+            if row["win_rate"] is not None:
+                winning_estimate += Decimal(row["trade_count"]) * row["win_rate"]
+        drawdowns = [
+            row["largest_mark_to_market_drawdown"]
+            for row in rows
+            if row["largest_mark_to_market_drawdown"] is not None
+        ]
+        output.append(
+            {
+                "regime_type": regime_type,
+                "regime_label": regime_label,
+                "run_count": len(rows),
+                "total_trades": trade_count,
+                "total_net_pnl": _money(sum((row["net_pnl"] for row in rows), Decimal("0"))),
+                "win_rate": _ratio(winning_estimate, Decimal(trade_count)) if trade_count else None,
+                "largest_mark_to_market_drawdown": max(drawdowns) if drawdowns else None,
+            }
+        )
+    return output
+
+
+def _batch_data_coverage_comparison(
+    run_reports: list[StrategyValidationBatchRunReport],
+) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for run in run_reports:
+        if run.report is None:
+            continue
+        coverage = run.report.data_coverage_summary
+        rows.append(
+            {
+                "run_id": run.run_id,
+                "report_id": run.report.report_id,
+                "component_keys": list(run.request.component_keys),
+                "symbol": run.request.symbol,
+                "date_window": (
+                    f"{_coerce_utc(run.request.start_at).isoformat()}->"
+                    f"{_coerce_utc(run.request.end_at).isoformat()}"
+                ),
+                "minimum_coverage_percent": coverage.get("minimum_coverage_percent"),
+                "total_actual_candle_count": coverage.get("total_actual_candle_count"),
+                "total_expected_candle_count": coverage.get("total_expected_candle_count"),
+                "warning_reason_codes": coverage.get("warning_reason_codes", []),
+            }
+        )
+    return rows
+
+
 def _metric_value(metrics: StrategyValidationMetrics, metric_name: str) -> Any:
     return getattr(metrics, metric_name)
 
@@ -1137,6 +1578,12 @@ def _batch_warnings(run_reports: list[StrategyValidationBatchRunReport]) -> list
         warnings.append("same_candle_close_runs_are_research_only_and_can_overstate_edge")
     if any(run.status != "completed" for run in run_reports):
         warnings.append("blocked_runs_are_reported_per_run_and_not_hidden")
+    if any(
+        run.report is not None
+        and run.report.data_coverage_summary.get("warning_reason_codes")
+        for run in run_reports
+    ):
+        warnings.append("one_or_more_runs_have_data_coverage_warnings")
     return sorted(set(warnings))
 
 
@@ -1199,6 +1646,49 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
             f"{metrics.get('total_fees', '-')} | "
             f"{metrics.get('total_slippage_cost', '-')} | "
             f"{', '.join(run['limitations']) or run['error_message'] or 'none'} |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Data-Coverage Comparison",
+            "",
+            "| run id | components | symbol | date window | actual candles | expected candles | minimum coverage % | warnings |",
+            "| --- | --- | --- | --- | ---: | ---: | ---: | --- |",
+        ]
+    )
+    for row in summary["data_coverage_comparison"]:
+        lines.append(
+            "| "
+            f"`{row['run_id']}` | "
+            f"`{', '.join(row['component_keys'])}` | "
+            f"`{row['symbol']}` | "
+            f"`{row['date_window']}` | "
+            f"{row['total_actual_candle_count']} | "
+            f"{row['total_expected_candle_count']} | "
+            f"{row['minimum_coverage_percent']} | "
+            f"`{row['warning_reason_codes']}` |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Market-Regime Comparison",
+            "",
+            "Regimes are deterministic descriptive labels only. They are not strategy filters, optimization inputs, or recommendations.",
+            "",
+            "| regime type | label | runs | total trades | total net PnL | win rate | largest MTM drawdown |",
+            "| --- | --- | ---: | ---: | ---: | ---: | ---: |",
+        ]
+    )
+    for row in summary["regime_comparison"]:
+        lines.append(
+            "| "
+            f"`{row['regime_type']}` | "
+            f"`{row['regime_label']}` | "
+            f"{row['run_count']} | "
+            f"{row['total_trades']} | "
+            f"{row['total_net_pnl']} | "
+            f"{row['win_rate']} | "
+            f"{row['largest_mark_to_market_drawdown']} |"
         )
     lines.extend(
         [
@@ -1343,6 +1833,66 @@ def strategy_validation_report_to_markdown(report: StrategyValidationReport) -> 
         f"- Force-close open trade at end: `{assumptions['force_close_open_trade_at_end']}`",
         f"- Drawdown methodology: `{assumptions['drawdown_methodology']}`",
         "",
+        "## Data Coverage",
+        "",
+        f"- Methodology: `{data['data_coverage_summary'].get('methodology')}`",
+        f"- Total actual candles: `{data['data_coverage_summary'].get('total_actual_candle_count')}`",
+        f"- Total expected candles: `{data['data_coverage_summary'].get('total_expected_candle_count')}`",
+        f"- Minimum coverage percent: `{data['data_coverage_summary'].get('minimum_coverage_percent')}`",
+        f"- Warning reason codes: `{data['data_coverage_summary'].get('warning_reason_codes')}`",
+        "",
+        "| component | timeframe | requested start | requested end | first candle | last candle | expected | actual | missing | coverage % | gaps | largest gap seconds | warnings |",
+        "| --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+    ]
+    for component in data["component_reports"]:
+        coverage = component["data_coverage"] or {}
+        lines.append(
+            "| "
+            f"`{component['component_key']}` | "
+            f"`{component['timeframe']}` | "
+            f"`{coverage.get('requested_start_at')}` | "
+            f"`{coverage.get('requested_end_at')}` | "
+            f"`{coverage.get('first_candle_available_at')}` | "
+            f"`{coverage.get('last_candle_available_at')}` | "
+            f"{coverage.get('expected_candle_count')} | "
+            f"{coverage.get('actual_candle_count')} | "
+            f"{coverage.get('missing_candle_count')} | "
+            f"{coverage.get('coverage_percent')} | "
+            f"{coverage.get('gap_count')} | "
+            f"{coverage.get('largest_gap_seconds')} | "
+            f"`{coverage.get('warning_reason_codes')}` |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Market-Regime Methodology",
+            "",
+            "- Regimes are deterministic descriptive labels only; they are not strategy filters.",
+            "- Trade-level performance is assigned by the entry signal candle regime.",
+            f"- Methodology: `{data['regime_comparison'].get('methodology')}`",
+            f"- Trade assignment: `{data['regime_comparison'].get('trade_assignment')}`",
+            "",
+            "## Regime Performance",
+            "",
+            "| regime type | label | candles | evaluated | trades | net PnL | win rate | MTM drawdown |",
+            "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+        ]
+    )
+    for row in data["regime_comparison"].get("rows", []):
+        lines.append(
+            "| "
+            f"`{row['regime_type']}` | "
+            f"`{row['regime_label']}` | "
+            f"{row['candle_count']} | "
+            f"{row['evaluated_candle_count']} | "
+            f"{row['trade_count']} | "
+            f"{row['net_pnl']} | "
+            f"{row['win_rate']} | "
+            f"{row['largest_mark_to_market_drawdown']} |"
+        )
+    lines.extend(
+        [
+            "",
         "## Aggregate Metrics",
         "",
         f"- Trades: `{metrics['number_of_trades']}`",
@@ -1375,9 +1925,10 @@ def strategy_validation_report_to_markdown(report: StrategyValidationReport) -> 
         "",
         "## Component Metrics",
         "",
-        "| component | timeframe | candles | evaluated | trades | net PnL | win rate | loss rate | profit factor | closed DD | MTM DD | return | limitations |",
-        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
-    ]
+            "| component | timeframe | candles | evaluated | trades | net PnL | win rate | loss rate | profit factor | closed DD | MTM DD | return | limitations |",
+            "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+        ]
+    )
     for component in data["component_reports"]:
         component_metrics = component["metrics"]
         lines.append(
@@ -1401,8 +1952,8 @@ def strategy_validation_report_to_markdown(report: StrategyValidationReport) -> 
             "",
             "## Trade Summary",
             "",
-            "| trade id | component | timeframe | entry time | exit time | side | entry price | exit price | net PnL | return % | entry reason | exit reason | forced exit |",
-            "| --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- | --- |",
+            "| trade id | component | timeframe | entry time | exit time | entry regime | entry volatility | side | entry price | exit price | net PnL | return % | entry reason | exit reason | forced exit |",
+            "| --- | --- | --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- | --- |",
         ]
     )
     trades = [
@@ -1419,6 +1970,8 @@ def strategy_validation_report_to_markdown(report: StrategyValidationReport) -> 
                 f"`{trade['timeframe']}` | "
                 f"`{trade['entry_time']}` | "
                 f"`{trade['exit_time']}` | "
+                f"`{trade['entry_market_regime']}` | "
+                f"`{trade['entry_volatility_regime']}` | "
                 f"`{trade['side']}` | "
                 f"{trade['entry_price']} | "
                 f"{trade['exit_price']} | "
@@ -1429,7 +1982,7 @@ def strategy_validation_report_to_markdown(report: StrategyValidationReport) -> 
                 f"`{trade['forced_exit']}` |"
             )
     else:
-        lines.append("| none | - | - | - | - | - | - | - | - | - | - | - | - |")
+        lines.append("| none | - | - | - | - | - | - | - | - | - | - | - | - | - | - |")
     lines.extend(
         [
             "",
@@ -1464,6 +2017,8 @@ def strategy_validation_report_to_markdown(report: StrategyValidationReport) -> 
             "- No order book replay, funding, liquidation, partial-fill, or venue-latency model is included.",
             "- Reduce actions are currently modeled as full exits.",
             "- Forced end-of-window closes may distort results.",
+            "- Data coverage warnings mean the requested research window may not be trustworthy.",
+            "- Market-regime labels are descriptive only and are not used to alter entries or exits.",
         ]
     )
     if assumptions["fill_timing"] == StrategyValidationFillTiming.SAME_CANDLE_CLOSE_RESEARCH_ONLY.value:
@@ -1513,6 +2068,17 @@ def _last_candle_in_window(
     return matching[-1] if matching else None
 
 
+def _timeframe_delta(timeframe: Timeframe) -> timedelta | None:
+    return {
+        Timeframe.M1: timedelta(minutes=1),
+        Timeframe.M5: timedelta(minutes=5),
+        Timeframe.M15: timedelta(minutes=15),
+        Timeframe.H1: timedelta(hours=1),
+        Timeframe.H4: timedelta(hours=4),
+        Timeframe.D1: timedelta(days=1),
+    }.get(timeframe)
+
+
 def _validate_assumptions(assumptions: StrategyValidationAssumptions) -> None:
     if assumptions.initial_capital <= 0:
         raise StrategyValidationError("initial_capital must be positive.")
@@ -1536,6 +2102,8 @@ def _assumption_limitations(assumptions: StrategyValidationAssumptions) -> list[
         "no_partial_fill_model",
         "no_venue_latency_model",
         "no_compounding_unless_position_notional_pct_is_changed_with_capital_modeling",
+        "market_regime_labels_are_descriptive_only_not_strategy_filters",
+        "data_coverage_counts_are_research_diagnostics_not_data_quality_certification",
         "results_do_not_prove_future_profitability",
     ]
     if assumptions.fill_timing == StrategyValidationFillTiming.SAME_CANDLE_CLOSE_RESEARCH_ONLY:

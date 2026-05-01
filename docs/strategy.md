@@ -40,6 +40,8 @@ SV1.0.1 improves research truth and report readability without changing Money Fl
 
 SV1.1 adds comparative validation without changing the Money Flow strategy. The new batch report compares explicit sets of components/timeframes, fill-timing assumptions, symbols, date windows, and cost assumptions by running the existing validation engine repeatedly and summarizing observed metrics. It is intentionally descriptive: the report can show which run had the highest observed net PnL, lowest observed net PnL, highest observed win rate, largest observed mark-to-market drawdown, most trades, or least trades, but it does not call any variant optimal or recommended and it does not alter rules, optimize parameters, paper trade, live trade, route, submit, or call exchange adapters.
 
+SV1.2 adds data-coverage and market-regime analysis without changing strategy behavior. Reports now show requested versus available candle coverage, missing-candle warnings where timeframe spacing is derivable, and deterministic trend/volatility labels such as `uptrend`, `downtrend`, `sideways`, `high_volatility`, `low_volatility`, and `unknown_or_insufficient_data`. Trade-level regime grouping uses the entry signal candle. These regimes are descriptive research labels only; they are not filters, optimization inputs, recommendations, paper-trading triggers, routing inputs, or execution instructions.
+
 The load-bearing strategy-to-execution boundary is:
 
 - `StrategyDecision`

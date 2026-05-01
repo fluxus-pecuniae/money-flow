@@ -40,6 +40,8 @@ SV1.0.1 hardens the validation report truth without changing strategy rules. Fil
 
 SV1.1 adds comparative Money Flow validation. The batch runner executes explicit matrices of components, fill-timing assumptions, symbols, date windows, fees, and slippage assumptions, then emits deterministic JSON or Markdown comparison reports. The comparison is descriptive research only: it highlights observed metrics such as highest observed net PnL, lowest observed net PnL, observed win rate, drawdown, trade count, and fill-timing sensitivity, but it does not optimize parameters, recommend a variant, change Money Flow rules, create live artifacts, route, submit, or call exchanges.
 
+SV1.2 adds market-regime and data-coverage analysis to Money Flow validation. Single-run and batch reports now show requested versus available candle coverage, missing-candle warnings where derivable from timeframe, deterministic trend/volatility regime labels, and regime-grouped performance metrics. Regimes are descriptive labels only and are assigned by entry signal candle for trade grouping; they do not alter entries, exits, parameters, routing, or execution. No paper trading, live execution, exchange calls, live artifacts, routing behavior, or Money Flow rule changes are added.
+
 ## Operational Memory
 
 This repo now uses explicit operational-memory files plus an Obsidian strategic brain. Future work is expected to read them before changes and update them after changes.
@@ -111,6 +113,24 @@ SV1.1 adds an explicit comparative batch CLI:
 ```
 
 The batch report includes an assumptions matrix, per-run metrics, fill-timing comparison, component comparison, optional symbol/date-window comparisons, observed top/bottom runs, warnings, and limitations. It is comparative validation, not optimization or a strategy recommendation.
+
+SV1.2 extends the same CLI with repeated date windows:
+
+```bash
+.venv/bin/python scripts/run_money_flow_validation_batch.py \
+  --venue hyperliquid \
+  --symbol BTC \
+  --component sleeve_15m \
+  --fill-timing next_candle_open \
+  --window 2026-01-01T00:00:00Z,2026-01-15T00:00:00Z \
+  --window 2026-01-15T00:00:00Z,2026-02-01T00:00:00Z \
+  --initial-capital 10000 \
+  --fee-bps 5 \
+  --slippage-bps 2 \
+  --format markdown
+```
+
+The resulting report includes data-coverage comparison, market-regime comparison, and date-window comparison sections. These outputs are research diagnostics only, not optimization, paper trading, live execution, or proof of profitability.
 
 ## Routing Automation Planning
 

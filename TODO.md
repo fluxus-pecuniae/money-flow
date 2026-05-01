@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-01T18:41:11Z`
+Last reviewed: `2026-05-01T19:20:34Z`
 
 ## Active Follow-Ups
 
@@ -121,8 +121,14 @@ Last reviewed: `2026-05-01T18:41:11Z`
 ### T-052
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.2 adds data-coverage and market-regime analysis to Money Flow validation. Single-run and batch reports now include requested-versus-available candle coverage, expected/actual/missing candle counts where timeframe spacing is derivable, warning reason codes for thin/missing/gapped data, deterministic trend and volatility regime labels, regime-grouped performance summaries, and repeated CLI `--window start,end` support for multi-window comparison. Regimes are descriptive only and assigned by entry signal candle for trade metrics; they do not change Money Flow rules, optimize parameters, recommend variants, add paper/live trading, create live artifacts, call exchanges, route, or execute.`
+
+### T-053
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `Define SV1.2 after reviewing SV1.1 comparative reports. Candidate work should deepen historical data coverage, add explicit market-regime labels, improve multi-symbol/data-window fixture coverage, consider report persistence if founder review needs it, and prepare paper-trading readiness only after evidence review. Do not optimize Money Flow parameters, add new strategy families, create live trading artifacts, or connect validation to routing/execution automation until evidence and architecture review justify that scope.`
+- `summary`: `Define the next Strategy Validation phase after reviewing SV1.2 reports. Candidate work should focus on broader historical data ingestion/coverage across symbols and venues, richer market-regime review, report persistence if founder/operator review needs it, and paper-trading readiness only after evidence review. Do not optimize Money Flow parameters, add new strategy families, create live trading artifacts, or connect validation to routing/execution automation until evidence and architecture review justify that scope.`
 
 ### T-001
 

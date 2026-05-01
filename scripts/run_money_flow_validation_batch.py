@@ -1,4 +1,4 @@
-"""Run an SV1.1 comparative Money Flow validation batch over persisted candles."""
+"""Run an SV1.1/SV1.2 comparative Money Flow validation batch over persisted candles."""
 
 from __future__ import annotations
 
@@ -55,8 +55,17 @@ def build_parser() -> argparse.ArgumentParser:
         choices=[item.value for item in StrategyValidationFillTiming],
         help="Fill timing assumption to compare. Repeat for multiple fill timings.",
     )
-    parser.add_argument("--start", required=True, help="Inclusive ISO-8601 start timestamp.")
-    parser.add_argument("--end", required=True, help="Inclusive ISO-8601 end timestamp.")
+    parser.add_argument("--start", help="Inclusive ISO-8601 start timestamp for a single window.")
+    parser.add_argument("--end", help="Inclusive ISO-8601 end timestamp for a single window.")
+    parser.add_argument(
+        "--window",
+        action="append",
+        default=[],
+        help=(
+            "Date window as start,end. Repeat for multi-window regime/coverage comparison. "
+            "If omitted, --start and --end are required."
+        ),
+    )
     parser.add_argument("--initial-capital", required=True, type=Decimal)
     parser.add_argument(
         "--fee-bps",
@@ -82,32 +91,34 @@ def build_batch_request(args: argparse.Namespace) -> StrategyValidationBatchRequ
     symbols = list(args.symbol)
     instrument_keys = _optional_values(args.instrument_key, len(symbols))
     instrument_ref_ids = _optional_values(args.instrument_ref_id, len(symbols))
+    windows = _windows(args)
     runs: list[StrategyValidationRequest] = []
     for symbol_index, symbol in enumerate(symbols):
-        for component in args.component:
-            for fill_timing in args.fill_timing:
-                for fee_bps in args.fee_bps:
-                    for slippage_bps in args.slippage_bps:
-                        runs.append(
-                            StrategyValidationRequest(
-                                strategy_family=StrategyFamily.MONEY_FLOW,
-                                environment=Environment(args.environment),
-                                venue=args.venue,
-                                symbol=symbol,
-                                instrument_key=instrument_keys[symbol_index],
-                                instrument_ref_id=instrument_ref_ids[symbol_index],
-                                component_keys=(component,),
-                                start_at=_parse_datetime(args.start),
-                                end_at=_parse_datetime(args.end),
-                                assumptions=StrategyValidationAssumptions(
-                                    initial_capital=args.initial_capital,
-                                    fee_bps=fee_bps,
-                                    slippage_bps=slippage_bps,
-                                    fill_timing=StrategyValidationFillTiming(fill_timing),
-                                    position_notional_pct=args.position_notional_pct,
-                                ),
+        for start_at, end_at in windows:
+            for component in args.component:
+                for fill_timing in args.fill_timing:
+                    for fee_bps in args.fee_bps:
+                        for slippage_bps in args.slippage_bps:
+                            runs.append(
+                                StrategyValidationRequest(
+                                    strategy_family=StrategyFamily.MONEY_FLOW,
+                                    environment=Environment(args.environment),
+                                    venue=args.venue,
+                                    symbol=symbol,
+                                    instrument_key=instrument_keys[symbol_index],
+                                    instrument_ref_id=instrument_ref_ids[symbol_index],
+                                    component_keys=(component,),
+                                    start_at=start_at,
+                                    end_at=end_at,
+                                    assumptions=StrategyValidationAssumptions(
+                                        initial_capital=args.initial_capital,
+                                        fee_bps=fee_bps,
+                                        slippage_bps=slippage_bps,
+                                        fill_timing=StrategyValidationFillTiming(fill_timing),
+                                        position_notional_pct=args.position_notional_pct,
+                                    ),
+                                )
                             )
-                        )
     return StrategyValidationBatchRequest(
         runs=tuple(runs),
         batch_name=args.batch_name,
@@ -141,6 +152,20 @@ def _optional_values(values: list[str], expected_count: int) -> list[str | None]
             "instrument-key / instrument-ref-id values must be omitted or repeated once per symbol."
         )
     return values
+
+
+def _windows(args: argparse.Namespace) -> list[tuple[datetime, datetime]]:
+    if args.window:
+        windows: list[tuple[datetime, datetime]] = []
+        for raw_window in args.window:
+            parts = [part.strip() for part in raw_window.split(",", maxsplit=1)]
+            if len(parts) != 2 or not parts[0] or not parts[1]:
+                raise SystemExit("--window must be formatted as start,end.")
+            windows.append((_parse_datetime(parts[0]), _parse_datetime(parts[1])))
+        return windows
+    if not args.start or not args.end:
+        raise SystemExit("--start and --end are required when --window is not supplied.")
+    return [(_parse_datetime(args.start), _parse_datetime(args.end))]
 
 
 def _parse_datetime(value: str) -> datetime:

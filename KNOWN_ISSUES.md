@@ -1,6 +1,6 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-05-01T18:41:11Z`
+Last reviewed: `2026-05-01T19:20:34Z`
 
 ## Open Items
 
@@ -92,5 +92,5 @@ Last reviewed: `2026-05-01T18:41:11Z`
 
 - `status`: `open`
 - `area`: `strategy validation limitations`
-- `summary`: `SV1.0 adds deterministic Money Flow backtest reports, SV1.0.1 hardens the research-truth surface, and SV1.1 adds comparative batch reports across explicit components, fill timings, symbols, date windows, fees, and slippage assumptions. Reports now expose explicit fill timing (`same_candle_close_research_only`, `next_candle_open`, or `next_candle_close`), label same-candle close as research-only/potentially optimistic, separate closed-trade drawdown from mark-to-market drawdown, and compare observed outcomes without optimization or recommendation semantics. The simulator still uses persisted candles plus in-memory indicators and does not model order-book replay, partial fills, funding, liquidation, borrow/financing, latency, market impact, venue outages, exchange-specific rejected-order behavior, paper-trading state, or parameter optimization.`
-- `impact`: `SV1.1 makes assumption sensitivity easier to review, especially fill-timing sensitivity, but the output still must not be treated as proof of profitability or production execution quality. Future SV phases should deepen data coverage, market-regime analysis, paper-trading readiness, report persistence if useful, and broader assumption sensitivity before changing strategy rules or connecting validation outputs to live routing/execution.`
+- `summary`: `SV1.0 adds deterministic Money Flow backtest reports, SV1.0.1 hardens the research-truth surface, SV1.1 adds comparative batch reports across explicit components, fill timings, symbols, date windows, fees, and slippage assumptions, and SV1.2 adds data-coverage plus deterministic market-regime reporting. Reports now expose explicit fill timing (`same_candle_close_research_only`, `next_candle_open`, or `next_candle_close`), label same-candle close as research-only/potentially optimistic, separate closed-trade drawdown from mark-to-market drawdown, compare observed outcomes without optimization or recommendation semantics, surface requested-versus-available candle coverage, and group performance by descriptive trend/volatility labels. The simulator still uses persisted candles plus in-memory indicators and does not model order-book replay, partial fills, funding, liquidation, borrow/financing, latency, market impact, venue outages, exchange-specific rejected-order behavior, paper-trading state, or parameter optimization.`
+- `impact`: `SV1.2 makes data quality and regime clustering easier to review, but the output still must not be treated as proof of profitability or production execution quality. Future SV phases should deepen historical data ingestion/coverage across symbols and venues, paper-trading readiness, report persistence if useful, and broader assumption sensitivity before changing strategy rules or connecting validation outputs to live routing/execution.`
