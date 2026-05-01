@@ -65,6 +65,7 @@ RoutingAutomationPolicy
 
 - [[30 Strategy/Product North Star|Product North Star]]
 - [[30 Strategy/Money Flow Strategy Lab|Money Flow Strategy Lab]]
+- [Investor Overview](../docs/investors.md)
 - [[10 Components/Domain Model|Domain Model]]
 - [[10 Components/Runtime and Config|Runtime and Config]]
 - [[10 Components/API Control Plane|API Control Plane]]

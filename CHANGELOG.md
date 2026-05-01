@@ -13,6 +13,24 @@ Entry schema:
 
 ---
 
+## v2026.05.01.003
+
+- `recorded_at_utc`: `2026-05-01T06:04:54Z`
+- `scope`: `Investor-facing plain-language overview`
+- `intent`: `Native entry. Added a non-technical investor overview at `docs/investors.md` so readers who do not know trading systems can understand what Money Flow is today, what it intentionally is not yet, and where the product is going next. Linked it from the README and Obsidian business/product notes, updated repo tree ownership, and strengthened operational-doc tests so the page remains present and discoverable. This is documentation only: no product behavior, trading automation, routing logic, migration, config, exchange behavior, smart routing, best-binding selection, CBBO, ranking/scoring, fanout, target reselection, route executor, auto-submit, cross-binding recovery, or cross-venue retry was added.`
+- `affected_files`:
+  - `docs/investors.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `tests/test_operational_docs.py`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/30 Strategy/Product North Star.md`
+  - `money-flow/30 Strategy/Business and Product Track.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `CHANGELOG.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed.
+
 ## v2026.05.01.002
 
 - `recorded_at_utc`: `2026-05-01T05:58:03Z`

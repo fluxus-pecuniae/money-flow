@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-01T05:39:34Z`
+Last reviewed: `2026-05-01T06:04:54Z`
 
 ## Top-Level Structure
 
@@ -88,6 +88,10 @@ Last reviewed: `2026-05-01T05:39:34Z`
 `docs/strategy.md`
 - Canonical strategy document at head.
 - Consolidated source of truth for indicator, decision, desired-trade, child-intent, readiness, submitted-order, and below-routing execution behavior.
+
+`docs/investors.md`
+- Plain-language investor-facing overview.
+- Explains what Money Flow is today, what it is intentionally not yet, and where the product roadmap goes next without assuming trading-systems background.
 
 `money_flow_project_memory.md`
 - Compatibility pointer to `money-flow/Project_Memory/money_flow_project_memory.md`.

@@ -14,6 +14,7 @@ Agents must create or update their own row before substantial work and update it
 | agent | task / phase | expected files | status | started_at_utc | updated_at_utc | notes / warnings | handoff summary |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Codex | Phase 7.3 Obsidian workflow + approval-gated target-choice conversion | `AGENTS.md`, `money-flow/`, `services/routing/service.py`, `core/domain/models.py`, `core/interfaces/services.py`, `core/schemas/api.py`, `apps/api/app/api/routes.py`, tests, repo docs | done | 2026-05-01T05:39:34Z | 2026-05-01T05:58:03Z | Preserve same-target boundary; no preview/readiness/submission automation. | Obsidian workflow integrated; target-choice conversion approval hook added; focused and full non-migration tests passed. |
+| Codex | Investor-facing plain-language overview | `docs/investors.md`, `README.md`, `REPO_TREE.md`, `tests/test_operational_docs.py`, `CHANGELOG.md`, Obsidian business/coordination notes | done | 2026-05-01T06:03:11Z | 2026-05-01T06:04:54Z | Documentation-only; does not imply new trading capability. | Added and linked investor overview; operational docs test passed. |
 
 ## Coordination Rules
 

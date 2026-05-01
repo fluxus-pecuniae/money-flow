@@ -21,6 +21,7 @@ REQUIRED_FILES = [
     "money-flow/Project_Memory/money_flow_project_memory.md",
     "README.md",
     "docs/architecture.md",
+    "docs/investors.md",
 ]
 
 
@@ -46,6 +47,16 @@ def test_readme_mentions_operational_memory() -> None:
     assert "Obsidian" in readme
     assert "AGENTS.md" in readme
     assert "CHANGELOG.md" in readme
+    assert "Money Flow For Investors" in readme
+
+
+def test_investor_overview_is_plain_language_and_discoverable() -> None:
+    investor_page = Path("docs/investors.md").read_text()
+    assert "# Money Flow For Investors" in investor_page
+    assert "plain English" in investor_page
+    assert "What Money Flow Is Today" in investor_page
+    assert "Where Money Flow Is Going Tomorrow" in investor_page
+    assert "What Money Flow Is Not Yet" in investor_page
 
 
 def test_obsidian_brain_workflow_exists() -> None:

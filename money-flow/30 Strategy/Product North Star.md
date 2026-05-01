@@ -30,9 +30,11 @@ Client
 - Execution trust makes it usable.
 - Routing should serve strategy, not distract from it.
 - Build dangerous automation last.
+- The investor narrative should stay understandable to normal people and should not claim smart routing, broad auto-submit, or production dashboard capability before those exist.
 
 ## Related Notes
 
+- [Investor Overview](../../docs/investors.md)
 - [[30 Strategy/Money Flow Strategy Lab]]
 - [[30 Strategy/Business and Product Track]]
 - [[20 Workflows/Deferred Smart Routing]]
