@@ -13,6 +13,31 @@ Entry schema:
 
 ---
 
+## v2026.05.01.001
+
+- `recorded_at_utc`: `2026-05-01T05:12:07Z`
+- `scope`: `Phase 7.2.1 approval-gated recommendation acceptance atomicity hotpatch`
+- `intent`: `Native entry. Hardened the Phase 7.2 approval-gated recommendation acceptance action so approval validation, target-choice creation or reuse, recommendation/audit target-choice marking, approval consumption, and approval provenance update occur in one coherent session/commit. The existing Phase 6.2 recommendation acceptance logic now has an internal in-session path used by both the normal operator action and the approval-gated action; approval-gated execution no longer commits a target choice before consuming the approval. If approval consumption fails after a target choice is flushed but before commit, the transaction rolls back and leaves no persisted target choice, no misleading active approval with target-choice side effects, and no recommendation target-choice-created truth. Repeated calls with the same consumed approval and recommendation still return the original target choice without changing consumed_at. The generic approval consume endpoint is documented as an administrative approval-state transition only and still does not execute the approved action. This phase creates/reuses only `RoutingTargetChoice`; it adds no child intent, prepared order, readiness assessment, submitted order, exchange call, smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor, auto-submit, cross-binding/cross-venue recovery, migration, config, or money_flow_project_memory.md update.`
+- `affected_files`:
+  - `services/routing/service.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_phase72_approval_gated_recommendation_acceptance.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall services/routing/service.py apps/api/app/api/routes.py tests/test_phase72_approval_gated_recommendation_acceptance.py` passed.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase72_approval_gated_recommendation_acceptance.py` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase70_routing_automation.py tests/test_phase71_routing_automation_approvals.py tests/test_phase72_approval_gated_recommendation_acceptance.py` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase62_recommendation_acceptance.py tests/test_phase63_recommendation_target_choice_conversion.py tests/test_phase69_routed_workflow_inspection.py tests/test_api.py tests/test_operational_docs.py` passed.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed after final docs update.
+
 ## v2026.04.30.003
 
 - `recorded_at_utc`: `2026-04-30T19:30:37Z`

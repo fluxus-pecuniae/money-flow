@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-04-30T19:30:37Z`
+Last reviewed: `2026-05-01T05:12:07Z`
 
 ## Active Follow-Ups
 
@@ -37,8 +37,14 @@ Last reviewed: `2026-04-30T19:30:37Z`
 ### T-038
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 7.2.1 hardened approval-gated recommendation acceptance coherence. The action now validates approval, creates or reuses the target choice, updates recommendation/audit target-choice truth, consumes the approval, and records approval provenance in one session/commit. A forced failure between target-choice flush and approval consumption rolls back without leaving a target choice or misleading active approval side effect. Repeated calls with the same consumed approval remain idempotent and preserve consumed_at. Generic approval consumption remains administrative only and executes no recommendation acceptance, conversion, readiness, submitted-order handoff, exchange call, route executor, fanout, ranking/scoring, CBBO, target reselection, or auto-submit.`
+
+### T-039
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `Phase 7.3 should remain below smart routing and decide the next narrow approval-consuming action, likely target-choice conversion only if acceptance/conversion concurrency hardening is sufficient. It must preserve Phase 7.2 approval consumption truth, current-lineage matching, dry-run/manual policy blocks, no child-intent fanout, no preview/readiness automation unless explicitly scoped, no submitted-order handoff automation, no route executor, no ranking/scoring, no CBBO, no target reselection, and no auto-submit.`
+- `summary`: `Phase 7.3 should remain below smart routing and decide the next narrow approval-consuming action, likely target-choice conversion only if acceptance/conversion concurrency hardening is sufficient. It must preserve Phase 7.2.1 coherent approval consumption truth, current-lineage matching, dry-run/manual policy blocks, no child-intent fanout, no preview/readiness automation unless explicitly scoped, no submitted-order handoff automation, no route executor, no ranking/scoring, no CBBO, no target reselection, and no auto-submit.`
 
 ### T-001
 

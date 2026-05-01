@@ -18,6 +18,8 @@ Phase 7.1.2 tightens that gate truth against the current automation policy. Acti
 
 Phase 7.2 adds the first action hook, but only for approval-gated recommendation acceptance. One valid current `recommendation_acceptance` approval can accept the exact approved `RoutingTargetRecommendation` into a created or reused `RoutingTargetChoice` through the existing acceptance logic, then records the approval as consumed with the target choice id. The hook preserves approval/action separation because it stops at target choice and creates no child intent, prepared-order preview, readiness assessment, submitted order, exchange call, route executor behavior, fanout, ranking/scoring, CBBO, target reselection, or auto-submit.
 
+Phase 7.2.1 hardens that hook so the first approval-consuming action is not split across misleading partial commits. Approval validation, target-choice creation or reuse, recommendation/audit target-choice-created truth, approval consumption, and approval provenance update now commit together or roll back together. The generic approval consume endpoint remains administrative state marking only and still does not execute recommendation acceptance, conversion, readiness, or submission.
+
 The load-bearing strategy-to-execution boundary is:
 
 - `StrategyDecision`
@@ -145,6 +147,7 @@ Money Flow-specific `sleeve_*` naming remains family vocabulary only.
   - Phase 7.1.1 scopes approval reuse to the current workflow lineage fingerprint, marks expired approvals expired before reuse, and marks stale-lineage approvals non-current
   - Phase 7.1.2 keeps manual-only and dry-run-only steps non-approvable and prevents gate-state output from showing them as approved
   - Phase 7.2 consumes a valid current recommendation-acceptance approval for exactly one approved recommendation and creates or reuses only the corresponding target choice
+  - Phase 7.2.1 makes that target-choice creation/reuse and approval consumption commit together or roll back together
   - preserve routed lineage, policy snapshots, selected binding/account/venue/symbol, and no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit flags
   - execute no target-choice conversion, readiness assessment, submitted-order handoff, exchange submit call, route executor behavior, fanout, ranking/scoring, CBBO, target reselection, or auto-submit
 - manual routed-flow inspection harness:
@@ -544,7 +547,7 @@ Still deferred:
 
 ## Forward-Looking Concern
 
-Phase 7.0 adds controlled automation policy and dry-run planning only, Phase 7.1 adds durable approval/revocation gates only, Phase 7.1.1 hardens approval expiry, lineage scope, and active-scope uniqueness before action-taking automation, Phase 7.1.2 keeps approvals limited to truly approvable current policy states, and Phase 7.2 adds approval-gated recommendation acceptance only. The next strategy-adjacent concerns are action-taking automation hardening, still short of smart routing:
+Phase 7.0 adds controlled automation policy and dry-run planning only, Phase 7.1 adds durable approval/revocation gates only, Phase 7.1.1 hardens approval expiry, lineage scope, and active-scope uniqueness before action-taking automation, Phase 7.1.2 keeps approvals limited to truly approvable current policy states, Phase 7.2 adds approval-gated recommendation acceptance only, and Phase 7.2.1 makes that first action hook transactionally coherent. The next strategy-adjacent concerns are action-taking automation hardening, still short of smart routing:
 
 - DB-level concurrency/serialization hardening should be considered before broader or multi-worker automation expands recommendation acceptance or conversion paths
 - future action hooks beyond recommendation acceptance must consume one active, non-expired, current-lineage approval record for exactly one same-target action and must preserve revocation/expiry/stale-lineage/manual-only/dry-run-only truth

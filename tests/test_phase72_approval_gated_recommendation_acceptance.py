@@ -154,6 +154,98 @@ def test_approval_gated_recommendation_acceptance_is_idempotent_for_same_approva
     assert after_repeat == before_repeat
 
 
+def test_approval_gated_acceptance_rolls_back_if_approval_consumption_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    session_factory = build_test_session_factory()
+    routing, _audit, _desired_trade_key, recommendation, approval = _recommendation_and_approval(
+        session_factory
+    )
+
+    def fail_consumption(*_args, **kwargs):
+        assert kwargs["target_choice"].target_choice_id.startswith("rtchoice_")
+        raise RuntimeError("forced approval consumption failure")
+
+    monkeypatch.setattr(
+        routing,
+        "_consume_recommendation_acceptance_approval_model",
+        fail_consumption,
+    )
+
+    with pytest.raises(RuntimeError, match="forced approval consumption failure"):
+        asyncio.run(
+            routing.accept_routing_target_recommendation_with_approval(
+                recommendation.routing_target_recommendation_id,
+                approval_id=approval.approval_id,
+                consumed_by="automation-operator",
+            )
+        )
+
+    assert _counts(session_factory)["target_choices"] == 0
+    assert _counts(session_factory)["child_intents"] == 0
+    assert _counts(session_factory)["readiness_evaluations"] == 0
+    assert _counts(session_factory)["submitted_orders"] == 0
+    with session_factory() as session:
+        approval_model = session.scalar(
+            select(RoutingAutomationApprovalModel).where(
+                RoutingAutomationApprovalModel.approval_id == approval.approval_id
+            )
+        )
+        recommendation_model = session.scalar(
+            select(RoutingTargetRecommendationModel).where(
+                RoutingTargetRecommendationModel.routing_target_recommendation_id
+                == recommendation.routing_target_recommendation_id
+            )
+        )
+        assert approval_model is not None
+        assert recommendation_model is not None
+        assert approval_model.status == RoutingAutomationApprovalStatus.ACTIVE.value
+        assert approval_model.routing_target_choice_id is None
+        assert approval_model.consumed_at is None
+        assert approval_model.consumed_by is None
+        assert dict(approval_model.provenance_json or {}).get(
+            "approval_gated_recommendation_acceptance"
+        ) is not True
+        assert recommendation_model.target_choice_created is False
+
+
+def test_generic_approval_consume_is_administrative_only() -> None:
+    session_factory = build_test_session_factory()
+    routing, _audit, _desired_trade_key, recommendation, approval = _recommendation_and_approval(
+        session_factory
+    )
+    before = _counts(session_factory)
+
+    consumed = asyncio.run(
+        routing.consume_routing_automation_approval(
+            approval.approval_id,
+            consumed_by="operator-admin",
+            reason="administrative_state_transition_only",
+        )
+    )
+    after = _counts(session_factory)
+
+    assert consumed.status == RoutingAutomationApprovalStatus.CONSUMED
+    assert consumed.consumed_by == "operator-admin"
+    assert consumed.routing_target_choice_id is None
+    assert consumed.provenance["action_execution_not_performed_by_approval_service"] is True
+    assert after["target_choices"] == before["target_choices"]
+    assert after["child_intents"] == before["child_intents"]
+    assert after["readiness_evaluations"] == before["readiness_evaluations"]
+    assert after["submitted_orders"] == before["submitted_orders"]
+
+    with pytest.raises(RoutingAssessmentError) as exc:
+        asyncio.run(
+            routing.accept_routing_target_recommendation_with_approval(
+                recommendation.routing_target_recommendation_id,
+                approval_id=approval.approval_id,
+                consumed_by="automation-operator",
+            )
+        )
+    assert exc.value.reason_code == "routing_automation_approval_consumed_for_different_action"
+    assert _counts(session_factory)["target_choices"] == before["target_choices"]
+
+
 def test_invalid_approvals_cannot_authorize_recommendation_acceptance() -> None:
     session_factory = build_test_session_factory()
     routing, audit, _desired_trade_key, recommendation, approval = _recommendation_and_approval(

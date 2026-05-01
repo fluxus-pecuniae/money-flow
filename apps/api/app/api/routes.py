@@ -2548,6 +2548,11 @@ async def accept_recommendation_with_routing_automation_approval(
 @v1.post(
     "/routing-automation/approvals/{approval_id}/consume",
     response_model=RoutingAutomationApprovalResponse,
+    description=(
+        "Administrative approval-state transition only. This marks an approval consumed "
+        "without executing the approved action; stage-specific action endpoints perform "
+        "bounded action execution."
+    ),
     tags=["routing-automation"],
 )
 async def consume_routing_automation_approval(
