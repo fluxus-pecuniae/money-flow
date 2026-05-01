@@ -13,6 +13,50 @@ Entry schema:
 
 ---
 
+## v2026.05.01.002
+
+- `recorded_at_utc`: `2026-05-01T05:58:03Z`
+- `scope`: `Phase 7.3 approval-gated target-choice conversion and Obsidian brain workflow`
+- `intent`: `Native entry. Added the second narrow approval-consuming automation action hook and integrated the Obsidian strategic-memory workflow. One active, non-expired, current-lineage `target_choice_conversion` approval can now be consumed to convert the exact approved `RoutingTargetChoice` into a created or reused child `OrderIntent` through existing conversion validation/persistence helpers, then record approval consumption with actor, child-intent id, routed order-shape policy, and explicit no-prepared-order/no-readiness/no-submission provenance in one coherent session/commit. Expired, revoked, stale-lineage, wrong-action, wrong-target-choice, consumed-for-different-target-choice, dry-run-only, and manual-only cases block before child-intent creation. Added the API route `POST /api/v1/routing-automation/approvals/{approval_id}/convert-target-choice` plus focused tests for success, idempotency, rollback on approval-consumption failure, invalid approvals, policy boundaries, API response shape, and no downstream artifacts. Moved full strategic project memory into the tracked Obsidian vault at `money-flow/Project_Memory/money_flow_project_memory.md`, made the repo-root `money_flow_project_memory.md` a pointer, added required Obsidian command/current-phase/decision/coordination notes, and updated agent rules/tests so future agents read and update Obsidian without replacing repo operational docs. This phase creates/reuses only `OrderIntent`; it adds no prepared order, readiness assessment, submitted order, exchange call, smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor, auto-submit, cross-binding/cross-venue recovery, migration, or config.`
+- `affected_files`:
+  - `.archiveignore`
+  - `.gitignore`
+  - `AGENTS.md`
+  - `money_flow_project_memory.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/Operational Memory.md`
+  - `money-flow/40 Operations/Phase 7 Focus.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `services/routing/service.py`
+  - `core/domain/models.py`
+  - `core/interfaces/services.py`
+  - `core/schemas/api.py`
+  - `apps/api/app/api/routes.py`
+  - `tests/test_phase73_approval_gated_target_choice_conversion.py`
+  - `tests/test_operational_docs.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_phase73_approval_gated_target_choice_conversion.py` passed.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase72_approval_gated_recommendation_acceptance.py` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase70_routing_automation.py tests/test_phase71_routing_automation_approvals.py tests/test_phase72_approval_gated_recommendation_acceptance.py tests/test_phase73_approval_gated_target_choice_conversion.py` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase63_recommendation_target_choice_conversion.py tests/test_phase69_routed_workflow_inspection.py tests/test_api.py tests/test_operational_docs.py` passed.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed after final docs and Obsidian updates.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-7.3-review.zip` created a clean review bundle; bundle inspection found 203 files and no `.env`, virtualenvs, Git metadata, pytest caches, Obsidian app state, local DBs, SQLite files, or nested ZIPs.
+
 ## v2026.05.01.001
 
 - `recorded_at_utc`: `2026-05-01T05:12:07Z`

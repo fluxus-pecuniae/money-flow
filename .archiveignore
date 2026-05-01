@@ -20,5 +20,5 @@
 __MACOSX
 __pycache__
 **/__pycache__
-money-flow
-money-flow/**
+money-flow/.obsidian
+money-flow/.obsidian/**

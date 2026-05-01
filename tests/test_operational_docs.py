@@ -14,6 +14,11 @@ REQUIRED_FILES = [
     "KNOWN_ISSUES.md",
     "TODO.md",
     "money_flow_project_memory.md",
+    "money-flow/00_Money_Flow_Command_Center.md",
+    "money-flow/01_Current_Phase.md",
+    "money-flow/03_Decision_Log.md",
+    "money-flow/05_Agent_Coordination.md",
+    "money-flow/Project_Memory/money_flow_project_memory.md",
     "README.md",
     "docs/architecture.md",
 ]
@@ -29,14 +34,33 @@ def test_agents_references_required_operational_docs() -> None:
     for required_name in ["AGENTS.md", "CHANGELOG.md", "REPO_TREE.md", "KNOWN_ISSUES.md", "TODO.md"]:
         assert required_name in agents
     assert "money_flow_project_memory.md" in agents
-    assert "read-only" in agents
+    assert "Obsidian" in agents
+    assert "money-flow/00_Money_Flow_Command_Center.md" in agents
+    assert "money-flow/05_Agent_Coordination.md" in agents
+    assert "not a substitute" in agents
 
 
 def test_readme_mentions_operational_memory() -> None:
     readme = Path("README.md").read_text()
     assert "Operational Memory" in readme
+    assert "Obsidian" in readme
     assert "AGENTS.md" in readme
     assert "CHANGELOG.md" in readme
+
+
+def test_obsidian_brain_workflow_exists() -> None:
+    command_center = Path("money-flow/00_Money_Flow_Command_Center.md").read_text()
+    current_phase = Path("money-flow/01_Current_Phase.md").read_text()
+    coordination = Path("money-flow/05_Agent_Coordination.md").read_text()
+    moved_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
+    root_pointer = Path("money_flow_project_memory.md").read_text()
+
+    assert "required Obsidian brain entrypoint" in command_center
+    assert "Phase 7.3" in current_phase
+    assert "Active Work" in coordination
+    assert "Quant Engineer" in moved_memory
+    assert "canonical strategic project memory has moved" in root_pointer
+    assert "The original starting point" not in root_pointer
 
 
 def test_changelog_has_versioned_entries() -> None:
@@ -69,6 +93,7 @@ def test_review_bundle_excludes_local_artifacts(tmp_path: Path) -> None:
         ".pgdata/",
         ".pgsocket/",
         ".pytest_cache/",
+        "money-flow/.obsidian/",
         "__MACOSX/",
     ]
     forbidden_names = {".DS_Store"}

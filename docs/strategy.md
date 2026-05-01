@@ -20,6 +20,8 @@ Phase 7.2 adds the first action hook, but only for approval-gated recommendation
 
 Phase 7.2.1 hardens that hook so the first approval-consuming action is not split across misleading partial commits. Approval validation, target-choice creation or reuse, recommendation/audit target-choice-created truth, approval consumption, and approval provenance update now commit together or roll back together. The generic approval consume endpoint remains administrative state marking only and still does not execute recommendation acceptance, conversion, readiness, or submission.
 
+Phase 7.3 adds the second approval-consuming action hook and keeps it limited to target-choice conversion. One valid current `target_choice_conversion` approval can convert the exact approved `RoutingTargetChoice` into a created or reused child `OrderIntent` through the existing conversion validation/persistence helpers, then consumes the approval with child-intent and routed order-shape policy provenance. It creates no prepared order, readiness assessment, submitted order, exchange call, route executor behavior, fanout, ranking/scoring, CBBO, target reselection, or auto-submit. Phase 7.3 also moves long-horizon strategic memory and cross-agent coordination into the Obsidian vault under `money-flow/`; repo operational docs remain implemented-code truth.
+
 The load-bearing strategy-to-execution boundary is:
 
 - `StrategyDecision`
@@ -148,8 +150,9 @@ Money Flow-specific `sleeve_*` naming remains family vocabulary only.
   - Phase 7.1.2 keeps manual-only and dry-run-only steps non-approvable and prevents gate-state output from showing them as approved
   - Phase 7.2 consumes a valid current recommendation-acceptance approval for exactly one approved recommendation and creates or reuses only the corresponding target choice
   - Phase 7.2.1 makes that target-choice creation/reuse and approval consumption commit together or roll back together
+  - Phase 7.3 consumes a valid current target-choice-conversion approval for exactly one approved target choice and creates or reuses only the corresponding child intent
   - preserve routed lineage, policy snapshots, selected binding/account/venue/symbol, and no-fanout/no-CBBO/no-ranking/no-scoring/no-target-reselection/no-route-executor/no-auto-submit flags
-  - execute no target-choice conversion, readiness assessment, submitted-order handoff, exchange submit call, route executor behavior, fanout, ranking/scoring, CBBO, target reselection, or auto-submit
+  - execute no preview/readiness assessment, submitted-order handoff, exchange submit call, route executor behavior, fanout, ranking/scoring, CBBO, target reselection, or auto-submit; Phase 7.3 executes target-choice conversion only when one valid current approval is consumed
 - manual routed-flow inspection harness:
   - `scripts/manual_routed_flow.py` starts from an existing desired trade key and emits JSON trace output for operator/developer validation
   - default invocation inspects the desired trade only and skips submission
@@ -547,12 +550,12 @@ Still deferred:
 
 ## Forward-Looking Concern
 
-Phase 7.0 adds controlled automation policy and dry-run planning only, Phase 7.1 adds durable approval/revocation gates only, Phase 7.1.1 hardens approval expiry, lineage scope, and active-scope uniqueness before action-taking automation, Phase 7.1.2 keeps approvals limited to truly approvable current policy states, Phase 7.2 adds approval-gated recommendation acceptance only, and Phase 7.2.1 makes that first action hook transactionally coherent. The next strategy-adjacent concerns are action-taking automation hardening, still short of smart routing:
+Phase 7.0 adds controlled automation policy and dry-run planning only, Phase 7.1 adds durable approval/revocation gates only, Phase 7.1.1 hardens approval expiry, lineage scope, and active-scope uniqueness before action-taking automation, Phase 7.1.2 keeps approvals limited to truly approvable current policy states, Phase 7.2 adds approval-gated recommendation acceptance only, Phase 7.2.1 makes that first action hook transactionally coherent, and Phase 7.3 adds approval-gated target-choice conversion only. The next strategy-adjacent concerns are action-taking automation hardening, still short of smart routing:
 
 - DB-level concurrency/serialization hardening should be considered before broader or multi-worker automation expands recommendation acceptance or conversion paths
-- future action hooks beyond recommendation acceptance must consume one active, non-expired, current-lineage approval record for exactly one same-target action and must preserve revocation/expiry/stale-lineage/manual-only/dry-run-only truth
+- future action hooks beyond target-choice conversion must consume one active, non-expired, current-lineage approval record for exactly one same-target action and must preserve revocation/expiry/stale-lineage/manual-only/dry-run-only truth
 - slippage/price guard policy and richer market-data quality are prerequisites before any price-aware routing work
 - continued mandate/account policy checks before any broader routed execution behavior
 - fanout/splitting remains a later explicit phase only
 
-Phase 7.2 does not make the platform a routing optimizer, route executor, or auto-submit system. It connects reversible operator authorization to recommendation acceptance only and preserves the separate strategy, planning, routing assessment, route-readiness audit, recommendation, target choice, child-intent creation, readiness, explicit submission, and post-submit lifecycle boundaries.
+Phase 7.3 does not make the platform a routing optimizer, route executor, readiness automation system, or auto-submit system. It connects reversible operator authorization to target-choice conversion only and preserves the separate strategy, planning, routing assessment, route-readiness audit, recommendation, target choice, child-intent creation, readiness, explicit submission, and post-submit lifecycle boundaries.

@@ -112,6 +112,8 @@ from core.schemas.api import (
     RoutingAutomationApprovalInspectionResponse,
     RoutingAutomationRecommendationAcceptanceRequest,
     RoutingAutomationRecommendationAcceptanceResponse,
+    RoutingAutomationTargetChoiceConversionRequest,
+    RoutingAutomationTargetChoiceConversionResponse,
     RoutingAutomationApprovalResponse,
     RoutingAutomationApprovalStateChangeRequest,
     RoutingAutomationPlanRequest,
@@ -2536,6 +2538,57 @@ async def accept_recommendation_with_routing_automation_approval(
         approval_consumed=result.approval_consumed,
         target_choice_created_or_reused=result.target_choice_created_or_reused,
         child_intent_created=result.child_intent_created,
+        prepared_order_created=result.prepared_order_created,
+        readiness_assessment_created=result.readiness_assessment_created,
+        submitted_order_created=result.submitted_order_created,
+        reason_codes=list(result.reason_codes),
+        boundary_flags=dict(result.boundary_flags),
+        provenance=dict(result.provenance),
+    )
+
+
+@v1.post(
+    "/routing-automation/approvals/{approval_id}/convert-target-choice",
+    response_model=RoutingAutomationTargetChoiceConversionResponse,
+    tags=["routing-automation"],
+)
+async def convert_target_choice_with_routing_automation_approval(
+    approval_id: str,
+    request: RoutingAutomationTargetChoiceConversionRequest,
+    routing_service: RoutingAssessmentService = Depends(get_routing_assessment_service),
+) -> RoutingAutomationTargetChoiceConversionResponse:
+    policy = _routing_automation_policy_from_request(routing_service, request.policy)
+    try:
+        result = await routing_service.convert_target_choice_to_child_intent_with_approval(
+            request.target_choice_id,
+            approval_id=approval_id,
+            consumed_by=request.actor,
+            policy=policy,
+        )
+    except RoutingAssessmentError as exc:
+        status_code = (
+            404
+            if exc.reason_code
+            in {
+                "routing_automation_approval_not_found",
+                "routing_target_choice_not_found",
+            }
+            else 409
+        )
+        raise HTTPException(
+            status_code=status_code,
+            detail={"reason_code": exc.reason_code, "message": str(exc)},
+        ) from exc
+    return RoutingAutomationTargetChoiceConversionResponse(
+        approval_id=result.approval_id,
+        target_choice_id=result.target_choice_id,
+        intent_id=result.intent_id,
+        desired_trade_key=result.desired_trade_key,
+        environment=result.environment,
+        approval=RoutingAutomationApprovalResponse(**asdict(result.approval)),
+        conversion=_routing_target_choice_conversion_response(result.conversion),
+        approval_consumed=result.approval_consumed,
+        child_intent_created_or_reused=result.child_intent_created_or_reused,
         prepared_order_created=result.prepared_order_created,
         readiness_assessment_created=result.readiness_assessment_created,
         submitted_order_created=result.submitted_order_created,

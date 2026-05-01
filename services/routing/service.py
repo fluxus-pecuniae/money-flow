@@ -45,6 +45,7 @@ from core.domain.models import (
     RoutingAutomationApprovalGateState,
     RoutingAutomationApprovalInspection,
     RoutingAutomationRecommendationAcceptanceResult,
+    RoutingAutomationTargetChoiceConversionResult,
     RoutingAutomationPlan,
     RoutingAutomationPlanStep,
     RoutingAutomationPolicy,
@@ -915,6 +916,146 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             },
         )
 
+    async def convert_target_choice_to_child_intent_with_approval(
+        self,
+        target_choice_id: str,
+        *,
+        approval_id: str,
+        consumed_by: str,
+        policy: RoutingAutomationPolicy | None = None,
+    ) -> RoutingAutomationTargetChoiceConversionResult:
+        """Consume one current approval to convert one target choice into one child intent."""
+
+        action = RoutingAutomationApprovalAction.TARGET_CHOICE_CONVERSION
+        active_policy = policy or self.routing_automation_policy(
+            mode=RoutingAutomationMode.APPROVAL_REQUIRED
+        )
+        with self._session_factory() as lookup_session:
+            choice_lookup = lookup_session.scalar(
+                select(RoutingTargetChoiceModel).where(
+                    RoutingTargetChoiceModel.environment == self.settings.app.environment,
+                    RoutingTargetChoiceModel.target_choice_id == target_choice_id,
+                )
+            )
+            if choice_lookup is None:
+                raise RoutingAssessmentError(
+                    "routing_target_choice_not_found",
+                    f"Routing target choice not found: {target_choice_id}",
+                )
+            desired_trade_key = choice_lookup.desired_trade_key
+        if desired_trade_key is None:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_missing_desired_trade",
+                "Target-choice conversion approval requires desired-trade lineage.",
+            )
+        plan = await self.plan_routing_automation_for_desired_trade(
+            desired_trade_key,
+            policy=active_policy,
+            dry_run=True,
+        )
+        step = self._routing_automation_step_for_action(plan, action)
+
+        with self._session_factory() as session:
+            converted_at = _utcnow()
+            choice_model = session.scalar(
+                select(RoutingTargetChoiceModel)
+                .where(
+                    RoutingTargetChoiceModel.environment == self.settings.app.environment,
+                    RoutingTargetChoiceModel.target_choice_id == target_choice_id,
+                )
+                .with_for_update()
+            )
+            if choice_model is None:
+                raise RoutingAssessmentError(
+                    "routing_target_choice_not_found",
+                    f"Routing target choice not found: {target_choice_id}",
+                )
+            approval_model = self._load_routing_automation_approval_model_for_update(
+                session,
+                approval_id,
+            )
+            self._validate_target_choice_conversion_approval_for_action(
+                session,
+                approval_model,
+                choice_model,
+                step=step,
+                action=action,
+            )
+            conversion = self._convert_target_choice_to_child_intent_in_session(
+                session,
+                target_choice_id,
+                converted_at=converted_at,
+                locked_choice_model=choice_model,
+            )
+            if conversion.child_intent is None:
+                reason_code = next(
+                    (
+                        reason
+                        for reason in conversion.reason_codes
+                        if reason != "conversion_non_submitting"
+                    ),
+                    "routing_automation_target_choice_conversion_blocked",
+                )
+                raise RoutingAssessmentError(
+                    reason_code,
+                    "Approval-gated target-choice conversion was blocked before child-intent creation.",
+                )
+            approval_model = self._consume_target_choice_conversion_approval_model(
+                session,
+                approval_model,
+                target_choice_id=target_choice_id,
+                conversion=conversion,
+                consumed_by=consumed_by,
+            )
+            session.commit()
+            session.refresh(approval_model)
+            approval = self._routing_automation_approval_from_model(approval_model)
+        return RoutingAutomationTargetChoiceConversionResult(
+            approval_id=approval.approval_id,
+            target_choice_id=target_choice_id,
+            intent_id=conversion.intent_id,
+            desired_trade_key=conversion.desired_trade_key,
+            environment=conversion.environment,
+            approval=approval,
+            conversion=conversion,
+            approval_consumed=approval.status == RoutingAutomationApprovalStatus.CONSUMED,
+            child_intent_created_or_reused=conversion.child_intent is not None,
+            prepared_order_created=False,
+            readiness_assessment_created=False,
+            submitted_order_created=False,
+            reason_codes=[
+                "routing_automation_target_choice_conversion_approval_consumed",
+                "child_intent_created_or_reused",
+                "prepared_order_creation_deferred",
+                "readiness_assessment_deferred",
+                "submitted_order_creation_deferred",
+            ],
+            boundary_flags=self._routing_automation_boundary_flags(),
+            provenance={
+                "phase": "phase_7_3",
+                "approval_consuming_action": True,
+                "action_name": action.value,
+                "routing_target_choice_id": target_choice_id,
+                "intent_id": conversion.intent_id,
+                "approval_id": approval.approval_id,
+                "consumed_by": consumed_by,
+                "same_target_only": True,
+                "child_intent_created_or_reused": True,
+                "prepared_order_created": False,
+                "readiness_assessment_created": False,
+                "submitted_order_created": False,
+                "smart_routing": False,
+                "best_binding_selection": False,
+                "cbbo": False,
+                "fanout": False,
+                "ranking": False,
+                "scoring": False,
+                "target_reselection": False,
+                "route_executor": False,
+                "auto_submit": False,
+            },
+        )
+
     async def inspect_routed_workflow_by_desired_trade(
         self,
         desired_trade_key: str,
@@ -1470,6 +1611,21 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             and model.routing_target_choice_id is not None
         )
 
+    @staticmethod
+    def _approval_consumed_for_target_choice_conversion(
+        model: RoutingAutomationApprovalModel,
+        target_choice_id: str,
+    ) -> bool:
+        provenance = dict(model.provenance_json or {})
+        return (
+            model.status == RoutingAutomationApprovalStatus.CONSUMED.value
+            and model.action_name == RoutingAutomationApprovalAction.TARGET_CHOICE_CONVERSION.value
+            and model.routing_target_choice_id == target_choice_id
+            and provenance.get("phase") == "phase_7_3"
+            and provenance.get("approval_gated_target_choice_conversion") is True
+            and model.intent_id is not None
+        )
+
     def _validate_recommendation_acceptance_approval_for_action(
         self,
         session: Any,
@@ -1710,6 +1866,231 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             }
         )
         model.provenance_json = provenance
+        return model
+
+    def _validate_target_choice_conversion_approval_for_action(
+        self,
+        session: Any,
+        model: RoutingAutomationApprovalModel,
+        choice_model: RoutingTargetChoiceModel,
+        *,
+        step: RoutingAutomationPlanStep,
+        action: RoutingAutomationApprovalAction,
+    ) -> None:
+        self._expire_approval_if_needed(session, model, commit=False)
+        if self._approval_consumed_for_target_choice_conversion(
+            model,
+            choice_model.target_choice_id,
+        ):
+            consumed_intent = session.scalar(
+                select(OrderIntentModel).where(
+                    OrderIntentModel.environment == self.settings.app.environment,
+                    OrderIntentModel.intent_id == model.intent_id,
+                )
+            )
+            if consumed_intent is None:
+                raise RoutingAssessmentError(
+                    "routing_automation_approval_consumed_child_intent_missing",
+                    "Consumed target-choice conversion approval no longer has child-intent truth.",
+                )
+            return
+        if model.action_name != action.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_wrong_action",
+                f"Approval {model.approval_id} is for {model.action_name}, not {action.value}.",
+            )
+        if model.status == RoutingAutomationApprovalStatus.REVOKED.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_revoked",
+                f"Approval {model.approval_id} has been revoked.",
+            )
+        if model.status == RoutingAutomationApprovalStatus.EXPIRED.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_expired",
+                f"Approval {model.approval_id} has expired.",
+            )
+        if model.status == RoutingAutomationApprovalStatus.STALE_LINEAGE.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_lineage_stale",
+                f"Approval {model.approval_id} is stale for the current workflow lineage.",
+            )
+        if model.status == RoutingAutomationApprovalStatus.CONSUMED.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_consumed_for_different_action",
+                f"Approval {model.approval_id} has already been consumed.",
+            )
+        if model.status != RoutingAutomationApprovalStatus.ACTIVE.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_not_consumable",
+                f"Approval {model.approval_id} is not active.",
+            )
+        if model.routing_target_choice_id != choice_model.target_choice_id:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_wrong_target_choice",
+                "Approval is not scoped to this routing target choice.",
+            )
+
+        choice_provenance = dict(choice_model.provenance_json or {})
+        lineage_checks = {
+            "desired_trade_key": choice_model.desired_trade_key,
+            "routing_assessment_id": choice_model.routing_assessment_id,
+            "route_readiness_audit_id": choice_provenance.get("route_readiness_audit_id"),
+            "routing_target_recommendation_id": choice_provenance.get(
+                "routing_target_recommendation_id"
+            ),
+            "routing_target_choice_id": choice_model.target_choice_id,
+            "selected_binding_ref_id": choice_model.selected_binding_ref_id,
+            "selected_binding_key": choice_model.selected_binding_key,
+            "selected_venue_account_ref_id": choice_model.selected_venue_account_ref_id,
+            "selected_venue_account_key": choice_model.selected_venue_account_key,
+            "selected_venue": choice_model.selected_venue,
+            "selected_exchange_symbol": (
+                choice_provenance.get("selected_exchange_symbol")
+                or choice_provenance.get("recommended_exchange_symbol")
+            ),
+        }
+        for field_name, current_value in lineage_checks.items():
+            approved_value = getattr(model, field_name)
+            if approved_value is not None and approved_value != current_value:
+                self._mark_approval_stale_if_lineage_mismatch(
+                    session,
+                    model,
+                    action=action,
+                    current_scope_key="target_choice_conversion_lineage_mismatch",
+                    commit=True,
+                )
+                raise RoutingAssessmentError(
+                    "routing_automation_approval_lineage_stale",
+                    f"Approval {model.approval_id} no longer matches {field_name}.",
+                )
+
+        self._validate_approval_step(action, step)
+        current_scope_key = self._routing_automation_approval_scope(
+            action=action,
+            desired_trade_key=choice_model.desired_trade_key or "",
+            lineage=dict(step.lineage),
+        )["approval_scope_key"]
+        if not self._approval_matches_current_scope(
+            approval_scope_key=model.approval_scope_key,
+            lineage=dict(model.lineage_json or {}),
+            action=action,
+            desired_trade_key=choice_model.desired_trade_key or "",
+            current_scope_key=current_scope_key,
+        ):
+            self._mark_approval_stale_if_lineage_mismatch(
+                session,
+                model,
+                action=action,
+                current_scope_key=current_scope_key,
+                commit=True,
+            )
+            raise RoutingAssessmentError(
+                "routing_automation_approval_lineage_stale",
+                f"Approval {model.approval_id} is stale for the current workflow lineage.",
+            )
+
+    def _consume_target_choice_conversion_approval_model(
+        self,
+        session: Any,
+        model: RoutingAutomationApprovalModel,
+        *,
+        target_choice_id: str,
+        conversion: RoutingTargetChoiceConversionResult,
+        consumed_by: str,
+    ) -> RoutingAutomationApprovalModel:
+        if self._approval_consumed_for_target_choice_conversion(model, target_choice_id):
+            return model
+        self._expire_approval_if_needed(session, model, commit=False)
+        if model.status != RoutingAutomationApprovalStatus.ACTIVE.value:
+            raise RoutingAssessmentError(
+                "routing_automation_approval_not_consumable",
+                f"Routing automation approval {model.approval_id} is not active.",
+            )
+        if (
+            model.action_name != RoutingAutomationApprovalAction.TARGET_CHOICE_CONVERSION.value
+            or model.routing_target_choice_id != target_choice_id
+        ):
+            raise RoutingAssessmentError(
+                "routing_automation_approval_wrong_target_choice",
+                "Approval cannot consume this target-choice conversion action.",
+            )
+        if conversion.child_intent is None or conversion.intent_id is None:
+            raise RoutingAssessmentError(
+                "routing_automation_target_choice_conversion_no_child_intent",
+                "Target-choice conversion approval cannot be consumed without a child intent.",
+            )
+
+        now = _utcnow()
+        model.status = RoutingAutomationApprovalStatus.CONSUMED.value
+        model.consumed_by = consumed_by
+        model.consumed_at = now
+        model.intent_id = conversion.intent_id
+        model.updated_at = now
+        reason_codes = list(model.reason_codes_json or [])
+        for reason_code in (
+            "routing_automation_approval_consumed",
+            "routing_automation_target_choice_conversion_executed",
+            "child_intent_created_or_reused",
+            "prepared_order_creation_deferred",
+            "readiness_assessment_deferred",
+            "submitted_order_creation_deferred",
+        ):
+            if reason_code not in reason_codes:
+                reason_codes.append(reason_code)
+        model.reason_codes_json = reason_codes
+        child_provenance = dict(conversion.child_intent.provenance or {})
+        lineage = dict(model.lineage_json or {})
+        lineage.update(
+            {
+                "routing_target_choice_id": target_choice_id,
+                "intent_id": conversion.intent_id,
+                "child_intent_status": conversion.child_intent.status.value,
+                "routed_order_shape_policy": child_provenance.get(
+                    "routed_order_shape_policy"
+                ),
+                "prepared_order_created": False,
+                "readiness_assessment_created": False,
+                "submitted_order_created": False,
+            }
+        )
+        model.lineage_json = self._jsonable_dict(lineage)
+        provenance = dict(model.provenance_json or {})
+        provenance.update(
+            {
+                "phase": "phase_7_3",
+                "approval_gated_target_choice_conversion": True,
+                "approval_consumed": True,
+                "action_executed": True,
+                "action_name": RoutingAutomationApprovalAction.TARGET_CHOICE_CONVERSION.value,
+                "consumed_by": consumed_by,
+                "consumed_at": now.isoformat(),
+                "routing_target_choice_id": target_choice_id,
+                "intent_id": conversion.intent_id,
+                "child_intent_created_or_reused": True,
+                "child_intent_created": conversion.child_intent_created,
+                "child_intent_reused": conversion.child_intent_reused,
+                "routed_order_shape_policy": child_provenance.get(
+                    "routed_order_shape_policy"
+                ),
+                "approval_consumption_idempotent": False,
+                "prepared_order_created": False,
+                "readiness_assessment_created": False,
+                "submitted_order_created": False,
+                "same_target_only": True,
+                "same_account_only": True,
+                "same_venue_only": True,
+                "smart_routing": False,
+                "best_binding_selection": False,
+                "cbbo": False,
+                "fanout": False,
+                "ranking": False,
+                "scoring": False,
+                "target_reselection": False,
+                "route_executor": False,
+                "auto_submit": False,
+            }
+        )
+        model.provenance_json = self._jsonable_dict(provenance)
         return model
 
     @staticmethod
@@ -2225,8 +2606,14 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 "selected_venue_account_key"
             ),
             "selected_venue": target_choice.get("selected_venue"),
-            "selected_exchange_symbol": provenance.get("selected_exchange_symbol"),
-            "recommendation_policy_name": provenance.get("recommendation_policy_name"),
+            "selected_exchange_symbol": (
+                provenance.get("selected_exchange_symbol")
+                or provenance.get("recommended_exchange_symbol")
+            ),
+            "recommendation_policy_name": (
+                provenance.get("recommendation_policy_name")
+                or provenance.get("policy_name")
+            ),
         }
 
     @staticmethod
@@ -3637,6 +4024,347 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 child_intent=child_intent,
                 converted_at=converted_at,
             )
+
+    def _convert_target_choice_to_child_intent_in_session(
+        self,
+        session: Any,
+        target_choice_id: str,
+        *,
+        converted_at: datetime,
+        order_shape_policy: RoutedOrderShapePolicyInput | None = None,
+        locked_choice_model: RoutingTargetChoiceModel | None = None,
+    ) -> RoutingTargetChoiceConversionResult:
+        choice_model = locked_choice_model or session.scalar(
+            select(RoutingTargetChoiceModel)
+            .where(
+                RoutingTargetChoiceModel.environment == self.settings.app.environment,
+                RoutingTargetChoiceModel.target_choice_id == target_choice_id,
+            )
+            .with_for_update()
+        )
+        if choice_model is None:
+            return self._conversion_result(
+                target_choice_id=target_choice_id,
+                status=RoutingTargetChoiceConversionStatus.BLOCKED_TARGET_CHOICE_NOT_FOUND,
+                reason_codes=["routing_target_choice_not_found", "conversion_non_submitting"],
+                converted_at=converted_at,
+            )
+
+        target_choice_blockers, target_choice_missing = self._target_choice_conversion_blockers(
+            choice_model
+        )
+        if target_choice_blockers or target_choice_missing:
+            return self._conversion_result(
+                target_choice_id=choice_model.target_choice_id,
+                routing_assessment_id=choice_model.routing_assessment_id,
+                desired_trade_key=choice_model.desired_trade_key,
+                status=(
+                    RoutingTargetChoiceConversionStatus.BLOCKED_TARGET_CHOICE_NOT_RECORDED
+                    if choice_model.status != RoutingTargetChoiceStatus.TARGET_CHOICE_RECORDED
+                    else RoutingTargetChoiceConversionStatus.BLOCKED_TARGET_CHOICE_INCOMPLETE
+                ),
+                reason_codes=target_choice_blockers + ["conversion_non_submitting"],
+                missing_data=target_choice_missing,
+                converted_at=converted_at,
+            )
+
+        idempotency_key = self._target_choice_conversion_idempotency_key(choice_model)
+        existing_intent = session.scalar(
+            select(OrderIntentModel).where(
+                OrderIntentModel.environment == self.settings.app.environment,
+                OrderIntentModel.idempotency_key == idempotency_key,
+            )
+        )
+        if existing_intent is not None:
+            if self._target_choice_is_recommendation_backed(choice_model):
+                recommendation_model = self._load_recommendation_for_target_choice(
+                    session,
+                    choice_model,
+                )
+                if recommendation_model is not None:
+                    self._mark_recommendation_child_intent_created(
+                        session,
+                        recommendation_model,
+                        choice_model,
+                        existing_intent,
+                        converted_at=converted_at,
+                        idempotent=True,
+                        existing_audit_child_intent=False,
+                    )
+            existing_policy_mismatch = self._existing_child_intent_policy_mismatch(
+                existing_intent,
+                order_shape_policy,
+            )
+            reason_codes = [
+                "child_intent_already_exists",
+                "conversion_idempotent",
+                "conversion_non_submitting",
+            ]
+            if existing_policy_mismatch:
+                reason_codes.extend(
+                    [
+                        "conversion_order_shape_policy_mismatch",
+                        "existing_child_intent_order_shape_preserved",
+                    ]
+                )
+            return self._conversion_result(
+                target_choice_id=choice_model.target_choice_id,
+                routing_assessment_id=choice_model.routing_assessment_id,
+                desired_trade_key=choice_model.desired_trade_key,
+                status=RoutingTargetChoiceConversionStatus.CHILD_INTENT_ALREADY_EXISTS,
+                reason_codes=reason_codes,
+                child_intent=self._order_intent_from_model(existing_intent),
+                converted_at=converted_at,
+                child_intent_reused=True,
+            )
+
+        recommendation_model: RoutingTargetRecommendationModel | None = None
+        if self._target_choice_is_recommendation_backed(choice_model):
+            (
+                recommendation_preflight_blockers,
+                recommendation_preflight_missing,
+                recommendation_model,
+            ) = self._recommendation_backed_target_choice_preflight_blockers(
+                session,
+                choice_model,
+            )
+            if recommendation_preflight_blockers or recommendation_preflight_missing:
+                return self._conversion_result(
+                    target_choice_id=choice_model.target_choice_id,
+                    routing_assessment_id=choice_model.routing_assessment_id,
+                    desired_trade_key=choice_model.desired_trade_key,
+                    status=RoutingTargetChoiceConversionStatus.BLOCKED_TARGET_CHOICE_INCOMPLETE,
+                    reason_codes=(
+                        recommendation_preflight_blockers
+                        + ["conversion_non_submitting"]
+                    ),
+                    missing_data=recommendation_preflight_missing,
+                    converted_at=converted_at,
+                )
+
+        existing_related_intent = self._existing_child_intent_for_target_choice_context(
+            session,
+            choice_model,
+            recommendation_model,
+            exclude_idempotency_key=idempotency_key,
+        )
+        if existing_related_intent is not None:
+            if recommendation_model is not None:
+                self._mark_recommendation_child_intent_created(
+                    session,
+                    recommendation_model,
+                    choice_model,
+                    existing_related_intent,
+                    converted_at=converted_at,
+                    idempotent=True,
+                    existing_audit_child_intent=True,
+                )
+            reason_codes = [
+                "child_intent_already_exists",
+                "desired_trade_child_intent_already_created",
+                "conversion_idempotent",
+                "conversion_non_submitting",
+            ]
+            if recommendation_model is not None:
+                reason_codes.extend(
+                    [
+                        "route_readiness_audit_child_intent_already_created",
+                        "recommendation_target_choice_child_intent_reused",
+                    ]
+                )
+            return self._conversion_result(
+                target_choice_id=choice_model.target_choice_id,
+                routing_assessment_id=choice_model.routing_assessment_id,
+                desired_trade_key=choice_model.desired_trade_key,
+                status=RoutingTargetChoiceConversionStatus.CHILD_INTENT_ALREADY_EXISTS,
+                reason_codes=reason_codes,
+                child_intent=self._order_intent_from_model(existing_related_intent),
+                converted_at=converted_at,
+                child_intent_reused=True,
+            )
+
+        if recommendation_model is not None:
+            (
+                recommendation_current_blockers,
+                recommendation_current_missing,
+            ) = self._recommendation_backed_target_choice_current_blockers(
+                session,
+                recommendation_model,
+                converted_at=converted_at,
+            )
+            if recommendation_current_blockers or recommendation_current_missing:
+                return self._conversion_result(
+                    target_choice_id=choice_model.target_choice_id,
+                    routing_assessment_id=choice_model.routing_assessment_id,
+                    desired_trade_key=choice_model.desired_trade_key,
+                    status=self._recommendation_backed_conversion_blocked_status(
+                        recommendation_current_blockers
+                    ),
+                    reason_codes=recommendation_current_blockers
+                    + ["conversion_non_submitting"],
+                    missing_data=recommendation_current_missing,
+                    converted_at=converted_at,
+                )
+
+        assessment_model = self._load_assessment_for_target_choice(session, choice_model)
+        if assessment_model is None:
+            return self._conversion_result(
+                target_choice_id=choice_model.target_choice_id,
+                routing_assessment_id=choice_model.routing_assessment_id,
+                desired_trade_key=choice_model.desired_trade_key,
+                status=RoutingTargetChoiceConversionStatus.BLOCKED_ASSESSMENT_NOT_FOUND,
+                reason_codes=["routing_assessment_not_found", "conversion_non_submitting"],
+                converted_at=converted_at,
+            )
+        assessment_blockers = self._assessment_conversion_blockers(
+            assessment_model,
+            choice_model,
+        )
+        if assessment_blockers:
+            return self._conversion_result(
+                target_choice_id=choice_model.target_choice_id,
+                routing_assessment_id=choice_model.routing_assessment_id,
+                desired_trade_key=choice_model.desired_trade_key,
+                status=RoutingTargetChoiceConversionStatus.BLOCKED_ASSESSMENT_NOT_FOUND,
+                reason_codes=assessment_blockers + ["conversion_non_submitting"],
+                converted_at=converted_at,
+            )
+        if assessment_model.decision_status != RoutingAssessmentDecisionStatus.ASSESSMENT_ONLY:
+            return self._conversion_result(
+                target_choice_id=choice_model.target_choice_id,
+                routing_assessment_id=choice_model.routing_assessment_id,
+                desired_trade_key=choice_model.desired_trade_key,
+                status=RoutingTargetChoiceConversionStatus.BLOCKED_ASSESSMENT_NOT_ASSESSMENT_ONLY,
+                reason_codes=[
+                    "routing_assessment_not_assessment_only",
+                    "conversion_non_submitting",
+                ],
+                missing_data=list(assessment_model.missing_data_json or []),
+                converted_at=converted_at,
+            )
+
+        candidate_model = self._find_target_choice_candidate(
+            session,
+            assessment_ref_id=assessment_model.id,
+            binding_ref_id=choice_model.selected_binding_ref_id,
+            binding_key=choice_model.selected_binding_key,
+        )
+        if candidate_model is None:
+            return self._conversion_result(
+                target_choice_id=choice_model.target_choice_id,
+                routing_assessment_id=choice_model.routing_assessment_id,
+                desired_trade_key=choice_model.desired_trade_key,
+                status=RoutingTargetChoiceConversionStatus.BLOCKED_CANDIDATE_NOT_FOUND,
+                reason_codes=["routing_candidate_not_found", "conversion_non_submitting"],
+                converted_at=converted_at,
+            )
+
+        candidate_blockers, candidate_missing = self._candidate_conversion_blockers(
+            candidate_model,
+            choice_model,
+        )
+        if candidate_blockers or candidate_missing:
+            status = (
+                RoutingTargetChoiceConversionStatus.BLOCKED_CANDIDATE_INELIGIBLE
+                if "routing_candidate_ineligible" in candidate_blockers
+                else RoutingTargetChoiceConversionStatus.BLOCKED_CANDIDATE_MISMATCH
+            )
+            return self._conversion_result(
+                target_choice_id=choice_model.target_choice_id,
+                routing_assessment_id=choice_model.routing_assessment_id,
+                desired_trade_key=choice_model.desired_trade_key,
+                status=status,
+                reason_codes=candidate_blockers + ["conversion_non_submitting"],
+                missing_data=candidate_missing,
+                converted_at=converted_at,
+            )
+
+        desired_trade_model = self._load_desired_trade_for_target_choice(
+            session,
+            choice_model,
+            assessment_model,
+        )
+        desired_trade_blockers = self._desired_trade_conversion_blockers(
+            desired_trade_model,
+            choice_model,
+            assessment_model,
+        )
+        if desired_trade_blockers:
+            status = (
+                RoutingTargetChoiceConversionStatus.BLOCKED_INVALID_DESIRED_TRADE
+                if "desired_trade_invalid_quantity" in desired_trade_blockers
+                or "desired_trade_missing_side" in desired_trade_blockers
+                else RoutingTargetChoiceConversionStatus.BLOCKED_STALE_DESIRED_TRADE
+            )
+            return self._conversion_result(
+                target_choice_id=choice_model.target_choice_id,
+                routing_assessment_id=choice_model.routing_assessment_id,
+                desired_trade_key=choice_model.desired_trade_key,
+                status=status,
+                reason_codes=desired_trade_blockers + ["conversion_non_submitting"],
+                converted_at=converted_at,
+            )
+
+        target_blockers, target_missing = self._current_conversion_target_blockers(
+            session,
+            candidate_model,
+            choice_model,
+            assessment_model,
+            desired_trade_model,
+        )
+        if target_blockers or target_missing:
+            return self._conversion_result(
+                target_choice_id=choice_model.target_choice_id,
+                routing_assessment_id=choice_model.routing_assessment_id,
+                desired_trade_key=choice_model.desired_trade_key,
+                status=RoutingTargetChoiceConversionStatus.BLOCKED_STALE_TARGET,
+                reason_codes=target_blockers + ["conversion_non_submitting"],
+                missing_data=target_missing,
+                converted_at=converted_at,
+            )
+
+        order_shape = self._routed_order_shape_for_conversion(
+            desired_trade_model,
+            candidate_model,
+            order_shape_policy,
+        )
+        if order_shape.blocked:
+            return self._conversion_result(
+                target_choice_id=choice_model.target_choice_id,
+                routing_assessment_id=choice_model.routing_assessment_id,
+                desired_trade_key=choice_model.desired_trade_key,
+                status=RoutingTargetChoiceConversionStatus.BLOCKED_ORDER_SHAPE_POLICY,
+                reason_codes=order_shape.reason_codes + ["conversion_non_submitting"],
+                child_intent=None,
+                converted_at=converted_at,
+                order_shape_decision=order_shape,
+            )
+
+        child_intent = self._persist_converted_child_intent(
+            session,
+            choice_model=choice_model,
+            assessment_model=assessment_model,
+            candidate_model=candidate_model,
+            desired_trade_model=desired_trade_model,
+            order_shape=order_shape,
+            idempotency_key=idempotency_key,
+            created_at=converted_at,
+        )
+        return self._conversion_result(
+            target_choice_id=choice_model.target_choice_id,
+            routing_assessment_id=choice_model.routing_assessment_id,
+            desired_trade_key=choice_model.desired_trade_key,
+            status=RoutingTargetChoiceConversionStatus.CHILD_INTENT_CREATED,
+            reason_codes=[
+                "child_intent_created",
+                "conversion_non_submitting",
+                "prepared_order_creation_deferred",
+                "readiness_assessment_deferred",
+                "submission_deferred",
+            ],
+            child_intent=child_intent,
+            converted_at=converted_at,
+        )
 
     async def _candidate_assessments(
         self,

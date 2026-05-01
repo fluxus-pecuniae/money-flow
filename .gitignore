@@ -62,8 +62,9 @@ MF-handoffs/
 CODEX-files-MF/
 money-flow-phase-*-review.zip
 
-# Local note/vault artifacts accidentally nested under the repo root
-/money-flow/
+# Obsidian strategic brain
+# Track project markdown notes, but keep local Obsidian app/workspace state out of Git.
+/money-flow/.obsidian/
 
 # Node/frontend artifacts if introduced later
 node_modules/

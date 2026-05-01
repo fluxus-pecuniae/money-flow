@@ -29,6 +29,8 @@ Phase 7.2 adds the first approval-consuming action hook and keeps it limited to 
 
 Phase 7.2.1 hardens the approval-gated recommendation acceptance action so target-choice creation/reuse and approval consumption are coherent in one session/commit. The routing service now uses an internal in-session acceptance helper for the approval-gated path: approval validation, target-choice creation or reuse, recommendation/audit target-choice-created truth, approval status consumption, and approval provenance update commit together. If approval consumption fails after a target choice is flushed but before commit, the transaction rolls back and leaves no persisted target choice or accepted-looking approval side effect. The generic approval consume endpoint remains administrative only and does not execute the approved action.
 
+Phase 7.3 integrates the Obsidian strategic brain and adds approval-gated target-choice conversion only. The Obsidian vault under `money-flow/` now holds long-horizon strategic memory, phase context, decisions, and cross-agent coordination while repo operational docs remain implemented-code truth. The new `target_choice_conversion` action hook consumes one valid current-lineage approval to convert the exact approved `RoutingTargetChoice` into one child `OrderIntent` through the existing conversion validation and persistence helpers; approval consumption records the child intent id and no-prepared-order/no-readiness/no-submission truth. It does not automate preview/readiness, submitted-order handoff, recovery, exchange calls, route executor behavior, ranking/scoring, CBBO, fanout, target reselection, or auto-submit.
+
 ## Core Hierarchy
 
 The active hierarchy is:
@@ -104,7 +106,7 @@ Routing assessment and target choice are assessment/audit surfaces only. They en
 - `services.risk`: first-pass desired-trade approval and rejection
 - `services.routing`: routing assessment, route-readiness/data-sufficiency audit, controlled single-ready-candidate recommendation, target-choice audit, and explicit one-child-intent conversion substrate over routing-required mandate-scoped opens
 - `services.routing`: also exposes Phase 7.0 non-executing automation policy and dry-run automation-plan inspection over the already accepted single-target recommendation-backed workflow
-- `services.routing`: also owns Phase 7.1 durable automation approval records, revocation, consumption, and approval-state inspection without executing the approved action; Phase 7.1.1 scopes active approval reuse to the current workflow lineage fingerprint and marks expired or stale-lineage approvals non-current before gate inspection; Phase 7.1.2 allows approvals only for truly approvable current steps and reports manual-only / dry-run-only gate truth ahead of stored approval metadata; Phase 7.2 consumes one valid recommendation-acceptance approval to create or reuse one target choice through the existing acceptance path and stops there; Phase 7.2.1 makes that target-choice creation/reuse plus approval consumption one coherent transaction.
+- `services.routing`: also owns Phase 7.1 durable automation approval records, revocation, consumption, and approval-state inspection without executing the approved action; Phase 7.1.1 scopes active approval reuse to the current workflow lineage fingerprint and marks expired or stale-lineage approvals non-current before gate inspection; Phase 7.1.2 allows approvals only for truly approvable current steps and reports manual-only / dry-run-only gate truth ahead of stored approval metadata; Phase 7.2 consumes one valid recommendation-acceptance approval to create or reuse one target choice through the existing acceptance path and stops there; Phase 7.2.1 makes that target-choice creation/reuse plus approval consumption one coherent transaction; Phase 7.3 consumes one valid target-choice-conversion approval to create or reuse one child intent through the existing conversion validation/persistence helpers and stops before preview/readiness.
 - `services.portfolio`: venue/account truth loaders and portfolio summaries
 - `services.execution`: child-intent preparation, routed child-intent route-lineage validation before preview/readiness/submission, prepared-order preview/preflight, readiness gating, explicit non-routed submission, explicit gated routed submission for already selected child intents, submitted-order lifecycle, routed post-submit lifecycle/actionability/reconciliation-event context derivation through the shared domain parser, reconciliation, cancel, selective amend, recovery recommendation, and bounded same-target recovery execution
 - `apps.api`: operator-facing inspection and control plane, including adapter/runtime session-state and private order/account-state visibility below routing
@@ -409,6 +411,7 @@ Operator endpoints:
 - `GET /api/v1/routing-automation/policy`, `POST /api/v1/routing-automation/plans/by-desired-trade/{desired_trade_key}`, and the routing-automation approval endpoints inspect/create/revoke/consume approval gates
 - `POST /api/v1/routing-automation/approvals/{approval_id}/consume` is an administrative approval-state transition only; it does not execute the approved action
 - `POST /api/v1/routing-automation/approvals/{approval_id}/accept-recommendation` consumes a valid recommendation-acceptance approval and creates or reuses only the target choice in one coherent action
+- `POST /api/v1/routing-automation/approvals/{approval_id}/convert-target-choice` consumes a valid target-choice-conversion approval and creates or reuses only the child `OrderIntent` in one coherent action
 
 The routed workflow response exposes static same-target route facts as `same_target_lifecycle_summary`. It intentionally does not expose `actionability_summary` or `recovery_summary` unless a future implementation returns real actionability/recovery evaluations from the corresponding execution services.
 
@@ -559,9 +562,15 @@ The repo uses explicit operational-memory files:
 - `KNOWN_ISSUES.md`
 - `TODO.md`
 
-Required read-only strategic memory:
+The Obsidian brain is the required strategic-memory and cross-agent coordination layer:
 
-- `money_flow_project_memory.md`
+- `money-flow/00_Money_Flow_Command_Center.md`
+- `money-flow/01_Current_Phase.md`
+- `money-flow/03_Decision_Log.md`
+- `money-flow/05_Agent_Coordination.md`
+- `money-flow/Project_Memory/money_flow_project_memory.md`
+
+The repo-root `money_flow_project_memory.md` is a compatibility pointer only. Obsidian does not replace the changelog, repo tree, known issues, TODO, README, or canonical architecture/strategy docs.
 
 ## Review Bundle Workflow
 

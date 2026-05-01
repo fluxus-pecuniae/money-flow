@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-01T05:12:07Z`
+Last reviewed: `2026-05-01T05:54:37Z`
 
 ## Active Follow-Ups
 
@@ -43,8 +43,14 @@ Last reviewed: `2026-05-01T05:12:07Z`
 ### T-039
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 7.3 implemented the second narrow approval-consuming action hook and integrated the Obsidian strategic brain. One active, non-expired, current-lineage `target_choice_conversion` approval can now convert the exact approved `RoutingTargetChoice` into a created or reused child `OrderIntent` through existing conversion validation/persistence helpers, then consume the approval with actor, child-intent id, routed order-shape policy, and no-downstream-artifact provenance in one coherent session/commit. Invalid, expired, revoked, stale-lineage, wrong-action, wrong-target-choice, dry-run-only, and manual-only cases block before child-intent creation. Phase 7.3 also moved full strategic memory into `money-flow/Project_Memory/money_flow_project_memory.md`, made Obsidian command/current-phase/decision/coordination notes part of the required agent workflow, and left repo-root `money_flow_project_memory.md` as a pointer only. It creates no prepared order, readiness assessment, submitted order, exchange call, route executor, fanout, ranking/scoring, CBBO, target reselection, or auto-submit.`
+
+### T-040
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `Phase 7.3 should remain below smart routing and decide the next narrow approval-consuming action, likely target-choice conversion only if acceptance/conversion concurrency hardening is sufficient. It must preserve Phase 7.2.1 coherent approval consumption truth, current-lineage matching, dry-run/manual policy blocks, no child-intent fanout, no preview/readiness automation unless explicitly scoped, no submitted-order handoff automation, no route executor, no ranking/scoring, no CBBO, no target reselection, and no auto-submit.`
+- `summary`: `Phase 7.4 should consider the next narrow approval-consuming action only after Phase 7.3 review, likely approval-gated prepared-order preview/readiness inspection if the conversion hook remains accepted. It must preserve current-lineage approval truth, dry-run/manual policy blocks, no submitted-order handoff automation, no route executor, no ranking/scoring, no CBBO, no fanout, no target reselection, and no auto-submit. Obsidian coordination notes must be updated before and after substantial work.`
 
 ### T-001
 

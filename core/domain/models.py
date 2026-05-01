@@ -1195,6 +1195,25 @@ class RoutingAutomationRecommendationAcceptanceResult:
 
 
 @dataclass(slots=True)
+class RoutingAutomationTargetChoiceConversionResult:
+    approval_id: str
+    target_choice_id: str
+    intent_id: str | None
+    desired_trade_key: str | None
+    environment: Environment
+    approval: RoutingAutomationApproval
+    conversion: RoutingTargetChoiceConversionResult
+    approval_consumed: bool
+    child_intent_created_or_reused: bool
+    prepared_order_created: bool = False
+    readiness_assessment_created: bool = False
+    submitted_order_created: bool = False
+    reason_codes: list[str] = field(default_factory=list)
+    boundary_flags: dict[str, bool] = field(default_factory=dict)
+    provenance: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
 class RoutedOrderShapePolicyInput:
     order_type: OrderType | None = None
     limit_price: Decimal | None = None

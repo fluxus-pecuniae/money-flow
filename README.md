@@ -18,11 +18,13 @@ Phase 7.2 adds the first narrow approval-consuming action hook. `POST /api/v1/ro
 
 Phase 7.2.1 hardens that first action hook so target-choice creation/reuse and approval consumption are transactionally coherent. The approval-gated recommendation-acceptance path validates the current approval, creates or reuses the target choice, marks recommendation/audit target-choice truth, and consumes the approval in one session/commit. If approval consumption fails after target-choice persistence is flushed but before commit, the whole action rolls back instead of leaving a target choice with a misleading active approval. The generic approval consume endpoint remains administrative only: it marks approval state and does not execute recommendation acceptance or any downstream action.
 
+Phase 7.3 adds the second narrow approval-consuming action hook and integrates the Obsidian brain workflow. `POST /api/v1/routing-automation/approvals/{approval_id}/convert-target-choice` consumes one active, non-expired, current-lineage `target_choice_conversion` approval to convert the exact approved `RoutingTargetChoice` into a created or reused child `OrderIntent` through the existing conversion validation and persistence helpers. Consumption records who used the approval, the child intent id, routed order-shape policy facts, and explicit no-prepared-order/no-readiness/no-submission facts. It does not create prepared orders, readiness assessments, submitted orders, exchange calls, route executor behavior, ranking/scoring, CBBO, fanout, target reselection, or auto-submit. The Obsidian vault under `money-flow/` is now the strategic-memory and cross-agent coordination layer; repo operational docs remain implemented-code truth.
+
 ## Operational Memory
 
-This repo now uses explicit operational-memory files. Future work is expected to read them before changes and update them after changes.
+This repo now uses explicit operational-memory files plus an Obsidian strategic brain. Future work is expected to read them before changes and update them after changes.
 
-Machine-local artifacts such as `.git/`, `.venv/`, `.pgdata/`, `.pgsocket/`, `.pytest_cache/`, `.DS_Store`, and accidentally nested local note/vault folders such as `/money-flow/` are not part of the repo handoff surface. Review/archive packaging now uses `.archiveignore` plus the committed bundling command below so those local artifacts and `.env` do not leak into future review bundles.
+Machine-local artifacts such as `.git/`, `.venv/`, `.pgdata/`, `.pgsocket/`, `.pytest_cache/`, `.DS_Store`, and Obsidian app state under `money-flow/.obsidian/` are not part of the repo handoff surface. Review/archive packaging now uses `.archiveignore` plus the committed bundling command below so those local artifacts and `.env` do not leak into future review bundles. The tracked Obsidian markdown notes under `money-flow/` are part of the review surface.
 
 ## Source Control Baseline
 
@@ -61,13 +63,14 @@ GET /api/v1/routing-automation/approvals/by-desired-trade/{desired_trade_key}
 POST /api/v1/routing-automation/approvals/{approval_id}/revoke
 POST /api/v1/routing-automation/approvals/{approval_id}/consume
 POST /api/v1/routing-automation/approvals/{approval_id}/accept-recommendation
+POST /api/v1/routing-automation/approvals/{approval_id}/convert-target-choice
 ```
 
 The default policy is `disabled`. A plan request can supply an explicit policy mode, but automation planning still only reports what would be disabled, dry-run-only, approval-required, automation-eligible, manual-only, deferred, blocked, approved, revoked, consumed, or expired. Approval records are durable gates for later explicit same-target action hooks; they are not the action itself and do not submit.
 
 Phase 7.1.1 makes those gate states current-truth-bound: an approval is shown as approved only when its active record has not expired and its lineage fingerprint still matches the current routed workflow stage. Stale approvals remain inspectable as history but are not reusable as current approval truth. Phase 7.1.2 also keeps current policy truth above stored approval metadata: manual-only and dry-run-only steps remain `manual_only` or `dry_run_only` in gate-state output and cannot be converted into active approvals.
 
-Phase 7.2 connects approval to exactly one action stage: recommendation acceptance. Phase 7.2.1 makes that action coherent in one transaction: approval validation, target-choice creation/reuse, recommendation/audit target-choice truth, and approval consumption commit together or roll back together. The acceptance hook requires a valid current `recommendation_acceptance` approval and reuses the existing recommendation acceptance service, so same-recommendation and same-audit target-choice idempotency remain intact. Consumed approvals expose the target choice they authorized, while dry-run-only/manual-only policy states, revoked/expired/stale-lineage approvals, wrong actions, and wrong recommendations block before action. Generic approval consumption is administrative state marking only, not action execution. Target-choice conversion, preview/readiness, and submitted-order handoff remain separate explicit phases.
+Phase 7.2 connects approval to exactly one action stage: recommendation acceptance. Phase 7.2.1 makes that action coherent in one transaction: approval validation, target-choice creation/reuse, recommendation/audit target-choice truth, and approval consumption commit together or roll back together. Phase 7.3 connects approval to the next action stage only: target-choice conversion into one child intent. The conversion hook requires a valid current `target_choice_conversion` approval, reuses the existing target-choice conversion validation/persistence helpers, preserves order-shape policy provenance, and consumes the approval only after child-intent creation/reuse succeeds. Consumed approvals expose the artifact they authorized, while dry-run-only/manual-only policy states, revoked/expired/stale-lineage approvals, wrong actions, wrong target choices, and wrong lineages block before action. Generic approval consumption is administrative state marking only, not action execution. Preview/readiness and submitted-order handoff remain separate explicit phases.
 
 Required operational docs:
 
@@ -77,11 +80,14 @@ Required operational docs:
 - [KNOWN_ISSUES.md](KNOWN_ISSUES.md)
 - [TODO.md](TODO.md)
 
-Required pre-task strategic memory:
+Required Obsidian strategic brain:
 
-- [money_flow_project_memory.md](money_flow_project_memory.md)
-  - Read before substantial work.
-  - Treat as read-only unless the architecture review team explicitly requests an update.
+- [money-flow/00_Money_Flow_Command_Center.md](money-flow/00_Money_Flow_Command_Center.md)
+- [money-flow/01_Current_Phase.md](money-flow/01_Current_Phase.md)
+- [money-flow/05_Agent_Coordination.md](money-flow/05_Agent_Coordination.md)
+- [money-flow/Project_Memory/money_flow_project_memory.md](money-flow/Project_Memory/money_flow_project_memory.md)
+
+The repo-root [money_flow_project_memory.md](money_flow_project_memory.md) is a pointer only. Repo operational docs remain code-state truth; Obsidian stores long-horizon memory, founder intent, decisions, phase context, and cross-agent coordination.
 
 ## Current Scope
 
@@ -290,7 +296,7 @@ Implemented in Phase 4.2.1:
   - `binding_not_routing_eligible`
   - `venue_account_inactive`
 - capability truth, adapter implementation truth, account/environment authorization, and phase-level live-submit deferral remain distinct and test-covered
-- repo governance now requires contributors to read [money_flow_project_memory.md](money_flow_project_memory.md) before substantial work while keeping it out of the normal post-task update workflow
+- repo governance now requires contributors to read the Obsidian strategic brain, starting with [money-flow/00_Money_Flow_Command_Center.md](money-flow/00_Money_Flow_Command_Center.md) and [money-flow/Project_Memory/money_flow_project_memory.md](money-flow/Project_Memory/money_flow_project_memory.md), before substantial work; the repo-root [money_flow_project_memory.md](money_flow_project_memory.md) is only a pointer
 - small platform wording cleanup continues to prefer `component` for generic platform surfaces while leaving Money Flow family-specific `sleeve_*` identifiers in place where they are already part of stable behavior
 
 Implemented in Phase 4.3:
@@ -1022,7 +1028,7 @@ Control-plane endpoints currently include:
 
 ### Phase 6 And Later Routing / Execution Phases
 
-- Phase 7.0 adds controlled automation policy and dry-run planning only, Phase 7.1 adds durable operator approval / revocation / consumption gates only, Phase 7.1.1 scopes approvals to the current lineage fingerprint so expired or stale-lineage approvals cannot authorize a later workflow stage, Phase 7.1.2 prevents manual-only or dry-run-only steps from receiving active approvals or appearing approved in gate-state output, Phase 7.2 consumes a valid current recommendation-acceptance approval to create or reuse exactly one target choice, and Phase 7.2.1 makes that action/approval consumption coherent in one transaction. The default policy is disabled; dry-run plans create no artifacts, submit remains manual-only, and future action-taking automation still needs narrow approval-consuming hooks, remaining DB-level concurrency/serialization hardening for broader conversion automation, slippage/price guard policy, richer market-data quality, and operator reconciliation procedures for `adapter_submit_may_have_started` / `adapter_submit_persistence_unknown` leases.
+- Phase 7.0 adds controlled automation policy and dry-run planning only, Phase 7.1 adds durable operator approval / revocation / consumption gates only, Phase 7.1.1 scopes approvals to the current lineage fingerprint so expired or stale-lineage approvals cannot authorize a later workflow stage, Phase 7.1.2 prevents manual-only or dry-run-only steps from receiving active approvals or appearing approved in gate-state output, Phase 7.2 consumes a valid current recommendation-acceptance approval to create or reuse exactly one target choice, Phase 7.2.1 makes that action/approval consumption coherent in one transaction, and Phase 7.3 consumes a valid current target-choice-conversion approval to create or reuse exactly one child intent. The default policy is disabled; dry-run plans create no artifacts, submit remains manual-only, and future action-taking automation still needs preview/readiness-specific approval hooks, remaining DB-level concurrency/serialization hardening for broader conversion automation, slippage/price guard policy, richer market-data quality, and operator reconciliation procedures for `adapter_submit_may_have_started` / `adapter_submit_persistence_unknown` leases.
 - Phase 6 is closed as explicit recommendation-backed single-target routed execution through existing gated submit plus read-only inspection, with Phase 6.10.1/6.10.2/6.10.3 serializing explicit child-intent submit calls before adapter submission and preserving post-adapter or in-flight uncertainty without auto-submit, fanout, CBBO, venue scoring, route executor behavior, target reselection, automatic target-choice creation, child-intent auto-creation, or submitted-order creation directly from recommendation
 - deepen routed order-shape policy only where truthful, including slippage guards and richer limit-price source semantics without venue ranking or CBBO
 - child-intent fanout/splitting across bindings when routing selects more than one target
