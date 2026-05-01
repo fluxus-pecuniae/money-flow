@@ -2,9 +2,9 @@
 
 ## Phase
 
-Current implemented phase: `Phase 8.0.1`
+Current implemented phase: `Phase 8.0.2`
 
-Proposed next phase: `Phase 8.1`
+Proposed next phase: `Strategy Validation` after Phase 8.0.2 acceptance. `Phase 8.1` remains deferred until explicitly scoped.
 
 ## Purpose
 
@@ -19,6 +19,8 @@ Phase 7.6 is accepted complete. It closed out the controlled automation chain wi
 Phase 8.0 is implemented as the first operator-grade observability and manual-resolution inspection phase. It makes the existing chain easier to inspect, debug, reconcile, and manually manage without adding smart routing, new action stages, broad auto-submit, route-executor behavior, fanout, target reselection, or trading-action mutation from inspection.
 
 Phase 8.0.1 is workflow hygiene only. It resolves the dirty Obsidian project-memory baseline left after Phase 8.0 by accepting the earlier Obsidian refresh as intentional, updating stale proposed-Phase-8 wording, confirming the root memory file remains a pointer, and cleaning the working tree before Phase 8.1.
+
+Phase 8.0.2 is a narrow operator-summary truth hotfix. It makes active unexpired child-intent submit leases block repeat-submit safety and next-safe-action truth as `submission_in_progress`, while preserving terminal uncertainty and stale pre-adapter lease semantics. It adds no trading behavior, new action stage, manual-resolution mutation, route executor behavior, fanout, target reselection, ranking/scoring, CBBO, cross-venue retry, or auto-submit.
 
 ## Accepted Baseline
 
@@ -36,6 +38,7 @@ Phase 8.0.1 is workflow hygiene only. It resolves the dirty Obsidian project-mem
 - Phase 7.6 closed Phase 7 with end-to-end safety regression and docs alignment only.
 - Phase 8.0 added read-only operator routed workflow summary inspection by desired trade.
 - Phase 8.0.1 resolved the Obsidian memory / working-tree baseline without product behavior changes.
+- Phase 8.0.2 fixed active submit-lease operator-summary truth without product behavior changes.
 
 ## Hard Boundaries
 
@@ -60,6 +63,8 @@ Phase 8.0 is successful when operators can inspect the full routed workflow by d
 
 Phase 8.0.1 is successful when the full Obsidian project memory is resolved, root memory remains pointer-only, Obsidian notes match implemented Phase 8.0 truth, review packaging remains clean, and the working tree is clean.
 
+Phase 8.0.2 is successful when the operator summary reports an active unexpired submit lease as `submission_in_progress`, blocks repeat-submit safety with `blocked_while_submission_in_progress`, reports the next safe operator action as not safe to automate, preserves terminal uncertainty behavior, leaves expired pre-adapter active leases stale-replaceable, and remains read-only.
+
 ## Current Outcome
 
 - Obsidian command center/current phase/decision log/coordination notes are now part of the required agent workflow.
@@ -73,8 +78,9 @@ Phase 8.0.1 is successful when the full Obsidian project memory is resolved, roo
 - Phase 7.6 adds closeout regression coverage proving the accepted hooks remain stage-specific and no-SOR.
 - Phase 8.0 adds `GET /api/v1/operator-routed-workflows/by-desired-trade/{desired_trade_key}` as a read-only operator summary over existing routed workflow artifacts, approval states, gate truth, manual-resolution requirements, submitted-order handoff safety, and submit-lease/concurrency state.
 - Phase 8.0.1 accepts the prior Obsidian refresh as intentional memory baseline and updates it to current Phase 8.0/8.0.1 truth.
+- Phase 8.0.2 makes the operator summary block approval-gated submit as the next safe action while an unexpired `active` submit lease is already in progress.
 - Recovery, route execution, fanout, scoring, CBBO, target reselection, cross-venue retry, and broad auto-submit remain deferred.
 
 ## Next Phase Shape
 
-Phase 8.1 should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review. It should keep operator acknowledgement separate from exchange/account truth and must not attach submit/cancel/amend/retry behavior to inspection.
+Strategy Validation can begin after Phase 8.0.2 is accepted. Phase 8.1 should remain deferred until explicitly scoped; when it resumes, it should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review, keep operator acknowledgement separate from exchange/account truth, and not attach submit/cancel/amend/retry behavior to inspection.

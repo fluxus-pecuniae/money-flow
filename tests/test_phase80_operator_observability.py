@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
@@ -345,6 +346,85 @@ def test_operator_summary_surfaces_adapter_submit_uncertainty_and_blocks_retry_v
     )
     assert "manual_reconciliation_required" in payload["uncertainty_reason_codes"]
     assert adapter.submit_calls == 1
+    assert _counts(session_factory) == before
+
+
+def test_operator_summary_blocks_next_safe_action_while_submit_lease_active() -> None:
+    session_factory = build_test_session_factory()
+    (
+        routing,
+        _audit,
+        _recommendation,
+        _choice,
+        desired_trade_key,
+        conversion,
+        _readiness,
+        approval,
+        execution,
+        adapter,
+    ) = _submission_handoff_context(session_factory)
+    acquired_at = datetime.now(UTC)
+    with session_factory() as session:
+        session.add(
+            OrderIntentSubmissionLeaseModel(
+                environment=execution.settings.app.environment,
+                lease_id="phase80-active-submit-lease",
+                intent_id=conversion.intent_id,
+                purpose="explicit_child_intent_submit",
+                status="active",
+                acquired_at=acquired_at,
+                expires_at=acquired_at + timedelta(minutes=5),
+                released_at=None,
+                reason_code=None,
+                metadata_json={
+                    "purpose": "explicit_child_intent_submit",
+                    "adapter_submit_called": False,
+                },
+                created_at=acquired_at,
+                updated_at=acquired_at,
+            )
+        )
+        session.commit()
+    before = _counts(session_factory)
+    submit_calls_before = adapter.submit_calls
+
+    payload = _operator_summary_response(routing, desired_trade_key)
+
+    leases = payload["concurrency"]["submit_leases"]
+    assert len(leases) == 1
+    assert leases[0]["status"] == "active"
+    assert leases[0]["expired"] is False
+    assert leases[0]["submission_in_progress"] is True
+    assert leases[0]["retry_blocked"] is True
+    assert "submission_in_progress" in leases[0]["blocking_reason_codes"]
+    assert "submission_in_progress" in payload["concurrency"][
+        "blocked_concurrent_submit_reason_codes"
+    ]
+    assert payload["submission_safety"]["submitted_order_persisted"] is False
+    assert payload["submission_safety"]["submission_in_progress"] is True
+    assert payload["submission_safety"]["repeat_submit_blocked"] is True
+    assert payload["submission_safety"]["repeat_submit_policy"] == (
+        "blocked_while_submission_in_progress"
+    )
+    assert "submission_in_progress" in payload["submission_safety"]["reason_codes"]
+    assert payload["next_safe_operator_action"]["action"] == "submission_in_progress"
+    assert payload["next_safe_operator_action"]["safe_to_automate"] is False
+    assert "submission_in_progress" in payload["next_safe_operator_action"][
+        "reason_codes"
+    ]
+    with session_factory() as session:
+        stored = session.scalar(
+            select(RoutingAutomationApprovalModel).where(
+                RoutingAutomationApprovalModel.approval_id == approval.approval_id
+            )
+        )
+        assert stored is not None
+        assert stored.status == RoutingAutomationApprovalStatus.ACTIVE
+        assert (
+            session.scalar(select(func.count()).select_from(SubmittedOrderModel))
+            == 0
+        )
+    assert adapter.submit_calls == submit_calls_before
     assert _counts(session_factory) == before
 
 

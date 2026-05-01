@@ -1,6 +1,6 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-05-01T14:19:39Z`
+Last reviewed: `2026-05-01T15:04:52Z`
 
 ## Open Items
 
@@ -85,5 +85,5 @@ Last reviewed: `2026-05-01T14:19:39Z`
 
 - `status`: `open`
 - `area`: `manual resolution workflow`
-- `summary`: `Phase 8.0 makes manual-resolution needs visible through read-only operator summary inspection, including `consumption_pending`, stale-lineage/expired approvals, blocked recommendations/readiness, and submit-lease uncertainty states such as `adapter_submit_may_have_started` and `adapter_submit_persistence_unknown`. It intentionally does not add manual-resolution marker mutation or administrative cleanup endpoints.`
-- `impact`: `Operators can now inspect what needs reconciliation and which repeat actions are unsafe, but explicit actor-stamped/manual-resolution state transitions remain a future Phase 8.1 design item. Operator acknowledgement must remain separate from exchange/account truth, and no submit/cancel/amend/retry should be attached to inspection surfaces.`
+- `summary`: `Phase 8.0 makes manual-resolution needs visible through read-only operator summary inspection, including `consumption_pending`, stale-lineage/expired approvals, blocked recommendations/readiness, and submit-lease uncertainty states such as `adapter_submit_may_have_started` and `adapter_submit_persistence_unknown`. Phase 8.0.2 fixes active submit-lease summary truth so unexpired `active` leases are surfaced as `submission_in_progress` repeat-submit blockers and next-safe-action blockers, while expired pre-adapter active leases remain stale-replaceable. It intentionally does not add manual-resolution marker mutation or administrative cleanup endpoints.`
+- `impact`: `Operators can now inspect what needs reconciliation and which repeat actions are unsafe, including an active submit already in progress. Explicit actor-stamped/manual-resolution state transitions remain a future Phase 8.1 design item; Strategy Validation can begin after the Phase 8.0.2 hotfix is accepted. Operator acknowledgement must remain separate from exchange/account truth, and no submit/cancel/amend/retry should be attached to inspection surfaces.`

@@ -13,6 +13,33 @@ Entry schema:
 
 ---
 
+## v2026.05.01.010
+
+- `recorded_at_utc`: `2026-05-01T15:04:52Z`
+- `scope`: `Phase 8.0.2 active submit-lease operator-summary truth hotfix`
+- `intent`: `Native entry. Fixed the read-only operator routed workflow summary so an active, unexpired child-intent submit lease is treated as an in-progress submission blocker. The summary now reports `submission_in_progress`, sets submitted-order handoff safety to `repeat_submit_blocked=true` with `repeat_submit_policy=blocked_while_submission_in_progress`, and reports `next_safe_operator_action.action=submission_in_progress` with `safe_to_automate=false`. Terminal uncertainty states `adapter_submit_may_have_started` and `adapter_submit_persistence_unknown` remain manual-reconciliation-required repeat-submit blockers, while expired pre-adapter active leases remain stale-replaceable rather than terminal uncertainty. This phase changes read-only truth surfaces only; it adds no trading behavior, no new automation action stage, no manual-resolution mutation, no migration/config, no smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor behavior, cross-binding/cross-venue retry, submit/cancel/amend/retry from inspection, or new exchange behavior.`
+- `affected_files`:
+  - `services/routing/service.py`
+  - `tests/test_phase80_operator_observability.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_phase80_operator_observability.py` passed with 5 tests during focused development.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase80_operator_observability.py` passed with 5 tests after final source/docs updates.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 9 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase75_approval_gated_submission_handoff.py tests/test_phase76_automation_closeout.py tests/test_phase80_operator_observability.py` passed with 34 tests.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-phase-8.0.2-review.zip` created the Phase 8.0.2 review bundle; bundle inspection found no `.env`, virtualenvs, Git metadata, pytest caches, local DB/SQLite files, nested archives, secrets, or Obsidian app state.
+
 ## v2026.05.01.009
 
 - `recorded_at_utc`: `2026-05-01T14:19:39Z`

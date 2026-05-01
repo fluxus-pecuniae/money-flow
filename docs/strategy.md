@@ -32,6 +32,8 @@ Phase 7.6 closes the controlled automation phase with safety-diligence regressio
 
 Phase 8.0 adds operator observability and manual-resolution inspection, not new trading behavior. The new operator summary by desired trade exposes existing routed workflow artifacts, approval states, gate truth, manual-resolution requirements, submitted-order handoff safety, submit-lease uncertainty, and next safe operator action without creating artifacts, consuming approvals, resolving manual states, or calling exchange submission. It helps operators see `consumption_pending`, stale-lineage/expired approvals, blocked recommendation/readiness, and `adapter_submit_may_have_started` / `adapter_submit_persistence_unknown` states before any future SOR work.
 
+Phase 8.0.2 fixes a read-only truth gap in that operator summary. While an unexpired `active` child-intent submit lease exists, the summary now treats repeat submit as blocked by `submission_in_progress` and reports the next safe operator action as `submission_in_progress` with `safe_to_automate=false`; expired pre-adapter active leases remain stale-replaceable and terminal uncertainty remains manual-reconciliation-required. This is observability truth only, not a new action stage, trading behavior, manual-resolution mutation, route executor, fanout, target reselection, ranking/scoring, CBBO, cross-venue retry, or auto-submit. Phase 8.1 remains deferred, and Strategy Validation can begin after the hotfix is accepted.
+
 The load-bearing strategy-to-execution boundary is:
 
 - `StrategyDecision`

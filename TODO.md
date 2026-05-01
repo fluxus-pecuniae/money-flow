@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-01T14:19:39Z`
+Last reviewed: `2026-05-01T15:04:52Z`
 
 ## Active Follow-Ups
 
@@ -86,13 +86,19 @@ Last reviewed: `2026-05-01T14:19:39Z`
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `Define Phase 8.1 through architecture review before adding manual-resolution mutation. Candidate work should add explicit, actor-stamped, reason-coded manual-resolution markers or administrative reconciliation workflows for `consumption_pending` and submit-lease uncertainty, while keeping operator acknowledgement separate from exchange/account truth. Smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor behavior, cross-binding/cross-venue recovery, new action stages, and broad auto-submit remain deferred until explicitly designed and accepted.`
+- `summary`: `Define Phase 8.1 through architecture review before adding manual-resolution mutation. Candidate work should add explicit, actor-stamped, reason-coded manual-resolution markers or administrative reconciliation workflows for `consumption_pending` and submit-lease uncertainty, while keeping operator acknowledgement separate from exchange/account truth. After Phase 8.0.2 is accepted, Strategy Validation can begin before Phase 8.1; Phase 8.1 remains deferred until that work is explicitly scoped. Smart routing, best-binding selection, ranking/scoring, CBBO, fanout, target reselection, route executor behavior, cross-binding/cross-venue recovery, new action stages, and broad auto-submit remain deferred until explicitly designed and accepted.`
 
 ### T-047
 
 - `priority`: `high`
 - `status`: `done`
 - `summary`: `Phase 8.0.1 resolved the dirty Obsidian memory / working-tree baseline left after Phase 8.0. The earlier Obsidian refresh for accepted Phase 7.6 and proposed Phase 8.0 was accepted as intentional strategic-memory work, then updated to describe Phase 8.0 as implemented and Phase 8.0.1 as workflow hygiene only. The repo-root `money_flow_project_memory.md` remains a pointer only, the full project memory remains in `money-flow/Project_Memory/money_flow_project_memory.md`, and no product behavior, routing/execution logic, API behavior, schema, migration, smart routing, route executor behavior, auto-submit, or manual-resolution mutation was added.`
+
+### T-048
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `Phase 8.0.2 fixed operator-summary truth for active unexpired child-intent submit leases. The read-only operator routed workflow summary now treats an active lease as `submission_in_progress`, blocks repeat-submit safety with `blocked_while_submission_in_progress`, and reports the next safe operator action as `submission_in_progress` / `safe_to_automate=false`. Terminal adapter uncertainty remains manual-reconciliation-required, expired pre-adapter active leases remain stale-replaceable, and no trading behavior, new action stage, manual-resolution mutation, route executor behavior, fanout, ranking/scoring, CBBO, target reselection, cross-venue retry, or auto-submit was added. Strategy Validation can begin after this hotfix is accepted; Phase 8.1 remains deferred until explicitly scoped.`
 
 ### T-001
 

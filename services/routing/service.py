@@ -1687,6 +1687,7 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 steps=steps,
                 approval_gate_states=approval_gate_states,
                 manual_resolution=manual_resolution,
+                submission_safety=submission_safety,
             ),
             "boundary_flags": boundary_flags,
             "artifacts_created_by_inspection": False,
@@ -4226,6 +4227,7 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 lease.expires_at is not None
                 and self._approval_datetime_utc(lease.expires_at) <= now
             )
+            active_unexpired = lease.status == "active" and not expired
             blocking_reason_codes: list[str] = []
             if terminal_uncertainty:
                 blocking_reason_codes = [
@@ -4233,12 +4235,12 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                     lease.status,
                     "manual_reconciliation_required",
                 ]
-            elif lease.status == "active":
+            elif active_unexpired:
                 blocking_reason_codes = ["submission_in_progress"]
-                if expired:
-                    blocking_reason_codes.append(
-                        "stale_pre_adapter_active_lease_replaceable"
-                    )
+            elif lease.status == "active" and expired:
+                blocking_reason_codes = [
+                    "stale_pre_adapter_active_lease_replaceable"
+                ]
             states.append(
                 {
                     "lease_id": lease.lease_id,
@@ -4250,8 +4252,9 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                     "expires_at": self._workflow_value(lease.expires_at),
                     "released_at": self._workflow_value(lease.released_at),
                     "expired": expired,
+                    "submission_in_progress": active_unexpired,
                     "terminal_uncertainty": terminal_uncertainty,
-                    "retry_blocked": terminal_uncertainty,
+                    "retry_blocked": terminal_uncertainty or active_unexpired,
                     "requires_manual_reconciliation": terminal_uncertainty,
                     "stale_pre_adapter_active_lease_replaceable": (
                         lease.status == "active" and expired
@@ -4491,6 +4494,9 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
         terminal_uncertainty = any(
             lease.get("terminal_uncertainty") is True for lease in submit_leases
         )
+        submission_in_progress = any(
+            lease.get("submission_in_progress") is True for lease in submit_leases
+        )
         approval_consumption_pending = any(
             approval.get("effective_status")
             == RoutingAutomationApprovalStatus.CONSUMPTION_PENDING.value
@@ -4532,6 +4538,8 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
         )
         if terminal_uncertainty or approval_consumption_pending:
             repeat_policy = "blocked_until_manual_reconciliation"
+        elif submission_in_progress:
+            repeat_policy = "blocked_while_submission_in_progress"
         elif latest_submitted_order is not None:
             repeat_policy = "reuse_existing_submitted_order_truth"
         else:
@@ -4547,12 +4555,17 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
             "approval_consumed": approval_consumed,
             "approval_consumption_pending": approval_consumption_pending,
             "submit_uncertainty": terminal_uncertainty,
+            "submission_in_progress": submission_in_progress,
             "manual_reconciliation_required": terminal_uncertainty
             or approval_consumption_pending,
             "repeat_submit_policy": repeat_policy,
-            "repeat_submit_blocked": terminal_uncertainty,
+            "repeat_submit_blocked": terminal_uncertainty
+            or approval_consumption_pending
+            or submission_in_progress,
             "existing_submitted_order_reused_on_repeat": (
-                latest_submitted_order is not None and not terminal_uncertainty
+                latest_submitted_order is not None
+                and not terminal_uncertainty
+                and not submission_in_progress
             ),
             "route_lineage_collision_detected": False,
             "reason_codes": reason_codes,
@@ -4565,6 +4578,7 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
         steps: list[RoutingAutomationPlanStep],
         approval_gate_states: dict[str, object],
         manual_resolution: list[dict[str, object]],
+        submission_safety: dict[str, object],
     ) -> dict[str, object]:
         if any(
             item.get("severity") == "manual_reconciliation_required"
@@ -4583,6 +4597,12 @@ class DefaultRoutingAssessmentService(RoutingAssessmentService):
                 "action": "inspect_known_desired_trade",
                 "safe_to_automate": False,
                 "reason_codes": ["desired_trade_not_found"],
+            }
+        if submission_safety.get("submission_in_progress") is True:
+            return {
+                "action": "submission_in_progress",
+                "safe_to_automate": False,
+                "reason_codes": ["submission_in_progress"],
             }
         submitted_orders = workflow.get("submitted_orders")
         if isinstance(submitted_orders, list) and submitted_orders:
