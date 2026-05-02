@@ -1,6 +1,7 @@
 """Strategy validation service boundary."""
 
 from services.strategy_validation.campaigns import (
+    MONEY_FLOW_RESEARCH_CAMPAIGN_DEFAULT_COLLISION_POLICY,
     MoneyFlowResearchCampaignConfig,
     MoneyFlowResearchCampaignDataReadinessAudit,
     MoneyFlowResearchCampaignDataReadinessRow,
@@ -31,6 +32,7 @@ from services.strategy_validation.service import (
 )
 
 __all__ = [
+    "MONEY_FLOW_RESEARCH_CAMPAIGN_DEFAULT_COLLISION_POLICY",
     "MoneyFlowBacktestService",
     "MoneyFlowResearchCampaignConfig",
     "MoneyFlowResearchCampaignDataReadinessAudit",

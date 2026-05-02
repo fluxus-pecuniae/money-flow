@@ -1,4 +1,4 @@
-"""Run an SV1.3 Money Flow research campaign evidence pack."""
+"""Run a Money Flow research campaign evidence pack."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from typing import Sequence
 
 from core.config.settings import get_settings
 from services.strategy_validation import (
+    MONEY_FLOW_RESEARCH_CAMPAIGN_DEFAULT_COLLISION_POLICY,
     MoneyFlowBacktestService,
     audit_money_flow_research_campaign_data_readiness,
     load_money_flow_research_campaign_config,
@@ -45,6 +46,15 @@ def build_parser() -> argparse.ArgumentParser:
             "Does not run strategy validation and writes no evidence pack."
         ),
     )
+    parser.add_argument(
+        "--collision-policy",
+        choices=("unique_suffix", "fail_if_exists"),
+        default=MONEY_FLOW_RESEARCH_CAMPAIGN_DEFAULT_COLLISION_POLICY,
+        help=(
+            "Evidence-pack directory collision policy. Default `unique_suffix` writes "
+            "a new suffixed run directory instead of overwriting an existing pack."
+        ),
+    )
     return parser
 
 
@@ -68,6 +78,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         service=service,
         output_dir=args.output_dir,
         report_formats=("json", "markdown") if args.format == "both" else (args.format,),
+        evidence_pack_collision_policy=args.collision_policy,
     )
     print(
         json.dumps(

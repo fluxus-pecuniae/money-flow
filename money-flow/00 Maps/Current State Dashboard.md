@@ -4,11 +4,11 @@ Up: [[Money Flow Command Center]]
 
 ## Today In One Sentence
 
-Money Flow is a mandate-driven, multi-venue-aware trading strategy platform whose current deepest execution path is controlled single-target recommendation-backed routed execution, with Strategy Validation now providing repeatable Money Flow campaign evidence packs and data-readiness review before any paper-trading decision.
+Money Flow is a mandate-driven, multi-venue-aware trading strategy platform whose current deepest execution path is controlled single-target recommendation-backed routed execution, with Strategy Validation now providing repeatable, collision-safe Money Flow campaign evidence packs and data-readiness review before any paper-trading decision.
 
 ## Current Implemented Phase
 
-- Phase observed in repo memory: `SV1.4`.
+- Phase observed in repo memory: `SV1.4.1`.
 - Latest implemented scope: Money Flow evidence-pack review discipline and historical data-readiness baseline.
 - Current action hooks: approval-gated `recommendation_acceptance`, `target_choice_conversion`, `prepared_order_preview_and_readiness`, and `submitted_order_handoff`.
 - Phase 7.5.1 added `consumption_pending` approval truth for submitted-order-created / approval-consumption-failed cases.
@@ -16,7 +16,8 @@ Money Flow is a mandate-driven, multi-venue-aware trading strategy platform whos
 - Phase 8.0 added read-only operator-grade observability and manual-resolution inspection.
 - SV1.0-SV1.3 added Money Flow validation, comparative reports, regime/coverage diagnostics, and repeatable evidence packs.
 - SV1.4 added canonical editable campaign configs, campaign `--audit-only` data-readiness inspection, evidence-pack review checklist, and manual paper-trading readiness criteria.
-- Proposed next phase: run/review canonical SV1.4 campaign outputs on real persisted data, then scope historical data backfill or paper-trading readiness only after founder/operator review.
+- SV1.4.1 added collision-safe evidence-pack writes so repeated same-timestamp campaign runs do not silently overwrite prior evidence.
+- Proposed next phase: SV1.5 historical-data readiness and first real canonical campaign evidence review, after accepting the collision-safe evidence-pack writer.
 
 ## Implemented Platform Surface
 
@@ -71,7 +72,7 @@ Phase 8.0 makes workflow state, approval state, manual-resolution needs, submit-
 
 ## Current Strategy Validation Layer
 
-SV1.4 keeps validation research-only. Canonical campaign configs live under `configs/strategy_validation/campaigns/`, campaign windows use `(start_at, end_at]`, and data-readiness audits show coverage, missing candles, gaps, warnings, and likely blocked runs before interpreting evidence packs.
+SV1.4.1 keeps validation research-only. Canonical campaign configs live under `configs/strategy_validation/campaigns/`, campaign windows use `(start_at, end_at]`, data-readiness audits show coverage, missing candles, gaps, warnings, and likely blocked runs before interpreting evidence packs, and evidence-pack writes use explicit collision policy instead of silent overwrite.
 
 ## Deferred Boundaries
 

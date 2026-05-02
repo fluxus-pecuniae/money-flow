@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-02T05:22:25Z`
+Last reviewed: `2026-05-02T06:57:28Z`
 
 ## Active Follow-Ups
 
@@ -134,7 +134,7 @@ Last reviewed: `2026-05-02T05:22:25Z`
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `Define the next Strategy Validation phase after running and reviewing SV1.4 canonical campaign readiness/evidence outputs on real persisted data. Candidate work should focus on historical candle backfill/coverage gaps across symbols and venues, comparing saved evidence packs, and paper-trading readiness design only after founder/operator review. Do not optimize Money Flow parameters, add new strategy families, create live trading artifacts, or connect validation to routing/execution automation until evidence and architecture review justify that scope.`
+- `summary`: `Define SV1.5 historical-data readiness only after accepting the SV1.4.1 evidence-pack integrity hotfix. Candidate work should run/review canonical campaign readiness/evidence outputs on real persisted data, backfill historical candle gaps across symbols and venues where needed, compare saved evidence packs, and consider paper-trading readiness design only after founder/operator review. Do not optimize Money Flow parameters, add new strategy families, create live trading artifacts, or connect validation to routing/execution automation until evidence and architecture review justify that scope.`
 
 ### T-055
 
@@ -147,6 +147,12 @@ Last reviewed: `2026-05-02T05:22:25Z`
 - `priority`: `high`
 - `status`: `done`
 - `summary`: `SV1.4 adds Money Flow evidence-pack review discipline and data-readiness baseline. Canonical editable campaign configs now live under `configs/strategy_validation/campaigns/`, the research campaign CLI supports `--audit-only` persisted-candle coverage/readiness inspection, evidence-pack manifests/Markdown include a founder/operator review checklist plus manual paper-trading readiness criteria, and operational-doc tests now assert the current phase line instead of stale historical text. SV1.4 changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchanges, and does not connect validation to routing or execution automation.`
+
+### T-057
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.4.1 hardens Money Flow evidence-pack integrity before SV1.5. Campaign evidence-pack writes now use an explicit collision policy: default `unique_suffix` creates a suffixed run directory when the same campaign/timestamp already exists, while `fail_if_exists` raises an explicit collision error. Pack files refuse overwrite, and manifests record requested run id, final run id, final evidence-pack path, collision policy, collision occurrence, and suffix truth. SV1.4.1 changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchanges, and does not connect validation to routing or execution automation.`
 
 ### T-001
 

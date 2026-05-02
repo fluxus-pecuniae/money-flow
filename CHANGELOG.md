@@ -13,6 +13,44 @@ Entry schema:
 
 ---
 
+## v2026.05.02.002
+
+- `recorded_at_utc`: `2026-05-02T07:04:32Z`
+- `scope`: `SV1.4.1 Money Flow evidence-pack collision and overwrite integrity hotfix`
+- `intent`: `Native entry. Hardened the Strategy Validation campaign evidence-pack writer so research records cannot be silently overwritten before SV1.5 starts generating real campaign evidence. Evidence-pack output now uses an explicit collision policy: default `unique_suffix` reserves a new suffixed run directory when the requested campaign/timestamp directory already exists, while `fail_if_exists` raises an explicit collision error. Pack file writes refuse existing paths, and manifests now record campaign slug, requested run timestamp/id, final run id, final evidence-pack path, collision policy, whether a collision occurred, and the suffix used. The campaign CLI exposes `--collision-policy`. This is evidence-record write safety only: no Money Flow rules, parameter optimization, strategy recommendations, paper/live trading, live artifacts, routing, execution automation, exchange calls, route executor behavior, fanout, target reselection, or auto-submit were added.`
+- `affected_files`:
+  - `services/strategy_validation/campaigns.py`
+  - `services/strategy_validation/__init__.py`
+  - `scripts/run_money_flow_research_campaign.py`
+  - `tests/test_sv141_evidence_pack_integrity.py`
+  - `tests/test_operational_docs.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall services/strategy_validation scripts/run_money_flow_research_campaign.py tests/test_sv141_evidence_pack_integrity.py` passed during focused development.
+  - `.venv/bin/python -m pytest -q tests/test_sv141_evidence_pack_integrity.py` passed with 3 tests during focused development.
+  - `.venv/bin/python -m pytest -q tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py` passed with 13 tests during focused campaign regression.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py` passed with 31 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 17 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed with 499 tests.
+  - `git diff --check` passed.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed after final docs/code cleanup.
+  - `.venv/bin/python -m pytest -q tests/test_sv141_evidence_pack_integrity.py tests/test_operational_docs.py` passed with 13 tests after final docs/code cleanup.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py` passed with 31 tests after final docs/code cleanup.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 17 tests after final docs/code cleanup.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.4.1-review.zip` created the SV1.4.1 review bundle; bundle inspection found no `.env`, virtualenvs, Git metadata, pytest caches, local DB/SQLite files, nested archives, Obsidian app state, or generated `reports/strategy_validation/` evidence packs.
+
 ## v2026.05.02.001
 
 - `recorded_at_utc`: `2026-05-02T05:32:35Z`

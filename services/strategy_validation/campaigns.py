@@ -39,6 +39,12 @@ from services.strategy_validation.service import (
 _WINDOW_CONVENTION_DISPLAY = "(start_at, end_at]"
 _REPORT_FORMATS = {"json", "markdown"}
 _DATA_READINESS_WARNING_THRESHOLD = Decimal("0.80")
+MONEY_FLOW_RESEARCH_CAMPAIGN_DEFAULT_COLLISION_POLICY = "unique_suffix"
+_EVIDENCE_PACK_COLLISION_POLICIES = {
+    MONEY_FLOW_RESEARCH_CAMPAIGN_DEFAULT_COLLISION_POLICY,
+    "fail_if_exists",
+}
+_EVIDENCE_PACK_MAX_SUFFIX_ATTEMPTS = 999
 
 
 @dataclass(frozen=True, slots=True)
@@ -458,6 +464,7 @@ async def run_money_flow_research_campaign(
     output_dir: str | Path | None = None,
     report_formats: Sequence[str] | None = None,
     run_timestamp: datetime | None = None,
+    evidence_pack_collision_policy: str = MONEY_FLOW_RESEARCH_CAMPAIGN_DEFAULT_COLLISION_POLICY,
 ) -> MoneyFlowResearchCampaignResult:
     """Run a campaign and write its evidence pack."""
 
@@ -471,6 +478,7 @@ async def run_money_flow_research_campaign(
         output_dir=output_dir,
         report_formats=report_formats,
         run_timestamp=run_timestamp,
+        evidence_pack_collision_policy=evidence_pack_collision_policy,
     )
     return MoneyFlowResearchCampaignResult(
         campaign_name=config.campaign_name,
@@ -487,6 +495,7 @@ def run_money_flow_research_campaign_sync(
     output_dir: str | Path | None = None,
     report_formats: Sequence[str] | None = None,
     run_timestamp: datetime | None = None,
+    evidence_pack_collision_policy: str = MONEY_FLOW_RESEARCH_CAMPAIGN_DEFAULT_COLLISION_POLICY,
 ) -> MoneyFlowResearchCampaignResult:
     """Synchronous convenience wrapper for CLI callers."""
 
@@ -497,6 +506,7 @@ def run_money_flow_research_campaign_sync(
             output_dir=output_dir,
             report_formats=report_formats,
             run_timestamp=run_timestamp,
+            evidence_pack_collision_policy=evidence_pack_collision_policy,
         )
     )
 
@@ -508,17 +518,24 @@ def write_money_flow_research_campaign_evidence_pack(
     output_dir: str | Path | None = None,
     report_formats: Sequence[str] | None = None,
     run_timestamp: datetime | None = None,
+    evidence_pack_collision_policy: str = MONEY_FLOW_RESEARCH_CAMPAIGN_DEFAULT_COLLISION_POLICY,
 ) -> tuple[Path, dict[str, Any]]:
     """Write a campaign evidence pack directory and return its manifest."""
 
     formats = tuple(_normalize_report_formats(report_formats or config.report_formats))
-    timestamp = _coerce_utc(run_timestamp or datetime.now(UTC)).replace(microsecond=0)
-    evidence_pack_dir = (
-        Path(output_dir or config.output_dir)
-        / _safe_slug(config.campaign_name)
-        / timestamp.strftime("%Y%m%dT%H%M%SZ")
+    collision_policy = _normalize_evidence_pack_collision_policy(
+        evidence_pack_collision_policy
     )
-    evidence_pack_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = _coerce_utc(run_timestamp or datetime.now(UTC)).replace(microsecond=0)
+    campaign_slug = _safe_slug(config.campaign_name)
+    requested_run_id = timestamp.strftime("%Y%m%dT%H%M%SZ")
+    evidence_pack_dir, final_run_id, collision_occurred, collision_suffix = (
+        _reserve_evidence_pack_dir(
+            root=Path(output_dir or config.output_dir) / campaign_slug,
+            requested_run_id=requested_run_id,
+            collision_policy=collision_policy,
+        )
+    )
 
     config_payload = money_flow_research_campaign_config_to_dict(config)
     batch_payload = strategy_validation_batch_report_to_dict(batch_report)
@@ -529,6 +546,13 @@ def write_money_flow_research_campaign_evidence_pack(
         run_timestamp=timestamp,
         run_contexts=run_contexts,
         formats=formats,
+        campaign_slug=campaign_slug,
+        requested_run_id=requested_run_id,
+        final_run_id=final_run_id,
+        evidence_pack_dir=evidence_pack_dir,
+        collision_policy=collision_policy,
+        collision_occurred=collision_occurred,
+        collision_suffix=collision_suffix,
     )
 
     _write_json(evidence_pack_dir / "campaign_config.json", config_payload)
@@ -551,13 +575,10 @@ def write_money_flow_research_campaign_evidence_pack(
             batch_report=batch_report,
             manifest=manifest,
         )
-        (evidence_pack_dir / "batch_report.md").write_text(markdown, encoding="utf-8")
+        _write_text_once(evidence_pack_dir / "batch_report.md", markdown)
 
     _write_json(evidence_pack_dir / "manifest.json", manifest)
-    (evidence_pack_dir / "README.md").write_text(
-        _evidence_pack_readme(config, manifest),
-        encoding="utf-8",
-    )
+    _write_text_once(evidence_pack_dir / "README.md", _evidence_pack_readme(config, manifest))
     return evidence_pack_dir, manifest
 
 
@@ -583,6 +604,10 @@ def money_flow_research_campaign_report_to_markdown(
         f"- Campaign name: `{config.campaign_name}`",
         f"- Description: {config.description}",
         f"- Run timestamp UTC: `{manifest['run_timestamp_utc']}`",
+        f"- Requested run id: `{manifest['requested_run_id']}`",
+        f"- Final run id: `{manifest['final_run_id']}`",
+        f"- Evidence pack collision policy: `{manifest['evidence_pack_collision_policy']}`",
+        f"- Collision occurred: `{manifest['evidence_pack_collision_occurred']}`",
         f"- Batch id: `{batch_data['batch_id']}`",
         f"- Strategy family: `{batch_data['strategy_family']}`",
         f"- Environment: `{config.environment.value}`",
@@ -719,6 +744,13 @@ def _campaign_manifest(
     run_timestamp: datetime,
     run_contexts: list[dict[str, Any]],
     formats: tuple[str, ...],
+    campaign_slug: str,
+    requested_run_id: str,
+    final_run_id: str,
+    evidence_pack_dir: Path,
+    collision_policy: str,
+    collision_occurred: bool,
+    collision_suffix: str | None,
 ) -> dict[str, Any]:
     blocked = [run for run in batch_report.run_reports if run.status != "completed"]
     blocked_reason_counts: Counter[str] = Counter()
@@ -727,8 +759,16 @@ def _campaign_manifest(
     config_payload = money_flow_research_campaign_config_to_dict(config)
     return {
         "campaign_name": config.campaign_name,
+        "campaign_slug": campaign_slug,
         "description": config.description,
         "run_timestamp_utc": _coerce_utc(run_timestamp).isoformat(),
+        "requested_run_timestamp_utc": _coerce_utc(run_timestamp).isoformat(),
+        "requested_run_id": requested_run_id,
+        "final_run_id": final_run_id,
+        "final_evidence_pack_path": str(evidence_pack_dir),
+        "evidence_pack_collision_policy": collision_policy,
+        "evidence_pack_collision_occurred": collision_occurred,
+        "evidence_pack_collision_suffix": collision_suffix,
         "strategy_family": StrategyFamily.MONEY_FLOW.value,
         "batch_id": batch_report.batch_id,
         "batch_name": batch_report.batch_name,
@@ -796,16 +836,19 @@ def _evidence_pack_readme(
         [
             f"# Money Flow Research Campaign `{config.campaign_name}`",
             "",
-            "This directory is an SV1.3 research evidence pack.",
+            "This directory is a Money Flow Strategy Validation research evidence pack.",
             "",
             "- `campaign_config.json` is the normalized campaign input.",
             "- `manifest.json` records run metadata, assumptions hash, window convention, blocked-run counts, and report paths.",
             "- `batch_report.json` and `batch_report.md` contain the batch validation output when those formats are requested.",
             "- The report includes a manual evidence-pack review checklist and manual paper-trading readiness criteria.",
+            "- Evidence packs use collision policy `unique_suffix` by default; repeated runs never silently overwrite prior packs.",
             "- The window convention is `(start_at, end_at]`: candle closes exactly at `start_at` are excluded and closes on or before `end_at` are included.",
             "- Outputs are research-only. They are not paper trading, live execution, routing, optimization, or proof of future profitability.",
             "",
             f"Run timestamp UTC: `{manifest['run_timestamp_utc']}`",
+            f"Final run id: `{manifest['final_run_id']}`",
+            f"Evidence pack collision policy: `{manifest['evidence_pack_collision_policy']}`",
         ]
     ) + "\n"
 
@@ -1109,11 +1152,56 @@ def _normalize_report_formats(values: Sequence[str] | str) -> tuple[str, ...]:
     return unique
 
 
-def _write_json(path: Path, payload: Any) -> None:
-    path.write_text(
-        json.dumps(_json_ready(payload), indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
+def _normalize_evidence_pack_collision_policy(value: str) -> str:
+    normalized = value.strip()
+    if normalized not in _EVIDENCE_PACK_COLLISION_POLICIES:
+        accepted = ", ".join(sorted(_EVIDENCE_PACK_COLLISION_POLICIES))
+        raise ValueError(f"evidence pack collision policy must be one of: {accepted}.")
+    return normalized
+
+
+def _reserve_evidence_pack_dir(
+    *,
+    root: Path,
+    requested_run_id: str,
+    collision_policy: str,
+) -> tuple[Path, str, bool, str | None]:
+    """Create a new evidence-pack directory without overwriting existing packs."""
+
+    root.mkdir(parents=True, exist_ok=True)
+    for attempt in range(0, _EVIDENCE_PACK_MAX_SUFFIX_ATTEMPTS + 1):
+        suffix = None if attempt == 0 else f"{attempt:03d}"
+        final_run_id = requested_run_id if suffix is None else f"{requested_run_id}-{suffix}"
+        evidence_pack_dir = root / final_run_id
+        try:
+            evidence_pack_dir.mkdir(exist_ok=False)
+        except FileExistsError as exc:
+            if collision_policy == "fail_if_exists":
+                raise FileExistsError(
+                    "evidence pack directory already exists and collision policy "
+                    f"`fail_if_exists` forbids overwrite: {evidence_pack_dir}"
+                ) from exc
+            continue
+        return evidence_pack_dir, final_run_id, suffix is not None, suffix
+    raise FileExistsError(
+        "could not reserve a unique evidence pack directory after "
+        f"{_EVIDENCE_PACK_MAX_SUFFIX_ATTEMPTS} suffix attempts under {root}"
     )
+
+
+def _write_json(path: Path, payload: Any) -> None:
+    _write_text_once(
+        path,
+        json.dumps(_json_ready(payload), indent=2, sort_keys=True) + "\n",
+    )
+
+
+def _write_text_once(path: Path, text: str) -> None:
+    try:
+        with path.open("x", encoding="utf-8") as handle:
+            handle.write(text)
+    except FileExistsError as exc:
+        raise FileExistsError(f"refusing to overwrite evidence-pack file: {path}") from exc
 
 
 def _repo_metadata() -> dict[str, str | None]:
@@ -1182,6 +1270,7 @@ def _json_ready(value: Any) -> Any:
 
 
 __all__ = [
+    "MONEY_FLOW_RESEARCH_CAMPAIGN_DEFAULT_COLLISION_POLICY",
     "MoneyFlowResearchCampaignConfig",
     "MoneyFlowResearchCampaignDataReadinessAudit",
     "MoneyFlowResearchCampaignDataReadinessRow",
