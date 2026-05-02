@@ -13,6 +13,44 @@ Entry schema:
 
 ---
 
+## v2026.05.02.001
+
+- `recorded_at_utc`: `2026-05-02T05:32:35Z`
+- `scope`: `SV1.4 Money Flow evidence-pack review discipline and data-readiness baseline`
+- `intent`: `Native entry. Added the first evidence-pack review and historical data-readiness baseline on top of SV1.3 research campaigns without changing Money Flow rules. SV1.4 adds canonical editable campaign configs under `configs/strategy_validation/campaigns/`, a read-only campaign data-readiness audit that counts persisted candle closes by symbol/component/window under the accepted `(start_at, end_at]` convention, an `--audit-only` campaign CLI mode, evidence-pack manifest/Markdown review checklist output, and manual paper-trading readiness criteria. The audit reports expected candles, actual candles, missing candles, coverage percent, gap counts, largest gap, warning reason codes, and likely blocked windows/runs so founder/operator review can identify thin or missing data before interpreting campaign evidence. Operational-doc tests now assert the current phase line rather than stale historical text. This is research governance only: no Money Flow rule changes, parameter optimization, strategy recommendations, paper/live trading, live artifacts, routing, execution automation, exchange calls, route executor behavior, fanout, target reselection, or auto-submit were added.`
+- `affected_files`:
+  - `configs/strategy_validation/campaigns/money_flow_core_btc.json`
+  - `configs/strategy_validation/campaigns/money_flow_core_multi_symbol.json`
+  - `services/strategy_validation/__init__.py`
+  - `services/strategy_validation/campaigns.py`
+  - `scripts/run_money_flow_research_campaign.py`
+  - `tests/test_sv14_evidence_readiness.py`
+  - `tests/test_operational_docs.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_sv14_evidence_readiness.py` passed with 4 tests during focused development.
+  - `.venv/bin/python -m pytest -q tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py` passed with 10 tests during focused regression.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py` passed with 28 tests during Strategy Validation regression.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 10 tests during docs workflow validation.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 17 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed with 496 tests.
+  - `git diff --check` passed.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 10 tests after final docs/Obsidian updates.
+  - `.venv/bin/python -m pytest -q tests/test_sv14_evidence_readiness.py` passed with 4 tests after final docs/Obsidian updates.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.4-review.zip` created the SV1.4 review bundle; bundle inspection found 224 files, included the canonical campaign configs and SV1.4 tests, and found no `.env`, virtualenvs, Git metadata, pytest caches, local DB/SQLite files, nested archives, Obsidian app state, or generated `reports/strategy_validation/` evidence packs.
+
 ## v2026.05.01.017
 
 - `recorded_at_utc`: `2026-05-01T21:08:26Z`

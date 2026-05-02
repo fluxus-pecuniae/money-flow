@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-01T21:08:26Z`
+Last reviewed: `2026-05-02T05:22:25Z`
 
 ## Active Follow-Ups
 
@@ -134,13 +134,19 @@ Last reviewed: `2026-05-01T21:08:26Z`
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `Define the next Strategy Validation phase after reviewing SV1.3 campaign evidence packs. Candidate work should focus on broader historical data ingestion/coverage across symbols and venues, evidence-pack review discipline, richer regime/data-quality review, paper-trading readiness only after evidence review, and any report persistence/compare tooling that remains research-only. Do not optimize Money Flow parameters, add new strategy families, create live trading artifacts, or connect validation to routing/execution automation until evidence and architecture review justify that scope.`
+- `summary`: `Define the next Strategy Validation phase after running and reviewing SV1.4 canonical campaign readiness/evidence outputs on real persisted data. Candidate work should focus on historical candle backfill/coverage gaps across symbols and venues, comparing saved evidence packs, and paper-trading readiness design only after founder/operator review. Do not optimize Money Flow parameters, add new strategy families, create live trading artifacts, or connect validation to routing/execution automation until evidence and architecture review justify that scope.`
 
 ### T-055
 
 - `priority`: `high`
 - `status`: `done`
 - `summary`: `SV1.3 adds repeatable Money Flow research campaigns and saved evidence packs. A JSON campaign config names explicit symbols/instruments, components, fill timings, named `(start_at, end_at]` windows, fee/slippage assumptions, capital, sizing, output directory, and report formats. The campaign runner expands that matrix through the existing Strategy Validation batch service, writes normalized config, manifest, JSON report, Markdown report, and README files under `reports/strategy_validation/<campaign_name>/<run_timestamp>/`, preserves blocked-run visibility, and fixes the remaining single-run CLI wording mismatch so `--start` is no longer described as inclusive. SV1.3 changes no Money Flow rules, performs no optimization, recommends no variant, creates no live artifacts, calls no exchanges, and does not connect validation to routing or execution automation.`
+
+### T-056
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.4 adds Money Flow evidence-pack review discipline and data-readiness baseline. Canonical editable campaign configs now live under `configs/strategy_validation/campaigns/`, the research campaign CLI supports `--audit-only` persisted-candle coverage/readiness inspection, evidence-pack manifests/Markdown include a founder/operator review checklist plus manual paper-trading readiness criteria, and operational-doc tests now assert the current phase line instead of stale historical text. SV1.4 changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchanges, and does not connect validation to routing or execution automation.`
 
 ### T-001
 

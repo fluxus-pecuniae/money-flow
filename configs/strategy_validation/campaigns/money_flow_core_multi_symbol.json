@@ -1,0 +1,62 @@
+{
+  "campaign_name": "money_flow_core_multi_symbol",
+  "description": "Canonical editable multi-symbol Money Flow evidence campaign. Uses persisted candles only and is intended for manual founder/operator research review.",
+  "window_convention": "(start_at, end_at] candle closes; closes exactly at start are excluded and closes on or before end are included.",
+  "environment": "testnet",
+  "venue": "hyperliquid",
+  "symbols": [
+    {
+      "symbol": "BTC",
+      "instrument_key": "perpetual:linear:BTC:USDC:USDC"
+    },
+    {
+      "symbol": "ETH",
+      "instrument_key": "perpetual:linear:ETH:USDC:USDC"
+    },
+    {
+      "symbol": "SOL",
+      "instrument_key": "perpetual:linear:SOL:USDC:USDC"
+    }
+  ],
+  "components": [
+    "sleeve_15m",
+    "sleeve_1h",
+    "sleeve_4h"
+  ],
+  "fill_timings": [
+    "same_candle_close_research_only",
+    "next_candle_open",
+    "next_candle_close"
+  ],
+  "windows": [
+    {
+      "label": "core_window_1",
+      "start": "2026-01-01T00:00:00Z",
+      "end": "2026-01-15T00:00:00Z",
+      "description": "Editable canonical starter window. Interpreted as candle closes in (start_at, end_at].",
+      "expected_regime_label": "founder_review_required"
+    },
+    {
+      "label": "core_window_2",
+      "start": "2026-01-15T00:00:00Z",
+      "end": "2026-02-01T00:00:00Z",
+      "description": "Adjacent editable starter window; the Jan 15 boundary close is not double-counted.",
+      "expected_regime_label": "founder_review_required"
+    }
+  ],
+  "fee_bps_values": [
+    "2",
+    "5"
+  ],
+  "slippage_bps_values": [
+    "1",
+    "3"
+  ],
+  "initial_capital": "10000",
+  "position_notional_pct": "1.0",
+  "output_dir": "reports/strategy_validation",
+  "report_formats": [
+    "json",
+    "markdown"
+  ]
+}

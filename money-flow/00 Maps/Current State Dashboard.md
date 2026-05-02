@@ -4,17 +4,19 @@ Up: [[Money Flow Command Center]]
 
 ## Today In One Sentence
 
-Money Flow is a mandate-driven, multi-venue-aware trading strategy platform whose current deepest path is controlled single-target recommendation-backed routed execution, with Phase 8.0 adding read-only operator observability and manual-resolution inspection over that chain.
+Money Flow is a mandate-driven, multi-venue-aware trading strategy platform whose current deepest execution path is controlled single-target recommendation-backed routed execution, with Strategy Validation now providing repeatable Money Flow campaign evidence packs and data-readiness review before any paper-trading decision.
 
 ## Current Implemented Phase
 
-- Phase observed in repo memory: `Phase 8.0.1`.
-- Latest implemented scope: Obsidian memory / working-tree cleanup after accepted Phase 8.0.
+- Phase observed in repo memory: `SV1.4`.
+- Latest implemented scope: Money Flow evidence-pack review discipline and historical data-readiness baseline.
 - Current action hooks: approval-gated `recommendation_acceptance`, `target_choice_conversion`, `prepared_order_preview_and_readiness`, and `submitted_order_handoff`.
 - Phase 7.5.1 added `consumption_pending` approval truth for submitted-order-created / approval-consumption-failed cases.
 - Phase 7.6 added closeout tests and docs only; it added no production behavior.
 - Phase 8.0 added read-only operator-grade observability and manual-resolution inspection.
-- Proposed next phase: Phase 8.1 manual-resolution marker / administrative reconciliation design.
+- SV1.0-SV1.3 added Money Flow validation, comparative reports, regime/coverage diagnostics, and repeatable evidence packs.
+- SV1.4 added canonical editable campaign configs, campaign `--audit-only` data-readiness inspection, evidence-pack review checklist, and manual paper-trading readiness criteria.
+- Proposed next phase: run/review canonical SV1.4 campaign outputs on real persisted data, then scope historical data backfill or paper-trading readiness only after founder/operator review.
 
 ## Implemented Platform Surface
 
@@ -67,12 +69,16 @@ See [[40 Operations/Phase 8 Focus]] and [[20 Workflows/Operator Observability an
 
 Phase 8.0 makes workflow state, approval state, manual-resolution needs, submit-lease uncertainty, and next safe manual operator action visible without mutating trading artifacts.
 
+## Current Strategy Validation Layer
+
+SV1.4 keeps validation research-only. Canonical campaign configs live under `configs/strategy_validation/campaigns/`, campaign windows use `(start_at, end_at]`, and data-readiness audits show coverage, missing candles, gaps, warnings, and likely blocked runs before interpreting evidence packs.
+
 ## Deferred Boundaries
 
 See [[20 Workflows/Deferred Smart Routing]] and [[40 Operations/Future Work Roadmap]].
 
 - Smart routing, best-binding selection, CBBO, ranking, scoring, route plans, fanout, target reselection, cross-binding recovery, cross-venue retry, route executor behavior, and auto-submit are not implemented.
 - Dashboard UI remains placeholder only.
-- Alerts and backtesting are placeholder/deferred surfaces.
+- Alerts remain deferred; Money Flow backtesting/validation now exists as a research-only surface, not paper trading or live execution.
 - Top-of-book/depth interfaces exist, but live execution-quality market data is not wired.
 - Full attribution and mandate-level account aggregation remain deferred.

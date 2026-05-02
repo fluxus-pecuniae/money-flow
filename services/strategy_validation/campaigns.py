@@ -19,6 +19,8 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any, Sequence
 
+from sqlalchemy import select
+
 from core.domain.enums import Environment, StrategyFamily, StrategyValidationFillTiming
 from core.domain.models import (
     StrategyValidationAssumptions,
@@ -26,6 +28,7 @@ from core.domain.models import (
     StrategyValidationBatchRequest,
     StrategyValidationRequest,
 )
+from db.models import CandleModel, InstrumentModel
 from services.strategy_validation.service import (
     MoneyFlowBacktestService,
     STRATEGY_VALIDATION_WINDOW_CONVENTION,
@@ -35,6 +38,7 @@ from services.strategy_validation.service import (
 
 _WINDOW_CONVENTION_DISPLAY = "(start_at, end_at]"
 _REPORT_FORMATS = {"json", "markdown"}
+_DATA_READINESS_WARNING_THRESHOLD = Decimal("0.80")
 
 
 @dataclass(frozen=True, slots=True)
@@ -77,6 +81,46 @@ class MoneyFlowResearchCampaignResult:
     evidence_pack_dir: Path
     manifest: dict[str, Any]
     batch_report: StrategyValidationBatchReport
+
+
+@dataclass(frozen=True, slots=True)
+class MoneyFlowResearchCampaignDataReadinessRow:
+    symbol: str
+    instrument_key: str | None
+    instrument_ref_id: str | None
+    component: str
+    timeframe: str | None
+    window_label: str
+    requested_start_at: datetime
+    requested_end_at: datetime
+    window_convention: str
+    expected_candle_count: int | None
+    actual_candle_count: int
+    missing_candle_count: int | None
+    coverage_percent: Decimal | None
+    gap_count: int | None
+    largest_gap_seconds: int | None
+    first_candle_available_at: datetime | None
+    last_candle_available_at: datetime | None
+    readiness_status: str
+    warning_reason_codes: tuple[str, ...]
+    likely_blocked: bool
+    likely_blocked_reason_codes: tuple[str, ...]
+    impacted_run_count: int
+
+
+@dataclass(frozen=True, slots=True)
+class MoneyFlowResearchCampaignDataReadinessAudit:
+    campaign_name: str
+    generated_at_utc: datetime
+    environment: Environment
+    venue: str
+    window_convention: str
+    window_convention_display: str
+    rows: tuple[MoneyFlowResearchCampaignDataReadinessRow, ...]
+    summary: dict[str, Any]
+    review_checklist: dict[str, list[str]]
+    manual_paper_trading_readiness_criteria: list[str]
 
 
 def load_money_flow_research_campaign_config(path: str | Path) -> MoneyFlowResearchCampaignConfig:
@@ -159,6 +203,168 @@ def money_flow_research_campaign_config_to_dict(
     """Return a deterministic JSON-ready campaign config representation."""
 
     return _json_ready(asdict(config))
+
+
+def audit_money_flow_research_campaign_data_readiness(
+    config: MoneyFlowResearchCampaignConfig,
+    *,
+    service: MoneyFlowBacktestService | None = None,
+    generated_at: datetime | None = None,
+) -> MoneyFlowResearchCampaignDataReadinessAudit:
+    """Audit persisted candle readiness for a campaign without running strategy logic."""
+
+    validation_service = service or MoneyFlowBacktestService()
+    sleeves_by_key = {
+        sleeve.sleeve_id: sleeve
+        for sleeve in validation_service.settings.money_flow.sleeves
+    }
+    rows: list[MoneyFlowResearchCampaignDataReadinessRow] = []
+    impacted_run_count = (
+        len(config.fill_timings)
+        * len(config.fee_bps_values)
+        * len(config.slippage_bps_values)
+    )
+    with validation_service._session_factory() as session:
+        for symbol in config.symbols:
+            for window in config.windows:
+                for component in config.components:
+                    sleeve = sleeves_by_key.get(component)
+                    if sleeve is None:
+                        rows.append(
+                            _blocked_data_readiness_row(
+                                symbol=symbol,
+                                component=component,
+                                window=window,
+                                timeframe=None,
+                                reason_codes=("unknown_money_flow_component",),
+                                impacted_run_count=impacted_run_count,
+                            )
+                        )
+                        continue
+                    instrument_ref_id = symbol.instrument_ref_id
+                    if symbol.instrument_key is not None and instrument_ref_id is None:
+                        instrument_ref_id = session.scalar(
+                            select(InstrumentModel.id).where(
+                                InstrumentModel.instrument_key == symbol.instrument_key
+                            )
+                        )
+                        if instrument_ref_id is None:
+                            rows.append(
+                                _blocked_data_readiness_row(
+                                    symbol=symbol,
+                                    component=component,
+                                    window=window,
+                                    timeframe=sleeve.timeframe.value,
+                                    reason_codes=("unknown_instrument_key",),
+                                    impacted_run_count=impacted_run_count,
+                                )
+                            )
+                            continue
+                    query = (
+                        select(CandleModel.close_time)
+                        .where(
+                            CandleModel.environment == config.environment,
+                            CandleModel.venue == config.venue,
+                            CandleModel.symbol == symbol.symbol,
+                            CandleModel.timeframe == sleeve.timeframe,
+                            CandleModel.close_time > window.start_at,
+                            CandleModel.close_time <= window.end_at,
+                        )
+                        .order_by(CandleModel.close_time.asc())
+                    )
+                    if instrument_ref_id is not None:
+                        query = query.where(CandleModel.instrument_ref_id == instrument_ref_id)
+                    close_times = [_coerce_utc(value) for value in session.scalars(query).all()]
+                    rows.append(
+                        _data_readiness_row_from_close_times(
+                            symbol=symbol,
+                            component=component,
+                            timeframe=sleeve.timeframe.value,
+                            window=window,
+                            close_times=close_times,
+                            impacted_run_count=impacted_run_count,
+                        )
+                    )
+
+    return MoneyFlowResearchCampaignDataReadinessAudit(
+        campaign_name=config.campaign_name,
+        generated_at_utc=_coerce_utc(generated_at or datetime.now(UTC)).replace(microsecond=0),
+        environment=config.environment,
+        venue=config.venue,
+        window_convention=STRATEGY_VALIDATION_WINDOW_CONVENTION,
+        window_convention_display=_WINDOW_CONVENTION_DISPLAY,
+        rows=tuple(rows),
+        summary=_data_readiness_summary(rows),
+        review_checklist=money_flow_evidence_pack_review_checklist(),
+        manual_paper_trading_readiness_criteria=(
+            money_flow_manual_paper_trading_readiness_criteria()
+        ),
+    )
+
+
+def money_flow_research_campaign_data_readiness_to_dict(
+    audit: MoneyFlowResearchCampaignDataReadinessAudit,
+) -> dict[str, Any]:
+    """Return a deterministic JSON-ready data-readiness audit representation."""
+
+    return _json_ready(asdict(audit))
+
+
+def money_flow_evidence_pack_review_checklist() -> dict[str, list[str]]:
+    """Founder/operator checklist for manual evidence-pack review."""
+
+    return {
+        "data_quality": [
+            "Review coverage percent for every symbol/component/window.",
+            "Review missing candle count, gap count, largest gap, and blocked run reasons.",
+            "Do not interpret thin or missing windows as absent evidence.",
+        ],
+        "fill_timing_robustness": [
+            "Compare same-candle close, next-candle open, and next-candle close results.",
+            "Treat same-candle close as research-only and potentially optimistic.",
+            "Check whether observed edge disappears under next-candle fill timing.",
+        ],
+        "regime_behavior": [
+            "Review uptrend, downtrend, sideways, high-volatility, and low-volatility groups.",
+            "Check whether performance is concentrated in one narrow regime or window.",
+            "Treat regime labels as descriptive only, not strategy filters.",
+        ],
+        "component_behavior": [
+            "Compare sleeve_15m, sleeve_1h, and sleeve_4h separately.",
+            "Review trade count, no-trade reasons, invalid reasons, and component drawdowns.",
+            "Do not treat component comparison as parameter optimization.",
+        ],
+        "risk_behavior": [
+            "Review mark-to-market drawdown, closed-trade drawdown, worst trade, average loss, and profit factor.",
+            "Check whether drawdowns exceed founder/operator research tolerance.",
+            "Review forced end-of-window closes before interpreting trade outcomes.",
+        ],
+        "fees_and_slippage": [
+            "Compare fee and slippage assumptions across runs.",
+            "Check whether small cost increases erase observed net PnL.",
+            "Remember the simulator has no order-book replay, partial-fill, latency, funding, or liquidation model.",
+        ],
+        "paper_trading_readiness": [
+            "Use the manual readiness criteria as founder/operator review inputs only.",
+            "Do not auto-approve paper trading from a campaign report.",
+            "Do not create paper trades, live trades, routing artifacts, or execution artifacts from validation output.",
+        ],
+    }
+
+
+def money_flow_manual_paper_trading_readiness_criteria() -> list[str]:
+    """Manual-only criteria for deciding whether paper trading is worth scoping."""
+
+    return [
+        "Selected campaign windows meet the founder-defined minimum data coverage threshold.",
+        "No critical selected campaign run is blocked or missing without an understood reason.",
+        "Observed performance survives next-candle open or next-candle close timing assumptions.",
+        "Mark-to-market drawdown remains within founder/operator research tolerance.",
+        "Profit factor and win/loss behavior remain acceptable under explicit fee and slippage assumptions.",
+        "Observed outcomes are not concentrated in one tiny window, one symbol, or one regime.",
+        "Fees, slippage, and no-trade/invalid reason counts are understood.",
+        "Founder/operator review is complete; this is not an automated go/no-go decision.",
+    ]
 
 
 def build_money_flow_research_campaign_batch_request(
@@ -475,6 +681,29 @@ def money_flow_research_campaign_report_to_markdown(
             "- Data coverage warnings must be reviewed before interpreting run outcomes.",
             "- Blocked runs remain visible and should not be treated as absent configurations.",
             "",
+            "## Evidence-Pack Review Checklist",
+            "",
+        ]
+    )
+    for section, items in manifest["review_checklist"].items():
+        lines.append(f"### {section.replace('_', ' ').title()}")
+        lines.append("")
+        lines.extend(f"- [ ] {item}" for item in items)
+        lines.append("")
+    lines.extend(
+        [
+            "## Manual Paper-Trading Readiness Criteria",
+            "",
+            "These criteria are manual founder/operator review inputs only. They do not auto-approve paper trading, create paper trades, or create live artifacts.",
+            "",
+        ]
+    )
+    lines.extend(
+        f"- [ ] {item}" for item in manifest["manual_paper_trading_readiness_criteria"]
+    )
+    lines.extend(
+        [
+            "",
             "## Batch Comparison Report",
             "",
         ]
@@ -547,6 +776,10 @@ def _campaign_manifest(
         "blocked_reason_counts": dict(sorted(blocked_reason_counts.items())),
         "warnings": list(batch_report.warnings),
         "limitations": list(batch_report.limitations),
+        "review_checklist": money_flow_evidence_pack_review_checklist(),
+        "manual_paper_trading_readiness_criteria": (
+            money_flow_manual_paper_trading_readiness_criteria()
+        ),
         "run_contexts": run_contexts,
         "config": config_payload,
         "no_live_execution_artifacts_created": batch_report.no_live_execution_artifacts_created,
@@ -568,12 +801,222 @@ def _evidence_pack_readme(
             "- `campaign_config.json` is the normalized campaign input.",
             "- `manifest.json` records run metadata, assumptions hash, window convention, blocked-run counts, and report paths.",
             "- `batch_report.json` and `batch_report.md` contain the batch validation output when those formats are requested.",
+            "- The report includes a manual evidence-pack review checklist and manual paper-trading readiness criteria.",
             "- The window convention is `(start_at, end_at]`: candle closes exactly at `start_at` are excluded and closes on or before `end_at` are included.",
             "- Outputs are research-only. They are not paper trading, live execution, routing, optimization, or proof of future profitability.",
             "",
             f"Run timestamp UTC: `{manifest['run_timestamp_utc']}`",
         ]
     ) + "\n"
+
+
+def _blocked_data_readiness_row(
+    *,
+    symbol: MoneyFlowResearchCampaignSymbol,
+    component: str,
+    window: MoneyFlowResearchCampaignWindow,
+    timeframe: str | None,
+    reason_codes: tuple[str, ...],
+    impacted_run_count: int,
+) -> MoneyFlowResearchCampaignDataReadinessRow:
+    return MoneyFlowResearchCampaignDataReadinessRow(
+        symbol=symbol.symbol,
+        instrument_key=symbol.instrument_key,
+        instrument_ref_id=symbol.instrument_ref_id,
+        component=component,
+        timeframe=timeframe,
+        window_label=window.label,
+        requested_start_at=window.start_at,
+        requested_end_at=window.end_at,
+        window_convention=STRATEGY_VALIDATION_WINDOW_CONVENTION,
+        expected_candle_count=None,
+        actual_candle_count=0,
+        missing_candle_count=None,
+        coverage_percent=None,
+        gap_count=None,
+        largest_gap_seconds=None,
+        first_candle_available_at=None,
+        last_candle_available_at=None,
+        readiness_status="blocked",
+        warning_reason_codes=reason_codes,
+        likely_blocked=True,
+        likely_blocked_reason_codes=reason_codes,
+        impacted_run_count=impacted_run_count,
+    )
+
+
+def _data_readiness_row_from_close_times(
+    *,
+    symbol: MoneyFlowResearchCampaignSymbol,
+    component: str,
+    timeframe: str,
+    window: MoneyFlowResearchCampaignWindow,
+    close_times: list[datetime],
+    impacted_run_count: int,
+) -> MoneyFlowResearchCampaignDataReadinessRow:
+    timeframe_delta = _campaign_timeframe_delta(timeframe)
+    expected_count: int | None = None
+    missing_count: int | None = None
+    coverage_percent: Decimal | None = None
+    gap_count: int | None = None
+    largest_gap_seconds: int | None = None
+    warnings: list[str] = []
+    if timeframe_delta is None:
+        warnings.append("expected_candle_count_not_derivable_for_timeframe")
+    else:
+        expected_count = _campaign_expected_close_slot_count(
+            start_at=window.start_at,
+            end_at=window.end_at,
+            timeframe_delta_seconds=timeframe_delta,
+        )
+        missing_count = max(expected_count - len(close_times), 0)
+        coverage_percent = (
+            _campaign_ratio(Decimal(len(close_times)), Decimal(expected_count))
+            if expected_count > 0
+            else None
+        )
+        if coverage_percent is not None:
+            coverage_percent = min(coverage_percent, Decimal("1.00000000"))
+        gaps = [
+            int((later - earlier).total_seconds())
+            for earlier, later in zip(close_times, close_times[1:], strict=False)
+            if int((later - earlier).total_seconds()) > timeframe_delta
+        ]
+        gap_count = len(gaps)
+        largest_gap_seconds = max(gaps) if gaps else 0
+        if _campaign_has_unaligned_window_boundary(
+            start_at=window.start_at,
+            end_at=window.end_at,
+            timeframe_delta_seconds=timeframe_delta,
+        ):
+            warnings.append("unaligned_window_boundary")
+        if len(close_times) > expected_count:
+            warnings.append("actual_candles_exceed_expected_close_slots")
+        if coverage_percent is not None and coverage_percent < _DATA_READINESS_WARNING_THRESHOLD:
+            warnings.append("data_coverage_below_review_threshold")
+        if missing_count > 0:
+            warnings.append("missing_candles_in_requested_window")
+        if gap_count > 0:
+            warnings.append("candle_gaps_detected")
+    likely_blocked_reason_codes: list[str] = []
+    if not close_times:
+        warnings.append("no_candles_in_requested_window")
+        likely_blocked_reason_codes.append("no_candles_in_requested_window")
+    if likely_blocked_reason_codes:
+        readiness_status = "missing"
+    elif coverage_percent is not None and coverage_percent < _DATA_READINESS_WARNING_THRESHOLD:
+        readiness_status = "thin"
+    elif missing_count is not None and missing_count > 0:
+        readiness_status = "thin"
+    else:
+        readiness_status = "covered"
+    return MoneyFlowResearchCampaignDataReadinessRow(
+        symbol=symbol.symbol,
+        instrument_key=symbol.instrument_key,
+        instrument_ref_id=symbol.instrument_ref_id,
+        component=component,
+        timeframe=timeframe,
+        window_label=window.label,
+        requested_start_at=window.start_at,
+        requested_end_at=window.end_at,
+        window_convention=STRATEGY_VALIDATION_WINDOW_CONVENTION,
+        expected_candle_count=expected_count,
+        actual_candle_count=len(close_times),
+        missing_candle_count=missing_count,
+        coverage_percent=coverage_percent,
+        gap_count=gap_count,
+        largest_gap_seconds=largest_gap_seconds,
+        first_candle_available_at=close_times[0] if close_times else None,
+        last_candle_available_at=close_times[-1] if close_times else None,
+        readiness_status=readiness_status,
+        warning_reason_codes=tuple(sorted(set(warnings))),
+        likely_blocked=bool(likely_blocked_reason_codes),
+        likely_blocked_reason_codes=tuple(sorted(set(likely_blocked_reason_codes))),
+        impacted_run_count=impacted_run_count,
+    )
+
+
+def _data_readiness_summary(
+    rows: list[MoneyFlowResearchCampaignDataReadinessRow],
+) -> dict[str, Any]:
+    status_counts = Counter(row.readiness_status for row in rows)
+    warning_counts: Counter[str] = Counter()
+    blocked_counts: Counter[str] = Counter()
+    for row in rows:
+        warning_counts.update(row.warning_reason_codes)
+        blocked_counts.update(row.likely_blocked_reason_codes)
+    coverage_values = [
+        row.coverage_percent
+        for row in rows
+        if row.coverage_percent is not None
+    ]
+    return {
+        "methodology": "campaign_data_readiness_audit_counts_persisted_candle_closes_only",
+        "window_convention": STRATEGY_VALIDATION_WINDOW_CONVENTION,
+        "window_convention_display": _WINDOW_CONVENTION_DISPLAY,
+        "row_count": len(rows),
+        "covered_row_count": status_counts.get("covered", 0),
+        "thin_row_count": status_counts.get("thin", 0),
+        "missing_row_count": status_counts.get("missing", 0),
+        "blocked_row_count": status_counts.get("blocked", 0),
+        "likely_blocked_impacted_run_count": sum(
+            row.impacted_run_count for row in rows if row.likely_blocked
+        ),
+        "minimum_coverage_percent": min(coverage_values) if coverage_values else None,
+        "warning_reason_counts": dict(sorted(warning_counts.items())),
+        "likely_blocked_reason_counts": dict(sorted(blocked_counts.items())),
+        "manual_review_required": True,
+        "paper_trading_auto_approved": False,
+        "creates_live_artifacts": False,
+        "calls_exchange_adapters": False,
+    }
+
+
+def _campaign_timeframe_delta(timeframe: str) -> int | None:
+    return {
+        "1m": 60,
+        "5m": 5 * 60,
+        "15m": 15 * 60,
+        "1h": 60 * 60,
+        "4h": 4 * 60 * 60,
+        "1d": 24 * 60 * 60,
+    }.get(timeframe)
+
+
+def _campaign_expected_close_slot_count(
+    *,
+    start_at: datetime,
+    end_at: datetime,
+    timeframe_delta_seconds: int,
+) -> int:
+    if end_at <= start_at or timeframe_delta_seconds <= 0:
+        return 0
+    start_seconds = int(start_at.timestamp())
+    end_seconds = int(end_at.timestamp())
+    first_close_slot = ((start_seconds // timeframe_delta_seconds) + 1) * timeframe_delta_seconds
+    if first_close_slot > end_seconds:
+        return 0
+    return ((end_seconds - first_close_slot) // timeframe_delta_seconds) + 1
+
+
+def _campaign_has_unaligned_window_boundary(
+    *,
+    start_at: datetime,
+    end_at: datetime,
+    timeframe_delta_seconds: int,
+) -> bool:
+    if timeframe_delta_seconds <= 0:
+        return False
+    return (
+        int(start_at.timestamp()) % timeframe_delta_seconds != 0
+        or int(end_at.timestamp()) % timeframe_delta_seconds != 0
+    )
+
+
+def _campaign_ratio(numerator: Decimal, denominator: Decimal) -> Decimal | None:
+    if denominator == 0:
+        return None
+    return (numerator / denominator).quantize(Decimal("0.00000001"))
 
 
 def _parse_symbols(raw_symbols: list[Any]) -> list[MoneyFlowResearchCampaignSymbol]:
@@ -740,11 +1183,17 @@ def _json_ready(value: Any) -> Any:
 
 __all__ = [
     "MoneyFlowResearchCampaignConfig",
+    "MoneyFlowResearchCampaignDataReadinessAudit",
+    "MoneyFlowResearchCampaignDataReadinessRow",
     "MoneyFlowResearchCampaignResult",
     "MoneyFlowResearchCampaignSymbol",
     "MoneyFlowResearchCampaignWindow",
+    "audit_money_flow_research_campaign_data_readiness",
     "build_money_flow_research_campaign_batch_request",
     "load_money_flow_research_campaign_config",
+    "money_flow_evidence_pack_review_checklist",
+    "money_flow_manual_paper_trading_readiness_criteria",
+    "money_flow_research_campaign_data_readiness_to_dict",
     "money_flow_research_campaign_config_from_dict",
     "money_flow_research_campaign_config_to_dict",
     "money_flow_research_campaign_report_to_markdown",

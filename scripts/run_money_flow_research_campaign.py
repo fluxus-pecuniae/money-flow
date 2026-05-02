@@ -10,7 +10,9 @@ from typing import Sequence
 from core.config.settings import get_settings
 from services.strategy_validation import (
     MoneyFlowBacktestService,
+    audit_money_flow_research_campaign_data_readiness,
     load_money_flow_research_campaign_config,
+    money_flow_research_campaign_data_readiness_to_dict,
     run_money_flow_research_campaign_sync,
 )
 
@@ -35,6 +37,14 @@ def build_parser() -> argparse.ArgumentParser:
         default="both",
         help="Evidence report format to write. Default writes both JSON and Markdown.",
     )
+    parser.add_argument(
+        "--audit-only",
+        action="store_true",
+        help=(
+            "Inspect persisted candle coverage/readiness for the campaign and print JSON. "
+            "Does not run strategy validation and writes no evidence pack."
+        ),
+    )
     return parser
 
 
@@ -43,6 +53,16 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
     config = load_money_flow_research_campaign_config(Path(args.config))
     service = MoneyFlowBacktestService(get_settings())
+    if args.audit_only:
+        audit = audit_money_flow_research_campaign_data_readiness(config, service=service)
+        print(
+            json.dumps(
+                money_flow_research_campaign_data_readiness_to_dict(audit),
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0
     result = run_money_flow_research_campaign_sync(
         config,
         service=service,

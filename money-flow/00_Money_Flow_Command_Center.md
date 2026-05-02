@@ -8,9 +8,9 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 
 ## Current Phase
 
-- Current implemented phase: `SV1.3`
+- Current implemented phase: `SV1.4`
 - Phase 7 status: accepted complete.
-- Proposed next phase: `SV1.4` evidence review / broader historical data coverage / paper-trading readiness design after SV1.3 campaign outputs are reviewed; `Phase 8.1` remains deferred until explicitly scoped.
+- Proposed next phase: run/review canonical SV1.4 campaign readiness/evidence outputs on real persisted data, then scope historical data backfill or paper-trading readiness design only after founder/operator review; `Phase 8.1` remains deferred until explicitly scoped.
 - Phase 8.0 status: implemented read-only operator observability/manual-resolution inspection.
 - Phase 8.0.1 status: Obsidian memory and working-tree baseline cleanup; no product behavior changed.
 - Phase 8.0.2 status: active submit-lease operator-summary truth hotfix; no product behavior changed.
@@ -20,6 +20,7 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 - SV1.2 status: market-regime and data-coverage validation reporting; descriptive regimes and coverage diagnostics only with no strategy-rule changes, paper/live trading, routing, exchange calls, or execution changes.
 - SV1.2.1 status: window-boundary, coverage, and grouped-comparison research-truth hotfix; no strategy-rule changes, paper/live trading, routing, exchange calls, or execution changes.
 - SV1.3 status: repeatable research campaign/evidence-pack workflow; no strategy-rule changes, optimization, paper/live trading, routing, exchange calls, or execution changes.
+- SV1.4 status: evidence-pack review discipline and historical data-readiness baseline; no strategy-rule changes, optimization, recommendations, paper/live trading, routing, exchange calls, or execution changes.
 - Current accepted action hooks: approval-gated recommendation acceptance, target-choice conversion, prepared-order preview/readiness inspection, and submitted-order handoff.
 
 ## Current Architectural Boundary
@@ -63,6 +64,8 @@ SV1.2.1 fixes research-truth issues before campaign/evidence-pack work. Validati
 
 SV1.3 adds repeatable research campaign evidence packs on top of the existing Strategy Validation batch runner. Named JSON configs expand explicit symbols, components, fill timings, named `(start_at, end_at]` windows, fees, slippage, capital, and sizing into batch runs, then save normalized config, manifest, JSON, Markdown, and README outputs under timestamped evidence-pack directories. Blocked runs remain visible in manifests/reports. Campaign output is research evidence only, not optimization, not a recommendation, not paper/live trading, and not routing or execution input.
 
+SV1.4 adds evidence-pack review discipline and data-readiness checks before paper-trading decisions. Canonical editable campaign configs live under `configs/strategy_validation/campaigns/`, and the campaign CLI can run `--audit-only` persisted-candle readiness checks by symbol, component, and named window. Evidence-pack manifests and Markdown now include founder/operator review checklists plus manual paper-trading readiness criteria. These criteria are manual review inputs only; they do not auto-approve paper trading, create paper trades, create live artifacts, route, submit, or call exchanges.
+
 ## Repo Truth Sources
 
 Repo operational truth remains in:
@@ -105,6 +108,7 @@ Obsidian is the long-horizon project brain for founder intent, phase context, de
 - SV1.2 regime labels are descriptive diagnostics, not filters, recommendations, or paper/live trading authorization.
 - SV1.2.1 window/coverage semantics are load-bearing for future campaign reports: adjacent windows must not double-count boundary candles, and blocked runs must not disappear from grouped comparisons.
 - SV1.3 evidence packs are repeatable research bundles, not proof of profitability, not optimization, and not authorization for paper/live trading.
+- SV1.4 readiness audits and paper-trading criteria are manual founder/operator review aids only; they are not automated go/no-go decisions.
 - Simulated validation trades must remain separate from `SubmittedOrder`.
 - Manual-resolution inspection must not silently resolve venue or approval truth.
 - Future agents must update their own coordination row instead of overwriting another agent's work.

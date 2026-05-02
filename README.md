@@ -144,6 +144,16 @@ SV1.3 adds repeatable Money Flow research campaigns and saved evidence packs. A 
 
 Evidence packs are written under `reports/strategy_validation/<campaign_name>/<run_timestamp>/` by default and include `campaign_config.json`, `manifest.json`, `batch_report.json`, `batch_report.md`, and a pack `README.md`. The manifest records the assumptions hash, symbols, components, named windows, fill timings, fees/slippage, window convention, blocked-run counts/reasons, and report paths. Generated evidence packs are ignored by Git and review bundles unless explicitly copied elsewhere for review. This is repeatable research workflow only: it does not change Money Flow rules, optimize parameters, recommend a variant, paper trade, live trade, route, submit, create live artifacts, or call exchange adapters.
 
+SV1.4 adds evidence-pack review discipline and historical data-readiness checks. Canonical editable campaign configs live under `configs/strategy_validation/campaigns/`, including `money_flow_core_btc.json` and `money_flow_core_multi_symbol.json`. Before running or interpreting a campaign, audit persisted candle coverage:
+
+```bash
+.venv/bin/python scripts/run_money_flow_research_campaign.py \
+  --config configs/strategy_validation/campaigns/money_flow_core_btc.json \
+  --audit-only
+```
+
+The audit reports symbol/component/window coverage under the `(start_at, end_at]` convention, including expected candles, actual candles, missing candles, coverage percent, gap count, largest gap, warning reason codes, and likely blocked runs. Evidence-pack Markdown and manifests now include a founder/operator review checklist plus manual paper-trading readiness criteria. Those criteria are manual review inputs only: they do not auto-approve paper trading, do not create paper trades, do not create live artifacts, do not route, and do not call exchanges.
+
 ## Routing Automation Planning
 
 Phase 7.0 exposes non-executing automation policy and dry-run planning:

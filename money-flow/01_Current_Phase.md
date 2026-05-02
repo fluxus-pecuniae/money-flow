@@ -2,9 +2,9 @@
 
 ## Phase
 
-Current implemented phase: `SV1.3`
+Current implemented phase: `SV1.4`
 
-Proposed next phase: `SV1.4` evidence review / broader historical data coverage / paper-trading readiness design after SV1.3 campaign outputs are reviewed. `Phase 8.1` remains deferred until explicitly scoped.
+Proposed next phase: run/review canonical SV1.4 campaign readiness/evidence outputs on real persisted data, then scope historical data backfill or paper-trading readiness design only after founder/operator review. `Phase 8.1` remains deferred until explicitly scoped.
 
 ## Purpose
 
@@ -34,6 +34,8 @@ SV1.2.1 is a narrow research-truth hotfix before SV1.3 campaigns. It standardize
 
 SV1.3 adds repeatable Money Flow research campaigns and evidence packs. It fixes the remaining single-run CLI wording mismatch so `--start` no longer says inclusive, adds explicit JSON campaign configs, expands campaign matrices through the existing Strategy Validation batch runner, and writes timestamped evidence packs with normalized config, manifest, JSON report, Markdown report, and README. Campaigns preserve `(start_at, end_at]` window truth and blocked-run visibility. They change no Money Flow rules, perform no optimization, recommend no variant, create no live artifacts, call no exchanges, and do not connect validation to routing or execution automation.
 
+SV1.4 adds evidence-pack review discipline and historical data-readiness baseline. It adds canonical editable campaign configs, a read-only campaign `--audit-only` persisted-candle coverage/readiness inspection, evidence-pack review checklist output, and manual paper-trading readiness criteria. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchanges, and does not connect validation to routing or execution automation.
+
 ## Accepted Baseline
 
 - Phase 7.0 added non-executing routing automation policy and dry-run plans.
@@ -57,6 +59,7 @@ SV1.3 adds repeatable Money Flow research campaigns and evidence packs. It fixes
 - SV1.2 added Money Flow data-coverage and market-regime validation reports without optimization, recommendations, live artifacts, routing, or execution changes.
 - SV1.2.1 hardened Money Flow validation window/coverage/grouped-comparison truth without optimization, recommendations, live artifacts, routing, or execution changes.
 - SV1.3 added repeatable Money Flow research campaigns and saved evidence packs without optimization, recommendations, live artifacts, routing, or execution changes.
+- SV1.4 added canonical campaign configs, campaign data-readiness audit, evidence-pack review checklist, and manual paper-trading readiness criteria without optimization, recommendations, paper/live artifacts, routing, or execution changes.
 
 ## Hard Boundaries
 
@@ -77,6 +80,7 @@ Do not build:
 - live trading artifacts from strategy validation
 - Money Flow rule optimization before evidence review
 - treating backtest output as proof of future profitability
+- treating readiness criteria as automated paper-trading approval
 
 ## Phase 8.0 Outcome
 
@@ -98,6 +102,8 @@ SV1.2.1 is successful when one window convention is used everywhere, adjacent wi
 
 SV1.3 is successful when the single-run CLI help matches `(start_at, end_at]` semantics, named campaign configs expand into batch requests, evidence packs save normalized config/manifest/JSON/Markdown/README outputs, blocked runs remain visible, and no Money Flow rules, optimization, paper/live trading, routing, exchange calls, or live artifacts are added.
 
+SV1.4 is successful when canonical campaign configs exist, campaign data-readiness audit reports covered/thin/missing windows and likely blocked runs, evidence packs include founder/operator review checklist plus manual paper-trading readiness criteria, operational-doc tests assert the current phase accurately, and no Money Flow rules, optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes are added.
+
 ## Current Outcome
 
 - Obsidian command center/current phase/decision log/coordination notes are now part of the required agent workflow.
@@ -118,8 +124,9 @@ SV1.3 is successful when the single-run CLI help matches `(start_at, end_at]` se
 - SV1.2 adds data-coverage report fields, deterministic trend/volatility regime summaries, batch coverage/regime comparisons, repeated CLI `--window start,end` support, and direct coverage/regime tests.
 - SV1.2.1 applies the `(start_at, end_at]` candle-close convention to evaluation/coverage/regime/forced-close/batch surfaces, adds close-slot coverage counting and unaligned-boundary warnings, and keeps blocked-run counts/reasons in grouped comparisons.
 - SV1.3 adds `services/strategy_validation/campaigns.py`, `scripts/run_money_flow_research_campaign.py`, `configs/strategy_validation/money_flow_research_campaign.example.json`, and `tests/test_sv13_research_campaigns.py` for repeatable research campaign evidence packs.
+- SV1.4 adds `configs/strategy_validation/campaigns/`, campaign data-readiness audit helpers, campaign `--audit-only`, review checklist/manual readiness criteria in evidence packs, and `tests/test_sv14_evidence_readiness.py`.
 - Recovery, route execution, fanout, scoring, CBBO, target reselection, cross-venue retry, and broad auto-submit remain deferred.
 
 ## Next Phase Shape
 
-The next Strategy Validation phase should review SV1.3 campaign evidence packs before paper trading. Likely candidates are broader historical data ingestion/coverage across symbols and venues, richer regime/data-quality review, evidence-pack comparison discipline, and paper-trading readiness only after evidence review. Phase 8.1 should remain deferred until explicitly scoped; when it resumes, it should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review, keep operator acknowledgement separate from exchange/account truth, and not attach submit/cancel/amend/retry behavior to inspection.
+The next Strategy Validation phase should run and review SV1.4 canonical campaign readiness/evidence outputs on real persisted data before paper trading. Likely candidates are historical candle backfill where readiness audits show gaps, saved evidence-pack comparison discipline, and paper-trading readiness design only after founder/operator evidence review. Phase 8.1 should remain deferred until explicitly scoped; when it resumes, it should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review, keep operator acknowledgement separate from exchange/account truth, and not attach submit/cancel/amend/retry behavior to inspection.
