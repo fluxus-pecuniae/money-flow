@@ -13,6 +13,50 @@ Entry schema:
 
 ---
 
+## v2026.05.02.003
+
+- `recorded_at_utc`: `2026-05-02T07:45:23Z`
+- `scope`: `SV1.5 Money Flow historical data readiness and first canonical evidence-pack support`
+- `intent`: `Native entry. Prepared the Strategy Validation research layer for meaningful canonical Money Flow evidence-pack runs against real persisted candle data without changing Money Flow rules. SV1.5 validates campaign `window_convention` metadata against the authoritative `(start_at, end_at]` candle-close convention so config text cannot imply inclusive-start or behavior-changing semantics. Canonical campaign data-readiness audits can now render founder/operator-readable Markdown summaries of covered, thin, missing, blocked, and likely-blocked symbol/component/window rows plus missing-data remediation notes. The new offline/public historical candle import helper and CLI duplicate-safely upsert CSV/JSON candles into the existing `candles` table for research backfills only, with source labels recorded in import summaries because `CandleModel` has no per-candle provenance field. Collision-safe evidence-pack generation remains intact. This is historical data readiness and evidence generation support only: no Money Flow rule changes, parameter optimization, strategy recommendations, paper/live trading, live artifacts, routing, execution automation, exchange adapter calls, private/order endpoint calls, route executor behavior, fanout, target reselection, or auto-submit were added.`
+- `affected_files`:
+  - `services/strategy_validation/campaigns.py`
+  - `services/strategy_validation/candles.py`
+  - `services/strategy_validation/__init__.py`
+  - `scripts/run_money_flow_research_campaign.py`
+  - `scripts/import_strategy_validation_candles.py`
+  - `tests/test_sv15_historical_data_readiness.py`
+  - `tests/test_operational_docs.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall services/strategy_validation scripts/import_strategy_validation_candles.py scripts/run_money_flow_research_campaign.py tests/test_sv15_historical_data_readiness.py` passed during focused development.
+  - `.venv/bin/python -m pytest -q tests/test_sv15_historical_data_readiness.py` passed with 5 tests during focused development.
+  - `.venv/bin/python -m pytest -q tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv15_historical_data_readiness.py` passed with 18 tests during campaign/evidence regression.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py` passed with 7 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv11_strategy_validation_batch.py` passed with 4 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv12_strategy_validation_regimes.py` passed with 7 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv13_research_campaigns.py` passed with 6 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv14_evidence_readiness.py` passed with 4 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv141_evidence_pack_integrity.py` passed with 3 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv15_historical_data_readiness.py` passed with 5 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py` passed with 7 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 10 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv15_historical_data_readiness.py tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 53 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed with 504 tests.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.5-review.zip` created the SV1.5 review bundle; bundle inspection found 228 files, included the SV1.5 import service/script/test files, and found no `.env`, virtualenvs, Git metadata, pytest caches, local DB/SQLite files, nested archives, Obsidian app state, or generated `reports/strategy_validation/` evidence packs.
+
 ## v2026.05.02.002
 
 - `recorded_at_utc`: `2026-05-02T07:04:32Z`

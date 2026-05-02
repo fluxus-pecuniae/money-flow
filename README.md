@@ -154,6 +154,28 @@ SV1.4 adds evidence-pack review discipline and historical data-readiness checks.
 
 The audit reports symbol/component/window coverage under the `(start_at, end_at]` convention, including expected candles, actual candles, missing candles, coverage percent, gap count, largest gap, warning reason codes, and likely blocked runs. Evidence-pack Markdown and manifests now include a founder/operator review checklist plus manual paper-trading readiness criteria. Those criteria are manual review inputs only: they do not auto-approve paper trading, do not create paper trades, do not create live artifacts, do not route, and do not call exchanges.
 
+SV1.5 prepares canonical campaign evidence generation against real persisted candle data. Campaign config `window_convention` metadata is validated against the platform convention and cannot be used to imply a different boundary rule; validation still uses candle closes in `(start_at, end_at]`. Audit output can now be rendered as founder-readable Markdown:
+
+```bash
+.venv/bin/python scripts/run_money_flow_research_campaign.py \
+  --config configs/strategy_validation/campaigns/money_flow_core_btc.json \
+  --audit-only \
+  --audit-format markdown
+```
+
+SV1.5 also adds an offline/public historical candle import path for filling data gaps before rerunning audits:
+
+```bash
+.venv/bin/python scripts/import_strategy_validation_candles.py \
+  --input /path/to/candles.csv \
+  --environment testnet \
+  --venue hyperliquid \
+  --timeframe 15m \
+  --source-label public_dataset_name
+```
+
+CSV/JSON imports are duplicate-safe upserts into existing candle rows keyed by environment, venue, symbol, timeframe, and open time. Input rows must contain `symbol`, `open_time`, `close_time`, `open`, `high`, `low`, `close`, and `volume`; `instrument_key` and `trade_count` are optional. The current candle model has no per-candle provenance field, so `source-label` is recorded in the import summary only. The importer calls no exchange adapters or private/order endpoints and creates no desired trades, strategy decisions, child intents, readiness evaluations, submitted orders, approvals, or routing artifacts. After importing, rerun the audit and then generate collision-safe evidence packs with the same campaign CLI. This is historical-data readiness and research evidence generation only, not paper trading, not live execution, not optimization, and not proof of profitability.
+
 ## Routing Automation Planning
 
 Phase 7.0 exposes non-executing automation policy and dry-run planning:

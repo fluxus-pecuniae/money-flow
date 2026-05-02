@@ -142,6 +142,7 @@ def money_flow_research_campaign_config_from_dict(
 ) -> MoneyFlowResearchCampaignConfig:
     """Parse and validate a campaign config dictionary."""
 
+    _validate_campaign_window_convention(raw)
     campaign_name = _required_str(raw, "campaign_name")
     description = _required_str(raw, "description")
     environment = Environment(_required_str(raw, "environment"))
@@ -314,6 +315,102 @@ def money_flow_research_campaign_data_readiness_to_dict(
     """Return a deterministic JSON-ready data-readiness audit representation."""
 
     return _json_ready(asdict(audit))
+
+
+def money_flow_research_campaign_data_readiness_to_markdown(
+    audit: MoneyFlowResearchCampaignDataReadinessAudit,
+) -> str:
+    """Render a founder/operator-readable campaign data-readiness audit."""
+
+    payload = money_flow_research_campaign_data_readiness_to_dict(audit)
+    summary = payload["summary"]
+    lines = [
+        f"# Money Flow Campaign Data-Readiness Audit `{audit.campaign_name}`",
+        "",
+        "This is a read-only research data-readiness audit. It does not run strategy validation, "
+        "does not create evidence packs, does not create live artifacts, and does not call exchange adapters.",
+        "",
+        "## Context",
+        "",
+        f"- Generated at UTC: `{payload['generated_at_utc']}`",
+        f"- Environment: `{payload['environment']}`",
+        f"- Venue/source: `{payload['venue']}`",
+        f"- Window convention: `{payload['window_convention']}` `{payload['window_convention_display']}`",
+        "- Candle closes exactly at `start_at` are excluded.",
+        "- Candle closes on or before `end_at` are included.",
+        "",
+        "## Founder Review Summary",
+        "",
+        f"- Total symbol/component/window rows: `{summary['row_count']}`",
+        f"- Covered rows: `{summary['covered_row_count']}`",
+        f"- Thin rows: `{summary['thin_row_count']}`",
+        f"- Missing rows: `{summary['missing_row_count']}`",
+        f"- Blocked rows: `{summary['blocked_row_count']}`",
+        f"- Likely blocked impacted runs: `{summary['likely_blocked_impacted_run_count']}`",
+        f"- Symbols with data: `{summary['symbols_with_data']}`",
+        f"- Symbols missing data: `{summary['symbols_missing_data']}`",
+        f"- Components with data: `{summary['components_with_data']}`",
+        f"- Components missing data: `{summary['components_missing_data']}`",
+        f"- Windows covered: `{summary['windows_covered']}`",
+        f"- Windows thin: `{summary['windows_thin']}`",
+        f"- Windows missing: `{summary['windows_missing']}`",
+        f"- Windows blocked: `{summary['windows_blocked']}`",
+        f"- Warning reason counts: `{summary['warning_reason_counts']}`",
+        f"- Likely blocked reason counts: `{summary['likely_blocked_reason_counts']}`",
+        "",
+        "## Data Coverage Rows",
+        "",
+        "| symbol | component | timeframe | window | status | expected | actual | missing | coverage | gaps | largest gap seconds | warnings | likely blocked reasons |",
+        "| --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |",
+    ]
+    for row in payload["rows"]:
+        lines.append(
+            "| "
+            f"`{row['symbol']}` | "
+            f"`{row['component']}` | "
+            f"`{row['timeframe']}` | "
+            f"`{row['window_label']}` | "
+            f"`{row['readiness_status']}` | "
+            f"{row['expected_candle_count']} | "
+            f"{row['actual_candle_count']} | "
+            f"{row['missing_candle_count']} | "
+            f"{row['coverage_percent']} | "
+            f"{row['gap_count']} | "
+            f"{row['largest_gap_seconds']} | "
+            f"`{row['warning_reason_codes']}` | "
+            f"`{row['likely_blocked_reason_codes']}` |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Missing-Data Remediation Notes",
+            "",
+            "- Backfill or import public historical candles for rows marked `missing`, `thin`, or `blocked` before treating campaign evidence as meaningful.",
+            "- Offline candle import is preferred when persisted candles are absent and a trusted public CSV/JSON dataset is available.",
+            "- Thin or missing rows should be reviewed manually; they are not strategy failures and they are not evidence of edge.",
+            "- This audit is not an optimization, recommendation, paper-trading approval, or proof of profitability.",
+            "",
+            "## Manual Evidence-Pack Review Checklist",
+            "",
+        ]
+    )
+    for section, items in payload["review_checklist"].items():
+        lines.append(f"### {section.replace('_', ' ').title()}")
+        lines.append("")
+        lines.extend(f"- [ ] {item}" for item in items)
+        lines.append("")
+    lines.extend(
+        [
+            "## Manual Paper-Trading Readiness Criteria",
+            "",
+            "These criteria are manual founder/operator review inputs only. They do not auto-approve paper trading, create paper trades, or create live artifacts.",
+            "",
+        ]
+    )
+    lines.extend(
+        f"- [ ] {item}" for item in payload["manual_paper_trading_readiness_criteria"]
+    )
+    return "\n".join(lines) + "\n"
 
 
 def money_flow_evidence_pack_review_checklist() -> dict[str, list[str]]:
@@ -993,6 +1090,22 @@ def _data_readiness_summary(
         for row in rows
         if row.coverage_percent is not None
     ]
+    symbols_with_data = sorted({row.symbol for row in rows if row.actual_candle_count > 0})
+    symbols_missing_data = sorted(
+        {
+            row.symbol
+            for row in rows
+            if row.actual_candle_count == 0 or row.readiness_status in {"missing", "blocked"}
+        }
+    )
+    components_with_data = sorted({row.component for row in rows if row.actual_candle_count > 0})
+    components_missing_data = sorted(
+        {
+            row.component
+            for row in rows
+            if row.actual_candle_count == 0 or row.readiness_status in {"missing", "blocked"}
+        }
+    )
     return {
         "methodology": "campaign_data_readiness_audit_counts_persisted_candle_closes_only",
         "window_convention": STRATEGY_VALIDATION_WINDOW_CONVENTION,
@@ -1006,6 +1119,22 @@ def _data_readiness_summary(
             row.impacted_run_count for row in rows if row.likely_blocked
         ),
         "minimum_coverage_percent": min(coverage_values) if coverage_values else None,
+        "symbols_with_data": symbols_with_data,
+        "symbols_missing_data": symbols_missing_data,
+        "components_with_data": components_with_data,
+        "components_missing_data": components_missing_data,
+        "windows_covered": sorted(
+            {row.window_label for row in rows if row.readiness_status == "covered"}
+        ),
+        "windows_thin": sorted(
+            {row.window_label for row in rows if row.readiness_status == "thin"}
+        ),
+        "windows_missing": sorted(
+            {row.window_label for row in rows if row.readiness_status == "missing"}
+        ),
+        "windows_blocked": sorted(
+            {row.window_label for row in rows if row.readiness_status == "blocked"}
+        ),
         "warning_reason_counts": dict(sorted(warning_counts.items())),
         "likely_blocked_reason_counts": dict(sorted(blocked_counts.items())),
         "manual_review_required": True,
@@ -1060,6 +1189,27 @@ def _campaign_ratio(numerator: Decimal, denominator: Decimal) -> Decimal | None:
     if denominator == 0:
         return None
     return (numerator / denominator).quantize(Decimal("0.00000001"))
+
+
+def _validate_campaign_window_convention(raw: dict[str, Any]) -> None:
+    supplied = raw.get("window_convention")
+    if supplied is None:
+        return
+    if not isinstance(supplied, str) or not supplied.strip():
+        raise ValueError(
+            "campaign window_convention, when supplied, must describe the platform "
+            "convention `(start_at, end_at]`."
+        )
+    text = supplied.strip()
+    if text == STRATEGY_VALIDATION_WINDOW_CONVENTION:
+        return
+    if _WINDOW_CONVENTION_DISPLAY in text:
+        return
+    raise ValueError(
+        "campaign window_convention is display metadata only and must match the "
+        f"platform convention `{STRATEGY_VALIDATION_WINDOW_CONVENTION}` "
+        f"`{_WINDOW_CONVENTION_DISPLAY}`."
+    )
 
 
 def _parse_symbols(raw_symbols: list[Any]) -> list[MoneyFlowResearchCampaignSymbol]:
@@ -1283,6 +1433,7 @@ __all__ = [
     "money_flow_evidence_pack_review_checklist",
     "money_flow_manual_paper_trading_readiness_criteria",
     "money_flow_research_campaign_data_readiness_to_dict",
+    "money_flow_research_campaign_data_readiness_to_markdown",
     "money_flow_research_campaign_config_from_dict",
     "money_flow_research_campaign_config_to_dict",
     "money_flow_research_campaign_report_to_markdown",

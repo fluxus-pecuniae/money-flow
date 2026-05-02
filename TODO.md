@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-02T06:57:28Z`
+Last reviewed: `2026-05-02T07:36:56Z`
 
 ## Active Follow-Ups
 
@@ -133,8 +133,8 @@ Last reviewed: `2026-05-02T06:57:28Z`
 ### T-053
 
 - `priority`: `high`
-- `status`: `future`
-- `summary`: `Define SV1.5 historical-data readiness only after accepting the SV1.4.1 evidence-pack integrity hotfix. Candidate work should run/review canonical campaign readiness/evidence outputs on real persisted data, backfill historical candle gaps across symbols and venues where needed, compare saved evidence packs, and consider paper-trading readiness design only after founder/operator review. Do not optimize Money Flow parameters, add new strategy families, create live trading artifacts, or connect validation to routing/execution automation until evidence and architecture review justify that scope.`
+- `status`: `done`
+- `summary`: `SV1.5 adds historical-data readiness and first canonical evidence-pack support after SV1.4.1. Campaign `window_convention` metadata is validated against the authoritative `(start_at, end_at]` candle-close convention, canonical campaign audits can emit founder-readable Markdown summaries of covered/thin/missing/blocked rows and missing-data remediation notes, and the new offline public CSV/JSON candle import CLI duplicate-safely upserts existing `candles` rows for research backfills. Collision-safe evidence-pack generation remains intact. SV1.5 changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.`
 
 ### T-055
 
@@ -153,6 +153,12 @@ Last reviewed: `2026-05-02T06:57:28Z`
 - `priority`: `high`
 - `status`: `done`
 - `summary`: `SV1.4.1 hardens Money Flow evidence-pack integrity before SV1.5. Campaign evidence-pack writes now use an explicit collision policy: default `unique_suffix` creates a suffixed run directory when the same campaign/timestamp already exists, while `fail_if_exists` raises an explicit collision error. Pack files refuse overwrite, and manifests record requested run id, final run id, final evidence-pack path, collision policy, collision occurrence, and suffix truth. SV1.4.1 changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchanges, and does not connect validation to routing or execution automation.`
+
+### T-058
+
+- `priority`: `high`
+- `status`: `future`
+- `summary`: `Review first real canonical Money Flow evidence packs after sufficient historical candle data has been imported or backfilled. Candidate SV1.6 work should compare saved evidence packs, summarize data coverage and regime behavior across BTC/ETH/SOL and 15m/1h/4h sleeves, and decide whether paper-trading design is worth scoping. Do not optimize Money Flow parameters, recommend a variant, add paper/live trading, create live artifacts, call exchanges, or connect validation to routing/execution automation until founder/operator evidence review explicitly justifies that scope.`
 
 ### T-001
 

@@ -14,6 +14,7 @@ from services.strategy_validation import (
     audit_money_flow_research_campaign_data_readiness,
     load_money_flow_research_campaign_config,
     money_flow_research_campaign_data_readiness_to_dict,
+    money_flow_research_campaign_data_readiness_to_markdown,
     run_money_flow_research_campaign_sync,
 )
 
@@ -42,9 +43,15 @@ def build_parser() -> argparse.ArgumentParser:
         "--audit-only",
         action="store_true",
         help=(
-            "Inspect persisted candle coverage/readiness for the campaign and print JSON. "
+            "Inspect persisted candle coverage/readiness for the campaign. "
             "Does not run strategy validation and writes no evidence pack."
         ),
+    )
+    parser.add_argument(
+        "--audit-format",
+        choices=("json", "markdown"),
+        default="json",
+        help="Audit-only output format. Default prints JSON; Markdown is founder-readable.",
     )
     parser.add_argument(
         "--collision-policy",
@@ -65,6 +72,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     service = MoneyFlowBacktestService(get_settings())
     if args.audit_only:
         audit = audit_money_flow_research_campaign_data_readiness(config, service=service)
+        if args.audit_format == "markdown":
+            print(money_flow_research_campaign_data_readiness_to_markdown(audit), end="")
+            return 0
         print(
             json.dumps(
                 money_flow_research_campaign_data_readiness_to_dict(audit),
