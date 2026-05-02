@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-02T07:36:56Z`
+Last reviewed: `2026-05-02T08:21:54Z`
 
 ## Active Follow-Ups
 
@@ -159,6 +159,12 @@ Last reviewed: `2026-05-02T07:36:56Z`
 - `priority`: `high`
 - `status`: `future`
 - `summary`: `Review first real canonical Money Flow evidence packs after sufficient historical candle data has been imported or backfilled. Candidate SV1.6 work should compare saved evidence packs, summarize data coverage and regime behavior across BTC/ETH/SOL and 15m/1h/4h sleeves, and decide whether paper-trading design is worth scoping. Do not optimize Money Flow parameters, recommend a variant, add paper/live trading, create live artifacts, call exchanges, or connect validation to routing/execution automation until founder/operator evidence review explicitly justifies that scope.`
+
+### T-059
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.5.1 hardens the historical candle import and campaign-config research-truth boundary before SV1.6 evidence review. Campaign `window_convention` metadata now uses strict approved text and rejects contradictory inclusive-start phrasing. Offline public candle imports now block existing-candle identity conflicts instead of silently retargeting symbol/instrument ids, enforce row duration matching the selected timeframe, reject non-finite/zero/negative/inconsistent OHLCV values and negative trade counts, and roll back invalid files without partial inserts or updates. This changes no Money Flow rules, optimization, recommendations, paper/live trading, live artifacts, routing, execution automation, exchange calls, or evidence-review behavior.`
 
 ### T-001
 

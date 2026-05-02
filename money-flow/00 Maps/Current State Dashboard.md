@@ -4,12 +4,12 @@ Up: [[Money Flow Command Center]]
 
 ## Today In One Sentence
 
-Money Flow is a mandate-driven, multi-venue-aware trading strategy platform whose current deepest execution path is controlled single-target recommendation-backed routed execution, with Strategy Validation now providing repeatable, collision-safe Money Flow campaign evidence packs and data-readiness review before any paper-trading decision.
+Money Flow is a mandate-driven, multi-venue-aware trading strategy platform whose current deepest execution path is controlled single-target recommendation-backed routed execution, with Strategy Validation now providing repeatable, collision-safe Money Flow campaign evidence packs and hardened historical candle import/data-readiness review before any paper-trading decision.
 
 ## Current Implemented Phase
 
-- Phase observed in repo memory: `SV1.5`.
-- Latest implemented scope: Money Flow historical-data readiness and first canonical evidence-pack support.
+- Phase observed in repo memory: `SV1.5.1`.
+- Latest implemented scope: Money Flow historical candle import and campaign-config research-truth hardening.
 - Current action hooks: approval-gated `recommendation_acceptance`, `target_choice_conversion`, `prepared_order_preview_and_readiness`, and `submitted_order_handoff`.
 - Phase 7.5.1 added `consumption_pending` approval truth for submitted-order-created / approval-consumption-failed cases.
 - Phase 7.6 added closeout tests and docs only; it added no production behavior.
@@ -18,6 +18,7 @@ Money Flow is a mandate-driven, multi-venue-aware trading strategy platform whos
 - SV1.4 added canonical editable campaign configs, campaign `--audit-only` data-readiness inspection, evidence-pack review checklist, and manual paper-trading readiness criteria.
 - SV1.4.1 added collision-safe evidence-pack writes so repeated same-timestamp campaign runs do not silently overwrite prior evidence.
 - SV1.5 validates campaign window-convention metadata, adds founder-readable Markdown data-readiness audits, and adds offline public candle import/upsert tooling for research backfills.
+- SV1.5.1 rejects contradictory window-convention text plus candle import identity conflicts, timeframe-duration mismatches, malformed OHLCV rows, and partial invalid imports before first real evidence review.
 - Proposed next phase: SV1.6 first real canonical evidence review / saved evidence comparison after sufficient historical candle data is imported or confirmed.
 
 ## Implemented Platform Surface
@@ -73,7 +74,7 @@ Phase 8.0 makes workflow state, approval state, manual-resolution needs, submit-
 
 ## Current Strategy Validation Layer
 
-SV1.5 keeps validation research-only. Canonical campaign configs live under `configs/strategy_validation/campaigns/`, campaign windows use `(start_at, end_at]`, config `window_convention` metadata is validated against that platform convention, data-readiness audits can render Markdown founder summaries, and evidence-pack writes use explicit collision policy instead of silent overwrite. Offline public CSV/JSON candle imports can duplicate-safely upsert existing candle rows for research backfills only; they do not create live artifacts or call exchange/private/order endpoints.
+SV1.5.1 keeps validation research-only. Canonical campaign configs live under `configs/strategy_validation/campaigns/`, campaign windows use `(start_at, end_at]`, config `window_convention` metadata is strictly validated against that platform convention, data-readiness audits can render Markdown founder summaries, and evidence-pack writes use explicit collision policy instead of silent overwrite. Offline public CSV/JSON candle imports can duplicate-safely upsert matching existing candle rows for research backfills only, but now reject identity conflicts, timeframe-duration mismatches, malformed/non-finite/inconsistent OHLCV rows, negative trade counts, and invalid files without partial commits; they do not create live artifacts or call exchange/private/order endpoints.
 
 ## Deferred Boundaries
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import csv
 import json
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -63,58 +63,68 @@ def import_strategy_validation_candles_from_path(
     warnings: set[str] = set()
 
     with session_factory() as session:
-        for row in rows:
-            parsed = _parse_candle_row(row)
-            symbol_model = _resolve_symbol_model(
-                session=session,
-                venue=venue,
-                symbol=parsed["symbol"],
-                instrument_key=parsed.get("instrument_key"),
-            )
-            existing = session.scalar(
-                select(CandleModel).where(
-                    CandleModel.environment == environment,
-                    CandleModel.venue == venue,
-                    CandleModel.symbol == parsed["symbol"],
-                    CandleModel.timeframe == timeframe,
-                    CandleModel.open_time == parsed["open_time"],
+        try:
+            for row in rows:
+                parsed = _parse_candle_row(row, timeframe=timeframe)
+                symbol_model = _resolve_symbol_model(
+                    session=session,
+                    venue=venue,
+                    symbol=parsed["symbol"],
+                    instrument_key=parsed.get("instrument_key"),
                 )
-            )
-            if existing is None:
-                session.add(
-                    CandleModel(
-                        environment=environment,
-                        venue=venue,
-                        instrument_ref_id=symbol_model.instrument_ref_id,
-                        symbol_id=symbol_model.id,
-                        symbol=parsed["symbol"],
-                        timeframe=timeframe,
-                        open_time=parsed["open_time"],
-                        close_time=parsed["close_time"],
-                        open=parsed["open"],
-                        high=parsed["high"],
-                        low=parsed["low"],
-                        close=parsed["close"],
-                        volume=parsed["volume"],
-                        trade_count=parsed["trade_count"],
+                existing = session.scalar(
+                    select(CandleModel).where(
+                        CandleModel.environment == environment,
+                        CandleModel.venue == venue,
+                        CandleModel.symbol == parsed["symbol"],
+                        CandleModel.timeframe == timeframe,
+                        CandleModel.open_time == parsed["open_time"],
                     )
                 )
-                inserted_count += 1
-                continue
-            if _existing_candle_matches(existing, parsed, symbol_model):
-                unchanged_count += 1
-                continue
-            existing.instrument_ref_id = symbol_model.instrument_ref_id
-            existing.symbol_id = symbol_model.id
-            existing.close_time = parsed["close_time"]
-            existing.open = parsed["open"]
-            existing.high = parsed["high"]
-            existing.low = parsed["low"]
-            existing.close = parsed["close"]
-            existing.volume = parsed["volume"]
-            existing.trade_count = parsed["trade_count"]
-            updated_count += 1
-        session.commit()
+                if existing is None:
+                    session.add(
+                        CandleModel(
+                            environment=environment,
+                            venue=venue,
+                            instrument_ref_id=symbol_model.instrument_ref_id,
+                            symbol_id=symbol_model.id,
+                            symbol=parsed["symbol"],
+                            timeframe=timeframe,
+                            open_time=parsed["open_time"],
+                            close_time=parsed["close_time"],
+                            open=parsed["open"],
+                            high=parsed["high"],
+                            low=parsed["low"],
+                            close=parsed["close"],
+                            volume=parsed["volume"],
+                            trade_count=parsed["trade_count"],
+                        )
+                    )
+                    inserted_count += 1
+                    continue
+                _raise_if_identity_conflict(
+                    existing=existing,
+                    symbol_model=symbol_model,
+                    venue=venue,
+                    symbol=parsed["symbol"],
+                    timeframe=timeframe,
+                    open_time=parsed["open_time"],
+                )
+                if _existing_candle_matches(existing, parsed, symbol_model):
+                    unchanged_count += 1
+                    continue
+                existing.close_time = parsed["close_time"]
+                existing.open = parsed["open"]
+                existing.high = parsed["high"]
+                existing.low = parsed["low"]
+                existing.close = parsed["close"]
+                existing.volume = parsed["volume"]
+                existing.trade_count = parsed["trade_count"]
+                updated_count += 1
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
 
     if source_label:
         warnings.add("source_label_recorded_in_import_summary_only")
@@ -173,19 +183,43 @@ def _load_candle_rows(path: Path, *, file_format: str) -> list[dict[str, Any]]:
     raise ValueError("candle import format must be auto, csv, or json.")
 
 
-def _parse_candle_row(row: dict[str, Any]) -> dict[str, Any]:
+def _parse_candle_row(row: dict[str, Any], *, timeframe: Timeframe) -> dict[str, Any]:
     symbol = _required_str(row, "symbol")
     open_time = _parse_datetime(_required_str(row, "open_time"))
     close_time = _parse_datetime(_required_str(row, "close_time"))
     if close_time <= open_time:
         raise ValueError(f"candle close_time must be after open_time for symbol {symbol}.")
-    open_price = _decimal(row, "open")
-    high = _decimal(row, "high")
-    low = _decimal(row, "low")
-    close = _decimal(row, "close")
-    volume = _decimal(row, "volume")
-    if low > min(open_price, close) or high < max(open_price, close):
-        raise ValueError(f"candle high/low are inconsistent with open/close for symbol {symbol}.")
+    expected_duration = _timeframe_duration(timeframe)
+    actual_duration = close_time - open_time
+    if actual_duration != expected_duration:
+        raise ValueError(
+            "candle_import_timeframe_duration_mismatch: "
+            f"symbol={symbol} timeframe={timeframe.value} open_time={open_time.isoformat()} "
+            f"close_time={close_time.isoformat()} expected_seconds="
+            f"{int(expected_duration.total_seconds())} actual_seconds="
+            f"{int(actual_duration.total_seconds())}"
+        )
+    open_price = _positive_price(row, "open", symbol)
+    high = _positive_price(row, "high", symbol)
+    low = _positive_price(row, "low", symbol)
+    close = _positive_price(row, "close", symbol)
+    volume = _non_negative_decimal(row, "volume", symbol)
+    trade_count = _optional_non_negative_int(row, "trade_count", symbol)
+    if high < low:
+        raise ValueError(
+            f"candle_import_invalid_ohlcv: high must be greater than or equal to low "
+            f"for symbol {symbol}."
+        )
+    if high < max(open_price, close):
+        raise ValueError(
+            "candle_import_invalid_ohlcv: high must be greater than or equal to "
+            f"max(open, close) for symbol {symbol}."
+        )
+    if low > min(open_price, close):
+        raise ValueError(
+            "candle_import_invalid_ohlcv: low must be less than or equal to "
+            f"min(open, close) for symbol {symbol}."
+        )
     return {
         "symbol": symbol,
         "instrument_key": _optional_str(row, "instrument_key"),
@@ -196,7 +230,7 @@ def _parse_candle_row(row: dict[str, Any]) -> dict[str, Any]:
         "low": low,
         "close": close,
         "volume": volume,
-        "trade_count": _optional_int(row, "trade_count"),
+        "trade_count": trade_count,
     }
 
 
@@ -244,6 +278,30 @@ def _existing_candle_matches(
     )
 
 
+def _raise_if_identity_conflict(
+    *,
+    existing: CandleModel,
+    symbol_model: SymbolModel,
+    venue: str,
+    symbol: str,
+    timeframe: Timeframe,
+    open_time: datetime,
+) -> None:
+    if (
+        existing.symbol_id == symbol_model.id
+        and existing.instrument_ref_id == symbol_model.instrument_ref_id
+    ):
+        return
+    raise ValueError(
+        "candle_import_identity_conflict: existing_candle_identity_mismatch "
+        f"venue={venue} symbol={symbol} timeframe={timeframe.value} "
+        f"open_time={open_time.isoformat()} existing_instrument_ref_id="
+        f"{existing.instrument_ref_id} existing_symbol_id={existing.symbol_id} "
+        f"requested_instrument_ref_id={symbol_model.instrument_ref_id} "
+        f"requested_symbol_id={symbol_model.id}"
+    )
+
+
 def _required_str(row: dict[str, Any], key: str) -> str:
     value = row.get(key)
     if value is None or not str(value).strip():
@@ -265,14 +323,58 @@ def _decimal(row: dict[str, Any], key: str) -> Decimal:
         raise ValueError(f"candle import row field {key} must be decimal-compatible.") from exc
 
 
-def _optional_int(row: dict[str, Any], key: str) -> int | None:
+def _positive_price(row: dict[str, Any], key: str, symbol: str) -> Decimal:
+    value = _decimal(row, key)
+    if not value.is_finite():
+        raise ValueError(
+            f"candle_import_invalid_ohlcv: {key} must be finite for symbol {symbol}."
+        )
+    if value <= 0:
+        raise ValueError(
+            f"candle_import_invalid_ohlcv: {key} must be greater than 0 for symbol {symbol}."
+        )
+    return value
+
+
+def _non_negative_decimal(row: dict[str, Any], key: str, symbol: str) -> Decimal:
+    value = _decimal(row, key)
+    if not value.is_finite():
+        raise ValueError(
+            f"candle_import_invalid_ohlcv: {key} must be finite for symbol {symbol}."
+        )
+    if value < 0:
+        raise ValueError(
+            f"candle_import_invalid_ohlcv: {key} must be greater than or equal to 0 "
+            f"for symbol {symbol}."
+        )
+    return value
+
+
+def _optional_non_negative_int(row: dict[str, Any], key: str, symbol: str) -> int | None:
     value = row.get(key)
     if value is None or value == "":
         return None
     try:
-        return int(value)
+        parsed = int(value)
     except Exception as exc:  # noqa: BLE001 - field context is more useful here.
         raise ValueError(f"candle import row field {key} must be integer-compatible.") from exc
+    if parsed < 0:
+        raise ValueError(
+            f"candle_import_invalid_ohlcv: {key} must be greater than or equal to 0 "
+            f"for symbol {symbol}."
+        )
+    return parsed
+
+
+def _timeframe_duration(timeframe: Timeframe) -> timedelta:
+    return {
+        Timeframe.M1: timedelta(minutes=1),
+        Timeframe.M5: timedelta(minutes=5),
+        Timeframe.M15: timedelta(minutes=15),
+        Timeframe.H1: timedelta(hours=1),
+        Timeframe.H4: timedelta(hours=4),
+        Timeframe.D1: timedelta(days=1),
+    }[timeframe]
 
 
 def _parse_datetime(value: str) -> datetime:

@@ -13,6 +13,38 @@ Entry schema:
 
 ---
 
+## v2026.05.02.004
+
+- `recorded_at_utc`: `2026-05-02T08:28:08Z`
+- `scope`: `SV1.5.1 Money Flow historical candle import and campaign-config research-truth hotfix`
+- `intent`: `Native entry. Hardened the Strategy Validation historical candle import and campaign-config validation boundary before SV1.6 evidence review. Campaign `window_convention` metadata now uses strict approved text and rejects contradictory inclusive-start phrasing instead of accepting any string that merely contains `(start_at, end_at]`. Offline public candle imports now resolve the intended symbol/instrument identity before upsert, block existing-candle identity conflicts instead of silently retargeting `symbol_id` or `instrument_ref_id`, enforce row duration matching the selected timeframe, reject non-finite/zero/negative/inconsistent OHLCV values and negative trade counts, and roll back invalid import files without partial inserts or updates. Same-identity duplicate-safe upserts remain supported. This is import/config research-truth hardening only: no Money Flow rule changes, parameter optimization, strategy recommendations, paper/live trading, live artifacts, routing, execution automation, exchange adapter calls, private/order endpoint calls, route executor behavior, fanout, target reselection, evidence-review features, or auto-submit were added.`
+- `affected_files`:
+  - `services/strategy_validation/campaigns.py`
+  - `services/strategy_validation/candles.py`
+  - `tests/test_sv151_candle_import_integrity.py`
+  - `tests/test_operational_docs.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_sv151_candle_import_integrity.py` passed with 17 tests during focused development.
+  - `.venv/bin/python -m pytest -q tests/test_sv15_historical_data_readiness.py` passed with 5 tests during focused regression.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv15_historical_data_readiness.py tests/test_sv151_candle_import_integrity.py tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 70 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed with 521 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 10 tests after repo/Obsidian doc updates.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.5.1-review.zip` created the SV1.5.1 review bundle; bundle inspection found 229 files, included `tests/test_sv151_candle_import_integrity.py`, and found no `.env`, virtualenvs, Git metadata, pytest caches, local DB/SQLite files, nested archives, Obsidian app state, or generated `reports/strategy_validation/` evidence packs.
+
 ## v2026.05.02.003
 
 - `recorded_at_utc`: `2026-05-02T07:45:23Z`

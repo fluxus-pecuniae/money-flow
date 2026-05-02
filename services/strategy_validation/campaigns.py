@@ -37,6 +37,21 @@ from services.strategy_validation.service import (
 )
 
 _WINDOW_CONVENTION_DISPLAY = "(start_at, end_at]"
+_APPROVED_WINDOW_CONVENTION_TEXTS = {
+    STRATEGY_VALIDATION_WINDOW_CONVENTION,
+    _WINDOW_CONVENTION_DISPLAY,
+    "(start_at, end_at] candle closes; closes exactly at start are excluded and closes on or before end are included.",
+    "(start_at, end_at] candle closes; platform convention is authoritative.",
+}
+_CONTRADICTORY_WINDOW_CONVENTION_PATTERNS = (
+    r"\[start(?:_at)?\s*,",
+    r"\[start(?:_at)?\s*,\s*end(?:_at)?\]",
+    r"inclusive\s+start",
+    r"start(?:_at)?\s+is\s+included",
+    r"start(?:_at)?\s+included",
+    r"start(?:_at)?\s+boundary\s+is\s+included",
+    r"closes\s+exactly\s+at\s+start(?:_at)?\s+are\s+included",
+)
 _REPORT_FORMATS = {"json", "markdown"}
 _DATA_READINESS_WARNING_THRESHOLD = Decimal("0.80")
 MONEY_FLOW_RESEARCH_CAMPAIGN_DEFAULT_COLLISION_POLICY = "unique_suffix"
@@ -1201,14 +1216,24 @@ def _validate_campaign_window_convention(raw: dict[str, Any]) -> None:
             "convention `(start_at, end_at]`."
         )
     text = supplied.strip()
-    if text == STRATEGY_VALIDATION_WINDOW_CONVENTION:
-        return
-    if _WINDOW_CONVENTION_DISPLAY in text:
+    normalized = re.sub(r"\s+", " ", text.lower())
+    if any(
+        re.search(pattern, normalized)
+        for pattern in _CONTRADICTORY_WINDOW_CONVENTION_PATTERNS
+    ):
+        raise ValueError(
+            "campaign window_convention conflicts with the platform convention "
+            f"`{STRATEGY_VALIDATION_WINDOW_CONVENTION}` `{_WINDOW_CONVENTION_DISPLAY}`: "
+            "candle closes exactly at start_at are excluded and closes on or before "
+            "end_at are included."
+        )
+    if text in _APPROVED_WINDOW_CONVENTION_TEXTS:
         return
     raise ValueError(
-        "campaign window_convention is display metadata only and must match the "
+        "campaign window_convention is display metadata only and must use the "
         f"platform convention `{STRATEGY_VALIDATION_WINDOW_CONVENTION}` "
-        f"`{_WINDOW_CONVENTION_DISPLAY}`."
+        f"`{_WINDOW_CONVENTION_DISPLAY}`: candle closes exactly at start_at are "
+        "excluded and closes on or before end_at are included."
     )
 
 

@@ -2,7 +2,7 @@
 
 ## Phase
 
-Current implemented phase: `SV1.5`
+Current implemented phase: `SV1.5.1`
 
 Proposed next phase: SV1.6 first real canonical evidence review / saved evidence comparison after sufficient historical candle data is imported or confirmed. `Phase 8.1` remains deferred until explicitly scoped.
 
@@ -40,6 +40,8 @@ SV1.4.1 is a narrow evidence-pack integrity hotfix. It makes campaign evidence-p
 
 SV1.5 prepares the platform for meaningful canonical Money Flow evidence runs against real persisted candle data. It validates campaign `window_convention` metadata against the authoritative `(start_at, end_at]` convention, adds founder-readable Markdown data-readiness audit output, and adds an offline public CSV/JSON historical candle import path that duplicate-safely upserts existing candle rows for research backfills. It preserves collision-safe evidence-pack generation and changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
 
+SV1.5.1 is a narrow historical candle import and campaign-config research-truth hotfix before SV1.6 evidence review. It rejects contradictory campaign `window_convention` text that implies inclusive starts, blocks existing-candle identity conflicts instead of silently retargeting symbol/instrument ids, enforces selected-timeframe row duration, rejects non-finite/zero/negative/inconsistent OHLCV values and negative trade counts, and rolls back invalid import files without partial inserts or updates. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
+
 ## Accepted Baseline
 
 - Phase 7.0 added non-executing routing automation policy and dry-run plans.
@@ -66,6 +68,7 @@ SV1.5 prepares the platform for meaningful canonical Money Flow evidence runs ag
 - SV1.4 added canonical campaign configs, campaign data-readiness audit, evidence-pack review checklist, and manual paper-trading readiness criteria without optimization, recommendations, paper/live artifacts, routing, or execution changes.
 - SV1.4.1 added explicit evidence-pack collision policy and non-overwriting write semantics without optimization, recommendations, paper/live artifacts, routing, or execution changes.
 - SV1.5 added validated campaign window-convention metadata, Markdown data-readiness audit summaries, and offline public candle import/upsert tooling without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
+- SV1.5.1 hardened campaign window-convention validation and offline candle import integrity without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
 
 ## Hard Boundaries
 
@@ -114,6 +117,8 @@ SV1.4.1 is successful when evidence packs cannot silently overwrite previous pac
 
 SV1.5 is successful when campaign window-convention metadata cannot mislead users, canonical campaign readiness audits clearly show missing/thin/covered data, founder-readable audit Markdown exists, public/offline historical candles can be duplicate-safely imported when data is missing, first evidence-pack generation remains collision-safe and scriptable, and no Money Flow rules, optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes are added.
 
+SV1.5.1 is successful when contradictory `window_convention` text is rejected, candle import identity conflicts cannot silently retarget existing rows, same-identity duplicate-safe upserts still work, timeframe-duration mismatches and malformed OHLCV/trade-count rows fail clearly, invalid files leave no partial imported or updated candles, and no Money Flow rules, optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes are added.
+
 ## Current Outcome
 
 - Obsidian command center/current phase/decision log/coordination notes are now part of the required agent workflow.
@@ -137,6 +142,7 @@ SV1.5 is successful when campaign window-convention metadata cannot mislead user
 - SV1.4 adds `configs/strategy_validation/campaigns/`, campaign data-readiness audit helpers, campaign `--audit-only`, review checklist/manual readiness criteria in evidence packs, and `tests/test_sv14_evidence_readiness.py`.
 - SV1.4.1 adds explicit evidence-pack collision policy to `services/strategy_validation/campaigns.py`, exposes `--collision-policy` in the campaign CLI, and adds `tests/test_sv141_evidence_pack_integrity.py`.
 - SV1.5 adds `services/strategy_validation/candles.py`, `scripts/import_strategy_validation_candles.py`, Markdown audit output from `scripts/run_money_flow_research_campaign.py --audit-only --audit-format markdown`, campaign `window_convention` validation, and `tests/test_sv15_historical_data_readiness.py`.
+- SV1.5.1 hardens `services/strategy_validation/candles.py` and `services/strategy_validation/campaigns.py`, adds `tests/test_sv151_candle_import_integrity.py`, and keeps offline imports all-or-nothing for invalid files.
 - Recovery, route execution, fanout, scoring, CBBO, target reselection, cross-venue retry, and broad auto-submit remain deferred.
 
 ## Next Phase Shape
