@@ -1,8 +1,8 @@
 """Money Flow evidence-pack review helpers.
 
-SV1.6 is a research-review layer over existing campaign audits and evidence
-packs. It does not change Money Flow rules, create live artifacts, or call
-exchange adapters.
+SV1.7 is a research-review/data-gap layer over existing campaign audits and
+evidence packs. It does not change Money Flow rules, create live artifacts, or
+call exchange adapters.
 """
 
 from __future__ import annotations
@@ -15,13 +15,23 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any, Sequence
 
+from sqlalchemy import func, inspect as sqlalchemy_inspect, select, text
+from sqlalchemy.engine import make_url
+
+from db.models import CandleModel
 from services.strategy_validation.campaigns import (
     MONEY_FLOW_RESEARCH_CAMPAIGN_DEFAULT_COLLISION_POLICY,
     MoneyFlowResearchCampaignConfig,
     MoneyFlowResearchCampaignDataReadinessAudit,
+    MoneyFlowResearchCampaignDataReadinessRow,
     MoneyFlowResearchCampaignResult,
+    _campaign_expected_close_slot_count,
+    _campaign_timeframe_delta,
+    _data_readiness_summary,
+    _WINDOW_CONVENTION_DISPLAY,
     audit_money_flow_research_campaign_data_readiness,
     load_money_flow_research_campaign_config,
+    money_flow_evidence_pack_review_checklist,
     money_flow_manual_paper_trading_readiness_criteria,
     money_flow_research_campaign_data_readiness_to_dict,
     money_flow_research_campaign_data_readiness_to_markdown,
@@ -41,6 +51,7 @@ CANONICAL_MONEY_FLOW_CAMPAIGN_CONFIG_PATHS = (
 PAPER_READINESS_REVIEW_STATUSES = (
     "not_reviewed",
     "insufficient_data",
+    "partial_evidence_ready_with_data_gaps",
     "ready_for_founder_review",
     "paper_trading_design_not_yet_justified",
     "paper_trading_design_candidate",
@@ -54,6 +65,17 @@ _BANNED_RECOMMENDATION_LANGUAGE = (
     "proven profitable",
     "paper trading approved",
 )
+
+
+@dataclass(frozen=True, slots=True)
+class MoneyFlowEvidenceReviewDatabaseStatus:
+    configured_database_url: str
+    inspection_source: str
+    reachable: bool
+    candles_table_exists: bool
+    persisted_candle_count: int | None
+    blocking_error_type: str | None = None
+    blocking_error_message: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -78,6 +100,7 @@ class MoneyFlowEvidenceReviewSummary:
     review_id: str
     generated_at_utc: datetime
     campaign_results: tuple[MoneyFlowEvidenceReviewCampaignResult, ...]
+    database_status: MoneyFlowEvidenceReviewDatabaseStatus
     paper_readiness_review_status: str
     paper_readiness_status_methodology: str
     manual_paper_trading_readiness_criteria: tuple[str, ...]
@@ -107,16 +130,25 @@ def review_money_flow_evidence(
 
     validation_service = service or MoneyFlowBacktestService()
     timestamp = _coerce_utc(generated_at or datetime.now(UTC)).replace(microsecond=0)
+    database_status = inspect_strategy_validation_database_status(validation_service)
     paths = tuple(campaign_config_paths or CANONICAL_MONEY_FLOW_CAMPAIGN_CONFIG_PATHS)
     results: list[MoneyFlowEvidenceReviewCampaignResult] = []
     for path in paths:
         config_path = Path(path)
         config = load_money_flow_research_campaign_config(config_path)
-        audit = audit_money_flow_research_campaign_data_readiness(
-            config,
-            service=validation_service,
-            generated_at=timestamp,
-        )
+        if not database_status.reachable or not database_status.candles_table_exists:
+            audit = _database_blocked_data_readiness_audit(
+                config=config,
+                service=validation_service,
+                generated_at=timestamp,
+                database_status=database_status,
+            )
+        else:
+            audit = audit_money_flow_research_campaign_data_readiness(
+                config,
+                service=validation_service,
+                generated_at=timestamp,
+            )
         audit_payload = money_flow_research_campaign_data_readiness_to_dict(audit)
         audit_markdown = money_flow_research_campaign_data_readiness_to_markdown(audit)
         can_generate = _audit_has_sufficient_data(audit_payload)
@@ -191,6 +223,7 @@ def review_money_flow_evidence(
         review_id=review_id,
         generated_at_utc=timestamp,
         campaign_results=tuple(results),
+        database_status=database_status,
         paper_readiness_review_status=overall_status,
         paper_readiness_status_methodology=(
             "manual_review_status_only_no_automatic_paper_trading_decision"
@@ -215,6 +248,45 @@ def review_money_flow_evidence(
     )
 
 
+def inspect_strategy_validation_database_status(
+    service: MoneyFlowBacktestService | None = None,
+) -> MoneyFlowEvidenceReviewDatabaseStatus:
+    """Return sanitized DB reachability and candle-table truth for evidence review."""
+
+    validation_service = service or MoneyFlowBacktestService()
+    configured_url = _sanitize_database_url(
+        validation_service.settings.database.sqlalchemy_url
+    )
+    try:
+        with validation_service._session_factory() as session:
+            session.execute(text("SELECT 1"))
+            bind = session.get_bind()
+            inspector = sqlalchemy_inspect(bind)
+            candles_table_exists = inspector.has_table(CandleModel.__tablename__)
+            candle_count = None
+            if candles_table_exists:
+                candle_count = int(
+                    session.scalar(select(func.count()).select_from(CandleModel)) or 0
+                )
+            return MoneyFlowEvidenceReviewDatabaseStatus(
+                configured_database_url=configured_url,
+                inspection_source="strategy_validation_session_factory",
+                reachable=True,
+                candles_table_exists=candles_table_exists,
+                persisted_candle_count=candle_count,
+            )
+    except Exception as exc:  # noqa: BLE001 - report DB failures instead of hiding them.
+        return MoneyFlowEvidenceReviewDatabaseStatus(
+            configured_database_url=configured_url,
+            inspection_source="strategy_validation_session_factory",
+            reachable=False,
+            candles_table_exists=False,
+            persisted_candle_count=None,
+            blocking_error_type=type(exc).__name__,
+            blocking_error_message=_safe_error_message(exc),
+        )
+
+
 def money_flow_evidence_review_to_dict(
     review: MoneyFlowEvidenceReviewSummary,
 ) -> dict[str, Any]:
@@ -226,13 +298,14 @@ def money_flow_evidence_review_to_dict(
 def money_flow_evidence_review_to_markdown(
     review: MoneyFlowEvidenceReviewSummary,
 ) -> str:
-    """Render a founder/operator-readable SV1.6 evidence review summary."""
+    """Render a founder/operator-readable SV1.7 evidence review summary."""
 
     payload = money_flow_evidence_review_to_dict(review)
+    database_status = payload["database_status"]
     lines = [
-        "# Money Flow First Canonical Evidence Review",
+        "# Money Flow First Real Canonical Evidence Review",
         "",
-        "This SV1.6 review is descriptive research only. It is not paper trading, "
+        "This SV1.7 review is descriptive research only. It is not paper trading, "
         "not live execution, not optimization, not a strategy recommendation, and "
         "not proof of future profitability.",
         "",
@@ -250,6 +323,18 @@ def money_flow_evidence_review_to_markdown(
         "- Insufficient data means persisted candles are missing, thin, or blocked for at least one reviewed campaign; it is not a strategy failure.",
         f"- Live artifacts created: `{payload['creates_live_artifacts']}`",
         f"- Exchange adapters called: `{payload['calls_exchange_adapters']}`",
+        "",
+        "## Database Access",
+        "",
+        f"- Configured DB URL: `{database_status['configured_database_url']}`",
+        f"- Inspection source: `{database_status['inspection_source']}`",
+        f"- DB reachable: `{database_status['reachable']}`",
+        f"- Candles table exists: `{database_status['candles_table_exists']}`",
+        f"- Persisted candle count: `{database_status['persisted_candle_count']}`",
+        f"- Blocking error type: `{database_status['blocking_error_type']}`",
+        f"- Blocking error message: `{database_status['blocking_error_message']}`",
+        "",
+        "If the DB is unreachable or the `candles` table is absent, campaign rows are reported as data-readiness gaps and no evidence packs are generated.",
         "",
         "## Canonical Campaign Review",
         "",
@@ -334,6 +419,7 @@ def money_flow_evidence_review_to_markdown(
             "## Manual Paper-Readiness Review Status",
             "",
             f"- Current status: `{payload['paper_readiness_review_status']}`",
+            "- `partial_evidence_ready_with_data_gaps` means at least one campaign generated a pack while another canonical campaign remains blocked or insufficient.",
             "- This is not an automatic approval and does not start paper trading.",
             "- Founder/operator review is required before any paper-trading design is scoped.",
             "",
@@ -393,6 +479,10 @@ def _overall_paper_readiness_status(
         return "not_reviewed"
     if all(result.readiness_status == "insufficient_data" for result in results):
         return "insufficient_data"
+    if any(result.evidence_pack_generated for result in results) and any(
+        result.readiness_status == "insufficient_data" for result in results
+    ):
+        return "partial_evidence_ready_with_data_gaps"
     if any(
         result.readiness_status == "paper_trading_design_not_yet_justified"
         for result in results
@@ -401,6 +491,116 @@ def _overall_paper_readiness_status(
     if any(result.readiness_status == "ready_for_founder_review" for result in results):
         return "ready_for_founder_review"
     return "not_reviewed"
+
+
+def _database_blocked_data_readiness_audit(
+    *,
+    config: MoneyFlowResearchCampaignConfig,
+    service: MoneyFlowBacktestService,
+    generated_at: datetime,
+    database_status: MoneyFlowEvidenceReviewDatabaseStatus,
+) -> MoneyFlowResearchCampaignDataReadinessAudit:
+    reason_codes = _database_gap_reason_codes(database_status)
+    sleeves_by_key = {sleeve.sleeve_id: sleeve for sleeve in service.settings.money_flow.sleeves}
+    impacted_run_count = (
+        len(config.fill_timings)
+        * len(config.fee_bps_values)
+        * len(config.slippage_bps_values)
+    )
+    rows: list[MoneyFlowResearchCampaignDataReadinessRow] = []
+    for symbol in config.symbols:
+        for window in config.windows:
+            for component in config.components:
+                sleeve = sleeves_by_key.get(component)
+                timeframe = sleeve.timeframe.value if sleeve is not None else None
+                expected_count = None
+                if timeframe is not None:
+                    timeframe_delta = _campaign_timeframe_delta(timeframe)
+                    if timeframe_delta is not None:
+                        expected_count = _campaign_expected_close_slot_count(
+                            start_at=window.start_at,
+                            end_at=window.end_at,
+                            timeframe_delta_seconds=timeframe_delta,
+                        )
+                row_reason_codes = reason_codes
+                if sleeve is None:
+                    row_reason_codes = tuple(
+                        sorted({*reason_codes, "unknown_money_flow_component"})
+                    )
+                rows.append(
+                    MoneyFlowResearchCampaignDataReadinessRow(
+                        symbol=symbol.symbol,
+                        instrument_key=symbol.instrument_key,
+                        instrument_ref_id=symbol.instrument_ref_id,
+                        component=component,
+                        timeframe=timeframe,
+                        window_label=window.label,
+                        requested_start_at=window.start_at,
+                        requested_end_at=window.end_at,
+                        window_convention=STRATEGY_VALIDATION_WINDOW_CONVENTION,
+                        expected_candle_count=expected_count,
+                        actual_candle_count=0,
+                        missing_candle_count=expected_count,
+                        coverage_percent=Decimal("0.00000000")
+                        if expected_count is not None and expected_count > 0
+                        else None,
+                        gap_count=None,
+                        largest_gap_seconds=None,
+                        first_candle_available_at=None,
+                        last_candle_available_at=None,
+                        readiness_status="blocked",
+                        warning_reason_codes=row_reason_codes,
+                        likely_blocked=True,
+                        likely_blocked_reason_codes=row_reason_codes,
+                        impacted_run_count=impacted_run_count,
+                    )
+                )
+    summary = _data_readiness_summary(rows)
+    summary["database_status"] = _json_ready(database_status)
+    return MoneyFlowResearchCampaignDataReadinessAudit(
+        campaign_name=config.campaign_name,
+        generated_at_utc=_coerce_utc(generated_at).replace(microsecond=0),
+        environment=config.environment,
+        venue=config.venue,
+        window_convention=STRATEGY_VALIDATION_WINDOW_CONVENTION,
+        window_convention_display=_WINDOW_CONVENTION_DISPLAY,
+        rows=tuple(rows),
+        summary=summary,
+        review_checklist=money_flow_evidence_pack_review_checklist(),
+        manual_paper_trading_readiness_criteria=(
+            money_flow_manual_paper_trading_readiness_criteria()
+        ),
+    )
+
+
+def _database_gap_reason_codes(
+    database_status: MoneyFlowEvidenceReviewDatabaseStatus,
+) -> tuple[str, ...]:
+    reason_codes: set[str] = set()
+    if not database_status.reachable:
+        reason_codes.add("database_unreachable")
+        message = (database_status.blocking_error_message or "").lower()
+        if "resolve host" in message or "nodename" in message or "name or service" in message:
+            reason_codes.add("database_host_unresolved")
+        if "connection refused" in message:
+            reason_codes.add("database_connection_refused")
+    elif not database_status.candles_table_exists:
+        reason_codes.add("candles_table_missing")
+    if not reason_codes:
+        reason_codes.add("database_status_unknown")
+    return tuple(sorted(reason_codes))
+
+
+def _sanitize_database_url(value: str) -> str:
+    try:
+        return make_url(value).render_as_string(hide_password=True)
+    except Exception:  # noqa: BLE001 - URL is diagnostic only.
+        return "<unparseable_database_url>"
+
+
+def _safe_error_message(exc: Exception) -> str:
+    first_line = str(exc).splitlines()[0] if str(exc) else type(exc).__name__
+    return first_line.replace("\n", " ")[:500]
 
 
 def _blocked_or_gap_reason_codes(audit_payload: dict[str, Any]) -> tuple[str, ...]:
@@ -546,8 +746,10 @@ def money_flow_evidence_review_to_json(review: MoneyFlowEvidenceReviewSummary) -
 __all__ = [
     "CANONICAL_MONEY_FLOW_CAMPAIGN_CONFIG_PATHS",
     "PAPER_READINESS_REVIEW_STATUSES",
+    "MoneyFlowEvidenceReviewDatabaseStatus",
     "MoneyFlowEvidenceReviewCampaignResult",
     "MoneyFlowEvidenceReviewSummary",
+    "inspect_strategy_validation_database_status",
     "money_flow_evidence_review_to_dict",
     "money_flow_evidence_review_to_json",
     "money_flow_evidence_review_to_markdown",

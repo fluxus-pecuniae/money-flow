@@ -190,6 +190,10 @@ SV1.6 adds the first canonical evidence-review summary on top of the same canoni
 
 The review summary reports campaign audit status, generated evidence-pack paths, fill-timing observations, component observations, regime observations, drawdown observations, fee/slippage observations, no-trade/invalid reason counts, and a manual paper-readiness review status such as `insufficient_data` or `ready_for_founder_review`. The status is descriptive only: it does not approve paper trading, create paper trades, change Money Flow rules, optimize parameters, route, submit, create live artifacts, or call exchange adapters. Missing or thin data is reported as a data-readiness gap, not as strategy failure.
 
+SV1.7 hardens the same canonical evidence review into a first-real-run/data-gap workflow. The review output now includes sanitized DB access status, whether the DB is reachable, whether the `candles` table exists, persisted candle count when available, and blocking connection/schema errors. If the DB is unreachable or the candle table is absent, the review produces an explicit data-readiness gap report instead of crashing or generating misleading packs. Mixed outcomes use `partial_evidence_ready_with_data_gaps` so one generated campaign cannot be mistaken for complete canonical evidence.
+
+The SV1.7 run in this repo found the default configured DB `postgres` host unresolved. A local Postgres endpoint at `127.0.0.1:54322/postgres` was reachable with an explicit environment override, but it did not contain the Money Flow `candles` table, so both canonical campaigns remained `insufficient_data` and no evidence packs were generated. See [SV1.7 First Canonical Money Flow Evidence Review](docs/strategy_validation_sv1_7_first_evidence_review.md) for the concrete gap report and exact research-only rerun command.
+
 ## Routing Automation Planning
 
 Phase 7.0 exposes non-executing automation policy and dry-run planning:

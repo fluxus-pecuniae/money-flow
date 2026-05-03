@@ -8,9 +8,9 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 
 ## Current Phase
 
-- Current implemented phase: `SV1.6`
+- Current implemented phase: `SV1.7`
 - Phase 7 status: accepted complete.
-- Proposed next phase: import/verify enough historical candles, rerun SV1.6 evidence review with generated evidence packs, and only then scope paper-trading design if founder/operator review justifies it; `Phase 8.1` remains deferred until explicitly scoped.
+- Proposed next phase: point evidence review at a reachable migrated Money Flow database or apply migrations/populate the reachable local DB, import/verify enough historical candles, rerun SV1.7 evidence review with generated evidence packs, and only then scope paper-trading design if founder/operator review justifies it; `Phase 8.1` remains deferred until explicitly scoped.
 - Phase 8.0 status: implemented read-only operator observability/manual-resolution inspection.
 - Phase 8.0.1 status: Obsidian memory and working-tree baseline cleanup; no product behavior changed.
 - Phase 8.0.2 status: active submit-lease operator-summary truth hotfix; no product behavior changed.
@@ -25,6 +25,7 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 - SV1.5 status: historical-data readiness and first canonical evidence-pack support; validates campaign window-convention metadata, adds Markdown readiness summaries, adds offline public candle import/upsert tooling, preserves collision-safe evidence packs, and adds no strategy-rule changes, optimization, recommendations, paper/live trading, routing, exchange calls, or execution changes.
 - SV1.5.1 status: candle import and campaign-config research-truth hotfix; rejects contradictory window-convention text, identity conflicts, timeframe-duration mismatches, malformed OHLCV rows, and partial invalid imports without strategy-rule changes, optimization, recommendations, paper/live trading, routing, exchange calls, or execution changes.
 - SV1.6 status: first canonical Money Flow evidence review; audits canonical BTC and multi-symbol campaigns, reports insufficient data or generated evidence-pack paths, adds manual paper-readiness review status, and adds no strategy-rule changes, optimization, recommendations, paper/live trading, routing, exchange calls, or execution changes.
+- SV1.7 status: first real canonical Money Flow evidence review/data-gap report; reports sanitized DB reachability/candle-table truth, blocks campaigns clearly when DB/schema data is unavailable, adds `partial_evidence_ready_with_data_gaps`, found no usable local `candles` table, generated no evidence packs, and adds no strategy-rule changes, optimization, recommendations, paper/live trading, routing, exchange calls, or execution changes.
 - Current accepted action hooks: approval-gated recommendation acceptance, target-choice conversion, prepared-order preview/readiness inspection, and submitted-order handoff.
 
 ## Current Architectural Boundary
@@ -78,6 +79,8 @@ SV1.5.1 hardens that import/config truth before first real evidence review. Camp
 
 SV1.6 adds first canonical evidence-review summaries. The review layer audits the canonical BTC and multi-symbol campaign configs, treats missing/thin/blocked data as a data-readiness gap rather than strategy failure, generates collision-safe evidence packs only when readiness audits are clean, and summarizes fill-timing/component/regime/drawdown/cost/no-trade/invalid observations plus manual paper-readiness review status. It is descriptive research only and does not approve paper trading.
 
+SV1.7 turns the canonical evidence review into a first-real-run/data-gap workflow. Review output includes sanitized DB URL/source, DB reachability, `candles` table existence, persisted candle count when available, and blocking DB/schema errors. If the DB is unreachable or missing `candles`, canonical campaign rows are blocked with data-gap reasons and no evidence packs are generated. Mixed generated/blocked outcomes use `partial_evidence_ready_with_data_gaps`. The local SV1.7 run found the default `postgres` host unresolved and a reachable local Postgres endpoint without the Money Flow `candles` table, so canonical evidence remains insufficient until the DB is migrated/populated or candles are imported.
+
 ## Repo Truth Sources
 
 Repo operational truth remains in:
@@ -125,6 +128,7 @@ Obsidian is the long-horizon project brain for founder intent, phase context, de
 - SV1.5 candle imports are public/offline research data backfills only; they upsert candles and do not imply strategy edge, paper-trading approval, live execution readiness, exchange truth, or per-candle source provenance.
 - SV1.5.1 candle imports must not silently retarget existing candle identity, accept timeframe-duration mismatches, persist malformed OHLCV rows, or leave partial new/updated candles after a failed file import.
 - SV1.6 evidence review status is manual/descriptive only; `ready_for_founder_review` is not paper-trading approval, and `insufficient_data` is a data gap, not a Money Flow strategy failure.
+- SV1.7 data-gap reports must not be treated as strategy results. A reachable DB without `candles` means schema/data readiness is missing, not that Money Flow failed.
 - Simulated validation trades must remain separate from `SubmittedOrder`.
 - Manual-resolution inspection must not silently resolve venue or approval truth.
 - Future agents must update their own coordination row instead of overwriting another agent's work.

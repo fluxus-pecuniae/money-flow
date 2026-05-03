@@ -22,6 +22,7 @@ REQUIRED_FILES = [
     "README.md",
     "docs/architecture.md",
     "docs/investors.md",
+    "docs/strategy_validation_sv1_7_first_evidence_review.md",
 ]
 
 
@@ -67,8 +68,8 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "required Obsidian brain entrypoint" in command_center
-    assert re.search(r"Current implemented phase: `SV1\.6`", current_phase)
-    assert "SV1.6" in command_center
+    assert re.search(r"Current implemented phase: `SV1\.7`", current_phase)
+    assert "SV1.7" in command_center
     assert "Active Work" in coordination
     assert "Quant Engineer" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer

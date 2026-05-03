@@ -22,9 +22,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
             "Run a research-only Money Flow evidence review. The review audits "
-            "canonical campaign configs, optionally writes evidence packs only when "
-            "persisted candle data is sufficient, and never routes, trades, optimizes, "
-            "or calls exchange adapters."
+            "database reachability, candle-table truth, and canonical campaign "
+            "configs; optionally writes evidence packs only when persisted candle "
+            "data is sufficient; and never routes, trades, optimizes, or calls "
+            "exchange adapters."
         ),
     )
     parser.add_argument(
