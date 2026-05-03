@@ -31,6 +31,7 @@ from services.strategy_validation.candles import (
 from services.strategy_validation.evidence_review import (
     CANONICAL_MONEY_FLOW_CAMPAIGN_CONFIG_PATHS,
     PAPER_READINESS_REVIEW_STATUSES,
+    REQUIRED_STRATEGY_VALIDATION_SCHEMA_TABLES,
     MoneyFlowEvidenceReviewCampaignResult,
     MoneyFlowEvidenceReviewDatabaseStatus,
     MoneyFlowEvidenceReviewSummary,
@@ -66,6 +67,7 @@ __all__ = [
     "MoneyFlowResearchCampaignSymbol",
     "MoneyFlowResearchCampaignWindow",
     "PAPER_READINESS_REVIEW_STATUSES",
+    "REQUIRED_STRATEGY_VALIDATION_SCHEMA_TABLES",
     "STRATEGY_VALIDATION_WINDOW_CONVENTION",
     "StrategyValidationCandleImportResult",
     "audit_money_flow_research_campaign_data_readiness",

@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 
 from core.domain.enums import Timeframe
 from db.models import (
@@ -32,6 +32,7 @@ from services.strategy_validation import (
     money_flow_research_campaign_config_from_dict,
     review_money_flow_evidence,
 )
+from services.strategy_validation.evidence_review import _migration_head_revisions
 from test_sv10_strategy_validation import (
     build_settings,
     build_test_session_factory,
@@ -86,6 +87,19 @@ def _seeded_campaign_config_path(tmp_path: Path, session_factory) -> Path:
     return config_path
 
 
+def _seed_current_alembic_version(session_factory) -> None:
+    revisions = _migration_head_revisions()
+    assert revisions
+    with session_factory() as session:
+        session.execute(text("CREATE TABLE alembic_version (version_num VARCHAR(32) NOT NULL)"))
+        for revision in revisions:
+            session.execute(
+                text("INSERT INTO alembic_version (version_num) VALUES (:version_num)"),
+                {"version_num": revision},
+            )
+        session.commit()
+
+
 def test_canonical_campaign_review_reports_insufficient_data_without_packs() -> None:
     settings = build_settings()
     session_factory = build_test_session_factory()
@@ -109,7 +123,12 @@ def test_canonical_campaign_review_reports_insufficient_data_without_packs() -> 
     ]
     assert all(not result["evidence_pack_generated"] for result in payload["campaign_results"])
     assert all(
-        "unknown_instrument_key" in result["blocked_or_gap_reason_codes"]
+        "alembic_version_missing" in result["blocked_or_gap_reason_codes"]
+        for result in payload["campaign_results"]
+    )
+    assert all(
+        "schema_not_ready_for_evidence_generation"
+        in result["blocked_or_gap_reason_codes"]
         for result in payload["campaign_results"]
     )
     assert "insufficient data" in markdown.lower()
@@ -125,6 +144,7 @@ def test_sufficient_seeded_campaign_generates_evidence_pack_path_in_review_summa
     settings = build_settings()
     session_factory = build_test_session_factory()
     config_path = _seeded_campaign_config_path(tmp_path, session_factory)
+    _seed_current_alembic_version(session_factory)
     service = MoneyFlowBacktestService(settings, session_factory=session_factory)
 
     review = review_money_flow_evidence(
@@ -162,6 +182,7 @@ def test_same_timestamp_review_preserves_evidence_pack_collision_safety(
     settings = build_settings()
     session_factory = build_test_session_factory()
     config_path = _seeded_campaign_config_path(tmp_path, session_factory)
+    _seed_current_alembic_version(session_factory)
     service = MoneyFlowBacktestService(settings, session_factory=session_factory)
     run_timestamp = datetime(2026, 5, 3, 6, 15, tzinfo=UTC)
 
@@ -207,6 +228,7 @@ def test_evidence_review_summary_uses_descriptive_manual_status_language(
     settings = build_settings()
     session_factory = build_test_session_factory()
     config_path = _seeded_campaign_config_path(tmp_path, session_factory)
+    _seed_current_alembic_version(session_factory)
     service = MoneyFlowBacktestService(settings, session_factory=session_factory)
 
     review = review_money_flow_evidence(
@@ -254,6 +276,7 @@ def test_review_can_audit_without_generating_pack_for_sufficient_data(tmp_path: 
     settings = build_settings()
     session_factory = build_test_session_factory()
     config_path = _seeded_campaign_config_path(tmp_path, session_factory)
+    _seed_current_alembic_version(session_factory)
     config = money_flow_research_campaign_config_from_dict(
         json.loads(config_path.read_text(encoding="utf-8"))
     )

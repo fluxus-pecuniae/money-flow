@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-03T14:04:33Z`
+Last reviewed: `2026-05-03T14:40:50Z`
 
 ## Active Follow-Ups
 
@@ -170,7 +170,7 @@ Last reviewed: `2026-05-03T14:04:33Z`
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `After SV1.8, apply migrations to the intended Money Flow database or point the evidence-review workflow at an already migrated Money Flow database, import or verify enough public historical candles for the canonical BTC/ETH/SOL campaign windows and `sleeve_15m` / `sleeve_1h` / `sleeve_4h` timeframes, rerun canonical evidence review with `--generate-evidence-packs`, and have the founder/operator manually review saved evidence before any paper-trading design is scoped. SV1.8 found the default configured `postgres` host unresolved and the explicit local `127.0.0.1:54322/postgres` database reachable but unmigrated with no `alembic_version` and no `candles`, so canonical evidence remains `insufficient_data`. Do not optimize Money Flow rules, recommend a variant, add paper/live trading, create live artifacts, call exchanges, or connect validation outputs to routing/execution automation until that manual evidence review explicitly justifies a new phase.`
+- `summary`: `After SV1.8.1, apply migrations to the intended Money Flow database or point the evidence-review workflow at an already migrated Money Flow database, import or verify enough public historical candles for the canonical BTC/ETH/SOL campaign windows and `sleeve_15m` / `sleeve_1h` / `sleeve_4h` timeframes, rerun canonical evidence review with `--generate-evidence-packs`, and have the founder/operator manually review saved evidence before any paper-trading design is scoped. SV1.8 found the default configured `postgres` host unresolved and the explicit local `127.0.0.1:54322/postgres` database reachable but unmigrated with no `alembic_version` and no `candles`; SV1.8.1 further requires `migrated_schema_ready`, current Alembic truth, and required `candles` / `instruments` / `symbols` tables before evidence packs can generate. Canonical evidence remains `insufficient_data`. Do not optimize Money Flow rules, recommend a variant, add paper/live trading, create live artifacts, call exchanges, or connect validation outputs to routing/execution automation until that manual evidence review explicitly justifies a new phase.`
 
 ### T-061
 
@@ -183,6 +183,12 @@ Last reviewed: `2026-05-03T14:04:33Z`
 - `priority`: `high`
 - `status`: `done`
 - `summary`: `SV1.8 added historical data bootstrap and first-real evidence-pack generation truth. Evidence-review DB status now reports sanitized DB target, reachability, Alembic version-table existence, applied revisions, repo migration heads, migration-current status when derivable, schema status/reason codes, migration and DB override hints, `candles` table existence, and persisted candle count. The evidence-review CLI now supports `--db-status-only` for read-only DB/schema/candle readiness inspection. The local SV1.8 run found the default `postgres` host unresolved and the explicit `127.0.0.1:54322/postgres` target reachable but unmigrated with no `alembic_version` table and no `candles` table, so canonical BTC and multi-symbol campaigns remain `insufficient_data` and no evidence packs were generated. This changes no Money Flow rules, optimization, recommendations, paper/live trading, live artifacts, routing, execution automation, or exchange calls.`
+
+### T-063
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.8.1 hardened evidence-review schema truth before first real evidence packs. Evidence-pack generation now requires `migrated_schema_ready`, current Alembic migration truth, and required strategy-validation tables (`candles`, `instruments`, and `symbols`); a DB with only `candles` is blocked if Alembic truth is missing, migrations are outdated/unknown, or symbol/instrument schema is partial. Top-level no-live/no-exchange flags now aggregate from campaign results. This changes no Money Flow rules, optimization, recommendations, paper/live trading, live artifacts, routing, execution automation, exchange calls, or first-real evidence-pack generation.`
 
 ### T-001
 

@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 
-from sqlalchemy import create_engine, func, select
+from sqlalchemy import create_engine, func, select, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -35,6 +35,7 @@ from services.strategy_validation import (
     money_flow_evidence_review_to_markdown,
     review_money_flow_evidence,
 )
+from services.strategy_validation.evidence_review import _migration_head_revisions
 from test_sv10_strategy_validation import (
     build_settings,
     build_test_session_factory,
@@ -99,6 +100,19 @@ def _seeded_campaign_config_path(tmp_path: Path, session_factory) -> Path:
     return config_path
 
 
+def _seed_current_alembic_version(session_factory) -> None:
+    revisions = _migration_head_revisions()
+    assert revisions
+    with session_factory() as session:
+        session.execute(text("CREATE TABLE alembic_version (version_num VARCHAR(32) NOT NULL)"))
+        for revision in revisions:
+            session.execute(
+                text("INSERT INTO alembic_version (version_num) VALUES (:version_num)"),
+                {"version_num": revision},
+            )
+        session.commit()
+
+
 def test_db_status_reports_missing_schema_and_migration_requirements() -> None:
     settings = build_settings()
     session_factory = _blank_session_factory()
@@ -110,9 +124,16 @@ def test_db_status_reports_missing_schema_and_migration_requirements() -> None:
 
     assert payload["reachable"] is True
     assert payload["candles_table_exists"] is False
+    assert payload["schema_ready_for_evidence_generation"] is False
+    assert payload["required_schema_tables_missing"] == [
+        "candles",
+        "instruments",
+        "symbols",
+    ]
     assert payload["alembic_version_table_exists"] is False
     assert payload["schema_status"] == "schema_missing"
     assert "schema_missing" in payload["schema_status_reason_codes"]
+    assert "schema_not_ready_for_evidence_generation" in payload["schema_status_reason_codes"]
     assert "alembic_version_table_missing" in payload["schema_status_reason_codes"]
     assert "candles_table_missing" in payload["schema_status_reason_codes"]
     assert payload["migration_head_revisions"]
@@ -144,8 +165,10 @@ def test_db_status_reports_candle_table_with_unknown_migration_version() -> None
     assert payload["persisted_candle_count"] == 3
     assert payload["alembic_version_table_exists"] is False
     assert payload["migrations_current"] is None
+    assert payload["schema_ready_for_evidence_generation"] is False
     assert payload["schema_status"] == "schema_present_migration_version_unknown"
     assert "schema_present_migration_version_unknown" in payload["schema_status_reason_codes"]
+    assert "schema_not_ready_for_evidence_generation" in payload["schema_status_reason_codes"]
 
 
 def test_canonical_audit_blocks_missing_schema_with_migration_reasons() -> None:
@@ -163,6 +186,7 @@ def test_canonical_audit_blocks_missing_schema_with_migration_reasons() -> None:
     markdown = money_flow_evidence_review_to_markdown(review)
 
     assert payload["database_status"]["schema_status"] == "schema_missing"
+    assert payload["database_status"]["schema_ready_for_evidence_generation"] is False
     assert payload["paper_readiness_review_status"] == "insufficient_data"
     assert payload["generated_campaign_count"] == 0
     assert payload["blocked_campaign_count"] == 2
@@ -184,6 +208,7 @@ def test_seeded_sufficient_data_generates_evidence_pack_and_keeps_collision_trut
     settings = build_settings()
     session_factory = build_test_session_factory()
     config_path = _seeded_campaign_config_path(tmp_path, session_factory)
+    _seed_current_alembic_version(session_factory)
     service = MoneyFlowBacktestService(settings, session_factory=session_factory)
 
     review = review_money_flow_evidence(
@@ -197,6 +222,8 @@ def test_seeded_sufficient_data_generates_evidence_pack_and_keeps_collision_trut
     payload = money_flow_evidence_review_to_dict(review)
 
     assert payload["database_status"]["candles_table_exists"] is True
+    assert payload["database_status"]["schema_status"] == "migrated_schema_ready"
+    assert payload["database_status"]["schema_ready_for_evidence_generation"] is True
     assert payload["database_status"]["persisted_candle_count"] == 36
     assert payload["generated_campaign_count"] == 1
     assert payload["blocked_campaign_count"] == 0

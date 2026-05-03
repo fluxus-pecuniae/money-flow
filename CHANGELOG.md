@@ -13,6 +13,43 @@ Entry schema:
 
 ---
 
+## v2026.05.03.004
+
+- `recorded_at_utc`: `2026-05-03T14:50:48Z`
+- `scope`: `SV1.8.1 evidence-review schema-truth and report-truth hotfix`
+- `intent`: `Native entry. Hardened canonical Money Flow evidence review before first real evidence-pack generation. Evidence-pack generation now requires `migrated_schema_ready`, current Alembic migration truth, and required strategy-validation schema tables (`candles`, `instruments`, and `symbols`); a database with only `candles`, missing Alembic truth, outdated/unknown migrations, or partial symbol/instrument schema is blocked as schema/data readiness and cannot generate packs. DB status and Markdown reports now expose schema-ready truth and required-table present/missing facts, and top-level `creates_live_artifacts` / `calls_exchange_adapters` are aggregated from campaign results rather than dataclass defaults. No first real evidence packs were generated. This is schema/report truth only: no Money Flow rule changes, parameter optimization, strategy recommendations, paper/live trading, live artifacts, routing, execution automation, exchange adapter calls, private/order endpoint calls, route executor behavior, fanout, target reselection, or auto-submit were added.`
+- `affected_files`:
+  - `services/strategy_validation/evidence_review.py`
+  - `services/strategy_validation/__init__.py`
+  - `tests/test_sv16_evidence_review.py`
+  - `tests/test_sv17_evidence_review_real_data_gaps.py`
+  - `tests/test_sv18_historical_data_bootstrap.py`
+  - `tests/test_sv181_evidence_schema_truth.py`
+  - `tests/test_operational_docs.py`
+  - `docs/strategy_validation_sv1_8_historical_data_bootstrap.md`
+  - `docs/strategy_validation_sv1_8_1_schema_truth_hotfix.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_sv16_evidence_review.py tests/test_sv17_evidence_review_real_data_gaps.py tests/test_sv18_historical_data_bootstrap.py tests/test_sv181_evidence_schema_truth.py` passed with 18 tests during focused development.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv15_historical_data_readiness.py tests/test_sv151_candle_import_integrity.py tests/test_sv16_evidence_review.py tests/test_sv17_evidence_review_real_data_gaps.py tests/test_sv18_historical_data_bootstrap.py tests/test_sv181_evidence_schema_truth.py tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 88 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed with 539 tests.
+  - `.venv/bin/python -m pytest -q tests/test_migrations.py` was attempted for migration smoke and failed because `TEST_DATABASE_URL` is not set; no migration was applied to an ambiguous local database.
+  - `.venv/bin/python scripts/review_money_flow_evidence_packs.py --db-status-only --format markdown` passed against the default configured DB and reported sanitized URL `postgresql+psycopg://money_flow:***@postgres:5432/money_flow`, `database_unreachable`, required schema tables missing, `schema_ready_for_evidence_generation=false`, repo migration head `20260430_0025`, and no campaign audit or evidence-pack write.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 10 tests after repo/Obsidian doc updates.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.8.1-review.zip` created the SV1.8.1 review bundle; bundle inspection found 238 files and no `.env`, virtualenvs, Git metadata, pytest caches, generated evidence packs, local DB/SQLite files, nested archives, or Obsidian app state.
+
 ## v2026.05.03.003
 
 - `recorded_at_utc`: `2026-05-03T14:11:01Z`

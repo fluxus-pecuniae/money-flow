@@ -1,6 +1,6 @@
 """Money Flow evidence-pack review helpers.
 
-SV1.8 is a research-review/data-gap layer over existing campaign audits and
+SV1.8.1 is a research-review/data-gap layer over existing campaign audits and
 evidence packs. It does not change Money Flow rules, create live artifacts, or
 call exchange adapters.
 """
@@ -20,7 +20,7 @@ from alembic.script import ScriptDirectory
 from sqlalchemy import func, inspect as sqlalchemy_inspect, select, text
 from sqlalchemy.engine import make_url
 
-from db.models import CandleModel
+from db.models import CandleModel, InstrumentModel, SymbolModel
 from services.strategy_validation.campaigns import (
     MONEY_FLOW_RESEARCH_CAMPAIGN_DEFAULT_COLLISION_POLICY,
     MoneyFlowResearchCampaignConfig,
@@ -68,6 +68,12 @@ _BANNED_RECOMMENDATION_LANGUAGE = (
     "paper trading approved",
 )
 
+REQUIRED_STRATEGY_VALIDATION_SCHEMA_TABLES = (
+    CandleModel.__tablename__,
+    InstrumentModel.__tablename__,
+    SymbolModel.__tablename__,
+)
+
 
 @dataclass(frozen=True, slots=True)
 class MoneyFlowEvidenceReviewDatabaseStatus:
@@ -76,6 +82,10 @@ class MoneyFlowEvidenceReviewDatabaseStatus:
     reachable: bool
     candles_table_exists: bool
     persisted_candle_count: int | None
+    schema_ready_for_evidence_generation: bool = False
+    required_schema_tables: tuple[str, ...] = REQUIRED_STRATEGY_VALIDATION_SCHEMA_TABLES
+    required_schema_tables_present: tuple[str, ...] = ()
+    required_schema_tables_missing: tuple[str, ...] = ()
     alembic_version_table_exists: bool = False
     applied_migration_revisions: tuple[str, ...] = ()
     migration_head_revisions: tuple[str, ...] = ()
@@ -153,7 +163,7 @@ def review_money_flow_evidence(
     for path in paths:
         config_path = Path(path)
         config = load_money_flow_research_campaign_config(config_path)
-        if not database_status.reachable or not database_status.candles_table_exists:
+        if not _schema_ready_for_evidence_generation(database_status):
             audit = _database_blocked_data_readiness_audit(
                 config=config,
                 service=validation_service,
@@ -257,11 +267,14 @@ def review_money_flow_evidence(
         limitations=(
             "This review is research-only and does not create paper trades, live trades, routing artifacts, approvals, child intents, readiness evaluations, or submitted orders.",
             "Missing or thin data is a data-readiness gap, not a Money Flow strategy failure.",
+            "Evidence-pack generation requires migrated/current schema truth; a candles table alone is not sufficient.",
             "Evidence packs and backtests do not prove future profitability.",
             "Paper-readiness status is manual review context only, not an automated go/no-go decision.",
             "No exchange adapters, private exchange endpoints, or order endpoints are called.",
             "Money Flow rules are not changed or optimized by this review.",
         ),
+        creates_live_artifacts=_creates_live_artifacts_from_campaign_results(results),
+        calls_exchange_adapters=_calls_exchange_adapters_from_campaign_results(results),
     )
 
 
@@ -280,7 +293,25 @@ def inspect_strategy_validation_database_status(
             session.execute(text("SELECT 1"))
             bind = session.get_bind()
             inspector = sqlalchemy_inspect(bind)
-            candles_table_exists = inspector.has_table(CandleModel.__tablename__)
+            required_table_presence = {
+                table_name: inspector.has_table(table_name)
+                for table_name in REQUIRED_STRATEGY_VALIDATION_SCHEMA_TABLES
+            }
+            required_tables_present = tuple(
+                sorted(
+                    table_name
+                    for table_name, is_present in required_table_presence.items()
+                    if is_present
+                )
+            )
+            required_tables_missing = tuple(
+                sorted(
+                    table_name
+                    for table_name, is_present in required_table_presence.items()
+                    if not is_present
+                )
+            )
+            candles_table_exists = required_table_presence[CandleModel.__tablename__]
             alembic_version_table_exists = inspector.has_table("alembic_version")
             applied_revisions = _applied_migration_revisions(
                 session,
@@ -301,13 +332,19 @@ def inspect_strategy_validation_database_status(
                 candles_table_exists=candles_table_exists,
                 alembic_version_table_exists=alembic_version_table_exists,
                 migrations_current=migrations_current,
+                required_schema_tables_missing=required_tables_missing,
             )
+            schema_ready = schema_status == "migrated_schema_ready"
             return MoneyFlowEvidenceReviewDatabaseStatus(
                 configured_database_url=configured_url,
                 inspection_source="strategy_validation_session_factory",
                 reachable=True,
                 candles_table_exists=candles_table_exists,
                 persisted_candle_count=candle_count,
+                schema_ready_for_evidence_generation=schema_ready,
+                required_schema_tables=REQUIRED_STRATEGY_VALIDATION_SCHEMA_TABLES,
+                required_schema_tables_present=required_tables_present,
+                required_schema_tables_missing=required_tables_missing,
                 alembic_version_table_exists=alembic_version_table_exists,
                 applied_migration_revisions=applied_revisions,
                 migration_head_revisions=migration_heads,
@@ -321,6 +358,7 @@ def inspect_strategy_validation_database_status(
             candles_table_exists=False,
             alembic_version_table_exists=False,
             migrations_current=None,
+            required_schema_tables_missing=REQUIRED_STRATEGY_VALIDATION_SCHEMA_TABLES,
         )
         return MoneyFlowEvidenceReviewDatabaseStatus(
             configured_database_url=configured_url,
@@ -328,6 +366,10 @@ def inspect_strategy_validation_database_status(
             reachable=False,
             candles_table_exists=False,
             persisted_candle_count=None,
+            schema_ready_for_evidence_generation=False,
+            required_schema_tables=REQUIRED_STRATEGY_VALIDATION_SCHEMA_TABLES,
+            required_schema_tables_present=(),
+            required_schema_tables_missing=REQUIRED_STRATEGY_VALIDATION_SCHEMA_TABLES,
             migration_head_revisions=migration_heads,
             schema_status=schema_status,
             schema_status_reason_codes=reason_codes,
@@ -387,11 +429,17 @@ def money_flow_evidence_review_database_status_to_markdown(
         "",
         f"- Schema status: `{payload['schema_status']}`",
         f"- Schema reason codes: `{payload['schema_status_reason_codes']}`",
+        f"- Schema ready for evidence generation: `{payload['schema_ready_for_evidence_generation']}`",
+        f"- Required schema tables: `{payload['required_schema_tables']}`",
+        f"- Required schema tables present: `{payload['required_schema_tables_present']}`",
+        f"- Required schema tables missing: `{payload['required_schema_tables_missing']}`",
         f"- Alembic version table exists: `{payload['alembic_version_table_exists']}`",
         f"- Applied migration revisions: `{payload['applied_migration_revisions']}`",
         f"- Repo migration heads: `{payload['migration_head_revisions']}`",
         f"- Migrations current: `{payload['migrations_current']}`",
         f"- Migration command hint: {payload['migration_command_hint']}",
+        "",
+        "Evidence-pack generation requires `migrated_schema_ready`: Alembic migration truth must be current and required strategy-validation tables must exist. A `candles` table alone is not sufficient.",
         "",
         "## Candle Table",
         "",
@@ -406,14 +454,14 @@ def money_flow_evidence_review_database_status_to_markdown(
 def money_flow_evidence_review_to_markdown(
     review: MoneyFlowEvidenceReviewSummary,
 ) -> str:
-    """Render a founder/operator-readable SV1.8 evidence review summary."""
+    """Render a founder/operator-readable SV1.8.1 evidence review summary."""
 
     payload = money_flow_evidence_review_to_dict(review)
     database_status = payload["database_status"]
     lines = [
         "# Money Flow First Real Canonical Evidence Review",
         "",
-        "This SV1.8 review is descriptive research only. It is not paper trading, "
+        "This SV1.8.1 review is descriptive research only. It is not paper trading, "
         "not live execution, not optimization, not a strategy recommendation, and "
         "not proof of future profitability.",
         "",
@@ -439,6 +487,10 @@ def money_flow_evidence_review_to_markdown(
         f"- DB reachable: `{database_status['reachable']}`",
         f"- Schema status: `{database_status['schema_status']}`",
         f"- Schema reason codes: `{database_status['schema_status_reason_codes']}`",
+        f"- Schema ready for evidence generation: `{database_status['schema_ready_for_evidence_generation']}`",
+        f"- Required schema tables: `{database_status['required_schema_tables']}`",
+        f"- Required schema tables present: `{database_status['required_schema_tables_present']}`",
+        f"- Required schema tables missing: `{database_status['required_schema_tables_missing']}`",
         f"- Alembic version table exists: `{database_status['alembic_version_table_exists']}`",
         f"- Applied migration revisions: `{database_status['applied_migration_revisions']}`",
         f"- Repo migration heads: `{database_status['migration_head_revisions']}`",
@@ -450,7 +502,9 @@ def money_flow_evidence_review_to_markdown(
         f"- DB override hint: {database_status['db_environment_override_hint']}",
         f"- Migration command hint: {database_status['migration_command_hint']}",
         "",
-        "If the DB is unreachable, migrations/schema are missing, or the `candles` table is absent, campaign rows are reported as data-readiness gaps and no evidence packs are generated.",
+        "Evidence-pack generation requires `migrated_schema_ready`: Alembic migration truth must be current and required strategy-validation tables must exist. A `candles` table alone is not sufficient.",
+        "",
+        "If the DB is unreachable, migrations/schema are missing or unknown, required strategy-validation tables are absent, or persisted candles are absent, campaign rows are reported as data-readiness gaps and no evidence packs are generated.",
         "",
         "## Canonical Campaign Review",
         "",
@@ -700,11 +754,44 @@ def _database_gap_reason_codes(
             reason_codes.add("database_host_unresolved")
         if "connection refused" in message:
             reason_codes.add("database_connection_refused")
+    elif not database_status.schema_ready_for_evidence_generation:
+        reason_codes.add("schema_not_ready_for_evidence_generation")
+        if not database_status.candles_table_exists:
+            reason_codes.add("candles_table_missing")
+        if not database_status.alembic_version_table_exists:
+            reason_codes.add("alembic_version_missing")
+        for table_name in database_status.required_schema_tables_missing:
+            reason_codes.add(f"required_schema_table_missing_{table_name}")
     elif not database_status.candles_table_exists:
         reason_codes.add("candles_table_missing")
     if not reason_codes:
         reason_codes.add("database_status_unknown")
     return tuple(sorted(reason_codes))
+
+
+def _schema_ready_for_evidence_generation(
+    database_status: MoneyFlowEvidenceReviewDatabaseStatus,
+) -> bool:
+    return (
+        database_status.reachable
+        and database_status.schema_ready_for_evidence_generation
+        and database_status.schema_status == "migrated_schema_ready"
+        and database_status.migrations_current is True
+        and database_status.candles_table_exists
+        and not database_status.required_schema_tables_missing
+    )
+
+
+def _creates_live_artifacts_from_campaign_results(
+    results: Sequence[MoneyFlowEvidenceReviewCampaignResult],
+) -> bool:
+    return any(not result.no_live_artifacts_created for result in results)
+
+
+def _calls_exchange_adapters_from_campaign_results(
+    results: Sequence[MoneyFlowEvidenceReviewCampaignResult],
+) -> bool:
+    return any(result.exchange_adapters_called for result in results)
 
 
 def _migration_head_revisions() -> tuple[str, ...]:
@@ -750,22 +837,40 @@ def _schema_status(
     candles_table_exists: bool,
     alembic_version_table_exists: bool,
     migrations_current: bool | None,
+    required_schema_tables_missing: Sequence[str],
 ) -> tuple[str, tuple[str, ...]]:
     reason_codes: set[str] = set()
     if not reachable:
-        return "database_unreachable", ("database_unreachable",)
+        return (
+            "database_unreachable",
+            ("database_unreachable", "schema_not_ready_for_evidence_generation"),
+        )
     if not alembic_version_table_exists:
+        reason_codes.add("alembic_version_missing")
         reason_codes.add("alembic_version_table_missing")
     if not candles_table_exists:
         reason_codes.add("candles_table_missing")
+    for table_name in required_schema_tables_missing:
+        reason_codes.add(f"required_schema_table_missing_{table_name}")
+    if required_schema_tables_missing:
+        reason_codes.add("required_schema_missing")
+    if not alembic_version_table_exists or required_schema_tables_missing:
+        reason_codes.add("database_schema_not_migrated")
+        reason_codes.add("database_migration_state_unknown")
+        reason_codes.add("schema_not_ready_for_evidence_generation")
     if not candles_table_exists and not alembic_version_table_exists:
         reason_codes.add("schema_missing")
         return "schema_missing", tuple(sorted(reason_codes))
     if migrations_current is False:
+        reason_codes.add("database_schema_outdated")
         reason_codes.add("migrations_out_of_date")
+        reason_codes.add("schema_not_ready_for_evidence_generation")
         return "migrations_out_of_date", tuple(sorted(reason_codes))
     if not candles_table_exists:
+        reason_codes.add("schema_not_ready_for_evidence_generation")
         return "candles_table_missing", tuple(sorted(reason_codes))
+    if required_schema_tables_missing:
+        return "required_schema_missing", tuple(sorted(reason_codes))
     if migrations_current is True:
         return "migrated_schema_ready", tuple(sorted(reason_codes))
     if not alembic_version_table_exists:
@@ -930,6 +1035,7 @@ def money_flow_evidence_review_to_json(review: MoneyFlowEvidenceReviewSummary) -
 __all__ = [
     "CANONICAL_MONEY_FLOW_CAMPAIGN_CONFIG_PATHS",
     "PAPER_READINESS_REVIEW_STATUSES",
+    "REQUIRED_STRATEGY_VALIDATION_SCHEMA_TABLES",
     "MoneyFlowEvidenceReviewDatabaseStatus",
     "MoneyFlowEvidenceReviewCampaignResult",
     "MoneyFlowEvidenceReviewSummary",

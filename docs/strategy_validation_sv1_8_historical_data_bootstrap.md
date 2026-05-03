@@ -1,5 +1,7 @@
 # SV1.8 Historical Data Bootstrap And First Real Evidence Review
 
+Superseded/clarified by `docs/strategy_validation_sv1_8_1_schema_truth_hotfix.md` for the evidence-pack schema gate: first real evidence-pack generation now requires `migrated_schema_ready`, current Alembic migration truth, and required `candles` / `instruments` / `symbols` tables. A `candles` table alone is not sufficient.
+
 SV1.8 is a research-only historical-data bootstrap check for canonical Money Flow evidence review. It does not change Money Flow rules, optimize parameters, recommend a strategy variant, create paper/live trading artifacts, call exchanges, route, submit, or approve paper trading.
 
 ## Evidence Status

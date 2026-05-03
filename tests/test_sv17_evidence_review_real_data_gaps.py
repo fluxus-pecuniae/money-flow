@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 
-from sqlalchemy import create_engine, func, select
+from sqlalchemy import create_engine, func, select, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -32,6 +32,7 @@ from services.strategy_validation import (
     money_flow_evidence_review_to_markdown,
     review_money_flow_evidence,
 )
+from services.strategy_validation.evidence_review import _migration_head_revisions
 from test_sv10_strategy_validation import (
     build_settings,
     build_test_session_factory,
@@ -112,6 +113,19 @@ def _blocked_campaign_config_path(tmp_path: Path) -> Path:
     return config_path
 
 
+def _seed_current_alembic_version(session_factory) -> None:
+    revisions = _migration_head_revisions()
+    assert revisions
+    with session_factory() as session:
+        session.execute(text("CREATE TABLE alembic_version (version_num VARCHAR(32) NOT NULL)"))
+        for revision in revisions:
+            session.execute(
+                text("INSERT INTO alembic_version (version_num) VALUES (:version_num)"),
+                {"version_num": revision},
+            )
+        session.commit()
+
+
 def test_evidence_review_reports_unreachable_database_as_data_gap() -> None:
     settings = build_settings(DB_HOST="postgres")
     service = MoneyFlowBacktestService(settings, session_factory=_FailingSessionFactory())
@@ -183,6 +197,7 @@ def test_partial_evidence_status_is_visible_for_mixed_generated_and_blocked_camp
     session_factory = build_test_session_factory()
     seeded_config = _seeded_campaign_config_path(tmp_path, session_factory)
     blocked_config = _blocked_campaign_config_path(tmp_path)
+    _seed_current_alembic_version(session_factory)
     service = MoneyFlowBacktestService(settings, session_factory=session_factory)
 
     review = review_money_flow_evidence(
@@ -197,6 +212,7 @@ def test_partial_evidence_status_is_visible_for_mixed_generated_and_blocked_camp
 
     assert payload["database_status"]["reachable"] is True
     assert payload["database_status"]["candles_table_exists"] is True
+    assert payload["database_status"]["schema_status"] == "migrated_schema_ready"
     assert payload["database_status"]["persisted_candle_count"] == 36
     assert payload["paper_readiness_review_status"] == "partial_evidence_ready_with_data_gaps"
     assert payload["generated_campaign_count"] == 1

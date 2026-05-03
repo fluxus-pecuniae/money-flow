@@ -211,6 +211,8 @@ DB_HOST=127.0.0.1 DB_PORT=54322 DB_USER=postgres DB_PASSWORD=<redacted> DB_NAME=
 
 The SV1.8 local audit found `127.0.0.1:54322/postgres` reachable only with explicit DB environment override, but that DB had no `alembic_version` table and no `candles` table. Canonical BTC and multi-symbol campaigns therefore remained `insufficient_data`; no evidence packs were generated. See [SV1.8 Historical Data Bootstrap And First Real Evidence Review](docs/strategy_validation_sv1_8_historical_data_bootstrap.md). This is a DB/schema/historical-data gap, not a strategy result.
 
+SV1.8.1 tightens this truth gate before first real evidence packs. Evidence-pack generation now requires `migrated_schema_ready`: current Alembic migration truth plus required strategy-validation tables (`candles`, `instruments`, and `symbols`). A DB with a `candles` table but missing Alembic truth, outdated migrations, or missing symbol/instrument schema is blocked as schema/data readiness, not strategy failure. Top-level no-live/no-exchange flags are aggregated from campaign results. See [SV1.8.1 Evidence Review Schema Truth Hotfix](docs/strategy_validation_sv1_8_1_schema_truth_hotfix.md).
+
 ## Routing Automation Planning
 
 Phase 7.0 exposes non-executing automation policy and dry-run planning:
