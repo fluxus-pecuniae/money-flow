@@ -2,9 +2,9 @@
 
 ## Phase
 
-Current implemented phase: `SV1.7`
+Current implemented phase: `SV1.8`
 
-Proposed next phase: point evidence review at a reachable migrated Money Flow database or apply migrations/populate the reachable local database, import or verify enough historical candles, rerun SV1.7 canonical evidence review with generated evidence packs, and only then scope paper-trading design if founder/operator review justifies it. `Phase 8.1` remains deferred until explicitly scoped.
+Proposed next phase: apply migrations to the intended local Money Flow database, import or verify enough public/offline BTC/ETH/SOL historical candles for the canonical campaign windows and timeframes, rerun canonical evidence review with `--generate-evidence-packs`, and only then scope paper-trading design if founder/operator review justifies it. `Phase 8.1` remains deferred until explicitly scoped.
 
 ## Purpose
 
@@ -46,6 +46,8 @@ SV1.6 is the first canonical Money Flow evidence-review phase. It audits the can
 
 SV1.7 is the first real canonical evidence-review/data-gap phase. It adds sanitized DB access inspection to the canonical evidence review, reports reachability, candle-table existence, persisted candle count when available, and blocking DB/schema errors, and represents unreachable or missing-schema databases as blocked campaign data-readiness rows rather than uncaught failures. The local SV1.7 review found the default `postgres` host unresolved and a reachable local Postgres endpoint missing the Money Flow `candles` table, so canonical evidence remains `insufficient_data` and no evidence packs were generated. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
 
+SV1.8 is the historical data bootstrap and first real evidence-pack generation attempt. It makes the strategy-validation DB target explicit, adds Alembic/schema/migration status to evidence-review output, adds a read-only `--db-status-only` CLI path, and records that the default `postgres` host remains unresolved while the explicit `127.0.0.1:54322/postgres` target is reachable but not migrated: no `alembic_version` table and no `candles` table. Canonical BTC and multi-symbol campaigns remain `insufficient_data`, no real evidence packs were generated, and the next requirement is migrating the intended Money Flow DB plus importing public/offline canonical candles. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
+
 ## Accepted Baseline
 
 - Phase 7.0 added non-executing routing automation policy and dry-run plans.
@@ -75,6 +77,7 @@ SV1.7 is the first real canonical evidence-review/data-gap phase. It adds saniti
 - SV1.5.1 hardened campaign window-convention validation and offline candle import integrity without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
 - SV1.6 added canonical campaign evidence-review summaries and manual paper-readiness review status without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
 - SV1.7 added canonical evidence-review DB reachability/candle-table truth, explicit data-gap summaries, and `partial_evidence_ready_with_data_gaps` status without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
+- SV1.8 added DB/schema/migration bootstrap truth, a status-only evidence-review CLI path, and an updated first-real data-gap report showing the reachable local DB is unmigrated and has no candles, without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
 
 ## Hard Boundaries
 
@@ -129,6 +132,8 @@ SV1.6 is successful when canonical campaign audits can be reviewed, sufficient-d
 
 SV1.7 is successful when DB access status is explicit, canonical campaigns are audited against accessible data or blocked clearly, first evidence packs are generated where data is sufficient, insufficient/missing data is documented where not sufficient, mixed results are reported as partial evidence rather than complete readiness, and no live artifacts, exchange calls, Money Flow rule changes, optimization, or recommendation language are introduced.
 
+SV1.8 is successful when DB/schema status is explicit, migrated candle-table availability is known, canonical candle data gaps are clear, import/backfill and migration commands are documented, first evidence packs are generated where data is sufficient or a precise remaining data gap report is produced, and no live artifacts, exchange calls, Money Flow rule changes, optimization, or recommendation language are introduced.
+
 ## Current Outcome
 
 - Obsidian command center/current phase/decision log/coordination notes are now part of the required agent workflow.
@@ -155,8 +160,9 @@ SV1.7 is successful when DB access status is explicit, canonical campaigns are a
 - SV1.5.1 hardens `services/strategy_validation/candles.py` and `services/strategy_validation/campaigns.py`, adds `tests/test_sv151_candle_import_integrity.py`, and keeps offline imports all-or-nothing for invalid files.
 - SV1.6 adds `services/strategy_validation/evidence_review.py`, `scripts/review_money_flow_evidence_packs.py`, and `tests/test_sv16_evidence_review.py` for first canonical evidence-review summaries.
 - SV1.7 hardens `services/strategy_validation/evidence_review.py`, updates `scripts/review_money_flow_evidence_packs.py`, adds `tests/test_sv17_evidence_review_real_data_gaps.py`, and records the local data gap in `docs/strategy_validation_sv1_7_first_evidence_review.md`.
+- SV1.8 extends `services/strategy_validation/evidence_review.py` and `scripts/review_money_flow_evidence_packs.py` with DB/schema/migration bootstrap status, adds `tests/test_sv18_historical_data_bootstrap.py`, and records the updated data gap in `docs/strategy_validation_sv1_8_historical_data_bootstrap.md`.
 - Recovery, route execution, fanout, scoring, CBBO, target reselection, cross-venue retry, and broad auto-submit remain deferred.
 
 ## Next Phase Shape
 
-The next Strategy Validation work should apply migrations or point the review workflow at a migrated Money Flow database, import or verify enough public historical candles for the canonical BTC/ETH/SOL windows, rerun SV1.7 with `--generate-evidence-packs`, and manually review saved evidence before any paper-trading design is scoped. Phase 8.1 should remain deferred until explicitly scoped; when it resumes, it should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review, keep operator acknowledgement separate from exchange/account truth, and not attach submit/cancel/amend/retry behavior to inspection.
+The next Strategy Validation work should apply migrations to the intended Money Flow database, import or verify enough public historical BTC/ETH/SOL candles for the canonical windows and `sleeve_15m` / `sleeve_1h` / `sleeve_4h` timeframes, rerun canonical evidence review with `--generate-evidence-packs`, and manually review saved evidence before any paper-trading design is scoped. Phase 8.1 should remain deferred until explicitly scoped; when it resumes, it should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review, keep operator acknowledgement separate from exchange/account truth, and not attach submit/cancel/amend/retry behavior to inspection.

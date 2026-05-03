@@ -13,6 +13,44 @@ Entry schema:
 
 ---
 
+## v2026.05.03.003
+
+- `recorded_at_utc`: `2026-05-03T14:11:01Z`
+- `scope`: `SV1.8 historical data bootstrap and first real canonical evidence-pack generation attempt`
+- `intent`: `Native entry. Added DB/schema/migration bootstrap truth to the canonical Money Flow evidence-review workflow before first real evidence-pack generation. SV1.8 extends evidence-review DB status with sanitized DB target, reachability, Alembic version-table existence, applied migration revisions, repo migration heads, migration-current truth when derivable, schema status/reason codes, migration and DB override hints, candle-table existence, and persisted candle count. The review CLI now supports `--db-status-only` for read-only DB/schema/candle readiness inspection without campaign audits or evidence-pack writes. The local SV1.8 run found the default configured `postgres` host unresolved and the explicit local `127.0.0.1:54322/postgres` target reachable only with DB override/escalated local access but unmigrated: no `alembic_version` table and no `candles` table. Canonical BTC and multi-symbol campaigns remain `insufficient_data`, no real evidence packs were generated, and the updated data gap is recorded in `docs/strategy_validation_sv1_8_historical_data_bootstrap.md`. This is historical-data/bootstrap evidence review only: no Money Flow rule changes, parameter optimization, strategy recommendations, paper/live trading, live artifacts, routing, execution automation, exchange adapter calls, private/order endpoint calls, route executor behavior, fanout, target reselection, or auto-submit were added.`
+- `affected_files`:
+  - `services/strategy_validation/evidence_review.py`
+  - `services/strategy_validation/__init__.py`
+  - `scripts/review_money_flow_evidence_packs.py`
+  - `tests/test_sv18_historical_data_bootstrap.py`
+  - `tests/test_operational_docs.py`
+  - `docs/strategy_validation_sv1_8_historical_data_bootstrap.md`
+  - `docs/strategy_validation_sv1_7_first_evidence_review.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_sv18_historical_data_bootstrap.py tests/test_sv17_evidence_review_real_data_gaps.py` passed with 8 tests during focused development.
+  - `.venv/bin/python scripts/review_money_flow_evidence_packs.py --format markdown --review-output-dir /tmp/money-flow-sv1.8-default-db-review` passed and produced a data-gap report for the default configured database; sanitized URL was `postgresql+psycopg://money_flow:***@postgres:5432/money_flow`, DB was unreachable due unresolved host `postgres`, repo migration head was `20260430_0025`, both canonical campaigns were `insufficient_data`, and no evidence packs or live artifacts were created.
+  - `DB_HOST=127.0.0.1 DB_PORT=54322 DB_USER=postgres DB_PASSWORD=postgres DB_NAME=postgres .venv/bin/python scripts/review_money_flow_evidence_packs.py --format both --review-output-dir /tmp/money-flow-sv1.8-local-db-review` ran inside the sandbox and reported `Operation not permitted`; the same read-only local DB audit was rerun with escalation.
+  - `DB_HOST=127.0.0.1 DB_PORT=54322 DB_USER=postgres DB_PASSWORD=postgres DB_NAME=postgres .venv/bin/python scripts/review_money_flow_evidence_packs.py --format both --review-output-dir /tmp/money-flow-sv1.8-local-db-review-escalated` passed with sandbox escalation for local DB access; sanitized URL was `postgresql+psycopg://postgres:***@127.0.0.1:54322/postgres`, DB was reachable, schema status was `schema_missing`, `alembic_version` table was absent, `candles` table was absent, persisted candle count was `null`, both canonical campaigns were `insufficient_data`, and no evidence packs or live artifacts were created.
+  - `.venv/bin/python -m pytest -q tests/test_sv18_historical_data_bootstrap.py tests/test_sv17_evidence_review_real_data_gaps.py tests/test_operational_docs.py` passed with 18 tests after doc updates.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv15_historical_data_readiness.py tests/test_sv151_candle_import_integrity.py tests/test_sv16_evidence_review.py tests/test_sv17_evidence_review_real_data_gaps.py tests/test_sv18_historical_data_bootstrap.py tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 84 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed with 535 tests.
+  - `.venv/bin/python -m pytest -q tests/test_migrations.py` was attempted for migration smoke and failed because `TEST_DATABASE_URL` is not set; no migration was applied to the ambiguous local `postgres` database.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 10 tests after final repo/Obsidian doc updates.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.8-review.zip` created the SV1.8 review bundle; bundle inspection found 236 files, included the SV1.8 service/script/test/data-gap report files, and found no `.env`, virtualenvs, Git metadata, pytest caches, local DB/SQLite files, nested archives, Obsidian app state, or generated evidence packs.
+
 ## v2026.05.03.002
 
 - `recorded_at_utc`: `2026-05-03T08:08:05Z`

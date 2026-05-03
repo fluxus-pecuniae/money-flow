@@ -2,6 +2,8 @@
 
 Recorded at UTC: `2026-05-03T08:01:12Z`
 
+Superseded by: [`docs/strategy_validation_sv1_8_historical_data_bootstrap.md`](strategy_validation_sv1_8_historical_data_bootstrap.md), which adds Alembic/schema status and confirms the reachable local DB is missing both `alembic_version` and `candles`.
+
 ## Scope
 
 SV1.7 ran the canonical Money Flow evidence review path against the currently accessible local database state. This is research-only evidence review. It does not change Money Flow rules, optimize parameters, recommend a strategy variant, create paper/live trading artifacts, call exchange adapters, route, submit, or prove profitability.

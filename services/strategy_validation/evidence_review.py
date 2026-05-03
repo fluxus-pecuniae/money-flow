@@ -1,6 +1,6 @@
 """Money Flow evidence-pack review helpers.
 
-SV1.7 is a research-review/data-gap layer over existing campaign audits and
+SV1.8 is a research-review/data-gap layer over existing campaign audits and
 evidence packs. It does not change Money Flow rules, create live artifacts, or
 call exchange adapters.
 """
@@ -15,6 +15,8 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any, Sequence
 
+from alembic.config import Config as AlembicConfig
+from alembic.script import ScriptDirectory
 from sqlalchemy import func, inspect as sqlalchemy_inspect, select, text
 from sqlalchemy.engine import make_url
 
@@ -74,6 +76,21 @@ class MoneyFlowEvidenceReviewDatabaseStatus:
     reachable: bool
     candles_table_exists: bool
     persisted_candle_count: int | None
+    alembic_version_table_exists: bool = False
+    applied_migration_revisions: tuple[str, ...] = ()
+    migration_head_revisions: tuple[str, ...] = ()
+    migrations_current: bool | None = None
+    schema_status: str = "database_status_unknown"
+    schema_status_reason_codes: tuple[str, ...] = ()
+    migration_command_hint: str = (
+        "Set DB_HOST, DB_PORT, DB_NAME, DB_USER, and DB_PASSWORD for the intended "
+        "Money Flow database, then run `.venv/bin/python -m alembic upgrade head`."
+    )
+    db_environment_override_hint: str = (
+        "Strategy validation uses the normal AppSettings database fields. Override "
+        "DB_HOST, DB_PORT, DB_NAME, DB_USER, and DB_PASSWORD to point evidence review "
+        "at the local migrated Money Flow database."
+    )
     blocking_error_type: str | None = None
     blocking_error_message: str | None = None
 
@@ -251,37 +268,69 @@ def review_money_flow_evidence(
 def inspect_strategy_validation_database_status(
     service: MoneyFlowBacktestService | None = None,
 ) -> MoneyFlowEvidenceReviewDatabaseStatus:
-    """Return sanitized DB reachability and candle-table truth for evidence review."""
+    """Return sanitized DB reachability, migration, schema, and candle-table truth."""
 
     validation_service = service or MoneyFlowBacktestService()
     configured_url = _sanitize_database_url(
         validation_service.settings.database.sqlalchemy_url
     )
+    migration_heads = _migration_head_revisions()
     try:
         with validation_service._session_factory() as session:
             session.execute(text("SELECT 1"))
             bind = session.get_bind()
             inspector = sqlalchemy_inspect(bind)
             candles_table_exists = inspector.has_table(CandleModel.__tablename__)
+            alembic_version_table_exists = inspector.has_table("alembic_version")
+            applied_revisions = _applied_migration_revisions(
+                session,
+                alembic_version_table_exists=alembic_version_table_exists,
+            )
             candle_count = None
             if candles_table_exists:
                 candle_count = int(
                     session.scalar(select(func.count()).select_from(CandleModel)) or 0
                 )
+            migrations_current = _migrations_current(
+                applied_revisions=applied_revisions,
+                migration_heads=migration_heads,
+                alembic_version_table_exists=alembic_version_table_exists,
+            )
+            schema_status, reason_codes = _schema_status(
+                reachable=True,
+                candles_table_exists=candles_table_exists,
+                alembic_version_table_exists=alembic_version_table_exists,
+                migrations_current=migrations_current,
+            )
             return MoneyFlowEvidenceReviewDatabaseStatus(
                 configured_database_url=configured_url,
                 inspection_source="strategy_validation_session_factory",
                 reachable=True,
                 candles_table_exists=candles_table_exists,
                 persisted_candle_count=candle_count,
+                alembic_version_table_exists=alembic_version_table_exists,
+                applied_migration_revisions=applied_revisions,
+                migration_head_revisions=migration_heads,
+                migrations_current=migrations_current,
+                schema_status=schema_status,
+                schema_status_reason_codes=reason_codes,
             )
     except Exception as exc:  # noqa: BLE001 - report DB failures instead of hiding them.
+        schema_status, reason_codes = _schema_status(
+            reachable=False,
+            candles_table_exists=False,
+            alembic_version_table_exists=False,
+            migrations_current=None,
+        )
         return MoneyFlowEvidenceReviewDatabaseStatus(
             configured_database_url=configured_url,
             inspection_source="strategy_validation_session_factory",
             reachable=False,
             candles_table_exists=False,
             persisted_candle_count=None,
+            migration_head_revisions=migration_heads,
+            schema_status=schema_status,
+            schema_status_reason_codes=reason_codes,
             blocking_error_type=type(exc).__name__,
             blocking_error_message=_safe_error_message(exc),
         )
@@ -295,17 +344,76 @@ def money_flow_evidence_review_to_dict(
     return _json_ready(asdict(review))
 
 
+def money_flow_evidence_review_database_status_to_dict(
+    status: MoneyFlowEvidenceReviewDatabaseStatus,
+) -> dict[str, Any]:
+    """Return a deterministic JSON-ready database/schema status representation."""
+
+    return _json_ready(asdict(status))
+
+
+def money_flow_evidence_review_database_status_to_json(
+    status: MoneyFlowEvidenceReviewDatabaseStatus,
+) -> str:
+    """Serialize database/schema status with deterministic key ordering."""
+
+    return json.dumps(
+        money_flow_evidence_review_database_status_to_dict(status),
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
+
+
+def money_flow_evidence_review_database_status_to_markdown(
+    status: MoneyFlowEvidenceReviewDatabaseStatus,
+) -> str:
+    """Render DB/schema/candle readiness status for operator review."""
+
+    payload = money_flow_evidence_review_database_status_to_dict(status)
+    lines = [
+        "# Money Flow Strategy Validation DB Status",
+        "",
+        "This status is research-only. It does not run strategy validation, create "
+        "live artifacts, call exchanges, route, submit, or approve paper trading.",
+        "",
+        "## Database Target",
+        "",
+        f"- Configured DB URL: `{payload['configured_database_url']}`",
+        f"- Inspection source: `{payload['inspection_source']}`",
+        f"- DB reachable: `{payload['reachable']}`",
+        f"- DB override hint: {payload['db_environment_override_hint']}",
+        "",
+        "## Schema And Migrations",
+        "",
+        f"- Schema status: `{payload['schema_status']}`",
+        f"- Schema reason codes: `{payload['schema_status_reason_codes']}`",
+        f"- Alembic version table exists: `{payload['alembic_version_table_exists']}`",
+        f"- Applied migration revisions: `{payload['applied_migration_revisions']}`",
+        f"- Repo migration heads: `{payload['migration_head_revisions']}`",
+        f"- Migrations current: `{payload['migrations_current']}`",
+        f"- Migration command hint: {payload['migration_command_hint']}",
+        "",
+        "## Candle Table",
+        "",
+        f"- Candles table exists: `{payload['candles_table_exists']}`",
+        f"- Persisted candle count: `{payload['persisted_candle_count']}`",
+        f"- Blocking error type: `{payload['blocking_error_type']}`",
+        f"- Blocking error message: `{payload['blocking_error_message']}`",
+    ]
+    return "\n".join(lines) + "\n"
+
+
 def money_flow_evidence_review_to_markdown(
     review: MoneyFlowEvidenceReviewSummary,
 ) -> str:
-    """Render a founder/operator-readable SV1.7 evidence review summary."""
+    """Render a founder/operator-readable SV1.8 evidence review summary."""
 
     payload = money_flow_evidence_review_to_dict(review)
     database_status = payload["database_status"]
     lines = [
         "# Money Flow First Real Canonical Evidence Review",
         "",
-        "This SV1.7 review is descriptive research only. It is not paper trading, "
+        "This SV1.8 review is descriptive research only. It is not paper trading, "
         "not live execution, not optimization, not a strategy recommendation, and "
         "not proof of future profitability.",
         "",
@@ -329,12 +437,20 @@ def money_flow_evidence_review_to_markdown(
         f"- Configured DB URL: `{database_status['configured_database_url']}`",
         f"- Inspection source: `{database_status['inspection_source']}`",
         f"- DB reachable: `{database_status['reachable']}`",
+        f"- Schema status: `{database_status['schema_status']}`",
+        f"- Schema reason codes: `{database_status['schema_status_reason_codes']}`",
+        f"- Alembic version table exists: `{database_status['alembic_version_table_exists']}`",
+        f"- Applied migration revisions: `{database_status['applied_migration_revisions']}`",
+        f"- Repo migration heads: `{database_status['migration_head_revisions']}`",
+        f"- Migrations current: `{database_status['migrations_current']}`",
         f"- Candles table exists: `{database_status['candles_table_exists']}`",
         f"- Persisted candle count: `{database_status['persisted_candle_count']}`",
         f"- Blocking error type: `{database_status['blocking_error_type']}`",
         f"- Blocking error message: `{database_status['blocking_error_message']}`",
+        f"- DB override hint: {database_status['db_environment_override_hint']}",
+        f"- Migration command hint: {database_status['migration_command_hint']}",
         "",
-        "If the DB is unreachable or the `candles` table is absent, campaign rows are reported as data-readiness gaps and no evidence packs are generated.",
+        "If the DB is unreachable, migrations/schema are missing, or the `candles` table is absent, campaign rows are reported as data-readiness gaps and no evidence packs are generated.",
         "",
         "## Canonical Campaign Review",
         "",
@@ -576,7 +692,7 @@ def _database_blocked_data_readiness_audit(
 def _database_gap_reason_codes(
     database_status: MoneyFlowEvidenceReviewDatabaseStatus,
 ) -> tuple[str, ...]:
-    reason_codes: set[str] = set()
+    reason_codes: set[str] = set(database_status.schema_status_reason_codes)
     if not database_status.reachable:
         reason_codes.add("database_unreachable")
         message = (database_status.blocking_error_message or "").lower()
@@ -589,6 +705,74 @@ def _database_gap_reason_codes(
     if not reason_codes:
         reason_codes.add("database_status_unknown")
     return tuple(sorted(reason_codes))
+
+
+def _migration_head_revisions() -> tuple[str, ...]:
+    alembic_ini = Path("alembic.ini")
+    if not alembic_ini.exists():
+        return ()
+    try:
+        config = AlembicConfig(str(alembic_ini))
+        script = ScriptDirectory.from_config(config)
+        return tuple(sorted(script.get_heads()))
+    except Exception:  # noqa: BLE001 - schema status should stay diagnostic-only.
+        return ()
+
+
+def _applied_migration_revisions(
+    session: Any,
+    *,
+    alembic_version_table_exists: bool,
+) -> tuple[str, ...]:
+    if not alembic_version_table_exists:
+        return ()
+    try:
+        revisions = session.execute(text("SELECT version_num FROM alembic_version")).scalars()
+        return tuple(sorted(str(revision) for revision in revisions if revision is not None))
+    except Exception:  # noqa: BLE001 - a malformed alembic table is a schema-status signal.
+        return ()
+
+
+def _migrations_current(
+    *,
+    applied_revisions: Sequence[str],
+    migration_heads: Sequence[str],
+    alembic_version_table_exists: bool,
+) -> bool | None:
+    if not migration_heads or not alembic_version_table_exists:
+        return None
+    return set(applied_revisions) == set(migration_heads)
+
+
+def _schema_status(
+    *,
+    reachable: bool,
+    candles_table_exists: bool,
+    alembic_version_table_exists: bool,
+    migrations_current: bool | None,
+) -> tuple[str, tuple[str, ...]]:
+    reason_codes: set[str] = set()
+    if not reachable:
+        return "database_unreachable", ("database_unreachable",)
+    if not alembic_version_table_exists:
+        reason_codes.add("alembic_version_table_missing")
+    if not candles_table_exists:
+        reason_codes.add("candles_table_missing")
+    if not candles_table_exists and not alembic_version_table_exists:
+        reason_codes.add("schema_missing")
+        return "schema_missing", tuple(sorted(reason_codes))
+    if migrations_current is False:
+        reason_codes.add("migrations_out_of_date")
+        return "migrations_out_of_date", tuple(sorted(reason_codes))
+    if not candles_table_exists:
+        return "candles_table_missing", tuple(sorted(reason_codes))
+    if migrations_current is True:
+        return "migrated_schema_ready", tuple(sorted(reason_codes))
+    if not alembic_version_table_exists:
+        reason_codes.add("schema_present_migration_version_unknown")
+        return "schema_present_migration_version_unknown", tuple(sorted(reason_codes))
+    reason_codes.add("schema_status_unknown")
+    return "schema_status_unknown", tuple(sorted(reason_codes))
 
 
 def _sanitize_database_url(value: str) -> str:
@@ -750,6 +934,9 @@ __all__ = [
     "MoneyFlowEvidenceReviewCampaignResult",
     "MoneyFlowEvidenceReviewSummary",
     "inspect_strategy_validation_database_status",
+    "money_flow_evidence_review_database_status_to_dict",
+    "money_flow_evidence_review_database_status_to_json",
+    "money_flow_evidence_review_database_status_to_markdown",
     "money_flow_evidence_review_to_dict",
     "money_flow_evidence_review_to_json",
     "money_flow_evidence_review_to_markdown",

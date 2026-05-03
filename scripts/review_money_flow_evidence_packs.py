@@ -12,6 +12,9 @@ from services.strategy_validation import (
     CANONICAL_MONEY_FLOW_CAMPAIGN_CONFIG_PATHS,
     MONEY_FLOW_RESEARCH_CAMPAIGN_DEFAULT_COLLISION_POLICY,
     MoneyFlowBacktestService,
+    inspect_strategy_validation_database_status,
+    money_flow_evidence_review_database_status_to_json,
+    money_flow_evidence_review_database_status_to_markdown,
     money_flow_evidence_review_to_json,
     money_flow_evidence_review_to_markdown,
     review_money_flow_evidence,
@@ -22,10 +25,21 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
             "Run a research-only Money Flow evidence review. The review audits "
-            "database reachability, candle-table truth, and canonical campaign "
-            "configs; optionally writes evidence packs only when persisted candle "
-            "data is sufficient; and never routes, trades, optimizes, or calls "
-            "exchange adapters."
+            "database reachability, migration/schema status, candle-table truth, "
+            "and canonical campaign configs; optionally writes evidence packs only "
+            "when persisted candle data is sufficient; and never routes, trades, "
+            "optimizes, or calls exchange adapters. Override DB_HOST, DB_PORT, "
+            "DB_NAME, DB_USER, and DB_PASSWORD to point at the intended migrated "
+            "Money Flow database."
+        ),
+    )
+    parser.add_argument(
+        "--db-status-only",
+        action="store_true",
+        help=(
+            "Inspect the configured strategy-validation DB target, migration/schema "
+            "status, candle-table existence, and persisted candle count only. This "
+            "does not audit campaigns or generate evidence packs."
         ),
     )
     parser.add_argument(
@@ -84,8 +98,41 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    config_paths = tuple(args.configs or CANONICAL_MONEY_FLOW_CAMPAIGN_CONFIG_PATHS)
     service = MoneyFlowBacktestService(get_settings())
+    formats = ("json", "markdown") if args.format == "both" else (args.format,)
+    if args.db_status_only:
+        status = inspect_strategy_validation_database_status(service)
+        if args.review_output_dir:
+            output_dir = Path(args.review_output_dir)
+            output_dir.mkdir(parents=True, exist_ok=True)
+            written: list[str] = []
+            if "json" in formats:
+                path = output_dir / "money_flow_strategy_validation_db_status.json"
+                path.write_text(
+                    money_flow_evidence_review_database_status_to_json(status),
+                    encoding="utf-8",
+                )
+                written.append(str(path))
+            if "markdown" in formats:
+                path = output_dir / "money_flow_strategy_validation_db_status.md"
+                path.write_text(
+                    money_flow_evidence_review_database_status_to_markdown(status),
+                    encoding="utf-8",
+                )
+                written.append(str(path))
+            print("\n".join(written))
+            return 0
+        if args.format == "json":
+            print(money_flow_evidence_review_database_status_to_json(status), end="")
+            return 0
+        if args.format == "both":
+            print(money_flow_evidence_review_database_status_to_json(status), end="")
+            print(money_flow_evidence_review_database_status_to_markdown(status), end="")
+            return 0
+        print(money_flow_evidence_review_database_status_to_markdown(status), end="")
+        return 0
+
+    config_paths = tuple(args.configs or CANONICAL_MONEY_FLOW_CAMPAIGN_CONFIG_PATHS)
     review = review_money_flow_evidence(
         config_paths,
         service=service,
@@ -94,7 +141,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         run_timestamp=_parse_datetime(args.run_timestamp) if args.run_timestamp else None,
         evidence_pack_collision_policy=args.collision_policy,
     )
-    formats = ("json", "markdown") if args.format == "both" else (args.format,)
     if args.review_output_dir:
         output_dir = Path(args.review_output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)

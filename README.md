@@ -194,6 +194,23 @@ SV1.7 hardens the same canonical evidence review into a first-real-run/data-gap 
 
 The SV1.7 run in this repo found the default configured DB `postgres` host unresolved. A local Postgres endpoint at `127.0.0.1:54322/postgres` was reachable with an explicit environment override, but it did not contain the Money Flow `candles` table, so both canonical campaigns remained `insufficient_data` and no evidence packs were generated. See [SV1.7 First Canonical Money Flow Evidence Review](docs/strategy_validation_sv1_7_first_evidence_review.md) for the concrete gap report and exact research-only rerun command.
 
+SV1.8 makes the historical-data bootstrap path explicit. The evidence-review CLI can now inspect DB/schema/candle readiness without running campaign audits:
+
+```bash
+.venv/bin/python scripts/review_money_flow_evidence_packs.py \
+  --db-status-only \
+  --format markdown
+```
+
+Set `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD` to point strategy validation at the intended migrated Money Flow database. If the target is reachable but missing schema, run Alembic against that same target before importing offline/public candles:
+
+```bash
+DB_HOST=127.0.0.1 DB_PORT=54322 DB_USER=postgres DB_PASSWORD=<redacted> DB_NAME=<intended_money_flow_db> \
+  .venv/bin/python -m alembic upgrade head
+```
+
+The SV1.8 local audit found `127.0.0.1:54322/postgres` reachable only with explicit DB environment override, but that DB had no `alembic_version` table and no `candles` table. Canonical BTC and multi-symbol campaigns therefore remained `insufficient_data`; no evidence packs were generated. See [SV1.8 Historical Data Bootstrap And First Real Evidence Review](docs/strategy_validation_sv1_8_historical_data_bootstrap.md). This is a DB/schema/historical-data gap, not a strategy result.
+
 ## Routing Automation Planning
 
 Phase 7.0 exposes non-executing automation policy and dry-run planning:

@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-03T08:03:09Z`
+Last reviewed: `2026-05-03T14:04:33Z`
 
 ## Active Follow-Ups
 
@@ -170,13 +170,19 @@ Last reviewed: `2026-05-03T08:03:09Z`
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `After SV1.7, point the evidence-review workflow at a reachable migrated Money Flow database or apply migrations to the reachable local Postgres endpoint, import or verify enough public historical candles for the canonical BTC/ETH/SOL campaign windows, rerun the canonical evidence review with `--generate-evidence-packs`, and have the founder/operator manually review saved evidence before any paper-trading design is scoped. SV1.7 found the default configured `postgres` host unresolved and a reachable local `127.0.0.1:54322/postgres` database without the Money Flow `candles` table, so canonical evidence remains `insufficient_data`. Do not optimize Money Flow rules, recommend a variant, add paper/live trading, create live artifacts, call exchanges, or connect validation outputs to routing/execution automation until that manual evidence review explicitly justifies a new phase.`
+- `summary`: `After SV1.8, apply migrations to the intended Money Flow database or point the evidence-review workflow at an already migrated Money Flow database, import or verify enough public historical candles for the canonical BTC/ETH/SOL campaign windows and `sleeve_15m` / `sleeve_1h` / `sleeve_4h` timeframes, rerun canonical evidence review with `--generate-evidence-packs`, and have the founder/operator manually review saved evidence before any paper-trading design is scoped. SV1.8 found the default configured `postgres` host unresolved and the explicit local `127.0.0.1:54322/postgres` database reachable but unmigrated with no `alembic_version` and no `candles`, so canonical evidence remains `insufficient_data`. Do not optimize Money Flow rules, recommend a variant, add paper/live trading, create live artifacts, call exchanges, or connect validation outputs to routing/execution automation until that manual evidence review explicitly justifies a new phase.`
 
 ### T-061
 
 - `priority`: `high`
 - `status`: `done`
 - `summary`: `SV1.7 added first-real canonical Money Flow evidence-review/data-gap reporting. The review service and CLI now inspect sanitized DB URL/source, reachability, candle-table existence, persisted candle count when available, and blocking DB/schema errors before canonical campaign audits. Unreachable databases or databases missing `candles` produce explicit blocked data-readiness rows instead of uncaught failures or misleading evidence packs. Mixed generated/blocked outcomes use `partial_evidence_ready_with_data_gaps`. The local SV1.7 run audited `money_flow_core_btc.json` and `money_flow_core_multi_symbol.json`, found no usable persisted candle table, generated no evidence packs, and recorded the gap in `docs/strategy_validation_sv1_7_first_evidence_review.md` without changing Money Flow rules, optimizing, recommending a variant, adding paper/live trading, creating live artifacts, calling exchanges, routing, or connecting validation outputs to execution automation.`
+
+### T-062
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.8 added historical data bootstrap and first-real evidence-pack generation truth. Evidence-review DB status now reports sanitized DB target, reachability, Alembic version-table existence, applied revisions, repo migration heads, migration-current status when derivable, schema status/reason codes, migration and DB override hints, `candles` table existence, and persisted candle count. The evidence-review CLI now supports `--db-status-only` for read-only DB/schema/candle readiness inspection. The local SV1.8 run found the default `postgres` host unresolved and the explicit `127.0.0.1:54322/postgres` target reachable but unmigrated with no `alembic_version` table and no `candles` table, so canonical BTC and multi-symbol campaigns remain `insufficient_data` and no evidence packs were generated. This changes no Money Flow rules, optimization, recommendations, paper/live trading, live artifacts, routing, execution automation, or exchange calls.`
 
 ### T-001
 
