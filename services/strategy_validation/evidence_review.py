@@ -1,0 +1,555 @@
+"""Money Flow evidence-pack review helpers.
+
+SV1.6 is a research-review layer over existing campaign audits and evidence
+packs. It does not change Money Flow rules, create live artifacts, or call
+exchange adapters.
+"""
+
+from __future__ import annotations
+
+import json
+from collections import Counter
+from dataclasses import asdict, dataclass, is_dataclass
+from datetime import UTC, datetime
+from decimal import Decimal
+from pathlib import Path
+from typing import Any, Sequence
+
+from services.strategy_validation.campaigns import (
+    MONEY_FLOW_RESEARCH_CAMPAIGN_DEFAULT_COLLISION_POLICY,
+    MoneyFlowResearchCampaignConfig,
+    MoneyFlowResearchCampaignDataReadinessAudit,
+    MoneyFlowResearchCampaignResult,
+    audit_money_flow_research_campaign_data_readiness,
+    load_money_flow_research_campaign_config,
+    money_flow_manual_paper_trading_readiness_criteria,
+    money_flow_research_campaign_data_readiness_to_dict,
+    money_flow_research_campaign_data_readiness_to_markdown,
+    run_money_flow_research_campaign_sync,
+)
+from services.strategy_validation.service import (
+    MoneyFlowBacktestService,
+    STRATEGY_VALIDATION_WINDOW_CONVENTION,
+    strategy_validation_batch_report_to_dict,
+)
+
+CANONICAL_MONEY_FLOW_CAMPAIGN_CONFIG_PATHS = (
+    Path("configs/strategy_validation/campaigns/money_flow_core_btc.json"),
+    Path("configs/strategy_validation/campaigns/money_flow_core_multi_symbol.json"),
+)
+
+PAPER_READINESS_REVIEW_STATUSES = (
+    "not_reviewed",
+    "insufficient_data",
+    "ready_for_founder_review",
+    "paper_trading_design_not_yet_justified",
+    "paper_trading_design_candidate",
+)
+
+_BANNED_RECOMMENDATION_LANGUAGE = (
+    "best strategy",
+    "recommended strategy",
+    "recommended component",
+    "optimal",
+    "proven profitable",
+    "paper trading approved",
+)
+
+
+@dataclass(frozen=True, slots=True)
+class MoneyFlowEvidenceReviewCampaignResult:
+    campaign_name: str
+    config_path: str
+    readiness_status: str
+    data_readiness_audit: MoneyFlowResearchCampaignDataReadinessAudit
+    audit_markdown: str
+    evidence_pack_generated: bool
+    evidence_pack_path: str | None
+    evidence_pack_manifest: dict[str, Any] | None
+    generated_evidence_final_run_id: str | None
+    blocked_or_gap_reason_codes: tuple[str, ...]
+    observations: dict[str, Any]
+    no_live_artifacts_created: bool
+    exchange_adapters_called: bool
+
+
+@dataclass(frozen=True, slots=True)
+class MoneyFlowEvidenceReviewSummary:
+    review_id: str
+    generated_at_utc: datetime
+    campaign_results: tuple[MoneyFlowEvidenceReviewCampaignResult, ...]
+    paper_readiness_review_status: str
+    paper_readiness_status_methodology: str
+    manual_paper_trading_readiness_criteria: tuple[str, ...]
+    generated_evidence_pack_paths: tuple[str, ...]
+    blocked_campaign_count: int
+    generated_campaign_count: int
+    window_convention: str
+    limitations: tuple[str, ...]
+    creates_live_artifacts: bool = False
+    calls_exchange_adapters: bool = False
+    calls_private_exchange_endpoints: bool = False
+    calls_exchange_order_endpoints: bool = False
+    optimization_or_recommendation_language_used: bool = False
+
+
+def review_money_flow_evidence(
+    campaign_config_paths: Sequence[str | Path] | None = None,
+    *,
+    service: MoneyFlowBacktestService | None = None,
+    output_dir: str | Path | None = None,
+    generate_evidence_packs: bool = True,
+    run_timestamp: datetime | None = None,
+    generated_at: datetime | None = None,
+    evidence_pack_collision_policy: str = MONEY_FLOW_RESEARCH_CAMPAIGN_DEFAULT_COLLISION_POLICY,
+) -> MoneyFlowEvidenceReviewSummary:
+    """Audit canonical campaign configs and generate packs only when data is sufficient."""
+
+    validation_service = service or MoneyFlowBacktestService()
+    timestamp = _coerce_utc(generated_at or datetime.now(UTC)).replace(microsecond=0)
+    paths = tuple(campaign_config_paths or CANONICAL_MONEY_FLOW_CAMPAIGN_CONFIG_PATHS)
+    results: list[MoneyFlowEvidenceReviewCampaignResult] = []
+    for path in paths:
+        config_path = Path(path)
+        config = load_money_flow_research_campaign_config(config_path)
+        audit = audit_money_flow_research_campaign_data_readiness(
+            config,
+            service=validation_service,
+            generated_at=timestamp,
+        )
+        audit_payload = money_flow_research_campaign_data_readiness_to_dict(audit)
+        audit_markdown = money_flow_research_campaign_data_readiness_to_markdown(audit)
+        can_generate = _audit_has_sufficient_data(audit_payload)
+        campaign_run: MoneyFlowResearchCampaignResult | None = None
+        observations: dict[str, Any]
+        if generate_evidence_packs and can_generate:
+            campaign_run = run_money_flow_research_campaign_sync(
+                config,
+                service=validation_service,
+                output_dir=output_dir,
+                run_timestamp=run_timestamp,
+                evidence_pack_collision_policy=evidence_pack_collision_policy,
+            )
+            batch_payload = strategy_validation_batch_report_to_dict(
+                campaign_run.batch_report
+            )
+            observations = _observations_from_batch_payload(batch_payload)
+            readiness_status = _campaign_status_from_generated_pack(campaign_run)
+        elif can_generate:
+            observations = _not_generated_observations()
+            readiness_status = "not_reviewed"
+        else:
+            observations = _insufficient_data_observations(audit_payload)
+            readiness_status = "insufficient_data"
+        reason_codes = _blocked_or_gap_reason_codes(audit_payload)
+        results.append(
+            MoneyFlowEvidenceReviewCampaignResult(
+                campaign_name=config.campaign_name,
+                config_path=str(config_path),
+                readiness_status=readiness_status,
+                data_readiness_audit=audit,
+                audit_markdown=audit_markdown,
+                evidence_pack_generated=campaign_run is not None,
+                evidence_pack_path=(
+                    str(campaign_run.evidence_pack_dir)
+                    if campaign_run is not None
+                    else None
+                ),
+                evidence_pack_manifest=(
+                    dict(campaign_run.manifest) if campaign_run is not None else None
+                ),
+                generated_evidence_final_run_id=(
+                    campaign_run.manifest.get("final_run_id")
+                    if campaign_run is not None
+                    else None
+                ),
+                blocked_or_gap_reason_codes=reason_codes,
+                observations=observations,
+                no_live_artifacts_created=(
+                    True
+                    if campaign_run is None
+                    else bool(
+                        campaign_run.batch_report.no_live_execution_artifacts_created
+                    )
+                ),
+                exchange_adapters_called=(
+                    False
+                    if campaign_run is None
+                    else bool(campaign_run.batch_report.exchange_adapters_called)
+                ),
+            )
+        )
+
+    generated_paths = tuple(
+        result.evidence_pack_path
+        for result in results
+        if result.evidence_pack_path is not None
+    )
+    overall_status = _overall_paper_readiness_status(results)
+    review_id = _review_id(paths=paths, generated_at=timestamp)
+    return MoneyFlowEvidenceReviewSummary(
+        review_id=review_id,
+        generated_at_utc=timestamp,
+        campaign_results=tuple(results),
+        paper_readiness_review_status=overall_status,
+        paper_readiness_status_methodology=(
+            "manual_review_status_only_no_automatic_paper_trading_decision"
+        ),
+        manual_paper_trading_readiness_criteria=tuple(
+            money_flow_manual_paper_trading_readiness_criteria()
+        ),
+        generated_evidence_pack_paths=generated_paths,
+        blocked_campaign_count=sum(
+            1 for result in results if result.readiness_status == "insufficient_data"
+        ),
+        generated_campaign_count=len(generated_paths),
+        window_convention=STRATEGY_VALIDATION_WINDOW_CONVENTION,
+        limitations=(
+            "This review is research-only and does not create paper trades, live trades, routing artifacts, approvals, child intents, readiness evaluations, or submitted orders.",
+            "Missing or thin data is a data-readiness gap, not a Money Flow strategy failure.",
+            "Evidence packs and backtests do not prove future profitability.",
+            "Paper-readiness status is manual review context only, not an automated go/no-go decision.",
+            "No exchange adapters, private exchange endpoints, or order endpoints are called.",
+            "Money Flow rules are not changed or optimized by this review.",
+        ),
+    )
+
+
+def money_flow_evidence_review_to_dict(
+    review: MoneyFlowEvidenceReviewSummary,
+) -> dict[str, Any]:
+    """Return a deterministic JSON-ready evidence review representation."""
+
+    return _json_ready(asdict(review))
+
+
+def money_flow_evidence_review_to_markdown(
+    review: MoneyFlowEvidenceReviewSummary,
+) -> str:
+    """Render a founder/operator-readable SV1.6 evidence review summary."""
+
+    payload = money_flow_evidence_review_to_dict(review)
+    lines = [
+        "# Money Flow First Canonical Evidence Review",
+        "",
+        "This SV1.6 review is descriptive research only. It is not paper trading, "
+        "not live execution, not optimization, not a strategy recommendation, and "
+        "not proof of future profitability.",
+        "",
+        "## Review Context",
+        "",
+        f"- Review id: `{payload['review_id']}`",
+        f"- Generated at UTC: `{payload['generated_at_utc']}`",
+        f"- Window convention: `{payload['window_convention']}`",
+        "- Candle closes exactly at `start_at` are excluded.",
+        "- Candle closes on or before `end_at` are included.",
+        f"- Paper-readiness review status: `{payload['paper_readiness_review_status']}`",
+        f"- Status methodology: `{payload['paper_readiness_status_methodology']}`",
+        f"- Generated campaign count: `{payload['generated_campaign_count']}`",
+        f"- Blocked campaign count: `{payload['blocked_campaign_count']}`",
+        "- Insufficient data means persisted candles are missing, thin, or blocked for at least one reviewed campaign; it is not a strategy failure.",
+        f"- Live artifacts created: `{payload['creates_live_artifacts']}`",
+        f"- Exchange adapters called: `{payload['calls_exchange_adapters']}`",
+        "",
+        "## Canonical Campaign Review",
+        "",
+        "| campaign | status | evidence pack generated | evidence pack path | blocked/gap reasons |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for result in payload["campaign_results"]:
+        lines.append(
+            "| "
+            f"`{result['campaign_name']}` | "
+            f"`{result['readiness_status']}` | "
+            f"`{result['evidence_pack_generated']}` | "
+            f"`{result['evidence_pack_path']}` | "
+            f"`{result['blocked_or_gap_reason_codes']}` |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Data-Readiness Findings",
+            "",
+        ]
+    )
+    for result in payload["campaign_results"]:
+        summary = result["data_readiness_audit"]["summary"]
+        lines.extend(
+            [
+                f"### `{result['campaign_name']}`",
+                "",
+                f"- Rows checked: `{summary['row_count']}`",
+                f"- Covered rows: `{summary['covered_row_count']}`",
+                f"- Thin rows: `{summary['thin_row_count']}`",
+                f"- Missing rows: `{summary['missing_row_count']}`",
+                f"- Blocked rows: `{summary['blocked_row_count']}`",
+                f"- Likely blocked impacted runs: `{summary['likely_blocked_impacted_run_count']}`",
+                f"- Symbols with data: `{summary['symbols_with_data']}`",
+                f"- Symbols missing data: `{summary['symbols_missing_data']}`",
+                f"- Components with data: `{summary['components_with_data']}`",
+                f"- Components missing data: `{summary['components_missing_data']}`",
+                f"- Windows covered: `{summary['windows_covered']}`",
+                f"- Windows thin: `{summary['windows_thin']}`",
+                f"- Windows missing: `{summary['windows_missing']}`",
+                f"- Warning reason counts: `{summary['warning_reason_counts']}`",
+                f"- Likely blocked reason counts: `{summary['likely_blocked_reason_counts']}`",
+                "",
+            ]
+        )
+    lines.extend(
+        [
+            "## Evidence-Pack Paths",
+            "",
+        ]
+    )
+    if payload["generated_evidence_pack_paths"]:
+        lines.extend(f"- `{path}`" for path in payload["generated_evidence_pack_paths"])
+    else:
+        lines.append("- No evidence packs were generated because no audited campaign had sufficient persisted candle coverage.")
+    lines.extend(
+        [
+            "",
+            "## Observations",
+            "",
+        ]
+    )
+    for result in payload["campaign_results"]:
+        observations = result["observations"]
+        lines.extend(
+            [
+                f"### `{result['campaign_name']}`",
+                "",
+                f"- Fill timing observations: `{observations.get('fill_timing_observations')}`",
+                f"- Component observations: `{observations.get('component_observations')}`",
+                f"- Regime observations: `{observations.get('regime_observations')}`",
+                f"- Worst drawdown observations: `{observations.get('worst_drawdown_observations')}`",
+                f"- Fee/slippage sensitivity observations: `{observations.get('fee_slippage_sensitivity_observations')}`",
+                f"- No-trade reason counts: `{observations.get('no_trade_reason_counts')}`",
+                f"- Invalid reason counts: `{observations.get('invalid_reason_counts')}`",
+                "",
+            ]
+        )
+    lines.extend(
+        [
+            "## Manual Paper-Readiness Review Status",
+            "",
+            f"- Current status: `{payload['paper_readiness_review_status']}`",
+            "- This is not an automatic approval and does not start paper trading.",
+            "- Founder/operator review is required before any paper-trading design is scoped.",
+            "",
+            "### Manual Criteria",
+            "",
+        ]
+    )
+    lines.extend(
+        f"- [ ] {item}" for item in payload["manual_paper_trading_readiness_criteria"]
+    )
+    lines.extend(
+        [
+            "",
+            "## Limitations",
+            "",
+        ]
+    )
+    lines.extend(f"- {item}" for item in payload["limitations"])
+    lines.extend(
+        [
+            "",
+            "## Next Research Actions",
+            "",
+            "- If campaigns are blocked, import or verify public historical candles for the missing symbol/component/window rows and rerun the review.",
+            "- If evidence packs were generated, review fill timing robustness, data coverage, regime grouping, drawdown, fees, slippage, no-trade, and invalid reason counts manually.",
+            "- Do not treat this review as paper-trading approval, live execution readiness, or strategy-rule guidance.",
+        ]
+    )
+    markdown = "\n".join(lines) + "\n"
+    _assert_no_banned_recommendation_language(markdown)
+    return markdown
+
+
+def _audit_has_sufficient_data(audit_payload: dict[str, Any]) -> bool:
+    summary = audit_payload["summary"]
+    return (
+        summary["row_count"] > 0
+        and summary["thin_row_count"] == 0
+        and summary["missing_row_count"] == 0
+        and summary["blocked_row_count"] == 0
+        and summary["likely_blocked_impacted_run_count"] == 0
+    )
+
+
+def _campaign_status_from_generated_pack(
+    campaign_run: MoneyFlowResearchCampaignResult,
+) -> str:
+    if any(run.status != "completed" for run in campaign_run.batch_report.run_reports):
+        return "paper_trading_design_not_yet_justified"
+    return "ready_for_founder_review"
+
+
+def _overall_paper_readiness_status(
+    results: Sequence[MoneyFlowEvidenceReviewCampaignResult],
+) -> str:
+    if not results:
+        return "not_reviewed"
+    if all(result.readiness_status == "insufficient_data" for result in results):
+        return "insufficient_data"
+    if any(
+        result.readiness_status == "paper_trading_design_not_yet_justified"
+        for result in results
+    ):
+        return "paper_trading_design_not_yet_justified"
+    if any(result.readiness_status == "ready_for_founder_review" for result in results):
+        return "ready_for_founder_review"
+    return "not_reviewed"
+
+
+def _blocked_or_gap_reason_codes(audit_payload: dict[str, Any]) -> tuple[str, ...]:
+    summary = audit_payload["summary"]
+    reasons: set[str] = set(summary.get("warning_reason_counts", {}).keys())
+    reasons.update(summary.get("likely_blocked_reason_counts", {}).keys())
+    if summary["thin_row_count"]:
+        reasons.add("thin_data_coverage")
+    if summary["missing_row_count"]:
+        reasons.add("missing_persisted_candles")
+    if summary["blocked_row_count"]:
+        reasons.add("blocked_campaign_rows")
+    return tuple(sorted(reasons))
+
+
+def _insufficient_data_observations(audit_payload: dict[str, Any]) -> dict[str, Any]:
+    summary = audit_payload["summary"]
+    return {
+        "methodology": "audit_only_no_strategy_validation_run",
+        "status": "insufficient_data",
+        "fill_timing_observations": "unavailable_until_campaign_runs_complete",
+        "component_observations": "unavailable_until_campaign_runs_complete",
+        "regime_observations": "unavailable_until_campaign_runs_complete",
+        "worst_drawdown_observations": "unavailable_until_campaign_runs_complete",
+        "fee_slippage_sensitivity_observations": "unavailable_until_campaign_runs_complete",
+        "no_trade_reason_counts": {},
+        "invalid_reason_counts": {},
+        "data_gap_summary": {
+            "symbols_missing_data": summary["symbols_missing_data"],
+            "components_missing_data": summary["components_missing_data"],
+            "windows_thin": summary["windows_thin"],
+            "windows_missing": summary["windows_missing"],
+            "windows_blocked": summary["windows_blocked"],
+            "warning_reason_counts": summary["warning_reason_counts"],
+            "likely_blocked_reason_counts": summary["likely_blocked_reason_counts"],
+        },
+    }
+
+
+def _not_generated_observations() -> dict[str, Any]:
+    return {
+        "methodology": "audit_sufficient_but_evidence_generation_not_requested",
+        "status": "not_reviewed",
+        "fill_timing_observations": "not_generated",
+        "component_observations": "not_generated",
+        "regime_observations": "not_generated",
+        "worst_drawdown_observations": "not_generated",
+        "fee_slippage_sensitivity_observations": "not_generated",
+        "no_trade_reason_counts": {},
+        "invalid_reason_counts": {},
+        "data_gap_summary": {},
+    }
+
+
+def _observations_from_batch_payload(batch_payload: dict[str, Any]) -> dict[str, Any]:
+    summary = batch_payload["comparison_summary"]
+    run_summaries = summary.get("run_summaries", [])
+    no_trade_counts: Counter[str] = Counter()
+    invalid_counts: Counter[str] = Counter()
+    fee_slippage_rows: list[dict[str, Any]] = []
+    for run in run_summaries:
+        metrics = run.get("metrics") or {}
+        no_trade_counts.update(metrics.get("no_trade_reason_counts") or {})
+        invalid_counts.update(metrics.get("invalid_reason_counts") or {})
+        fee_slippage_rows.append(
+            {
+                "run_id": run.get("run_id"),
+                "status": run.get("status"),
+                "fee_bps": run.get("fee_bps"),
+                "slippage_bps": run.get("slippage_bps"),
+                "net_pnl": metrics.get("net_pnl"),
+                "total_fees": metrics.get("total_fees"),
+                "total_slippage_cost": metrics.get("total_slippage_cost"),
+            }
+        )
+    return {
+        "methodology": "descriptive_observations_only_no_optimization_or_recommendation",
+        "status": "evidence_pack_generated",
+        "fill_timing_observations": summary.get("fill_timing_comparison"),
+        "component_observations": summary.get("component_comparison"),
+        "regime_observations": summary.get("regime_comparison"),
+        "worst_drawdown_observations": (
+            summary.get("largest_observed_mark_to_market_drawdown_run")
+        ),
+        "fee_slippage_sensitivity_observations": fee_slippage_rows,
+        "no_trade_reason_counts": dict(sorted(no_trade_counts.items())),
+        "invalid_reason_counts": dict(sorted(invalid_counts.items())),
+        "highest_observed_net_pnl_run": summary.get("highest_observed_net_pnl_run"),
+        "lowest_observed_net_pnl_run": summary.get("lowest_observed_net_pnl_run"),
+        "data_coverage_observations": summary.get("data_coverage_comparison"),
+        "blocked_run_count": sum(1 for run in run_summaries if run.get("status") != "completed"),
+    }
+
+
+def _review_id(*, paths: Sequence[str | Path], generated_at: datetime) -> str:
+    names = "-".join(Path(path).stem for path in paths) or "money-flow-evidence-review"
+    return f"{names}-{_coerce_utc(generated_at).strftime('%Y%m%dT%H%M%SZ')}"
+
+
+def _assert_no_banned_recommendation_language(markdown: str) -> None:
+    normalized = markdown.lower()
+    for phrase in _BANNED_RECOMMENDATION_LANGUAGE:
+        if phrase in normalized:
+            raise ValueError(
+                f"evidence review markdown contains prohibited recommendation language: {phrase}"
+            )
+
+
+def _coerce_utc(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)
+
+
+def _json_ready(value: Any) -> Any:
+    if isinstance(value, Decimal):
+        return str(value)
+    if isinstance(value, datetime):
+        return _coerce_utc(value).isoformat()
+    if isinstance(value, Path):
+        return str(value)
+    if hasattr(value, "value"):
+        return value.value
+    if is_dataclass(value) and not isinstance(value, type):
+        return _json_ready(asdict(value))
+    if isinstance(value, dict):
+        return {str(key): _json_ready(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_ready(item) for item in value]
+    return value
+
+
+def money_flow_evidence_review_to_json(review: MoneyFlowEvidenceReviewSummary) -> str:
+    """Serialize a review summary with deterministic key ordering."""
+
+    return json.dumps(
+        money_flow_evidence_review_to_dict(review),
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
+
+
+__all__ = [
+    "CANONICAL_MONEY_FLOW_CAMPAIGN_CONFIG_PATHS",
+    "PAPER_READINESS_REVIEW_STATUSES",
+    "MoneyFlowEvidenceReviewCampaignResult",
+    "MoneyFlowEvidenceReviewSummary",
+    "money_flow_evidence_review_to_dict",
+    "money_flow_evidence_review_to_json",
+    "money_flow_evidence_review_to_markdown",
+    "review_money_flow_evidence",
+]

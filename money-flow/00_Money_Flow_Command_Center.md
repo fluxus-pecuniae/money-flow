@@ -8,9 +8,9 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 
 ## Current Phase
 
-- Current implemented phase: `SV1.5.1`
+- Current implemented phase: `SV1.6`
 - Phase 7 status: accepted complete.
-- Proposed next phase: SV1.6 first real canonical evidence review / saved evidence comparison after sufficient historical candle data is imported or confirmed; `Phase 8.1` remains deferred until explicitly scoped.
+- Proposed next phase: import/verify enough historical candles, rerun SV1.6 evidence review with generated evidence packs, and only then scope paper-trading design if founder/operator review justifies it; `Phase 8.1` remains deferred until explicitly scoped.
 - Phase 8.0 status: implemented read-only operator observability/manual-resolution inspection.
 - Phase 8.0.1 status: Obsidian memory and working-tree baseline cleanup; no product behavior changed.
 - Phase 8.0.2 status: active submit-lease operator-summary truth hotfix; no product behavior changed.
@@ -24,6 +24,7 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 - SV1.4.1 status: evidence-pack collision/overwrite integrity hotfix; no strategy-rule changes, optimization, recommendations, paper/live trading, routing, exchange calls, or execution changes.
 - SV1.5 status: historical-data readiness and first canonical evidence-pack support; validates campaign window-convention metadata, adds Markdown readiness summaries, adds offline public candle import/upsert tooling, preserves collision-safe evidence packs, and adds no strategy-rule changes, optimization, recommendations, paper/live trading, routing, exchange calls, or execution changes.
 - SV1.5.1 status: candle import and campaign-config research-truth hotfix; rejects contradictory window-convention text, identity conflicts, timeframe-duration mismatches, malformed OHLCV rows, and partial invalid imports without strategy-rule changes, optimization, recommendations, paper/live trading, routing, exchange calls, or execution changes.
+- SV1.6 status: first canonical Money Flow evidence review; audits canonical BTC and multi-symbol campaigns, reports insufficient data or generated evidence-pack paths, adds manual paper-readiness review status, and adds no strategy-rule changes, optimization, recommendations, paper/live trading, routing, exchange calls, or execution changes.
 - Current accepted action hooks: approval-gated recommendation acceptance, target-choice conversion, prepared-order preview/readiness inspection, and submitted-order handoff.
 
 ## Current Architectural Boundary
@@ -75,6 +76,8 @@ SV1.5 prepares the research layer for first canonical evidence runs against real
 
 SV1.5.1 hardens that import/config truth before first real evidence review. Campaign `window_convention` text now uses strict approved metadata and rejects contradictory inclusive-start phrasing. Offline candle imports block existing-candle identity conflicts instead of retargeting symbol/instrument ids, enforce selected-timeframe row duration, reject non-finite/zero/negative/inconsistent OHLCV values and negative trade counts, and roll back invalid files without partial inserts or updates. Money Flow rules, routing, execution automation, exchange calls, paper/live trading, optimization, and evidence-review behavior remain unchanged.
 
+SV1.6 adds first canonical evidence-review summaries. The review layer audits the canonical BTC and multi-symbol campaign configs, treats missing/thin/blocked data as a data-readiness gap rather than strategy failure, generates collision-safe evidence packs only when readiness audits are clean, and summarizes fill-timing/component/regime/drawdown/cost/no-trade/invalid observations plus manual paper-readiness review status. It is descriptive research only and does not approve paper trading.
+
 ## Repo Truth Sources
 
 Repo operational truth remains in:
@@ -121,6 +124,7 @@ Obsidian is the long-horizon project brain for founder intent, phase context, de
 - SV1.4.1 evidence packs must be treated as immutable research records; repeated runs should create a new suffixed pack or fail explicitly, never silently overwrite prior evidence.
 - SV1.5 candle imports are public/offline research data backfills only; they upsert candles and do not imply strategy edge, paper-trading approval, live execution readiness, exchange truth, or per-candle source provenance.
 - SV1.5.1 candle imports must not silently retarget existing candle identity, accept timeframe-duration mismatches, persist malformed OHLCV rows, or leave partial new/updated candles after a failed file import.
+- SV1.6 evidence review status is manual/descriptive only; `ready_for_founder_review` is not paper-trading approval, and `insufficient_data` is a data gap, not a Money Flow strategy failure.
 - Simulated validation trades must remain separate from `SubmittedOrder`.
 - Manual-resolution inspection must not silently resolve venue or approval truth.
 - Future agents must update their own coordination row instead of overwriting another agent's work.

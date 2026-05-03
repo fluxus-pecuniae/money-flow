@@ -13,6 +13,39 @@ Entry schema:
 
 ---
 
+## v2026.05.03.001
+
+- `recorded_at_utc`: `2026-05-03T05:27:59Z`
+- `scope`: `SV1.6 first canonical Money Flow evidence review`
+- `intent`: `Native entry. Added the first canonical Money Flow evidence-review layer on top of existing Strategy Validation campaign audits and evidence packs. SV1.6 adds `services/strategy_validation/evidence_review.py` and `scripts/review_money_flow_evidence_packs.py` to audit the canonical BTC and multi-symbol campaign configs, report insufficient/missing/thin data as data-readiness gaps, optionally generate collision-safe evidence packs only when audits have no missing/thin/blocked rows, and emit JSON/Markdown review summaries with generated evidence-pack paths, data gaps, fill-timing/component/regime/drawdown/cost observations, no-trade/invalid reason counts, and manual paper-readiness review status. The review status is descriptive founder/operator context only, not paper-trading approval. This is evidence review only: no Money Flow rule changes, parameter optimization, strategy recommendations, paper/live trading, live artifacts, routing, execution automation, exchange adapter calls, private/order endpoint calls, route executor behavior, fanout, target reselection, or auto-submit were added.`
+- `affected_files`:
+  - `services/strategy_validation/evidence_review.py`
+  - `services/strategy_validation/__init__.py`
+  - `scripts/review_money_flow_evidence_packs.py`
+  - `tests/test_sv16_evidence_review.py`
+  - `tests/test_operational_docs.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_sv16_evidence_review.py` passed with 6 tests during focused development.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv15_historical_data_readiness.py tests/test_sv151_candle_import_integrity.py tests/test_sv16_evidence_review.py tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 76 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed with 527 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 10 tests after repo/Obsidian doc updates.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/review_money_flow_evidence_packs.py --format json` was attempted against the local default configured database and failed before audit because the configured Postgres host `postgres` was not resolvable in this shell; no evidence pack or live artifact was created.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.6-review.zip` created the SV1.6 review bundle; bundle inspection found 232 files, included `services/strategy_validation/evidence_review.py`, `scripts/review_money_flow_evidence_packs.py`, and `tests/test_sv16_evidence_review.py`, and found no `.env`, virtualenvs, Git metadata, pytest caches, local DB/SQLite files, nested archives, Obsidian app state, or generated `reports/strategy_validation/` evidence packs.
+
 ## v2026.05.02.004
 
 - `recorded_at_utc`: `2026-05-02T08:28:08Z`

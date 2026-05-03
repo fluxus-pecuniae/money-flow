@@ -2,9 +2,9 @@
 
 ## Phase
 
-Current implemented phase: `SV1.5.1`
+Current implemented phase: `SV1.6`
 
-Proposed next phase: SV1.6 first real canonical evidence review / saved evidence comparison after sufficient historical candle data is imported or confirmed. `Phase 8.1` remains deferred until explicitly scoped.
+Proposed next phase: import or verify enough historical candles, rerun SV1.6 canonical evidence review with generated evidence packs, and only then scope paper-trading design if founder/operator review justifies it. `Phase 8.1` remains deferred until explicitly scoped.
 
 ## Purpose
 
@@ -42,6 +42,8 @@ SV1.5 prepares the platform for meaningful canonical Money Flow evidence runs ag
 
 SV1.5.1 is a narrow historical candle import and campaign-config research-truth hotfix before SV1.6 evidence review. It rejects contradictory campaign `window_convention` text that implies inclusive starts, blocks existing-candle identity conflicts instead of silently retargeting symbol/instrument ids, enforces selected-timeframe row duration, rejects non-finite/zero/negative/inconsistent OHLCV values and negative trade counts, and rolls back invalid import files without partial inserts or updates. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
 
+SV1.6 is the first canonical Money Flow evidence-review phase. It audits the canonical BTC and multi-symbol campaign configs, reports insufficient historical candle data as a data-readiness gap, generates collision-safe evidence packs only when audits are clean, and emits founder/operator-readable JSON/Markdown review summaries with evidence-pack paths, data gaps, fill-timing/component/regime/drawdown/cost/no-trade/invalid observations, and manual paper-readiness review status. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
+
 ## Accepted Baseline
 
 - Phase 7.0 added non-executing routing automation policy and dry-run plans.
@@ -69,6 +71,7 @@ SV1.5.1 is a narrow historical candle import and campaign-config research-truth 
 - SV1.4.1 added explicit evidence-pack collision policy and non-overwriting write semantics without optimization, recommendations, paper/live artifacts, routing, or execution changes.
 - SV1.5 added validated campaign window-convention metadata, Markdown data-readiness audit summaries, and offline public candle import/upsert tooling without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
 - SV1.5.1 hardened campaign window-convention validation and offline candle import integrity without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
+- SV1.6 added canonical campaign evidence-review summaries and manual paper-readiness review status without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
 
 ## Hard Boundaries
 
@@ -119,6 +122,8 @@ SV1.5 is successful when campaign window-convention metadata cannot mislead user
 
 SV1.5.1 is successful when contradictory `window_convention` text is rejected, candle import identity conflicts cannot silently retarget existing rows, same-identity duplicate-safe upserts still work, timeframe-duration mismatches and malformed OHLCV/trade-count rows fail clearly, invalid files leave no partial imported or updated candles, and no Money Flow rules, optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes are added.
 
+SV1.6 is successful when canonical campaign audits can be reviewed, sufficient-data campaigns can generate collision-safe evidence packs, insufficient data is reported clearly without being treated as strategy failure, manual paper-readiness status is descriptive only, no live artifacts are created, no exchange calls are made, no Money Flow rules are changed, and no optimization or recommendation language is introduced.
+
 ## Current Outcome
 
 - Obsidian command center/current phase/decision log/coordination notes are now part of the required agent workflow.
@@ -143,8 +148,9 @@ SV1.5.1 is successful when contradictory `window_convention` text is rejected, c
 - SV1.4.1 adds explicit evidence-pack collision policy to `services/strategy_validation/campaigns.py`, exposes `--collision-policy` in the campaign CLI, and adds `tests/test_sv141_evidence_pack_integrity.py`.
 - SV1.5 adds `services/strategy_validation/candles.py`, `scripts/import_strategy_validation_candles.py`, Markdown audit output from `scripts/run_money_flow_research_campaign.py --audit-only --audit-format markdown`, campaign `window_convention` validation, and `tests/test_sv15_historical_data_readiness.py`.
 - SV1.5.1 hardens `services/strategy_validation/candles.py` and `services/strategy_validation/campaigns.py`, adds `tests/test_sv151_candle_import_integrity.py`, and keeps offline imports all-or-nothing for invalid files.
+- SV1.6 adds `services/strategy_validation/evidence_review.py`, `scripts/review_money_flow_evidence_packs.py`, and `tests/test_sv16_evidence_review.py` for first canonical evidence-review summaries.
 - Recovery, route execution, fanout, scoring, CBBO, target reselection, cross-venue retry, and broad auto-submit remain deferred.
 
 ## Next Phase Shape
 
-The next Strategy Validation phase should review first real canonical campaign outputs after sufficient historical candles have been imported or confirmed. Likely candidates are saved evidence-pack comparison discipline, coverage/regime summary review across BTC/ETH/SOL and 15m/1h/4h sleeves, and paper-trading readiness design only after founder/operator evidence review. Phase 8.1 should remain deferred until explicitly scoped; when it resumes, it should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review, keep operator acknowledgement separate from exchange/account truth, and not attach submit/cancel/amend/retry behavior to inspection.
+The next Strategy Validation work should import or verify enough public historical candles for the canonical BTC/ETH/SOL windows, rerun SV1.6 with `--generate-evidence-packs`, and manually review saved evidence before any paper-trading design is scoped. Phase 8.1 should remain deferred until explicitly scoped; when it resumes, it should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review, keep operator acknowledgement separate from exchange/account truth, and not attach submit/cancel/amend/retry behavior to inspection.

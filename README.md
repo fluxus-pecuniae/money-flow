@@ -176,6 +176,20 @@ SV1.5 also adds an offline/public historical candle import path for filling data
 
 CSV/JSON imports are duplicate-safe upserts into existing candle rows keyed by environment, venue, symbol, timeframe, and open time. Input rows must contain `symbol`, `open_time`, `close_time`, `open`, `high`, `low`, `close`, and `volume`; `instrument_key` and `trade_count` are optional. SV1.5.1 hardens this path: existing candles cannot be silently retargeted to another `instrument_key` / symbol identity, row duration must match the selected timeframe, prices and volume must be finite and internally consistent, negative trade counts are rejected, and invalid files roll back without partial new or updated candles. The current candle model has no per-candle provenance field, so `source-label` is recorded in the import summary only. The importer calls no exchange adapters or private/order endpoints and creates no desired trades, strategy decisions, child intents, readiness evaluations, submitted orders, approvals, or routing artifacts. After importing, rerun the audit and then generate collision-safe evidence packs with the same campaign CLI. This is historical-data readiness and research evidence generation only, not paper trading, not live execution, not optimization, and not proof of profitability.
 
+SV1.6 adds the first canonical evidence-review summary on top of the same canonical campaign configs. By default the review CLI audits `money_flow_core_btc.json` and `money_flow_core_multi_symbol.json`, reports which campaigns are blocked by missing/thin data, and can generate collision-safe evidence packs only for campaigns whose data-readiness audit has no missing, thin, or blocked rows:
+
+```bash
+.venv/bin/python scripts/review_money_flow_evidence_packs.py \
+  --format markdown
+
+.venv/bin/python scripts/review_money_flow_evidence_packs.py \
+  --generate-evidence-packs \
+  --collision-policy unique_suffix \
+  --format markdown
+```
+
+The review summary reports campaign audit status, generated evidence-pack paths, fill-timing observations, component observations, regime observations, drawdown observations, fee/slippage observations, no-trade/invalid reason counts, and a manual paper-readiness review status such as `insufficient_data` or `ready_for_founder_review`. The status is descriptive only: it does not approve paper trading, create paper trades, change Money Flow rules, optimize parameters, route, submit, create live artifacts, or call exchange adapters. Missing or thin data is reported as a data-readiness gap, not as strategy failure.
+
 ## Routing Automation Planning
 
 Phase 7.0 exposes non-executing automation policy and dry-run planning:

@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-02T08:21:54Z`
+Last reviewed: `2026-05-03T05:19:59Z`
 
 ## Top-Level Structure
 
@@ -57,6 +57,7 @@ Last reviewed: `2026-05-02T08:21:54Z`
 - SV1.4.1 updates current-phase/coordination/decision notes for evidence-pack collision/overwrite integrity only; full project memory remains untouched.
 - SV1.5 updates current-phase/coordination/decision notes for historical data-readiness and first canonical evidence-pack support only; full project memory remains untouched.
 - SV1.5.1 updates current-phase/coordination/decision notes for candle-import and campaign-config research-truth hardening only; full project memory remains untouched.
+- SV1.6 updates current-phase/coordination/decision notes for first canonical evidence-review summaries only; full project memory remains untouched.
 - Obsidian app state under `money-flow/.obsidian/` remains ignored.
 
 `apps/api/`
@@ -161,7 +162,7 @@ Last reviewed: `2026-05-02T08:21:54Z`
 - Strategy framework and Money Flow strategy family.
 
 `services/strategy_validation/`
-- SV1.0 / SV1.0.1 / SV1.1 / SV1.2 / SV1.2.1 / SV1.3 / SV1.4 / SV1.4.1 / SV1.5 Money Flow validation/backtesting, research-campaign, evidence-readiness, evidence-integrity, and historical-data readiness service boundary.
+- SV1.0 / SV1.0.1 / SV1.1 / SV1.2 / SV1.2.1 / SV1.3 / SV1.4 / SV1.4.1 / SV1.5 / SV1.6 Money Flow validation/backtesting, research-campaign, evidence-readiness, evidence-integrity, historical-data readiness, and evidence-review service boundary.
 - Reads persisted historical candles, computes indicator snapshots in memory, reuses the current Money Flow strategy rules, simulates research-only trades with explicit fee/slippage/capital/fill-timing assumptions, and returns deterministic component and aggregate performance reports.
 - SV1.0.1 supports `same_candle_close_research_only`, `next_candle_open`, and `next_candle_close` fill timing; reports closed-trade and mark-to-market drawdown separately; and emits expanded founder/operator Markdown reports with assumptions, component comparison, trade summaries, reason counts, and limitations.
 - SV1.1 adds deterministic batch validation and comparison reports across explicit component, fill-timing, symbol, date-window, fee, and slippage assumptions. Comparison output is descriptive research only and does not optimize, recommend a variant, change Money Flow rules, route, or execute.
@@ -172,6 +173,7 @@ Last reviewed: `2026-05-02T08:21:54Z`
 - SV1.4.1 makes evidence-pack writes collision-safe: default `unique_suffix` creates a suffixed run directory instead of overwriting an existing pack, optional `fail_if_exists` raises explicitly, and manifests record requested/final run ids, final path, collision policy, collision occurrence, and suffix truth.
 - SV1.5 validates campaign `window_convention` metadata against the platform `(start_at, end_at]` convention, adds founder-readable Markdown data-readiness audit output, and adds offline public CSV/JSON candle import/upsert helpers for research historical-data gaps.
 - SV1.5.1 hardens campaign/import truth: contradictory inclusive-start `window_convention` text is rejected, existing candles cannot be silently retargeted to another resolved symbol/instrument identity, imported row duration must match the selected timeframe, malformed/non-finite/inconsistent OHLCV and negative trade counts fail, and invalid import files roll back without partial inserts or updates.
+- SV1.6 adds first canonical evidence-review helpers that audit canonical configs, generate collision-safe evidence packs only when data-readiness is sufficient, summarize evidence-pack paths/data gaps/fill-timing/component/regime/drawdown/cost observations, and expose manual paper-readiness review status without approving paper trading.
 - Creates no live desired trades, strategy decisions, child intents, prepared orders, readiness evaluations, submitted orders, routing artifacts, approval changes, private exchange calls, exchange order calls, or exchange adapter calls.
 
 `services/planning/`
@@ -207,6 +209,7 @@ Last reviewed: `2026-05-02T08:21:54Z`
 - Includes `scripts/run_money_flow_validation_batch.py` for SV1.1/SV1.2/SV1.2.1 read-only comparative Money Flow validation across explicit matrices of components, fill timings, symbols, date windows, and cost assumptions, including repeated `--window start,end` support using candle closes in `(start, end]`.
 - Includes `scripts/run_money_flow_research_campaign.py` for SV1.3/SV1.4/SV1.4.1/SV1.5 read-only Money Flow campaign configs, evidence-pack output, `--audit-only` persisted-candle readiness inspection, Markdown audit output, and explicit evidence-pack collision policy. It writes saved research reports only when not in audit-only mode and does not optimize, recommend, route, trade, or call exchange adapters.
 - Includes `scripts/import_strategy_validation_candles.py` for SV1.5/SV1.5.1 offline/public CSV or JSON candle imports into existing `candles` rows. It is duplicate-safe for matching candle identity, rejects identity conflicts, timeframe-duration mismatches, malformed/non-finite/inconsistent OHLCV rows, and negative trade counts, rolls back invalid files, and remains research-only; it does not call exchange adapters, private endpoints, order endpoints, or create live trading artifacts.
+- Includes `scripts/review_money_flow_evidence_packs.py` for SV1.6 read-only canonical evidence review. It audits canonical campaign configs by default, optionally generates collision-safe evidence packs only when data-readiness is sufficient, emits JSON/Markdown review summaries, and does not optimize, recommend, route, trade, or call exchange adapters.
 
 ## Operational Entrypoints
 
@@ -220,6 +223,7 @@ Last reviewed: `2026-05-02T08:21:54Z`
 - Money Flow research campaign evidence pack: `.venv/bin/python scripts/run_money_flow_research_campaign.py --config configs/strategy_validation/money_flow_research_campaign.example.json --format both`; campaign windows use candle closes in `(start, end]`, generated packs are written under `reports/strategy_validation/` by default, and the default `unique_suffix` collision policy prevents silent overwrite on duplicate run ids.
 - Money Flow campaign data-readiness audit: `.venv/bin/python scripts/run_money_flow_research_campaign.py --config configs/strategy_validation/campaigns/money_flow_core_btc.json --audit-only --audit-format markdown`; audit output is read-only JSON or Markdown over persisted candle coverage and creates no evidence pack or live artifacts.
 - Money Flow historical candle import: `.venv/bin/python scripts/import_strategy_validation_candles.py --input /path/to/candles.csv --environment testnet --venue hyperliquid --timeframe 15m --source-label public_dataset`; imports are duplicate-safe candle upserts only and do not create strategy, routing, approval, or execution artifacts.
+- Money Flow canonical evidence review: `.venv/bin/python scripts/review_money_flow_evidence_packs.py --format markdown`; add `--generate-evidence-packs` to generate collision-safe packs only for campaigns whose data-readiness audit has no missing, thin, or blocked rows. The review status is manual/descriptive only and does not approve paper trading.
 - Routing automation policy/plan/approval inspection and the narrow Phase 7.2 / 7.3 / 7.4 / 7.5 action hooks: `GET /api/v1/routing-automation/policy`, `POST /api/v1/routing-automation/plans/by-desired-trade/{desired_trade_key}`, `POST /api/v1/routing-automation/approvals`, `GET /api/v1/routing-automation/approvals/{approval_id}`, `GET /api/v1/routing-automation/approvals/by-desired-trade/{desired_trade_key}`, `POST /api/v1/routing-automation/approvals/{approval_id}/revoke`, administrative `POST /api/v1/routing-automation/approvals/{approval_id}/consume`, action-executing `POST /api/v1/routing-automation/approvals/{approval_id}/accept-recommendation`, action-executing `POST /api/v1/routing-automation/approvals/{approval_id}/convert-target-choice`, action-executing `POST /api/v1/routing-automation/approvals/{approval_id}/preview-readiness`, and action-executing `POST /api/v1/routing-automation/approvals/{approval_id}/submit`
 - Phase 8.0 operator routed workflow summary: `GET /api/v1/operator-routed-workflows/by-desired-trade/{desired_trade_key}`
 
@@ -258,6 +262,9 @@ Last reviewed: `2026-05-02T08:21:54Z`
 
 `tests/test_sv151_candle_import_integrity.py`
 - SV1.5.1 candle import and campaign-config research-truth validation: verifies strict window-convention contradiction rejection, candle identity-conflict blocking without retargeting or duplicate insert, same-identity duplicate-safe upsert behavior, timeframe-duration mismatch rejection, malformed/non-finite/invalid OHLCV and trade-count rejection, all-or-nothing rollback for invalid import files, and no live artifacts.
+
+`tests/test_sv16_evidence_review.py`
+- SV1.6 first canonical evidence-review validation: verifies canonical campaign audits report insufficient data without generated packs, seeded sufficient campaigns produce evidence-pack paths in review summaries, collision-safe duplicate runs still suffix instead of overwriting, review Markdown uses manual/descriptive status language, the review CLI is research-only, audit-only review creates no packs, and no live artifacts are created.
 
 `tests/test_phase34_mandates.py`
 - mandate hierarchy bootstrap, multi-binding scoping, reusable accounts across mandates, and differing component configs
