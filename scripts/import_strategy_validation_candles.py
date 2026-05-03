@@ -49,6 +49,16 @@ def build_parser() -> argparse.ArgumentParser:
             "per-candle provenance field, so this label is reported in the import summary only."
         ),
     )
+    parser.add_argument(
+        "--assume-naive-utc",
+        action="store_true",
+        help=(
+            "Non-default research override: treat timezone-naive candle timestamps as UTC. "
+            "By default naive timestamps are rejected. Override use is recorded in the "
+            "import summary as `timestamp_assumption=assume_naive_utc` and should not be "
+            "treated as clean canonical evidence without founder/operator acceptance."
+        ),
+    )
     return parser
 
 
@@ -62,6 +72,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         timeframe=Timeframe(args.timeframe),
         source_label=args.source_label,
         file_format=args.format,
+        assume_naive_utc=args.assume_naive_utc,
     )
     print(
         json.dumps(

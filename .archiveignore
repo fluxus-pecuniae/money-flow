@@ -19,6 +19,14 @@
 *.tgz
 reports/strategy_validation
 reports/strategy_validation/**
+reports/strategy_validation_reviews
+reports/strategy_validation_reviews/**
+reports/strategy_validation_imports
+reports/strategy_validation_imports/**
+data/strategy_validation/imports
+data/strategy_validation/imports/**
+data/strategy_validation/candles
+data/strategy_validation/candles/**
 __MACOSX
 __pycache__
 **/__pycache__

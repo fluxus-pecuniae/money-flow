@@ -1,6 +1,6 @@
 """Money Flow evidence-pack review helpers.
 
-SV1.8.1 is a research-review/data-gap layer over existing campaign audits and
+SV1.9.1 is a research-review/data-gap layer over existing campaign audits and
 evidence packs. It does not change Money Flow rules, create live artifacts, or
 call exchange adapters.
 """
@@ -87,6 +87,8 @@ class MoneyFlowEvidenceReviewDatabaseStatus:
     database_target_role: str
     intended_strategy_validation_database: bool
     database_target_warning_reason_codes: tuple[str, ...]
+    database_target_ready_for_evidence_generation: bool
+    database_target_blocking_reason_codes: tuple[str, ...]
     inspection_source: str
     reachable: bool
     candles_table_exists: bool
@@ -280,6 +282,7 @@ def review_money_flow_evidence(
             "This review is research-only and does not create paper trades, live trades, routing artifacts, approvals, child intents, readiness evaluations, or submitted orders.",
             "Missing or thin data is a data-readiness gap, not a Money Flow strategy failure.",
             "Evidence-pack generation requires migrated/current schema truth; a candles table alone is not sufficient.",
+            "Evidence-pack generation also requires a clearly intended non-maintenance strategy-validation DB target.",
             "Evidence packs and backtests do not prove future profitability.",
             "Paper-readiness status is manual review context only, not an automated go/no-go decision.",
             "No exchange adapters, private exchange endpoints, or order endpoints are called.",
@@ -299,6 +302,7 @@ def inspect_strategy_validation_database_status(
     target_metadata = _database_target_metadata(
         validation_service.settings.database.sqlalchemy_url
     )
+    target_blocking_reason_codes = _database_target_blocking_reason_codes(target_metadata)
     configured_url = _sanitize_database_url(
         validation_service.settings.database.sqlalchemy_url
     )
@@ -364,6 +368,8 @@ def inspect_strategy_validation_database_status(
                 database_target_warning_reason_codes=target_metadata[
                     "database_target_warning_reason_codes"
                 ],
+                database_target_ready_for_evidence_generation=not target_blocking_reason_codes,
+                database_target_blocking_reason_codes=target_blocking_reason_codes,
                 inspection_source="strategy_validation_session_factory",
                 reachable=True,
                 candles_table_exists=candles_table_exists,
@@ -401,6 +407,8 @@ def inspect_strategy_validation_database_status(
             database_target_warning_reason_codes=target_metadata[
                 "database_target_warning_reason_codes"
             ],
+            database_target_ready_for_evidence_generation=not target_blocking_reason_codes,
+            database_target_blocking_reason_codes=target_blocking_reason_codes,
             inspection_source="strategy_validation_session_factory",
             reachable=False,
             candles_table_exists=False,
@@ -468,6 +476,8 @@ def money_flow_evidence_review_database_status_to_markdown(
         f"- Target role: `{payload['database_target_role']}`",
         f"- Intended strategy-validation DB: `{payload['intended_strategy_validation_database']}`",
         f"- Target warning reason codes: `{payload['database_target_warning_reason_codes']}`",
+        f"- Target ready for evidence generation: `{payload['database_target_ready_for_evidence_generation']}`",
+        f"- Target blocking reason codes: `{payload['database_target_blocking_reason_codes']}`",
         f"- Inspection source: `{payload['inspection_source']}`",
         f"- DB reachable: `{payload['reachable']}`",
         f"- DB override hint: {payload['db_environment_override_hint']}",
@@ -486,7 +496,7 @@ def money_flow_evidence_review_database_status_to_markdown(
         f"- Migrations current: `{payload['migrations_current']}`",
         f"- Migration command hint: {payload['migration_command_hint']}",
         "",
-        "Evidence-pack generation requires `migrated_schema_ready`: Alembic migration truth must be current and required strategy-validation tables must exist. A `candles` table alone is not sufficient.",
+        "Evidence-pack generation requires a clearly intended non-maintenance DB target plus `migrated_schema_ready`: Alembic migration truth must be current and required strategy-validation tables must exist. A `candles` table alone is not sufficient.",
         "",
         "## Candle Table",
         "",
@@ -538,6 +548,8 @@ def money_flow_evidence_review_to_markdown(
         f"- Target role: `{database_status['database_target_role']}`",
         f"- Intended strategy-validation DB: `{database_status['intended_strategy_validation_database']}`",
         f"- Target warning reason codes: `{database_status['database_target_warning_reason_codes']}`",
+        f"- Target ready for evidence generation: `{database_status['database_target_ready_for_evidence_generation']}`",
+        f"- Target blocking reason codes: `{database_status['database_target_blocking_reason_codes']}`",
         f"- Inspection source: `{database_status['inspection_source']}`",
         f"- DB reachable: `{database_status['reachable']}`",
         f"- Schema status: `{database_status['schema_status']}`",
@@ -557,9 +569,9 @@ def money_flow_evidence_review_to_markdown(
         f"- DB override hint: {database_status['db_environment_override_hint']}",
         f"- Migration command hint: {database_status['migration_command_hint']}",
         "",
-        "Evidence-pack generation requires `migrated_schema_ready`: Alembic migration truth must be current and required strategy-validation tables must exist. A `candles` table alone is not sufficient.",
+        "Evidence-pack generation requires a clearly intended non-maintenance DB target plus `migrated_schema_ready`: Alembic migration truth must be current and required strategy-validation tables must exist. A `candles` table alone is not sufficient.",
         "",
-        "If the DB is unreachable, migrations/schema are missing or unknown, required strategy-validation tables are absent, or persisted candles are absent, campaign rows are reported as data-readiness gaps and no evidence packs are generated.",
+        "If the DB target is ambiguous or non-intended, the DB is unreachable, migrations/schema are missing or unknown, required strategy-validation tables are absent, or persisted candles are absent, campaign rows are reported as data-readiness gaps and no evidence packs are generated.",
         "",
         "## Canonical Campaign Review",
         "",
@@ -833,6 +845,9 @@ def _database_gap_reason_codes(
     database_status: MoneyFlowEvidenceReviewDatabaseStatus,
 ) -> tuple[str, ...]:
     reason_codes: set[str] = set(database_status.schema_status_reason_codes)
+    reason_codes.update(database_status.database_target_blocking_reason_codes)
+    if not database_status.database_target_ready_for_evidence_generation:
+        reason_codes.add("evidence_generation_blocked_by_db_target_truth")
     if not database_status.reachable:
         reason_codes.add("database_unreachable")
         message = (database_status.blocking_error_message or "").lower()
@@ -860,6 +875,8 @@ def _schema_ready_for_evidence_generation(
 ) -> bool:
     return (
         database_status.reachable
+        and database_status.database_target_ready_for_evidence_generation
+        and not database_status.database_target_blocking_reason_codes
         and database_status.schema_ready_for_evidence_generation
         and database_status.schema_status == "migrated_schema_ready"
         and database_status.migrations_current is True
@@ -989,6 +1006,27 @@ def _database_target_metadata(database_url: str) -> dict[str, Any]:
         "intended_strategy_validation_database": intended,
         "database_target_warning_reason_codes": tuple(sorted(warnings)),
     }
+
+
+def _database_target_blocking_reason_codes(
+    target_metadata: dict[str, Any],
+) -> tuple[str, ...]:
+    role = str(target_metadata.get("database_target_role") or "")
+    intended = bool(target_metadata.get("intended_strategy_validation_database"))
+    warnings = set(target_metadata.get("database_target_warning_reason_codes") or ())
+    reasons: set[str] = set()
+    if not intended:
+        reasons.add("strategy_validation_db_target_not_intended")
+    if role == "maintenance_database_name_requires_operator_confirmation":
+        reasons.add("maintenance_database_target_requires_confirmation")
+        reasons.add("strategy_validation_db_target_ambiguous")
+    if role in {"database_name_missing", "unparseable_database_url"}:
+        reasons.add("strategy_validation_db_target_ambiguous")
+    if "strategy_validation_db_target_ambiguous" in warnings:
+        reasons.add("strategy_validation_db_target_ambiguous")
+    if reasons:
+        reasons.add("evidence_generation_blocked_by_db_target_truth")
+    return tuple(sorted(reasons))
 
 
 def _applied_migration_revisions(

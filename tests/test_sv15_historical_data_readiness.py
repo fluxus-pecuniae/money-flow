@@ -295,6 +295,9 @@ def test_import_and_campaign_cli_help_are_research_only_and_truthful() -> None:
     normalized_campaign = " ".join(campaign_help.split())
 
     assert "--source-label" in import_help
+    assert "--assume-naive-utc" in import_help
+    assert "naive timestamps are rejected" in normalized_import
+    assert "timestamp_assumption=assume_naive_utc" in normalized_import
     assert "does not call exchanges" in normalized_import
     assert "does not create live trading artifacts" in normalized_import
     assert "--audit-format" in campaign_help

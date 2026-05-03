@@ -23,12 +23,21 @@ Up: [[Money Flow Command Center]]
 - Phase 7.5: approval-gated submitted-order handoff only.
 - Phase 7.5.1: `consumption_pending` approval truth after submitted-order handoff.
 - Phase 7.6: controlled automation closeout safety proof.
+- Phase 8.0: read-only operator workflow observability and manual-resolution inspection.
+- Phase 8.0.1: Obsidian memory / working-tree baseline cleanup.
+- Phase 8.0.2: active submit-lease operator-summary truth hotfix.
+- SV1.0-SV1.4.1: Money Flow strategy validation, report truth, comparative batches, regime/coverage diagnostics, evidence campaigns, review discipline, and collision-safe evidence packs.
+- SV1.5-SV1.5.1: historical-data readiness, offline public candle import, and import/config integrity.
+- SV1.6-SV1.9: canonical evidence review, DB/schema/migration/candle data-gap reporting, schema gate, DB-target reporting, and canonical candle import requirements. No first real canonical evidence packs were generated.
+- SV1.9.1: ambiguous DB-target evidence-generation blocking, default naive timestamp rejection, import provenance strengthening, and Obsidian current-truth refresh.
 
 ## Current Next Shape
 
-See [[40 Operations/Phase 8 Focus]].
+See [[40 Operations/Future Work Roadmap]].
 
-Phase 7 is accepted complete. The next proposed phase is Phase 8.0: operator-grade observability, manual-resolution inspection, submit-lease/concurrency visibility, and dashboard/read-only inspection depth. It should not add smart routing, best-binding selection, fanout, target reselection, route-executor behavior, new action stages, or broad auto-submit.
+Current implemented phase: `SV1.9.1`.
+
+The next proposed Strategy Validation work is to point evidence review at a reachable migrated non-maintenance Money Flow database, import or verify enough timezone-explicit public/offline canonical BTC/ETH/SOL candles, generate first real evidence packs only after DB target/schema/data readiness is clean, and keep paper-trading design deferred until founder/operator evidence review justifies it. Phase 8.1 remains deferred until explicitly scoped.
 
 ## Strategic Memory
 

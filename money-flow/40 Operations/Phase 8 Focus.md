@@ -8,6 +8,8 @@ Phase 8.0 is implemented. Phase 8.0.1 cleaned the Obsidian memory / working-tree
 
 The accepted codebase baseline now includes Phase 8.0 read-only operator routed workflow summary inspection. Phase 7.6 remains the accepted controlled automation closeout baseline underneath it.
 
+Current implemented phase is `SV1.9.1`. This Phase 8 note is historical/operator-control context; current active work is Strategy Validation evidence/data readiness, not routing/SOR expansion or manual-resolution mutation.
+
 ## Phase 8.0 Purpose
 
 Phase 8.0 is the first operator-grade observability and manual-resolution inspection phase.

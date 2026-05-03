@@ -26,6 +26,7 @@ REQUIRED_FILES = [
     "docs/strategy_validation_sv1_8_historical_data_bootstrap.md",
     "docs/strategy_validation_sv1_8_1_schema_truth_hotfix.md",
     "docs/strategy_validation_sv1_9_first_real_evidence_status.md",
+    "docs/strategy_validation_sv1_9_1_evidence_target_truth_hotfix.md",
 ]
 
 
@@ -71,12 +72,39 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "required Obsidian brain entrypoint" in command_center
-    assert re.search(r"Current implemented phase: `SV1\.9`", current_phase)
-    assert "SV1.9" in command_center
+    assert re.search(r"Current implemented phase: `SV1\.9\.1`", current_phase)
+    assert "SV1.9.1" in command_center
     assert "Active Work" in coordination
     assert "Quant Engineer" in moved_memory
+    assert "Strategy Validation" in moved_memory
+    assert "SV1.9" in moved_memory
+    assert "no first real canonical evidence packs have been generated yet" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
+
+
+def test_obsidian_current_state_notes_do_not_have_stale_current_truth() -> None:
+    current_state_paths = [
+        Path("money-flow/00_Money_Flow_Command_Center.md"),
+        Path("money-flow/Money Flow Command Center.md"),
+        Path("money-flow/01_Current_Phase.md"),
+        Path("money-flow/00 Maps/Current State Dashboard.md"),
+        Path("money-flow/00 Maps/Phase Timeline.md"),
+        Path("money-flow/40 Operations/Future Work Roadmap.md"),
+    ]
+    stale_current_truth_phrases = [
+        "Current branch observed: `phase-7.6`",
+        "Phase observed in repo memory: `SV1.7`",
+        "next proposed phase is Phase 8.0",
+        "The immediate next phase should be Phase 8.0",
+        "routing is current priority",
+    ]
+
+    for path in current_state_paths:
+        contents = path.read_text()
+        assert "SV1.9.1" in contents, f"{path} does not reflect current SV1.9.1 work"
+        for phrase in stale_current_truth_phrases:
+            assert phrase not in contents, f"{path} still contains stale current truth: {phrase}"
 
 
 def test_changelog_has_versioned_entries() -> None:
@@ -91,7 +119,20 @@ def test_archiveignore_excludes_local_review_artifacts() -> None:
     archiveignore = Path(".archiveignore")
     assert archiveignore.exists()
     contents = archiveignore.read_text()
-    for name in [".env", ".pgdata", ".pgsocket", ".venv", ".pytest_cache", ".DS_Store", "*.zip"]:
+    for name in [
+        ".env",
+        ".pgdata",
+        ".pgsocket",
+        ".venv",
+        ".pytest_cache",
+        ".DS_Store",
+        "*.zip",
+        "reports/strategy_validation",
+        "reports/strategy_validation_reviews",
+        "reports/strategy_validation_imports",
+        "data/strategy_validation/imports",
+        "data/strategy_validation/candles",
+    ]:
         assert name in contents
 
 

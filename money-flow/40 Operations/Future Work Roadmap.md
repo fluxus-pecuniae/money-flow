@@ -4,16 +4,18 @@ Up: [[Money Flow Command Center]]
 
 ## Immediate Future
 
-Phase 7 is accepted complete. It added controlled automation policy, durable approvals, four narrow approval-consuming action hooks through submitted-order handoff, `consumption_pending` truth, and closeout no-SOR safety coverage.
+Current implemented phase: `SV1.9.1`.
 
-The immediate next phase should be Phase 8.0: operator-grade observability and manual-resolution inspection for the existing controlled routed automation chain.
+Strategy Validation is the current priority. No first real canonical Money Flow evidence packs have been generated yet. The immediate next phase should prepare a reachable migrated non-maintenance Money Flow database, import or verify enough timezone-explicit public/offline BTC/ETH/SOL candles for canonical campaign windows/timeframes, rerun canonical evidence review with evidence generation only after DB target/schema/data readiness are clean, and keep paper-trading design deferred until founder/operator evidence review justifies it.
 
-See [[40 Operations/Phase 8 Focus]].
+SV1.9.1 must remain the accepted guardrail: ambiguous/non-intended maintenance DB targets block evidence generation by default, timezone-naive candle imports are rejected by default unless a provenance-marked exploratory override is explicitly used, and generated research/import outputs stay out of Git and review bundles.
 
 ## Later Phase Shape
 
 - Phase 7: controlled automation around the existing single-target path. Accepted complete.
-- Phase 8.0: operator-grade observability, manual-resolution inspection, approval/automation state depth, submitted-order handoff safety inspection, and concurrency/lease visibility. Not SOR.
+- Phase 8.0: operator-grade observability, manual-resolution inspection, approval/automation state depth, submitted-order handoff safety inspection, and concurrency/lease visibility. Implemented; not SOR.
+- Phase 8.0.1 / 8.0.2: Obsidian baseline cleanup and active submit-lease operator-summary truth hotfix. Implemented.
+- SV1.0-SV1.9.1: Strategy Validation research track. Implemented through evidence-target/import/memory-governance hotfix; no first real canonical evidence packs yet.
 - Later Phase 8.x: manual-resolution markers or dashboard read-only surfaces if Phase 8.0 keeps the mutation boundary clean.
 - Future SOR foundations: only after market-data, fee, quote sufficiency, slippage, operator controls, and manual-resolution workflow are stronger.
 - Phase 9: multi-child fanout or split execution only after single-target routing is boring and proven.
@@ -30,7 +32,7 @@ See [[40 Operations/Phase 8 Focus]].
 - Composite source/pricing policy.
 - Venue parity and user-stream depth.
 - Real dashboard/control plane UI.
-- Backtesting.
+- Strategy Validation evidence review and historical candle data readiness.
 - Alerts.
 - Strategy family expansion.
 

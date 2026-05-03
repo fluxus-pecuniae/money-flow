@@ -3032,3 +3032,143 @@ The cleanup decision is:
 - record the cleanup in Obsidian coordination/decision notes and repo operational docs
 
 This cleanup adds no product behavior. It is workflow hygiene so future agents start from a clean Phase 8.0/8.0.1 baseline before Phase 8.1.
+
+## 90. Phase 8.0.2 — operator-summary submit-lease truth
+
+Phase 8.0.2 was a narrow truth hotfix on the read-only operator summary.
+
+It fixed the case where an unexpired active child-intent submit lease existed but the operator summary could still make approval-gated submit look safe. After the hotfix, an active lease is surfaced as `submission_in_progress`, repeat-submit safety is blocked with explicit reason truth, and the next safe operator action does not present approval-gated submit as safe while a submission may already be in progress.
+
+This changed no trading behavior. It did not add manual-resolution mutation, new action stages, route executor behavior, fanout, target reselection, broad auto-submit, or smart routing.
+
+## 91. Strategy Validation became the current priority
+
+After Phase 8.0.2, the project deliberately pivoted away from routing/SOR expansion and back to the core business question:
+
+> Does Money Flow show enough evidence to justify paper-trading design?
+
+This is why the SV track exists. Strategy Validation is not a side feature. It is the research-truth layer needed to prove or disprove whether Money Flow has edge before adding more trading workflow complexity.
+
+The hard boundary for the entire SV track is:
+- no Money Flow rule optimization unless a correctness bug is found
+- no paper trading
+- no live execution
+- no routing or exchange-order behavior
+- no treating backtest output as proof of profitability
+
+## 92. SV1.0 through SV1.0.1 — first validation and report truth
+
+SV1.0 added the first deterministic Money Flow backtest/reporting framework over persisted candles. It reuses the current Money Flow rules, computes indicators in memory, simulates research-only trades with explicit assumptions, and creates no live trading artifacts.
+
+SV1.0.1 hardened report truth:
+- fill timing is explicit
+- same-candle close fills are labeled research-only and potentially optimistic
+- next-candle open/close fills are supported
+- closed-trade drawdown and mark-to-market drawdown are separated
+- Markdown reports include assumptions, limitations, component metrics, trade summaries, and reason counts
+
+This was the first step toward founder/operator evidence review rather than anecdotal strategy belief.
+
+## 93. SV1.1 through SV1.2.1 — comparative, regime, coverage, and window truth
+
+SV1.1 added comparative batch validation across explicit components, fill timings, symbols, date windows, fees, and slippage assumptions. It is descriptive only: it reports observed results and does not optimize or recommend a variant.
+
+SV1.2 added data coverage and deterministic market-regime analysis. Regimes are descriptive labels derived from candle data, not strategy filters.
+
+SV1.2.1 fixed load-bearing research-truth issues:
+- all validation windows use candle closes in `(start_at, end_at]`
+- adjacent windows do not double-count boundary candles
+- expected close-slot coverage is aligned with that convention
+- unaligned windows are warning-coded
+- coverage cannot exceed 100%
+- blocked runs remain visible in grouped comparisons
+
+This window convention remains authoritative for all later campaign and evidence-pack work.
+
+## 94. SV1.3 through SV1.4.1 — campaigns, evidence packs, review discipline, and write integrity
+
+SV1.3 added named, repeatable Money Flow research campaigns and evidence packs. Campaign configs expand explicit symbols, components, fill timings, windows, fees, slippage, capital, and sizing through the existing batch runner and save normalized config, manifest, JSON, Markdown, and README outputs.
+
+SV1.4 added canonical editable campaign configs, pre-run data-readiness audits, evidence-pack review checklists, and manual paper-trading readiness criteria. These criteria are founder/operator review aids only, not automated approval.
+
+SV1.4.1 made evidence packs collision-safe. Repeated same-campaign same-timestamp runs no longer silently overwrite prior research records. The default policy writes a unique suffix, and manifests record requested/final run identity and collision truth.
+
+## 95. SV1.5 through SV1.5.1 — historical-data readiness and import integrity
+
+SV1.5 added historical-data readiness support:
+- campaign `window_convention` metadata validation
+- founder-readable Markdown readiness audits
+- offline public CSV/JSON candle import/upsert tooling
+
+SV1.5.1 hardened the import/config truth:
+- contradictory inclusive-start window-convention text is rejected
+- existing candle identity conflicts do not retarget symbol/instrument ids
+- row duration must match the selected timeframe
+- malformed, non-finite, zero, negative, or internally inconsistent OHLCV rows are rejected
+- negative trade counts are rejected
+- invalid files roll back without partial inserts or updates
+
+The current candle model still lacks per-candle source provenance, so import source/provenance is summary-level unless a future schema phase adds import-batch linkage.
+
+## 96. SV1.6 through SV1.7 — first evidence review and data-gap reporting
+
+SV1.6 added the first canonical evidence-review summaries over the canonical BTC and multi-symbol campaign configs. It can generate collision-safe evidence packs only when data-readiness audits are clean, and otherwise reports insufficient data without treating missing data as a strategy failure.
+
+SV1.7 added first-real DB/data gap reporting:
+- sanitized DB URL/source
+- DB reachability
+- candle-table existence
+- persisted candle count when available
+- blocked campaign rows when DB/schema/candles are unavailable
+- `partial_evidence_ready_with_data_gaps` for mixed outcomes
+
+The local SV1.7 attempt did not generate real evidence packs because the default `postgres` host was unresolved and the reachable local Postgres endpoint did not contain the Money Flow `candles` table.
+
+## 97. SV1.8 through SV1.8.1 — schema truth before evidence packs
+
+SV1.8 made DB/schema/migration bootstrap truth explicit and added a `--db-status-only` evidence-review CLI path. The local check found the explicit `127.0.0.1:54322/postgres` target reachable in that phase, but unmigrated: no `alembic_version` and no `candles`.
+
+SV1.8.1 added a hard schema gate:
+- evidence packs require `migrated_schema_ready`
+- Alembic migration truth must be current
+- required `candles`, `instruments`, and `symbols` tables must exist
+- a `candles` table alone is not enough
+- top-level no-live/no-exchange flags aggregate from campaign results
+
+This prevented the first real evidence packs from being generated from partial or unknown schema truth.
+
+## 98. SV1.9 — intended DB target and candle import requirements
+
+SV1.9 made first-real evidence status operationally precise.
+
+Evidence-review DB status now reports:
+- sanitized DB driver, host, port, name, and user
+- target-role classification
+- intended strategy-validation DB truth
+- maintenance-database warnings
+- required-table and migration status
+- canonical candle import requirements for blocked/missing rows
+
+The local SV1.9 probes generated no evidence packs:
+- default intended `money_flow` DB target used unresolved host `postgres`
+- explicit `127.0.0.1:54322/postgres` override was unreachable in that shell
+- the explicit override is also a maintenance database target requiring operator confirmation
+
+As of SV1.9.1, no first real canonical evidence packs have been generated yet. The current blocker is DB/schema/candle readiness, not a Money Flow strategy result.
+
+## 99. SV1.9.1 — evidence-target truth, import timestamp truth, and memory governance
+
+SV1.9.1 fixed trust issues before SV1.10 can attempt first real evidence packs:
+- ambiguous/non-intended maintenance DB targets now block evidence generation by default
+- `postgres`, `template0`, and `template1` are not accepted canonical evidence targets by default
+- no DB-target override exists yet
+- timezone-naive candle timestamps are rejected by default
+- `--assume-naive-utc` is a non-default import override that records `timestamp_assumption=assume_naive_utc` and warning/source provenance
+- override-derived imports should be treated as exploratory/non-canonical unless founder/operator review explicitly accepts them
+- import summaries now include source label, path/name/hash, row counts, imported environment/venue/timeframe, timestamp assumption, and naive-override truth
+- generated evidence packs, review outputs, import outputs, local candle files, and local DB artifacts are excluded from source/review bundles
+- Obsidian command center, dashboard, timeline, roadmap, coordination, decision log, and this full project memory were refreshed through SV1.9
+
+Routing/SOR expansion is not the current priority. The current priority is Strategy Validation evidence/data readiness.
+
+Paper trading is not approved yet. The next safe step is to prepare a reachable migrated non-maintenance Money Flow DB, import or verify enough timezone-explicit BTC/ETH/SOL candles for canonical campaigns, and generate first real evidence packs only after DB target, schema, and data-readiness truth are clean.

@@ -13,6 +13,53 @@ Entry schema:
 
 ---
 
+## v2026.05.03.006
+
+- `recorded_at_utc`: `2026-05-03T22:02:39Z`
+- `scope`: `SV1.9.1 evidence-target truth, candle-import timestamp/provenance truth, and Obsidian memory-governance hotfix`
+- `intent`: `Native entry. Hardened Strategy Validation evidence governance before SV1.10 first-real evidence-pack work. Evidence-pack generation now requires a clearly intended non-maintenance strategy-validation DB target in addition to migrated/current schema and sufficient candle data; maintenance database targets such as `postgres`, `template0`, and `template1` block evidence generation by default even if schema and candles are otherwise present. Offline candle imports now reject timezone-naive timestamps by default; the non-default `--assume-naive-utc` override records `timestamp_assumption=assume_naive_utc`, override warning codes, source label, file path/name/hash, row counts, and imported environment/venue/timeframe in the import summary. Import summaries now expose stronger source provenance while per-candle provenance remains a known limitation. Stale Obsidian current-truth notes and full project memory were refreshed through SV1.9, and generated research/import output paths were added to Git/review-bundle ignores. No first real canonical evidence packs were generated. This is evidence-governance and memory-governance only: no Money Flow rule changes, parameter optimization, strategy recommendations, paper/live trading, live artifacts, routing, execution automation, exchange adapter calls, private/order endpoint calls, route executor behavior, fanout, target reselection, or auto-submit were added.`
+- `affected_files`:
+  - `services/strategy_validation/evidence_review.py`
+  - `services/strategy_validation/candles.py`
+  - `scripts/import_strategy_validation_candles.py`
+  - `scripts/review_money_flow_evidence_packs.py`
+  - `tests/test_sv191_evidence_target_and_import_truth.py`
+  - `tests/test_sv15_historical_data_readiness.py`
+  - `tests/test_operational_docs.py`
+  - `docs/strategy_validation_sv1_9_first_real_evidence_status.md`
+  - `docs/strategy_validation_sv1_9_1_evidence_target_truth_hotfix.md`
+  - `.gitignore`
+  - `.archiveignore`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/30 Strategy/Money Flow Strategy Lab.md`
+  - `money-flow/40 Operations/Phase 8 Focus.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_sv191_evidence_target_and_import_truth.py` passed with 3 tests during focused development.
+  - `.venv/bin/python -m pytest -q tests/test_sv15_historical_data_readiness.py tests/test_sv151_candle_import_integrity.py tests/test_sv19_evidence_status.py tests/test_sv191_evidence_target_and_import_truth.py` passed with 29 tests during focused development.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 11 tests during focused docs/Obsidian validation.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv15_historical_data_readiness.py tests/test_sv151_candle_import_integrity.py tests/test_sv16_evidence_review.py tests/test_sv17_evidence_review_real_data_gaps.py tests/test_sv18_historical_data_bootstrap.py tests/test_sv181_evidence_schema_truth.py tests/test_sv19_evidence_status.py tests/test_sv191_evidence_target_and_import_truth.py` passed with 78 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 18 tests.
+  - `.venv/bin/python -m pytest -q tests --ignore=tests/test_migrations.py` passed with 547 tests.
+  - Migration smoke was not run because `TEST_DATABASE_URL` was unset in this shell; no migrations were changed in SV1.9.1.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.9.1-review.zip` created the SV1.9.1 review bundle; bundle inspection found no `.env`, virtualenvs, Git metadata, caches, local DB/SQLite files, nested archives, generated evidence packs/reports/import outputs, local candle files, secrets, or Obsidian app state.
+
 ## v2026.05.03.005
 
 - `recorded_at_utc`: `2026-05-03T20:11:02Z`

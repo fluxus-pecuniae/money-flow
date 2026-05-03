@@ -1,5 +1,7 @@
 # SV1.9 First Real Evidence Status
 
+Superseded/clarified by `docs/strategy_validation_sv1_9_1_evidence_target_truth_hotfix.md`: ambiguous or non-intended maintenance DB targets now block evidence-pack generation by default, and timezone-naive candle imports are rejected by default unless a provenance-marked non-canonical override is explicitly used.
+
 SV1.9 is a research-only DB/schema/candle-readiness and first-real evidence-pack attempt for canonical Money Flow campaigns. It does not change Money Flow rules, optimize parameters, recommend a strategy variant, create paper/live artifacts, call exchanges, route, submit, or approve paper trading.
 
 ## Evidence Status

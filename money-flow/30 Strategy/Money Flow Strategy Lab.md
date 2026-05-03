@@ -10,6 +10,8 @@ Keep the strategy thread visible while routing and execution work becomes comple
 
 Money Flow is the first strategy family. It is not the universal vocabulary of the platform.
 
+Current Strategy Validation focus: `SV1.9.1` has hardened evidence-target and candle-import truth before first real canonical evidence packs. No first real canonical Money Flow evidence packs have been generated yet, and paper trading is not approved.
+
 The original strategy idea involved:
 
 - 5 EMA

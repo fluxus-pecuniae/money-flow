@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime, timedelta
@@ -20,15 +21,21 @@ from db.session import SessionLocal
 @dataclass(frozen=True, slots=True)
 class StrategyValidationCandleImportResult:
     source_path: str
+    source_file_name: str
+    source_file_sha256: str
     source_label: str | None
     environment: Environment
     venue: str
     timeframe: Timeframe
     rows_seen: int
+    row_count: int
     inserted_count: int
     updated_count: int
     unchanged_count: int
     skipped_count: int
+    rejected_count: int
+    timestamp_assumption: str
+    naive_timestamp_override_used: bool
     warning_reason_codes: tuple[str, ...]
     limitations: tuple[str, ...]
     creates_live_artifacts: bool = False
@@ -45,6 +52,7 @@ def import_strategy_validation_candles_from_path(
     timeframe: Timeframe,
     source_label: str | None = None,
     file_format: str = "auto",
+    assume_naive_utc: bool = False,
     session_factory: Any = SessionLocal,
 ) -> StrategyValidationCandleImportResult:
     """Import public/offline historical candles with duplicate-safe upsert semantics.
@@ -55,17 +63,27 @@ def import_strategy_validation_candles_from_path(
     """
 
     import_path = Path(path)
+    file_hash = _sha256_file(import_path)
     rows = _load_candle_rows(import_path, file_format=file_format)
     inserted_count = 0
     updated_count = 0
     unchanged_count = 0
     skipped_count = 0
+    rejected_count = 0
     warnings: set[str] = set()
+    if assume_naive_utc:
+        warnings.add("naive_timestamp_override_used")
+        warnings.add("timestamp_assumption_assume_naive_utc")
 
     with session_factory() as session:
         try:
             for row in rows:
-                parsed = _parse_candle_row(row, timeframe=timeframe)
+                parsed = _parse_candle_row(
+                    row,
+                    timeframe=timeframe,
+                    assume_naive_utc=assume_naive_utc,
+                    warning_reason_codes=warnings,
+                )
                 symbol_model = _resolve_symbol_model(
                     session=session,
                     venue=venue,
@@ -130,20 +148,29 @@ def import_strategy_validation_candles_from_path(
         warnings.add("source_label_recorded_in_import_summary_only")
     return StrategyValidationCandleImportResult(
         source_path=str(import_path),
+        source_file_name=import_path.name,
+        source_file_sha256=file_hash,
         source_label=source_label,
         environment=environment,
         venue=venue,
         timeframe=timeframe,
         rows_seen=len(rows),
+        row_count=len(rows),
         inserted_count=inserted_count,
         updated_count=updated_count,
         unchanged_count=unchanged_count,
         skipped_count=skipped_count,
+        rejected_count=rejected_count,
+        timestamp_assumption=(
+            "assume_naive_utc" if assume_naive_utc else "timezone_explicit_required"
+        ),
+        naive_timestamp_override_used=assume_naive_utc,
         warning_reason_codes=tuple(sorted(warnings)),
         limitations=(
             "offline_public_historical_candle_import_only",
             "candle_model_has_no_dedicated_source_provenance_field",
             "source_label_is_reported_in_import_summary_not_persisted_per_candle",
+            "timezone_explicit_source_data_is_preferred_for_canonical_evidence",
             "no_strategy_decisions_or_live_execution_artifacts_created",
             "no_exchange_adapter_private_or_order_endpoints_called",
         ),
@@ -183,10 +210,28 @@ def _load_candle_rows(path: Path, *, file_format: str) -> list[dict[str, Any]]:
     raise ValueError("candle import format must be auto, csv, or json.")
 
 
-def _parse_candle_row(row: dict[str, Any], *, timeframe: Timeframe) -> dict[str, Any]:
+def _parse_candle_row(
+    row: dict[str, Any],
+    *,
+    timeframe: Timeframe,
+    assume_naive_utc: bool,
+    warning_reason_codes: set[str],
+) -> dict[str, Any]:
     symbol = _required_str(row, "symbol")
-    open_time = _parse_datetime(_required_str(row, "open_time"))
-    close_time = _parse_datetime(_required_str(row, "close_time"))
+    open_time = _parse_datetime(
+        _required_str(row, "open_time"),
+        field="open_time",
+        symbol=symbol,
+        assume_naive_utc=assume_naive_utc,
+        warning_reason_codes=warning_reason_codes,
+    )
+    close_time = _parse_datetime(
+        _required_str(row, "close_time"),
+        field="close_time",
+        symbol=symbol,
+        assume_naive_utc=assume_naive_utc,
+        warning_reason_codes=warning_reason_codes,
+    )
     if close_time <= open_time:
         raise ValueError(f"candle close_time must be after open_time for symbol {symbol}.")
     expected_duration = _timeframe_duration(timeframe)
@@ -377,11 +422,34 @@ def _timeframe_duration(timeframe: Timeframe) -> timedelta:
     }[timeframe]
 
 
-def _parse_datetime(value: str) -> datetime:
+def _parse_datetime(
+    value: str,
+    *,
+    field: str,
+    symbol: str,
+    assume_naive_utc: bool,
+    warning_reason_codes: set[str],
+) -> datetime:
     parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
     if parsed.tzinfo is None:
+        if not assume_naive_utc:
+            raise ValueError(
+                "candle_import_naive_timestamp: timezone_required_for_candle_import "
+                f"symbol={symbol} field={field} value={value!r}. Use timezone-explicit "
+                "ISO-8601 timestamps for canonical evidence imports."
+            )
+        warning_reason_codes.add("candle_import_naive_timestamp_assumed_utc")
+        warning_reason_codes.add("timezone_required_for_candle_import_overridden")
         return parsed.replace(tzinfo=UTC)
     return parsed.astimezone(UTC)
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def _coerce_utc(value: datetime) -> datetime:

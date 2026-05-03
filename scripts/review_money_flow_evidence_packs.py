@@ -27,7 +27,7 @@ def build_parser() -> argparse.ArgumentParser:
             "Run a research-only Money Flow evidence review. The review audits "
             "database target host/port/name, reachability, migration/schema status, candle-table truth, "
             "and canonical campaign configs; optionally writes evidence packs only "
-            "when persisted candle data is sufficient; and never routes, trades, "
+            "when the DB target is clearly intended/non-maintenance and persisted candle data is sufficient; and never routes, trades, "
             "optimizes, or calls exchange adapters. Override DB_HOST, DB_PORT, "
             "DB_NAME, DB_USER, and DB_PASSWORD to point at the intended migrated "
             "Money Flow database."

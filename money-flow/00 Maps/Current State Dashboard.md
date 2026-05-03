@@ -8,8 +8,8 @@ Money Flow is a mandate-driven, multi-venue-aware trading strategy platform whos
 
 ## Current Implemented Phase
 
-- Phase observed in repo memory: `SV1.7`.
-- Latest implemented scope: first real canonical Money Flow evidence review / data-gap reporting.
+- Phase observed in repo memory: `SV1.9.1`.
+- Latest implemented scope: evidence-target truth, candle-import timestamp/provenance truth, and Obsidian memory-governance hotfix before first real canonical evidence packs.
 - Current action hooks: approval-gated `recommendation_acceptance`, `target_choice_conversion`, `prepared_order_preview_and_readiness`, and `submitted_order_handoff`.
 - Phase 7.5.1 added `consumption_pending` approval truth for submitted-order-created / approval-consumption-failed cases.
 - Phase 7.6 added closeout tests and docs only; it added no production behavior.
@@ -21,7 +21,11 @@ Money Flow is a mandate-driven, multi-venue-aware trading strategy platform whos
 - SV1.5.1 rejects contradictory window-convention text plus candle import identity conflicts, timeframe-duration mismatches, malformed OHLCV rows, and partial invalid imports before first real evidence review.
 - SV1.6 audits canonical BTC and multi-symbol campaigns, reports insufficient data as a data-readiness gap, optionally generates collision-safe evidence packs where audits are clean, and emits manual paper-readiness review status without approving paper trading.
 - SV1.7 reports sanitized DB reachability/candle-table truth before audits, blocks canonical campaigns clearly when DB/schema data is unavailable, adds `partial_evidence_ready_with_data_gaps`, and recorded that the local reachable DB lacks `candles`, so no first real packs were generated.
-- Proposed next phase: migrate/populate a reachable Money Flow DB or import enough historical candles, rerun canonical evidence review with generated packs, then scope paper-trading design only if founder/operator review justifies it.
+- SV1.8 adds DB/schema/migration bootstrap truth and `--db-status-only`; the explicit local maintenance DB target was reachable in that phase but unmigrated.
+- SV1.8.1 gates evidence-pack generation on `migrated_schema_ready` plus required `candles`, `instruments`, and `symbols` tables.
+- SV1.9 reports sanitized DB target role/intended-target truth and canonical candle import requirements; no first real packs were generated.
+- SV1.9.1 blocks ambiguous/non-intended maintenance DB targets from evidence generation by default, rejects timezone-naive candle imports by default unless a provenance-marked non-canonical override is used, and refreshes Obsidian current truth through SV1.9.
+- Proposed next phase: migrate/populate a reachable non-maintenance Money Flow DB or import enough timezone-explicit historical candles, rerun canonical evidence review with generated packs only when DB target/schema/data readiness are clean, then scope paper-trading design only if founder/operator review justifies it.
 
 ## Implemented Platform Surface
 
@@ -76,7 +80,7 @@ Phase 8.0 makes workflow state, approval state, manual-resolution needs, submit-
 
 ## Current Strategy Validation Layer
 
-SV1.7 keeps validation research-only. Canonical campaign configs live under `configs/strategy_validation/campaigns/`, campaign windows use `(start_at, end_at]`, config `window_convention` metadata is strictly validated against that platform convention, data-readiness audits can render Markdown founder summaries, and evidence-pack writes use explicit collision policy instead of silent overwrite. Offline public CSV/JSON candle imports can duplicate-safely upsert matching existing candle rows for research backfills only, but reject identity conflicts, timeframe-duration mismatches, malformed/non-finite/inconsistent OHLCV rows, negative trade counts, and invalid files without partial commits. The evidence review CLI reports sanitized DB reachability/candle-table truth before canonical audits, blocks campaigns clearly when DB/schema data is unavailable, and can generate packs only when audits are clean; it does not create live artifacts, approve paper trading, or call exchange/private/order endpoints.
+SV1.9.1 keeps validation research-only. Canonical campaign configs live under `configs/strategy_validation/campaigns/`, campaign windows use `(start_at, end_at]`, config `window_convention` metadata is strictly validated against that platform convention, data-readiness audits can render Markdown founder summaries, and evidence-pack writes use explicit collision policy instead of silent overwrite. Offline public CSV/JSON candle imports can duplicate-safely upsert matching existing candle rows for research backfills only, but reject identity conflicts, timeframe-duration mismatches, malformed/non-finite/inconsistent OHLCV rows, negative trade counts, timezone-naive timestamps by default, and invalid files without partial commits. The evidence review CLI reports sanitized DB target/reachability/schema/migration/candle-table truth before canonical audits, blocks ambiguous/non-intended maintenance DB targets and unready schema/data clearly, and can generate packs only when target, schema, and data readiness are clean; it does not create live artifacts, approve paper trading, or call exchange/private/order endpoints.
 
 ## Deferred Boundaries
 

@@ -64,6 +64,10 @@ money-flow-phase-*-review.zip
 
 # Generated strategy-validation evidence packs
 reports/strategy_validation/
+reports/strategy_validation_reviews/
+reports/strategy_validation_imports/
+data/strategy_validation/imports/
+data/strategy_validation/candles/
 
 # Obsidian strategic brain
 # Track project markdown notes, but keep local Obsidian app/workspace state out of Git.
