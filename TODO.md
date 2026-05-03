@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-03T14:40:50Z`
+Last reviewed: `2026-05-03T20:11:02Z`
 
 ## Active Follow-Ups
 
@@ -170,7 +170,7 @@ Last reviewed: `2026-05-03T14:40:50Z`
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `After SV1.8.1, apply migrations to the intended Money Flow database or point the evidence-review workflow at an already migrated Money Flow database, import or verify enough public historical candles for the canonical BTC/ETH/SOL campaign windows and `sleeve_15m` / `sleeve_1h` / `sleeve_4h` timeframes, rerun canonical evidence review with `--generate-evidence-packs`, and have the founder/operator manually review saved evidence before any paper-trading design is scoped. SV1.8 found the default configured `postgres` host unresolved and the explicit local `127.0.0.1:54322/postgres` database reachable but unmigrated with no `alembic_version` and no `candles`; SV1.8.1 further requires `migrated_schema_ready`, current Alembic truth, and required `candles` / `instruments` / `symbols` tables before evidence packs can generate. Canonical evidence remains `insufficient_data`. Do not optimize Money Flow rules, recommend a variant, add paper/live trading, create live artifacts, call exchanges, or connect validation outputs to routing/execution automation until that manual evidence review explicitly justifies a new phase.`
+- `summary`: `After SV1.9, point evidence review at a reachable migrated non-maintenance Money Flow database, import or verify enough public historical candles for the canonical BTC/ETH/SOL campaign windows and `sleeve_15m` / `sleeve_1h` / `sleeve_4h` timeframes, rerun canonical evidence review with `--generate-evidence-packs`, and have the founder/operator manually review saved evidence before any paper-trading design is scoped. SV1.9 classifies the default configured `postgresql+psycopg://money_flow:***@postgres:5432/money_flow` target as the intended Money Flow DB but the host was unresolved in this shell; it also classifies `postgresql+psycopg://postgres:***@127.0.0.1:54322/postgres` as a maintenance database name requiring operator confirmation, and that endpoint was unreachable in this shell. SV1.8.1/SV1.9 require `migrated_schema_ready`, current Alembic truth, and required `candles` / `instruments` / `symbols` tables before evidence packs can generate. Canonical evidence remains `insufficient_data`, and SV1.9 reports exact import requirements for missing canonical candles. Do not optimize Money Flow rules, recommend a variant, add paper/live trading, create live artifacts, call exchanges, or connect validation outputs to routing/execution automation until manual evidence review explicitly justifies a new phase.`
 
 ### T-061
 
@@ -189,6 +189,12 @@ Last reviewed: `2026-05-03T14:40:50Z`
 - `priority`: `high`
 - `status`: `done`
 - `summary`: `SV1.8.1 hardened evidence-review schema truth before first real evidence packs. Evidence-pack generation now requires `migrated_schema_ready`, current Alembic migration truth, and required strategy-validation tables (`candles`, `instruments`, and `symbols`); a DB with only `candles` is blocked if Alembic truth is missing, migrations are outdated/unknown, or symbol/instrument schema is partial. Top-level no-live/no-exchange flags now aggregate from campaign results. This changes no Money Flow rules, optimization, recommendations, paper/live trading, live artifacts, routing, execution automation, exchange calls, or first-real evidence-pack generation.`
+
+### T-064
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.9 made first-real canonical evidence status more operationally precise. Evidence-review DB status now reports sanitized driver, host, port, database name, username, intended strategy-validation DB truth, and target-role warnings; maintenance database names such as `postgres` are flagged as ambiguous instead of silently treated as the Money Flow strategy-validation DB. Evidence-review summaries now emit canonical candle import requirements for blocked/missing readiness rows, including symbol, timeframe, window, expected/actual/missing counts, file format expectations, and example offline importer commands. The SV1.9 local probes found the default intended `money_flow` DB host unresolved and the explicit `127.0.0.1:54322/postgres` override unreachable in this shell, so no first real canonical evidence packs were generated. This changes no Money Flow rules, optimization, recommendations, paper/live trading, live artifacts, routing, execution automation, exchange calls, or import integrity behavior.`
 
 ### T-001
 

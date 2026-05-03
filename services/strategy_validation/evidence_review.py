@@ -67,6 +67,7 @@ _BANNED_RECOMMENDATION_LANGUAGE = (
     "proven profitable",
     "paper trading approved",
 )
+_MAINTENANCE_DATABASE_NAMES = ("postgres", "template0", "template1")
 
 REQUIRED_STRATEGY_VALIDATION_SCHEMA_TABLES = (
     CandleModel.__tablename__,
@@ -78,6 +79,14 @@ REQUIRED_STRATEGY_VALIDATION_SCHEMA_TABLES = (
 @dataclass(frozen=True, slots=True)
 class MoneyFlowEvidenceReviewDatabaseStatus:
     configured_database_url: str
+    database_driver: str | None
+    database_host: str | None
+    database_port: int | None
+    database_name: str | None
+    database_username: str | None
+    database_target_role: str
+    intended_strategy_validation_database: bool
+    database_target_warning_reason_codes: tuple[str, ...]
     inspection_source: str
     reachable: bool
     candles_table_exists: bool
@@ -131,6 +140,7 @@ class MoneyFlowEvidenceReviewSummary:
     paper_readiness_review_status: str
     paper_readiness_status_methodology: str
     manual_paper_trading_readiness_criteria: tuple[str, ...]
+    canonical_candle_import_requirements: tuple[dict[str, Any], ...]
     generated_evidence_pack_paths: tuple[str, ...]
     blocked_campaign_count: int
     generated_campaign_count: int
@@ -246,6 +256,7 @@ def review_money_flow_evidence(
     )
     overall_status = _overall_paper_readiness_status(results)
     review_id = _review_id(paths=paths, generated_at=timestamp)
+    import_requirements = _canonical_candle_import_requirements_from_results(results)
     return MoneyFlowEvidenceReviewSummary(
         review_id=review_id,
         generated_at_utc=timestamp,
@@ -258,6 +269,7 @@ def review_money_flow_evidence(
         manual_paper_trading_readiness_criteria=tuple(
             money_flow_manual_paper_trading_readiness_criteria()
         ),
+        canonical_candle_import_requirements=import_requirements,
         generated_evidence_pack_paths=generated_paths,
         blocked_campaign_count=sum(
             1 for result in results if result.readiness_status == "insufficient_data"
@@ -284,6 +296,9 @@ def inspect_strategy_validation_database_status(
     """Return sanitized DB reachability, migration, schema, and candle-table truth."""
 
     validation_service = service or MoneyFlowBacktestService()
+    target_metadata = _database_target_metadata(
+        validation_service.settings.database.sqlalchemy_url
+    )
     configured_url = _sanitize_database_url(
         validation_service.settings.database.sqlalchemy_url
     )
@@ -337,6 +352,18 @@ def inspect_strategy_validation_database_status(
             schema_ready = schema_status == "migrated_schema_ready"
             return MoneyFlowEvidenceReviewDatabaseStatus(
                 configured_database_url=configured_url,
+                database_driver=target_metadata["database_driver"],
+                database_host=target_metadata["database_host"],
+                database_port=target_metadata["database_port"],
+                database_name=target_metadata["database_name"],
+                database_username=target_metadata["database_username"],
+                database_target_role=target_metadata["database_target_role"],
+                intended_strategy_validation_database=target_metadata[
+                    "intended_strategy_validation_database"
+                ],
+                database_target_warning_reason_codes=target_metadata[
+                    "database_target_warning_reason_codes"
+                ],
                 inspection_source="strategy_validation_session_factory",
                 reachable=True,
                 candles_table_exists=candles_table_exists,
@@ -362,6 +389,18 @@ def inspect_strategy_validation_database_status(
         )
         return MoneyFlowEvidenceReviewDatabaseStatus(
             configured_database_url=configured_url,
+            database_driver=target_metadata["database_driver"],
+            database_host=target_metadata["database_host"],
+            database_port=target_metadata["database_port"],
+            database_name=target_metadata["database_name"],
+            database_username=target_metadata["database_username"],
+            database_target_role=target_metadata["database_target_role"],
+            intended_strategy_validation_database=target_metadata[
+                "intended_strategy_validation_database"
+            ],
+            database_target_warning_reason_codes=target_metadata[
+                "database_target_warning_reason_codes"
+            ],
             inspection_source="strategy_validation_session_factory",
             reachable=False,
             candles_table_exists=False,
@@ -421,6 +460,14 @@ def money_flow_evidence_review_database_status_to_markdown(
         "## Database Target",
         "",
         f"- Configured DB URL: `{payload['configured_database_url']}`",
+        f"- DB driver: `{payload['database_driver']}`",
+        f"- DB host: `{payload['database_host']}`",
+        f"- DB port: `{payload['database_port']}`",
+        f"- DB name: `{payload['database_name']}`",
+        f"- DB user: `{payload['database_username']}`",
+        f"- Target role: `{payload['database_target_role']}`",
+        f"- Intended strategy-validation DB: `{payload['intended_strategy_validation_database']}`",
+        f"- Target warning reason codes: `{payload['database_target_warning_reason_codes']}`",
         f"- Inspection source: `{payload['inspection_source']}`",
         f"- DB reachable: `{payload['reachable']}`",
         f"- DB override hint: {payload['db_environment_override_hint']}",
@@ -454,14 +501,14 @@ def money_flow_evidence_review_database_status_to_markdown(
 def money_flow_evidence_review_to_markdown(
     review: MoneyFlowEvidenceReviewSummary,
 ) -> str:
-    """Render a founder/operator-readable SV1.8.1 evidence review summary."""
+    """Render a founder/operator-readable canonical evidence review summary."""
 
     payload = money_flow_evidence_review_to_dict(review)
     database_status = payload["database_status"]
     lines = [
         "# Money Flow First Real Canonical Evidence Review",
         "",
-        "This SV1.8.1 review is descriptive research only. It is not paper trading, "
+        "This canonical evidence review is descriptive research only. It is not paper trading, "
         "not live execution, not optimization, not a strategy recommendation, and "
         "not proof of future profitability.",
         "",
@@ -483,6 +530,14 @@ def money_flow_evidence_review_to_markdown(
         "## Database Access",
         "",
         f"- Configured DB URL: `{database_status['configured_database_url']}`",
+        f"- DB driver: `{database_status['database_driver']}`",
+        f"- DB host: `{database_status['database_host']}`",
+        f"- DB port: `{database_status['database_port']}`",
+        f"- DB name: `{database_status['database_name']}`",
+        f"- DB user: `{database_status['database_username']}`",
+        f"- Target role: `{database_status['database_target_role']}`",
+        f"- Intended strategy-validation DB: `{database_status['intended_strategy_validation_database']}`",
+        f"- Target warning reason codes: `{database_status['database_target_warning_reason_codes']}`",
         f"- Inspection source: `{database_status['inspection_source']}`",
         f"- DB reachable: `{database_status['reachable']}`",
         f"- Schema status: `{database_status['schema_status']}`",
@@ -551,6 +606,37 @@ def money_flow_evidence_review_to_markdown(
                 "",
             ]
         )
+    lines.extend(
+        [
+            "## Canonical Candle Import Requirements",
+            "",
+            "Use these rows only after the intended database is reachable and reports `migrated_schema_ready`. Imports must use public/offline historical candles and the hardened SV1.5.1 importer.",
+            "",
+        ]
+    )
+    if payload["canonical_candle_import_requirements"]:
+        for requirement in payload["canonical_candle_import_requirements"]:
+            lines.extend(
+                [
+                    f"### `{requirement['campaign_name']}` / `{requirement['symbol']}` / `{requirement['component']}` / `{requirement['window_label']}`",
+                    "",
+                    f"- Instrument key: `{requirement['instrument_key']}`",
+                    f"- Timeframe: `{requirement['timeframe']}`",
+                    f"- Window: `({requirement['requested_start_at']}, {requirement['requested_end_at']}]`",
+                    f"- Expected candles: `{requirement['expected_candle_count']}`",
+                    f"- Actual candles: `{requirement['actual_candle_count']}`",
+                    f"- Missing candles: `{requirement['missing_candle_count']}`",
+                    f"- Readiness status: `{requirement['readiness_status']}`",
+                    f"- Reason codes: `{requirement['reason_codes']}`",
+                    f"- Required file format: `{requirement['required_file_format']}`",
+                    f"- Required fields: `{requirement['required_file_fields']}`",
+                    f"- Example import command: `{requirement['example_import_command']}`",
+                    "",
+                ]
+            )
+    else:
+        lines.append("- No missing canonical candle import requirements were detected.")
+        lines.append("")
     lines.extend(
         [
             "## Evidence-Pack Paths",
@@ -794,6 +880,63 @@ def _calls_exchange_adapters_from_campaign_results(
     return any(result.exchange_adapters_called for result in results)
 
 
+def _canonical_candle_import_requirements_from_results(
+    results: Sequence[MoneyFlowEvidenceReviewCampaignResult],
+) -> tuple[dict[str, Any], ...]:
+    requirements: list[dict[str, Any]] = []
+    for result in results:
+        for row in result.data_readiness_audit.rows:
+            if row.readiness_status == "covered" and not row.likely_blocked:
+                continue
+            reason_codes = tuple(
+                sorted({*row.warning_reason_codes, *row.likely_blocked_reason_codes})
+            )
+            requirements.append(
+                {
+                    "campaign_name": result.campaign_name,
+                    "config_path": result.config_path,
+                    "symbol": row.symbol,
+                    "instrument_key": row.instrument_key,
+                    "instrument_ref_id": row.instrument_ref_id,
+                    "component": row.component,
+                    "timeframe": row.timeframe,
+                    "window_label": row.window_label,
+                    "requested_start_at": row.requested_start_at,
+                    "requested_end_at": row.requested_end_at,
+                    "window_convention": STRATEGY_VALIDATION_WINDOW_CONVENTION,
+                    "expected_candle_count": row.expected_candle_count,
+                    "actual_candle_count": row.actual_candle_count,
+                    "missing_candle_count": row.missing_candle_count,
+                    "readiness_status": row.readiness_status,
+                    "reason_codes": reason_codes,
+                    "requires_migrated_schema_before_import": True,
+                    "required_file_format": "CSV or JSON accepted by scripts/import_strategy_validation_candles.py",
+                    "required_file_fields": (
+                        "symbol",
+                        "open_time",
+                        "close_time",
+                        "open",
+                        "high",
+                        "low",
+                        "close",
+                        "volume",
+                        "instrument_key_optional_but_recommended",
+                        "trade_count_optional",
+                    ),
+                    "example_import_command": _example_import_command(row),
+                }
+            )
+    requirements.sort(
+        key=lambda item: (
+            str(item["campaign_name"]),
+            str(item["symbol"]),
+            str(item["component"]),
+            str(item["window_label"]),
+        )
+    )
+    return tuple(_json_ready(item) for item in requirements)
+
+
 def _migration_head_revisions() -> tuple[str, ...]:
     alembic_ini = Path("alembic.ini")
     if not alembic_ini.exists():
@@ -804,6 +947,48 @@ def _migration_head_revisions() -> tuple[str, ...]:
         return tuple(sorted(script.get_heads()))
     except Exception:  # noqa: BLE001 - schema status should stay diagnostic-only.
         return ()
+
+
+def _database_target_metadata(database_url: str) -> dict[str, Any]:
+    try:
+        parsed = make_url(database_url)
+    except Exception:  # noqa: BLE001 - DB target reporting should stay diagnostic-only.
+        return {
+            "database_driver": None,
+            "database_host": None,
+            "database_port": None,
+            "database_name": None,
+            "database_username": None,
+            "database_target_role": "unparseable_database_url",
+            "intended_strategy_validation_database": False,
+            "database_target_warning_reason_codes": ("database_url_unparseable",),
+        }
+    warnings: set[str] = set()
+    database_name = parsed.database
+    role = "configured_money_flow_database"
+    intended = True
+    if not database_name:
+        role = "database_name_missing"
+        intended = False
+        warnings.add("database_name_missing")
+    elif database_name in _MAINTENANCE_DATABASE_NAMES:
+        role = "maintenance_database_name_requires_operator_confirmation"
+        intended = False
+        warnings.add("database_name_is_maintenance_database")
+        warnings.add("strategy_validation_db_target_ambiguous")
+    elif database_name != "money_flow":
+        role = "non_default_configured_database"
+        warnings.add("non_default_database_name")
+    return {
+        "database_driver": parsed.drivername,
+        "database_host": parsed.host,
+        "database_port": parsed.port,
+        "database_name": database_name,
+        "database_username": parsed.username,
+        "database_target_role": role,
+        "intended_strategy_validation_database": intended,
+        "database_target_warning_reason_codes": tuple(sorted(warnings)),
+    }
 
 
 def _applied_migration_revisions(
@@ -885,6 +1070,28 @@ def _sanitize_database_url(value: str) -> str:
         return make_url(value).render_as_string(hide_password=True)
     except Exception:  # noqa: BLE001 - URL is diagnostic only.
         return "<unparseable_database_url>"
+
+
+def _example_import_command(row: MoneyFlowResearchCampaignDataReadinessRow) -> str:
+    symbol = row.symbol.lower().replace("/", "_")
+    timeframe = row.timeframe or "<timeframe>"
+    window_label = row.window_label.replace(" ", "_")
+    input_path = f"/path/to/{symbol}_{timeframe}_{window_label}.csv"
+    source_label = f"public_offline_{symbol}_{timeframe}_{window_label}"
+    instrument_arg = " # include instrument_key column in the file"
+    if row.instrument_key:
+        instrument_arg = f" # file rows should include instrument_key={row.instrument_key}"
+    return (
+        "DB_HOST=<host> DB_PORT=<port> DB_USER=<user> "
+        "DB_PASSWORD=<redacted> DB_NAME=<intended_money_flow_db> "
+        ".venv/bin/python scripts/import_strategy_validation_candles.py "
+        f"--input {input_path} "
+        "--environment testnet "
+        "--venue hyperliquid "
+        f"--timeframe {timeframe} "
+        f"--source-label {source_label}"
+        f"{instrument_arg}"
+    )
 
 
 def _safe_error_message(exc: Exception) -> str:

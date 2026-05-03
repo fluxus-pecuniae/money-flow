@@ -25,7 +25,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
             "Run a research-only Money Flow evidence review. The review audits "
-            "database reachability, migration/schema status, candle-table truth, "
+            "database target host/port/name, reachability, migration/schema status, candle-table truth, "
             "and canonical campaign configs; optionally writes evidence packs only "
             "when persisted candle data is sufficient; and never routes, trades, "
             "optimizes, or calls exchange adapters. Override DB_HOST, DB_PORT, "
@@ -38,7 +38,7 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help=(
             "Inspect the configured strategy-validation DB target, migration/schema "
-            "status, candle-table existence, and persisted candle count only. This "
+            "status, required tables, candle-table existence, and persisted candle count only. This "
             "does not audit campaigns or generate evidence packs."
         ),
     )

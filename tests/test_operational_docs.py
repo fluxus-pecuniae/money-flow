@@ -25,6 +25,7 @@ REQUIRED_FILES = [
     "docs/strategy_validation_sv1_7_first_evidence_review.md",
     "docs/strategy_validation_sv1_8_historical_data_bootstrap.md",
     "docs/strategy_validation_sv1_8_1_schema_truth_hotfix.md",
+    "docs/strategy_validation_sv1_9_first_real_evidence_status.md",
 ]
 
 
@@ -70,8 +71,8 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "required Obsidian brain entrypoint" in command_center
-    assert re.search(r"Current implemented phase: `SV1\.8\.1`", current_phase)
-    assert "SV1.8.1" in command_center
+    assert re.search(r"Current implemented phase: `SV1\.9`", current_phase)
+    assert "SV1.9" in command_center
     assert "Active Work" in coordination
     assert "Quant Engineer" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer

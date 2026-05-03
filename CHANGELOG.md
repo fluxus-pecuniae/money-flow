@@ -13,6 +13,40 @@ Entry schema:
 
 ---
 
+## v2026.05.03.005
+
+- `recorded_at_utc`: `2026-05-03T20:11:02Z`
+- `scope`: `SV1.9 intended strategy-validation DB readiness, canonical candle audit, and first real evidence-pack attempt`
+- `intent`: `Native entry. Made the canonical Money Flow evidence-review status more operationally explicit before first real evidence packs. DB status now reports sanitized URL plus driver, host, port, database name, database user, target role, intended-target truth, and target warning reason codes. Evidence-review JSON/Markdown now includes canonical candle import requirements for blocked or missing campaign rows, including symbol, instrument key, timeframe, `(start_at, end_at]` window, expected/actual/missing candles, required file format/fields, and a safe offline import command template. Added direct regression coverage for DB target/status reporting, outdated Alembic revision blocking evidence generation, missing canonical candle import requirements, and seeded sufficient evidence-pack generation with current schema truth. The SV1.9 local run found the default configured DB host `postgres` unresolved and the `127.0.0.1:54322/postgres` override unreachable/ambiguous, so no migrations were applied, no candles were imported, and no first real evidence packs were generated. This is DB/schema/candle-readiness and report truth only: no Money Flow rule changes, parameter optimization, strategy recommendations, paper/live trading, live artifacts, routing, execution automation, exchange adapter calls, private/order endpoint calls, route executor behavior, fanout, target reselection, or auto-submit were added.`
+- `affected_files`:
+  - `services/strategy_validation/evidence_review.py`
+  - `scripts/review_money_flow_evidence_packs.py`
+  - `tests/test_sv19_evidence_status.py`
+  - `tests/test_operational_docs.py`
+  - `docs/strategy_validation_sv1_9_first_real_evidence_status.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv15_historical_data_readiness.py tests/test_sv151_candle_import_integrity.py tests/test_sv16_evidence_review.py tests/test_sv17_evidence_review_real_data_gaps.py tests/test_sv18_historical_data_bootstrap.py tests/test_sv181_evidence_schema_truth.py tests/test_sv19_evidence_status.py` passed with 75 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 17 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 10 tests after final docs/Obsidian/changelog updates.
+  - `.venv/bin/python -m pytest -q tests --ignore=tests/test_migrations.py` passed with 543 tests.
+  - `.venv/bin/python -m pytest -q tests/test_migrations.py` was attempted and failed because `TEST_DATABASE_URL` was unset; `/bin/zsh -lc "TEST_DATABASE_URL=postgresql+psycopg://tercirafael@127.0.0.1:55432/money_flow_phase34 .venv/bin/pytest -q tests/test_migrations.py"` was then attempted and failed because local Postgres on `127.0.0.1:55432` refused connections.
+  - `.venv/bin/python scripts/review_money_flow_evidence_packs.py --format both --review-output-dir /tmp/money-flow-sv1.9-default-db-review` passed and produced JSON/Markdown status. It reported `insufficient_data`, sanitized DB URL `postgresql+psycopg://money_flow:***@postgres:5432/money_flow`, target role `configured_money_flow_database`, intended DB `true`, reachable `false`, schema status `database_unreachable`, 24 canonical candle import requirements, 0 generated packs, and 2 blocked campaigns.
+  - `DB_HOST=127.0.0.1 DB_PORT=54322 DB_USER=postgres DB_PASSWORD=postgres DB_NAME=postgres .venv/bin/python scripts/review_money_flow_evidence_packs.py --format both --review-output-dir /tmp/money-flow-sv1.9-local-db-review` passed and produced JSON/Markdown status. It reported `insufficient_data`, sanitized DB URL `postgresql+psycopg://postgres:***@127.0.0.1:54322/postgres`, target role `maintenance_database_name_requires_operator_confirmation`, intended DB `false`, reachable `false` with connection refused, schema status `database_unreachable`, 24 canonical candle import requirements, 0 generated packs, and 2 blocked campaigns.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.9-review.zip` created the SV1.9 review bundle; bundle inspection found 240 files and no `.env`, virtualenvs, Git metadata, pytest caches, generated evidence packs, local DB/SQLite files, nested archives, or Obsidian app state.
+
 ## v2026.05.03.004
 
 - `recorded_at_utc`: `2026-05-03T14:50:48Z`

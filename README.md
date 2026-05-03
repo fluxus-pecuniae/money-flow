@@ -213,6 +213,8 @@ The SV1.8 local audit found `127.0.0.1:54322/postgres` reachable only with expli
 
 SV1.8.1 tightens this truth gate before first real evidence packs. Evidence-pack generation now requires `migrated_schema_ready`: current Alembic migration truth plus required strategy-validation tables (`candles`, `instruments`, and `symbols`). A DB with a `candles` table but missing Alembic truth, outdated migrations, or missing symbol/instrument schema is blocked as schema/data readiness, not strategy failure. Top-level no-live/no-exchange flags are aggregated from campaign results. See [SV1.8.1 Evidence Review Schema Truth Hotfix](docs/strategy_validation_sv1_8_1_schema_truth_hotfix.md).
 
+SV1.9 makes the intended strategy-validation DB target more explicit in evidence-review output. DB status now reports the sanitized URL plus driver, host, port, database name, user, target role, target warnings, required-table truth, migration status, and canonical candle import requirements. The SV1.9 local run found the default `postgres` host unresolved and the `127.0.0.1:54322/postgres` override unreachable/ambiguous, so no migrations were applied, no candles were imported, and no first real evidence packs were generated. See [SV1.9 First Real Evidence Status](docs/strategy_validation_sv1_9_first_real_evidence_status.md). This remains research-only and does not change Money Flow rules, optimize, recommend, paper trade, live trade, route, submit, or call exchange adapters.
+
 ## Routing Automation Planning
 
 Phase 7.0 exposes non-executing automation policy and dry-run planning:
