@@ -8,9 +8,9 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 
 ## Current Phase
 
-- Current implemented phase: `SV1.11.2`
+- Current implemented phase: `SV1.12`
 - Phase 7 status: accepted complete.
-- Proposed next phase: operator-verify/seed canonical BTC/ETH/SOL market identity if needed while keeping symbols non-trading, run complete one-to-one requirement-aware preflight on timezone-explicit public/offline candle files for the 18 unique canonical requirements, import candles only after `ready_for_import=true`, rerun canonical evidence review with generated evidence packs only after DB target truth, `migrated_schema_ready`, identity readiness, and data-readiness are clean, and only then scope paper-trading design if founder/operator review justifies it; `Phase 8.1` remains deferred until explicitly scoped.
+- Proposed next phase: SV1.13 post-import canonical evidence review/evidence-pack generation only after the guarded SV1.12 import has completed enough timezone-explicit BTC/ETH/SOL candles for the canonical requirements and data-readiness audits are clean; paper-trading design remains deferred until founder/operator evidence review justifies it, and `Phase 8.1` remains deferred until explicitly scoped.
 - Phase 8.0 status: implemented read-only operator observability/manual-resolution inspection.
 - Phase 8.0.1 status: Obsidian memory and working-tree baseline cleanup; no product behavior changed.
 - Phase 8.0.2 status: active submit-lease operator-summary truth hotfix; no product behavior changed.
@@ -34,6 +34,7 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 - SV1.11 status: canonical market-identity bootstrap and candle-import preflight; adds an offline/manual Hyperliquid perpetual USDC BTC/ETH/SOL identity manifest, seed/verify CLI, evidence-review identity readiness, and candle preflight without writing candles or generating evidence packs. It adds no strategy-rule changes, optimization, recommendations, paper/live trading, routing, exchange calls, or execution changes.
 - SV1.11.1 status: market-identity verification guard and requirement-aware candle preflight hardening; non-dry-run identity writes require explicit operator verification/verified-by provenance, row-level preflight remains file-shape validation only, requirement-aware preflight must prove exact canonical close-slot coverage before bulk import, and no candles or evidence packs are generated.
 - SV1.11.2 status: market-identity non-trading guard and complete requirement-aware preflight mapping hotfix; Strategy Validation seed rejects strategy/trading eligibility promotion, requirement-aware preflight requires complete one-to-one input-to-requirement mapping, review JSON candle import requirements are preferred for candle preflight, and no candles or evidence packs are generated.
+- SV1.12 status: guarded canonical candle bundle import; import is allowed only when the DB target is intended/non-maintenance and migrated/current, operator-verified research identity exists and remains non-trading, every timezone-explicit file maps one-to-one to one canonical requirement, requirement-aware preflight reports `ready_for_import=true`, and the hardened candle importer accepts the file. SV1.12 generates no evidence packs and adds no strategy, routing, execution, paper, live, or exchange behavior.
 - Current accepted action hooks: approval-gated recommendation acceptance, target-choice conversion, prepared-order preview/readiness inspection, and submitted-order handoff.
 
 ## Current Architectural Boundary
@@ -151,7 +152,7 @@ Obsidian is the long-horizon project brain for founder intent, phase context, de
 - SV1.8.1 schema-gap reports must not be treated as strategy results. A `candles` table alone is not sufficient; canonical evidence packs require current Alembic truth and the required strategy-validation schema.
 - SV1.9 evidence status reports must not be treated as strategy results. DB target ambiguity, unreachable hosts, missing migrated schema, and missing canonical candles are operational data-readiness gaps before Money Flow evidence review.
 - SV1.9.1 target-truth reports must not be treated as strategy results. Ambiguous/non-intended maintenance DB targets cannot generate canonical evidence packs by default, and timezone-explicit candle sources remain preferred for first canonical evidence.
-- SV1.11.2 market-identity seed/preflight output must not be treated as evidence. It prepares canonical identity and checks candle files before import; it does not import candles or generate evidence packs. Row-level preflight is not canonical coverage proof; requirement-aware preflight is the required gate before SV1.12 bulk import and must cover every supplied file/requirement one-to-one.
+- SV1.12 guarded import status must not be treated as evidence. It can write only preflight-passed historical candle rows into the intended migrated strategy-validation DB; it does not generate evidence packs, prove strategy edge, approve paper trading, or connect validation outputs to routing/execution automation.
 - Simulated validation trades must remain separate from `SubmittedOrder`.
 - Manual-resolution inspection must not silently resolve venue or approval truth.
 - Future agents must update their own coordination row instead of overwriting another agent's work.

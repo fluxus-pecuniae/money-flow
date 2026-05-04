@@ -28,6 +28,13 @@ from services.strategy_validation.candles import (
     import_strategy_validation_candles_from_path,
     strategy_validation_candle_import_result_to_dict,
 )
+from services.strategy_validation.candle_bundle_import import (
+    StrategyValidationCanonicalCandleBundleImportResult,
+    guarded_import_strategy_validation_candle_bundle,
+    strategy_validation_canonical_candle_bundle_import_result_to_dict,
+    strategy_validation_canonical_candle_bundle_import_result_to_json,
+    strategy_validation_canonical_candle_bundle_import_result_to_markdown,
+)
 from services.strategy_validation.evidence_review import (
     CANONICAL_MONEY_FLOW_CAMPAIGN_CONFIG_PATHS,
     PAPER_READINESS_REVIEW_STATUSES,
@@ -85,6 +92,7 @@ __all__ = [
     "PAPER_READINESS_REVIEW_STATUSES",
     "REQUIRED_STRATEGY_VALIDATION_SCHEMA_TABLES",
     "STRATEGY_VALIDATION_WINDOW_CONVENTION",
+    "StrategyValidationCanonicalCandleBundleImportResult",
     "StrategyValidationCandleImportResult",
     "StrategyValidationCandleImportPreflightResult",
     "StrategyValidationMarketIdentitySeedResult",
@@ -92,6 +100,7 @@ __all__ = [
     "build_money_flow_research_campaign_batch_request",
     "canonical_market_identity_instrument_key",
     "canonical_market_identity_requirements",
+    "guarded_import_strategy_validation_candle_bundle",
     "load_money_flow_research_campaign_config",
     "money_flow_evidence_pack_review_checklist",
     "money_flow_evidence_review_database_status_to_dict",
@@ -115,6 +124,9 @@ __all__ = [
     "seed_strategy_validation_market_identity_from_manifest",
     "strategy_validation_batch_report_to_dict",
     "strategy_validation_batch_report_to_markdown",
+    "strategy_validation_canonical_candle_bundle_import_result_to_dict",
+    "strategy_validation_canonical_candle_bundle_import_result_to_json",
+    "strategy_validation_canonical_candle_bundle_import_result_to_markdown",
     "strategy_validation_candle_import_result_to_dict",
     "strategy_validation_candle_import_preflight_result_to_dict",
     "strategy_validation_candle_import_preflight_result_to_json",

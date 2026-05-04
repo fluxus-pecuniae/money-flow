@@ -34,14 +34,15 @@ Up: [[Money Flow Command Center]]
 - SV1.11: research-only canonical market identity seed/verify tooling, evidence-review identity readiness, and candle-import preflight before candle import.
 - SV1.11.1: SOR P2 hardening requiring explicit operator verification for non-dry-run identity writes and requirement-aware candle preflight before bulk import.
 - SV1.11.2: governance hardening that keeps research market identity non-trading and requires complete one-to-one requirement-aware preflight mapping.
+- SV1.12: guarded canonical candle bundle import requiring intended migrated DB truth, operator-verified non-trading identity, complete one-to-one requirement-aware preflight, and hardened importer success; no evidence packs generated.
 
 ## Current Next Shape
 
 See [[40 Operations/Future Work Roadmap]].
 
-Current implemented phase: `SV1.11.2`.
+Current implemented phase: `SV1.12`.
 
-The next proposed Strategy Validation work is to run the operator-verified market identity workflow if needed while keeping symbols non-trading, run complete one-to-one requirement-aware preflight for timezone-explicit public/offline canonical BTC/ETH/SOL candle files, import candles only after mapped files report `ready_for_import=true`, generate first real evidence packs only after DB target/schema/identity/data readiness are clean, and keep paper-trading design deferred until founder/operator evidence review justifies it. Phase 8.1 remains deferred until explicitly scoped.
+The next proposed Strategy Validation work is SV1.13 post-import canonical evidence review/evidence-pack generation only after the guarded import has completed enough timezone-explicit BTC/ETH/SOL candles and data-readiness audits are clean. If data remains incomplete, SV1.13 should report the remaining gaps instead of forcing evidence conclusions. Paper-trading design remains deferred until founder/operator evidence review justifies it. Phase 8.1 remains deferred until explicitly scoped.
 
 ## Strategic Memory
 

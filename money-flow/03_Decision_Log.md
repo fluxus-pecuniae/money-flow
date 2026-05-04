@@ -211,3 +211,10 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `why`: The research seed uses shared `SymbolModel` rows that execution/routing code can inspect, so it must not be able to promote symbols into trading eligibility. Requirement-aware preflight also must not let unmapped files or unmapped requirements appear ready before guarded import.
 - `rejected_alternatives`: Allowing manifest edits to promote trading eligibility; treating partial preflight coverage as acceptable; silently ignoring extra files or missing requirements; importing candles or generating evidence packs in the governance hotfix.
 - `follow_up_implications`: SV1.12 can proceed to guarded canonical candle bundle import only after operator-verified non-trading identity and complete one-to-one `ready_for_import=true` preflight pass for the canonical candle files.
+
+## 2026-05-04T20:26:41Z - SV1.12 - Guarded Candle Import Remains Separate From Evidence Packs
+
+- `decision`: Canonical candle bundle import must compose intended non-maintenance DB target truth, migrated/current schema truth, operator-verified non-trading research identity, complete one-to-one requirement-aware preflight, and hardened importer success before candle writes; SV1.12 does not generate evidence packs.
+- `why`: Importing historical candles is data readiness, not strategy evidence. Keeping import separate from evidence-pack generation makes failures auditable and prevents partial preflight, ambiguous DB targets, or unverified identity from becoming first-real Money Flow evidence.
+- `rejected_alternatives`: Generating evidence packs in the import phase; importing from ambiguous maintenance DB targets; allowing unverified or trading-eligible identity; treating row-level preflight alone as canonical coverage proof; changing Money Flow rules; adding routing/execution behavior.
+- `follow_up_implications`: SV1.13 may run post-import canonical evidence review and generate collision-safe packs only after guarded import status and data-readiness audits are clean; otherwise it should report remaining data gaps.

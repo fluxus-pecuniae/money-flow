@@ -261,6 +261,22 @@ SV1.11.1 still imports no candles and generates no evidence packs. See [SV1.11.1
 
 SV1.11.2 closes the remaining pre-import governance gaps. The Strategy Validation seed path now rejects manifests that set `is_strategy_eligible=true` or `is_trading_eligible=true`; this research-only tool cannot make `SymbolModel` rows trading-ready. Requirement-aware candle preflight now requires complete one-to-one mapping: every input file must map to exactly one canonical requirement, every supplied requirement must have exactly one input file, and duplicate mappings block `ready_for_import`. When `--requirements-from-review-json` contains both identity and candle import requirements, candle import requirements are inspected first and output records `requirement_kind`. SV1.11.2 still imports no candles and generates no evidence packs. See [SV1.11.2 Seed And Preflight Governance Hotfix](docs/strategy_validation_sv1_11_2_seed_and_preflight_governance_hotfix.md).
 
+SV1.12 adds the guarded canonical candle bundle import path. It imports only after the intended non-maintenance DB reports current migrated schema, operator-verified research identity remains non-trading/non-strategy-eligible, each timezone-explicit input file maps one-to-one to a canonical requirement, requirement-aware preflight reports exact `(requested_start_at, requested_end_at]` coverage, and the hardened importer can write the file all-or-nothing:
+
+```bash
+DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow \
+  .venv/bin/python scripts/import_strategy_validation_candle_bundle.py \
+  --input /path/to/btc_15m_core_window_1.csv \
+  --requirements-from-review-json /path/to/evidence_review.json \
+  --input-requirement-map /path/to/input_requirement_map.json \
+  --environment testnet \
+  --venue hyperliquid \
+  --format both \
+  --output-dir /tmp/money-flow-sv1.12-import
+```
+
+SV1.12 generates no evidence packs. It is the candle-import boundary only; SV1.13 remains the next phase for post-import canonical evidence review if all 18 canonical requirements are covered. See [SV1.12 Canonical Candle Import Status](docs/strategy_validation_sv1_12_canonical_candle_import_status.md).
+
 ## Routing Automation Planning
 
 Phase 7.0 exposes non-executing automation policy and dry-run planning:

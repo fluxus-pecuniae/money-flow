@@ -8,8 +8,8 @@ Money Flow is a mandate-driven, multi-venue-aware trading strategy platform whos
 
 ## Current Implemented Phase
 
-- Phase observed in repo memory: `SV1.11.2`.
-- Latest implemented scope: research market-identity non-trading guard and complete requirement-aware candle-import preflight mapping before guarded imports.
+- Phase observed in repo memory: `SV1.12`.
+- Latest implemented scope: guarded canonical candle bundle import after intended DB/schema, operator-verified non-trading identity, complete one-to-one requirement-aware preflight, and hardened importer gates.
 - Current action hooks: approval-gated `recommendation_acceptance`, `target_choice_conversion`, `prepared_order_preview_and_readiness`, and `submitted_order_handoff`.
 - Phase 7.5.1 added `consumption_pending` approval truth for submitted-order-created / approval-consumption-failed cases.
 - Phase 7.6 added closeout tests and docs only; it added no production behavior.
@@ -28,7 +28,8 @@ Money Flow is a mandate-driven, multi-venue-aware trading strategy platform whos
 - SV1.10 creates/migrates the intended local `money_flow` DB, verifies required tables, reruns canonical review, and reports zero persisted candles plus 18 unique timezone-explicit import requirements; no first real packs were generated.
 - SV1.11 adds research-only BTC/ETH/SOL Hyperliquid perpetual USDC market-identity seed/verify tooling, evidence-review identity readiness, and candle-import preflight; it writes no candles and generates no evidence packs.
 - SV1.11.2 keeps the research identity seed from enabling strategy/trading eligibility and requires complete one-to-one requirement-aware preflight so files must prove exact canonical close-slot coverage before import; it writes no candles and generates no evidence packs.
-- Proposed next phase: operator-verify/seed market identity if needed, requirement-preflight/import enough timezone-explicit historical candles, rerun canonical evidence review with generated packs only when DB target/schema/identity/data readiness are clean, then scope paper-trading design only if founder/operator review justifies it.
+- SV1.12 adds guarded canonical candle bundle import; it writes candles only when every gate passes and generates no evidence packs.
+- Proposed next phase: SV1.13 post-import canonical evidence review/evidence-pack generation only after the guarded import completes enough timezone-explicit candles and data-readiness is clean; paper-trading design remains deferred until founder/operator review justifies it.
 
 ## Implemented Platform Surface
 
@@ -83,7 +84,7 @@ Phase 8.0 makes workflow state, approval state, manual-resolution needs, submit-
 
 ## Current Strategy Validation Layer
 
-SV1.11.2 keeps validation research-only. Canonical campaign configs live under `configs/strategy_validation/campaigns/`, campaign windows use `(start_at, end_at]`, config `window_convention` metadata is strictly validated against that platform convention, data-readiness audits can render Markdown founder summaries, and evidence-pack writes use explicit collision policy instead of silent overwrite. Offline public CSV/JSON candle imports can duplicate-safely upsert matching existing candle rows for research backfills only, but reject identity conflicts, timeframe-duration mismatches, malformed/non-finite/inconsistent OHLCV rows, negative trade counts, timezone-naive timestamps by default, and invalid files without partial commits. The evidence review CLI reports sanitized DB target/reachability/schema/migration/candle-table truth plus canonical market identity readiness before canonical audits, blocks ambiguous/non-intended maintenance DB targets and unready schema/data clearly, and can generate packs only when target, schema, and data readiness are clean. SV1.11.2 keeps identity seed writes operator-verified and non-trading, and makes requirement-aware candle preflight distinguish row-level readiness from complete canonical coverage readiness. The current gap is operator-verified identity seed plus importing 18 unique timezone-explicit BTC/ETH/SOL candle files after complete one-to-one preflight reports `ready_for_import=true`; it does not create live artifacts, approve paper trading, or call exchange/private/order endpoints.
+SV1.12 keeps validation research-only. Canonical campaign configs live under `configs/strategy_validation/campaigns/`, campaign windows use `(start_at, end_at]`, config `window_convention` metadata is strictly validated against that platform convention, data-readiness audits can render Markdown founder summaries, and evidence-pack writes use explicit collision policy instead of silent overwrite. Offline public CSV/JSON candle imports can duplicate-safely upsert matching existing candle rows for research backfills only, but reject identity conflicts, timeframe-duration mismatches, malformed/non-finite/inconsistent OHLCV rows, negative trade counts, timezone-naive timestamps by default, and invalid files without partial commits. The evidence review CLI reports sanitized DB target/reachability/schema/migration/candle-table truth plus canonical market identity readiness before canonical audits, blocks ambiguous/non-intended maintenance DB targets and unready schema/data clearly, and can generate packs only when target, schema, and data readiness are clean. SV1.12 adds a guarded import wrapper that requires the intended migrated DB, operator-verified non-trading identity, complete one-to-one requirement-aware preflight, timezone-explicit files, and hardened importer success before writing canonical candles. The current gap is running that guarded import against real operator-provided BTC/ETH/SOL files for all 18 canonical requirements; SV1.12 does not generate evidence packs, create live artifacts, approve paper trading, or call exchange/private/order endpoints.
 
 ## Deferred Boundaries
 
