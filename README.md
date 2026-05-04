@@ -207,7 +207,7 @@ SV1.8 makes the historical-data bootstrap path explicit. The evidence-review CLI
 Set `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD` to point strategy validation at the intended migrated Money Flow database. If the target is reachable but missing schema, run Alembic against that same target before importing offline/public candles:
 
 ```bash
-DB_HOST=127.0.0.1 DB_PORT=54322 DB_USER=postgres DB_PASSWORD=<redacted> DB_NAME=<intended_money_flow_db> \
+DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow \
   .venv/bin/python -m alembic upgrade head
 ```
 
@@ -218,6 +218,8 @@ SV1.8.1 tightens this truth gate before first real evidence packs. Evidence-pack
 SV1.9 makes the intended strategy-validation DB target more explicit in evidence-review output. DB status now reports the sanitized URL plus driver, host, port, database name, user, target role, target warnings, required-table truth, migration status, and canonical candle import requirements. The SV1.9 local run found the default `postgres` host unresolved and the `127.0.0.1:54322/postgres` override unreachable/ambiguous, so no migrations were applied, no candles were imported, and no first real evidence packs were generated. See [SV1.9 First Real Evidence Status](docs/strategy_validation_sv1_9_first_real_evidence_status.md). This remains research-only and does not change Money Flow rules, optimize, recommend, paper trade, live trade, route, submit, or call exchange adapters.
 
 SV1.9.1 turns ambiguous DB-target truth into a hard evidence-generation gate. Evidence packs cannot generate from known maintenance database names such as `postgres`, `template0`, or `template1`, from targets marked non-intended, or from targets requiring operator confirmation, even if schema and candles are otherwise present. No ambiguous-target override is implemented in SV1.9.1. See [SV1.9.1 Evidence Target Truth Hotfix](docs/strategy_validation_sv1_9_1_evidence_target_truth_hotfix.md).
+
+SV1.10 makes the intended local strategy-validation DB target usable for imports and first-real evidence attempts. In the local run, `postgresql+psycopg://money_flow:***@127.0.0.1:5432/money_flow` was created, migrated to Alembic head `20260430_0025`, and verified to contain `candles`, `instruments`, and `symbols`. Canonical review still returned `insufficient_data` because persisted candle count was `0`, so no evidence packs were generated. The review now groups overlapping canonical import gaps into 18 unique BTC/ETH/SOL candle requirements with expected/actual/missing counts, impacted campaigns, timezone-explicit timestamp requirements, and importer command templates. See [SV1.10 First Real Evidence Status](docs/strategy_validation_sv1_10_first_real_evidence_status.md).
 
 ## Routing Automation Planning
 

@@ -974,6 +974,18 @@ def _blocked_data_readiness_row(
     reason_codes: tuple[str, ...],
     impacted_run_count: int,
 ) -> MoneyFlowResearchCampaignDataReadinessRow:
+    expected_count: int | None = None
+    missing_count: int | None = None
+    coverage_percent: Decimal | None = None
+    timeframe_delta = _campaign_timeframe_delta(timeframe) if timeframe is not None else None
+    if timeframe_delta is not None:
+        expected_count = _campaign_expected_close_slot_count(
+            start_at=window.start_at,
+            end_at=window.end_at,
+            timeframe_delta_seconds=timeframe_delta,
+        )
+        missing_count = expected_count
+        coverage_percent = Decimal("0.00000000") if expected_count > 0 else None
     return MoneyFlowResearchCampaignDataReadinessRow(
         symbol=symbol.symbol,
         instrument_key=symbol.instrument_key,
@@ -984,10 +996,10 @@ def _blocked_data_readiness_row(
         requested_start_at=window.start_at,
         requested_end_at=window.end_at,
         window_convention=STRATEGY_VALIDATION_WINDOW_CONVENTION,
-        expected_candle_count=None,
+        expected_candle_count=expected_count,
         actual_candle_count=0,
-        missing_candle_count=None,
-        coverage_percent=None,
+        missing_candle_count=missing_count,
+        coverage_percent=coverage_percent,
         gap_count=None,
         largest_gap_seconds=None,
         first_candle_available_at=None,

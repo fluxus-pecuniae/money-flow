@@ -183,3 +183,10 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `why`: A migrated `postgres` maintenance database with candles would otherwise be able to produce canonical-looking evidence despite not being the intended strategy-validation DB. Similarly, silently treating naive public CSV/JSON timestamps as UTC could corrupt historical candle truth before first real evidence review.
 - `rejected_alternatives`: Treating maintenance DB ambiguity as a warning only; adding a broad ambiguous-DB override in this phase; silently assuming UTC for naive timestamps; treating override-derived imports as clean canonical evidence; generating first real evidence packs before target/schema/candle truth is clean.
 - `follow_up_implications`: SV1.10 can prepare a migrated non-maintenance Money Flow DB and import timezone-explicit canonical candles. If an override is ever added for ambiguous DB targets, it must be explicit, provenance-rich, and non-canonical by default.
+
+## 2026-05-04T05:14:29Z - SV1.10 - Use Local `money_flow` DB But Do Not Generate Packs Without Candles
+
+- `decision`: Treat `postgresql+psycopg://money_flow:***@127.0.0.1:5432/money_flow` as the intended local strategy-validation DB for this shell, migrate it to Alembic head, and keep canonical evidence generation blocked until real persisted candles exist.
+- `why`: SV1.9/SV1.9.1 established that maintenance DBs and unknown schema cannot produce credible evidence. SV1.10 made the non-maintenance local DB concrete and current, but evidence review still found zero persisted candles, so generating packs would be misleading.
+- `rejected_alternatives`: Using the `postgres` maintenance database; weakening DB-target/schema gates; generating placeholder evidence packs; treating missing candles as Money Flow failure; changing Money Flow rules; importing timezone-naive data as canonical.
+- `follow_up_implications`: Next SV work should import timezone-explicit BTC/ETH/SOL candles for the 18 unique canonical requirements, rerun evidence review with generation enabled, and keep paper-trading design deferred until founder/operator review sees real evidence.

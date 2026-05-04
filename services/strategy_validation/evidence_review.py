@@ -1,8 +1,9 @@
 """Money Flow evidence-pack review helpers.
 
-SV1.9.1 is a research-review/data-gap layer over existing campaign audits and
-evidence packs. It does not change Money Flow rules, create live artifacts, or
-call exchange adapters.
+SV1.10 is a research-review/data-gap layer over existing campaign audits and
+evidence packs. It makes the intended DB/schema/candle readiness path explicit
+before first real evidence packs. It does not change Money Flow rules, create
+live artifacts, or call exchange adapters.
 """
 
 from __future__ import annotations
@@ -628,10 +629,17 @@ def money_flow_evidence_review_to_markdown(
     )
     if payload["canonical_candle_import_requirements"]:
         for requirement in payload["canonical_candle_import_requirements"]:
+            window_label_display = ", ".join(requirement["window_labels"])
+            campaign_display = ", ".join(requirement["campaigns_impacted"])
+            config_path_display = ", ".join(requirement["config_paths"])
+            component_display = ", ".join(requirement["components"])
             lines.extend(
                 [
-                    f"### `{requirement['campaign_name']}` / `{requirement['symbol']}` / `{requirement['component']}` / `{requirement['window_label']}`",
+                    f"### `{requirement['symbol']}` / `{requirement['timeframe']}` / `{window_label_display}`",
                     "",
+                    f"- Campaigns impacted: `{campaign_display}`",
+                    f"- Config paths: `{config_path_display}`",
+                    f"- Components impacted: `{component_display}`",
                     f"- Instrument key: `{requirement['instrument_key']}`",
                     f"- Timeframe: `{requirement['timeframe']}`",
                     f"- Window: `({requirement['requested_start_at']}, {requirement['requested_end_at']}]`",
@@ -642,6 +650,8 @@ def money_flow_evidence_review_to_markdown(
                     f"- Reason codes: `{requirement['reason_codes']}`",
                     f"- Required file format: `{requirement['required_file_format']}`",
                     f"- Required fields: `{requirement['required_file_fields']}`",
+                    f"- Timezone requirement: `{requirement['timezone_requirement']}`",
+                    f"- Naive timestamp default policy: `{requirement['naive_timestamp_default_policy']}`",
                     f"- Example import command: `{requirement['example_import_command']}`",
                     "",
                 ]
@@ -900,7 +910,7 @@ def _calls_exchange_adapters_from_campaign_results(
 def _canonical_candle_import_requirements_from_results(
     results: Sequence[MoneyFlowEvidenceReviewCampaignResult],
 ) -> tuple[dict[str, Any], ...]:
-    requirements: list[dict[str, Any]] = []
+    requirements_by_key: dict[tuple[str, str | None, str | None, str, str], dict[str, Any]] = {}
     for result in results:
         for row in result.data_readiness_audit.rows:
             if row.readiness_status == "covered" and not row.likely_blocked:
@@ -908,16 +918,29 @@ def _canonical_candle_import_requirements_from_results(
             reason_codes = tuple(
                 sorted({*row.warning_reason_codes, *row.likely_blocked_reason_codes})
             )
-            requirements.append(
-                {
+            key = (
+                row.symbol,
+                row.instrument_key,
+                row.timeframe,
+                row.requested_start_at.isoformat(),
+                row.requested_end_at.isoformat(),
+            )
+            existing = requirements_by_key.get(key)
+            if existing is None:
+                requirements_by_key[key] = {
                     "campaign_name": result.campaign_name,
+                    "campaign_names": {result.campaign_name},
+                    "campaigns_impacted": {result.campaign_name},
                     "config_path": result.config_path,
+                    "config_paths": {result.config_path},
                     "symbol": row.symbol,
                     "instrument_key": row.instrument_key,
                     "instrument_ref_id": row.instrument_ref_id,
                     "component": row.component,
+                    "components": {row.component},
                     "timeframe": row.timeframe,
                     "window_label": row.window_label,
+                    "window_labels": {row.window_label},
                     "requested_start_at": row.requested_start_at,
                     "requested_end_at": row.requested_end_at,
                     "window_convention": STRATEGY_VALIDATION_WINDOW_CONVENTION,
@@ -925,8 +948,13 @@ def _canonical_candle_import_requirements_from_results(
                     "actual_candle_count": row.actual_candle_count,
                     "missing_candle_count": row.missing_candle_count,
                     "readiness_status": row.readiness_status,
-                    "reason_codes": reason_codes,
+                    "reason_codes": set(reason_codes),
                     "requires_migrated_schema_before_import": True,
+                    "timezone_requirement": (
+                        "open_time and close_time must be timezone-explicit ISO-8601 "
+                        "timestamps; timezone-naive rows are rejected by default."
+                    ),
+                    "naive_timestamp_default_policy": "reject",
                     "required_file_format": "CSV or JSON accepted by scripts/import_strategy_validation_candles.py",
                     "required_file_fields": (
                         "symbol",
@@ -942,13 +970,48 @@ def _canonical_candle_import_requirements_from_results(
                     ),
                     "example_import_command": _example_import_command(row),
                 }
+                continue
+            existing["campaign_names"].add(result.campaign_name)
+            existing["campaigns_impacted"].add(result.campaign_name)
+            existing["config_paths"].add(result.config_path)
+            existing["components"].add(row.component)
+            existing["window_labels"].add(row.window_label)
+            existing["reason_codes"].update(reason_codes)
+            existing["actual_candle_count"] = max(
+                int(existing["actual_candle_count"] or 0),
+                row.actual_candle_count,
             )
+            if existing["expected_candle_count"] is None:
+                existing["expected_candle_count"] = row.expected_candle_count
+            elif row.expected_candle_count is not None:
+                existing["expected_candle_count"] = max(
+                    int(existing["expected_candle_count"]),
+                    row.expected_candle_count,
+                )
+            expected_count = existing["expected_candle_count"]
+            actual_count = existing["actual_candle_count"]
+            existing["missing_candle_count"] = (
+                max(int(expected_count) - int(actual_count or 0), 0)
+                if expected_count is not None
+                else None
+            )
+            if existing["readiness_status"] != "blocked":
+                existing["readiness_status"] = row.readiness_status
+    requirements: list[dict[str, Any]] = []
+    for item in requirements_by_key.values():
+        item["campaign_names"] = tuple(sorted(item["campaign_names"]))
+        item["campaigns_impacted"] = tuple(sorted(item["campaigns_impacted"]))
+        item["config_paths"] = tuple(sorted(item["config_paths"]))
+        item["components"] = tuple(sorted(item["components"]))
+        item["window_labels"] = tuple(sorted(item["window_labels"]))
+        item["reason_codes"] = tuple(sorted(item["reason_codes"]))
+        requirements.append(item)
     requirements.sort(
         key=lambda item: (
-            str(item["campaign_name"]),
             str(item["symbol"]),
-            str(item["component"]),
-            str(item["window_label"]),
+            str(item["timeframe"]),
+            str(item["requested_start_at"]),
+            str(item["requested_end_at"]),
         )
     )
     return tuple(_json_ready(item) for item in requirements)

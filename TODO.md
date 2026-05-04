@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-03T22:02:39Z`
+Last reviewed: `2026-05-04T05:14:29Z`
 
 ## Active Follow-Ups
 
@@ -170,7 +170,7 @@ Last reviewed: `2026-05-03T22:02:39Z`
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `After SV1.9.1, point evidence review at a reachable migrated non-maintenance Money Flow database, import or verify enough timezone-explicit public historical candles for the canonical BTC/ETH/SOL campaign windows and `sleeve_15m` / `sleeve_1h` / `sleeve_4h` timeframes, rerun canonical evidence review with `--generate-evidence-packs`, and have the founder/operator manually review saved evidence before any paper-trading design is scoped. SV1.9 classifies the default configured `postgresql+psycopg://money_flow:***@postgres:5432/money_flow` target as the intended Money Flow DB but the host was unresolved in this shell; it also classifies `postgresql+psycopg://postgres:***@127.0.0.1:54322/postgres` as a maintenance database name. SV1.9.1 makes ambiguous/non-intended maintenance DB targets evidence-generation blockers by default and rejects naive candle timestamps by default unless the non-default `--assume-naive-utc` import override is explicitly used and provenance-marked as exploratory/non-canonical. SV1.8.1/SV1.9.1 require a clearly intended DB target, `migrated_schema_ready`, current Alembic truth, and required `candles` / `instruments` / `symbols` tables before evidence packs can generate. Canonical evidence remains `insufficient_data`, and SV1.9 reports exact import requirements for missing canonical candles. Do not optimize Money Flow rules, recommend a variant, add paper/live trading, create live artifacts, call exchanges, or connect validation outputs to routing/execution automation until manual evidence review explicitly justifies a new phase.`
+- `summary`: `After SV1.10, import or verify enough timezone-explicit public historical candles for the canonical BTC/ETH/SOL campaign windows and `sleeve_15m` / `sleeve_1h` / `sleeve_4h` timeframes, rerun canonical evidence review with `--generate-evidence-packs`, and have the founder/operator manually review saved evidence before any paper-trading design is scoped. SV1.10 created and migrated the intended local non-maintenance `money_flow` DB at `127.0.0.1:5432`, verified Alembic head `20260430_0025`, verified required `candles` / `instruments` / `symbols` tables, and found zero persisted candles. SV1.9.1 remains a guardrail: ambiguous/non-intended maintenance DB targets block evidence generation by default and naive candle timestamps reject by default unless the non-default `--assume-naive-utc` import override is explicitly used and provenance-marked as exploratory/non-canonical. Canonical evidence remains `insufficient_data`, with 18 unique missing candle requirements across BTC/ETH/SOL, 15m/1h/4h, and two canonical windows. Do not optimize Money Flow rules, recommend a variant, add paper/live trading, create live artifacts, call exchanges, or connect validation outputs to routing/execution automation until manual evidence review explicitly justifies a new phase.`
 
 ### T-061
 
@@ -201,6 +201,12 @@ Last reviewed: `2026-05-03T22:02:39Z`
 - `priority`: `high`
 - `status`: `done`
 - `summary`: `SV1.9.1 hardened evidence-target truth, candle-import timestamp/provenance truth, and Obsidian memory governance before SV1.10 attempts first real evidence packs. Evidence-pack generation now blocks ambiguous/non-intended maintenance DB targets such as `postgres`, `template0`, and `template1` by default even if schema/candles are otherwise present. No DB-target override was added. Offline candle imports now reject timezone-naive timestamps by default, and the non-default `--assume-naive-utc` override records `timestamp_assumption=assume_naive_utc`, source label, file path/name/hash, row counts, imported environment/venue/timeframe, override truth, and warning reason codes in the import summary. Obsidian command/current/dashboard/timeline/roadmap/project-memory notes were refreshed through SV1.9, operational docs tests now catch stale current-truth drift, and generated research/import outputs remain ignored by Git/review bundles. This changes no Money Flow rules, optimization, recommendations, paper/live trading, live artifacts, routing, execution automation, exchange calls, or first-real evidence-pack generation.`
+
+### T-066
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.10 made the intended local strategy-validation DB target real enough for canonical candle import. The local Homebrew Postgres target `postgresql+psycopg://money_flow:***@127.0.0.1:5432/money_flow` was created, migrated to Alembic head `20260430_0025`, and verified to contain the required `candles`, `instruments`, and `symbols` tables. Canonical evidence review ran with evidence generation enabled but generated no packs because persisted candle count is zero. Evidence-review import requirements are now grouped into 18 unique actionable rows with expected/actual/missing counts, impacted campaigns, required fields, timezone-explicit timestamp requirement, and example importer commands. This changes no Money Flow rules, optimization, recommendations, paper/live trading, live artifacts, routing, execution automation, or exchange calls.`
 
 ### T-001
 

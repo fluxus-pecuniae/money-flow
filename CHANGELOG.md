@@ -13,6 +13,48 @@ Entry schema:
 
 ---
 
+## v2026.05.04.001
+
+- `recorded_at_utc`: `2026-05-04T05:14:29Z`
+- `scope`: `SV1.10 intended local strategy-validation DB readiness, canonical candle import requirements, and first-real evidence status`
+- `intent`: `Native entry. Made the intended local Money Flow strategy-validation DB target concrete and reran canonical evidence review without weakening SV1.9.1 evidence-target or candle-import truth. The local Homebrew Postgres `money_flow` database at `127.0.0.1:5432` was created, migrated to Alembic head `20260430_0025`, and verified to contain required `candles`, `instruments`, and `symbols` tables. Canonical review still reports `insufficient_data` because persisted candle count is zero, so no first real evidence packs were generated. Evidence-review import requirements are now de-duplicated across overlapping campaigns and include expected/actual/missing counts, impacted campaigns, config paths, components, window labels, timezone-explicit timestamp requirements, naive timestamp default policy, and importer command templates. Unknown-instrument blocked readiness rows now still derive expected/missing candle counts when timeframe/window facts are available. This is DB/schema/candle-readiness and report truth only: no Money Flow rule changes, parameter optimization, strategy recommendations, paper/live trading, live artifacts, routing, execution automation, exchange adapter calls, private/order endpoint calls, route executor behavior, fanout, target reselection, or auto-submit were added.`
+- `affected_files`:
+  - `services/strategy_validation/campaigns.py`
+  - `services/strategy_validation/evidence_review.py`
+  - `tests/test_sv110_evidence_db_readiness.py`
+  - `tests/test_operational_docs.py`
+  - `docs/strategy_validation_sv1_10_first_real_evidence_status.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+- `validation_performed`:
+  - `docker compose ps` was attempted and failed because this Docker CLI does not support the `compose` subcommand; `docker-compose ps` was attempted and failed because `docker-compose` is not installed in this shell.
+  - `/opt/homebrew/opt/postgresql@16/bin/pg_ctl -D /opt/homebrew/var/postgresql@16 -l /tmp/money-flow-sv110-postgres.log start` started the local Postgres instance used for SV1.10.
+  - Local Postgres role/database setup created `money_flow` role/database on `127.0.0.1:5432` for strategy-validation use; secrets are intentionally omitted from this changelog.
+  - `DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow .venv/bin/python -m alembic upgrade head` passed and applied current Alembic head `20260430_0025`.
+  - `DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow .venv/bin/python scripts/review_money_flow_evidence_packs.py --generate-evidence-packs --format both --review-output-dir /tmp/money-flow-sv1.10-local-review` passed and reported `insufficient_data`, sanitized DB URL `postgresql+psycopg://money_flow:***@127.0.0.1:5432/money_flow`, schema status `migrated_schema_ready`, persisted candle count `0`, 18 unique canonical candle import requirements, 2 blocked campaigns, and 0 generated evidence packs.
+  - `.venv/bin/python -m pytest -q tests/test_sv110_evidence_db_readiness.py tests/test_sv19_evidence_status.py` passed with 7 tests during focused development.
+  - `.venv/bin/python -m pytest -q tests/test_sv110_evidence_db_readiness.py tests/test_operational_docs.py` passed with 14 tests after docs/Obsidian updates.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv15_historical_data_readiness.py tests/test_sv151_candle_import_integrity.py tests/test_sv16_evidence_review.py tests/test_sv17_evidence_review_real_data_gaps.py tests/test_sv18_historical_data_bootstrap.py tests/test_sv181_evidence_schema_truth.py tests/test_sv19_evidence_status.py tests/test_sv191_evidence_target_and_import_truth.py tests/test_sv110_evidence_db_readiness.py` passed with 81 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 18 tests.
+  - `.venv/bin/python -m pytest -q tests --ignore=tests/test_migrations.py` passed with 550 tests.
+  - `TEST_DATABASE_URL=postgresql+psycopg://money_flow:***@127.0.0.1:5432/money_flow .venv/bin/python -m pytest -q tests/test_migrations.py` initially failed under sandboxed local-network restrictions, then passed with 1 test when rerun with approved local Postgres access.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.10-review.zip` created the SV1.10 review bundle; bundle inspection found no `.env`, virtualenvs, Git metadata, caches, local DB/SQLite files, nested archives, generated evidence packs/reports/import outputs, local candle files, secrets, or Obsidian app state.
+
 ## v2026.05.03.006
 
 - `recorded_at_utc`: `2026-05-03T22:02:39Z`
