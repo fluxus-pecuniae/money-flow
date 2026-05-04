@@ -190,3 +190,10 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `why`: SV1.9/SV1.9.1 established that maintenance DBs and unknown schema cannot produce credible evidence. SV1.10 made the non-maintenance local DB concrete and current, but evidence review still found zero persisted candles, so generating packs would be misleading.
 - `rejected_alternatives`: Using the `postgres` maintenance database; weakening DB-target/schema gates; generating placeholder evidence packs; treating missing candles as Money Flow failure; changing Money Flow rules; importing timezone-naive data as canonical.
 - `follow_up_implications`: Next SV work should import timezone-explicit BTC/ETH/SOL candles for the 18 unique canonical requirements, rerun evidence review with generation enabled, and keep paper-trading design deferred until founder/operator review sees real evidence.
+
+## 2026-05-04T06:06:09Z - SV1.11 - Seed Market Identity Before Candle Import
+
+- `decision`: Add an offline/manual research-only market identity manifest plus seed/verify CLI before importing canonical candles.
+- `why`: SV1.10 produced a migrated intended DB but no canonical BTC/ETH/SOL instrument or symbol rows. The candle importer correctly requires those mappings before candle writes, so evidence work needs a safe identity-readiness step before file import.
+- `rejected_alternatives`: Auto-fetching exchange metadata; treating placeholder manifest values as live trading eligibility; importing candles without symbol/instrument mappings; changing Money Flow rules; generating evidence packs in this phase.
+- `follow_up_implications`: Next SV work should have the founder/operator verify manifest tick/size values, seed or verify market identity, preflight timezone-explicit candle files, import candles only after preflight passes, and generate evidence packs only after target/schema/identity/data readiness is clean.

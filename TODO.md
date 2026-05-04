@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-04T05:14:29Z`
+Last reviewed: `2026-05-04T06:06:09Z`
 
 ## Active Follow-Ups
 
@@ -170,7 +170,13 @@ Last reviewed: `2026-05-04T05:14:29Z`
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `After SV1.10, import or verify enough timezone-explicit public historical candles for the canonical BTC/ETH/SOL campaign windows and `sleeve_15m` / `sleeve_1h` / `sleeve_4h` timeframes, rerun canonical evidence review with `--generate-evidence-packs`, and have the founder/operator manually review saved evidence before any paper-trading design is scoped. SV1.10 created and migrated the intended local non-maintenance `money_flow` DB at `127.0.0.1:5432`, verified Alembic head `20260430_0025`, verified required `candles` / `instruments` / `symbols` tables, and found zero persisted candles. SV1.9.1 remains a guardrail: ambiguous/non-intended maintenance DB targets block evidence generation by default and naive candle timestamps reject by default unless the non-default `--assume-naive-utc` import override is explicitly used and provenance-marked as exploratory/non-canonical. Canonical evidence remains `insufficient_data`, with 18 unique missing candle requirements across BTC/ETH/SOL, 15m/1h/4h, and two canonical windows. Do not optimize Money Flow rules, recommend a variant, add paper/live trading, create live artifacts, call exchanges, or connect validation outputs to routing/execution automation until manual evidence review explicitly justifies a new phase.`
+- `summary`: `After SV1.11, import or verify enough timezone-explicit public historical candles for the canonical BTC/ETH/SOL campaign windows and `sleeve_15m` / `sleeve_1h` / `sleeve_4h` timeframes, rerun canonical evidence review with `--generate-evidence-packs`, and have the founder/operator manually review saved evidence before any paper-trading design is scoped. SV1.10 created and migrated the intended local non-maintenance `money_flow` DB at `127.0.0.1:5432`, verified Alembic head `20260430_0025`, verified required `candles` / `instruments` / `symbols` tables, and found zero persisted candles. SV1.11 adds the missing offline/manual market identity seed/verify and candle preflight layer that must pass before import. SV1.9.1 remains a guardrail: ambiguous/non-intended maintenance DB targets block evidence generation by default and naive candle timestamps reject by default unless the non-default `--assume-naive-utc` import override is explicitly used and provenance-marked as exploratory/non-canonical. Canonical evidence remains `insufficient_data`, with 18 unique missing candle requirements across BTC/ETH/SOL, 15m/1h/4h, and two canonical windows. Do not optimize Money Flow rules, recommend a variant, add paper/live trading, create live artifacts, call exchanges, or connect validation outputs to routing/execution automation until manual evidence review explicitly justifies a new phase.`
+
+### T-067
+
+- `priority`: `high`
+- `status`: `future`
+- `summary`: `After SV1.11, have the founder/operator verify the Hyperliquid perpetual USDC market-identity manifest values, run the market-identity dry-run / seed / verify-only workflow against the intended migrated `money_flow` DB, preflight timezone-explicit BTC/ETH/SOL candle files for all 18 canonical requirements, then import candles only after preflight passes. SV1.11 adds the research-only seed/verify and preflight tooling but does not auto-seed the local DB, import candles, generate evidence packs, change Money Flow rules, optimize, recommend, paper/live trade, route, or call exchanges.`
 
 ### T-061
 

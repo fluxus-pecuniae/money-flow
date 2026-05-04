@@ -1,0 +1,133 @@
+{
+  "manifest_name": "hyperliquid_perp_usdc_strategy_validation_example",
+  "description": "Example-only manual offline market identity manifest for Strategy Validation candle imports. Operators must verify venue tick/size values before using it outside tests.",
+  "research_only": true,
+  "source": "manual_offline_manifest",
+  "sv_phase": "SV1.11",
+  "venue": "hyperliquid",
+  "markets": [
+    {
+      "instrument": {
+        "instrument_key": "perpetual:linear:BTC:USDC:USDC",
+        "canonical_symbol": "BTC",
+        "market_type": "perpetual",
+        "product_type": "linear",
+        "base_asset": "BTC",
+        "quote_asset": "USDC",
+        "settlement_asset": "USDC",
+        "is_active": true
+      },
+      "symbol": {
+        "venue": "hyperliquid",
+        "symbol": "BTC",
+        "exchange_symbol": "BTC",
+        "venue_asset_id": null,
+        "asset_id": null,
+        "market_type": "perpetual",
+        "product_type": "linear",
+        "base_asset": "BTC",
+        "quote_asset": "USDC",
+        "settlement_asset": "USDC",
+        "price_tick_size": "1",
+        "quantity_step_size": "0.001",
+        "min_order_size": "0.001",
+        "size_decimals": null,
+        "max_leverage": null,
+        "only_isolated": false,
+        "is_perpetual": true,
+        "is_builder_deployed": false,
+        "is_strategy_eligible": false,
+        "is_trading_eligible": false,
+        "is_active": true,
+        "raw_metadata": {
+          "research_only_market_identity_seed": true,
+          "source": "manual_offline_manifest",
+          "sv_phase": "SV1.11",
+          "operator_note": "Example placeholder values; verify current venue tick/size metadata before seeding real research DBs."
+        }
+      }
+    },
+    {
+      "instrument": {
+        "instrument_key": "perpetual:linear:ETH:USDC:USDC",
+        "canonical_symbol": "ETH",
+        "market_type": "perpetual",
+        "product_type": "linear",
+        "base_asset": "ETH",
+        "quote_asset": "USDC",
+        "settlement_asset": "USDC",
+        "is_active": true
+      },
+      "symbol": {
+        "venue": "hyperliquid",
+        "symbol": "ETH",
+        "exchange_symbol": "ETH",
+        "venue_asset_id": null,
+        "asset_id": null,
+        "market_type": "perpetual",
+        "product_type": "linear",
+        "base_asset": "ETH",
+        "quote_asset": "USDC",
+        "settlement_asset": "USDC",
+        "price_tick_size": "0.1",
+        "quantity_step_size": "0.001",
+        "min_order_size": "0.001",
+        "size_decimals": null,
+        "max_leverage": null,
+        "only_isolated": false,
+        "is_perpetual": true,
+        "is_builder_deployed": false,
+        "is_strategy_eligible": false,
+        "is_trading_eligible": false,
+        "is_active": true,
+        "raw_metadata": {
+          "research_only_market_identity_seed": true,
+          "source": "manual_offline_manifest",
+          "sv_phase": "SV1.11",
+          "operator_note": "Example placeholder values; verify current venue tick/size metadata before seeding real research DBs."
+        }
+      }
+    },
+    {
+      "instrument": {
+        "instrument_key": "perpetual:linear:SOL:USDC:USDC",
+        "canonical_symbol": "SOL",
+        "market_type": "perpetual",
+        "product_type": "linear",
+        "base_asset": "SOL",
+        "quote_asset": "USDC",
+        "settlement_asset": "USDC",
+        "is_active": true
+      },
+      "symbol": {
+        "venue": "hyperliquid",
+        "symbol": "SOL",
+        "exchange_symbol": "SOL",
+        "venue_asset_id": null,
+        "asset_id": null,
+        "market_type": "perpetual",
+        "product_type": "linear",
+        "base_asset": "SOL",
+        "quote_asset": "USDC",
+        "settlement_asset": "USDC",
+        "price_tick_size": "0.01",
+        "quantity_step_size": "0.01",
+        "min_order_size": "0.01",
+        "size_decimals": null,
+        "max_leverage": null,
+        "only_isolated": false,
+        "is_perpetual": true,
+        "is_builder_deployed": false,
+        "is_strategy_eligible": false,
+        "is_trading_eligible": false,
+        "is_active": true,
+        "raw_metadata": {
+          "research_only_market_identity_seed": true,
+          "source": "manual_offline_manifest",
+          "sv_phase": "SV1.11",
+          "operator_note": "Example placeholder values; verify current venue tick/size metadata before seeding real research DBs."
+        }
+      }
+    }
+  ]
+}

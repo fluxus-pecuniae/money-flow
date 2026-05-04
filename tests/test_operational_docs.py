@@ -28,6 +28,7 @@ REQUIRED_FILES = [
     "docs/strategy_validation_sv1_9_first_real_evidence_status.md",
     "docs/strategy_validation_sv1_9_1_evidence_target_truth_hotfix.md",
     "docs/strategy_validation_sv1_10_first_real_evidence_status.md",
+    "docs/strategy_validation_sv1_11_market_identity_and_import_preflight.md",
 ]
 
 
@@ -73,8 +74,8 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "required Obsidian brain entrypoint" in command_center
-    assert re.search(r"Current implemented phase: `SV1\.10`", current_phase)
-    assert "SV1.10" in command_center
+    assert re.search(r"Current implemented phase: `SV1\.11`", current_phase)
+    assert "SV1.11" in command_center
     assert "Active Work" in coordination
     assert "Quant Engineer" in moved_memory
     assert "Strategy Validation" in moved_memory
@@ -99,13 +100,13 @@ def test_obsidian_current_state_notes_do_not_have_stale_current_truth() -> None:
         "next proposed phase is Phase 8.0",
         "The immediate next phase should be Phase 8.0",
         "routing is current priority",
-        "Current implemented phase: `SV1.9.1`",
-        "Phase observed in repo memory: `SV1.9.1`",
+        "Current implemented phase: `SV1.10`",
+        "Phase observed in repo memory: `SV1.10`",
     ]
 
     for path in current_state_paths:
         contents = path.read_text()
-        assert "SV1.10" in contents, f"{path} does not reflect current SV1.10 work"
+        assert "SV1.11" in contents, f"{path} does not reflect current SV1.11 work"
         for phrase in stale_current_truth_phrases:
             assert phrase not in contents, f"{path} still contains stale current truth: {phrase}"
 

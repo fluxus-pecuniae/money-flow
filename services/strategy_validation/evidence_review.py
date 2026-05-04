@@ -1,7 +1,7 @@
 """Money Flow evidence-pack review helpers.
 
-SV1.10 is a research-review/data-gap layer over existing campaign audits and
-evidence packs. It makes the intended DB/schema/candle readiness path explicit
+SV1.11 is a research-review/data-gap layer over existing campaign audits and
+evidence packs. It makes DB/schema/market-identity/candle readiness explicit
 before first real evidence packs. It does not change Money Flow rules, create
 live artifacts, or call exchange adapters.
 """
@@ -40,6 +40,7 @@ from services.strategy_validation.campaigns import (
     money_flow_research_campaign_data_readiness_to_markdown,
     run_money_flow_research_campaign_sync,
 )
+from services.strategy_validation.market_identity import canonical_market_identity_requirements
 from services.strategy_validation.service import (
     MoneyFlowBacktestService,
     STRATEGY_VALIDATION_WINDOW_CONVENTION,
@@ -143,6 +144,7 @@ class MoneyFlowEvidenceReviewSummary:
     paper_readiness_review_status: str
     paper_readiness_status_methodology: str
     manual_paper_trading_readiness_criteria: tuple[str, ...]
+    canonical_market_identity_requirements: tuple[dict[str, Any], ...]
     canonical_candle_import_requirements: tuple[dict[str, Any], ...]
     generated_evidence_pack_paths: tuple[str, ...]
     blocked_campaign_count: int
@@ -172,10 +174,16 @@ def review_money_flow_evidence(
     timestamp = _coerce_utc(generated_at or datetime.now(UTC)).replace(microsecond=0)
     database_status = inspect_strategy_validation_database_status(validation_service)
     paths = tuple(campaign_config_paths or CANONICAL_MONEY_FLOW_CAMPAIGN_CONFIG_PATHS)
+    configs = tuple(
+        (Path(path), load_money_flow_research_campaign_config(Path(path))) for path in paths
+    )
+    market_identity_requirements = _canonical_market_identity_requirements_from_configs(
+        configs=configs,
+        service=validation_service,
+        database_status=database_status,
+    )
     results: list[MoneyFlowEvidenceReviewCampaignResult] = []
-    for path in paths:
-        config_path = Path(path)
-        config = load_money_flow_research_campaign_config(config_path)
+    for config_path, config in configs:
         if not _schema_ready_for_evidence_generation(database_status):
             audit = _database_blocked_data_readiness_audit(
                 config=config,
@@ -272,6 +280,7 @@ def review_money_flow_evidence(
         manual_paper_trading_readiness_criteria=tuple(
             money_flow_manual_paper_trading_readiness_criteria()
         ),
+        canonical_market_identity_requirements=market_identity_requirements,
         canonical_candle_import_requirements=import_requirements,
         generated_evidence_pack_paths=generated_paths,
         blocked_campaign_count=sum(
@@ -621,9 +630,31 @@ def money_flow_evidence_review_to_markdown(
         )
     lines.extend(
         [
+            "## Canonical Market Identity Requirements",
+            "",
+            "Candle import requires canonical instrument rows and venue symbol mappings before candle rows can be written. Missing identity rows are a DB-readiness gap, not a Money Flow strategy result.",
+            "",
+            "| symbol | venue | instrument key | status | instrument exists | symbol mapping exists | reason codes |",
+            "| --- | --- | --- | --- | --- | --- | --- |",
+        ]
+    )
+    for requirement in payload["canonical_market_identity_requirements"]:
+        lines.append(
+            "| "
+            f"`{requirement['symbol']}` | "
+            f"`{requirement['venue']}` | "
+            f"`{requirement['instrument_key']}` | "
+            f"`{requirement['market_identity_status']}` | "
+            f"`{requirement['instrument_exists']}` | "
+            f"`{requirement['symbol_mapping_exists']}` | "
+            f"`{requirement['reason_codes']}` |"
+        )
+    lines.append("")
+    lines.extend(
+        [
             "## Canonical Candle Import Requirements",
             "",
-            "Use these rows only after the intended database is reachable and reports `migrated_schema_ready`. Imports must use public/offline historical candles and the hardened SV1.5.1 importer.",
+            "Use these rows only after the intended database is reachable, reports `migrated_schema_ready`, and canonical market identity is ready. Imports must use public/offline historical candles and the hardened SV1.5.1 importer.",
             "",
         ]
     )
@@ -1015,6 +1046,33 @@ def _canonical_candle_import_requirements_from_results(
         )
     )
     return tuple(_json_ready(item) for item in requirements)
+
+
+def _canonical_market_identity_requirements_from_configs(
+    *,
+    configs: Sequence[tuple[Path, MoneyFlowResearchCampaignConfig]],
+    service: MoneyFlowBacktestService,
+    database_status: MoneyFlowEvidenceReviewDatabaseStatus,
+) -> tuple[dict[str, Any], ...]:
+    symbols_by_key: dict[tuple[str, str | None], dict[str, str | None]] = {}
+    venue = "hyperliquid"
+    for _config_path, config in configs:
+        venue = config.venue
+        for symbol in config.symbols:
+            symbols_by_key[(symbol.symbol, symbol.instrument_key)] = {
+                "symbol": symbol.symbol,
+                "instrument_key": symbol.instrument_key,
+            }
+    return canonical_market_identity_requirements(
+        symbols=symbols_by_key.values(),
+        venue=venue,
+        session_factory=service._session_factory,
+        schema_ready=(
+            database_status.reachable
+            and database_status.schema_ready_for_evidence_generation
+            and not database_status.required_schema_tables_missing
+        ),
+    )
 
 
 def _migration_head_revisions() -> tuple[str, ...]:

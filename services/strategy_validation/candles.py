@@ -292,11 +292,21 @@ def _resolve_symbol_model(
             select(InstrumentModel.id).where(InstrumentModel.instrument_key == instrument_key)
         )
         if instrument_id is None:
-            raise ValueError(f"unknown instrument_key for candle import: {instrument_key}")
+            raise ValueError(
+                "unknown instrument_key for candle import: "
+                f"{instrument_key}. Seed or verify Strategy Validation market identity first with "
+                "`scripts/seed_strategy_validation_market_identity.py --manifest "
+                "configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json`."
+            )
         query = query.where(SymbolModel.instrument_ref_id == instrument_id)
     matches = list(session.scalars(query).all())
     if not matches:
-        raise ValueError(f"unknown symbol mapping for candle import: venue={venue} symbol={symbol}")
+        raise ValueError(
+            "unknown symbol mapping for candle import: "
+            f"venue={venue} symbol={symbol}. Seed or verify Strategy Validation market identity "
+            "first with `scripts/seed_strategy_validation_market_identity.py --manifest "
+            "configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json`."
+        )
     if len(matches) > 1 and instrument_key is None:
         raise ValueError(
             "ambiguous symbol mapping for candle import; provide instrument_key for "

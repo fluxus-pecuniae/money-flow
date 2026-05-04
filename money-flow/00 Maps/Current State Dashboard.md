@@ -4,12 +4,12 @@ Up: [[Money Flow Command Center]]
 
 ## Today In One Sentence
 
-Money Flow is a mandate-driven, multi-venue-aware trading strategy platform whose current deepest execution path is controlled single-target recommendation-backed routed execution, with Strategy Validation now providing canonical Money Flow campaign evidence review, DB/candle-table data-gap truth, collision-safe evidence packs where data is sufficient, and hardened historical candle import/data-readiness review before any paper-trading decision.
+Money Flow is a mandate-driven, multi-venue-aware trading strategy platform whose current deepest execution path is controlled single-target recommendation-backed routed execution, with Strategy Validation now providing canonical Money Flow campaign evidence review, DB/schema/identity/candle data-gap truth, collision-safe evidence packs where data is sufficient, hardened historical candle import, and candle-import preflight before any paper-trading decision.
 
 ## Current Implemented Phase
 
-- Phase observed in repo memory: `SV1.10`.
-- Latest implemented scope: intended local DB readiness, canonical candle import requirement grouping, and first-real evidence status before first real canonical evidence packs.
+- Phase observed in repo memory: `SV1.11`.
+- Latest implemented scope: canonical market-identity bootstrap and candle-import preflight before first real canonical evidence packs.
 - Current action hooks: approval-gated `recommendation_acceptance`, `target_choice_conversion`, `prepared_order_preview_and_readiness`, and `submitted_order_handoff`.
 - Phase 7.5.1 added `consumption_pending` approval truth for submitted-order-created / approval-consumption-failed cases.
 - Phase 7.6 added closeout tests and docs only; it added no production behavior.
@@ -26,7 +26,8 @@ Money Flow is a mandate-driven, multi-venue-aware trading strategy platform whos
 - SV1.9 reports sanitized DB target role/intended-target truth and canonical candle import requirements; no first real packs were generated.
 - SV1.9.1 blocks ambiguous/non-intended maintenance DB targets from evidence generation by default, rejects timezone-naive candle imports by default unless a provenance-marked non-canonical override is used, and refreshes Obsidian current truth through SV1.9.
 - SV1.10 creates/migrates the intended local `money_flow` DB, verifies required tables, reruns canonical review, and reports zero persisted candles plus 18 unique timezone-explicit import requirements; no first real packs were generated.
-- Proposed next phase: import enough timezone-explicit historical candles, rerun canonical evidence review with generated packs only when DB target/schema/data readiness are clean, then scope paper-trading design only if founder/operator review justifies it.
+- SV1.11 adds research-only BTC/ETH/SOL Hyperliquid perpetual USDC market-identity seed/verify tooling, evidence-review identity readiness, and candle-import preflight; it writes no candles and generates no evidence packs.
+- Proposed next phase: operator-verify/seed market identity if needed, preflight/import enough timezone-explicit historical candles, rerun canonical evidence review with generated packs only when DB target/schema/identity/data readiness are clean, then scope paper-trading design only if founder/operator review justifies it.
 
 ## Implemented Platform Surface
 
@@ -81,7 +82,7 @@ Phase 8.0 makes workflow state, approval state, manual-resolution needs, submit-
 
 ## Current Strategy Validation Layer
 
-SV1.10 keeps validation research-only. Canonical campaign configs live under `configs/strategy_validation/campaigns/`, campaign windows use `(start_at, end_at]`, config `window_convention` metadata is strictly validated against that platform convention, data-readiness audits can render Markdown founder summaries, and evidence-pack writes use explicit collision policy instead of silent overwrite. Offline public CSV/JSON candle imports can duplicate-safely upsert matching existing candle rows for research backfills only, but reject identity conflicts, timeframe-duration mismatches, malformed/non-finite/inconsistent OHLCV rows, negative trade counts, timezone-naive timestamps by default, and invalid files without partial commits. The evidence review CLI reports sanitized DB target/reachability/schema/migration/candle-table truth before canonical audits, blocks ambiguous/non-intended maintenance DB targets and unready schema/data clearly, and can generate packs only when target, schema, and data readiness are clean. SV1.10 confirms the intended local DB is migrated/current but contains zero candles, so the current gap is importing 18 unique timezone-explicit BTC/ETH/SOL candle files; it does not create live artifacts, approve paper trading, or call exchange/private/order endpoints.
+SV1.11 keeps validation research-only. Canonical campaign configs live under `configs/strategy_validation/campaigns/`, campaign windows use `(start_at, end_at]`, config `window_convention` metadata is strictly validated against that platform convention, data-readiness audits can render Markdown founder summaries, and evidence-pack writes use explicit collision policy instead of silent overwrite. Offline public CSV/JSON candle imports can duplicate-safely upsert matching existing candle rows for research backfills only, but reject identity conflicts, timeframe-duration mismatches, malformed/non-finite/inconsistent OHLCV rows, negative trade counts, timezone-naive timestamps by default, and invalid files without partial commits. The evidence review CLI reports sanitized DB target/reachability/schema/migration/candle-table truth plus canonical market identity readiness before canonical audits, blocks ambiguous/non-intended maintenance DB targets and unready schema/data clearly, and can generate packs only when target, schema, and data readiness are clean. SV1.11 adds a manual/offline BTC/ETH/SOL Hyperliquid perpetual USDC market identity manifest plus seed/verify and candle preflight scripts. The current gap is operator-verified identity seed plus importing 18 unique timezone-explicit BTC/ETH/SOL candle files; it does not create live artifacts, approve paper trading, or call exchange/private/order endpoints.
 
 ## Deferred Boundaries
 

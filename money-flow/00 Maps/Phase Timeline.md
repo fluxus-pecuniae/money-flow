@@ -31,14 +31,15 @@ Up: [[Money Flow Command Center]]
 - SV1.6-SV1.9: canonical evidence review, DB/schema/migration/candle data-gap reporting, schema gate, DB-target reporting, and canonical candle import requirements. No first real canonical evidence packs were generated.
 - SV1.9.1: ambiguous DB-target evidence-generation blocking, default naive timestamp rejection, import provenance strengthening, and Obsidian current-truth refresh.
 - SV1.10: intended local `money_flow` DB creation/migration truth, required table verification, 18 unique canonical candle import requirements, and no evidence packs because candle count is zero.
+- SV1.11: research-only canonical market identity seed/verify tooling, evidence-review identity readiness, and candle-import preflight before candle import.
 
 ## Current Next Shape
 
 See [[40 Operations/Future Work Roadmap]].
 
-Current implemented phase: `SV1.10`.
+Current implemented phase: `SV1.11`.
 
-The next proposed Strategy Validation work is to import or verify enough timezone-explicit public/offline canonical BTC/ETH/SOL candles for the 18 unique SV1.10 requirements, generate first real evidence packs only after DB target/schema/data readiness is clean, and keep paper-trading design deferred until founder/operator evidence review justifies it. Phase 8.1 remains deferred until explicitly scoped.
+The next proposed Strategy Validation work is to operator-verify/seed canonical market identity if needed, preflight/import enough timezone-explicit public/offline canonical BTC/ETH/SOL candles for the 18 unique requirements, generate first real evidence packs only after DB target/schema/identity/data readiness is clean, and keep paper-trading design deferred until founder/operator evidence review justifies it. Phase 8.1 remains deferred until explicitly scoped.
 
 ## Strategic Memory
 

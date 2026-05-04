@@ -221,6 +221,26 @@ SV1.9.1 turns ambiguous DB-target truth into a hard evidence-generation gate. Ev
 
 SV1.10 makes the intended local strategy-validation DB target usable for imports and first-real evidence attempts. In the local run, `postgresql+psycopg://money_flow:***@127.0.0.1:5432/money_flow` was created, migrated to Alembic head `20260430_0025`, and verified to contain `candles`, `instruments`, and `symbols`. Canonical review still returned `insufficient_data` because persisted candle count was `0`, so no evidence packs were generated. The review now groups overlapping canonical import gaps into 18 unique BTC/ETH/SOL candle requirements with expected/actual/missing counts, impacted campaigns, timezone-explicit timestamp requirements, and importer command templates. See [SV1.10 First Real Evidence Status](docs/strategy_validation_sv1_10_first_real_evidence_status.md).
 
+SV1.11 adds the missing market-identity bootstrap and candle-import preflight layer before canonical candle import. Edit and verify `configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json`, then run:
+
+```bash
+.venv/bin/python scripts/seed_strategy_validation_market_identity.py \
+  --manifest configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json \
+  --dry-run
+
+.venv/bin/python scripts/seed_strategy_validation_market_identity.py \
+  --manifest configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json \
+  --verify-only
+
+.venv/bin/python scripts/preflight_strategy_validation_candle_import.py \
+  --input /path/to/btc_15m_core_window_1.csv \
+  --environment testnet \
+  --venue hyperliquid \
+  --timeframe 15m
+```
+
+The seed path upserts only `instruments` and `symbols`, marks the example rows as research-only/non-trading by default, refuses symbol/instrument retargeting conflicts, and creates no candles or live artifacts. Preflight validates candle files and identity mappings without writing candles. Evidence review now reports canonical market-identity readiness separately from candle coverage so the founder can distinguish missing schema, missing identity, missing candles, and thin coverage. See [SV1.11 Market Identity And Candle Import Preflight](docs/strategy_validation_sv1_11_market_identity_and_import_preflight.md).
+
 ## Routing Automation Planning
 
 Phase 7.0 exposes non-executing automation policy and dry-run planning:

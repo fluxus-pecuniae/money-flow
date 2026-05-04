@@ -13,6 +13,50 @@ Entry schema:
 
 ---
 
+## v2026.05.04.002
+
+- `recorded_at_utc`: `2026-05-04T06:06:09Z`
+- `scope`: `SV1.11 canonical Strategy Validation market-identity bootstrap and candle-import preflight`
+- `intent`: `Native entry. Added a research-only market identity bootstrap and candle-import preflight layer before first real canonical candle import. SV1.11 adds an example offline/manual Hyperliquid perpetual USDC BTC/ETH/SOL market-identity manifest, a seed/verify CLI that validates and upserts only `InstrumentModel` / `SymbolModel` rows, conflict protection against silent symbol-to-instrument retargeting, strict positive finite Decimal validation for tick/size fields, evidence-review canonical market-identity readiness reporting, and a preflight CLI that validates CSV/JSON candle files plus identity mappings without writing candles. Importer unknown-mapping errors now direct operators to run the market-identity seed/verify script first. No local canonical evidence packs were generated, no candles were imported, and no Money Flow rules, parameter optimization, strategy recommendations, paper/live trading, live artifacts, routing, execution automation, exchange adapter calls, private/order endpoint calls, route executor behavior, fanout, target reselection, or auto-submit were added.`
+- `affected_files`:
+  - `configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json`
+  - `services/strategy_validation/market_identity.py`
+  - `services/strategy_validation/__init__.py`
+  - `services/strategy_validation/candles.py`
+  - `services/strategy_validation/evidence_review.py`
+  - `scripts/seed_strategy_validation_market_identity.py`
+  - `scripts/preflight_strategy_validation_candle_import.py`
+  - `tests/test_sv111_market_identity_preflight.py`
+  - `tests/test_operational_docs.py`
+  - `docs/strategy_validation_sv1_11_market_identity_and_import_preflight.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_sv111_market_identity_preflight.py` passed with 11 tests during focused development.
+  - `.venv/bin/python -m compileall services/strategy_validation scripts/seed_strategy_validation_market_identity.py scripts/preflight_strategy_validation_candle_import.py tests/test_sv111_market_identity_preflight.py` passed during focused development.
+  - `.venv/bin/python -m pytest -q tests/test_sv110_evidence_db_readiness.py tests/test_sv19_evidence_status.py tests/test_sv191_evidence_target_and_import_truth.py` passed with 10 tests during focused development.
+  - `.venv/bin/python -m pytest -q tests/test_sv111_market_identity_preflight.py tests/test_sv110_evidence_db_readiness.py tests/test_operational_docs.py` passed with 24 tests after docs/Obsidian updates before the review-JSON preflight test was added.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv15_historical_data_readiness.py tests/test_sv151_candle_import_integrity.py tests/test_sv16_evidence_review.py tests/test_sv17_evidence_review_real_data_gaps.py tests/test_sv18_historical_data_bootstrap.py tests/test_sv181_evidence_schema_truth.py tests/test_sv19_evidence_status.py tests/test_sv191_evidence_target_and_import_truth.py tests/test_sv110_evidence_db_readiness.py tests/test_sv111_market_identity_preflight.py` passed with 92 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 18 tests.
+  - `.venv/bin/python -m pytest -q tests --ignore=tests/test_migrations.py` passed with 561 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 11 tests after final coordination/docs updates.
+  - `TEST_DATABASE_URL=postgresql+psycopg://money_flow:***@127.0.0.1:5432/money_flow .venv/bin/python -m pytest -q tests/test_migrations.py` passed with 1 test.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.11-review.zip` created the SV1.11 review bundle; bundle inspection found no `.env`, virtualenvs, Git metadata, caches, local DB/SQLite files, nested archives, generated evidence packs/reports/import outputs, local candle files, secrets, or Obsidian app state.
+
 ## v2026.05.04.001
 
 - `recorded_at_utc`: `2026-05-04T05:14:29Z`
