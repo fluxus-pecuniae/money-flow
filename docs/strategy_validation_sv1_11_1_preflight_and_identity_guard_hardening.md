@@ -32,9 +32,9 @@ Actual writes require both verification flags:
   --verified-by "<operator-or-reviewer-name>"
 ```
 
-Written `symbols.raw_metadata` records `operator_verified`, `verified_by`, `verified_at`, `sv_phase=SV1.11.1`, `research_only_market_identity_seed=true`, and `source=manual_offline_manifest`.
+Written `symbols.raw_metadata` records `operator_verified`, `verified_by`, `verified_at`, `research_only_market_identity_seed=true`, and `source=manual_offline_manifest`.
 
-Verification metadata does not make symbols trading-eligible or strategy-eligible. The example manifest keeps `is_trading_eligible=false` and `is_strategy_eligible=false` unless an operator explicitly edits those fields in the manifest.
+Verification metadata does not make symbols trading-eligible or strategy-eligible. SV1.11.2 further hardens this boundary: the Strategy Validation seed path now rejects manifests that set `is_trading_eligible=true` or `is_strategy_eligible=true`.
 
 ## Row-Level Preflight Is Not Coverage Proof
 
@@ -83,6 +83,8 @@ Requirement-aware preflight checks that close times exactly cover the canonical 
 
 A file can be row-level valid but still fail `requirement_coverage_ready`.
 
+SV1.11.2 further hardens this requirement-aware mode: every input file must map to exactly one requirement, every supplied requirement must have exactly one input file, and duplicate mappings to the same requirement block `ready_for_import`.
+
 ## Current Status
 
-SV1.11.1 imports no candles and generates no evidence packs. SV1.12 remains the phase for guarded canonical candle bundle import and the first evidence attempt, but only after operator-verified market identity and requirement-aware preflight pass for all 18 canonical BTC/ETH/SOL requirements.
+SV1.11.1 and SV1.11.2 import no candles and generate no evidence packs. SV1.12 remains the phase for guarded canonical candle bundle import and the first evidence attempt, but only after operator-verified market identity and complete requirement-aware preflight pass for all 18 canonical BTC/ETH/SOL requirements.

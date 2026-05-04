@@ -204,3 +204,10 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `why`: Row-level file validation alone can pass for a file that does not satisfy a specific canonical requirement, and writing example-derived market identity without an explicit operator guard could make manual placeholder values look accepted.
 - `rejected_alternatives`: Treating dry-run success as authorization to write; allowing unverified example manifests to seed identity rows; treating row-level candle validation as canonical coverage proof; importing candles or generating evidence packs in the hardening phase.
 - `follow_up_implications`: SV1.12 should use operator-verified identity seed/verify plus requirement-aware `ready_for_import=true` preflight before guarded canonical candle import. First real evidence packs remain deferred until target/schema/identity/candle readiness is clean.
+
+## 2026-05-04T19:48:32Z - SV1.11.2 - Research Identity Must Stay Non-Trading And Preflight Mapping Must Be Complete
+
+- `decision`: Block Strategy Validation market-identity seed manifests that set `is_strategy_eligible=true` or `is_trading_eligible=true`, and require complete one-to-one input-file-to-requirement mapping for requirement-aware candle preflight.
+- `why`: The research seed uses shared `SymbolModel` rows that execution/routing code can inspect, so it must not be able to promote symbols into trading eligibility. Requirement-aware preflight also must not let unmapped files or unmapped requirements appear ready before guarded import.
+- `rejected_alternatives`: Allowing manifest edits to promote trading eligibility; treating partial preflight coverage as acceptable; silently ignoring extra files or missing requirements; importing candles or generating evidence packs in the governance hotfix.
+- `follow_up_implications`: SV1.12 can proceed to guarded canonical candle bundle import only after operator-verified non-trading identity and complete one-to-one `ready_for_import=true` preflight pass for the canonical candle files.

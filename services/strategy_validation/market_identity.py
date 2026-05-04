@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections import Counter
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -524,7 +525,7 @@ def preflight_strategy_validation_candle_import(
     reason_codes: set[str] = set()
     warnings: set[str] = set()
     input_rows_seen = 0
-    requirement_by_input = _load_input_requirement_mapping(
+    requirement_by_input, supplied_requirements = _load_input_requirement_mapping(
         input_paths=input_paths,
         requirement_json_paths=requirement_json_paths,
         input_requirement_map=input_requirement_map,
@@ -536,6 +537,13 @@ def preflight_strategy_validation_candle_import(
     if requirement_aware_requested and not requirement_by_input:
         warnings.add("input_requirement_mapping_missing")
         reason_codes.add("input_requirement_mapping_missing")
+    if requirement_aware_requested:
+        mapping_reason_codes = _requirement_mapping_reason_codes(
+            input_paths=input_paths,
+            requirement_by_input=requirement_by_input,
+            supplied_requirements=supplied_requirements,
+        )
+        reason_codes.update(mapping_reason_codes)
 
     for input_path in input_paths:
         result = _preflight_input_path(
@@ -785,7 +793,7 @@ def _apply_operator_verification_metadata(
                 "operator_verified": True,
                 "verified_by": verified_by,
                 "verified_at": verified_at.isoformat(),
-                "sv_phase": "SV1.11.1",
+                "sv_phase": "SV1.11.2",
                 "research_only_market_identity_seed": True,
                 "source": "manual_offline_manifest",
             }
@@ -827,12 +835,22 @@ def _validated_symbol_payload(raw: Any) -> tuple[dict[str, Any], set[str]]:
         raise ValueError(
             "strategy validation market identity field is_strategy_eligible must be boolean."
         )
+    elif is_strategy_eligible:
+        raise ValueError(
+            "strategy_validation_seed_cannot_mark_symbol_strategy_eligible: "
+            "research_market_identity_seed_must_remain_non_trading"
+        )
     if is_trading_eligible is None:
         is_trading_eligible = False
         warnings.add("is_trading_eligible_defaulted_false_for_research_seed")
     elif not isinstance(is_trading_eligible, bool):
         raise ValueError(
             "strategy validation market identity field is_trading_eligible must be boolean."
+        )
+    elif is_trading_eligible:
+        raise ValueError(
+            "strategy_validation_seed_cannot_mark_symbol_trading_eligible: "
+            "research_market_identity_seed_must_remain_non_trading"
         )
     payload = {
         "venue": _required_str(raw, "venue"),
@@ -860,7 +878,7 @@ def _validated_symbol_payload(raw: Any) -> tuple[dict[str, Any], set[str]]:
             **raw_metadata,
             "research_only_market_identity_seed": True,
             "source": "manual_offline_manifest",
-            "sv_phase": "SV1.11",
+            "sv_phase": "SV1.11.2",
         },
     }
     if payload["settlement_asset"] is not None:
@@ -1053,10 +1071,13 @@ def _load_input_requirement_mapping(
     requirement_json_paths: Sequence[str | Path],
     input_requirement_map: dict[str, Any] | None,
     input_requirement_map_path: str | Path | None,
-) -> dict[str, dict[str, Any]]:
+) -> tuple[dict[str, dict[str, Any]], tuple[dict[str, Any], ...]]:
     requirements: list[dict[str, Any]] = []
     for path in requirement_json_paths:
-        requirements.extend(_load_requirement_payloads(Path(path)))
+        requirements.extend(
+            _normalise_requirement_payload(item)
+            for item in _load_requirement_payloads(Path(path))
+        )
     mapping_payload: dict[str, Any] = {}
     if input_requirement_map_path is not None:
         raw_mapping = json.loads(Path(input_requirement_map_path).read_text(encoding="utf-8"))
@@ -1076,9 +1097,7 @@ def _load_input_requirement_mapping(
             if isinstance(value, dict):
                 mapping[str(Path(input_path))] = _normalise_requirement_payload(value)
             elif isinstance(value, int):
-                mapping[str(Path(input_path))] = _normalise_requirement_payload(
-                    requirements[value]
-                )
+                mapping[str(Path(input_path))] = requirements[value]
             elif isinstance(value, str):
                 requirement = requirements_by_identifier.get(value)
                 if requirement is None:
@@ -1086,22 +1105,67 @@ def _load_input_requirement_mapping(
                         "input requirement map references unknown requirement identifier: "
                         f"{value}"
                     )
-                mapping[str(Path(input_path))] = _normalise_requirement_payload(requirement)
+                mapping[str(Path(input_path))] = requirement
             else:
                 raise ValueError(
                     "input requirement map values must be requirement objects, indexes, "
                     "or requirement identifiers."
                 )
-        return mapping
+        return mapping, tuple(requirements)
 
     if requirement_json_paths and len(requirements) == len(input_paths):
         return {
             str(Path(input_path)): _normalise_requirement_payload(requirement)
             for input_path, requirement in zip(input_paths, requirements, strict=True)
-        }
+        }, tuple(requirements)
     if requirement_json_paths and len(requirements) == 1 and len(input_paths) == 1:
-        return {str(Path(input_paths[0])): _normalise_requirement_payload(requirements[0])}
-    return {}
+        return {str(Path(input_paths[0])): requirements[0]}, tuple(requirements)
+    return {}, tuple(requirements)
+
+
+def _requirement_mapping_reason_codes(
+    *,
+    input_paths: Sequence[str | Path],
+    requirement_by_input: dict[str, dict[str, Any]],
+    supplied_requirements: Sequence[dict[str, Any]],
+) -> set[str]:
+    reason_codes: set[str] = set()
+    input_keys = {str(Path(input_path)) for input_path in input_paths}
+    mapped_keys = set(requirement_by_input)
+    missing_input_mappings = input_keys - mapped_keys
+    extra_mapped_inputs = mapped_keys - input_keys
+    if missing_input_mappings:
+        reason_codes.add("input_file_missing_requirement_mapping")
+        reason_codes.add("requirement_mapping_incomplete")
+    if extra_mapped_inputs:
+        reason_codes.add("input_requirement_mapping_references_unknown_input_file")
+        reason_codes.add("requirement_mapping_incomplete")
+
+    mapped_identifiers = [
+        _requirement_identifier(requirement)
+        for input_key, requirement in requirement_by_input.items()
+        if input_key in input_keys
+    ]
+    mapped_counts = Counter(mapped_identifiers)
+    if any(count > 1 for count in mapped_counts.values()):
+        reason_codes.add("requirement_mapped_to_multiple_input_files")
+        reason_codes.add("requirement_mapping_not_one_to_one")
+
+    if supplied_requirements:
+        supplied_counts = Counter(
+            _requirement_identifier(requirement) for requirement in supplied_requirements
+        )
+        if any(count > 1 for count in supplied_counts.values()):
+            reason_codes.add("requirement_mapping_not_one_to_one")
+        missing_requirements = [
+            identifier
+            for identifier, expected_count in supplied_counts.items()
+            if mapped_counts.get(identifier, 0) < expected_count
+        ]
+        if missing_requirements:
+            reason_codes.add("requirement_missing_input_file")
+            reason_codes.add("requirement_mapping_incomplete")
+    return reason_codes
 
 
 def _load_requirement_payloads(path: Path) -> list[dict[str, Any]]:
@@ -1377,9 +1441,11 @@ def _preflight_requirements_from_review_json(
     session_factory: Any,
 ) -> tuple[dict[str, Any], ...]:
     payload = json.loads(path.read_text(encoding="utf-8"))
-    requirements = payload.get("canonical_market_identity_requirements")
+    requirement_kind = "canonical_candle_import_requirements"
+    requirements = payload.get(requirement_kind)
     if requirements is None:
-        requirements = payload.get("canonical_candle_import_requirements")
+        requirement_kind = "canonical_market_identity_requirements"
+        requirements = payload.get(requirement_kind)
     if not isinstance(requirements, list):
         raise ValueError(
             "requirements review JSON must contain canonical_market_identity_requirements "
@@ -1404,6 +1470,7 @@ def _preflight_requirements_from_review_json(
             {
                 **identity,
                 "ready": identity["market_identity_status"] == "ready",
+                "requirement_kind": requirement_kind,
                 "timeframe": item.get("timeframe"),
                 "requested_start_at": item.get("requested_start_at"),
                 "requested_end_at": item.get("requested_end_at"),

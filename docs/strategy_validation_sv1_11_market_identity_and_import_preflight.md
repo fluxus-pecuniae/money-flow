@@ -20,7 +20,7 @@ Example manifest:
 configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json
 ```
 
-The example is operator-editable and offline/manual. It seeds or verifies BTC, ETH, and SOL Hyperliquid perpetual USDC identity rows for Strategy Validation. The example marks symbols as `is_strategy_eligible=false` and `is_trading_eligible=false`; this seed path is not trading enablement.
+The example is operator-editable and offline/manual. It seeds or verifies BTC, ETH, and SOL Hyperliquid perpetual USDC identity rows for Strategy Validation. The example marks symbols as `is_strategy_eligible=false` and `is_trading_eligible=false`; this seed path is not trading enablement. SV1.11.2 hardens that boundary by rejecting manifests that set either field to `true`.
 
 Before real use, verify the manifest values against an accepted public/offline source:
 
@@ -117,7 +117,7 @@ DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME
   --format markdown
 ```
 
-Requirement-aware preflight reports `row_level_ready`, `identity_ready`, `requirement_coverage_ready`, and `ready_for_import`. A file can pass row-level validation but fail requirement coverage if close times are outside the requested window, duplicated, missing, or extra.
+Requirement-aware preflight reports `row_level_ready`, `identity_ready`, `requirement_coverage_ready`, and `ready_for_import`. A file can pass row-level validation but fail requirement coverage if close times are outside the requested window, duplicated, missing, or extra. SV1.11.2 requires complete one-to-one mapping: every input file must map to exactly one requirement and every supplied requirement must have exactly one input file.
 
 ## Review JSON Requirements
 
@@ -153,6 +153,6 @@ SV1.11 adds tooling and report truth only. It does not seed the operator's local
 
 - the intended DB reports `migrated_schema_ready`
 - canonical market identity verify-only passes
-- all required candle files pass requirement-aware preflight
+- all required candle files pass complete requirement-aware preflight
 - candles are imported with timezone-explicit timestamps
 - canonical evidence review reports sufficient data

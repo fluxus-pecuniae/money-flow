@@ -13,6 +13,49 @@ Entry schema:
 
 ---
 
+## v2026.05.04.004
+
+- `recorded_at_utc`: `2026-05-04T19:56:28Z`
+- `scope`: `SV1.11.2 Strategy Validation market-identity non-trading guard and complete preflight mapping hotfix`
+- `intent`: `Native entry. Closed the remaining pre-import governance issues before SV1.12 guarded candle import. SV1.11.2 blocks Strategy Validation market-identity manifests that attempt to set `is_strategy_eligible=true` or `is_trading_eligible=true`, keeping successful seed writes research-only/non-trading with operator verification metadata. Requirement-aware candle preflight now requires complete one-to-one input-file-to-requirement mapping: unmapped input files, unmapped supplied requirements, and duplicate mappings to the same requirement block readiness. Candle preflight review JSON selection now prefers `canonical_candle_import_requirements` when present and records `requirement_kind`, falling back to identity requirements only when candle requirements are absent. Row-level preflight remains available but is not canonical coverage proof. No candles were imported, no evidence packs were generated, and no Money Flow rules, optimization, recommendations, paper/live trading, live artifacts, routing, execution automation, exchange adapter calls, private/order endpoint calls, or auto-trading behavior were added.`
+- `affected_files`:
+  - `configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json`
+  - `services/strategy_validation/market_identity.py`
+  - `tests/test_sv111_market_identity_preflight.py`
+  - `tests/test_sv1111_market_identity_preflight_hardening.py`
+  - `tests/test_sv1112_market_identity_preflight_governance.py`
+  - `tests/test_operational_docs.py`
+  - `docs/strategy_validation_sv1_11_market_identity_and_import_preflight.md`
+  - `docs/strategy_validation_sv1_11_1_preflight_and_identity_guard_hardening.md`
+  - `docs/strategy_validation_sv1_11_2_seed_and_preflight_governance_hotfix.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_sv111_market_identity_preflight.py tests/test_sv1111_market_identity_preflight_hardening.py tests/test_sv1112_market_identity_preflight_governance.py` passed with 32 tests during focused development.
+  - `.venv/bin/python -m compileall services/strategy_validation/market_identity.py tests/test_sv1112_market_identity_preflight_governance.py tests/test_operational_docs.py` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv111_market_identity_preflight.py tests/test_sv1111_market_identity_preflight_hardening.py tests/test_sv1112_market_identity_preflight_governance.py tests/test_operational_docs.py` passed with 43 tests.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv15_historical_data_readiness.py tests/test_sv151_candle_import_integrity.py tests/test_sv16_evidence_review.py tests/test_sv17_evidence_review_real_data_gaps.py tests/test_sv18_historical_data_bootstrap.py tests/test_sv181_evidence_schema_truth.py tests/test_sv19_evidence_status.py tests/test_sv191_evidence_target_and_import_truth.py tests/test_sv110_evidence_db_readiness.py tests/test_sv111_market_identity_preflight.py tests/test_sv1111_market_identity_preflight_hardening.py tests/test_sv1112_market_identity_preflight_governance.py` passed with 113 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 18 tests.
+  - `.venv/bin/python -m pytest -q tests --ignore=tests/test_migrations.py` passed with 582 tests.
+  - Initial migration smoke with `TEST_DATABASE_URL=postgresql+psycopg://money_flow:***@127.0.0.1:5432/money_flow .venv/bin/python -m pytest -q tests/test_migrations.py` failed because local Postgres at `127.0.0.1:5432` refused the connection.
+  - `/opt/homebrew/opt/postgresql@16/bin/pg_ctl -D /opt/homebrew/var/postgresql@16 -l /tmp/money-flow-sv112-postgres.log start` started the local Postgres instance.
+  - `TEST_DATABASE_URL=postgresql+psycopg://money_flow:***@127.0.0.1:5432/money_flow .venv/bin/python -m pytest -q tests/test_migrations.py` passed with 1 test after local Postgres started.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.11.2-review.zip` created the SV1.11.2 review bundle, and ZIP inspection found 254 entries with no forbidden `.env`, virtualenv, Git metadata, caches, DB/SQLite files, generated evidence/import/preflight outputs, local candle files, nested archives, secrets, or Obsidian app state.
+
 ## v2026.05.04.003
 
 - `recorded_at_utc`: `2026-05-04T07:18:58Z`

@@ -259,6 +259,8 @@ SV1.11.1 hardens the SV1.11 workflow. Non-dry-run market-identity writes now req
 
 SV1.11.1 still imports no candles and generates no evidence packs. See [SV1.11.1 Preflight And Identity Guard Hardening](docs/strategy_validation_sv1_11_1_preflight_and_identity_guard_hardening.md).
 
+SV1.11.2 closes the remaining pre-import governance gaps. The Strategy Validation seed path now rejects manifests that set `is_strategy_eligible=true` or `is_trading_eligible=true`; this research-only tool cannot make `SymbolModel` rows trading-ready. Requirement-aware candle preflight now requires complete one-to-one mapping: every input file must map to exactly one canonical requirement, every supplied requirement must have exactly one input file, and duplicate mappings block `ready_for_import`. When `--requirements-from-review-json` contains both identity and candle import requirements, candle import requirements are inspected first and output records `requirement_kind`. SV1.11.2 still imports no candles and generates no evidence packs. See [SV1.11.2 Seed And Preflight Governance Hotfix](docs/strategy_validation_sv1_11_2_seed_and_preflight_governance_hotfix.md).
+
 ## Routing Automation Planning
 
 Phase 7.0 exposes non-executing automation policy and dry-run planning:

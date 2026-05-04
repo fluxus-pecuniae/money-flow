@@ -6,7 +6,7 @@
   "verified_by": null,
   "operator_verification_required_for_writes": true,
   "source": "manual_offline_manifest",
-  "sv_phase": "SV1.11.1",
+  "sv_phase": "SV1.11.2",
   "venue": "hyperliquid",
   "markets": [
     {
@@ -45,7 +45,7 @@
         "raw_metadata": {
           "research_only_market_identity_seed": true,
           "source": "manual_offline_manifest",
-          "sv_phase": "SV1.11.1",
+          "sv_phase": "SV1.11.2",
           "operator_note": "Example placeholder values; verify current venue tick/size metadata before seeding real research DBs."
         }
       }
@@ -86,7 +86,7 @@
         "raw_metadata": {
           "research_only_market_identity_seed": true,
           "source": "manual_offline_manifest",
-          "sv_phase": "SV1.11.1",
+          "sv_phase": "SV1.11.2",
           "operator_note": "Example placeholder values; verify current venue tick/size metadata before seeding real research DBs."
         }
       }
@@ -127,7 +127,7 @@
         "raw_metadata": {
           "research_only_market_identity_seed": true,
           "source": "manual_offline_manifest",
-          "sv_phase": "SV1.11.1",
+          "sv_phase": "SV1.11.2",
           "operator_note": "Example placeholder values; verify current venue tick/size metadata before seeding real research DBs."
         }
       }
