@@ -544,6 +544,16 @@ def preflight_strategy_validation_candle_import(
             supplied_requirements=supplied_requirements,
         )
         reason_codes.update(mapping_reason_codes)
+    if supplied_requirements:
+        requirement_results = list(
+            _preflight_supplied_candle_requirements(
+                supplied_requirements,
+                venue=venue,
+                session_factory=session_factory,
+            )
+        )
+        for result in requirement_results:
+            reason_codes.update(result["reason_codes"])
 
     for input_path in input_paths:
         result = _preflight_input_path(
@@ -568,7 +578,7 @@ def preflight_strategy_validation_candle_import(
             requirement_aware_results.append(requirement_result)
             reason_codes.update(requirement_result["reason_codes"])
 
-    if requirements_from_review_json is not None:
+    if requirements_from_review_json is not None and not requirement_results:
         requirement_results = list(
             _preflight_requirements_from_review_json(
                 Path(requirements_from_review_json),
@@ -1434,6 +1444,45 @@ def _expected_close_time_slots(
     return tuple(slots)
 
 
+def _preflight_supplied_candle_requirements(
+    requirements: Sequence[dict[str, Any]],
+    *,
+    venue: str,
+    session_factory: Any,
+) -> tuple[dict[str, Any], ...]:
+    results: list[dict[str, Any]] = []
+    for raw in requirements:
+        requirement = _normalise_requirement_payload(raw)
+        identity = canonical_market_identity_requirements(
+            symbols=(
+                {
+                    "symbol": requirement["symbol"],
+                    "instrument_key": requirement["instrument_key"],
+                },
+            ),
+            venue=venue,
+            session_factory=session_factory,
+            schema_ready=True,
+        )[0]
+        results.append(
+            {
+                **identity,
+                "ready": identity["market_identity_status"] == "ready",
+                "requirement_kind": "canonical_candle_import_requirements",
+                "requirement_identifier": _requirement_identifier(requirement),
+                "timeframe": requirement["timeframe"].value,
+                "requested_start_at": requirement["requested_start_at"],
+                "requested_end_at": requirement["requested_end_at"],
+                "window_label": requirement["window_label"],
+                "window_labels": None,
+                "expected_candle_count": requirement["expected_candle_count"],
+                "actual_candle_count": None,
+                "missing_candle_count": None,
+            }
+        )
+    return tuple(results)
+
+
 def _preflight_requirements_from_review_json(
     path: Path,
     *,
@@ -1471,6 +1520,15 @@ def _preflight_requirements_from_review_json(
                 **identity,
                 "ready": identity["market_identity_status"] == "ready",
                 "requirement_kind": requirement_kind,
+                "requirement_identifier": (
+                    _requirement_identifier(_normalise_requirement_payload(item))
+                    if requirement_kind == "canonical_candle_import_requirements"
+                    and item.get("timeframe")
+                    and item.get("requested_start_at")
+                    and item.get("requested_end_at")
+                    and item.get("expected_candle_count") is not None
+                    else None
+                ),
                 "timeframe": item.get("timeframe"),
                 "requested_start_at": item.get("requested_start_at"),
                 "requested_end_at": item.get("requested_end_at"),

@@ -35,14 +35,15 @@ Up: [[Money Flow Command Center]]
 - SV1.11.1: SOR P2 hardening requiring explicit operator verification for non-dry-run identity writes and requirement-aware candle preflight before bulk import.
 - SV1.11.2: governance hardening that keeps research market identity non-trading and requires complete one-to-one requirement-aware preflight mapping.
 - SV1.12: guarded canonical candle bundle import requiring intended migrated DB truth, operator-verified non-trading identity, complete one-to-one requirement-aware preflight, and hardened importer success; no evidence packs generated.
+- SV1.12.1: guarded import run / blocked-run truth; intended DB is reachable/current with zero candles, identity rows and candle files are missing, partial-persistence semantics are explicit, and unmapped inputs / missing requirements are operator-visible.
 
 ## Current Next Shape
 
 See [[40 Operations/Future Work Roadmap]].
 
-Current implemented phase: `SV1.12`.
+Current implemented phase: `SV1.12.1`.
 
-The next proposed Strategy Validation work is SV1.13 post-import canonical evidence review/evidence-pack generation only after the guarded import has completed enough timezone-explicit BTC/ETH/SOL candles and data-readiness audits are clean. If data remains incomplete, SV1.13 should report the remaining gaps instead of forcing evidence conclusions. Paper-trading design remains deferred until founder/operator evidence review justifies it. Phase 8.1 remains deferred until explicitly scoped.
+The next proposed Strategy Validation work is completing guarded canonical candle import after BTC/ETH/SOL research identity and all 18 timezone-explicit candle files are available, then SV1.13 post-import canonical evidence review/evidence-pack generation only after guarded import status is complete and data-readiness audits are clean. If data remains incomplete, SV1.13 should report the remaining gaps instead of forcing evidence conclusions. Paper-trading design remains deferred until founder/operator evidence review justifies it. Phase 8.1 remains deferred until explicitly scoped.
 
 ## Strategic Memory
 

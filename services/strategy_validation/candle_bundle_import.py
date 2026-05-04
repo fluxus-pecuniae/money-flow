@@ -38,12 +38,23 @@ class StrategyValidationCanonicalCandleBundleImportResult:
     preflight: dict[str, Any]
     operator_verified_market_identity_requirements: tuple[dict[str, Any], ...]
     file_import_results: tuple[dict[str, Any], ...]
+    requirement_import_results: tuple[dict[str, Any], ...]
     input_files_seen: int
+    requirements_seen: int
     files_imported: int
     files_blocked: int
+    requirements_missing: int
     rows_inserted: int
     rows_updated: int
     rows_unchanged: int
+    bundle_import_failure_policy: str
+    bundle_import_final_status: str
+    partial_persistence_occurred: bool
+    imported_requirement_ids: tuple[str, ...]
+    failed_requirement_ids: tuple[str, ...]
+    missing_requirement_ids: tuple[str, ...]
+    unmapped_input_files: tuple[str, ...]
+    safe_rerun_resume_instructions: str
     reason_codes: tuple[str, ...]
     warnings: tuple[str, ...]
     evidence_packs_generated: bool = False
@@ -104,6 +115,32 @@ def guarded_import_strategy_validation_candle_bundle(
         session_factory=effective_session_factory,
     )
     preflight_payload = strategy_validation_candle_import_preflight_result_to_dict(preflight)
+    requirement_results = list(preflight_payload["requirement_results"])
+    requirement_aware_results = list(preflight_payload["requirement_aware_results"])
+    supplied_input_paths = tuple(str(Path(path)) for path in input_paths)
+    mapped_input_paths = {
+        str(Path(item["input_path"]))
+        for item in requirement_aware_results
+        if item.get("input_path")
+    }
+    unmapped_input_files = tuple(
+        input_path for input_path in supplied_input_paths if input_path not in mapped_input_paths
+    )
+    mapped_requirement_ids = {
+        str(item["requirement_identifier"])
+        for item in requirement_aware_results
+        if item.get("requirement_identifier")
+    }
+    missing_requirement_rows = tuple(
+        item
+        for item in requirement_results
+        if item.get("requirement_identifier")
+        and str(item["requirement_identifier"]) not in mapped_requirement_ids
+    )
+    if unmapped_input_files:
+        reason_codes.add("unmapped_input_file_blocked")
+    if missing_requirement_rows:
+        reason_codes.add("missing_requirement_blocked")
     if not preflight_payload["requirement_aware_results"]:
         reason_codes.add("canonical_candle_import_requires_requirement_aware_preflight")
     if not preflight_payload["ready"]:
@@ -112,7 +149,7 @@ def guarded_import_strategy_validation_candle_bundle(
     warnings.update(preflight_payload["warnings"])
 
     identity_requirements = _operator_verified_market_identity_requirements(
-        preflight_payload["requirement_aware_results"],
+        (*requirement_results, *requirement_aware_results),
         venue=venue,
         session_factory=effective_session_factory,
     )
@@ -126,9 +163,12 @@ def guarded_import_strategy_validation_candle_bundle(
     rows_inserted = 0
     rows_updated = 0
     rows_unchanged = 0
+    imported_requirement_ids: list[str] = []
+    failed_requirement_ids: list[str] = []
 
     if ready_for_import:
-        for requirement_result in preflight_payload["requirement_aware_results"]:
+        stopped_after_failure = False
+        for requirement_result in requirement_aware_results:
             input_path = Path(requirement_result["input_path"])
             source_label = _source_label_for_input(
                 source_label_prefix=source_label_prefix,
@@ -150,6 +190,7 @@ def guarded_import_strategy_validation_candle_bundle(
                 rows_inserted += int(import_payload["inserted_count"])
                 rows_updated += int(import_payload["updated_count"])
                 rows_unchanged += int(import_payload["unchanged_count"])
+                imported_requirement_ids.append(requirement_result["requirement_identifier"])
                 file_import_results.append(
                     {
                         "input_path": str(input_path),
@@ -160,6 +201,7 @@ def guarded_import_strategy_validation_candle_bundle(
                         "timeframe": requirement_result["timeframe"],
                         "import_attempted": True,
                         "import_succeeded": True,
+                        "file_status": "imported",
                         "ready_for_import": True,
                         "source_label": source_label,
                         "import_result": import_payload,
@@ -168,6 +210,7 @@ def guarded_import_strategy_validation_candle_bundle(
                 )
             except Exception as exc:  # noqa: BLE001 - return explicit file status.
                 reason_codes.add("canonical_candle_file_import_failed")
+                failed_requirement_ids.append(requirement_result["requirement_identifier"])
                 file_import_results.append(
                     {
                         "input_path": str(input_path),
@@ -178,39 +221,75 @@ def guarded_import_strategy_validation_candle_bundle(
                         "timeframe": requirement_result["timeframe"],
                         "import_attempted": True,
                         "import_succeeded": False,
+                        "file_status": "failed",
                         "ready_for_import": True,
                         "source_label": source_label,
                         "error_message": str(exc).splitlines()[0],
                         "reason_codes": ("canonical_candle_file_import_failed",),
                     }
                 )
+                stopped_after_failure = True
                 break
+        if stopped_after_failure:
+            completed_paths = {item["input_path"] for item in file_import_results}
+            for requirement_result in requirement_aware_results:
+                if requirement_result["input_path"] in completed_paths:
+                    continue
+                failed_requirement_ids.append(requirement_result["requirement_identifier"])
+                file_import_results.append(
+                    _blocked_mapped_requirement_file_result(
+                        requirement_result,
+                        reason_codes=(
+                            "canonical_candle_bundle_import_stopped_after_failure",
+                        ),
+                    )
+                )
     else:
-        for requirement_result in preflight_payload["requirement_aware_results"]:
+        for requirement_result in requirement_aware_results:
             file_import_results.append(
-                {
-                    "input_path": requirement_result["input_path"],
-                    "requirement_identifier": requirement_result[
-                        "requirement_identifier"
-                    ],
-                    "symbol": requirement_result["symbol"],
-                    "timeframe": requirement_result["timeframe"],
-                    "import_attempted": False,
-                    "import_succeeded": False,
-                    "ready_for_import": False,
-                    "source_label": None,
-                    "reason_codes": tuple(sorted(reason_codes)),
-                }
+                _blocked_mapped_requirement_file_result(
+                    requirement_result,
+                    reason_codes=tuple(
+                        sorted(set(reason_codes) | set(requirement_result["reason_codes"]))
+                    ),
+                )
             )
+    for input_path in unmapped_input_files:
+        file_import_results.append(_unmapped_input_file_result(input_path))
+    for requirement in missing_requirement_rows:
+        file_import_results.append(_missing_requirement_file_result(requirement))
 
     import_attempted = any(item["import_attempted"] for item in file_import_results)
     import_completed = (
         ready_for_import
         and bool(file_import_results)
         and all(item["import_succeeded"] for item in file_import_results)
+        and not missing_requirement_rows
+        and not unmapped_input_files
     )
     if not import_completed and import_attempted:
         reason_codes.add("canonical_candle_bundle_import_incomplete")
+    partial_persistence_occurred = (
+        import_attempted and bool(imported_requirement_ids) and not import_completed
+    )
+    if partial_persistence_occurred:
+        reason_codes.add("canonical_candle_bundle_partial_persistence")
+    requirement_import_results = _requirement_import_results(
+        requirement_results=requirement_results,
+        requirement_aware_results=requirement_aware_results,
+        file_import_results=file_import_results,
+    )
+    missing_requirement_ids = tuple(
+        str(item["requirement_identifier"])
+        for item in missing_requirement_rows
+        if item.get("requirement_identifier")
+    )
+    bundle_import_final_status = _bundle_import_final_status(
+        import_completed=import_completed,
+        import_attempted=import_attempted,
+        partial_persistence_occurred=partial_persistence_occurred,
+        reason_codes=reason_codes,
+    )
 
     return StrategyValidationCanonicalCandleBundleImportResult(
         environment=environment.value,
@@ -224,12 +303,38 @@ def guarded_import_strategy_validation_candle_bundle(
             _json_ready(item) for item in identity_requirements
         ),
         file_import_results=tuple(_json_ready(item) for item in file_import_results),
+        requirement_import_results=tuple(
+            _json_ready(item) for item in requirement_import_results
+        ),
         input_files_seen=len(input_paths),
-        files_imported=sum(1 for item in file_import_results if item["import_succeeded"]),
-        files_blocked=sum(1 for item in file_import_results if not item["import_succeeded"]),
+        requirements_seen=len(requirement_results) or len(requirement_aware_results),
+        files_imported=sum(
+            1
+            for item in file_import_results
+            if item.get("input_path") is not None and item["import_succeeded"]
+        ),
+        files_blocked=sum(
+            1
+            for item in file_import_results
+            if item.get("input_path") is not None and not item["import_succeeded"]
+        ),
+        requirements_missing=len(missing_requirement_rows),
         rows_inserted=rows_inserted,
         rows_updated=rows_updated,
         rows_unchanged=rows_unchanged,
+        bundle_import_failure_policy="explicit_partial_with_resume",
+        bundle_import_final_status=bundle_import_final_status,
+        partial_persistence_occurred=partial_persistence_occurred,
+        imported_requirement_ids=tuple(imported_requirement_ids),
+        failed_requirement_ids=tuple(failed_requirement_ids),
+        missing_requirement_ids=missing_requirement_ids,
+        unmapped_input_files=unmapped_input_files,
+        safe_rerun_resume_instructions=(
+            "If partial persistence occurred, fix failed or missing files and rerun the "
+            "guarded bundle import. Candle upsert is duplicate-safe for the same identity, "
+            "but SV1.13 evidence review must not proceed until bundle_import_final_status "
+            "is canonical_import_complete."
+        ),
         reason_codes=tuple(sorted(reason_codes)),
         warnings=tuple(sorted(warnings)),
     )
@@ -249,6 +354,139 @@ def strategy_validation_canonical_candle_bundle_import_result_to_json(
         indent=2,
         sort_keys=True,
     ) + "\n"
+
+
+def _blocked_mapped_requirement_file_result(
+    requirement_result: dict[str, Any],
+    *,
+    reason_codes: Sequence[str],
+) -> dict[str, Any]:
+    return {
+        "input_path": requirement_result["input_path"],
+        "requirement_identifier": requirement_result["requirement_identifier"],
+        "symbol": requirement_result["symbol"],
+        "instrument_key": requirement_result["instrument_key"],
+        "timeframe": requirement_result["timeframe"],
+        "import_attempted": False,
+        "import_succeeded": False,
+        "file_status": "blocked",
+        "ready_for_import": False,
+        "source_label": None,
+        "reason_codes": tuple(sorted(set(reason_codes))),
+    }
+
+
+def _unmapped_input_file_result(input_path: str) -> dict[str, Any]:
+    return {
+        "input_path": input_path,
+        "requirement_identifier": None,
+        "symbol": None,
+        "instrument_key": None,
+        "timeframe": None,
+        "import_attempted": False,
+        "import_succeeded": False,
+        "file_status": "unmapped_input_file_blocked",
+        "ready_for_import": False,
+        "source_label": None,
+        "reason_codes": (
+            "input_file_missing_requirement_mapping",
+            "unmapped_input_file_blocked",
+        ),
+    }
+
+
+def _missing_requirement_file_result(requirement: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "input_path": None,
+        "requirement_identifier": requirement.get("requirement_identifier"),
+        "symbol": requirement.get("symbol"),
+        "instrument_key": requirement.get("instrument_key"),
+        "timeframe": requirement.get("timeframe"),
+        "import_attempted": False,
+        "import_succeeded": False,
+        "file_status": "missing_requirement_blocked",
+        "ready_for_import": False,
+        "source_label": None,
+        "reason_codes": (
+            "requirement_missing_input_file",
+            "missing_requirement_blocked",
+        ),
+    }
+
+
+def _requirement_import_results(
+    *,
+    requirement_results: Sequence[dict[str, Any]],
+    requirement_aware_results: Sequence[dict[str, Any]],
+    file_import_results: Sequence[dict[str, Any]],
+) -> tuple[dict[str, Any], ...]:
+    requirements_by_id: dict[str, dict[str, Any]] = {}
+    for item in (*requirement_results, *requirement_aware_results):
+        identifier = item.get("requirement_identifier")
+        if identifier:
+            requirements_by_id[str(identifier)] = item
+    file_results_by_requirement = {
+        str(item["requirement_identifier"]): item
+        for item in file_import_results
+        if item.get("requirement_identifier")
+    }
+    rows: list[dict[str, Any]] = []
+    for identifier, requirement in sorted(requirements_by_id.items()):
+        file_result = file_results_by_requirement.get(identifier)
+        if file_result is None:
+            status = "missing_input_file"
+            input_path = None
+            import_attempted = False
+            import_succeeded = False
+            reason_codes = ("requirement_missing_input_file",)
+        else:
+            input_path = file_result.get("input_path")
+            import_attempted = bool(file_result.get("import_attempted"))
+            import_succeeded = bool(file_result.get("import_succeeded"))
+            reason_codes = tuple(file_result.get("reason_codes", ()))
+            if import_succeeded:
+                status = "imported"
+            elif input_path is None:
+                status = "missing_input_file"
+            elif import_attempted:
+                status = "failed"
+            else:
+                status = str(file_result.get("file_status") or "blocked")
+        rows.append(
+            {
+                "requirement_identifier": identifier,
+                "input_path": input_path,
+                "symbol": requirement.get("symbol"),
+                "instrument_key": requirement.get("instrument_key"),
+                "timeframe": requirement.get("timeframe"),
+                "requested_start_at": requirement.get("requested_start_at"),
+                "requested_end_at": requirement.get("requested_end_at"),
+                "expected_candle_count": requirement.get("expected_candle_count"),
+                "requirement_status": status,
+                "import_attempted": import_attempted,
+                "import_succeeded": import_succeeded,
+                "reason_codes": reason_codes,
+            }
+        )
+    return tuple(rows)
+
+
+def _bundle_import_final_status(
+    *,
+    import_completed: bool,
+    import_attempted: bool,
+    partial_persistence_occurred: bool,
+    reason_codes: set[str],
+) -> str:
+    if import_completed:
+        return "canonical_import_complete"
+    if partial_persistence_occurred:
+        return "partial_import"
+    if reason_codes:
+        return "import_blocked"
+    if import_attempted:
+        return "import_blocked"
+    return "import_not_attempted"
 
 
 def strategy_validation_canonical_candle_bundle_import_result_to_markdown(
@@ -271,14 +509,24 @@ def strategy_validation_canonical_candle_bundle_import_result_to_markdown(
         f"- Ready for import: `{payload['ready_for_import']}`",
         f"- Import attempted: `{payload['import_attempted']}`",
         f"- Import completed: `{payload['import_completed']}`",
+        f"- Final status: `{payload['bundle_import_final_status']}`",
+        f"- Bundle failure policy: `{payload['bundle_import_failure_policy']}`",
+        f"- Partial persistence occurred: `{payload['partial_persistence_occurred']}`",
         f"- Input files seen: `{payload['input_files_seen']}`",
+        f"- Requirements seen: `{payload['requirements_seen']}`",
         f"- Files imported: `{payload['files_imported']}`",
         f"- Files blocked: `{payload['files_blocked']}`",
+        f"- Requirements missing files: `{payload['requirements_missing']}`",
         f"- Rows inserted: `{payload['rows_inserted']}`",
         f"- Rows updated: `{payload['rows_updated']}`",
         f"- Rows unchanged: `{payload['rows_unchanged']}`",
+        f"- Imported requirement IDs: `{payload['imported_requirement_ids']}`",
+        f"- Failed requirement IDs: `{payload['failed_requirement_ids']}`",
+        f"- Missing requirement IDs: `{payload['missing_requirement_ids']}`",
+        f"- Unmapped input files: `{payload['unmapped_input_files']}`",
         f"- Reason codes: `{payload['reason_codes']}`",
         f"- Warnings: `{payload['warnings']}`",
+        f"- Safe rerun/resume: {payload['safe_rerun_resume_instructions']}",
         "",
         "## Database Gate",
         "",
@@ -320,15 +568,18 @@ def strategy_validation_canonical_candle_bundle_import_result_to_markdown(
     )
     if payload["file_import_results"]:
         for item in payload["file_import_results"]:
+            title = item["input_path"] if item["input_path"] is not None else "<missing input file>"
             lines.extend(
                 [
-                    f"### `{item['input_path']}`",
+                    f"### `{title}`",
                     "",
                     f"- Requirement identifier: `{item['requirement_identifier']}`",
                     f"- Symbol: `{item['symbol']}`",
+                    f"- Instrument key: `{item.get('instrument_key')}`",
                     f"- Timeframe: `{item['timeframe']}`",
                     f"- Import attempted: `{item['import_attempted']}`",
                     f"- Import succeeded: `{item['import_succeeded']}`",
+                    f"- File status: `{item.get('file_status')}`",
                     f"- Source label: `{item['source_label']}`",
                     f"- Reason codes: `{item['reason_codes']}`",
                     "",
@@ -336,6 +587,26 @@ def strategy_validation_canonical_candle_bundle_import_result_to_markdown(
             )
     else:
         lines.append("- No files were imported or blocked because no requirement-aware files were supplied.")
+        lines.append("")
+    lines.extend(["## Requirement Import Results", ""])
+    if payload["requirement_import_results"]:
+        lines.append(
+            "| requirement | input path | symbol | timeframe | status | reason codes |"
+        )
+        lines.append("| --- | --- | --- | --- | --- | --- |")
+        for item in payload["requirement_import_results"]:
+            lines.append(
+                "| "
+                f"`{item['requirement_identifier']}` | "
+                f"`{item['input_path']}` | "
+                f"`{item['symbol']}` | "
+                f"`{item['timeframe']}` | "
+                f"`{item['requirement_status']}` | "
+                f"`{item['reason_codes']}` |"
+            )
+        lines.append("")
+    else:
+        lines.append("- No canonical requirements were supplied.")
         lines.append("")
     lines.extend(
         [

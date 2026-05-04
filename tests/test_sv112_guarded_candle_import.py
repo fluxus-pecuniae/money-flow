@@ -5,6 +5,7 @@ from pathlib import Path
 
 from sqlalchemy import func, select
 
+import services.strategy_validation.candle_bundle_import as candle_bundle_import_service
 from core.domain.enums import Environment, Timeframe
 from db.models import CandleModel, SymbolModel
 from services.strategy_validation import (
@@ -65,13 +66,14 @@ def _guarded_import(
     input_requirement_map: dict[str, object] | None = None,
     service: MoneyFlowBacktestService | None = None,
     input_paths: tuple[Path, ...] | None = None,
+    requirements: list[dict[str, object]] | None = None,
 ):
     csv_path = tmp_path / "btc_15m.csv"
     requirement_path = tmp_path / "requirements.json"
     if input_paths is None:
         _write_csv(csv_path, rows if rows is not None else _three_rows())
         input_paths = (csv_path,)
-    _write_json(requirement_path, [requirement or _requirement()])
+    _write_json(requirement_path, requirements or [requirement or _requirement()])
     return guarded_import_strategy_validation_candle_bundle(
         input_paths=input_paths,
         requirement_json_paths=(requirement_path,),
@@ -207,6 +209,13 @@ def test_guarded_import_requires_complete_one_to_one_mapping(tmp_path: Path) -> 
     assert payload["import_attempted"] is False
     assert "input_file_missing_requirement_mapping" in payload["reason_codes"]
     assert "requirement_mapping_incomplete" in payload["reason_codes"]
+    assert str(second) in payload["unmapped_input_files"]
+    blocked_files = {
+        item["input_path"]: item for item in payload["file_import_results"] if item["input_path"]
+    }
+    assert blocked_files[str(second)]["file_status"] == "unmapped_input_file_blocked"
+    assert "unmapped_input_file_blocked" in blocked_files[str(second)]["reason_codes"]
+    assert payload["files_blocked"] >= 1
     with session_factory() as session:
         assert session.scalar(select(func.count()).select_from(CandleModel)) == 0
     _assert_no_live_artifacts(session_factory)
@@ -235,6 +244,139 @@ def test_guarded_import_requires_exact_requirement_coverage(tmp_path: Path) -> N
     assert "requirement_actual_candle_count_mismatch" in payload["reason_codes"]
     with session_factory() as session:
         assert session.scalar(select(func.count()).select_from(CandleModel)) == 0
+    _assert_no_live_artifacts(session_factory)
+
+
+def test_guarded_import_reports_missing_requirement_placeholder(tmp_path: Path) -> None:
+    session_factory = build_test_session_factory()
+    _seed_current_alembic_version(session_factory)
+    _seed_verified_identity(tmp_path, session_factory=session_factory)
+    first = tmp_path / "first.csv"
+    _write_csv(first, [_row()])
+    requirements = [
+        _requirement(
+            expected_candle_count=1,
+            requested_end_at="2026-01-01T00:15:00Z",
+            window_label="first",
+        ),
+        _requirement(
+            requested_start_at="2026-01-01T00:15:00Z",
+            requested_end_at="2026-01-01T00:30:00Z",
+            expected_candle_count=1,
+            window_label="second",
+        ),
+    ]
+
+    result = _guarded_import(
+        tmp_path=tmp_path,
+        session_factory=session_factory,
+        input_paths=(first,),
+        requirements=requirements,
+        input_requirement_map={str(first): 0},
+    )
+    payload = strategy_validation_canonical_candle_bundle_import_result_to_dict(result)
+
+    assert payload["import_attempted"] is False
+    assert payload["requirements_seen"] == 2
+    assert payload["requirements_missing"] == 1
+    assert "requirement_missing_input_file" in payload["reason_codes"]
+    assert "missing_requirement_blocked" in payload["reason_codes"]
+    missing_file_rows = [
+        item
+        for item in payload["file_import_results"]
+        if item["file_status"] == "missing_requirement_blocked"
+    ]
+    assert len(missing_file_rows) == 1
+    assert missing_file_rows[0]["input_path"] is None
+    assert "requirement_missing_input_file" in missing_file_rows[0]["reason_codes"]
+    missing_requirement_rows = [
+        item
+        for item in payload["requirement_import_results"]
+        if item["requirement_status"] == "missing_input_file"
+    ]
+    assert len(missing_requirement_rows) == 1
+    with session_factory() as session:
+        assert session.scalar(select(func.count()).select_from(CandleModel)) == 0
+    _assert_no_live_artifacts(session_factory)
+
+
+def test_guarded_import_late_file_failure_reports_explicit_partial_persistence(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    session_factory = build_test_session_factory()
+    _seed_current_alembic_version(session_factory)
+    _seed_verified_identity(tmp_path, session_factory=session_factory)
+    first = tmp_path / "first.csv"
+    second = tmp_path / "second.csv"
+    _write_csv(first, [_row()])
+    _write_csv(
+        second,
+        [
+            _row(
+                open_time="2026-01-01T00:15:00Z",
+                close_time="2026-01-01T00:30:00Z",
+            )
+        ],
+    )
+    requirements = [
+        _requirement(
+            expected_candle_count=1,
+            requested_end_at="2026-01-01T00:15:00Z",
+            window_label="first",
+        ),
+        _requirement(
+            requested_start_at="2026-01-01T00:15:00Z",
+            requested_end_at="2026-01-01T00:30:00Z",
+            expected_candle_count=1,
+            window_label="second",
+        ),
+    ]
+    original_import = (
+        candle_bundle_import_service.import_strategy_validation_candles_from_path
+    )
+    calls: list[str] = []
+
+    def fail_second_file(*args, **kwargs):
+        calls.append(str(args[0]))
+        if len(calls) == 2:
+            raise RuntimeError("forced second file import failure")
+        return original_import(*args, **kwargs)
+
+    monkeypatch.setattr(
+        candle_bundle_import_service,
+        "import_strategy_validation_candles_from_path",
+        fail_second_file,
+    )
+
+    result = _guarded_import(
+        tmp_path=tmp_path,
+        session_factory=session_factory,
+        input_paths=(first, second),
+        requirements=requirements,
+        input_requirement_map={str(first): 0, str(second): 1},
+    )
+    payload = strategy_validation_canonical_candle_bundle_import_result_to_dict(result)
+
+    assert payload["import_attempted"] is True
+    assert payload["import_completed"] is False
+    assert payload["bundle_import_failure_policy"] == "explicit_partial_with_resume"
+    assert payload["bundle_import_final_status"] == "partial_import"
+    assert payload["partial_persistence_occurred"] is True
+    assert payload["files_imported"] == 1
+    assert payload["files_blocked"] == 1
+    assert len(payload["imported_requirement_ids"]) == 1
+    assert len(payload["failed_requirement_ids"]) == 1
+    assert "canonical_candle_bundle_partial_persistence" in payload["reason_codes"]
+    failed_files = [
+        item
+        for item in payload["file_import_results"]
+        if item["file_status"] == "failed"
+    ]
+    assert len(failed_files) == 1
+    assert failed_files[0]["input_path"] == str(second)
+    with session_factory() as session:
+        assert session.scalar(select(func.count()).select_from(CandleModel)) == 1
     _assert_no_live_artifacts(session_factory)
 
 
