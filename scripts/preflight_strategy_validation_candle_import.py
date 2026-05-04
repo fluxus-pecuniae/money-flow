@@ -33,6 +33,22 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional evidence-review JSON containing canonical import/identity requirements.",
     )
     parser.add_argument(
+        "--requirement-json",
+        action="append",
+        default=[],
+        help=(
+            "Requirement JSON object/list to reconcile against input files. May be repeated. "
+            "If count matches --input count, files are paired by order unless an input map is supplied."
+        ),
+    )
+    parser.add_argument(
+        "--input-requirement-map",
+        help=(
+            "Optional JSON object mapping input file paths to requirement objects, requirement "
+            "indexes, or requirement identifiers."
+        ),
+    )
+    parser.add_argument(
         "--environment",
         required=True,
         help="Environment intended for the future candle import.",
@@ -71,6 +87,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             Path(args.requirements_from_review_json)
             if args.requirements_from_review_json
             else None
+        ),
+        requirement_json_paths=tuple(Path(path) for path in args.requirement_json),
+        input_requirement_map_path=(
+            Path(args.input_requirement_map) if args.input_requirement_map else None
         ),
         environment=args.environment,
         venue=args.venue,

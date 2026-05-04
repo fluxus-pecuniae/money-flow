@@ -230,6 +230,11 @@ SV1.11 adds the missing market-identity bootstrap and candle-import preflight la
 
 .venv/bin/python scripts/seed_strategy_validation_market_identity.py \
   --manifest configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json \
+  --operator-verified \
+  --verified-by "<operator-or-reviewer-name>"
+
+.venv/bin/python scripts/seed_strategy_validation_market_identity.py \
+  --manifest configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json \
   --verify-only
 
 .venv/bin/python scripts/preflight_strategy_validation_candle_import.py \
@@ -240,6 +245,19 @@ SV1.11 adds the missing market-identity bootstrap and candle-import preflight la
 ```
 
 The seed path upserts only `instruments` and `symbols`, marks the example rows as research-only/non-trading by default, refuses symbol/instrument retargeting conflicts, and creates no candles or live artifacts. Preflight validates candle files and identity mappings without writing candles. Evidence review now reports canonical market-identity readiness separately from candle coverage so the founder can distinguish missing schema, missing identity, missing candles, and thin coverage. See [SV1.11 Market Identity And Candle Import Preflight](docs/strategy_validation_sv1_11_market_identity_and_import_preflight.md).
+
+SV1.11.1 hardens the SV1.11 workflow. Non-dry-run market-identity writes now require explicit `--operator-verified --verified-by ...` provenance, while dry-run and verify-only remain non-writing checks. Row-level candle preflight remains useful for file shape/OHLCV/timezone/identity checks, but it is not canonical coverage proof. Requirement-aware preflight must map each input file to its canonical requirement and prove exact `(requested_start_at, requested_end_at]` close-time slot coverage before SV1.12 bulk import:
+
+```bash
+.venv/bin/python scripts/preflight_strategy_validation_candle_import.py \
+  --input /path/to/btc_15m_core_window_1.csv \
+  --requirement-json /path/to/btc_15m_core_window_1.requirement.json \
+  --environment testnet \
+  --venue hyperliquid \
+  --timeframe 15m
+```
+
+SV1.11.1 still imports no candles and generates no evidence packs. See [SV1.11.1 Preflight And Identity Guard Hardening](docs/strategy_validation_sv1_11_1_preflight_and_identity_guard_hardening.md).
 
 ## Routing Automation Planning
 

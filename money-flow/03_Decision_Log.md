@@ -197,3 +197,10 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `why`: SV1.10 produced a migrated intended DB but no canonical BTC/ETH/SOL instrument or symbol rows. The candle importer correctly requires those mappings before candle writes, so evidence work needs a safe identity-readiness step before file import.
 - `rejected_alternatives`: Auto-fetching exchange metadata; treating placeholder manifest values as live trading eligibility; importing candles without symbol/instrument mappings; changing Money Flow rules; generating evidence packs in this phase.
 - `follow_up_implications`: Next SV work should have the founder/operator verify manifest tick/size values, seed or verify market identity, preflight timezone-explicit candle files, import candles only after preflight passes, and generate evidence packs only after target/schema/identity/data readiness is clean.
+
+## 2026-05-04T07:15:35Z - SV1.11.1 - Identity Writes Need Operator Verification And Preflight Must Prove Requirements
+
+- `decision`: Require explicit operator verification plus `verified_by` provenance before non-dry-run market-identity seed writes, and add requirement-aware candle preflight that maps input files to canonical requirements and verifies exact `(start_at, end_at]` close-time slots.
+- `why`: Row-level file validation alone can pass for a file that does not satisfy a specific canonical requirement, and writing example-derived market identity without an explicit operator guard could make manual placeholder values look accepted.
+- `rejected_alternatives`: Treating dry-run success as authorization to write; allowing unverified example manifests to seed identity rows; treating row-level candle validation as canonical coverage proof; importing candles or generating evidence packs in the hardening phase.
+- `follow_up_implications`: SV1.12 should use operator-verified identity seed/verify plus requirement-aware `ready_for_import=true` preflight before guarded canonical candle import. First real evidence packs remain deferred until target/schema/identity/candle readiness is clean.

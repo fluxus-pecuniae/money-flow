@@ -34,6 +34,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="Require all manifest identity rows to already exist and match.",
     )
     parser.add_argument(
+        "--operator-verified",
+        action="store_true",
+        help=(
+            "Explicitly confirm the operator verified the offline manifest values. "
+            "Required with --verified-by for non-dry-run writes."
+        ),
+    )
+    parser.add_argument(
+        "--verified-by",
+        help="Operator/person/system label that verified the manifest values before writing.",
+    )
+    parser.add_argument(
         "--format",
         choices=("json", "markdown", "both"),
         default="markdown",
@@ -53,6 +65,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         Path(args.manifest),
         dry_run=args.dry_run,
         verify_only=args.verify_only,
+        operator_verified=args.operator_verified,
+        verified_by=args.verified_by,
     )
     json_output = strategy_validation_market_identity_seed_result_to_json(result)
     markdown_output = strategy_validation_market_identity_seed_result_to_markdown(result)

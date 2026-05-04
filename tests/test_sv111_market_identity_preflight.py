@@ -74,12 +74,23 @@ def _valid_candle_row(**overrides: object) -> dict[str, object]:
     return row
 
 
+def _seed_manifest(path: Path, *, session_factory) -> None:
+    seed_strategy_validation_market_identity_from_manifest(
+        path,
+        operator_verified=True,
+        verified_by="test_operator",
+        session_factory=session_factory,
+    )
+
+
 def test_valid_offline_manifest_inserts_btc_eth_sol_instruments_and_symbols(
     tmp_path: Path,
 ) -> None:
     session_factory = build_test_session_factory()
     result = seed_strategy_validation_market_identity_from_manifest(
         _manifest_copy(tmp_path),
+        operator_verified=True,
+        verified_by="test_operator",
         session_factory=session_factory,
     )
     payload = strategy_validation_market_identity_seed_result_to_dict(result)
@@ -98,7 +109,7 @@ def test_valid_offline_manifest_inserts_btc_eth_sol_instruments_and_symbols(
         assert btc_symbol.is_trading_eligible is False
         assert btc_symbol.raw_metadata["research_only_market_identity_seed"] is True
         assert btc_symbol.raw_metadata["source"] == "manual_offline_manifest"
-        assert btc_symbol.raw_metadata["sv_phase"] == "SV1.11"
+        assert btc_symbol.raw_metadata["sv_phase"] == "SV1.11.1"
     _assert_no_live_artifacts(session_factory)
 
 
@@ -138,10 +149,7 @@ def test_market_identity_verify_only_fails_when_rows_are_missing(tmp_path: Path)
 def test_market_identity_verify_only_passes_when_rows_exist(tmp_path: Path) -> None:
     session_factory = build_test_session_factory()
     manifest = _manifest_copy(tmp_path)
-    seed_strategy_validation_market_identity_from_manifest(
-        manifest,
-        session_factory=session_factory,
-    )
+    _seed_manifest(manifest, session_factory=session_factory)
     result = seed_strategy_validation_market_identity_from_manifest(
         manifest,
         verify_only=True,
@@ -200,6 +208,8 @@ def test_market_identity_seed_rejects_conflicting_existing_symbol_mapping(
 
     result = seed_strategy_validation_market_identity_from_manifest(
         _manifest_copy(tmp_path),
+        operator_verified=True,
+        verified_by="test_operator",
         session_factory=session_factory,
     )
 
@@ -255,10 +265,7 @@ def test_evidence_review_reports_missing_identity_then_ready_identity(
         "missing_instrument"
     }
 
-    seed_strategy_validation_market_identity_from_manifest(
-        _manifest_copy(tmp_path),
-        session_factory=session_factory,
-    )
+    _seed_manifest(_manifest_copy(tmp_path), session_factory=session_factory)
     ready_review = review_money_flow_evidence(
         CANONICAL_MONEY_FLOW_CAMPAIGN_CONFIG_PATHS,
         service=service,
@@ -343,10 +350,7 @@ def test_candle_import_preflight_rejects_timezone_naive_timestamps(
     tmp_path: Path,
 ) -> None:
     session_factory = build_test_session_factory()
-    seed_strategy_validation_market_identity_from_manifest(
-        _manifest_copy(tmp_path),
-        session_factory=session_factory,
-    )
+    _seed_manifest(_manifest_copy(tmp_path), session_factory=session_factory)
     csv_path = tmp_path / "naive.csv"
     _write_csv(
         csv_path,
@@ -379,10 +383,7 @@ def test_candle_import_preflight_accepts_valid_timezone_rows_without_writing(
     tmp_path: Path,
 ) -> None:
     session_factory = build_test_session_factory()
-    seed_strategy_validation_market_identity_from_manifest(
-        _manifest_copy(tmp_path),
-        session_factory=session_factory,
-    )
+    _seed_manifest(_manifest_copy(tmp_path), session_factory=session_factory)
     csv_path = tmp_path / "valid.csv"
     _write_csv(csv_path, [_valid_candle_row()])
 

@@ -654,7 +654,7 @@ def money_flow_evidence_review_to_markdown(
         [
             "## Canonical Candle Import Requirements",
             "",
-            "Use these rows only after the intended database is reachable, reports `migrated_schema_ready`, and canonical market identity is ready. Imports must use public/offline historical candles and the hardened SV1.5.1 importer.",
+            "Use these rows only after the intended database is reachable, reports `migrated_schema_ready`, canonical market identity is ready, and requirement-aware candle preflight proves the mapped file covers the exact `(start_at, end_at]` close-time slots. Row-level preflight alone is not canonical coverage proof. Imports must use public/offline historical candles and the hardened SV1.5.1 importer.",
             "",
         ]
     )

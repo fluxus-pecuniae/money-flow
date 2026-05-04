@@ -8,9 +8,9 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 
 ## Current Phase
 
-- Current implemented phase: `SV1.11`
+- Current implemented phase: `SV1.11.1`
 - Phase 7 status: accepted complete.
-- Proposed next phase: operator-verify/seed canonical BTC/ETH/SOL market identity if needed, preflight timezone-explicit public/offline candle files for the 18 unique canonical requirements, import candles only after preflight passes, rerun canonical evidence review with generated evidence packs only after DB target truth, `migrated_schema_ready`, identity readiness, and data-readiness are clean, and only then scope paper-trading design if founder/operator review justifies it; `Phase 8.1` remains deferred until explicitly scoped.
+- Proposed next phase: operator-verify/seed canonical BTC/ETH/SOL market identity if needed, run requirement-aware preflight on timezone-explicit public/offline candle files for the 18 unique canonical requirements, import candles only after `ready_for_import=true`, rerun canonical evidence review with generated evidence packs only after DB target truth, `migrated_schema_ready`, identity readiness, and data-readiness are clean, and only then scope paper-trading design if founder/operator review justifies it; `Phase 8.1` remains deferred until explicitly scoped.
 - Phase 8.0 status: implemented read-only operator observability/manual-resolution inspection.
 - Phase 8.0.1 status: Obsidian memory and working-tree baseline cleanup; no product behavior changed.
 - Phase 8.0.2 status: active submit-lease operator-summary truth hotfix; no product behavior changed.
@@ -32,6 +32,7 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 - SV1.9.1 status: evidence-target truth, candle-import timestamp/provenance truth, and Obsidian memory-governance hotfix; ambiguous/non-intended maintenance DB targets now block evidence generation by default, timezone-naive imports are rejected by default unless a provenance-marked non-canonical override is used, stale Obsidian current truth is refreshed through SV1.9, and no first real canonical evidence packs were generated. It adds no strategy-rule changes, optimization, recommendations, paper/live trading, routing, exchange calls, or execution changes.
 - SV1.10 status: intended local DB/candle readiness and first-real evidence attempt; local `money_flow` on `127.0.0.1:5432` was created/migrated to Alembic head with required `candles` / `instruments` / `symbols` tables, canonical review still reports `insufficient_data` because candle count is zero, import requirements are grouped into 18 unique BTC/ETH/SOL rows, and no evidence packs were generated. It adds no strategy-rule changes, optimization, recommendations, paper/live trading, routing, exchange calls, or execution changes.
 - SV1.11 status: canonical market-identity bootstrap and candle-import preflight; adds an offline/manual Hyperliquid perpetual USDC BTC/ETH/SOL identity manifest, seed/verify CLI, evidence-review identity readiness, and candle preflight without writing candles or generating evidence packs. It adds no strategy-rule changes, optimization, recommendations, paper/live trading, routing, exchange calls, or execution changes.
+- SV1.11.1 status: market-identity verification guard and requirement-aware candle preflight hardening; non-dry-run identity writes require explicit operator verification/verified-by provenance, row-level preflight remains file-shape validation only, requirement-aware preflight must prove exact canonical close-slot coverage before bulk import, and no candles or evidence packs are generated.
 - Current accepted action hooks: approval-gated recommendation acceptance, target-choice conversion, prepared-order preview/readiness inspection, and submitted-order handoff.
 
 ## Current Architectural Boundary
@@ -149,7 +150,7 @@ Obsidian is the long-horizon project brain for founder intent, phase context, de
 - SV1.8.1 schema-gap reports must not be treated as strategy results. A `candles` table alone is not sufficient; canonical evidence packs require current Alembic truth and the required strategy-validation schema.
 - SV1.9 evidence status reports must not be treated as strategy results. DB target ambiguity, unreachable hosts, missing migrated schema, and missing canonical candles are operational data-readiness gaps before Money Flow evidence review.
 - SV1.9.1 target-truth reports must not be treated as strategy results. Ambiguous/non-intended maintenance DB targets cannot generate canonical evidence packs by default, and timezone-explicit candle sources remain preferred for first canonical evidence.
-- SV1.11 market-identity seed/preflight output must not be treated as evidence. It prepares canonical identity and checks candle files before import; it does not import candles or generate evidence packs.
+- SV1.11.1 market-identity seed/preflight output must not be treated as evidence. It prepares canonical identity and checks candle files before import; it does not import candles or generate evidence packs. Row-level preflight is not canonical coverage proof; requirement-aware preflight is the required gate before SV1.12 bulk import.
 - Simulated validation trades must remain separate from `SubmittedOrder`.
 - Manual-resolution inspection must not silently resolve venue or approval truth.
 - Future agents must update their own coordination row instead of overwriting another agent's work.

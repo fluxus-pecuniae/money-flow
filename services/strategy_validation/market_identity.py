@@ -19,6 +19,7 @@ from services.strategy_validation.candles import (
     _load_candle_rows,
     _parse_candle_row,
     _resolve_symbol_model,
+    _timeframe_duration,
 )
 
 CANONICAL_MARKET_IDENTITY_SYMBOLS = ("BTC", "ETH", "SOL")
@@ -35,6 +36,9 @@ class StrategyValidationMarketIdentitySeedResult:
     manifest_name: str | None
     dry_run: bool
     verify_only: bool
+    operator_verified: bool
+    verified_by: str | None
+    verified_at_utc: str | None
     venue: str
     required_symbols: tuple[str, ...]
     missing_required_symbols: tuple[str, ...]
@@ -64,6 +68,7 @@ class StrategyValidationCandleImportPreflightResult:
     requirements_seen: int
     input_file_results: tuple[dict[str, Any], ...]
     requirement_results: tuple[dict[str, Any], ...]
+    requirement_aware_results: tuple[dict[str, Any], ...]
     reason_codes: tuple[str, ...]
     warnings: tuple[str, ...]
     creates_live_artifacts: bool = False
@@ -82,6 +87,8 @@ def seed_strategy_validation_market_identity_from_manifest(
     *,
     dry_run: bool = False,
     verify_only: bool = False,
+    operator_verified: bool = False,
+    verified_by: str | None = None,
     session_factory: Any = SessionLocal,
 ) -> StrategyValidationMarketIdentitySeedResult:
     """Seed or verify canonical research-only market identity from a manifest."""
@@ -89,11 +96,66 @@ def seed_strategy_validation_market_identity_from_manifest(
     path = Path(manifest_path)
     payload = json.loads(path.read_text(encoding="utf-8"))
     entries, manifest_warnings = _validated_manifest_entries(payload)
+    if _manifest_appears_example_or_placeholder(payload, path):
+        manifest_warnings.add("example_or_placeholder_manifest_requires_operator_verification")
     missing_required = _missing_required_symbols(entries)
     if missing_required:
         raise ValueError(
             "strategy_validation_market_identity_manifest_missing_required_symbols: "
             f"missing={','.join(missing_required)}"
+        )
+    manifest_operator_verified = payload.get("operator_verified") is True
+    manifest_verified_by = _optional_str(payload, "verified_by")
+    effective_operator_verified = bool(operator_verified or manifest_operator_verified)
+    effective_verified_by = verified_by or manifest_verified_by
+    verified_at = datetime.now(UTC).replace(microsecond=0)
+
+    write_requested = not dry_run and not verify_only
+    verification_conflicts: list[dict[str, Any]] = []
+    if write_requested and not effective_operator_verified:
+        verification_conflicts.append(
+            _manifest_conflict(
+                "market_identity_operator_verification_required",
+                payload,
+                path,
+            )
+        )
+    if write_requested and effective_operator_verified and not effective_verified_by:
+        verification_conflicts.append(
+            _manifest_conflict(
+                "market_identity_verified_by_required",
+                payload,
+                path,
+            )
+        )
+    if verification_conflicts:
+        return StrategyValidationMarketIdentitySeedResult(
+            manifest_path=str(path),
+            manifest_name=_optional_str(payload, "manifest_name"),
+            dry_run=dry_run,
+            verify_only=verify_only,
+            operator_verified=effective_operator_verified,
+            verified_by=effective_verified_by,
+            verified_at_utc=None,
+            venue=_manifest_venue(entries),
+            required_symbols=CANONICAL_MARKET_IDENTITY_SYMBOLS,
+            missing_required_symbols=missing_required,
+            instruments_seen=len(entries),
+            instruments_inserted=0,
+            instruments_updated=0,
+            instruments_unchanged=0,
+            symbols_seen=len(entries),
+            symbols_inserted=0,
+            symbols_updated=0,
+            symbols_unchanged=0,
+            conflicts=tuple(_json_ready(item) for item in verification_conflicts),
+            warnings=tuple(sorted(manifest_warnings)),
+        )
+    if write_requested:
+        _apply_operator_verification_metadata(
+            entries,
+            verified_by=str(effective_verified_by),
+            verified_at=verified_at,
         )
 
     counts = {
@@ -231,6 +293,7 @@ def seed_strategy_validation_market_identity_from_manifest(
                     symbol_model,
                     symbol_payload,
                     requested_instrument_ref_id,
+                    compare_raw_metadata=True,
                 )
                 if changes:
                     counts["symbols_updated"] += 1
@@ -253,6 +316,9 @@ def seed_strategy_validation_market_identity_from_manifest(
         manifest_name=_optional_str(payload, "manifest_name"),
         dry_run=dry_run,
         verify_only=verify_only,
+        operator_verified=effective_operator_verified,
+        verified_by=effective_verified_by,
+        verified_at_utc=verified_at.isoformat() if write_requested else None,
         venue=_manifest_venue(entries),
         required_symbols=CANONICAL_MARKET_IDENTITY_SYMBOLS,
         missing_required_symbols=missing_required,
@@ -300,6 +366,9 @@ def strategy_validation_market_identity_seed_result_to_markdown(
         f"- Venue: `{payload['venue']}`",
         f"- Dry run: `{payload['dry_run']}`",
         f"- Verify only: `{payload['verify_only']}`",
+        f"- Operator verified: `{payload['operator_verified']}`",
+        f"- Verified by: `{payload['verified_by']}`",
+        f"- Verified at UTC: `{payload['verified_at_utc']}`",
         f"- Required symbols: `{payload['required_symbols']}`",
         f"- Missing required symbols: `{payload['missing_required_symbols']}`",
         "",
@@ -438,6 +507,9 @@ def preflight_strategy_validation_candle_import(
     *,
     input_paths: Sequence[str | Path] = (),
     requirements_from_review_json: str | Path | None = None,
+    requirement_json_paths: Sequence[str | Path] = (),
+    input_requirement_map: dict[str, Any] | None = None,
+    input_requirement_map_path: str | Path | None = None,
     environment: str,
     venue: str,
     timeframe: Timeframe | None = None,
@@ -448,9 +520,22 @@ def preflight_strategy_validation_candle_import(
 
     input_results: list[dict[str, Any]] = []
     requirement_results: list[dict[str, Any]] = []
+    requirement_aware_results: list[dict[str, Any]] = []
     reason_codes: set[str] = set()
     warnings: set[str] = set()
     input_rows_seen = 0
+    requirement_by_input = _load_input_requirement_mapping(
+        input_paths=input_paths,
+        requirement_json_paths=requirement_json_paths,
+        input_requirement_map=input_requirement_map,
+        input_requirement_map_path=input_requirement_map_path,
+    )
+    requirement_aware_requested = bool(
+        requirement_json_paths or input_requirement_map or input_requirement_map_path
+    )
+    if requirement_aware_requested and not requirement_by_input:
+        warnings.add("input_requirement_mapping_missing")
+        reason_codes.add("input_requirement_mapping_missing")
 
     for input_path in input_paths:
         result = _preflight_input_path(
@@ -463,6 +548,17 @@ def preflight_strategy_validation_candle_import(
         input_rows_seen += int(result["rows_seen"])
         input_results.append(result)
         reason_codes.update(result["reason_codes"])
+        if str(Path(input_path)) in requirement_by_input:
+            requirement_result = _preflight_input_path_against_requirement(
+                Path(input_path),
+                requirement_by_input[str(Path(input_path))],
+                venue=venue,
+                timeframe=timeframe,
+                file_format=file_format,
+                session_factory=session_factory,
+            )
+            requirement_aware_results.append(requirement_result)
+            reason_codes.update(requirement_result["reason_codes"])
 
     if requirements_from_review_json is not None:
         requirement_results = list(
@@ -478,7 +574,19 @@ def preflight_strategy_validation_candle_import(
     ready = not reason_codes and all(
         bool(item["ready"]) for item in [*input_results, *requirement_results]
     )
-    if not input_paths and requirements_from_review_json is None:
+    if requirement_aware_results:
+        ready = ready and all(
+            bool(item["ready_for_import"]) for item in requirement_aware_results
+        )
+    elif input_paths:
+        warnings.add("row_level_preflight_not_canonical_coverage_proof")
+    if (
+        not input_paths
+        and requirements_from_review_json is None
+        and not requirement_json_paths
+        and input_requirement_map_path is None
+        and not input_requirement_map
+    ):
         warnings.add("no_preflight_inputs_or_requirements_supplied")
         reason_codes.add("no_preflight_inputs_or_requirements_supplied")
         ready = False
@@ -491,6 +599,7 @@ def preflight_strategy_validation_candle_import(
         requirements_seen=len(requirement_results),
         input_file_results=tuple(_json_ready(item) for item in input_results),
         requirement_results=tuple(_json_ready(item) for item in requirement_results),
+        requirement_aware_results=tuple(_json_ready(item) for item in requirement_aware_results),
         reason_codes=tuple(sorted(reason_codes)),
         warnings=tuple(sorted(warnings)),
     )
@@ -542,6 +651,10 @@ def strategy_validation_candle_import_preflight_result_to_markdown(
                     f"### `{item['input_path']}`",
                     "",
                     f"- Ready: `{item['ready']}`",
+                    f"- Row-level ready: `{item.get('row_level_ready')}`",
+                    f"- Identity ready: `{item.get('identity_ready')}`",
+                    f"- Requirement coverage ready: `{item.get('requirement_coverage_ready')}`",
+                    f"- Ready for import: `{item.get('ready_for_import')}`",
                     f"- Rows seen: `{item['rows_seen']}`",
                     f"- Reason codes: `{item['reason_codes']}`",
                     f"- Row results: `{item['row_results']}`",
@@ -564,6 +677,32 @@ def strategy_validation_candle_import_preflight_result_to_markdown(
             )
     else:
         lines.append("- No review JSON requirements supplied.")
+    lines.extend(["", "## Requirement-Aware Input Coverage", ""])
+    if payload["requirement_aware_results"]:
+        for item in payload["requirement_aware_results"]:
+            lines.extend(
+                [
+                    f"### `{item['input_path']}`",
+                    "",
+                    f"- Requirement identifier: `{item['requirement_identifier']}`",
+                    f"- Row-level ready: `{item['row_level_ready']}`",
+                    f"- Identity ready: `{item['identity_ready']}`",
+                    f"- Requirement coverage ready: `{item['requirement_coverage_ready']}`",
+                    f"- Ready for import: `{item['ready_for_import']}`",
+                    f"- Expected candle count: `{item['expected_candle_count']}`",
+                    f"- Actual candle count: `{item['actual_candle_count']}`",
+                    f"- Missing close slots: `{item['missing_close_time_slots']}`",
+                    f"- Duplicate close slots: `{item['duplicate_close_time_slots']}`",
+                    f"- Extra close slots: `{item['extra_close_time_slots']}`",
+                    f"- Reason codes: `{item['reason_codes']}`",
+                    "",
+                ]
+            )
+    else:
+        lines.append(
+            "- No requirement-aware input mapping supplied; row-level preflight alone is "
+            "not proof of canonical requirement coverage."
+        )
     lines.extend(
         [
             "",
@@ -597,6 +736,61 @@ def _validated_manifest_entries(
         _validate_canonical_alignment(instrument_payload, symbol_payload)
         entries.append({"instrument": instrument_payload, "symbol": symbol_payload})
     return entries, warnings
+
+
+def _manifest_appears_example_or_placeholder(payload: dict[str, Any], path: Path) -> bool:
+    haystack = " ".join(
+        str(value)
+        for value in (
+            path.name,
+            payload.get("manifest_name"),
+            payload.get("description"),
+            payload.get("source"),
+        )
+        if value is not None
+    ).lower()
+    if "example" in haystack or "placeholder" in haystack:
+        return True
+    for item in payload.get("markets") or ():
+        if not isinstance(item, dict):
+            continue
+        raw_metadata = (item.get("symbol") or {}).get("raw_metadata") if isinstance(item.get("symbol"), dict) else {}
+        if isinstance(raw_metadata, dict):
+            text = json.dumps(raw_metadata, sort_keys=True).lower()
+            if "example" in text or "placeholder" in text:
+                return True
+    return False
+
+
+def _manifest_conflict(reason_code: str, payload: dict[str, Any], path: Path) -> dict[str, Any]:
+    return {
+        "reason_code": reason_code,
+        "manifest_path": str(path),
+        "manifest_name": _optional_str(payload, "manifest_name"),
+        "operator_verified": payload.get("operator_verified") is True,
+        "verified_by": _optional_str(payload, "verified_by"),
+    }
+
+
+def _apply_operator_verification_metadata(
+    entries: Sequence[dict[str, Any]],
+    *,
+    verified_by: str,
+    verified_at: datetime,
+) -> None:
+    for entry in entries:
+        raw_metadata = dict(entry["symbol"].get("raw_metadata") or {})
+        raw_metadata.update(
+            {
+                "operator_verified": True,
+                "verified_by": verified_by,
+                "verified_at": verified_at.isoformat(),
+                "sv_phase": "SV1.11.1",
+                "research_only_market_identity_seed": True,
+                "source": "manual_offline_manifest",
+            }
+        )
+        entry["symbol"]["raw_metadata"] = raw_metadata
 
 
 def _validated_instrument_payload(raw: Any) -> dict[str, Any]:
@@ -733,10 +927,17 @@ def _symbol_changes(
     model: SymbolModel,
     payload: dict[str, Any],
     instrument_ref_id: str,
+    *,
+    compare_raw_metadata: bool = False,
 ) -> bool:
     if model.instrument_ref_id != instrument_ref_id:
         return True
-    return any(getattr(model, key) != value for key, value in payload.items())
+    for key, value in payload.items():
+        if key == "raw_metadata" and not compare_raw_metadata:
+            continue
+        if getattr(model, key) != value:
+            return True
+    return False
 
 
 def _apply_instrument_payload(model: InstrumentModel, payload: dict[str, Any]) -> None:
@@ -835,10 +1036,338 @@ def _preflight_input_path(
         "source_file_name": path.name,
         "source_file_sha256": _sha256_file(path),
         "ready": not reason_codes,
+        "row_level_ready": not reason_codes,
+        "identity_ready": not reason_codes,
+        "requirement_coverage_ready": None,
+        "ready_for_import": not reason_codes,
+        "preflight_scope": "row_level_file_shape_and_identity_only",
         "rows_seen": len(rows),
         "reason_codes": tuple(sorted(reason_codes)),
         "row_results": tuple(_json_ready(item) for item in row_results),
     }
+
+
+def _load_input_requirement_mapping(
+    *,
+    input_paths: Sequence[str | Path],
+    requirement_json_paths: Sequence[str | Path],
+    input_requirement_map: dict[str, Any] | None,
+    input_requirement_map_path: str | Path | None,
+) -> dict[str, dict[str, Any]]:
+    requirements: list[dict[str, Any]] = []
+    for path in requirement_json_paths:
+        requirements.extend(_load_requirement_payloads(Path(path)))
+    mapping_payload: dict[str, Any] = {}
+    if input_requirement_map_path is not None:
+        raw_mapping = json.loads(Path(input_requirement_map_path).read_text(encoding="utf-8"))
+        if not isinstance(raw_mapping, dict):
+            raise ValueError("input requirement map must be a JSON object keyed by input path.")
+        mapping_payload.update(raw_mapping)
+    if input_requirement_map:
+        mapping_payload.update(input_requirement_map)
+
+    mapping: dict[str, dict[str, Any]] = {}
+    if mapping_payload:
+        requirements_by_identifier = {
+            _requirement_identifier(_normalise_requirement_payload(item)): item
+            for item in requirements
+        }
+        for input_path, value in mapping_payload.items():
+            if isinstance(value, dict):
+                mapping[str(Path(input_path))] = _normalise_requirement_payload(value)
+            elif isinstance(value, int):
+                mapping[str(Path(input_path))] = _normalise_requirement_payload(
+                    requirements[value]
+                )
+            elif isinstance(value, str):
+                requirement = requirements_by_identifier.get(value)
+                if requirement is None:
+                    raise ValueError(
+                        "input requirement map references unknown requirement identifier: "
+                        f"{value}"
+                    )
+                mapping[str(Path(input_path))] = _normalise_requirement_payload(requirement)
+            else:
+                raise ValueError(
+                    "input requirement map values must be requirement objects, indexes, "
+                    "or requirement identifiers."
+                )
+        return mapping
+
+    if requirement_json_paths and len(requirements) == len(input_paths):
+        return {
+            str(Path(input_path)): _normalise_requirement_payload(requirement)
+            for input_path, requirement in zip(input_paths, requirements, strict=True)
+        }
+    if requirement_json_paths and len(requirements) == 1 and len(input_paths) == 1:
+        return {str(Path(input_paths[0])): _normalise_requirement_payload(requirements[0])}
+    return {}
+
+
+def _load_requirement_payloads(path: Path) -> list[dict[str, Any]]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if isinstance(payload, list):
+        candidates = payload
+    elif isinstance(payload, dict):
+        if isinstance(payload.get("canonical_candle_import_requirements"), list):
+            candidates = payload["canonical_candle_import_requirements"]
+        elif isinstance(payload.get("requirements"), list):
+            candidates = payload["requirements"]
+        else:
+            candidates = [payload]
+    else:
+        raise ValueError("requirement JSON must be an object or list.")
+    if not all(isinstance(item, dict) for item in candidates):
+        raise ValueError("requirement JSON entries must be objects.")
+    return [dict(item) for item in candidates]
+
+
+def _normalise_requirement_payload(raw: dict[str, Any]) -> dict[str, Any]:
+    symbol = _required_str(raw, "symbol").upper()
+    instrument_key = _required_str(raw, "instrument_key")
+    timeframe = Timeframe(_required_str(raw, "timeframe"))
+    requested_start_at = _parse_requirement_datetime(
+        _required_str(raw, "requested_start_at"),
+        field="requested_start_at",
+        symbol=symbol,
+    )
+    requested_end_at = _parse_requirement_datetime(
+        _required_str(raw, "requested_end_at"),
+        field="requested_end_at",
+        symbol=symbol,
+    )
+    if requested_end_at <= requested_start_at:
+        raise ValueError(
+            "requirement_window_invalid: requested_end_at must be after requested_start_at "
+            f"for symbol={symbol}"
+        )
+    expected_candle_count = raw.get("expected_candle_count")
+    if expected_candle_count is None:
+        raise ValueError("requirement missing expected_candle_count.")
+    expected_candle_count = int(expected_candle_count)
+    if expected_candle_count < 0:
+        raise ValueError("requirement expected_candle_count must be >= 0.")
+    return {
+        "symbol": symbol,
+        "instrument_key": instrument_key,
+        "timeframe": timeframe,
+        "requested_start_at": requested_start_at,
+        "requested_end_at": requested_end_at,
+        "expected_candle_count": expected_candle_count,
+        "window_label": raw.get("window_label"),
+    }
+
+
+def _parse_requirement_datetime(value: str, *, field: str, symbol: str) -> datetime:
+    normalized = value.replace("Z", "+00:00")
+    parsed = datetime.fromisoformat(normalized)
+    if parsed.tzinfo is None:
+        raise ValueError(
+            "requirement_timestamp_timezone_required: "
+            f"symbol={symbol} field={field} value={value}"
+        )
+    return parsed.astimezone(UTC)
+
+
+def _requirement_identifier(requirement: dict[str, Any]) -> str:
+    return "|".join(
+        (
+            requirement["symbol"],
+            requirement["instrument_key"],
+            requirement["timeframe"].value,
+            requirement["requested_start_at"].isoformat(),
+            requirement["requested_end_at"].isoformat(),
+            str(requirement["expected_candle_count"]),
+        )
+    )
+
+
+def _preflight_input_path_against_requirement(
+    path: Path,
+    requirement: dict[str, Any],
+    *,
+    venue: str,
+    timeframe: Timeframe | None,
+    file_format: str,
+    session_factory: Any,
+) -> dict[str, Any]:
+    requirement = _normalise_requirement_payload(requirement)
+    reason_codes: set[str] = set()
+    row_reason_codes: set[str] = set()
+    identity_reason_codes: set[str] = set()
+    coverage_reason_codes: set[str] = set()
+    row_results: list[dict[str, Any]] = []
+    parsed_rows: list[dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
+
+    if not path.exists():
+        reason_codes.add("requirement_input_file_missing")
+        row_reason_codes.add("requirement_input_file_missing")
+    else:
+        try:
+            rows = _load_candle_rows(path, file_format=file_format)
+        except Exception as exc:  # noqa: BLE001 - preflight reports failures.
+            reason_codes.add("requirement_input_file_unreadable")
+            row_reason_codes.add("requirement_input_file_unreadable")
+            row_results.append({"row_number": None, "ready": False, "error_message": str(exc)})
+
+    expected_slots = _expected_close_time_slots(
+        start_at=requirement["requested_start_at"],
+        end_at=requirement["requested_end_at"],
+        timeframe=requirement["timeframe"],
+    )
+    if requirement["expected_candle_count"] != len(expected_slots):
+        coverage_reason_codes.add("requirement_expected_candle_count_mismatch")
+
+    identity = canonical_market_identity_requirements(
+        symbols=(
+            {
+                "symbol": requirement["symbol"],
+                "instrument_key": requirement["instrument_key"],
+            },
+        ),
+        venue=venue,
+        session_factory=session_factory,
+        schema_ready=True,
+    )[0]
+    if identity["market_identity_status"] != "ready":
+        identity_reason_codes.update(identity["reason_codes"])
+        identity_reason_codes.add("requirement_market_identity_not_ready")
+
+    with session_factory() as session:
+        for index, row in enumerate(rows, start=1):
+            row_timeframe = timeframe
+            row_codes: set[str] = set()
+            row_validation_codes: set[str] = set()
+            try:
+                if row_timeframe is None:
+                    row_timeframe = Timeframe(_required_str(row, "timeframe"))
+                parsed = _parse_candle_row(
+                    row,
+                    timeframe=row_timeframe,
+                    assume_naive_utc=False,
+                    warning_reason_codes=set(),
+                )
+                if row_timeframe != requirement["timeframe"]:
+                    coverage_reason_codes.add("requirement_timeframe_mismatch")
+                    row_codes.add("requirement_timeframe_mismatch")
+                if parsed["symbol"] != requirement["symbol"]:
+                    coverage_reason_codes.add("requirement_symbol_mismatch")
+                    row_codes.add("requirement_symbol_mismatch")
+                if parsed.get("instrument_key") != requirement["instrument_key"]:
+                    coverage_reason_codes.add("requirement_instrument_key_mismatch")
+                    row_codes.add("requirement_instrument_key_mismatch")
+                symbol_model = _resolve_symbol_model(
+                    session=session,
+                    venue=venue,
+                    symbol=parsed["symbol"],
+                    instrument_key=parsed.get("instrument_key"),
+                )
+                if (
+                    identity["instrument_ref_id"] is not None
+                    and symbol_model.instrument_ref_id != identity["instrument_ref_id"]
+                ):
+                    identity_reason_codes.add("requirement_symbol_identity_mismatch")
+                    row_codes.add("requirement_symbol_identity_mismatch")
+                close_time = parsed["close_time"]
+                if not (
+                    requirement["requested_start_at"]
+                    < close_time
+                    <= requirement["requested_end_at"]
+                ):
+                    coverage_reason_codes.add("requirement_close_time_outside_window")
+                    row_codes.add("requirement_close_time_outside_window")
+                parsed_rows.append(parsed)
+                row_result = {
+                    "row_number": index,
+                    "ready": not row_codes,
+                    "symbol": parsed["symbol"],
+                    "instrument_key": parsed.get("instrument_key"),
+                    "timeframe": row_timeframe.value,
+                    "close_time": close_time,
+                    "reason_codes": tuple(sorted(row_codes)),
+                }
+            except Exception as exc:  # noqa: BLE001 - preflight reports row failures.
+                row_validation_codes.update(_reason_codes_from_preflight_error(exc))
+                row_codes.update(row_validation_codes)
+                row_result = {
+                    "row_number": index,
+                    "ready": False,
+                    "symbol": row.get("symbol"),
+                    "instrument_key": row.get("instrument_key"),
+                    "timeframe": row.get("timeframe") or getattr(row_timeframe, "value", None),
+                    "reason_codes": tuple(sorted(row_codes)),
+                    "error_message": str(exc).splitlines()[0],
+                }
+            row_reason_codes.update(row_validation_codes)
+            row_results.append(row_result)
+
+    close_counts: dict[datetime, int] = {}
+    for parsed in parsed_rows:
+        close_counts[parsed["close_time"]] = close_counts.get(parsed["close_time"], 0) + 1
+    expected_slot_set = set(expected_slots)
+    actual_slot_set = set(close_counts)
+    duplicate_slots = sorted(
+        close_time for close_time, count in close_counts.items() if count > 1
+    )
+    missing_slots = sorted(expected_slot_set - actual_slot_set)
+    extra_slots = sorted(actual_slot_set - expected_slot_set)
+    if duplicate_slots:
+        coverage_reason_codes.add("requirement_duplicate_close_time_slots")
+    if missing_slots:
+        coverage_reason_codes.add("requirement_missing_close_time_slots")
+    if extra_slots:
+        coverage_reason_codes.add("requirement_extra_close_time_slots")
+    if len(parsed_rows) != requirement["expected_candle_count"]:
+        coverage_reason_codes.add("requirement_actual_candle_count_mismatch")
+
+    row_level_ready = not row_reason_codes
+    identity_ready = not identity_reason_codes
+    requirement_coverage_ready = not coverage_reason_codes and row_level_ready
+    ready_for_import = row_level_ready and identity_ready and requirement_coverage_ready
+    reason_codes.update(row_reason_codes)
+    reason_codes.update(identity_reason_codes)
+    reason_codes.update(coverage_reason_codes)
+    return {
+        "input_path": str(path),
+        "source_file_name": path.name,
+        "source_file_sha256": _sha256_file(path) if path.exists() else None,
+        "requirement_identifier": _requirement_identifier(requirement),
+        "symbol": requirement["symbol"],
+        "instrument_key": requirement["instrument_key"],
+        "timeframe": requirement["timeframe"].value,
+        "requested_start_at": requirement["requested_start_at"],
+        "requested_end_at": requirement["requested_end_at"],
+        "window_label": requirement["window_label"],
+        "row_level_ready": row_level_ready,
+        "identity_ready": identity_ready,
+        "requirement_coverage_ready": requirement_coverage_ready,
+        "ready_for_import": ready_for_import,
+        "expected_candle_count": requirement["expected_candle_count"],
+        "expected_close_time_slots": tuple(expected_slots),
+        "actual_candle_count": len(parsed_rows),
+        "missing_close_time_slots": tuple(missing_slots),
+        "duplicate_close_time_slots": tuple(duplicate_slots),
+        "extra_close_time_slots": tuple(extra_slots),
+        "market_identity_status": identity["market_identity_status"],
+        "row_results": tuple(_json_ready(item) for item in row_results),
+        "reason_codes": tuple(sorted(reason_codes)),
+    }
+
+
+def _expected_close_time_slots(
+    *,
+    start_at: datetime,
+    end_at: datetime,
+    timeframe: Timeframe,
+) -> tuple[datetime, ...]:
+    duration = _timeframe_duration(timeframe)
+    slots: list[datetime] = []
+    cursor = start_at + duration
+    while cursor <= end_at:
+        slots.append(cursor)
+        cursor += duration
+    return tuple(slots)
 
 
 def _preflight_requirements_from_review_json(

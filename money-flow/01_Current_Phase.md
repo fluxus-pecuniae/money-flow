@@ -2,9 +2,9 @@
 
 ## Phase
 
-Current implemented phase: `SV1.11`
+Current implemented phase: `SV1.11.1`
 
-Proposed next phase: operator-verify/seed canonical BTC/ETH/SOL Hyperliquid perpetual USDC market identity if needed, preflight timezone-explicit public/offline candle files from the 18 unique canonical requirements, import candles only after preflight passes, rerun canonical evidence review with `--generate-evidence-packs` only after DB target truth, `migrated_schema_ready`, market identity readiness, and data-readiness are clean, and only then scope paper-trading design if founder/operator review justifies it. `Phase 8.1` remains deferred until explicitly scoped.
+Proposed next phase: operator-verify/seed canonical BTC/ETH/SOL Hyperliquid perpetual USDC market identity if needed, run requirement-aware preflight on timezone-explicit public/offline candle files from the 18 unique canonical requirements, import candles only after `ready_for_import=true`, rerun canonical evidence review with `--generate-evidence-packs` only after DB target truth, `migrated_schema_ready`, market identity readiness, and data-readiness are clean, and only then scope paper-trading design if founder/operator review justifies it. `Phase 8.1` remains deferred until explicitly scoped.
 
 ## Purpose
 
@@ -58,6 +58,8 @@ SV1.10 is the intended local DB/candle readiness and first-real evidence attempt
 
 SV1.11 is canonical Strategy Validation market-identity bootstrap and candle-import preflight. It adds an offline/manual Hyperliquid perpetual USDC BTC/ETH/SOL identity manifest, a seed/verify CLI that upserts only `InstrumentModel` and `SymbolModel` rows, conflict protection against silent symbol/instrument retargeting, strict Decimal validation for market metadata, evidence-review canonical identity readiness reporting, and a preflight CLI that validates CSV/JSON candle files and mappings without writing candles. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, generates no evidence packs, and does not connect validation to routing or execution automation.
 
+SV1.11.1 is a narrow market-identity verification guard and requirement-aware candle preflight hardening phase. It makes non-dry-run market identity writes require explicit operator verification plus `verified_by` provenance, stores verification metadata in `SymbolModel.raw_metadata`, preserves dry-run and verify-only as non-writing checks, and adds requirement-aware preflight so a mapped candle file must prove exact canonical `(start_at, end_at]` close-time slot coverage before bulk import. It imports no candles, generates no evidence packs, changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
+
 ## Accepted Baseline
 
 - Phase 7.0 added non-executing routing automation policy and dry-run plans.
@@ -93,6 +95,7 @@ SV1.11 is canonical Strategy Validation market-identity bootstrap and candle-imp
 - SV1.9.1 added DB-target evidence-generation blocking, default naive timestamp import rejection, provenance-marked naive-UTC import override support, generated-research artifact hygiene, and Obsidian memory/current-truth refresh through SV1.9 without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
 - SV1.10 added intended local DB creation/migration truth, verified required schema tables, grouped canonical candle import requirements, and recorded that evidence remains `insufficient_data` because no candles are persisted, without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
 - SV1.11 added research-only canonical market identity seed/verify tooling, evidence-review identity readiness, candle-import preflight, and documentation for the safe import workflow without writing candles, generating evidence packs, optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
+- SV1.11.1 added explicit operator verification for non-dry-run identity writes and requirement-aware candle file coverage checks without importing candles, generating evidence packs, optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
 
 ## Hard Boundaries
 
@@ -159,6 +162,8 @@ SV1.10 is successful when the intended strategy-validation DB target is explicit
 
 SV1.11 is successful when canonical BTC/ETH/SOL Hyperliquid perpetual USDC market identity can be validated, dry-run seeded, actually seeded, and verify-only checked through an offline/manual research-only manifest; evidence review reports identity readiness separately from candle coverage; candle-import preflight validates timezone-explicit files and mappings without writing candles; and no evidence packs, live artifacts, exchange calls, Money Flow rule changes, optimization, or recommendation language are introduced.
 
+SV1.11.1 is successful when non-dry-run market identity writes cannot proceed without explicit operator verification and `verified_by`, written symbol metadata records verification truth without flipping strategy/trading eligibility by default, requirement-aware preflight can reject row-valid files that do not satisfy a mapped canonical requirement, row-level preflight remains available but is not misrepresented as coverage proof, and no candles, evidence packs, live artifacts, exchange calls, Money Flow rule changes, optimization, or recommendation language are introduced.
+
 ## Current Outcome
 
 - Obsidian command center/current phase/decision log/coordination notes are now part of the required agent workflow.
@@ -191,6 +196,7 @@ SV1.11 is successful when canonical BTC/ETH/SOL Hyperliquid perpetual USDC marke
 - SV1.9.1 extends `services/strategy_validation/evidence_review.py` with DB-target generation blocking, extends `services/strategy_validation/candles.py` and `scripts/import_strategy_validation_candles.py` with naive timestamp rejection / provenance-marked override and import-source summary fields, adds `tests/test_sv191_evidence_target_and_import_truth.py`, hardens Obsidian drift checks in `tests/test_operational_docs.py`, records the hotfix in `docs/strategy_validation_sv1_9_1_evidence_target_truth_hotfix.md`, and refreshes Obsidian current truth/project memory.
 - SV1.10 groups canonical import requirements in `services/strategy_validation/evidence_review.py`, fills expected/missing counts for unknown-instrument blocked readiness rows in `services/strategy_validation/campaigns.py`, adds `tests/test_sv110_evidence_db_readiness.py`, and records the first-real evidence status in `docs/strategy_validation_sv1_10_first_real_evidence_status.md`.
 - SV1.11 adds `services/strategy_validation/market_identity.py`, `scripts/seed_strategy_validation_market_identity.py`, `scripts/preflight_strategy_validation_candle_import.py`, `configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json`, `tests/test_sv111_market_identity_preflight.py`, evidence-review identity readiness, and `docs/strategy_validation_sv1_11_market_identity_and_import_preflight.md`.
+- SV1.11.1 hardens `services/strategy_validation/market_identity.py`, `scripts/seed_strategy_validation_market_identity.py`, `scripts/preflight_strategy_validation_candle_import.py`, and the market identity manifest, adds `tests/test_sv1111_market_identity_preflight_hardening.py`, and records the hotfix in `docs/strategy_validation_sv1_11_1_preflight_and_identity_guard_hardening.md`.
 - Recovery, route execution, fanout, scoring, CBBO, target reselection, cross-venue retry, and broad auto-submit remain deferred.
 
 ## Next Phase Shape

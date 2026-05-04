@@ -47,15 +47,21 @@ Dry-run reports intended inserts/updates and writes nothing.
 
 ## Seed
 
+SV1.11.1 hardens this step: actual writes require explicit operator verification.
+
 ```bash
 DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow \
   .venv/bin/python scripts/seed_strategy_validation_market_identity.py \
   --manifest configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json \
+  --operator-verified \
+  --verified-by "<operator-or-reviewer-name>" \
   --format both \
   --output-dir /tmp/money-flow-sv1.11-market-identity
 ```
 
 The seed path upserts only `InstrumentModel` and `SymbolModel` rows. It refuses to silently retarget an existing symbol mapping to another instrument identity.
+
+Written `SymbolModel.raw_metadata` includes `operator_verified`, `verified_by`, `verified_at`, `research_only_market_identity_seed=true`, `source=manual_offline_manifest`, and the current SV phase. Verification metadata does not make symbols trading-eligible or strategy-eligible by default.
 
 ## Verify Only
 
@@ -71,7 +77,7 @@ Verify-only fails with explicit conflicts if any required BTC/ETH/SOL instrument
 
 ## Candle Import Preflight
 
-Run preflight before importing candle files:
+Run row-level preflight before importing candle files:
 
 ```bash
 DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow \
@@ -98,6 +104,21 @@ Preflight validates without writing candles:
 
 Timezone-naive rows are rejected by default. Timezone-explicit source data remains the preferred canonical input.
 
+SV1.11.1 clarifies that row-level preflight is not proof of canonical coverage. Requirement-aware preflight is required before bulk import because it maps a specific file to a specific canonical requirement and checks exact `(requested_start_at, requested_end_at]` close-time slots:
+
+```bash
+DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow \
+  .venv/bin/python scripts/preflight_strategy_validation_candle_import.py \
+  --input /path/to/btc_15m_core_window_1.csv \
+  --requirement-json /path/to/btc_15m_core_window_1.requirement.json \
+  --environment testnet \
+  --venue hyperliquid \
+  --timeframe 15m \
+  --format markdown
+```
+
+Requirement-aware preflight reports `row_level_ready`, `identity_ready`, `requirement_coverage_ready`, and `ready_for_import`. A file can pass row-level validation but fail requirement coverage if close times are outside the requested window, duplicated, missing, or extra.
+
 ## Review JSON Requirements
 
 Preflight can also verify identity requirements from an evidence-review JSON:
@@ -112,7 +133,7 @@ Preflight can also verify identity requirements from an evidence-review JSON:
 
 ## Proceeding To Candle Import
 
-After market identity verify-only and candle preflight pass, use the hardened offline importer:
+After market identity verify-only and requirement-aware candle preflight pass, use the hardened offline importer:
 
 ```bash
 DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow \
@@ -132,6 +153,6 @@ SV1.11 adds tooling and report truth only. It does not seed the operator's local
 
 - the intended DB reports `migrated_schema_ready`
 - canonical market identity verify-only passes
-- all required candle files pass preflight
+- all required candle files pass requirement-aware preflight
 - candles are imported with timezone-explicit timestamps
 - canonical evidence review reports sufficient data
