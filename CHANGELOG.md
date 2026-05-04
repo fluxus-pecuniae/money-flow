@@ -13,6 +13,44 @@ Entry schema:
 
 ---
 
+## v2026.05.04.008
+
+- `recorded_at_utc`: `2026-05-04T22:20:00Z`
+- `scope`: `SV1.12.3 Strategy Validation guarded canonical candle import attempt`
+- `intent`: `Native entry. Added a research-only guarded import attempt service and CLI that combine intended DB/schema readiness, optional operator-verified market-identity seed, canonical 18-file discovery by suggested filename, input-to-requirement mapping, guarded candle bundle import, and founder-readable final status. The workflow seeds identity only when `--seed-identity --operator-verified --verified-by ... --market-identity-values-checked-offline` are supplied, imports candles only when all 18 timezone-explicit files are present and requirement-aware preflight passes, and generates no evidence packs. The local SV1.12.3 run used the intended `money_flow` DB at `127.0.0.1:5432`, confirmed it is reachable/migrated/current with required tables and zero candles, did not seed identity because operator verification was not supplied, found no canonical candle files, imported no candles, and left SV1.13 evidence review blocked. No Money Flow rules, optimization, recommendations, paper/live trading, routing, execution automation, exchange adapter calls, private/order endpoint calls, or auto-trading behavior were added.`
+- `affected_files`:
+  - `services/strategy_validation/guarded_import_attempt.py`
+  - `services/strategy_validation/market_identity.py`
+  - `services/strategy_validation/__init__.py`
+  - `scripts/run_strategy_validation_guarded_import_attempt.py`
+  - `tests/test_sv1123_guarded_import_attempt.py`
+  - `tests/test_operational_docs.py`
+  - `docs/strategy_validation_sv1_12_3_guarded_import_result.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+- `validation_performed`:
+  - `DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow .venv/bin/python scripts/run_strategy_validation_guarded_import_attempt.py --manifest configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json --format json` exited `1` as expected because SV1.12.3 import is blocked; it reported reachable/current intended DB, required tables present, persisted candle count `0`, missing BTC/ETH/SOL research identity, 18 missing canonical candle files, `candles_imported=false`, and `evidence_packs_generated=false`.
+  - `rg --files | rg -i '(^|/)(data|datasets|candles|imports|reports|tmp|fixtures|strategy_validation).*(btc|eth|sol|candle|hyperliquid).*(\.csv|\.json)$|\.(csv)$'` found only strategy-validation config JSON files and no operator-provided canonical candle files.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv112_guarded_candle_import.py tests/test_sv1122_identity_file_readiness.py tests/test_sv1123_guarded_import_attempt.py tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 38 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv15_historical_data_readiness.py tests/test_sv151_candle_import_integrity.py tests/test_sv16_evidence_review.py tests/test_sv17_evidence_review_real_data_gaps.py tests/test_sv18_historical_data_bootstrap.py tests/test_sv181_evidence_schema_truth.py tests/test_sv19_evidence_status.py tests/test_sv191_evidence_target_and_import_truth.py tests/test_sv110_evidence_db_readiness.py tests/test_sv111_market_identity_preflight.py tests/test_sv1111_market_identity_preflight_hardening.py tests/test_sv1112_market_identity_preflight_governance.py tests/test_sv112_guarded_candle_import.py tests/test_sv1122_identity_file_readiness.py tests/test_sv1123_guarded_import_attempt.py` passed with 133 tests.
+  - `.venv/bin/python -m pytest -q tests --ignore=tests/test_migrations.py` passed with 602 tests.
+  - `TEST_DATABASE_URL=postgresql+psycopg://money_flow:***@127.0.0.1:5432/money_flow .venv/bin/python -m pytest -q tests/test_migrations.py` passed with 1 test.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 11 tests after final docs/Obsidian updates.
+
 ## v2026.05.04.007
 
 - `recorded_at_utc`: `2026-05-04T21:44:50Z`

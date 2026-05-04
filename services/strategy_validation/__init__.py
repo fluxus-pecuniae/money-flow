@@ -51,6 +51,13 @@ from services.strategy_validation.evidence_review import (
     money_flow_evidence_review_to_markdown,
     review_money_flow_evidence,
 )
+from services.strategy_validation.guarded_import_attempt import (
+    StrategyValidationGuardedImportAttemptResult,
+    run_strategy_validation_guarded_import_attempt,
+    strategy_validation_guarded_import_attempt_result_to_dict,
+    strategy_validation_guarded_import_attempt_result_to_json,
+    strategy_validation_guarded_import_attempt_result_to_markdown,
+)
 from services.strategy_validation.import_readiness import (
     CANONICAL_CANDLE_REQUIRED_COLUMNS,
     CANONICAL_TIMESTAMP_REQUIREMENT,
@@ -110,6 +117,7 @@ __all__ = [
     "StrategyValidationCanonicalCandleBundleImportResult",
     "StrategyValidationCandleImportResult",
     "StrategyValidationCandleImportPreflightResult",
+    "StrategyValidationGuardedImportAttemptResult",
     "StrategyValidationImportReadinessResult",
     "StrategyValidationMarketIdentitySeedResult",
     "audit_money_flow_research_campaign_data_readiness",
@@ -135,6 +143,7 @@ __all__ = [
     "money_flow_research_campaign_report_to_markdown",
     "money_flow_research_campaign_run_contexts",
     "preflight_strategy_validation_candle_import",
+    "run_strategy_validation_guarded_import_attempt",
     "run_money_flow_research_campaign",
     "run_money_flow_research_campaign_sync",
     "review_money_flow_evidence",
@@ -148,6 +157,9 @@ __all__ = [
     "strategy_validation_candle_import_preflight_result_to_dict",
     "strategy_validation_candle_import_preflight_result_to_json",
     "strategy_validation_candle_import_preflight_result_to_markdown",
+    "strategy_validation_guarded_import_attempt_result_to_dict",
+    "strategy_validation_guarded_import_attempt_result_to_json",
+    "strategy_validation_guarded_import_attempt_result_to_markdown",
     "strategy_validation_import_readiness_to_dict",
     "strategy_validation_import_readiness_to_json",
     "strategy_validation_import_readiness_to_markdown",

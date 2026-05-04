@@ -288,6 +288,18 @@ DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME
 
 The SV1.12.2 local readiness run found the intended DB reachable/current with zero persisted candles, did not seed identity because operator verification was not supplied, found no repo/session canonical candle files, ran no file preflight, imported no candles, and generated no evidence packs. See [SV1.12.2 Identity And Canonical Candle-File Readiness](docs/strategy_validation_sv1_12_2_identity_and_file_readiness.md).
 
+SV1.12.3 adds the operational guarded import attempt wrapper. It can seed BTC/ETH/SOL research identity only when `--seed-identity --operator-verified --verified-by ... --market-identity-values-checked-offline` are supplied, then attempts guarded import only if all 18 suggested timezone-explicit files are present, one-to-one mapped, and requirement-aware preflight passes:
+
+```bash
+DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow \
+  .venv/bin/python scripts/run_strategy_validation_guarded_import_attempt.py \
+  --manifest configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json \
+  --input-dir /path/to/canonical-candle-files \
+  --format markdown
+```
+
+The SV1.12.3 local run used the intended `money_flow` DB and confirmed schema/migrations are current, but no operator verification was supplied, BTC/ETH/SOL research identity rows remain missing, and no canonical candle files were found. No identity was seeded, no candles were imported, and no evidence packs were generated. See [SV1.12.3 Guarded Canonical Candle Import Result](docs/strategy_validation_sv1_12_3_guarded_import_result.md).
+
 ## Routing Automation Planning
 
 Phase 7.0 exposes non-executing automation policy and dry-run planning:

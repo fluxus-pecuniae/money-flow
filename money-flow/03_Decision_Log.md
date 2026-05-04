@@ -232,3 +232,10 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `why`: SV1.12.1 showed the DB/schema gate is ready but identity and files are missing. Writing shared `SymbolModel` rows or importing candles before explicit identity verification and complete file coverage would make first evidence review less trustworthy.
 - `rejected_alternatives`: Seeding example manifest values without operator verification; treating missing identity/files as strategy failure; importing partial candle files; running evidence review/evidence packs before guarded import completes.
 - `follow_up_implications`: SV1.12.3 should seed only operator-verified non-trading research identity, preflight all 18 timezone-explicit candle files one-to-one against canonical requirements, and run guarded import only when every gate is clean.
+
+## 2026-05-04T22:20:00Z - SV1.12.3 - Guarded Import Attempt Blocks Without Verification And Files
+
+- `decision`: Add an operational guarded import attempt wrapper, but keep identity seed and candle import blocked unless explicit operator verification, offline market-value confirmation, and all 18 preflight-ready canonical files are supplied.
+- `why`: The intended DB/schema gate is ready, but first real evidence integrity still depends on verified market identity and complete historical candle coverage. A single command should make the blocked state founder-readable without seeding unverified identity, importing partial files, or generating evidence packs.
+- `rejected_alternatives`: Seeding identity from the example manifest without explicit verification; importing a partial file set; treating missing files as strategy evidence; generating evidence packs in the import phase; relaxing requirement-aware preflight.
+- `follow_up_implications`: The next operator action is to provide explicit verification plus all 18 timezone-explicit files, then rerun the guarded import attempt until final status is `canonical_import_complete`. SV1.13 remains blocked until that import status and data-readiness audits are clean.

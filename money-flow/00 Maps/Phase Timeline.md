@@ -37,12 +37,13 @@ Up: [[Money Flow Command Center]]
 - SV1.12: guarded canonical candle bundle import requiring intended migrated DB truth, operator-verified non-trading identity, complete one-to-one requirement-aware preflight, and hardened importer success; no evidence packs generated.
 - SV1.12.1: guarded import run / blocked-run truth; intended DB is reachable/current with zero candles, identity rows and candle files are missing, partial-persistence semantics are explicit, and unmapped inputs / missing requirements are operator-visible.
 - SV1.12.2: readiness-only identity/file report; intended DB remains reachable/current with zero candles, operator-verified identity and candle files are still missing, exact 18-file requirements are documented, and no candles or evidence packs are generated.
+- SV1.12.3: guarded import attempt wrapper; intended DB remains reachable/current, operator verification and all 18 candle files are still missing, no identity seed/import/evidence packs occurred.
 
 ## Current Next Shape
 
 See [[40 Operations/Future Work Roadmap]].
 
-Current implemented phase: `SV1.12.2`.
+Current implemented phase: `SV1.12.3`.
 
 The next proposed Strategy Validation work is seeding operator-verified non-trading BTC/ETH/SOL research identity, providing all 18 timezone-explicit candle files, and completing guarded canonical candle import after requirement-aware preflight is clean. SV1.13 post-import canonical evidence review/evidence-pack generation remains deferred until guarded import status is complete and data-readiness audits are clean. If data remains incomplete, SV1.13 should report the remaining gaps instead of forcing evidence conclusions. Paper-trading design remains deferred until founder/operator evidence review justifies it. Phase 8.1 remains deferred until explicitly scoped.
 

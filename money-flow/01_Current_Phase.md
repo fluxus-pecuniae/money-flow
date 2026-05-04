@@ -2,9 +2,9 @@
 
 ## Phase
 
-Current implemented phase: `SV1.12.2`
+Current implemented phase: `SV1.12.3`
 
-Proposed next phase: seed operator-verified BTC/ETH/SOL research identity and provide all 18 timezone-explicit candle files, then SV1.12.3 guarded canonical candle import can run. SV1.13 post-import canonical evidence review/evidence-pack generation remains deferred until import status is `canonical_import_complete` and data-readiness audits are clean. Paper-trading design remains deferred until founder/operator evidence review justifies it. `Phase 8.1` remains deferred until explicitly scoped.
+Proposed next phase: founder/operator must provide explicit offline BTC/ETH/SOL market-identity verification plus all 18 timezone-explicit candle files, then rerun SV1.12.3 guarded import attempt until final status is `canonical_import_complete`. SV1.13 post-import canonical evidence review/evidence-pack generation remains deferred until import status is complete and data-readiness audits are clean. Paper-trading design remains deferred until founder/operator evidence review justifies it. `Phase 8.1` remains deferred until explicitly scoped.
 
 ## Purpose
 
@@ -66,6 +66,8 @@ SV1.12.1 is guarded canonical candle import run / failure-truth hardening. The i
 
 SV1.12.2 is identity and canonical candle-file readiness. The intended local `money_flow` DB remains reachable, migrated/current, and has required tables, but persisted candle count is still zero. The Hyperliquid perpetual USDC BTC/ETH/SOL manifest was not seeded because no explicit operator verification was supplied; verify-only identity still reports missing instruments and symbol mappings. SV1.12.2 documents the exact 18 timezone-explicit canonical candle-file requirements, found no repo/session candle files to preflight, imports no candles, generates no evidence packs, changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
 
+SV1.12.3 is guarded canonical candle import attempt. It adds a wrapper that can seed research identity only with explicit operator verification, `verified_by`, and offline market-value confirmation, auto-discovers canonical files by the suggested 18 filenames, maps them to canonical requirements, and runs the existing guarded bundle import only if all gates pass. The local run used the intended `money_flow` DB, confirmed schema/migrations/current tables, but did not seed identity because verification was not supplied, found no canonical files, imported no candles, generated no evidence packs, and left SV1.13 blocked.
+
 ## Accepted Baseline
 
 - Phase 7.0 added non-executing routing automation policy and dry-run plans.
@@ -106,6 +108,7 @@ SV1.12.2 is identity and canonical candle-file readiness. The intended local `mo
 - SV1.12 added guarded canonical candle bundle import without generating evidence packs, optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
 - SV1.12.1 hardened guarded import failure/output truth and produced a blocked operational import report because identity rows and candle files remain missing; no candles were imported and no evidence packs were generated.
 - SV1.12.2 added readiness-only identity/file reporting, produced the exact 18-file canonical candle checklist, confirmed operator-verified identity and files remain missing, imported no candles, and generated no evidence packs.
+- SV1.12.3 added the guarded import attempt wrapper, confirmed the intended DB is reachable/current, found operator verification and all 18 candle files still missing, imported no candles, and generated no evidence packs.
 
 ## Hard Boundaries
 
@@ -180,6 +183,8 @@ SV1.12.1 is successful when guarded canonical import is run if files/identity ar
 
 SV1.12.2 is successful when market identity is seeded only if explicitly operator-verified, seeded identity remains non-trading/non-strategy-eligible, the exact canonical 18-file requirement list exists, available files are preflighted if present, missing files are reported clearly, no candles are imported without explicit guarded permission, no evidence packs are generated, and no live artifacts, exchange calls, Money Flow rule changes, optimization, routing/execution behavior, or recommendation language are introduced.
 
+SV1.12.3 is successful when identity is seeded only if explicit operator verification is supplied, seeded identity remains non-trading/non-strategy-eligible, all 18 required files are checked, import runs only if all files are present and preflight-passed, import status is founder-readable, partial import cannot be mistaken for complete import, no evidence packs are generated, and no live artifacts, exchange calls, Money Flow rule changes, optimization, routing/execution behavior, or recommendation language are introduced.
+
 ## Current Outcome
 
 - Obsidian command center/current phase/decision log/coordination notes are now part of the required agent workflow.
@@ -217,8 +222,9 @@ SV1.12.2 is successful when market identity is seeded only if explicitly operato
 - SV1.12 adds `services/strategy_validation/candle_bundle_import.py`, `scripts/import_strategy_validation_candle_bundle.py`, `tests/test_sv112_guarded_candle_import.py`, and `docs/strategy_validation_sv1_12_canonical_candle_import_status.md` for guarded canonical candle bundle import only.
 - SV1.12.1 hardens `services/strategy_validation/candle_bundle_import.py` and `tests/test_sv112_guarded_candle_import.py`, records the blocked run in `docs/strategy_validation_sv1_12_1_canonical_candle_import_run.md`, and updates guarded import docs for explicit partial-persistence and operator-visible unmapped/missing output.
 - SV1.12.2 adds `services/strategy_validation/import_readiness.py`, `scripts/check_strategy_validation_import_readiness.py`, `tests/test_sv1122_identity_file_readiness.py`, and `docs/strategy_validation_sv1_12_2_identity_and_file_readiness.md` for readiness-only identity and canonical candle-file reporting before actual guarded import.
+- SV1.12.3 adds `services/strategy_validation/guarded_import_attempt.py`, `scripts/run_strategy_validation_guarded_import_attempt.py`, `tests/test_sv1123_guarded_import_attempt.py`, and `docs/strategy_validation_sv1_12_3_guarded_import_result.md` for the operational guarded import attempt boundary.
 - Recovery, route execution, fanout, scoring, CBBO, target reselection, cross-venue retry, and broad auto-submit remain deferred.
 
 ## Next Phase Shape
 
-The next Strategy Validation work should seed operator-verified non-trading BTC/ETH/SOL research identity and gather all 18 timezone-explicit canonical candle files, then run SV1.12.3 guarded canonical candle import only after requirement-aware preflight is clean. SV1.13 may run post-import canonical evidence review and generate collision-safe evidence packs only if DB target, schema, identity, candle coverage, and final import status are ready; otherwise it should report remaining gaps. Manual founder/operator review remains required before any paper-trading design is scoped. Phase 8.1 should remain deferred until explicitly scoped; when it resumes, it should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review, keep operator acknowledgement separate from exchange/account truth, and not attach submit/cancel/amend/retry behavior to inspection.
+The next Strategy Validation work should provide explicit founder/operator market-identity verification plus all 18 timezone-explicit canonical candle files, then rerun SV1.12.3 guarded canonical candle import until final status is `canonical_import_complete`. SV1.13 may run post-import canonical evidence review and generate collision-safe evidence packs only if DB target, schema, identity, candle coverage, and final import status are ready; otherwise it should report remaining gaps. Manual founder/operator review remains required before any paper-trading design is scoped. Phase 8.1 should remain deferred until explicitly scoped; when it resumes, it should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review, keep operator acknowledgement separate from exchange/account truth, and not attach submit/cancel/amend/retry behavior to inspection.

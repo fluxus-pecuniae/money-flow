@@ -556,10 +556,14 @@ def preflight_strategy_validation_candle_import(
             reason_codes.update(result["reason_codes"])
 
     for input_path in input_paths:
+        row_level_timeframe = timeframe
+        mapped_requirement = requirement_by_input.get(str(Path(input_path)))
+        if row_level_timeframe is None and mapped_requirement is not None:
+            row_level_timeframe = mapped_requirement["timeframe"]
         result = _preflight_input_path(
             Path(input_path),
             venue=venue,
-            timeframe=timeframe,
+            timeframe=row_level_timeframe,
             file_format=file_format,
             session_factory=session_factory,
         )
@@ -1315,7 +1319,12 @@ def _preflight_input_path_against_requirement(
             row_validation_codes: set[str] = set()
             try:
                 if row_timeframe is None:
-                    row_timeframe = Timeframe(_required_str(row, "timeframe"))
+                    raw_timeframe = row.get("timeframe")
+                    row_timeframe = (
+                        Timeframe(str(raw_timeframe).strip())
+                        if raw_timeframe is not None and str(raw_timeframe).strip()
+                        else requirement["timeframe"]
+                    )
                 parsed = _parse_candle_row(
                     row,
                     timeframe=row_timeframe,

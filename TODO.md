@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-04T21:28:20Z`
+Last reviewed: `2026-05-04T22:20:00Z`
 
 ## Active Follow-Ups
 
@@ -170,13 +170,13 @@ Last reviewed: `2026-05-04T21:28:20Z`
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `After SV1.12.2, have the founder/operator explicitly verify the Hyperliquid perpetual USDC BTC/ETH/SOL market-identity manifest values, seed research-only identity with `--seed-identity --operator-verified --verified-by ...`, provide timezone-explicit public/offline candle files for all 18 unique canonical requirements, run complete one-to-one requirement-aware preflight, then run the guarded canonical candle bundle import. SV1.12.2 confirmed the intended local `money_flow` DB is reachable/migrated/current at Alembic head `20260430_0025` with zero persisted candles, but operator-verified identity rows and repo/session candle files are still missing; no identity seed, preflight, candle import, or evidence-pack generation occurred. Canonical evidence remains `insufficient_data` until all 18 requirements are imported and data-readiness audits are clean. Do not optimize Money Flow rules, recommend a variant, add paper/live trading, create live artifacts, call exchanges, or connect validation outputs to routing/execution automation until manual evidence review explicitly justifies a new phase.`
+- `summary`: `After SV1.12.3, have the founder/operator explicitly verify the Hyperliquid perpetual USDC BTC/ETH/SOL market-identity manifest values, seed research-only identity with `--seed-identity --operator-verified --verified-by ... --market-identity-values-checked-offline`, provide timezone-explicit public/offline candle files for all 18 unique canonical requirements, run complete one-to-one requirement-aware preflight, then rerun the guarded canonical candle import attempt. SV1.12.3 confirmed the intended local `money_flow` DB is reachable/migrated/current at Alembic head `20260430_0025` with zero persisted candles, but operator verification was not supplied, BTC/ETH/SOL identity rows are missing, and repo/session candle files are still missing; no identity seed, preflight-ready import, candle import, or evidence-pack generation occurred. Canonical evidence remains `insufficient_data` until all 18 requirements are imported and data-readiness audits are clean. Do not optimize Money Flow rules, recommend a variant, add paper/live trading, create live artifacts, call exchanges, or connect validation outputs to routing/execution automation until manual evidence review explicitly justifies a new phase.`
 
 ### T-067
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `After SV1.12.2, use `scripts/check_strategy_validation_import_readiness.py` to confirm operator-verified non-trading BTC/ETH/SOL identity and the exact 18 timezone-explicit candle-file requirements before running `scripts/import_strategy_validation_candle_bundle.py`. SV1.12.2 produced the 18-file checklist and verified no local candle files were available; it did not import candles, generate evidence packs, change Money Flow rules, optimize, recommend, paper/live trade, route, or call exchanges.`
+- `summary`: `After SV1.12.3, use `scripts/run_strategy_validation_guarded_import_attempt.py` for the operational bridge once operator verification and the 18 timezone-explicit files are available. The script auto-discovers canonical filenames from an input directory, maps them to the 18 requirements, calls the guarded bundle importer only when gates pass, and reports whether SV1.13 evidence review can proceed. SV1.12.3 found no operator verification and no local candle files; it did not seed identity, import candles, generate evidence packs, change Money Flow rules, optimize, recommend, paper/live trade, route, or call exchanges.`
 
 ### T-061
 
