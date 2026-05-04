@@ -277,6 +277,17 @@ DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME
 
 SV1.12.1 makes bundle-level failure truth explicit before the first operational import. The bundle policy is `explicit_partial_with_resume`: if one file persists and a later file fails, the status is `partial_import`, imported/failed requirement IDs and row counts are listed, and evidence review remains blocked until a later run reaches `canonical_import_complete`. Operator output also includes blocked rows for unmapped input files and missing requirements. The SV1.12.1 local run found the intended DB reachable/current but still missing BTC/ETH/SOL research identity rows and founder/operator candle files, so no import was attempted and no evidence packs were generated. See [SV1.12 Canonical Candle Import Status](docs/strategy_validation_sv1_12_canonical_candle_import_status.md) and [SV1.12.1 Canonical Candle Import Run](docs/strategy_validation_sv1_12_1_canonical_candle_import_run.md).
 
+SV1.12.2 adds a readiness report layer before the actual guarded import. It checks the intended DB, optionally runs the existing seed workflow only when `--seed-identity --operator-verified --verified-by ...` is explicit, keeps research identity non-trading/non-strategy-eligible, emits the exact 18 canonical BTC/ETH/SOL candle-file requirements, and can run requirement-aware preflight without importing candles:
+
+```bash
+DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow \
+  .venv/bin/python scripts/check_strategy_validation_import_readiness.py \
+  --manifest configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json \
+  --format markdown
+```
+
+The SV1.12.2 local readiness run found the intended DB reachable/current with zero persisted candles, did not seed identity because operator verification was not supplied, found no repo/session canonical candle files, ran no file preflight, imported no candles, and generated no evidence packs. See [SV1.12.2 Identity And Canonical Candle-File Readiness](docs/strategy_validation_sv1_12_2_identity_and_file_readiness.md).
+
 ## Routing Automation Planning
 
 Phase 7.0 exposes non-executing automation policy and dry-run planning:

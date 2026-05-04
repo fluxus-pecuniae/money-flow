@@ -13,6 +13,48 @@ Entry schema:
 
 ---
 
+## v2026.05.04.007
+
+- `recorded_at_utc`: `2026-05-04T21:44:50Z`
+- `scope`: `SV1.12.2 Strategy Validation identity and canonical candle-file readiness`
+- `intent`: `Native entry. Added a research-only Strategy Validation import-readiness service and CLI that inspect the intended migrated DB, optionally run the existing operator-verified market-identity seed path, verify BTC/ETH/SOL research identity remains non-trading/non-strategy-eligible, produce the exact de-duplicated 18 canonical candle-file requirement list, and run requirement-aware candle preflight only when files are supplied. The local intended `money_flow` DB was inspected and remains reachable/migrated/current with required tables and zero candles; verify-only identity inspection still reports missing BTC/ETH/SOL instruments and symbol mappings; no operator verification was supplied, so no identity rows were seeded; no canonical candle files were found, so no preflight or import occurred. No candles were imported, no evidence packs were generated, and no Money Flow rules, optimization, recommendations, paper/live trading, routing, execution automation, exchange adapter calls, private/order endpoint calls, or auto-trading behavior were added.`
+- `affected_files`:
+  - `services/strategy_validation/import_readiness.py`
+  - `services/strategy_validation/__init__.py`
+  - `scripts/check_strategy_validation_import_readiness.py`
+  - `tests/test_sv1122_identity_file_readiness.py`
+  - `tests/test_operational_docs.py`
+  - `docs/strategy_validation_sv1_12_2_identity_and_file_readiness.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+- `validation_performed`:
+  - `DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow .venv/bin/python scripts/check_strategy_validation_import_readiness.py --manifest configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json --format json` exited `1` as expected because SV1.12.3 guarded import is not ready; it reported reachable/current schema, required tables present, persisted candle count `0`, missing BTC/ETH/SOL research identity, 18 missing canonical candle requirements, `candles_imported=false`, and `evidence_packs_generated=false`.
+  - `DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow .venv/bin/python scripts/seed_strategy_validation_market_identity.py --manifest configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json --verify-only --format json` exited `1` as expected with missing BTC/ETH/SOL instrument and symbol mapping conflicts and no writes.
+  - `rg --files | rg -i '(^|/)(data|datasets|candles|imports|reports|tmp|fixtures|strategy_validation).*(btc|eth|sol|candle|hyperliquid).*(\.csv|\.json)$|\.(csv)$'` found only strategy-validation config JSON files and no operator-provided canonical candle files.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv1122_identity_file_readiness.py` passed with 5 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 11 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv15_historical_data_readiness.py tests/test_sv151_candle_import_integrity.py tests/test_sv16_evidence_review.py tests/test_sv17_evidence_review_real_data_gaps.py tests/test_sv18_historical_data_bootstrap.py tests/test_sv181_evidence_schema_truth.py tests/test_sv19_evidence_status.py tests/test_sv191_evidence_target_and_import_truth.py tests/test_sv110_evidence_db_readiness.py tests/test_sv111_market_identity_preflight.py tests/test_sv1111_market_identity_preflight_hardening.py tests/test_sv1112_market_identity_preflight_governance.py tests/test_sv112_guarded_candle_import.py tests/test_sv1122_identity_file_readiness.py` passed with 127 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_operational_docs.py` passed with 18 tests.
+  - `.venv/bin/python -m pytest -q tests --ignore=tests/test_migrations.py` passed with 596 tests.
+  - `TEST_DATABASE_URL=postgresql+psycopg://money_flow:***@127.0.0.1:5432/money_flow .venv/bin/python -m pytest -q tests/test_migrations.py` passed with 1 test.
+  - `git diff --check` passed.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 11 tests after final changelog/coordination updates.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.12.2-review.zip` created the SV1.12.2 review bundle, and ZIP inspection found 263 entries with no forbidden `.env`, virtualenv, Git metadata, caches, DB/SQLite files, generated evidence/import/preflight outputs, local candle files, nested archives, secrets, or Obsidian app state.
+
 ## v2026.05.04.006
 
 - `recorded_at_utc`: `2026-05-04T20:50:34Z`
