@@ -8,9 +8,9 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 
 ## Current Phase
 
-- Current implemented phase: `SV1.12.5.1` import state / repo state closeout; Hyperliquid public campaign import is verified and evidence generation remains deferred.
+- Current implemented phase: `SV1.13` first Hyperliquid public campaign evidence packs; imported Hyperliquid public campaign candles generated component-scoped evidence packs for founder review.
 - Phase 7 status: accepted complete.
-- Proposed next phase: SV1.13 should run post-import Hyperliquid evidence review and generate evidence packs only if DB/schema/identity/candle data-readiness audits remain clean. SV1.12.5 shows Aster and Binance have 18 additional complete native-trade-count candidate files but need separate non-trading identity verification/seed; OKX and Coinbase need a trade-count source or explicit canonical-contract decision; Kraken needs archive/vendor/operator data.
+- Proposed next phase: manual founder/operator review of the Hyperliquid-only evidence before any explicitly scoped paper-trading design phase. SV1.12.5 shows Aster and Binance have 18 additional complete native-trade-count candidate files but need separate non-trading identity verification/seed/import; OKX and Coinbase need a trade-count source or explicit canonical-contract decision; Kraken needs archive/vendor/operator data.
 - Phase 8.0 status: implemented read-only operator observability/manual-resolution inspection.
 - Phase 8.0.1 status: Obsidian memory and working-tree baseline cleanup; no product behavior changed.
 - Phase 8.0.2 status: active submit-lease operator-summary truth hotfix; no product behavior changed.
@@ -43,6 +43,7 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 - SV1.12.5 supported-venue public-data update: registry-supported venues were checked for the same BTC/ETH/SOL public YTD/recent windows. Aster and Binance produced 18 additional complete timezone-explicit native-trade-count candidate files under `/tmp/money-flow-sv1125-supported-venues-public/csv`; OKX and Coinbase produced complete close-slot files but public payloads lack trade count; Kraken public REST OHLC was incomplete for the selected windows. Non-Hyperliquid import paths remain blocked by identity/source gates.
 - SV1.12.5 Hyperliquid public import update: founder/operator approval seeded BTC/ETH/SOL Hyperliquid research identity as non-trading/non-strategy-eligible with `verified_by=Tercirafael`; all 9 public YTD/recent files passed requirement-aware preflight; guarded import inserted `25848` candles into the intended migrated `money_flow` DB; no evidence packs were generated.
 - SV1.12.5.1 closeout update: accepted SV1.12.x/SV1.12.4/SV1.12.5 repo changes are being committed as the reviewed import baseline; read-only DB verification confirms `25848` Hyperliquid public campaign candles, BTC/ETH/SOL identity remains operator-verified by `Tercirafael` and non-trading/non-strategy-eligible, no generated evidence packs exist, and SV1.13 can proceed only as post-import evidence review.
+- SV1.13 status: first Hyperliquid public campaign evidence packs generated from the imported `25848` candles. Evidence review expands the public campaign into three component-scoped packs for `sleeve_15m`, `sleeve_1h`, and `sleeve_4h`; status is `ready_for_founder_review`, not paper/live approval, not proof of profitability, not a strategy recommendation, and not cross-venue evidence.
 - Current accepted action hooks: approval-gated recommendation acceptance, target-choice conversion, prepared-order preview/readiness inspection, and submitted-order handoff.
 
 

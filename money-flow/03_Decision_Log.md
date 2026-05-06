@@ -288,3 +288,10 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `why`: The SV1.12.5 operational import succeeded but was left on a dirty tree containing prior readiness work. Strategy Validation evidence generation should not start while repo state, Obsidian state, and imported DB truth are ambiguous.
 - `rejected_alternatives`: Leaving the dirty tree for SV1.13; generating evidence packs before repo/data-state closeout; reverting accepted readiness/import changes without evidence; committing generated candle files, local import outputs, evidence packs, secrets, or review bundles.
 - `follow_up_implications`: SV1.13 can proceed as post-import evidence review only if the committed repo baseline, intended DB/schema, operator-verified non-trading identity, and imported candle counts remain clean. No paper/live trading decision follows automatically from import readiness.
+
+## 2026-05-06T23:12:10Z - SV1.13 - First Hyperliquid Public Evidence Is Review-Only
+
+- `decision`: Generate first Money Flow evidence packs only from the imported Hyperliquid public YTD/recent campaign and expand the public config into component-scoped evidence configs for `sleeve_15m`, `sleeve_1h`, and `sleeve_4h`.
+- `why`: The public campaign has component-specific timeframe windows. Treating those windows as a Cartesian matrix would create false audit combinations, while Hyperliquid is the only venue with operator-verified research identity and imported public campaign candles in the intended DB.
+- `rejected_alternatives`: Combining Aster/Binance/OKX/Coinbase/Kraken with Hyperliquid; using the old January archival/vendor-data-required campaign as the public first-evidence baseline; treating generated evidence as paper/live approval; changing Money Flow rules or optimizing parameters.
+- `follow_up_implications`: Founder/operator manual review is now the next Strategy Validation step. Paper-trading design remains deferred unless explicitly approved after reviewing Hyperliquid-only data coverage, fill timing robustness, drawdown, regime behavior, costs, no-trade reasons, and standing pre-paper/live blockers.

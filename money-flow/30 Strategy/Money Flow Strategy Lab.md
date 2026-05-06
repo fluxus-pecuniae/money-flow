@@ -10,7 +10,7 @@ Keep the strategy thread visible while routing and execution work becomes comple
 
 Money Flow is the first strategy family. It is not the universal vocabulary of the platform.
 
-Current Strategy Validation focus: `SV1.12.5` remains guarded canonical candle import readiness before first real canonical evidence packs. Public Hyperliquid BTC/ETH/SOL identity values are verified, January 2026 is archival/vendor-data-required, and 9 local Hyperliquid public `1h`/`4h` YTD plus recent `15m` files exist under `/tmp/money-flow-sv1124-public-ytd-recent/csv`, but identity is not seeded and preflight is blocked. SV1.12.5 added an all-supported-venue public-data plan: Aster/Binance have 18 additional native-trade-count candidate files under `/tmp/money-flow-sv1125-supported-venues-public/csv`, OKX/Coinbase need a trade-count source or contract decision, and Kraken needs archive/vendor/operator coverage. No first real canonical Money Flow evidence packs have been generated yet, and paper trading is not approved.
+Current Strategy Validation focus: `SV1.13` founder review of first Hyperliquid public campaign evidence packs. Public Hyperliquid BTC/ETH/SOL identity values are verified and seeded as research-only/non-trading, the 9 local Hyperliquid public `1h`/`4h` YTD plus recent `15m` files were imported with `25848` persisted candles, and SV1.13 generated component-scoped evidence packs for `sleeve_15m`, `sleeve_1h`, and `sleeve_4h`. January 2026 remains archival/vendor-data-required. SV1.12.5 added an all-supported-venue public-data plan: Aster/Binance have 18 additional native-trade-count candidate files under `/tmp/money-flow-sv1125-supported-venues-public/csv`, OKX/Coinbase need a trade-count source or contract decision, and Kraken needs archive/vendor/operator coverage. Paper trading is not approved.
 
 The original strategy idea involved:
 
@@ -45,7 +45,7 @@ The original strategy idea involved:
 
 The 2026-05-06 external strategy review described Money Flow as a coherent but unvalidated long-only momentum strategy across the 15m, 1h, and 4h sleeves. Current entry logic requires bullish moving-average stack, RSI in a relatively narrow momentum band, MACD confirmation, and limited price extension above EMA5. Exits are indicator-based through moving-average alignment break, MACD rollover, or RSI trim trigger.
 
-Important caution: this is review commentary, not an accepted strategy-rule change. No first real evidence packs have been generated yet, so the strategy remains unproven. Do not add stop-losses, optimize RSI bands, change MACD exits, or alter sizing until the Strategy Validation evidence track has produced reviewable results and a separate strategy-change phase is explicitly approved.
+Important caution: this is review commentary, not an accepted strategy-rule change. First Hyperliquid public campaign evidence packs now exist for founder review, but they do not prove future outcomes or approve paper trading. Do not add stop-losses, optimize RSI bands, change MACD exits, or alter sizing until evidence review justifies a separate strategy-change phase and that phase is explicitly approved.
 
 Concerns to track before paper trading or rule changes:
 

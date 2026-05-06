@@ -1,14 +1,20 @@
 # Money Flow Project Memory — Team Chronicle
 
+## 2026-05-06T23:12:10Z SV1.13 - First Hyperliquid Public Campaign Evidence Packs
+
+SV1.13 generates the first Hyperliquid public campaign Money Flow evidence packs from the imported `25848` public YTD/recent candles in the intended local `money_flow` DB. The DB remains migrated/current at Alembic head `20260430_0025`, BTC/ETH/SOL Hyperliquid research identity remains operator-verified by `Tercirafael`, non-trading, and non-strategy-eligible, and evidence review expands the public campaign into component-scoped packs for `sleeve_15m`, `sleeve_1h`, and `sleeve_4h`.
+
+The result is `ready_for_founder_review`, not proof of profitability, not strategy recommendation, not paper/live approval, and not cross-venue Money Flow performance. Aster/Binance remain later comparative candidates after separate identity/import work; OKX/Coinbase remain blocked by public trade-count/source policy; Kraken remains blocked by public REST history limits. The next Strategy Validation step is manual founder/operator evidence review before any explicitly approved paper-trading design phase.
+
 ## 2026-05-06T22:23:16Z SV1.12.5.1 - Import State / Repo State Closeout
 
-SV1.12.5.1 closes the dirty-tree/import-state gap before evidence-pack generation. The operator-approved Hyperliquid public campaign import is verified in the intended local `money_flow` DB: schema is current at Alembic head `20260430_0025`, BTC/ETH/SOL Hyperliquid research identity is operator-verified by `Tercirafael`, non-trading, and non-strategy-eligible, and the 9-file public YTD/recent campaign has `25848` persisted candles with the expected symbol/timeframe counts. No evidence packs have been generated yet. SV1.13 may run post-import evidence review only if audits remain clean; paper/live trading remains blocked by manual founder review and the standing pre-paper/live blockers.
+SV1.12.5.1 closes the dirty-tree/import-state gap before evidence-pack generation. The operator-approved Hyperliquid public campaign import is verified in the intended local `money_flow` DB: schema is current at Alembic head `20260430_0025`, BTC/ETH/SOL Hyperliquid research identity is operator-verified by `Tercirafael`, non-trading, and non-strategy-eligible, and the 9-file public YTD/recent campaign has `25848` persisted candles with the expected symbol/timeframe counts. At closeout time, no evidence packs had been generated yet. SV1.13 may run post-import evidence review only if audits remain clean; paper/live trading remains blocked by manual founder review and the standing pre-paper/live blockers.
 
 
 
 ## 2026-05-06T21:09:00Z External Strategy Review Caution - Coherent But Unvalidated
 
-The external strategy review described Money Flow as a coherent long-only momentum strategy across 15m/1h/4h sleeves, but still unvalidated because no first real evidence packs exist yet. Track concerns as Strategy Validation questions, not accepted rule changes: no hard stop-loss, narrow RSI bands, lagging MACD exits, same-candle fill optimism, long-only bear-market exposure, possible cosmetic confidence scoring, 100% notional sizing/drawdown assumptions, and handcrafted-looking parameters. Future evidence review should prioritize next-candle-open fills, out-of-sample validation, risk-adjusted metrics, and fee/slippage/drawdown truth before paper trading or any ATR-stop/parameter-change phase.
+The external strategy review described Money Flow as a coherent long-only momentum strategy across 15m/1h/4h sleeves, but it was unvalidated at the time because no first real evidence packs existed yet. Track concerns as Strategy Validation questions, not accepted rule changes: no hard stop-loss, narrow RSI bands, lagging MACD exits, same-candle fill optimism, long-only bear-market exposure, possible cosmetic confidence scoring, 100% notional sizing/drawdown assumptions, and handcrafted-looking parameters. SV1.13 now provides first Hyperliquid public evidence for manual review, but out-of-sample validation, risk-adjusted metrics, and fee/slippage/drawdown truth remain required before paper trading or any ATR-stop/parameter-change phase.
 ## 2026-05-06T21:01:42Z External Review Caution - Paper/Live Trading Blockers
 
 A 2026-05-06 external review reported critical/high blockers that must be resolved before paper trading, live trading, exposed API usage, or production-like deployment. Do not store actual secret values in memory. Track only sanitized actions: rotate any live credentials found in local `.env`; add API authentication/authorization before exposing execution-facing routes; enforce configured global risk limits; replace hardcoded drawdown truth with real drawdown calculation; fix Strategy Validation mark-to-market fee/drawdown reporting before founder evidence review; disable debug stack traces outside local-only development; make exchange live/demo mode fail-safe; and address medium/low strategy/adapters/config hardening. Current Strategy Validation candle-data research can continue, but evidence readiness alone is not paper/live readiness.
@@ -3166,7 +3172,7 @@ The local SV1.9 probes generated no evidence packs:
 - explicit `127.0.0.1:54322/postgres` override was unreachable in that shell
 - the explicit override is also a maintenance database target requiring operator confirmation
 
-As of SV1.9.1, no first real canonical evidence packs have been generated yet. The current blocker is DB/schema/candle readiness, not a Money Flow strategy result.
+As of SV1.9.1, no first real canonical evidence packs had been generated yet. The blocker at that time was DB/schema/candle readiness, not a Money Flow strategy result.
 
 ## 99. SV1.9.1 — evidence-target truth, import timestamp truth, and memory governance
 

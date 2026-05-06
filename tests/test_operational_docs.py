@@ -35,6 +35,7 @@ REQUIRED_FILES = [
     "docs/strategy_validation_sv1_12_1_canonical_candle_import_run.md",
     "docs/strategy_validation_sv1_12_2_identity_and_file_readiness.md",
     "docs/strategy_validation_sv1_12_3_guarded_import_result.md",
+    "docs/strategy_validation_sv1_13_hyperliquid_public_evidence_review.md",
 ]
 
 
@@ -80,13 +81,13 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "required Obsidian brain entrypoint" in command_center
-    assert re.search(r"Current implemented phase: `SV1\.12\.5\.1`", current_phase)
-    assert "SV1.12.5.1" in command_center
+    assert re.search(r"Current implemented phase: `SV1\.13`", current_phase)
+    assert "SV1.13" in command_center
     assert "Active Work" in coordination
     assert "Quant Engineer" in moved_memory
     assert "Strategy Validation" in moved_memory
     assert "SV1.9" in moved_memory
-    assert "no first real canonical evidence packs have been generated yet" in moved_memory
+    assert "First Hyperliquid Public Campaign Evidence Packs" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
 
@@ -126,11 +127,13 @@ def test_obsidian_current_state_notes_do_not_have_stale_current_truth() -> None:
         "Phase observed in repo memory: `SV1.12.4`",
         "Current implemented phase: `SV1.12.5`",
         "Phase observed in repo memory: `SV1.12.5`",
+        "Current implemented phase: `SV1.12.5.1`",
+        "Phase observed in repo memory: `SV1.12.5.1`",
     ]
 
     for path in current_state_paths:
         contents = path.read_text()
-        assert "SV1.12.5.1" in contents, f"{path} does not reflect current SV1.12.5.1 work"
+        assert "SV1.13" in contents, f"{path} does not reflect current SV1.13 work"
         for phrase in stale_current_truth_phrases:
             assert phrase not in contents, f"{path} still contains stale current truth: {phrase}"
 

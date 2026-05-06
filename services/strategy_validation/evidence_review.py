@@ -33,6 +33,7 @@ from services.strategy_validation.campaigns import (
     _data_readiness_summary,
     _WINDOW_CONVENTION_DISPLAY,
     audit_money_flow_research_campaign_data_readiness,
+    load_money_flow_public_campaign_evidence_configs,
     load_money_flow_research_campaign_config,
     money_flow_evidence_pack_review_checklist,
     money_flow_manual_paper_trading_readiness_criteria,
@@ -174,9 +175,7 @@ def review_money_flow_evidence(
     timestamp = _coerce_utc(generated_at or datetime.now(UTC)).replace(microsecond=0)
     database_status = inspect_strategy_validation_database_status(validation_service)
     paths = tuple(campaign_config_paths or CANONICAL_MONEY_FLOW_CAMPAIGN_CONFIG_PATHS)
-    configs = tuple(
-        (Path(path), load_money_flow_research_campaign_config(Path(path))) for path in paths
-    )
+    configs = _load_evidence_review_campaign_configs(paths)
     market_identity_requirements = _canonical_market_identity_requirements_from_configs(
         configs=configs,
         service=validation_service,
@@ -209,6 +208,7 @@ def review_money_flow_evidence(
                 output_dir=output_dir,
                 run_timestamp=run_timestamp,
                 evidence_pack_collision_policy=evidence_pack_collision_policy,
+                sanitized_db_target=database_status.configured_database_url,
             )
             batch_payload = strategy_validation_batch_report_to_dict(
                 campaign_run.batch_report
@@ -433,6 +433,20 @@ def inspect_strategy_validation_database_status(
             blocking_error_type=type(exc).__name__,
             blocking_error_message=_safe_error_message(exc),
         )
+
+
+def _load_evidence_review_campaign_configs(
+    paths: Sequence[str | Path],
+) -> tuple[tuple[Path, MoneyFlowResearchCampaignConfig], ...]:
+    configs: list[tuple[Path, MoneyFlowResearchCampaignConfig]] = []
+    for path in paths:
+        config_path = Path(path)
+        raw = json.loads(config_path.read_text(encoding="utf-8"))
+        if "timeframe_windows" in raw and "windows" not in raw:
+            configs.extend(load_money_flow_public_campaign_evidence_configs(config_path))
+            continue
+        configs.append((config_path, load_money_flow_research_campaign_config(config_path)))
+    return tuple(configs)
 
 
 def money_flow_evidence_review_to_dict(

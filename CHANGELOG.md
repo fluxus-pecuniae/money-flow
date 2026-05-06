@@ -13,6 +13,48 @@ Entry schema:
 
 ---
 
+## v2026.05.06.004
+
+- `recorded_at_utc`: `2026-05-06T23:12:10Z`
+- `scope`: `SV1.13 first Hyperliquid public campaign evidence packs`
+- `intent`: `Native entry. Generated the first real Money Flow evidence packs from the imported Hyperliquid public YTD/recent campaign candles after reconfirming the intended local money_flow DB, current Alembic/schema truth, operator-verified non-trading BTC/ETH/SOL Hyperliquid research identity, and 25848 imported candle rows. The public campaign config is expanded into three component-scoped evidence configs so component-specific timeframe windows are not treated as a false Cartesian matrix. Evidence packs were generated for sleeve_15m, sleeve_1h, and sleeve_4h under ignored reports/strategy_validation paths; the founder-readable report records high-level observed fill-timing, component, symbol, regime, drawdown, no-trade, invalid-reason, and manual-review truth. This is Hyperliquid USDC perpetual public-candle research only; it is not proof of profitability, paper-trading approval, live-trading approval, a strategy recommendation, cross-venue performance, routing behavior, execution automation, or a Money Flow rule change.`
+- `affected_files`:
+  - `services/strategy_validation/campaigns.py`
+  - `services/strategy_validation/evidence_review.py`
+  - `services/strategy_validation/__init__.py`
+  - `tests/test_sv113_hyperliquid_public_evidence.py`
+  - `tests/test_operational_docs.py`
+  - `docs/strategy_validation_sv1_13_hyperliquid_public_evidence_review.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> .venv/bin/python scripts/review_money_flow_evidence_packs.py --config configs/strategy_validation/campaigns/money_flow_hyperliquid_public_ytd_recent.json --format json --review-output-dir /tmp/money-flow-sv113-readiness` passed read-only with all three component-scoped audits covered and no blocked rows.
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> .venv/bin/python scripts/review_money_flow_evidence_packs.py --config configs/strategy_validation/campaigns/money_flow_hyperliquid_public_ytd_recent.json --generate-evidence-packs --output-dir reports/strategy_validation --run-timestamp 2026-05-06T23:12:10Z --format both --review-output-dir reports/strategy_validation_reviews/sv1_13_hyperliquid_public` passed and generated three ignored local evidence packs.
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> .venv/bin/python -c '<read-only DB/identity/candle count verification>'` passed and confirmed the intended DB, operator-verified research identity, and 25848 expected candles.
+  - `.venv/bin/python -m pytest -q tests/test_sv113_hyperliquid_public_evidence.py` passed: 3 tests.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py` passed: 7 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv13_research_campaigns.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv16_evidence_review.py` passed: 15 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv15_historical_data_readiness.py tests/test_sv151_candle_import_integrity.py tests/test_sv16_evidence_review.py tests/test_sv17_evidence_review_real_data_gaps.py tests/test_sv18_historical_data_bootstrap.py tests/test_sv181_evidence_schema_truth.py tests/test_sv19_evidence_status.py tests/test_sv191_evidence_target_and_import_truth.py tests/test_sv110_evidence_db_readiness.py tests/test_sv111_market_identity_preflight.py tests/test_sv1111_market_identity_preflight_hardening.py tests/test_sv1112_market_identity_preflight_governance.py tests/test_sv112_guarded_candle_import.py tests/test_sv1122_identity_file_readiness.py tests/test_sv1123_guarded_import_attempt.py tests/test_sv1125_public_campaign_import.py tests/test_sv113_hyperliquid_public_evidence.py` passed: 146 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed: 11 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: 615 tests.
+  - `env TEST_DATABASE_URL=postgresql+psycopg://money_flow:money_flow@127.0.0.1:5432/money_flow .venv/bin/pytest -q tests/test_migrations.py` passed: 1 test.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.13-review.zip` produced the standard review bundle; zip inspection found no `.env`, `.venv`, Git metadata, caches, generated evidence packs/reviews, local candle data, DB files, Obsidian app state, nested archives, or review bundles.
+
 ## v2026.05.06.003
 
 - `recorded_at_utc`: `2026-05-06T22:23:16Z`

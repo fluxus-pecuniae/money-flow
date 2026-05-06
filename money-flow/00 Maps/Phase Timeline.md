@@ -43,14 +43,15 @@ Up: [[Money Flow Command Center]]
 - SV1.12.5 2026-05-06 supported-venue public-data readiness: Hyperliquid remains nearest guarded-import path; Aster/Binance produce 18 additional complete native-trade-count candidate files, OKX/Coinbase complete close-slot files are blocked by missing public trade count, and Kraken is blocked by incomplete public REST coverage.
 - SV1.12.5 2026-05-06 operator-approved Hyperliquid public import: BTC/ETH/SOL research identity is seeded as non-trading/non-strategy-eligible, all 9 public YTD/recent files pass requirement-aware preflight, guarded import inserts `25848` candles, and evidence packs remain deferred.
 - SV1.12.5.1 2026-05-06 closeout: repo state, DB target/schema, BTC/ETH/SOL identity, row counts by symbol/timeframe, no-evidence-pack boundary, and review-bundle hygiene are verified before SV1.13.
+- SV1.13 2026-05-06 first Hyperliquid public evidence: DB/schema/identity/candle readiness remains clean, evidence review expands the public campaign into component-scoped `sleeve_15m`, `sleeve_1h`, and `sleeve_4h` packs, and status is `ready_for_founder_review` with paper/live trading still unapproved.
 
 ## Current Next Shape
 
 See [[40 Operations/Future Work Roadmap]].
 
-Current implemented phase: `SV1.12.5.1` import state / repo state closeout; Hyperliquid public campaign import is verified and evidence generation remains deferred.
+Current implemented phase: `SV1.13` first Hyperliquid public campaign evidence packs; imported Hyperliquid public campaign candles generated component-scoped evidence packs for founder review.
 
-The next proposed Strategy Validation work is post-import Hyperliquid evidence review and evidence-pack generation only if DB/schema/identity/candle data-readiness audits are clean. January 2026 remains archival/vendor-data-required. Aster/Binance identity verification, OKX/Coinbase trade-count sourcing, and Kraken archive/vendor/operator data are broader venue-comparison follow-ups. If data-readiness is incomplete, SV1.13 should report the remaining gaps instead of forcing evidence conclusions. Paper-trading design remains deferred until founder/operator evidence review justifies it. Phase 8.1 remains deferred until explicitly scoped.
+The next proposed Strategy Validation work is manual founder/operator review of the Hyperliquid-only evidence before any explicitly approved paper-trading design scope. January 2026 remains archival/vendor-data-required. Aster/Binance identity verification/import, OKX/Coinbase trade-count sourcing, and Kraken archive/vendor/operator data are broader venue-comparison follow-ups. Paper-trading design remains deferred until founder/operator evidence review justifies it. Phase 8.1 remains deferred until explicitly scoped.
 
 ## Strategic Memory
 

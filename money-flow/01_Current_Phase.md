@@ -2,9 +2,9 @@
 
 ## Phase
 
-Current implemented phase: `SV1.12.5.1` import state / repo state closeout; Hyperliquid public campaign import is verified and evidence generation remains deferred.
+Current implemented phase: `SV1.13` first Hyperliquid public campaign evidence packs; imported Hyperliquid public campaign candles generated component-scoped evidence packs for founder review.
 
-Proposed next phase: SV1.13 should run post-import Money Flow evidence review and generate collision-safe evidence packs only if the imported Hyperliquid public campaign passes DB/schema/identity/candle data-readiness audits. Aster and Binance now have complete public native-trade-count candidate files but require separate non-trading identity verification/seed; OKX and Coinbase need a trade-count source or explicit canonical-contract decision; Kraken needs archive/vendor/operator data. Paper-trading design remains deferred until founder/operator evidence review justifies it. `Phase 8.1` remains deferred until explicitly scoped.
+Proposed next phase: manual founder/operator review of the Hyperliquid-only evidence before any explicitly scoped paper-trading design phase. Aster and Binance now have complete public native-trade-count candidate files but require separate non-trading identity verification/seed/import; OKX and Coinbase need a trade-count source or explicit canonical-contract decision; Kraken needs archive/vendor/operator data. Paper-trading design remains deferred until founder/operator evidence review justifies it. `Phase 8.1` remains deferred until explicitly scoped.
 
 
 ## Pre-Paper / Live Trading Blockers
@@ -86,6 +86,8 @@ SV1.12.5 operator-approved Hyperliquid import on 2026-05-06 keeps the immediate 
 
 SV1.12.5.1 closes the import state and repo state before evidence generation. The closeout verifies the intended non-maintenance `money_flow` DB remains reachable/current at Alembic head `20260430_0025`, required `candles` / `instruments` / `symbols` tables exist, BTC/ETH/SOL Hyperliquid identity rows are operator-verified by `Tercirafael` while staying non-trading/non-strategy-eligible, persisted Hyperliquid public campaign candle counts match `25848` total and the expected symbol/timeframe breakdown, no evidence packs were generated, and the accepted SV1.12.x/SV1.12.4/SV1.12.5 source/docs/Obsidian state is committed for review.
 
+SV1.13 generates the first Hyperliquid public campaign evidence packs after reconfirming DB/schema/identity/candle readiness. The evidence review uses `configs/strategy_validation/campaigns/money_flow_hyperliquid_public_ytd_recent.json` only, expands component-specific public windows into `sleeve_15m`, `sleeve_1h`, and `sleeve_4h` evidence configs, and writes local ignored evidence packs under `reports/strategy_validation/`. The committed founder-readable summary is `docs/strategy_validation_sv1_13_hyperliquid_public_evidence_review.md`. Status is `ready_for_founder_review`; paper/live trading remains unapproved, Money Flow rules remain unchanged, and non-Hyperliquid venues remain future comparative work.
+
 ## Accepted Baseline
 
 - Phase 7.0 added non-executing routing automation policy and dry-run plans.
@@ -131,6 +133,7 @@ SV1.12.5.1 closes the import state and repo state before evidence generation. Th
 - 2026-05-06 SV1.12.5 supported-venue public-data research added an all-supported-venue data-plan config/report/script, produced 45 additional local CSVs under `/tmp/money-flow-sv1125-supported-venues-public/csv`, found Aster/Binance candidate files blocked by missing venue identity, found OKX/Coinbase blocked by missing public trade count, found Kraken blocked by incomplete public REST coverage, and imported no non-Hyperliquid candles.
 - 2026-05-06 SV1.12.5 operator-approved Hyperliquid import seeded BTC/ETH/SOL research identity as non-trading/non-strategy-eligible, preflighted all 9 public YTD/recent files, and inserted `25848` Hyperliquid candles into the intended migrated DB without generating evidence packs.
 - 2026-05-06 SV1.12.5.1 closeout verifies the imported DB state, identity state, candle counts, no-evidence-pack boundary, and repo/Obsidian state before SV1.13 evidence generation.
+- 2026-05-06 SV1.13 evidence review generated first Hyperliquid public campaign evidence packs from the imported `25848` candles, with status `ready_for_founder_review` and no paper/live approval.
 
 ## Hard Boundaries
 

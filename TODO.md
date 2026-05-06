@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-06T22:23:16Z`
+Last reviewed: `2026-05-06T23:12:10Z`
 
 ## Active Follow-Ups
 
@@ -8,7 +8,7 @@ Last reviewed: `2026-05-06T22:23:16Z`
 
 - `priority`: `high`
 - `status`: `done`
-- `summary`: `SV1.12.5 completed the operator-approved Hyperliquid-first public campaign import bridge. BTC/ETH/SOL Hyperliquid perpetual USDC identity was seeded as research-only, non-trading, and non-strategy-eligible with operator verification by Tercirafael; all 9 timezone-explicit public YTD/recent files passed requirement-aware preflight; guarded import inserted 25848 candles into the intended migrated money_flow DB; no evidence packs were generated. SV1.13 should run post-import evidence review/evidence-pack generation only if audits remain clean. Aster/Binance remain later comparative candidates after separate identity verification, while OKX/Coinbase/Kraken remain blocked by trade-count/source/history gaps.`
+- `summary`: `SV1.13 generated the first Hyperliquid public campaign evidence packs from the operator-approved/imported 9-file YTD/recent candle campaign. Evidence review reconfirmed the intended migrated money_flow DB, operator-verified non-trading BTC/ETH/SOL Hyperliquid identity, and 25848 imported candles; generated component-scoped evidence packs for sleeve_15m, sleeve_1h, and sleeve_4h; and recorded status ready_for_founder_review. This is research evidence only, not proof of profitability, not strategy recommendation, and not paper/live approval. Founder manual review is the next step before any paper-trading design phase is scoped. Aster/Binance remain later comparative candidates after separate identity verification/import; OKX/Coinbase/Kraken remain blocked by trade-count/source/history gaps.`
 
 ### T-033
 
@@ -176,7 +176,7 @@ Last reviewed: `2026-05-06T22:23:16Z`
 
 - `priority`: `high`
 - `status`: `done`
-- `summary`: `SV1.12.5 fulfilled the Hyperliquid-first public import follow-up and SV1.12.5.1 verifies the resulting repo/DB state. Founder/operator approval seeded BTC/ETH/SOL Hyperliquid perpetual USDC identity as research-only, non-trading, and non-strategy-eligible with `verified_by=Tercirafael`; all 9 timezone-explicit public YTD/recent files under `/tmp/money-flow-sv1124-public-ytd-recent/csv` passed complete one-to-one requirement-aware preflight; guarded import inserted `25848` candles into the intended migrated local `money_flow` DB at Alembic head `20260430_0025`; and no evidence packs were generated. January 2026 remains archival/vendor-data-required, especially for `15m`, and should stay separate from the public Hyperliquid first-evidence baseline. Aster/Binance remain later comparative candidates after separate venue identity verification/seed; OKX/Coinbase remain blocked by trade-count/source policy; Kraken remains blocked by incomplete public REST history. Do not optimize Money Flow rules, recommend a variant, add paper/live trading, create live artifacts, call private/signed/order endpoints, or connect validation outputs to routing/execution automation until manual evidence review explicitly justifies a new phase.`
+- `summary`: `SV1.13 fulfills the first Hyperliquid public evidence follow-up after SV1.12.5/SV1.12.5.1 import closeout. Founder/operator approval had seeded BTC/ETH/SOL Hyperliquid perpetual USDC identity as research-only, non-trading, and non-strategy-eligible with `verified_by=Tercirafael`; all 9 timezone-explicit public YTD/recent files were imported into the intended migrated local `money_flow` DB; and SV1.13 generated three component-scoped evidence packs from those 25848 candles. January 2026 remains archival/vendor-data-required, especially for `15m`, and should stay separate from the public Hyperliquid evidence baseline. Aster/Binance remain later comparative candidates after separate venue identity verification/seed/import; OKX/Coinbase remain blocked by trade-count/source policy; Kraken remains blocked by incomplete public REST history. Do not optimize Money Flow rules, recommend a variant, add paper/live trading, create live artifacts, call private/signed/order endpoints, or connect validation outputs to routing/execution automation until manual evidence review explicitly justifies a new phase.`
 
 ### T-067
 

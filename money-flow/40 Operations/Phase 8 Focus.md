@@ -8,7 +8,7 @@ Phase 8.0 is implemented. Phase 8.0.1 cleaned the Obsidian memory / working-tree
 
 The accepted codebase baseline now includes Phase 8.0 read-only operator routed workflow summary inspection. Phase 7.6 remains the accepted controlled automation closeout baseline underneath it.
 
-Current implemented phase is `SV1.12.5` data-readiness research. This Phase 8 note is historical/operator-control context; current active work is Strategy Validation evidence/data readiness. Public Hyperliquid BTC/ETH/SOL identity is verified, January 2026 is archival/vendor-data-required, 9 Hyperliquid public YTD/recent files were prepared locally, and SV1.12.5 found Aster/Binance candidate files plus OKX/Coinbase/Kraken source blockers, but guarded import is still blocked on operator-verified identity/source/preflight gates. It is not routing/SOR expansion or manual-resolution mutation.
+Current implemented phase is `SV1.13` first Hyperliquid public campaign evidence packs. This Phase 8 note is historical/operator-control context; current active work is Strategy Validation evidence review. Hyperliquid BTC/ETH/SOL identity is operator-verified as research-only/non-trading, the 9 Hyperliquid public YTD/recent files were imported with `25848` candles, and SV1.13 generated component-scoped Hyperliquid-only evidence packs for founder review. It is not routing/SOR expansion or manual-resolution mutation.
 
 ## Phase 8.0 Purpose
 

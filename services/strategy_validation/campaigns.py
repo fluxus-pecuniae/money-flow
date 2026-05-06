@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any, Sequence
 
 from sqlalchemy import select
+from sqlalchemy.engine import make_url
 
 from core.domain.enums import Environment, StrategyFamily, StrategyValidationFillTiming
 from core.domain.models import (
@@ -150,6 +151,68 @@ def load_money_flow_research_campaign_config(path: str | Path) -> MoneyFlowResea
     config_path = Path(path)
     raw = json.loads(config_path.read_text(encoding="utf-8"))
     return money_flow_research_campaign_config_from_dict(raw)
+
+
+def load_money_flow_public_campaign_evidence_configs(
+    path: str | Path,
+) -> tuple[tuple[Path, MoneyFlowResearchCampaignConfig], ...]:
+    """Expand a public candle campaign into component-scoped evidence configs.
+
+    SV1.12.4/SV1.12.5 public campaign configs use `timeframe_windows`, where each
+    window is tied to one Money Flow component/timeframe. The evidence campaign
+    runner intentionally builds a Cartesian matrix of components and windows, so
+    the public config must be split into one evidence config per component/window
+    pair to avoid auditing impossible combinations.
+    """
+
+    config_path = Path(path)
+    raw = json.loads(config_path.read_text(encoding="utf-8"))
+    if "timeframe_windows" not in raw:
+        return ((config_path, money_flow_research_campaign_config_from_dict(raw)),)
+
+    base_name = _required_str(raw, "campaign_name")
+    configs: list[tuple[Path, MoneyFlowResearchCampaignConfig]] = []
+    for window in _required_list(raw, "timeframe_windows"):
+        component = _required_str(window, "component")
+        label = _required_str(window, "label")
+        evidence_raw = {
+            "campaign_name": f"{base_name}_{component}",
+            "description": (
+                f"{_required_str(raw, 'description')} Evidence scope: {component} "
+                f"for public window {label}. Results remain Hyperliquid-only "
+                "Strategy Validation research and are not cross-venue evidence."
+            ),
+            "environment": _required_str(raw, "environment"),
+            "venue": _required_str(raw, "venue"),
+            "symbols": _required_list(raw, "symbols"),
+            "components": [component],
+            "fill_timings": _required_list(raw, "fill_timings"),
+            "windows": [
+                {
+                    "label": label,
+                    "start": _required_str(window, "start"),
+                    "end": _required_str(window, "end"),
+                    "description": (
+                        f"Public Hyperliquid {window.get('timeframe')} window from "
+                        f"{window.get('source', 'hyperliquid_public_candleSnapshot')}; "
+                        "candle closes use (start_at, end_at]."
+                    ),
+                    "expected_regime_label": "founder_review_required",
+                }
+            ],
+            "fee_bps_values": _required_list(raw, "fee_bps_values"),
+            "slippage_bps_values": _required_list(raw, "slippage_bps_values"),
+            "initial_capital": raw["initial_capital"],
+            "position_notional_pct": raw["position_notional_pct"],
+            "output_dir": _required_str(raw, "output_dir"),
+            "report_formats": raw.get("report_formats", ["json", "markdown"]),
+            "window_convention": raw.get("window_convention"),
+        }
+        virtual_path = Path(f"{config_path}#{component}:{label}")
+        configs.append(
+            (virtual_path, money_flow_research_campaign_config_from_dict(evidence_raw))
+        )
+    return tuple(configs)
 
 
 def money_flow_research_campaign_config_from_dict(
@@ -577,10 +640,14 @@ async def run_money_flow_research_campaign(
     report_formats: Sequence[str] | None = None,
     run_timestamp: datetime | None = None,
     evidence_pack_collision_policy: str = MONEY_FLOW_RESEARCH_CAMPAIGN_DEFAULT_COLLISION_POLICY,
+    sanitized_db_target: str | None = None,
 ) -> MoneyFlowResearchCampaignResult:
     """Run a campaign and write its evidence pack."""
 
     validation_service = service or MoneyFlowBacktestService()
+    db_target = sanitized_db_target or _sanitize_database_url(
+        validation_service.settings.database.sqlalchemy_url
+    )
     batch_report = await validation_service.run_money_flow_batch_backtest(
         build_money_flow_research_campaign_batch_request(config)
     )
@@ -591,6 +658,7 @@ async def run_money_flow_research_campaign(
         report_formats=report_formats,
         run_timestamp=run_timestamp,
         evidence_pack_collision_policy=evidence_pack_collision_policy,
+        sanitized_db_target=db_target,
     )
     return MoneyFlowResearchCampaignResult(
         campaign_name=config.campaign_name,
@@ -608,6 +676,7 @@ def run_money_flow_research_campaign_sync(
     report_formats: Sequence[str] | None = None,
     run_timestamp: datetime | None = None,
     evidence_pack_collision_policy: str = MONEY_FLOW_RESEARCH_CAMPAIGN_DEFAULT_COLLISION_POLICY,
+    sanitized_db_target: str | None = None,
 ) -> MoneyFlowResearchCampaignResult:
     """Synchronous convenience wrapper for CLI callers."""
 
@@ -619,6 +688,7 @@ def run_money_flow_research_campaign_sync(
             report_formats=report_formats,
             run_timestamp=run_timestamp,
             evidence_pack_collision_policy=evidence_pack_collision_policy,
+            sanitized_db_target=sanitized_db_target,
         )
     )
 
@@ -631,6 +701,7 @@ def write_money_flow_research_campaign_evidence_pack(
     report_formats: Sequence[str] | None = None,
     run_timestamp: datetime | None = None,
     evidence_pack_collision_policy: str = MONEY_FLOW_RESEARCH_CAMPAIGN_DEFAULT_COLLISION_POLICY,
+    sanitized_db_target: str | None = None,
 ) -> tuple[Path, dict[str, Any]]:
     """Write a campaign evidence pack directory and return its manifest."""
 
@@ -665,6 +736,7 @@ def write_money_flow_research_campaign_evidence_pack(
         collision_policy=collision_policy,
         collision_occurred=collision_occurred,
         collision_suffix=collision_suffix,
+        sanitized_db_target=sanitized_db_target,
     )
 
     _write_json(evidence_pack_dir / "campaign_config.json", config_payload)
@@ -863,6 +935,7 @@ def _campaign_manifest(
     collision_policy: str,
     collision_occurred: bool,
     collision_suffix: str | None,
+    sanitized_db_target: str | None,
 ) -> dict[str, Any]:
     blocked = [run for run in batch_report.run_reports if run.status != "completed"]
     blocked_reason_counts: Counter[str] = Counter()
@@ -882,6 +955,8 @@ def _campaign_manifest(
         "evidence_pack_collision_occurred": collision_occurred,
         "evidence_pack_collision_suffix": collision_suffix,
         "strategy_family": StrategyFamily.MONEY_FLOW.value,
+        "sanitized_db_target": sanitized_db_target,
+        "venue": config.venue,
         "batch_id": batch_report.batch_id,
         "batch_name": batch_report.batch_name,
         "repo": _repo_metadata(),
@@ -936,6 +1011,15 @@ def _campaign_manifest(
         "config": config_payload,
         "no_live_execution_artifacts_created": batch_report.no_live_execution_artifacts_created,
         "exchange_adapters_called": batch_report.exchange_adapters_called,
+        "no_exchange_adapters_called": not batch_report.exchange_adapters_called,
+        "calls_private_exchange_endpoints": False,
+        "calls_exchange_order_endpoints": False,
+        "no_private_exchange_endpoints_called": True,
+        "no_exchange_order_endpoints_called": True,
+        "routing_artifacts_created": False,
+        "no_routing_artifacts_created": True,
+        "paper_trading_auto_approved": False,
+        "live_trading_approved": False,
         "report_paths": {},
     }
 
@@ -952,6 +1036,7 @@ def _evidence_pack_readme(
             "",
             "- `campaign_config.json` is the normalized campaign input.",
             "- `manifest.json` records run metadata, assumptions hash, window convention, blocked-run counts, and report paths.",
+            "- `manifest.json` also records the sanitized DB target and no-live/no-routing/no-exchange boundary flags.",
             "- `batch_report.json` and `batch_report.md` contain the batch validation output when those formats are requested.",
             "- The report includes a manual evidence-pack review checklist and manual paper-trading readiness criteria.",
             "- Evidence packs use collision policy `unique_suffix` by default; repeated runs never silently overwrite prior packs.",
@@ -1216,6 +1301,13 @@ def _campaign_ratio(numerator: Decimal, denominator: Decimal) -> Decimal | None:
     if denominator == 0:
         return None
     return (numerator / denominator).quantize(Decimal("0.00000001"))
+
+
+def _sanitize_database_url(value: str) -> str:
+    try:
+        return make_url(value).render_as_string(hide_password=True)
+    except Exception:  # noqa: BLE001 - URL is diagnostic only.
+        return "<unparseable_database_url>"
 
 
 def _validate_campaign_window_convention(raw: dict[str, Any]) -> None:
