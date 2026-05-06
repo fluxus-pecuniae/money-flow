@@ -7,7 +7,7 @@ SV1.12.5 is research-only. It seeded only founder/operator-approved Hyperliquid 
 - Final status: `public_campaign_import_complete`
 - SV1.13 evidence review can proceed: `true`
 - SV1.12.5.1 closeout status: `repo_and_import_state_verified`
-- Accepted import-state commit: `pending_closeout_commit`
+- Accepted import-state commit: `8b0d11e`
 - DB target: `postgresql+psycopg://money_flow:***@127.0.0.1:5432/money_flow`
 - DB/schema status: reachable, intended strategy-validation DB, `migrated_schema_ready`, Alembic head `20260430_0025`, required `candles` / `instruments` / `symbols` tables present
 - Identity seed approval: explicit founder/operator approval for Hyperliquid Strategy Validation research use only
@@ -26,7 +26,7 @@ SV1.12.5 is research-only. It seeded only founder/operator-approved Hyperliquid 
 
 ## SV1.12.5.1 Closeout Verification
 
-SV1.12.5.1 reconciles the repo and data state after the operational import attempt. The accepted SV1.12.x / SV1.12.4 / SV1.12.5 source, test, docs, and Obsidian changes are being committed as the accepted import baseline. Generated candle files, local import/preflight outputs, review bundles, local DB files, secrets, `.env`, virtualenvs, caches, and Obsidian app state remain excluded from source control and review bundles.
+SV1.12.5.1 reconciles the repo and data state after the operational import attempt. The accepted SV1.12.x / SV1.12.4 / SV1.12.5 source, test, docs, and Obsidian changes were committed as import-state baseline `8b0d11e`. Generated candle files, local import/preflight outputs, review bundles, local DB files, secrets, `.env`, virtualenvs, caches, and Obsidian app state remain excluded from source control and review bundles.
 
 Read-only DB verification on `2026-05-06T22:23Z` confirmed:
 
