@@ -4,6 +4,8 @@ Recorded at: `2026-05-06T23:12:10Z`
 
 Status: `ready_for_founder_review`
 
+Implementation commit: `cd6e79c`
+
 This report records the first real Money Flow evidence packs generated from imported Hyperliquid public campaign candles. It is research-only. It is not proof of profitability, not paper-trading approval, not live-trading approval, not a strategy recommendation, and not cross-venue Money Flow performance.
 
 ## Scope
