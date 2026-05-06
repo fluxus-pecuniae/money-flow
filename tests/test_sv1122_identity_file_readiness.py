@@ -90,7 +90,7 @@ def test_sv1122_verified_seed_remains_non_trading_and_non_strategy(
             assert symbol.raw_metadata["research_only_market_identity_seed"] is True
             assert symbol.raw_metadata["operator_verified"] is True
             assert symbol.raw_metadata["verified_by"] == "test_operator"
-            assert symbol.raw_metadata["source"] == "manual_offline_manifest"
+            assert symbol.raw_metadata["source"] == "hyperliquid_public_info_meta"
         assert session.scalar(select(func.count()).select_from(CandleModel)) == 0
     _assert_no_live_artifacts(session_factory)
 

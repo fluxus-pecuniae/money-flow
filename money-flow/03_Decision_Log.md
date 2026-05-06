@@ -239,3 +239,52 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `why`: The intended DB/schema gate is ready, but first real evidence integrity still depends on verified market identity and complete historical candle coverage. A single command should make the blocked state founder-readable without seeding unverified identity, importing partial files, or generating evidence packs.
 - `rejected_alternatives`: Seeding identity from the example manifest without explicit verification; importing a partial file set; treating missing files as strategy evidence; generating evidence packs in the import phase; relaxing requirement-aware preflight.
 - `follow_up_implications`: The next operator action is to provide explicit verification plus all 18 timezone-explicit files, then rerun the guarded import attempt until final status is `canonical_import_complete`. SV1.13 remains blocked until that import status and data-readiness audits are clean.
+
+## 2026-05-05T05:56:00Z - SV1.12.x - Public Identity Verified, Import Still Blocked
+
+- `decision`: Accept public Hyperliquid `meta` as the research identity source for BTC/ETH/SOL perpetual USDC manifest values, update the manifest with those values, and keep DB seeding/import blocked until founder/operator approval plus complete 18-file preflight exists.
+- `why`: Public `meta` verifies the current asset ids, size decimals, leverage, and margin table ids needed for research identity, but first canonical import still needs operator-verified DB rows and complete historical candle coverage. Hyperliquid public `candleSnapshot` could produce the 12 `1h`/`4h` files but returned zero rows for the six January 2026 `15m` windows.
+- `rejected_alternatives`: Seeding identity without explicit approval; treating public verification as a non-dry-run operator verification; fabricating 15m candles; importing the 12 partial files; generating evidence packs from incomplete data.
+- `follow_up_implications`: Next work should seed non-trading research identity only with explicit `verified_by`, source the missing six 15m files from trusted public/vendor/operator/trade-derived data with provenance, rerun complete 18-file requirement-aware preflight, and only then rerun guarded import.
+
+## 2026-05-05T07:43:37Z - SV1.12.4 - Public YTD/Recent Campaign Selected
+
+- `decision`: Keep January 2026 as an archival/vendor-data-required campaign and select a public Hyperliquid first-evidence data plan using BTC/ETH/SOL `1h` and `4h` from `2026-01-01T00:00:00Z` to `2026-05-05T00:00:00Z`, plus BTC/ETH/SOL `15m` from `2026-03-15T00:00:00Z` to `2026-05-05T00:00:00Z`.
+- `why`: The prior public January `15m` plan was too old for Hyperliquid public `candleSnapshot`. The initially suggested `2026-03-14T00:00:00Z -> 2026-05-05T00:00:00Z` recent `15m` probe still missed the first close slots, while the 51-day `2026-03-15T00:00:00Z -> 2026-05-05T00:00:00Z` window produced complete public close-slot coverage.
+- `rejected_alternatives`: Treating January `15m` as public-baseline data; accepting a recent `15m` file with missing close slots; fabricating candles; using private/signed/order/account endpoints; seeding identity without founder/operator approval; importing candles while preflight is blocked; generating evidence packs from unimported or incomplete data.
+- `follow_up_implications`: The next Strategy Validation bridge should seed non-trading research identity only with explicit `verified_by`, rerun requirement-aware preflight for the 9 public campaign files, then run guarded import only if preflight passes. January 2026 can still be pursued separately through vendor/archive/operator-provided data.
+
+## 2026-05-06T06:17:04Z - SV1.12.5 - Supported-Venue Public Candle Readiness Is Source-Limited
+
+- `decision`: Extend the public YTD/recent candle readiness plan across registry-supported venue adapters while keeping Hyperliquid as the nearest guarded-import path. Accept Aster and Binance public files as candidate native-trade-count datasets for later identity-gated preflight; mark OKX and Coinbase blocked under the current canonical trade-count contract; mark Kraken blocked by incomplete public REST coverage.
+- `why`: Aster and Binance public kline endpoints returned complete BTC/ETH/SOL `15m` recent plus `1h`/`4h` 2026 YTD coverage with native trade counts. OKX and Coinbase returned complete close-slot OHLCV coverage but no trade-count field, which the canonical CSV contract currently requires. Kraken public REST OHLC did not return complete selected-window coverage.
+- `rejected_alternatives`: Fabricating trade counts; treating zero placeholder trade counts as canonical for OKX/Coinbase; accepting Kraken partial files; using private/signed/order/account endpoints or API keys; seeding venue identity without founder/operator verification; importing candles or generating evidence packs while identity/source gates are blocked.
+- `follow_up_implications`: Hyperliquid should remain the first guarded-import candidate after operator-verified non-trading identity is seeded. Broader venue comparison requires Aster/Binance identity verification/seed first, an explicit trade-count source or contract decision for OKX/Coinbase, and archive/vendor/operator coverage for Kraken.
+
+## 2026-05-06T21:01:42Z - External Review - Paper/Live Trading Blockers Must Be Fixed First
+
+- `decision`: Track the 2026-05-06 external security/risk review findings as standing blockers before paper trading, live trading, exposed API usage, or production-like deployment.
+- `why`: Reported local live credentials, unauthenticated execution-facing API routes, unenforced configured risk limits, hardcoded drawdown truth, debug exposure, config mode ambiguity, and backtest fee/drawdown limitations can make the platform unsafe or misleading even if the Strategy Validation data track continues.
+- `rejected_alternatives`: Treating the findings as normal cleanup; proceeding to paper/live trading after candle import/evidence alone; storing actual secret values in Obsidian; weakening current Strategy Validation research-only boundaries.
+- `follow_up_implications`: Before paper/live trading, rotate reported credentials, add API auth, enforce risk limits, calculate real drawdown, fix Strategy Validation mark-to-market fee truth, make exposed config fail-safe, and add regression tests/review for the critical/high items. Current research-only data readiness work can continue separately.
+
+## 2026-05-06T21:09:00Z - External Strategy Review - Treat Concerns As Validation Questions
+
+- `decision`: Track the external strategy critique as Strategy Validation questions, not as immediate Money Flow rule changes.
+- `why`: The strategy may be coherent, but no first real evidence packs exist yet. Concerns about no hard stop-loss, narrow RSI bands, lagging MACD exits, long-only exposure, optimistic same-candle fills, cosmetic confidence scores, sizing/drawdown assumptions, and handcrafted parameters should shape evidence review before any paper-trading or rule-change phase.
+- `rejected_alternatives`: Adding ATR stops immediately; optimizing RSI/extension/MACD parameters before real evidence; treating same-candle research results as paper/live readiness; presenting the current strategy as proven.
+- `follow_up_implications`: Evidence review should emphasize next-candle-open fills, out-of-sample validation, risk-adjusted metrics such as Sharpe/Sortino, fee/slippage/drawdown truth, and a later explicitly scoped strategy-change phase if evidence supports changes.
+
+## 2026-05-06T22:20:00Z - SV1.12.5 - Hyperliquid Public Campaign Imported After Operator Approval
+
+- `decision`: Use explicit founder/operator approval to seed only Hyperliquid BTC/ETH/SOL research identity as non-trading/non-strategy-eligible, then import only the 9-file Hyperliquid public YTD/recent campaign after requirement-aware preflight passes.
+- `why`: Hyperliquid is the nearest clean first-evidence data path: public identity metadata is verified, public candle files have native trade count and complete close-slot coverage, and its USDC perpetual product should not be mixed with Aster/OKX USDT perps or Binance/Coinbase/Kraken spot products. Completing import before evidence review preserves the SV1.12 import/evidence boundary.
+- `rejected_alternatives`: Using the archival January 18-file campaign as the public baseline; importing Aster/Binance/OKX/Coinbase/Kraken in the same phase; treating OKX/Coinbase placeholder trade counts as canonical; generating evidence packs during import; enabling strategy/trading eligibility; calling private/order endpoints.
+- `follow_up_implications`: SV1.13 can run post-import Hyperliquid evidence review/evidence-pack generation if data-readiness audits are clean. Paper-trading design remains deferred pending founder/operator review of evidence packs and unresolved pre-paper/live blockers.
+
+## 2026-05-06T22:23:16Z - SV1.12.5.1 - Close Import State Before Evidence Packs
+
+- `decision`: Treat the accepted SV1.12.x / SV1.12.4 / SV1.12.5 source, tests, docs, and Obsidian updates as the reviewed import baseline, verify the intended DB import state, and commit a clean repo state before SV1.13 evidence generation.
+- `why`: The SV1.12.5 operational import succeeded but was left on a dirty tree containing prior readiness work. Strategy Validation evidence generation should not start while repo state, Obsidian state, and imported DB truth are ambiguous.
+- `rejected_alternatives`: Leaving the dirty tree for SV1.13; generating evidence packs before repo/data-state closeout; reverting accepted readiness/import changes without evidence; committing generated candle files, local import outputs, evidence packs, secrets, or review bundles.
+- `follow_up_implications`: SV1.13 can proceed as post-import evidence review only if the committed repo baseline, intended DB/schema, operator-verified non-trading identity, and imported candle counts remain clean. No paper/live trading decision follows automatically from import readiness.

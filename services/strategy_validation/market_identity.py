@@ -807,11 +807,11 @@ def _apply_operator_verification_metadata(
                 "operator_verified": True,
                 "verified_by": verified_by,
                 "verified_at": verified_at.isoformat(),
-                "sv_phase": "SV1.11.2",
                 "research_only_market_identity_seed": True,
-                "source": "manual_offline_manifest",
             }
         )
+        raw_metadata.setdefault("sv_phase", "SV1.11.2")
+        raw_metadata.setdefault("source", "manual_offline_manifest")
         entry["symbol"]["raw_metadata"] = raw_metadata
 
 
@@ -891,8 +891,8 @@ def _validated_symbol_payload(raw: Any) -> tuple[dict[str, Any], set[str]]:
         "raw_metadata": {
             **raw_metadata,
             "research_only_market_identity_seed": True,
-            "source": "manual_offline_manifest",
-            "sv_phase": "SV1.11.2",
+            "source": raw_metadata.get("source", "manual_offline_manifest"),
+            "sv_phase": raw_metadata.get("sv_phase", "SV1.11.2"),
         },
     }
     if payload["settlement_asset"] is not None:

@@ -38,14 +38,19 @@ Up: [[Money Flow Command Center]]
 - SV1.12.1: guarded import run / blocked-run truth; intended DB is reachable/current with zero candles, identity rows and candle files are missing, partial-persistence semantics are explicit, and unmapped inputs / missing requirements are operator-visible.
 - SV1.12.2: readiness-only identity/file report; intended DB remains reachable/current with zero candles, operator-verified identity and candle files are still missing, exact 18-file requirements are documented, and no candles or evidence packs are generated.
 - SV1.12.3: guarded import attempt wrapper; intended DB remains reachable/current, operator verification and all 18 candle files are still missing, no identity seed/import/evidence packs occurred.
+- SV1.12.x 2026-05-05 research: public Hyperliquid `meta` verifies BTC/ETH/SOL identity values and updates the non-trading manifest; 12 local `1h`/`4h` CSVs are produced under `/tmp`, six `15m` files remain missing, no identity seed/import/evidence packs occurred.
+- SV1.12.4 2026-05-05 public-data campaign: January 2026 is marked archival/vendor-data-required, a 9-file public YTD/recent Hyperliquid campaign config is added, all 9 local public CSVs are produced under `/tmp`, and Hyperliquid preflight remains blocked by missing DB identity.
+- SV1.12.5 2026-05-06 supported-venue public-data readiness: Hyperliquid remains nearest guarded-import path; Aster/Binance produce 18 additional complete native-trade-count candidate files, OKX/Coinbase complete close-slot files are blocked by missing public trade count, and Kraken is blocked by incomplete public REST coverage.
+- SV1.12.5 2026-05-06 operator-approved Hyperliquid public import: BTC/ETH/SOL research identity is seeded as non-trading/non-strategy-eligible, all 9 public YTD/recent files pass requirement-aware preflight, guarded import inserts `25848` candles, and evidence packs remain deferred.
+- SV1.12.5.1 2026-05-06 closeout: repo state, DB target/schema, BTC/ETH/SOL identity, row counts by symbol/timeframe, no-evidence-pack boundary, and review-bundle hygiene are verified before SV1.13.
 
 ## Current Next Shape
 
 See [[40 Operations/Future Work Roadmap]].
 
-Current implemented phase: `SV1.12.3`.
+Current implemented phase: `SV1.12.5.1` import state / repo state closeout; Hyperliquid public campaign import is verified and evidence generation remains deferred.
 
-The next proposed Strategy Validation work is seeding operator-verified non-trading BTC/ETH/SOL research identity, providing all 18 timezone-explicit candle files, and completing guarded canonical candle import after requirement-aware preflight is clean. SV1.13 post-import canonical evidence review/evidence-pack generation remains deferred until guarded import status is complete and data-readiness audits are clean. If data remains incomplete, SV1.13 should report the remaining gaps instead of forcing evidence conclusions. Paper-trading design remains deferred until founder/operator evidence review justifies it. Phase 8.1 remains deferred until explicitly scoped.
+The next proposed Strategy Validation work is post-import Hyperliquid evidence review and evidence-pack generation only if DB/schema/identity/candle data-readiness audits are clean. January 2026 remains archival/vendor-data-required. Aster/Binance identity verification, OKX/Coinbase trade-count sourcing, and Kraken archive/vendor/operator data are broader venue-comparison follow-ups. If data-readiness is incomplete, SV1.13 should report the remaining gaps instead of forcing evidence conclusions. Paper-trading design remains deferred until founder/operator evidence review justifies it. Phase 8.1 remains deferred until explicitly scoped.
 
 ## Strategic Memory
 

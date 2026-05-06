@@ -300,6 +300,25 @@ DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME
 
 The SV1.12.3 local run used the intended `money_flow` DB and confirmed schema/migrations are current, but no operator verification was supplied, BTC/ETH/SOL research identity rows remain missing, and no canonical candle files were found. No identity was seeded, no candles were imported, and no evidence packs were generated. See [SV1.12.3 Guarded Canonical Candle Import Result](docs/strategy_validation_sv1_12_3_guarded_import_result.md).
 
+The 2026-05-05 SV1.12.4 research pass keeps January 2026 as an archival/vendor-data-required campaign because public Hyperliquid `candleSnapshot` did not provide January `15m` candles. It adds `configs/strategy_validation/campaigns/money_flow_hyperliquid_public_ytd_recent.json` for the public-data-friendly first evidence dataset plan: `1h` and `4h` use `2026-01-01T00:00:00Z -> 2026-05-05T00:00:00Z`, while `15m` uses `2026-03-15T00:00:00Z -> 2026-05-05T00:00:00Z`. All 9 public-campaign CSVs were produced locally under `/tmp/money-flow-sv1124-public-ytd-recent/csv`, but requirement-aware preflight remains blocked until operator-verified non-trading BTC/ETH/SOL identity is seeded in the intended DB. See [SV1.12.4 Public YTD/Recent Candle Readiness](docs/strategy_validation_sv1_12_4_public_ytd_recent_candle_readiness.md).
+
+SV1.12.5 extends that public candle-readiness pass across the supported venue adapters. It adds `configs/strategy_validation/campaigns/money_flow_supported_venues_public_ytd_recent.json` and `scripts/prepare_supported_venue_public_candles.py`, then writes local public BTC/ETH/SOL CSVs under `/tmp/money-flow-sv1125-supported-venues-public`. Aster and Binance produced 18 additional native-trade-count candidate files with complete close-slot coverage, but preflight blocks because their venue identity rows are not verified/seeded in the intended DB. OKX and Coinbase Advanced Trade produced complete close-slot coverage but their public candle payloads lack trade counts, so those files are source-complete but not canonical import-ready. Kraken public REST OHLC is incomplete for the selected windows because it returns only recent rows. See [SV1.12.5 Supported Venues Public Candle Readiness](docs/strategy_validation_sv1_12_5_supported_venues_public_candle_readiness.md).
+
+The operator-approved SV1.12.5 Hyperliquid import bridge keeps the immediate path narrow. It seeds BTC/ETH/SOL Hyperliquid perpetual USDC identity only as research-only, non-trading, non-strategy-eligible rows after explicit operator verification, then runs the 9-file public YTD/recent campaign preflight/import path:
+
+```bash
+DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow \
+  .venv/bin/python scripts/run_strategy_validation_public_campaign_import.py \
+  --seed-identity \
+  --operator-verified \
+  --verified-by Tercirafael \
+  --market-identity-values-checked-offline \
+  --input-dir /tmp/money-flow-sv1124-public-ytd-recent/csv \
+  --format markdown
+```
+
+The local SV1.12.5 run imported all 9 Hyperliquid public campaign files into the intended migrated `money_flow` DB: `25848` candles inserted, `0` updated, `0` unchanged, and no evidence packs generated. SV1.12.5.1 closes the repo/import state by rechecking the intended DB, operator-verified non-trading identity, expected symbol/timeframe candle counts, and no-evidence-pack boundary before SV1.13. Hyperliquid is now ready for SV1.13 post-import evidence review if audits remain clean. Aster/Binance remain later comparative candidates; OKX/Coinbase/Kraken remain blocked by source-policy gaps. See [SV1.12.5 Public Campaign Import Result](docs/strategy_validation_sv1_12_5_public_campaign_import_result.md).
+
 ## Routing Automation Planning
 
 Phase 7.0 exposes non-executing automation policy and dry-run planning:

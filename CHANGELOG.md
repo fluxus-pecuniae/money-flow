@@ -13,6 +13,207 @@ Entry schema:
 
 ---
 
+## v2026.05.06.003
+
+- `recorded_at_utc`: `2026-05-06T22:23:16Z`
+- `scope`: `SV1.12.5.1 import state / repo state closeout`
+- `intent`: `Native entry. Reconciled the previously uncommitted SV1.12.x / SV1.12.4 / SV1.12.5 working-tree state, verified the intended local strategy-validation DB import state, and closed the Hyperliquid public campaign import baseline before SV1.13 evidence-pack generation. Read-only DB verification confirmed the intended non-maintenance money_flow DB at 127.0.0.1:5432 is reachable, required strategy-validation tables exist, Alembic version is 20260430_0025, BTC/ETH/SOL Hyperliquid identity rows are operator-verified by Tercirafael and remain non-trading/non-strategy-eligible, and imported Hyperliquid public campaign candle counts match 25848 total with the expected symbol/timeframe breakdown. No evidence packs were generated, no Money Flow rules changed, no routing/execution/paper/live behavior was added, and no exchange/private/signed/order endpoints were called.`
+- `affected_files`:
+  - `docs/strategy_validation_sv1_12_5_public_campaign_import_result.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `tests/test_operational_docs.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> .venv/bin/python -c '<read-only DB/identity/candle count verification>'` passed and confirmed 25848 expected candles plus research-only operator-verified BTC/ETH/SOL identity.
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> .venv/bin/python scripts/preflight_strategy_validation_candle_import.py --environment testnet --venue hyperliquid --requirement-json /tmp/money-flow-sv1124-public-ytd-recent/requirements_public_ytd_recent_9.json --format markdown --output-dir /tmp/money-flow-sv11251-preflight --input <9 Hyperliquid public campaign CSVs>` passed read-only with all 9 files `ready_for_import=true`.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv1125_public_campaign_import.py` passed: 8 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed: 11 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py` passed: 7 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: 612 tests.
+  - `env TEST_DATABASE_URL=postgresql+psycopg://money_flow:money_flow@127.0.0.1:5432/money_flow .venv/bin/pytest -q tests/test_migrations.py` passed: 1 test.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.12.5.1-review.zip` pending.
+
+## v2026.05.06.002
+
+- `recorded_at_utc`: `2026-05-06T22:20:00Z`
+- `scope`: `SV1.12.5 operator-approved Hyperliquid identity seed and public campaign guarded import`
+- `intent`: `Native entry. Added the SV1.12.5 Hyperliquid-first public campaign import bridge, using the SV1.12.4 9-file public YTD/recent campaign instead of the archival January 18-file plan. The workflow seeds BTC/ETH/SOL Hyperliquid perpetual USDC identity only when explicit operator verification, verified_by, and offline market-value confirmation are supplied; keeps seeded symbols non-trading and non-strategy-eligible; separates file coverage truth from DB identity readiness; maps exactly the 9 public campaign files; runs requirement-aware preflight; and delegates only preflight-passed files to guarded import. The local approved run used the intended migrated money_flow DB at 127.0.0.1:5432, seeded research identity verified by Tercirafael, preflighted all 9 timezone-explicit Hyperliquid files under /tmp/money-flow-sv1124-public-ytd-recent/csv, and imported 25848 candles. No evidence packs were generated, no Money Flow rules changed, no routing/execution/paper/live behavior was added, no exchange adapters/private/order endpoints were called, and non-Hyperliquid venues were recorded as inventory only.`
+- `affected_files`:
+  - `services/strategy_validation/public_campaign_import.py`
+  - `services/strategy_validation/candle_bundle_import.py`
+  - `services/strategy_validation/__init__.py`
+  - `scripts/run_strategy_validation_public_campaign_import.py`
+  - `tests/test_sv1125_public_campaign_import.py`
+  - `docs/strategy_validation_sv1_12_5_public_campaign_import_result.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv1125_public_campaign_import.py` passed: 8 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv112_guarded_candle_import.py tests/test_sv1122_identity_file_readiness.py tests/test_sv1123_guarded_import_attempt.py tests/test_sv1125_public_campaign_import.py tests/test_phase3_strategy.py tests/test_operational_docs.py` passed: 46 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv15_historical_data_readiness.py tests/test_sv151_candle_import_integrity.py tests/test_sv16_evidence_review.py tests/test_sv17_evidence_review_real_data_gaps.py tests/test_sv18_historical_data_bootstrap.py tests/test_sv181_evidence_schema_truth.py tests/test_sv19_evidence_status.py tests/test_sv191_evidence_target_and_import_truth.py tests/test_sv110_evidence_db_readiness.py tests/test_sv111_market_identity_preflight.py tests/test_sv1111_market_identity_preflight_hardening.py tests/test_sv1112_market_identity_preflight_governance.py tests/test_sv112_guarded_candle_import.py tests/test_sv1122_identity_file_readiness.py tests/test_sv1123_guarded_import_attempt.py tests/test_sv1125_public_campaign_import.py` passed: 143 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: 612 tests.
+  - `env TEST_DATABASE_URL=postgresql+psycopg://money_flow:money_flow@127.0.0.1:5432/money_flow_sv1125_smoke .venv/bin/pytest -q tests/test_migrations.py` was attempted and failed because the local `money_flow` DB user cannot create databases.
+  - `env TEST_DATABASE_URL=postgresql+psycopg://money_flow:money_flow@127.0.0.1:5432/money_flow .venv/bin/pytest -q tests/test_migrations.py` passed: 1 test.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed: 11 tests after docs updates.
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> .venv/bin/python scripts/run_strategy_validation_public_campaign_import.py --seed-identity --operator-verified --verified-by Tercirafael --market-identity-values-checked-offline --input-dir /tmp/money-flow-sv1124-public-ytd-recent/csv --format both --output-dir /tmp/money-flow-sv1125-public-import` passed with `public_campaign_import_complete`, 9 files found, 0 missing, 25848 rows inserted, 0 updated, 0 unchanged, and no evidence packs generated.
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> .venv/bin/python -c '<row-count verification>'` confirmed 25848 candles and BTC/ETH/SOL Hyperliquid symbol rows with `is_strategy_eligible=false`, `is_trading_eligible=false`, and `verified_by=Tercirafael`.
+  - `git diff --check` passed.
+
+## v2026.05.06.001
+
+- `recorded_at_utc`: `2026-05-06T06:09:55Z`
+- `scope`: `SV1.12.5 supported venue public candle readiness`
+- `intent`: `Native entry. Extended the SV1.12.4 public YTD/recent candle-readiness pass across the repo-supported venue adapters without seeding identity, importing candles, generating evidence packs, using API keys, calling private/signed/order endpoints, or changing Money Flow rules. Added a supported-venue public data-plan config and a public-only downloader/normalizer helper. The selected windows remain BTC/ETH/SOL 1h/4h from 2026-01-01T00:00:00Z through 2026-05-05T00:00:00Z and 15m from 2026-03-15T00:00:00Z through 2026-05-05T00:00:00Z. Aster and Binance produced 18 additional timezone-explicit native-trade-count candidate CSVs with complete close-slot coverage under /tmp/money-flow-sv1125-supported-venues-public/csv; requirement-aware preflight was run for those 18 files and blocked as expected because venue market identity rows are not verified/seeded in the intended DB. OKX and Coinbase Advanced Trade produced complete close-slot coverage but public payloads lack trade counts, so those files are source-complete but not canonical import-ready. Kraken public REST OHLC produced only partial recent coverage and remains vendor/archive/operator-data-required for these windows.`
+- `affected_files`:
+  - `configs/strategy_validation/campaigns/money_flow_supported_venues_public_ytd_recent.json`
+  - `scripts/prepare_supported_venue_public_candles.py`
+  - `docs/strategy_validation_sv1_12_5_supported_venues_public_candle_readiness.md`
+  - `tests/test_sv14_evidence_readiness.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `tests/test_operational_docs.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/30 Strategy/Money Flow Strategy Lab.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/Phase 8 Focus.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `curl -sS 'https://fapi.asterdex.com/fapi/v1/klines?symbol=BTCUSDT&interval=1h&startTime=1767225600000&endTime=1767232800000&limit=5'` passed against the public Aster kline endpoint.
+  - `curl -sS 'https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1h&startTime=1767225600000&endTime=1767232800000&limit=5'` passed against the public Binance spot kline endpoint.
+  - `curl -sS 'https://www.okx.com/api/v5/market/history-candles?instId=BTC-USDT-SWAP&bar=1H&after=1767232800000&limit=5'` passed against the public OKX history-candles endpoint.
+  - `curl -sS 'https://api.coinbase.com/api/v3/brokerage/market/products/BTC-USD/candles?start=1767225600&end=1767232800&granularity=ONE_HOUR&limit=5'` passed against the public Coinbase market product candles endpoint.
+  - `curl -sS 'https://api.kraken.com/0/public/OHLC?pair=XBTUSD&interval=60&since=1767225600'` passed and confirmed Kraken REST OHLC returns only recent rows for this window.
+  - `.venv/bin/python scripts/prepare_supported_venue_public_candles.py` produced 45 local supported-venue CSVs under `/tmp/money-flow-sv1125-supported-venues-public/csv` and provenance summaries under `/tmp/money-flow-sv1125-supported-venues-public`.
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow .venv/bin/python scripts/preflight_strategy_validation_candle_import.py --environment testnet --venue aster --requirement-json /tmp/money-flow-sv1125-supported-venues-public/requirements_aster_native_count_candidates.json --format json --output-dir /tmp/money-flow-sv1125-supported-venues-public/preflight/aster_native_count_candidates --input ...9 Aster candidate CSVs...` exited `1` as expected with `missing_instrument` / `unknown_instrument_key`; no candles were imported.
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow .venv/bin/python scripts/preflight_strategy_validation_candle_import.py --environment testnet --venue binance --requirement-json /tmp/money-flow-sv1125-supported-venues-public/requirements_binance_native_count_candidates.json --format json --output-dir /tmp/money-flow-sv1125-supported-venues-public/preflight/binance_native_count_candidates --input ...9 Binance candidate CSVs...` exited `1` as expected with `missing_instrument` / `unknown_instrument_key`; no candles were imported.
+  - `.venv/bin/python -m json.tool configs/strategy_validation/campaigns/money_flow_supported_venues_public_ytd_recent.json` passed.
+  - `.venv/bin/python -m json.tool configs/strategy_validation/campaigns/money_flow_hyperliquid_public_ytd_recent.json` passed.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv14_evidence_readiness.py tests/test_sv13_research_campaigns.py tests/test_sv15_historical_data_readiness.py tests/test_sv111_market_identity_preflight.py tests/test_sv1111_market_identity_preflight_hardening.py tests/test_sv1112_market_identity_preflight_governance.py tests/test_sv1122_identity_file_readiness.py` passed: 54 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed: 11 tests.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.12.5-supported-venues-review.zip` produced the standard review bundle.
+
+## v2026.05.05.002
+
+- `recorded_at_utc`: `2026-05-05T07:43:37Z`
+- `scope`: `SV1.12.4 public Hyperliquid YTD/recent candle campaign readiness`
+- `intent`: `Native entry. Reverified BTC/ETH/SOL Hyperliquid perpetual USDC research identity against public Hyperliquid docs and the public Info/meta endpoint, confirmed the manifest values remain public-meta backed and non-trading/non-strategy-eligible, and added a public-data-friendly campaign config for Strategy Validation evidence preparation. The January 2026 canonical campaign configs are retained but labeled archival/vendor-data-required because public Hyperliquid candleSnapshot did not provide January 2026 15m data. The new public campaign uses 1h/4h data from 2026-01-01T00:00:00Z through 2026-05-05T00:00:00Z and 15m data from 2026-03-15T00:00:00Z through 2026-05-05T00:00:00Z; all 9 timezone-explicit CSVs were produced locally under /tmp/money-flow-sv1124-public-ytd-recent/csv with hashes/provenance recorded. Requirement-aware preflight was run for the 9 files and remains blocked because the intended DB still lacks operator-verified BTC/ETH/SOL Instrument/Symbol identity rows. No identity was seeded, no candles were imported, no evidence packs were generated, no private/signed/order endpoints were called, and no Money Flow rules, optimization, recommendations, paper/live trading, routing, execution automation, or trading eligibility changes were made.`
+- `affected_files`:
+  - `configs/strategy_validation/campaigns/money_flow_hyperliquid_public_ytd_recent.json`
+  - `configs/strategy_validation/campaigns/money_flow_core_btc.json`
+  - `configs/strategy_validation/campaigns/money_flow_core_multi_symbol.json`
+  - `docs/strategy_validation_sv1_12_4_public_ytd_recent_candle_readiness.md`
+  - `tests/test_sv14_evidence_readiness.py`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/30 Strategy/Money Flow Strategy Lab.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/Phase 8 Focus.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `curl -sS https://api.hyperliquid.xyz/info -H 'Content-Type: application/json' -d '{"type":"meta"}' -o /tmp/money-flow-sv1124-public-ytd-recent/raw/hyperliquid_meta_20260505.json` passed and produced SHA-256 `5415a7bf4819aaf91c5893d4040f21f4480411b4feb0f75217588dc92f676b63`; BTC/ETH/SOL meta indexes remained `0/1/5`, `szDecimals` remained `5/4/2`, max leverage remained `40/25/20`, and margin table ids remained `56/55/54`.
+  - Public Hyperliquid `candleSnapshot` requests produced all 9 selected public campaign files under `/tmp/money-flow-sv1124-public-ytd-recent/csv`: three `15m` files for `2026-03-15T00:00:00Z -> 2026-05-05T00:00:00Z`, three `1h` files for `2026-01-01T00:00:00Z -> 2026-05-05T00:00:00Z`, and three `4h` files for the same YTD window. The initially suggested `2026-03-14T00:00:00Z -> 2026-05-05T00:00:00Z` 15m probe was rejected because it missed the first close slots.
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow .venv/bin/python scripts/preflight_strategy_validation_candle_import.py --environment testnet --venue hyperliquid --requirement-json /tmp/money-flow-sv1124-public-ytd-recent/requirements_public_ytd_recent_9.json --format json --output-dir /tmp/money-flow-sv1124-public-ytd-recent/preflight --input ...9 public campaign CSVs...` exited `1` as expected with `missing_instrument` / `unknown_instrument_key`; no candles were imported.
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow .venv/bin/python scripts/seed_strategy_validation_market_identity.py --manifest configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json --dry-run --format json --output-dir /tmp/money-flow-sv1124-public-ytd-recent/identity-dry-run` passed with no conflicts and no writes; it reported 3 instruments and 3 symbols would be inserted.
+  - `.venv/bin/python -m json.tool configs/strategy_validation/campaigns/money_flow_hyperliquid_public_ytd_recent.json` passed.
+  - `.venv/bin/python -m json.tool configs/strategy_validation/campaigns/money_flow_core_btc.json` passed.
+  - `.venv/bin/python -m json.tool configs/strategy_validation/campaigns/money_flow_core_multi_symbol.json` passed.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv14_evidence_readiness.py tests/test_sv13_research_campaigns.py tests/test_sv15_historical_data_readiness.py tests/test_sv111_market_identity_preflight.py tests/test_sv1111_market_identity_preflight_hardening.py tests/test_sv1112_market_identity_preflight_governance.py tests/test_sv1122_identity_file_readiness.py` passed with 53 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 11 tests.
+  - `git diff --check` passed.
+
+## v2026.05.05.001
+
+- `recorded_at_utc`: `2026-05-05T05:56:00Z`
+- `scope`: `SV1.12.x Hyperliquid public identity verification and canonical candle-file readiness research`
+- `intent`: `Native entry. Verified BTC/ETH/SOL Hyperliquid perpetual USDC research market identity against public Hyperliquid docs and the public Info/meta endpoint, updated the research manifest away from placeholder tick/size/leverage values while preserving operator_verified=false, is_strategy_eligible=false, and is_trading_eligible=false, and recorded a founder/operator readiness report. Public candleSnapshot produced complete timezone-explicit local CSVs for the 12 BTC/ETH/SOL 1h/4h canonical windows under /tmp/money-flow-sv112x-candles, with hashes recorded; the six 15m files remain missing because the public endpoint returned zero rows for the January 2026 15m windows. Requirement-aware preflight was run for the 12 available files and remains blocked because the intended DB still lacks operator-verified BTC/ETH/SOL Instrument/Symbol identity rows; no identity was seeded, no candles were imported, no evidence packs were generated, no private/signed/order endpoints were called, and no Money Flow rules, optimization, recommendations, paper/live trading, routing, execution automation, or trading eligibility changes were made.`
+- `affected_files`:
+  - `configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json`
+  - `services/strategy_validation/market_identity.py`
+  - `services/strategy_validation/import_readiness.py`
+  - `docs/strategy_validation_sv1_12_x_hyperliquid_identity_and_candle_readiness_research.md`
+  - `tests/test_sv111_market_identity_preflight.py`
+  - `tests/test_sv1111_market_identity_preflight_hardening.py`
+  - `tests/test_sv1112_market_identity_preflight_governance.py`
+  - `tests/test_sv1122_identity_file_readiness.py`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/30 Strategy/Money Flow Strategy Lab.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/Phase 8 Focus.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `curl -sS https://api.hyperliquid.xyz/info -H 'Content-Type: application/json' -d '{"type":"meta"}' -o /tmp/mf_hl_meta.json` passed and produced SHA-256 `5415a7bf4819aaf91c5893d4040f21f4480411b4feb0f75217588dc92f676b63`; BTC/ETH/SOL meta indexes were `0/1/5`, `szDecimals` were `5/4/2`, max leverage was `40/25/20`, and margin table ids were `56/55/54`.
+  - Public Hyperliquid `candleSnapshot` requests for BTC/ETH/SOL `15m`, `1h`, and `4h` over `2026-01-01T00:00:00Z` to `2026-02-01T00:00:00Z` produced 12 complete `1h`/`4h` canonical CSVs under `/tmp/money-flow-sv112x-candles` and zero rows for all three `15m` requests.
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow .venv/bin/python scripts/check_strategy_validation_import_readiness.py --manifest configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json --format json --output-dir /tmp/money-flow-sv112x-readiness-updated` exited `1` as expected; intended DB/schema remained reachable/current with zero candles, identity not ready, 18 requirements known, and guarded import not ready.
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow .venv/bin/python scripts/preflight_strategy_validation_candle_import.py --environment testnet --venue hyperliquid --requirement-json /tmp/money-flow-sv112x-candles/requirements_12_available.json --format json --output-dir /tmp/money-flow-sv112x-preflight --input ...12 available CSVs...` exited `1` as expected with `missing_instrument` / `unknown_instrument_key`; no candles were imported.
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=money_flow DB_PASSWORD=<redacted> DB_NAME=money_flow .venv/bin/python scripts/seed_strategy_validation_market_identity.py --manifest configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json --dry-run --format json --output-dir /tmp/money-flow-sv112x-identity-dry-run-updated` passed with no conflicts and no writes; it reported 3 instruments and 3 symbols would be inserted.
+  - `.venv/bin/python -m json.tool configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json` passed.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv111_market_identity_preflight.py tests/test_sv1111_market_identity_preflight_hardening.py tests/test_sv1112_market_identity_preflight_governance.py tests/test_sv1122_identity_file_readiness.py` passed with 37 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed with 11 tests.
+  - `git diff --check` passed.
+
 ## v2026.05.04.008
 
 - `recorded_at_utc`: `2026-05-04T22:20:00Z`

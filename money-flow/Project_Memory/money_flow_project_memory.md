@@ -1,5 +1,17 @@
 # Money Flow Project Memory — Team Chronicle
 
+## 2026-05-06T22:23:16Z SV1.12.5.1 - Import State / Repo State Closeout
+
+SV1.12.5.1 closes the dirty-tree/import-state gap before evidence-pack generation. The operator-approved Hyperliquid public campaign import is verified in the intended local `money_flow` DB: schema is current at Alembic head `20260430_0025`, BTC/ETH/SOL Hyperliquid research identity is operator-verified by `Tercirafael`, non-trading, and non-strategy-eligible, and the 9-file public YTD/recent campaign has `25848` persisted candles with the expected symbol/timeframe counts. No evidence packs have been generated yet. SV1.13 may run post-import evidence review only if audits remain clean; paper/live trading remains blocked by manual founder review and the standing pre-paper/live blockers.
+
+
+
+## 2026-05-06T21:09:00Z External Strategy Review Caution - Coherent But Unvalidated
+
+The external strategy review described Money Flow as a coherent long-only momentum strategy across 15m/1h/4h sleeves, but still unvalidated because no first real evidence packs exist yet. Track concerns as Strategy Validation questions, not accepted rule changes: no hard stop-loss, narrow RSI bands, lagging MACD exits, same-candle fill optimism, long-only bear-market exposure, possible cosmetic confidence scoring, 100% notional sizing/drawdown assumptions, and handcrafted-looking parameters. Future evidence review should prioritize next-candle-open fills, out-of-sample validation, risk-adjusted metrics, and fee/slippage/drawdown truth before paper trading or any ATR-stop/parameter-change phase.
+## 2026-05-06T21:01:42Z External Review Caution - Paper/Live Trading Blockers
+
+A 2026-05-06 external review reported critical/high blockers that must be resolved before paper trading, live trading, exposed API usage, or production-like deployment. Do not store actual secret values in memory. Track only sanitized actions: rotate any live credentials found in local `.env`; add API authentication/authorization before exposing execution-facing routes; enforce configured global risk limits; replace hardcoded drawdown truth with real drawdown calculation; fix Strategy Validation mark-to-market fee/drawdown reporting before founder evidence review; disable debug stack traces outside local-only development; make exchange live/demo mode fail-safe; and address medium/low strategy/adapters/config hardening. Current Strategy Validation candle-data research can continue, but evidence readiness alone is not paper/live readiness.
 Prepared by the current standing team:
 - Quant Engineer
 - Exchange Architect
@@ -3172,3 +3184,35 @@ SV1.9.1 fixed trust issues before SV1.10 can attempt first real evidence packs:
 Routing/SOR expansion is not the current priority. The current priority is Strategy Validation evidence/data readiness.
 
 Paper trading is not approved yet. The next safe step is to prepare a reachable migrated non-maintenance Money Flow DB, import or verify enough timezone-explicit BTC/ETH/SOL candles for canonical campaigns, and generate first real evidence packs only after DB target, schema, and data-readiness truth are clean.
+
+## 100. SV1.12.x — public identity verified, partial candle files prepared
+
+On 2026-05-05, a research-only data-preparation pass verified BTC, ETH, and SOL Hyperliquid perpetual USDC identity values against official public Hyperliquid docs and the public `meta` Info endpoint. The research manifest was updated with verified asset ids/meta indexes, `szDecimals`, quantity steps, derived price precision values, leverage, and margin table ids while keeping `operator_verified=false`, `is_strategy_eligible=false`, and `is_trading_eligible=false`.
+
+The same pass queried public `candleSnapshot` for the canonical January 2026 windows. Hyperliquid public data produced complete local timezone-explicit CSVs for the 12 `1h` and `4h` BTC/ETH/SOL requirements under `/tmp/money-flow-sv112x-candles`. The six `15m` requirements remain missing because the public endpoint returned zero rows for those January 2026 15m windows, consistent with the public recent-candle limitation.
+
+Guarded import is still blocked. Identity was not seeded because founder/operator approval was not supplied, and requirement-aware preflight for the 12 available files cannot pass against the intended DB until operator-verified BTC/ETH/SOL research identity rows exist. No candles were imported and no evidence packs were generated.
+
+## 101. SV1.12.4 — public YTD/recent Hyperliquid campaign selected
+
+The same day, the public-data plan changed because January 2026 15m candles were too old for public Hyperliquid `candleSnapshot`. January 2026 remains valuable as an archival/vendor/operator-data campaign, but it is no longer the public Hyperliquid first-evidence baseline.
+
+The public first-evidence data plan now uses:
+
+- BTC/ETH/SOL `1h` from `2026-01-01T00:00:00Z` to `2026-05-05T00:00:00Z`
+- BTC/ETH/SOL `4h` from `2026-01-01T00:00:00Z` to `2026-05-05T00:00:00Z`
+- BTC/ETH/SOL `15m` from `2026-03-15T00:00:00Z` to `2026-05-05T00:00:00Z`
+
+The initially suggested `15m` start of `2026-03-14T00:00:00Z` still missed the first close slots, so the selected 51-day window starts on `2026-03-15T00:00:00Z`. All 9 selected public CSVs were produced locally under `/tmp/money-flow-sv1124-public-ytd-recent/csv` with timezone-explicit timestamps and exact local close-slot coverage.
+
+Guarded import is still blocked. The intended DB lacks operator-verified BTC/ETH/SOL research identity rows, so requirement-aware preflight cannot pass yet. No identity was seeded, no candles were imported, no evidence packs were generated, and no paper/live trading boundary changed.
+
+## 102. SV1.12.5 — supported venue public candle readiness
+
+On 2026-05-06, the public-data-friendly YTD/recent candle plan was extended across all registry-supported venue adapters: Hyperliquid, Aster, Binance, OKX, Coinbase Advanced Trade, and Kraken. This remained research-only and used public endpoints/local files only.
+
+Hyperliquid remains the nearest guarded-import path from SV1.12.4: 9 public BTC/ETH/SOL YTD/recent files exist locally, but operator-verified non-trading identity still needs founder/operator approval before preflight/import can pass. Aster and Binance produced 18 additional complete timezone-explicit native-trade-count candidate files under `/tmp/money-flow-sv1125-supported-venues-public/csv`, but requirement-aware preflight blocks because those venue identity rows are not verified/seeded in the intended DB.
+
+OKX and Coinbase Advanced Trade produced complete close-slot OHLCV files for the selected windows, but their public candle payloads do not include trade count, so they are not canonical import-ready under the current CSV contract. Kraken public REST OHLC returned incomplete selected-window coverage, so Kraken needs archive/vendor/operator data for this plan.
+
+No identity was seeded, no candles were imported, no evidence packs were generated, and no paper/live trading boundary changed. The next Strategy Validation bridge should seed Hyperliquid non-trading research identity first if the founder/operator approves it; broader venue comparison requires Aster/Binance identity verification, OKX/Coinbase trade-count sourcing or a contract decision, and Kraken archive/vendor/operator coverage.

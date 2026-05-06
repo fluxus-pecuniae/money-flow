@@ -108,8 +108,8 @@ def test_valid_offline_manifest_inserts_btc_eth_sol_instruments_and_symbols(
         assert btc_symbol.is_strategy_eligible is False
         assert btc_symbol.is_trading_eligible is False
         assert btc_symbol.raw_metadata["research_only_market_identity_seed"] is True
-        assert btc_symbol.raw_metadata["source"] == "manual_offline_manifest"
-        assert btc_symbol.raw_metadata["sv_phase"] == "SV1.11.2"
+        assert btc_symbol.raw_metadata["source"] == "hyperliquid_public_info_meta"
+        assert btc_symbol.raw_metadata["sv_phase"] == "SV1.12.x"
     _assert_no_live_artifacts(session_factory)
 
 

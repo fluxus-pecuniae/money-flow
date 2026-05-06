@@ -519,8 +519,11 @@ def _operator_verified_identity_requirements(
                     reason_codes.add("strategy_validation_identity_trading_eligible")
                 if metadata.get("research_only_market_identity_seed") is not True:
                     reason_codes.add("research_only_market_identity_seed_missing")
-                if metadata.get("source") != "manual_offline_manifest":
-                    reason_codes.add("manual_offline_manifest_source_missing")
+                if metadata.get("source") not in {
+                    "manual_offline_manifest",
+                    "hyperliquid_public_info_meta",
+                }:
+                    reason_codes.add("research_market_identity_source_missing")
                 if metadata.get("operator_verified") is not True:
                     reason_codes.add("operator_verified_market_identity_missing")
                 if not metadata.get("verified_by"):

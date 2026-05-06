@@ -109,7 +109,13 @@ def _assert_no_live_artifacts(session_factory) -> None:
 
 
 def test_canonical_research_campaign_configs_parse_successfully() -> None:
-    config_paths = sorted(Path("configs/strategy_validation/campaigns").glob("*.json"))
+    config_paths = [
+        path
+        for path in sorted(Path("configs/strategy_validation/campaigns").glob("*.json"))
+        if "first_evidence_data_plan" not in path.read_text(encoding="utf-8")
+        and "supported_venues_public_candle_readiness_data_plan"
+        not in path.read_text(encoding="utf-8")
+    ]
 
     assert {path.name for path in config_paths} == {
         "money_flow_core_btc.json",
@@ -125,6 +131,80 @@ def test_canonical_research_campaign_configs_parse_successfully() -> None:
         assert len(config.fill_timings) == 3
         assert len(config.windows) >= 2
         assert batch_request.runs
+
+
+def test_public_ytd_recent_data_plan_config_is_research_only() -> None:
+    config_path = Path(
+        "configs/strategy_validation/campaigns/"
+        "money_flow_hyperliquid_public_ytd_recent.json"
+    )
+    raw = json.loads(config_path.read_text())
+
+    assert raw["campaign_status"] == "public_hyperliquid_first_evidence_data_plan"
+    assert raw["window_convention"].startswith("(start_at, end_at]")
+    assert raw["january_2026_campaign_status"] == (
+        "archival_vendor_data_required_not_public_hyperliquid_first_evidence_baseline"
+    )
+    assert {item["timeframe"] for item in raw["timeframe_windows"]} == {
+        "15m",
+        "1h",
+        "4h",
+    }
+    assert raw["research_boundaries"] == {
+        "creates_live_artifacts": False,
+        "calls_exchange_adapters": False,
+        "calls_private_exchange_endpoints": False,
+        "calls_exchange_order_endpoints": False,
+        "enables_strategy_eligibility": False,
+        "enables_trading_eligibility": False,
+        "generates_evidence_packs": False,
+    }
+
+
+def test_supported_venues_public_data_plan_config_is_research_only() -> None:
+    config_path = Path(
+        "configs/strategy_validation/campaigns/"
+        "money_flow_supported_venues_public_ytd_recent.json"
+    )
+    raw = json.loads(config_path.read_text())
+
+    assert raw["campaign_status"] == "supported_venues_public_candle_readiness_data_plan"
+    assert raw["window_convention"].startswith("(start_at, end_at]")
+    assert raw["supported_adapter_venues_considered"] == [
+        "hyperliquid",
+        "aster",
+        "binance",
+        "okx",
+        "coinbase_advanced_trade",
+        "kraken",
+    ]
+    assert {item["timeframe"] for item in raw["timeframe_windows"]} == {
+        "15m",
+        "1h",
+        "4h",
+    }
+    statuses = {
+        item["venue"]: item["status"]
+        for item in raw["venue_source_status"]
+    }
+    assert statuses["aster"] == "complete_native_trade_count_candidate_files"
+    assert statuses["binance"] == "complete_native_trade_count_candidate_files"
+    assert statuses["okx"] == "complete_close_slot_coverage_but_trade_count_unavailable"
+    assert statuses["coinbase_advanced_trade"] == (
+        "complete_close_slot_coverage_but_trade_count_unavailable"
+    )
+    assert statuses["kraken"] == "blocked_incomplete_public_rest_coverage"
+    assert raw["research_boundaries"] == {
+        "creates_live_artifacts": False,
+        "calls_exchange_adapters": False,
+        "calls_private_exchange_endpoints": False,
+        "calls_signed_exchange_endpoints": False,
+        "calls_exchange_order_endpoints": False,
+        "uses_api_keys": False,
+        "enables_strategy_eligibility": False,
+        "enables_trading_eligibility": False,
+        "generates_evidence_packs": False,
+    }
 
 
 def test_campaign_data_readiness_audit_reports_covered_thin_and_missing_windows(tmp_path: Path) -> None:

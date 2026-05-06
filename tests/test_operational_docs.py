@@ -80,8 +80,8 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "required Obsidian brain entrypoint" in command_center
-    assert re.search(r"Current implemented phase: `SV1\.12\.3`", current_phase)
-    assert "SV1.12.3" in command_center
+    assert re.search(r"Current implemented phase: `SV1\.12\.5\.1`", current_phase)
+    assert "SV1.12.5.1" in command_center
     assert "Active Work" in coordination
     assert "Quant Engineer" in moved_memory
     assert "Strategy Validation" in moved_memory
@@ -120,11 +120,17 @@ def test_obsidian_current_state_notes_do_not_have_stale_current_truth() -> None:
         "Phase observed in repo memory: `SV1.12.1`",
         "Current implemented phase: `SV1.12.2`",
         "Phase observed in repo memory: `SV1.12.2`",
+        "Current implemented phase: `SV1.12.3`",
+        "Phase observed in repo memory: `SV1.12.3`",
+        "Current implemented phase: `SV1.12.4`",
+        "Phase observed in repo memory: `SV1.12.4`",
+        "Current implemented phase: `SV1.12.5`",
+        "Phase observed in repo memory: `SV1.12.5`",
     ]
 
     for path in current_state_paths:
         contents = path.read_text()
-        assert "SV1.12.3" in contents, f"{path} does not reflect current SV1.12.3 work"
+        assert "SV1.12.5.1" in contents, f"{path} does not reflect current SV1.12.5.1 work"
         for phrase in stale_current_truth_phrases:
             assert phrase not in contents, f"{path} still contains stale current truth: {phrase}"
 

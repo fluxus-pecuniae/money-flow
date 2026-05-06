@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-04T22:20:00Z`
+Last reviewed: `2026-05-06T22:23:16Z`
 
 ## Active Follow-Ups
+
+### T-078
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.12.5 completed the operator-approved Hyperliquid-first public campaign import bridge. BTC/ETH/SOL Hyperliquid perpetual USDC identity was seeded as research-only, non-trading, and non-strategy-eligible with operator verification by Tercirafael; all 9 timezone-explicit public YTD/recent files passed requirement-aware preflight; guarded import inserted 25848 candles into the intended migrated money_flow DB; no evidence packs were generated. SV1.13 should run post-import evidence review/evidence-pack generation only if audits remain clean. Aster/Binance remain later comparative candidates after separate identity verification, while OKX/Coinbase/Kraken remain blocked by trade-count/source/history gaps.`
 
 ### T-033
 
@@ -169,14 +175,14 @@ Last reviewed: `2026-05-04T22:20:00Z`
 ### T-060
 
 - `priority`: `high`
-- `status`: `future`
-- `summary`: `After SV1.12.3, have the founder/operator explicitly verify the Hyperliquid perpetual USDC BTC/ETH/SOL market-identity manifest values, seed research-only identity with `--seed-identity --operator-verified --verified-by ... --market-identity-values-checked-offline`, provide timezone-explicit public/offline candle files for all 18 unique canonical requirements, run complete one-to-one requirement-aware preflight, then rerun the guarded canonical candle import attempt. SV1.12.3 confirmed the intended local `money_flow` DB is reachable/migrated/current at Alembic head `20260430_0025` with zero persisted candles, but operator verification was not supplied, BTC/ETH/SOL identity rows are missing, and repo/session candle files are still missing; no identity seed, preflight-ready import, candle import, or evidence-pack generation occurred. Canonical evidence remains `insufficient_data` until all 18 requirements are imported and data-readiness audits are clean. Do not optimize Money Flow rules, recommend a variant, add paper/live trading, create live artifacts, call exchanges, or connect validation outputs to routing/execution automation until manual evidence review explicitly justifies a new phase.`
+- `status`: `done`
+- `summary`: `SV1.12.5 fulfilled the Hyperliquid-first public import follow-up and SV1.12.5.1 verifies the resulting repo/DB state. Founder/operator approval seeded BTC/ETH/SOL Hyperliquid perpetual USDC identity as research-only, non-trading, and non-strategy-eligible with `verified_by=Tercirafael`; all 9 timezone-explicit public YTD/recent files under `/tmp/money-flow-sv1124-public-ytd-recent/csv` passed complete one-to-one requirement-aware preflight; guarded import inserted `25848` candles into the intended migrated local `money_flow` DB at Alembic head `20260430_0025`; and no evidence packs were generated. January 2026 remains archival/vendor-data-required, especially for `15m`, and should stay separate from the public Hyperliquid first-evidence baseline. Aster/Binance remain later comparative candidates after separate venue identity verification/seed; OKX/Coinbase remain blocked by trade-count/source policy; Kraken remains blocked by incomplete public REST history. Do not optimize Money Flow rules, recommend a variant, add paper/live trading, create live artifacts, call private/signed/order endpoints, or connect validation outputs to routing/execution automation until manual evidence review explicitly justifies a new phase.`
 
 ### T-067
 
 - `priority`: `high`
-- `status`: `future`
-- `summary`: `After SV1.12.3, use `scripts/run_strategy_validation_guarded_import_attempt.py` for the operational bridge once operator verification and the 18 timezone-explicit files are available. The script auto-discovers canonical filenames from an input directory, maps them to the 18 requirements, calls the guarded bundle importer only when gates pass, and reports whether SV1.13 evidence review can proceed. SV1.12.3 found no operator verification and no local candle files; it did not seed identity, import candles, generate evidence packs, change Money Flow rules, optimize, recommend, paper/live trade, route, or call exchanges.`
+- `status`: `done`
+- `summary`: `SV1.12.5 added the campaign-aware public import bridge in `scripts/run_strategy_validation_public_campaign_import.py` and `services/strategy_validation/public_campaign_import.py`. The wrapper uses `money_flow_hyperliquid_public_ytd_recent.json`, maps the 9 public YTD/recent files, separates file coverage truth from identity readiness, seeds only explicitly operator-verified non-trading research identity, runs requirement-aware preflight, and delegates only preflight-passed files to guarded import. The local approved Hyperliquid run inserted `25848` candles and generated no evidence packs. Aster/Binance files cover 18 additional candidate requirements but still lack verified DB identity; OKX/Coinbase are blocked by missing public trade counts; Kraken is blocked by incomplete public REST OHLC coverage. January `15m` remains an archival/vendor/operator-data gap, not a public Hyperliquid first-evidence blocker. No Money Flow rule change, optimization, recommendation, paper/live trading, routing, or private/signed/order endpoint call occurred.`
 
 ### T-061
 

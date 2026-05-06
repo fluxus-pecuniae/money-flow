@@ -1,0 +1,91 @@
+{
+  "campaign_name": "money_flow_hyperliquid_public_ytd_recent",
+  "description": "Public-data-friendly Hyperliquid BTC/ETH/SOL Strategy Validation readiness plan. Uses public candleSnapshot availability: 1h/4h 2026 year-to-date and 15m recent 51-day window. This is a data-preparation/import-readiness plan, not paper trading, live trading, optimization, or proof of profitability.",
+  "campaign_status": "public_hyperliquid_first_evidence_data_plan",
+  "window_convention": "(start_at, end_at] candle closes; closes exactly at start are excluded and closes on or before end are included.",
+  "venue": "hyperliquid",
+  "environment": "testnet",
+  "symbols": [
+    {
+      "symbol": "BTC",
+      "instrument_key": "perpetual:linear:BTC:USDC:USDC"
+    },
+    {
+      "symbol": "ETH",
+      "instrument_key": "perpetual:linear:ETH:USDC:USDC"
+    },
+    {
+      "symbol": "SOL",
+      "instrument_key": "perpetual:linear:SOL:USDC:USDC"
+    }
+  ],
+  "components": [
+    "sleeve_15m",
+    "sleeve_1h",
+    "sleeve_4h"
+  ],
+  "timeframe_windows": [
+    {
+      "component": "sleeve_15m",
+      "timeframe": "15m",
+      "label": "recent_51d_public_15m",
+      "start": "2026-03-15T00:00:00Z",
+      "end": "2026-05-05T00:00:00Z",
+      "expected_candles_per_symbol": 4896,
+      "source": "hyperliquid_public_candleSnapshot",
+      "status": "public_endpoint_complete_in_2026_05_05_research_pass"
+    },
+    {
+      "component": "sleeve_1h",
+      "timeframe": "1h",
+      "label": "ytd_2026_public_1h",
+      "start": "2026-01-01T00:00:00Z",
+      "end": "2026-05-05T00:00:00Z",
+      "expected_candles_per_symbol": 2976,
+      "source": "hyperliquid_public_candleSnapshot",
+      "status": "public_endpoint_complete_in_2026_05_05_research_pass"
+    },
+    {
+      "component": "sleeve_4h",
+      "timeframe": "4h",
+      "label": "ytd_2026_public_4h",
+      "start": "2026-01-01T00:00:00Z",
+      "end": "2026-05-05T00:00:00Z",
+      "expected_candles_per_symbol": 744,
+      "source": "hyperliquid_public_candleSnapshot",
+      "status": "public_endpoint_complete_in_2026_05_05_research_pass"
+    }
+  ],
+  "january_2026_campaign_status": "archival_vendor_data_required_not_public_hyperliquid_first_evidence_baseline",
+  "january_2026_note": "January 2026 remains available as a vendor/archive/operator-provided campaign. Public Hyperliquid candleSnapshot returned no January 2026 15m rows in the 2026-05-05 research pass.",
+  "fill_timings": [
+    "same_candle_close_research_only",
+    "next_candle_open",
+    "next_candle_close"
+  ],
+  "fee_bps_values": [
+    "2",
+    "5"
+  ],
+  "slippage_bps_values": [
+    "1",
+    "3"
+  ],
+  "initial_capital": "10000",
+  "position_notional_pct": "1.0",
+  "output_dir": "reports/strategy_validation",
+  "local_candle_output_dir": "/tmp/money-flow-sv1124-public-ytd-recent/csv",
+  "report_formats": [
+    "json",
+    "markdown"
+  ],
+  "research_boundaries": {
+    "creates_live_artifacts": false,
+    "calls_exchange_adapters": false,
+    "calls_private_exchange_endpoints": false,
+    "calls_exchange_order_endpoints": false,
+    "enables_strategy_eligibility": false,
+    "enables_trading_eligibility": false,
+    "generates_evidence_packs": false
+  }
+}

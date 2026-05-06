@@ -184,9 +184,9 @@ def test_operator_verified_seed_writes_verification_metadata_without_eligibility
         assert btc.raw_metadata["operator_verified"] is True
         assert btc.raw_metadata["verified_by"] == "test_operator"
         assert btc.raw_metadata["verified_at"]
-        assert btc.raw_metadata["sv_phase"] == "SV1.11.2"
+        assert btc.raw_metadata["sv_phase"] == "SV1.12.x"
         assert btc.raw_metadata["research_only_market_identity_seed"] is True
-        assert btc.raw_metadata["source"] == "manual_offline_manifest"
+        assert btc.raw_metadata["source"] == "hyperliquid_public_info_meta"
         assert btc.is_strategy_eligible is False
         assert btc.is_trading_eligible is False
     _assert_no_live_artifacts(session_factory)

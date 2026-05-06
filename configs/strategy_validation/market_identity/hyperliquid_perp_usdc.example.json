@@ -1,12 +1,12 @@
 {
   "manifest_name": "hyperliquid_perp_usdc_strategy_validation_example",
-  "description": "Example-only manual offline market identity manifest for Strategy Validation candle imports. Operators must verify venue tick/size values before using it outside tests.",
+  "description": "Research-only public Hyperliquid perpetual USDC market identity manifest for Strategy Validation candle imports. Values were checked against the public Hyperliquid meta endpoint on 2026-05-05; non-dry-run writes still require explicit operator verification.",
   "research_only": true,
   "operator_verified": false,
   "verified_by": null,
   "operator_verification_required_for_writes": true,
-  "source": "manual_offline_manifest",
-  "sv_phase": "SV1.11.2",
+  "source": "hyperliquid_public_info_meta",
+  "sv_phase": "SV1.12.x",
   "venue": "hyperliquid",
   "markets": [
     {
@@ -24,18 +24,18 @@
         "venue": "hyperliquid",
         "symbol": "BTC",
         "exchange_symbol": "BTC",
-        "venue_asset_id": null,
-        "asset_id": null,
+        "venue_asset_id": "0",
+        "asset_id": "0",
         "market_type": "perpetual",
         "product_type": "linear",
         "base_asset": "BTC",
         "quote_asset": "USDC",
         "settlement_asset": "USDC",
-        "price_tick_size": "1",
-        "quantity_step_size": "0.001",
-        "min_order_size": "0.001",
-        "size_decimals": null,
-        "max_leverage": null,
+        "price_tick_size": "0.1",
+        "quantity_step_size": "0.00001",
+        "min_order_size": "0.00001",
+        "size_decimals": 5,
+        "max_leverage": 40,
         "only_isolated": false,
         "is_perpetual": true,
         "is_builder_deployed": false,
@@ -44,9 +44,40 @@
         "is_active": true,
         "raw_metadata": {
           "research_only_market_identity_seed": true,
-          "source": "manual_offline_manifest",
-          "sv_phase": "SV1.11.2",
-          "operator_note": "Example placeholder values; verify current venue tick/size metadata before seeding real research DBs."
+          "source": "hyperliquid_public_info_meta",
+          "sv_phase": "SV1.12.x",
+          "verification_checked_at_utc": "2026-05-05T05:48:50Z",
+          "verification_endpoint": "POST https://api.hyperliquid.xyz/info",
+          "verification_request": {
+            "type": "meta"
+          },
+          "meta_response_sha256": "5415a7bf4819aaf91c5893d4040f21f4480411b4feb0f75217588dc92f676b63",
+          "venue_asset_id_basis": "Perp asset id is the index of the coin in the public meta universe.",
+          "meta_index": 0,
+          "marginTableId": 56,
+          "hyperliquid_meta": {
+            "name": "BTC",
+            "szDecimals": 5,
+            "maxLeverage": 40,
+            "marginTableId": 56
+          },
+          "margin_table": {
+            "description": "tiered 40x",
+            "marginTiers": [
+              {
+                "lowerBound": "0.0",
+                "maxLeverage": 40
+              },
+              {
+                "lowerBound": "150000000.0",
+                "maxLeverage": 20
+              }
+            ]
+          },
+          "price_tick_size_basis": "Derived from Hyperliquid documented perp price precision bound as 10^-(6 - szDecimals); Hyperliquid does not return a simple fixed price tick in meta.",
+          "quantity_step_size_basis": "Derived from szDecimals as 10^-szDecimals.",
+          "min_order_size_basis": "Research manifest uses quantity_step_size because public meta does not expose a separate min order size.",
+          "operator_note": "Public values verified for research identity only; non-dry-run seeding still requires explicit operator verification and must keep strategy/trading eligibility false."
         }
       }
     },
@@ -65,18 +96,18 @@
         "venue": "hyperliquid",
         "symbol": "ETH",
         "exchange_symbol": "ETH",
-        "venue_asset_id": null,
-        "asset_id": null,
+        "venue_asset_id": "1",
+        "asset_id": "1",
         "market_type": "perpetual",
         "product_type": "linear",
         "base_asset": "ETH",
         "quote_asset": "USDC",
         "settlement_asset": "USDC",
-        "price_tick_size": "0.1",
-        "quantity_step_size": "0.001",
-        "min_order_size": "0.001",
-        "size_decimals": null,
-        "max_leverage": null,
+        "price_tick_size": "0.01",
+        "quantity_step_size": "0.0001",
+        "min_order_size": "0.0001",
+        "size_decimals": 4,
+        "max_leverage": 25,
         "only_isolated": false,
         "is_perpetual": true,
         "is_builder_deployed": false,
@@ -85,9 +116,40 @@
         "is_active": true,
         "raw_metadata": {
           "research_only_market_identity_seed": true,
-          "source": "manual_offline_manifest",
-          "sv_phase": "SV1.11.2",
-          "operator_note": "Example placeholder values; verify current venue tick/size metadata before seeding real research DBs."
+          "source": "hyperliquid_public_info_meta",
+          "sv_phase": "SV1.12.x",
+          "verification_checked_at_utc": "2026-05-05T05:48:50Z",
+          "verification_endpoint": "POST https://api.hyperliquid.xyz/info",
+          "verification_request": {
+            "type": "meta"
+          },
+          "meta_response_sha256": "5415a7bf4819aaf91c5893d4040f21f4480411b4feb0f75217588dc92f676b63",
+          "venue_asset_id_basis": "Perp asset id is the index of the coin in the public meta universe.",
+          "meta_index": 1,
+          "marginTableId": 55,
+          "hyperliquid_meta": {
+            "name": "ETH",
+            "szDecimals": 4,
+            "maxLeverage": 25,
+            "marginTableId": 55
+          },
+          "margin_table": {
+            "description": "tiered 25x",
+            "marginTiers": [
+              {
+                "lowerBound": "0.0",
+                "maxLeverage": 25
+              },
+              {
+                "lowerBound": "100000000.0",
+                "maxLeverage": 15
+              }
+            ]
+          },
+          "price_tick_size_basis": "Derived from Hyperliquid documented perp price precision bound as 10^-(6 - szDecimals); Hyperliquid does not return a simple fixed price tick in meta.",
+          "quantity_step_size_basis": "Derived from szDecimals as 10^-szDecimals.",
+          "min_order_size_basis": "Research manifest uses quantity_step_size because public meta does not expose a separate min order size.",
+          "operator_note": "Public values verified for research identity only; non-dry-run seeding still requires explicit operator verification and must keep strategy/trading eligibility false."
         }
       }
     },
@@ -106,18 +168,18 @@
         "venue": "hyperliquid",
         "symbol": "SOL",
         "exchange_symbol": "SOL",
-        "venue_asset_id": null,
-        "asset_id": null,
+        "venue_asset_id": "5",
+        "asset_id": "5",
         "market_type": "perpetual",
         "product_type": "linear",
         "base_asset": "SOL",
         "quote_asset": "USDC",
         "settlement_asset": "USDC",
-        "price_tick_size": "0.01",
+        "price_tick_size": "0.0001",
         "quantity_step_size": "0.01",
         "min_order_size": "0.01",
-        "size_decimals": null,
-        "max_leverage": null,
+        "size_decimals": 2,
+        "max_leverage": 20,
         "only_isolated": false,
         "is_perpetual": true,
         "is_builder_deployed": false,
@@ -126,9 +188,40 @@
         "is_active": true,
         "raw_metadata": {
           "research_only_market_identity_seed": true,
-          "source": "manual_offline_manifest",
-          "sv_phase": "SV1.11.2",
-          "operator_note": "Example placeholder values; verify current venue tick/size metadata before seeding real research DBs."
+          "source": "hyperliquid_public_info_meta",
+          "sv_phase": "SV1.12.x",
+          "verification_checked_at_utc": "2026-05-05T05:48:50Z",
+          "verification_endpoint": "POST https://api.hyperliquid.xyz/info",
+          "verification_request": {
+            "type": "meta"
+          },
+          "meta_response_sha256": "5415a7bf4819aaf91c5893d4040f21f4480411b4feb0f75217588dc92f676b63",
+          "venue_asset_id_basis": "Perp asset id is the index of the coin in the public meta universe.",
+          "meta_index": 5,
+          "marginTableId": 54,
+          "hyperliquid_meta": {
+            "name": "SOL",
+            "szDecimals": 2,
+            "maxLeverage": 20,
+            "marginTableId": 54
+          },
+          "margin_table": {
+            "description": "tiered 20x (2)",
+            "marginTiers": [
+              {
+                "lowerBound": "0.0",
+                "maxLeverage": 20
+              },
+              {
+                "lowerBound": "70000000.0",
+                "maxLeverage": 10
+              }
+            ]
+          },
+          "price_tick_size_basis": "Derived from Hyperliquid documented perp price precision bound as 10^-(6 - szDecimals); Hyperliquid does not return a simple fixed price tick in meta.",
+          "quantity_step_size_basis": "Derived from szDecimals as 10^-szDecimals.",
+          "min_order_size_basis": "Research manifest uses quantity_step_size because public meta does not expose a separate min order size.",
+          "operator_note": "Public values verified for research identity only; non-dry-run seeding still requires explicit operator verification and must keep strategy/trading eligibility false."
         }
       }
     }

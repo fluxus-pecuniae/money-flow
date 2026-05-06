@@ -146,7 +146,7 @@ def test_market_identity_seed_allows_explicit_false_eligibility_when_verified(
         assert btc.is_strategy_eligible is False
         assert btc.is_trading_eligible is False
         assert btc.raw_metadata["research_only_market_identity_seed"] is True
-        assert btc.raw_metadata["source"] == "manual_offline_manifest"
+        assert btc.raw_metadata["source"] == "hyperliquid_public_info_meta"
         assert btc.raw_metadata["operator_verified"] is True
         assert btc.raw_metadata["verified_by"] == "test_operator"
         assert btc.raw_metadata["verified_at"]

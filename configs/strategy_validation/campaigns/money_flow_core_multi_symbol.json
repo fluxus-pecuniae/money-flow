@@ -1,6 +1,7 @@
 {
   "campaign_name": "money_flow_core_multi_symbol",
-  "description": "Canonical editable multi-symbol Money Flow evidence campaign. Uses persisted candles only and is intended for manual founder/operator research review.",
+  "description": "Canonical editable multi-symbol Money Flow evidence campaign for the January 2026 archival/vendor-data-required plan. Uses persisted candles only and is intended for manual founder/operator research review; it is not the public Hyperliquid first-evidence baseline because January 2026 15m candles were not available from public candleSnapshot in the 2026-05-05 research pass.",
+  "data_campaign_status": "archival_vendor_data_required_not_public_hyperliquid_first_evidence_baseline",
   "window_convention": "(start_at, end_at] candle closes; closes exactly at start are excluded and closes on or before end are included.",
   "environment": "testnet",
   "venue": "hyperliquid",
