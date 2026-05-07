@@ -22,7 +22,12 @@ from typing import Any, Sequence
 from sqlalchemy import select
 from sqlalchemy.engine import make_url
 
-from core.domain.enums import Environment, StrategyFamily, StrategyValidationFillTiming
+from core.domain.enums import (
+    Environment,
+    StrategyFamily,
+    StrategyValidationCapitalSizingMode,
+    StrategyValidationFillTiming,
+)
 from core.domain.models import (
     StrategyValidationAssumptions,
     StrategyValidationBatchReport,
@@ -94,6 +99,9 @@ class MoneyFlowResearchCampaignConfig:
     initial_capital: Decimal
     position_notional_pct: Decimal
     output_dir: str
+    capital_sizing_modes: tuple[StrategyValidationCapitalSizingMode, ...] = (
+        StrategyValidationCapitalSizingMode.CONSTANT_INITIAL_CAPITAL_NOTIONAL_PER_TRADE,
+    )
     report_formats: tuple[str, ...] = ("json", "markdown")
 
 
@@ -204,6 +212,14 @@ def load_money_flow_public_campaign_evidence_configs(
             "slippage_bps_values": _required_list(raw, "slippage_bps_values"),
             "initial_capital": raw["initial_capital"],
             "position_notional_pct": raw["position_notional_pct"],
+            "capital_sizing_modes": raw.get(
+                "capital_sizing_modes",
+                (
+                    [raw["capital_sizing_mode"]]
+                    if "capital_sizing_mode" in raw
+                    else None
+                ),
+            ),
             "output_dir": _required_str(raw, "output_dir"),
             "report_formats": raw.get("report_formats", ["json", "markdown"]),
             "window_convention": raw.get("window_convention"),
@@ -238,6 +254,7 @@ def money_flow_research_campaign_config_from_dict(
     )
     initial_capital = Decimal(str(raw["initial_capital"]))
     position_notional_pct = Decimal(str(raw["position_notional_pct"]))
+    capital_sizing_modes = _parse_capital_sizing_modes(raw)
     output_dir = _required_str(raw, "output_dir")
     report_formats = tuple(
         _normalize_report_formats(raw.get("report_formats", ["json", "markdown"]))
@@ -259,6 +276,8 @@ def money_flow_research_campaign_config_from_dict(
         raise ValueError("initial_capital must be positive.")
     if position_notional_pct <= 0 or position_notional_pct > 1:
         raise ValueError("position_notional_pct must be within (0, 1].")
+    if not capital_sizing_modes:
+        raise ValueError("campaign capital_sizing_modes must not be empty.")
     labels = [window.label for window in windows]
     duplicate_labels = sorted(label for label, count in Counter(labels).items() if count > 1)
     if duplicate_labels:
@@ -277,6 +296,7 @@ def money_flow_research_campaign_config_from_dict(
         slippage_bps_values=slippage_bps_values,
         initial_capital=initial_capital,
         position_notional_pct=position_notional_pct,
+        capital_sizing_modes=capital_sizing_modes,
         output_dir=output_dir,
         report_formats=report_formats,
     )
@@ -308,6 +328,7 @@ def audit_money_flow_research_campaign_data_readiness(
         len(config.fill_timings)
         * len(config.fee_bps_values)
         * len(config.slippage_bps_values)
+        * len(config.capital_sizing_modes)
     )
     with validation_service._session_factory() as session:
         for symbol in config.symbols:
@@ -560,26 +581,28 @@ def build_money_flow_research_campaign_batch_request(
                 for fill_timing in config.fill_timings:
                     for fee_bps in config.fee_bps_values:
                         for slippage_bps in config.slippage_bps_values:
-                            runs.append(
-                                StrategyValidationRequest(
-                                    strategy_family=StrategyFamily.MONEY_FLOW,
-                                    environment=config.environment,
-                                    venue=config.venue,
-                                    symbol=symbol.symbol,
-                                    instrument_key=symbol.instrument_key,
-                                    instrument_ref_id=symbol.instrument_ref_id,
-                                    component_keys=(component,),
-                                    start_at=window.start_at,
-                                    end_at=window.end_at,
-                                    assumptions=StrategyValidationAssumptions(
-                                        initial_capital=config.initial_capital,
-                                        fee_bps=fee_bps,
-                                        slippage_bps=slippage_bps,
-                                        fill_timing=fill_timing,
-                                        position_notional_pct=config.position_notional_pct,
-                                    ),
+                            for capital_sizing_mode in config.capital_sizing_modes:
+                                runs.append(
+                                    StrategyValidationRequest(
+                                        strategy_family=StrategyFamily.MONEY_FLOW,
+                                        environment=config.environment,
+                                        venue=config.venue,
+                                        symbol=symbol.symbol,
+                                        instrument_key=symbol.instrument_key,
+                                        instrument_ref_id=symbol.instrument_ref_id,
+                                        component_keys=(component,),
+                                        start_at=window.start_at,
+                                        end_at=window.end_at,
+                                        assumptions=StrategyValidationAssumptions(
+                                            initial_capital=config.initial_capital,
+                                            fee_bps=fee_bps,
+                                            slippage_bps=slippage_bps,
+                                            fill_timing=fill_timing,
+                                            position_notional_pct=config.position_notional_pct,
+                                            capital_sizing_mode=capital_sizing_mode,
+                                        ),
+                                    )
                                 )
-                            )
     return StrategyValidationBatchRequest(
         runs=tuple(runs),
         batch_name=config.campaign_name,
@@ -605,30 +628,32 @@ def money_flow_research_campaign_run_contexts(
                 for fill_timing in config.fill_timings:
                     for fee_bps in config.fee_bps_values:
                         for slippage_bps in config.slippage_bps_values:
-                            run = reports_by_index.get(run_index)
-                            context = {
-                                "run_index": run_index,
-                                "run_id": run.run_id if run is not None else None,
-                                "report_id": run.report_id if run is not None else None,
-                                "status": run.status if run is not None else None,
-                                "reason_codes": list(run.reason_codes) if run is not None else [],
-                                "error_message": run.error_message if run is not None else None,
-                                "window_label": window.label,
-                                "window_description": window.description,
-                                "expected_regime_label": window.expected_regime_label,
-                                "start_at": window.start_at,
-                                "end_at": window.end_at,
-                                "window_convention": STRATEGY_VALIDATION_WINDOW_CONVENTION,
-                                "symbol": symbol.symbol,
-                                "instrument_key": symbol.instrument_key,
-                                "instrument_ref_id": symbol.instrument_ref_id,
-                                "component": component,
-                                "fill_timing": fill_timing,
-                                "fee_bps": fee_bps,
-                                "slippage_bps": slippage_bps,
-                            }
-                            contexts.append(_json_ready(context))
-                            run_index += 1
+                            for capital_sizing_mode in config.capital_sizing_modes:
+                                run = reports_by_index.get(run_index)
+                                context = {
+                                    "run_index": run_index,
+                                    "run_id": run.run_id if run is not None else None,
+                                    "report_id": run.report_id if run is not None else None,
+                                    "status": run.status if run is not None else None,
+                                    "reason_codes": list(run.reason_codes) if run is not None else [],
+                                    "error_message": run.error_message if run is not None else None,
+                                    "window_label": window.label,
+                                    "window_description": window.description,
+                                    "expected_regime_label": window.expected_regime_label,
+                                    "start_at": window.start_at,
+                                    "end_at": window.end_at,
+                                    "window_convention": STRATEGY_VALIDATION_WINDOW_CONVENTION,
+                                    "symbol": symbol.symbol,
+                                    "instrument_key": symbol.instrument_key,
+                                    "instrument_ref_id": symbol.instrument_ref_id,
+                                    "component": component,
+                                    "fill_timing": fill_timing,
+                                    "fee_bps": fee_bps,
+                                    "slippage_bps": slippage_bps,
+                                    "capital_sizing_mode": capital_sizing_mode,
+                                }
+                                contexts.append(_json_ready(context))
+                                run_index += 1
     return contexts
 
 
@@ -812,6 +837,7 @@ def money_flow_research_campaign_report_to_markdown(
         f"- Slippage bps values: `{manifest['slippage_bps_values']}`",
         f"- Initial capital: `{manifest['initial_capital']}`",
         f"- Position notional pct: `{manifest['position_notional_pct']}`",
+        f"- Capital sizing modes: `{manifest['capital_sizing_modes']}`",
         f"- Assumptions hash: `{manifest['assumptions_hash']}`",
         "",
         "## Named Windows",
@@ -973,6 +999,7 @@ def _campaign_manifest(
                 "slippage_bps_values": config.slippage_bps_values,
                 "initial_capital": config.initial_capital,
                 "position_notional_pct": config.position_notional_pct,
+                "capital_sizing_modes": config.capital_sizing_modes,
                 "window_convention": STRATEGY_VALIDATION_WINDOW_CONVENTION,
             }
         ),
@@ -996,6 +1023,7 @@ def _campaign_manifest(
         "slippage_bps_values": [str(value) for value in config.slippage_bps_values],
         "initial_capital": str(config.initial_capital),
         "position_notional_pct": str(config.position_notional_pct),
+        "capital_sizing_modes": [item.value for item in config.capital_sizing_modes],
         "report_formats": list(formats),
         "run_count": len(batch_report.run_reports),
         "completed_run_count": len(batch_report.run_reports) - len(blocked),
@@ -1405,6 +1433,25 @@ def _string_list(values: list[Any], field_name: str) -> list[str]:
             raise ValueError(f"{field_name} entries must be non-empty strings.")
         output.append(value.strip())
     return output
+
+
+def _parse_capital_sizing_modes(
+    raw: dict[str, Any],
+) -> tuple[StrategyValidationCapitalSizingMode, ...]:
+    if raw.get("capital_sizing_modes") is not None:
+        values = raw["capital_sizing_modes"]
+        if not isinstance(values, list):
+            raise ValueError("campaign config field capital_sizing_modes must be a list.")
+    elif raw.get("capital_sizing_mode") is not None:
+        values = [raw["capital_sizing_mode"]]
+    else:
+        values = [
+            StrategyValidationCapitalSizingMode.CONSTANT_INITIAL_CAPITAL_NOTIONAL_PER_TRADE.value
+        ]
+    return tuple(
+        StrategyValidationCapitalSizingMode(value)
+        for value in _string_list(values, "capital_sizing_modes")
+    )
 
 
 def _decimal_list(values: list[Any], field_name: str) -> list[Decimal]:

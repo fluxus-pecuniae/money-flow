@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-07T10:19:14Z - SV1.13.2 - Dynamic Equity Is Separate From Constant-Notional Replay
+
+- `decision`: Add `dynamic_equity_pct` as a first-class Strategy Validation capital sizing mode while preserving `constant_initial_capital_notional_per_trade` as the default and as the correct label for SV1.13/SV1.13.1 evidence.
+- `why`: Founder review needs to answer whether a simulated account starting at `$10000` ended above or below starting equity. Constant-notional replay intentionally reuses initial-capital notional on every trade and is useful for research comparability, but it does not answer account-style sequential equity sizing.
+- `rejected_alternatives`: Silently replacing constant-notional evidence; treating dynamic equity as full exchange margin/funding/liquidation simulation; combining BTC/ETH/SOL or fill/cost scenarios into one shared portfolio account; changing Money Flow rules; optimizing parameters; approving paper trading; adding routing/execution behavior.
+- `follow_up_implications`: Founder review can compare constant-notional replay and per-scenario dynamic-equity results. Paper-trading design remains deferred and would still need explicit manual acceptance plus separate margin/funding/liquidation/portfolio constraints if scoped later.
+
 ## 2026-05-07T08:03:28Z - SV1.13.1 - Grouped Evidence Aggregates Need Scenario Interpretation
 
 - `decision`: Keep grouped comparison sums available as descriptive research aggregates, but label them as sums across completed research runs and add founder-readable scenario-level interpretation before any paper-trading design discussion.

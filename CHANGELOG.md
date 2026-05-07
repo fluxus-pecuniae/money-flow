@@ -13,6 +13,45 @@ Entry schema:
 
 ---
 
+## v2026.05.07.005
+
+- `recorded_at_utc`: `2026-05-07T10:19:14Z`
+- `scope`: `SV1.13.2 dynamic equity capital simulation`
+- `intent`: `Native entry. Added first-class Strategy Validation capital sizing modes while preserving the existing constant-initial-capital notional replay as the default. The new dynamic_equity_pct mode sizes each new simulated trade from current realized equity after prior closed-trade net PnL, exposes starting/ending equity, account PnL, realized-equity min/max, equity drawdown, trade-level equity before/after, and insufficient-equity skips, and keeps results per scenario rather than treating BTC/ETH/SOL or fill/cost assumptions as one shared account. A founder-readable Hyperliquid public dynamic-equity evidence report records that ETH sleeve_1h ended above starting equity across tested dynamic fill/cost assumptions, while 15m and 4h dynamic scenarios ended below starting equity. This is still research-only sequential account-style simulation, not full margin/funding/liquidation/portfolio simulation, paper trading, live trading, routing, or a strategy recommendation.`
+- `affected_files`:
+  - `core/domain/enums.py`
+  - `core/domain/models.py`
+  - `services/strategy_validation/service.py`
+  - `services/strategy_validation/campaigns.py`
+  - `scripts/run_money_flow_backtest.py`
+  - `scripts/run_money_flow_validation_batch.py`
+  - `tests/test_sv1132_dynamic_equity.py`
+  - `tests/test_operational_docs.py`
+  - `docs/strategy_validation_sv1_13_2_dynamic_equity_evidence.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `KNOWN_ISSUES.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core/domain/enums.py core/domain/models.py services/strategy_validation/service.py services/strategy_validation/campaigns.py scripts/run_money_flow_backtest.py scripts/run_money_flow_validation_batch.py` passed.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv1132_dynamic_equity.py` passed: 7 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv13_research_campaigns.py tests/test_sv113_hyperliquid_public_evidence.py tests/test_sv1131_evidence_interpretation.py tests/test_sv1132_dynamic_equity.py` passed: 32 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_operational_docs.py` passed: 18 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: 629 tests.
+  - `git diff --check` passed.
+
 ## v2026.05.07.004
 
 - `recorded_at_utc`: `2026-05-07T09:08:46Z`

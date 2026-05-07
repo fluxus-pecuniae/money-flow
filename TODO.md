@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-07T09:08:46Z`
+Last reviewed: `2026-05-07T10:19:14Z`
 
 ## Active Follow-Ups
+
+### T-082
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.13.2 adds dynamic_equity_pct capital sizing as a Strategy Validation simulation mode while keeping constant_initial_capital_notional_per_trade as the default. Dynamic mode sizes each new trade from current realized equity after prior closed-trade net PnL, reports starting/ending equity, net account PnL, realized-equity min/max, equity drawdown, and insufficient-equity skips, and records a Hyperliquid-only founder report. ETH sleeve_1h remained above starting equity across tested dynamic fill/cost assumptions; 15m and 4h dynamic scenarios ended below starting equity in this public campaign. Paper-trading design, portfolio-level allocation, margin/funding/liquidation modeling, Money Flow rule changes, routing/execution behavior, and live artifacts remain deferred.`
 
 ### T-081
 

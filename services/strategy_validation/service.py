@@ -27,6 +27,7 @@ from core.domain.enums import (
     OrderSide,
     PositionStatus,
     StrategyDecisionStatus,
+    StrategyValidationCapitalSizingMode,
     StrategyFamily,
     StrategyValidationFillTiming,
     Timeframe,
@@ -128,6 +129,12 @@ class MoneyFlowBacktestService:
             ),
             mark_to_market_drawdown_pct_override=_max_optional(
                 component_report.metrics.mark_to_market_max_drawdown_pct
+                for component_report in component_reports
+            ),
+            capital_sizing_mode=request.assumptions.capital_sizing_mode,
+            position_notional_pct=request.assumptions.position_notional_pct,
+            trades_skipped_due_to_insufficient_equity=sum(
+                component_report.metrics.trades_skipped_due_to_insufficient_equity
                 for component_report in component_reports
             ),
         )
@@ -266,7 +273,9 @@ class MoneyFlowBacktestService:
         limitations: list[str] = []
         open_position: _SimulatedOpenPosition | None = None
         realized_equity = request.assumptions.initial_capital
+        closed_trade_equity_points: list[Decimal] = [request.assumptions.initial_capital]
         mark_to_market_equity_points: list[Decimal] = [request.assumptions.initial_capital]
+        trades_skipped_due_to_insufficient_equity = 0
         evaluated_candles = 0
         if not candles:
             limitations.append("no_persisted_candles_for_component")
@@ -344,6 +353,7 @@ class MoneyFlowBacktestService:
                     )
                     trades.append(trade)
                     realized_equity = _money(realized_equity + trade.net_pnl)
+                    closed_trade_equity_points.append(realized_equity)
                     mark_to_market_equity_points.append(realized_equity)
                     open_position = None
                 continue
@@ -359,6 +369,13 @@ class MoneyFlowBacktestService:
                 no_trade_reasons_by_regime.setdefault(regime.trend_label, Counter())[reason] += 1
                 continue
             if decision.action == DecisionAction.OPEN:
+                if _dynamic_equity_is_depleted(request.assumptions, realized_equity):
+                    reason = "dynamic_equity_depleted"
+                    invalid_reasons[reason] += 1
+                    invalid_reasons_by_regime.setdefault(regime.trend_label, Counter())[reason] += 1
+                    trades_skipped_due_to_insufficient_equity += 1
+                    limitations.append("dynamic_equity_depleted_no_new_trades_opened")
+                    continue
                 fill = _resolve_fill(
                     candles=candles,
                     signal_index=signal_index,
@@ -378,6 +395,7 @@ class MoneyFlowBacktestService:
                     entry_evaluation_key=decision.evaluation_key,
                     entry_market_regime=regime.trend_label,
                     entry_volatility_regime=regime.volatility_label,
+                    current_realized_equity=realized_equity,
                 )
                 if _coerce_utc(fill.candle.close_time) > open_position.entry_time:
                     open_position.record_excursion(fill.candle)
@@ -417,6 +435,7 @@ class MoneyFlowBacktestService:
                 )
                 trades.append(trade)
                 realized_equity = _money(realized_equity + trade.net_pnl)
+                closed_trade_equity_points.append(realized_equity)
                 mark_to_market_equity_points.append(realized_equity)
                 limitations.append("open_positions_are_force_closed_at_window_end_for_sv1_0")
         if evaluated_candles == 0:
@@ -429,7 +448,11 @@ class MoneyFlowBacktestService:
             initial_capital=request.assumptions.initial_capital,
             no_trade_reason_counts=no_trade_counts,
             invalid_reason_counts=invalid_counts,
+            closed_trade_equity_points=closed_trade_equity_points,
             mark_to_market_equity_points=mark_to_market_equity_points,
+            capital_sizing_mode=request.assumptions.capital_sizing_mode,
+            position_notional_pct=request.assumptions.position_notional_pct,
+            trades_skipped_due_to_insufficient_equity=trades_skipped_due_to_insufficient_equity,
         )
         return StrategyValidationComponentReport(
             component_key=sleeve.sleeve_id,
@@ -604,8 +627,11 @@ class _SimulatedOpenPosition:
         entry_notional: Decimal,
         entry_fee: Decimal,
         entry_slippage_cost: Decimal,
+        equity_before_entry: Decimal,
         entry_reason: str | None,
         entry_evaluation_key: str,
+        capital_sizing_mode: StrategyValidationCapitalSizingMode,
+        position_notional_pct: Decimal,
         fill_timing: StrategyValidationFillTiming,
         entry_fill_source: str,
         entry_market_regime: str,
@@ -621,8 +647,11 @@ class _SimulatedOpenPosition:
         self.entry_notional = entry_notional
         self.entry_fee = entry_fee
         self.entry_slippage_cost = entry_slippage_cost
+        self.equity_before_entry = equity_before_entry
         self.entry_reason = entry_reason
         self.entry_evaluation_key = entry_evaluation_key
+        self.capital_sizing_mode = capital_sizing_mode
+        self.position_notional_pct = position_notional_pct
         self.fill_timing = fill_timing
         self.entry_fill_source = entry_fill_source
         self.entry_market_regime = entry_market_regime
@@ -959,6 +988,33 @@ def _resolve_fill(
     raise StrategyValidationError(f"Unsupported fill_timing: {fill_timing}")
 
 
+def _entry_notional_for_assumptions(
+    *,
+    assumptions: StrategyValidationAssumptions,
+    current_realized_equity: Decimal,
+) -> Decimal:
+    if (
+        assumptions.capital_sizing_mode
+        == StrategyValidationCapitalSizingMode.CONSTANT_INITIAL_CAPITAL_NOTIONAL_PER_TRADE
+    ):
+        return _money(assumptions.initial_capital * assumptions.position_notional_pct)
+    if assumptions.capital_sizing_mode == StrategyValidationCapitalSizingMode.DYNAMIC_EQUITY_PCT:
+        return _money(current_realized_equity * assumptions.position_notional_pct)
+    raise StrategyValidationError(
+        f"Unsupported capital_sizing_mode: {assumptions.capital_sizing_mode}"
+    )
+
+
+def _dynamic_equity_is_depleted(
+    assumptions: StrategyValidationAssumptions,
+    current_realized_equity: Decimal,
+) -> bool:
+    return (
+        assumptions.capital_sizing_mode == StrategyValidationCapitalSizingMode.DYNAMIC_EQUITY_PCT
+        and current_realized_equity <= 0
+    )
+
+
 def _open_trade(
     *,
     request: StrategyValidationRequest,
@@ -969,12 +1025,17 @@ def _open_trade(
     entry_evaluation_key: str,
     entry_market_regime: str,
     entry_volatility_regime: str,
+    current_realized_equity: Decimal,
 ) -> _SimulatedOpenPosition:
     slippage_rate = _bps_to_rate(request.assumptions.slippage_bps)
     fee_rate = _bps_to_rate(request.assumptions.fee_bps)
     raw_entry_price = fill.raw_price
     entry_price = _money(raw_entry_price * (Decimal("1") + slippage_rate))
-    entry_notional = _money(request.assumptions.initial_capital * request.assumptions.position_notional_pct)
+    equity_before_entry = _money(current_realized_equity)
+    entry_notional = _entry_notional_for_assumptions(
+        assumptions=request.assumptions,
+        current_realized_equity=equity_before_entry,
+    )
     size = _quantity(entry_notional / entry_price)
     entry_fee = _money(entry_notional * fee_rate)
     entry_slippage_cost = _money((entry_price - raw_entry_price) * size)
@@ -989,8 +1050,11 @@ def _open_trade(
         entry_notional=entry_notional,
         entry_fee=entry_fee,
         entry_slippage_cost=entry_slippage_cost,
+        equity_before_entry=equity_before_entry,
         entry_reason=entry_reason,
         entry_evaluation_key=entry_evaluation_key,
+        capital_sizing_mode=request.assumptions.capital_sizing_mode,
+        position_notional_pct=request.assumptions.position_notional_pct,
         fill_timing=request.assumptions.fill_timing,
         entry_fill_source=fill.source,
         entry_market_regime=entry_market_regime,
@@ -1023,6 +1087,7 @@ def _close_trade(
     slippage_cost = _money(open_position.entry_slippage_cost + exit_slippage_cost)
     net_pnl = _money(gross_pnl - fees - slippage_cost)
     return_pct = _ratio(net_pnl, open_position.entry_notional) or Decimal("0")
+    equity_after_exit = _money(open_position.equity_before_entry + net_pnl)
     duration_seconds = int((fill.time - open_position.entry_time).total_seconds())
     trade_payload = {
         "component_key": open_position.component_key,
@@ -1070,6 +1135,10 @@ def _close_trade(
         entry_volatility_regime=open_position.entry_volatility_regime,
         exit_market_regime=exit_market_regime,
         exit_volatility_regime=exit_volatility_regime,
+        equity_before_entry=open_position.equity_before_entry,
+        equity_after_exit=equity_after_exit,
+        capital_sizing_mode=open_position.capital_sizing_mode,
+        position_notional_pct=open_position.position_notional_pct,
     )
 
 
@@ -1107,9 +1176,13 @@ def _build_metrics(
     initial_capital: Decimal,
     no_trade_reason_counts: dict[str, int],
     invalid_reason_counts: dict[str, int],
+    closed_trade_equity_points: list[Decimal] | None = None,
     mark_to_market_equity_points: list[Decimal] | None = None,
     mark_to_market_drawdown_override: Decimal | None = None,
     mark_to_market_drawdown_pct_override: Decimal | None = None,
+    capital_sizing_mode: StrategyValidationCapitalSizingMode | None = None,
+    position_notional_pct: Decimal | None = None,
+    trades_skipped_due_to_insufficient_equity: int = 0,
 ) -> StrategyValidationMetrics:
     wins = [trade for trade in trades if trade.net_pnl > 0]
     losses = [trade for trade in trades if trade.net_pnl < 0]
@@ -1119,15 +1192,24 @@ def _build_metrics(
     total_slippage_cost = _money(sum((trade.slippage_cost for trade in trades), Decimal("0")))
     winning_total = sum((trade.net_pnl for trade in wins), Decimal("0"))
     losing_total = sum((trade.net_pnl for trade in losses), Decimal("0"))
-    equity = initial_capital
-    peak = initial_capital
-    closed_trade_max_drawdown = Decimal("0")
-    for trade in trades:
-        equity += trade.net_pnl
-        peak = max(peak, equity)
-        closed_trade_max_drawdown = max(closed_trade_max_drawdown, peak - equity)
+    if closed_trade_equity_points is None:
+        closed_trade_equity_points = [initial_capital]
+        equity = initial_capital
+        for trade in trades:
+            equity = _money(equity + trade.net_pnl)
+            closed_trade_equity_points.append(equity)
+    else:
+        closed_trade_equity_points = [_money(point) for point in closed_trade_equity_points]
+        if not closed_trade_equity_points:
+            closed_trade_equity_points = [initial_capital]
+    closed_trade_max_drawdown = _drawdown_from_equity_points(closed_trade_equity_points)
+    ending_equity = closed_trade_equity_points[-1]
+    minimum_realized_equity = min(closed_trade_equity_points)
+    maximum_realized_equity = max(closed_trade_equity_points)
     mark_to_market_max_drawdown = mark_to_market_drawdown_override
     mark_to_market_max_drawdown_pct = mark_to_market_drawdown_pct_override
+    if mark_to_market_equity_points is not None:
+        mark_to_market_equity_points = [_money(point) for point in mark_to_market_equity_points]
     if mark_to_market_max_drawdown is None and mark_to_market_equity_points is not None:
         mark_to_market_max_drawdown = _drawdown_from_equity_points(mark_to_market_equity_points)
         mark_to_market_max_drawdown_pct = _ratio(mark_to_market_max_drawdown, initial_capital)
@@ -1169,6 +1251,22 @@ def _build_metrics(
         trades_by_component_timeframe=dict(sorted(trades_by_component_timeframe.items())),
         no_trade_reason_counts=dict(sorted(no_trade_reason_counts.items())),
         invalid_reason_counts=dict(sorted(invalid_reason_counts.items())),
+        starting_equity=_money(initial_capital),
+        ending_equity=_money(ending_equity),
+        net_account_pnl=_money(ending_equity - initial_capital),
+        return_on_starting_equity=_ratio(ending_equity - initial_capital, initial_capital)
+        or Decimal("0"),
+        minimum_realized_equity=_money(minimum_realized_equity),
+        maximum_realized_equity=_money(maximum_realized_equity),
+        closed_trade_equity_curve=closed_trade_equity_points,
+        mark_to_market_equity_curve=mark_to_market_equity_points or [],
+        max_closed_trade_equity_drawdown=_money(closed_trade_max_drawdown),
+        max_closed_trade_equity_drawdown_pct=_ratio(closed_trade_max_drawdown, initial_capital),
+        max_mark_to_market_equity_drawdown=_money(mark_to_market_max_drawdown),
+        max_mark_to_market_equity_drawdown_pct=mark_to_market_max_drawdown_pct,
+        capital_sizing_mode=capital_sizing_mode,
+        position_notional_pct=position_notional_pct,
+        trades_skipped_due_to_insufficient_equity=trades_skipped_due_to_insufficient_equity,
     )
 
 
@@ -1320,13 +1418,29 @@ def _regime_comparison(component_reports: list[StrategyValidationComponentReport
 
 
 def _capital_sizing_metadata(assumptions: StrategyValidationAssumptions) -> dict[str, str]:
-    entry_notional = _money(assumptions.initial_capital * assumptions.position_notional_pct)
+    starting_entry_notional = _entry_notional_for_assumptions(
+        assumptions=assumptions,
+        current_realized_equity=assumptions.initial_capital,
+    )
+    if (
+        assumptions.capital_sizing_mode
+        == StrategyValidationCapitalSizingMode.CONSTANT_INITIAL_CAPITAL_NOTIONAL_PER_TRADE
+    ):
+        return {
+            "capital_sizing_mode": assumptions.capital_sizing_mode.value,
+            "entry_notional_formula": "initial_capital * position_notional_pct",
+            "starting_entry_notional": str(starting_entry_notional),
+            "entry_notional": str(starting_entry_notional),
+            "equity_effect_on_next_trade_size": "none",
+            "realized_equity_usage": "pnl_and_drawdown_accounting_only",
+        }
     return {
-        "capital_sizing_mode": "constant_initial_capital_notional_per_trade",
-        "entry_notional_formula": "initial_capital * position_notional_pct",
-        "entry_notional": str(entry_notional),
-        "equity_effect_on_next_trade_size": "none",
-        "realized_equity_usage": "pnl_and_drawdown_accounting_only",
+        "capital_sizing_mode": assumptions.capital_sizing_mode.value,
+        "entry_notional_formula": "current_realized_equity * position_notional_pct",
+        "starting_entry_notional": str(starting_entry_notional),
+        "entry_notional": "varies_by_trade_with_current_realized_equity",
+        "equity_effect_on_next_trade_size": "wins_increase_next_notional_losses_reduce_next_notional",
+        "realized_equity_usage": "pnl_drawdown_and_next_trade_sizing",
     }
 
 
@@ -1366,9 +1480,10 @@ def _run_summary(run: StrategyValidationBatchRunReport) -> dict[str, Any]:
         "slippage_bps": request.assumptions.slippage_bps,
         "initial_capital": request.assumptions.initial_capital,
         "position_notional_pct": request.assumptions.position_notional_pct,
-        "capital_sizing_mode": "constant_initial_capital_notional_per_trade",
-        "entry_notional": _money(
-            request.assumptions.initial_capital * request.assumptions.position_notional_pct
+        "capital_sizing_mode": request.assumptions.capital_sizing_mode,
+        "starting_entry_notional": _entry_notional_for_assumptions(
+            assumptions=request.assumptions,
+            current_realized_equity=request.assumptions.initial_capital,
         ),
         "reason_codes": list(run.reason_codes),
         "error_message": run.error_message,
@@ -1391,6 +1506,17 @@ def _run_summary(run: StrategyValidationBatchRunReport) -> dict[str, Any]:
         "total_fees": metrics.total_fees,
         "total_slippage_cost": metrics.total_slippage_cost,
         "return_on_initial_capital": metrics.return_on_initial_capital,
+        "starting_equity": metrics.starting_equity,
+        "ending_equity": metrics.ending_equity,
+        "net_account_pnl": metrics.net_account_pnl,
+        "return_on_starting_equity": metrics.return_on_starting_equity,
+        "minimum_realized_equity": metrics.minimum_realized_equity,
+        "maximum_realized_equity": metrics.maximum_realized_equity,
+        "max_closed_trade_equity_drawdown": metrics.max_closed_trade_equity_drawdown,
+        "max_mark_to_market_equity_drawdown": metrics.max_mark_to_market_equity_drawdown,
+        "trades_skipped_due_to_insufficient_equity": (
+            metrics.trades_skipped_due_to_insufficient_equity
+        ),
         "best_trade_id": metrics.best_trade_id,
         "worst_trade_id": metrics.worst_trade_id,
         "no_trade_reason_counts": metrics.no_trade_reason_counts,
@@ -1435,8 +1561,15 @@ def _assumptions_matrix(run_reports: list[StrategyValidationBatchRunReport]) -> 
         "position_notional_pct_values": sorted(
             {str(request.assumptions.position_notional_pct) for request in requests}
         ),
-        "capital_sizing_modes": ["constant_initial_capital_notional_per_trade"],
-        "entry_notional_formula": "initial_capital * position_notional_pct",
+        "capital_sizing_modes": sorted(
+            {request.assumptions.capital_sizing_mode.value for request in requests}
+        ),
+        "entry_notional_formulas": sorted(
+            {
+                _capital_sizing_metadata(request.assumptions)["entry_notional_formula"]
+                for request in requests
+            }
+        ),
     }
 
 
@@ -1708,10 +1841,13 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
     lines.extend(
         [
             "",
-            "Capital sizing note: current Strategy Validation uses "
-            "`constant_initial_capital_notional_per_trade`. Each opened trade sizes from "
-            "`initial_capital * position_notional_pct`; realized equity changes PnL and drawdown "
-            "metrics but does not compound, shrink, or stop subsequent trade notional.",
+            "Capital sizing note: `constant_initial_capital_notional_per_trade` sizes every "
+            "opened trade from `initial_capital * position_notional_pct`. "
+            "In that mode, realized equity changes PnL and drawdown metrics but does not "
+            "compound, shrink, or stop subsequent trade notional. "
+            "`dynamic_equity_pct` sizes each new trade from current realized equity after prior "
+            "closed-trade net PnL. Dynamic equity is per scenario and is still not full "
+            "exchange margin, liquidation, funding, or portfolio simulation.",
             "",
             "## Grouped Aggregate Semantics",
             "",
@@ -1729,8 +1865,8 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
             "",
             "## Run Summary",
             "",
-            "| run id | status | components | fill timing | venue | symbol | window | trades | net PnL | win rate | profit factor | MTM drawdown | fees | slippage | limitations |",
-            "| --- | --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+            "| run id | status | components | sizing | fill timing | venue | symbol | window | trades | net PnL | ending equity | win rate | profit factor | MTM drawdown | fees | slippage | limitations |",
+            "| --- | --- | --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
         ]
     )
     for run in summary["run_summaries"]:
@@ -1740,12 +1876,14 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
             f"`{run['run_id']}` | "
             f"`{run['status']}` | "
             f"`{', '.join(run['component_keys'])}` | "
+            f"`{run.get('capital_sizing_mode', 'constant_initial_capital_notional_per_trade')}` | "
             f"`{run['fill_timing']}` | "
             f"`{run['venue']}` | "
             f"`{run['symbol']}` | "
             f"`{run['start_at']} -> {run['end_at']}` | "
             f"{metrics.get('number_of_trades', '-')} | "
             f"{metrics.get('net_pnl', '-')} | "
+            f"{metrics.get('ending_equity', '-')} | "
             f"{metrics.get('win_rate', '-')} | "
             f"{metrics.get('profit_factor', '-')} | "
             f"{metrics.get('mark_to_market_max_drawdown', '-')} | "
@@ -1941,6 +2079,7 @@ def strategy_validation_report_to_markdown(report: StrategyValidationReport) -> 
         f"- Position notional pct: `{assumptions['position_notional_pct']}`",
         f"- Capital sizing mode: `{assumptions['capital_sizing_mode']}`",
         f"- Entry notional formula: `{assumptions['entry_notional_formula']}`",
+        f"- Starting entry notional: `{assumptions['starting_entry_notional']}`",
         f"- Entry notional per opened trade: `{assumptions['entry_notional']}`",
         f"- Equity effect on next trade size: `{assumptions['equity_effect_on_next_trade_size']}`",
         f"- Realized equity usage: `{assumptions['realized_equity_usage']}`",
@@ -2029,6 +2168,13 @@ def strategy_validation_report_to_markdown(report: StrategyValidationReport) -> 
         f"- Best trade: `{metrics['best_trade_id']}` / `{metrics['best_trade_net_pnl']}`",
         f"- Worst trade: `{metrics['worst_trade_id']}` / `{metrics['worst_trade_net_pnl']}`",
         f"- Return on initial capital: `{metrics['return_on_initial_capital']}`",
+        f"- Starting equity: `{metrics['starting_equity']}`",
+        f"- Ending equity: `{metrics['ending_equity']}`",
+        f"- Net account PnL: `{metrics['net_account_pnl']}`",
+        f"- Return on starting equity: `{metrics['return_on_starting_equity']}`",
+        f"- Minimum realized equity: `{metrics['minimum_realized_equity']}`",
+        f"- Maximum realized equity: `{metrics['maximum_realized_equity']}`",
+        f"- Trades skipped due to insufficient equity: `{metrics['trades_skipped_due_to_insufficient_equity']}`",
         "",
         "## Component Comparison",
         "",
@@ -2068,8 +2214,8 @@ def strategy_validation_report_to_markdown(report: StrategyValidationReport) -> 
             "",
             "## Trade Summary",
             "",
-            "| trade id | component | timeframe | entry time | exit time | entry regime | entry volatility | side | entry price | exit price | net PnL | return % | entry reason | exit reason | forced exit |",
-            "| --- | --- | --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- | --- |",
+            "| trade id | component | timeframe | entry time | exit time | sizing | equity before | equity after | entry notional | entry regime | entry volatility | side | entry price | exit price | net PnL | return % | entry reason | exit reason | forced exit |",
+            "| --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- | --- |",
         ]
     )
     trades = [
@@ -2086,6 +2232,10 @@ def strategy_validation_report_to_markdown(report: StrategyValidationReport) -> 
                 f"`{trade['timeframe']}` | "
                 f"`{trade['entry_time']}` | "
                 f"`{trade['exit_time']}` | "
+                f"`{trade['capital_sizing_mode']}` | "
+                f"{trade['equity_before_entry']} | "
+                f"{trade['equity_after_exit']} | "
+                f"{trade['entry_notional']} | "
                 f"`{trade['entry_market_regime']}` | "
                 f"`{trade['entry_volatility_regime']}` | "
                 f"`{trade['side']}` | "
@@ -2098,7 +2248,7 @@ def strategy_validation_report_to_markdown(report: StrategyValidationReport) -> 
                 f"`{trade['forced_exit']}` |"
             )
     else:
-        lines.append("| none | - | - | - | - | - | - | - | - | - | - | - | - | - | - |")
+        lines.append("| none | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - |")
     lines.extend(
         [
             "",
@@ -2131,6 +2281,7 @@ def strategy_validation_report_to_markdown(report: StrategyValidationReport) -> 
             "- Results are research-only and do not prove future profitability.",
             "- Simulated trades are not live execution artifacts and are not `SubmittedOrder` rows.",
             "- No order book replay, funding, liquidation, partial-fill, or venue-latency model is included.",
+            "- Dynamic equity mode, when selected, is sequential per validation run; it is not a portfolio allocator or full exchange margin model.",
             "- Reduce actions are currently modeled as full exits.",
             "- Forced end-of-window closes may distort results.",
             "- Data coverage warnings mean the requested research window may not be trustworthy.",
@@ -2204,6 +2355,10 @@ def _validate_assumptions(assumptions: StrategyValidationAssumptions) -> None:
         raise StrategyValidationError("slippage_bps must be non-negative.")
     if assumptions.position_notional_pct <= 0 or assumptions.position_notional_pct > 1:
         raise StrategyValidationError("position_notional_pct must be within (0, 1].")
+    if not isinstance(assumptions.capital_sizing_mode, StrategyValidationCapitalSizingMode):
+        raise StrategyValidationError(
+            "capital_sizing_mode must be a supported StrategyValidationCapitalSizingMode value."
+        )
     if not isinstance(assumptions.fill_timing, StrategyValidationFillTiming):
         raise StrategyValidationError("fill_timing must be a supported StrategyValidationFillTiming value.")
 
@@ -2217,12 +2372,27 @@ def _assumption_limitations(assumptions: StrategyValidationAssumptions) -> list[
         "no_liquidation_model",
         "no_partial_fill_model",
         "no_venue_latency_model",
-        "constant_initial_capital_notional_per_trade_no_dynamic_equity_sizing",
-        "realized_equity_does_not_change_next_trade_notional",
         "market_regime_labels_are_descriptive_only_not_strategy_filters",
         "data_coverage_counts_are_research_diagnostics_not_data_quality_certification",
         "results_do_not_prove_future_profitability",
     ]
+    if (
+        assumptions.capital_sizing_mode
+        == StrategyValidationCapitalSizingMode.CONSTANT_INITIAL_CAPITAL_NOTIONAL_PER_TRADE
+    ):
+        limitations.extend(
+            [
+                "constant_initial_capital_notional_per_trade_no_dynamic_equity_sizing",
+                "realized_equity_does_not_change_next_trade_notional",
+            ]
+        )
+    elif assumptions.capital_sizing_mode == StrategyValidationCapitalSizingMode.DYNAMIC_EQUITY_PCT:
+        limitations.extend(
+            [
+                "dynamic_equity_pct_sizes_each_new_trade_from_current_realized_equity",
+                "dynamic_equity_pct_is_not_full_margin_liquidation_or_portfolio_simulation",
+            ]
+        )
     if assumptions.fill_timing == StrategyValidationFillTiming.SAME_CANDLE_CLOSE_RESEARCH_ONLY:
         limitations.append("same_candle_close_fills_are_research_only_and_can_overstate_edge")
     if assumptions.drawdown_methodology == "closed_trade_and_mark_to_market":

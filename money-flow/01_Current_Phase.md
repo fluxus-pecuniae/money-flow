@@ -2,7 +2,7 @@
 
 ## Phase
 
-Current implemented phase: `SV1.13.1` Hyperliquid evidence interpretation truth / founder review pack; SV1.13 generated component-scoped Hyperliquid public evidence packs and SV1.13.1 clarifies grouped aggregate semantics, scenario-level evidence, and ETH `sleeve_1h` concentration for manual founder review.
+Current implemented phase: `SV1.13.2` dynamic equity capital simulation; SV1.13 generated component-scoped Hyperliquid public evidence packs, SV1.13.1 clarified grouped aggregate and constant-notional interpretation truth, and SV1.13.2 adds per-scenario `dynamic_equity_pct` sizing so founder review can compare starting and ending equity without changing Money Flow rules.
 
 Proposed next phase: manual founder/operator review of the Hyperliquid-only evidence interpretation before any explicitly scoped paper-trading design phase. Aster and Binance now have complete public native-trade-count candidate files but require separate non-trading identity verification/seed/import; OKX and Coinbase need a trade-count source or explicit canonical-contract decision; Kraken needs archive/vendor/operator data. Paper-trading design remains deferred until founder/operator evidence review justifies it. `Phase 8.1` remains deferred until explicitly scoped.
 
@@ -90,6 +90,8 @@ SV1.13 generates the first Hyperliquid public campaign evidence packs after reco
 
 SV1.13.1 adds the founder evidence interpretation truth layer. It reads the existing SV1.13 Hyperliquid evidence packs, clarifies that grouped aggregate totals are research-run sums rather than one account/scenario PnL, documents that current sizing is constant initial-capital notional per opened trade rather than dynamic account-equity sizing, surfaces scenario-level fill/cost/drawdown truth, makes ETH `sleeve_1h` concentration explicit, and keeps paper-trading design deferred for manual founder review. It generates no new packs, imports no data, and changes no Money Flow rules.
 
+SV1.13.2 adds the dynamic-equity capital simulation layer. Strategy Validation now supports `dynamic_equity_pct`, where each new trade sizes from current realized equity after prior closed-trade net PnL, while preserving `constant_initial_capital_notional_per_trade` as the default. Reports expose starting equity, ending equity, net account PnL, realized-equity min/max, equity drawdown, and insufficient-equity skips. The local Hyperliquid public dynamic run shows ETH `sleeve_1h` above starting equity across tested fill/cost assumptions, while 15m and 4h dynamic scenarios ended below starting equity. This remains per-scenario research simulation, not full margin/funding/liquidation or portfolio allocation, and paper-trading design remains deferred.
+
 The SV1.13 dashboard update adds a static local `apps/dashboard/` review surface for those ignored local evidence artifacts. It uses the supplied design tokens/files, loads the SV1.13 evidence review plus component batch reports when served from the repo root, and supports manual JSON loading. It is visualization only: it does not generate evidence packs, import candles, approve paper/live trading, call exchange endpoints, optimize parameters, or change Money Flow rules.
 
 ## Accepted Baseline
@@ -140,6 +142,7 @@ The SV1.13 dashboard update adds a static local `apps/dashboard/` review surface
 - 2026-05-06 SV1.13 evidence review generated first Hyperliquid public campaign evidence packs from the imported `25848` candles, with status `ready_for_founder_review` and no paper/live authorization.
 - 2026-05-07 SV1.13 dashboard update added a static local founder/operator visualization dashboard for the ignored evidence review and batch-report JSON files; manual evidence review remains the next step.
 - 2026-05-07 SV1.13.1 added founder interpretation truth for the existing Hyperliquid evidence packs: grouped sums are not one account/scenario PnL, sizing is constant initial-capital notional per opened trade rather than dynamic equity sizing, ETH `sleeve_1h` concentration is explicit, and paper-trading design remains deferred.
+- 2026-05-07 SV1.13.2 added `dynamic_equity_pct` per-scenario capital sizing and founder dynamic-equity evidence: ETH `sleeve_1h` stayed above starting equity across tested dynamic assumptions, 15m/4h ended below starting equity, and paper-trading design remains deferred.
 
 ## Hard Boundaries
 

@@ -11,7 +11,12 @@ from pathlib import Path
 from typing import Sequence
 
 from core.config.settings import get_settings
-from core.domain.enums import Environment, StrategyFamily, StrategyValidationFillTiming
+from core.domain.enums import (
+    Environment,
+    StrategyFamily,
+    StrategyValidationCapitalSizingMode,
+    StrategyValidationFillTiming,
+)
 from core.domain.models import StrategyValidationAssumptions, StrategyValidationRequest
 from services.strategy_validation import (
     MoneyFlowBacktestService,
@@ -63,6 +68,20 @@ def build_parser() -> argparse.ArgumentParser:
             "optimistic research-only behavior; next_candle_open/close use the next candle."
         ),
     )
+    parser.add_argument(
+        "--capital-sizing-mode",
+        choices=[item.value for item in StrategyValidationCapitalSizingMode],
+        default=(
+            StrategyValidationCapitalSizingMode
+            .CONSTANT_INITIAL_CAPITAL_NOTIONAL_PER_TRADE
+            .value
+        ),
+        help=(
+            "Capital sizing assumption. constant_initial_capital_notional_per_trade "
+            "preserves legacy replay behavior; dynamic_equity_pct sizes each new trade "
+            "from current realized equity."
+        ),
+    )
     parser.add_argument("--position-notional-pct", default=Decimal("1.0"), type=Decimal)
     parser.add_argument("--format", choices=("json", "markdown"), default="json")
     parser.add_argument("--output", help="Optional output file path. Defaults to stdout.")
@@ -85,6 +104,7 @@ def build_request(args: argparse.Namespace) -> StrategyValidationRequest:
             fee_bps=args.fee_bps,
             slippage_bps=args.slippage_bps,
             fill_timing=StrategyValidationFillTiming(args.fill_timing),
+            capital_sizing_mode=StrategyValidationCapitalSizingMode(args.capital_sizing_mode),
             position_notional_pct=args.position_notional_pct,
         ),
     )

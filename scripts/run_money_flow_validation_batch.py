@@ -11,7 +11,12 @@ from pathlib import Path
 from typing import Sequence
 
 from core.config.settings import get_settings
-from core.domain.enums import Environment, StrategyFamily, StrategyValidationFillTiming
+from core.domain.enums import (
+    Environment,
+    StrategyFamily,
+    StrategyValidationCapitalSizingMode,
+    StrategyValidationFillTiming,
+)
 from core.domain.models import (
     StrategyValidationAssumptions,
     StrategyValidationBatchRequest,
@@ -95,6 +100,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="Slippage bps assumption. Repeat to compare slippage assumptions.",
     )
     parser.add_argument("--position-notional-pct", default=Decimal("1.0"), type=Decimal)
+    parser.add_argument(
+        "--capital-sizing-mode",
+        action="append",
+        choices=[item.value for item in StrategyValidationCapitalSizingMode],
+        default=[],
+        help=(
+            "Capital sizing mode to compare. Repeat for multiple modes. Defaults to "
+            "constant_initial_capital_notional_per_trade."
+        ),
+    )
     parser.add_argument("--format", choices=("json", "markdown"), default="json")
     parser.add_argument("--output", help="Optional output file path. Defaults to stdout.")
     return parser
@@ -106,32 +121,39 @@ def build_batch_request(args: argparse.Namespace) -> StrategyValidationBatchRequ
     instrument_ref_ids = _optional_values(args.instrument_ref_id, len(symbols))
     windows = _windows(args)
     runs: list[StrategyValidationRequest] = []
+    capital_sizing_modes = args.capital_sizing_mode or [
+        StrategyValidationCapitalSizingMode.CONSTANT_INITIAL_CAPITAL_NOTIONAL_PER_TRADE.value
+    ]
     for symbol_index, symbol in enumerate(symbols):
         for start_at, end_at in windows:
             for component in args.component:
                 for fill_timing in args.fill_timing:
                     for fee_bps in args.fee_bps:
                         for slippage_bps in args.slippage_bps:
-                            runs.append(
-                                StrategyValidationRequest(
-                                    strategy_family=StrategyFamily.MONEY_FLOW,
-                                    environment=Environment(args.environment),
-                                    venue=args.venue,
-                                    symbol=symbol,
-                                    instrument_key=instrument_keys[symbol_index],
-                                    instrument_ref_id=instrument_ref_ids[symbol_index],
-                                    component_keys=(component,),
-                                    start_at=start_at,
-                                    end_at=end_at,
-                                    assumptions=StrategyValidationAssumptions(
-                                        initial_capital=args.initial_capital,
-                                        fee_bps=fee_bps,
-                                        slippage_bps=slippage_bps,
-                                        fill_timing=StrategyValidationFillTiming(fill_timing),
-                                        position_notional_pct=args.position_notional_pct,
-                                    ),
+                            for capital_sizing_mode in capital_sizing_modes:
+                                runs.append(
+                                    StrategyValidationRequest(
+                                        strategy_family=StrategyFamily.MONEY_FLOW,
+                                        environment=Environment(args.environment),
+                                        venue=args.venue,
+                                        symbol=symbol,
+                                        instrument_key=instrument_keys[symbol_index],
+                                        instrument_ref_id=instrument_ref_ids[symbol_index],
+                                        component_keys=(component,),
+                                        start_at=start_at,
+                                        end_at=end_at,
+                                        assumptions=StrategyValidationAssumptions(
+                                            initial_capital=args.initial_capital,
+                                            fee_bps=fee_bps,
+                                            slippage_bps=slippage_bps,
+                                            fill_timing=StrategyValidationFillTiming(fill_timing),
+                                            capital_sizing_mode=StrategyValidationCapitalSizingMode(
+                                                capital_sizing_mode
+                                            ),
+                                            position_notional_pct=args.position_notional_pct,
+                                        ),
+                                    )
                                 )
-                            )
     return StrategyValidationBatchRequest(
         runs=tuple(runs),
         batch_name=args.batch_name,

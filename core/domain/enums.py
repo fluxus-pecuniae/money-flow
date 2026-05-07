@@ -83,6 +83,11 @@ class StrategyValidationFillTiming(StrEnum):
     NEXT_CANDLE_CLOSE = "next_candle_close"
 
 
+class StrategyValidationCapitalSizingMode(StrEnum):
+    CONSTANT_INITIAL_CAPITAL_NOTIONAL_PER_TRADE = "constant_initial_capital_notional_per_trade"
+    DYNAMIC_EQUITY_PCT = "dynamic_equity_pct"
+
+
 class OrderSide(StrEnum):
     BUY = "buy"
     SELL = "sell"

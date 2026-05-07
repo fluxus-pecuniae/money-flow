@@ -38,6 +38,7 @@ from core.domain.enums import (
     SignalType,
     StackingPolicy,
     StrategyDecisionStatus,
+    StrategyValidationCapitalSizingMode,
     StrategyFamily,
     StrategyValidationFillTiming,
     SubmittedOrderStatus,
@@ -1612,6 +1613,9 @@ class StrategyValidationAssumptions:
     fee_bps: Decimal
     slippage_bps: Decimal
     position_notional_pct: Decimal
+    capital_sizing_mode: StrategyValidationCapitalSizingMode = (
+        StrategyValidationCapitalSizingMode.CONSTANT_INITIAL_CAPITAL_NOTIONAL_PER_TRADE
+    )
     fill_timing: StrategyValidationFillTiming = (
         StrategyValidationFillTiming.SAME_CANDLE_CLOSE_RESEARCH_ONLY
     )
@@ -1675,6 +1679,12 @@ class StrategyValidationTrade:
     entry_volatility_regime: str = "unknown_or_insufficient_data"
     exit_market_regime: str = "unknown_or_insufficient_data"
     exit_volatility_regime: str = "unknown_or_insufficient_data"
+    equity_before_entry: Decimal | None = None
+    equity_after_exit: Decimal | None = None
+    capital_sizing_mode: StrategyValidationCapitalSizingMode = (
+        StrategyValidationCapitalSizingMode.CONSTANT_INITIAL_CAPITAL_NOTIONAL_PER_TRADE
+    )
+    position_notional_pct: Decimal | None = None
 
 
 @dataclass(slots=True)
@@ -1737,6 +1747,21 @@ class StrategyValidationMetrics:
     trades_by_component_timeframe: dict[str, int] = field(default_factory=dict)
     no_trade_reason_counts: dict[str, int] = field(default_factory=dict)
     invalid_reason_counts: dict[str, int] = field(default_factory=dict)
+    starting_equity: Decimal = Decimal("0")
+    ending_equity: Decimal = Decimal("0")
+    net_account_pnl: Decimal = Decimal("0")
+    return_on_starting_equity: Decimal = Decimal("0")
+    minimum_realized_equity: Decimal = Decimal("0")
+    maximum_realized_equity: Decimal = Decimal("0")
+    closed_trade_equity_curve: list[Decimal] = field(default_factory=list)
+    mark_to_market_equity_curve: list[Decimal] = field(default_factory=list)
+    max_closed_trade_equity_drawdown: Decimal = Decimal("0")
+    max_closed_trade_equity_drawdown_pct: Decimal | None = None
+    max_mark_to_market_equity_drawdown: Decimal | None = None
+    max_mark_to_market_equity_drawdown_pct: Decimal | None = None
+    capital_sizing_mode: StrategyValidationCapitalSizingMode | None = None
+    position_notional_pct: Decimal | None = None
+    trades_skipped_due_to_insufficient_equity: int = 0
 
 
 @dataclass(slots=True)

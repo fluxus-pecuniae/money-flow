@@ -1,5 +1,11 @@
 # Money Flow Project Memory — Team Chronicle
 
+## 2026-05-07T10:19:14Z SV1.13.2 - Dynamic Equity Capital Simulation
+
+SV1.13.2 adds `dynamic_equity_pct` as a first-class Strategy Validation capital sizing mode while preserving `constant_initial_capital_notional_per_trade` as the default and as the correct interpretation of SV1.13/SV1.13.1 evidence. In dynamic mode, each new trade sizes from current realized equity after prior closed-trade net PnL, then reports starting equity, ending equity, net account PnL, realized-equity min/max, equity drawdown, and insufficient-equity skips per scenario.
+
+The Hyperliquid public dynamic-equity report shows ETH `sleeve_1h` above starting equity across tested fill/cost assumptions, while 15m and 4h dynamic scenarios ended below starting equity. This remains per-scenario research simulation only. It is not full portfolio allocation, margin, funding, liquidation, paper trading, live trading, strategy recommendation, or Money Flow rule change.
+
 ## 2026-05-07T09:08:46Z SV1.13.1 - Capital Sizing Interpretation Hotfix
 
 SV1.13.1 now explicitly labels the current evidence sizing model as constant initial-capital notional per opened trade. In the SV1.13 Hyperliquid public campaign, `initial_capital=10000` and `position_notional_pct=1.0`, so every opened trade uses `10000` notional. Realized equity is tracked for net PnL, closed-trade drawdown, mark-to-market drawdown, and return on initial capital, but it does not reduce, compound, or stop the next trade size.
