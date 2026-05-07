@@ -6,6 +6,8 @@ SV1.13.1 interprets the first Hyperliquid public campaign evidence packs generat
 
 The evidence is research-only Hyperliquid USDC perpetual public-candle evidence. Grouped totals in the evidence packs are descriptive sums across multiple research runs. They are not one tradable account result, because each group can include multiple symbols, fill timings, fee assumptions, slippage assumptions, and component/window scenarios.
 
+Sizing also matters: the SV1.13 evidence uses constant initial-capital notional per trade. With initial capital `10000` and position notional pct `1.0`, every opened trade uses `10000` notional. Realized equity changes PnL and drawdown metrics, but it does not reduce, compound, or stop the next trade size.
+
 High-level interpretation:
 
 - `sleeve_15m` was negative across all 36 tested scenarios.
@@ -55,6 +57,29 @@ SV1.13 batch reports group runs by fill timing, component, symbol, date window, 
 - These are descriptive aggregate research metrics, not one account-level or one-scenario strategy PnL.
 
 Do not read a grouped sum such as ETH plus BTC plus SOL across multiple fill timing and fee/slippage assumptions as one deployable strategy result. Scenario-level rows are the correct evidence surface for assumption-specific interpretation.
+
+## Capital Sizing Semantics
+
+SV1.13 uses `constant_initial_capital_notional_per_trade`.
+
+| field | SV1.13 value |
+| --- | --- |
+| initial capital | `10000` |
+| position notional pct | `1.0` |
+| entry notional formula | `initial_capital * position_notional_pct` |
+| entry notional per opened trade | `10000` |
+| equity effect on next trade size | `none` |
+| realized equity usage | `net PnL, closed-trade drawdown, mark-to-market drawdown, return on initial capital` |
+
+Trade quantity is calculated from the constant entry notional and the simulated slippage-adjusted entry price:
+
+```text
+size = entry_notional / entry_price
+```
+
+Losses and gains are included in realized equity for drawdown and return calculations. They are not used to shrink the next trade, compound after wins, halt entries after losses, or model available account margin. This evidence is therefore a constant-notional research replay, not a dynamic account-equity portfolio simulation.
+
+Founder interpretation implication: drawdown and return-on-initial-capital are still useful risk diagnostics, but the scenario rows should not be read as dynamic equity sizing results. A future evidence phase should add a separate `dynamic_equity_pct` capital mode before paper-trading design uses account-style sizing assumptions.
 
 ## Component And Symbol Summary
 
@@ -205,6 +230,7 @@ These reason counts are summed across research scenarios and should be interpret
 - This is Hyperliquid USDC perpetual public-candle research only.
 - The public campaign has one recent `15m` window and one YTD `1h`/`4h` window; it is not out-of-sample validation.
 - Grouped sums aggregate separate research scenarios and are not account-level PnL.
+- Trade sizing is constant initial-capital notional per opened trade; realized equity does not change next-trade size.
 - Same-candle-close rows remain research-only and potentially optimistic.
 - Fees and slippage are configured assumptions, not venue-account realized cost truth.
 - Simulated trades are validation artifacts, not `SubmittedOrder` records.
@@ -216,6 +242,7 @@ These reason counts are summed across research scenarios and should be interpret
 - Decide whether BTC/SOL mixed 1h behavior supports or weakens the Money Flow hypothesis.
 - Treat 15m and 4h as negative evidence for this public campaign unless a later scoped investigation explains otherwise.
 - Review drawdown versus net PnL before any paper-trading design is scoped.
+- Account-style sizing remains deferred; dynamic-equity evidence should be a separate later phase if founder review needs it.
 - Review regime dependence, especially whether uptrend/normal-volatility dependence is acceptable.
 - Require out-of-sample and longer-window validation before rule changes or paper-trading scope.
 - Keep paper-trading design deferred unless the founder manually accepts a bounded experiment in a later phase.

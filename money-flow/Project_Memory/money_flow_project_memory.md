@@ -1,5 +1,11 @@
 # Money Flow Project Memory — Team Chronicle
 
+## 2026-05-07T09:08:46Z SV1.13.1 - Capital Sizing Interpretation Hotfix
+
+SV1.13.1 now explicitly labels the current evidence sizing model as constant initial-capital notional per opened trade. In the SV1.13 Hyperliquid public campaign, `initial_capital=10000` and `position_notional_pct=1.0`, so every opened trade uses `10000` notional. Realized equity is tracked for net PnL, closed-trade drawdown, mark-to-market drawdown, and return on initial capital, but it does not reduce, compound, or stop the next trade size.
+
+This preserves evidence numbers and strategy rules while making interpretation safer. Dynamic account-equity sizing is not implemented in this hotfix and remains a separate future evidence phase before paper-trading design should rely on account-style sizing assumptions.
+
 ## 2026-05-07T08:03:28Z SV1.13.1 - Evidence Interpretation Truth For Founder Review
 
 SV1.13.1 interprets the existing Hyperliquid public campaign evidence packs without regenerating packs, importing data, changing Money Flow rules, or approving paper/live trading. It adds a founder-readable interpretation report that separates individual scenario results from grouped aggregate research summaries.

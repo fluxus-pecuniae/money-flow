@@ -9,6 +9,13 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `rejected_alternatives`: Treating grouped totals as one strategy result; selecting or recommending a strategy variant from aggregate sums; changing Money Flow rules; optimizing parameters; approving paper trading; adding routing/execution behavior; combining non-Hyperliquid venues into the Hyperliquid evidence result.
 - `follow_up_implications`: Founder review should use scenario-level fill/cost/drawdown/regime evidence, with ETH `sleeve_1h` concentration explicitly reviewed, before any later paper-trading design phase is scoped.
 
+## 2026-05-07T09:08:46Z - SV1.13.1 - Capital Sizing Must Be Labeled Constant Notional
+
+- `decision`: Label current Strategy Validation sizing as `constant_initial_capital_notional_per_trade` and keep dynamic account-equity sizing deferred to a separately scoped evidence phase.
+- `why`: SV1.13 uses `entry_notional = initial_capital * position_notional_pct` on every opened trade. Realized equity is used for PnL and drawdown metrics, but it does not shrink, compound, or stop subsequent trade sizing. Founder review would be misleading if this were read as account-equity portfolio simulation.
+- `rejected_alternatives`: Silently treating SV1.13 results as dynamic account-equity evidence; changing Money Flow rules; implementing dynamic sizing in this interpretation hotfix; regenerating evidence packs; approving paper trading.
+- `follow_up_implications`: Any paper-trading design discussion should either accept the constant-notional limitation explicitly or wait for a later `dynamic_equity_pct` evidence phase.
+
 ## 2026-05-01T05:39:34Z - Phase 7.3 - Obsidian Becomes Strategic Brain
 
 - `decision`: Move full strategic project memory into the Obsidian vault and keep the repo-root `money_flow_project_memory.md` only as a compatibility pointer.

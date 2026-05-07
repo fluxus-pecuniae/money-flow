@@ -46,6 +46,8 @@ These generated packs are intentionally ignored by Git and review-bundle packagi
 
 SV1.13.1 clarifies the interpretation of these tables: each fill-timing row below is a descriptive grouped aggregate across multiple completed research runs, including symbols and fee/slippage assumptions. The summed net PnL and trade counts are not one tradable account result. Use scenario-level rows in `docs/strategy_validation_sv1_13_1_hyperliquid_evidence_interpretation.md` for assumption-specific founder review.
 
+Capital-sizing clarification: SV1.13 uses constant initial-capital notional per opened trade. With initial capital `10000` and position notional pct `1.0`, each opened trade uses `10000` notional. Realized equity affects PnL and drawdown metrics but does not shrink, compound, or stop the next trade size. Dynamic account-equity sizing remains deferred to a later explicitly scoped evidence phase.
+
 The 15m component produced completed runs but observed aggregate net PnL was negative under all fill-timing assumptions:
 
 | Fill timing | Sum net PnL across research runs | Sum trades across research runs | Largest observed MTM drawdown |

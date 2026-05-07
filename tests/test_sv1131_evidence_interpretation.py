@@ -13,7 +13,10 @@ from core.domain.models import (
     StrategyValidationReport,
     StrategyValidationRequest,
 )
-from services.strategy_validation.service import strategy_validation_batch_report_to_markdown
+from services.strategy_validation.service import (
+    strategy_validation_batch_report_to_markdown,
+    strategy_validation_report_to_dict,
+)
 
 
 def _metrics(net_pnl: str) -> StrategyValidationMetrics:
@@ -203,6 +206,25 @@ def test_batch_markdown_clarifies_grouped_aggregate_semantics() -> None:
     assert "sum trades across research runs" in markdown
     assert "not one tradable account result" in markdown
     assert "single-scenario strategy PnL" in markdown
+    assert "constant_initial_capital_notional_per_trade" in markdown
+    assert "does not compound, shrink, or stop subsequent trade notional" in markdown
+
+
+def test_single_report_dict_discloses_constant_notional_sizing() -> None:
+    run = _run_report(
+        run_id="eth-open",
+        symbol="ETH",
+        fill_timing=StrategyValidationFillTiming.NEXT_CANDLE_OPEN,
+        net_pnl="20",
+    )
+
+    data = strategy_validation_report_to_dict(run.report)
+    assumptions = data["assumptions"]
+
+    assert assumptions["capital_sizing_mode"] == "constant_initial_capital_notional_per_trade"
+    assert assumptions["entry_notional_formula"] == "initial_capital * position_notional_pct"
+    assert assumptions["entry_notional"] == "10000.00000000"
+    assert assumptions["equity_effect_on_next_trade_size"] == "none"
 
 
 def test_sv1131_founder_report_contains_required_interpretation_sections() -> None:
@@ -212,10 +234,11 @@ def test_sv1131_founder_report_contains_required_interpretation_sections() -> No
     contents = report.read_text()
 
     for required in [
-        "Grouped Aggregate Semantics",
-        "Scenario-Level Results",
-        "ETH Concentration Analysis",
-        "Drawdown Interpretation",
+            "Grouped Aggregate Semantics",
+            "Capital Sizing Semantics",
+            "Scenario-Level Results",
+            "ETH Concentration Analysis",
+            "Drawdown Interpretation",
         "Regime Dependence",
         "Cost Sensitivity",
         "Fill Timing Interpretation",
@@ -226,10 +249,12 @@ def test_sv1131_founder_report_contains_required_interpretation_sections() -> No
 
     for required in [
         "`sleeve_1h` | `ETH` | `next_candle_open`",
-        "`sleeve_1h` | `ETH` | `next_candle_close`",
-        "`5/3`",
-        "Paper-trading design remains deferred",
-    ]:
+            "`sleeve_1h` | `ETH` | `next_candle_close`",
+            "`5/3`",
+            "constant_initial_capital_notional_per_trade",
+            "not a dynamic account-equity portfolio simulation",
+            "Paper-trading design remains deferred",
+        ]:
         assert required in contents
 
 

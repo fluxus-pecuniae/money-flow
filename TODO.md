@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-07T07:50:13Z`
+Last reviewed: `2026-05-07T09:08:46Z`
 
 ## Active Follow-Ups
+
+### T-081
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.13.1 capital-assumption interpretation hotfix labels current Strategy Validation sizing as constant initial-capital notional per trade. Generated Markdown and founder docs now state that each trade sizes from initial_capital * position_notional_pct, realized equity affects PnL/drawdown metrics only, and dynamic account-equity sizing remains deferred to a later explicitly scoped evidence phase. No evidence packs were regenerated, no imports ran, no Money Flow rules changed, and no paper/live/routing behavior was added.`
 
 ### T-080
 

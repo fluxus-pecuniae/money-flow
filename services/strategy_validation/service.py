@@ -1319,7 +1319,20 @@ def _regime_comparison(component_reports: list[StrategyValidationComponentReport
     }
 
 
+def _capital_sizing_metadata(assumptions: StrategyValidationAssumptions) -> dict[str, str]:
+    entry_notional = _money(assumptions.initial_capital * assumptions.position_notional_pct)
+    return {
+        "capital_sizing_mode": "constant_initial_capital_notional_per_trade",
+        "entry_notional_formula": "initial_capital * position_notional_pct",
+        "entry_notional": str(entry_notional),
+        "equity_effect_on_next_trade_size": "none",
+        "realized_equity_usage": "pnl_and_drawdown_accounting_only",
+    }
+
+
 def _request_payload(request: StrategyValidationRequest) -> dict[str, Any]:
+    assumptions = _json_ready(asdict(request.assumptions))
+    assumptions.update(_capital_sizing_metadata(request.assumptions))
     return {
         "strategy_family": request.strategy_family.value,
         "environment": request.environment.value,
@@ -1330,7 +1343,7 @@ def _request_payload(request: StrategyValidationRequest) -> dict[str, Any]:
         "component_keys": list(request.component_keys),
         "start_at": _coerce_utc(request.start_at).isoformat(),
         "end_at": _coerce_utc(request.end_at).isoformat(),
-        "assumptions": _json_ready(asdict(request.assumptions)),
+        "assumptions": assumptions,
     }
 
 
@@ -1353,6 +1366,10 @@ def _run_summary(run: StrategyValidationBatchRunReport) -> dict[str, Any]:
         "slippage_bps": request.assumptions.slippage_bps,
         "initial_capital": request.assumptions.initial_capital,
         "position_notional_pct": request.assumptions.position_notional_pct,
+        "capital_sizing_mode": "constant_initial_capital_notional_per_trade",
+        "entry_notional": _money(
+            request.assumptions.initial_capital * request.assumptions.position_notional_pct
+        ),
         "reason_codes": list(run.reason_codes),
         "error_message": run.error_message,
     }
@@ -1418,6 +1435,8 @@ def _assumptions_matrix(run_reports: list[StrategyValidationBatchRunReport]) -> 
         "position_notional_pct_values": sorted(
             {str(request.assumptions.position_notional_pct) for request in requests}
         ),
+        "capital_sizing_modes": ["constant_initial_capital_notional_per_trade"],
+        "entry_notional_formula": "initial_capital * position_notional_pct",
     }
 
 
@@ -1654,7 +1673,9 @@ def _batch_warnings(run_reports: list[StrategyValidationBatchRunReport]) -> list
 
 
 def strategy_validation_report_to_dict(report: StrategyValidationReport) -> dict[str, Any]:
-    return _json_ready(asdict(report))
+    data = _json_ready(asdict(report))
+    data["assumptions"].update(_capital_sizing_metadata(report.assumptions))
+    return data
 
 
 def strategy_validation_batch_report_to_dict(report: StrategyValidationBatchReport) -> dict[str, Any]:
@@ -1686,6 +1707,11 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
         lines.append(f"- {key}: `{value}`")
     lines.extend(
         [
+            "",
+            "Capital sizing note: current Strategy Validation uses "
+            "`constant_initial_capital_notional_per_trade`. Each opened trade sizes from "
+            "`initial_capital * position_notional_pct`; realized equity changes PnL and drawdown "
+            "metrics but does not compound, shrink, or stop subsequent trade notional.",
             "",
             "## Grouped Aggregate Semantics",
             "",
@@ -1913,6 +1939,11 @@ def strategy_validation_report_to_markdown(report: StrategyValidationReport) -> 
         f"- Slippage bps: `{assumptions['slippage_bps']}`",
         f"- Fill timing: `{assumptions['fill_timing']}`",
         f"- Position notional pct: `{assumptions['position_notional_pct']}`",
+        f"- Capital sizing mode: `{assumptions['capital_sizing_mode']}`",
+        f"- Entry notional formula: `{assumptions['entry_notional_formula']}`",
+        f"- Entry notional per opened trade: `{assumptions['entry_notional']}`",
+        f"- Equity effect on next trade size: `{assumptions['equity_effect_on_next_trade_size']}`",
+        f"- Realized equity usage: `{assumptions['realized_equity_usage']}`",
         f"- Reduce action model: `{assumptions['reduce_action_model']}`",
         f"- Force-close open trade at end: `{assumptions['force_close_open_trade_at_end']}`",
         f"- Drawdown methodology: `{assumptions['drawdown_methodology']}`",
@@ -2186,7 +2217,8 @@ def _assumption_limitations(assumptions: StrategyValidationAssumptions) -> list[
         "no_liquidation_model",
         "no_partial_fill_model",
         "no_venue_latency_model",
-        "no_compounding_unless_position_notional_pct_is_changed_with_capital_modeling",
+        "constant_initial_capital_notional_per_trade_no_dynamic_equity_sizing",
+        "realized_equity_does_not_change_next_trade_notional",
         "market_regime_labels_are_descriptive_only_not_strategy_filters",
         "data_coverage_counts_are_research_diagnostics_not_data_quality_certification",
         "results_do_not_prove_future_profitability",

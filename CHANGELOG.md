@@ -13,6 +13,34 @@ Entry schema:
 
 ---
 
+## v2026.05.07.004
+
+- `recorded_at_utc`: `2026-05-07T09:08:46Z`
+- `scope`: `SV1.13.1 capital-assumption interpretation hotfix`
+- `intent`: `Native entry. Clarified Strategy Validation capital-sizing truth without changing simulation behavior or regenerating evidence. Current reports now label sizing as constant_initial_capital_notional_per_trade: entry notional is initial_capital * position_notional_pct on every opened trade, realized equity affects PnL/drawdown metrics only, and dynamic account-equity sizing remains deferred to a later explicitly scoped evidence phase. This preserves SV1.13 evidence numbers while preventing founder review from mistaking constant-notional research replay for an account-equity portfolio simulation.`
+- `affected_files`:
+  - `services/strategy_validation/service.py`
+  - `tests/test_sv1131_evidence_interpretation.py`
+  - `docs/strategy_validation_sv1_13_hyperliquid_public_evidence_review.md`
+  - `docs/strategy_validation_sv1_13_1_hyperliquid_evidence_interpretation.md`
+  - `CHANGELOG.md`
+  - `TODO.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv1131_evidence_interpretation.py tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv113_hyperliquid_public_evidence.py` passed: 19 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py tests/test_phase3_strategy.py` passed: 18 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv15_historical_data_readiness.py tests/test_sv151_candle_import_integrity.py tests/test_sv16_evidence_review.py tests/test_sv17_evidence_review_real_data_gaps.py tests/test_sv18_historical_data_bootstrap.py tests/test_sv181_evidence_schema_truth.py tests/test_sv19_evidence_status.py tests/test_sv191_evidence_target_and_import_truth.py tests/test_sv110_evidence_db_readiness.py tests/test_sv111_market_identity_preflight.py tests/test_sv1111_market_identity_preflight_hardening.py tests/test_sv1112_market_identity_preflight_governance.py tests/test_sv112_guarded_candle_import.py tests/test_sv1122_identity_file_readiness.py tests/test_sv1123_guarded_import_attempt.py tests/test_sv1125_public_campaign_import.py tests/test_sv113_hyperliquid_public_evidence.py tests/test_sv1131_evidence_interpretation.py` passed: 151 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: 622 tests.
+  - `git diff --check` passed.
+
 ## v2026.05.07.003
 
 - `recorded_at_utc`: `2026-05-07T08:07:03Z`
