@@ -2,9 +2,9 @@
 
 ## Phase
 
-Current implemented phase: `SV1.14` Money Flow trade anatomy and market-structure diagnostics; SV1.13 generated component-scoped Hyperliquid public evidence packs, SV1.13.1 clarified grouped aggregate and constant-notional interpretation truth, SV1.13.2 added per-scenario `dynamic_equity_pct` sizing, and SV1.14 explains why ETH `sleeve_1h` is strongest while 15m/4h are weak without changing Money Flow rules.
+Current implemented phase: `SV1.15` controlled Money Flow hypothesis experiments; SV1.14 diagnosed ETH `sleeve_1h`, 15m, and 4h behavior, and SV1.15 tests those ideas as Strategy Validation-only overlays/attribution against the Hyperliquid public dynamic-equity baseline without changing production Money Flow rules.
 
-Proposed next phase: manual founder/operator review of the Hyperliquid-only evidence interpretation and SV1.14 diagnostics before any controlled rule-change test or explicitly scoped paper-trading design phase. Candidate future tests include market-structure/resistance filters, higher-low confirmation, ATR/recent-low invalidation, 15m regime avoidance, and 4h extension limits, but none are implemented. Aster and Binance remain later comparative candidates after separate identity/import; OKX/Coinbase/Kraken remain blocked by source/history gaps. Paper-trading design remains deferred. `Phase 8.1` remains deferred until explicitly scoped.
+Proposed next phase: manual founder/operator review of the Hyperliquid-only evidence interpretation, dynamic-equity evidence, SV1.14 diagnostics, and SV1.15 controlled experiment results before any explicitly scoped paper-trading design phase. Lower-RSI entry admission remains deferred until per-candle rejected-signal replay instrumentation exists. Aster and Binance remain later comparative candidates after separate identity/import; OKX/Coinbase/Kraken remain blocked by source/history gaps. Paper-trading design remains deferred. `Phase 8.1` remains deferred until explicitly scoped.
 
 
 ## Pre-Paper / Live Trading Blockers
@@ -94,6 +94,10 @@ SV1.13.2 adds the dynamic-equity capital simulation layer. Strategy Validation n
 
 The SV1.13 dashboard update adds a static local `apps/dashboard/` review surface for those ignored local evidence artifacts. It uses the supplied design tokens/files, loads the SV1.13 evidence review plus component batch reports when served from the repo root, and supports manual JSON loading. It is visualization only: it does not generate evidence packs, import candles, approve paper/live trading, call exchange endpoints, optimize parameters, or change Money Flow rules.
 
+SV1.14 adds trade anatomy and market-structure diagnostics over existing Hyperliquid public dynamic-equity evidence. It explains current Money Flow readiness/entry/exit logic, confirms entries below the RSI sleeve floor are not allowed, records recent swing high/low context as descriptive only, and produces later-test hypotheses without changing rules.
+
+SV1.15 adds controlled research-only Money Flow hypothesis experiments. It compares isolated overlays for resistance proximity, higher-low/support context, recent-low invalidation proxy, 15m sideways-regime avoidance, and 4h extension limits against the dynamic-equity baseline; it also adds lower-half RSI and pullback/continuation attribution. Lower-RSI entry admission is explicitly deferred until rejected-signal replay instrumentation exists. No hypothesis is production-authorized, no Money Flow rule changed, and paper/live/routing/execution behavior remains deferred.
+
 ## Accepted Baseline
 
 - Phase 7.0 added non-executing routing automation policy and dry-run plans.
@@ -143,6 +147,8 @@ The SV1.13 dashboard update adds a static local `apps/dashboard/` review surface
 - 2026-05-07 SV1.13 dashboard update added a static local founder/operator visualization dashboard for the ignored evidence review and batch-report JSON files; manual evidence review remains the next step.
 - 2026-05-07 SV1.13.1 added founder interpretation truth for the existing Hyperliquid evidence packs: grouped sums are not one account/scenario PnL, sizing is constant initial-capital notional per opened trade rather than dynamic equity sizing, ETH `sleeve_1h` concentration is explicit, and paper-trading design remains deferred.
 - 2026-05-07 SV1.13.2 added `dynamic_equity_pct` per-scenario capital sizing and founder dynamic-equity evidence: ETH `sleeve_1h` stayed above starting equity across tested dynamic assumptions, 15m/4h ended below starting equity, and paper-trading design remains deferred.
+- 2026-05-07 SV1.14 added trade anatomy and market-structure diagnostics without changing Money Flow rules.
+- 2026-05-07 SV1.15 added controlled research-only hypothesis experiments and attribution without changing production Money Flow rules; lower-RSI admission remains deferred pending rejected-signal replay instrumentation.
 
 ## Hard Boundaries
 

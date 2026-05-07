@@ -1,8 +1,20 @@
 # TODO
 
-Last reviewed: `2026-05-07T12:18:47Z`
+Last reviewed: `2026-05-07T19:38:54Z`
 
 ## Active Follow-Ups
+
+### T-084
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.15 adds a controlled Strategy Validation-only experiment layer over the Hyperliquid public dynamic-equity evidence. It compares one-change-at-a-time overlays for resistance proximity, higher-low/support context, recent-low invalidation proxy, 15m sideways-regime avoidance, and 4h extension limits against the current Money Flow baseline, adds lower-half RSI and pullback/continuation attribution, and produces a founder-readable experiment report. Production Money Flow rules did not change, no hypothesis is authorized, lower-RSI entry admission is explicitly deferred until rejected-signal replay instrumentation exists, and paper/live/routing/execution behavior remains deferred.`
+
+### T-085
+
+- `priority`: `high`
+- `status`: `future`
+- `summary`: `Add per-candle rejected-signal replay instrumentation before testing true lower-RSI entry admission. Existing evidence packs include completed trades and aggregate no-trade reason counts, but not every rejected candle's full indicator/market-structure snapshot, so SV1.15 can attribute completed trades by RSI zone but cannot faithfully admit new below-floor entries without a later replay runner.`
 
 ### T-083
 

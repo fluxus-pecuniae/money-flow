@@ -59,6 +59,13 @@ from services.strategy_validation.guarded_import_attempt import (
     strategy_validation_guarded_import_attempt_result_to_json,
     strategy_validation_guarded_import_attempt_result_to_markdown,
 )
+from services.strategy_validation.hypothesis_experiments import (
+    MoneyFlowResearchVariant,
+    build_money_flow_hypothesis_experiments,
+    load_default_hypothesis_experiment_candles,
+    money_flow_hypothesis_experiments_to_markdown,
+    write_money_flow_hypothesis_experiment_report,
+)
 from services.strategy_validation.import_readiness import (
     CANONICAL_CANDLE_REQUIRED_COLUMNS,
     CANONICAL_TIMESTAMP_REQUIREMENT,
@@ -135,6 +142,7 @@ __all__ = [
     "MoneyFlowResearchCampaignResult",
     "MoneyFlowResearchCampaignSymbol",
     "MoneyFlowResearchCampaignWindow",
+    "MoneyFlowResearchVariant",
     "PAPER_READINESS_REVIEW_STATUSES",
     "PUBLIC_CAMPAIGN_CONFIG_PATH",
     "REQUIRED_STRATEGY_VALIDATION_SCHEMA_TABLES",
@@ -148,6 +156,7 @@ __all__ = [
     "StrategyValidationPublicCampaignImportResult",
     "audit_money_flow_research_campaign_data_readiness",
     "build_money_flow_research_campaign_batch_request",
+    "build_money_flow_hypothesis_experiments",
     "build_money_flow_trade_anatomy_diagnostics",
     "build_public_campaign_candle_requirements",
     "canonical_market_identity_instrument_key",
@@ -156,7 +165,9 @@ __all__ = [
     "guarded_import_strategy_validation_candle_bundle",
     "load_money_flow_research_campaign_config",
     "load_money_flow_public_campaign_evidence_configs",
+    "load_default_hypothesis_experiment_candles",
     "money_flow_evidence_pack_review_checklist",
+    "money_flow_hypothesis_experiments_to_markdown",
     "money_flow_evidence_review_database_status_to_dict",
     "money_flow_evidence_review_database_status_to_json",
     "money_flow_evidence_review_database_status_to_markdown",
@@ -207,5 +218,6 @@ __all__ = [
     "strategy_validation_report_to_markdown",
     "import_strategy_validation_candles_from_path",
     "write_money_flow_research_campaign_evidence_pack",
+    "write_money_flow_hypothesis_experiment_report",
     "write_money_flow_trade_anatomy_report",
 ]

@@ -1,5 +1,11 @@
 # Money Flow Project Memory — Team Chronicle
 
+## 2026-05-07T19:38:54Z SV1.15 - Controlled Money Flow Hypothesis Experiments
+
+SV1.15 adds a Strategy Validation-only experiment layer over the Hyperliquid public dynamic-equity evidence. It compares isolated overlays for resistance proximity, higher-low/support context, recent-low invalidation proxy, 15m sideways-regime avoidance, and 4h extension limits against current Money Flow baseline, and it adds RSI-zone plus pullback/continuation attribution for founder review.
+
+The phase does not change production Money Flow rules. Lower-RSI entry admission is explicitly deferred because existing evidence packs contain completed trades and aggregate no-trade counts, but not every rejected candle's full indicator/market-structure snapshot. A later replay runner must persist rejected-signal features before true below-floor RSI entry variants can be tested without incomplete or lookahead-prone conclusions. Paper/live/routing/execution behavior remains deferred.
+
 ## 2026-05-07T12:18:47Z SV1.14 - Trade Anatomy And Market-Structure Diagnostics
 
 SV1.14 adds diagnostic-only Money Flow trade-anatomy reporting over the Hyperliquid public dynamic-equity evidence. It explains current readiness gates, entry rules, and exit/reduce/hold logic; confirms Money Flow does not enter long when RSI is below the sleeve floor; and records that recent swing high/low, resistance/support proximity, and breakout context are descriptive diagnostics only, not current entry/exit filters.

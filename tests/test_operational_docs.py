@@ -38,6 +38,8 @@ REQUIRED_FILES = [
     "docs/strategy_validation_sv1_13_hyperliquid_public_evidence_review.md",
     "docs/strategy_validation_sv1_13_1_hyperliquid_evidence_interpretation.md",
     "docs/strategy_validation_sv1_13_2_dynamic_equity_evidence.md",
+    "docs/strategy_validation_sv1_14_trade_anatomy_and_market_structure.md",
+    "docs/strategy_validation_sv1_15_hypothesis_experiments.md",
 ]
 
 
@@ -83,15 +85,15 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "required Obsidian brain entrypoint" in command_center
-    assert re.search(r"Current implemented phase: `SV1\.14`", current_phase)
-    assert "SV1.13.2" in command_center
+    assert re.search(r"Current implemented phase: `SV1\.15`", current_phase)
+    assert "SV1.15" in command_center
     assert "SV1.14" in command_center
     assert "Active Work" in coordination
     assert "Quant Engineer" in moved_memory
     assert "Strategy Validation" in moved_memory
     assert "SV1.9" in moved_memory
     assert "First Hyperliquid Public Campaign Evidence Packs" in moved_memory
-    assert "Trade Anatomy And Market-Structure Diagnostics" in moved_memory
+    assert "Controlled Money Flow Hypothesis Experiments" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
 
@@ -137,11 +139,15 @@ def test_obsidian_current_state_notes_do_not_have_stale_current_truth() -> None:
         "Phase observed in repo memory: `SV1.13`",
         "Current implemented phase: `SV1.13.1`",
         "Phase observed in repo memory: `SV1.13.1`",
+        "Current implemented phase: `SV1.13.2`",
+        "Phase observed in repo memory: `SV1.13.2`",
+        "Current implemented phase: `SV1.14`",
+        "Phase observed in repo memory: `SV1.14`",
     ]
 
     for path in current_state_paths:
         contents = path.read_text()
-        assert "SV1.13.2" in contents, f"{path} does not reflect current SV1.13.2 work"
+        assert "SV1.15" in contents, f"{path} does not reflect current SV1.15 work"
         for phrase in stale_current_truth_phrases:
             assert phrase not in contents, f"{path} still contains stale current truth: {phrase}"
 

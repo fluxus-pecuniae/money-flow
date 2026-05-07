@@ -47,14 +47,16 @@ Up: [[Money Flow Command Center]]
 - SV1.13 dashboard 2026-05-07: `apps/dashboard/` becomes a static local evidence-pack visualization surface for founder/operator review of the ignored SV1.13 JSON artifacts.
 - SV1.13.1 2026-05-07 interpretation truth: the existing Hyperliquid public evidence packs are interpreted for founder review with grouped aggregate semantics, scenario-level rows, ETH `sleeve_1h` concentration, fill/cost/drawdown/regime observations, and paper-trading design still deferred.
 - SV1.13.2 2026-05-07 dynamic equity simulation: Strategy Validation adds `dynamic_equity_pct` per-scenario capital sizing while preserving constant-notional replay as default; ETH `sleeve_1h` ends above starting equity across tested dynamic assumptions, 15m/4h end below starting equity, and paper-trading design remains deferred.
+- SV1.14 2026-05-07 trade anatomy diagnostics: Strategy Validation explains current entry/exit logic, ETH `sleeve_1h`, 15m, and 4h behavior, plus descriptive market-structure context without changing Money Flow rules.
+- SV1.15 2026-05-07 controlled hypothesis experiments: Strategy Validation compares research-only overlays and attribution against the Hyperliquid dynamic-equity baseline, keeps production rules unchanged, and defers lower-RSI admission until rejected-signal replay data exists.
 
 ## Current Next Shape
 
 See [[40 Operations/Future Work Roadmap]].
 
-Current implemented phase: `SV1.13.2` dynamic equity capital simulation; SV1.13 generated component-scoped evidence packs, SV1.13.1 clarifies that grouped aggregate research sums are not one account/scenario PnL, and SV1.13.2 adds per-scenario account-style dynamic-equity sizing.
+Current implemented phase: `SV1.15` controlled Money Flow hypothesis experiments; SV1.13 generated component-scoped evidence packs, SV1.13.2 added per-scenario dynamic-equity sizing, SV1.14 diagnosed trade anatomy/market structure, and SV1.15 compares isolated research overlays plus attribution against baseline.
 
-The next proposed Strategy Validation work is manual founder/operator review of the Hyperliquid-only constant-notional and dynamic-equity evidence before any explicitly approved paper-trading design scope. January 2026 remains archival/vendor-data-required. Aster/Binance identity verification/import, OKX/Coinbase trade-count sourcing, and Kraken archive/vendor/operator data are broader venue-comparison follow-ups. Paper-trading design remains deferred until founder/operator evidence review justifies it. Phase 8.1 remains deferred until explicitly scoped.
+The next proposed Strategy Validation work is manual founder/operator review of the Hyperliquid-only constant-notional, dynamic-equity, anatomy, and experiment evidence before any explicitly approved paper-trading design scope. January 2026 remains archival/vendor-data-required. Aster/Binance identity verification/import, OKX/Coinbase trade-count sourcing, and Kraken archive/vendor/operator data are broader venue-comparison follow-ups. Paper-trading design remains deferred until founder/operator evidence review justifies it. Phase 8.1 remains deferred until explicitly scoped.
 
 ## Strategic Memory
 

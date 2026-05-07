@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-07T19:38:54Z - SV1.15 - Hypothesis Experiments Are Research Overlays Only
+
+- `decision`: Add controlled Strategy Validation-only hypothesis experiments as overlays/attribution against the Hyperliquid public `dynamic_equity_pct` baseline, while keeping production Money Flow rules unchanged.
+- `why`: SV1.14 produced plausible rule-change hypotheses, but applying them directly to production rules would mix diagnostics, parameter changes, and authorization. SV1.15 keeps one-change-at-a-time comparisons founder-readable and clearly separates observed research deltas from production behavior.
+- `rejected_alternatives`: Modifying production RSI floors, market-structure filters, 15m regime filters, or 4h extension rules in place; stacking multiple filters and calling them one factor; treating ETH 1h preservation as paper-trading authorization; using lower-RSI admission without per-candle rejected-signal replay data.
+- `follow_up_implications`: Founder review can use SV1.15 to triage hypotheses, but true lower-RSI entry admission needs a later replay runner that persists rejected-candle indicator/market-structure features. No hypothesis is production-authorized, and paper/live design remains deferred.
+
 ## 2026-05-07T10:19:14Z - SV1.13.2 - Dynamic Equity Is Separate From Constant-Notional Replay
 
 - `decision`: Add `dynamic_equity_pct` as a first-class Strategy Validation capital sizing mode while preserving `constant_initial_capital_notional_per_trade` as the default and as the correct label for SV1.13/SV1.13.1 evidence.

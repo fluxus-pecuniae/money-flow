@@ -13,6 +13,43 @@ Entry schema:
 
 ---
 
+## v2026.05.07.008
+
+- `recorded_at_utc`: `2026-05-07T19:38:54Z`
+- `scope`: `SV1.15 controlled Money Flow hypothesis experiments`
+- `intent`: `Native entry. Added a Strategy Validation-only hypothesis experiment layer that compares SV1.14 one-change-at-a-time research variants against the Hyperliquid public dynamic-equity baseline without changing production Money Flow rules. The new module and CLI test resistance proximity, higher-low/support context, recent-low invalidation proxy, 15m sideways-regime avoidance, and 4h extension overlays; they also add lower-half RSI attribution and pullback/continuation attribution. Lower-RSI entry-admission variants are recorded as research designs but explicitly deferred until per-candle rejected-signal replay instrumentation exists, because existing evidence packs do not persist every rejected candle's full indicator/market-structure context. The founder report keeps grouped rows labeled as sums across independent research scenarios, uses dynamic_equity_pct for main comparisons, records no production authorization for any hypothesis, and preserves no paper/live/routing/execution behavior.`
+- `affected_files`:
+  - `services/strategy_validation/hypothesis_experiments.py`
+  - `services/strategy_validation/__init__.py`
+  - `scripts/run_money_flow_hypothesis_experiments.py`
+  - `tests/test_sv115_hypothesis_experiments.py`
+  - `tests/test_operational_docs.py`
+  - `docs/strategy_validation_sv1_15_hypothesis_experiments.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `KNOWN_ISSUES.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_sv115_hypothesis_experiments.py` passed: 6 tests.
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> .venv/bin/python scripts/run_money_flow_hypothesis_experiments.py --output docs/strategy_validation_sv1_15_hypothesis_experiments.md` passed.
+  - `.venv/bin/python -m compileall services/strategy_validation/hypothesis_experiments.py scripts/run_money_flow_hypothesis_experiments.py tests/test_sv115_hypothesis_experiments.py` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv115_hypothesis_experiments.py tests/test_operational_docs.py` passed: 17 tests.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv15_historical_data_readiness.py tests/test_sv151_candle_import_integrity.py tests/test_sv16_evidence_review.py tests/test_sv17_evidence_review_real_data_gaps.py tests/test_sv18_historical_data_bootstrap.py tests/test_sv181_evidence_schema_truth.py tests/test_sv19_evidence_status.py tests/test_sv191_evidence_target_and_import_truth.py tests/test_sv110_evidence_db_readiness.py tests/test_sv111_market_identity_preflight.py tests/test_sv1111_market_identity_preflight_hardening.py tests/test_sv1112_market_identity_preflight_governance.py tests/test_sv112_guarded_candle_import.py tests/test_sv1123_guarded_import_attempt.py tests/test_sv113_hyperliquid_public_evidence.py tests/test_sv1131_evidence_interpretation.py tests/test_sv1132_dynamic_equity.py tests/test_sv114_trade_anatomy_diagnostics.py tests/test_sv115_hypothesis_experiments.py` passed: 157 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_operational_docs.py` passed: 18 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: 641 tests.
+  - `git diff --check` passed.
+
 ## v2026.05.07.007
 
 - `recorded_at_utc`: `2026-05-07T12:18:47Z`
