@@ -38,6 +38,7 @@
 
       <nav class="view-tabs" aria-label="Dashboard sections">
         <button class="view-tab" type="button" data-view="evidence" aria-selected="true">Evidence</button>
+        <button class="view-tab" type="button" data-view="experiments" aria-selected="false">Experiments</button>
         <button class="view-tab" type="button" data-view="strategy" aria-selected="false">Strategy</button>
       </nav>
 
@@ -112,6 +113,77 @@
             <p id="run-table-subtitle">Scenario results from loaded batch reports; dynamic equity is per scenario and not one combined account.</p>
           </div>
           <div id="run-table" class="data-table-shell"></div>
+        </section>
+      </section>
+
+      <section id="experiments-view" class="dashboard-view" data-view-panel="experiments" hidden>
+        <section class="strategy-panel" aria-labelledby="experiments-title">
+          <div class="section-heading">
+            <h2 id="experiments-title">SV1.15 Hypothesis Experiments</h2>
+            <p>Dynamic-equity research variants, not production rule changes.</p>
+          </div>
+
+          <section class="metric-grid" aria-label="SV1.15 experiment summary">
+            <article class="metric-cell">
+              <span class="metric-label">Baseline Winner</span>
+              <strong>1H</strong>
+              <small>positive grouped dynamic-equity sum</small>
+            </article>
+            <article class="metric-cell">
+              <span class="metric-label">Largest 15m Lift</span>
+              <strong>$79.7k</strong>
+              <small>sideways-regime avoidance, still negative</small>
+            </article>
+            <article class="metric-cell">
+              <span class="metric-label">Largest 4h Lift</span>
+              <strong>$30.7k</strong>
+              <small>1.5% extension limit</small>
+            </article>
+            <article class="metric-cell warning-cell">
+              <span class="metric-label">Authorization</span>
+              <strong>None</strong>
+              <small>manual research review only</small>
+            </article>
+          </section>
+        </section>
+
+        <section class="split-layout">
+          <section class="component-panel" aria-labelledby="experiment-variant-title">
+            <div class="section-heading">
+              <h2 id="experiment-variant-title">One-Change Variants</h2>
+              <p>Delta vs baseline sums across independent scenarios.</p>
+            </div>
+            <div id="experiment-variant-cards" class="component-list"></div>
+          </section>
+
+          <section class="detail-panel" aria-labelledby="experiment-detail-title">
+            <div class="section-heading">
+              <h2 id="experiment-detail-title">Founder Readout</h2>
+              <p>What improved, what damaged ETH 1h, and what remains deferred.</p>
+            </div>
+            <div class="detail-grid">
+              <div class="detail-box detail-box-wide">
+                <h3>Baseline Dynamic Equity</h3>
+                <div id="experiment-baseline-table" class="data-table-shell"></div>
+              </div>
+              <div class="detail-box detail-box-wide">
+                <h3>ETH 1h Preservation</h3>
+                <div id="experiment-eth-table" class="data-table-shell"></div>
+              </div>
+              <div class="detail-box detail-box-wide">
+                <h3>Lower-RSI / Entry-Style Findings</h3>
+                <ul id="experiment-findings" class="check-list"></ul>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="table-panel" aria-labelledby="experiment-table-title">
+          <div class="section-heading">
+            <h2 id="experiment-table-title">Experiment Ledger</h2>
+            <p>Research-only variants. No hypothesis is authorized for production, paper, or live trading.</p>
+          </div>
+          <div id="experiment-table" class="data-table-shell"></div>
         </section>
       </section>
 

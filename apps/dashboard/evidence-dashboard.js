@@ -8,6 +8,146 @@
     "../../reports/strategy_validation/money_flow_hyperliquid_public_ytd_recent_dynamic_equity_sleeve_4h/20260507T104500Z/batch_report.json",
   ];
 
+  const SV115_BASELINE = [
+    {
+      component: "sleeve_15m",
+      scenarios: 36,
+      endingEquitySum: 274061.42,
+      netPnlSum: -85938.58,
+      minEndingEquity: 6459.22,
+      maxDrawdown: 3645.61,
+      trades: 7660,
+    },
+    {
+      component: "sleeve_1h",
+      scenarios: 36,
+      endingEquitySum: 381997.91,
+      netPnlSum: 21997.91,
+      minEndingEquity: 8313.22,
+      maxDrawdown: 2150.85,
+      trades: 4484,
+    },
+    {
+      component: "sleeve_4h",
+      scenarios: 36,
+      endingEquitySum: 287620.62,
+      netPnlSum: -72379.38,
+      minEndingEquity: 6772.35,
+      maxDrawdown: 3492.34,
+      trades: 1280,
+    },
+  ];
+
+  const SV115_VARIANTS = [
+    {
+      id: "extension_limit_4h_1_5pct",
+      label: "4h extension limit 1.5%",
+      component: "sleeve_4h",
+      baselineNet: -72379.38,
+      variantNet: -41687.13,
+      delta: 30692.25,
+      drawdown: 2179.32,
+      filtered: 240,
+      avoidedLosers: 196,
+      missedWinners: 44,
+      status: "observed improvement, needs more evidence",
+    },
+    {
+      id: "extension_limit_4h_2_0pct",
+      label: "4h extension limit 2.0%",
+      component: "sleeve_4h",
+      baselineNet: -72379.38,
+      variantNet: -66323.01,
+      delta: 6056.37,
+      drawdown: 3093.98,
+      filtered: 72,
+      avoidedLosers: 52,
+      missedWinners: 20,
+      status: "observed improvement, needs more evidence",
+    },
+    {
+      id: "higher_low_confirmation_20c",
+      label: "Higher-low confirmation",
+      component: "sleeve_15m + sleeve_1h",
+      baselineNet: -63940.66,
+      variantNet: -81652.17,
+      delta: -17711.51,
+      drawdown: 3645.61,
+      filtered: 408,
+      avoidedLosers: 251,
+      missedWinners: 157,
+      status: "deteriorated; damaged ETH 1h",
+    },
+    {
+      id: "recent_low_invalidation_proxy_20c",
+      label: "Recent-low invalidation proxy",
+      component: "sleeve_1h + sleeve_4h",
+      baselineNet: -50381.47,
+      variantNet: 247743.31,
+      delta: 298124.78,
+      drawdown: 1937.18,
+      filtered: 2088,
+      avoidedLosers: 2088,
+      missedWinners: 0,
+      status: "proxy only; needs exact replay",
+    },
+    {
+      id: "resistance_proximity_0_25pct",
+      label: "Resistance proximity 0.25%",
+      component: "all sleeves",
+      baselineNet: -136320.05,
+      variantNet: -107096.22,
+      delta: 29223.83,
+      drawdown: 3492.34,
+      filtered: 2974,
+      avoidedLosers: 2251,
+      missedWinners: 723,
+      status: "improved grouped result; slight ETH 1h damage",
+    },
+    {
+      id: "resistance_proximity_0_50pct",
+      label: "Resistance proximity 0.50%",
+      component: "all sleeves",
+      baselineNet: -136320.05,
+      variantNet: -100502.45,
+      delta: 35817.6,
+      drawdown: 3492.34,
+      filtered: 5612,
+      avoidedLosers: 4234,
+      missedWinners: 1378,
+      status: "improved grouped result; damaged ETH 1h",
+    },
+    {
+      id: "sideways_regime_avoidance_15m",
+      label: "15m sideways avoidance",
+      component: "sleeve_15m",
+      baselineNet: -85938.58,
+      variantNet: -6258.54,
+      delta: 79680.04,
+      drawdown: 600.73,
+      filtered: 6988,
+      avoidedLosers: 5459,
+      missedWinners: 1529,
+      status: "reduced 15m losses; still negative",
+    },
+  ];
+
+  const SV115_ETH_1H = [
+    ["higher_low_confirmation_20c", 27143.25, 20406.69, -6736.57, "deteriorated"],
+    ["recent_low_invalidation_proxy_20c", 27143.25, 118927.38, 91784.13, "preserved or improved, proxy caveat"],
+    ["resistance_proximity_0_25pct", 27143.25, 26599.19, -544.06, "slightly deteriorated"],
+    ["resistance_proximity_0_50pct", 27143.25, 3727.39, -23415.86, "damaged"],
+  ];
+
+  const SV115_FINDINGS = [
+    "Lower-RSI entry admission is not implemented; current evidence only supports RSI-zone attribution from completed trades.",
+    "ETH 1h completed trades were stronger in the upper half of the current RSI band than the lower half.",
+    "15m lower-band completed trades were negative across BTC, ETH, and SOL.",
+    "4h RSI zones were negative across symbols in this campaign.",
+    "ETH 1h continuation-style completed trades were stronger than pullback-style completed trades.",
+    "No variant is authorized for production, paper trading, or live trading.",
+  ];
+
   const state = {
     review: null,
     batches: [],
@@ -37,6 +177,11 @@
     regimeTable: document.querySelector("#regime-table"),
     checklist: document.querySelector("#review-checklist"),
     runTable: document.querySelector("#run-table"),
+    experimentVariantCards: document.querySelector("#experiment-variant-cards"),
+    experimentBaselineTable: document.querySelector("#experiment-baseline-table"),
+    experimentEthTable: document.querySelector("#experiment-eth-table"),
+    experimentFindings: document.querySelector("#experiment-findings"),
+    experimentTable: document.querySelector("#experiment-table"),
   };
 
   function decimal(value, fallback = 0) {
@@ -140,7 +285,7 @@
   }
 
   function setActiveView(view) {
-    state.activeView = view === "strategy" ? "strategy" : "evidence";
+    state.activeView = ["evidence", "experiments", "strategy"].includes(view) ? view : "evidence";
     elements.viewTabs.forEach((tab) => {
       tab.setAttribute("aria-selected", String(tab.dataset.view === state.activeView));
     });
@@ -384,6 +529,139 @@
     `;
   }
 
+  function renderExperimentCards() {
+    if (!elements.experimentVariantCards) return;
+    const maxMagnitude = Math.max(...SV115_VARIANTS.map((row) => Math.abs(row.delta)), 1);
+    elements.experimentVariantCards.innerHTML = SV115_VARIANTS.map((row) => {
+      const width = Math.max(3, Math.round((Math.abs(row.delta) / maxMagnitude) * 100));
+      return `
+        <article class="component-card experiment-card" aria-current="${row.delta >= 0}">
+          <div class="component-card-header">
+            <span class="component-card-title">${escapeHtml(row.label)}</span>
+            <span>${escapeHtml(row.component)}</span>
+          </div>
+          <div class="pnl-track" aria-label="Delta versus baseline magnitude">
+            <div class="pnl-fill ${row.delta >= 0 ? "positive" : ""}" style="width:${width}%"></div>
+          </div>
+          <div class="component-card-metrics">
+            <div class="mini-metric"><span>Delta</span><strong>${escapeHtml(money(row.delta))}</strong></div>
+            <div class="mini-metric"><span>Filtered</span><strong>${escapeHtml(row.filtered)}</strong></div>
+            <div class="mini-metric"><span>Status</span><strong>${escapeHtml(row.status)}</strong></div>
+          </div>
+        </article>
+      `;
+    }).join("");
+  }
+
+  function renderExperimentBaseline() {
+    if (!elements.experimentBaselineTable) return;
+    elements.experimentBaselineTable.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Scenarios</th>
+            <th>Ending Equity Sum</th>
+            <th>Net Account PnL Sum</th>
+            <th>Min Ending Equity</th>
+            <th>Max Drawdown</th>
+            <th>Trades</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${SV115_BASELINE.map((row) => `
+            <tr>
+              <td>${escapeHtml(row.component)}</td>
+              <td>${escapeHtml(row.scenarios)}</td>
+              <td>${escapeHtml(money(row.endingEquitySum))}</td>
+              <td>${escapeHtml(money(row.netPnlSum))}</td>
+              <td>${escapeHtml(money(row.minEndingEquity))}</td>
+              <td>${escapeHtml(money(row.maxDrawdown))}</td>
+              <td>${escapeHtml(row.trades)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderExperimentEth() {
+    if (!elements.experimentEthTable) return;
+    elements.experimentEthTable.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Variant</th>
+            <th>Baseline Net Sum</th>
+            <th>Variant Net Sum</th>
+            <th>Delta</th>
+            <th>ETH 1h Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${SV115_ETH_1H.map(([variant, baseline, result, delta, status]) => `
+            <tr>
+              <td>${escapeHtml(variant)}</td>
+              <td>${escapeHtml(money(baseline))}</td>
+              <td>${escapeHtml(money(result))}</td>
+              <td>${escapeHtml(money(delta))}</td>
+              <td>${escapeHtml(status)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderExperimentFindings() {
+    if (!elements.experimentFindings) return;
+    elements.experimentFindings.innerHTML = SV115_FINDINGS.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  }
+
+  function renderExperimentTable() {
+    if (!elements.experimentTable) return;
+    elements.experimentTable.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Variant</th>
+            <th>Baseline Net</th>
+            <th>Variant Net</th>
+            <th>Delta</th>
+            <th>Drawdown</th>
+            <th>Filtered</th>
+            <th>Losing Avoided</th>
+            <th>Winning Missed</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${SV115_VARIANTS.map((row) => `
+            <tr>
+              <td>${escapeHtml(row.id)}</td>
+              <td>${escapeHtml(money(row.baselineNet))}</td>
+              <td>${escapeHtml(money(row.variantNet))}</td>
+              <td>${escapeHtml(money(row.delta))}</td>
+              <td>${escapeHtml(money(row.drawdown))}</td>
+              <td>${escapeHtml(row.filtered)}</td>
+              <td>${escapeHtml(row.avoidedLosers)}</td>
+              <td>${escapeHtml(row.missedWinners)}</td>
+              <td>${escapeHtml(row.status)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderExperiments() {
+    renderExperimentCards();
+    renderExperimentBaseline();
+    renderExperimentEth();
+    renderExperimentFindings();
+    renderExperimentTable();
+  }
+
   function render() {
     const summaries = allSummaries();
     const selected = activeSummaries();
@@ -393,6 +671,7 @@
     renderComponentCards(summaries);
     renderDetail(selected);
     renderRunTable(selected);
+    renderExperiments();
   }
 
   function classifyJson(payload) {

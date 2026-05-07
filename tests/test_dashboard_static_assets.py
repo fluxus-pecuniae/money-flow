@@ -20,6 +20,9 @@ def test_evidence_dashboard_uses_gus_design_tokens_and_boundaries() -> None:
     assert "--color-scroll-highlight" in css
     assert "box-shadow" not in css
     assert "Evidence Dashboard" in html
+    assert "data-view=\"experiments\"" in html
+    assert "SV1.15 Hypothesis Experiments" in html
+    assert "sideways-regime avoidance, still negative" in html
     assert "data-view=\"strategy\"" in html
     assert "Strategy Logic" in html
     assert "EMA5 > EMA10 > SMA20" in html
@@ -27,6 +30,10 @@ def test_evidence_dashboard_uses_gus_design_tokens_and_boundaries() -> None:
     assert "RSI reaches the sleeve trim threshold" in html
     assert "Load JSON" in html
     assert "setActiveView" in js
+    assert "SV115_VARIANTS" in js
+    assert "sideways_regime_avoidance_15m" in js
+    assert "higher_low_confirmation_20c" in js
+    assert "No variant is authorized for production, paper trading, or live trading." in js
     assert "reports/strategy_validation_reviews/sv1_13_2_dynamic_equity_20260507T104500Z" in js
     assert "dynamic_equity_pct" in js
     assert "Ending Equity" in js

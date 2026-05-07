@@ -13,6 +13,23 @@ Entry schema:
 
 ---
 
+## v2026.05.07.009
+
+- `recorded_at_utc`: `2026-05-07T20:12:31Z`
+- `scope`: `SV1.15 dashboard experiment results wiring`
+- `intent`: `Native entry. Added a static dashboard Experiments tab that surfaces the committed SV1.15 controlled hypothesis results without generating new evidence packs or changing production Money Flow rules. The tab shows baseline dynamic-equity sums, one-change variant deltas, ETH 1h preservation, lower-RSI attribution caveats, and manual-review-only authorization boundaries.`
+- `affected_files`:
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `CHANGELOG.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js` passed.
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_operational_docs.py` passed: 13 tests.
+  - `git diff --check` passed.
+
 ## v2026.05.07.008
 
 - `recorded_at_utc`: `2026-05-07T19:38:54Z`
