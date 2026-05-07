@@ -83,13 +83,15 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "required Obsidian brain entrypoint" in command_center
-    assert re.search(r"Current implemented phase: `SV1\.13\.2`", current_phase)
+    assert re.search(r"Current implemented phase: `SV1\.14`", current_phase)
     assert "SV1.13.2" in command_center
+    assert "SV1.14" in command_center
     assert "Active Work" in coordination
     assert "Quant Engineer" in moved_memory
     assert "Strategy Validation" in moved_memory
     assert "SV1.9" in moved_memory
     assert "First Hyperliquid Public Campaign Evidence Packs" in moved_memory
+    assert "Trade Anatomy And Market-Structure Diagnostics" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
 

@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-07T10:19:14Z`
+Last reviewed: `2026-05-07T12:18:47Z`
 
 ## Active Follow-Ups
+
+### T-083
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.14 adds Money Flow trade-anatomy and market-structure diagnostics over existing Hyperliquid public dynamic-equity evidence. The founder report explains current readiness/entry/exit logic, confirms entries below the RSI sleeve floor are not allowed, shows ETH sleeve_1h anatomy, 15m and 4h weak anatomy, descriptive recent swing high/low context, and later-test hypotheses. Market structure remains diagnostic only, no filters or Money Flow rules changed, and paper/live/routing/execution behavior remains deferred.`
 
 ### T-082
 

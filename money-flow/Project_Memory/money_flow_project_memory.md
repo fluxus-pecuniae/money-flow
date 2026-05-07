@@ -1,5 +1,11 @@
 # Money Flow Project Memory — Team Chronicle
 
+## 2026-05-07T12:18:47Z SV1.14 - Trade Anatomy And Market-Structure Diagnostics
+
+SV1.14 adds diagnostic-only Money Flow trade-anatomy reporting over the Hyperliquid public dynamic-equity evidence. It explains current readiness gates, entry rules, and exit/reduce/hold logic; confirms Money Flow does not enter long when RSI is below the sleeve floor; and records that recent swing high/low, resistance/support proximity, and breakout context are descriptive diagnostics only, not current entry/exit filters.
+
+The diagnostics keep ETH `sleeve_1h` as the clearest positive pocket, show 15m weakness as high-trade-count/cost/chop-driven, and show 4h weakness as slower/sparser with larger adverse-excursion and late-invalidation risk in the tested window. Later hypotheses such as resistance proximity, higher-low confirmation, ATR/recent-low invalidation, 15m regime avoidance, and 4h extension limits remain future controlled tests. No Money Flow rules, parameters, paper/live behavior, routing/execution behavior, imports, or exchange calls changed.
+
 ## 2026-05-07T10:19:14Z SV1.13.2 - Dynamic Equity Capital Simulation
 
 SV1.13.2 adds `dynamic_equity_pct` as a first-class Strategy Validation capital sizing mode while preserving `constant_initial_capital_notional_per_trade` as the default and as the correct interpretation of SV1.13/SV1.13.1 evidence. In dynamic mode, each new trade sizes from current realized equity after prior closed-trade net PnL, then reports starting equity, ending equity, net account PnL, realized-equity min/max, equity drawdown, and insufficient-equity skips per scenario.

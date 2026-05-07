@@ -9,6 +9,13 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `rejected_alternatives`: Silently replacing constant-notional evidence; treating dynamic equity as full exchange margin/funding/liquidation simulation; combining BTC/ETH/SOL or fill/cost scenarios into one shared portfolio account; changing Money Flow rules; optimizing parameters; approving paper trading; adding routing/execution behavior.
 - `follow_up_implications`: Founder review can compare constant-notional replay and per-scenario dynamic-equity results. Paper-trading design remains deferred and would still need explicit manual acceptance plus separate margin/funding/liquidation/portfolio constraints if scoped later.
 
+## 2026-05-07T12:18:47Z - SV1.14 - Market Structure Is Diagnostic Only
+
+- `decision`: Add trade-anatomy and market-structure diagnostics as a read-only Strategy Validation layer rather than changing Money Flow entries/exits.
+- `why`: Founder review needs to understand why ETH `sleeve_1h` is strongest and why 15m/4h are weak before testing any rule changes. Recent swing high/low proximity, resistance/support context, and regime observations can explain behavior, but using them as filters would be a strategy change requiring a separately scoped controlled test.
+- `rejected_alternatives`: Adding market-structure filters in the same phase; optimizing parameters; treating ETH 1h as a recommended variant; approving paper trading; adding routing/execution behavior; importing other venues; calling exchange/private/signed/order endpoints.
+- `follow_up_implications`: Later SV work may test hypotheses one at a time, such as resistance proximity, higher-low confirmation, ATR/recent-low invalidation, 15m regime avoidance, or 4h extension limits. Until then, Money Flow rules remain unchanged and paper/live design remains deferred.
+
 ## 2026-05-07T08:03:28Z - SV1.13.1 - Grouped Evidence Aggregates Need Scenario Interpretation
 
 - `decision`: Keep grouped comparison sums available as descriptive research aggregates, but label them as sums across completed research runs and add founder-readable scenario-level interpretation before any paper-trading design discussion.

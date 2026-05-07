@@ -218,12 +218,12 @@
               <span class="component-card-title">${escapeHtml(summary.label)}</span>
               <span>${escapeHtml(summary.timeframe)}</span>
             </div>
-            <div class="pnl-track" aria-label="Net PnL magnitude">
+            <div class="pnl-track" aria-label="Sum net PnL across research runs magnitude">
               <div class="pnl-fill ${summary.totalNetPnl >= 0 ? "positive" : ""}" style="width:${width}%"></div>
             </div>
             <div class="component-card-metrics">
-              <div class="mini-metric"><span>Net</span><strong>${escapeHtml(money(summary.totalNetPnl))}</strong></div>
-              <div class="mini-metric"><span>Trades</span><strong>${escapeHtml(summary.totalTrades)}</strong></div>
+              <div class="mini-metric"><span>Sum Net</span><strong>${escapeHtml(money(summary.totalNetPnl))}</strong></div>
+              <div class="mini-metric"><span>Sum Trades</span><strong>${escapeHtml(summary.totalTrades)}</strong></div>
               <div class="mini-metric"><span>Drawdown</span><strong>${escapeHtml(money(summary.largestDrawdown))}</strong></div>
             </div>
           </button>
@@ -273,7 +273,7 @@
       return;
     }
 
-    elements.detailSubtitle.textContent = `${selected.label} / ${selected.window}`;
+    elements.detailSubtitle.textContent = `${selected.label} / ${selected.window} / grouped research sums, not one account`;
     renderBarList(
       elements.timingChart,
       selected.fillTiming,
@@ -298,9 +298,7 @@
             <th>Type</th>
             <th>Regime</th>
             <th>Trades</th>
-            <th>Sizing</th>
-            <th>Ending Equity</th>
-            <th>Net PnL</th>
+            <th>Sum Net PnL</th>
             <th>Win Rate</th>
           </tr>
         </thead>
@@ -353,7 +351,9 @@
             <th>Fill</th>
             <th>Fee</th>
             <th>Slip</th>
-            <th>Net PnL</th>
+            <th>Sizing</th>
+            <th>Ending Equity</th>
+            <th>Scenario Net PnL</th>
             <th>Win</th>
             <th>Trades</th>
             <th>Drawdown</th>

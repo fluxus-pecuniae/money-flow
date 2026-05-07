@@ -2,9 +2,9 @@
 
 ## Phase
 
-Current implemented phase: `SV1.13.2` dynamic equity capital simulation; SV1.13 generated component-scoped Hyperliquid public evidence packs, SV1.13.1 clarified grouped aggregate and constant-notional interpretation truth, and SV1.13.2 adds per-scenario `dynamic_equity_pct` sizing so founder review can compare starting and ending equity without changing Money Flow rules.
+Current implemented phase: `SV1.14` Money Flow trade anatomy and market-structure diagnostics; SV1.13 generated component-scoped Hyperliquid public evidence packs, SV1.13.1 clarified grouped aggregate and constant-notional interpretation truth, SV1.13.2 added per-scenario `dynamic_equity_pct` sizing, and SV1.14 explains why ETH `sleeve_1h` is strongest while 15m/4h are weak without changing Money Flow rules.
 
-Proposed next phase: manual founder/operator review of the Hyperliquid-only evidence interpretation before any explicitly scoped paper-trading design phase. Aster and Binance now have complete public native-trade-count candidate files but require separate non-trading identity verification/seed/import; OKX and Coinbase need a trade-count source or explicit canonical-contract decision; Kraken needs archive/vendor/operator data. Paper-trading design remains deferred until founder/operator evidence review justifies it. `Phase 8.1` remains deferred until explicitly scoped.
+Proposed next phase: manual founder/operator review of the Hyperliquid-only evidence interpretation and SV1.14 diagnostics before any controlled rule-change test or explicitly scoped paper-trading design phase. Candidate future tests include market-structure/resistance filters, higher-low confirmation, ATR/recent-low invalidation, 15m regime avoidance, and 4h extension limits, but none are implemented. Aster and Binance remain later comparative candidates after separate identity/import; OKX/Coinbase/Kraken remain blocked by source/history gaps. Paper-trading design remains deferred. `Phase 8.1` remains deferred until explicitly scoped.
 
 
 ## Pre-Paper / Live Trading Blockers

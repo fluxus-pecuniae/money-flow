@@ -13,6 +13,45 @@ Entry schema:
 
 ---
 
+## v2026.05.07.007
+
+- `recorded_at_utc`: `2026-05-07T12:18:47Z`
+- `scope`: `SV1.14 Money Flow trade anatomy and market-structure diagnostics`
+- `intent`: `Native entry. Added a diagnostic-only Strategy Validation layer that reads existing Hyperliquid public dynamic-equity evidence packs plus imported candles to explain current Money Flow rule logic, ETH sleeve_1h trade anatomy, 15m and 4h weak anatomy, no-trade/invalid/exit reason distributions, recent swing high/low market-structure context, and later-test hypotheses. The founder report states entries below the RSI sleeve floor are not allowed and market-structure diagnostics are not current entry/exit filters. Dashboard labels now clarify grouped sums versus per-scenario results and the Strategy tab records the RSI/market-structure boundary. This changes no Money Flow rules, optimizes no parameters, imports no candles, generates no evidence packs, calls no exchange/private/signed/order endpoints, creates no routing/execution/paper/live artifacts, and does not approve paper/live trading.`
+- `affected_files`:
+  - `services/strategy_validation/trade_anatomy.py`
+  - `services/strategy_validation/__init__.py`
+  - `scripts/run_money_flow_trade_anatomy_diagnostics.py`
+  - `tests/test_sv114_trade_anatomy_diagnostics.py`
+  - `tests/test_operational_docs.py`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `docs/strategy_validation_sv1_14_trade_anatomy_and_market_structure.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `KNOWN_ISSUES.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> .venv/bin/python scripts/run_money_flow_trade_anatomy_diagnostics.py --output docs/strategy_validation_sv1_14_trade_anatomy_and_market_structure.md` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv114_trade_anatomy_diagnostics.py` passed: 6 tests.
+  - `.venv/bin/python -m compileall services/strategy_validation scripts tests apps` passed.
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_sv1132_dynamic_equity.py tests/test_sv1131_evidence_interpretation.py` passed: 14 tests.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv114_trade_anatomy_diagnostics.py tests/test_dashboard_static_assets.py tests/test_sv1132_dynamic_equity.py tests/test_sv1131_evidence_interpretation.py tests/test_phase3_strategy.py tests/test_operational_docs.py` passed: 38 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv15_historical_data_readiness.py tests/test_sv151_candle_import_integrity.py tests/test_sv16_evidence_review.py tests/test_sv17_evidence_review_real_data_gaps.py tests/test_sv18_historical_data_bootstrap.py tests/test_sv181_evidence_schema_truth.py tests/test_sv19_evidence_status.py tests/test_sv191_evidence_target_and_import_truth.py tests/test_sv110_evidence_db_readiness.py tests/test_sv111_market_identity_preflight.py tests/test_sv1111_market_identity_preflight_hardening.py tests/test_sv1112_market_identity_preflight_governance.py tests/test_sv112_guarded_candle_import.py tests/test_sv1123_guarded_import_attempt.py tests/test_sv113_hyperliquid_public_evidence.py tests/test_sv1131_evidence_interpretation.py tests/test_sv1132_dynamic_equity.py tests/test_sv114_trade_anatomy_diagnostics.py` passed: 151 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: 635 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed after final coordination/docs update: 11 tests.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.14-review.zip` created a review bundle; ZIP inspection found no `.env`, `.venv`, Git metadata, caches, DB files, generated `reports/`, Obsidian app state, nested archives, or review bundles.
+
 ## v2026.05.07.006
 
 - `recorded_at_utc`: `2026-05-07T10:53:47Z`
