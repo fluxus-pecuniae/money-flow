@@ -2,9 +2,9 @@
 
 ## Phase
 
-Current implemented phase: `SV1.13` first Hyperliquid public campaign evidence packs; imported Hyperliquid public campaign candles generated component-scoped evidence packs for founder review.
+Current implemented phase: `SV1.13.1` Hyperliquid evidence interpretation truth / founder review pack; SV1.13 generated component-scoped Hyperliquid public evidence packs and SV1.13.1 clarifies grouped aggregate semantics, scenario-level evidence, and ETH `sleeve_1h` concentration for manual founder review.
 
-Proposed next phase: manual founder/operator review of the Hyperliquid-only evidence before any explicitly scoped paper-trading design phase. Aster and Binance now have complete public native-trade-count candidate files but require separate non-trading identity verification/seed/import; OKX and Coinbase need a trade-count source or explicit canonical-contract decision; Kraken needs archive/vendor/operator data. Paper-trading design remains deferred until founder/operator evidence review justifies it. `Phase 8.1` remains deferred until explicitly scoped.
+Proposed next phase: manual founder/operator review of the Hyperliquid-only evidence interpretation before any explicitly scoped paper-trading design phase. Aster and Binance now have complete public native-trade-count candidate files but require separate non-trading identity verification/seed/import; OKX and Coinbase need a trade-count source or explicit canonical-contract decision; Kraken needs archive/vendor/operator data. Paper-trading design remains deferred until founder/operator evidence review justifies it. `Phase 8.1` remains deferred until explicitly scoped.
 
 
 ## Pre-Paper / Live Trading Blockers
@@ -86,7 +86,11 @@ SV1.12.5 operator-approved Hyperliquid import on 2026-05-06 keeps the immediate 
 
 SV1.12.5.1 closes the import state and repo state before evidence generation. The closeout verifies the intended non-maintenance `money_flow` DB remains reachable/current at Alembic head `20260430_0025`, required `candles` / `instruments` / `symbols` tables exist, BTC/ETH/SOL Hyperliquid identity rows are operator-verified by `Tercirafael` while staying non-trading/non-strategy-eligible, persisted Hyperliquid public campaign candle counts match `25848` total and the expected symbol/timeframe breakdown, no evidence packs were generated, and the accepted SV1.12.x/SV1.12.4/SV1.12.5 source/docs/Obsidian state is committed for review.
 
-SV1.13 generates the first Hyperliquid public campaign evidence packs after reconfirming DB/schema/identity/candle readiness. The evidence review uses `configs/strategy_validation/campaigns/money_flow_hyperliquid_public_ytd_recent.json` only, expands component-specific public windows into `sleeve_15m`, `sleeve_1h`, and `sleeve_4h` evidence configs, and writes local ignored evidence packs under `reports/strategy_validation/`. The committed founder-readable summary is `docs/strategy_validation_sv1_13_hyperliquid_public_evidence_review.md`. Status is `ready_for_founder_review`; paper/live trading remains unapproved, Money Flow rules remain unchanged, and non-Hyperliquid venues remain future comparative work.
+SV1.13 generates the first Hyperliquid public campaign evidence packs after reconfirming DB/schema/identity/candle readiness. The evidence review uses `configs/strategy_validation/campaigns/money_flow_hyperliquid_public_ytd_recent.json` only, expands component-specific public windows into `sleeve_15m`, `sleeve_1h`, and `sleeve_4h` evidence configs, and writes local ignored evidence packs under `reports/strategy_validation/`. The committed founder-readable summary is `docs/strategy_validation_sv1_13_hyperliquid_public_evidence_review.md`. Status is `ready_for_founder_review`; paper/live trading remains unauthorized, Money Flow rules remain unchanged, and non-Hyperliquid venues remain future comparative work.
+
+SV1.13.1 adds the founder evidence interpretation truth layer. It reads the existing SV1.13 Hyperliquid evidence packs, clarifies that grouped aggregate totals are research-run sums rather than one account/scenario PnL, surfaces scenario-level fill/cost/drawdown truth, makes ETH `sleeve_1h` concentration explicit, and keeps paper-trading design deferred for manual founder review. It generates no new packs, imports no data, and changes no Money Flow rules.
+
+The SV1.13 dashboard update adds a static local `apps/dashboard/` review surface for those ignored local evidence artifacts. It uses the supplied design tokens/files, loads the SV1.13 evidence review plus component batch reports when served from the repo root, and supports manual JSON loading. It is visualization only: it does not generate evidence packs, import candles, approve paper/live trading, call exchange endpoints, optimize parameters, or change Money Flow rules.
 
 ## Accepted Baseline
 
@@ -133,7 +137,9 @@ SV1.13 generates the first Hyperliquid public campaign evidence packs after reco
 - 2026-05-06 SV1.12.5 supported-venue public-data research added an all-supported-venue data-plan config/report/script, produced 45 additional local CSVs under `/tmp/money-flow-sv1125-supported-venues-public/csv`, found Aster/Binance candidate files blocked by missing venue identity, found OKX/Coinbase blocked by missing public trade count, found Kraken blocked by incomplete public REST coverage, and imported no non-Hyperliquid candles.
 - 2026-05-06 SV1.12.5 operator-approved Hyperliquid import seeded BTC/ETH/SOL research identity as non-trading/non-strategy-eligible, preflighted all 9 public YTD/recent files, and inserted `25848` Hyperliquid candles into the intended migrated DB without generating evidence packs.
 - 2026-05-06 SV1.12.5.1 closeout verifies the imported DB state, identity state, candle counts, no-evidence-pack boundary, and repo/Obsidian state before SV1.13 evidence generation.
-- 2026-05-06 SV1.13 evidence review generated first Hyperliquid public campaign evidence packs from the imported `25848` candles, with status `ready_for_founder_review` and no paper/live approval.
+- 2026-05-06 SV1.13 evidence review generated first Hyperliquid public campaign evidence packs from the imported `25848` candles, with status `ready_for_founder_review` and no paper/live authorization.
+- 2026-05-07 SV1.13 dashboard update added a static local founder/operator visualization dashboard for the ignored evidence review and batch-report JSON files; manual evidence review remains the next step.
+- 2026-05-07 SV1.13.1 added founder interpretation truth for the existing Hyperliquid evidence packs: grouped sums are not one account/scenario PnL, ETH `sleeve_1h` concentration is explicit, and paper-trading design remains deferred.
 
 ## Hard Boundaries
 

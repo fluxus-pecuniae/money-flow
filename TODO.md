@@ -1,8 +1,20 @@
 # TODO
 
-Last reviewed: `2026-05-06T23:12:10Z`
+Last reviewed: `2026-05-07T07:50:13Z`
 
 ## Active Follow-Ups
+
+### T-080
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.13.1 added a founder-readable Hyperliquid evidence interpretation pack. It clarifies that grouped aggregate totals are sums across research runs, not one account/scenario PnL; shows scenario-level component/symbol/fill/cost/drawdown truth; makes ETH sleeve_1h concentration explicit; and keeps paper-trading design deferred for manual founder review. No new evidence packs, imports, Money Flow rule changes, routing/execution behavior, paper/live artifacts, private/signed/order endpoint calls, or cross-venue evidence merging were added.`
+
+### T-079
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `Added a static local SV1.13 evidence dashboard under apps/dashboard so the founder can review the Hyperliquid evidence packs in human-readable panels, charts, filters, and ledgers. The dashboard uses the supplied design tokens/files, loads ignored local reports/strategy_validation* JSON when served from the repo root, supports manual JSON file loading, and remains visualization-only: it does not generate evidence packs, import candles, call exchange endpoints, approve paper/live trading, or change Money Flow rules. Manual founder review of the evidence remains the next Strategy Validation step.`
 
 ### T-078
 

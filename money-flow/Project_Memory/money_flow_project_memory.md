@@ -1,5 +1,17 @@
 # Money Flow Project Memory — Team Chronicle
 
+## 2026-05-07T08:03:28Z SV1.13.1 - Evidence Interpretation Truth For Founder Review
+
+SV1.13.1 interprets the existing Hyperliquid public campaign evidence packs without regenerating packs, importing data, changing Money Flow rules, or approving paper/live trading. It adds a founder-readable interpretation report that separates individual scenario results from grouped aggregate research summaries.
+
+The key truth is that grouped totals across symbols, fill timings, fee assumptions, and slippage assumptions are descriptive sums across research runs, not one tradable account/scenario PnL. The report makes ETH `sleeve_1h` concentration explicit, shows fill-timing and cost sensitivity, records drawdown/regime/no-trade observations, and keeps paper-trading design deferred until manual founder/operator review accepts a later scope.
+
+## 2026-05-07T07:50:13Z SV1.13 Dashboard - Evidence Visualization For Founder Review
+
+SV1.13 now has a static local `apps/dashboard/` surface for reviewing ignored local evidence artifacts in a human-readable way. The dashboard uses the supplied design files/tokens, loads the SV1.13 Hyperliquid evidence review plus component batch reports from `reports/strategy_validation*` when served from the repo root, and supports manual JSON loading.
+
+This is visualization only. It does not generate evidence packs, import candles, call exchange endpoints, approve paper/live trading, optimize parameters, or change Money Flow rules. Manual founder/operator review of the Hyperliquid-only evidence remains the next Strategy Validation step.
+
 ## 2026-05-06T23:12:10Z SV1.13 - First Hyperliquid Public Campaign Evidence Packs
 
 SV1.13 generates the first Hyperliquid public campaign Money Flow evidence packs from the imported `25848` public YTD/recent candles in the intended local `money_flow` DB. The DB remains migrated/current at Alembic head `20260430_0025`, BTC/ETH/SOL Hyperliquid research identity remains operator-verified by `Tercirafael`, non-trading, and non-strategy-eligible, and evidence review expands the public campaign into component-scoped packs for `sleeve_15m`, `sleeve_1h`, and `sleeve_4h`.

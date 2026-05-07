@@ -1534,14 +1534,20 @@ def _group_comparison(
             {
                 label: value,
                 "run_count": run_count,
+                "scenario_count": run_count,
                 "completed_run_count": len(metrics),
                 "blocked_run_count": run_count - len(metrics),
                 "blocked_reason_counts": dict(sorted(blocked_reason_counts.items())),
                 "total_trades": total_trades,
+                "sum_trades_across_research_runs": total_trades,
                 "total_net_pnl": total_net_pnl,
+                "sum_net_pnl_across_research_runs": total_net_pnl,
                 "average_net_pnl": average_net_pnl,
+                "average_net_pnl_per_completed_run": average_net_pnl,
                 "total_fees": total_fees,
+                "sum_fees_across_research_runs": total_fees,
                 "total_slippage_cost": total_slippage,
+                "sum_slippage_cost_across_research_runs": total_slippage,
                 "largest_mark_to_market_drawdown": (
                     max(max_mtm_drawdown_values) if max_mtm_drawdown_values else None
                 ),
@@ -1579,7 +1585,12 @@ def _batch_regime_comparison(
                 "regime_label": regime_label,
                 "run_count": len(rows),
                 "total_trades": trade_count,
+                "scenario_count": len(rows),
                 "total_net_pnl": _money(sum((row["net_pnl"] for row in rows), Decimal("0"))),
+                "sum_trades_across_research_runs": trade_count,
+                "sum_net_pnl_across_research_runs": _money(
+                    sum((row["net_pnl"] for row in rows), Decimal("0"))
+                ),
                 "win_rate": _ratio(winning_estimate, Decimal(trade_count)) if trade_count else None,
                 "largest_mark_to_market_drawdown": max(drawdowns) if drawdowns else None,
             }
@@ -1676,6 +1687,20 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
     lines.extend(
         [
             "",
+            "## Grouped Aggregate Semantics",
+            "",
+            "Grouped comparison rows are descriptive aggregates across completed research runs in the group. "
+            "`sum_net_pnl_across_research_runs`, `sum_trades_across_research_runs`, fees, and slippage "
+            "costs are summed across separate symbol, fill-timing, fee, slippage, and window scenarios. "
+            "They are not one tradable account result and should not be read as single-scenario strategy PnL.",
+            "",
+            "`average_net_pnl_per_completed_run` is the mean across completed runs in that group. "
+            "Use scenario-level rows for assumption-specific interpretation and manual review.",
+        ]
+    )
+    lines.extend(
+        [
+            "",
             "## Run Summary",
             "",
             "| run id | status | components | fill timing | venue | symbol | window | trades | net PnL | win rate | profit factor | MTM drawdown | fees | slippage | limitations |",
@@ -1730,7 +1755,7 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
             "",
             "Regimes are deterministic descriptive labels only. They are not strategy filters, optimization inputs, or recommendations.",
             "",
-            "| regime type | label | runs | total trades | total net PnL | win rate | largest MTM drawdown |",
+            "| regime type | label | scenario count | sum trades across research runs | sum net PnL across research runs | win rate | largest MTM drawdown |",
             "| --- | --- | ---: | ---: | ---: | ---: | ---: |",
         ]
     )
@@ -1739,9 +1764,9 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
             "| "
             f"`{row['regime_type']}` | "
             f"`{row['regime_label']}` | "
-            f"{row['run_count']} | "
-            f"{row['total_trades']} | "
-            f"{row['total_net_pnl']} | "
+            f"{row.get('scenario_count', row['run_count'])} | "
+            f"{row.get('sum_trades_across_research_runs', row['total_trades'])} | "
+            f"{row.get('sum_net_pnl_across_research_runs', row['total_net_pnl'])} | "
             f"{row['win_rate']} | "
             f"{row['largest_mark_to_market_drawdown']} |"
         )
@@ -1750,7 +1775,7 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
             "",
             "## Fill-Timing Comparison",
             "",
-            "| fill timing | runs | completed | blocked | blocked reasons | total trades | total net PnL | average net PnL | largest MTM drawdown |",
+            "| fill timing | scenario count | completed | blocked | blocked reasons | sum trades across research runs | sum net PnL across research runs | average net PnL per completed run | largest MTM drawdown |",
             "| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |",
         ]
     )
@@ -1758,13 +1783,13 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
         lines.append(
             "| "
             f"`{row['fill_timing']}` | "
-            f"{row['run_count']} | "
+            f"{row.get('scenario_count', row['run_count'])} | "
             f"{row['completed_run_count']} | "
             f"{row['blocked_run_count']} | "
             f"`{row['blocked_reason_counts']}` | "
-            f"{row['total_trades']} | "
-            f"{row['total_net_pnl']} | "
-            f"{row['average_net_pnl']} | "
+            f"{row.get('sum_trades_across_research_runs', row['total_trades'])} | "
+            f"{row.get('sum_net_pnl_across_research_runs', row['total_net_pnl'])} | "
+            f"{row.get('average_net_pnl_per_completed_run', row['average_net_pnl'])} | "
             f"{row['largest_mark_to_market_drawdown']} |"
         )
     lines.extend(
@@ -1772,7 +1797,7 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
             "",
             "## Component Comparison",
             "",
-            "| component(s) | runs | completed | blocked | blocked reasons | total trades | total net PnL | average net PnL | largest MTM drawdown |",
+            "| component(s) | scenario count | completed | blocked | blocked reasons | sum trades across research runs | sum net PnL across research runs | average net PnL per completed run | largest MTM drawdown |",
             "| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |",
         ]
     )
@@ -1780,13 +1805,13 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
         lines.append(
             "| "
             f"`{row['component_keys']}` | "
-            f"{row['run_count']} | "
+            f"{row.get('scenario_count', row['run_count'])} | "
             f"{row['completed_run_count']} | "
             f"{row['blocked_run_count']} | "
             f"`{row['blocked_reason_counts']}` | "
-            f"{row['total_trades']} | "
-            f"{row['total_net_pnl']} | "
-            f"{row['average_net_pnl']} | "
+            f"{row.get('sum_trades_across_research_runs', row['total_trades'])} | "
+            f"{row.get('sum_net_pnl_across_research_runs', row['total_net_pnl'])} | "
+            f"{row.get('average_net_pnl_per_completed_run', row['average_net_pnl'])} | "
             f"{row['largest_mark_to_market_drawdown']} |"
         )
     if len(data["assumptions_matrix"]["symbols"]) > 1:
@@ -1795,7 +1820,7 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
                 "",
                 "## Symbol Comparison",
                 "",
-                "| symbol | runs | completed | blocked | blocked reasons | total trades | total net PnL | average net PnL | largest MTM drawdown |",
+                "| symbol | scenario count | completed | blocked | blocked reasons | sum trades across research runs | sum net PnL across research runs | average net PnL per completed run | largest MTM drawdown |",
                 "| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |",
             ]
         )
@@ -1803,13 +1828,13 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
             lines.append(
                 "| "
                 f"`{row['symbol']}` | "
-                f"{row['run_count']} | "
+                f"{row.get('scenario_count', row['run_count'])} | "
                 f"{row['completed_run_count']} | "
                 f"{row['blocked_run_count']} | "
                 f"`{row['blocked_reason_counts']}` | "
-                f"{row['total_trades']} | "
-                f"{row['total_net_pnl']} | "
-                f"{row['average_net_pnl']} | "
+                f"{row.get('sum_trades_across_research_runs', row['total_trades'])} | "
+                f"{row.get('sum_net_pnl_across_research_runs', row['total_net_pnl'])} | "
+                f"{row.get('average_net_pnl_per_completed_run', row['average_net_pnl'])} | "
                 f"{row['largest_mark_to_market_drawdown']} |"
             )
     if len(data["assumptions_matrix"]["date_windows"]) > 1:
@@ -1818,7 +1843,7 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
                 "",
                 "## Date-Window Comparison",
                 "",
-                "| date window | runs | completed | blocked | blocked reasons | total trades | total net PnL | average net PnL | largest MTM drawdown |",
+                "| date window | scenario count | completed | blocked | blocked reasons | sum trades across research runs | sum net PnL across research runs | average net PnL per completed run | largest MTM drawdown |",
                 "| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |",
             ]
         )
@@ -1826,13 +1851,13 @@ def strategy_validation_batch_report_to_markdown(report: StrategyValidationBatch
             lines.append(
                 "| "
                 f"`{row['date_window']}` | "
-                f"{row['run_count']} | "
+                f"{row.get('scenario_count', row['run_count'])} | "
                 f"{row['completed_run_count']} | "
                 f"{row['blocked_run_count']} | "
                 f"`{row['blocked_reason_counts']}` | "
-                f"{row['total_trades']} | "
-                f"{row['total_net_pnl']} | "
-                f"{row['average_net_pnl']} | "
+                f"{row.get('sum_trades_across_research_runs', row['total_trades'])} | "
+                f"{row.get('sum_net_pnl_across_research_runs', row['total_net_pnl'])} | "
+                f"{row.get('average_net_pnl_per_completed_run', row['average_net_pnl'])} | "
                 f"{row['largest_mark_to_market_drawdown']} |"
             )
     lines.extend(

@@ -7,7 +7,7 @@ Up: [[Money Flow Command Center]]
 - `apps/api/app/main.py` - FastAPI app bootstrap.
 - `apps/api/app/dependencies.py` - service wiring.
 - `apps/api/app/api/routes.py` - operator endpoints.
-- `apps/dashboard/README.md` - placeholder dashboard.
+- `apps/dashboard/` - static local Strategy Validation evidence dashboard.
 
 ## Core
 

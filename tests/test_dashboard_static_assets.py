@@ -1,0 +1,34 @@
+from pathlib import Path
+
+
+def test_evidence_dashboard_static_assets_exist() -> None:
+    dashboard_dir = Path("apps/dashboard")
+
+    assert (dashboard_dir / "index.html").exists()
+    assert (dashboard_dir / "evidence-dashboard.css").exists()
+    assert (dashboard_dir / "evidence-dashboard.js").exists()
+    assert (dashboard_dir / "README.md").exists()
+
+
+def test_evidence_dashboard_uses_gus_design_tokens_and_boundaries() -> None:
+    html = Path("apps/dashboard/index.html").read_text(encoding="utf-8")
+    css = Path("apps/dashboard/evidence-dashboard.css").read_text(encoding="utf-8")
+    js = Path("apps/dashboard/evidence-dashboard.js").read_text(encoding="utf-8")
+
+    assert "../../variables.css" in css
+    assert "--color-grid-canvas" in css
+    assert "--color-scroll-highlight" in css
+    assert "box-shadow" not in css
+    assert "Evidence Dashboard" in html
+    assert "data-view=\"strategy\"" in html
+    assert "Strategy Logic" in html
+    assert "EMA5 > EMA10 > SMA20" in html
+    assert "MACD > signal and histogram >= 0" in html
+    assert "RSI reaches the sleeve trim threshold" in html
+    assert "Load JSON" in html
+    assert "setActiveView" in js
+    assert "reports/strategy_validation_reviews/sv1_13_hyperliquid_public" in js
+    assert "calls_private_exchange_endpoints" in js
+    assert "calls_exchange_order_endpoints" in js
+    assert "Manual review" in js
+    assert "paper_trading_auto_approved" not in js

@@ -13,6 +13,107 @@ Entry schema:
 
 ---
 
+## v2026.05.07.003
+
+- `recorded_at_utc`: `2026-05-07T08:07:03Z`
+- `scope`: `Dashboard strategy-logic visualization tab`
+- `intent`: `Native entry. Added a read-only Strategy tab to the local evidence dashboard so the founder can inspect current Money Flow v1.1 logic visually next to evidence-pack results. The tab mirrors the existing services/strategy/money_flow.py rule flow: readiness gates, EMA/RSI/MACD/extension entry checks, existing-position close/reduce/hold checks, sleeve thresholds, and confidence-score ingredients. This changes no Money Flow rules, optimizes no parameters, generates no evidence, imports no candles, calls no exchange endpoints, approves no paper/live trading, and creates no live artifacts.`
+- `affected_files`:
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `CHANGELOG.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js` passed.
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py` passed.
+  - `.venv/bin/python -m compileall apps tests` passed.
+  - `curl -I http://127.0.0.1:8765/apps/dashboard/index.html` returned `200 OK` against the already-running local server.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed: 11 tests.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.13-dashboard-review.zip` refreshed the standard review bundle.
+
+## v2026.05.07.002
+
+- `recorded_at_utc`: `2026-05-07T07:45:49Z`
+- `scope`: `SV1.13.1 Hyperliquid evidence interpretation truth / founder review pack`
+- `intent`: `Native entry. Added a founder-readable SV1.13.1 interpretation report for the existing Hyperliquid public campaign evidence packs without regenerating packs, importing data, changing Money Flow rules, optimizing parameters, routing, executing, or creating paper/live artifacts. The report separates grouped aggregate research sums from scenario-level interpretation, records scenario-level component/symbol/fill/cost/drawdown/cost-sensitivity truth, makes ETH 1h concentration explicit, and keeps paper-trading design deferred for manual founder review. Batch Markdown labels now include grouped aggregate semantics and clearer sum/average labels so grouped totals are not mistaken for one tradable account result.`
+- `affected_files`:
+  - `services/strategy_validation/service.py`
+  - `tests/test_sv1131_evidence_interpretation.py`
+  - `tests/test_operational_docs.py`
+  - `docs/strategy_validation_sv1_13_hyperliquid_public_evidence_review.md`
+  - `docs/strategy_validation_sv1_13_1_hyperliquid_evidence_interpretation.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv1131_evidence_interpretation.py` passed: 4 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv113_hyperliquid_public_evidence.py` passed: 3 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_operational_docs.py` passed: 18 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py tests/test_sv13_research_campaigns.py tests/test_sv14_evidence_readiness.py tests/test_sv141_evidence_pack_integrity.py tests/test_sv15_historical_data_readiness.py tests/test_sv151_candle_import_integrity.py tests/test_sv16_evidence_review.py tests/test_sv17_evidence_review_real_data_gaps.py tests/test_sv18_historical_data_bootstrap.py tests/test_sv181_evidence_schema_truth.py tests/test_sv19_evidence_status.py tests/test_sv191_evidence_target_and_import_truth.py tests/test_sv110_evidence_db_readiness.py tests/test_sv111_market_identity_preflight.py tests/test_sv1111_market_identity_preflight_hardening.py tests/test_sv1112_market_identity_preflight_governance.py tests/test_sv112_guarded_candle_import.py tests/test_sv1122_identity_file_readiness.py tests/test_sv1123_guarded_import_attempt.py tests/test_sv1125_public_campaign_import.py tests/test_sv113_hyperliquid_public_evidence.py tests/test_sv1131_evidence_interpretation.py` passed: 150 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: 621 tests.
+  - `git diff --check` passed.
+
+## v2026.05.07.001
+
+- `recorded_at_utc`: `2026-05-07T07:50:13Z`
+- `scope`: `SV1.13 local evidence visualization dashboard`
+- `intent`: `Native entry. Replaced the placeholder dashboard with a static local founder/operator visualization surface for Strategy Validation evidence packs, using the newly supplied design-token files as the visual direction. The dashboard loads ignored local SV1.13 Hyperliquid evidence-review JSON plus component batch reports from reports/strategy_validation* when served from the repo root, supports manual JSON file loading, and renders review status, boundary flags, component/fill/symbol/regime summaries, manual-review checklist, and a top-run ledger in a human-readable UI. This is visualization only: it does not generate evidence packs, import candles, seed identity, call private/signed/order/exchange endpoints, approve paper/live trading, optimize parameters, change Money Flow rules, or create live artifacts.`
+- `affected_files`:
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `tests/test_dashboard_static_assets.py`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Repo Navigation.md`
+  - `money-flow/00 Maps/Component Map.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/30 Strategy/Business and Product Track.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/90 Reference/File Ownership Quick Reference.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js` passed.
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py` passed: 2 tests.
+  - `.venv/bin/python -m compileall apps tests` passed.
+  - `.venv/bin/python -m http.server 8765` started a local static server from the repo root.
+  - `curl -I http://127.0.0.1:8765/apps/dashboard/index.html` returned `200 OK`.
+  - `curl -I http://127.0.0.1:8765/apps/dashboard/evidence-dashboard.js` returned `200 OK`.
+  - `curl -I http://127.0.0.1:8765/reports/strategy_validation_reviews/sv1_13_hyperliquid_public/money_flow_evidence_review.json` returned `200 OK`.
+  - `curl -I http://127.0.0.1:8765/reports/strategy_validation/money_flow_hyperliquid_public_ytd_recent_sleeve_15m/20260506T231210Z/batch_report.json` returned `200 OK`.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed: 11 tests.
+  - `git diff --check` passed.
+  - `rg -n "Dashboard UI remains placeholder|apps/dashboard/.*placeholder|placeholder dashboard|not a production UI|still placeholder" money-flow README.md REPO_TREE.md docs apps tests` found no stale dashboard-placeholder references outside the active coordination row.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.13-dashboard-review.zip` produced the standard review bundle; zip listing showed expected design/dashboard files and no `.env`, virtualenv, Git metadata, generated evidence-pack directory, local DB files, or Obsidian app state.
+
 ## v2026.05.06.004
 
 - `recorded_at_utc`: `2026-05-06T23:12:10Z`

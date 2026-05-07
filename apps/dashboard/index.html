@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Money Flow Evidence Dashboard</title>
+    <link rel="stylesheet" href="./evidence-dashboard.css" />
+  </head>
+  <body>
+    <header class="top-strip">
+      <p>Strategy Validation Evidence Review</p>
+      <button class="menu-button" type="button" aria-label="Open evidence controls">
+        <span></span>
+        <span></span>
+      </button>
+    </header>
+
+    <main class="dashboard-shell" aria-labelledby="dashboard-title">
+      <section class="hero-band">
+        <div class="brand-mark" aria-hidden="true">MF</div>
+        <div>
+          <p class="eyebrow">Hyperliquid public campaign</p>
+          <h1 id="dashboard-title">Money Flow Evidence Dashboard</h1>
+        </div>
+        <div class="review-status" id="review-status">loading</div>
+      </section>
+
+      <section class="load-band" aria-label="Evidence data controls">
+        <div class="load-copy">
+          <strong id="data-source-label">Local reports</strong>
+          <span id="data-source-detail">Trying to load SV1.13 evidence JSON.</span>
+        </div>
+        <label class="file-control">
+          <span>Load JSON</span>
+          <input id="json-file-input" type="file" accept=".json,application/json" multiple />
+        </label>
+      </section>
+
+      <nav class="view-tabs" aria-label="Dashboard sections">
+        <button class="view-tab" type="button" data-view="evidence" aria-selected="true">Evidence</button>
+        <button class="view-tab" type="button" data-view="strategy" aria-selected="false">Strategy</button>
+      </nav>
+
+      <section id="evidence-view" class="dashboard-view" data-view-panel="evidence">
+        <section class="metric-grid" aria-label="Evidence summary metrics">
+          <article class="metric-cell">
+            <span class="metric-label">Packs</span>
+            <strong id="metric-packs">0</strong>
+            <small id="metric-packs-detail">generated</small>
+          </article>
+          <article class="metric-cell">
+            <span class="metric-label">Runs</span>
+            <strong id="metric-runs">0</strong>
+            <small id="metric-runs-detail">completed</small>
+          </article>
+          <article class="metric-cell">
+            <span class="metric-label">Coverage</span>
+            <strong id="metric-coverage">0%</strong>
+            <small>minimum</small>
+          </article>
+          <article class="metric-cell warning-cell">
+            <span class="metric-label">Paper/live</span>
+            <strong id="metric-boundary">blocked</strong>
+            <small>manual review only</small>
+          </article>
+        </section>
+
+        <section class="toolbar-band" aria-label="Evidence filters">
+          <div class="segment-group" id="component-filter" role="tablist" aria-label="Component filter"></div>
+          <div class="boundary-flags" id="boundary-flags"></div>
+        </section>
+
+        <section class="split-layout">
+          <section class="component-panel" aria-labelledby="component-title">
+            <div class="section-heading">
+              <h2 id="component-title">Component Results</h2>
+              <p id="component-subtitle">Net PnL, cost, trades, drawdown.</p>
+            </div>
+            <div id="component-cards" class="component-list"></div>
+          </section>
+
+          <section class="detail-panel" aria-labelledby="detail-title">
+            <div class="section-heading">
+              <h2 id="detail-title">Selected Evidence</h2>
+              <p id="detail-subtitle">Choose a component to inspect.</p>
+            </div>
+
+            <div class="detail-grid">
+              <div class="detail-box">
+                <h3>Timing</h3>
+                <div id="timing-chart" class="bar-list"></div>
+              </div>
+              <div class="detail-box">
+                <h3>Symbols</h3>
+                <div id="symbol-chart" class="bar-list"></div>
+              </div>
+              <div class="detail-box detail-box-wide">
+                <h3>Regimes</h3>
+                <div id="regime-table" class="data-table-shell"></div>
+              </div>
+              <div class="detail-box detail-box-wide">
+                <h3>Review Checklist</h3>
+                <ul id="review-checklist" class="check-list"></ul>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="table-panel" aria-labelledby="run-table-title">
+          <div class="section-heading">
+            <h2 id="run-table-title">Run Ledger</h2>
+            <p id="run-table-subtitle">Completed research runs from loaded batch reports.</p>
+          </div>
+          <div id="run-table" class="data-table-shell"></div>
+        </section>
+      </section>
+
+      <section id="strategy-view" class="dashboard-view" data-view-panel="strategy" hidden>
+        <section class="strategy-panel" aria-labelledby="strategy-map-title">
+          <div class="section-heading">
+            <h2 id="strategy-map-title">Strategy Logic</h2>
+            <p>Current Money Flow v1.1 rule flow, shown without changing rules.</p>
+          </div>
+
+          <div class="strategy-flow">
+            <article class="strategy-node">
+              <span class="node-index">01</span>
+              <h3>Readiness Gates</h3>
+              <p>Enabled family, active and strategy-eligible instrument, fresh market data, aligned indicators, latest candle, enough history, valid instrument mapping.</p>
+            </article>
+            <article class="strategy-node">
+              <span class="node-index">02</span>
+              <h3>Trend Stack</h3>
+              <p>Entry requires EMA5 above EMA10 above SMA20. Holding fails when the stack breaks or price falls below EMA10/SMA20.</p>
+            </article>
+            <article class="strategy-node">
+              <span class="node-index">03</span>
+              <h3>Momentum Checks</h3>
+              <p>RSI must sit inside the sleeve band, MACD must be constructive when confirmation is required, and price cannot be too extended above EMA5.</p>
+            </article>
+            <article class="strategy-node">
+              <span class="node-index">04</span>
+              <h3>Decision</h3>
+              <p>No position can open only when all entry checks pass. Existing positions can hold, reduce on RSI trim, or close on MA/trend/MACD failure.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="strategy-grid" aria-label="Strategy logic detail">
+          <article class="strategy-card">
+            <h3>Entry Path</h3>
+            <ol class="rule-chain">
+              <li><strong>Bullish alignment</strong><span>EMA5 > EMA10 > SMA20</span></li>
+              <li><strong>RSI constructive</strong><span>Inside the sleeve floor/ceiling and below overbought</span></li>
+              <li><strong>MACD constructive</strong><span>MACD > signal and histogram >= 0 when required</span></li>
+              <li><strong>Entry quality</strong><span>Pullback between EMA10 and allowed EMA5 extension, or continuation above EMA5 within extension limit</span></li>
+              <li><strong>Action</strong><span>Open, otherwise no_trade with the first failed reason code</span></li>
+            </ol>
+          </article>
+
+          <article class="strategy-card">
+            <h3>Position Path</h3>
+            <ol class="rule-chain">
+              <li><strong>MA break</strong><span>Close when EMA5 <= EMA10, EMA10 <= SMA20, or price < EMA10</span></li>
+              <li><strong>Trend invalidated</strong><span>Close when price < SMA20 or EMA5 <= EMA10</span></li>
+              <li><strong>MACD rollover</strong><span>Close when MACD < signal or histogram < 0</span></li>
+              <li><strong>RSI trim</strong><span>Reduce when RSI reaches the sleeve trim threshold</span></li>
+              <li><strong>Otherwise</strong><span>Hold while no exit condition is active</span></li>
+            </ol>
+          </article>
+
+          <article class="strategy-card strategy-card-wide">
+            <h3>Sleeve Settings</h3>
+            <div class="data-table-shell">
+              <table class="strategy-table">
+                <thead>
+                  <tr>
+                    <th>Sleeve</th>
+                    <th>History</th>
+                    <th>RSI band</th>
+                    <th>Overbought</th>
+                    <th>Trim</th>
+                    <th>Max EMA5 extension</th>
+                    <th>MACD</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>15m</td>
+                    <td>35 bars</td>
+                    <td>52-66</td>
+                    <td>72</td>
+                    <td>78</td>
+                    <td>1.8%</td>
+                    <td>required</td>
+                  </tr>
+                  <tr>
+                    <td>1h</td>
+                    <td>35 bars</td>
+                    <td>50-68</td>
+                    <td>74</td>
+                    <td>80</td>
+                    <td>2.0%</td>
+                    <td>required</td>
+                  </tr>
+                  <tr>
+                    <td>4h</td>
+                    <td>40 bars</td>
+                    <td>48-70</td>
+                    <td>76</td>
+                    <td>82</td>
+                    <td>2.5%</td>
+                    <td>required</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="strategy-card confidence-card">
+            <h3>Confidence Score</h3>
+            <div class="score-stack" aria-label="Confidence score ingredients">
+              <div><span>Base</span><strong>0.45</strong></div>
+              <div><span>Bullish stack</span><strong>+0.20</strong></div>
+              <div><span>RSI constructive</span><strong>+0.10</strong></div>
+              <div><span>MACD constructive</span><strong>+0.15</strong></div>
+              <div><span>Entry quality</span><strong>+0.10</strong></div>
+            </div>
+            <p class="strategy-note">The score is capped at 0.99 and is report context, not routing approval or paper/live authorization.</p>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <script src="./evidence-dashboard.js"></script>
+  </body>
+</html>

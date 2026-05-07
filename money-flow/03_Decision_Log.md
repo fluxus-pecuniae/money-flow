@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-07T08:03:28Z - SV1.13.1 - Grouped Evidence Aggregates Need Scenario Interpretation
+
+- `decision`: Keep grouped comparison sums available as descriptive research aggregates, but label them as sums across completed research runs and add founder-readable scenario-level interpretation before any paper-trading design discussion.
+- `why`: SV1.13 grouped metrics can sum across symbols, fill timings, fees, and slippage assumptions. Those sums are useful for research triage, but they are not one account/scenario PnL and could mislead founder review if interpreted as a tradable strategy result.
+- `rejected_alternatives`: Treating grouped totals as one strategy result; selecting or recommending a strategy variant from aggregate sums; changing Money Flow rules; optimizing parameters; approving paper trading; adding routing/execution behavior; combining non-Hyperliquid venues into the Hyperliquid evidence result.
+- `follow_up_implications`: Founder review should use scenario-level fill/cost/drawdown/regime evidence, with ETH `sleeve_1h` concentration explicitly reviewed, before any later paper-trading design phase is scoped.
+
 ## 2026-05-01T05:39:34Z - Phase 7.3 - Obsidian Becomes Strategic Brain
 
 - `decision`: Move full strategic project memory into the Obsidian vault and keep the repo-root `money_flow_project_memory.md` only as a compatibility pointer.
@@ -295,3 +302,10 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `why`: The public campaign has component-specific timeframe windows. Treating those windows as a Cartesian matrix would create false audit combinations, while Hyperliquid is the only venue with operator-verified research identity and imported public campaign candles in the intended DB.
 - `rejected_alternatives`: Combining Aster/Binance/OKX/Coinbase/Kraken with Hyperliquid; using the old January archival/vendor-data-required campaign as the public first-evidence baseline; treating generated evidence as paper/live approval; changing Money Flow rules or optimizing parameters.
 - `follow_up_implications`: Founder/operator manual review is now the next Strategy Validation step. Paper-trading design remains deferred unless explicitly approved after reviewing Hyperliquid-only data coverage, fill timing robustness, drawdown, regime behavior, costs, no-trade reasons, and standing pre-paper/live blockers.
+
+## 2026-05-07T07:50:13Z - SV1.13 Dashboard - Visualization Is Review-Only
+
+- `decision`: Add a static local dashboard for human review of generated Strategy Validation evidence artifacts, using the newly supplied design files and keeping it separate from evidence generation/import/trading workflows.
+- `why`: The founder needs a readable way to inspect evidence-pack results, fill-timing sensitivity, component behavior, symbols, regimes, and manual-review blockers without reading raw JSON or Markdown tables.
+- `rejected_alternatives`: Generating new evidence from the dashboard; connecting it to trading approval; adding API/exchange calls; treating visualization as proof of profitability; changing Money Flow strategy rules.
+- `follow_up_implications`: Manual founder/operator evidence review can use `apps/dashboard/`, but paper/live trading remains deferred until explicit approval and standing blockers are resolved.

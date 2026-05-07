@@ -6,7 +6,7 @@ Status: `ready_for_founder_review`
 
 Implementation commit: `cd6e79c`
 
-This report records the first real Money Flow evidence packs generated from imported Hyperliquid public campaign candles. It is research-only. It is not proof of profitability, not paper-trading approval, not live-trading approval, not a strategy recommendation, and not cross-venue Money Flow performance.
+This report records the first real Money Flow evidence packs generated from imported Hyperliquid public campaign candles. It is research-only. It is not proof of future outcomes, not paper-trading authorization, not live-trading authorization, not a strategy recommendation, and not cross-venue Money Flow performance.
 
 ## Scope
 
@@ -44,9 +44,11 @@ These generated packs are intentionally ignored by Git and review-bundle packagi
 
 ## High-Level Observations
 
+SV1.13.1 clarifies the interpretation of these tables: each fill-timing row below is a descriptive grouped aggregate across multiple completed research runs, including symbols and fee/slippage assumptions. The summed net PnL and trade counts are not one tradable account result. Use scenario-level rows in `docs/strategy_validation_sv1_13_1_hyperliquid_evidence_interpretation.md` for assumption-specific founder review.
+
 The 15m component produced completed runs but observed aggregate net PnL was negative under all fill-timing assumptions:
 
-| Fill timing | Observed total net PnL | Trades | Largest observed MTM drawdown |
+| Fill timing | Sum net PnL across research runs | Sum trades across research runs | Largest observed MTM drawdown |
 |---|---:|---:|---:|
 | `next_candle_close` | `-29780.77017100` | 2,500 | `4355.71891546` |
 | `next_candle_open` | `-33987.66171136` | 2,580 | `4373.47751921` |
@@ -54,7 +56,7 @@ The 15m component produced completed runs but observed aggregate net PnL was neg
 
 The 1h component produced completed runs with positive observed aggregate net PnL under all fill-timing assumptions, led by ETH concentration:
 
-| Fill timing | Observed total net PnL | Trades | Largest observed MTM drawdown |
+| Fill timing | Sum net PnL across research runs | Sum trades across research runs | Largest observed MTM drawdown |
 |---|---:|---:|---:|
 | `next_candle_close` | `3116.20951745` | 1,468 | `2133.26535823` |
 | `next_candle_open` | `10420.30076188` | 1,508 | `2364.77522310` |
@@ -62,7 +64,7 @@ The 1h component produced completed runs with positive observed aggregate net Pn
 
 The 4h component produced completed runs but observed aggregate net PnL was negative under all fill-timing assumptions:
 
-| Fill timing | Observed total net PnL | Trades | Largest observed MTM drawdown |
+| Fill timing | Sum net PnL across research runs | Sum trades across research runs | Largest observed MTM drawdown |
 |---|---:|---:|---:|
 | `next_candle_close` | `-26382.93849581` | 408 | `4062.42292869` |
 | `next_candle_open` | `-27049.49628213` | 436 | `4544.87301119` |
@@ -92,7 +94,7 @@ Founder/operator review should focus on:
 - whether fee/slippage assumptions remain realistic for Hyperliquid USDC perps;
 - whether the existing external-review blockers are resolved before any paper/live phase.
 
-Paper trading remains deferred. A later phase must be explicitly approved before paper-trading design or implementation begins.
+Paper trading remains deferred. A later phase must be explicitly scoped and founder-accepted before paper-trading design or implementation begins.
 
 ## Deferred Scope
 

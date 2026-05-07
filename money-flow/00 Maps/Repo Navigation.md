@@ -5,7 +5,7 @@ Up: [[Money Flow Command Center]]
 ## Important Repo Roots
 
 - `apps/api/` - FastAPI app and operator control plane.
-- `apps/dashboard/` - placeholder dashboard only.
+- `apps/dashboard/` - static local Strategy Validation evidence visualization dashboard.
 - `core/config/` - settings, profiles, runtime config.
 - `core/domain/` - typed domain models, enums, routed lifecycle parser.
 - `core/interfaces/` - protocol boundaries.

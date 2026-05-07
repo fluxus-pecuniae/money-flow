@@ -21,7 +21,7 @@ Up: [[Money Flow Command Center]]
 
 ## Dashboard Reality
 
-`apps/dashboard/` is still placeholder only. A real control plane UI remains future work.
+`apps/dashboard/` now contains a static local Strategy Validation evidence dashboard for founder/operator review of generated JSON evidence artifacts. A broader production control plane UI remains future work.
 
 ## Related Notes
 

@@ -1,7 +1,21 @@
-<html>
-  <body>
-    <h1>Dashboard Placeholder</h1>
-    <p>Phase 1 does not implement the monitoring dashboard UI yet.</p>
-  </body>
-</html>
+# Money Flow Evidence Dashboard
 
+Static local dashboard for founder/operator review of Strategy Validation evidence packs.
+
+Run it from the repo root so the dashboard can read ignored local evidence-pack JSON files:
+
+```bash
+.venv/bin/python -m http.server 8765
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8765/apps/dashboard/index.html
+```
+
+The dashboard tries to load the current SV1.13 Hyperliquid evidence review and component batch reports from `reports/strategy_validation*`. Those generated files stay ignored by Git and review bundles. If the files are not present, use the file picker in the dashboard to load `money_flow_evidence_review.json` and one or more `batch_report.json` files manually.
+
+The `Strategy` tab visualizes the current Money Flow v1.1 rule flow from `services/strategy/money_flow.py`, including readiness gates, entry checks, position-management checks, sleeve thresholds, and confidence scoring. It is a visual overview only and does not change strategy logic.
+
+This is a visualization surface only. It does not run Strategy Validation, generate evidence packs, import candles, call exchange endpoints, approve paper trading, or change Money Flow rules.

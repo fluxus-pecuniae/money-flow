@@ -21,7 +21,7 @@ Up: [[Money Flow Command Center]]
 
 ## Support / Placeholder Components
 
-- `apps/dashboard/` is still a placeholder, not a production UI.
+- `apps/dashboard/` is a static local Strategy Validation evidence visualization surface for founder/operator review.
 - `services/alerts/` is a placeholder; alert delivery is deferred.
 - `services/backtest/` is a placeholder; backtesting is deferred.
 
