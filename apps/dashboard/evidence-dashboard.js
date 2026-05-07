@@ -2,10 +2,10 @@
   "use strict";
 
   const DEFAULT_FILES = [
-    "../../reports/strategy_validation_reviews/sv1_13_hyperliquid_public/money_flow_evidence_review.json",
-    "../../reports/strategy_validation/money_flow_hyperliquid_public_ytd_recent_sleeve_15m/20260506T231210Z/batch_report.json",
-    "../../reports/strategy_validation/money_flow_hyperliquid_public_ytd_recent_sleeve_1h/20260506T231210Z/batch_report.json",
-    "../../reports/strategy_validation/money_flow_hyperliquid_public_ytd_recent_sleeve_4h/20260506T231210Z/batch_report.json",
+    "../../reports/strategy_validation_reviews/sv1_13_2_dynamic_equity_20260507T104500Z/money_flow_evidence_review.json",
+    "../../reports/strategy_validation/money_flow_hyperliquid_public_ytd_recent_dynamic_equity_sleeve_15m/20260507T104500Z/batch_report.json",
+    "../../reports/strategy_validation/money_flow_hyperliquid_public_ytd_recent_dynamic_equity_sleeve_1h/20260507T104500Z/batch_report.json",
+    "../../reports/strategy_validation/money_flow_hyperliquid_public_ytd_recent_dynamic_equity_sleeve_4h/20260507T104500Z/batch_report.json",
   ];
 
   const state = {
@@ -298,6 +298,8 @@
             <th>Type</th>
             <th>Regime</th>
             <th>Trades</th>
+            <th>Sizing</th>
+            <th>Ending Equity</th>
             <th>Net PnL</th>
             <th>Win Rate</th>
           </tr>
@@ -367,6 +369,8 @@
                   <td>${escapeHtml(row.fill_timing)}</td>
                   <td>${escapeHtml(row.fee_bps)}</td>
                   <td>${escapeHtml(row.slippage_bps)}</td>
+                  <td>${escapeHtml(row.metrics?.capital_sizing_mode || row.capital_sizing_mode || "constant_initial_capital_notional_per_trade")}</td>
+                  <td>${escapeHtml(money(row.metrics?.ending_equity ?? row.metrics?.net_pnl))}</td>
                   <td>${escapeHtml(money(row.metrics?.net_pnl))}</td>
                   <td>${escapeHtml(pct(row.metrics?.win_rate))}</td>
                   <td>${escapeHtml(row.metrics?.number_of_trades ?? 0)}</td>
@@ -425,8 +429,8 @@
       if (type === "batch") state.batches.push(payload);
     });
 
-    elements.sourceLabel.textContent = "Local reports loaded";
-    elements.sourceDetail.textContent = `${loaded.length} JSON files from ignored reports paths.`;
+    elements.sourceLabel.textContent = "Dynamic equity reports loaded";
+    elements.sourceDetail.textContent = `${loaded.length} JSON files from ignored SV1.13.2 dynamic_equity_pct reports paths.`;
     render();
   }
 

@@ -14,7 +14,7 @@ Then open:
 http://127.0.0.1:8765/apps/dashboard/index.html
 ```
 
-The dashboard tries to load the current SV1.13 Hyperliquid evidence review and component batch reports from `reports/strategy_validation*`. Those generated files stay ignored by Git and review bundles. If the files are not present, use the file picker in the dashboard to load `money_flow_evidence_review.json` and one or more `batch_report.json` files manually.
+The dashboard tries to load the current SV1.13.2 Hyperliquid dynamic-equity evidence review and component batch reports from `reports/strategy_validation*`. Those generated files stay ignored by Git and review bundles. If the files are not present, use the file picker in the dashboard to load `money_flow_evidence_review.json` and one or more `batch_report.json` files manually.
 
 The `Strategy` tab visualizes the current Money Flow v1.1 rule flow from `services/strategy/money_flow.py`, including readiness gates, entry checks, position-management checks, sleeve thresholds, and confidence scoring. It is a visual overview only and does not change strategy logic.
 

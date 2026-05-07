@@ -27,7 +27,9 @@ def test_evidence_dashboard_uses_gus_design_tokens_and_boundaries() -> None:
     assert "RSI reaches the sleeve trim threshold" in html
     assert "Load JSON" in html
     assert "setActiveView" in js
-    assert "reports/strategy_validation_reviews/sv1_13_hyperliquid_public" in js
+    assert "reports/strategy_validation_reviews/sv1_13_2_dynamic_equity_20260507T104500Z" in js
+    assert "dynamic_equity_pct" in js
+    assert "Ending Equity" in js
     assert "calls_private_exchange_endpoints" in js
     assert "calls_exchange_order_endpoints" in js
     assert "Manual review" in js

@@ -13,6 +13,22 @@ Entry schema:
 
 ---
 
+## v2026.05.07.006
+
+- `recorded_at_utc`: `2026-05-07T10:53:47Z`
+- `scope`: `SV1.13.2 dashboard default dynamic-equity evidence wiring`
+- `intent`: `Native entry. Updated the static local evidence dashboard to load the newly generated SV1.13.2 dynamic_equity_pct Hyperliquid evidence review and component batch reports by default, and added sizing / ending-equity columns so the account-style dynamic-equity numbers are visible without manual JSON selection. This changes visualization defaults only; it does not change Money Flow rules, import candles, generate additional evidence packs, call exchange endpoints, approve paper/live trading, or create routing/execution artifacts.`
+- `affected_files`:
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `CHANGELOG.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js` passed.
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py` passed: 2 tests.
+  - Local dashboard server was restarted from repo root at `http://127.0.0.1:8765/`.
+  - HTTP fetch checks confirmed the dashboard JS references `dynamic_equity_pct`, `20260507T104500Z`, and `Ending Equity`, and the dynamic 1h batch JSON exposes `capital_sizing_mode`, `ending_equity`, and `net_account_pnl`.
+
 ## v2026.05.07.005
 
 - `recorded_at_utc`: `2026-05-07T10:19:14Z`
