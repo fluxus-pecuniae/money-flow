@@ -52,6 +52,7 @@ class MoneyFlowResearchVariant:
     variant_type: str
     expected_benefit: str
     risk: str
+    methodology: str
     status: str = "experimental"
     research_only: bool = True
     changes_production_rules: bool = False
@@ -140,6 +141,23 @@ def build_money_flow_hypothesis_experiments(
             ),
         },
         "hypothesis_status": _hypothesis_status(variant_rows, baseline_rows),
+        "methodology_truth": {
+            "completed_trade_overlay_estimate": (
+                "Filters or adjusts already-completed baseline trades. It does not admit new alternative "
+                "trades, fully model changed position occupancy, fully model changed future capital path after "
+                "skipped entries, or fully model exact earlier exit fills."
+            ),
+            "lookahead_diagnostic_proxy": (
+                "Uses information from completed baseline trades to estimate an upper-bound diagnostic. It is "
+                "not a forward-tradable result and requires true candle-by-candle replay before candidate review."
+            ),
+            "reporting_only_attribution": "Labels completed baseline trades for explanation only.",
+            "deferred_requires_rejected_signal_replay": (
+                "Needs rejected-candle indicator and market-structure snapshots before new entry admission can be tested."
+            ),
+            "true_forward_replay": "No SV1.15.1 variant currently has this methodology.",
+        },
+        "next_step_mapping": _next_step_mapping(),
         "boundary_flags": {
             "changes_production_money_flow_rules": False,
             "optimizes_parameters_globally": False,
@@ -155,9 +173,11 @@ def build_money_flow_hypothesis_experiments(
         },
         "limitations": [
             "overlay_filters_compare_against_completed_baseline_research_trades",
+            "completed_trade_overlays_are_not_true_forward_replays",
+            "lookahead_proxy_results_are_not_candidate_rule_results",
             "lower_rsi_entry_admission_requires_later_per_candle_replay_instrumentation",
             "separate_scenarios_are_not_one_combined_account",
-        "no_variant_is_authorized_or_production_ready",
+            "no_variant_is_authorized_or_production_ready",
             "paper_trading_design_remains_deferred",
         ],
         "live_artifact_names_absent": list(FORBIDDEN_LIVE_ARTIFACT_NAMES),
@@ -186,6 +206,20 @@ def money_flow_hypothesis_experiments_to_markdown(report: dict[str, Any]) -> str
         "Scope: Hyperliquid USDC perpetual public-candle research only. Main comparisons use `dynamic_equity_pct`; "
         "each scenario remains independent and is not one combined account.",
         "",
+        "## Methodology Truth",
+        "",
+        "SV1.15.1 is a methodology-truth hotfix. Most SV1.15 variants are completed-trade overlay diagnostics, "
+        "not true candle-by-candle strategy replays.",
+        "",
+        "Completed-trade overlays filter or adjust already-completed baseline trades. They do not admit new alternative "
+        "trades, do not fully model changed position occupancy, do not fully model changed future capital after skipped "
+        "entries, and do not fully model exact earlier exit fills. They are useful for ranking hypotheses for later "
+        "replay work, not for authorizing rules.",
+        "",
+        "The `recent_low_invalidation_proxy_20c` result is a `lookahead_diagnostic_proxy`: it estimates an upper-bound "
+        "diagnostic from completed baseline losers and is not a forward-tradable result. Exact earlier exit timing and "
+        "fill modeling must be replayed before it can be considered for later candidate review.",
+        "",
         "## Baseline",
         "",
         "Baseline is current Money Flow rules with `dynamic_equity_pct` sizing.",
@@ -205,14 +239,14 @@ def money_flow_hypothesis_experiments_to_markdown(report: dict[str, Any]) -> str
             "",
             "## Experiment List",
             "",
-            "| Variant | Type | Applies To | Status | Research Boundary |",
-            "|---|---|---|---|---|",
+            "| Variant | Type | Methodology | Applies To | Status | Research Boundary |",
+            "|---|---|---|---|---|---|",
         ]
     )
     for variant in report["variant_definitions"]:
         applies_to = ",".join(variant["applicable_components"]) or "all"
         lines.append(
-            f"| `{variant['variant_id']}` | {variant['variant_type']} | {applies_to} | "
+            f"| `{variant['variant_id']}` | {variant['variant_type']} | `{variant['methodology']}` | {applies_to} | "
             f"{variant['status']} | research_only={str(variant['research_only']).lower()}, "
             f"changes_rules={str(variant['changes_production_rules']).lower()} |"
         )
@@ -224,13 +258,13 @@ def money_flow_hypothesis_experiments_to_markdown(report: dict[str, Any]) -> str
             "",
             "Grouped rows below are sums across independent research scenarios, not one account result.",
             "",
-            "| Variant | Scenarios | Baseline Net Sum | Variant Net Sum | Delta | Baseline Drawdown | Variant Drawdown | Baseline Trades | Variant Trades | Filtered Trades | Losing Trades Avoided | Winning Trades Missed |",
-            "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+            "| Variant | Methodology | Scenarios | Baseline Net Sum | Variant Net Sum | Delta | Baseline Drawdown | Variant Drawdown | Baseline Trades | Variant Trades | Filtered Trades | Losing Trades Avoided | Winning Trades Missed |",
+            "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
         ]
     )
     for row in report["variant_summary"]:
         lines.append(
-            f"| `{row['variant_id']}` | {row['scenario_count']} | {_money(row['baseline_net_account_pnl_sum'])} | "
+            f"| `{row['variant_id']}` | `{row['methodology']}` | {row['scenario_count']} | {_money(row['baseline_net_account_pnl_sum'])} | "
             f"{_money(row['variant_net_account_pnl_sum'])} | {_money(row['net_account_pnl_delta_sum'])} | "
             f"{_money(row['baseline_max_drawdown'])} | {_money(row['variant_max_drawdown'])} | "
             f"{row['baseline_trade_count']} | {row['variant_trade_count']} | {row['filtered_trade_count']} | "
@@ -312,9 +346,22 @@ def money_flow_hypothesis_experiments_to_markdown(report: dict[str, Any]) -> str
     lines.extend(
         [
             "",
+            "## What Each Hypothesis Needs Before Rule Testing",
+            "",
+            "| Hypothesis | Needed Before Rule Testing |",
+            "|---|---|",
+        ]
+    )
+    for key, value in report["next_step_mapping"].items():
+        lines.append(f"| `{key}` | {value} |")
+
+    lines.extend(
+        [
+            "",
             "## Interpretation Boundaries",
             "",
-            "- Observed improvements or deterioration are research observations only.",
+            "- Completed-trade overlay deltas are methodology-limited research observations only.",
+            "- The recent-low invalidation proxy is a lookahead diagnostic upper bound, not a candidate rule result.",
             "- No hypothesis receives authorization for production, paper trading, or live trading.",
             "- Lower RSI can represent constructive pullback pricing only when trend and support context remain intact; otherwise it can add falling-knife risk.",
             "- Full lower-RSI entry admission is intentionally deferred until the replay runner can persist rejected-candle feature rows.",
@@ -331,6 +378,8 @@ def money_flow_hypothesis_experiments_to_markdown(report: dict[str, Any]) -> str
             "## Deferred Work",
             "",
             "- Build a per-candle rejected-signal replay runner before adding new lower-RSI entry-admission tests.",
+            "- Build true forward replay for entry filters so skipped entries, position occupancy, and capital path are modeled.",
+            "- Build real exit replay for recent-low invalidation with actual stop time and fill assumptions.",
             "- Validate any candidate on additional windows before considering a separate founder-scoped paper-design phase.",
             "- Keep Aster/Binance/OKX/Coinbase/Kraken outside this Hyperliquid-only experiment result.",
         ]
@@ -366,6 +415,7 @@ def _research_variants() -> list[MoneyFlowResearchVariant]:
             variant_type="entry_filter",
             expected_benefit="reduce entries with limited room before resistance",
             risk="can miss continuation winners in strong trends",
+            methodology="completed_trade_overlay_estimate",
         ),
         MoneyFlowResearchVariant(
             variant_id="resistance_proximity_0_50pct",
@@ -378,6 +428,7 @@ def _research_variants() -> list[MoneyFlowResearchVariant]:
             variant_type="entry_filter",
             expected_benefit="reduce nearby-resistance chop",
             risk="can remove valid breakout continuation trades",
+            methodology="completed_trade_overlay_estimate",
         ),
         MoneyFlowResearchVariant(
             variant_id="higher_low_confirmation_20c",
@@ -390,6 +441,7 @@ def _research_variants() -> list[MoneyFlowResearchVariant]:
             variant_type="entry_filter",
             expected_benefit="favor pullbacks with visible nearby support context",
             risk="can over-filter ETH-like momentum pockets",
+            methodology="completed_trade_overlay_estimate",
         ),
         MoneyFlowResearchVariant(
             variant_id="recent_low_invalidation_proxy_20c",
@@ -402,7 +454,8 @@ def _research_variants() -> list[MoneyFlowResearchVariant]:
             variant_type="exit_filter",
             expected_benefit="estimate large-loss containment from structure invalidation",
             risk="proxy can overstate benefit because exact earlier exit fills are not replayed",
-            status="needs_more_evidence",
+            methodology="lookahead_diagnostic_proxy",
+            status="diagnostic_upper_bound_requires_forward_replay",
         ),
         MoneyFlowResearchVariant(
             variant_id="sideways_regime_avoidance_15m",
@@ -415,6 +468,7 @@ def _research_variants() -> list[MoneyFlowResearchVariant]:
             variant_type="entry_filter",
             expected_benefit="reduce high-frequency chop and repeated cost drag",
             risk="can miss early trend transitions",
+            methodology="completed_trade_overlay_estimate",
         ),
         MoneyFlowResearchVariant(
             variant_id="extension_limit_4h_2_0pct",
@@ -427,6 +481,7 @@ def _research_variants() -> list[MoneyFlowResearchVariant]:
             variant_type="entry_filter",
             expected_benefit="reduce late 4h entries",
             risk="can under-participate in persistent trends",
+            methodology="completed_trade_overlay_estimate",
         ),
         MoneyFlowResearchVariant(
             variant_id="extension_limit_4h_1_5pct",
@@ -439,6 +494,7 @@ def _research_variants() -> list[MoneyFlowResearchVariant]:
             variant_type="entry_filter",
             expected_benefit="test stricter 4h late-entry control",
             risk="can remove too many valid 4h trend entries",
+            methodology="completed_trade_overlay_estimate",
         ),
         MoneyFlowResearchVariant(
             variant_id="lower_half_rsi_attribution",
@@ -451,6 +507,7 @@ def _research_variants() -> list[MoneyFlowResearchVariant]:
             variant_type="reporting_only_attribution",
             expected_benefit="show whether winners already come from the lower side of the allowed RSI band",
             risk="does not admit new below-floor entries",
+            methodology="reporting_only_attribution",
             status="candidate_for_later_validation",
         ),
         MoneyFlowResearchVariant(
@@ -464,6 +521,7 @@ def _research_variants() -> list[MoneyFlowResearchVariant]:
             variant_type="reporting_only_attribution",
             expected_benefit="separate entry-style contribution before rule changes",
             risk="classification is simple and descriptive",
+            methodology="reporting_only_attribution",
             status="candidate_for_later_validation",
         ),
         MoneyFlowResearchVariant(
@@ -477,6 +535,7 @@ def _research_variants() -> list[MoneyFlowResearchVariant]:
             variant_type="experimental_entry_variant",
             expected_benefit="test whether lower pullback pricing improves long entries",
             risk="can add falling-knife trades if trend/support context is weak",
+            methodology="deferred_requires_rejected_signal_replay",
             status="needs_more_evidence",
         ),
         MoneyFlowResearchVariant(
@@ -490,6 +549,7 @@ def _research_variants() -> list[MoneyFlowResearchVariant]:
             variant_type="experimental_entry_variant",
             expected_benefit="distinguish constructive pullback from falling-knife weakness",
             risk="needs per-candle rejected-signal features to avoid lookahead or incomplete replay",
+            methodology="deferred_requires_rejected_signal_replay",
             status="needs_more_evidence",
         ),
     ]
@@ -531,6 +591,7 @@ def _simulate_variant_result(
     baseline = _baseline_result(run)
     return {
         "variant_id": variant.variant_id,
+        "methodology": variant.methodology,
         "run_id": run.get("run_id"),
         "component_key": run.get("component_key"),
         "symbol": run.get("symbol"),
@@ -626,6 +687,7 @@ def _summarize_variants(variant_rows: Sequence[dict[str, Any]], baseline_rows: S
         rows.append(
             {
                 "variant_id": variant_id,
+                "methodology": str(selected[0].get("methodology") or "unknown"),
                 "scenario_count": len(selected),
                 "baseline_net_account_pnl_sum": _sum(row["net_account_pnl"] for row in baselines),
                 "variant_net_account_pnl_sum": _sum(row["net_account_pnl"] for row in selected),
@@ -703,19 +765,61 @@ def _attribute_trades(trades: Sequence[dict[str, Any]], key: str) -> list[dict[s
 def _hypothesis_status(variant_rows: Sequence[dict[str, Any]], baseline_rows: Sequence[dict[str, Any]]) -> dict[str, list[str]]:
     del baseline_rows
     summary = _summarize_variants(variant_rows, [])
-    improved = [row["variant_id"] for row in summary if row["net_account_pnl_delta_sum"] > 0 and row["variant_trade_count"] > 0]
-    deteriorated = [row["variant_id"] for row in summary if row["net_account_pnl_delta_sum"] < 0]
-    no_trade = [row["variant_id"] for row in summary if row["variant_trade_count"] == 0]
-    needs_more = [
+    overlay_rows = [row for row in summary if row["methodology"] == "completed_trade_overlay_estimate"]
+    improved = [
+        row["variant_id"]
+        for row in overlay_rows
+        if row["net_account_pnl_delta_sum"] > 0 and row["variant_trade_count"] > 0
+    ]
+    deteriorated = [row["variant_id"] for row in overlay_rows if row["net_account_pnl_delta_sum"] < 0]
+    no_trade = [row["variant_id"] for row in overlay_rows if row["variant_trade_count"] == 0]
+    lookahead_proxy = [
+        row["variant_id"] for row in summary if row["methodology"] == "lookahead_diagnostic_proxy"
+    ]
+    reporting_only = [
+        "lower_half_rsi_attribution",
+        "pullback_vs_continuation_attribution",
+    ]
+    deferred = [
         "lower_rsi_floor_expansion_replay_required",
         "lower_rsi_pullback_trend_intact_replay_required",
-        "recent_low_invalidation_proxy_20c",
     ]
     return {
-        "observed_improvement_needs_more_evidence": sorted(improved),
-        "observed_deterioration_or_overfiltering": sorted(set(deteriorated + no_trade)),
-        "explicitly_deferred_for_replay_instrumentation": needs_more,
-        "not_authorized": sorted({*(row["variant_id"] for row in summary), *needs_more}),
+        "diagnostic_overlay_improved_needs_true_replay": sorted(improved),
+        "diagnostic_overlay_deteriorated_or_overfiltered": sorted(set(deteriorated + no_trade)),
+        "lookahead_proxy_upper_bound_not_candidate": sorted(lookahead_proxy),
+        "reporting_attribution_only": sorted(reporting_only),
+        "deferred_requires_rejected_signal_replay": sorted(deferred),
+        "not_authorized": sorted({*(row["variant_id"] for row in summary), *reporting_only, *deferred}),
+    }
+
+
+def _next_step_mapping() -> dict[str, str]:
+    return {
+        "resistance_proximity": (
+            "Build a true replay entry filter and test whether skipped entries alter later signal availability, "
+            "position occupancy, and capital path."
+        ),
+        "sideways_regime_avoidance_15m": (
+            "Build a true replay regime gate and confirm it does not simply remove nearly all 15m activity or "
+            "miss early trend transitions."
+        ),
+        "extension_limit_4h": (
+            "Build a true replay entry filter, test longer windows, and verify late-entry control without "
+            "over-removing durable trend participation."
+        ),
+        "higher_low_confirmation": (
+            "Redesign before replay; the completed-trade overlay deteriorated ETH 1h and may over-filter "
+            "constructive momentum pockets."
+        ),
+        "recent_low_invalidation": (
+            "Build real exit replay with actual stop time, fill timing, slippage, capital path, and missed-recovery "
+            "accounting. Current result is an upper-bound diagnostic only."
+        ),
+        "lower_rsi": (
+            "Add rejected-signal replay instrumentation with per-candle indicator and market-structure snapshots "
+            "before below-floor entry admission can be tested."
+        ),
     }
 
 

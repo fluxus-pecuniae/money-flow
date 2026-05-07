@@ -391,6 +391,12 @@ h3 {
   font-weight: var(--font-weight-bold);
 }
 
+.card-note {
+  margin: 0;
+  font-size: var(--text-caption);
+  line-height: var(--leading-body);
+}
+
 .component-card-metrics {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }

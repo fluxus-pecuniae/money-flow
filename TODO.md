@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-07T19:38:54Z`
+Last reviewed: `2026-05-08T00:00:00Z`
 
 ## Active Follow-Ups
+
+### T-086
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.15.1 hardens hypothesis-experiment methodology truth. Every SV1.15 variant now carries a methodology classification, completed-trade overlays are labeled as diagnostic estimates rather than true forward replays, recent-low invalidation is downgraded to a lookahead diagnostic upper bound that requires exact exit replay before candidate consideration, and lower-RSI admission remains deferred until rejected-signal replay instrumentation exists. No production Money Flow rules changed, no hypothesis is authorized, and paper/live/routing/execution behavior remains deferred.`
 
 ### T-084
 
@@ -14,7 +20,7 @@ Last reviewed: `2026-05-07T19:38:54Z`
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `Add per-candle rejected-signal replay instrumentation before testing true lower-RSI entry admission. Existing evidence packs include completed trades and aggregate no-trade reason counts, but not every rejected candle's full indicator/market-structure snapshot, so SV1.15 can attribute completed trades by RSI zone but cannot faithfully admit new below-floor entries without a later replay runner.`
+- `summary`: `Add per-candle rejected-signal replay instrumentation before testing true lower-RSI entry admission or true entry-filter variants. Existing evidence packs include completed trades and aggregate no-trade reason counts, but not every rejected candle's full indicator/market-structure snapshot, so SV1.15/SV1.15.1 can attribute completed trades by RSI zone and rank completed-trade overlays only. A later replay runner must model skipped entries, changed position availability, changed future capital path, and exact earlier exit timing/fills before any rule-change hypothesis can be considered a true forward replay.`
 
 ### T-083
 

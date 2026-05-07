@@ -1,12 +1,20 @@
 # SV1.15 Controlled Money Flow Hypothesis Experiments
 
-Recorded at: `2026-05-07T19:38:33Z`
+Recorded at: `2026-05-07T20:25:10Z`
 
 Status: `controlled_hypothesis_experiments_ready_for_founder_review`
 
 This report is research-only. It tests SV1.14 hypotheses as isolated Strategy Validation variants. No production Money Flow rules changed, no parameters were optimized globally, no routing/execution artifacts were created, and paper/live trading remains deferred.
 
 Scope: Hyperliquid USDC perpetual public-candle research only. Main comparisons use `dynamic_equity_pct`; each scenario remains independent and is not one combined account.
+
+## Methodology Truth
+
+SV1.15.1 is a methodology-truth hotfix. Most SV1.15 variants are completed-trade overlay diagnostics, not true candle-by-candle strategy replays.
+
+Completed-trade overlays filter or adjust already-completed baseline trades. They do not admit new alternative trades, do not fully model changed position occupancy, do not fully model changed future capital after skipped entries, and do not fully model exact earlier exit fills. They are useful for ranking hypotheses for later replay work, not for authorizing rules.
+
+The `recent_low_invalidation_proxy_20c` result is a `lookahead_diagnostic_proxy`: it estimates an upper-bound diagnostic from completed baseline losers and is not a forward-tradable result. Exact earlier exit timing and fill modeling must be replayed before it can be considered for later candidate review.
 
 ## Baseline
 
@@ -20,33 +28,33 @@ Baseline is current Money Flow rules with `dynamic_equity_pct` sizing.
 
 ## Experiment List
 
-| Variant | Type | Applies To | Status | Research Boundary |
-|---|---|---|---|---|
-| `resistance_proximity_0_25pct` | entry_filter | sleeve_15m,sleeve_1h,sleeve_4h | experimental | research_only=true, changes_rules=false |
-| `resistance_proximity_0_50pct` | entry_filter | sleeve_15m,sleeve_1h,sleeve_4h | experimental | research_only=true, changes_rules=false |
-| `higher_low_confirmation_20c` | entry_filter | sleeve_15m,sleeve_1h | experimental | research_only=true, changes_rules=false |
-| `recent_low_invalidation_proxy_20c` | exit_filter | sleeve_1h,sleeve_4h | needs_more_evidence | research_only=true, changes_rules=false |
-| `sideways_regime_avoidance_15m` | entry_filter | sleeve_15m | experimental | research_only=true, changes_rules=false |
-| `extension_limit_4h_2_0pct` | entry_filter | sleeve_4h | experimental | research_only=true, changes_rules=false |
-| `extension_limit_4h_1_5pct` | entry_filter | sleeve_4h | experimental | research_only=true, changes_rules=false |
-| `lower_half_rsi_attribution` | reporting_only_attribution | sleeve_15m,sleeve_1h,sleeve_4h | candidate_for_later_validation | research_only=true, changes_rules=false |
-| `pullback_vs_continuation_attribution` | reporting_only_attribution | sleeve_15m,sleeve_1h,sleeve_4h | candidate_for_later_validation | research_only=true, changes_rules=false |
-| `lower_rsi_floor_expansion_replay_required` | experimental_entry_variant | sleeve_15m,sleeve_1h,sleeve_4h | needs_more_evidence | research_only=true, changes_rules=false |
-| `lower_rsi_pullback_trend_intact_replay_required` | experimental_entry_variant | sleeve_15m,sleeve_1h,sleeve_4h | needs_more_evidence | research_only=true, changes_rules=false |
+| Variant | Type | Methodology | Applies To | Status | Research Boundary |
+|---|---|---|---|---|---|
+| `resistance_proximity_0_25pct` | entry_filter | `completed_trade_overlay_estimate` | sleeve_15m,sleeve_1h,sleeve_4h | experimental | research_only=true, changes_rules=false |
+| `resistance_proximity_0_50pct` | entry_filter | `completed_trade_overlay_estimate` | sleeve_15m,sleeve_1h,sleeve_4h | experimental | research_only=true, changes_rules=false |
+| `higher_low_confirmation_20c` | entry_filter | `completed_trade_overlay_estimate` | sleeve_15m,sleeve_1h | experimental | research_only=true, changes_rules=false |
+| `recent_low_invalidation_proxy_20c` | exit_filter | `lookahead_diagnostic_proxy` | sleeve_1h,sleeve_4h | diagnostic_upper_bound_requires_forward_replay | research_only=true, changes_rules=false |
+| `sideways_regime_avoidance_15m` | entry_filter | `completed_trade_overlay_estimate` | sleeve_15m | experimental | research_only=true, changes_rules=false |
+| `extension_limit_4h_2_0pct` | entry_filter | `completed_trade_overlay_estimate` | sleeve_4h | experimental | research_only=true, changes_rules=false |
+| `extension_limit_4h_1_5pct` | entry_filter | `completed_trade_overlay_estimate` | sleeve_4h | experimental | research_only=true, changes_rules=false |
+| `lower_half_rsi_attribution` | reporting_only_attribution | `reporting_only_attribution` | sleeve_15m,sleeve_1h,sleeve_4h | candidate_for_later_validation | research_only=true, changes_rules=false |
+| `pullback_vs_continuation_attribution` | reporting_only_attribution | `reporting_only_attribution` | sleeve_15m,sleeve_1h,sleeve_4h | candidate_for_later_validation | research_only=true, changes_rules=false |
+| `lower_rsi_floor_expansion_replay_required` | experimental_entry_variant | `deferred_requires_rejected_signal_replay` | sleeve_15m,sleeve_1h,sleeve_4h | needs_more_evidence | research_only=true, changes_rules=false |
+| `lower_rsi_pullback_trend_intact_replay_required` | experimental_entry_variant | `deferred_requires_rejected_signal_replay` | sleeve_15m,sleeve_1h,sleeve_4h | needs_more_evidence | research_only=true, changes_rules=false |
 
 ## One-Change-At-A-Time Comparison
 
 Grouped rows below are sums across independent research scenarios, not one account result.
 
-| Variant | Scenarios | Baseline Net Sum | Variant Net Sum | Delta | Baseline Drawdown | Variant Drawdown | Baseline Trades | Variant Trades | Filtered Trades | Losing Trades Avoided | Winning Trades Missed |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `extension_limit_4h_1_5pct` | 36 | $-72,379.38 | $-41,687.13 | $30,692.25 | $3,492.34 | $2,179.32 | 1280 | 1040 | 240 | 196 | 44 |
-| `extension_limit_4h_2_0pct` | 36 | $-72,379.38 | $-66,323.01 | $6,056.37 | $3,492.34 | $3,093.98 | 1280 | 1208 | 72 | 52 | 20 |
-| `higher_low_confirmation_20c` | 72 | $-63,940.66 | $-81,652.17 | $-17,711.51 | $3,645.61 | $3,645.61 | 12144 | 11736 | 408 | 251 | 157 |
-| `recent_low_invalidation_proxy_20c` | 72 | $-50,381.47 | $247,743.31 | $298,124.78 | $3,492.34 | $1,937.18 | 5764 | 3676 | 2088 | 2088 | 0 |
-| `resistance_proximity_0_25pct` | 108 | $-136,320.05 | $-107,096.22 | $29,223.83 | $3,645.61 | $3,492.34 | 13424 | 10450 | 2974 | 2251 | 723 |
-| `resistance_proximity_0_50pct` | 108 | $-136,320.05 | $-100,502.45 | $35,817.60 | $3,645.61 | $3,492.34 | 13424 | 7812 | 5612 | 4234 | 1378 |
-| `sideways_regime_avoidance_15m` | 36 | $-85,938.58 | $-6,258.54 | $79,680.04 | $3,645.61 | $600.73 | 7660 | 672 | 6988 | 5459 | 1529 |
+| Variant | Methodology | Scenarios | Baseline Net Sum | Variant Net Sum | Delta | Baseline Drawdown | Variant Drawdown | Baseline Trades | Variant Trades | Filtered Trades | Losing Trades Avoided | Winning Trades Missed |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `extension_limit_4h_1_5pct` | `completed_trade_overlay_estimate` | 36 | $-72,379.38 | $-41,687.13 | $30,692.25 | $3,492.34 | $2,179.32 | 1280 | 1040 | 240 | 196 | 44 |
+| `extension_limit_4h_2_0pct` | `completed_trade_overlay_estimate` | 36 | $-72,379.38 | $-66,323.01 | $6,056.37 | $3,492.34 | $3,093.98 | 1280 | 1208 | 72 | 52 | 20 |
+| `higher_low_confirmation_20c` | `completed_trade_overlay_estimate` | 72 | $-63,940.66 | $-81,652.17 | $-17,711.51 | $3,645.61 | $3,645.61 | 12144 | 11736 | 408 | 251 | 157 |
+| `recent_low_invalidation_proxy_20c` | `lookahead_diagnostic_proxy` | 72 | $-50,381.47 | $247,743.31 | $298,124.78 | $3,492.34 | $1,937.18 | 5764 | 3676 | 2088 | 2088 | 0 |
+| `resistance_proximity_0_25pct` | `completed_trade_overlay_estimate` | 108 | $-136,320.05 | $-107,096.22 | $29,223.83 | $3,645.61 | $3,492.34 | 13424 | 10450 | 2974 | 2251 | 723 |
+| `resistance_proximity_0_50pct` | `completed_trade_overlay_estimate` | 108 | $-136,320.05 | $-100,502.45 | $35,817.60 | $3,645.61 | $3,492.34 | 13424 | 7812 | 5612 | 4234 | 1378 |
+| `sideways_regime_avoidance_15m` | `completed_trade_overlay_estimate` | 36 | $-85,938.58 | $-6,258.54 | $79,680.04 | $3,645.61 | $600.73 | 7660 | 672 | 6988 | 5459 | 1529 |
 
 ## ETH 1h Preservation
 
@@ -129,14 +137,28 @@ Current production Money Flow does not enter below the RSI sleeve floor. SV1.15 
 
 | Bucket | Hypotheses |
 |---|---|
-| `observed_improvement_needs_more_evidence` | `extension_limit_4h_1_5pct`, `extension_limit_4h_2_0pct`, `recent_low_invalidation_proxy_20c`, `resistance_proximity_0_25pct`, `resistance_proximity_0_50pct`, `sideways_regime_avoidance_15m` |
-| `observed_deterioration_or_overfiltering` | `higher_low_confirmation_20c` |
-| `explicitly_deferred_for_replay_instrumentation` | `lower_rsi_floor_expansion_replay_required`, `lower_rsi_pullback_trend_intact_replay_required`, `recent_low_invalidation_proxy_20c` |
-| `not_authorized` | `extension_limit_4h_1_5pct`, `extension_limit_4h_2_0pct`, `higher_low_confirmation_20c`, `lower_rsi_floor_expansion_replay_required`, `lower_rsi_pullback_trend_intact_replay_required`, `recent_low_invalidation_proxy_20c`, `resistance_proximity_0_25pct`, `resistance_proximity_0_50pct`, `sideways_regime_avoidance_15m` |
+| `diagnostic_overlay_improved_needs_true_replay` | `extension_limit_4h_1_5pct`, `extension_limit_4h_2_0pct`, `resistance_proximity_0_25pct`, `resistance_proximity_0_50pct`, `sideways_regime_avoidance_15m` |
+| `diagnostic_overlay_deteriorated_or_overfiltered` | `higher_low_confirmation_20c` |
+| `lookahead_proxy_upper_bound_not_candidate` | `recent_low_invalidation_proxy_20c` |
+| `reporting_attribution_only` | `lower_half_rsi_attribution`, `pullback_vs_continuation_attribution` |
+| `deferred_requires_rejected_signal_replay` | `lower_rsi_floor_expansion_replay_required`, `lower_rsi_pullback_trend_intact_replay_required` |
+| `not_authorized` | `extension_limit_4h_1_5pct`, `extension_limit_4h_2_0pct`, `higher_low_confirmation_20c`, `lower_half_rsi_attribution`, `lower_rsi_floor_expansion_replay_required`, `lower_rsi_pullback_trend_intact_replay_required`, `pullback_vs_continuation_attribution`, `recent_low_invalidation_proxy_20c`, `resistance_proximity_0_25pct`, `resistance_proximity_0_50pct`, `sideways_regime_avoidance_15m` |
+
+## What Each Hypothesis Needs Before Rule Testing
+
+| Hypothesis | Needed Before Rule Testing |
+|---|---|
+| `resistance_proximity` | Build a true replay entry filter and test whether skipped entries alter later signal availability, position occupancy, and capital path. |
+| `sideways_regime_avoidance_15m` | Build a true replay regime gate and confirm it does not simply remove nearly all 15m activity or miss early trend transitions. |
+| `extension_limit_4h` | Build a true replay entry filter, test longer windows, and verify late-entry control without over-removing durable trend participation. |
+| `higher_low_confirmation` | Redesign before replay; the completed-trade overlay deteriorated ETH 1h and may over-filter constructive momentum pockets. |
+| `recent_low_invalidation` | Build real exit replay with actual stop time, fill timing, slippage, capital path, and missed-recovery accounting. Current result is an upper-bound diagnostic only. |
+| `lower_rsi` | Add rejected-signal replay instrumentation with per-candle indicator and market-structure snapshots before below-floor entry admission can be tested. |
 
 ## Interpretation Boundaries
 
-- Observed improvements or deterioration are research observations only.
+- Completed-trade overlay deltas are methodology-limited research observations only.
+- The recent-low invalidation proxy is a lookahead diagnostic upper bound, not a candidate rule result.
 - No hypothesis receives authorization for production, paper trading, or live trading.
 - Lower RSI can represent constructive pullback pricing only when trend and support context remain intact; otherwise it can add falling-knife risk.
 - Full lower-RSI entry admission is intentionally deferred until the replay runner can persist rejected-candle feature rows.
@@ -158,5 +180,7 @@ Current production Money Flow does not enter below the RSI sleeve floor. SV1.15 
 ## Deferred Work
 
 - Build a per-candle rejected-signal replay runner before adding new lower-RSI entry-admission tests.
+- Build true forward replay for entry filters so skipped entries, position occupancy, and capital path are modeled.
+- Build real exit replay for recent-low invalidation with actual stop time and fill assumptions.
 - Validate any candidate on additional windows before considering a separate founder-scoped paper-design phase.
 - Keep Aster/Binance/OKX/Coinbase/Kraken outside this Hyperliquid-only experiment result.

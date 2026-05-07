@@ -46,11 +46,12 @@
       baselineNet: -72379.38,
       variantNet: -41687.13,
       delta: 30692.25,
+      methodology: "completed_trade_overlay_estimate",
       drawdown: 2179.32,
       filtered: 240,
       avoidedLosers: 196,
       missedWinners: 44,
-      status: "observed improvement, needs more evidence",
+      status: "overlay improved; needs true replay",
     },
     {
       id: "extension_limit_4h_2_0pct",
@@ -59,11 +60,12 @@
       baselineNet: -72379.38,
       variantNet: -66323.01,
       delta: 6056.37,
+      methodology: "completed_trade_overlay_estimate",
       drawdown: 3093.98,
       filtered: 72,
       avoidedLosers: 52,
       missedWinners: 20,
-      status: "observed improvement, needs more evidence",
+      status: "overlay improved; needs true replay",
     },
     {
       id: "higher_low_confirmation_20c",
@@ -72,6 +74,7 @@
       baselineNet: -63940.66,
       variantNet: -81652.17,
       delta: -17711.51,
+      methodology: "completed_trade_overlay_estimate",
       drawdown: 3645.61,
       filtered: 408,
       avoidedLosers: 251,
@@ -85,11 +88,12 @@
       baselineNet: -50381.47,
       variantNet: 247743.31,
       delta: 298124.78,
+      methodology: "lookahead_diagnostic_proxy",
       drawdown: 1937.18,
       filtered: 2088,
       avoidedLosers: 2088,
       missedWinners: 0,
-      status: "proxy only; needs exact replay",
+      status: "upper-bound only; not candidate",
     },
     {
       id: "resistance_proximity_0_25pct",
@@ -98,11 +102,12 @@
       baselineNet: -136320.05,
       variantNet: -107096.22,
       delta: 29223.83,
+      methodology: "completed_trade_overlay_estimate",
       drawdown: 3492.34,
       filtered: 2974,
       avoidedLosers: 2251,
       missedWinners: 723,
-      status: "improved grouped result; slight ETH 1h damage",
+      status: "overlay improved; slight ETH 1h damage",
     },
     {
       id: "resistance_proximity_0_50pct",
@@ -111,11 +116,12 @@
       baselineNet: -136320.05,
       variantNet: -100502.45,
       delta: 35817.6,
+      methodology: "completed_trade_overlay_estimate",
       drawdown: 3492.34,
       filtered: 5612,
       avoidedLosers: 4234,
       missedWinners: 1378,
-      status: "improved grouped result; damaged ETH 1h",
+      status: "overlay improved; damaged ETH 1h",
     },
     {
       id: "sideways_regime_avoidance_15m",
@@ -124,6 +130,7 @@
       baselineNet: -85938.58,
       variantNet: -6258.54,
       delta: 79680.04,
+      methodology: "completed_trade_overlay_estimate",
       drawdown: 600.73,
       filtered: 6988,
       avoidedLosers: 5459,
@@ -140,12 +147,21 @@
   ];
 
   const SV115_FINDINGS = [
+    "Most SV1.15 numbers are completed-trade overlay estimates, not full candle-by-candle forward replays.",
+    "Recent-low invalidation is a lookahead diagnostic upper bound, not a candidate rule result until exact exit replay exists.",
     "Lower-RSI entry admission is not implemented; current evidence only supports RSI-zone attribution from completed trades.",
     "ETH 1h completed trades were stronger in the upper half of the current RSI band than the lower half.",
     "15m lower-band completed trades were negative across BTC, ETH, and SOL.",
     "4h RSI zones were negative across symbols in this campaign.",
     "ETH 1h continuation-style completed trades were stronger than pullback-style completed trades.",
     "No variant is authorized for production, paper trading, or live trading.",
+  ];
+
+  const SV115_METHODOLOGY = [
+    "completed_trade_overlay_estimate: filters already-completed baseline trades; useful for ranking hypotheses, not authorizing rules.",
+    "lookahead_diagnostic_proxy: uses completed-trade hindsight; current recent-low result is an upper-bound diagnostic only.",
+    "reporting_only_attribution: labels completed trades without changing entries or exits.",
+    "deferred_requires_rejected_signal_replay: lower-RSI admission needs rejected-signal instrumentation before true testing.",
   ];
 
   const state = {
@@ -181,6 +197,7 @@
     experimentBaselineTable: document.querySelector("#experiment-baseline-table"),
     experimentEthTable: document.querySelector("#experiment-eth-table"),
     experimentFindings: document.querySelector("#experiment-findings"),
+    experimentMethodology: document.querySelector("#experiment-methodology"),
     experimentTable: document.querySelector("#experiment-table"),
   };
 
@@ -540,6 +557,7 @@
             <span class="component-card-title">${escapeHtml(row.label)}</span>
             <span>${escapeHtml(row.component)}</span>
           </div>
+          <p class="card-note">${escapeHtml(row.methodology)}</p>
           <div class="pnl-track" aria-label="Delta versus baseline magnitude">
             <div class="pnl-fill ${row.delta >= 0 ? "positive" : ""}" style="width:${width}%"></div>
           </div>
@@ -616,6 +634,8 @@
   function renderExperimentFindings() {
     if (!elements.experimentFindings) return;
     elements.experimentFindings.innerHTML = SV115_FINDINGS.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+    if (!elements.experimentMethodology) return;
+    elements.experimentMethodology.innerHTML = SV115_METHODOLOGY.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
   }
 
   function renderExperimentTable() {
@@ -625,6 +645,7 @@
         <thead>
           <tr>
             <th>Variant</th>
+            <th>Methodology</th>
             <th>Baseline Net</th>
             <th>Variant Net</th>
             <th>Delta</th>
@@ -639,6 +660,7 @@
           ${SV115_VARIANTS.map((row) => `
             <tr>
               <td>${escapeHtml(row.id)}</td>
+              <td>${escapeHtml(row.methodology)}</td>
               <td>${escapeHtml(money(row.baselineNet))}</td>
               <td>${escapeHtml(money(row.variantNet))}</td>
               <td>${escapeHtml(money(row.delta))}</td>

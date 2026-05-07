@@ -13,6 +13,48 @@ Entry schema:
 
 ---
 
+## v2026.05.07.010
+
+- `recorded_at_utc`: `2026-05-07T20:36:12Z`
+- `scope`: `SV1.15.1 hypothesis experiment methodology truth hotfix`
+- `intent`: `Native entry. Hardened SV1.15 experiment interpretation so completed-trade overlays cannot be mistaken for true forward-replayed strategy variants. Every hypothesis now carries a methodology classification, report output explains completed-trade overlay limitations, lower-RSI entry-admission variants remain deferred until rejected-signal replay instrumentation exists, and recent_low_invalidation_proxy_20c is downgraded to a lookahead diagnostic upper bound rather than a normal improvement candidate. The dashboard Experiments tab now surfaces the same methodology labels and proxy warning. No production Money Flow rules, routing/execution behavior, paper/live artifacts, exchange calls, or hypothesis authorization were added.`
+- `affected_files`:
+  - `services/strategy_validation/hypothesis_experiments.py`
+  - `tests/test_sv115_hypothesis_experiments.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_operational_docs.py`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `docs/strategy_validation_sv1_15_hypothesis_experiments.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `KNOWN_ISSUES.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> .venv/bin/python scripts/run_money_flow_hypothesis_experiments.py --output docs/strategy_validation_sv1_15_hypothesis_experiments.md` passed.
+  - `node --check apps/dashboard/evidence-dashboard.js` passed.
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_sv115_hypothesis_experiments.py` passed: 11 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py tests/test_dashboard_static_assets.py tests/test_sv115_hypothesis_experiments.py` passed: 22 tests.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv114_trade_anatomy_diagnostics.py tests/test_sv115_hypothesis_experiments.py tests/test_dashboard_static_assets.py tests/test_phase3_strategy.py tests/test_operational_docs.py` passed: 35 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: 644 tests.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.15.1-review.zip` created a review bundle.
+  - Review ZIP inspection reported `299` entries and `0` forbidden artifacts across local envs, Git metadata, caches, DB files, generated strategy-validation reports/imports/candles, nested archives, Obsidian app state, and secrets.
+
 ## v2026.05.07.009
 
 - `recorded_at_utc`: `2026-05-07T20:12:31Z`

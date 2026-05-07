@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-07T19:38:54Z`
+Last reviewed: `2026-05-08T00:00:00Z`
 
 ## Top-Level Structure
 
@@ -52,6 +52,7 @@ Last reviewed: `2026-05-07T19:38:54Z`
 - SV1.13.2 adds `dynamic_equity_pct` capital sizing to Strategy Validation while preserving `constant_initial_capital_notional_per_trade` as the default. Dynamic evidence remains Hyperliquid-only and scenario-level; it does not import candles, generate evidence packs, change Money Flow rules, or create paper/live/routing artifacts.
 - SV1.14 keeps the same public campaign/evidence baseline and adds trade-anatomy / market-structure diagnostics over existing evidence packs and imported candles. It does not alter campaign configs or Money Flow rules.
 - SV1.15 keeps the same Hyperliquid public dynamic-equity evidence baseline and adds controlled research-only hypothesis experiments. It does not alter campaign configs, production Money Flow rules, paper/live behavior, routing, or execution.
+- SV1.15.1 hardens experiment methodology truth by labeling completed-trade overlays, reporting-only attribution, deferred rejected-signal replay variants, and lookahead diagnostic proxies so SV1.15 results are not mistaken for true forward replays or authorized rule changes.
 - SV1.11 adds `configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json`, an offline/manual manifest for research-only BTC/ETH/SOL Hyperliquid perpetual USDC `instruments` and `symbols` rows required before candle imports. SV1.11.1 marks the example as requiring operator verification before non-dry-run writes, SV1.11.2 keeps the research seed non-trading by rejecting true strategy/trading eligibility, and the 2026-05-05 SV1.12.x research pass updates the manifest with public Hyperliquid `meta`-verified asset ids, size decimals, leverage, margin table ids, and derived tick/step values while leaving operator verification and trading/strategy eligibility false.
 
 `money-flow/`
@@ -86,6 +87,7 @@ Last reviewed: `2026-05-07T19:38:54Z`
 - SV1.13.1 updates command/current-phase/decision/coordination/current-state/roadmap/timeline/project-memory notes for evidence interpretation truth and founder review readiness while preserving the no paper/live/routing/execution boundary.
 - SV1.14 updates command/current-phase/decision/coordination/current-state/roadmap notes for trade anatomy and descriptive market-structure diagnostics while preserving no-rule-change/no-paper-live/no-routing boundaries.
 - SV1.15 updates command/current-phase/decision/coordination/current-state/roadmap/project-memory notes for controlled research-only hypothesis experiments while preserving no-rule-change/no-paper-live/no-routing boundaries.
+- SV1.15.1 updates command/current-phase/decision/coordination/current-state/roadmap/project-memory notes for experiment methodology truth, including the recent-low lookahead proxy downgrade and completed-trade overlay limitations.
 - Obsidian app state under `money-flow/.obsidian/` remains ignored.
 
 `apps/api/`
@@ -97,6 +99,7 @@ Last reviewed: `2026-05-07T19:38:54Z`
 - Loads ignored local SV1.13 evidence-review JSON and component `batch_report.json` files from `reports/strategy_validation*` when served from the repo root, or accepts manual JSON file selection in the browser.
 - Uses the root design tokens/variables when present and keeps visualization read-only: no evidence-pack generation, candle import, paper/live approval, exchange endpoint calls, or Money Flow rule changes.
 - SV1.14 tightens labels so component cards are clearly sums across research runs and run rows are scenario results. The Strategy tab states RSI lower-floor entry truth and that market-structure diagnostics are not entry filters.
+- SV1.15/SV1.15.1 add the Experiments tab with static controlled-hypothesis results, methodology labels, the recent-low lookahead-proxy warning, and no-authorization boundaries.
 
 `core/config/`
 - Pydantic settings, environment profiles, runtime selection, and per-venue / strategy configuration.
@@ -149,8 +152,8 @@ Last reviewed: `2026-05-07T19:38:54Z`
 - Explains current Money Flow readiness/entry/exit logic, ETH `sleeve_1h` anatomy, 15m and 4h weak anatomy, descriptive recent swing high/low market-structure context, and later-test hypotheses without changing rules.
 
 `docs/strategy_validation_sv1_15_hypothesis_experiments.md`
-- Founder/operator-readable SV1.15 controlled experiment report.
-- Compares isolated research-only overlays against the dynamic-equity baseline, includes RSI and entry-style attribution, records lower-RSI admission as requiring later rejected-signal replay instrumentation, and keeps every hypothesis outside production Money Flow.
+- Founder/operator-readable SV1.15/SV1.15.1 controlled experiment and methodology-truth report.
+- Compares isolated research-only overlays against the dynamic-equity baseline, includes RSI and entry-style attribution, records lower-RSI admission as requiring later rejected-signal replay instrumentation, labels each variant by methodology, downgrades recent-low invalidation to a lookahead diagnostic upper bound, and keeps every hypothesis outside production Money Flow.
 
 `docs/strategy_validation_sv1_8_historical_data_bootstrap.md`
 - Founder/operator-readable SV1.8 historical-data bootstrap and first-real evidence review report.

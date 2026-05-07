@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-08T00:00:00Z - SV1.15.1 - Hypothesis Experiments Need Methodology Labels
+
+- `decision`: Classify every SV1.15 hypothesis by methodology and treat completed-trade overlays as diagnostic estimates, not true forward strategy replays.
+- `why`: SV1.15 mostly evaluates completed baseline trades. Skipping completed trades, proxying earlier exits, or attributing RSI/entry style can rank hypotheses, but it does not model alternative candle-by-candle entries, position occupancy, future capital path, or exact exit fill timing. Founder review would be misleading if these diagnostics looked like fully replayed strategy variants.
+- `rejected_alternatives`: Treating recent-low invalidation as a normal improvement candidate; treating completed-trade overlays as production-ready or paper-ready rule changes; testing lower-RSI admission without rejected-signal replay instrumentation; changing production Money Flow rules in the methodology hotfix.
+- `follow_up_implications`: True rule testing needs a forward replay runner that can evaluate rejected candles, model skipped entries and changed position availability, update dynamic equity along the altered path, and simulate exact earlier exit timing/fills. Paper/live design remains deferred.
+
 ## 2026-05-07T19:38:54Z - SV1.15 - Hypothesis Experiments Are Research Overlays Only
 
 - `decision`: Add controlled Strategy Validation-only hypothesis experiments as overlays/attribution against the Hyperliquid public `dynamic_equity_pct` baseline, while keeping production Money Flow rules unchanged.

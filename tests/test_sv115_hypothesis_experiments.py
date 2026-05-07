@@ -186,7 +186,26 @@ def test_baseline_comparison_is_present_for_each_filter_variant(tmp_path: Path) 
     for row in report["variant_results"]:
         assert "baseline_net_account_pnl" in row
         assert "net_account_pnl_delta" in row
+        assert "methodology" in row
         assert row["capital_sizing_mode"] == "dynamic_equity_pct"
+
+
+def test_every_variant_has_methodology_classification(tmp_path: Path) -> None:
+    batch = _batch_report(tmp_path / "batch_report.json")
+    report = build_money_flow_hypothesis_experiments(
+        [batch],
+        candles_by_symbol_timeframe={("ETH", "1h"): _candles("ETH", "1h")},
+    )
+    methodologies = {row["variant_id"]: row["methodology"] for row in report["variant_definitions"]}
+
+    assert methodologies["resistance_proximity_0_25pct"] == "completed_trade_overlay_estimate"
+    assert methodologies["higher_low_confirmation_20c"] == "completed_trade_overlay_estimate"
+    assert methodologies["sideways_regime_avoidance_15m"] == "completed_trade_overlay_estimate"
+    assert methodologies["extension_limit_4h_1_5pct"] == "completed_trade_overlay_estimate"
+    assert methodologies["recent_low_invalidation_proxy_20c"] == "lookahead_diagnostic_proxy"
+    assert methodologies["lower_half_rsi_attribution"] == "reporting_only_attribution"
+    assert methodologies["pullback_vs_continuation_attribution"] == "reporting_only_attribution"
+    assert methodologies["lower_rsi_floor_expansion_replay_required"] == "deferred_requires_rejected_signal_replay"
 
 
 def test_lower_rsi_and_pullback_sections_are_visible_without_rule_changes(tmp_path: Path) -> None:
@@ -200,9 +219,43 @@ def test_lower_rsi_and_pullback_sections_are_visible_without_rule_changes(tmp_pa
 
     assert "Lower-Half RSI Attribution Inside Current Band" in markdown
     assert "Lower RSI Floor Expansion / Pullback Variants" in markdown
+    assert "deferred_requires_rejected_signal_replay" in markdown
     assert "falling-knife risk" in markdown
     assert "Current production Money Flow does not enter below the RSI sleeve floor" in markdown
     assert "Pullback vs Continuation Attribution" in markdown
+
+
+def test_recent_low_proxy_is_downgraded_and_excluded_from_normal_improvement_bucket(tmp_path: Path) -> None:
+    batch = _batch_report(tmp_path / "batch_report.json")
+    report = build_money_flow_hypothesis_experiments(
+        [batch],
+        candles_by_symbol_timeframe={("ETH", "1h"): _candles("ETH", "1h")},
+    )
+    status = report["hypothesis_status"]
+    definitions = {row["variant_id"]: row for row in report["variant_definitions"]}
+    markdown = money_flow_hypothesis_experiments_to_markdown(report)
+
+    assert definitions["recent_low_invalidation_proxy_20c"]["methodology"] == "lookahead_diagnostic_proxy"
+    assert "recent_low_invalidation_proxy_20c" in status["lookahead_proxy_upper_bound_not_candidate"]
+    assert "recent_low_invalidation_proxy_20c" not in status["diagnostic_overlay_improved_needs_true_replay"]
+    assert "lookahead diagnostic upper bound" in markdown
+    assert "not a candidate rule result" in markdown
+
+
+def test_report_explains_completed_trade_overlay_limitations(tmp_path: Path) -> None:
+    batch = _batch_report(tmp_path / "batch_report.json")
+    markdown = money_flow_hypothesis_experiments_to_markdown(
+        build_money_flow_hypothesis_experiments(
+            [batch],
+            candles_by_symbol_timeframe={("ETH", "1h"): _candles("ETH", "1h")},
+        )
+    )
+
+    assert "completed-trade overlay diagnostics" in markdown
+    assert "not true candle-by-candle strategy replays" in markdown
+    assert "do not admit new alternative trades" in markdown
+    assert "do not fully model changed position occupancy" in markdown
+    assert "do not fully model exact earlier exit fills" in markdown
 
 
 def test_15m_sideways_and_4h_extension_variants_are_research_only(tmp_path: Path) -> None:

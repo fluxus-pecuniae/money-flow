@@ -2,9 +2,9 @@
 
 ## Phase
 
-Current implemented phase: `SV1.15` controlled Money Flow hypothesis experiments; SV1.14 diagnosed ETH `sleeve_1h`, 15m, and 4h behavior, and SV1.15 tests those ideas as Strategy Validation-only overlays/attribution against the Hyperliquid public dynamic-equity baseline without changing production Money Flow rules.
+Current implemented phase: `SV1.15.1` hypothesis experiment methodology truth hotfix; SV1.15.1 keeps SV1.15 diagnostic outputs but classifies each variant by methodology, makes completed-trade overlay limitations explicit, and downgrades recent-low invalidation to a lookahead diagnostic upper bound without changing production Money Flow rules.
 
-Proposed next phase: manual founder/operator review of the Hyperliquid-only evidence interpretation, dynamic-equity evidence, SV1.14 diagnostics, and SV1.15 controlled experiment results before any explicitly scoped paper-trading design phase. Lower-RSI entry admission remains deferred until per-candle rejected-signal replay instrumentation exists. Aster and Binance remain later comparative candidates after separate identity/import; OKX/Coinbase/Kraken remain blocked by source/history gaps. Paper-trading design remains deferred. `Phase 8.1` remains deferred until explicitly scoped.
+Proposed next phase: true replay instrumentation for methodology-valid hypothesis testing or manual founder/operator review of the Hyperliquid-only evidence interpretation, dynamic-equity evidence, SV1.14 diagnostics, and SV1.15.1 methodology-hardened experiment results before any explicitly scoped paper-trading design phase. Lower-RSI entry admission remains deferred until per-candle rejected-signal replay instrumentation exists. Aster and Binance remain later comparative candidates after separate identity/import; OKX/Coinbase/Kraken remain blocked by source/history gaps. Paper-trading design remains deferred. `Phase 8.1` remains deferred until explicitly scoped.
 
 
 ## Pre-Paper / Live Trading Blockers
@@ -98,6 +98,8 @@ SV1.14 adds trade anatomy and market-structure diagnostics over existing Hyperli
 
 SV1.15 adds controlled research-only Money Flow hypothesis experiments. It compares isolated overlays for resistance proximity, higher-low/support context, recent-low invalidation proxy, 15m sideways-regime avoidance, and 4h extension limits against the dynamic-equity baseline; it also adds lower-half RSI and pullback/continuation attribution. Lower-RSI entry admission is explicitly deferred until rejected-signal replay instrumentation exists. No hypothesis is production-authorized, no Money Flow rule changed, and paper/live/routing/execution behavior remains deferred.
 
+SV1.15.1 hardens methodology truth for those experiments. Completed-trade overlays are labeled `completed_trade_overlay_estimate`, reporting-only rows are labeled attribution, lower-RSI admission variants are labeled `deferred_requires_rejected_signal_replay`, and `recent_low_invalidation_proxy_20c` is downgraded to `lookahead_diagnostic_proxy` / upper-bound diagnostic only. These results can rank hypotheses for later true replay, but they are not validated rule changes, not paper/live approval, and not production Money Flow behavior.
+
 ## Accepted Baseline
 
 - Phase 7.0 added non-executing routing automation policy and dry-run plans.
@@ -149,6 +151,7 @@ SV1.15 adds controlled research-only Money Flow hypothesis experiments. It compa
 - 2026-05-07 SV1.13.2 added `dynamic_equity_pct` per-scenario capital sizing and founder dynamic-equity evidence: ETH `sleeve_1h` stayed above starting equity across tested dynamic assumptions, 15m/4h ended below starting equity, and paper-trading design remains deferred.
 - 2026-05-07 SV1.14 added trade anatomy and market-structure diagnostics without changing Money Flow rules.
 - 2026-05-07 SV1.15 added controlled research-only hypothesis experiments and attribution without changing production Money Flow rules; lower-RSI admission remains deferred pending rejected-signal replay instrumentation.
+- 2026-05-08 SV1.15.1 added methodology labels, completed-trade overlay limitation text, and a recent-low lookahead-proxy downgrade without changing production Money Flow rules.
 
 ## Hard Boundaries
 

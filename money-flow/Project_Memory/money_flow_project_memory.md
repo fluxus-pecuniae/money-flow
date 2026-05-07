@@ -1,5 +1,11 @@
 # Money Flow Project Memory — Team Chronicle
 
+## 2026-05-08T00:00:00Z SV1.15.1 - Hypothesis Experiment Methodology Truth
+
+SV1.15.1 hardens the interpretation of SV1.15 experiments. The controlled experiment layer remains useful for triage, but most variants are now explicitly classified as `completed_trade_overlay_estimate`, `reporting_only_attribution`, `deferred_requires_rejected_signal_replay`, or `lookahead_diagnostic_proxy`, not true forward strategy replays.
+
+The key downgrade is `recent_low_invalidation_proxy_20c`: it is now treated as a lookahead diagnostic upper bound, not a candidate rule result, because it uses completed-trade hindsight rather than replaying exact earlier exit timing and fills. True rule testing needs rejected-signal and forward-replay instrumentation that can model skipped entries, changed position availability, changed dynamic-equity path, and exact exit timing. No production Money Flow rules changed, no hypothesis is authorized, and paper/live/routing/execution behavior remains deferred.
+
 ## 2026-05-07T19:38:54Z SV1.15 - Controlled Money Flow Hypothesis Experiments
 
 SV1.15 adds a Strategy Validation-only experiment layer over the Hyperliquid public dynamic-equity evidence. It compares isolated overlays for resistance proximity, higher-low/support context, recent-low invalidation proxy, 15m sideways-regime avoidance, and 4h extension limits against current Money Flow baseline, and it adds RSI-zone plus pullback/continuation attribution for founder review.
