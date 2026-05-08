@@ -8,6 +8,10 @@
     "../../reports/strategy_validation/money_flow_hyperliquid_public_ytd_recent_dynamic_equity_sleeve_4h/20260507T104500Z/batch_report.json",
   ];
 
+  const DEFAULT_EXPERIMENT_SUMMARY_FILES = [
+    "../../docs/strategy_validation_sv1_17_true_replay_experiments_summary.json",
+  ];
+
   const SV115_BASELINE = [
     {
       component: "sleeve_15m",
@@ -176,6 +180,10 @@
     {
       id: "sv117_true_replay_round1",
       label: "SV1.17 replay round 1",
+    },
+    {
+      id: "sv117_true_replay_full_suite",
+      label: "SV1.17 full suite",
     },
   ];
 
@@ -365,12 +373,29 @@
     "SV1.16.1 counter truth: variant-admitted candles are separated from variant no-trade counts.",
   ];
 
+  const SV117_FULL_SUITE_FINDINGS = [
+    "SV1.17 full suite now covers BTC/ETH/SOL across sleeve_15m, sleeve_1h, and sleeve_4h.",
+    "Each row is an independent dynamic-equity true replay scenario, not one combined portfolio account.",
+    "15m baselines remain negative across BTC, ETH, and SOL in this public campaign.",
+    "ETH 1h baseline remains the only baseline scenario above starting equity.",
+    "Some variants improve losing BTC or ETH scenarios versus their own baseline, but several still finish below starting equity and need broader validation.",
+    "No variant is authorized for production, paper trading, or live trading.",
+  ];
+
+  const SV117_FULL_SUITE_METHODOLOGY = [
+    "full_suite_scope: BTC/ETH/SOL x sleeve_15m/sleeve_1h/sleeve_4h.",
+    "scenario_boundary: symbol + component + fill/cost assumptions define one independent account-style replay.",
+    "delta_vs_baseline: variant ending equity minus the matching same-symbol/same-component baseline.",
+    "dashboard_source: docs/strategy_validation_sv1_17_true_replay_experiments_summary.json.",
+  ];
+
   const state = {
     review: null,
     batches: [],
     selectedComponent: "all",
     activeView: "evidence",
     experimentMode: "sv115_overlays",
+    sv117FullSuiteRows: null,
   };
 
   const elements = {
@@ -776,7 +801,7 @@
         <article class="component-card experiment-card" aria-current="${row.delta >= 0}">
           <div class="component-card-header">
             <span class="component-card-title">${escapeHtml(row.label)}</span>
-            <span>${escapeHtml(row.component)}</span>
+            <span>${escapeHtml(row.symbol ? `${row.symbol} ${row.component}` : row.component)}</span>
           </div>
           <p class="card-note">${escapeHtml(row.methodology)}</p>
           <div class="pnl-track" aria-label="Delta versus baseline magnitude">
@@ -863,13 +888,17 @@
   function renderExperimentFindings() {
     if (!elements.experimentFindings) return;
     const findings =
-      state.experimentMode === "sv117_true_replay_round1"
+      state.experimentMode === "sv117_true_replay_full_suite"
+        ? SV117_FULL_SUITE_FINDINGS
+        : state.experimentMode === "sv117_true_replay_round1"
         ? SV117_REPLAY_FINDINGS
         : state.experimentMode === "sv116_true_replay"
           ? SV116_REPLAY_FINDINGS
           : SV115_FINDINGS;
     const methodology =
-      state.experimentMode === "sv117_true_replay_round1"
+      state.experimentMode === "sv117_true_replay_full_suite"
+        ? SV117_FULL_SUITE_METHODOLOGY
+        : state.experimentMode === "sv117_true_replay_round1"
         ? SV117_REPLAY_METHODOLOGY
         : state.experimentMode === "sv116_true_replay"
           ? SV116_REPLAY_METHODOLOGY
@@ -941,36 +970,59 @@
   function renderExperimentHeader() {
     const replayMode = isReplayExperimentMode();
     const sv117Mode = state.experimentMode === "sv117_true_replay_round1";
+    const sv117FullSuiteMode = state.experimentMode === "sv117_true_replay_full_suite";
     elements.experimentsTitle.textContent = replayMode
-      ? sv117Mode
+      ? sv117FullSuiteMode
+        ? "SV1.17 Full-Suite True Replay"
+        : sv117Mode
         ? "SV1.17 True Replay Round 1"
         : "SV1.16 True Replay Results"
       : "SV1.15 Hypothesis Experiments";
     elements.experimentsSubtitle.textContent = replayMode
-      ? sv117Mode
+      ? sv117FullSuiteMode
+        ? "BTC/ETH/SOL across 15m/1h/4h; every row is an independent research replay scenario."
+        : sv117Mode
         ? "Lower-RSI plus market-structure replay variants; research-only and not production rule changes."
         : "Rejected-signal replay; true replay remains research-only and not a production rule change."
       : "Dynamic-equity diagnostics; overlays are not true forward replays or production rule changes.";
     elements.experimentMetricALabel.textContent = replayMode ? "Replay Scope" : "Baseline Winner";
-    elements.experimentMetricAValue.textContent = replayMode ? "ETH 1H" : "1H";
+    elements.experimentMetricAValue.textContent = replayMode
+      ? sv117FullSuiteMode
+        ? "3 x 3"
+        : "ETH 1H"
+      : "1H";
     elements.experimentMetricADetail.textContent = replayMode
-      ? "Hyperliquid true replay"
+      ? sv117FullSuiteMode
+        ? "BTC/ETH/SOL x 15m/1h/4h"
+        : "Hyperliquid true replay"
       : "positive grouped dynamic-equity sum";
     elements.experimentMetricBLabel.textContent = replayMode ? "Replay Entries" : "Largest 15m Lift";
-    elements.experimentMetricBValue.textContent = replayMode ? (sv117Mode ? "29 max" : "29") : "$79.7k";
+    elements.experimentMetricBValue.textContent = replayMode
+      ? sv117FullSuiteMode
+        ? "80 max"
+        : sv117Mode
+        ? "29 max"
+        : "29"
+      : "$79.7k";
     elements.experimentMetricBDetail.textContent = replayMode
-      ? sv117Mode
+      ? sv117FullSuiteMode
+        ? "per scenario variant entries"
+        : sv117Mode
         ? "round-one variant entries"
         : "lower-RSI entries admitted"
       : "completed-trade overlay, still negative";
     elements.experimentMetricCLabel.textContent = replayMode ? "Ending Equity Delta" : "Largest 4h Lift";
     elements.experimentMetricCValue.textContent = replayMode
-      ? sv117Mode
+      ? sv117FullSuiteMode
+        ? "Mixed"
+        : sv117Mode
         ? "None beat"
         : money(10902.09279976 - 11388.92997084)
       : "$30.7k";
     elements.experimentMetricCDetail.textContent = replayMode
-      ? sv117Mode
+      ? sv117FullSuiteMode
+        ? "some improve losing baselines"
+        : sv117Mode
         ? "baseline remained strongest"
         : "variant minus baseline"
       : "completed-trade overlay";
@@ -1013,6 +1065,8 @@
         <thead>
           <tr>
             <th>Replay</th>
+            <th>Symbol</th>
+            <th>Component</th>
             <th>Contexts</th>
             <th>Trades</th>
             <th>Ending Equity</th>
@@ -1026,6 +1080,8 @@
           ${rows.map((row) => `
             <tr>
               <td>${escapeHtml(row.label)}</td>
+              <td>${escapeHtml(row.symbol || "ETH")}</td>
+              <td>${escapeHtml(row.component)}</td>
               <td>${escapeHtml(row.contexts)}</td>
               <td>${escapeHtml(row.trades)}</td>
               <td>${escapeHtml(money(row.endingEquity))}</td>
@@ -1047,6 +1103,8 @@
         <thead>
           <tr>
             <th>Replay</th>
+            <th>Symbol</th>
+            <th>Component</th>
             <th>Rejected Entries</th>
             <th>Variant Candidates</th>
             <th>Variant Entries</th>
@@ -1061,6 +1119,8 @@
           ${rows.map((row) => `
             <tr>
               <td>${escapeHtml(row.id)}</td>
+              <td>${escapeHtml(row.symbol || "ETH")}</td>
+              <td>${escapeHtml(row.component)}</td>
               <td>${escapeHtml(row.rejectedEntries)}</td>
               <td>${escapeHtml(row.variantCandidates)}</td>
               <td>${escapeHtml(row.variantEntries)}</td>
@@ -1084,6 +1144,8 @@
         <thead>
           <tr>
             <th>Replay ID</th>
+            <th>Symbol</th>
+            <th>Component</th>
             <th>Methodology</th>
             <th>Net PnL</th>
             <th>Delta vs Baseline</th>
@@ -1099,9 +1161,11 @@
           ${rows.map((row) => `
             <tr>
               <td>${escapeHtml(row.id)}</td>
+              <td>${escapeHtml(row.symbol || "ETH")}</td>
+              <td>${escapeHtml(row.component)}</td>
               <td>${escapeHtml(row.methodology)}</td>
               <td>${escapeHtml(money(row.netPnl))}</td>
-              <td>${escapeHtml(money(row.netPnl - baseline.netPnl))}</td>
+              <td>${escapeHtml(money(row.deltaVsBaseline ?? row.netPnl - baseline.netPnl))}</td>
               <td>${escapeHtml(money(row.endingEquity))}</td>
               <td>${escapeHtml(row.trades)}</td>
               <td>${escapeHtml(row.variantEntries)}</td>
@@ -1116,10 +1180,15 @@
   }
 
   function isReplayExperimentMode() {
-    return ["sv116_true_replay", "sv117_true_replay_round1"].includes(state.experimentMode);
+    return ["sv116_true_replay", "sv117_true_replay_round1", "sv117_true_replay_full_suite"].includes(
+      state.experimentMode,
+    );
   }
 
   function activeReplayRows() {
+    if (state.experimentMode === "sv117_true_replay_full_suite") {
+      return state.sv117FullSuiteRows || SV117_REPLAY_ROWS;
+    }
     return state.experimentMode === "sv117_true_replay_round1" ? SV117_REPLAY_ROWS : SV116_REPLAY_ROWS;
   }
 
@@ -1148,6 +1217,9 @@
   function classifyJson(payload) {
     if (Array.isArray(payload?.campaign_results)) return "review";
     if (Array.isArray(payload?.run_reports)) return "batch";
+    if (Array.isArray(payload?.summary_rows) && payload?.report === "sv1_17_true_replay_experiment_summary") {
+      return "experiment_summary";
+    }
     return "unknown";
   }
 
@@ -1164,6 +1236,8 @@
       }
     }
 
+    await loadDefaultExperimentSummaries();
+
     if (!loaded.length) {
       elements.sourceLabel.textContent = "Manual load";
       elements.sourceDetail.textContent = "Use the JSON loader to select local evidence files.";
@@ -1178,7 +1252,6 @@
       if (type === "review") state.review = payload;
       if (type === "batch") state.batches.push(payload);
     });
-
     elements.sourceLabel.textContent = "Dynamic equity reports loaded";
     elements.sourceDetail.textContent = `${loaded.length} JSON files from ignored SV1.13.2 dynamic_equity_pct reports paths.`;
     render();
@@ -1209,12 +1282,50 @@
         const type = classifyJson(payload);
         if (type === "review") state.review = payload;
         if (type === "batch") state.batches.push(payload);
+        if (type === "experiment_summary") state.sv117FullSuiteRows = normalizeReplayRows(payload.summary_rows);
       });
       state.selectedComponent = "all";
       elements.sourceLabel.textContent = "Manual JSON loaded";
       elements.sourceDetail.textContent = `${valid.length} local files selected.`;
       render();
     });
+  }
+
+  async function loadDefaultExperimentSummaries() {
+    for (const path of DEFAULT_EXPERIMENT_SUMMARY_FILES) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        if (classifyJson(payload) === "experiment_summary") {
+          state.sv117FullSuiteRows = normalizeReplayRows(payload.summary_rows);
+        }
+      } catch (error) {
+        console.warn(`Could not load ${path}`, error);
+      }
+    }
+  }
+
+  function normalizeReplayRows(rows) {
+    return (rows || []).map((row) => ({
+      ...row,
+      contexts: decimal(row.contexts),
+      trades: decimal(row.trades),
+      endingEquity: decimal(row.endingEquity),
+      netPnl: decimal(row.netPnl),
+      deltaVsBaseline: decimal(row.deltaVsBaseline),
+      rejectedEntries: decimal(row.rejectedEntries),
+      variantCandidates: decimal(row.variantCandidates),
+      variantEntries: decimal(row.variantEntries),
+      nearSupportEntries: decimal(row.nearSupportEntries),
+      nearResistanceEntries: decimal(row.nearResistanceEntries),
+      fallingKnifeCandidates: decimal(row.fallingKnifeCandidates),
+      winRate: decimal(row.winRate),
+      profitFactor: decimal(row.profitFactor),
+      closedDrawdown: decimal(row.closedDrawdown),
+      markToMarketDrawdown: decimal(row.markToMarketDrawdown),
+      worstTrade: decimal(row.worstTrade),
+    }));
   }
 
   elements.fileInput.addEventListener("change", (event) => {

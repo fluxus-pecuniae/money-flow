@@ -804,7 +804,14 @@ def money_flow_true_replay_experiment_report_to_markdown(
     generated_at: datetime | None = None,
 ) -> str:
     generated_at = generated_at or datetime.now(UTC)
-    baseline_by_component = {result.component_key: result for result in baseline_results}
+    baseline_by_scenario = {_scenario_key(result): result for result in baseline_results}
+    symbols = sorted({result.request.symbol for result in [*baseline_results, *variant_results]})
+    components = sorted({result.component_key for result in [*baseline_results, *variant_results]})
+    scope = (
+        "full BTC/ETH/SOL x 15m/1h/4h public campaign suite"
+        if len(symbols) > 1 or len(components) > 1
+        else f"{symbols[0]} `{components[0]}` scenario"
+    )
     lines = [
         "# SV1.17 True Replay Experiment Round 1",
         "",
@@ -812,11 +819,13 @@ def money_flow_true_replay_experiment_report_to_markdown(
         "",
         "Status: `true_replay_round_1_ready_for_founder_review`",
         "",
-        "This report is research-only. It uses the SV1.16/SV1.16.1 true replay substrate to test a small set of lower-RSI and market-structure variants for Hyperliquid ETH `sleeve_1h` under `dynamic_equity_pct` sizing. Production Money Flow rules did not change, no parameters were globally optimized, no evidence packs were generated, paper/live trading is not approved, and no exchange or routing artifacts were created.",
+        f"This report is research-only. It uses the SV1.16/SV1.16.1 true replay substrate to test a small set of lower-RSI and market-structure variants for the Hyperliquid USDC perpetual {scope} under `dynamic_equity_pct` sizing. Production Money Flow rules did not change, no parameters were globally optimized, no evidence packs were generated, paper/live trading is not approved, and no exchange or routing artifacts were created.",
         "",
         "## Methodology",
         "",
-        "- Scope: Hyperliquid USDC perpetual public-candle research, primary ETH `sleeve_1h` scenario.",
+        f"- Scope: Hyperliquid USDC perpetual public-candle research, {scope}.",
+        f"- Symbols: `{', '.join(symbols)}`.",
+        f"- Components: `{', '.join(components)}`.",
         "- Each variant is a true forward replay over evaluated candles, not a completed-trade overlay.",
         "- Each scenario keeps position occupancy and dynamic-equity sizing on its own replay path.",
         "- SV1.16.1 semantics apply: production-rule context is evaluated in the current replay state after divergence, and variant-admitted candles are counted separately from variant no-trade.",
@@ -824,11 +833,11 @@ def money_flow_true_replay_experiment_report_to_markdown(
         "",
         "## Baseline Comparison",
         "",
-        "| Component | Variant | Trades | Ending Equity | Net Account PnL | Delta Vs Baseline | MTM Drawdown | Win Rate | Profit Factor | Variant Entries | Candidates | Near Support Entries | Near Resistance Entries | Falling-Knife Candidate Proxy | Status |",
-        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|",
+        "| Symbol | Component | Variant | Trades | Ending Equity | Net Account PnL | Delta Vs Baseline | MTM Drawdown | Win Rate | Profit Factor | Variant Entries | Candidates | Near Support Entries | Near Resistance Entries | Falling-Knife Candidate Proxy | Status |",
+        "|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|",
     ]
     for result in variant_results:
-        baseline = baseline_by_component[result.component_key]
+        baseline = baseline_by_scenario[_scenario_key(result)]
         delta = result.metrics.ending_equity - baseline.metrics.ending_equity
         status = "observed_deteriorated_vs_baseline"
         if result.metrics.ending_equity > baseline.metrics.ending_equity:
@@ -836,7 +845,8 @@ def money_flow_true_replay_experiment_report_to_markdown(
         elif result.metrics.ending_equity == baseline.metrics.ending_equity:
             status = "observed_unchanged_vs_baseline"
         lines.append(
-            "| {component} | `{variant}` | {trades} | ${ending} | ${pnl} | ${delta} | ${drawdown} | {win_rate} | {profit_factor} | {entries} | {candidates} | {support_entries} | {resistance_entries} | {falling_knife} | `{status}` |".format(
+            "| {symbol} | {component} | `{variant}` | {trades} | ${ending} | ${pnl} | ${delta} | ${drawdown} | {win_rate} | {profit_factor} | {entries} | {candidates} | {support_entries} | {resistance_entries} | {falling_knife} | `{status}` |".format(
+                symbol=result.request.symbol,
                 component=result.component_key,
                 variant=result.variant.variant_id,
                 trades=result.metrics.number_of_trades,
@@ -861,13 +871,14 @@ def money_flow_true_replay_experiment_report_to_markdown(
             "",
             "## Baseline Anchor",
             "",
-            "| Component | Baseline Variant | Trades | Ending Equity | Net Account PnL | MTM Drawdown | Win Rate | Profit Factor |",
-            "|---|---|---:|---:|---:|---:|---:|---:|",
+            "| Symbol | Component | Baseline Variant | Trades | Ending Equity | Net Account PnL | MTM Drawdown | Win Rate | Profit Factor |",
+            "|---|---|---|---:|---:|---:|---:|---:|---:|",
         ]
     )
     for result in baseline_results:
         lines.append(
-            "| {component} | `{variant}` | {trades} | ${ending} | ${pnl} | ${drawdown} | {win_rate} | {profit_factor} |".format(
+            "| {symbol} | {component} | `{variant}` | {trades} | ${ending} | ${pnl} | ${drawdown} | {win_rate} | {profit_factor} |".format(
+                symbol=result.request.symbol,
                 component=result.component_key,
                 variant=result.variant.variant_id,
                 trades=result.metrics.number_of_trades,
@@ -883,13 +894,15 @@ def money_flow_true_replay_experiment_report_to_markdown(
             "",
             "## Variant Counter Truth",
             "",
-            "| Variant | Production-Rule Rejections | Admitted From Rejection | Variant No-Trade Reasons | Rejected Variant Candidates | Admitted Regimes |",
-            "|---|---|---|---|---|---|",
+            "| Symbol | Component | Variant | Production-Rule Rejections | Admitted From Rejection | Variant No-Trade Reasons | Rejected Variant Candidates | Admitted Regimes |",
+            "|---|---|---|---|---|---|---|---|",
         ]
     )
     for result in variant_results:
         lines.append(
-            "| `{variant}` | {production_rejections} | {admitted} | {variant_no_trade} | {variant_rejected} | {regimes} |".format(
+            "| {symbol} | {component} | `{variant}` | {production_rejections} | {admitted} | {variant_no_trade} | {variant_rejected} | {regimes} |".format(
+                symbol=result.request.symbol,
+                component=result.component_key,
                 variant=result.variant.variant_id,
                 production_rejections=_format_counts(
                     result.variant_summary.get("production_rule_rejection_reason_counts", {})
@@ -916,7 +929,7 @@ def money_flow_true_replay_experiment_report_to_markdown(
             "- A variant only deserves broader validation if it improves ending equity versus baseline without simply adding many weak below-floor trades or increasing drawdown.",
             "- `near support` and `near resistance` use the SV1.16 prior-20-candle swing context. These are research diagnostics, not production filters.",
             "- `falling-knife candidate proxy` counts below-floor candidate candles where trend stack, MACD, or SMA20 context is not constructive. This proxy is descriptive and is not used as a trade rule.",
-            "- If a variant improves this sampled ETH `sleeve_1h` scenario, it still needs broader symbols, fill/cost assumptions, out-of-sample windows, and exact risk/stop replay before any founder paper-design discussion.",
+            "- If a variant improves any sampled scenario, it still needs fill/cost assumptions, out-of-sample windows, and exact risk/stop replay before any founder paper-design discussion.",
             "",
             "## Boundary Flags",
             "",
@@ -930,7 +943,6 @@ def money_flow_true_replay_experiment_report_to_markdown(
             "",
             "## Deferred Work",
             "",
-            "- Broader BTC/ETH/SOL and 15m/1h/4h replay validation.",
             "- Multiple fill timing and fee/slippage sensitivity for any variant that survives ETH `sleeve_1h` round one.",
             "- Exact recent-low or ATR stop replay with real exit timing and fill assumptions.",
             "- Paper-trading design remains deferred until founder review explicitly scopes it later.",
@@ -1206,6 +1218,10 @@ def _format_percent(value: Decimal | None) -> str:
     if value is None:
         return "n/a"
     return f"{value * Decimal('100'):.2f}%"
+
+
+def _scenario_key(result: MoneyFlowTrueReplayResult) -> tuple[str, str]:
+    return result.request.symbol, result.component_key
 
 
 def _format_counts(counts: dict[str, int]) -> str:

@@ -2,9 +2,9 @@
 
 ## 2026-05-08T06:52:35Z SV1.17 - True Replay Experiment Round 1
 
-SV1.17 uses the SV1.16/SV1.16.1 replay substrate for a first small Hyperliquid ETH `sleeve_1h` true replay experiment round under `dynamic_equity_pct`. It compares the current Money Flow baseline against lower-RSI plus market-structure variants: the original lower-RSI trend-intact v1, a narrower v2, a support-confirmed variant, and an EMA10-hold/no-resistance variant.
+SV1.17 uses the SV1.16/SV1.16.1 replay substrate for true replay experiment round one under `dynamic_equity_pct`. It now compares the current Money Flow baseline against lower-RSI plus market-structure variants across the full Hyperliquid BTC/ETH/SOL x 15m/1h/4h public campaign suite: the original lower-RSI trend-intact v1, a narrower v2, a support-confirmed variant, and an EMA10-hold/no-resistance variant.
 
-No tested variant beat the baseline sampled scenario. Support-confirmed admitted no replay-only trades, broader lower-RSI admissions deteriorated ending equity, and EMA10-hold/no-resistance reduced drawdown while still ending below baseline. The results keep lower-RSI and market-structure changes research-only; no production Money Flow rules, paper/live trading, routing/execution behavior, exchange calls, or cross-venue scope changed. The dashboard keeps replay results under Experiments while evidence packs remain under Evidence.
+Some variants improve losing baseline scenarios, especially selected BTC 1h/4h and ETH 15m rows, but ETH `sleeve_1h` baseline remains the strongest above-starting-equity pocket. The results keep lower-RSI and market-structure changes research-only; no production Money Flow rules, paper/live trading, routing/execution behavior, exchange calls, or cross-venue scope changed. The dashboard keeps replay results under Experiments while evidence packs remain under Evidence, and every replay row remains an independent scenario rather than one combined portfolio account.
 
 ## 2026-05-08T05:55:00Z SV1.16.1 - Replay Context Semantics And Variant Metric Truth
 

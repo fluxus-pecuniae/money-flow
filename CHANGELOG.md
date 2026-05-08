@@ -13,6 +13,48 @@ Entry schema:
 
 ---
 
+## v2026.05.08.005
+
+- `recorded_at_utc`: `2026-05-08T07:57:25Z`
+- `scope`: `SV1.17 full-suite true replay expansion`
+- `intent`: `Native entry. Expanded the SV1.17 true replay experiment run from ETH sleeve_1h only to the full Hyperliquid public BTC/ETH/SOL x sleeve_15m/sleeve_1h/sleeve_4h matrix under dynamic_equity_pct. The report now compares variants against the matching same-symbol/same-component baseline, the runner supports --full-suite plus compact summary output, and the dashboard Experiments tab adds an SV1.17 full-suite replay filter sourced from the committed compact summary JSON. Results remain independent scenario replays, not one combined portfolio account; no production Money Flow rules, evidence packs, paper/live trading, routing/execution behavior, exchange calls, or live artifacts were added.`
+- `affected_files`:
+  - `services/strategy_validation/replay.py`
+  - `scripts/run_money_flow_true_replay_experiments.py`
+  - `docs/strategy_validation_sv1_17_true_replay_experiments.md`
+  - `docs/strategy_validation_sv1_17_true_replay_experiments_summary.json`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `tests/test_sv117_true_replay_experiments.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `KNOWN_ISSUES.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/Phase 8 Focus.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> .venv/bin/python scripts/run_money_flow_true_replay_experiments.py --full-suite --format both --output docs/strategy_validation_sv1_17_true_replay_experiments.md --json-output /tmp/money-flow-sv117-full-suite.json --summary-output docs/strategy_validation_sv1_17_true_replay_experiments_summary.json` passed.
+  - `node --check apps/dashboard/evidence-dashboard.js` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv117_true_replay_experiments.py tests/test_dashboard_static_assets.py` passed: 7 tests.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_operational_docs.py` passed: 18 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: 655 tests.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.17-full-suite-review.zip` passed.
+  - `zipinfo -1 /Users/tercirafael/money-flow-sv1.17-full-suite-review.zip | wc -l` returned `307`.
+  - `zipinfo -1 /Users/tercirafael/money-flow-sv1.17-full-suite-review.zip | rg '(^|/)\.git/|(^|/)\.venv/|(^|/)\.env$|reports/strategy_validation/|reports/strategy_validation_reviews/|\.zip$|\.sqlite|\.db$|workspace\.json|(^|/)\.obsidian/|__pycache__|\.pytest_cache|local.*candle|csv$'` returned no matches.
+
 ## v2026.05.08.004
 
 - `recorded_at_utc`: `2026-05-08T06:52:35Z`

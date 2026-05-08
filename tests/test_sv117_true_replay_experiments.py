@@ -92,6 +92,16 @@ def test_sv117_report_compares_variants_to_baseline_and_avoids_approval_language
         assert forbidden not in markdown.lower()
 
 
+def test_sv117_report_uses_symbol_component_scenario_baselines() -> None:
+    markdown = Path("docs/strategy_validation_sv1_17_true_replay_experiments.md").read_text()
+
+    assert "| Symbol | Component | Variant |" in markdown
+    assert "full BTC/ETH/SOL x 15m/1h/4h public campaign suite" in markdown
+    for symbol in ("BTC", "ETH", "SOL"):
+        for component in ("sleeve_15m", "sleeve_1h", "sleeve_4h"):
+            assert f"| {symbol} | {component} |" in markdown
+
+
 def test_sv117_replay_substrate_is_not_wired_into_production_money_flow_rules() -> None:
     source = Path("services/strategy/money_flow.py").read_text()
 

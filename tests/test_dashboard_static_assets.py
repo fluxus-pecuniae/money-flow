@@ -25,8 +25,12 @@ def test_evidence_dashboard_uses_gus_design_tokens_and_boundaries() -> None:
     assert "experiment-replay-filter" in html
     assert "SV1.16 True Replay Results" in js
     assert "SV1.17 True Replay Round 1" in js
+    assert "SV1.17 Full-Suite True Replay" in js
     assert "sv117_true_replay_round1" in js
+    assert "sv117_true_replay_full_suite" in js
+    assert "strategy_validation_sv1_17_true_replay_experiments_summary.json" in js
     assert "SV117_REPLAY_ROWS" in js
+    assert "SV117_FULL_SUITE_FINDINGS" in js
     assert "sv116_true_replay" in js
     assert "SV116_REPLAY_ROWS" in js
     assert "lower_rsi_floor_trend_intact_v1" in js

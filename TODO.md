@@ -8,13 +8,13 @@ Last reviewed: `2026-05-08T06:52:35Z`
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `After SV1.17, broader true replay work remains future: BTC/ETH/SOL and 15m/1h/4h replay sweeps, multiple fill/cost assumptions, out-of-sample windows, exact recent-low/ATR exit replay with real stop timing/fill modeling, and later resistance/regime/extension entry filters as true chronological replays. Future experiments should rely on production_rule_*_in_replay_state fields, variant divergence metadata, and separated production-rule rejection / variant-admitted-from-rejection / variant no-trade counters. These remain research-only until separately scoped; no production Money Flow rules, paper/live trading, routing, or execution behavior are authorized.`
+- `summary`: `After the SV1.17 full-suite expansion, broader true replay work still remains for multiple fill/cost assumptions, out-of-sample windows, exact recent-low/ATR exit replay with real stop timing/fill modeling, portfolio-level simulation, and later resistance/regime/extension entry filters as true chronological replays. Future experiments should rely on production_rule_*_in_replay_state fields, variant divergence metadata, and separated production-rule rejection / variant-admitted-from-rejection / variant no-trade counters. These remain research-only until separately scoped; no production Money Flow rules, paper/live trading, routing, or execution behavior are authorized.`
 
 ### T-089
 
 - `priority`: `high`
 - `status`: `done`
-- `summary`: `SV1.17 runs true replay experiment round one for Hyperliquid ETH sleeve_1h using dynamic_equity_pct. Tested lower_rsi_floor_trend_intact_v1, lower_rsi_floor_trend_intact_v2_narrow, lower_rsi_support_confirmed_v1, and lower_rsi_ema10_hold_no_resistance_v1 against the current baseline. No variant beat baseline in the sampled next-candle-open / 5 bps fee / 3 bps slippage scenario; support-confirmed admitted no trades, and EMA10-hold/no-resistance reduced mark-to-market drawdown but still ended below baseline. Production Money Flow rules, paper/live trading, routing, execution behavior, and exchange calls remain unchanged/deferred.`
+- `summary`: `SV1.17 now runs true replay experiment round one for the full Hyperliquid BTC/ETH/SOL x 15m/1h/4h public campaign suite using dynamic_equity_pct. Tested lower_rsi_floor_trend_intact_v1, lower_rsi_floor_trend_intact_v2_narrow, lower_rsi_support_confirmed_v1, and lower_rsi_ema10_hold_no_resistance_v1 against each same-symbol/same-component baseline. Some variants improve losing baselines, but ETH sleeve_1h baseline remains the strongest above-starting-equity pocket. Production Money Flow rules, paper/live trading, routing, execution behavior, and exchange calls remain unchanged/deferred.`
 
 ### T-088
 

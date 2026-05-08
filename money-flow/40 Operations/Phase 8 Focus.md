@@ -8,7 +8,7 @@ Phase 8.0 is implemented. Phase 8.0.1 cleaned the Obsidian memory / working-tree
 
 The accepted codebase baseline now includes Phase 8.0 read-only operator routed workflow summary inspection. Phase 7.6 remains the accepted controlled automation closeout baseline underneath it.
 
-Current implemented phase is `SV1.17` true replay experiment round 1. This Phase 8 note is historical/operator-control context; current active work is Strategy Validation research replay. Hyperliquid BTC/ETH/SOL identity is operator-verified as research-only/non-trading, the 9 Hyperliquid public YTD/recent files were imported with `25848` candles, SV1.13 generated component-scoped Hyperliquid-only evidence packs for founder review, SV1.16/SV1.16.1 added per-candle rejected-signal replay context plus method-truth counters, and SV1.17 tested a narrow ETH `sleeve_1h` lower-RSI plus market-structure replay set without changing production rules. It is not routing/SOR expansion or manual-resolution mutation.
+Current implemented phase is `SV1.17` true replay experiment round 1. This Phase 8 note is historical/operator-control context; current active work is Strategy Validation research replay. Hyperliquid BTC/ETH/SOL identity is operator-verified as research-only/non-trading, the 9 Hyperliquid public YTD/recent files were imported with `25848` candles, SV1.13 generated component-scoped Hyperliquid-only evidence packs for founder review, SV1.16/SV1.16.1 added per-candle rejected-signal replay context plus method-truth counters, and SV1.17 now tests lower-RSI plus market-structure variants across BTC/ETH/SOL and 15m/1h/4h without changing production rules. It is not routing/SOR expansion or manual-resolution mutation.
 
 ## Phase 8.0 Purpose
 

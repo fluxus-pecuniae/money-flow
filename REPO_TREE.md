@@ -55,7 +55,7 @@ Last reviewed: `2026-05-08T06:52:35Z`
 - SV1.15.1 hardens experiment methodology truth by labeling completed-trade overlays, reporting-only attribution, deferred rejected-signal replay variants, and lookahead diagnostic proxies so SV1.15 results are not mistaken for true forward replays or authorized rule changes.
 - SV1.16 adds per-candle rejected-signal context and a research-only chronological true replay substrate over the same Hyperliquid public campaign. The first narrow lower-RSI trend-intact replay example uses `dynamic_equity_pct`, preserves position occupancy, and does not alter campaign configs or production Money Flow rules.
 - SV1.16.1 hardens replay methodology truth by adding explicit production-rule-in-replay-state field semantics, variant-divergence metadata, and separated production-rule rejection / variant-admitted-from-rejection / variant no-trade counters without changing production Money Flow rules.
-- SV1.17 adds a first narrow true replay experiment round for Hyperliquid ETH `sleeve_1h`, comparing lower-RSI plus market-structure variants against the current baseline under `dynamic_equity_pct`. It does not alter campaign configs, production Money Flow rules, paper/live behavior, routing, or execution.
+- SV1.17 adds true replay experiment reporting for lower-RSI plus market-structure variants, expanded to the full Hyperliquid public BTC/ETH/SOL x 15m/1h/4h matrix under `dynamic_equity_pct`. It does not alter campaign configs, production Money Flow rules, paper/live behavior, routing, or execution.
 - SV1.11 adds `configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json`, an offline/manual manifest for research-only BTC/ETH/SOL Hyperliquid perpetual USDC `instruments` and `symbols` rows required before candle imports. SV1.11.1 marks the example as requiring operator verification before non-dry-run writes, SV1.11.2 keeps the research seed non-trading by rejecting true strategy/trading eligibility, and the 2026-05-05 SV1.12.x research pass updates the manifest with public Hyperliquid `meta`-verified asset ids, size decimals, leverage, margin table ids, and derived tick/step values while leaving operator verification and trading/strategy eligibility false.
 
 `money-flow/`
@@ -106,7 +106,7 @@ Last reviewed: `2026-05-08T06:52:35Z`
 - Uses the root design tokens/variables when present and keeps visualization read-only: no evidence-pack generation, candle import, paper/live approval, exchange endpoint calls, or Money Flow rule changes.
 - SV1.14 tightens labels so component cards are clearly sums across research runs and run rows are scenario results. The Strategy tab states RSI lower-floor entry truth and that market-structure diagnostics are not entry filters.
 - SV1.15/SV1.15.1 add the Experiments tab with static controlled-hypothesis results, methodology labels, the recent-low lookahead-proxy warning, and no-authorization boundaries.
-- SV1.16 and SV1.17 replay results are wired into the dashboard under the `Experiments` tab replay filter, separate from Evidence-tab evidence-pack/review data. The static dashboard remains visualization-only for local evidence and experiment/replay artifacts.
+- SV1.16 and SV1.17 replay results are wired into the dashboard under the `Experiments` tab replay filter, separate from Evidence-tab evidence-pack/review data. SV1.17 full-suite rows load from `docs/strategy_validation_sv1_17_true_replay_experiments_summary.json`. The static dashboard remains visualization-only for local evidence and experiment/replay artifacts.
 
 `core/config/`
 - Pydantic settings, environment profiles, runtime selection, and per-venue / strategy configuration.
@@ -168,7 +168,11 @@ Last reviewed: `2026-05-08T06:52:35Z`
 
 `docs/strategy_validation_sv1_17_true_replay_experiments.md`
 - Founder/operator-readable SV1.17 true replay experiment round-one report.
-- Compares Hyperliquid ETH `sleeve_1h` baseline against lower-RSI plus market-structure variants under `dynamic_equity_pct`, records that no round-one variant beat baseline in the sampled scenario, and keeps all variants research-only/non-authorized.
+- Compares Hyperliquid BTC/ETH/SOL `sleeve_15m` / `sleeve_1h` / `sleeve_4h` baselines against lower-RSI plus market-structure variants under `dynamic_equity_pct`, with same-symbol/same-component baseline deltas and research-only/non-authorized status.
+
+`docs/strategy_validation_sv1_17_true_replay_experiments_summary.json`
+- Compact SV1.17 replay summary for the static dashboard.
+- Contains only scenario-level replay rows and boundary flags, not raw generated evidence packs, local candles, DB files, trades, or per-candle contexts.
 
 `docs/strategy_validation_sv1_8_historical_data_bootstrap.md`
 - Founder/operator-readable SV1.8 historical-data bootstrap and first-real evidence review report.
@@ -364,7 +368,7 @@ Last reviewed: `2026-05-08T06:52:35Z`
 - Includes `scripts/run_money_flow_trade_anatomy_diagnostics.py` for SV1.14 founder diagnostics. It reads existing Strategy Validation batch reports and, when DB candles are available, loads persisted candles for descriptive market-structure context. It writes founder-readable Markdown/optional JSON only and does not alter Money Flow rules, import candles, generate evidence packs, call exchanges, or create paper/live/routing artifacts.
 - Includes `scripts/run_money_flow_hypothesis_experiments.py` for SV1.15 founder experiment reporting. It reads existing dynamic-equity Strategy Validation batch reports and optional DB candles, compares research-only overlays against baseline, and writes Markdown/optional JSON without altering Money Flow rules, importing candles, generating evidence packs, calling exchanges, or creating paper/live/routing artifacts.
 - Includes `scripts/run_money_flow_true_replay.py` for SV1.16/SV1.16.1 replay instrumentation. It runs baseline and lower-RSI trend-intact research replays over imported candles, writes Markdown/optional JSON with replay-state semantics and separated counters, and creates no evidence packs, imports, exchange calls, paper/live artifacts, routing artifacts, or production Money Flow rule changes.
-- Includes `scripts/run_money_flow_true_replay_experiments.py` for SV1.17 true replay experiment reporting. It compares a small set of research-only lower-RSI plus market-structure variants against the ETH `sleeve_1h` baseline under `dynamic_equity_pct`, writes Markdown/optional JSON, and creates no evidence packs, imports, exchange calls, paper/live artifacts, routing artifacts, or production Money Flow rule changes.
+- Includes `scripts/run_money_flow_true_replay_experiments.py` for SV1.17 true replay experiment reporting. It compares a small set of research-only lower-RSI plus market-structure variants against matching baselines under `dynamic_equity_pct`, supports `--full-suite` for BTC/ETH/SOL x 15m/1h/4h, writes Markdown/optional JSON/compact summary output, and creates no evidence packs, imports, exchange calls, paper/live artifacts, routing artifacts, or production Money Flow rule changes.
 
 ## Operational Entrypoints
 

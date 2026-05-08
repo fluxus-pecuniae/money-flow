@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-08T07:57:25Z - SV1.17 - Replay Results Must Cover The Full Public Suite
+
+- `decision`: Expand SV1.17 true replay reporting from the initial ETH `sleeve_1h` slice to the full Hyperliquid public BTC/ETH/SOL x 15m/1h/4h suite.
+- `why`: Founder review needs to see whether lower-RSI plus market-structure replay behavior is isolated to the strongest ETH 1h pocket or applies across the whole imported public campaign.
+- `scope`: The full-suite run keeps each symbol/component as an independent dynamic-equity replay scenario and compares every variant only against its matching same-symbol/same-component baseline. Some variants improve losing baselines, ETH 1h baseline remains the strongest above-starting-equity pocket, and no variant is authorized.
+- `follow_up_implications`: Future review should treat full-suite replay as scenario evidence, not a combined portfolio account. Fill/cost sensitivity, out-of-sample windows, exact stop/invalidation replay, and portfolio simulation remain separate future work.
+
 ## 2026-05-08T06:52:35Z - SV1.17 - Lower-RSI Replay Round Needs Baseline Preservation
 
 - `decision`: Run a small ETH `sleeve_1h` true replay experiment round before broadening lower-RSI or market-structure work.
