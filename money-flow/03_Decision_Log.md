@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-08T06:52:35Z - SV1.17 - Lower-RSI Replay Round Needs Baseline Preservation
+
+- `decision`: Run a small ETH `sleeve_1h` true replay experiment round before broadening lower-RSI or market-structure work.
+- `why`: SV1.16.1 made replay counters trustworthy enough to test a few real candidate admissions. The first round needed to answer whether narrower below-floor RSI plus support/EMA10/resistance context could improve baseline without adding falling-knife/chop entries.
+- `scope`: SV1.17 tests lower-RSI trend-intact v1, a narrower v2, support-confirmed, and EMA10-hold/no-resistance variants against the current ETH `sleeve_1h` baseline. No variant beat baseline; support-confirmed admitted no trades, and EMA10-hold/no-resistance reduced drawdown but still ended below baseline.
+- `follow_up_implications`: Broader replay should not assume lower RSI is beneficial. Any further testing needs wider symbols/components, fill/cost sensitivity, out-of-sample windows, and exact stop/invalidation replay before paper-design discussion.
+
 ## 2026-05-08T05:55:00Z - SV1.16.1 - Replay Variant Metrics Need State Semantics
 
 - `decision`: Add explicit replay context fields for production Money Flow rule evaluation under the active replay state, keep legacy `baseline_*` fields as compatibility aliases, and separate production-rule rejection counts from variant admission and variant no-trade counts.

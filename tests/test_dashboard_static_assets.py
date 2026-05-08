@@ -24,11 +24,18 @@ def test_evidence_dashboard_uses_gus_design_tokens_and_boundaries() -> None:
     assert "SV1.15 Hypothesis Experiments" in html
     assert "experiment-replay-filter" in html
     assert "SV1.16 True Replay Results" in js
+    assert "SV1.17 True Replay Round 1" in js
+    assert "sv117_true_replay_round1" in js
+    assert "SV117_REPLAY_ROWS" in js
     assert "sv116_true_replay" in js
     assert "SV116_REPLAY_ROWS" in js
     assert "lower_rsi_floor_trend_intact_v1" in js
+    assert "lower_rsi_floor_trend_intact_v2_narrow" in js
+    assert "lower_rsi_support_confirmed_v1" in js
+    assert "lower_rsi_ema10_hold_no_resistance_v1" in js
     assert "true_forward_replay_research_only" in js
     assert "variant minus baseline" in js
+    assert "baseline remained strongest" in js
     assert "completed-trade overlay, still negative" in html
     assert "Methodology Boundary" in html
     assert "not true forward replays" in html

@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-08T05:55:00Z`
+Last reviewed: `2026-05-08T06:52:35Z`
 
 ## Active Follow-Ups
 
@@ -8,7 +8,13 @@ Last reviewed: `2026-05-08T05:55:00Z`
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `Use the SV1.16/SV1.16.1 per-candle replay substrate to run broader true replay experiments after founder review. Immediate candidates are exact recent-low/ATR exit replay with real stop timing/fill modeling, resistance/regime/extension entry filters as true chronological replays, lower-RSI variants across BTC/ETH/SOL and 15m/1h/4h, and out-of-sample checks. Future experiments should rely on production_rule_*_in_replay_state fields, variant divergence metadata, and separated production-rule rejection / variant-admitted-from-rejection / variant no-trade counters. These remain research-only until separately scoped; no production Money Flow rules, paper/live trading, routing, or execution behavior are authorized.`
+- `summary`: `After SV1.17, broader true replay work remains future: BTC/ETH/SOL and 15m/1h/4h replay sweeps, multiple fill/cost assumptions, out-of-sample windows, exact recent-low/ATR exit replay with real stop timing/fill modeling, and later resistance/regime/extension entry filters as true chronological replays. Future experiments should rely on production_rule_*_in_replay_state fields, variant divergence metadata, and separated production-rule rejection / variant-admitted-from-rejection / variant no-trade counters. These remain research-only until separately scoped; no production Money Flow rules, paper/live trading, routing, or execution behavior are authorized.`
+
+### T-089
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.17 runs true replay experiment round one for Hyperliquid ETH sleeve_1h using dynamic_equity_pct. Tested lower_rsi_floor_trend_intact_v1, lower_rsi_floor_trend_intact_v2_narrow, lower_rsi_support_confirmed_v1, and lower_rsi_ema10_hold_no_resistance_v1 against the current baseline. No variant beat baseline in the sampled next-candle-open / 5 bps fee / 3 bps slippage scenario; support-confirmed admitted no trades, and EMA10-hold/no-resistance reduced mark-to-market drawdown but still ended below baseline. Production Money Flow rules, paper/live trading, routing, execution behavior, and exchange calls remain unchanged/deferred.`
 
 ### T-088
 

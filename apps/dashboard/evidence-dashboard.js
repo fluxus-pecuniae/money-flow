@@ -173,6 +173,10 @@
       id: "sv116_true_replay",
       label: "SV1.16 true replay",
     },
+    {
+      id: "sv117_true_replay_round1",
+      label: "SV1.17 replay round 1",
+    },
   ];
 
   const SV116_REPLAY_ROWS = [
@@ -230,6 +234,135 @@
     "per_candle_true_replay_context_research_only: each evaluated candle records baseline decision/rejection context.",
     "lower_rsi_floor_trend_intact_v1: admits below-floor RSI only inside Strategy Validation replay when trend, MACD, non-extension, and pullback/support gates pass.",
     "SV1.15 completed-trade overlays remain diagnostic and are not replaced or retroactively validated by SV1.16.",
+  ];
+
+  const SV117_REPLAY_ROWS = [
+    {
+      id: "baseline_current_money_flow_rules",
+      label: "Baseline current Money Flow",
+      component: "sleeve_1h",
+      methodology: "true_forward_replay",
+      contexts: 2976,
+      trades: 117,
+      endingEquity: 11388.92997084,
+      netPnl: 1388.92997084,
+      rejectedEntries: 2055,
+      variantCandidates: 0,
+      variantEntries: 0,
+      nearSupportEntries: 0,
+      nearResistanceEntries: 0,
+      fallingKnifeCandidates: 0,
+      winRate: 0.35042735,
+      profitFactor: 1.21629414,
+      closedDrawdown: 1677.7053037,
+      markToMarketDrawdown: 1753.27047986,
+      worstTrade: -409.14514081,
+      status: "baseline replay anchor",
+    },
+    {
+      id: "lower_rsi_floor_trend_intact_v1",
+      label: "Lower RSI trend-intact v1",
+      component: "sleeve_1h",
+      methodology: "true_forward_replay_research_only",
+      contexts: 2976,
+      trades: 137,
+      endingEquity: 10902.09279976,
+      netPnl: 902.09279976,
+      rejectedEntries: 2011,
+      variantCandidates: 1428,
+      variantEntries: 29,
+      nearSupportEntries: 4,
+      nearResistanceEntries: 11,
+      fallingKnifeCandidates: 1392,
+      winRate: 0.30656934,
+      profitFactor: 1.12715544,
+      closedDrawdown: 1694.79623292,
+      markToMarketDrawdown: 1777.46211574,
+      worstTrade: -399.05289817,
+      status: "deteriorated vs baseline",
+    },
+    {
+      id: "lower_rsi_floor_trend_intact_v2_narrow",
+      label: "Lower RSI narrow trend-intact",
+      component: "sleeve_1h",
+      methodology: "true_forward_replay_research_only",
+      contexts: 2976,
+      trades: 129,
+      endingEquity: 10792.71889062,
+      netPnl: 792.71889062,
+      rejectedEntries: 2028,
+      variantCandidates: 1445,
+      variantEntries: 18,
+      nearSupportEntries: 4,
+      nearResistanceEntries: 9,
+      fallingKnifeCandidates: 1399,
+      winRate: 0.31782946,
+      profitFactor: 1.11578949,
+      closedDrawdown: 1731.53053481,
+      markToMarketDrawdown: 1829.08721434,
+      worstTrade: -393.02492005,
+      status: "deteriorated vs baseline",
+    },
+    {
+      id: "lower_rsi_support_confirmed_v1",
+      label: "Lower RSI support-confirmed",
+      component: "sleeve_1h",
+      methodology: "true_forward_replay_research_only",
+      contexts: 2976,
+      trades: 117,
+      endingEquity: 11388.92997084,
+      netPnl: 1388.92997084,
+      rejectedEntries: 2055,
+      variantCandidates: 1472,
+      variantEntries: 0,
+      nearSupportEntries: 0,
+      nearResistanceEntries: 0,
+      fallingKnifeCandidates: 1408,
+      winRate: 0.35042735,
+      profitFactor: 1.21629414,
+      closedDrawdown: 1677.7053037,
+      markToMarketDrawdown: 1753.27047986,
+      worstTrade: -409.14514081,
+      status: "unchanged; admitted no trades",
+    },
+    {
+      id: "lower_rsi_ema10_hold_no_resistance_v1",
+      label: "Lower RSI EMA10 hold / no resistance",
+      component: "sleeve_1h",
+      methodology: "true_forward_replay_research_only",
+      contexts: 2976,
+      trades: 126,
+      endingEquity: 11293.7316455,
+      netPnl: 1293.7316455,
+      rejectedEntries: 2027,
+      variantCandidates: 1444,
+      variantEntries: 14,
+      nearSupportEntries: 0,
+      nearResistanceEntries: 0,
+      fallingKnifeCandidates: 1401,
+      winRate: 0.32539683,
+      profitFactor: 1.18808633,
+      closedDrawdown: 1460.47919814,
+      markToMarketDrawdown: 1537.82040938,
+      worstTrade: -410.16124843,
+      status: "deteriorated; lower drawdown",
+    },
+  ];
+
+  const SV117_REPLAY_FINDINGS = [
+    "SV1.17 tests round-one true replay variants, not completed-trade overlays.",
+    "No lower-RSI or market-structure variant beat the ETH 1h baseline in the sampled next-candle-open 5 bps fee / 3 bps slippage scenario.",
+    "The support-confirmed variant admitted no below-floor RSI trades and therefore matched baseline.",
+    "The EMA10-hold/no-resistance variant reduced mark-to-market drawdown versus baseline but still ended below baseline equity.",
+    "Most below-floor candidates still carried falling-knife/chop risk proxies, so lower RSI is not automatically better for long-only entries.",
+    "No variant is authorized for production, paper trading, or live trading.",
+  ];
+
+  const SV117_REPLAY_METHODOLOGY = [
+    "true_forward_replay: candles are processed chronologically with position occupancy and dynamic-equity sizing.",
+    "round_one_scope: Hyperliquid ETH sleeve_1h only, next-candle-open fill, 5 bps fee, 3 bps slippage.",
+    "market_structure_context: prior-20-candle swing support/resistance is research context only.",
+    "SV1.16.1 counter truth: variant-admitted candles are separated from variant no-trade counts.",
   ];
 
   const state = {
@@ -632,7 +765,7 @@
 
   function renderExperimentCards() {
     if (!elements.experimentVariantCards) return;
-    if (state.experimentMode === "sv116_true_replay") {
+    if (isReplayExperimentMode()) {
       renderReplayCards();
       return;
     }
@@ -661,7 +794,7 @@
 
   function renderExperimentBaseline() {
     if (!elements.experimentBaselineTable) return;
-    if (state.experimentMode === "sv116_true_replay") {
+    if (isReplayExperimentMode()) {
       renderReplayComparisonTable();
       return;
     }
@@ -697,7 +830,7 @@
 
   function renderExperimentEth() {
     if (!elements.experimentEthTable) return;
-    if (state.experimentMode === "sv116_true_replay") {
+    if (isReplayExperimentMode()) {
       renderReplayRejectedContextTable();
       return;
     }
@@ -729,9 +862,18 @@
 
   function renderExperimentFindings() {
     if (!elements.experimentFindings) return;
-    const findings = state.experimentMode === "sv116_true_replay" ? SV116_REPLAY_FINDINGS : SV115_FINDINGS;
+    const findings =
+      state.experimentMode === "sv117_true_replay_round1"
+        ? SV117_REPLAY_FINDINGS
+        : state.experimentMode === "sv116_true_replay"
+          ? SV116_REPLAY_FINDINGS
+          : SV115_FINDINGS;
     const methodology =
-      state.experimentMode === "sv116_true_replay" ? SV116_REPLAY_METHODOLOGY : SV115_METHODOLOGY;
+      state.experimentMode === "sv117_true_replay_round1"
+        ? SV117_REPLAY_METHODOLOGY
+        : state.experimentMode === "sv116_true_replay"
+          ? SV116_REPLAY_METHODOLOGY
+          : SV115_METHODOLOGY;
     elements.experimentFindings.innerHTML = findings.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
     if (!elements.experimentMethodology) return;
     elements.experimentMethodology.innerHTML = methodology.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
@@ -739,7 +881,7 @@
 
   function renderExperimentTable() {
     if (!elements.experimentTable) return;
-    if (state.experimentMode === "sv116_true_replay") {
+    if (isReplayExperimentMode()) {
       renderReplayLedger();
       return;
     }
@@ -797,12 +939,17 @@
   }
 
   function renderExperimentHeader() {
-    const replayMode = state.experimentMode === "sv116_true_replay";
+    const replayMode = isReplayExperimentMode();
+    const sv117Mode = state.experimentMode === "sv117_true_replay_round1";
     elements.experimentsTitle.textContent = replayMode
-      ? "SV1.16 True Replay Results"
+      ? sv117Mode
+        ? "SV1.17 True Replay Round 1"
+        : "SV1.16 True Replay Results"
       : "SV1.15 Hypothesis Experiments";
     elements.experimentsSubtitle.textContent = replayMode
-      ? "Rejected-signal replay; true replay remains research-only and not a production rule change."
+      ? sv117Mode
+        ? "Lower-RSI plus market-structure replay variants; research-only and not production rule changes."
+        : "Rejected-signal replay; true replay remains research-only and not a production rule change."
       : "Dynamic-equity diagnostics; overlays are not true forward replays or production rule changes.";
     elements.experimentMetricALabel.textContent = replayMode ? "Replay Scope" : "Baseline Winner";
     elements.experimentMetricAValue.textContent = replayMode ? "ETH 1H" : "1H";
@@ -810,14 +957,22 @@
       ? "Hyperliquid true replay"
       : "positive grouped dynamic-equity sum";
     elements.experimentMetricBLabel.textContent = replayMode ? "Replay Entries" : "Largest 15m Lift";
-    elements.experimentMetricBValue.textContent = replayMode ? "29" : "$79.7k";
+    elements.experimentMetricBValue.textContent = replayMode ? (sv117Mode ? "29 max" : "29") : "$79.7k";
     elements.experimentMetricBDetail.textContent = replayMode
-      ? "lower-RSI entries admitted"
+      ? sv117Mode
+        ? "round-one variant entries"
+        : "lower-RSI entries admitted"
       : "completed-trade overlay, still negative";
     elements.experimentMetricCLabel.textContent = replayMode ? "Ending Equity Delta" : "Largest 4h Lift";
-    elements.experimentMetricCValue.textContent = replayMode ? money(10902.09279976 - 11388.92997084) : "$30.7k";
+    elements.experimentMetricCValue.textContent = replayMode
+      ? sv117Mode
+        ? "None beat"
+        : money(10902.09279976 - 11388.92997084)
+      : "$30.7k";
     elements.experimentMetricCDetail.textContent = replayMode
-      ? "variant minus baseline"
+      ? sv117Mode
+        ? "baseline remained strongest"
+        : "variant minus baseline"
       : "completed-trade overlay";
     elements.experimentMetricDLabel.textContent = replayMode ? "Authorization" : "Methodology";
     elements.experimentMetricDValue.textContent = replayMode ? "None" : "None";
@@ -827,8 +982,9 @@
   }
 
   function renderReplayCards() {
-    const maxMagnitude = Math.max(...SV116_REPLAY_ROWS.map((row) => Math.abs(row.netPnl)), 1);
-    elements.experimentVariantCards.innerHTML = SV116_REPLAY_ROWS.map((row) => {
+    const rows = activeReplayRows();
+    const maxMagnitude = Math.max(...rows.map((row) => Math.abs(row.netPnl)), 1);
+    elements.experimentVariantCards.innerHTML = rows.map((row) => {
       const width = Math.max(3, Math.round((Math.abs(row.netPnl) / maxMagnitude) * 100));
       return `
         <article class="component-card experiment-card" aria-current="${row.netPnl >= 0}">
@@ -851,6 +1007,7 @@
   }
 
   function renderReplayComparisonTable() {
+    const rows = activeReplayRows();
     elements.experimentBaselineTable.innerHTML = `
       <table>
         <thead>
@@ -866,7 +1023,7 @@
           </tr>
         </thead>
         <tbody>
-          ${SV116_REPLAY_ROWS.map((row) => `
+          ${rows.map((row) => `
             <tr>
               <td>${escapeHtml(row.label)}</td>
               <td>${escapeHtml(row.contexts)}</td>
@@ -884,6 +1041,7 @@
   }
 
   function renderReplayRejectedContextTable() {
+    const rows = activeReplayRows();
     elements.experimentEthTable.innerHTML = `
       <table>
         <thead>
@@ -894,11 +1052,13 @@
             <th>Variant Entries</th>
             <th>Worst Trade</th>
             <th>Closed DD</th>
+            <th>Near Support</th>
+            <th>Near Resistance</th>
             <th>Status</th>
           </tr>
         </thead>
         <tbody>
-          ${SV116_REPLAY_ROWS.map((row) => `
+          ${rows.map((row) => `
             <tr>
               <td>${escapeHtml(row.id)}</td>
               <td>${escapeHtml(row.rejectedEntries)}</td>
@@ -906,6 +1066,8 @@
               <td>${escapeHtml(row.variantEntries)}</td>
               <td>${escapeHtml(money(row.worstTrade))}</td>
               <td>${escapeHtml(money(row.closedDrawdown))}</td>
+              <td>${escapeHtml(row.nearSupportEntries ?? 0)}</td>
+              <td>${escapeHtml(row.nearResistanceEntries ?? 0)}</td>
               <td>${escapeHtml(row.status)}</td>
             </tr>
           `).join("")}
@@ -915,7 +1077,8 @@
   }
 
   function renderReplayLedger() {
-    const baseline = SV116_REPLAY_ROWS[0];
+    const rows = activeReplayRows();
+    const baseline = rows[0];
     elements.experimentTable.innerHTML = `
       <table>
         <thead>
@@ -928,11 +1091,12 @@
             <th>Trades</th>
             <th>Replay Entries</th>
             <th>Rejected Entries</th>
+            <th>Falling-Knife Candidates</th>
             <th>Status</th>
           </tr>
         </thead>
         <tbody>
-          ${SV116_REPLAY_ROWS.map((row) => `
+          ${rows.map((row) => `
             <tr>
               <td>${escapeHtml(row.id)}</td>
               <td>${escapeHtml(row.methodology)}</td>
@@ -942,12 +1106,21 @@
               <td>${escapeHtml(row.trades)}</td>
               <td>${escapeHtml(row.variantEntries)}</td>
               <td>${escapeHtml(row.rejectedEntries)}</td>
+              <td>${escapeHtml(row.fallingKnifeCandidates ?? 0)}</td>
               <td>${escapeHtml(row.status)}</td>
             </tr>
           `).join("")}
         </tbody>
       </table>
     `;
+  }
+
+  function isReplayExperimentMode() {
+    return ["sv116_true_replay", "sv117_true_replay_round1"].includes(state.experimentMode);
+  }
+
+  function activeReplayRows() {
+    return state.experimentMode === "sv117_true_replay_round1" ? SV117_REPLAY_ROWS : SV116_REPLAY_ROWS;
   }
 
   function renderExperiments() {

@@ -13,6 +13,52 @@ Entry schema:
 
 ---
 
+## v2026.05.08.004
+
+- `recorded_at_utc`: `2026-05-08T06:52:35Z`
+- `scope`: `SV1.17 true replay experiment round 1`
+- `intent`: `Native entry. Added a research-only true replay experiment round over Hyperliquid ETH sleeve_1h using the SV1.16/SV1.16.1 replay substrate. The round compares baseline current Money Flow against lower_rsi_floor_trend_intact_v1, lower_rsi_floor_trend_intact_v2_narrow, lower_rsi_support_confirmed_v1, and lower_rsi_ema10_hold_no_resistance_v1 under dynamic_equity_pct sizing. The founder report shows no round-one variant beat the baseline sampled scenario; support-confirmed admitted no trades, EMA10-hold/no-resistance reduced drawdown but still ended below baseline, and broader lower-RSI admissions deteriorated ending equity. Dashboard Experiments now separates SV1.15 overlays, SV1.16 replay, and SV1.17 replay round 1. No production Money Flow rules, paper/live trading, routing/execution behavior, exchange calls, or live artifacts were added.`
+- `affected_files`:
+  - `services/strategy_validation/replay.py`
+  - `services/strategy_validation/__init__.py`
+  - `scripts/run_money_flow_true_replay_experiments.py`
+  - `tests/test_sv117_true_replay_experiments.py`
+  - `tests/test_sv116_replay_instrumentation.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_operational_docs.py`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `docs/strategy_validation_sv1_17_true_replay_experiments.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `KNOWN_ISSUES.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/Phase 8 Focus.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> .venv/bin/python scripts/run_money_flow_true_replay_experiments.py --output docs/strategy_validation_sv1_17_true_replay_experiments.md --symbol ETH --component sleeve_1h --fill-timing next_candle_open --fee-bps 5 --slippage-bps 3` passed.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `node --check apps/dashboard/evidence-dashboard.js` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv117_true_replay_experiments.py` passed: 4 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv116_replay_instrumentation.py tests/test_dashboard_static_assets.py` passed: 8 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_operational_docs.py` passed: 18 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: 654 tests.
+  - `git diff --check` passed.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed after final docs/Obsidian updates: 11 tests.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.17-review.zip` passed.
+  - `zipinfo -1 /Users/tercirafael/money-flow-sv1.17-review.zip | wc -l` reported 306 files.
+  - `zipinfo -1 /Users/tercirafael/money-flow-sv1.17-review.zip | rg '(^|/)\\.git/|(^|/)\\.venv/|(^|/)\\.env$|reports/strategy_validation/|reports/strategy_validation_reviews/|\\.zip$|\\.sqlite|\\.db$|workspace\\.json|(^|/)\\.obsidian/|__pycache__|\\.pytest_cache|local.*candle|csv$'` returned no matches.
+
 ## v2026.05.08.003
 
 - `recorded_at_utc`: `2026-05-08T05:55:00Z`

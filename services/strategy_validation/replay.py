@@ -52,6 +52,9 @@ from services.strategy_validation.service import (
 
 REPLAY_CONTEXT_METHODOLOGY = "per_candle_true_replay_context_research_only"
 LOWER_RSI_TREND_INTACT_VARIANT_ID = "lower_rsi_floor_trend_intact_v1"
+LOWER_RSI_NARROW_TREND_INTACT_VARIANT_ID = "lower_rsi_floor_trend_intact_v2_narrow"
+LOWER_RSI_SUPPORT_CONFIRMED_VARIANT_ID = "lower_rsi_support_confirmed_v1"
+LOWER_RSI_EMA10_HOLD_NO_RESISTANCE_VARIANT_ID = "lower_rsi_ema10_hold_no_resistance_v1"
 BASELINE_REPLAY_VARIANT_ID = "baseline_current_money_flow_rules"
 REPLAY_MARKET_STRUCTURE_LOOKBACK_CANDLES = 20
 
@@ -67,6 +70,9 @@ class MoneyFlowReplayVariant:
     requires_trend_intact: bool = True
     requires_macd_constructive: bool = True
     requires_pullback_or_support: bool = True
+    requires_near_support: bool = False
+    requires_ema10_hold: bool = False
+    avoids_near_resistance: bool = False
     changes_production_rules: bool = False
 
 
@@ -167,6 +173,70 @@ def lower_rsi_floor_trend_intact_variant(
             "sleeve_1h": Decimal("50") - floor_delta,
             "sleeve_4h": Decimal("48") - floor_delta,
         },
+    )
+
+
+def lower_rsi_narrow_trend_intact_variant() -> MoneyFlowReplayVariant:
+    return MoneyFlowReplayVariant(
+        variant_id=LOWER_RSI_NARROW_TREND_INTACT_VARIANT_ID,
+        name="Lower RSI narrow trend-intact replay",
+        description=(
+            "Research-only true replay that admits only a narrower below-floor RSI band "
+            "while preserving trend, MACD, extension, and pullback/support requirements."
+        ),
+        methodology="true_forward_replay",
+        lower_rsi_floor_by_component={
+            "sleeve_15m": Decimal("50"),
+            "sleeve_1h": Decimal("48"),
+            "sleeve_4h": Decimal("46"),
+        },
+    )
+
+
+def lower_rsi_support_confirmed_variant() -> MoneyFlowReplayVariant:
+    return MoneyFlowReplayVariant(
+        variant_id=LOWER_RSI_SUPPORT_CONFIRMED_VARIANT_ID,
+        name="Lower RSI support-confirmed replay",
+        description=(
+            "Research-only true replay that admits below-floor RSI entries only when the "
+            "candidate is near recent swing support and not near recent resistance."
+        ),
+        methodology="true_forward_replay",
+        lower_rsi_floor_by_component={
+            "sleeve_15m": Decimal("48"),
+            "sleeve_1h": Decimal("45"),
+            "sleeve_4h": Decimal("43"),
+        },
+        requires_near_support=True,
+        avoids_near_resistance=True,
+    )
+
+
+def lower_rsi_ema10_hold_no_resistance_variant() -> MoneyFlowReplayVariant:
+    return MoneyFlowReplayVariant(
+        variant_id=LOWER_RSI_EMA10_HOLD_NO_RESISTANCE_VARIANT_ID,
+        name="Lower RSI EMA10-hold no-resistance replay",
+        description=(
+            "Research-only true replay that admits below-floor RSI entries only when price "
+            "holds near/above EMA10 and is not near recent resistance."
+        ),
+        methodology="true_forward_replay",
+        lower_rsi_floor_by_component={
+            "sleeve_15m": Decimal("48"),
+            "sleeve_1h": Decimal("45"),
+            "sleeve_4h": Decimal("43"),
+        },
+        requires_ema10_hold=True,
+        avoids_near_resistance=True,
+    )
+
+
+def sv117_round_one_variants() -> tuple[MoneyFlowReplayVariant, ...]:
+    return (
+        lower_rsi_floor_trend_intact_variant(),
+        lower_rsi_narrow_trend_intact_variant(),
+        lower_rsi_support_confirmed_variant(),
+        lower_rsi_ema10_hold_no_resistance_variant(),
     )
 
 
@@ -493,6 +563,30 @@ class MoneyFlowVariantReplayService:
             "variant_candidate_reason_counts": dict(sorted(variant_candidate_reasons.items())),
             "variant_rejected_candidate_reason_counts": dict(sorted(variant_rejected_reasons.items())),
             "variant_rejected_reason_counts": dict(sorted(variant_rejected_reasons.items())),
+            "variant_candidate_falling_knife_risk_proxy_count": sum(
+                1 for context in contexts if context.variant_candidate and _falling_knife_risk_proxy(context)
+            ),
+            "variant_admitted_near_support_count": sum(
+                1
+                for context in contexts
+                if context.variant_admitted_from_production_rule_rejection
+                and context.market_structure.near_support
+            ),
+            "variant_admitted_near_resistance_count": sum(
+                1
+                for context in contexts
+                if context.variant_admitted_from_production_rule_rejection
+                and context.market_structure.near_resistance
+            ),
+            "variant_admitted_market_regime_counts": dict(
+                sorted(
+                    Counter(
+                        context.market_regime_label
+                        for context in contexts
+                        if context.variant_admitted_from_production_rule_rejection
+                    ).items()
+                )
+            ),
             "changes_production_rules": variant.changes_production_rules,
             "uses_dynamic_equity": (
                 request.assumptions.capital_sizing_mode
@@ -703,6 +797,148 @@ def money_flow_replay_report_to_markdown(
     return "\n".join(lines) + "\n"
 
 
+def money_flow_true_replay_experiment_report_to_markdown(
+    baseline_results: list[MoneyFlowTrueReplayResult],
+    variant_results: list[MoneyFlowTrueReplayResult],
+    *,
+    generated_at: datetime | None = None,
+) -> str:
+    generated_at = generated_at or datetime.now(UTC)
+    baseline_by_component = {result.component_key: result for result in baseline_results}
+    lines = [
+        "# SV1.17 True Replay Experiment Round 1",
+        "",
+        f"Recorded at: `{generated_at.replace(microsecond=0).isoformat().replace('+00:00', 'Z')}`",
+        "",
+        "Status: `true_replay_round_1_ready_for_founder_review`",
+        "",
+        "This report is research-only. It uses the SV1.16/SV1.16.1 true replay substrate to test a small set of lower-RSI and market-structure variants for Hyperliquid ETH `sleeve_1h` under `dynamic_equity_pct` sizing. Production Money Flow rules did not change, no parameters were globally optimized, no evidence packs were generated, paper/live trading is not approved, and no exchange or routing artifacts were created.",
+        "",
+        "## Methodology",
+        "",
+        "- Scope: Hyperliquid USDC perpetual public-candle research, primary ETH `sleeve_1h` scenario.",
+        "- Each variant is a true forward replay over evaluated candles, not a completed-trade overlay.",
+        "- Each scenario keeps position occupancy and dynamic-equity sizing on its own replay path.",
+        "- SV1.16.1 semantics apply: production-rule context is evaluated in the current replay state after divergence, and variant-admitted candles are counted separately from variant no-trade.",
+        "- These are round-one research variants. They are not production rules, not recommendations, and not paper/live authorization.",
+        "",
+        "## Baseline Comparison",
+        "",
+        "| Component | Variant | Trades | Ending Equity | Net Account PnL | Delta Vs Baseline | MTM Drawdown | Win Rate | Profit Factor | Variant Entries | Candidates | Near Support Entries | Near Resistance Entries | Falling-Knife Candidate Proxy | Status |",
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|",
+    ]
+    for result in variant_results:
+        baseline = baseline_by_component[result.component_key]
+        delta = result.metrics.ending_equity - baseline.metrics.ending_equity
+        status = "observed_deteriorated_vs_baseline"
+        if result.metrics.ending_equity > baseline.metrics.ending_equity:
+            status = "observed_improved_vs_baseline_needs_more_evidence"
+        elif result.metrics.ending_equity == baseline.metrics.ending_equity:
+            status = "observed_unchanged_vs_baseline"
+        lines.append(
+            "| {component} | `{variant}` | {trades} | ${ending} | ${pnl} | ${delta} | ${drawdown} | {win_rate} | {profit_factor} | {entries} | {candidates} | {support_entries} | {resistance_entries} | {falling_knife} | `{status}` |".format(
+                component=result.component_key,
+                variant=result.variant.variant_id,
+                trades=result.metrics.number_of_trades,
+                ending=_format_decimal(result.metrics.ending_equity),
+                pnl=_format_decimal(result.metrics.net_account_pnl),
+                delta=_format_decimal(delta),
+                drawdown=_format_decimal(result.metrics.mark_to_market_max_drawdown),
+                win_rate=_format_percent(result.metrics.win_rate),
+                profit_factor=_format_decimal(result.metrics.profit_factor),
+                entries=result.variant_summary.get("variant_admitted_entry_count", 0),
+                candidates=result.variant_summary.get("variant_candidate_contexts", 0),
+                support_entries=result.variant_summary.get("variant_admitted_near_support_count", 0),
+                resistance_entries=result.variant_summary.get("variant_admitted_near_resistance_count", 0),
+                falling_knife=result.variant_summary.get(
+                    "variant_candidate_falling_knife_risk_proxy_count", 0
+                ),
+                status=status,
+            )
+        )
+    lines.extend(
+        [
+            "",
+            "## Baseline Anchor",
+            "",
+            "| Component | Baseline Variant | Trades | Ending Equity | Net Account PnL | MTM Drawdown | Win Rate | Profit Factor |",
+            "|---|---|---:|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for result in baseline_results:
+        lines.append(
+            "| {component} | `{variant}` | {trades} | ${ending} | ${pnl} | ${drawdown} | {win_rate} | {profit_factor} |".format(
+                component=result.component_key,
+                variant=result.variant.variant_id,
+                trades=result.metrics.number_of_trades,
+                ending=_format_decimal(result.metrics.ending_equity),
+                pnl=_format_decimal(result.metrics.net_account_pnl),
+                drawdown=_format_decimal(result.metrics.mark_to_market_max_drawdown),
+                win_rate=_format_percent(result.metrics.win_rate),
+                profit_factor=_format_decimal(result.metrics.profit_factor),
+            )
+        )
+    lines.extend(
+        [
+            "",
+            "## Variant Counter Truth",
+            "",
+            "| Variant | Production-Rule Rejections | Admitted From Rejection | Variant No-Trade Reasons | Rejected Variant Candidates | Admitted Regimes |",
+            "|---|---|---|---|---|---|",
+        ]
+    )
+    for result in variant_results:
+        lines.append(
+            "| `{variant}` | {production_rejections} | {admitted} | {variant_no_trade} | {variant_rejected} | {regimes} |".format(
+                variant=result.variant.variant_id,
+                production_rejections=_format_counts(
+                    result.variant_summary.get("production_rule_rejection_reason_counts", {})
+                ),
+                admitted=_format_counts(
+                    result.variant_summary.get("variant_admitted_from_rejection_reason_counts", {})
+                ),
+                variant_no_trade=_format_counts(
+                    result.variant_summary.get("variant_no_trade_reason_counts", {})
+                ),
+                variant_rejected=_format_counts(
+                    result.variant_summary.get("variant_rejected_candidate_reason_counts", {})
+                ),
+                regimes=_format_counts(
+                    result.variant_summary.get("variant_admitted_market_regime_counts", {})
+                ),
+            )
+        )
+    lines.extend(
+        [
+            "",
+            "## Interpretation",
+            "",
+            "- A variant only deserves broader validation if it improves ending equity versus baseline without simply adding many weak below-floor trades or increasing drawdown.",
+            "- `near support` and `near resistance` use the SV1.16 prior-20-candle swing context. These are research diagnostics, not production filters.",
+            "- `falling-knife candidate proxy` counts below-floor candidate candles where trend stack, MACD, or SMA20 context is not constructive. This proxy is descriptive and is not used as a trade rule.",
+            "- If a variant improves this sampled ETH `sleeve_1h` scenario, it still needs broader symbols, fill/cost assumptions, out-of-sample windows, and exact risk/stop replay before any founder paper-design discussion.",
+            "",
+            "## Boundary Flags",
+            "",
+            "- `changes_production_money_flow_rules`: `False`",
+            "- `optimizes_parameters`: `False`",
+            "- `approves_paper_trading`: `False`",
+            "- `creates_live_artifacts`: `False`",
+            "- `creates_routing_artifacts`: `False`",
+            "- `calls_exchange_adapters`: `False`",
+            "- `research_only`: `True`",
+            "",
+            "## Deferred Work",
+            "",
+            "- Broader BTC/ETH/SOL and 15m/1h/4h replay validation.",
+            "- Multiple fill timing and fee/slippage sensitivity for any variant that survives ETH `sleeve_1h` round one.",
+            "- Exact recent-low or ATR stop replay with real exit timing and fill assumptions.",
+            "- Paper-trading design remains deferred until founder review explicitly scopes it later.",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
 def _build_replay_context(
     *,
     request: StrategyValidationRequest,
@@ -733,7 +969,7 @@ def _build_replay_context(
     variant_reason_codes: tuple[str, ...] = ()
     variant_entry_allowed = False
     variant_entry_reason = None
-    if baseline_entry_rejected and variant.variant_id == LOWER_RSI_TREND_INTACT_VARIANT_ID:
+    if baseline_entry_rejected and variant.lower_rsi_floor_by_component:
         variant_entry_allowed, variant_reason_codes = _lower_rsi_variant_allows_entry(
             variant=variant,
             sleeve=sleeve,
@@ -837,14 +1073,36 @@ def _lower_rsi_variant_allows_entry(
     if extension is not None and extension > Decimal(str(sleeve.max_extension_pct_above_ema5)):
         codes.append("price_too_extended")
         return False, tuple(codes)
+    if variant.avoids_near_resistance and market_structure.near_resistance:
+        codes.append("near_recent_resistance")
+        return False, tuple(codes)
     near_ema10 = False
     if latest_close is not None and ema10 not in (None, Decimal("0")):
         near_ema10 = abs((latest_close - ema10) / ema10) <= Decimal("0.01")
+    if variant.requires_near_support and not market_structure.near_support:
+        codes.append("not_near_recent_support")
+        return False, tuple(codes)
+    if variant.requires_ema10_hold and not (
+        latest_close is not None and ema10 is not None and latest_close >= ema10 and near_ema10
+    ):
+        codes.append("ema10_hold_missing")
+        return False, tuple(codes)
     if variant.requires_pullback_or_support and not (near_ema10 or market_structure.near_support):
         codes.append("not_near_ema10_or_support")
         return False, tuple(codes)
     codes.append("lower_rsi_trend_intact_entry_allowed")
     return True, tuple(codes)
+
+
+def _falling_knife_risk_proxy(context: MoneyFlowReplayCandleContext) -> bool:
+    return (
+        context.rsi_zone == "below_floor"
+        and (
+            context.ema_trend_stack_state != "ema5_gt_ema10_gt_sma20"
+            or not context.macd_constructive
+            or (context.sma20 is not None and context.close < context.sma20)
+        )
+    )
 
 
 def _market_structure_context(
@@ -944,6 +1202,12 @@ def _format_decimal(value: Decimal | None) -> str:
     return f"{value:,.2f}"
 
 
+def _format_percent(value: Decimal | None) -> str:
+    if value is None:
+        return "n/a"
+    return f"{value * Decimal('100'):.2f}%"
+
+
 def _format_counts(counts: dict[str, int]) -> str:
     if not counts:
         return "`none`"
@@ -959,7 +1223,12 @@ __all__ = [
     "MoneyFlowTrueReplayResult",
     "MoneyFlowVariantReplayService",
     "baseline_replay_variant",
+    "lower_rsi_ema10_hold_no_resistance_variant",
     "lower_rsi_floor_trend_intact_variant",
+    "lower_rsi_narrow_trend_intact_variant",
+    "lower_rsi_support_confirmed_variant",
     "money_flow_replay_report_to_markdown",
+    "money_flow_true_replay_experiment_report_to_markdown",
     "money_flow_true_replay_result_to_dict",
+    "sv117_round_one_variants",
 ]

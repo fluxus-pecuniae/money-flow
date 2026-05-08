@@ -1,5 +1,11 @@
 # Money Flow Project Memory — Team Chronicle
 
+## 2026-05-08T06:52:35Z SV1.17 - True Replay Experiment Round 1
+
+SV1.17 uses the SV1.16/SV1.16.1 replay substrate for a first small Hyperliquid ETH `sleeve_1h` true replay experiment round under `dynamic_equity_pct`. It compares the current Money Flow baseline against lower-RSI plus market-structure variants: the original lower-RSI trend-intact v1, a narrower v2, a support-confirmed variant, and an EMA10-hold/no-resistance variant.
+
+No tested variant beat the baseline sampled scenario. Support-confirmed admitted no replay-only trades, broader lower-RSI admissions deteriorated ending equity, and EMA10-hold/no-resistance reduced drawdown while still ending below baseline. The results keep lower-RSI and market-structure changes research-only; no production Money Flow rules, paper/live trading, routing/execution behavior, exchange calls, or cross-venue scope changed. The dashboard keeps replay results under Experiments while evidence packs remain under Evidence.
+
 ## 2026-05-08T05:55:00Z SV1.16.1 - Replay Context Semantics And Variant Metric Truth
 
 SV1.16.1 hardens the interpretation of SV1.16 true replays before broader variants are tested. Replay contexts now expose `production_rule_*_in_replay_state` fields so founder/developer review understands those values are current Money Flow production-rule evaluations under the active replay state. Legacy `baseline_*` fields remain compatibility aliases, but after a variant-only entry changes position occupancy, they are not independent baseline-path truth.
