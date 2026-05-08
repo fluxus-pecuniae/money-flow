@@ -13,6 +13,23 @@ Entry schema:
 
 ---
 
+## v2026.05.08.002
+
+- `recorded_at_utc`: `2026-05-08T05:05:00Z`
+- `scope`: `SV1.16 dashboard experiment replay filter`
+- `intent`: `Native entry. Added an Experiments-tab filter that keeps existing SV1.15/SV1.15.1 completed-trade overlay diagnostics available while adding the SV1.16 true-replay result as a separate selectable view. The Evidence tab remains evidence-pack/evidence-review only; replay results stay under Experiments. The SV1.16 view shows ETH sleeve_1h baseline vs lower_rsi_floor_trend_intact_v1, replay-only entries, rejected-entry counts, ending equity, drawdown, and research-only methodology boundaries without generating new evidence packs, changing Money Flow rules, or adding paper/live/routing/execution behavior.`
+- `affected_files`:
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `money-flow/05_Agent_Coordination.md`
+  - `CHANGELOG.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js` passed.
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_operational_docs.py` passed.
+  - `git diff --check` passed.
+
 ## v2026.05.08.001
 
 - `recorded_at_utc`: `2026-05-08T04:45:00Z`

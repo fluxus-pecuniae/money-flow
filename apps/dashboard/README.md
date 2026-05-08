@@ -18,6 +18,8 @@ The dashboard tries to load the current SV1.13.2 Hyperliquid dynamic-equity evid
 
 The `Experiments` tab shows the committed SV1.15/SV1.15.1 controlled hypothesis results from `docs/strategy_validation_sv1_15_hypothesis_experiments.md`, including baseline dynamic-equity sums, one-change variant deltas, ETH 1h preservation, methodology classifications, the recent-low lookahead-proxy downgrade, and lower-RSI attribution caveats. These are research-only diagnostics and no variant is authorized for production, paper trading, or live trading.
 
+The `Experiments` tab also has a replay filter. Use `SV1.15 overlays` for the completed-trade overlay diagnostics and `SV1.16 true replay` for the rejected-signal replay result from `docs/strategy_validation_sv1_16_rejected_signal_replay.md`. The SV1.16 view shows baseline ETH 1h versus `lower_rsi_floor_trend_intact_v1`, replay-only entries, rejected-entry counts, ending equity, drawdown, and methodology boundaries. It remains research-only and is not mixed into the Evidence tab.
+
 The `Strategy` tab visualizes the current Money Flow v1.1 rule flow from `services/strategy/money_flow.py`, including readiness gates, entry checks, position-management checks, sleeve thresholds, confidence scoring, RSI lower-floor truth, and the SV1.14 market-structure diagnostics boundary. It is a visual overview only and does not change strategy logic. Component cards show sums across research runs, and run rows are scenario results rather than one combined account.
 
 This is a visualization surface only. It does not run Strategy Validation, generate evidence packs, import candles, call exchange endpoints, approve paper trading, or change Money Flow rules.

@@ -164,11 +164,80 @@
     "deferred_requires_rejected_signal_replay: lower-RSI admission needs rejected-signal instrumentation before true testing.",
   ];
 
+  const EXPERIMENT_MODES = [
+    {
+      id: "sv115_overlays",
+      label: "SV1.15 overlays",
+    },
+    {
+      id: "sv116_true_replay",
+      label: "SV1.16 true replay",
+    },
+  ];
+
+  const SV116_REPLAY_ROWS = [
+    {
+      id: "baseline_current_money_flow_rules",
+      label: "Baseline current Money Flow",
+      component: "sleeve_1h",
+      methodology: "true_forward_replay",
+      contexts: 2976,
+      trades: 117,
+      endingEquity: 11388.92997084,
+      netPnl: 1388.92997084,
+      rejectedEntries: 2055,
+      variantCandidates: 0,
+      variantEntries: 0,
+      winRate: 0.35042735,
+      profitFactor: 1.21629414,
+      closedDrawdown: 1677.7053037,
+      markToMarketDrawdown: 1753.27047986,
+      worstTrade: -409.14514081,
+      status: "baseline replay parity checked",
+    },
+    {
+      id: "lower_rsi_floor_trend_intact_v1",
+      label: "Lower RSI trend-intact v1",
+      component: "sleeve_1h",
+      methodology: "true_forward_replay_research_only",
+      contexts: 2976,
+      trades: 137,
+      endingEquity: 10902.09279976,
+      netPnl: 902.09279976,
+      rejectedEntries: 2011,
+      variantCandidates: 1428,
+      variantEntries: 29,
+      winRate: 0.30656934,
+      profitFactor: 1.12715544,
+      closedDrawdown: 1694.79623292,
+      markToMarketDrawdown: 1777.46211574,
+      worstTrade: -399.05289817,
+      status: "deteriorated vs baseline; not authorized",
+    },
+  ];
+
+  const SV116_REPLAY_FINDINGS = [
+    "SV1.16 is true candle-by-candle replay instrumentation, not a completed-trade overlay.",
+    "Baseline replay parity is checked on deterministic fixtures for trade count, entry times, exit times, net account PnL, and ending equity.",
+    "The ETH 1h lower-RSI replay admitted 29 replay-only entries but ended below the baseline sampled scenario.",
+    "Below-floor RSI contexts are now visible for future testing instead of being inferred from completed trades.",
+    "The lower-RSI variant remains research-only and does not change production RSI floors or entry rules.",
+    "No paper trading, live trading, routing, execution behavior, or strategy authorization follows from this replay.",
+  ];
+
+  const SV116_REPLAY_METHODOLOGY = [
+    "true_forward_replay: candles are processed chronologically with position occupancy and dynamic-equity sizing.",
+    "per_candle_true_replay_context_research_only: each evaluated candle records baseline decision/rejection context.",
+    "lower_rsi_floor_trend_intact_v1: admits below-floor RSI only inside Strategy Validation replay when trend, MACD, non-extension, and pullback/support gates pass.",
+    "SV1.15 completed-trade overlays remain diagnostic and are not replaced or retroactively validated by SV1.16.",
+  ];
+
   const state = {
     review: null,
     batches: [],
     selectedComponent: "all",
     activeView: "evidence",
+    experimentMode: "sv115_overlays",
   };
 
   const elements = {
@@ -194,6 +263,21 @@
     checklist: document.querySelector("#review-checklist"),
     runTable: document.querySelector("#run-table"),
     experimentVariantCards: document.querySelector("#experiment-variant-cards"),
+    experimentReplayFilter: document.querySelector("#experiment-replay-filter"),
+    experimentsTitle: document.querySelector("#experiments-title"),
+    experimentsSubtitle: document.querySelector("#experiments-subtitle"),
+    experimentMetricALabel: document.querySelector("#experiment-metric-a-label"),
+    experimentMetricAValue: document.querySelector("#experiment-metric-a-value"),
+    experimentMetricADetail: document.querySelector("#experiment-metric-a-detail"),
+    experimentMetricBLabel: document.querySelector("#experiment-metric-b-label"),
+    experimentMetricBValue: document.querySelector("#experiment-metric-b-value"),
+    experimentMetricBDetail: document.querySelector("#experiment-metric-b-detail"),
+    experimentMetricCLabel: document.querySelector("#experiment-metric-c-label"),
+    experimentMetricCValue: document.querySelector("#experiment-metric-c-value"),
+    experimentMetricCDetail: document.querySelector("#experiment-metric-c-detail"),
+    experimentMetricDLabel: document.querySelector("#experiment-metric-d-label"),
+    experimentMetricDValue: document.querySelector("#experiment-metric-d-value"),
+    experimentMetricDDetail: document.querySelector("#experiment-metric-d-detail"),
     experimentBaselineTable: document.querySelector("#experiment-baseline-table"),
     experimentEthTable: document.querySelector("#experiment-eth-table"),
     experimentFindings: document.querySelector("#experiment-findings"),
@@ -548,6 +632,10 @@
 
   function renderExperimentCards() {
     if (!elements.experimentVariantCards) return;
+    if (state.experimentMode === "sv116_true_replay") {
+      renderReplayCards();
+      return;
+    }
     const maxMagnitude = Math.max(...SV115_VARIANTS.map((row) => Math.abs(row.delta)), 1);
     elements.experimentVariantCards.innerHTML = SV115_VARIANTS.map((row) => {
       const width = Math.max(3, Math.round((Math.abs(row.delta) / maxMagnitude) * 100));
@@ -573,6 +661,10 @@
 
   function renderExperimentBaseline() {
     if (!elements.experimentBaselineTable) return;
+    if (state.experimentMode === "sv116_true_replay") {
+      renderReplayComparisonTable();
+      return;
+    }
     elements.experimentBaselineTable.innerHTML = `
       <table>
         <thead>
@@ -605,6 +697,10 @@
 
   function renderExperimentEth() {
     if (!elements.experimentEthTable) return;
+    if (state.experimentMode === "sv116_true_replay") {
+      renderReplayRejectedContextTable();
+      return;
+    }
     elements.experimentEthTable.innerHTML = `
       <table>
         <thead>
@@ -633,13 +729,20 @@
 
   function renderExperimentFindings() {
     if (!elements.experimentFindings) return;
-    elements.experimentFindings.innerHTML = SV115_FINDINGS.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+    const findings = state.experimentMode === "sv116_true_replay" ? SV116_REPLAY_FINDINGS : SV115_FINDINGS;
+    const methodology =
+      state.experimentMode === "sv116_true_replay" ? SV116_REPLAY_METHODOLOGY : SV115_METHODOLOGY;
+    elements.experimentFindings.innerHTML = findings.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
     if (!elements.experimentMethodology) return;
-    elements.experimentMethodology.innerHTML = SV115_METHODOLOGY.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+    elements.experimentMethodology.innerHTML = methodology.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
   }
 
   function renderExperimentTable() {
     if (!elements.experimentTable) return;
+    if (state.experimentMode === "sv116_true_replay") {
+      renderReplayLedger();
+      return;
+    }
     elements.experimentTable.innerHTML = `
       <table>
         <thead>
@@ -676,7 +779,180 @@
     `;
   }
 
+  function renderExperimentModeFilter() {
+    if (!elements.experimentReplayFilter) return;
+    elements.experimentReplayFilter.innerHTML = EXPERIMENT_MODES.map(
+      (mode) => `
+        <button class="segment-button" type="button" role="tab" aria-selected="${
+          state.experimentMode === mode.id
+        }" data-experiment-mode="${escapeHtml(mode.id)}">${escapeHtml(mode.label)}</button>
+      `,
+    ).join("");
+    elements.experimentReplayFilter.querySelectorAll("button").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.experimentMode = button.dataset.experimentMode || "sv115_overlays";
+        renderExperiments();
+      });
+    });
+  }
+
+  function renderExperimentHeader() {
+    const replayMode = state.experimentMode === "sv116_true_replay";
+    elements.experimentsTitle.textContent = replayMode
+      ? "SV1.16 True Replay Results"
+      : "SV1.15 Hypothesis Experiments";
+    elements.experimentsSubtitle.textContent = replayMode
+      ? "Rejected-signal replay; true replay remains research-only and not a production rule change."
+      : "Dynamic-equity diagnostics; overlays are not true forward replays or production rule changes.";
+    elements.experimentMetricALabel.textContent = replayMode ? "Replay Scope" : "Baseline Winner";
+    elements.experimentMetricAValue.textContent = replayMode ? "ETH 1H" : "1H";
+    elements.experimentMetricADetail.textContent = replayMode
+      ? "Hyperliquid true replay"
+      : "positive grouped dynamic-equity sum";
+    elements.experimentMetricBLabel.textContent = replayMode ? "Replay Entries" : "Largest 15m Lift";
+    elements.experimentMetricBValue.textContent = replayMode ? "29" : "$79.7k";
+    elements.experimentMetricBDetail.textContent = replayMode
+      ? "lower-RSI entries admitted"
+      : "completed-trade overlay, still negative";
+    elements.experimentMetricCLabel.textContent = replayMode ? "Ending Equity Delta" : "Largest 4h Lift";
+    elements.experimentMetricCValue.textContent = replayMode ? money(10902.09279976 - 11388.92997084) : "$30.7k";
+    elements.experimentMetricCDetail.textContent = replayMode
+      ? "variant minus baseline"
+      : "completed-trade overlay";
+    elements.experimentMetricDLabel.textContent = replayMode ? "Authorization" : "Methodology";
+    elements.experimentMetricDValue.textContent = replayMode ? "None" : "None";
+    elements.experimentMetricDDetail.textContent = replayMode
+      ? "research-only replay"
+      : "no hypothesis authorized";
+  }
+
+  function renderReplayCards() {
+    const maxMagnitude = Math.max(...SV116_REPLAY_ROWS.map((row) => Math.abs(row.netPnl)), 1);
+    elements.experimentVariantCards.innerHTML = SV116_REPLAY_ROWS.map((row) => {
+      const width = Math.max(3, Math.round((Math.abs(row.netPnl) / maxMagnitude) * 100));
+      return `
+        <article class="component-card experiment-card" aria-current="${row.netPnl >= 0}">
+          <div class="component-card-header">
+            <span class="component-card-title">${escapeHtml(row.label)}</span>
+            <span>${escapeHtml(row.component)}</span>
+          </div>
+          <p class="card-note">${escapeHtml(row.methodology)}</p>
+          <div class="pnl-track" aria-label="Net account PnL magnitude">
+            <div class="pnl-fill ${row.netPnl >= 0 ? "positive" : ""}" style="width:${width}%"></div>
+          </div>
+          <div class="component-card-metrics">
+            <div class="mini-metric"><span>Net PnL</span><strong>${escapeHtml(money(row.netPnl))}</strong></div>
+            <div class="mini-metric"><span>Trades</span><strong>${escapeHtml(row.trades)}</strong></div>
+            <div class="mini-metric"><span>Status</span><strong>${escapeHtml(row.status)}</strong></div>
+          </div>
+        </article>
+      `;
+    }).join("");
+  }
+
+  function renderReplayComparisonTable() {
+    elements.experimentBaselineTable.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Replay</th>
+            <th>Contexts</th>
+            <th>Trades</th>
+            <th>Ending Equity</th>
+            <th>Net Account PnL</th>
+            <th>Win Rate</th>
+            <th>Profit Factor</th>
+            <th>MTM Drawdown</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${SV116_REPLAY_ROWS.map((row) => `
+            <tr>
+              <td>${escapeHtml(row.label)}</td>
+              <td>${escapeHtml(row.contexts)}</td>
+              <td>${escapeHtml(row.trades)}</td>
+              <td>${escapeHtml(money(row.endingEquity))}</td>
+              <td>${escapeHtml(money(row.netPnl))}</td>
+              <td>${escapeHtml(pct(row.winRate))}</td>
+              <td>${escapeHtml(row.profitFactor.toFixed(2))}</td>
+              <td>${escapeHtml(money(row.markToMarketDrawdown))}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderReplayRejectedContextTable() {
+    elements.experimentEthTable.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Replay</th>
+            <th>Rejected Entries</th>
+            <th>Variant Candidates</th>
+            <th>Variant Entries</th>
+            <th>Worst Trade</th>
+            <th>Closed DD</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${SV116_REPLAY_ROWS.map((row) => `
+            <tr>
+              <td>${escapeHtml(row.id)}</td>
+              <td>${escapeHtml(row.rejectedEntries)}</td>
+              <td>${escapeHtml(row.variantCandidates)}</td>
+              <td>${escapeHtml(row.variantEntries)}</td>
+              <td>${escapeHtml(money(row.worstTrade))}</td>
+              <td>${escapeHtml(money(row.closedDrawdown))}</td>
+              <td>${escapeHtml(row.status)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderReplayLedger() {
+    const baseline = SV116_REPLAY_ROWS[0];
+    elements.experimentTable.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Replay ID</th>
+            <th>Methodology</th>
+            <th>Net PnL</th>
+            <th>Delta vs Baseline</th>
+            <th>Ending Equity</th>
+            <th>Trades</th>
+            <th>Replay Entries</th>
+            <th>Rejected Entries</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${SV116_REPLAY_ROWS.map((row) => `
+            <tr>
+              <td>${escapeHtml(row.id)}</td>
+              <td>${escapeHtml(row.methodology)}</td>
+              <td>${escapeHtml(money(row.netPnl))}</td>
+              <td>${escapeHtml(money(row.netPnl - baseline.netPnl))}</td>
+              <td>${escapeHtml(money(row.endingEquity))}</td>
+              <td>${escapeHtml(row.trades)}</td>
+              <td>${escapeHtml(row.variantEntries)}</td>
+              <td>${escapeHtml(row.rejectedEntries)}</td>
+              <td>${escapeHtml(row.status)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
   function renderExperiments() {
+    renderExperimentModeFilter();
+    renderExperimentHeader();
     renderExperimentCards();
     renderExperimentBaseline();
     renderExperimentEth();

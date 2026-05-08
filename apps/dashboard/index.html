@@ -120,29 +120,37 @@
         <section class="strategy-panel" aria-labelledby="experiments-title">
           <div class="section-heading">
             <h2 id="experiments-title">SV1.15 Hypothesis Experiments</h2>
-            <p>Dynamic-equity diagnostics; overlays are not true forward replays or production rule changes.</p>
+            <p id="experiments-subtitle">Dynamic-equity diagnostics; overlays are not true forward replays or production rule changes.</p>
           </div>
+
+          <section class="toolbar-band" aria-label="Experiment replay filters">
+            <div class="segment-group" id="experiment-replay-filter" role="tablist" aria-label="Experiment set filter"></div>
+            <div class="boundary-flags">
+              <span class="pill warn">Manual review only</span>
+              <span class="pill warn">No production rule changes</span>
+            </div>
+          </section>
 
           <section class="metric-grid" aria-label="SV1.15 experiment summary">
             <article class="metric-cell">
-              <span class="metric-label">Baseline Winner</span>
-              <strong>1H</strong>
-              <small>positive grouped dynamic-equity sum</small>
+              <span id="experiment-metric-a-label" class="metric-label">Baseline Winner</span>
+              <strong id="experiment-metric-a-value">1H</strong>
+              <small id="experiment-metric-a-detail">positive grouped dynamic-equity sum</small>
             </article>
             <article class="metric-cell">
-              <span class="metric-label">Largest 15m Lift</span>
-              <strong>$79.7k</strong>
-              <small>completed-trade overlay, still negative</small>
+              <span id="experiment-metric-b-label" class="metric-label">Largest 15m Lift</span>
+              <strong id="experiment-metric-b-value">$79.7k</strong>
+              <small id="experiment-metric-b-detail">completed-trade overlay, still negative</small>
             </article>
             <article class="metric-cell">
-              <span class="metric-label">Largest 4h Lift</span>
-              <strong>$30.7k</strong>
-              <small>completed-trade overlay</small>
+              <span id="experiment-metric-c-label" class="metric-label">Largest 4h Lift</span>
+              <strong id="experiment-metric-c-value">$30.7k</strong>
+              <small id="experiment-metric-c-detail">completed-trade overlay</small>
             </article>
             <article class="metric-cell warning-cell">
-              <span class="metric-label">Methodology</span>
-              <strong>None</strong>
-              <small>no hypothesis authorized</small>
+              <span id="experiment-metric-d-label" class="metric-label">Methodology</span>
+              <strong id="experiment-metric-d-value">None</strong>
+              <small id="experiment-metric-d-detail">no hypothesis authorized</small>
             </article>
           </section>
         </section>

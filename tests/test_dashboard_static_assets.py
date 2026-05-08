@@ -22,6 +22,13 @@ def test_evidence_dashboard_uses_gus_design_tokens_and_boundaries() -> None:
     assert "Evidence Dashboard" in html
     assert "data-view=\"experiments\"" in html
     assert "SV1.15 Hypothesis Experiments" in html
+    assert "experiment-replay-filter" in html
+    assert "SV1.16 True Replay Results" in js
+    assert "sv116_true_replay" in js
+    assert "SV116_REPLAY_ROWS" in js
+    assert "lower_rsi_floor_trend_intact_v1" in js
+    assert "true_forward_replay_research_only" in js
+    assert "variant minus baseline" in js
     assert "completed-trade overlay, still negative" in html
     assert "Methodology Boundary" in html
     assert "not true forward replays" in html
@@ -39,6 +46,7 @@ def test_evidence_dashboard_uses_gus_design_tokens_and_boundaries() -> None:
     assert "lookahead_diagnostic_proxy" in js
     assert "upper-bound only; not candidate" in js
     assert "No variant is authorized for production, paper trading, or live trading." in js
+    assert "No paper trading, live trading, routing, execution behavior, or strategy authorization follows from this replay." in js
     assert "reports/strategy_validation_reviews/sv1_13_2_dynamic_equity_20260507T104500Z" in js
     assert "dynamic_equity_pct" in js
     assert "Ending Equity" in js
