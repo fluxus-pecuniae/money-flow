@@ -13,6 +13,43 @@ Entry schema:
 
 ---
 
+## v2026.05.08.003
+
+- `recorded_at_utc`: `2026-05-08T05:55:00Z`
+- `scope`: `SV1.16.1 replay context semantics and variant metric truth hotfix`
+- `intent`: `Native entry. Hardened SV1.16 replay methodology truth so variant replays distinguish production Money Flow rule evaluation under the current replay state from independent baseline-path truth. Added explicit production_rule_*_in_replay_state context fields while keeping baseline_* compatibility aliases, added variant divergence metadata, and separated production-rule rejection counts, variant-admitted-from-rejection counts, variant no-trade counts, and variant rejected-candidate counts. Variant-admitted candles no longer count as ambiguous variant no-trade. The founder replay report now explains replay-state divergence and counter separation. Baseline replay numbers remain unchanged, lower-RSI remains research-only, and no production Money Flow rules, paper/live trading, routing/execution behavior, exchange calls, or live artifacts were added.`
+- `affected_files`:
+  - `services/strategy_validation/replay.py`
+  - `tests/test_sv116_replay_instrumentation.py`
+  - `tests/test_operational_docs.py`
+  - `docs/strategy_validation_sv1_16_rejected_signal_replay.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `KNOWN_ISSUES.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> .venv/bin/python scripts/run_money_flow_true_replay.py --output docs/strategy_validation_sv1_16_rejected_signal_replay.md --symbol ETH --component sleeve_1h --fill-timing next_candle_open --fee-bps 5 --slippage-bps 3` passed.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv116_replay_instrumentation.py` passed: 6 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_operational_docs.py` passed: 18 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv115_hypothesis_experiments.py tests/test_sv116_replay_instrumentation.py tests/test_dashboard_static_assets.py tests/test_operational_docs.py` passed: 28 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: 650 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed after docs/coordination closeout: 11 tests.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.16.1-review.zip` created a review bundle.
+  - Review ZIP inspection reported `303` entries and `0` forbidden artifacts across generated reports/evidence, local envs, Git metadata, caches, DB files, nested archives, Obsidian app state, and secrets.
+
 ## v2026.05.08.002
 
 - `recorded_at_utc`: `2026-05-08T05:05:00Z`

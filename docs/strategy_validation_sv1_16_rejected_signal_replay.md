@@ -1,16 +1,18 @@
 # SV1.16 Rejected-Signal Replay Instrumentation
 
-Recorded at: `2026-05-08T04:35:35Z`
+Recorded at: `2026-05-08T06:06:02Z`
 
 Status: `replay_substrate_ready_for_founder_review`
 
-This report is research-only. SV1.16 records per-candle baseline decision context and runs a narrow lower-RSI true replay example without changing production Money Flow rules, approving paper trading, adding live execution, routing, or calling exchange endpoints.
+This report is research-only. SV1.16 records per-candle production-rule decision context and runs a narrow lower-RSI true replay example without changing production Money Flow rules, approving paper trading, adding live execution, routing, or calling exchange endpoints.
 
 ## Methodology
 
 - Replay context methodology: `per_candle_true_replay_context_research_only`
-- Each evaluated candle records baseline action, reason codes, RSI zone, indicator values, regime labels, and descriptive market-structure context.
-- Rejected baseline entry candles are retained so later lower-RSI variants can be tested from candles rather than completed-trade overlays.
+- Each evaluated candle records production-rule action/reason context in the current replay state, RSI zone, indicator values, regime labels, and descriptive market-structure context.
+- SV1.16.1 terminology: `production_rule_*_in_replay_state` means current Money Flow rule evaluation under the active replay state. In a variant run, once a variant-only entry is admitted, later production-rule evaluations are in the variant state rather than an independent baseline path.
+- Legacy `baseline_*` fields remain as compatibility aliases for production-rule evaluation, but founder interpretation should use the clearer production-rule-in-replay-state fields.
+- Rejected production-rule entry candles are retained so later lower-RSI variants can be tested from candles rather than completed-trade overlays.
 - True replay maintains position occupancy and dynamic-equity path inside each independent scenario.
 - This is not full margin, funding, liquidation, order-book, or portfolio simulation.
 
@@ -26,6 +28,20 @@ This report is research-only. SV1.16 records per-candle baseline decision contex
 |---|---|---:|---:|---:|---:|---:|---:|---:|
 | sleeve_1h | `baseline_current_money_flow_rules` | 2976 | 117 | $11,388.93 | $1,388.93 | 2055 | 0 | 0 |
 | sleeve_1h | `lower_rsi_floor_trend_intact_v1` | 2976 | 137 | $10,902.09 | $902.09 | 2011 | 1428 | 29 |
+
+## SV1.16.1 Replay Methodology Truth
+
+- Variant replay can diverge from the baseline path after a variant admits a candle that production rules rejected.
+- The current SV1.16.1 report does not compute an independent per-candle baseline reference path after that divergence; it reports production-rule evaluation in the current replay state.
+- Production-rule rejection counts are separated from variant no-trade truth.
+- If production rules reject a candle and the variant admits it, that candle is counted under `variant_admitted_from_rejection_reason_counts`, not as a variant no-trade.
+- The lower-RSI result remains a sampled research replay result, not a production rule, not paper trading authorization, and not live trading authorization.
+
+## Variant Counter Separation
+
+| Component | Variant | Production-Rule Rejections In Replay State | Admitted From Rejection | Variant No-Trade Reasons | Variant Rejected Candidates |
+|---|---|---|---|---|---|
+| sleeve_1h | `lower_rsi_floor_trend_intact_v1` | `bearish_alignment`=1690, `entry_quality_not_constructive`=10, `macd_not_constructive`=174, `overextended_rsi`=49, `rsi_not_constructive`=88 | `rsi_not_constructive`=29 | `bearish_alignment`=1690, `entry_quality_not_constructive`=10, `macd_not_constructive`=174, `overextended_rsi`=49, `rsi_not_constructive`=59 | `variant_candidate_rejected`=1399 |
 
 ## Rejected-Signal Summary
 

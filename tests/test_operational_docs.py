@@ -86,8 +86,8 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "required Obsidian brain entrypoint" in command_center
-    assert re.search(r"Current implemented phase: `SV1\.16`", current_phase)
-    assert "SV1.16" in command_center
+    assert re.search(r"Current implemented phase: `SV1\.16\.1`", current_phase)
+    assert "SV1.16.1" in command_center
     assert "SV1.14" in command_center
     assert "Active Work" in coordination
     assert "Quant Engineer" in moved_memory
@@ -150,6 +150,8 @@ def test_obsidian_current_state_notes_do_not_have_stale_current_truth() -> None:
         "Phase observed in repo memory: `SV1.15`",
         "Current implemented phase: `SV1.15.1`",
         "Phase observed in repo memory: `SV1.15.1`",
+        "Current implemented phase: `SV1.16`",
+        "Phase observed in repo memory: `SV1.16`",
     ]
 
     for path in current_state_paths:

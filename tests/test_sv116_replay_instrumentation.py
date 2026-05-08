@@ -75,6 +75,12 @@ def test_replay_captures_per_candle_context_and_rejected_signals() -> None:
     assert first_context.component_key == "sleeve_15m"
     assert first_context.rsi_sleeve_floor == Decimal("52.0")
     assert first_context.market_structure.lookback_candles == 20
+    assert first_context.production_rule_action_in_replay_state == first_context.baseline_action
+    assert first_context.production_rule_status_in_replay_state == first_context.baseline_status
+    assert (
+        first_context.production_rule_entry_rejected_in_replay_state
+        == first_context.baseline_entry_rejected
+    )
     assert "contexts" in payload
     assert payload["boundary_flags"]["creates_live_artifacts"] is False
 
@@ -133,7 +139,19 @@ def test_lower_rsi_true_replay_can_admit_rejected_candle_without_changing_rules(
     assert result.variant.methodology == "true_forward_replay"
     assert result.variant_summary["variant_candidate_contexts"] > 0
     assert result.variant_summary["variant_entries_allowed"] == 1
+    assert result.variant_summary["variant_admitted_entry_count"] == 1
+    assert result.variant_summary["variant_state_has_diverged_from_baseline"] is True
+    assert result.variant_summary["independent_baseline_reference_per_candle"] is False
+    assert result.variant_summary["variant_admitted_from_rejection_reason_counts"] == {
+        "rsi_not_constructive": 1
+    }
+    assert result.variant_summary["variant_no_trade_reason_counts"].get("rsi_not_constructive", 0) == 0
+    assert result.variant_summary["production_rule_rejection_reason_counts"]["rsi_not_constructive"] == 1
     assert admitted_contexts[0].entry_rejection_reason == "rsi_not_constructive"
+    assert admitted_contexts[0].production_rule_entry_rejected_in_replay_state is True
+    assert admitted_contexts[0].variant_admitted_from_production_rule_rejection is True
+    assert admitted_contexts[0].variant_state_has_diverged_from_baseline is True
+    assert admitted_contexts[0].replay_state_source == "variant_state_after_divergence"
     assert admitted_contexts[0].rsi_zone == "below_floor"
     assert admitted_contexts[0].ema_trend_stack_state == "ema5_gt_ema10_gt_sma20"
     assert result.variant.changes_production_rules is False
@@ -153,6 +171,8 @@ def test_replay_markdown_explains_boundaries_and_avoids_approval_language() -> N
     markdown = money_flow_replay_report_to_markdown(baseline, variant_results)
 
     assert "per_candle_true_replay_context_research_only" in markdown
+    assert "production-rule evaluation in the current replay state" in markdown
+    assert "variant_admitted_from_rejection_reason_counts" in markdown
     assert "Rejected-Signal Summary" in markdown
     assert "Baseline Replay Parity" in markdown
     assert "not a production rule" in markdown

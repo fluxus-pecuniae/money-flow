@@ -1,5 +1,11 @@
 # Money Flow Project Memory — Team Chronicle
 
+## 2026-05-08T05:55:00Z SV1.16.1 - Replay Context Semantics And Variant Metric Truth
+
+SV1.16.1 hardens the interpretation of SV1.16 true replays before broader variants are tested. Replay contexts now expose `production_rule_*_in_replay_state` fields so founder/developer review understands those values are current Money Flow production-rule evaluations under the active replay state. Legacy `baseline_*` fields remain compatibility aliases, but after a variant-only entry changes position occupancy, they are not independent baseline-path truth.
+
+The hotfix also separates counters: production-rule rejections, variant-admitted-from-rejection counts, variant no-trade reasons, and rejected variant candidates are distinct. A candle rejected by production rules and admitted by the variant is no longer counted as variant no-trade. Baseline replay parity and the ETH `sleeve_1h` lower-RSI sampled result remain unchanged; the lower-RSI replay remains research-only and underperformed baseline. Production Money Flow rules, paper/live trading, routing, execution behavior, exchange calls, and cross-venue evidence remain unchanged/deferred.
+
 ## 2026-05-08T04:45:00Z SV1.16 - Rejected-Signal Replay Instrumentation
 
 SV1.16 adds the first true replay substrate for Strategy Validation. It captures per-candle baseline decision and rejection context, including RSI zones, EMA/MACD state, price-extension facts, market regime labels, recent swing high/low market-structure diagnostics, and whether baseline entry was allowed or rejected. This closes the SV1.15.1 instrumentation gap for future lower-RSI and market-structure rule-hypothesis testing.

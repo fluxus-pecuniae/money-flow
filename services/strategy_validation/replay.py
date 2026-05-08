@@ -1,6 +1,6 @@
 """Research-only Money Flow replay instrumentation for Strategy Validation.
 
-SV1.16 records per-candle baseline decision context and provides a narrow true
+SV1.16 records per-candle production-rule decision context and provides a narrow true
 replay substrate for future hypothesis testing. It creates only in-memory
 research artifacts; it does not persist strategy decisions, signals, orders, or
 other live execution records.
@@ -100,6 +100,11 @@ class MoneyFlowReplayCandleContext:
     macd: Decimal | None
     macd_signal: Decimal | None
     macd_histogram: Decimal | None
+    production_rule_action_in_replay_state: str
+    production_rule_status_in_replay_state: str
+    production_rule_reason_codes_in_replay_state: tuple[str, ...]
+    production_rule_entry_allowed_in_replay_state: bool
+    production_rule_entry_rejected_in_replay_state: bool
     baseline_action: str
     baseline_status: str
     baseline_reason_codes: tuple[str, ...]
@@ -116,10 +121,15 @@ class MoneyFlowReplayCandleContext:
     market_regime_label: str
     volatility_regime_label: str
     market_structure: MoneyFlowReplayMarketStructure
+    variant_state_has_diverged_from_baseline: bool = False
+    variant_position_active: bool = False
+    baseline_reference_position_active: bool | None = None
+    replay_state_source: str = "production_baseline_state"
     variant_candidate: bool = False
     variant_candidate_reason_codes: tuple[str, ...] = ()
     variant_entry_allowed: bool = False
     variant_entry_reason: str | None = None
+    variant_admitted_from_production_rule_rejection: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -235,11 +245,15 @@ class MoneyFlowVariantReplayService:
         invalid_reasons: Counter[str] = Counter()
         variant_candidate_reasons: Counter[str] = Counter()
         variant_rejected_reasons: Counter[str] = Counter()
+        production_rule_rejection_reasons: Counter[str] = Counter()
+        variant_admitted_from_rejection_reasons: Counter[str] = Counter()
+        variant_no_trade_reasons: Counter[str] = Counter()
         limitations: list[str] = list(data_coverage.warning_reason_codes)
         if not candles:
             limitations.append("no_persisted_candles_for_component")
 
         open_position: Any | None = None
+        variant_state_has_diverged_from_baseline = False
         realized_equity = request.assumptions.initial_capital
         closed_trade_equity_points: list[Decimal] = [request.assumptions.initial_capital]
         mark_to_market_equity_points: list[Decimal] = [request.assumptions.initial_capital]
@@ -288,6 +302,8 @@ class MoneyFlowVariantReplayService:
                 market_structure=market_structure,
                 regime=regime,
                 variant=variant,
+                variant_state_has_diverged_from_baseline=variant_state_has_diverged_from_baseline,
+                variant_position_active=position_active_for_evaluation,
             )
 
             if open_position is not None:
@@ -343,15 +359,21 @@ class MoneyFlowVariantReplayService:
             entry_reason = decision.reason_code
             if decision.status == StrategyDecisionStatus.NO_TRADE:
                 reason = decision.reason_code or "no_trade_without_reason"
-                no_trade_reasons[reason] += 1
+                production_rule_rejection_reasons[reason] += 1
                 if context.variant_candidate:
                     for code in context.variant_candidate_reason_codes:
                         variant_candidate_reasons[code] += 1
                     if context.variant_entry_allowed:
                         should_open = True
                         entry_reason = context.variant_entry_reason
+                        variant_admitted_from_rejection_reasons[reason] += 1
                     else:
                         variant_rejected_reasons["variant_candidate_rejected"] += 1
+                        variant_no_trade_reasons[reason] += 1
+                        no_trade_reasons[reason] += 1
+                else:
+                    variant_no_trade_reasons[reason] += 1
+                    no_trade_reasons[reason] += 1
 
             if should_open:
                 if _dynamic_equity_is_depleted(request.assumptions, realized_equity):
@@ -382,6 +404,8 @@ class MoneyFlowVariantReplayService:
                     entry_volatility_regime=regime.volatility_label,
                     current_realized_equity=realized_equity,
                 )
+                if context.variant_admitted_from_production_rule_rejection:
+                    variant_state_has_diverged_from_baseline = True
                 if _coerce_utc(fill.candle.close_time) > open_position.entry_time:
                     open_position.record_excursion(fill.candle)
                     mark_to_market_equity_points.append(
@@ -439,9 +463,35 @@ class MoneyFlowVariantReplayService:
             "contexts_evaluated": len(contexts),
             "baseline_entries_allowed": sum(1 for context in contexts if context.baseline_entry_allowed),
             "baseline_entries_rejected": sum(1 for context in contexts if context.baseline_entry_rejected),
+            "production_rule_entries_allowed_in_replay_state": sum(
+                1 for context in contexts if context.production_rule_entry_allowed_in_replay_state
+            ),
+            "production_rule_entries_rejected_in_replay_state": sum(
+                1 for context in contexts if context.production_rule_entry_rejected_in_replay_state
+            ),
             "variant_candidate_contexts": sum(1 for context in contexts if context.variant_candidate),
             "variant_entries_allowed": sum(1 for context in contexts if context.variant_entry_allowed),
+            "variant_admitted_entry_count": sum(
+                1 for context in contexts if context.variant_admitted_from_production_rule_rejection
+            ),
+            "variant_state_has_diverged_from_baseline": any(
+                context.variant_state_has_diverged_from_baseline for context in contexts
+            ),
+            "independent_baseline_reference_per_candle": False,
+            "replay_state_semantics": (
+                "production_rule_* fields are Money Flow production-rule evaluations under the "
+                "current replay state; after variant-only admission they are not an independent "
+                "baseline path."
+            ),
+            "production_rule_rejection_reason_counts": dict(
+                sorted(production_rule_rejection_reasons.items())
+            ),
+            "variant_admitted_from_rejection_reason_counts": dict(
+                sorted(variant_admitted_from_rejection_reasons.items())
+            ),
+            "variant_no_trade_reason_counts": dict(sorted(variant_no_trade_reasons.items())),
             "variant_candidate_reason_counts": dict(sorted(variant_candidate_reasons.items())),
+            "variant_rejected_candidate_reason_counts": dict(sorted(variant_rejected_reasons.items())),
             "variant_rejected_reason_counts": dict(sorted(variant_rejected_reasons.items())),
             "changes_production_rules": variant.changes_production_rules,
             "uses_dynamic_equity": (
@@ -530,15 +580,17 @@ def money_flow_replay_report_to_markdown(
         "",
         "Status: `replay_substrate_ready_for_founder_review`",
         "",
-        "This report is research-only. SV1.16 records per-candle baseline decision context and runs a narrow "
+        "This report is research-only. SV1.16 records per-candle production-rule decision context and runs a narrow "
         "lower-RSI true replay example without changing production Money Flow rules, approving paper trading, "
         "adding live execution, routing, or calling exchange endpoints.",
         "",
         "## Methodology",
         "",
         f"- Replay context methodology: `{REPLAY_CONTEXT_METHODOLOGY}`",
-        "- Each evaluated candle records baseline action, reason codes, RSI zone, indicator values, regime labels, and descriptive market-structure context.",
-        "- Rejected baseline entry candles are retained so later lower-RSI variants can be tested from candles rather than completed-trade overlays.",
+        "- Each evaluated candle records production-rule action/reason context in the current replay state, RSI zone, indicator values, regime labels, and descriptive market-structure context.",
+        "- SV1.16.1 terminology: `production_rule_*_in_replay_state` means current Money Flow rule evaluation under the active replay state. In a variant run, once a variant-only entry is admitted, later production-rule evaluations are in the variant state rather than an independent baseline path.",
+        "- Legacy `baseline_*` fields remain as compatibility aliases for production-rule evaluation, but founder interpretation should use the clearer production-rule-in-replay-state fields.",
+        "- Rejected production-rule entry candles are retained so later lower-RSI variants can be tested from candles rather than completed-trade overlays.",
         "- True replay maintains position occupancy and dynamic-equity path inside each independent scenario.",
         "- This is not full margin, funding, liquidation, order-book, or portfolio simulation.",
         "",
@@ -565,6 +617,42 @@ def money_flow_replay_report_to_markdown(
                 rejected=result.rejected_signal_summary["baseline_entry_rejected_count"],
                 candidates=result.variant_summary["variant_candidate_contexts"],
                 variant_entries=result.variant_summary["variant_entries_allowed"],
+            )
+        )
+    lines.extend(
+        [
+            "",
+            "## SV1.16.1 Replay Methodology Truth",
+            "",
+            "- Variant replay can diverge from the baseline path after a variant admits a candle that production rules rejected.",
+            "- The current SV1.16.1 report does not compute an independent per-candle baseline reference path after that divergence; it reports production-rule evaluation in the current replay state.",
+            "- Production-rule rejection counts are separated from variant no-trade truth.",
+            "- If production rules reject a candle and the variant admits it, that candle is counted under `variant_admitted_from_rejection_reason_counts`, not as a variant no-trade.",
+            "- The lower-RSI result remains a sampled research replay result, not a production rule, not paper trading authorization, and not live trading authorization.",
+            "",
+            "## Variant Counter Separation",
+            "",
+            "| Component | Variant | Production-Rule Rejections In Replay State | Admitted From Rejection | Variant No-Trade Reasons | Variant Rejected Candidates |",
+            "|---|---|---|---|---|---|",
+        ]
+    )
+    for result in variant_results:
+        lines.append(
+            "| {component} | `{variant}` | {production_rejections} | {admitted} | {variant_no_trade} | {variant_rejected} |".format(
+                component=result.component_key,
+                variant=result.variant.variant_id,
+                production_rejections=_format_counts(
+                    result.variant_summary.get("production_rule_rejection_reason_counts", {})
+                ),
+                admitted=_format_counts(
+                    result.variant_summary.get("variant_admitted_from_rejection_reason_counts", {})
+                ),
+                variant_no_trade=_format_counts(
+                    result.variant_summary.get("variant_no_trade_reason_counts", {})
+                ),
+                variant_rejected=_format_counts(
+                    result.variant_summary.get("variant_rejected_candidate_reason_counts", {})
+                ),
             )
         )
     lines.extend(
@@ -624,6 +712,8 @@ def _build_replay_context(
     market_structure: MoneyFlowReplayMarketStructure,
     regime: _CandleRegime,
     variant: MoneyFlowReplayVariant,
+    variant_state_has_diverged_from_baseline: bool,
+    variant_position_active: bool,
 ) -> MoneyFlowReplayCandleContext:
     features = decision.features or {}
     rsi = _optional_decimal(features.get("rsi_value"))
@@ -655,6 +745,12 @@ def _build_replay_context(
         variant_candidate = "below_floor_rsi_candidate" in variant_reason_codes
         if variant_entry_allowed:
             variant_entry_reason = variant.variant_id
+    context_has_diverged = variant_state_has_diverged_from_baseline or (
+        baseline_entry_rejected and variant_entry_allowed
+    )
+    replay_state_source = (
+        "variant_state_after_divergence" if context_has_diverged else "production_baseline_state"
+    )
     return MoneyFlowReplayCandleContext(
         symbol=request.symbol,
         component_key=sleeve.sleeve_id,
@@ -672,6 +768,11 @@ def _build_replay_context(
         macd=_optional_decimal(features.get("macd_value")),
         macd_signal=_optional_decimal(features.get("macd_signal_value")),
         macd_histogram=_optional_decimal(features.get("macd_histogram")),
+        production_rule_action_in_replay_state=baseline_action,
+        production_rule_status_in_replay_state=baseline_status,
+        production_rule_reason_codes_in_replay_state=(reason,) if reason else (),
+        production_rule_entry_allowed_in_replay_state=baseline_entry_allowed,
+        production_rule_entry_rejected_in_replay_state=baseline_entry_rejected,
         baseline_action=baseline_action,
         baseline_status=baseline_status,
         baseline_reason_codes=(reason,) if reason else (),
@@ -688,10 +789,15 @@ def _build_replay_context(
         market_regime_label=regime.trend_label,
         volatility_regime_label=regime.volatility_label,
         market_structure=market_structure,
+        variant_state_has_diverged_from_baseline=context_has_diverged,
+        variant_position_active=variant_position_active,
+        baseline_reference_position_active=None if context_has_diverged else variant_position_active,
+        replay_state_source=replay_state_source,
         variant_candidate=variant_candidate,
         variant_candidate_reason_codes=variant_reason_codes,
         variant_entry_allowed=variant_entry_allowed,
         variant_entry_reason=variant_entry_reason,
+        variant_admitted_from_production_rule_rejection=baseline_entry_rejected and variant_entry_allowed,
     )
 
 

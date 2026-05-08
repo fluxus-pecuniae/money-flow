@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-08T05:55:00Z - SV1.16.1 - Replay Variant Metrics Need State Semantics
+
+- `decision`: Add explicit replay context fields for production Money Flow rule evaluation under the active replay state, keep legacy `baseline_*` fields as compatibility aliases, and separate production-rule rejection counts from variant admission and variant no-trade counts.
+- `why`: Once a variant admits a candle that production rules rejected, the replay path can diverge from the independent baseline path. Reporting later production-rule evaluations as plain baseline truth, or counting an admitted candle as variant no-trade, would mislead founder review before broader true replay experiments.
+- `scope`: SV1.16.1 adds `production_rule_*_in_replay_state` fields, `variant_state_has_diverged_from_baseline`, `replay_state_source`, `variant_admitted_from_production_rule_rejection`, and separate variant summary counters. The lower-RSI replay result and baseline parity remain research-only and no production Money Flow rules changed.
+- `follow_up_implications`: Broader true replay experiments should consume the clearer fields/counters and should not claim independent baseline context after divergence unless a separate baseline-reference path is explicitly computed.
+
 ## 2026-05-08T04:45:00Z - SV1.16 - True Replay Requires Per-Candle Rejected-Signal Context
 
 - `decision`: Add a Strategy Validation-only replay substrate that captures every evaluated candle's baseline action/rejection context and supports chronological research variant replay without changing production Money Flow rules.
