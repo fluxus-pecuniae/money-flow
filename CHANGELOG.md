@@ -13,6 +13,43 @@ Entry schema:
 
 ---
 
+## v2026.05.08.001
+
+- `recorded_at_utc`: `2026-05-08T04:45:00Z`
+- `scope`: `SV1.16 rejected-signal replay instrumentation and true variant replay substrate`
+- `intent`: `Native entry. Added a Strategy Validation-only per-candle replay substrate that captures baseline Money Flow decision context, rejected entry reason codes, RSI zones, EMA/MACD state, price extension, market regime, and recent swing high/low market-structure diagnostics for every evaluated candle. Added a chronological true replay runner that preserves position occupancy and dynamic_equity_pct sizing without exchange calls or live artifacts, plus a narrow lower_rsi_floor_trend_intact_v1 research variant example for Hyperliquid ETH sleeve_1h. The SV1.16 founder report shows the lower-RSI true replay admitted replay-only entries but underperformed the current baseline in the sampled scenario, so it is substrate evidence for later controlled tests, not a production rule change, not optimization, and not paper/live authorization.`
+- `affected_files`:
+  - `services/strategy_validation/replay.py`
+  - `services/strategy_validation/__init__.py`
+  - `scripts/run_money_flow_true_replay.py`
+  - `tests/test_sv116_replay_instrumentation.py`
+  - `tests/test_operational_docs.py`
+  - `docs/strategy_validation_sv1_16_rejected_signal_replay.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `KNOWN_ISSUES.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> .venv/bin/python scripts/run_money_flow_true_replay.py --output docs/strategy_validation_sv1_16_rejected_signal_replay.md --symbol ETH --component sleeve_1h --fill-timing next_candle_open --fee-bps 5 --slippage-bps 3` passed.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_sv116_replay_instrumentation.py` passed: 6 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv1132_dynamic_equity.py tests/test_sv114_trade_anatomy_diagnostics.py tests/test_sv115_hypothesis_experiments.py tests/test_sv116_replay_instrumentation.py tests/test_phase3_strategy.py tests/test_operational_docs.py` passed: 46 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: 650 tests.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.16-review.zip` created a review bundle.
+  - Review ZIP inspection reported `303` entries and `0` forbidden artifacts across local envs, Git metadata, caches, DB files, generated strategy-validation reports/imports/candles, nested archives, Obsidian app state, and secrets.
+
 ## v2026.05.07.010
 
 - `recorded_at_utc`: `2026-05-07T20:36:12Z`

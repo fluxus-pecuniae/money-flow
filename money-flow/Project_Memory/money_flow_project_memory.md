@@ -1,5 +1,11 @@
 # Money Flow Project Memory — Team Chronicle
 
+## 2026-05-08T04:45:00Z SV1.16 - Rejected-Signal Replay Instrumentation
+
+SV1.16 adds the first true replay substrate for Strategy Validation. It captures per-candle baseline decision and rejection context, including RSI zones, EMA/MACD state, price-extension facts, market regime labels, recent swing high/low market-structure diagnostics, and whether baseline entry was allowed or rejected. This closes the SV1.15.1 instrumentation gap for future lower-RSI and market-structure rule-hypothesis testing.
+
+The replay runner processes candles chronologically, maintains position occupancy, and preserves `dynamic_equity_pct` sizing inside each independent scenario. The initial `lower_rsi_floor_trend_intact_v1` Hyperliquid ETH `sleeve_1h` replay admitted replay-only below-floor RSI entries but underperformed the current baseline sampled scenario. Treat that as research substrate evidence, not proof, not a recommended strategy, and not paper/live authorization. Production Money Flow rules, routing, execution automation, paper trading, live trading, and cross-venue evidence remain unchanged/deferred.
+
 ## 2026-05-08T00:00:00Z SV1.15.1 - Hypothesis Experiment Methodology Truth
 
 SV1.15.1 hardens the interpretation of SV1.15 experiments. The controlled experiment layer remains useful for triage, but most variants are now explicitly classified as `completed_trade_overlay_estimate`, `reporting_only_attribution`, `deferred_requires_rejected_signal_replay`, or `lookahead_diagnostic_proxy`, not true forward strategy replays.

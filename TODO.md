@@ -1,8 +1,20 @@
 # TODO
 
-Last reviewed: `2026-05-08T00:00:00Z`
+Last reviewed: `2026-05-08T04:45:00Z`
 
 ## Active Follow-Ups
+
+### T-087
+
+- `priority`: `high`
+- `status`: `future`
+- `summary`: `Use the SV1.16 per-candle replay substrate to run broader true replay experiments after founder review. Immediate candidates are exact recent-low/ATR exit replay with real stop timing/fill modeling, resistance/regime/extension entry filters as true chronological replays, lower-RSI variants across BTC/ETH/SOL and 15m/1h/4h, and out-of-sample checks. These remain research-only until separately scoped; no production Money Flow rules, paper/live trading, routing, or execution behavior are authorized.`
+
+### T-085
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.16 adds the per-candle rejected-signal replay instrumentation that SV1.15/SV1.15.1 required before true lower-RSI or entry-filter variant testing. The new research-only replay substrate captures baseline decision/rejection context, RSI zones, EMA/MACD state, price extension, market regime, and recent swing high/low diagnostics for every evaluated candle; the true replay runner preserves position occupancy and dynamic_equity_pct sizing; and the narrow lower_rsi_floor_trend_intact_v1 example proves lower-RSI admission can be tested without changing production Money Flow rules. The sampled ETH sleeve_1h lower-RSI replay underperformed baseline, so broader variant testing remains future research.`
 
 ### T-086
 
@@ -15,12 +27,6 @@ Last reviewed: `2026-05-08T00:00:00Z`
 - `priority`: `high`
 - `status`: `done`
 - `summary`: `SV1.15 adds a controlled Strategy Validation-only experiment layer over the Hyperliquid public dynamic-equity evidence. It compares one-change-at-a-time overlays for resistance proximity, higher-low/support context, recent-low invalidation proxy, 15m sideways-regime avoidance, and 4h extension limits against the current Money Flow baseline, adds lower-half RSI and pullback/continuation attribution, and produces a founder-readable experiment report. Production Money Flow rules did not change, no hypothesis is authorized, lower-RSI entry admission is explicitly deferred until rejected-signal replay instrumentation exists, and paper/live/routing/execution behavior remains deferred.`
-
-### T-085
-
-- `priority`: `high`
-- `status`: `future`
-- `summary`: `Add per-candle rejected-signal replay instrumentation before testing true lower-RSI entry admission or true entry-filter variants. Existing evidence packs include completed trades and aggregate no-trade reason counts, but not every rejected candle's full indicator/market-structure snapshot, so SV1.15/SV1.15.1 can attribute completed trades by RSI zone and rank completed-trade overlays only. A later replay runner must model skipped entries, changed position availability, changed future capital path, and exact earlier exit timing/fills before any rule-change hypothesis can be considered a true forward replay.`
 
 ### T-083
 

@@ -2,9 +2,9 @@
 
 ## Phase
 
-Current implemented phase: `SV1.15.1` hypothesis experiment methodology truth hotfix; SV1.15.1 keeps SV1.15 diagnostic outputs but classifies each variant by methodology, makes completed-trade overlay limitations explicit, and downgrades recent-low invalidation to a lookahead diagnostic upper bound without changing production Money Flow rules.
+Current implemented phase: `SV1.16` rejected-signal replay instrumentation and true variant replay substrate; SV1.16 captures per-candle baseline decision/rejection context, preserves position occupancy and dynamic-equity sizing in a chronological replay runner, and adds a narrow lower-RSI trend-intact research replay example without changing production Money Flow rules.
 
-Proposed next phase: true replay instrumentation for methodology-valid hypothesis testing or manual founder/operator review of the Hyperliquid-only evidence interpretation, dynamic-equity evidence, SV1.14 diagnostics, and SV1.15.1 methodology-hardened experiment results before any explicitly scoped paper-trading design phase. Lower-RSI entry admission remains deferred until per-candle rejected-signal replay instrumentation exists. Aster and Binance remain later comparative candidates after separate identity/import; OKX/Coinbase/Kraken remain blocked by source/history gaps. Paper-trading design remains deferred. `Phase 8.1` remains deferred until explicitly scoped.
+Proposed next phase: broader true replay experiments or manual founder/operator review of the Hyperliquid-only evidence interpretation, dynamic-equity evidence, SV1.14 diagnostics, SV1.15.1 methodology-hardened experiment results, and SV1.16 replay-substrate report before any explicitly scoped paper-trading design phase. Aster and Binance remain later comparative candidates after separate identity/import; OKX/Coinbase/Kraken remain blocked by source/history gaps. Paper-trading design remains deferred. `Phase 8.1` remains deferred until explicitly scoped.
 
 
 ## Pre-Paper / Live Trading Blockers
@@ -99,6 +99,8 @@ SV1.14 adds trade anatomy and market-structure diagnostics over existing Hyperli
 SV1.15 adds controlled research-only Money Flow hypothesis experiments. It compares isolated overlays for resistance proximity, higher-low/support context, recent-low invalidation proxy, 15m sideways-regime avoidance, and 4h extension limits against the dynamic-equity baseline; it also adds lower-half RSI and pullback/continuation attribution. Lower-RSI entry admission is explicitly deferred until rejected-signal replay instrumentation exists. No hypothesis is production-authorized, no Money Flow rule changed, and paper/live/routing/execution behavior remains deferred.
 
 SV1.15.1 hardens methodology truth for those experiments. Completed-trade overlays are labeled `completed_trade_overlay_estimate`, reporting-only rows are labeled attribution, lower-RSI admission variants are labeled `deferred_requires_rejected_signal_replay`, and `recent_low_invalidation_proxy_20c` is downgraded to `lookahead_diagnostic_proxy` / upper-bound diagnostic only. These results can rank hypotheses for later true replay, but they are not validated rule changes, not paper/live approval, and not production Money Flow behavior.
+
+SV1.16 adds the rejected-signal replay substrate that SV1.15.1 identified as necessary. The research-only replay context records every evaluated candle's baseline action/reasons, entry allowed/rejected truth, RSI zone, EMA/MACD/extension state, regime labels, and recent swing high/low market-structure diagnostics. The true replay runner processes candles chronologically, maintains position occupancy and `dynamic_equity_pct` sizing, and runs a narrow `lower_rsi_floor_trend_intact_v1` example for Hyperliquid ETH `sleeve_1h`. That lower-RSI example admitted replay-only entries but underperformed the current baseline sampled scenario, so it is not an authorized rule change. Paper/live trading, routing, execution behavior, cross-venue evidence, and production Money Flow changes remain deferred.
 
 ## Accepted Baseline
 

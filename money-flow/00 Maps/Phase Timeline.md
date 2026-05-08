@@ -50,14 +50,15 @@ Up: [[Money Flow Command Center]]
 - SV1.14 2026-05-07 trade anatomy diagnostics: Strategy Validation explains current entry/exit logic, ETH `sleeve_1h`, 15m, and 4h behavior, plus descriptive market-structure context without changing Money Flow rules.
 - SV1.15 2026-05-07 controlled hypothesis experiments: Strategy Validation compares research-only overlays and attribution against the Hyperliquid dynamic-equity baseline, keeps production rules unchanged, and defers lower-RSI admission until rejected-signal replay data exists.
 - SV1.15.1 2026-05-08 methodology truth hotfix: Strategy Validation labels each hypothesis methodology, downgrades recent-low invalidation to a lookahead diagnostic upper bound, and keeps completed-trade overlays out of true-forward-replay or rule-authorization semantics.
+- SV1.16 2026-05-08 rejected-signal replay instrumentation: Strategy Validation captures per-candle baseline decision/rejection context, RSI zones, EMA/MACD state, regimes, and market-structure diagnostics, then adds a chronological research-only true replay runner with a narrow lower-RSI trend-intact ETH `sleeve_1h` example that underperformed the current baseline sampled scenario.
 
 ## Current Next Shape
 
 See [[40 Operations/Future Work Roadmap]].
 
-Current implemented phase: `SV1.15.1` hypothesis experiment methodology truth hotfix; SV1.13 generated component-scoped evidence packs, SV1.13.2 added per-scenario dynamic-equity sizing, SV1.14 diagnosed trade anatomy/market structure, SV1.15 compared isolated research overlays plus attribution against baseline, and SV1.15.1 makes the methodology limitations explicit.
+Current implemented phase: `SV1.16` rejected-signal replay instrumentation; SV1.13 generated component-scoped evidence packs, SV1.13.2 added per-scenario dynamic-equity sizing, SV1.14 diagnosed trade anatomy/market structure, SV1.15 compared isolated research overlays plus attribution against baseline, SV1.15.1 made the methodology limitations explicit, and SV1.16 adds per-candle true replay context plus a lower-RSI research replay example.
 
-The next proposed Strategy Validation work is true replay instrumentation for methodology-valid hypothesis tests or manual founder/operator review of the Hyperliquid-only constant-notional, dynamic-equity, anatomy, and SV1.15.1 methodology-hardened experiment evidence before any explicitly approved paper-trading design scope. January 2026 remains archival/vendor-data-required. Aster/Binance identity verification/import, OKX/Coinbase trade-count sourcing, and Kraken archive/vendor/operator data are broader venue-comparison follow-ups. Paper-trading design remains deferred until founder/operator evidence review justifies it. Phase 8.1 remains deferred until explicitly scoped.
+The next proposed Strategy Validation work is broader true replay experiments or manual founder/operator review of the Hyperliquid-only constant-notional, dynamic-equity, anatomy, methodology-hardened experiment, and SV1.16 replay-substrate evidence before any explicitly approved paper-trading design scope. January 2026 remains archival/vendor-data-required. Aster/Binance identity verification/import, OKX/Coinbase trade-count sourcing, and Kraken archive/vendor/operator data are broader venue-comparison follow-ups. Paper-trading design remains deferred until founder/operator evidence review justifies it. Phase 8.1 remains deferred until explicitly scoped.
 
 ## Strategic Memory
 

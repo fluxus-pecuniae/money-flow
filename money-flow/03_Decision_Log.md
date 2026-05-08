@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-08T04:45:00Z - SV1.16 - True Replay Requires Per-Candle Rejected-Signal Context
+
+- `decision`: Add a Strategy Validation-only replay substrate that captures every evaluated candle's baseline action/rejection context and supports chronological research variant replay without changing production Money Flow rules.
+- `why`: SV1.15/SV1.15.1 completed-trade overlays can rank hypotheses, but they cannot answer what would have happened when baseline rejected a lower-RSI candle or when a filter changes position occupancy and dynamic-equity path. True lower-RSI and market-structure variant testing needs accepted and rejected candle context plus a replay runner.
+- `scope`: SV1.16 records per-candle RSI zone, EMA/MACD/extension state, regime, recent swing high/low context, and baseline reason codes; the first `lower_rsi_floor_trend_intact_v1` ETH `sleeve_1h` replay is research-only and underperformed the sampled baseline.
+- `follow_up_implications`: Broader true replay experiments, exact recent-low/ATR stop replay, out-of-sample checks, and dashboard/UI wiring can be scoped later. No production rule, paper/live trading, routing, execution behavior, or strategy authorization follows from SV1.16.
+
 ## 2026-05-08T00:00:00Z - SV1.15.1 - Hypothesis Experiments Need Methodology Labels
 
 - `decision`: Classify every SV1.15 hypothesis by methodology and treat completed-trade overlays as diagnostic estimates, not true forward strategy replays.
