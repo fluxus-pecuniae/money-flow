@@ -13,6 +13,54 @@ Entry schema:
 
 ---
 
+## v2026.05.09.003
+
+- `recorded_at_utc`: `2026-05-09T13:21:46Z`
+- `scope`: `OB1.0 Obsidian brain overhaul and SV closeout map`
+- `intent`: `Native entry. Reorganized the Obsidian project brain after SV1.18.1 so current truth is navigable before UAT0. The canonical command center is now `money-flow/00_Money_Flow_Command_Center.md`, the legacy command-center note is a pointer, Strategy Validation is represented as its own closed major track, UAT0 is the next proposed track, and the frozen UAT observation candidate remains Hyperliquid ETH USDC perpetual `sleeve_1h` current baseline Money Flow rules. Added Strategy Validation and UAT maps, UAT candidate freeze, excluded candidates, UAT0 safety/runtime hardening, agent workflow, and review-bundle hygiene notes. Strengthened operational-doc tests for Obsidian drift without changing product behavior.`
+- `affected_files`:
+  - `AGENTS.md`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/02_Product_North_Star.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/04_Phase_Timeline.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/00 Maps/Platform Architecture Map.md`
+  - `money-flow/30 Strategy/Money Flow Strategy Lab.md`
+  - `money-flow/30 Strategy/Strategy Validation Summary.md`
+  - `money-flow/30 Strategy/SV Evidence Closeout.md`
+  - `money-flow/30 Strategy/UAT Candidate Freeze.md`
+  - `money-flow/30 Strategy/Excluded Strategy Candidates.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/Phase 8 Focus.md`
+  - `money-flow/40 Operations/Operational Memory.md`
+  - `money-flow/40 Operations/UAT0 Safety Runtime Hardening.md`
+  - `money-flow/40 Operations/Agent Workflow.md`
+  - `money-flow/40 Operations/Review Bundle Hygiene.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `tests/test_operational_docs.py`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed: 14 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv118_evidence_closeout.py` passed: 7 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py` passed: 7 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: 665 tests.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-ob1.0-review.zip` passed.
+  - `zipinfo -1 /Users/tercirafael/money-flow-ob1.0-review.zip | wc -l` returned `321`.
+  - `zipinfo -1 /Users/tercirafael/money-flow-ob1.0-review.zip | rg '(^|/)\\.git/|(^|/)\\.venv/|(^|/)\\.env$|reports/strategy_validation/|reports/strategy_validation_reviews/|\\.zip$|\\.sqlite|\\.db$|workspace\\.json|(^|/)\\.obsidian/|__pycache__|\\.pytest_cache|local.*candle|csv$'` returned no matches.
+
 ## v2026.05.09.002
 
 - `recorded_at_utc`: `2026-05-09T13:03:43Z`

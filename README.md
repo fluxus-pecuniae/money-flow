@@ -48,6 +48,8 @@ SV1.2.1 hardens the Strategy Validation research-truth layer before campaign/evi
 
 This repo now uses explicit operational-memory files plus an Obsidian strategic brain. Future work is expected to read them before changes and update them after changes.
 
+Current Obsidian entrypoints are the canonical command center, current phase note, decision log, coordination note, project memory, and the relevant track map. After OB1.0, Strategy Validation is represented as its own closed major track, UAT0 is the next proposed track, and the key maps are [Current State Dashboard](money-flow/00%20Maps/Current%20State%20Dashboard.md), [Strategy Validation Map](money-flow/00%20Maps/Strategy%20Validation%20Map.md), and [UAT Roadmap](money-flow/00%20Maps/UAT%20Roadmap.md). Do not create duplicate command centers or competing current-phase notes.
+
 Machine-local artifacts such as `.git/`, `.venv/`, `.pgdata/`, `.pgsocket/`, `.pytest_cache/`, `.DS_Store`, and Obsidian app state under `money-flow/.obsidian/` are not part of the repo handoff surface. Review/archive packaging now uses `.archiveignore` plus the committed bundling command below so those local artifacts and `.env` do not leak into future review bundles. The tracked Obsidian markdown notes under `money-flow/` are part of the review surface.
 
 ## Source Control Baseline
@@ -359,8 +361,11 @@ Required Obsidian strategic brain:
 
 - [money-flow/00_Money_Flow_Command_Center.md](money-flow/00_Money_Flow_Command_Center.md)
 - [money-flow/01_Current_Phase.md](money-flow/01_Current_Phase.md)
+- [money-flow/03_Decision_Log.md](money-flow/03_Decision_Log.md)
 - [money-flow/05_Agent_Coordination.md](money-flow/05_Agent_Coordination.md)
 - [money-flow/Project_Memory/money_flow_project_memory.md](money-flow/Project_Memory/money_flow_project_memory.md)
+- [money-flow/00 Maps/Strategy Validation Map.md](money-flow/00%20Maps/Strategy%20Validation%20Map.md) for SV work
+- [money-flow/00 Maps/UAT Roadmap.md](money-flow/00%20Maps/UAT%20Roadmap.md) for UAT work
 
 The repo-root [money_flow_project_memory.md](money_flow_project_memory.md) is a pointer only. Repo operational docs remain code-state truth; Obsidian stores long-horizon memory, founder intent, decisions, phase context, and cross-agent coordination.
 

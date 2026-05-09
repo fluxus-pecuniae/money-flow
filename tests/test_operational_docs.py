@@ -24,8 +24,20 @@ REQUIRED_FILES = [
     "money_flow_project_memory.md",
     "money-flow/00_Money_Flow_Command_Center.md",
     "money-flow/01_Current_Phase.md",
+    "money-flow/02_Product_North_Star.md",
     "money-flow/03_Decision_Log.md",
+    "money-flow/04_Phase_Timeline.md",
     "money-flow/05_Agent_Coordination.md",
+    "money-flow/00 Maps/Strategy Validation Map.md",
+    "money-flow/00 Maps/UAT Roadmap.md",
+    "money-flow/00 Maps/Platform Architecture Map.md",
+    "money-flow/30 Strategy/Strategy Validation Summary.md",
+    "money-flow/30 Strategy/SV Evidence Closeout.md",
+    "money-flow/30 Strategy/UAT Candidate Freeze.md",
+    "money-flow/30 Strategy/Excluded Strategy Candidates.md",
+    "money-flow/40 Operations/UAT0 Safety Runtime Hardening.md",
+    "money-flow/40 Operations/Agent Workflow.md",
+    "money-flow/40 Operations/Review Bundle Hygiene.md",
     "money-flow/Project_Memory/money_flow_project_memory.md",
     "README.md",
     "docs/architecture.md",
@@ -67,6 +79,9 @@ def test_agents_references_required_operational_docs() -> None:
     assert "Obsidian" in agents
     assert "money-flow/00_Money_Flow_Command_Center.md" in agents
     assert "money-flow/05_Agent_Coordination.md" in agents
+    assert "money-flow/00 Maps/UAT Roadmap.md" in agents
+    assert "Do not create duplicate command centers" in agents
+    assert "Mark your coordination row" in agents
     assert "not a substitute" in agents
 
 
@@ -95,22 +110,62 @@ def test_obsidian_brain_workflow_exists() -> None:
     moved_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
-    assert "required Obsidian brain entrypoint" in command_center
-    assert re.search(r"Current implemented phase: `SV1\.18`", current_phase)
+    assert "canonical Obsidian command center" in command_center
+    assert re.search(r"`SV1\.18\.1` is complete", current_phase)
     assert "SV1.18" in command_center
-    assert "SV1.14" in command_center
+    assert "UAT0" in command_center
     assert "Active Work" in coordination
-    assert "Quant Engineer" in moved_memory
+    assert "Founder Vision" in moved_memory
     assert "Strategy Validation" in moved_memory
-    assert "SV1.9" in moved_memory
-    assert "First Hyperliquid Public Campaign Evidence Packs" in moved_memory
-    assert "Controlled Money Flow Hypothesis Experiments" in moved_memory
-    assert "Hypothesis Experiment Methodology Truth" in moved_memory
-    assert "Rejected-Signal Replay Instrumentation" in moved_memory
-    assert "True Replay Experiment Round 1" in moved_memory
-    assert "Evidence Credibility Closeout" in moved_memory
+    assert "SV1.18-SV1.18.1" in moved_memory
+    assert "money_flow_hyperliquid_eth_1h_baseline_uat_candidate" in moved_memory
+    assert "Paper trading is not approved" in moved_memory
+    assert "UAT0 is next" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
+
+
+def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
+    command_center = Path("money-flow/00_Money_Flow_Command_Center.md").read_text()
+    compatibility_command_center = Path("money-flow/Money Flow Command Center.md").read_text()
+    current_dashboard = Path("money-flow/00 Maps/Current State Dashboard.md").read_text()
+    sv_map = Path("money-flow/00 Maps/Strategy Validation Map.md").read_text()
+    uat_roadmap = Path("money-flow/00 Maps/UAT Roadmap.md").read_text()
+    candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
+    project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
+
+    assert "Current implemented milestone | `SV1.18.1` complete" in command_center
+    assert "Canonical command center" in compatibility_command_center
+    assert "SV1 is closed for now" in current_dashboard
+    assert "Strategy Validation is now its own major track" in Path("money-flow/00 Maps/Phase Timeline.md").read_text()
+    assert "What Strategy Validation Did" in sv_map
+    assert "What Strategy Validation Did Not Prove" in sv_map
+    assert "UAT0 - Safety / Security / Runtime Hardening" in uat_roadmap
+    assert "UAT validates plumbing and behavior" in uat_roadmap
+    assert "money_flow_hyperliquid_eth_1h_baseline_uat_candidate" in candidate_freeze
+    assert "UAT0 is next" in project_memory
+
+
+def test_current_state_notes_keep_uat_boundaries() -> None:
+    current_state_paths = [
+        Path("money-flow/00_Money_Flow_Command_Center.md"),
+        Path("money-flow/Money Flow Command Center.md"),
+        Path("money-flow/01_Current_Phase.md"),
+        Path("money-flow/00 Maps/Current State Dashboard.md"),
+        Path("money-flow/00 Maps/Strategy Validation Map.md"),
+        Path("money-flow/00 Maps/UAT Roadmap.md"),
+        Path("money-flow/30 Strategy/UAT Candidate Freeze.md"),
+        Path("money-flow/40 Operations/Future Work Roadmap.md"),
+    ]
+
+    for path in current_state_paths:
+        note = path.read_text()
+        assert "Paper trading is not approved" in note
+        assert "Live trading is not approved" in note
+        assert "Exchange order submission is not approved" in note or "No exchange order submission approved" in note
+        assert "Hyperliquid" in note
+        assert "ETH" in note
+        assert "sleeve_1h" in note
 
 
 def test_obsidian_current_state_notes_do_not_have_stale_current_truth() -> None:
@@ -168,11 +223,20 @@ def test_obsidian_current_state_notes_do_not_have_stale_current_truth() -> None:
         "Phase observed in repo memory: `SV1.16.1`",
         "Current implemented phase: `SV1.17`",
         "Phase observed in repo memory: `SV1.17`",
+        "Current Strategy Validation focus: `SV1.13`",
+        "Current implemented phase is `SV1.13`",
+        "Phase 8.0 as next",
+        "Phase 8 Focus as current",
+        "ready for paper trading",
+        "paper trading approved",
+        "live trading approved",
+        "proven profitable",
     ]
 
     for path in current_state_paths:
         contents = path.read_text()
         assert "SV1.18" in contents, f"{path} does not reflect current SV1.18 work"
+        assert "UAT0" in contents, f"{path} does not point to UAT0"
         for phrase in stale_current_truth_phrases:
             assert phrase not in contents, f"{path} still contains stale current truth: {phrase}"
 

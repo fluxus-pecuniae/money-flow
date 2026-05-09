@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-09T12:32:14Z`
+Last reviewed: `2026-05-09T13:21:46Z`
 
 ## Top-Level Structure
 
@@ -61,7 +61,8 @@ Last reviewed: `2026-05-09T12:32:14Z`
 
 `money-flow/`
 - Tracked Obsidian strategic brain.
-- Contains command center, current phase, decision log, agent coordination, component/workflow maps, and the moved full project memory.
+- Contains the canonical command center, current phase, decision log, agent coordination, component/workflow maps, Strategy Validation map, UAT roadmap, UAT candidate freeze note, UAT0 safety/runtime hardening note, and the moved full project memory.
+- OB1.0 reorganizes current truth so `money-flow/00_Money_Flow_Command_Center.md` is the only canonical command center; `money-flow/Money Flow Command Center.md` is a compatibility pointer. Strategy Validation is represented as its own closed major track through SV1.18.1, and UAT0 is the next proposed track.
 - Phase 8.0.1 accepted the previously dirty Obsidian memory refresh as the strategic baseline and updated it to current Phase 8.0/8.0.1 truth.
 - Phase 8.0.2 updates current-phase/coordination/decision notes for active submit-lease operator-summary truth only; full project memory remains untouched.
 - SV1.0.1 updates current-phase/coordination/decision notes for strategy-validation research-truth/report hardening only; full project memory remains untouched.
@@ -96,6 +97,7 @@ Last reviewed: `2026-05-09T12:32:14Z`
 - SV1.16.1 updates command/current-phase/decision/coordination/current-state/roadmap/project-memory notes for replay context semantics and variant metric truth hardening while preserving no-rule-change/no-paper-live/no-routing boundaries.
 - SV1.17 updates command/current-phase/decision/coordination/current-state/roadmap/project-memory notes for true replay experiment round one while preserving no-rule-change/no-paper-live/no-routing boundaries.
 - SV1.18 updates command/current-phase/decision/coordination/current-state/roadmap/project-memory notes for evidence-cycle closeout and one UAT observation candidate freeze while preserving no-rule-change/no-paper-live/no-routing/no-exchange-call boundaries.
+- OB1.0 updates Obsidian brain structure and operational-doc drift tests only. It adds `00 Maps/Strategy Validation Map.md`, `00 Maps/UAT Roadmap.md`, `00 Maps/Platform Architecture Map.md`, top-level product/timeline pointers, Strategy Validation summary/closeout/candidate notes, UAT0 safety/runtime hardening, agent workflow, and review-bundle hygiene notes. It changes no product behavior.
 - Obsidian app state under `money-flow/.obsidian/` remains ignored.
 
 `apps/api/`

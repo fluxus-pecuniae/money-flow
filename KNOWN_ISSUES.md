@@ -1,6 +1,6 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-05-09T12:32:14Z`
+Last reviewed: `2026-05-09T13:21:46Z`
 
 ## Open Items
 
@@ -37,7 +37,7 @@ Last reviewed: `2026-05-09T12:32:14Z`
 - `status`: `open`
 - `area`: `operational docs discipline`
 - `summary`: `Phase 3.2 adds governance checks, Phase 6.3 established a tracked repo-memory baseline on `master`, Phase 7.3 moved long-horizon strategic memory into Obsidian, and Phase 8.0.1 resolved the dirty Obsidian memory baseline left after Phase 8.0. Future contributors must keep both repo operational docs and Obsidian coordination notes updated for the process to remain useful.`
-- `impact`: `This is operational rather than code risk; drift will accumulate if changelog, repo memory, and Obsidian coordination updates are skipped. Review bundles, handoff archives, local secrets, virtualenvs, caches, local database/runtime state, Obsidian app state, and logs are intentionally excluded from source control/review bundles.`
+- `impact`: `This is operational rather than code risk; drift will accumulate if changelog, repo memory, and Obsidian coordination updates are skipped. OB1.0 establishes one canonical command center plus Strategy Validation and UAT maps; future agents must not create duplicate command centers or competing current-phase notes. Review bundles, handoff archives, local secrets, virtualenvs, caches, local database/runtime state, Obsidian app state, and logs are intentionally excluded from source control/review bundles.`
 
 ### K-005
 

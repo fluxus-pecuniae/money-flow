@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-09T12:32:14Z`
+Last reviewed: `2026-05-09T13:21:46Z`
 
 ## Active Follow-Ups
+
+### T-092
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `OB1.0 overhauled the Obsidian project brain for the post-SV1.18.1 state. The vault now has one canonical command center, dedicated Strategy Validation and UAT maps, a UAT candidate freeze note, an explicit UAT0 safety/runtime hardening note, a concise project memory through SV1.18.1, and operational-doc tests that catch stale current-state drift. No UAT0 implementation, Money Flow rule change, routing/execution behavior, paper/live approval, exchange call, API-key use, evidence-pack generation, or live artifact was added.`
 
 ### T-090
 

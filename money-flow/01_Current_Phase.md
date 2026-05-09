@@ -1,288 +1,90 @@
 # Current Phase
 
-## Phase
+## Current Implemented Milestone
 
-Current implemented phase: `SV1.18` evidence credibility closeout and UAT candidate freeze; SV1.18 is complete. It closes the current Hyperliquid Strategy Validation evidence cycle and freezes exactly one UAT observation candidate, Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules, without changing production Money Flow rules.
+`SV1.18.1` is complete.
 
-Proposed next phase: `UAT0` safety/security/runtime hardening for plumbing and behavior validation only. UAT is not performance validation, paper trading, live trading, or routing expansion. Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved. Aster and Binance remain later comparative candidates after separate identity/import; OKX/Coinbase/Kraken remain blocked by source/history gaps. Paper-trading design remains deferred. `Phase 8.1` remains deferred until explicitly scoped.
+SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one UAT observation candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap and left UAT0 as the next proposed phase.
 
+SV1.18 is complete.
 
-## Pre-Paper / Live Trading Blockers
+## Next Proposed Phase
 
-The 2026-05-06 external review found blockers that must be fixed before paper/live trading or exposed API usage: rotate reported local live secrets, add API authentication/authorization, enforce configured risk limits, calculate real drawdown instead of hardcoded zero, fix Strategy Validation mark-to-market fee/drawdown truth, disable debug stack traces outside local-only use, and make live/demo exchange mode fail-safe. Medium/low follow-ups include id collision risk, missing-indicator handling, MACD exact-cross behavior, adapter error taxonomy, OKX candle instrument assumptions, nonce burst safety, and reducing reliance on one dry-run env var as the final live-order guard. These are not blockers for research-only candle readiness, but they block paper/live trading readiness.
+`UAT0` safety / security / runtime hardening.
 
+UAT0 is plumbing and behavior validation preparation only. It is not paper trading, live trading, exchange order submission, routing expansion, or strategy optimization.
 
-## Strategy Review Caution
+## Frozen UAT Observation Candidate
 
-The 2026-05-06 external strategy review called Money Flow coherent but unvalidated. It specifically flagged no hard stop-loss, narrow RSI bands, lagging MACD exits, optimistic same-candle research fills, long-only bear-market exposure, possible cosmetic confidence scores, handcrafted-looking parameters, and the need for next-candle-open/out-of-sample/risk-adjusted validation before paper trading or rule changes. Treat these as Strategy Validation questions, not approved strategy modifications.
+Candidate id: `money_flow_hyperliquid_eth_1h_baseline_uat_candidate`
 
-## Purpose
+| Field | Scope |
+| --- | --- |
+| Venue | Hyperliquid |
+| Product | USDC perpetual |
+| Symbol | ETH |
+| Component | `sleeve_1h` |
+| Rules | Current baseline Money Flow rules |
+| UAT mode | Observation / shadow first |
+| Execution | None until a later explicitly gated UAT phase |
 
-Phase 7.6 is accepted complete. It closed out the controlled automation chain with safety-diligence proof:
+The frozen candidate is Hyperliquid ETH `sleeve_1h` current baseline.
 
-- Walk the full approval-gated chain from existing recommendation through submitted-order handoff.
-- Prove each action consumes only the exact current-lineage approval for its stage.
-- Prove dry-run, approval creation, generic administrative consumption, action-specific consumption, readiness, and submitted-order handoff remain distinct.
-- Prove `consumption_pending` is bounded and repeat calls reuse existing submitted-order truth without another adapter submit.
-- Preserve readiness, live-submit, routed-submit, adapter/account, submit lease, and uncertainty gates as authoritative.
+## Explicit Non-Approvals
 
-Phase 8.0 is implemented as the first operator-grade observability and manual-resolution inspection phase. It makes the existing chain easier to inspect, debug, reconcile, and manually manage without adding smart routing, new action stages, broad auto-submit, route-executor behavior, fanout, target reselection, or trading-action mutation from inspection.
+- Paper trading is not approved.
+- Live trading is not approved.
+- Exchange order submission is not approved.
+- Production Money Flow rule changes are not approved.
+- Lower-RSI variants are not approved.
+- Market-structure variants are not approved.
+- Cross-venue evidence is not current UAT scope.
+- Routing / SOR expansion is not current priority.
 
-Phase 8.0.1 is workflow hygiene only. It resolves the dirty Obsidian project-memory baseline left after Phase 8.0 by accepting the earlier Obsidian refresh as intentional, updating stale proposed-Phase-8 wording, confirming the root memory file remains a pointer, and cleaning the working tree before Phase 8.1.
+## Current Evidence Meaning
 
-Phase 8.0.2 is a narrow operator-summary truth hotfix. It makes active unexpired child-intent submit leases block repeat-submit safety and next-safe-action truth as `submission_in_progress`, while preserving terminal uncertainty and stale pre-adapter lease semantics. It adds no trading behavior, new action stage, manual-resolution mutation, route executor behavior, fanout, target reselection, ranking/scoring, CBBO, cross-venue retry, or auto-submit.
+Current backtest/replay evidence does not prove profitability or future edge. It is sufficient only to justify founder review and a tightly scoped UAT0 safety/runtime phase.
 
-SV1.0 pivots to Strategy Validation. It adds the first Money Flow backtesting/reporting framework over persisted historical candles, reuses current Money Flow rules without optimization, simulates research-only trades with explicit capital/fee/slippage/sizing assumptions, and emits deterministic operator-readable reports. It creates no live desired trades, child intents, prepared orders, readiness assessments, submitted orders, routing artifacts, approval changes, or exchange calls.
+SV1.18 selected ETH `sleeve_1h` baseline because it is the strongest observed Hyperliquid public-candle scenario. That does not make it a production strategy.
 
-SV1.0.1 hardens Strategy Validation research truth. It adds explicit fill timing assumptions, supports next-candle open/close fills in addition to same-candle close research-only fills, separates closed-trade drawdown from mark-to-market drawdown, and expands the Markdown report for founder/operator review. It changes no Money Flow rules, optimization, paper/live trading, routing, execution automation, exchange calls, or live artifacts.
+Excluded from UAT scope:
 
-SV1.1 adds comparative Strategy Validation. It runs explicit batches of existing Money Flow validation requests across components/timeframes, fill-timing assumptions, symbols, date windows, fee assumptions, and slippage assumptions, then produces deterministic JSON/Markdown comparison reports. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no live artifacts, calls no exchanges, and does not connect validation to routing or execution automation.
+- `sleeve_15m`
+- `sleeve_4h`
+- BTC `sleeve_1h`
+- SOL `sleeve_1h`
+- lower-RSI variants
+- market-structure variants
+- Aster / Binance / OKX / Coinbase / Kraken
+- cross-venue comparison
 
-SV1.2 adds market-regime and data-coverage Strategy Validation. It reports requested-versus-available candle coverage, missing/gap/thin-coverage warnings, deterministic trend/volatility regime labels, regime-grouped performance summaries, and repeated CLI `--window start,end` support. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no live artifacts, calls no exchanges, and does not connect validation to routing or execution automation.
+## UAT0 Purpose
 
-SV1.2.1 is a narrow research-truth hotfix before SV1.3 campaigns. It standardizes all validation windows on candle closes in `(start_at, end_at]`, fixes expected coverage counts for unaligned windows, warning-codes unaligned boundaries, prevents coverage above 100%, and keeps blocked runs visible in grouped batch comparisons. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no live artifacts, calls no exchanges, and does not connect validation to routing or execution automation.
+UAT0 should verify:
 
-SV1.3 adds repeatable Money Flow research campaigns and evidence packs. It fixes the remaining single-run CLI wording mismatch so `--start` no longer says inclusive, adds explicit JSON campaign configs, expands campaign matrices through the existing Strategy Validation batch runner, and writes timestamped evidence packs with normalized config, manifest, JSON report, Markdown report, and README. Campaigns preserve `(start_at, end_at]` window truth and blocked-run visibility. They change no Money Flow rules, perform no optimization, recommend no variant, create no live artifacts, call no exchanges, and do not connect validation to routing or execution automation.
+- API authentication / authorization readiness
+- key and secret hygiene
+- no secrets in logs
+- fail-safe sandbox/live separation
+- sandbox/testnet environment gating
+- risk-limit enforcement
+- drawdown monitoring
+- kill switch / disable switch
+- debug stack traces not exposed to users
+- audit logging
+- operator confirmation gates
+- duplicate-order prevention
+- submit-lease uncertainty handling
+- no private endpoint calls before explicit UAT authorization
+- no accidental live endpoint reachability
 
-SV1.4 adds evidence-pack review discipline and historical data-readiness baseline. It adds canonical editable campaign configs, a read-only campaign `--audit-only` persisted-candle coverage/readiness inspection, evidence-pack review checklist output, and manual paper-trading readiness criteria. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchanges, and does not connect validation to routing or execution automation.
+## Required Reading For Next Work
 
-SV1.4.1 is a narrow evidence-pack integrity hotfix. It makes campaign evidence-pack writes collision-safe so repeated runs with the same campaign and timestamp do not silently overwrite prior research records. The default collision policy is `unique_suffix`; `fail_if_exists` remains available for explicit failure. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchanges, and does not connect validation to routing or execution automation.
-
-SV1.5 prepares the platform for meaningful canonical Money Flow evidence runs against real persisted candle data. It validates campaign `window_convention` metadata against the authoritative `(start_at, end_at]` convention, adds founder-readable Markdown data-readiness audit output, and adds an offline public CSV/JSON historical candle import path that duplicate-safely upserts existing candle rows for research backfills. It preserves collision-safe evidence-pack generation and changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
-
-SV1.5.1 is a narrow historical candle import and campaign-config research-truth hotfix before SV1.6 evidence review. It rejects contradictory campaign `window_convention` text that implies inclusive starts, blocks existing-candle identity conflicts instead of silently retargeting symbol/instrument ids, enforces selected-timeframe row duration, rejects non-finite/zero/negative/inconsistent OHLCV values and negative trade counts, and rolls back invalid import files without partial inserts or updates. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
-
-SV1.6 is the first canonical Money Flow evidence-review phase. It audits the canonical BTC and multi-symbol campaign configs, reports insufficient historical candle data as a data-readiness gap, generates collision-safe evidence packs only when audits are clean, and emits founder/operator-readable JSON/Markdown review summaries with evidence-pack paths, data gaps, fill-timing/component/regime/drawdown/cost/no-trade/invalid observations, and manual paper-readiness review status. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
-
-SV1.7 is the first real canonical evidence-review/data-gap phase. It adds sanitized DB access inspection to the canonical evidence review, reports reachability, candle-table existence, persisted candle count when available, and blocking DB/schema errors, and represents unreachable or missing-schema databases as blocked campaign data-readiness rows rather than uncaught failures. The local SV1.7 review found the default `postgres` host unresolved and a reachable local Postgres endpoint missing the Money Flow `candles` table, so canonical evidence remains `insufficient_data` and no evidence packs were generated. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
-
-SV1.8 is the historical data bootstrap and first real evidence-pack generation attempt. It makes the strategy-validation DB target explicit, adds Alembic/schema/migration status to evidence-review output, adds a read-only `--db-status-only` CLI path, and records that the default `postgres` host remains unresolved while the explicit `127.0.0.1:54322/postgres` target is reachable but not migrated: no `alembic_version` table and no `candles` table. Canonical BTC and multi-symbol campaigns remain `insufficient_data`, no real evidence packs were generated, and the next requirement is migrating the intended Money Flow DB plus importing public/offline canonical candles. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
-
-SV1.8.1 is a narrow evidence-review schema-truth/report-truth hotfix before first real evidence packs. It requires `migrated_schema_ready`, current Alembic migration truth, and required strategy-validation tables (`candles`, `instruments`, and `symbols`) before evidence-pack generation can proceed. A DB with a `candles` table but missing Alembic truth, outdated/unknown migrations, or partial symbol/instrument schema is blocked cleanly as schema/data readiness. Top-level no-live/no-exchange flags are aggregated from campaign results rather than relying on defaults. It generates no first real evidence packs, changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
-
-SV1.9 is the intended DB readiness and first-real evidence status phase. It makes strategy-validation DB target truth explicit in evidence-review output, including sanitized driver/host/port/name/user, target-role classification, intended-DB truth, and maintenance-database warnings. It also reports canonical candle import requirements for blocked/missing readiness rows, including expected/missing counts and example offline importer commands. The local SV1.9 probes generated no evidence packs because the default intended `money_flow` DB host was unresolved and the explicit `127.0.0.1:54322/postgres` override was unreachable in this shell and uses a maintenance database name requiring operator confirmation. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
-
-SV1.9.1 is a narrow evidence-target truth, candle-import timestamp/provenance truth, and Obsidian memory-governance hotfix. It makes ambiguous/non-intended maintenance DB targets generation-blocking by default, rejects timezone-naive candle imports by default, exposes `--assume-naive-utc` only as a provenance-marked exploratory/non-canonical override, refreshes stale Obsidian current-truth notes and full project memory through SV1.9, and still generates no first real canonical evidence packs. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
-
-SV1.10 is the intended local DB/candle readiness and first-real evidence attempt. It creates/reaches the local non-maintenance `money_flow` DB at `127.0.0.1:5432`, applies Alembic head `20260430_0025`, verifies `candles`, `instruments`, and `symbols`, reruns canonical evidence review, and reports that evidence remains `insufficient_data` because persisted candle count is zero. No evidence packs were generated. Import requirements are now grouped into 18 unique BTC/ETH/SOL candle rows with expected/missing counts and timezone-explicit file requirements. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
-
-SV1.11 is canonical Strategy Validation market-identity bootstrap and candle-import preflight. It adds an offline/manual Hyperliquid perpetual USDC BTC/ETH/SOL identity manifest, a seed/verify CLI that upserts only `InstrumentModel` and `SymbolModel` rows, conflict protection against silent symbol/instrument retargeting, strict Decimal validation for market metadata, evidence-review canonical identity readiness reporting, and a preflight CLI that validates CSV/JSON candle files and mappings without writing candles. It changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, generates no evidence packs, and does not connect validation to routing or execution automation.
-
-SV1.11.2 is a narrow market-identity and requirement-aware preflight governance hotfix. It blocks the Strategy Validation market-identity seed from writing `is_strategy_eligible=true` or `is_trading_eligible=true`, keeps successful seed writes research-only/non-trading, requires complete one-to-one input-file-to-requirement mapping in requirement-aware preflight, and makes review JSON candle import requirements preferred for candle preflight. It imports no candles, generates no evidence packs, changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
-
-SV1.12 is guarded canonical candle bundle import. It adds an import orchestrator that first requires an intended non-maintenance migrated/current strategy-validation DB, required schema tables, operator-verified research identity that remains non-trading/non-strategy-eligible, complete one-to-one input-file-to-canonical-requirement mapping, timezone-explicit candle files, and exact requirement-aware preflight readiness before delegating any file to the hardened candle importer. It generates no evidence packs, changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
-
-SV1.12.1 is guarded canonical candle import run / failure-truth hardening. The intended local `money_flow` DB at `127.0.0.1:5432` is reachable, migrated/current, and has required tables, but it still has zero persisted candles. Verify-only market-identity inspection reports missing BTC/ETH/SOL instruments and symbol mappings, and no repo/session canonical candle files were found, so no operational import was attempted. The guarded import now reports `explicit_partial_with_resume` / `partial_import` truth if a later file fails after earlier per-file persistence, lists imported/failed/missing requirement IDs, and surfaces unmapped input files plus missing requirements directly in operator output. It generates no evidence packs, changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
-
-SV1.12.2 is identity and canonical candle-file readiness. The intended local `money_flow` DB remains reachable, migrated/current, and has required tables, but persisted candle count is still zero. The Hyperliquid perpetual USDC BTC/ETH/SOL manifest was not seeded because no explicit operator verification was supplied; verify-only identity still reports missing instruments and symbol mappings. SV1.12.2 documents the exact 18 timezone-explicit canonical candle-file requirements, found no repo/session candle files to preflight, imports no candles, generates no evidence packs, changes no Money Flow rules, performs no optimization, recommends no variant, creates no paper/live artifacts, calls no exchange private/order endpoints or adapters, and does not connect validation to routing or execution automation.
-
-SV1.12.3 is guarded canonical candle import attempt. It adds a wrapper that can seed research identity only with explicit operator verification, `verified_by`, and offline market-value confirmation, auto-discovers canonical files by the suggested 18 filenames, maps them to canonical requirements, and runs the existing guarded bundle import only if all gates pass. The local run used the intended `money_flow` DB, confirmed schema/migrations/current tables, but did not seed identity because verification was not supplied, found no canonical files, imported no candles, generated no evidence packs, and left SV1.13 blocked.
-
-SV1.12.x data-preparation research on 2026-05-05 verified BTC/ETH/SOL Hyperliquid perpetual USDC identity values against official public Hyperliquid docs and the public `meta` endpoint, then updated the manifest while preserving `operator_verified=false`, `is_strategy_eligible=false`, and `is_trading_eligible=false`. Public `candleSnapshot` produced 12 complete timezone-explicit canonical `1h`/`4h` CSVs under `/tmp/money-flow-sv112x-candles`; all six `15m` January 2026 requirements remain missing because public `candleSnapshot` returned zero rows. Requirement-aware preflight was run for the 12 available files and remains blocked because the intended DB still lacks operator-verified BTC/ETH/SOL `InstrumentModel` / `SymbolModel` rows. Guarded import cannot proceed.
-
-SV1.12.5 data-readiness research on 2026-05-06 extends the public YTD/recent candle check to all registry-supported venue adapters: Hyperliquid, Aster, Binance, OKX, Coinbase Advanced Trade, and Kraken. Hyperliquid remains the nearest guarded-import path from SV1.12.4. Aster and Binance produced 18 additional complete timezone-explicit native-trade-count candidate files under `/tmp/money-flow-sv1125-supported-venues-public/csv`, but requirement-aware preflight blocks on missing venue identity rows. OKX and Coinbase produced complete close-slot files, but their public candle payloads lack trade count, so they are not canonical import-ready under the current file contract. Kraken public REST OHLC returned incomplete coverage for the selected windows. This supported-venue inventory pass seeded no non-Hyperliquid identity, imported no non-Hyperliquid candles, generated no evidence packs, and changed no paper/live trading boundary.
-
-SV1.12.5 operator-approved Hyperliquid import on 2026-05-06 keeps the immediate path narrow. Founder/operator approval allowed seeding only BTC/ETH/SOL Hyperliquid perpetual USDC research identity with `verified_by=Tercirafael`, `operator_verified=true`, `is_strategy_eligible=false`, and `is_trading_eligible=false`. The 9 public YTD/recent Hyperliquid files under `/tmp/money-flow-sv1124-public-ytd-recent/csv` all passed row-level and requirement-aware coverage checks, then guarded import inserted `25848` candles into the intended migrated `money_flow` DB. No evidence packs were generated, and non-Hyperliquid venues remain inventory only.
-
-SV1.12.5.1 closes the import state and repo state before evidence generation. The closeout verifies the intended non-maintenance `money_flow` DB remains reachable/current at Alembic head `20260430_0025`, required `candles` / `instruments` / `symbols` tables exist, BTC/ETH/SOL Hyperliquid identity rows are operator-verified by `Tercirafael` while staying non-trading/non-strategy-eligible, persisted Hyperliquid public campaign candle counts match `25848` total and the expected symbol/timeframe breakdown, no evidence packs were generated, and the accepted SV1.12.x/SV1.12.4/SV1.12.5 source/docs/Obsidian state is committed for review.
-
-SV1.13 generates the first Hyperliquid public campaign evidence packs after reconfirming DB/schema/identity/candle readiness. The evidence review uses `configs/strategy_validation/campaigns/money_flow_hyperliquid_public_ytd_recent.json` only, expands component-specific public windows into `sleeve_15m`, `sleeve_1h`, and `sleeve_4h` evidence configs, and writes local ignored evidence packs under `reports/strategy_validation/`. The committed founder-readable summary is `docs/strategy_validation_sv1_13_hyperliquid_public_evidence_review.md`. Status is `ready_for_founder_review`; paper/live trading remains unauthorized, Money Flow rules remain unchanged, and non-Hyperliquid venues remain future comparative work.
-
-SV1.13.1 adds the founder evidence interpretation truth layer. It reads the existing SV1.13 Hyperliquid evidence packs, clarifies that grouped aggregate totals are research-run sums rather than one account/scenario PnL, documents that current sizing is constant initial-capital notional per opened trade rather than dynamic account-equity sizing, surfaces scenario-level fill/cost/drawdown truth, makes ETH `sleeve_1h` concentration explicit, and keeps paper-trading design deferred for manual founder review. It generates no new packs, imports no data, and changes no Money Flow rules.
-
-SV1.13.2 adds the dynamic-equity capital simulation layer. Strategy Validation now supports `dynamic_equity_pct`, where each new trade sizes from current realized equity after prior closed-trade net PnL, while preserving `constant_initial_capital_notional_per_trade` as the default. Reports expose starting equity, ending equity, net account PnL, realized-equity min/max, equity drawdown, and insufficient-equity skips. The local Hyperliquid public dynamic run shows ETH `sleeve_1h` above starting equity across tested fill/cost assumptions, while 15m and 4h dynamic scenarios ended below starting equity. This remains per-scenario research simulation, not full margin/funding/liquidation or portfolio allocation, and paper-trading design remains deferred.
-
-The SV1.13 dashboard update adds a static local `apps/dashboard/` review surface for those ignored local evidence artifacts. It uses the supplied design tokens/files, loads the SV1.13 evidence review plus component batch reports when served from the repo root, and supports manual JSON loading. It is visualization only: it does not generate evidence packs, import candles, approve paper/live trading, call exchange endpoints, optimize parameters, or change Money Flow rules.
-
-SV1.14 adds trade anatomy and market-structure diagnostics over existing Hyperliquid public dynamic-equity evidence. It explains current Money Flow readiness/entry/exit logic, confirms entries below the RSI sleeve floor are not allowed, records recent swing high/low context as descriptive only, and produces later-test hypotheses without changing rules.
-
-SV1.15 adds controlled research-only Money Flow hypothesis experiments. It compares isolated overlays for resistance proximity, higher-low/support context, recent-low invalidation proxy, 15m sideways-regime avoidance, and 4h extension limits against the dynamic-equity baseline; it also adds lower-half RSI and pullback/continuation attribution. Lower-RSI entry admission is explicitly deferred until rejected-signal replay instrumentation exists. No hypothesis is production-authorized, no Money Flow rule changed, and paper/live/routing/execution behavior remains deferred.
-
-SV1.15.1 hardens methodology truth for those experiments. Completed-trade overlays are labeled `completed_trade_overlay_estimate`, reporting-only rows are labeled attribution, lower-RSI admission variants are labeled `deferred_requires_rejected_signal_replay`, and `recent_low_invalidation_proxy_20c` is downgraded to `lookahead_diagnostic_proxy` / upper-bound diagnostic only. These results can rank hypotheses for later true replay, but they are not validated rule changes, not paper/live approval, and not production Money Flow behavior.
-
-SV1.16 adds the rejected-signal replay substrate that SV1.15.1 identified as necessary. The research-only replay context records every evaluated candle's production-rule action/reasons, entry allowed/rejected truth, RSI zone, EMA/MACD/extension state, regime labels, and recent swing high/low market-structure diagnostics. The true replay runner processes candles chronologically, maintains position occupancy and `dynamic_equity_pct` sizing, and runs a narrow `lower_rsi_floor_trend_intact_v1` example for Hyperliquid ETH `sleeve_1h`. That lower-RSI example admitted replay-only entries but underperformed the current baseline sampled scenario, so it is not an authorized rule change. SV1.16.1 hardens the method truth: production-rule context fields are evaluations in the current replay state, independent per-candle baseline reference is not claimed after divergence, and variant-admitted candles are not counted as variant no-trade. Paper/live trading, routing, execution behavior, cross-venue evidence, and production Money Flow changes remain deferred.
-
-SV1.17 uses that true replay substrate for the first full public-campaign experiment round. BTC/ETH/SOL are replayed across `sleeve_15m`, `sleeve_1h`, and `sleeve_4h`; every row is an independent same-symbol/same-component dynamic-equity scenario. Some lower-RSI plus market-structure variants improve losing baselines, but ETH `sleeve_1h` baseline remains the strongest above-starting-equity pocket. The result argues against treating lower RSI as automatically better and keeps all variants research-only. No production rules, paper/live trading, routing, execution behavior, exchange calls, or cross-venue evidence changed.
-
-SV1.18 closes the current evidence cycle. The closeout states that current backtest/replay evidence does not prove edge and is insufficient for paper/live trading. It freezes exactly one UAT observation candidate, `money_flow_hyperliquid_eth_1h_baseline_uat_candidate`, scoped to Hyperliquid ETH USDC perpetual `sleeve_1h` current baseline rules for observation/shadow behavior only. 15m, 4h, BTC/SOL 1h, lower-RSI variants, market-structure variants, and non-Hyperliquid venues are excluded from current UAT scope. UAT0 is safety/security/runtime hardening before any later sandbox connectivity or order phase.
-
-## Accepted Baseline
-
-- Phase 7.0 added non-executing routing automation policy and dry-run plans.
-- Phase 7.1 added durable approval records and revocation/consumption state.
-- Phase 7.1.1 made approvals expiry-safe, lineage-scoped, and active-scope unique.
-- Phase 7.1.2 prevented manual-only and dry-run-only steps from receiving active approvals.
-- Phase 7.2 added approval-gated recommendation acceptance into one target choice.
-- Phase 7.2.1 made recommendation acceptance and approval consumption coherent in one commit.
-- Phase 7.3 added approval-gated target-choice conversion into one child intent and integrated Obsidian workflow.
-- Phase 7.3.1 hardened target-choice conversion negative tests.
-- Phase 7.4 added approval-gated prepared-order preview/readiness inspection only.
-- Phase 7.5 added approval-gated submitted-order handoff only.
-- Phase 7.5.1 recorded `consumption_pending` approval truth when submitted-order persistence succeeds but approval consumption fails afterward.
-- Phase 7.6 closed Phase 7 with end-to-end safety regression and docs alignment only.
-- Phase 8.0 added read-only operator routed workflow summary inspection by desired trade.
-- Phase 8.0.1 resolved the Obsidian memory / working-tree baseline without product behavior changes.
-- Phase 8.0.2 fixed active submit-lease operator-summary truth without product behavior changes.
-- SV1.0 added Money Flow strategy validation/backtesting reports without live execution artifacts or strategy-rule optimization.
-- SV1.0.1 hardened Money Flow validation fill-timing/drawdown/report truth without strategy-rule changes.
-- SV1.1 added comparative Money Flow batch validation reports without optimization, recommendations, live artifacts, routing, or execution changes.
-- SV1.2 added Money Flow data-coverage and market-regime validation reports without optimization, recommendations, live artifacts, routing, or execution changes.
-- SV1.2.1 hardened Money Flow validation window/coverage/grouped-comparison truth without optimization, recommendations, live artifacts, routing, or execution changes.
-- SV1.3 added repeatable Money Flow research campaigns and saved evidence packs without optimization, recommendations, live artifacts, routing, or execution changes.
-- SV1.4 added canonical campaign configs, campaign data-readiness audit, evidence-pack review checklist, and manual paper-trading readiness criteria without optimization, recommendations, paper/live artifacts, routing, or execution changes.
-- SV1.4.1 added explicit evidence-pack collision policy and non-overwriting write semantics without optimization, recommendations, paper/live artifacts, routing, or execution changes.
-- SV1.5 added validated campaign window-convention metadata, Markdown data-readiness audit summaries, and offline public candle import/upsert tooling without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
-- SV1.5.1 hardened campaign window-convention validation and offline candle import integrity without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
-- SV1.6 added canonical campaign evidence-review summaries and manual paper-readiness review status without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
-- SV1.7 added canonical evidence-review DB reachability/candle-table truth, explicit data-gap summaries, and `partial_evidence_ready_with_data_gaps` status without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
-- SV1.8 added DB/schema/migration bootstrap truth, a status-only evidence-review CLI path, and an updated first-real data-gap report showing the reachable local DB is unmigrated and has no candles, without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
-- SV1.8.1 added a migrated/current-schema gate for evidence-pack generation and top-level live/exchange flag aggregation from campaign results, without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
-- SV1.9 added explicit DB target metadata, maintenance-database ambiguity warnings, canonical candle import requirements, and a first-real evidence status report showing evidence remains `insufficient_data`, without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
-- SV1.9.1 added DB-target evidence-generation blocking, default naive timestamp import rejection, provenance-marked naive-UTC import override support, generated-research artifact hygiene, and Obsidian memory/current-truth refresh through SV1.9 without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
-- SV1.10 added intended local DB creation/migration truth, verified required schema tables, grouped canonical candle import requirements, and recorded that evidence remains `insufficient_data` because no candles are persisted, without optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
-- SV1.11 added research-only canonical market identity seed/verify tooling, evidence-review identity readiness, candle-import preflight, and documentation for the safe import workflow without writing candles, generating evidence packs, optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
-- SV1.11.1 added explicit operator verification for non-dry-run identity writes and requirement-aware candle file coverage checks without importing candles, generating evidence packs, optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
-- SV1.11.2 added a non-trading eligibility guard to the research seed and complete input/requirement mapping checks to requirement-aware preflight without importing candles, generating evidence packs, optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
-- SV1.12 added guarded canonical candle bundle import without generating evidence packs, optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes.
-- SV1.12.1 hardened guarded import failure/output truth and produced a blocked operational import report because identity rows and candle files remain missing; no candles were imported and no evidence packs were generated.
-- SV1.12.2 added readiness-only identity/file reporting, produced the exact 18-file canonical candle checklist, confirmed operator-verified identity and files remain missing, imported no candles, and generated no evidence packs.
-- SV1.12.3 added the guarded import attempt wrapper, confirmed the intended DB is reachable/current, found operator verification and all 18 candle files still missing, imported no candles, and generated no evidence packs.
-- 2026-05-05 SV1.12.x data-preparation research verified public BTC/ETH/SOL identity values, updated the non-trading manifest, produced 12 local `1h`/`4h` CSVs, found the six `15m` files missing, and confirmed guarded import remains blocked by missing DB identity seed plus incomplete file coverage.
-- 2026-05-06 SV1.12.5 supported-venue public-data research added an all-supported-venue data-plan config/report/script, produced 45 additional local CSVs under `/tmp/money-flow-sv1125-supported-venues-public/csv`, found Aster/Binance candidate files blocked by missing venue identity, found OKX/Coinbase blocked by missing public trade count, found Kraken blocked by incomplete public REST coverage, and imported no non-Hyperliquid candles.
-- 2026-05-06 SV1.12.5 operator-approved Hyperliquid import seeded BTC/ETH/SOL research identity as non-trading/non-strategy-eligible, preflighted all 9 public YTD/recent files, and inserted `25848` Hyperliquid candles into the intended migrated DB without generating evidence packs.
-- 2026-05-06 SV1.12.5.1 closeout verifies the imported DB state, identity state, candle counts, no-evidence-pack boundary, and repo/Obsidian state before SV1.13 evidence generation.
-- 2026-05-06 SV1.13 evidence review generated first Hyperliquid public campaign evidence packs from the imported `25848` candles, with status `ready_for_founder_review` and no paper/live authorization.
-- 2026-05-07 SV1.13 dashboard update added a static local founder/operator visualization dashboard for the ignored evidence review and batch-report JSON files; manual evidence review remains the next step.
-- 2026-05-07 SV1.13.1 added founder interpretation truth for the existing Hyperliquid evidence packs: grouped sums are not one account/scenario PnL, sizing is constant initial-capital notional per opened trade rather than dynamic equity sizing, ETH `sleeve_1h` concentration is explicit, and paper-trading design remains deferred.
-- 2026-05-07 SV1.13.2 added `dynamic_equity_pct` per-scenario capital sizing and founder dynamic-equity evidence: ETH `sleeve_1h` stayed above starting equity across tested dynamic assumptions, 15m/4h ended below starting equity, and paper-trading design remains deferred.
-- 2026-05-07 SV1.14 added trade anatomy and market-structure diagnostics without changing Money Flow rules.
-- 2026-05-07 SV1.15 added controlled research-only hypothesis experiments and attribution without changing production Money Flow rules; lower-RSI admission remains deferred pending rejected-signal replay instrumentation.
-- 2026-05-08 SV1.15.1 added methodology labels, completed-trade overlay limitation text, and a recent-low lookahead-proxy downgrade without changing production Money Flow rules.
-
-## Hard Boundaries
-
-Do not build:
-
-- smart routing
-- best-binding selection
-- CBBO
-- ranking/scoring
-- fanout or split allocation
-- target reselection
-- route executor behavior
-- broad auto-submit
-- cross-binding or cross-venue recovery
-- new exchange behavior
-- submission/cancel/amend/retry from read-only inspection
-- silent manual-resolution of exchange/account truth
-- live trading artifacts from strategy validation
-- Money Flow rule optimization before evidence review
-- treating backtest output as proof of future profitability
-- treating readiness criteria as automated paper-trading approval
-
-## Phase 8.0 Outcome
-
-Phase 8.0 is successful when operators can inspect the full routed workflow by desired trade, understand approval and automation state without raw payload parsing, see manual-resolution needs and submit-lease uncertainty, see current blocking/uncertainty reasons, and identify the next safe manual action without creating target choices, child intents, readiness evaluations, submitted orders, exchange calls, recovery actions, or route-executor behavior.
-
-Phase 8.0.1 is successful when the full Obsidian project memory is resolved, root memory remains pointer-only, Obsidian notes match implemented Phase 8.0 truth, review packaging remains clean, and the working tree is clean.
-
-Phase 8.0.2 is successful when the operator summary reports an active unexpired submit lease as `submission_in_progress`, blocks repeat-submit safety with `blocked_while_submission_in_progress`, reports the next safe operator action as not safe to automate, preserves terminal uncertainty behavior, leaves expired pre-adapter active leases stale-replaceable, and remains read-only.
-
-SV1.0 is successful when operators/researchers can run a deterministic Money Flow validation report over persisted candles, inspect assumptions and core metrics, compare component/timeframe output where data exists, and verify validation remains separate from live routing/execution.
-
-SV1.0.1 is successful when fill timing is explicit, same-candle close fills are labeled research-only/optimistic, closed-trade and mark-to-market drawdown are distinct, Markdown is useful for founder/operator review, and validation still creates no live artifacts or strategy-rule changes.
-
-SV1.1 is successful when comparative validation batches can compare selected components, fill timings, symbols, date windows, fees, and slippage assumptions; JSON output is deterministic; Markdown output is founder-readable; missing data is surfaced per run; and no strategy-rule changes, live artifacts, routing, exchange calls, optimization, or recommendation semantics appear.
-
-SV1.2 is successful when validation reports expose data coverage, deterministic descriptive regimes, regime-grouped metrics, and multi-window comparison support while preserving research-only boundaries and avoiding strategy-rule changes, live artifacts, routing, exchange calls, optimization, or recommendation semantics.
-
-SV1.2.1 is successful when one window convention is used everywhere, adjacent windows do not double-count boundary candles, unaligned-window coverage cannot exceed 100%, blocked runs remain visible in grouped comparisons, and the validation boundary remains research-only with no Money Flow rule changes or live artifacts.
-
-SV1.3 is successful when the single-run CLI help matches `(start_at, end_at]` semantics, named campaign configs expand into batch requests, evidence packs save normalized config/manifest/JSON/Markdown/README outputs, blocked runs remain visible, and no Money Flow rules, optimization, paper/live trading, routing, exchange calls, or live artifacts are added.
-
-SV1.4 is successful when canonical campaign configs exist, campaign data-readiness audit reports covered/thin/missing windows and likely blocked runs, evidence packs include founder/operator review checklist plus manual paper-trading readiness criteria, operational-doc tests assert the current phase accurately, and no Money Flow rules, optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes are added.
-
-SV1.4.1 is successful when evidence packs cannot silently overwrite previous packs, duplicate same-timestamp campaign runs are safe, manifests record requested/final run identity plus collision policy/suffix truth, and no Money Flow rules, optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes are added.
-
-SV1.5 is successful when campaign window-convention metadata cannot mislead users, canonical campaign readiness audits clearly show missing/thin/covered data, founder-readable audit Markdown exists, public/offline historical candles can be duplicate-safely imported when data is missing, first evidence-pack generation remains collision-safe and scriptable, and no Money Flow rules, optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes are added.
-
-SV1.5.1 is successful when contradictory `window_convention` text is rejected, candle import identity conflicts cannot silently retarget existing rows, same-identity duplicate-safe upserts still work, timeframe-duration mismatches and malformed OHLCV/trade-count rows fail clearly, invalid files leave no partial imported or updated candles, and no Money Flow rules, optimization, recommendations, paper/live artifacts, routing, exchange calls, or execution changes are added.
-
-SV1.6 is successful when canonical campaign audits can be reviewed, sufficient-data campaigns can generate collision-safe evidence packs, insufficient data is reported clearly without being treated as strategy failure, manual paper-readiness status is descriptive only, no live artifacts are created, no exchange calls are made, no Money Flow rules are changed, and no optimization or recommendation language is introduced.
-
-SV1.7 is successful when DB access status is explicit, canonical campaigns are audited against accessible data or blocked clearly, first evidence packs are generated where data is sufficient, insufficient/missing data is documented where not sufficient, mixed results are reported as partial evidence rather than complete readiness, and no live artifacts, exchange calls, Money Flow rule changes, optimization, or recommendation language are introduced.
-
-SV1.8 is successful when DB/schema status is explicit, migrated candle-table availability is known, canonical candle data gaps are clear, import/backfill and migration commands are documented, first evidence packs are generated where data is sufficient or a precise remaining data gap report is produced, and no live artifacts, exchange calls, Money Flow rule changes, optimization, or recommendation language are introduced.
-
-SV1.8.1 is successful when evidence-pack generation requires migrated/current schema truth, a DB with candles but missing Alembic truth cannot generate packs, partial required schema gaps report cleanly, top-level no-live/no-exchange flags aggregate from campaign results, and no live artifacts, exchange calls, Money Flow rule changes, optimization, or recommendation language are introduced.
-
-SV1.9 is successful when the intended strategy-validation DB target is explicit, migration/schema status is explicit, required table availability is known, outdated migration truth blocks evidence generation, canonical candle gaps and import requirements are clear, first real evidence packs are generated where data is sufficient or a precise remaining data-gap report is produced, top-level no-live/no-exchange truth aggregates campaign results, and no live artifacts, exchange calls, Money Flow rule changes, optimization, or recommendation language are introduced.
-
-SV1.9.1 is successful when ambiguous maintenance DB targets cannot generate evidence packs by default, naive candle timestamps are rejected by default or require explicit provenance-marked override, Obsidian current-truth notes and full project memory are refreshed through SV1.9, operational-doc tests catch stale Obsidian drift, generated research artifacts remain excluded from Git/review bundles, and no live artifacts, exchange calls, Money Flow rule changes, optimization, or recommendation language are introduced.
-
-SV1.10 is successful when the intended strategy-validation DB target is explicit and usable, migration/schema status is current or precisely blocked, required table availability is known, canonical candle data gaps are clear and de-duplicated for action, import/backfill path is documented or executed safely, first real evidence packs are generated where data is sufficient or a precise remaining data gap report is produced, and no live artifacts, exchange calls, Money Flow rule changes, optimization, or recommendation language are introduced.
-
-SV1.11 is successful when canonical BTC/ETH/SOL Hyperliquid perpetual USDC market identity can be validated, dry-run seeded, actually seeded, and verify-only checked through an offline/manual research-only manifest; evidence review reports identity readiness separately from candle coverage; candle-import preflight validates timezone-explicit files and mappings without writing candles; and no evidence packs, live artifacts, exchange calls, Money Flow rule changes, optimization, or recommendation language are introduced.
-
-SV1.11.2 is successful when research market identity seed cannot write strategy/trading-eligible symbols, successful seed writes remain research-only/non-trading, requirement-aware preflight cannot appear ready with unmapped inputs, unmapped requirements, or duplicate requirement mappings, review JSON requirement selection is clear, and no candles, evidence packs, live artifacts, exchange calls, Money Flow rule changes, optimization, or recommendation language are introduced.
-
-SV1.12 is successful when guarded canonical candle import exists, only an intended migrated/current non-maintenance DB can be used, only operator-verified research identity that remains non-trading can be used, only timezone-explicit complete one-to-one requirement-mapped files with exact `ready_for_import=true` preflight can import, no evidence packs are generated, and no live artifacts, exchange calls, Money Flow rule changes, optimization, routing/execution behavior, or recommendation language are introduced.
-
-SV1.12.1 is successful when guarded canonical import is run if files/identity are available or blocked precisely if not, bundle-level failure semantics are explicit, partial persistence cannot look complete, unmapped input files and missing requirements appear directly in operator output, no evidence packs are generated, and no live artifacts, exchange calls, Money Flow rule changes, optimization, routing/execution behavior, or recommendation language are introduced.
-
-SV1.12.2 is successful when market identity is seeded only if explicitly operator-verified, seeded identity remains non-trading/non-strategy-eligible, the exact canonical 18-file requirement list exists, available files are preflighted if present, missing files are reported clearly, no candles are imported without explicit guarded permission, no evidence packs are generated, and no live artifacts, exchange calls, Money Flow rule changes, optimization, routing/execution behavior, or recommendation language are introduced.
-
-SV1.12.3 is successful when identity is seeded only if explicit operator verification is supplied, seeded identity remains non-trading/non-strategy-eligible, all 18 required files are checked, import runs only if all files are present and preflight-passed, import status is founder-readable, partial import cannot be mistaken for complete import, no evidence packs are generated, and no live artifacts, exchange calls, Money Flow rule changes, optimization, routing/execution behavior, or recommendation language are introduced.
-
-The 2026-05-05 SV1.12.x data-preparation task is successful when public identity verification is recorded without seeding, available public candles are transformed into timezone-explicit canonical CSVs outside the repo, missing files are reported clearly, preflight is run where possible, and Obsidian/current-state notes reflect that guarded import remains blocked until operator-verified identity is seeded and all 18 files pass preflight.
-
-The 2026-05-05 SV1.12.4 public-data campaign task is successful when January 2026 is clearly marked archival/vendor-data-required, the public-data-friendly 9-file campaign config exists, BTC/ETH/SOL identity remains public-verified but unseeded, available public Hyperliquid `1h`/`4h` YTD and recent `15m` CSVs are produced outside the repo, preflight is run where possible, and Obsidian/current-state notes reflect that guarded import remains blocked until operator-verified non-trading identity is seeded and requirement-aware preflight passes.
-
-The 2026-05-06 SV1.12.5 supported-venue public-data task is successful when all registry-supported venue adapters have a public-data-friendly readiness plan, public endpoints are checked without private/signed/order calls or API keys, complete timezone-explicit local CSVs are produced where public sources satisfy the canonical contract, source limitations are recorded where they do not, requirement-aware preflight is run for candidate files where identity allows, and Obsidian/current-state notes reflect that guarded import remains blocked until the selected venue identity/source/preflight gates are clean.
-
-## Current Outcome
-
-- Obsidian command center/current phase/decision log/coordination notes are now part of the required agent workflow.
-- Full strategic project memory lives at `money-flow/Project_Memory/money_flow_project_memory.md`.
-- Repo-root `money_flow_project_memory.md` is a compatibility pointer only.
-- The approval-gated `recommendation_acceptance` action hook creates or reuses one target choice and consumes the matching approval.
-- The approval-gated `target_choice_conversion` action hook creates or reuses one child intent and consumes the matching approval.
-- The approval-gated `prepared_order_preview_and_readiness` hook runs preview/readiness inspection for exactly one existing child intent.
-- The approval-gated `submitted_order_handoff` hook submits exactly one already-ready child intent through the existing explicit submit path.
-- Phase 7.5.1 records `consumption_pending` approval state if submitted-order persistence succeeds but approval consumption fails afterward.
-- Phase 7.6 adds closeout regression coverage proving the accepted hooks remain stage-specific and no-SOR.
-- Phase 8.0 adds `GET /api/v1/operator-routed-workflows/by-desired-trade/{desired_trade_key}` as a read-only operator summary over existing routed workflow artifacts, approval states, gate truth, manual-resolution requirements, submitted-order handoff safety, and submit-lease/concurrency state.
-- Phase 8.0.1 accepts the prior Obsidian refresh as intentional memory baseline and updates it to current Phase 8.0/8.0.1 truth.
-- Phase 8.0.2 makes the operator summary block approval-gated submit as the next safe action while an unexpired `active` submit lease is already in progress.
-- SV1.0 adds `services/strategy_validation` and `scripts/run_money_flow_backtest.py` for deterministic Money Flow research reports from persisted candles.
-- SV1.0.1 adds selectable validation fill timing, mark-to-market drawdown, expanded Markdown/JSON report detail, and direct research-truth tests.
-- SV1.1 adds `StrategyValidationBatchRequest`, `StrategyValidationBatchReport`, `MoneyFlowBacktestService.run_money_flow_batch_backtest()`, `scripts/run_money_flow_validation_batch.py`, and direct comparative validation tests.
-- SV1.2 adds data-coverage report fields, deterministic trend/volatility regime summaries, batch coverage/regime comparisons, repeated CLI `--window start,end` support, and direct coverage/regime tests.
-- SV1.2.1 applies the `(start_at, end_at]` candle-close convention to evaluation/coverage/regime/forced-close/batch surfaces, adds close-slot coverage counting and unaligned-boundary warnings, and keeps blocked-run counts/reasons in grouped comparisons.
-- SV1.3 adds `services/strategy_validation/campaigns.py`, `scripts/run_money_flow_research_campaign.py`, `configs/strategy_validation/money_flow_research_campaign.example.json`, and `tests/test_sv13_research_campaigns.py` for repeatable research campaign evidence packs.
-- SV1.4 adds `configs/strategy_validation/campaigns/`, campaign data-readiness audit helpers, campaign `--audit-only`, review checklist/manual readiness criteria in evidence packs, and `tests/test_sv14_evidence_readiness.py`.
-- SV1.4.1 adds explicit evidence-pack collision policy to `services/strategy_validation/campaigns.py`, exposes `--collision-policy` in the campaign CLI, and adds `tests/test_sv141_evidence_pack_integrity.py`.
-- SV1.5 adds `services/strategy_validation/candles.py`, `scripts/import_strategy_validation_candles.py`, Markdown audit output from `scripts/run_money_flow_research_campaign.py --audit-only --audit-format markdown`, campaign `window_convention` validation, and `tests/test_sv15_historical_data_readiness.py`.
-- SV1.5.1 hardens `services/strategy_validation/candles.py` and `services/strategy_validation/campaigns.py`, adds `tests/test_sv151_candle_import_integrity.py`, and keeps offline imports all-or-nothing for invalid files.
-- SV1.6 adds `services/strategy_validation/evidence_review.py`, `scripts/review_money_flow_evidence_packs.py`, and `tests/test_sv16_evidence_review.py` for first canonical evidence-review summaries.
-- SV1.7 hardens `services/strategy_validation/evidence_review.py`, updates `scripts/review_money_flow_evidence_packs.py`, adds `tests/test_sv17_evidence_review_real_data_gaps.py`, and records the local data gap in `docs/strategy_validation_sv1_7_first_evidence_review.md`.
-- SV1.8 extends `services/strategy_validation/evidence_review.py` and `scripts/review_money_flow_evidence_packs.py` with DB/schema/migration bootstrap status, adds `tests/test_sv18_historical_data_bootstrap.py`, and records the updated data gap in `docs/strategy_validation_sv1_8_historical_data_bootstrap.md`.
-- SV1.8.1 extends `services/strategy_validation/evidence_review.py` with required schema-table checks and schema-gated evidence-pack generation, adds `tests/test_sv181_evidence_schema_truth.py`, and records the hotfix in `docs/strategy_validation_sv1_8_1_schema_truth_hotfix.md`.
-- SV1.9 extends `services/strategy_validation/evidence_review.py` and `scripts/review_money_flow_evidence_packs.py` with DB target metadata and canonical candle import requirements, adds `tests/test_sv19_evidence_status.py`, and records the status in `docs/strategy_validation_sv1_9_first_real_evidence_status.md`.
-- SV1.9.1 extends `services/strategy_validation/evidence_review.py` with DB-target generation blocking, extends `services/strategy_validation/candles.py` and `scripts/import_strategy_validation_candles.py` with naive timestamp rejection / provenance-marked override and import-source summary fields, adds `tests/test_sv191_evidence_target_and_import_truth.py`, hardens Obsidian drift checks in `tests/test_operational_docs.py`, records the hotfix in `docs/strategy_validation_sv1_9_1_evidence_target_truth_hotfix.md`, and refreshes Obsidian current truth/project memory.
-- SV1.10 groups canonical import requirements in `services/strategy_validation/evidence_review.py`, fills expected/missing counts for unknown-instrument blocked readiness rows in `services/strategy_validation/campaigns.py`, adds `tests/test_sv110_evidence_db_readiness.py`, and records the first-real evidence status in `docs/strategy_validation_sv1_10_first_real_evidence_status.md`.
-- SV1.11 adds `services/strategy_validation/market_identity.py`, `scripts/seed_strategy_validation_market_identity.py`, `scripts/preflight_strategy_validation_candle_import.py`, `configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json`, `tests/test_sv111_market_identity_preflight.py`, evidence-review identity readiness, and `docs/strategy_validation_sv1_11_market_identity_and_import_preflight.md`.
-- SV1.11.1 hardens `services/strategy_validation/market_identity.py`, `scripts/seed_strategy_validation_market_identity.py`, `scripts/preflight_strategy_validation_candle_import.py`, and the market identity manifest, adds `tests/test_sv1111_market_identity_preflight_hardening.py`, and records the hotfix in `docs/strategy_validation_sv1_11_1_preflight_and_identity_guard_hardening.md`.
-- SV1.11.2 hardens `services/strategy_validation/market_identity.py` and the market identity manifest, adds `tests/test_sv1112_market_identity_preflight_governance.py`, and records the hotfix in `docs/strategy_validation_sv1_11_2_seed_and_preflight_governance_hotfix.md`.
-- SV1.12 adds `services/strategy_validation/candle_bundle_import.py`, `scripts/import_strategy_validation_candle_bundle.py`, `tests/test_sv112_guarded_candle_import.py`, and `docs/strategy_validation_sv1_12_canonical_candle_import_status.md` for guarded canonical candle bundle import only.
-- SV1.12.1 hardens `services/strategy_validation/candle_bundle_import.py` and `tests/test_sv112_guarded_candle_import.py`, records the blocked run in `docs/strategy_validation_sv1_12_1_canonical_candle_import_run.md`, and updates guarded import docs for explicit partial-persistence and operator-visible unmapped/missing output.
-- SV1.12.2 adds `services/strategy_validation/import_readiness.py`, `scripts/check_strategy_validation_import_readiness.py`, `tests/test_sv1122_identity_file_readiness.py`, and `docs/strategy_validation_sv1_12_2_identity_and_file_readiness.md` for readiness-only identity and canonical candle-file reporting before actual guarded import.
-- SV1.12.3 adds `services/strategy_validation/guarded_import_attempt.py`, `scripts/run_strategy_validation_guarded_import_attempt.py`, `tests/test_sv1123_guarded_import_attempt.py`, and `docs/strategy_validation_sv1_12_3_guarded_import_result.md` for the operational guarded import attempt boundary.
-- 2026-05-05 SV1.12.x data-preparation updates `configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json` with public Hyperliquid `meta`-verified research values and adds `docs/strategy_validation_sv1_12_x_hyperliquid_identity_and_candle_readiness_research.md`; generated candle files remain local under `/tmp/money-flow-sv112x-candles` and are not source-controlled.
-- 2026-05-05 SV1.12.4 public-data campaign updates January campaign configs as archival/vendor-data-required, adds `configs/strategy_validation/campaigns/money_flow_hyperliquid_public_ytd_recent.json`, adds `docs/strategy_validation_sv1_12_4_public_ytd_recent_candle_readiness.md`, and produces 9 local public Hyperliquid CSVs under `/tmp/money-flow-sv1124-public-ytd-recent/csv`; generated candle files remain local and are not source-controlled.
-- 2026-05-06 SV1.12.5 supported-venue public-data readiness adds `configs/strategy_validation/campaigns/money_flow_supported_venues_public_ytd_recent.json`, `docs/strategy_validation_sv1_12_5_supported_venues_public_candle_readiness.md`, and `scripts/prepare_supported_venue_public_candles.py`; generated candle files remain local under `/tmp/money-flow-sv1125-supported-venues-public/csv` and are not source-controlled.
-- Recovery, route execution, fanout, scoring, CBBO, target reselection, cross-venue retry, and broad auto-submit remain deferred.
-
-## Next Phase Shape
-
-The next Strategy Validation work should run post-import evidence review for the imported Hyperliquid public campaign and generate collision-safe evidence packs only if DB target, schema, identity, candle coverage, and final import status are ready; otherwise it should report remaining gaps. Aster/Binance can become a broader venue-comparison follow-up after their public identity manifests are verified and seeded as non-trading; OKX/Coinbase require a trade-count source or explicit canonical-contract decision; Kraken requires archive/vendor/operator data for the selected windows. January 2026 should remain a separate archival/vendor/operator-data campaign until a trusted source fills its `15m` gap. Manual founder/operator review remains required before any paper-trading design is scoped. Phase 8.1 should remain deferred until explicitly scoped; when it resumes, it should define explicit manual-resolution marker or administrative reconciliation workflows only after architecture review, keep operator acknowledgement separate from exchange/account truth, and not attach submit/cancel/amend/retry behavior to inspection.
+- [[00_Money_Flow_Command_Center|Money Flow Command Center]]
+- [[00 Maps/Current State Dashboard|Current State Dashboard]]
+- [[00 Maps/Strategy Validation Map|Strategy Validation Map]]
+- [[00 Maps/UAT Roadmap|UAT Roadmap]]
+- [[30 Strategy/UAT Candidate Freeze|UAT Candidate Freeze]]
+- [[40 Operations/UAT0 Safety Runtime Hardening|UAT0 Safety Runtime Hardening]]
+- [[05_Agent_Coordination|Agent Coordination]]
+- [[Project_Memory/money_flow_project_memory|Project Memory]]

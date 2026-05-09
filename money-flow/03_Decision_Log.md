@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-09T13:21:46Z - OB1.0 - Obsidian Brain Separates SV Closeout From UAT0
+
+- `decision`: Make `money-flow/00_Money_Flow_Command_Center.md` the single canonical command center, add dedicated Strategy Validation and UAT roadmap maps, and treat SV1.18.1 as the completed milestone with UAT0 as the next proposed track.
+- `why`: The vault had grown through Phase 8 and SV1.x and could make Strategy Validation look like an active Phase 8 sub-phase. Future agents need a clean current-state map before UAT work so they do not confuse research evidence, UAT observation, paper trading, live trading, or routing expansion.
+- `scope`: OB1.0 is documentation and governance only. It does not implement UAT0, change Money Flow rules, approve paper/live trading, add exchange calls, create live artifacts, generate evidence packs, or add routing/execution behavior.
+- `follow_up_implications`: UAT0 work should start from the UAT roadmap and UAT0 safety/runtime note, keep the frozen ETH `sleeve_1h` candidate narrow, and preserve paper/live/order-submission deferral until later explicit UAT gates.
+
 ## 2026-05-08T07:57:25Z - SV1.17 - Replay Results Must Cover The Full Public Suite
 
 - `decision`: Expand SV1.17 true replay reporting from the initial ETH `sleeve_1h` slice to the full Hyperliquid public BTC/ETH/SOL x 15m/1h/4h suite.
