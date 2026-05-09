@@ -4,11 +4,13 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 ## Immediate Future
 
-Current implemented milestone: `SV1.18.1` complete.
+Current implemented milestone: `UAT0` safety / security / runtime audit complete.
 
-Next proposed phase: `UAT0` safety / security / runtime hardening.
+Next proposed phase: UAT0 blocker remediation before `UAT1`.
 
-UAT0 is plumbing and behavior validation preparation only. It does not implement exchange connectivity, private/signed endpoint calls, exchange order submission, paper trading, live trading, routing expansion, or Money Flow rule changes.
+UAT1 read-only connectivity is blocked until API auth/authz, fail-safe UAT mode gating, live endpoint lockout, secret/log/error redaction verification, and top-20 symbol/market identity prerequisites are closed.
+
+UAT0 was plumbing and behavior validation preparation only. It did not implement exchange connectivity, private/signed endpoint calls, exchange order submission, paper trading, live trading, routing expansion, or Money Flow rule changes.
 
 Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved.
 
@@ -20,15 +22,17 @@ SV1 is closed for now. The current evidence cycle selected exactly one UAT obser
 
 It is Hyperliquid ETH USDC perpetual, `sleeve_1h`, current baseline Money Flow rules, observation / shadow first.
 
-Current evidence does not prove edge. It is sufficient only to justify a tightly scoped UAT0 safety/runtime phase and later shadow observation if UAT0 passes.
+Current evidence does not prove edge. It was sufficient only to justify a tightly scoped UAT0 safety/runtime audit and later shadow observation if blockers close.
+
+Future UAT observation is not ETH-only. UAT1/UAT2 should cover top 20 high-volume crypto assets supported by the selected UAT venue/environment for platform behavior validation only.
 
 ## UAT Roadmap
 
 See [[00 Maps/UAT Roadmap|UAT Roadmap]].
 
-- UAT0: safety / security / runtime hardening.
-- UAT1: exchange sandbox read-only connectivity.
-- UAT2: shadow strategy run, no orders.
+- UAT0: safety / security / runtime hardening audit complete.
+- UAT1: top-20 universe plus read-only venue/market metadata after blockers close.
+- UAT2: shadow strategy run across top-20 supported assets with `next_candle_open` / `next_candle_close`, no orders.
 - UAT3: approval-gated sandbox orders.
 - UAT4: sandbox / simulated trading review.
 

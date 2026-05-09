@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-09T13:21:46Z`
+Last reviewed: `2026-05-09T14:17:37Z`
 
 ## Top-Level Structure
 
@@ -63,6 +63,7 @@ Last reviewed: `2026-05-09T13:21:46Z`
 - Tracked Obsidian strategic brain.
 - Contains the canonical command center, current phase, decision log, agent coordination, component/workflow maps, Strategy Validation map, UAT roadmap, UAT candidate freeze note, UAT0 safety/runtime hardening note, and the moved full project memory.
 - OB1.0 reorganizes current truth so `money-flow/00_Money_Flow_Command_Center.md` is the only canonical command center; `money-flow/Money Flow Command Center.md` is a compatibility pointer. Strategy Validation is represented as its own closed major track through SV1.18.1, and UAT0 is the next proposed track.
+- UAT0 updates the current-state notes after the safety/security/runtime audit: UAT0 audit is complete, UAT1 read-only connectivity is blocked by named safety gaps, the future UAT observation universe is top-20 supported assets, and UAT2 fill timing must compare `next_candle_open` and `next_candle_close` while keeping `same_candle_close_research_only` research-only.
 - Phase 8.0.1 accepted the previously dirty Obsidian memory refresh as the strategic baseline and updated it to current Phase 8.0/8.0.1 truth.
 - Phase 8.0.2 updates current-phase/coordination/decision notes for active submit-lease operator-summary truth only; full project memory remains untouched.
 - SV1.0.1 updates current-phase/coordination/decision notes for strategy-validation research-truth/report hardening only; full project memory remains untouched.
@@ -112,6 +113,12 @@ Last reviewed: `2026-05-09T13:21:46Z`
 - SV1.15/SV1.15.1 add the Experiments tab with static controlled-hypothesis results, methodology labels, the recent-low lookahead-proxy warning, and no-authorization boundaries.
 - SV1.16 and SV1.17 replay results are wired into the dashboard under the `Experiments` tab replay filter, separate from Evidence-tab evidence-pack/review data. SV1.17 full-suite rows load from `docs/strategy_validation_sv1_17_true_replay_experiments_summary.json`. The static dashboard remains visualization-only for local evidence and experiment/replay artifacts.
 - SV1.18 adds no dashboard runtime behavior; UAT closeout remains a founder-readable docs/reporting layer.
+- UAT0 adds no dashboard runtime behavior; future dashboard/operator visibility for top-20 shadow observation remains a UAT2 prerequisite.
+
+`docs/uat0_safety_security_runtime_hardening.md`
+- Founder/operator UAT0 safety, security, runtime, and operational-readiness audit.
+- Records the evidence-candidate versus UAT-observation-universe distinction, top-20 universe policy, UAT shadow fill-timing policy, API auth status, secret/key hygiene status, runtime mode status, sandbox/live separation status, exchange endpoint safety, risk/drawdown/kill-switch/audit/approval/submit-lease status, blocker matrix, corrected UAT roadmap, and UAT1 readiness decision.
+- UAT0 is audit/readiness only: no exchange calls, order submissions, paper/live behavior, Money Flow rule changes, routing expansion, or evidence-pack generation.
 
 `core/config/`
 - Pydantic settings, environment profiles, runtime selection, and per-venue / strategy configuration.

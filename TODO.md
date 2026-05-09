@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-09T13:21:46Z`
+Last reviewed: `2026-05-09T14:17:37Z`
 
 ## Active Follow-Ups
 
@@ -13,8 +13,14 @@ Last reviewed: `2026-05-09T13:21:46Z`
 ### T-090
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `UAT0 safety/security/runtime hardening audit is complete. The report documents API auth/authz as missing, endpoint safety/live lockout as blocked until auth plus explicit UAT mode gating are implemented, secret/log/error redaction and sandbox/live separation as needing verification, runtime drawdown monitoring as missing, and existing approval/submit-lease protections as implemented but still requiring UAT3 sandbox verification. It defines the future top-20 supported-asset UAT observation universe and future UAT2 next_candle_open / next_candle_close shadow fill-timing policy while keeping same_candle_close_research_only research-only. No exchange calls, order submissions, API-key use, paper/live behavior, Money Flow rule changes, routing expansion, or evidence-pack generation were added.`
+
+### T-093
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `UAT0 safety/security/runtime hardening is the next gated work if the founder accepts the SV1.18 closeout. Before any sandbox order phase, the platform must verify API auth/authz, key/secret hygiene, no-secret logging, fail-safe live/demo separation, sandbox/testnet environment gating, risk limits, drawdown monitoring, kill switch behavior, debug-stack-trace exposure, audit logging, operator confirmation gates, duplicate-order prevention, submit-lease uncertainty handling, no private endpoint calls before explicit UAT authorization, and no live endpoint reachability in sandbox mode.`
+- `summary`: `Before UAT1 read-only connectivity can proceed, implement and test authentication/authorization for sensitive API routes, a fail-safe UAT/read-only/shadow/live runtime mode policy, live endpoint lockout, sandbox/testnet endpoint policy for the selected venue, secret/log/error redaction checks, and top-20 symbol/market identity resolution. UAT1 remains blocked until these UAT0 P0/P1 blockers are closed or explicitly accepted in a separate gated phase.`
 
 ### T-091
 

@@ -40,3 +40,21 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 - Live trading is not approved.
 - Exchange order submission is not approved.
 - UAT validates plumbing and behavior, not performance.
+
+## UAT Observation Universe Correction
+
+The frozen candidate above is the evidence candidate, not the full future UAT observation universe.
+
+Future UAT observation should cover the top 20 high-volume crypto assets supported by the selected UAT venue/environment. That broader universe is for platform behavior validation only:
+
+- signal generation
+- no-trade reasoning
+- rejected-signal behavior
+- market metadata resolution
+- symbol mapping
+- venue support
+- risk visibility
+- shadow would-trade behavior
+- dashboard/operator visibility
+
+Top-20 inclusion is not strategy approval. It is not paper trading approval, live trading approval, or exchange order submission approval.

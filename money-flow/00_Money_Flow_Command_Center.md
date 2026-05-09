@@ -6,17 +6,17 @@ This is the canonical Obsidian command center for Money Flow agents and founder 
 
 | Field | Current State |
 | --- | --- |
-| Current implemented milestone | `SV1.18.1` complete |
+| Current implemented milestone | `UAT0` safety audit complete |
 | Current major track | Strategy Validation evidence cycle is closed |
-| Next proposed phase | `UAT0` safety / security / runtime hardening |
-| UAT status | Not started |
+| Next proposed phase | UAT0 blocker remediation before `UAT1` |
+| UAT status | UAT1 read-only connectivity is blocked |
 | Paper trading | Not approved |
 | Live trading | Not approved |
 | Exchange order submission | Not approved |
 | Routing / SOR expansion | Deferred |
 | Production Money Flow rules | Unchanged |
 
-SV1.18 is complete. UAT is plumbing and behavior validation. The frozen candidate is Hyperliquid ETH `sleeve_1h` current baseline. Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved.
+SV1.18 is complete. UAT0 is complete as a safety/security/runtime audit. UAT1 is blocked until P0/P1 blockers are closed. UAT is plumbing and behavior validation. The frozen evidence candidate is Hyperliquid ETH `sleeve_1h` current baseline. Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved.
 
 ## Frozen UAT Observation Candidate
 
@@ -32,7 +32,13 @@ Candidate id: `money_flow_hyperliquid_eth_1h_baseline_uat_candidate`
 | Initial UAT mode | Observation / shadow first |
 | Execution status | No exchange order submission approved |
 
-This candidate is not a production strategy, not paper-trading approval, and not live-trading approval. It is the narrowest current scenario suitable for UAT behavior observation.
+This candidate is not a production strategy, not paper-trading approval, and not live-trading approval. It is the narrowest current evidence candidate for UAT behavior observation.
+
+## UAT Observation Universe
+
+Future UAT observation is not ETH-only. UAT1/UAT2 should use a top 20 high-volume crypto asset universe supported by the selected UAT venue/environment to validate platform behavior, no-trade reasoning, rejected-signal behavior, symbol mapping, risk visibility, and operator explainability. Top-20 inclusion is not strategy approval.
+
+Future UAT2 shadow timing must compare `next_candle_open` and `next_candle_close`. `same_candle_close_research_only` remains research-only.
 
 ## What Money Flow Is Today
 
@@ -57,9 +63,9 @@ SV1.18 closed the current Hyperliquid public-candle evidence cycle. It establish
 
 Read [[00 Maps/Strategy Validation Map|Strategy Validation Map]] and [[30 Strategy/SV Evidence Closeout|SV Evidence Closeout]] before interpreting SV results.
 
-## UAT0 Next
+## UAT0 Result
 
-UAT0 is safety / security / runtime hardening only. It should verify auth/authz, secret hygiene, sandbox/live separation, risk limits, drawdown monitoring, kill switch behavior, audit logging, operator confirmation gates, duplicate-order prevention, submit-lease uncertainty handling, and endpoint safety.
+UAT0 found UAT1 is blocked. Current P0/P1 blockers include missing API authentication/authorization for sensitive routes, missing explicit UAT mode/live endpoint lockout, secret/log/error redaction verification, runtime drawdown monitoring, and top-20 symbol/market identity resolution.
 
 Read [[00 Maps/UAT Roadmap|UAT Roadmap]] and [[40 Operations/UAT0 Safety Runtime Hardening|UAT0 Safety Runtime Hardening]] before any UAT work.
 

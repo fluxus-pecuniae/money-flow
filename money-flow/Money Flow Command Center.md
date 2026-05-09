@@ -4,8 +4,8 @@ Canonical command center: [[00_Money_Flow_Command_Center|00 Money Flow Command C
 
 This compatibility note intentionally points to the canonical command center so duplicate current-truth dashboards do not drift.
 
-Current implemented milestone: `SV1.18.1` complete.
+Current implemented milestone: `UAT0` safety / security / runtime audit complete.
 
-Current focus: Strategy Validation SV1 is closed for now, UAT0 is next, and the frozen UAT observation candidate is Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules. UAT is plumbing and behavior validation only, not performance validation. Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved.
+Current focus: Strategy Validation SV1 is closed for now, UAT1 is blocked until UAT0 P0/P1 blockers are closed, and the frozen evidence candidate is Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules. Future UAT observation is top-20 supported assets for platform behavior validation only. UAT is plumbing and behavior validation only, not performance validation. Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved.
 
 Repo operational truth still lives in `AGENTS.md`, `CHANGELOG.md`, `REPO_TREE.md`, `KNOWN_ISSUES.md`, `TODO.md`, `README.md`, `docs/architecture.md`, and `docs/strategy.md`.

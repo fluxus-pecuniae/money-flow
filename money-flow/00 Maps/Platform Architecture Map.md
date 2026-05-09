@@ -31,7 +31,9 @@ Money Flow is a mandate-driven platform with these implemented layers:
 
 ## Current Priority
 
-UAT0 safety / security / runtime hardening for one frozen ETH `sleeve_1h` observation candidate.
+UAT0 safety / security / runtime audit is complete. Current priority is UAT0 blocker remediation before UAT1 read-only top-20 universe and market metadata work.
+
+Key blockers: API auth/authz, fail-safe UAT mode gating, live endpoint lockout, secret/log/error redaction verification, runtime drawdown monitoring, and top-20 symbol/market identity resolution.
 
 ## Canonical Repo Docs
 

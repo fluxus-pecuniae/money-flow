@@ -10,7 +10,7 @@ Keep the Money Flow strategy thread visible while platform, routing, execution, 
 
 Money Flow is the first strategy family. It is not the universal vocabulary of the platform.
 
-Current Strategy Validation state: SV1 is closed for now. SV1.18 froze exactly one UAT observation candidate, Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules, after the Hyperliquid public campaign evidence cycle, dynamic-equity simulation, trade-anatomy diagnostics, and true replay experiments. UAT0 is next and is safety / security / runtime hardening only.
+Current Strategy Validation state: SV1 is closed for now. SV1.18 froze exactly one evidence candidate, Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules, after the Hyperliquid public campaign evidence cycle, dynamic-equity simulation, trade-anatomy diagnostics, and true replay experiments. UAT0 safety / security / runtime audit is complete and UAT1 is blocked until P0/P1 hardening gaps close.
 
 Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved. Production Money Flow rules are unchanged.
 
@@ -30,6 +30,8 @@ The strategy does not enter long when RSI is below the sleeve floor. It is not a
 ## Current Evidence Interpretation
 
 The strongest observed scenario is ETH `sleeve_1h` baseline on Hyperliquid USDC perpetual public candles. That is a UAT observation candidate only. Current evidence does not prove future outcomes and does not authorize paper/live trading.
+
+Future UAT observation is not ETH-only. UAT1/UAT2 should cover top 20 high-volume crypto assets supported by the selected UAT venue/environment to validate platform behavior, no-trade reasoning, symbol mapping, risk visibility, and operator explainability. Top-20 inclusion is not strategy approval.
 
 Excluded from current UAT scope:
 

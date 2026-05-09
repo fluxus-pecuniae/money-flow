@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-09T14:17:37Z - UAT0 - Block UAT1 Until Safety Gates Are Explicit
+
+- `decision`: Complete UAT0 as a safety/security/runtime audit and block UAT1 read-only connectivity until API auth/authz, fail-safe UAT mode gating, live endpoint lockout, secret/log/error redaction verification, and top-20 market identity prerequisites are closed.
+- `why`: Existing execution defaults, venue submission flags, approval gates, and submit-lease uncertainty protections are useful but do not compensate for unauthenticated sensitive API routes or missing one-piece UAT/live lockout. UAT should validate plumbing and behavior, not sneak into connectivity or trading.
+- `scope`: UAT0 adds docs/tests and audit truth only. It makes no exchange calls, uses no API keys, submits no orders, creates no paper/live artifacts, changes no Money Flow rules, adds no routing behavior, implements no UAT1/UAT2/UAT3 runtime, and generates no evidence packs.
+- `follow_up_implications`: Future UAT observation should cover top 20 high-volume crypto assets supported by the selected UAT venue/environment, but top-20 inclusion is not strategy approval. Future UAT2 shadow timing should compare `next_candle_open` and `next_candle_close`; `same_candle_close_research_only` remains research-only.
+
 ## 2026-05-09T13:21:46Z - OB1.0 - Obsidian Brain Separates SV Closeout From UAT0
 
 - `decision`: Make `money-flow/00_Money_Flow_Command_Center.md` the single canonical command center, add dedicated Strategy Validation and UAT roadmap maps, and treat SV1.18.1 as the completed milestone with UAT0 as the next proposed track.

@@ -1,6 +1,6 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-05-09T13:21:46Z`
+Last reviewed: `2026-05-09T14:17:37Z`
 
 ## Open Items
 
@@ -15,8 +15,8 @@ Last reviewed: `2026-05-09T13:21:46Z`
 
 - `status`: `open`
 - `area`: `UAT safety/security/runtime readiness`
-- `summary`: `SV1.18 freezes only one UAT observation candidate (Hyperliquid ETH USDC perpetual sleeve_1h baseline current rules) and explicitly keeps UAT as plumbing/behavior validation rather than performance validation. Before sandbox orders, UAT0 must verify API auth/authz, key/secret hygiene, no-secret logging, fail-safe live/demo mode separation, sandbox/testnet gating, risk limit enforcement, drawdown monitoring, kill switch behavior, debug stack trace exposure, audit logging, operator confirmation gates, duplicate-order prevention, submit-lease uncertainty handling, and no accidental live endpoint reachability.`
-- `impact`: `The current evidence cycle can justify a UAT0 safety/runtime phase, not paper trading or live execution. Sandbox connectivity and sandbox orders remain blocked until explicit later UAT phases close these checks.`
+- `summary`: `UAT0 completed the safety/security/runtime audit and blocks UAT1. API authentication/authorization is missing for sensitive routes, exchange endpoint safety and live endpoint lockout depend on auth plus explicit UAT mode gating, secret/log/error redaction needs verification, runtime mode separation lacks one fail-safe UAT policy, runtime drawdown monitoring is missing, and top-20 symbol/market identity resolution is not implemented. Existing execution defaults, venue submission gates, approval gates, submit leases, and adapter uncertainty states are useful but not enough to proceed to connectivity.`
+- `impact`: `UAT1 read-only connectivity is blocked until P0/P1 UAT0 blockers are closed or explicitly accepted in a separate gated phase. The frozen evidence candidate remains Hyperliquid ETH USDC perpetual sleeve_1h baseline current rules, while future UAT observation must cover top-20 supported assets for behavior/plumbing validation only. Paper trading, live trading, exchange order submission, routing expansion, and strategy changes remain deferred.`
 
 ### K-002
 

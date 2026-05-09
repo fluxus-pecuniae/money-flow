@@ -18,6 +18,7 @@ Money Flow combines:
 - submitted-order lifecycle and reconciliation truth.
 - operator observability.
 - future UAT/sandbox behavior validation.
+- UAT0 safety/security/runtime readiness.
 
 ## Platform Tracks Completed
 
@@ -90,6 +91,24 @@ Excluded from current UAT:
 - Aster / Binance / OKX / Coinbase / Kraken.
 - cross-venue comparison.
 
+## UAT0 Audit Outcome
+
+UAT0 safety/security/runtime audit is complete. UAT1 read-only connectivity is blocked.
+
+Key UAT0 findings:
+
+- API authentication / authorization is missing for sensitive routes.
+- Live endpoint lockout and endpoint safety are blocked until auth plus explicit UAT mode gating are implemented.
+- Secret/log/error redaction needs verification.
+- Runtime mode separation needs one fail-safe UAT/read-only/shadow/live policy.
+- Runtime drawdown monitoring is missing.
+- Top-20 symbol / market identity resolution is not implemented.
+- Existing approval gates, execution defaults, venue submit flags, and submit-lease uncertainty protections are useful but require later UAT-specific verification.
+
+Future UAT observation is not ETH-only. UAT1/UAT2 should cover the top 20 high-volume crypto assets supported by the selected UAT venue/environment for platform behavior validation. Top-20 inclusion is not strategy approval.
+
+Future UAT2 shadow timing should compare `next_candle_open` and `next_candle_close`. `same_candle_close_research_only` remains research-only.
+
 ## Paper / Live Status
 
 Paper trading is not approved.
@@ -102,13 +121,13 @@ The current evidence cycle can justify UAT0 safety/runtime hardening and later s
 
 ## UAT Roadmap
 
-- UAT0: safety / security / runtime hardening.
-- UAT1: exchange sandbox read-only connectivity.
-- UAT2: shadow strategy run, no orders.
+- UAT0: safety / security / runtime hardening audit complete.
+- UAT1: top-20 universe plus read-only venue/market metadata after blockers close.
+- UAT2: shadow strategy run across top-20 supported assets, no orders.
 - UAT3: approval-gated sandbox orders.
 - UAT4: sandbox / simulated trading review.
 
-UAT0 is next.
+UAT1 is blocked until UAT0 P0/P1 blockers close or are explicitly accepted in a separate gated phase.
 
 ## Major Deferred Items
 

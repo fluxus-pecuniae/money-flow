@@ -11,7 +11,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 | Controlled automation | Phase 7 | Approval-gated same-target action hooks with safety closeout; no full SOR. |
 | Operator observability | Phase 8 | Read-only routed workflow/manual-resolution inspection and submit-lease truth. |
 | Strategy Validation | SV1.0-SV1.18.1 | Hyperliquid public evidence cycle, dynamic equity, diagnostics, replay experiments, and UAT candidate freeze. |
-| UAT | UAT0-UAT4 | Planned safety/runtime hardening, sandbox connectivity, shadow run, approval-gated sandbox orders, and sandbox review. |
+| UAT | UAT0-UAT4 | UAT0 audit complete; UAT1 blocked pending safety gates; later read-only metadata, shadow run, approval-gated sandbox orders, and sandbox review remain planned. |
 
 Strategy Validation is now its own major track. It is not an active sub-phase of Phase 8.
 
@@ -42,17 +42,17 @@ Strategy Validation is now its own major track. It is not an active sub-phase of
 
 ## Current State
 
-Current implemented milestone: `SV1.18.1` complete.
+Current implemented milestone: `UAT0` safety / security / runtime audit complete.
 
-Next proposed phase: `UAT0` safety / security / runtime hardening.
+Next proposed phase: UAT0 blocker remediation before `UAT1`.
 
 Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved.
 
 ## UAT Track
 
-- UAT0: safety / security / runtime hardening.
-- UAT1: exchange sandbox read-only connectivity.
-- UAT2: shadow strategy run, no orders.
+- UAT0: safety / security / runtime hardening audit complete.
+- UAT1: top-20 universe plus read-only venue/market metadata after blockers close.
+- UAT2: shadow strategy run across top-20 supported assets with `next_candle_open` and `next_candle_close`, no orders.
 - UAT3: approval-gated sandbox orders.
 - UAT4: sandbox / simulated trading review.
 

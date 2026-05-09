@@ -2,17 +2,17 @@
 
 ## Current Implemented Milestone
 
-`SV1.18.1` is complete.
+`UAT0` safety / security / runtime audit is complete.
 
-SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one UAT observation candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap and left UAT0 as the next proposed phase.
+SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one evidence candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap. OB1.0 overhauled the Obsidian project brain. UAT0 audited safety/security/runtime readiness and blocked UAT1 until named P0/P1 gaps are closed.
 
 SV1.18 is complete.
 
 ## Next Proposed Phase
 
-`UAT0` safety / security / runtime hardening.
+UAT0 blocker remediation before `UAT1` read-only top-20 universe and market metadata work.
 
-UAT0 is plumbing and behavior validation preparation only. It is not paper trading, live trading, exchange order submission, routing expansion, or strategy optimization.
+UAT1 is blocked. UAT remains plumbing and behavior validation only. It is not paper trading, live trading, exchange order submission, routing expansion, or strategy optimization.
 
 ## Frozen UAT Observation Candidate
 
@@ -28,7 +28,18 @@ Candidate id: `money_flow_hyperliquid_eth_1h_baseline_uat_candidate`
 | UAT mode | Observation / shadow first |
 | Execution | None until a later explicitly gated UAT phase |
 
-The frozen candidate is Hyperliquid ETH `sleeve_1h` current baseline.
+The frozen evidence candidate is Hyperliquid ETH `sleeve_1h` current baseline.
+
+## UAT Observation Universe And Timing
+
+Future UAT observation is not ETH-only. UAT1/UAT2 should use top 20 high-volume crypto assets supported by the selected UAT venue/environment to validate platform behavior, market metadata, symbol mapping, risk visibility, no-trade/rejected-signal reasoning, and operator explainability. Top-20 inclusion is not strategy approval.
+
+Future UAT2 shadow timing must compare:
+
+- `next_candle_open`
+- `next_candle_close`
+
+`same_candle_close_research_only` remains research-only.
 
 ## Explicit Non-Approvals
 
@@ -43,7 +54,7 @@ The frozen candidate is Hyperliquid ETH `sleeve_1h` current baseline.
 
 ## Current Evidence Meaning
 
-Current backtest/replay evidence does not prove profitability or future edge. It is sufficient only to justify founder review and a tightly scoped UAT0 safety/runtime phase.
+Current backtest/replay evidence does not prove profitability or future edge. It was sufficient only to justify founder review and a tightly scoped UAT0 safety/runtime audit.
 
 SV1.18 selected ETH `sleeve_1h` baseline because it is the strongest observed Hyperliquid public-candle scenario. That does not make it a production strategy.
 
@@ -58,25 +69,16 @@ Excluded from UAT scope:
 - Aster / Binance / OKX / Coinbase / Kraken
 - cross-venue comparison
 
-## UAT0 Purpose
+## UAT0 Result
 
-UAT0 should verify:
+UAT0 found UAT1 is blocked until P0/P1 gaps are closed:
 
-- API authentication / authorization readiness
-- key and secret hygiene
-- no secrets in logs
-- fail-safe sandbox/live separation
-- sandbox/testnet environment gating
-- risk-limit enforcement
-- drawdown monitoring
-- kill switch / disable switch
-- debug stack traces not exposed to users
-- audit logging
-- operator confirmation gates
-- duplicate-order prevention
-- submit-lease uncertainty handling
-- no private endpoint calls before explicit UAT authorization
-- no accidental live endpoint reachability
+- API authentication / authorization is missing for sensitive routes.
+- Fail-safe UAT mode and live endpoint lockout are not complete.
+- Secret/log/error redaction needs verification.
+- Runtime drawdown monitoring is missing.
+- Top-20 market identity resolution is not implemented.
+- Existing approval gates and submit leases are useful but require UAT3 verification before sandbox orders.
 
 ## Required Reading For Next Work
 

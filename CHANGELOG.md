@@ -13,6 +13,44 @@ Entry schema:
 
 ---
 
+## v2026.05.09.004
+
+- `recorded_at_utc`: `2026-05-09T14:17:37Z`
+- `scope`: `UAT0 safety/security/runtime hardening`
+- `intent`: `Native entry. Completed the UAT0 readiness audit without implementing UAT1/UAT2/UAT3. Added a founder/operator UAT0 report that separates the frozen ETH evidence candidate from the future top-20 UAT observation universe, defines next_candle_open / next_candle_close as future UAT shadow fill-timing assumptions, keeps same_candle_close_research_only research-only, and records a blocker matrix. UAT1 read-only connectivity is blocked because API auth/authz is missing for sensitive routes, live endpoint lockout depends on auth plus explicit UAT mode gating, secret/log/error redaction needs verification, runtime mode separation needs one fail-safe UAT policy, and top-20 symbol/market identity resolution is not implemented. No exchange calls, API-key use, order submissions, paper/live behavior, Money Flow rule changes, routing expansion, or evidence-pack generation were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/uat0_safety_security_runtime_hardening.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/00 Maps/Platform Architecture Map.md`
+  - `money-flow/30 Strategy/UAT Candidate Freeze.md`
+  - `money-flow/40 Operations/UAT0 Safety Runtime Hardening.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `tests/test_operational_docs.py`
+  - `tests/test_uat0_safety_report.py`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_uat0_safety_report.py tests/test_operational_docs.py` passed: 21 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed: 15 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py` passed: 7 tests.
+  - `.venv/bin/python -m pytest -q tests/test_config.py tests/test_phase41_risk.py tests/test_phase75_approval_gated_submission_handoff.py tests/test_phase80_operator_observability.py tests/test_sv118_evidence_closeout.py tests/test_uat0_safety_report.py` passed: 57 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: 672 tests.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-uat0-review.zip` passed.
+  - `zipinfo -1 /Users/tercirafael/money-flow-uat0-review.zip | wc -l` returned `323`.
+  - `zipinfo -1 /Users/tercirafael/money-flow-uat0-review.zip | rg '(^|/)\\.git/|(^|/)\\.venv/|(^|/)\\.env$|reports/strategy_validation/|reports/strategy_validation_reviews/|\\.zip$|\\.sqlite|\\.db$|workspace\\.json|(^|/)\\.obsidian/|__pycache__|\\.pytest_cache|local.*candle|csv$'` returned no matches.
+
 ## v2026.05.09.003
 
 - `recorded_at_utc`: `2026-05-09T13:21:46Z`

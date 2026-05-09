@@ -4,6 +4,8 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 UAT validates plumbing and behavior. It does not prove profitability.
 
+Current status: UAT0 safety/security/runtime audit is complete. UAT1 is blocked until API auth/authz, fail-safe UAT mode gating, live endpoint lockout, secret/log/error redaction verification, and top-20 market identity prerequisites are closed.
+
 ## Frozen Observation Candidate
 
 `money_flow_hyperliquid_eth_1h_baseline_uat_candidate`
@@ -14,9 +16,21 @@ UAT validates plumbing and behavior. It does not prove profitability.
 - Observation / shadow first.
 - No exchange order submission until a later explicitly gated UAT phase.
 
+This is the evidence candidate, not the whole UAT observation universe.
+
+## UAT Observation Universe Policy
+
+Future UAT observation should cover the top 20 high-volume crypto assets supported by the selected UAT venue/environment. The top-20 universe validates platform behavior, no-trade reasoning, rejected-signal behavior, market metadata resolution, symbol mapping, venue support, risk visibility, shadow would-trade behavior, and dashboard/operator visibility.
+
+Top-20 inclusion is not strategy approval. Unsupported or mismatched assets must be excluded with explicit reason codes.
+
+Future UAT2 shadow reports must compare `next_candle_open` and `next_candle_close`. `same_candle_close_research_only` remains research-only.
+
 ## UAT0 - Safety / Security / Runtime Hardening
 
 Objective: make the platform safe enough to connect to sandbox/read-only systems later.
+
+Status: audit complete; UAT1 blocked.
 
 Allowed behavior: config hardening, auth review, secret hygiene, mode gating, risk/drawdown visibility, kill-switch verification, audit checks, tests, docs.
 
@@ -28,25 +42,25 @@ Likely files/modules: `core/config/`, `apps/api/`, `services/risk/`, `services/e
 
 Required docs/tests: security/runtime tests, no-secret tests, mode-gating tests, operator runbook.
 
-## UAT1 - Exchange Sandbox Read-Only Connectivity
+## UAT1 - Top-20 Universe + Read-Only Venue/Market Metadata
 
-Objective: verify sandbox/testnet read-only connectivity after UAT0 passes.
+Objective: build the top-20 supported-asset observation universe and verify sandbox/testnet or public read-only market metadata after UAT0 blockers are closed.
 
-Allowed behavior: explicitly approved sandbox/testnet read-only endpoint calls.
+Allowed behavior: fetch public market metadata, fetch public top-20 volume list from a trusted source, intersect top-20 with selected venue-supported assets, verify symbol mapping, verify public read-only market data paths.
 
-Forbidden behavior: order endpoints, live endpoints, private/signed calls not approved by UAT1.
+Forbidden behavior: private endpoints, signed endpoints, order endpoints, paper trades, live trades.
 
 Success criteria: read-only lifecycle works, logs are sanitized, mode gating is proven.
 
-Likely files/modules: exchange adapters, config, runtime sessions.
+Likely files/modules: exchange adapters, config, runtime sessions, market identity, symbol mapping.
 
 Required docs/tests: read-only adapter tests, secret hygiene tests, sandbox runbook.
 
-## UAT2 - Shadow Strategy Run, No Orders
+## UAT2 - Shadow Strategy Run Across Top-20 Universe
 
-Objective: observe ETH `sleeve_1h` signals and would-trade decisions without order submission.
+Objective: observe signals and would-trade decisions across the top-20 supported-asset universe without order submission.
 
-Allowed behavior: shadow signal generation, would-trade logging, risk observation, dashboard/operator inspection.
+Allowed behavior: shadow signal generation, would-trade logging, compare `next_candle_open`, compare `next_candle_close`, no-trade logging, risk observation, dashboard/operator inspection.
 
 Forbidden behavior: order submission, live-capital paths, auto-submit.
 
@@ -60,9 +74,9 @@ Required docs/tests: shadow-mode tests, decision/audit tests, dashboard labeling
 
 Objective: test sandbox order lifecycle only after UAT0-UAT2 pass.
 
-Allowed behavior: explicitly approved small sandbox orders.
+Allowed behavior: explicitly approved tiny sandbox/testnet orders, starting with a small operator-approved subset.
 
-Forbidden behavior: live endpoints, unrestricted automation, route expansion.
+Forbidden behavior: live endpoints, unrestricted automation, route expansion, automatic top-20 order submission.
 
 Success criteria: submit, reject, cancel, fill, and reconcile paths are safe and auditable.
 

@@ -4,7 +4,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 ## Today In One Sentence
 
-Money Flow is a controlled trading-system substrate plus Strategy Validation research platform; SV1 is closed for now, one Hyperliquid ETH `sleeve_1h` baseline UAT observation candidate is frozen, and UAT0 safety / security / runtime hardening is next.
+Money Flow is a controlled trading-system substrate plus Strategy Validation research platform; SV1 is closed for now, one Hyperliquid ETH `sleeve_1h` baseline evidence candidate is frozen, UAT0 safety / security / runtime audit is complete, and UAT1 is blocked until P0/P1 hardening gaps are closed.
 
 SV1.18 is complete.
 
@@ -22,7 +22,8 @@ Money Flow can generate strategy decisions, route through controlled same-target
 | Approval-gated automation | built | Controlled, lineage-bound action hooks exist for the current same-target chain. |
 | Operator observability | built | Routed workflow inspection exists for operator review. |
 | Strategy Validation SV1 | closed | Current Hyperliquid evidence cycle is complete through SV1.18.1. |
-| UAT | not started | UAT0 is next and is safety/runtime hardening only. |
+| UAT0 | audit complete | Safety/security/runtime blockers are documented. |
+| UAT1 | blocked | Read-only top-20 universe and market metadata work must wait for auth/mode/endpoint prerequisites. |
 
 ## Current Candidate
 
@@ -36,6 +37,14 @@ Money Flow can generate strategy decisions, route through controlled same-target
 | Component | `sleeve_1h` |
 | Rules | Current baseline Money Flow rules |
 | Initial UAT mode | Observation / shadow first |
+
+This is the frozen evidence candidate. Future UAT observation is not ETH-only.
+
+## UAT Observation Universe
+
+Future UAT observation should cover top 20 high-volume crypto assets supported by the selected UAT venue/environment. This validates platform behavior, no-trade reasoning, rejected-signal behavior, symbol mapping, venue support, risk visibility, shadow would-trade behavior, and dashboard/operator explainability. It is not strategy approval.
+
+Future UAT2 shadow timing must compare `next_candle_open` and `next_candle_close`. `same_candle_close_research_only` remains research-only.
 
 ## Explicit Non-Approvals
 
@@ -63,9 +72,9 @@ Current UAT scope excludes:
 
 ## Next Phase
 
-`UAT0` - Safety / Security / Runtime Hardening.
+UAT0 blocker remediation before `UAT1`.
 
-UAT0 validates plumbing, runtime safety, mode gating, secret hygiene, risk visibility, kill switch behavior, and operator controls. It does not validate performance.
+Current P0/P1 blockers include missing API authentication/authorization for sensitive routes, missing explicit UAT mode/live endpoint lockout, secret/log/error redaction verification, runtime drawdown monitoring, and top-20 symbol/market identity resolution.
 
 UAT is plumbing and behavior validation.
 

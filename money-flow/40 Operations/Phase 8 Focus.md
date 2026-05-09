@@ -8,7 +8,7 @@ This is historical/operator-control context.
 
 Phase 8.0 implemented read-only operator workflow observability and manual-resolution inspection. Phase 8.0.1 cleaned the Obsidian memory / working-tree baseline. Phase 8.0.2 fixed active submit-lease operator-summary truth.
 
-Current implemented milestone is `SV1.18.1` complete. Current next proposed track is UAT0 safety / security / runtime hardening. Phase 8 is not the active next phase.
+Current implemented milestone is `UAT0` safety / security / runtime audit complete. Current next proposed track is UAT0 blocker remediation before UAT1. Phase 8 is not the active next phase.
 
 ## Phase 8.0 Purpose
 
