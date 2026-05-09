@@ -2,15 +2,15 @@
 
 ## Current Implemented Milestone
 
-`UAT0` safety / security / runtime audit is complete.
+`UAT0.1` API auth/authz and runtime lockout hardening is complete.
 
-SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one evidence candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap. OB1.0 overhauled the Obsidian project brain. UAT0 audited safety/security/runtime readiness and blocked UAT1 until named P0/P1 gaps are closed.
+SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one evidence candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap. OB1.0 overhauled the Obsidian project brain. UAT0 audited safety/security/runtime readiness and blocked UAT1 until named gaps are closed. UAT0.1 closes the P0 API auth/authz baseline and adds an inspectable fail-safe runtime safety policy.
 
 SV1.18 is complete.
 
 ## Next Proposed Phase
 
-UAT0 blocker remediation before `UAT1` read-only top-20 universe and market metadata work.
+Remaining UAT0 P1 blocker remediation before `UAT1` read-only top-20 universe and market metadata work.
 
 UAT1 is blocked. UAT remains plumbing and behavior validation only. It is not paper trading, live trading, exchange order submission, routing expansion, or strategy optimization.
 
@@ -69,12 +69,19 @@ Excluded from UAT scope:
 - Aster / Binance / OKX / Coinbase / Kraken
 - cross-venue comparison
 
-## UAT0 Result
+## UAT0 / UAT0.1 Result
 
-UAT0 found UAT1 is blocked until P0/P1 gaps are closed:
+UAT0 found UAT1 is blocked. UAT0.1 closes these P0 items:
 
-- API authentication / authorization is missing for sensitive routes.
-- Fail-safe UAT mode and live endpoint lockout are not complete.
+- API authentication / authorization for sensitive `/api/v1` routes.
+- High-risk route authorization for admin consume, submit/cancel/amend/retry, account, and private-state surfaces.
+- Inspectable fail-safe runtime safety policy with paper/live/order/private endpoint flags disabled by default.
+- Test-only auth bypass limited to `API_RUNTIME_MODE=test`.
+
+UAT1 remains blocked until these remaining P1 gaps are closed or explicitly accepted:
+
+- Adapter-level runtime-policy enforcement needs verification.
+- Selected-venue sandbox/read-only endpoint policy is not implemented.
 - Secret/log/error redaction needs verification.
 - Runtime drawdown monitoring is missing.
 - Top-20 market identity resolution is not implemented.

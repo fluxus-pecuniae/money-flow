@@ -2,6 +2,8 @@
 
 Recorded at: `2026-05-09T14:17:37Z`
 
+UAT0.1 update: `docs/uat0_1_api_auth_runtime_lockout.md` closes the P0 API auth/authz gap for sensitive routes and adds an inspectable runtime safety policy. UAT1 remains blocked by the remaining P1 safety gaps listed below.
+
 ## Scope
 
 UAT0 is a safety, security, runtime, and operational-readiness audit. It does not connect to exchanges, does not use API keys, does not call private or signed endpoints, does not submit orders, does not run paper trading, does not run live trading, does not change Money Flow rules, and does not generate evidence packs.
@@ -95,10 +97,10 @@ Future UAT2 reports should show, per symbol/component:
 
 | Area | Status | Notes |
 | --- | --- | --- |
-| API authentication / authorization | `missing` | FastAPI sensitive routes do not use an authentication or authorization dependency. |
+| API authentication / authorization | `implemented` | UAT0.1 protects `/api/v1` with scoped bearer auth and stricter operator/admin scopes for sensitive route groups. |
 | Secret/key hygiene | `needs_verification` | `.env`, virtualenvs, DB files, caches, generated evidence packs, and review bundles are excluded by `.archiveignore`; log/API redaction still needs explicit UAT verification. |
-| Runtime mode separation | `needs_verification` | Execution and venue defaults are conservative, but there is no single explicit UAT mode lockout for all API/runtime paths. |
-| Sandbox/live separation | `blocked` | Live submission flags default false, but endpoint-level access control and UAT environment gating are not complete. |
+| Runtime mode separation | `implemented_baseline` | UAT0.1 adds `RuntimeSafetyPolicy`; adapter-level enforcement still needs verification before UAT1/UAT2. |
+| Sandbox/live separation | `needs_verification` | UAT0.1 adds runtime lockout flags and API auth; selected-venue sandbox/read-only endpoint policy remains deferred. |
 | Risk limits | `needs_verification` | Risk services and readiness checks exist; broad UAT candidate/top-20 enforcement still needs verification. |
 | Drawdown monitoring | `missing` | Strategy Validation drawdown exists; runtime UAT drawdown monitoring is not a real operator control yet. |
 | Kill switch / disable controls | `needs_verification` | `RISK_TRADING_ENABLED=false` blocks risk approval, but global UAT/candidate/universe disable controls are not complete. |
@@ -107,7 +109,7 @@ Future UAT2 reports should show, per symbol/component:
 | Duplicate order / submit lease | `implemented` | Submit leases and adapter uncertainty states block unsafe repeat submit guidance; UAT3 must reverify under sandbox lifecycle tests. |
 | Uncertainty handling | `implemented` | `adapter_submit_may_have_started` and `adapter_submit_persistence_unknown` require manual reconciliation before repeat submit. |
 | Debug stack trace exposure | `needs_verification` | `APP_DEBUG` defaults false, but structured traceback/log exposure needs explicit sandbox-like verification. |
-| Endpoint safety | `blocked` | Sensitive API routes are unprotected by auth and include exchange/private-state/readiness/approval/submission surfaces. |
+| Endpoint safety | `implemented_baseline` | UAT0.1 protects sensitive route groups with auth/scopes; adapter-level runtime-policy assertions remain a P1 verification item. |
 | UAT1 readiness | `blocked` | UAT1 read-only connectivity should not proceed until P0/P1 blockers below are closed or explicitly accepted. |
 
 ## API Authentication / Authorization Review
@@ -119,16 +121,18 @@ Inspected:
 - `apps/api/`
 - `core/schemas/api.py`
 
-Sensitive route groups currently include mandate/account setup, exchange sync, private-state inspection, strategy evaluation, routing automation approvals, readiness, child-intent submit/cancel/amend/recovery, and operator workflow inspection. These routes are mounted through normal dependency injection, but no route-level authentication or authorization dependency is enforced.
+Sensitive route groups include mandate/account setup, exchange sync, private-state inspection, strategy evaluation, routing automation approvals, readiness, child-intent submit/cancel/amend/recovery, and operator workflow inspection.
 
-UAT0 status: `missing`.
+UAT0.1 status: `implemented`.
+
+Sensitive `/api/v1` routes now require scoped bearer auth. High-risk administrative consume, submit/cancel/amend/retry, account, and private-state surfaces require elevated scopes. See `docs/uat0_1_api_auth_runtime_lockout.md` for the route inventory.
 
 Required before UAT1:
 
-- define local/dev/test/sandbox access policy;
-- add authentication and role/scope checks for sensitive route groups;
-- ensure exchange/private-state/readiness/submission/approval routes cannot be reached from unauthenticated clients;
-- add tests proving unauthorized requests are rejected.
+- verify adapter-level runtime-policy enforcement;
+- verify structured log/error redaction;
+- define selected-venue read-only/sandbox endpoint policy;
+- implement top-20 symbol/market identity resolution.
 
 ## Secret / Key Hygiene Review
 
@@ -159,18 +163,13 @@ Current safe defaults:
 - venue `submission_authorized=false` by default;
 - venue `read_only_mode=true` and/or `dry_run=true` defaults are present for supported venues.
 
-Gap:
-
-There is not yet one explicit UAT mode control that locks the entire API/runtime into read-only or shadow behavior across strategy, risk, exchange, and submission surfaces.
+UAT0.1 adds `RuntimeSafetyPolicy`, with fail-safe defaults.
 
 Required before UAT1/UAT2:
 
-- fail-safe default such as `uat_mode=disabled|read_only|shadow`;
-- `exchange_order_submission_enabled=false`;
-- `paper_trading_enabled=false`;
-- `live_trading_enabled=false`;
-- `sandbox_mode_required=true` for UAT work;
-- explicit tests that live endpoints and order submission cannot be reached accidentally.
+- verify adapter-level assertions that this policy is enforced on any future exchange connectivity path;
+- define selected-venue sandbox/read-only endpoint policy;
+- keep `exchange_order_submission_enabled=false`, `paper_trading_enabled=false`, `live_trading_enabled=false`, and `private_exchange_endpoints_enabled=false` until later explicit phases.
 
 ## Exchange Endpoint Safety
 
@@ -255,10 +254,10 @@ Status: `needs_verification`.
 
 | Area | Status | Severity | Required before UAT1? | Required before UAT2? | Required before UAT3? | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| API auth | `missing` | P0 | yes | yes | yes | Sensitive API routes are unauthenticated. |
+| API auth | `implemented` | P0 closed by UAT0.1 | yes | yes | yes | Sensitive `/api/v1` routes require scoped bearer auth. |
 | Secret hygiene | `needs_verification` | P1 | yes | yes | yes | Bundle hygiene is good; log/error redaction needs proof. |
-| Runtime mode separation | `needs_verification` | P1 | yes | yes | yes | Need explicit UAT/read-only/shadow/live lockout semantics. |
-| Live endpoint lockout | `blocked` | P0 | yes | yes | yes | Endpoint safety depends on auth plus mode gating. |
+| Runtime mode separation | `implemented_baseline` | P1 | yes | yes | yes | `RuntimeSafetyPolicy` exists; adapter-level enforcement still needs verification. |
+| Live endpoint lockout | `implemented_baseline` | P0 closed by UAT0.1 | yes | yes | yes | Lockout flags default safe; adapter-level enforcement still needs verification. |
 | Sandbox/testnet config | `needs_verification` | P1 | yes | yes | yes | Hyperliquid/OKX known; venue-specific policy needed. |
 | Top-20 universe policy | `implemented` | P2 | yes | yes | yes | Policy exists; UAT1 must implement source/intersection process. |
 | Symbol/market identity resolution | `needs_verification` | P1 | yes | yes | yes | Must prove venue/product/quote/settlement identity before top-20 observation. |
@@ -270,7 +269,7 @@ Status: `needs_verification`.
 | Audit logging | `needs_verification` | P1 | no | yes | yes | Shadow and UAT mode audit fields need coverage. |
 | Approval gates | `implemented` | P2 | no | no | yes | Existing gates are strong; sandbox-order path needs UAT3 proof. |
 | Submit lease / duplicate prevention | `implemented` | P2 | no | no | yes | Existing submit lease/uncertainty states need sandbox lifecycle proof. |
-| Exchange endpoint safety | `blocked` | P0 | yes | yes | yes | No UAT connectivity until auth/mode/endpoint policy is closed. |
+| Exchange endpoint safety | `needs_verification` | P1 | yes | yes | yes | Auth/mode baseline exists; selected-venue endpoint policy and adapter enforcement remain. |
 | Dashboard/operator visibility | `needs_verification` | P2 | no | yes | yes | UAT2 needs top-20 shadow and risk/no-trade visibility. |
 
 ## Corrected UAT Roadmap
@@ -311,10 +310,10 @@ This is still not proof of edge.
 
 Blocking reasons:
 
-- P0 API authentication / authorization is missing for sensitive routes.
-- P0 live endpoint lockout and exchange endpoint safety depend on auth plus explicit UAT mode gating.
 - P1 secret/log/error redaction needs sandbox-like verification.
-- P1 runtime mode separation needs a single fail-safe UAT/read-only/shadow/live policy.
+- P1 adapter-level runtime-policy enforcement needs verification.
+- P1 selected-venue sandbox/read-only endpoint policy is not implemented.
 - P1 symbol/market identity resolution and selected-venue top-20 process are not implemented yet.
+- P1 runtime drawdown monitoring is missing.
 
 No exchange calls were made. No orders were submitted. No paper/live behavior was added. No Money Flow rules changed.

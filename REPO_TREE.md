@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-09T14:17:37Z`
+Last reviewed: `2026-05-09T15:35:00Z`
 
 ## Top-Level Structure
 
@@ -64,6 +64,7 @@ Last reviewed: `2026-05-09T14:17:37Z`
 - Contains the canonical command center, current phase, decision log, agent coordination, component/workflow maps, Strategy Validation map, UAT roadmap, UAT candidate freeze note, UAT0 safety/runtime hardening note, and the moved full project memory.
 - OB1.0 reorganizes current truth so `money-flow/00_Money_Flow_Command_Center.md` is the only canonical command center; `money-flow/Money Flow Command Center.md` is a compatibility pointer. Strategy Validation is represented as its own closed major track through SV1.18.1, and UAT0 is the next proposed track.
 - UAT0 updates the current-state notes after the safety/security/runtime audit: UAT0 audit is complete, UAT1 read-only connectivity is blocked by named safety gaps, the future UAT observation universe is top-20 supported assets, and UAT2 fill timing must compare `next_candle_open` and `next_candle_close` while keeping `same_candle_close_research_only` research-only.
+- UAT0.1 updates current-state notes after the P0 API auth/authz and runtime lockout hardening: sensitive `/api/v1` routes require scoped bearer auth, a central fail-safe runtime safety policy is inspectable, UAT1 remains blocked by remaining P1 safety gaps, and no exchange connectivity/order submission/paper/live behavior is added.
 - Phase 8.0.1 accepted the previously dirty Obsidian memory refresh as the strategic baseline and updated it to current Phase 8.0/8.0.1 truth.
 - Phase 8.0.2 updates current-phase/coordination/decision notes for active submit-lease operator-summary truth only; full project memory remains untouched.
 - SV1.0.1 updates current-phase/coordination/decision notes for strategy-validation research-truth/report hardening only; full project memory remains untouched.
@@ -104,6 +105,7 @@ Last reviewed: `2026-05-09T14:17:37Z`
 `apps/api/`
 - FastAPI control plane.
 - Operator inspection and action endpoints for mandates/runtime, planning, non-executing routing assessments, route-readiness/data-sufficiency audits, controlled non-executing routing target recommendations, explicit recommendation acceptance into non-executing routing target choices, explicit target-choice-to-child-intent conversion, routed child-intent preparation/readiness inspection, explicit gated routed child-intent submission, routed submitted-order lineage, post-submit lifecycle/actionability, reconciliation and lifecycle-event audit inspection, read-only routed workflow aggregation, Phase 7.0 non-executing routing automation policy / dry-run plan inspection, Phase 7.1 durable routing automation approval / revocation / administrative consumption gate inspection, Phase 7.1.2 approvable-step policy truth, Phase 7.2 / 7.2.1 approval-gated recommendation acceptance into target choice only with coherent approval consumption, Phase 7.3 approval-gated target-choice conversion into one child intent only, Phase 7.4 approval-gated prepared-order preview/readiness inspection only, Phase 7.5 approval-gated submitted-order handoff through the existing explicit submit path only, Phase 7.5.1 post-submit approval-consumption pending truth, Phase 7.6 closeout regression coverage over the existing Phase 7 surfaces, execution readiness, submitted-order lifecycle, recovery, cancel, amendability/actionability, adapter/runtime session state, and private order/account-state visibility.
+- UAT0.1 protects `/api/v1` with scoped bearer authentication by default. Read-only inspection requires `read_only_operator`; strategy/evaluation/planning/routing mutation surfaces require `operator`; account/private-state/exchange-sync/submit/cancel/amend/recovery surfaces require `admin`; approval consume and non-submit approval action hooks require `automation_admin` or `admin`; explicit submitted-order handoff requires `admin`. A test-only auth bypass is allowed only with `API_RUNTIME_MODE=test` and `API_AUTH_DISABLED_FOR_TESTS=true`.
 
 `apps/dashboard/`
 - Static local Strategy Validation evidence dashboard for founder/operator review.
@@ -120,8 +122,18 @@ Last reviewed: `2026-05-09T14:17:37Z`
 - Records the evidence-candidate versus UAT-observation-universe distinction, top-20 universe policy, UAT shadow fill-timing policy, API auth status, secret/key hygiene status, runtime mode status, sandbox/live separation status, exchange endpoint safety, risk/drawdown/kill-switch/audit/approval/submit-lease status, blocker matrix, corrected UAT roadmap, and UAT1 readiness decision.
 - UAT0 is audit/readiness only: no exchange calls, order submissions, paper/live behavior, Money Flow rule changes, routing expansion, or evidence-pack generation.
 
+`docs/uat0_1_api_auth_runtime_lockout.md`
+- Founder/operator UAT0.1 hardening report.
+- Records the sensitive route inventory, scoped bearer-token auth implementation, authorization scope map, runtime safety defaults, live/private/order lockout status, test-only auth bypass policy, redaction baseline, remaining blockers, and UAT1 readiness decision.
+- UAT0.1 closes the P0 API auth/authz baseline but leaves UAT1 blocked by remaining P1 adapter-policy, redaction, selected-venue sandbox/read-only, runtime drawdown, and top-20 identity gaps.
+
 `core/config/`
 - Pydantic settings, environment profiles, runtime selection, and per-venue / strategy configuration.
+- UAT0.1 adds `APIAuthConfig` and `RuntimeSafetyPolicy` settings. Defaults remain fail-safe: API auth enabled, paper/live/order/private endpoint flags disabled, and sandbox mode required.
+
+`core/security.py`
+- Security helper module for UAT/API hardening.
+- Defines API auth scopes/principals plus representative redaction helpers for secret-like keys, bearer tokens, and database URLs.
 
 `core/domain/`
 - Shared typed domain models and enums.

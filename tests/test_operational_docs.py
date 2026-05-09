@@ -64,6 +64,7 @@ REQUIRED_FILES = [
     "docs/strategy_validation_sv1_17_true_replay_experiments.md",
     "docs/strategy_validation_sv1_18_evidence_closeout_and_uat_candidate_freeze.md",
     "docs/uat0_safety_security_runtime_hardening.md",
+    "docs/uat0_1_api_auth_runtime_lockout.md",
 ]
 
 
@@ -112,7 +113,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "canonical Obsidian command center" in command_center
-    assert "`UAT0` safety / security / runtime audit is complete" in current_phase
+    assert "`UAT0.1` API auth/authz and runtime lockout hardening is complete" in current_phase
     assert "SV1.18" in command_center
     assert "UAT0" in command_center
     assert "UAT1 is blocked" in command_center
@@ -136,7 +137,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert "Current implemented milestone | `UAT0` safety audit complete" in command_center
+    assert "Current implemented milestone | `UAT0.1` API auth/authz and runtime lockout hardening complete" in command_center
     assert "Canonical command center" in compatibility_command_center
     assert "SV1 is closed for now" in current_dashboard
     assert "UAT1 is blocked" in current_dashboard
@@ -247,6 +248,7 @@ def test_obsidian_current_state_notes_do_not_have_stale_current_truth() -> None:
 
 def test_uat0_operational_truth_is_current() -> None:
     report = Path("docs/uat0_safety_security_runtime_hardening.md").read_text()
+    uat01_report = Path("docs/uat0_1_api_auth_runtime_lockout.md").read_text()
     current_notes = [
         Path("money-flow/00_Money_Flow_Command_Center.md").read_text(),
         Path("money-flow/01_Current_Phase.md").read_text(),
@@ -257,13 +259,27 @@ def test_uat0_operational_truth_is_current() -> None:
 
     assert "UAT1 is blocked" in report
     assert "API authentication / authorization" in report
+    assert "UAT0.1" in report
+    assert "RuntimeSafetyPolicy" in report
+    assert "Sensitive `/api/v1` routes now require scoped bearer auth" in report
     assert "top 20 high-volume crypto assets supported by the selected UAT venue/environment" in report
     assert "next_candle_open" in report
     assert "next_candle_close" in report
     assert "same_candle_close_research_only" in report
 
+    assert "Sensitive Route Inventory" in uat01_report
+    assert "read_only_operator" in uat01_report
+    assert "automation_admin" in uat01_report
+    assert "Runtime Mode Policy" in uat01_report
+    assert "live_endpoint_lockout_enabled" in uat01_report
+    assert "`UAT1 is blocked`" in uat01_report
+    assert "Paper trading is not approved" in uat01_report
+    assert "Live trading is not approved" in uat01_report
+    assert "Exchange order submission is not approved" in uat01_report
+
     for note in current_notes:
         assert "UAT0" in note
+        assert "UAT0.1" in note
         assert "UAT1 is blocked" in note
         assert "Paper trading is not approved" in note
         assert "Live trading is not approved" in note

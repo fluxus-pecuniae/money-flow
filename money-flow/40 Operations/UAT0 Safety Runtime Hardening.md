@@ -2,7 +2,7 @@
 
 Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
-UAT0 safety/security/runtime audit is complete. UAT1 is blocked.
+UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT1 is blocked.
 
 ## Result
 
@@ -13,6 +13,7 @@ Paper trading is not approved. Live trading is not approved. Exchange order subm
 Founder/operator report:
 
 - `docs/uat0_safety_security_runtime_hardening.md`
+- `docs/uat0_1_api_auth_runtime_lockout.md`
 
 ## Evidence Candidate vs Observation Universe
 
@@ -32,11 +33,11 @@ Future UAT2 shadow timing must compare `next_candle_open` and `next_candle_close
 
 | Blocker | Current Status | Severity |
 | --- | --- | --- |
-| API authentication / authorization readiness | missing | P0 |
-| Live endpoint lockout / endpoint safety | blocked | P0 |
+| API authentication / authorization readiness | implemented | P0 closed by UAT0.1 |
+| Live endpoint lockout / endpoint safety | implemented_baseline | P0 closed by UAT0.1 |
 | Key and secret hygiene | needs_verification | P1 |
 | No secrets in logs / errors | needs_verification | P1 |
-| Fail-safe UAT/read-only/shadow/live mode separation | needs_verification | P1 |
+| Fail-safe UAT/read-only/shadow/live mode separation | implemented_baseline | P1 |
 | Sandbox/testnet environment gating | needs_verification | P1 |
 | Risk limit enforcement | needs_verification | P1 |
 | Runtime drawdown calculation and monitoring | missing | P1 |
@@ -52,10 +53,14 @@ Future UAT2 shadow timing must compare `next_candle_open` and `next_candle_close
 
 `UAT1 is blocked`.
 
+Closed by UAT0.1:
+
+- protect sensitive API routes with scoped bearer authentication and authorization;
+- add central fail-safe runtime policy and live/order/private endpoint lockout flags;
+
 Required before UAT1:
 
-- protect sensitive API routes with authentication and authorization;
-- add or verify fail-safe UAT mode gating and live endpoint lockout;
+- verify adapter-level enforcement of runtime policy;
 - verify no-secret logging, no-secret API errors, and sanitized tracebacks;
 - define selected-venue sandbox/read-only endpoint policy;
 - implement top-20 public source selection and market identity resolution.

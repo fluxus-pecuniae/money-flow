@@ -4,13 +4,13 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 ## Immediate Future
 
-Current implemented milestone: `UAT0` safety / security / runtime audit complete.
+Current implemented milestone: `UAT0.1` API auth/authz and runtime lockout hardening complete.
 
-Next proposed phase: UAT0 blocker remediation before `UAT1`.
+Next proposed phase: remaining UAT0 P1 blocker remediation before `UAT1`.
 
-UAT1 read-only connectivity is blocked until API auth/authz, fail-safe UAT mode gating, live endpoint lockout, secret/log/error redaction verification, and top-20 symbol/market identity prerequisites are closed.
+UAT1 read-only connectivity is blocked until adapter-level runtime-policy enforcement, selected-venue sandbox/read-only endpoint policy, secret/log/error redaction verification, runtime drawdown monitoring, and top-20 symbol/market identity prerequisites are closed.
 
-UAT0 was plumbing and behavior validation preparation only. It did not implement exchange connectivity, private/signed endpoint calls, exchange order submission, paper trading, live trading, routing expansion, or Money Flow rule changes.
+UAT0 was plumbing and behavior validation preparation only. UAT0.1 closes the P0 sensitive-route auth/authz and central runtime-lockout baseline only. It did not implement exchange connectivity, private/signed endpoint calls, exchange order submission, paper trading, live trading, routing expansion, or Money Flow rule changes.
 
 Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved.
 
@@ -31,6 +31,7 @@ Future UAT observation is not ETH-only. UAT1/UAT2 should cover top 20 high-volum
 See [[00 Maps/UAT Roadmap|UAT Roadmap]].
 
 - UAT0: safety / security / runtime hardening audit complete.
+- UAT0.1: API auth/authz and runtime lockout hardening complete.
 - UAT1: top-20 universe plus read-only venue/market metadata after blockers close.
 - UAT2: shadow strategy run across top-20 supported assets with `next_candle_open` / `next_candle_close`, no orders.
 - UAT3: approval-gated sandbox orders.
@@ -40,7 +41,8 @@ See [[00 Maps/UAT Roadmap|UAT Roadmap]].
 
 Before paper/live trading or production-like deployment, the project must address:
 
-- API authentication / authorization.
+- adapter-level runtime-policy enforcement.
+- selected-venue sandbox/read-only endpoint policy.
 - key and secret hygiene.
 - fail-safe live/demo separation.
 - configured risk-limit enforcement.

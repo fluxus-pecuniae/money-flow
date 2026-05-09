@@ -13,6 +13,56 @@ Entry schema:
 
 ---
 
+## v2026.05.09.005
+
+- `recorded_at_utc`: `2026-05-09T15:35:00Z`
+- `scope`: `UAT0.1 API auth/authz and runtime mode lockout`
+- `intent`: `Native entry. Closed the first UAT0 P0 safety hardening gap by adding scoped bearer authentication/authorization to sensitive FastAPI control-plane routes and an inspectable fail-safe runtime safety policy. Sensitive /api/v1 routes now require at least read_only_operator auth, account/private-state/exchange-sync/submit/cancel/amend/recovery surfaces require admin scope, administrative approval consume and non-submit approval action hooks require automation_admin or admin, and explicit submitted-order handoff requires admin. Added a test-only auth bypass limited to API_RUNTIME_MODE=test, representative redaction helpers for secret-like structures, runtime lockout flags that default paper/live/order/private endpoint capability to disabled, a founder/operator UAT0.1 report, and operational-doc guards. UAT1 remains blocked by remaining P1 adapter-policy, selected-venue sandbox/read-only endpoint, structured redaction, runtime drawdown, and top-20 identity gaps. No exchange calls, API-key use, order submissions, paper/live behavior, routing behavior, Money Flow rule changes, or evidence-pack generation were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/uat0_safety_security_runtime_hardening.md`
+  - `docs/uat0_1_api_auth_runtime_lockout.md`
+  - `apps/api/app/api/routes.py`
+  - `apps/api/app/dependencies.py`
+  - `core/config/settings.py`
+  - `core/schemas/api.py`
+  - `core/security.py`
+  - `tests/conftest.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_uat0_safety_report.py`
+  - `tests/test_uat01_api_auth_runtime_lockout.py`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/00 Maps/Platform Architecture Map.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/30 Strategy/Money Flow Strategy Lab.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/Operational Memory.md`
+  - `money-flow/40 Operations/UAT0 Safety Runtime Hardening.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_uat01_api_auth_runtime_lockout.py tests/test_config.py tests/test_api.py` passed: 32 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed: 15 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py` passed: 7 tests.
+  - `.venv/bin/python -m pytest -q tests/test_uat0_safety_report.py tests/test_phase75_approval_gated_submission_handoff.py tests/test_phase80_operator_observability.py` passed: 35 tests.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py tests/test_uat0_safety_report.py tests/test_uat01_api_auth_runtime_lockout.py` passed: 30 tests after Obsidian/docs closeout updates.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: 681 tests.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-uat0.1-review.zip` passed.
+  - Review bundle inspection found 326 files and no `.env`, `.venv`, Git metadata, caches, local DB/SQLite files, nested archives, Obsidian app state, generated evidence packs, local candle files, or review-bundle artifacts.
+
 ## v2026.05.09.004
 
 - `recorded_at_utc`: `2026-05-09T14:17:37Z`

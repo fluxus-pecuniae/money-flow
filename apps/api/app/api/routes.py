@@ -20,6 +20,10 @@ from apps.api.app.dependencies import (
     get_strategy_engine,
     get_trade_planning_service,
     get_venue_registry_service,
+    require_admin,
+    require_automation_admin,
+    require_operator,
+    require_read_only_operator,
 )
 from core.config.settings import AppSettings
 from core.domain.enums import ExecutionReadinessOutcome, MandateDesiredTradeStatus, RiskEvaluationOutcome, Timeframe
@@ -184,7 +188,7 @@ from services.routing.service import RoutingAssessmentError
 from services.execution.service import SubmissionBlockedError, SubmissionFailedError, SubmittedOrderActionError
 
 router = APIRouter()
-v1 = APIRouter(prefix="/api/v1")
+v1 = APIRouter(prefix="/api/v1", dependencies=[Depends(require_read_only_operator)])
 
 
 def _instrument_response(item) -> InstrumentResponse:
@@ -1379,6 +1383,7 @@ async def recent_risk_evaluations(
     "/risk/evaluations/from-decision/{decision_id}",
     response_model=RiskEvaluationResponse,
     tags=["risk"],
+    dependencies=[Depends(require_operator)],
 )
 async def evaluate_risk_for_decision(
     decision_id: str,
@@ -1462,7 +1467,12 @@ async def venue_symbols(venue: str) -> list[ExchangeSymbolResponse]:
     return [_symbol_response(model) for model in models]
 
 
-@v1.post("/venues/{venue}/sync/catalog", response_model=ExchangeSyncResponse, tags=["venues"])
+@v1.post(
+    "/venues/{venue}/sync/catalog",
+    response_model=ExchangeSyncResponse,
+    tags=["venues"],
+    dependencies=[Depends(require_admin)],
+)
 async def sync_venue_catalog(
     venue: str,
     registry: VenueRegistryService = Depends(get_venue_registry_service),
@@ -1476,6 +1486,7 @@ async def sync_venue_catalog(
     "/venues/{venue}/account-connectivity",
     response_model=VenueAccountConnectivityResponse,
     tags=["venues"],
+    dependencies=[Depends(require_admin)],
 )
 async def venue_account_connectivity(
     venue: str,
@@ -1490,6 +1501,7 @@ async def venue_account_connectivity(
     "/venues/{venue}/account-snapshot",
     response_model=ExchangeAccountSnapshotResponse | None,
     tags=["venues"],
+    dependencies=[Depends(require_admin)],
 )
 async def venue_account_snapshot(
     venue: str,
@@ -1525,6 +1537,7 @@ async def venue_session_state(
     "/venues/{venue}/private-state-summary",
     response_model=VenuePrivateStateSummaryResponse,
     tags=["venues"],
+    dependencies=[Depends(require_admin)],
     description=(
         "Returns a private-state summary for the adapter's current default venue/account context. "
         "The open-order and recent-fill source fields describe the runtime path actually used for this call."
@@ -1543,6 +1556,7 @@ async def venue_private_state_summary(
     "/venues/{venue}/private-state/open-orders",
     response_model=VenuePrivateOpenOrdersViewResponse,
     tags=["venues"],
+    dependencies=[Depends(require_admin)],
     description=(
         "Returns venue-private open-order snapshots for the targeted venue account. "
         "These are distinct from platform SubmittedOrder records; optional linkage fields are correlation-only. "
@@ -1568,6 +1582,7 @@ async def venue_private_open_orders(
     "/venues/{venue}/private-state/recent-fills",
     response_model=VenuePrivateRecentFillsViewResponse,
     tags=["venues"],
+    dependencies=[Depends(require_admin)],
     description="Returns recent private fills for the targeted venue account and reports the runtime source actually used for this call.",
 )
 async def venue_private_recent_fills(
@@ -1593,6 +1608,7 @@ async def venue_private_recent_fills(
     "/venues/{venue}/private-state/open-positions",
     response_model=VenuePrivateOpenPositionsViewResponse,
     tags=["venues"],
+    dependencies=[Depends(require_admin)],
     description="Returns private open positions for the targeted venue account and reports the runtime source actually used for this call.",
 )
 async def venue_private_open_positions(
@@ -1672,7 +1688,12 @@ async def list_clients(
     return [ClientResponse(**asdict(client)) for client in clients]
 
 
-@v1.get("/accounts", response_model=list[VenueAccountResponse], tags=["runtime"])
+@v1.get(
+    "/accounts",
+    response_model=list[VenueAccountResponse],
+    tags=["runtime"],
+    dependencies=[Depends(require_admin)],
+)
 async def list_accounts(
     client_key: str | None = None,
     runtime_context_service: RuntimeContextService = Depends(get_runtime_context_service),
@@ -1690,7 +1711,12 @@ async def list_mandates(
     return [StrategyMandateResponse(**asdict(mandate)) for mandate in mandates]
 
 
-@v1.post("/mandates", response_model=StrategyMandateResponse, tags=["runtime"])
+@v1.post(
+    "/mandates",
+    response_model=StrategyMandateResponse,
+    tags=["runtime"],
+    dependencies=[Depends(require_admin)],
+)
 async def create_mandate(
     request: CreateMandateRequest,
     runtime_context_service: RuntimeContextService = Depends(get_runtime_context_service),
@@ -1713,7 +1739,12 @@ async def list_mandate_bindings(
     return [MandateAccountBindingResponse(**asdict(binding)) for binding in bindings]
 
 
-@v1.post("/mandates/{mandate_key}/bindings", response_model=MandateAccountBindingResponse, tags=["runtime"])
+@v1.post(
+    "/mandates/{mandate_key}/bindings",
+    response_model=MandateAccountBindingResponse,
+    tags=["runtime"],
+    dependencies=[Depends(require_admin)],
+)
 async def create_mandate_binding(
     mandate_key: str,
     request: CreateBindingRequest,
@@ -1799,7 +1830,12 @@ def exchange_symbols(settings: AppSettings = Depends(get_app_settings)) -> list[
     return [_symbol_response(model) for model in models]
 
 
-@v1.post("/exchange/sync/universe", response_model=ExchangeSyncResponse, tags=["exchange"])
+@v1.post(
+    "/exchange/sync/universe",
+    response_model=ExchangeSyncResponse,
+    tags=["exchange"],
+    dependencies=[Depends(require_admin)],
+)
 async def sync_exchange_universe(
     settings: AppSettings = Depends(get_app_settings),
     adapter: HyperliquidAdapterContract = Depends(get_hyperliquid_adapter),
@@ -1815,7 +1851,12 @@ async def sync_exchange_universe(
     return ExchangeSyncResponse(synced=len(assets), observed_at=datetime.now(UTC))
 
 
-@v1.post("/exchange/sync/account", response_model=ExchangeSyncResponse, tags=["exchange"])
+@v1.post(
+    "/exchange/sync/account",
+    response_model=ExchangeSyncResponse,
+    tags=["exchange"],
+    dependencies=[Depends(require_admin)],
+)
 async def sync_exchange_account(
     adapter: HyperliquidAdapterContract = Depends(get_hyperliquid_adapter),
 ) -> ExchangeSyncResponse:
@@ -1827,7 +1868,12 @@ async def sync_exchange_account(
     return ExchangeSyncResponse(synced=synced, observed_at=datetime.now(UTC))
 
 
-@v1.post("/market-data/sync/candles", response_model=CandleSyncResponse, tags=["market-data"])
+@v1.post(
+    "/market-data/sync/candles",
+    response_model=CandleSyncResponse,
+    tags=["market-data"],
+    dependencies=[Depends(require_operator)],
+)
 async def sync_market_data_candles(
     request: CandleSyncRequest,
     settings: AppSettings = Depends(get_app_settings),
@@ -1876,7 +1922,12 @@ async def market_data_checkpoint(
     return MarketDataCheckpointResponse(**asdict(checkpoint))
 
 
-@v1.post("/indicators/sync", response_model=IndicatorSyncResponse, tags=["indicators"])
+@v1.post(
+    "/indicators/sync",
+    response_model=IndicatorSyncResponse,
+    tags=["indicators"],
+    dependencies=[Depends(require_operator)],
+)
 async def sync_indicators(
     request: IndicatorSyncRequest,
     settings: AppSettings = Depends(get_app_settings),
@@ -1942,7 +1993,12 @@ async def latest_indicator_snapshots(
     ]
 
 
-@v1.post("/strategy/evaluate", response_model=StrategyEvaluateResponse, tags=["strategy"])
+@v1.post(
+    "/strategy/evaluate",
+    response_model=StrategyEvaluateResponse,
+    tags=["strategy"],
+    dependencies=[Depends(require_operator)],
+)
 async def evaluate_strategy(
     request: StrategyEvaluateRequest,
     strategy_engine: StrategyEngine = Depends(get_strategy_engine),
@@ -2075,6 +2131,7 @@ async def list_mandate_desired_trades(
     "/planning/desired-trades/from-decision/{decision_id}",
     response_model=MandateDesiredTradeResponse,
     tags=["planning"],
+    dependencies=[Depends(require_operator)],
 )
 async def preview_mandate_desired_trade_from_decision(
     decision_id: str,
@@ -2118,6 +2175,7 @@ async def planning_routing_candidates(
     "/routing-assessments/from-desired-trade",
     response_model=RoutingAssessmentResponse,
     tags=["routing-assessments"],
+    dependencies=[Depends(require_operator)],
 )
 async def create_routing_assessment_from_desired_trade(
     request: RoutingAssessmentFromDesiredTradeRequest,
@@ -2150,6 +2208,7 @@ async def get_routing_assessment(
     "/route-readiness-audits/from-desired-trade",
     response_model=RouteReadinessAuditResponse,
     tags=["route-readiness-audits"],
+    dependencies=[Depends(require_operator)],
 )
 async def create_route_readiness_audit_from_desired_trade(
     request: RouteReadinessAuditFromDesiredTradeRequest,
@@ -2168,6 +2227,7 @@ async def create_route_readiness_audit_from_desired_trade(
     "/route-readiness-audits/from-assessment",
     response_model=RouteReadinessAuditResponse,
     tags=["route-readiness-audits"],
+    dependencies=[Depends(require_operator)],
 )
 async def create_route_readiness_audit_from_assessment(
     request: RouteReadinessAuditFromAssessmentRequest,
@@ -2202,6 +2262,7 @@ async def get_route_readiness_audit(
     "/routing-target-recommendations/from-route-readiness-audit",
     response_model=RoutingTargetRecommendationResponse,
     tags=["routing-target-recommendations"],
+    dependencies=[Depends(require_operator)],
 )
 async def create_routing_target_recommendation_from_route_readiness_audit(
     request: RoutingTargetRecommendationFromRouteReadinessAuditRequest,
@@ -2241,6 +2302,7 @@ async def get_routing_target_recommendation(
     "/routing-target-recommendations/{routing_target_recommendation_id}/accept",
     response_model=RoutingTargetChoiceResponse,
     tags=["routing-target-recommendations"],
+    dependencies=[Depends(require_operator)],
 )
 async def accept_routing_target_recommendation(
     routing_target_recommendation_id: str,
@@ -2263,6 +2325,7 @@ async def accept_routing_target_recommendation(
     "/routing-target-choices/from-assessment",
     response_model=RoutingTargetChoiceResponse,
     tags=["routing-target-choices"],
+    dependencies=[Depends(require_operator)],
 )
 async def create_routing_target_choice_from_assessment(
     request: RoutingTargetChoiceFromAssessmentRequest,
@@ -2298,6 +2361,7 @@ async def get_routing_target_choice(
     "/routing-target-choices/{target_choice_id}/convert-to-child-intent",
     response_model=RoutingTargetChoiceConversionResponse,
     tags=["routing-target-choices"],
+    dependencies=[Depends(require_operator)],
 )
 async def convert_routing_target_choice_to_child_intent(
     target_choice_id: str,
@@ -2401,6 +2465,7 @@ async def routing_automation_policy(
     "/routing-automation/plans/by-desired-trade/{desired_trade_key}",
     response_model=RoutingAutomationPlanResponse,
     tags=["routing-automation"],
+    dependencies=[Depends(require_operator)],
 )
 async def routing_automation_plan_by_desired_trade(
     desired_trade_key: str,
@@ -2423,6 +2488,7 @@ async def routing_automation_plan_by_desired_trade(
     "/routing-automation/approvals",
     response_model=RoutingAutomationApprovalResponse,
     tags=["routing-automation"],
+    dependencies=[Depends(require_operator)],
 )
 async def create_routing_automation_approval(
     request: RoutingAutomationApprovalCreateRequest,
@@ -2493,6 +2559,7 @@ async def routing_automation_approval_inspection_by_desired_trade(
     "/routing-automation/approvals/{approval_id}/revoke",
     response_model=RoutingAutomationApprovalResponse,
     tags=["routing-automation"],
+    dependencies=[Depends(require_operator)],
 )
 async def revoke_routing_automation_approval(
     approval_id: str,
@@ -2518,6 +2585,7 @@ async def revoke_routing_automation_approval(
     "/routing-automation/approvals/{approval_id}/accept-recommendation",
     response_model=RoutingAutomationRecommendationAcceptanceResponse,
     tags=["routing-automation"],
+    dependencies=[Depends(require_automation_admin)],
 )
 async def accept_recommendation_with_routing_automation_approval(
     approval_id: str,
@@ -2571,6 +2639,7 @@ async def accept_recommendation_with_routing_automation_approval(
     "/routing-automation/approvals/{approval_id}/convert-target-choice",
     response_model=RoutingAutomationTargetChoiceConversionResponse,
     tags=["routing-automation"],
+    dependencies=[Depends(require_automation_admin)],
 )
 async def convert_target_choice_with_routing_automation_approval(
     approval_id: str,
@@ -2622,6 +2691,7 @@ async def convert_target_choice_with_routing_automation_approval(
     "/routing-automation/approvals/{approval_id}/preview-readiness",
     response_model=RoutingAutomationPreviewReadinessResponse,
     tags=["routing-automation"],
+    dependencies=[Depends(require_automation_admin)],
 )
 async def preview_readiness_with_routing_automation_approval(
     approval_id: str,
@@ -2685,6 +2755,7 @@ async def preview_readiness_with_routing_automation_approval(
     "/routing-automation/approvals/{approval_id}/submit",
     response_model=RoutingAutomationSubmittedOrderHandoffResponse,
     tags=["routing-automation"],
+    dependencies=[Depends(require_admin)],
 )
 async def submit_child_intent_with_routing_automation_approval(
     approval_id: str,
@@ -2762,6 +2833,7 @@ async def submit_child_intent_with_routing_automation_approval(
 @v1.post(
     "/routing-automation/approvals/{approval_id}/consume",
     response_model=RoutingAutomationApprovalResponse,
+    dependencies=[Depends(require_automation_admin)],
     description=(
         "Administrative approval-state transition only. This marks an approval consumed "
         "without executing the approved action; stage-specific action endpoints perform "
@@ -2832,6 +2904,7 @@ async def list_child_intents(
     "/child-intents/{intent_id}/submit",
     response_model=SubmittedOrderResponse,
     tags=["execution"],
+    dependencies=[Depends(require_admin)],
 )
 async def submit_child_intent(
     intent_id: str,
@@ -2869,6 +2942,7 @@ async def submit_child_intent(
     "/child-intents/{intent_id}/prepared-order-preview",
     response_model=PreparedVenueOrderResponse,
     tags=["execution"],
+    dependencies=[Depends(require_operator)],
 )
 async def preview_child_intent(
     intent_id: str,
@@ -2885,6 +2959,7 @@ async def preview_child_intent(
     "/child-intents/{intent_id}/submission-readiness",
     response_model=ExecutionReadinessAssessmentResponse,
     tags=["execution"],
+    dependencies=[Depends(require_operator)],
 )
 async def child_intent_submission_readiness(
     intent_id: str,
@@ -2993,6 +3068,7 @@ async def submitted_order_actionability(
     "/submitted-orders/{submitted_order_id}/reconcile",
     response_model=SubmittedOrderResponse,
     tags=["execution"],
+    dependencies=[Depends(require_admin)],
 )
 async def reconcile_submitted_order(
     submitted_order_id: str,
@@ -3009,6 +3085,7 @@ async def reconcile_submitted_order(
     "/submitted-orders/{submitted_order_id}/cancel",
     response_model=SubmittedOrderResponse,
     tags=["execution"],
+    dependencies=[Depends(require_admin)],
 )
 async def cancel_submitted_order(
     submitted_order_id: str,
@@ -3027,6 +3104,7 @@ async def cancel_submitted_order(
     "/submitted-orders/{submitted_order_id}/amend",
     response_model=SubmittedOrderResponse,
     tags=["execution"],
+    dependencies=[Depends(require_admin)],
 )
 async def amend_submitted_order(
     submitted_order_id: str,
@@ -3054,6 +3132,7 @@ async def amend_submitted_order(
     "/submitted-orders/{submitted_order_id}/recovery/execute",
     response_model=SubmittedOrderRecoveryExecutionResponse,
     tags=["execution"],
+    dependencies=[Depends(require_admin)],
 )
 async def execute_submitted_order_recovery(
     submitted_order_id: str,
@@ -3076,6 +3155,7 @@ async def execute_submitted_order_recovery(
     "/submitted-orders/{submitted_order_id}/fills",
     response_model=list[FillResponse],
     tags=["execution"],
+    dependencies=[Depends(require_admin)],
 )
 async def submitted_order_fills(
     submitted_order_id: str,
@@ -3109,6 +3189,7 @@ async def submitted_order_events(
     "/portfolio/bootstrap-summary",
     response_model=PortfolioBootstrapSummaryResponse,
     tags=["portfolio"],
+    dependencies=[Depends(require_admin)],
 )
 async def portfolio_bootstrap_summary(
     portfolio_service: PortfolioService = Depends(get_portfolio_service),

@@ -4,7 +4,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 ## Today In One Sentence
 
-Money Flow is a controlled trading-system substrate plus Strategy Validation research platform; SV1 is closed for now, one Hyperliquid ETH `sleeve_1h` baseline evidence candidate is frozen, UAT0 safety / security / runtime audit is complete, and UAT1 is blocked until P0/P1 hardening gaps are closed.
+Money Flow is a controlled trading-system substrate plus Strategy Validation research platform; SV1 is closed for now, one Hyperliquid ETH `sleeve_1h` baseline evidence candidate is frozen, UAT0 safety / security / runtime audit is complete, UAT0.1 API auth/runtime lockout hardening is complete, and UAT1 is blocked until remaining P1 hardening gaps are closed.
 
 SV1.18 is complete.
 
@@ -23,7 +23,8 @@ Money Flow can generate strategy decisions, route through controlled same-target
 | Operator observability | built | Routed workflow inspection exists for operator review. |
 | Strategy Validation SV1 | closed | Current Hyperliquid evidence cycle is complete through SV1.18.1. |
 | UAT0 | audit complete | Safety/security/runtime blockers are documented. |
-| UAT1 | blocked | Read-only top-20 universe and market metadata work must wait for auth/mode/endpoint prerequisites. |
+| UAT0.1 | hardening complete | Sensitive API routes now require scoped auth and runtime lockout defaults are inspectable. |
+| UAT1 | blocked | Read-only top-20 universe and market metadata work must wait for remaining P1 runtime/endpoint/redaction/drawdown/identity prerequisites. |
 
 ## Current Candidate
 
@@ -72,9 +73,9 @@ Current UAT scope excludes:
 
 ## Next Phase
 
-UAT0 blocker remediation before `UAT1`.
+Remaining UAT0 P1 blocker remediation before `UAT1`.
 
-Current P0/P1 blockers include missing API authentication/authorization for sensitive routes, missing explicit UAT mode/live endpoint lockout, secret/log/error redaction verification, runtime drawdown monitoring, and top-20 symbol/market identity resolution.
+UAT0.1 closed the P0 API authentication/authorization and central runtime lockout baseline. Remaining blockers include adapter-level runtime-policy enforcement verification, selected-venue sandbox/read-only endpoint policy, secret/log/error redaction verification, runtime drawdown monitoring, and top-20 symbol/market identity resolution.
 
 UAT is plumbing and behavior validation.
 

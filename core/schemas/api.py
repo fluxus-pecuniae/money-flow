@@ -76,6 +76,18 @@ class ConfigSummaryResponse(BaseModel):
     mandate_instrument_resolution_mode: InstrumentResolutionMode
     risk_binding_reduce_fraction: float
     risk_reject_on_source_policy_runtime_mismatch: bool
+    api_auth_enabled: bool
+    api_auth_disabled_for_tests: bool
+    api_runtime_mode: str
+    uat_mode_enabled: bool
+    sandbox_mode_required: bool
+    paper_trading_enabled: bool
+    live_trading_enabled: bool
+    exchange_order_submission_enabled: bool
+    private_exchange_endpoints_enabled: bool
+    live_endpoint_lockout_enabled: bool
+    order_endpoint_lockout_enabled: bool
+    private_endpoint_lockout_enabled: bool
     execution_live_submission_phase_enabled: bool
     execution_routed_submission_phase_enabled: bool
     execution_require_private_state_for_submission_readiness: bool
@@ -106,6 +118,24 @@ class ConfigSummaryResponse(BaseModel):
             risk_binding_reduce_fraction=settings.risk.binding_reduce_fraction,
             risk_reject_on_source_policy_runtime_mismatch=(
                 settings.risk.reject_on_source_policy_runtime_mismatch
+            ),
+            api_auth_enabled=settings.api_auth.enabled,
+            api_auth_disabled_for_tests=settings.api_auth.disabled_for_tests,
+            api_runtime_mode=settings.runtime_safety.runtime_mode,
+            uat_mode_enabled=settings.runtime_safety.uat_mode_enabled,
+            sandbox_mode_required=settings.runtime_safety.sandbox_mode_required,
+            paper_trading_enabled=settings.runtime_safety.paper_trading_enabled,
+            live_trading_enabled=settings.runtime_safety.live_trading_enabled,
+            exchange_order_submission_enabled=(
+                settings.runtime_safety.exchange_order_submission_enabled
+            ),
+            private_exchange_endpoints_enabled=(
+                settings.runtime_safety.private_exchange_endpoints_enabled
+            ),
+            live_endpoint_lockout_enabled=settings.runtime_safety.live_endpoint_lockout_enabled,
+            order_endpoint_lockout_enabled=settings.runtime_safety.order_endpoint_lockout_enabled,
+            private_endpoint_lockout_enabled=(
+                settings.runtime_safety.private_endpoint_lockout_enabled
             ),
             execution_live_submission_phase_enabled=(
                 settings.execution.live_submission_phase_enabled

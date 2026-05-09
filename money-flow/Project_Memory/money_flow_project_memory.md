@@ -18,7 +18,7 @@ Money Flow combines:
 - submitted-order lifecycle and reconciliation truth.
 - operator observability.
 - future UAT/sandbox behavior validation.
-- UAT0 safety/security/runtime readiness.
+- UAT0 safety/security/runtime readiness and UAT0.1 API/runtime lockout hardening.
 
 ## Platform Tracks Completed
 
@@ -91,16 +91,22 @@ Excluded from current UAT:
 - Aster / Binance / OKX / Coinbase / Kraken.
 - cross-venue comparison.
 
-## UAT0 Audit Outcome
+## UAT0 / UAT0.1 Outcome
 
-UAT0 safety/security/runtime audit is complete. UAT1 read-only connectivity is blocked.
+UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT1 read-only connectivity is blocked.
 
-Key UAT0 findings:
+Closed by UAT0.1:
 
-- API authentication / authorization is missing for sensitive routes.
-- Live endpoint lockout and endpoint safety are blocked until auth plus explicit UAT mode gating are implemented.
+- Sensitive `/api/v1` routes require scoped bearer authentication.
+- High-risk admin consume, submit/cancel/amend/retry, account, and private-state surfaces require elevated scopes.
+- Test auth bypass is limited to `API_RUNTIME_MODE=test`.
+- `RuntimeSafetyPolicy` exposes fail-safe defaults for paper trading, live trading, exchange order submission, and private exchange endpoints.
+
+Remaining UAT blockers:
+
+- Adapter-level runtime-policy enforcement needs verification.
+- Selected-venue sandbox/read-only endpoint policy is not implemented.
 - Secret/log/error redaction needs verification.
-- Runtime mode separation needs one fail-safe UAT/read-only/shadow/live policy.
 - Runtime drawdown monitoring is missing.
 - Top-20 symbol / market identity resolution is not implemented.
 - Existing approval gates, execution defaults, venue submit flags, and submit-lease uncertainty protections are useful but require later UAT-specific verification.
@@ -122,18 +128,20 @@ The current evidence cycle can justify UAT0 safety/runtime hardening and later s
 ## UAT Roadmap
 
 - UAT0: safety / security / runtime hardening audit complete.
+- UAT0.1: API auth/authz and runtime lockout hardening complete.
 - UAT1: top-20 universe plus read-only venue/market metadata after blockers close.
 - UAT2: shadow strategy run across top-20 supported assets, no orders.
 - UAT3: approval-gated sandbox orders.
 - UAT4: sandbox / simulated trading review.
 
-UAT1 is blocked until UAT0 P0/P1 blockers close or are explicitly accepted in a separate gated phase.
+UAT1 is blocked until remaining UAT0/UAT0.1 P1 blockers close or are explicitly accepted in a separate gated phase.
 
 ## Major Deferred Items
 
-- API auth/authz hardening.
+- adapter-level runtime-policy enforcement verification.
+- selected-venue sandbox/read-only endpoint policy.
 - secret hygiene and no-secret logging verification.
-- fail-safe sandbox/live mode separation.
+- fail-safe sandbox/live mode separation verification.
 - risk-limit enforcement.
 - real drawdown monitoring.
 - kill switch behavior.

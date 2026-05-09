@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-09T14:17:37Z`
+Last reviewed: `2026-05-09T15:35:00Z`
 
 ## Active Follow-Ups
 
@@ -14,13 +14,19 @@ Last reviewed: `2026-05-09T14:17:37Z`
 
 - `priority`: `high`
 - `status`: `done`
-- `summary`: `UAT0 safety/security/runtime hardening audit is complete. The report documents API auth/authz as missing, endpoint safety/live lockout as blocked until auth plus explicit UAT mode gating are implemented, secret/log/error redaction and sandbox/live separation as needing verification, runtime drawdown monitoring as missing, and existing approval/submit-lease protections as implemented but still requiring UAT3 sandbox verification. It defines the future top-20 supported-asset UAT observation universe and future UAT2 next_candle_open / next_candle_close shadow fill-timing policy while keeping same_candle_close_research_only research-only. No exchange calls, order submissions, API-key use, paper/live behavior, Money Flow rule changes, routing expansion, or evidence-pack generation were added.`
+- `summary`: `UAT0 safety/security/runtime hardening audit is complete. UAT0.1 closes the P0 API auth/authz baseline for sensitive routes and adds an inspectable fail-safe runtime safety policy, while leaving UAT1 blocked by remaining P1 adapter-policy, selected-venue sandbox/read-only endpoint, structured redaction, runtime drawdown, and top-20 symbol/market identity gaps. UAT0 defines the future top-20 supported-asset UAT observation universe and future UAT2 next_candle_open / next_candle_close shadow fill-timing policy while keeping same_candle_close_research_only research-only. No exchange calls, order submissions, API-key use, paper/live behavior, Money Flow rule changes, routing expansion, or evidence-pack generation were added.`
 
 ### T-093
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `Before UAT1 read-only connectivity can proceed, implement and test authentication/authorization for sensitive API routes, a fail-safe UAT/read-only/shadow/live runtime mode policy, live endpoint lockout, sandbox/testnet endpoint policy for the selected venue, secret/log/error redaction checks, and top-20 symbol/market identity resolution. UAT1 remains blocked until these UAT0 P0/P1 blockers are closed or explicitly accepted in a separate gated phase.`
+- `summary`: `Before UAT1 read-only connectivity can proceed, verify adapter-level runtime-policy enforcement, define selected-venue sandbox/read-only endpoint policy, broaden structured secret/log/error redaction checks, add runtime drawdown monitoring or an accepted UAT prerequisite, and implement top-20 symbol/market identity resolution. UAT0.1 closed the P0 API auth/authz and central runtime-policy baseline, but UAT1 remains blocked until remaining P1 blockers are closed or explicitly accepted in a separate gated phase.`
+
+### T-094
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `UAT0.1 adds scoped bearer authentication and authorization for sensitive API control-plane routes plus fail-safe runtime-mode lockout settings. Sensitive /api/v1 routes now require at least read_only_operator auth, high-risk admin consume / submit / cancel / amend / retry / account / private-state surfaces require elevated scopes, and the only auth bypass is explicit test runtime. RuntimeSafetyPolicy exposes default-disabled paper trading, live trading, exchange order submission, and private endpoint flags. UAT1 remains blocked by remaining P1 hardening gaps; no exchange calls, order submissions, API-key use, paper/live behavior, routing changes, Money Flow rule changes, or evidence packs were added.`
 
 ### T-091
 

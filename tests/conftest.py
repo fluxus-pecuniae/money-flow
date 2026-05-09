@@ -18,6 +18,12 @@ _SETTINGS_ENV_PREFIXES = (
     "DB_",
     "REDIS_",
     "LOG_",
+    "API_",
+    "UAT_",
+    "SANDBOX_",
+    "PAPER_",
+    "LIVE_",
+    "PRIVATE_",
     "EXCHANGE_",
     "HYPERLIQUID_",
     "ASTER_",
@@ -44,6 +50,8 @@ def _isolate_settings_from_local_env(monkeypatch: pytest.MonkeyPatch):
     for key in list(os.environ):
         if key.startswith(_SETTINGS_ENV_PREFIXES):
             monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv("API_RUNTIME_MODE", "test")
+    monkeypatch.setenv("API_AUTH_DISABLED_FOR_TESTS", "true")
     yield
     get_settings.cache_clear()
     AppSettings.model_config["env_file"] = original_env_file

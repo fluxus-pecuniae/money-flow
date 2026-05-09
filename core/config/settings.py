@@ -62,6 +62,38 @@ class LoggingConfig(BaseModel):
     json_logs: bool = True
 
 
+class APIAuthConfig(BaseModel):
+    enabled: bool = True
+    disabled_for_tests: bool = False
+    operator_token: str = ""
+    read_only_operator_token: str = ""
+    admin_token: str = ""
+    automation_admin_token: str = ""
+    uat_admin_token: str = ""
+
+
+class RuntimeSafetyPolicy(BaseModel):
+    runtime_mode: Literal["development", "test", "uat", "sandbox", "paper", "live"] = "development"
+    uat_mode_enabled: bool = False
+    sandbox_mode_required: bool = True
+    paper_trading_enabled: bool = False
+    live_trading_enabled: bool = False
+    exchange_order_submission_enabled: bool = False
+    private_exchange_endpoints_enabled: bool = False
+
+    @property
+    def live_endpoint_lockout_enabled(self) -> bool:
+        return not self.live_trading_enabled
+
+    @property
+    def order_endpoint_lockout_enabled(self) -> bool:
+        return not self.exchange_order_submission_enabled
+
+    @property
+    def private_endpoint_lockout_enabled(self) -> bool:
+        return not self.private_exchange_endpoints_enabled
+
+
 class ExchangeConfig(BaseModel):
     venue: str = "hyperliquid"
     name: str = "hyperliquid"
@@ -227,6 +259,31 @@ class AppSettings(BaseSettings):
 
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
     log_json: bool = Field(default=True, alias="LOG_JSON")
+
+    api_runtime_mode: Literal["development", "test", "uat", "sandbox", "paper", "live"] = Field(
+        default="development",
+        alias="API_RUNTIME_MODE",
+    )
+    api_auth_enabled: bool = Field(default=True, alias="API_AUTH_ENABLED")
+    api_auth_disabled_for_tests: bool = Field(default=False, alias="API_AUTH_DISABLED_FOR_TESTS")
+    api_read_only_operator_token: str = Field(default="", alias="API_READ_ONLY_OPERATOR_TOKEN")
+    api_operator_token: str = Field(default="", alias="API_OPERATOR_TOKEN")
+    api_admin_token: str = Field(default="", alias="API_ADMIN_TOKEN")
+    api_automation_admin_token: str = Field(default="", alias="API_AUTOMATION_ADMIN_TOKEN")
+    api_uat_admin_token: str = Field(default="", alias="API_UAT_ADMIN_TOKEN")
+
+    uat_mode_enabled: bool = Field(default=False, alias="UAT_MODE_ENABLED")
+    sandbox_mode_required: bool = Field(default=True, alias="SANDBOX_MODE_REQUIRED")
+    paper_trading_enabled: bool = Field(default=False, alias="PAPER_TRADING_ENABLED")
+    live_trading_enabled: bool = Field(default=False, alias="LIVE_TRADING_ENABLED")
+    exchange_order_submission_enabled: bool = Field(
+        default=False,
+        alias="EXCHANGE_ORDER_SUBMISSION_ENABLED",
+    )
+    private_exchange_endpoints_enabled: bool = Field(
+        default=False,
+        alias="PRIVATE_EXCHANGE_ENDPOINTS_ENABLED",
+    )
 
     exchange_name: str = Field(default="hyperliquid", alias="EXCHANGE_NAME")
     exchange_venue: str = Field(default="hyperliquid", alias="EXCHANGE_VENUE")
@@ -645,6 +702,30 @@ class AppSettings(BaseSettings):
     @property
     def logging(self) -> LoggingConfig:
         return LoggingConfig(level=self.log_level, json_logs=self.log_json)
+
+    @property
+    def api_auth(self) -> APIAuthConfig:
+        return APIAuthConfig(
+            enabled=self.api_auth_enabled,
+            disabled_for_tests=self.api_auth_disabled_for_tests,
+            operator_token=self.api_operator_token,
+            read_only_operator_token=self.api_read_only_operator_token,
+            admin_token=self.api_admin_token,
+            automation_admin_token=self.api_automation_admin_token,
+            uat_admin_token=self.api_uat_admin_token,
+        )
+
+    @property
+    def runtime_safety(self) -> RuntimeSafetyPolicy:
+        return RuntimeSafetyPolicy(
+            runtime_mode=self.api_runtime_mode,
+            uat_mode_enabled=self.uat_mode_enabled,
+            sandbox_mode_required=self.sandbox_mode_required,
+            paper_trading_enabled=self.paper_trading_enabled,
+            live_trading_enabled=self.live_trading_enabled,
+            exchange_order_submission_enabled=self.exchange_order_submission_enabled,
+            private_exchange_endpoints_enabled=self.private_exchange_endpoints_enabled,
+        )
 
     @property
     def exchange(self) -> ExchangeConfig:

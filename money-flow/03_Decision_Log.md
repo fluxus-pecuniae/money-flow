@@ -393,3 +393,10 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `why`: The founder needs a readable way to inspect evidence-pack results, fill-timing sensitivity, component behavior, symbols, regimes, and manual-review blockers without reading raw JSON or Markdown tables.
 - `rejected_alternatives`: Generating new evidence from the dashboard; connecting it to trading approval; adding API/exchange calls; treating visualization as proof of profitability; changing Money Flow strategy rules.
 - `follow_up_implications`: Manual founder/operator evidence review can use `apps/dashboard/`, but paper/live trading remains deferred until explicit approval and standing blockers are resolved.
+
+## 2026-05-09T15:35:00Z - UAT0.1 - Protect Sensitive API Routes And Keep Runtime Fail-Closed
+
+- `decision`: Add scoped bearer authentication/authorization to sensitive `/api/v1` routes and add an inspectable runtime safety policy whose defaults keep paper trading, live trading, private exchange endpoints, and exchange order submission disabled.
+- `why`: UAT0 found UAT1 blocked by unauthenticated sensitive control-plane routes and ambiguous runtime/live lockout truth. Before read-only connectivity can be considered, operator/admin surfaces must fail closed and runtime capability flags must be visible and safe by default.
+- `rejected_alternatives`: Leaving sensitive routes public because execution submit gates are disabled; adding a broad unauthenticated local-only exception; enabling sandbox/read-only exchange connectivity in the same phase; treating central runtime flags as permission to submit orders.
+- `follow_up_implications`: UAT1 remains blocked until adapter-level runtime-policy enforcement, selected-venue sandbox/read-only endpoint policy, structured secret/log/error redaction, runtime drawdown monitoring, and top-20 market identity resolution are completed or explicitly accepted. Paper trading, live trading, and exchange order submission remain unapproved.

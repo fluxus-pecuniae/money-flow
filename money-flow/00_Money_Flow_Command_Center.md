@@ -6,9 +6,9 @@ This is the canonical Obsidian command center for Money Flow agents and founder 
 
 | Field | Current State |
 | --- | --- |
-| Current implemented milestone | `UAT0` safety audit complete |
+| Current implemented milestone | `UAT0.1` API auth/authz and runtime lockout hardening complete |
 | Current major track | Strategy Validation evidence cycle is closed |
-| Next proposed phase | UAT0 blocker remediation before `UAT1` |
+| Next proposed phase | Remaining UAT0 P1 blocker remediation before `UAT1` |
 | UAT status | UAT1 read-only connectivity is blocked |
 | Paper trading | Not approved |
 | Live trading | Not approved |
@@ -16,7 +16,7 @@ This is the canonical Obsidian command center for Money Flow agents and founder 
 | Routing / SOR expansion | Deferred |
 | Production Money Flow rules | Unchanged |
 
-SV1.18 is complete. UAT0 is complete as a safety/security/runtime audit. UAT1 is blocked until P0/P1 blockers are closed. UAT is plumbing and behavior validation. The frozen evidence candidate is Hyperliquid ETH `sleeve_1h` current baseline. Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved.
+SV1.18 is complete. UAT0 is complete as a safety/security/runtime audit. UAT0.1 closes the P0 API auth/authz baseline for sensitive `/api/v1` routes and adds an inspectable fail-safe runtime safety policy. UAT1 is still blocked until remaining P1 blockers are closed. UAT is plumbing and behavior validation. The frozen evidence candidate is Hyperliquid ETH `sleeve_1h` current baseline. Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved.
 
 ## Frozen UAT Observation Candidate
 
@@ -63,9 +63,16 @@ SV1.18 closed the current Hyperliquid public-candle evidence cycle. It establish
 
 Read [[00 Maps/Strategy Validation Map|Strategy Validation Map]] and [[30 Strategy/SV Evidence Closeout|SV Evidence Closeout]] before interpreting SV results.
 
-## UAT0 Result
+## UAT0 / UAT0.1 Result
 
-UAT0 found UAT1 is blocked. Current P0/P1 blockers include missing API authentication/authorization for sensitive routes, missing explicit UAT mode/live endpoint lockout, secret/log/error redaction verification, runtime drawdown monitoring, and top-20 symbol/market identity resolution.
+UAT0 found UAT1 is blocked. UAT0.1 closes the P0 API authentication/authorization and central runtime-policy baseline:
+
+- Sensitive `/api/v1` routes require scoped bearer authentication.
+- Administrative consume, submit/cancel/amend/retry, account, and private-state surfaces require elevated scopes.
+- Test auth bypass is limited to `API_RUNTIME_MODE=test`.
+- `RuntimeSafetyPolicy` defaults paper trading, live trading, exchange order submission, and private exchange endpoints to disabled.
+
+Remaining blockers before UAT1 include adapter-level runtime-policy enforcement verification, selected-venue sandbox/read-only endpoint policy, structured secret/log/error redaction verification, runtime drawdown monitoring, and top-20 symbol/market identity resolution.
 
 Read [[00 Maps/UAT Roadmap|UAT Roadmap]] and [[40 Operations/UAT0 Safety Runtime Hardening|UAT0 Safety Runtime Hardening]] before any UAT work.
 

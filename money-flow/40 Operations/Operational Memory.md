@@ -31,10 +31,10 @@ Before substantial work, read the repo memory and Obsidian brain. Before editing
 
 ## Current Important Memory Facts
 
-- Current implemented milestone: `UAT0` safety / security / runtime audit complete.
+- Current implemented milestone: `UAT0.1` API auth/authz and runtime lockout hardening complete.
 - Strategy Validation SV1 is closed for now.
-- Next proposed phase: UAT0 blocker remediation before UAT1.
-- UAT1 is blocked until API auth/authz, fail-safe UAT mode gating, live endpoint lockout, secret/log/error redaction verification, and top-20 market identity prerequisites close.
+- Next proposed phase: remaining UAT0 P1 blocker remediation before UAT1.
+- UAT1 is blocked until adapter-level runtime-policy enforcement, selected-venue sandbox/read-only endpoint policy, secret/log/error redaction verification, runtime drawdown monitoring, and top-20 market identity prerequisites close.
 - Frozen evidence candidate: Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules.
 - Future UAT observation universe: top-20 high-volume supported assets for behavior validation only.
 - Paper trading is not approved.
