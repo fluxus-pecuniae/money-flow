@@ -2,9 +2,9 @@
 
 ## Phase
 
-Current implemented phase: `SV1.18` evidence credibility closeout and UAT candidate freeze; SV1.18 closes the current Hyperliquid Strategy Validation evidence cycle and freezes exactly one UAT observation candidate, Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules, without changing production Money Flow rules.
+Current implemented phase: `SV1.18` evidence credibility closeout and UAT candidate freeze; SV1.18 is complete. It closes the current Hyperliquid Strategy Validation evidence cycle and freezes exactly one UAT observation candidate, Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules, without changing production Money Flow rules.
 
-Proposed next phase: `UAT0` safety/security/runtime hardening for plumbing and behavior validation only. UAT is not performance validation, paper trading, live trading, or routing expansion. Aster and Binance remain later comparative candidates after separate identity/import; OKX/Coinbase/Kraken remain blocked by source/history gaps. Paper-trading design remains deferred. `Phase 8.1` remains deferred until explicitly scoped.
+Proposed next phase: `UAT0` safety/security/runtime hardening for plumbing and behavior validation only. UAT is not performance validation, paper trading, live trading, or routing expansion. Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved. Aster and Binance remain later comparative candidates after separate identity/import; OKX/Coinbase/Kraken remain blocked by source/history gaps. Paper-trading design remains deferred. `Phase 8.1` remains deferred until explicitly scoped.
 
 
 ## Pre-Paper / Live Trading Blockers

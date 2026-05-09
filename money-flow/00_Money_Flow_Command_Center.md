@@ -8,9 +8,9 @@ Money Flow is a mandate-driven, multi-venue trading platform where strategy alph
 
 ## Current Phase
 
-- Current implemented phase: `SV1.18` evidence credibility closeout and UAT candidate freeze; SV1.18 closes the current Hyperliquid Strategy Validation evidence cycle and freezes exactly one UAT observation candidate, Hyperliquid ETH `sleeve_1h` baseline current rules, without changing production Money Flow rules.
+- Current implemented phase: `SV1.18` evidence credibility closeout and UAT candidate freeze; SV1.18 is complete. It closes the current Hyperliquid Strategy Validation evidence cycle and freezes exactly one UAT observation candidate, Hyperliquid ETH `sleeve_1h` baseline current rules, without changing production Money Flow rules.
 - Phase 7 status: accepted complete.
-- Proposed next phase: `UAT0` safety/security/runtime hardening for plumbing and behavior validation only. Paper trading, live trading, exchange order submission, routing/SOR expansion, and production Money Flow rule changes remain deferred. SV1.12.5 shows Aster and Binance have 18 additional complete native-trade-count candidate files but need separate non-trading identity verification/seed/import; OKX and Coinbase need a trade-count source or explicit canonical-contract decision; Kraken needs archive/vendor/operator data.
+- Proposed next phase: `UAT0` safety/security/runtime hardening for plumbing and behavior validation only. Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved. Routing/SOR expansion and production Money Flow rule changes remain deferred. SV1.12.5 shows Aster and Binance have 18 additional complete native-trade-count candidate files but need separate non-trading identity verification/seed/import; OKX and Coinbase need a trade-count source or explicit canonical-contract decision; Kraken needs archive/vendor/operator data.
 - Phase 8.0 status: implemented read-only operator observability/manual-resolution inspection.
 - Phase 8.0.1 status: Obsidian memory and working-tree baseline cleanup; no product behavior changed.
 - Phase 8.0.2 status: active submit-lease operator-summary truth hotfix; no product behavior changed.

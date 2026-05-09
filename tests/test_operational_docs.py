@@ -7,6 +7,14 @@ import zipfile
 from scripts.create_review_bundle import create_review_bundle
 
 
+def _coordination_row_for(task_name: str) -> str:
+    coordination = Path("money-flow/05_Agent_Coordination.md").read_text()
+    for line in coordination.splitlines():
+        if line.startswith("|") and task_name in line:
+            return line
+    raise AssertionError(f"Missing coordination row for {task_name}")
+
+
 REQUIRED_FILES = [
     "AGENTS.md",
     "CHANGELOG.md",
@@ -167,6 +175,31 @@ def test_obsidian_current_state_notes_do_not_have_stale_current_truth() -> None:
         assert "SV1.18" in contents, f"{path} does not reflect current SV1.18 work"
         for phrase in stale_current_truth_phrases:
             assert phrase not in contents, f"{path} still contains stale current truth: {phrase}"
+
+
+def test_current_phase_handoff_and_coordination_are_closed() -> None:
+    coordination_row = _coordination_row_for("SV1.18 evidence credibility closeout")
+    command_center = Path("money-flow/00_Money_Flow_Command_Center.md").read_text()
+    current_phase = Path("money-flow/01_Current_Phase.md").read_text()
+    current_dashboard = Path("money-flow/00 Maps/Current State Dashboard.md").read_text()
+
+    assert "| done " in coordination_row
+    assert "| active " not in coordination_row
+    assert "In progress" not in coordination_row
+    assert "commit `f55a17d`" in coordination_row.lower()
+    assert "/Users/tercirafael/money-flow-sv1.18-review.zip" in coordination_row
+
+    for note in (command_center, current_phase, current_dashboard):
+        assert "SV1.18" in note
+        assert "SV1.18 is complete" in note
+        assert "UAT0" in note
+        assert "Paper trading is not approved" in note
+        assert "Live trading is not approved" in note
+        assert "Exchange order submission is not approved" in note
+        assert "plumbing and behavior validation" in note
+        assert "Hyperliquid ETH" in note
+        assert "sleeve_1h" in note
+        assert "current baseline" in note.lower()
 
 
 def test_changelog_has_versioned_entries() -> None:

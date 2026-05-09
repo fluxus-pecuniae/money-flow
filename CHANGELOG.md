@@ -13,6 +13,32 @@ Entry schema:
 
 ---
 
+## v2026.05.09.002
+
+- `recorded_at_utc`: `2026-05-09T13:03:43Z`
+- `scope`: `SV1.18.1 Obsidian coordination closeout and UAT0 handoff hygiene`
+- `intent`: `Native entry. Closed the remaining SV1.18 coordination/handoff hygiene gap without changing production behavior. The SV1.18 coordination row records commit f55a17d, the SV1.18 review bundle, validation summary, and UAT0 handoff; current-state Obsidian notes now explicitly say SV1.18 is complete, UAT0 is next, paper trading/live trading/exchange order submission are not approved, and UAT is plumbing/behavior validation only. Operational-doc tests now parse the SV1.18 coordination row and fail if it remains active or in progress.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `tests/test_operational_docs.py`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` passed: 12 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv118_evidence_closeout.py` passed: 7 tests.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py` passed: 7 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: 663 tests.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.18.1-review.zip` passed.
+  - `zipinfo -1 /Users/tercirafael/money-flow-sv1.18.1-review.zip | wc -l` returned `309`.
+  - `zipinfo -1 /Users/tercirafael/money-flow-sv1.18.1-review.zip | rg '(^|/)\\.git/|(^|/)\\.venv/|(^|/)\\.env$|reports/strategy_validation/|reports/strategy_validation_reviews/|\\.zip$|\\.sqlite|\\.db$|workspace\\.json|(^|/)\\.obsidian/|__pycache__|\\.pytest_cache|local.*candle|csv$'` returned no matches.
+
 ## v2026.05.09.001
 
 - `recorded_at_utc`: `2026-05-09T12:32:14Z`
