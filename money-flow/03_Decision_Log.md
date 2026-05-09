@@ -9,6 +9,13 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `scope`: The full-suite run keeps each symbol/component as an independent dynamic-equity replay scenario and compares every variant only against its matching same-symbol/same-component baseline. Some variants improve losing baselines, ETH 1h baseline remains the strongest above-starting-equity pocket, and no variant is authorized.
 - `follow_up_implications`: Future review should treat full-suite replay as scenario evidence, not a combined portfolio account. Fill/cost sensitivity, out-of-sample windows, exact stop/invalidation replay, and portfolio simulation remain separate future work.
 
+## 2026-05-09T12:32:14Z - SV1.18 - Freeze One UAT Observation Candidate Only
+
+- `decision`: Close the current Strategy Validation evidence cycle and freeze exactly one UAT observation candidate: `money_flow_hyperliquid_eth_1h_baseline_uat_candidate`, scoped to Hyperliquid ETH USDC perpetual `sleeve_1h` current baseline Money Flow rules.
+- `why`: Founder skepticism about backtest realism is valid. Current replay/backtest evidence does not model funding, liquidation, margin, order-book fills, partial fills, latency, outages, real rejects, or production exchange lifecycle behavior, so it can justify only a tightly scoped UAT plumbing/behavior phase, not paper/live trading.
+- `scope`: 15m, 4h, BTC/SOL 1h, lower-RSI variants, market-structure variants, and non-Hyperliquid venues are excluded from current UAT scope. UAT0 is safety/security/runtime hardening only; no production Money Flow rules, routing, execution automation, exchange calls, API keys, paper trading, live trading, or live artifacts are added.
+- `follow_up_implications`: UAT0 must verify auth/authz, secret hygiene, fail-safe sandbox/live separation, risk limits, drawdown monitoring, kill switch, audit logging, confirmation gates, duplicate-order prevention, submit-lease uncertainty handling, no private endpoint calls before explicit UAT authorization, and no accidental live endpoint reachability before any later sandbox order phase.
+
 ## 2026-05-08T06:52:35Z - SV1.17 - Lower-RSI Replay Round Needs Baseline Preservation
 
 - `decision`: Run a small ETH `sleeve_1h` true replay experiment round before broadening lower-RSI or market-structure work.

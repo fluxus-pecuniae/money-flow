@@ -1,8 +1,20 @@
 # TODO
 
-Last reviewed: `2026-05-08T06:52:35Z`
+Last reviewed: `2026-05-09T12:32:14Z`
 
 ## Active Follow-Ups
+
+### T-090
+
+- `priority`: `high`
+- `status`: `future`
+- `summary`: `UAT0 safety/security/runtime hardening is the next gated work if the founder accepts the SV1.18 closeout. Before any sandbox order phase, the platform must verify API auth/authz, key/secret hygiene, no-secret logging, fail-safe live/demo separation, sandbox/testnet environment gating, risk limits, drawdown monitoring, kill switch behavior, debug-stack-trace exposure, audit logging, operator confirmation gates, duplicate-order prevention, submit-lease uncertainty handling, no private endpoint calls before explicit UAT authorization, and no live endpoint reachability in sandbox mode.`
+
+### T-091
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV1.18 closes the current Strategy Validation evidence cycle and freezes exactly one UAT observation candidate: Hyperliquid ETH USDC perpetual sleeve_1h using current baseline Money Flow rules. The closeout excludes 15m, 4h, BTC/SOL 1h, lower-RSI variants, market-structure variants, and cross-venue candidates from current UAT scope. UAT is defined as plumbing and behavior validation only, not performance validation, paper trading, live trading, or proof of edge.`
 
 ### T-087
 

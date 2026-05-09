@@ -13,6 +13,42 @@ Entry schema:
 
 ---
 
+## v2026.05.09.001
+
+- `recorded_at_utc`: `2026-05-09T12:32:14Z`
+- `scope`: `SV1.18 evidence credibility closeout and UAT candidate freeze`
+- `intent`: `Native entry. Closed the current Hyperliquid Strategy Validation evidence cycle without changing Money Flow rules or creating paper/live/routing/execution artifacts. Added a founder-readable credibility closeout that states current backtest/replay evidence does not prove edge, freezes exactly one UAT observation candidate (Hyperliquid ETH USDC perpetual sleeve_1h baseline current-rule scenario), excludes 15m/4h/BTC/SOL/lower-RSI/market-structure/cross-venue candidates from UAT scope, defines UAT as plumbing and behavior validation rather than performance validation, and lays out UAT0-UAT4 planning with safety/security/runtime blockers.`
+- `affected_files`:
+  - `docs/strategy_validation_sv1_18_evidence_closeout_and_uat_candidate_freeze.md`
+  - `tests/test_sv118_evidence_closeout.py`
+  - `tests/test_operational_docs.py`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `KNOWN_ISSUES.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/Phase 8 Focus.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_sv118_evidence_closeout.py tests/test_operational_docs.py` passed: 18 tests.
+  - `.venv/bin/python -m compileall core services apps tests scripts` passed.
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_operational_docs.py` passed: 18 tests.
+  - `.venv/bin/python -m pytest -q tests/test_sv117_true_replay_experiments.py tests/test_sv116_replay_instrumentation.py tests/test_sv118_evidence_closeout.py` passed: 18 tests.
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` passed: 662 tests.
+  - `git diff --check` passed.
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv1.18-review.zip` passed.
+  - `zipinfo -1 /Users/tercirafael/money-flow-sv1.18-review.zip | wc -l` returned `309`.
+  - `zipinfo -1 /Users/tercirafael/money-flow-sv1.18-review.zip | rg '(^|/)\\.git/|(^|/)\\.venv/|(^|/)\\.env$|reports/strategy_validation/|reports/strategy_validation_reviews/|\\.zip$|\\.sqlite|\\.db$|workspace\\.json|(^|/)\\.obsidian/|__pycache__|\\.pytest_cache|local.*candle|csv$'` returned no matches.
+
 ## v2026.05.08.005
 
 - `recorded_at_utc`: `2026-05-08T07:57:25Z`

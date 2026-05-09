@@ -1,5 +1,13 @@
 # Money Flow Project Memory — Team Chronicle
 
+## 2026-05-09T12:32:14Z SV1.18 - Evidence Credibility Closeout And UAT Candidate Freeze
+
+SV1.18 closes the current Hyperliquid Strategy Validation evidence cycle. The closeout accepts that current backtest/replay evidence is useful for research ranking and operational planning, but does not prove edge because it does not model funding, liquidation, exchange margin, order-book fills, partial fills, latency, outages, real rejects, production reconciliation, or full portfolio constraints.
+
+Exactly one UAT observation candidate is frozen: `money_flow_hyperliquid_eth_1h_baseline_uat_candidate`, scoped to Hyperliquid ETH USDC perpetual `sleeve_1h` current baseline Money Flow rules. This is not a production strategy and not paper/live authorization. The excluded UAT scope is explicit: 15m, 4h, BTC/SOL 1h, lower-RSI variants, market-structure variants, and non-Hyperliquid venues.
+
+The next gated work is UAT0 safety/security/runtime hardening for plumbing and behavior validation only. UAT0 must verify auth/authz, secret hygiene, sandbox/live separation, risk and drawdown monitoring, kill switch, audit logging, operator confirmation gates, duplicate-order prevention, submit-lease uncertainty handling, and endpoint safety before any later sandbox connectivity or sandbox order phase.
+
 ## 2026-05-08T06:52:35Z SV1.17 - True Replay Experiment Round 1
 
 SV1.17 uses the SV1.16/SV1.16.1 replay substrate for true replay experiment round one under `dynamic_equity_pct`. It now compares the current Money Flow baseline against lower-RSI plus market-structure variants across the full Hyperliquid BTC/ETH/SOL x 15m/1h/4h public campaign suite: the original lower-RSI trend-intact v1, a narrower v2, a support-confirmed variant, and an EMA10-hold/no-resistance variant.

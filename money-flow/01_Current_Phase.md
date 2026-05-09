@@ -2,9 +2,9 @@
 
 ## Phase
 
-Current implemented phase: `SV1.17` true replay experiment round 1; SV1.17 compares lower-RSI plus market-structure variants across Hyperliquid BTC/ETH/SOL and `sleeve_15m`/`sleeve_1h`/`sleeve_4h` with `dynamic_equity_pct` using the SV1.16/SV1.16.1 replay substrate, without changing production Money Flow rules.
+Current implemented phase: `SV1.18` evidence credibility closeout and UAT candidate freeze; SV1.18 closes the current Hyperliquid Strategy Validation evidence cycle and freezes exactly one UAT observation candidate, Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules, without changing production Money Flow rules.
 
-Proposed next phase: manual founder/operator review of the Hyperliquid-only evidence interpretation, dynamic-equity evidence, SV1.14 diagnostics, SV1.15.1 methodology-hardened experiment results, SV1.16.1 replay-methodology report, and SV1.17 true replay experiment results before any explicitly scoped paper-trading design phase. Aster and Binance remain later comparative candidates after separate identity/import; OKX/Coinbase/Kraken remain blocked by source/history gaps. Paper-trading design remains deferred. `Phase 8.1` remains deferred until explicitly scoped.
+Proposed next phase: `UAT0` safety/security/runtime hardening for plumbing and behavior validation only. UAT is not performance validation, paper trading, live trading, or routing expansion. Aster and Binance remain later comparative candidates after separate identity/import; OKX/Coinbase/Kraken remain blocked by source/history gaps. Paper-trading design remains deferred. `Phase 8.1` remains deferred until explicitly scoped.
 
 
 ## Pre-Paper / Live Trading Blockers
@@ -103,6 +103,8 @@ SV1.15.1 hardens methodology truth for those experiments. Completed-trade overla
 SV1.16 adds the rejected-signal replay substrate that SV1.15.1 identified as necessary. The research-only replay context records every evaluated candle's production-rule action/reasons, entry allowed/rejected truth, RSI zone, EMA/MACD/extension state, regime labels, and recent swing high/low market-structure diagnostics. The true replay runner processes candles chronologically, maintains position occupancy and `dynamic_equity_pct` sizing, and runs a narrow `lower_rsi_floor_trend_intact_v1` example for Hyperliquid ETH `sleeve_1h`. That lower-RSI example admitted replay-only entries but underperformed the current baseline sampled scenario, so it is not an authorized rule change. SV1.16.1 hardens the method truth: production-rule context fields are evaluations in the current replay state, independent per-candle baseline reference is not claimed after divergence, and variant-admitted candles are not counted as variant no-trade. Paper/live trading, routing, execution behavior, cross-venue evidence, and production Money Flow changes remain deferred.
 
 SV1.17 uses that true replay substrate for the first full public-campaign experiment round. BTC/ETH/SOL are replayed across `sleeve_15m`, `sleeve_1h`, and `sleeve_4h`; every row is an independent same-symbol/same-component dynamic-equity scenario. Some lower-RSI plus market-structure variants improve losing baselines, but ETH `sleeve_1h` baseline remains the strongest above-starting-equity pocket. The result argues against treating lower RSI as automatically better and keeps all variants research-only. No production rules, paper/live trading, routing, execution behavior, exchange calls, or cross-venue evidence changed.
+
+SV1.18 closes the current evidence cycle. The closeout states that current backtest/replay evidence does not prove edge and is insufficient for paper/live trading. It freezes exactly one UAT observation candidate, `money_flow_hyperliquid_eth_1h_baseline_uat_candidate`, scoped to Hyperliquid ETH USDC perpetual `sleeve_1h` current baseline rules for observation/shadow behavior only. 15m, 4h, BTC/SOL 1h, lower-RSI variants, market-structure variants, and non-Hyperliquid venues are excluded from current UAT scope. UAT0 is safety/security/runtime hardening before any later sandbox connectivity or order phase.
 
 ## Accepted Baseline
 
