@@ -13,6 +13,19 @@ Entry schema:
 
 ---
 
+## v2026.05.10.007
+
+- `recorded_at_utc`: `2026-05-10T09:44:30Z`
+- `scope`: `UAT2.1 dashboard cache-bust hotfix`
+- `intent`: `Native entry. Added explicit UAT2.1 static asset version query strings to the dashboard CSS and JS includes so browsers do not reuse a cached pre-UAT2.1 dashboard script that treats the UAT2 Shadow Run tab as unknown and falls back to Evidence. No dashboard behavior, Money Flow rules, routing behavior, exchange calls, approvals, order artifacts, paper/live behavior, or evidence packs were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/index.html`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_uat21_dashboard_visualization.py tests/test_dashboard_static_assets.py`
+  - `git diff --check`
+
 ## v2026.05.10.006
 
 - `recorded_at_utc`: `2026-05-10T09:22:47Z`
