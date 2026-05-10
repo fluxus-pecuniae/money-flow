@@ -1580,12 +1580,18 @@
           <div><span>Risk gate evaluator</span><strong>fixture-tested</strong></div>
           <div><span>Sandbox account drawdown feed</span><strong>fixture only / missing live sandbox feed</strong></div>
           <div><span>Submit lease duplicate-prevention</span><strong>fixture-tested</strong></div>
+          <div><span>Unified dry-run preflight</span><strong>implemented</strong></div>
+          <div><span>Runtime full-blocker propagation</span><strong>implemented</strong></div>
+          <div><span>Numeric edge-case validation</span><strong>implemented</strong></div>
+          <div><span>Actual sandbox approval</span><strong>missing</strong></div>
+          <div><span>Artifact label persistence enforcement</span><strong>missing</strong></div>
           <div><span>Lifecycle verification</span><strong>fixture-tested design only</strong></div>
           <div><span>Active order submission button</span><strong>false</strong></div>
         </div>
         <ul class="check-list">
           <li>UAT3.0.1 adds fixture/readiness validators only; it does not enable actual sandbox submission.</li>
-          <li>UAT3.1 is blocked by founder/operator approval for actual sandbox submission, live-fed sandbox drawdown, sandbox submit path wiring, executable approval-scope wiring, risk gate wiring, submit-lease integration verification, and sandbox artifact label enforcement.</li>
+          <li>UAT3.0.2 adds unified dry-run gate preflight, full runtime blocker propagation, and numeric edge-case validation only; it does not enable actual sandbox submission.</li>
+          <li>UAT3.1 is blocked by founder/operator approval for actual sandbox submission, live-fed sandbox drawdown, sandbox submit path wiring, executable approval-scope wiring, risk gate wiring, submit-lease integration verification, and sandbox artifact label persistence enforcement.</li>
           <li>No dashboard control creates an approval, order intent, submitted order, or sandbox order.</li>
         </ul>
       `;

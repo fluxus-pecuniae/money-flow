@@ -8,6 +8,8 @@ UAT3.0.1 is fixture/readiness hardening only. It converts the UAT3.0 sandbox-ord
 
 UAT3.0.1 does not submit orders, does not call private or signed endpoints, does not use exchange API keys, does not create real `OrderIntent` rows, does not create real `SubmittedOrder` rows, does not create executable approvals, does not add paper trading, does not add live trading, does not change Money Flow rules, does not add routing expansion, and does not generate evidence packs.
 
+Follow-up truth: UAT3.0.2 later hardens these fixture primitives with full runtime-policy blocker propagation into risk/preflight reason codes, explicit non-positive sandbox numeric validation, and a unified fixture-only dry-run sandbox gate preflight. UAT3.1 actual sandbox order submission remains blocked.
+
 Actual sandbox order submission is not approved. Paper trading is not approved. Live trading is not approved.
 
 ## Sandbox Runtime Policy Status
@@ -253,4 +255,3 @@ Actual sandbox order submission is not approved.
 | Money Flow rules changed | `false` |
 | Routing expansion added | `false` |
 | Evidence packs generated | `false` |
-

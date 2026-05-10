@@ -15,6 +15,7 @@ from enum import StrEnum
 
 SANDBOX_RUNTIME_MODES: tuple[str, ...] = ("sandbox", "uat_sandbox")
 SANDBOX_ENVIRONMENTS: tuple[str, ...] = ("sandbox", "testnet", "uat_sandbox")
+RUNTIME_POLICY_RISK_REASON_PREFIX = "runtime_policy_"
 
 
 class SandboxReadinessReason(StrEnum):
@@ -52,6 +53,7 @@ class SandboxApprovalRejectReason(StrEnum):
     BROAD_TOP20_APPROVAL_FORBIDDEN = "broad_top20_approval_forbidden"
     ONE_TIME_USE_INTENT_MISSING = "one_time_use_intent_missing"
     APPROVAL_ALREADY_CONSUMED = "approval_already_consumed"
+    SANDBOX_POSITIVE_QUANTITY_REQUIRED = "sandbox_positive_quantity_required"
 
 
 class SandboxRiskRejectReason(StrEnum):
@@ -66,6 +68,10 @@ class SandboxRiskRejectReason(StrEnum):
     KILL_SWITCH_ENABLED = "kill_switch_enabled"
     RUNTIME_MODE_NOT_SANDBOX = "runtime_mode_not_sandbox"
     SANDBOX_SUBMISSION_DISABLED = "sandbox_submission_disabled"
+    SANDBOX_POSITIVE_LIMIT_REQUIRED = "sandbox_positive_limit_required"
+    SANDBOX_POSITIVE_NOTIONAL_REQUIRED = "sandbox_positive_notional_required"
+    SANDBOX_DRAWDOWN_THRESHOLD_INVALID = "sandbox_drawdown_threshold_invalid"
+    SANDBOX_DRAWDOWN_PERCENT_INVALID = "sandbox_drawdown_percent_invalid"
 
 
 class SandboxSubmitRejectReason(StrEnum):
@@ -79,6 +85,18 @@ class SandboxSubmitRejectReason(StrEnum):
     CROSS_VENUE_RETRY_FORBIDDEN = "cross_venue_retry_forbidden"
     TOP20_FANOUT_FORBIDDEN = "top20_fanout_forbidden"
     ROUTE_EXECUTOR_FORBIDDEN = "route_executor_forbidden"
+
+
+class SandboxDryRunRejectReason(StrEnum):
+    FOUNDER_OPERATOR_ACTUAL_SANDBOX_SUBMISSION_APPROVAL_REQUIRED = (
+        "founder_operator_actual_sandbox_submission_approval_required"
+    )
+    SANDBOX_DRAWDOWN_FEED_MISSING = "sandbox_drawdown_feed_missing"
+    SANDBOX_DRAWDOWN_FEED_FIXTURE_ONLY = "sandbox_drawdown_feed_fixture_only"
+    SANDBOX_DRAWDOWN_FEED_LIVE_FED_REQUIRED = "sandbox_drawdown_feed_live_fed_required"
+    SANDBOX_ARTIFACT_LABELING_NOT_ENFORCED_ON_PERSISTENCE = (
+        "sandbox_artifact_labeling_not_enforced_on_persistence"
+    )
 
 
 @dataclass(frozen=True)
@@ -220,6 +238,10 @@ def validate_sandbox_approval_scope(
         reasons.append(SandboxApprovalRejectReason.WRONG_COMPONENT.value)
     if _as_aware_utc(now_utc) >= _as_aware_utc(scope.expires_at_utc):
         reasons.append(SandboxApprovalRejectReason.EXPIRED_APPROVAL.value)
+    if scope.max_notional_or_quantity <= 0:
+        reasons.append(SandboxApprovalRejectReason.SANDBOX_POSITIVE_QUANTITY_REQUIRED.value)
+    if candidate.requested_notional_or_quantity <= 0:
+        reasons.append(SandboxApprovalRejectReason.SANDBOX_POSITIVE_QUANTITY_REQUIRED.value)
     if candidate.requested_notional_or_quantity > scope.max_notional_or_quantity:
         reasons.append(SandboxApprovalRejectReason.QUANTITY_ABOVE_MAX.value)
     if _normalize(scope.environment) not in SANDBOX_ENVIRONMENTS or _normalize(candidate.environment) not in SANDBOX_ENVIRONMENTS:
@@ -269,6 +291,18 @@ def evaluate_sandbox_risk_gates(
     request: SandboxRiskRequest,
 ) -> SandboxCheckResult:
     reasons: list[str] = []
+    if (
+        limits.max_sandbox_notional <= 0
+        or limits.max_sandbox_order_count <= 0
+        or limits.max_daily_sandbox_order_count <= 0
+    ):
+        reasons.append(SandboxRiskRejectReason.SANDBOX_POSITIVE_LIMIT_REQUIRED.value)
+    if limits.max_sandbox_drawdown_pct < 0:
+        reasons.append(SandboxRiskRejectReason.SANDBOX_DRAWDOWN_THRESHOLD_INVALID.value)
+    if request.notional <= 0:
+        reasons.append(SandboxRiskRejectReason.SANDBOX_POSITIVE_NOTIONAL_REQUIRED.value)
+    if request.sandbox_drawdown_pct < 0:
+        reasons.append(SandboxRiskRejectReason.SANDBOX_DRAWDOWN_PERCENT_INVALID.value)
     if request.notional > limits.max_sandbox_notional:
         reasons.append(SandboxRiskRejectReason.SANDBOX_NOTIONAL_LIMIT_EXCEEDED.value)
     if request.current_order_count >= limits.max_sandbox_order_count:
@@ -290,6 +324,8 @@ def evaluate_sandbox_risk_gates(
     if request.kill_switch_enabled:
         reasons.append(SandboxRiskRejectReason.KILL_SWITCH_ENABLED.value)
     runtime_result = request.runtime_policy.evaluate_for_sandbox_submission()
+    for runtime_reason in runtime_result.reason_codes:
+        reasons.append(f"{RUNTIME_POLICY_RISK_REASON_PREFIX}{runtime_reason}")
     if SandboxReadinessReason.RUNTIME_MODE_NOT_SANDBOX.value in runtime_result.reason_codes:
         reasons.append(SandboxRiskRejectReason.RUNTIME_MODE_NOT_SANDBOX.value)
     if SandboxReadinessReason.SANDBOX_SUBMISSION_DISABLED.value in runtime_result.reason_codes:
@@ -328,6 +364,8 @@ def build_sandbox_drawdown_feed_fixture(
         raise ValueError("sandbox_account_equity must be positive")
     if max_sandbox_equity <= 0:
         raise ValueError("max_sandbox_equity must be positive")
+    if drawdown_threshold < 0:
+        raise ValueError(SandboxRiskRejectReason.SANDBOX_DRAWDOWN_THRESHOLD_INVALID.value)
     drawdown_amount = max(Decimal("0"), max_sandbox_equity - sandbox_account_equity)
     drawdown_percent = drawdown_amount / max_sandbox_equity
     threshold_breached = drawdown_percent >= drawdown_threshold
@@ -436,3 +474,99 @@ def evaluate_sandbox_submit_preflight(
 
     return SandboxCheckResult(allowed=not reasons, reason_codes=tuple(dict.fromkeys(reasons)))
 
+
+@dataclass(frozen=True)
+class UAT3SandboxGateDryRunInput:
+    runtime_policy: SandboxRuntimePolicy
+    artifact_labels: SandboxArtifactLabels
+    approval_scope: SandboxApprovalScope
+    approval_candidate: SandboxApprovalCandidate
+    risk_limits: SandboxRiskLimits
+    risk_request: SandboxRiskRequest
+    submit_request: SandboxSubmitPreflightRequest
+    submit_state: SandboxSubmitPreflightState
+    now_utc: datetime
+    sandbox_drawdown_feed: SandboxDrawdownFeedFixture | None
+    founder_operator_actual_submission_approved: bool = False
+    drawdown_feed_status: str = "sandbox_drawdown_feed_fixture_only"
+    artifact_labels_persistence_enforced: bool = False
+    require_live_fed_drawdown: bool = True
+
+
+@dataclass(frozen=True)
+class UAT3SandboxGateDryRunResult:
+    allowed: bool
+    overall_reason_codes: tuple[str, ...]
+    runtime_policy_result: SandboxCheckResult
+    artifact_label_result: SandboxCheckResult
+    approval_scope_result: SandboxCheckResult
+    risk_gate_result: SandboxCheckResult
+    drawdown_feed_status: str
+    submit_preflight_result: SandboxCheckResult
+    would_submit_if_enabled: bool
+    creates_order_intent: bool = False
+    creates_submitted_order: bool = False
+    creates_executable_approval: bool = False
+    calls_exchange: bool = False
+
+    @property
+    def blocked(self) -> bool:
+        return not self.allowed
+
+
+def evaluate_uat3_sandbox_submission_preflight(
+    preflight: UAT3SandboxGateDryRunInput,
+) -> UAT3SandboxGateDryRunResult:
+    """Evaluate all future UAT3.1 gates without persisting or calling exchanges."""
+
+    runtime_result = preflight.runtime_policy.evaluate_for_sandbox_submission()
+    artifact_result = validate_sandbox_artifact_labels(preflight.artifact_labels)
+    approval_result = validate_sandbox_approval_scope(
+        scope=preflight.approval_scope,
+        candidate=preflight.approval_candidate,
+        now_utc=preflight.now_utc,
+    )
+    risk_result = evaluate_sandbox_risk_gates(
+        limits=preflight.risk_limits,
+        request=preflight.risk_request,
+    )
+    submit_result = evaluate_sandbox_submit_preflight(
+        request=preflight.submit_request,
+        state=preflight.submit_state,
+    )
+
+    reasons: list[str] = []
+    reasons.extend(runtime_result.reason_codes)
+    reasons.extend(artifact_result.reason_codes)
+    reasons.extend(approval_result.reason_codes)
+    reasons.extend(risk_result.reason_codes)
+    reasons.extend(submit_result.reason_codes)
+
+    if not preflight.founder_operator_actual_submission_approved:
+        reasons.append(
+            SandboxDryRunRejectReason.FOUNDER_OPERATOR_ACTUAL_SANDBOX_SUBMISSION_APPROVAL_REQUIRED.value
+        )
+    if preflight.sandbox_drawdown_feed is None:
+        reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_MISSING.value)
+    if preflight.drawdown_feed_status == SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_FIXTURE_ONLY.value:
+        reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_FIXTURE_ONLY.value)
+    if preflight.require_live_fed_drawdown and preflight.drawdown_feed_status != "sandbox_drawdown_feed_live_fed_verified":
+        reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_LIVE_FED_REQUIRED.value)
+    if not preflight.artifact_labels_persistence_enforced:
+        reasons.append(
+            SandboxDryRunRejectReason.SANDBOX_ARTIFACT_LABELING_NOT_ENFORCED_ON_PERSISTENCE.value
+        )
+
+    unique_reasons = tuple(dict.fromkeys(reasons))
+    allowed = not unique_reasons
+    return UAT3SandboxGateDryRunResult(
+        allowed=allowed,
+        overall_reason_codes=unique_reasons,
+        runtime_policy_result=runtime_result,
+        artifact_label_result=artifact_result,
+        approval_scope_result=approval_result,
+        risk_gate_result=risk_result,
+        drawdown_feed_status=preflight.drawdown_feed_status,
+        submit_preflight_result=submit_result,
+        would_submit_if_enabled=allowed,
+    )

@@ -2,9 +2,9 @@
 
 ## Current Implemented Milestone
 
-`UAT3.0.1` sandbox runtime / approval / risk readiness hardening is complete.
+`UAT3.0.2` sandbox gate integration dry-run / policy hardening is complete.
 
-SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one evidence candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap. OB1.0 overhauled the Obsidian project brain. UAT0 audited safety/security/runtime readiness and blocked UAT1 until named gaps were closed. UAT0.1 closes the P0 API auth/authz baseline and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds fixture-tested top-20 universe resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design. UAT1 verifies allowed public Hyperliquid endpoint behavior, fetches a no-key public top-volume source, and resolves the Hyperliquid-supported top-20 observation universe. UAT1.1 adds shadow signal audit records, operator-visible shadow drawdown state, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification. UAT2 completed a bounded no-order Money Flow shadow observation across the UAT1 Hyperliquid top-20-supported universe. UAT2.1 makes that UAT2 output visually reviewable in the static dashboard and adds an informational UAT3 blocked readiness panel. UAT3.0 defines the future sandbox-order scope, founder/operator approval template, sandbox runtime policy, sandbox drawdown feed requirements, lifecycle, artifact labeling, submit-lease, approval, and risk-gate requirements without enabling submission. UAT3.0.1 converts those requirements into fixture-only readiness primitives without enabling submission.
+SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one evidence candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap. OB1.0 overhauled the Obsidian project brain. UAT0 audited safety/security/runtime readiness and blocked UAT1 until named gaps were closed. UAT0.1 closes the P0 API auth/authz baseline and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds fixture-tested top-20 universe resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design. UAT1 verifies allowed public Hyperliquid endpoint behavior, fetches a no-key public top-volume source, and resolves the Hyperliquid-supported top-20 observation universe. UAT1.1 adds shadow signal audit records, operator-visible shadow drawdown state, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification. UAT2 completed a bounded no-order Money Flow shadow observation across the UAT1 Hyperliquid top-20-supported universe. UAT2.1 makes that UAT2 output visually reviewable in the static dashboard and adds an informational UAT3 blocked readiness panel. UAT3.0 defines the future sandbox-order scope, founder/operator approval template, sandbox runtime policy, sandbox drawdown feed requirements, lifecycle, artifact labeling, submit-lease, approval, and risk-gate requirements without enabling submission. UAT3.0.1 converts those requirements into fixture-only readiness primitives without enabling submission. UAT3.0.2 hardens those primitives with full runtime-policy blocker propagation, non-positive sandbox numeric validation, and a unified fixture-only dry-run preflight without enabling submission.
 
 SV1.18 is complete.
 
@@ -139,6 +139,15 @@ UAT3.0.1 is now complete:
 - Future UAT3.1 actual-submission approval wording now requires a one-attempt sandbox/testnet approval with exact venue, environment, symbol, component, max size/count, order type, time window, sandbox account, kill switch, and lifecycle scope.
 - Approval scope validator, sandbox risk gate evaluator, sandbox drawdown feed fixture, and submit-lease duplicate-prevention fixture are implemented and fixture-tested.
 - Dashboard UAT view shows fixture/readiness status.
+- UAT3.1 actual sandbox order submission remains blocked.
+- No order intent, submitted order, executable approval, private/signed/order endpoint call, exchange API-key use, paper/live behavior, evidence pack, routing artifact, or Money Flow rule change was created.
+
+UAT3.0.2 is now complete:
+
+- Sandbox risk gates propagate all `SandboxRuntimePolicy` blockers into risk/preflight reason codes instead of silently ignoring non-mode blockers.
+- Approval scope, risk limits, risk requests, and drawdown fixtures reject non-positive or invalid sandbox numeric values with explicit reason codes.
+- A unified fixture-only dry-run sandbox gate preflight evaluates runtime policy, artifact labels, approval scope, risk gates, drawdown feed status, submit preflight, founder/operator actual-submission approval, and artifact-label persistence status.
+- The dry-run result reports that it creates no order intent, submitted order, executable approval, or exchange call.
 - UAT3.1 actual sandbox order submission remains blocked.
 - No order intent, submitted order, executable approval, private/signed/order endpoint call, exchange API-key use, paper/live behavior, evidence pack, routing artifact, or Money Flow rule change was created.
 

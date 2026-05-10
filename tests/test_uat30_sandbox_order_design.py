@@ -128,6 +128,10 @@ def test_dashboard_has_informational_uat3_design_panel_without_order_button() ->
     assert "sandbox account drawdown feed" in dashboard
     assert "fixture only / missing live sandbox feed" in dashboard
     assert "submit lease duplicate-prevention" in dashboard
+    assert "unified dry-run preflight" in dashboard
+    assert "runtime full-blocker propagation" in dashboard
+    assert "numeric edge-case validation" in dashboard
+    assert "artifact label persistence enforcement" in dashboard
     assert "active order submission button</span><strong>false" in dashboard
     assert "create approval" not in dashboard
     assert "submit sandbox order" not in dashboard

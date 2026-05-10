@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-10T12:10:00Z - UAT3.0.2 - Sandbox Gate Dry-Run Preflight Complete
+
+- `decision`: Add a unified fixture-only sandbox gate dry-run preflight and harden UAT3.0.1 sandbox runtime/risk numeric policy before any UAT3.1 submit path is considered.
+- `why`: Review found that sandbox risk evaluation only surfaced a subset of runtime-policy blockers. Future sandbox/testnet submission must fail closed on every runtime blocker, invalid sandbox numeric inputs, missing actual-submission approval, fixture-only drawdown, and missing persistence-level sandbox artifact labeling.
+- `scope`: UAT3.0.2 propagates all `SandboxRuntimePolicy` blockers into risk/preflight reason codes, rejects non-positive approval quantities, risk limits, risk request notionals, and invalid drawdown values, adds `evaluate_uat3_sandbox_submission_preflight`, updates dashboard readiness text, and adds docs/tests. It does not submit orders, create real `OrderIntent` / `SubmittedOrder` / executable approval artifacts, call private/signed/order endpoints, use exchange API keys, approve paper/live trading, change Money Flow rules, add routing expansion, or generate evidence packs.
+- `result`: UAT3.1 actual sandbox order submission remains blocked. The dry-run result now combines runtime policy, artifact labels, approval scope, risk gates, drawdown feed status, submit preflight, founder actual-submission approval, and artifact-label persistence status while reporting no order intent, submitted order, executable approval, or exchange call creation.
+- `follow_up_implications`: UAT3.1 may proceed only after explicit founder/operator approval for actual sandbox submission, real sandbox/testnet submit-path wiring, sandbox-only private endpoint separation, live-fed sandbox account drawdown, executable approval/risk gate wiring, submit-lease integration verification, and persistence-level sandbox artifact-label enforcement.
+
 ## 2026-05-10T10:55:00Z - UAT3.0.1 - Sandbox Runtime / Approval / Risk Readiness Fixtures Complete
 
 - `decision`: Add fixture-only readiness primitives for the future UAT3.1 sandbox order path while keeping actual sandbox submission blocked.

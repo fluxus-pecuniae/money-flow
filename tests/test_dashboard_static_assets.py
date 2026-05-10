@@ -35,6 +35,10 @@ def test_evidence_dashboard_uses_gus_design_tokens_and_boundaries() -> None:
     assert "Sandbox runtime policy" in js
     assert "Sandbox artifact label validator" in js
     assert "Risk gate evaluator" in js
+    assert "Unified dry-run preflight" in js
+    assert "Runtime full-blocker propagation" in js
+    assert "Numeric edge-case validation" in js
+    assert "Artifact label persistence enforcement" in js
     assert "No interactive approval action exists" in js
     assert "SV1.15 Hypothesis Experiments" in html
     assert "experiment-replay-filter" in html

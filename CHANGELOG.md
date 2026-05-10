@@ -13,6 +13,56 @@ Entry schema:
 
 ---
 
+## v2026.05.10.010
+
+- `recorded_at_utc`: `2026-05-10T12:10:00Z`
+- `scope`: `UAT3.0.2 sandbox gate integration dry-run and policy hardening`
+- `intent`: `Native entry. Hardened fixture-only UAT3 sandbox readiness by propagating all sandbox runtime-policy blockers into risk/preflight output, adding non-positive quantity/notional/limit/drawdown validation, adding a unified dry-run sandbox gate preflight, making founder/operator actual-submission approval mandatory in preflight output, making fixture-only drawdown and missing artifact-label persistence enforcement explicit blockers, and updating the dashboard UAT3 readiness panel. UAT3.1 remains blocked. No orders were submitted, no real OrderIntent, PreparedVenueOrder, ExecutionReadinessAssessment, SubmittedOrder, executable approval, private/signed/order endpoint call, exchange API-key use, paper/live behavior, routing expansion, Money Flow rule change, or evidence pack was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/uat3_0_1_sandbox_runtime_approval_risk_readiness.md`
+  - `docs/uat3_0_2_sandbox_gate_integration_dry_run.md`
+  - `services/uat/sandbox.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_uat21_dashboard_visualization.py`
+  - `tests/test_uat30_sandbox_order_design.py`
+  - `tests/test_uat302_sandbox_gate_dry_run.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/30 Strategy/Money Flow Strategy Lab.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/Operational Memory.md`
+  - `money-flow/40 Operations/UAT0 Safety Runtime Hardening.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_uat302_sandbox_gate_dry_run.py`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_uat21_dashboard_visualization.py tests/test_uat30_sandbox_order_design.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat0_safety_report.py tests/test_uat01_api_auth_runtime_lockout.py tests/test_uat02_adapter_runtime_policy_and_redaction.py tests/test_uat03_top20_universe_and_drawdown.py tests/test_uat1_public_read_only_connectivity.py tests/test_uat11_shadow_readiness.py tests/test_uat2_shadow_strategy.py tests/test_uat30_sandbox_order_design.py tests/test_uat301_sandbox_readiness.py tests/test_uat302_sandbox_gate_dry_run.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-uat3.0.2-review.zip`
+  - `review bundle exclusion scan passed: files=356, local_artifact_violations=[]`
+
 ## v2026.05.10.009
 
 - `recorded_at_utc`: `2026-05-10T10:55:00Z`
