@@ -13,6 +13,53 @@ Entry schema:
 
 ---
 
+## v2026.05.10.016
+
+- `recorded_at_utc`: `2026-05-10T16:41:12Z`
+- `scope`: `UAT3.1 first approval-gated sandbox/testnet order attempt`
+- `intent`: `Native entry. Added the UAT3.1 one-shot Hyperliquid testnet lifecycle probe service and runner, requiring the exact founder/operator actual-submission approval text, sandbox/testnet endpoint verification, live-fed sandbox drawdown, approval-scope validation, risk gates, submit-lease duplicate prevention, sandbox artifact labels, and post-only/non-marketable ETH order shaping before one transport call. The approved run made exactly one Hyperliquid testnet order submission attempt for ETH, capped below 10 USDC notional, using a post-only limit shape. Hyperliquid testnet rejected the request with a sanitized user/API-wallet-not-found response, so no cancel was required; reconciliation found no open orders and no unexpected fill. No OrderIntent, PreparedVenueOrder, SubmittedOrder, executable approval, paper/live behavior, broad top-20 submission, route expansion, Money Flow rule change, evidence pack, live endpoint use, or second order was created.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/uat3_0_6_sandbox_submit_path_dry_run_wiring.md`
+  - `docs/uat3_1_first_sandbox_order_attempt.md`
+  - `docs/uat3_1_first_sandbox_order_attempt_summary.json`
+  - `scripts/run_uat31_first_sandbox_order.py`
+  - `services/uat/__init__.py`
+  - `services/uat/sandbox_order.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_uat31_first_sandbox_order_attempt.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/Operational Memory.md`
+  - `money-flow/40 Operations/UAT0 Safety Runtime Hardening.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/run_uat31_first_sandbox_order.py --execute-approved-uat31`
+  - `.venv/bin/python -m compileall services/uat/sandbox_order.py scripts/run_uat31_first_sandbox_order.py tests/test_uat31_first_sandbox_order_attempt.py`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat31_first_sandbox_order_attempt.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat0_safety_report.py tests/test_uat01_api_auth_runtime_lockout.py tests/test_uat02_adapter_runtime_policy_and_redaction.py tests/test_uat03_top20_universe_and_drawdown.py tests/test_uat1_public_read_only_connectivity.py tests/test_uat11_shadow_readiness.py tests/test_uat2_shadow_strategy.py tests/test_uat21_dashboard_visualization.py tests/test_uat30_sandbox_order_design.py tests/test_uat301_sandbox_readiness.py tests/test_uat302_sandbox_gate_dry_run.py tests/test_uat303_sandbox_gate_wiring.py tests/test_uat304_sandbox_private_read_only_drawdown.py tests/test_uat305_sandbox_private_read_only_drawdown_verification.py tests/test_uat306_sandbox_submit_path_dry_run.py tests/test_uat31_first_sandbox_order_attempt.py tests/test_api.py tests/test_config.py tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-uat3.1-review.zip`
+  - `review bundle secret scan: REVIEW_BUNDLE_SECRET_SCAN_OK files=369 secret_values_checked=1`
+  - `.env.example secret placeholder check: ENV_EXAMPLE_SECRET_CHECK_OK`
+
 ## v2026.05.10.015
 
 - `recorded_at_utc`: `2026-05-10T15:42:33Z`

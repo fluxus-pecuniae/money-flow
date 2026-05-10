@@ -10,6 +10,14 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `result`: UAT3.1 actual sandbox order submission remains blocked. The dry-run path now reports no order intent, prepared order, submitted order, executable approval, or exchange call creation while blocking missing founder actual-submission approval, stale/missing drawdown, approval/risk failures, submit-lease duplicate/uncertainty failures, endpoint-classification failures, and missing sandbox labels.
 - `follow_up_implications`: UAT3.1 may proceed only after explicit founder/operator actual-submission approval, explicit later-phase sandbox/testnet order transport enablement, and final operator review proving the real submit path preserves the dry-run gates.
 
+## 2026-05-10T16:50:05Z - UAT3.1 - First Sandbox/Testnet Lifecycle Probe Attempted
+
+- `decision`: Execute exactly one founder-approved Hyperliquid testnet ETH sandbox/testnet lifecycle probe under the UAT3.1 gate chain.
+- `why`: UAT3.0.6 proved the submit path in dry-run mode, and the founder/operator supplied exact one-attempt approval for sandbox/testnet plumbing validation only. The next safe step was one tiny nonmarketable/post-only testnet attempt with no paper/live, no broad top-20 submission, no strategy-performance claim, and no repeat behavior.
+- `scope`: UAT3.1 validates exact approval text, sandbox/testnet endpoint boundary, live-fed sandbox drawdown status, approval scope, risk gates, submit-lease duplicate prevention, sandbox artifact labels, endpoint classification, and nonmarketable/post-only order shape before one Hyperliquid testnet order transport call. It creates no production `OrderIntent`, `PreparedVenueOrder`, `SubmittedOrder`, executable approval, paper/live behavior, routing expansion, Money Flow rule change, evidence pack, live endpoint use, broad top-20 submission, or second order.
+- `result`: One Hyperliquid testnet ETH post-only limit attempt under 10 USDC notional was made. Hyperliquid rejected it with a sanitized user/API-wallet-not-found response, no cancel was required, reconciliation found no open order, and no unexpected fill or unknown state remained.
+- `follow_up_implications`: UAT3.2 additional sandbox lifecycle testing may be scoped only with separate founder/operator approval. Before another attempt, review sandbox account/API-wallet configuration so accepted/open -> cancel lifecycle coverage can be tested without repeating the UAT3.1 user/API-wallet rejection.
+
 ## 2026-05-10T15:06:29Z - UAT3.0.5 - Testnet Read-Only Drawdown Verified
 
 - `decision`: Rerun UAT3.0.5 with local UAT-specific sandbox/testnet environment variables and record the resulting private-read-only drawdown verification.

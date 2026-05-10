@@ -271,6 +271,8 @@ UAT3.1 first approval-gated sandbox order may proceed only after founder/operato
 
 Actual sandbox order submission is not approved.
 
+Historical successor update after UAT3.1: founder/operator actual-submission approval was later supplied for one Hyperliquid testnet ETH lifecycle probe. UAT3.1 used the dry-run gate chain, made exactly one sandbox/testnet post-only limit order attempt under 10 USDC notional, received a sanitized venue rejection, required no cancel, found no open order during reconciliation, and created no production execution artifacts. This does not approve paper trading, live trading, broad top-20 submission, repeated sandbox orders, or future order attempts.
+
 ## Boundary Confirmation
 
 | Boundary | Value |

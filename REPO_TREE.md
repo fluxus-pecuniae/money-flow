@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-10T14:20:21Z`
+Last reviewed: `2026-05-10T16:41:12Z`
 
 ## Top-Level Structure
 
@@ -78,6 +78,7 @@ Last reviewed: `2026-05-10T14:20:21Z`
 - UAT3.0.4 updates current-state notes after sandbox private read-only drawdown readiness: private read-only sandbox account policy, credential approval/boundary validation, endpoint category separation, redaction helpers, and sandbox account drawdown feed modeling exist. The required private read-only credential approval was not present, so no credentials were used and no private endpoints were called. UAT3.1 actual sandbox submission remains blocked.
 - UAT3.0.5 updates current-state notes after sandbox/testnet private read-only credential and drawdown verification: exact private-read-only approval is present, sandbox/testnet credential/base-URL verification helpers exist, one Hyperliquid testnet read-only account-state request returned HTTP 200, the sandbox account drawdown feed is `sandbox_drawdown_feed_live_fed_verified`, and order-capable categories remain blocked. No API key/private key was sent, no order endpoint was called, and UAT3.1 actual sandbox submission remains blocked.
 - UAT3.0.6 updates current-state notes after sandbox submit path dry-run wiring: a non-persistent sandbox submission plan and dry-run gate chain now compose actual-submission approval, live-fed drawdown status, approval scope, risk gates, submit-lease duplicate prevention, endpoint classification, and sandbox artifact-label boundary validation without creating order artifacts or calling exchanges. UAT3.1 actual sandbox submission remains blocked.
+- UAT3.1 updates current-state notes after the first approval-gated sandbox/testnet lifecycle probe: exact founder/operator approval was verified, one Hyperliquid testnet ETH post-only limit order attempt under 10 USDC notional was made, the venue rejected the request with a sanitized user/API-wallet-not-found response, no cancel was required, reconciliation found no open order, and no production `OrderIntent`, `PreparedVenueOrder`, `SubmittedOrder`, executable approval, paper/live behavior, routing expansion, Money Flow rule change, or evidence pack was created.
 - Phase 8.0.1 accepted the previously dirty Obsidian memory refresh as the strategic baseline and updated it to current Phase 8.0/8.0.1 truth.
 - Phase 8.0.2 updates current-phase/coordination/decision notes for active submit-lease operator-summary truth only; full project memory remains untouched.
 - SV1.0.1 updates current-phase/coordination/decision notes for strategy-validation research-truth/report hardening only; full project memory remains untouched.
@@ -135,6 +136,7 @@ Last reviewed: `2026-05-10T14:20:21Z`
 - UAT3.0.2 updates that panel with unified dry-run preflight, runtime full-blocker propagation, numeric edge-case validation, missing actual sandbox approval, fixture-only drawdown, and missing artifact-label persistence enforcement. It still adds no active order-submission or approval control.
 - UAT3.0.3 updates that panel with artifact label boundary enforcement, dry-run executable gate service, approval/risk/submit-lease dry-run wiring, runtime policy semantics, missing actual sandbox approval, fixture-only drawdown, and missing real sandbox submit path truth. It still adds no active order-submission or approval control.
 - UAT3.0.4 does not update the dashboard. Private read-only sandbox drawdown readiness remains documented/tested only and still adds no active order-submission or approval control.
+- UAT3.1 does not update the dashboard. The one-shot lifecycle probe is documented in `docs/uat3_1_first_sandbox_order_attempt.md` and has no general dashboard order button or repeated-order control.
 
 `docs/uat0_safety_security_runtime_hardening.md`
 - Founder/operator UAT0 safety, security, runtime, and operational-readiness audit.
@@ -208,6 +210,18 @@ Last reviewed: `2026-05-10T14:20:21Z`
 `docs/uat3_0_6_sandbox_submit_path_dry_run_wiring.md`
 - Founder/operator UAT3.0.6 sandbox submit path dry-run wiring report.
 - Records the non-persistent sandbox submission plan, executable dry-run gate chain, founder actual-submission approval requirement, live-fed sandbox drawdown status consumption, approval-scope/risk/submit-lease wiring, endpoint classification, artifact-label boundary enforcement, UAT3.1 blocked decision, and no-order/no-artifact/no-exchange boundary.
+
+`docs/uat3_1_first_sandbox_order_attempt.md`
+- Founder/operator UAT3.1 first sandbox/testnet lifecycle probe report.
+- Records exact approval text presence, runtime/scope/risk/drawdown/lease/label gates, one sanitized Hyperliquid testnet ETH post-only limit order request, sanitized rejected response, no-cancel-needed result, reconciliation status, no-live/no-paper/no-production-artifact confirmation, and UAT3.2 readiness decision.
+
+`docs/uat3_1_first_sandbox_order_attempt_summary.json`
+- Sanitized machine-readable UAT3.1 summary.
+- Includes lifecycle status, drawdown status, sandbox labels, side-effect flags, sanitized request/response/reconciliation payloads, and no secret values.
+
+`services/uat/sandbox_order.py`
+- UAT3.1 one-shot sandbox/testnet lifecycle probe helper.
+- Validates the exact actual-submission approval text, sandbox/testnet endpoint boundary, one-order maximum, manual lifecycle-probe labels, live-fed sandbox drawdown, UAT3 dry-run gates, post-only/non-marketable ETH order shaping, sanitized response summaries, and no production artifact side-effect flags before allowing a single testnet order transport call.
 
 `services/uat/sandbox.py`
 - Fixture-only UAT3 sandbox readiness helpers.
@@ -421,6 +435,7 @@ Last reviewed: `2026-05-10T14:20:21Z`
 `services/uat/`
 - UAT readiness policy helpers.
 - UAT0.3 adds fixture-only top-20 observation universe resolver models and runtime drawdown monitor models. UAT1 adds explicit public-read-only connectivity helpers for allowed Hyperliquid info types, no-key public top-volume source parsing, Hyperliquid metadata intersection, per-included-asset public sample checks, report rendering, and JSON serialization. UAT1.1 adds model/report-only shadow signal audit records, UAT2 timing policy representation, no-live-artifact boundary checks, UAT1 universe snapshot loading, operator-visible shadow drawdown state, and representative API-error / structured-log redaction verification helpers. UAT2 adds a bounded no-order shadow run service that fetches only public Hyperliquid `candleSnapshot` data under explicit UAT2 flags, evaluates current baseline Money Flow rule logic without creating production decision/signal/order artifacts, emits shadow audit records, and renders Markdown/JSON summaries. UAT helpers require explicit public-read-only mode/network flags for public calls and do not call private/signed/order endpoints, use API keys, submit orders, approve paper/live trading, create StrategyDecision/SignalEvent/OrderIntent/PreparedVenueOrder/ExecutionReadinessAssessment/SubmittedOrder artifacts, create approvals/routing artifacts, or change Money Flow rules.
+- UAT3.1 is the narrow exception to the no-order UAT helper baseline: `services/uat/sandbox_order.py` supports exactly one founder-approved Hyperliquid testnet ETH manual lifecycle probe and still creates no production execution artifacts, no paper/live behavior, no routing expansion, and no repeated/broad submission behavior.
 
 `services/market_data/`
 - Candle bootstrap, persistence, checkpoint semantics, and freshness handling.
@@ -499,6 +514,7 @@ Last reviewed: `2026-05-10T14:20:21Z`
 - Includes `scripts/run_money_flow_true_replay.py` for SV1.16/SV1.16.1 replay instrumentation. It runs baseline and lower-RSI trend-intact research replays over imported candles, writes Markdown/optional JSON with replay-state semantics and separated counters, and creates no evidence packs, imports, exchange calls, paper/live artifacts, routing artifacts, or production Money Flow rule changes.
 - Includes `scripts/run_money_flow_true_replay_experiments.py` for SV1.17 true replay experiment reporting. It compares a small set of research-only lower-RSI plus market-structure variants against matching baselines under `dynamic_equity_pct`, supports `--full-suite` for BTC/ETH/SOL x 15m/1h/4h, writes Markdown/optional JSON/compact summary output, and creates no evidence packs, imports, exchange calls, paper/live artifacts, routing artifacts, or production Money Flow rule changes.
 - Includes `scripts/run_uat1_public_read_only.py` for UAT1 public-read-only connectivity and top-20 universe resolution. It requires both `--uat1-public-read-only` and `--allow-public-read-only-network` before network calls, uses no API keys, calls only allowlisted public read-only endpoints/source URLs, writes the UAT1 Markdown/JSON reports, and creates no strategy decisions, order intents, submitted orders, paper/live artifacts, routing artifacts, evidence packs, or Money Flow rule changes.
+- Includes `scripts/run_uat31_first_sandbox_order.py` for the one approved UAT3.1 Hyperliquid testnet lifecycle probe. It refuses to run without `--execute-approved-uat31`, validates exact founder/operator approval before credential use, reads sandbox/testnet credentials only from local environment or `.env`, writes sanitized UAT3.1 Markdown/JSON reports, and prevents repeat execution after a summary records an order attempt.
 
 ## Operational Entrypoints
 
@@ -524,6 +540,7 @@ Last reviewed: `2026-05-10T14:20:21Z`
 - UAT1 public read-only connectivity: `.venv/bin/python scripts/run_uat1_public_read_only.py --uat1-public-read-only --allow-public-read-only-network --runtime-mode uat`; this is public read-only only, uses no API keys, and must not call private/signed/order endpoints or run Money Flow live.
 - UAT1.1 shadow readiness is model/report-only through `services.uat.shadow`; it defines future UAT2 audit/drawdown surfaces and creates no strategy/execution artifacts or exchange calls.
 - UAT2 no-order shadow run: `.venv/bin/python scripts/run_uat2_shadow_strategy.py --uat2-shadow-run --shadow-only --public-read-only --allow-public-read-only-network --runtime-mode uat`; this uses the UAT1 snapshot and public Hyperliquid candle snapshots only, emits shadow audit/report artifacts, and must not call private/signed/order endpoints, use API keys, submit orders, create production strategy/execution artifacts, approve paper/live trading, or change Money Flow rules.
+- UAT3.1 first sandbox/testnet lifecycle probe: `.venv/bin/python scripts/run_uat31_first_sandbox_order.py --execute-approved-uat31`; this is one founder-approved Hyperliquid testnet ETH post-only/nonmarketable lifecycle probe only, creates no production execution artifacts, and must not be reused for repeated orders, paper/live trading, broad top-20 submission, routing expansion, or Money Flow performance validation.
 - Routing automation policy/plan/approval inspection and the narrow Phase 7.2 / 7.3 / 7.4 / 7.5 action hooks: `GET /api/v1/routing-automation/policy`, `POST /api/v1/routing-automation/plans/by-desired-trade/{desired_trade_key}`, `POST /api/v1/routing-automation/approvals`, `GET /api/v1/routing-automation/approvals/{approval_id}`, `GET /api/v1/routing-automation/approvals/by-desired-trade/{desired_trade_key}`, `POST /api/v1/routing-automation/approvals/{approval_id}/revoke`, administrative `POST /api/v1/routing-automation/approvals/{approval_id}/consume`, action-executing `POST /api/v1/routing-automation/approvals/{approval_id}/accept-recommendation`, action-executing `POST /api/v1/routing-automation/approvals/{approval_id}/convert-target-choice`, action-executing `POST /api/v1/routing-automation/approvals/{approval_id}/preview-readiness`, and action-executing `POST /api/v1/routing-automation/approvals/{approval_id}/submit`
 - Phase 8.0 operator routed workflow summary: `GET /api/v1/operator-routed-workflows/by-desired-trade/{desired_trade_key}`
 
@@ -736,3 +753,6 @@ Last reviewed: `2026-05-10T14:20:21Z`
 
 `tests/test_uat306_sandbox_submit_path_dry_run.py`
 - UAT3.0.6 sandbox submit path dry-run checks: verifies the non-persistent submission plan creates no artifacts, the dry-run gate reports no exchange calls, missing actual-submission approval blocks, missing/stale/non-live-fed drawdown blocks, approval/risk/submit-lease failures block, unknown endpoint classification blocks, sandbox order submission is classified without transport invocation, missing artifact labels block, broad top-20 fanout/cross-venue retry/route executor behavior block, and the UAT3.0.6 report keeps UAT3.1 blocked.
+
+`tests/test_uat31_first_sandbox_order_attempt.py`
+- UAT3.1 first sandbox/testnet lifecycle probe checks: verifies exact approval is required before credential/transport use, live endpoints block, prior attempts block, manual lifecycle-probe labels are enforced, post-only/nonmarketable order shaping remains under the 10 USDC cap, transport is called only after all gates pass, cancel is scoped only to the submitted sandbox order if open, unexpected fill stops further action, summaries remain redacted, and no production `OrderIntent`, `PreparedVenueOrder`, `SubmittedOrder`, executable approval, paper/live behavior, broad top-20 submission, or second order is created.

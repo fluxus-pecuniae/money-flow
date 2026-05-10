@@ -8,6 +8,7 @@ Flow observation and emit shadow audit records only. UAT3 sandbox helpers are
 fixture/readiness validators only. UAT3.0.5 helpers validate sandbox/testnet
 private-read-only credential/drawdown boundaries without retaining secret values
 or enabling order endpoints. UAT3.0.6 helpers wire the future sandbox submit
-path in dry-run mode only, with no order transport. No helper submits orders, creates execution
-artifacts, or authorizes paper/live trading.
+path in dry-run mode only, with no order transport. UAT3.1 helpers support one
+explicitly founder-approved Hyperliquid testnet lifecycle probe without creating
+production execution artifacts or authorizing paper/live trading.
 """

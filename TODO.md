@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-10T15:42:33Z`
+Last reviewed: `2026-05-10T16:41:12Z`
 
 ## Active Follow-Ups
 
@@ -49,8 +49,14 @@ Last reviewed: `2026-05-10T15:42:33Z`
 ### T-102
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `UAT3.1 ran after exact founder/operator approval for one sandbox/testnet order submission attempt. The UAT3.1 runner validates approval text, sandbox/testnet endpoint identity, live-fed sandbox drawdown, approval scope, risk gates, submit-lease duplicate prevention, sandbox artifact labels, and post-only/non-marketable ETH order shape before one transport call. The approved run made exactly one Hyperliquid testnet ETH order attempt under 10 USDC notional; Hyperliquid rejected it with a sanitized user/API-wallet-not-found response, so no cancel was required and reconciliation found no open order. No real OrderIntent, PreparedVenueOrder, SubmittedOrder, executable approval, paper/live behavior, broad top-20 order submission, route expansion, Money Flow rule change, evidence pack, live endpoint use, or second order was created.`
+
+### T-109
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `Implement UAT3.1 only after explicit founder/operator approval for actual sandbox submission. UAT3.0.1 adds fixture-only readiness primitives for sandbox runtime policy, sandbox artifact labels, approval scope validation, sandbox risk gates, sandbox drawdown feed fixture, and submit-lease duplicate-prevention checks. UAT3.0.2 hardens those primitives with full runtime-policy blocker propagation, non-positive numeric validation, and a unified dry-run sandbox gate preflight. UAT3.0.3 adds sandbox artifact boundary validators and dry-run executable gate service wiring. UAT3.0.4 adds private read-only sandbox account policy, credential approval/boundary validation, endpoint category separation, redaction, and sandbox account drawdown feed modeling. UAT3.0.5 verifies exact private-read-only approval, sandbox/testnet credential boundary, and live-fed Hyperliquid testnet account drawdown. UAT3.0.6 wires the future sandbox submit path in dry-run mode without creating artifacts or calling exchanges. UAT3.1 still requires explicit founder/operator actual-submission approval, explicit later-phase sandbox/testnet order transport enablement, final operator review of the dry-run output, and no live/paper/order ambiguity. UAT3.1 must still be sandbox/testnet only and must not become automatic top-20 order submission.`
+- `summary`: `Any UAT3.2 additional sandbox lifecycle testing requires a separate founder/operator approval. Before another attempt, verify the Hyperliquid testnet account/API wallet configuration so the sandbox order can progress beyond the UAT3.1 sanitized user/API-wallet-not-found rejection if the goal is accepted/open -> cancel lifecycle coverage. UAT3.2 must remain sandbox/testnet only, one explicitly scoped attempt at a time, with no paper/live trading, no broad top-20 submission, no auto-submit, no routing expansion, and no Money Flow rule change.`
 
 ### T-103
 

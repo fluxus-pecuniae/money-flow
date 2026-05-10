@@ -1,0 +1,119 @@
+{
+  "allowed_to_submit": true,
+  "approval_verified": true,
+  "blocked": false,
+  "cancel_endpoint_called": false,
+  "cancel_status": "not_required",
+  "drawdown_feed": {
+    "max_drawdown_percent": null,
+    "not_live_account": true,
+    "sandbox_account_equity_available": true,
+    "source": "sandbox_account",
+    "status": "sandbox_drawdown_feed_live_fed_verified",
+    "threshold_breached": false,
+    "timestamp_utc": "2026-05-10T16:41:12.802969+00:00",
+    "unavailable_fields": [
+      "sandbox_realized_pnl",
+      "sandbox_unrealized_pnl",
+      "open_positions_summary"
+    ]
+  },
+  "market_plan": {
+    "estimated_notional": "9.899819",
+    "limit_price": "2414.59",
+    "quantity": "0.0041",
+    "symbol": "ETH",
+    "tif": "Alo"
+  },
+  "open_order_remains": false,
+  "order_attempt_count": 1,
+  "order_endpoint_called": true,
+  "order_status": "rejected",
+  "reason_codes": [
+    "order_rejected",
+    "hyperliquid_testnet_user_or_api_wallet_not_found"
+  ],
+  "reconciliation_status": "completed",
+  "sandbox_labels": {
+    "live_endpoint_access": false,
+    "manual_sandbox_lifecycle_probe": true,
+    "not_live": true,
+    "not_paper": true,
+    "not_performance_validation": true,
+    "not_strategy_signal": true,
+    "real_capital": false,
+    "sandbox": true,
+    "testnet": true
+  },
+  "sanitized_cancel_response": {},
+  "sanitized_order_request": {
+    "action_summary": {
+      "grouping": "na",
+      "orders": [
+        {
+          "a": 4,
+          "b": true,
+          "c": "0xa533900ab41519026e71e25e35e3bf65",
+          "p": "2414.59",
+          "r": false,
+          "s": "0.0041",
+          "t": {
+            "limit": {
+              "tif": "Alo"
+            }
+          }
+        }
+      ],
+      "type": "order"
+    },
+    "asset_id": 4,
+    "client_order_id_present": true,
+    "endpoint": "/exchange",
+    "endpoint_category": "sandbox_order_submission",
+    "estimated_notional": "9.899819",
+    "limit_price": "2414.59",
+    "order_type": "post_only_limit",
+    "quantity": "0.0041",
+    "raw_signed_payload_included_in_report": false,
+    "side": "buy",
+    "signature_included_in_report": false,
+    "symbol": "ETH",
+    "tif": "Alo"
+  },
+  "sanitized_order_response": {
+    "response": "User or API Wallet 0xacea3493d856724768a8fa7cf3e2d64454960aa9 does not exist.",
+    "status": "err"
+  },
+  "sanitized_reconciliation": {
+    "account_state": {
+      "assetPositions": [],
+      "crossMaintenanceMarginUsed": "0.0",
+      "crossMarginSummary": {
+        "accountValue": "0.0",
+        "totalMarginUsed": "0.0",
+        "totalNtlPos": "0.0",
+        "totalRawUsd": "0.0"
+      },
+      "marginSummary": {
+        "accountValue": "0.0",
+        "totalMarginUsed": "0.0",
+        "totalNtlPos": "0.0",
+        "totalRawUsd": "0.0"
+      },
+      "time": 1778431276915,
+      "withdrawable": "0.0"
+    },
+    "open_orders": []
+  },
+  "side_effect_flags": {
+    "creates_executable_approval": false,
+    "creates_order_intent": false,
+    "creates_prepared_order": false,
+    "creates_submitted_order": false,
+    "live_trading_added": false,
+    "paper_trading_added": false
+  },
+  "uat_run_id": "uat3_1_first_sandbox_order_attempt",
+  "unexpected_fill": false,
+  "unknown_state": false
+}
