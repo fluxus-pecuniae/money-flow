@@ -2,17 +2,17 @@
 
 ## Current Implemented Milestone
 
-`UAT1.1` shadow signal audit, drawdown visibility, and redaction verification is complete.
+`UAT2` bounded no-order shadow strategy observation is complete.
 
-SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one evidence candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap. OB1.0 overhauled the Obsidian project brain. UAT0 audited safety/security/runtime readiness and blocked UAT1 until named gaps were closed. UAT0.1 closes the P0 API auth/authz baseline and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds fixture-tested top-20 universe resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design. UAT1 verifies allowed public Hyperliquid endpoint behavior, fetches a no-key public top-volume source, and resolves the Hyperliquid-supported top-20 observation universe. UAT1.1 adds shadow signal audit records, operator-visible shadow drawdown state, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification.
+SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one evidence candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap. OB1.0 overhauled the Obsidian project brain. UAT0 audited safety/security/runtime readiness and blocked UAT1 until named gaps were closed. UAT0.1 closes the P0 API auth/authz baseline and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds fixture-tested top-20 universe resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design. UAT1 verifies allowed public Hyperliquid endpoint behavior, fetches a no-key public top-volume source, and resolves the Hyperliquid-supported top-20 observation universe. UAT1.1 adds shadow signal audit records, operator-visible shadow drawdown state, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification. UAT2 completed a bounded no-order Money Flow shadow observation across the UAT1 Hyperliquid top-20-supported universe.
 
 SV1.18 is complete.
 
 ## Next Proposed Phase
 
-`UAT2` shadow strategy run as no-order observation.
+`UAT3` approval-gated sandbox order design may be scoped only after explicit founder/operator approval.
 
-UAT2 shadow strategy run may proceed as a future no-order phase. UAT remains plumbing and behavior validation only. It is not paper trading, live trading, exchange order submission, routing expansion, or strategy optimization.
+UAT3 remains blocked. UAT remains plumbing and behavior validation only. It is not paper trading, live trading, exchange order submission, routing expansion, or strategy optimization.
 
 ## Frozen UAT Observation Candidate
 
@@ -34,7 +34,7 @@ The frozen evidence candidate is Hyperliquid ETH `sleeve_1h` current baseline.
 
 Future UAT observation is not ETH-only. UAT1/UAT2 should use top 20 high-volume crypto assets supported by the selected UAT venue/environment to validate platform behavior, market metadata, symbol mapping, risk visibility, no-trade/rejected-signal reasoning, and operator explainability. Top-20 inclusion is not strategy approval.
 
-Future UAT2 shadow timing must compare:
+UAT2 shadow timing compared:
 
 - `next_candle_open`
 - `next_candle_close`
@@ -107,10 +107,21 @@ UAT1.1 is now complete:
 - Representative structured API-error/log redaction verification exists.
 - No UAT2 loop, strategy decisions, order intents, submitted orders, paper/live behavior, evidence packs, exchange calls, private/signed/order endpoints, or Money Flow rule changes were created.
 
+UAT2 is now complete:
+
+- Explicit UAT2 shadow mode and public-read-only network flags were required.
+- The UAT1 universe snapshot was evaluated across `sleeve_15m`, `sleeve_1h`, and `sleeve_4h`.
+- UAT2 produced 45 shadow audit records: 11 `would_open`, 34 `no_trade`, 0 `invalid`, and 0 `risk_blocked`.
+- ETH `sleeve_1h` produced `no_trade` with `macd_not_constructive`.
+- `next_candle_open` and `next_candle_close` were represented; `same_candle_close_research_only` remained research-only.
+- Shadow drawdown was visible as `shadow_simulated_drawdown` / `not_live_account_drawdown`, with no PnL simulation and no live account equity implication.
+- No private/signed/order endpoints, API keys, order submissions, strategy decisions, order intents, submitted orders, approvals, paper/live behavior, evidence packs, routing artifacts, or Money Flow rule changes were created.
+
 Remaining later blockers:
 
 - UAT3 needs sandbox/live account drawdown feed wiring.
 - Existing approval gates and submit leases are useful but require UAT3 verification before sandbox orders.
+- Founder/operator approval is required before any UAT3 sandbox-order design work starts.
 
 ## Required Reading For Next Work
 

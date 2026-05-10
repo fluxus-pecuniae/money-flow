@@ -88,8 +88,10 @@ def test_uat0_current_notes_reflect_uat1_public_read_only_truth() -> None:
         assert "UAT0" in note
         assert "UAT1 public read-only connectivity" in note
         assert "UAT1.1" in note
+        assert "UAT2" in note
         assert "complete" in note.lower()
-        assert "UAT2 shadow strategy run may proceed" in note
+        assert "UAT3" in note
+        assert "blocked" in note.lower()
         assert "top 20" in note
         assert "next_candle_open" in note
         assert "next_candle_close" in note

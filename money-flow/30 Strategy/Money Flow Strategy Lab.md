@@ -10,7 +10,7 @@ Keep the Money Flow strategy thread visible while platform, routing, execution, 
 
 Money Flow is the first strategy family. It is not the universal vocabulary of the platform.
 
-Current Strategy Validation state: SV1 is closed for now. SV1.18 froze exactly one evidence candidate, Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules, after the Hyperliquid public campaign evidence cycle, dynamic-equity simulation, trade-anatomy diagnostics, and true replay experiments. UAT0 safety / security / runtime audit is complete, UAT0.1 API auth/authz and runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / runtime drawdown / UAT1 preflight is complete, UAT1 public read-only connectivity is complete, and UAT1.1 shadow-readiness hardening is complete. UAT2 shadow strategy run may proceed as a future no-order phase.
+Current Strategy Validation state: SV1 is closed for now. SV1.18 froze exactly one evidence candidate, Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules, after the Hyperliquid public campaign evidence cycle, dynamic-equity simulation, trade-anatomy diagnostics, and true replay experiments. UAT0 safety / security / runtime audit is complete, UAT0.1 API auth/authz and runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / runtime drawdown / UAT1 preflight is complete, UAT1 public read-only connectivity is complete, UAT1.1 shadow-readiness hardening is complete, and UAT2 bounded no-order shadow observation is complete. UAT3 sandbox orders remain blocked.
 
 Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved. Production Money Flow rules are unchanged.
 
@@ -31,7 +31,7 @@ The strategy does not enter long when RSI is below the sleeve floor. It is not a
 
 The strongest observed scenario is ETH `sleeve_1h` baseline on Hyperliquid USDC perpetual public candles. That is a UAT observation candidate only. Current evidence does not prove future outcomes and does not authorize paper/live trading.
 
-Future UAT observation is not ETH-only. UAT1/UAT2 should cover top 20 high-volume crypto assets supported by the selected UAT venue/environment to validate platform behavior, no-trade reasoning, symbol mapping, risk visibility, and operator explainability. Top-20 inclusion is not strategy approval.
+Future UAT observation is not ETH-only. UAT1/UAT2 cover top 20 high-volume crypto assets supported by the selected UAT venue/environment to validate platform behavior, no-trade reasoning, symbol mapping, risk visibility, and operator explainability. Top-20 inclusion is not strategy approval.
 
 Excluded from current UAT scope:
 

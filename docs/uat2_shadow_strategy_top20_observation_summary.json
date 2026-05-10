@@ -1,0 +1,4066 @@
+{
+  "audit_records": [
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T08:29:59.999000+00:00",
+      "component": "sleeve_15m",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "80734.394838313320",
+        "ema5": "80760.294362980190",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T08:29:59.999000+00:00",
+        "latest_close": "80843.0",
+        "macd": "17.165055278703",
+        "macd_histogram": "10.166724902168",
+        "macd_signal": "6.998330376535",
+        "next_candle_close": "80825.0",
+        "next_candle_open": "80843.0",
+        "rsi14": "63.1564",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "80719.450000000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "BTC sleeve_15m produced a shadow would-open under current baseline Money Flow rules. No order artifact was created; risk is visible as deferred because UAT2 avoids order-intent construction.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "current_money_flow_entry_conditions_met"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "would_open",
+      "symbol": "BTC",
+      "timeframe": "15m",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_1h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "80686.635000472930",
+        "ema5": "80696.744373045730",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "80700.0",
+        "macd": "100.133190583525",
+        "macd_histogram": "-16.357721515624",
+        "macd_signal": "116.490912099149",
+        "next_candle_close": "80825.0",
+        "next_candle_open": "80701.0",
+        "rsi14": "57.6472",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "80648.100000000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "BTC sleeve_1h produced no shadow trade: macd_not_constructive.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "macd_not_constructive"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "BTC",
+      "timeframe": "1h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_4h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "80531.308419595690",
+        "ema5": "80640.089569045810",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "80700.0",
+        "macd": "127.034818242726",
+        "macd_histogram": "16.219403365200",
+        "macd_signal": "110.815414877526",
+        "next_candle_close": "80825.0",
+        "next_candle_open": "80701.0",
+        "rsi14": "54.3915",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "80357.300000000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "BTC sleeve_4h produced a shadow would-open under current baseline Money Flow rules. No order artifact was created; risk is visible as deferred because UAT2 avoids order-intent construction.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "current_money_flow_entry_conditions_met"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "would_open",
+      "symbol": "BTC",
+      "timeframe": "4h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T08:29:59.999000+00:00",
+      "component": "sleeve_15m",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "2328.282073714022",
+        "ema5": "2328.650811563060",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T08:29:59.999000+00:00",
+        "latest_close": "2329.9",
+        "macd": "0.689306607160",
+        "macd_histogram": "0.067719282266",
+        "macd_signal": "0.621587324894",
+        "next_candle_close": "2329.2",
+        "next_candle_open": "2329.9",
+        "rsi14": "56.7993",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "2327.945000000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "ETH sleeve_15m produced a shadow would-open under current baseline Money Flow rules. No order artifact was created; risk is visible as deferred because UAT2 avoids order-intent construction.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "current_money_flow_entry_conditions_met"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "would_open",
+      "symbol": "ETH",
+      "timeframe": "15m",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": "money_flow_hyperliquid_eth_1h_baseline_uat_candidate",
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_1h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "2326.588606414996",
+        "ema5": "2327.310545205096",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "2327.1",
+        "macd": "4.184391536254",
+        "macd_histogram": "-0.552564629276",
+        "macd_signal": "4.736956165529",
+        "next_candle_close": "2329.2",
+        "next_candle_open": "2327.0",
+        "rsi14": "58.0547",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "2324.300000000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "ETH sleeve_1h produced no shadow trade: macd_not_constructive.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "macd_not_constructive"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "ETH",
+      "timeframe": "1h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_4h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "2320.159162684466",
+        "ema5": "2324.469819361891",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "2327.1",
+        "macd": "-2.263556830456",
+        "macd_histogram": "3.587592738449",
+        "macd_signal": "-5.851149568905",
+        "next_candle_close": "2329.2",
+        "next_candle_open": "2327.0",
+        "rsi14": "52.0754",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "2310.560000000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "ETH sleeve_4h produced a shadow would-open under current baseline Money Flow rules. No order artifact was created; risk is visible as deferred because UAT2 avoids order-intent construction.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "current_money_flow_entry_conditions_met"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "would_open",
+      "symbol": "ETH",
+      "timeframe": "4h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T08:29:59.999000+00:00",
+      "component": "sleeve_15m",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "93.527241326441",
+        "ema5": "93.642843506083",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T08:29:59.999000+00:00",
+        "latest_close": "93.877",
+        "macd": "0.123629577278",
+        "macd_histogram": "0.046183551877",
+        "macd_signal": "0.077446025400",
+        "next_candle_close": "93.899",
+        "next_candle_open": "93.881",
+        "rsi14": "70.8137",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "93.404950000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "SOL sleeve_15m produced no shadow trade: rsi_not_constructive.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "rsi_not_constructive"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "SOL",
+      "timeframe": "15m",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_1h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "93.290139615932",
+        "ema5": "93.340662306466",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "93.428",
+        "macd": "0.254708456790",
+        "macd_histogram": "-0.077230410732",
+        "macd_signal": "0.331938867522",
+        "next_candle_close": "93.9",
+        "next_candle_open": "93.421",
+        "rsi14": "58.8107",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "93.240350000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "SOL sleeve_1h produced no shadow trade: macd_not_constructive.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "macd_not_constructive"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "SOL",
+      "timeframe": "1h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_4h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "92.684081428178",
+        "ema5": "93.278152668178",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "93.428",
+        "macd": "1.785582036718",
+        "macd_histogram": "0.089251093372",
+        "macd_signal": "1.696330943346",
+        "next_candle_close": "93.9",
+        "next_candle_open": "93.421",
+        "rsi14": "68.3256",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "90.960400000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "SOL sleeve_4h produced a shadow would-open under current baseline Money Flow rules. No order artifact was created; risk is visible as deferred because UAT2 avoids order-intent construction.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "current_money_flow_entry_conditions_met"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "would_open",
+      "symbol": "SOL",
+      "timeframe": "4h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T08:29:59.999000+00:00",
+      "component": "sleeve_15m",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "1.419887902356",
+        "ema5": "1.421505120389",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T08:29:59.999000+00:00",
+        "latest_close": "1.4249",
+        "macd": "0.001040487476",
+        "macd_histogram": "0.000845645499",
+        "macd_signal": "0.000194841977",
+        "next_candle_close": "1.4244",
+        "next_candle_open": "1.4252",
+        "rsi14": "68.2540",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "1.417900000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "XRP sleeve_15m produced no shadow trade: rsi_not_constructive.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "rsi_not_constructive"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "XRP",
+      "timeframe": "15m",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_1h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "1.418117331809",
+        "ema5": "1.418112250863",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "1.4195",
+        "macd": "0.000488227703",
+        "macd_histogram": "-0.000534873972",
+        "macd_signal": "0.001023101676",
+        "next_candle_close": "1.4244",
+        "next_candle_open": "1.4194",
+        "rsi14": "53.7323",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "1.418495000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "XRP sleeve_1h produced no shadow trade: bearish_alignment.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "bearish_alignment"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "XRP",
+      "timeframe": "1h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_4h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "1.416499923126",
+        "ema5": "1.418768396857",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "1.4195",
+        "macd": "0.004230321760",
+        "macd_histogram": "0.001099521888",
+        "macd_signal": "0.003130799872",
+        "next_candle_close": "1.4244",
+        "next_candle_open": "1.4194",
+        "rsi14": "54.7723",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "1.407525000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "XRP sleeve_4h produced a shadow would-open under current baseline Money Flow rules. No order artifact was created; risk is visible as deferred because UAT2 avoids order-intent construction.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "current_money_flow_entry_conditions_met"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "would_open",
+      "symbol": "XRP",
+      "timeframe": "4h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T08:29:59.999000+00:00",
+      "component": "sleeve_15m",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "611.317345084635",
+        "ema5": "611.670713235306",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T08:29:59.999000+00:00",
+        "latest_close": "611.02",
+        "macd": "2.856750215510",
+        "macd_histogram": "-0.246893485757",
+        "macd_signal": "3.103643701267",
+        "next_candle_close": "611.69",
+        "next_candle_open": "610.92",
+        "rsi14": "56.2060",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "609.094500000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "ZEC sleeve_15m produced no shadow trade: macd_not_constructive.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "macd_not_constructive"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "ZEC",
+      "timeframe": "15m",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_1h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "605.161865805540",
+        "ema5": "608.302596851120",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "609.75",
+        "macd": "3.179533937242",
+        "macd_histogram": "1.167660990155",
+        "macd_signal": "2.011872947087",
+        "next_candle_close": "611.69",
+        "next_candle_open": "609.86",
+        "rsi14": "58.4329",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "599.226500000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "ZEC sleeve_1h produced a shadow would-open under current baseline Money Flow rules. No order artifact was created; risk is visible as deferred because UAT2 avoids order-intent construction.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "current_money_flow_entry_conditions_met"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "would_open",
+      "symbol": "ZEC",
+      "timeframe": "1h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_4h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "597.501639101873",
+        "ema5": "602.961548926570",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "609.75",
+        "macd": "29.359105897739",
+        "macd_histogram": "-4.350677347273",
+        "macd_signal": "33.709783245012",
+        "next_candle_close": "611.69",
+        "next_candle_open": "609.86",
+        "rsi14": "68.8823",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "584.409500000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "ZEC sleeve_4h produced no shadow trade: macd_not_constructive.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "macd_not_constructive"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "ZEC",
+      "timeframe": "4h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T08:29:59.999000+00:00",
+      "component": "sleeve_15m",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "648.804783569984",
+        "ema5": "649.193199957305",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T08:29:59.999000+00:00",
+        "latest_close": "650.14",
+        "macd": "0.220914664869",
+        "macd_histogram": "0.234676662401",
+        "macd_signal": "-0.013761997532",
+        "next_candle_close": "650.01",
+        "next_candle_open": "650.36",
+        "rsi14": "62.7311",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "648.314500000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "BNB sleeve_15m produced a shadow would-open under current baseline Money Flow rules. No order artifact was created; risk is visible as deferred because UAT2 avoids order-intent construction.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "current_money_flow_entry_conditions_met"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "would_open",
+      "symbol": "BNB",
+      "timeframe": "15m",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_1h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "648.522575402736",
+        "ema5": "648.299682151561",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "648.34",
+        "macd": "-0.155696586880",
+        "macd_histogram": "-0.280303530649",
+        "macd_signal": "0.124606943769",
+        "next_candle_close": "650.01",
+        "next_candle_open": "648.3",
+        "rsi14": "47.9378",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "649.093500000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "BNB sleeve_1h produced no shadow trade: bearish_alignment.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "bearish_alignment"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "BNB",
+      "timeframe": "1h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_4h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "648.270919296624",
+        "ema5": "648.821955417178",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "648.34",
+        "macd": "3.855715053111",
+        "macd_histogram": "-0.513563828881",
+        "macd_signal": "4.369278881992",
+        "next_candle_close": "650.01",
+        "next_candle_open": "648.3",
+        "rsi14": "55.9881",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "646.118500000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "BNB sleeve_4h produced no shadow trade: macd_not_constructive.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "macd_not_constructive"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "BNB",
+      "timeframe": "4h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T08:29:59.999000+00:00",
+      "component": "sleeve_15m",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "1.093408979881",
+        "ema5": "1.101543327233",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T08:29:59.999000+00:00",
+        "latest_close": "1.1175",
+        "macd": "0.006297807107",
+        "macd_histogram": "0.003509629634",
+        "macd_signal": "0.002788177473",
+        "next_candle_close": "1.1259",
+        "next_candle_open": "1.1179",
+        "rsi14": "76.3458",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "1.084290000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "SUI sleeve_15m produced no shadow trade: overextended_rsi.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "overextended_rsi"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "SUI",
+      "timeframe": "15m",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_1h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "1.078725645191",
+        "ema5": "1.082302381134",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "1.0916",
+        "macd": "0.010139808256",
+        "macd_histogram": "-0.000303186957",
+        "macd_signal": "0.010442995213",
+        "next_candle_close": "1.1259",
+        "next_candle_open": "1.0918",
+        "rsi14": "64.9998",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "1.069725000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "SUI sleeve_1h produced no shadow trade: macd_not_constructive.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "macd_not_constructive"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "SUI",
+      "timeframe": "1h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_4h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "1.059670473299",
+        "ema5": "1.077114176565",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "1.0916",
+        "macd": "0.031596258243",
+        "macd_histogram": "0.005960339602",
+        "macd_signal": "0.025635918641",
+        "next_candle_close": "1.1259",
+        "next_candle_open": "1.0918",
+        "rsi14": "70.6082",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "1.021050500000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "SUI sleeve_4h produced no shadow trade: rsi_not_constructive.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "rsi_not_constructive"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "SUI",
+      "timeframe": "4h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T08:29:59.999000+00:00",
+      "component": "sleeve_15m",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "2.475989478527",
+        "ema5": "2.462948051472",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T08:29:59.999000+00:00",
+        "latest_close": "2.4523",
+        "macd": "-0.004618714661",
+        "macd_histogram": "-0.008794524527",
+        "macd_signal": "0.004175809866",
+        "next_candle_close": "2.4301",
+        "next_candle_open": "2.448",
+        "rsi14": "42.6036",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "2.500790000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "TON sleeve_15m produced no shadow trade: bearish_alignment.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "bearish_alignment"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "TON",
+      "timeframe": "15m",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_1h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "2.478043507483",
+        "ema5": "2.479329744841",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "2.4355",
+        "macd": "-0.011133991369",
+        "macd_histogram": "0.008142632013",
+        "macd_signal": "-0.019276623382",
+        "next_candle_close": "2.4301",
+        "next_candle_open": "2.4384",
+        "rsi14": "44.3500",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "2.459565000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "TON sleeve_1h produced no shadow trade: rsi_not_constructive.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "rsi_not_constructive"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "TON",
+      "timeframe": "1h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_4h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "2.494796821149",
+        "ema5": "2.478093749835",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "2.4355",
+        "macd": "0.110262208011",
+        "macd_histogram": "-0.053288187075",
+        "macd_signal": "0.163550395086",
+        "next_candle_close": "2.4301",
+        "next_candle_open": "2.4384",
+        "rsi14": "53.1615",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "2.562445000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "TON sleeve_4h produced no shadow trade: bearish_alignment.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "bearish_alignment"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "TON",
+      "timeframe": "4h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T08:29:59.999000+00:00",
+      "component": "sleeve_15m",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "0.108549242433",
+        "ema5": "0.108628657227",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T08:29:59.999000+00:00",
+        "latest_close": "0.10877",
+        "macd": "0.000003537456",
+        "macd_histogram": "0.000056656013",
+        "macd_signal": "-0.000053118558",
+        "next_candle_close": "0.10866",
+        "next_candle_open": "0.10878",
+        "rsi14": "57.5702",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "0.108465500000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "DOGE sleeve_15m produced a shadow would-open under current baseline Money Flow rules. No order artifact was created; risk is visible as deferred because UAT2 avoids order-intent construction.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "current_money_flow_entry_conditions_met"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "would_open",
+      "symbol": "DOGE",
+      "timeframe": "15m",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_1h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "0.108575261739",
+        "ema5": "0.108462505403",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "0.1085",
+        "macd": "-0.000230190451",
+        "macd_histogram": "-0.000068710463",
+        "macd_signal": "-0.000161479987",
+        "next_candle_close": "0.10866",
+        "next_candle_open": "0.1085",
+        "rsi14": "43.9347",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "0.108831000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "DOGE sleeve_1h produced no shadow trade: bearish_alignment.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "bearish_alignment"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "DOGE",
+      "timeframe": "1h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_4h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "0.108944751310",
+        "ema5": "0.108768900334",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "0.1085",
+        "macd": "-0.000416453349",
+        "macd_histogram": "-0.000038256119",
+        "macd_signal": "-0.000378197230",
+        "next_candle_close": "0.10866",
+        "next_candle_open": "0.1085",
+        "rsi14": "45.3057",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "0.108866500000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "DOGE sleeve_4h produced no shadow trade: bearish_alignment.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "bearish_alignment"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "DOGE",
+      "timeframe": "4h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T08:29:59.999000+00:00",
+      "component": "sleeve_15m",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "0.349531618290",
+        "ema5": "0.349491099987",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T08:29:59.999000+00:00",
+        "latest_close": "0.34917",
+        "macd": "-0.000260852039",
+        "macd_histogram": "0.000020413245",
+        "macd_signal": "-0.000281265284",
+        "next_candle_close": "0.34912",
+        "next_candle_open": "0.34912",
+        "rsi14": "39.3086",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "0.349788000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "TRX sleeve_15m produced no shadow trade: bearish_alignment.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "bearish_alignment"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "TRX",
+      "timeframe": "15m",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_1h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "0.350149093756",
+        "ema5": "0.349917888658",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "0.35",
+        "macd": "-0.000219061598",
+        "macd_histogram": "-0.000166456027",
+        "macd_signal": "-0.000052605572",
+        "next_candle_close": "0.34912",
+        "next_candle_open": "0.34968",
+        "rsi14": "46.4942",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "0.350664500000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "TRX sleeve_1h produced no shadow trade: bearish_alignment.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "bearish_alignment"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "TRX",
+      "timeframe": "1h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_4h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "0.350430031052",
+        "ema5": "0.350613716326",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "0.35",
+        "macd": "0.002374847931",
+        "macd_histogram": "-0.000459839066",
+        "macd_signal": "0.002834686997",
+        "next_candle_close": "0.34912",
+        "next_candle_open": "0.34968",
+        "rsi14": "57.7699",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "0.349397500000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "TRX sleeve_4h produced no shadow trade: macd_not_constructive.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "macd_not_constructive"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "TRX",
+      "timeframe": "4h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T08:29:59.999000+00:00",
+      "component": "sleeve_15m",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "0.136066577674",
+        "ema5": "0.137876385209",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T08:29:59.999000+00:00",
+        "latest_close": "0.13999",
+        "macd": "0.006901449237",
+        "macd_histogram": "-0.000333680966",
+        "macd_signal": "0.007235130203",
+        "next_candle_close": "0.13785",
+        "next_candle_open": "0.13991",
+        "rsi14": "60.8756",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "0.130390500000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "LAYER sleeve_15m produced no shadow trade: macd_not_constructive.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "macd_not_constructive"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "LAYER",
+      "timeframe": "15m",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_1h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "0.122636649946",
+        "ema5": "0.131564722045",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "0.14123",
+        "macd": "0.010634950033",
+        "macd_histogram": "0.003890322115",
+        "macd_signal": "0.006744627918",
+        "next_candle_close": "0.13785",
+        "next_candle_open": "0.14258",
+        "rsi14": "73.6620",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "0.108313500000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "LAYER sleeve_1h produced no shadow trade: rsi_not_constructive.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "rsi_not_constructive"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "LAYER",
+      "timeframe": "1h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_4h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "0.105294828952",
+        "ema5": "0.114710891275",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "0.14123",
+        "macd": "0.007343040190",
+        "macd_histogram": "0.003976464231",
+        "macd_signal": "0.003366575959",
+        "next_candle_close": "0.13844",
+        "next_candle_open": "0.14258",
+        "rsi14": "92.1147",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "0.094568150000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "LAYER sleeve_4h produced no shadow trade: overextended_rsi.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "overextended_rsi"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "LAYER",
+      "timeframe": "4h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T08:29:59.999000+00:00",
+      "component": "sleeve_15m",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "0.062442119942",
+        "ema5": "0.062415529934",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T08:29:59.999000+00:00",
+        "latest_close": "0.062415",
+        "macd": "-0.000473192871",
+        "macd_histogram": "0.000100098128",
+        "macd_signal": "-0.000573290999",
+        "next_candle_close": "0.062381",
+        "next_candle_open": "0.062403",
+        "rsi14": "40.2770",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "0.062685000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "CHIP sleeve_15m produced no shadow trade: bearish_alignment.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "bearish_alignment"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "CHIP",
+      "timeframe": "15m",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_1h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "0.063498464378",
+        "ema5": "0.062701770921",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "0.062345",
+        "macd": "-0.001209991755",
+        "macd_histogram": "-0.000383928420",
+        "macd_signal": "-0.000826063335",
+        "next_candle_close": "0.062381",
+        "next_candle_open": "0.062365",
+        "rsi14": "33.6137",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "0.065003750000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "CHIP sleeve_1h produced no shadow trade: bearish_alignment.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "bearish_alignment"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "CHIP",
+      "timeframe": "1h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_4h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "0.065085478316",
+        "ema5": "0.064518018457",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "0.062345",
+        "macd": "0.001660529698",
+        "macd_histogram": "-0.000336816856",
+        "macd_signal": "0.001997346554",
+        "next_candle_close": "0.062381",
+        "next_candle_open": "0.062365",
+        "rsi14": "48.3773",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "0.063042700000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "CHIP sleeve_4h produced no shadow trade: bearish_alignment.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "bearish_alignment"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "CHIP",
+      "timeframe": "4h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T08:29:59.999000+00:00",
+      "component": "sleeve_15m",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "3.978559619298",
+        "ema5": "4.010195524650",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T08:29:59.999000+00:00",
+        "latest_close": "4.0111",
+        "macd": "0.075137607681",
+        "macd_histogram": "0.011322889481",
+        "macd_signal": "0.063814718200",
+        "next_candle_close": "3.996",
+        "next_candle_open": "4.0161",
+        "rsi14": "71.9160",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "3.886355000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "UNI sleeve_15m produced no shadow trade: rsi_not_constructive.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "rsi_not_constructive"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "UNI",
+      "timeframe": "15m",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_1h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "3.835707428098",
+        "ema5": "3.902920810543",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "4.0018",
+        "macd": "0.066892867871",
+        "macd_histogram": "0.026578356237",
+        "macd_signal": "0.040314511634",
+        "next_candle_close": "3.996",
+        "next_candle_open": "4.003",
+        "rsi14": "78.8530",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "3.741925000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "UNI sleeve_1h produced no shadow trade: overextended_rsi.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "overextended_rsi"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "UNI",
+      "timeframe": "1h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_4h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "3.733512928494",
+        "ema5": "3.811364046806",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "4.0018",
+        "macd": "0.115632416484",
+        "macd_histogram": "0.025466079349",
+        "macd_signal": "0.090166337135",
+        "next_candle_close": "3.996",
+        "next_candle_open": "4.003",
+        "rsi14": "73.8380",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "3.597840000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "UNI sleeve_4h produced no shadow trade: rsi_not_constructive.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "rsi_not_constructive"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "UNI",
+      "timeframe": "4h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T08:29:59.999000+00:00",
+      "component": "sleeve_15m",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "0.407739246994",
+        "ema5": "0.407391689175",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T08:29:59.999000+00:00",
+        "latest_close": "0.40816",
+        "macd": "-0.002310207125",
+        "macd_histogram": "0.000198801329",
+        "macd_signal": "-0.002509008454",
+        "next_candle_close": "0.40617",
+        "next_candle_open": "0.4077",
+        "rsi14": "44.5422",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "0.409457500000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "ONDO sleeve_15m produced no shadow trade: bearish_alignment.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "bearish_alignment"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "ONDO",
+      "timeframe": "15m",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_1h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "0.412136115559",
+        "ema5": "0.408413313818",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "0.40602",
+        "macd": "-0.004366401560",
+        "macd_histogram": "-0.002192932509",
+        "macd_signal": "-0.002173469051",
+        "next_candle_close": "0.40617",
+        "next_candle_open": "0.40608",
+        "rsi14": "39.1422",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "0.418524500000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "ONDO sleeve_1h produced no shadow trade: bearish_alignment.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "bearish_alignment"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "ONDO",
+      "timeframe": "1h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_4h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "0.414155561892",
+        "ema5": "0.415171355223",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "0.40602",
+        "macd": "0.025153580196",
+        "macd_histogram": "-0.003245267576",
+        "macd_signal": "0.028398847771",
+        "next_candle_close": "0.40617",
+        "next_candle_open": "0.40608",
+        "rsi14": "60.3816",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "0.395565000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "ONDO sleeve_4h produced no shadow trade: macd_not_constructive.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "macd_not_constructive"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "ONDO",
+      "timeframe": "4h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T08:29:59.999000+00:00",
+      "component": "sleeve_15m",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "96.823329228679",
+        "ema5": "96.974028897966",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T08:29:59.999000+00:00",
+        "latest_close": "96.73",
+        "macd": "0.369685476250",
+        "macd_histogram": "0.066806644678",
+        "macd_signal": "0.302878831572",
+        "next_candle_close": "96.944",
+        "next_candle_open": "96.754",
+        "rsi14": "57.0644",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "96.350800000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "AAVE sleeve_15m produced no shadow trade: entry_quality_not_constructive.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "entry_quality_not_constructive"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "no_trade",
+      "symbol": "AAVE",
+      "timeframe": "15m",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_1h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "96.211951876319",
+        "ema5": "96.557249281104",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "97.278",
+        "macd": "0.262835146083",
+        "macd_histogram": "0.122871634882",
+        "macd_signal": "0.139963511201",
+        "next_candle_close": "96.944",
+        "next_candle_open": "97.278",
+        "rsi14": "65.9387",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "95.725850000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "AAVE sleeve_1h produced a shadow would-open under current baseline Money Flow rules. No order artifact was created; risk is visible as deferred because UAT2 avoids order-intent construction.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "current_money_flow_entry_conditions_met"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "would_open",
+      "symbol": "AAVE",
+      "timeframe": "1h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    },
+    {
+      "candidate_id": null,
+      "candle_close_time_utc": "2026-05-10T07:59:59.999000+00:00",
+      "component": "sleeve_4h",
+      "creates_live_artifact_type_names": [],
+      "creates_order_intent": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "indicator_summary": {
+        "candle_count": 85,
+        "ema10": "95.776046425181",
+        "ema5": "96.247196903606",
+        "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+        "indicator_as_of": "2026-05-10T07:59:59.999000+00:00",
+        "latest_close": "97.278",
+        "macd": "0.792266386033",
+        "macd_histogram": "0.199663612154",
+        "macd_signal": "0.592602773879",
+        "next_candle_close": "96.944",
+        "next_candle_open": "97.278",
+        "rsi14": "60.7435",
+        "same_candle_close_research_only": "excluded_from_uat2_primary_assumption",
+        "sma20": "94.541150000000"
+      },
+      "market_type": "perpetual",
+      "operator_visible_explanation": "AAVE sleeve_4h produced a shadow would-open under current baseline Money Flow rules. No order artifact was created; risk is visible as deferred because UAT2 avoids order-intent construction.",
+      "product_type": "perp",
+      "quote_asset": "USDC",
+      "reason_codes": [
+        "current_money_flow_entry_conditions_met"
+      ],
+      "risk_summary": {
+        "drawdown_state_visible": true,
+        "notional_limit_visible": false,
+        "order_submission_enabled": false,
+        "risk_reason_codes": [
+          "risk_visibility_deferred_no_live_artifacts"
+        ],
+        "risk_status": "risk_visibility_deferred_no_live_artifacts"
+      },
+      "run_id": "uat2-shadow-20260510T083835Z",
+      "same_candle_close_research_only": true,
+      "settlement_asset": "USDC",
+      "signal_status": "would_open",
+      "symbol": "AAVE",
+      "timeframe": "4h",
+      "timestamp_utc": "2026-05-10T08:38:35.325955+00:00",
+      "timing_assumptions_evaluated": [
+        "next_candle_open",
+        "next_candle_close"
+      ],
+      "timing_status_by_assumption": {
+        "next_candle_close": "available",
+        "next_candle_open": "available"
+      },
+      "top20_universe_member": true,
+      "venue": "hyperliquid"
+    }
+  ],
+  "boundary_flags": {
+    "api_keys_used": false,
+    "approvals_created": false,
+    "evidence_packs_generated": false,
+    "execution_readiness_assessments_created": false,
+    "live_trading_added": false,
+    "money_flow_rules_changed": false,
+    "order_endpoints_called": false,
+    "order_intents_created": false,
+    "orders_submitted": false,
+    "paper_trading_added": false,
+    "prepared_orders_created": false,
+    "private_endpoints_called": false,
+    "public_read_only_allowed": true,
+    "routing_artifacts_created": false,
+    "signal_events_created": false,
+    "signed_endpoints_called": false,
+    "strategy_decisions_created": false,
+    "submitted_orders_created": false
+  },
+  "candle_fetch_results": [
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_15m",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "BTC",
+      "timeframe": "15m"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_1h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "BTC",
+      "timeframe": "1h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_4h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "BTC",
+      "timeframe": "4h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_15m",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "ETH",
+      "timeframe": "15m"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_1h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "ETH",
+      "timeframe": "1h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_4h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "ETH",
+      "timeframe": "4h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_15m",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "SOL",
+      "timeframe": "15m"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_1h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "SOL",
+      "timeframe": "1h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_4h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "SOL",
+      "timeframe": "4h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_15m",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "XRP",
+      "timeframe": "15m"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_1h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "XRP",
+      "timeframe": "1h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_4h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "XRP",
+      "timeframe": "4h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_15m",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "ZEC",
+      "timeframe": "15m"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_1h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "ZEC",
+      "timeframe": "1h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_4h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "ZEC",
+      "timeframe": "4h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_15m",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "BNB",
+      "timeframe": "15m"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_1h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "BNB",
+      "timeframe": "1h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_4h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "BNB",
+      "timeframe": "4h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_15m",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "SUI",
+      "timeframe": "15m"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_1h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "SUI",
+      "timeframe": "1h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_4h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "SUI",
+      "timeframe": "4h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_15m",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "TON",
+      "timeframe": "15m"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_1h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "TON",
+      "timeframe": "1h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_4h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "TON",
+      "timeframe": "4h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_15m",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "DOGE",
+      "timeframe": "15m"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_1h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "DOGE",
+      "timeframe": "1h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_4h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "DOGE",
+      "timeframe": "4h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_15m",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "TRX",
+      "timeframe": "15m"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_1h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "TRX",
+      "timeframe": "1h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_4h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "TRX",
+      "timeframe": "4h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_15m",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "LAYER",
+      "timeframe": "15m"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_1h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "LAYER",
+      "timeframe": "1h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_4h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "LAYER",
+      "timeframe": "4h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_15m",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "CHIP",
+      "timeframe": "15m"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_1h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "CHIP",
+      "timeframe": "1h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_4h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "CHIP",
+      "timeframe": "4h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_15m",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "UNI",
+      "timeframe": "15m"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_1h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "UNI",
+      "timeframe": "1h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_4h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "UNI",
+      "timeframe": "4h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_15m",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "ONDO",
+      "timeframe": "15m"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_1h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "ONDO",
+      "timeframe": "1h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_4h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "ONDO",
+      "timeframe": "4h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_15m",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "AAVE",
+      "timeframe": "15m"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_1h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "AAVE",
+      "timeframe": "1h"
+    },
+    {
+      "attempted": true,
+      "candle_count": 85,
+      "component": "sleeve_4h",
+      "endpoint_category": "public_read_only",
+      "http_status": 200,
+      "sanitized_error": null,
+      "success": true,
+      "symbol": "AAVE",
+      "timeframe": "4h"
+    }
+  ],
+  "completed_at_utc": "2026-05-10T08:38:49.512364+00:00",
+  "components_evaluated": [
+    "sleeve_15m",
+    "sleeve_1h",
+    "sleeve_4h"
+  ],
+  "evaluation_candle_policy": "latest_candle_with_next_candle_available",
+  "mode": {
+    "allow_public_read_only_network": true,
+    "api_keys_used": false,
+    "live_trading_enabled": false,
+    "order_endpoints_allowed": false,
+    "order_submission_enabled": false,
+    "paper_trading_enabled": false,
+    "private_endpoints_allowed": false,
+    "public_read_only": true,
+    "runtime_mode": "uat",
+    "shadow_only": true,
+    "signed_endpoints_allowed": false,
+    "uat2_shadow_run": true
+  },
+  "public_data_lookback_candles": 80,
+  "remaining_blockers": [
+    "founder_operator_explicit_approval_required_before_uat3_sandbox_order_design",
+    "sandbox_account_drawdown_feed_wiring_required_before_uat3",
+    "uat3_approval_submit_lease_lifecycle_verification_required"
+  ],
+  "run_id": "uat2-shadow-20260510T083835Z",
+  "shadow_drawdown_state": {
+    "candidate_id": "money_flow_hyperliquid_eth_1h_baseline_uat_candidate",
+    "current_shadow_equity": "10000",
+    "drawdown_threshold": "0.10",
+    "initial_shadow_equity": "10000",
+    "max_drawdown_amount": "0",
+    "max_drawdown_percent": "0",
+    "max_shadow_equity": "10000",
+    "min_shadow_equity": "10000",
+    "not_live_account_drawdown": true,
+    "reason_codes": [
+      "shadow_equity_source_not_live_account",
+      "shadow_drawdown_monitor_not_live_fed",
+      "shadow_drawdown_within_limit"
+    ],
+    "run_id": "uat2-shadow-20260510T083835Z",
+    "shadow_simulated_drawdown": true,
+    "source": "shadow_simulated",
+    "threshold_breached": false,
+    "timestamp_utc": "2026-05-10T08:39:19.325955+00:00",
+    "universe_scope": "top20_hyperliquid_observation_universe"
+  },
+  "source_provider": "coingecko_public_markets",
+  "source_timestamp_utc": "2026-05-10T07:18:31+00:00",
+  "started_at_utc": "2026-05-10T08:38:35.325955+00:00",
+  "summaries": [
+    {
+      "component": "sleeve_15m",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "AAVE",
+      "timeframe": "15m",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "entry_quality_not_constructive",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_1h",
+      "invalid_count": 0,
+      "no_trade_count": 0,
+      "risk_blocked_count": 0,
+      "symbol": "AAVE",
+      "timeframe": "1h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 1,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_4h",
+      "invalid_count": 0,
+      "no_trade_count": 0,
+      "risk_blocked_count": 0,
+      "symbol": "AAVE",
+      "timeframe": "4h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 1,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_15m",
+      "invalid_count": 0,
+      "no_trade_count": 0,
+      "risk_blocked_count": 0,
+      "symbol": "BNB",
+      "timeframe": "15m",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 1,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_1h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "BNB",
+      "timeframe": "1h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "bearish_alignment",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_4h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "BNB",
+      "timeframe": "4h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "macd_not_constructive",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_15m",
+      "invalid_count": 0,
+      "no_trade_count": 0,
+      "risk_blocked_count": 0,
+      "symbol": "BTC",
+      "timeframe": "15m",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 1,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_1h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "BTC",
+      "timeframe": "1h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "macd_not_constructive",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_4h",
+      "invalid_count": 0,
+      "no_trade_count": 0,
+      "risk_blocked_count": 0,
+      "symbol": "BTC",
+      "timeframe": "4h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 1,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_15m",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "CHIP",
+      "timeframe": "15m",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "bearish_alignment",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_1h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "CHIP",
+      "timeframe": "1h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "bearish_alignment",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_4h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "CHIP",
+      "timeframe": "4h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "bearish_alignment",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_15m",
+      "invalid_count": 0,
+      "no_trade_count": 0,
+      "risk_blocked_count": 0,
+      "symbol": "DOGE",
+      "timeframe": "15m",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 1,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_1h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "DOGE",
+      "timeframe": "1h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "bearish_alignment",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_4h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "DOGE",
+      "timeframe": "4h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "bearish_alignment",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_15m",
+      "invalid_count": 0,
+      "no_trade_count": 0,
+      "risk_blocked_count": 0,
+      "symbol": "ETH",
+      "timeframe": "15m",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 1,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_1h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "ETH",
+      "timeframe": "1h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "macd_not_constructive",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_4h",
+      "invalid_count": 0,
+      "no_trade_count": 0,
+      "risk_blocked_count": 0,
+      "symbol": "ETH",
+      "timeframe": "4h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 1,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_15m",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "LAYER",
+      "timeframe": "15m",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "macd_not_constructive",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_1h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "LAYER",
+      "timeframe": "1h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "rsi_not_constructive",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_4h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "LAYER",
+      "timeframe": "4h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "overextended_rsi",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_15m",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "ONDO",
+      "timeframe": "15m",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "bearish_alignment",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_1h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "ONDO",
+      "timeframe": "1h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "bearish_alignment",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_4h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "ONDO",
+      "timeframe": "4h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "macd_not_constructive",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_15m",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "SOL",
+      "timeframe": "15m",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "rsi_not_constructive",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_1h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "SOL",
+      "timeframe": "1h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "macd_not_constructive",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_4h",
+      "invalid_count": 0,
+      "no_trade_count": 0,
+      "risk_blocked_count": 0,
+      "symbol": "SOL",
+      "timeframe": "4h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 1,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_15m",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "SUI",
+      "timeframe": "15m",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "overextended_rsi",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_1h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "SUI",
+      "timeframe": "1h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "macd_not_constructive",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_4h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "SUI",
+      "timeframe": "4h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "rsi_not_constructive",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_15m",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "TON",
+      "timeframe": "15m",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "bearish_alignment",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_1h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "TON",
+      "timeframe": "1h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "rsi_not_constructive",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_4h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "TON",
+      "timeframe": "4h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "bearish_alignment",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_15m",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "TRX",
+      "timeframe": "15m",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "bearish_alignment",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_1h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "TRX",
+      "timeframe": "1h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "bearish_alignment",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_4h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "TRX",
+      "timeframe": "4h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "macd_not_constructive",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_15m",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "UNI",
+      "timeframe": "15m",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "rsi_not_constructive",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_1h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "UNI",
+      "timeframe": "1h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "overextended_rsi",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_4h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "UNI",
+      "timeframe": "4h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "rsi_not_constructive",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_15m",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "XRP",
+      "timeframe": "15m",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "rsi_not_constructive",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_1h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "XRP",
+      "timeframe": "1h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "bearish_alignment",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_4h",
+      "invalid_count": 0,
+      "no_trade_count": 0,
+      "risk_blocked_count": 0,
+      "symbol": "XRP",
+      "timeframe": "4h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 1,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_15m",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "ZEC",
+      "timeframe": "15m",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "macd_not_constructive",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_1h",
+      "invalid_count": 0,
+      "no_trade_count": 0,
+      "risk_blocked_count": 0,
+      "symbol": "ZEC",
+      "timeframe": "1h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 1,
+      "would_reduce_count": 0
+    },
+    {
+      "component": "sleeve_4h",
+      "invalid_count": 0,
+      "no_trade_count": 1,
+      "risk_blocked_count": 0,
+      "symbol": "ZEC",
+      "timeframe": "4h",
+      "top_invalid_reasons": [],
+      "top_no_trade_reasons": [
+        [
+          "macd_not_constructive",
+          1
+        ]
+      ],
+      "top_risk_block_reasons": [],
+      "would_close_count": 0,
+      "would_hold_count": 0,
+      "would_open_count": 0,
+      "would_reduce_count": 0
+    }
+  ],
+  "symbols_evaluated": [
+    "BTC",
+    "ETH",
+    "SOL",
+    "XRP",
+    "ZEC",
+    "BNB",
+    "SUI",
+    "TON",
+    "DOGE",
+    "TRX",
+    "LAYER",
+    "CHIP",
+    "UNI",
+    "ONDO",
+    "AAVE"
+  ],
+  "symbols_requested": [
+    "BTC",
+    "ETH",
+    "SOL",
+    "XRP",
+    "ZEC",
+    "BNB",
+    "SUI",
+    "TON",
+    "DOGE",
+    "TRX",
+    "LAYER",
+    "CHIP",
+    "UNI",
+    "ONDO",
+    "AAVE"
+  ],
+  "uat3_readiness_decision": "UAT3 is blocked"
+}

@@ -2,7 +2,7 @@
 
 Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
-UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT0.3 top-20 universe and drawdown readiness preflight is complete. UAT1 public read-only connectivity and top-20 universe resolution is complete. UAT1.1 shadow readiness is complete. UAT2 shadow strategy run may proceed as a future no-order phase.
+UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT0.3 top-20 universe and drawdown readiness preflight is complete. UAT1 public read-only connectivity and top-20 universe resolution is complete. UAT1.1 shadow readiness is complete. UAT2 bounded no-order shadow strategy observation is complete. UAT3 sandbox orders remain blocked.
 
 ## Result
 
@@ -18,6 +18,7 @@ Founder/operator report:
 - `docs/uat0_3_top20_universe_and_drawdown_readiness.md`
 - `docs/uat1_public_read_only_connectivity_and_top20_universe.md`
 - `docs/uat1_1_shadow_signal_audit_and_drawdown_readiness.md`
+- `docs/uat2_shadow_strategy_top20_observation.md`
 
 ## Evidence Candidate vs Observation Universe
 
@@ -31,7 +32,7 @@ Frozen evidence candidate:
 
 Future UAT observation is not ETH-only. UAT1/UAT2 should cover top 20 high-volume crypto assets supported by the selected UAT venue/environment. Top-20 inclusion is not strategy approval.
 
-Future UAT2 shadow timing must compare `next_candle_open` and `next_candle_close`. `same_candle_close_research_only` remains research-only.
+UAT2 shadow timing compared `next_candle_open` and `next_candle_close`. `same_candle_close_research_only` remains research-only.
 
 ## Blocker Matrix Summary
 
@@ -58,7 +59,7 @@ Future UAT2 shadow timing must compare `next_candle_open` and `next_candle_close
 
 `UAT1 read-only connectivity may proceed`.
 
-UAT1 is now complete. UAT1.1 is now complete. `UAT2 shadow strategy run may proceed`.
+UAT1 is now complete. UAT1.1 is now complete. UAT2 is now complete. `UAT3 is blocked`.
 
 Closed by UAT0.1:
 
@@ -102,6 +103,21 @@ Closed by UAT1.1:
 - UAT1 universe snapshot loading is available for UAT2;
 - representative API-error / structured-log redaction verification exists;
 - no strategy decisions, order intents, submitted orders, approvals, private/signed/order endpoints, API keys, paper/live behavior, evidence packs, or Money Flow rule changes were created.
+
+Closed by UAT2:
+
+- explicit UAT2 shadow mode and public-read-only flags were required;
+- UAT1 universe snapshot was evaluated across `sleeve_15m`, `sleeve_1h`, and `sleeve_4h`;
+- 45 shadow audit records were created: 11 `would_open`, 34 `no_trade`, 0 `invalid`, and 0 `risk_blocked`;
+- `next_candle_open` and `next_candle_close` were represented; `same_candle_close_research_only` remained research-only;
+- shadow drawdown was labeled `shadow_simulated_drawdown` / `not_live_account_drawdown`;
+- no private/signed/order endpoints, API keys, order submissions, strategy decisions, order intents, submitted orders, approvals, paper/live behavior, evidence packs, routing artifacts, or Money Flow rule changes were created.
+
+Remaining before UAT3:
+
+- explicit founder/operator approval for UAT3 sandbox-order design scope;
+- sandbox/live account drawdown feed wiring;
+- UAT-specific risk, kill-switch, approval, submit-lease, and lifecycle verification.
 
 ## Forbidden Until Later Gated Phases
 

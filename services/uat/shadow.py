@@ -35,6 +35,13 @@ class UATShadowTimingAssumption(StrEnum):
     SAME_CANDLE_CLOSE_RESEARCH_ONLY = "same_candle_close_research_only"
 
 
+class UATShadowTimingStatus(StrEnum):
+    AVAILABLE = "available"
+    PENDING_NEXT_CANDLE = "pending_next_candle"
+    NOT_APPLICABLE = "not_applicable"
+    BLOCKED = "blocked"
+
+
 class UATShadowDrawdownSource(StrEnum):
     SHADOW_SIMULATED = "shadow_simulated"
     FIXTURE = "fixture"
@@ -105,6 +112,7 @@ class UATShadowSignalAuditRecord:
     candidate_id: str | None
     top20_universe_member: bool
     timing_assumptions_evaluated: tuple[UATShadowTimingAssumption, ...]
+    timing_status_by_assumption: dict[str, UATShadowTimingStatus]
     same_candle_close_research_only: bool
     operator_visible_explanation: str
     creates_strategy_decision: bool = False
@@ -183,8 +191,12 @@ def create_shadow_signal_audit_record(
     candidate_id: str | None = None,
     top20_universe_member: bool = True,
     timing_policy: UATShadowTimingPolicy | None = None,
+    timing_status_by_assumption: dict[str, UATShadowTimingStatus] | None = None,
 ) -> UATShadowSignalAuditRecord:
     policy = timing_policy or UATShadowTimingPolicy()
+    timing_status = timing_status_by_assumption or {
+        assumption.value: UATShadowTimingStatus.NOT_APPLICABLE for assumption in policy.evaluated_assumptions
+    }
     return UATShadowSignalAuditRecord(
         run_id=run_id,
         timestamp_utc=timestamp_utc,
@@ -209,6 +221,7 @@ def create_shadow_signal_audit_record(
         candidate_id=candidate_id,
         top20_universe_member=top20_universe_member,
         timing_assumptions_evaluated=policy.evaluated_assumptions,
+        timing_status_by_assumption=dict(timing_status),
         same_candle_close_research_only=policy.same_candle_close_research_only,
         operator_visible_explanation=operator_visible_explanation,
     )

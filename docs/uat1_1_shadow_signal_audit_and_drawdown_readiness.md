@@ -6,6 +6,8 @@ Recorded at: `2026-05-10T08:08:18Z`
 
 UAT1.1 prepares shadow audit and drawdown visibility. It does not run the UAT2 shadow strategy loop, does not run Money Flow over live data, does not submit orders, does not call private or signed endpoints, does not use exchange API keys, does not create strategy decisions, order intents, submitted orders, approvals, paper trades, live trades, routing artifacts, evidence packs, or Money Flow rule changes.
 
+UAT2 follow-up: `docs/uat2_shadow_strategy_top20_observation.md` completed the bounded no-order shadow strategy observation using the UAT1 universe snapshot, public read-only Hyperliquid candles, and the UAT1.1 shadow audit/drawdown surfaces. UAT2 did not create strategy decisions, order intents, submitted orders, approvals, paper/live trades, routing artifacts, evidence packs, or Money Flow rule changes.
+
 Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved.
 
 ## Shadow Signal Audit Surface
@@ -93,12 +95,13 @@ The UAT1 snapshot is not permanent strategy approval, paper-trading approval, li
 
 ## UAT2 Readiness Decision
 
-`UAT2 shadow strategy run may proceed`.
+Historical UAT1.1 decision at the time: `UAT2 shadow strategy run may proceed`.
 
-UAT2, if accepted as next work, remains no-order shadow mode. It must compare `next_candle_open` and `next_candle_close`; it must not submit orders.
+UAT2 was accepted as next work and completed as no-order shadow mode. It compared `next_candle_open` and `next_candle_close`; it did not submit orders.
 
 Remaining blockers:
 - none for UAT2 shadow-only start; UAT3 sandbox-order blockers remain deferred.
+- UAT3 remains blocked pending explicit founder/operator approval for sandbox-order design, sandbox account drawdown feed wiring, and UAT3 approval/submit-lease/lifecycle verification.
 
 ## Boundary Confirmation
 

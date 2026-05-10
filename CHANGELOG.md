@@ -13,6 +13,60 @@ Entry schema:
 
 ---
 
+## v2026.05.10.005
+
+- `recorded_at_utc`: `2026-05-10T08:38:49Z`
+- `scope`: `UAT2 shadow strategy run across top-20 observation universe`
+- `intent`: `Native entry. Added an explicit UAT2 no-order shadow runner that requires UAT2 shadow, shadow-only, public-read-only, and public-network flags before any public call. The runner loads the UAT1 observation-only universe snapshot, fetches only Hyperliquid public candleSnapshot data, evaluates current baseline Money Flow rules without creating StrategyDecision or SignalEvent artifacts, emits UAT shadow audit records, compares next_candle_open and next_candle_close availability, records no-trade / would-open summaries, keeps shadow drawdown labeled not-live-account, and writes a founder/operator UAT2 report plus compact JSON summary. The generated UAT2 run evaluated BTC/ETH/SOL/XRP/ZEC/BNB/SUI/TON/DOGE/TRX/LAYER/CHIP/UNI/ONDO/AAVE across sleeve_15m, sleeve_1h, and sleeve_4h, with 45 public candle fetch successes, 11 would_open records, 34 no_trade records, and 0 invalid/risk_blocked records. UAT3 remains blocked. No private/signed/order endpoints, exchange API keys, order submissions, StrategyDecision, SignalEvent, OrderIntent, PreparedVenueOrder, ExecutionReadinessAssessment, SubmittedOrder, approval, routing, paper/live, Money Flow rule, strategy-variant, or evidence-pack behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/uat0_3_top20_universe_and_drawdown_readiness.md`
+  - `docs/uat0_safety_security_runtime_hardening.md`
+  - `docs/uat1_public_read_only_connectivity_and_top20_universe.md`
+  - `docs/uat1_1_shadow_signal_audit_and_drawdown_readiness.md`
+  - `docs/uat2_shadow_strategy_top20_observation.md`
+  - `docs/uat2_shadow_strategy_top20_observation_summary.json`
+  - `scripts/run_uat2_shadow_strategy.py`
+  - `services/uat/__init__.py`
+  - `services/uat/shadow.py`
+  - `services/uat/shadow_run.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_uat0_safety_report.py`
+  - `tests/test_uat2_shadow_strategy.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/30 Strategy/Money Flow Strategy Lab.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/Operational Memory.md`
+  - `money-flow/40 Operations/UAT0 Safety Runtime Hardening.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat2_shadow_strategy.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat0_safety_report.py tests/test_uat01_api_auth_runtime_lockout.py tests/test_uat02_adapter_runtime_policy_and_redaction.py tests/test_uat03_top20_universe_and_drawdown.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat1_public_read_only_connectivity.py tests/test_uat11_shadow_readiness.py`
+  - `.venv/bin/python -m pytest -q tests/test_api.py tests/test_phase2_services.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py tests/test_uat0_safety_report.py tests/test_uat2_shadow_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/run_uat2_shadow_strategy.py --uat2-shadow-run --shadow-only --public-read-only --allow-public-read-only-network --runtime-mode uat --output docs/uat2_shadow_strategy_top20_observation.md --json-output docs/uat2_shadow_strategy_top20_observation_summary.json`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-uat2-review.zip`
+  - `review bundle exclusion scan passed: 347 entries, 0 forbidden artifacts`
+
 ## v2026.05.10.004
 
 - `recorded_at_utc`: `2026-05-10T08:00:33Z`

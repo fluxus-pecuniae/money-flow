@@ -2,7 +2,9 @@
 
 Recorded at: `2026-05-10T07:18:43Z`
 
-UAT1.1 follow-up: `docs/uat1_1_shadow_signal_audit_and_drawdown_readiness.md` adds model/report-only shadow signal audit, operator-visible shadow drawdown, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification. UAT2 shadow strategy run may proceed as a future no-order phase; UAT1.1 does not run UAT2, run Money Flow over live data, submit orders, create strategy/execution artifacts, or approve paper/live trading.
+UAT1.1 follow-up: `docs/uat1_1_shadow_signal_audit_and_drawdown_readiness.md` adds model/report-only shadow signal audit, operator-visible shadow drawdown, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification. UAT1.1 cleared UAT2 start blockers for a future no-order phase; UAT1.1 does not run UAT2, run Money Flow over live data, submit orders, create strategy/execution artifacts, or approve paper/live trading.
+
+UAT2 follow-up: `docs/uat2_shadow_strategy_top20_observation.md` completed a bounded no-order shadow strategy observation using this UAT1 universe snapshot, public read-only Hyperliquid candles, and shadow audit records only. UAT2 did not use API keys, private/signed/order endpoints, order submission, strategy/execution artifacts, paper/live behavior, routing artifacts, Money Flow rule changes, or evidence packs. UAT3 remains blocked pending explicit sandbox-order design approval and deeper sandbox lifecycle wiring.
 
 ## Scope
 
@@ -144,7 +146,9 @@ Top-20 inclusion means observation candidate only. It is not strategy approval, 
 
 ## UAT2 Readiness Decision
 
-`UAT2 is blocked`.
+Historical UAT1 decision at the time: `UAT2 is blocked`.
+
+UAT1.1 later cleared the no-order UAT2 start blockers. UAT2 has now completed a bounded no-order shadow observation and did not submit orders.
 
 Remaining blockers:
 - `uat2_operator_visible_shadow_drawdown_state`

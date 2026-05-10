@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-10T08:38:49Z - UAT2 - No-Order Shadow Observation Complete, UAT3 Blocked
+
+- `decision`: Complete UAT2 as a bounded no-order Money Flow shadow observation across the UAT1 Hyperliquid top-20-supported universe using public read-only candles and shadow audit records only.
+- `why`: UAT2 needed to prove that the platform can evaluate current baseline Money Flow behavior across the observation universe, expose would-trade/no-trade reasons, represent `next_candle_open` / `next_candle_close` assumptions, and show not-live-account shadow drawdown without creating execution artifacts.
+- `scope`: UAT2 used explicit public-read-only shadow mode, evaluated `sleeve_15m`, `sleeve_1h`, and `sleeve_4h`, and produced 45 shadow audit records. It did not submit orders, use API keys, call private/signed/order endpoints, create `StrategyDecision`, `SignalEvent`, `OrderIntent`, `PreparedVenueOrder`, `ExecutionReadinessAssessment`, `SubmittedOrder`, approvals, routing artifacts, paper/live trades, evidence packs, or Money Flow rule changes.
+- `result`: UAT2 created 11 `would_open` and 34 `no_trade` records; ETH `sleeve_1h` was `no_trade` with `macd_not_constructive`. Shadow drawdown remained `shadow_simulated_drawdown` / `not_live_account_drawdown`.
+- `follow_up_implications`: UAT3 remains blocked until the founder/operator explicitly accepts sandbox-order design scope and sandbox account drawdown, risk, approval, submit-lease, and lifecycle verification are addressed.
+
 ## 2026-05-10T08:00:33Z - UAT1.1 - Shadow Readiness Clears UAT2 Start Blockers
 
 - `decision`: Add model/report-only shadow signal audit records, operator-visible shadow drawdown state, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification so UAT2 shadow strategy run may proceed as a future no-order phase.

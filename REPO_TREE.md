@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-10T08:00:33Z`
+Last reviewed: `2026-05-10T08:38:49Z`
 
 ## Top-Level Structure
 
@@ -68,7 +68,8 @@ Last reviewed: `2026-05-10T08:00:33Z`
 - UAT0.2 updates current-state notes after adapter runtime-policy hardening: adapter private/signed/order paths are guarded before transport, public read-only methods are classified, a Hyperliquid future-UAT1 read-only allowlist artifact exists, representative redaction is tested, and no exchange connectivity/order submission/paper/live behavior is added.
 - UAT0.3 updates current-state notes after top-20 universe/drawdown readiness preflight: fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design exist; UAT1 public read-only connectivity may proceed under strict no-private/no-signed/no-order/no-API-key constraints.
 - UAT1 updates current-state notes after public read-only connectivity and top-20 universe resolution: explicit public-read-only network mode was used, Hyperliquid allowed public info types were verified, a public no-key CoinGecko top-volume source was fetched, Hyperliquid-supported observation-only assets were resolved, and UAT2 remained blocked at that point by shadow-readiness gaps. No private/signed/order endpoints, API keys, order submissions, Money Flow live strategy execution, paper/live behavior, routing behavior, Money Flow rule changes, or evidence packs were added.
-- UAT1.1 updates current-state notes after shadow-readiness hardening: model/report-only shadow signal audit records, operator-visible shadow drawdown, UAT1 universe snapshot loading, and representative API-error / structured-log redaction verification exist. UAT2 shadow strategy run may proceed as a future no-order phase, but UAT1.1 does not implement UAT2 or create strategy/execution artifacts.
+- UAT1.1 updates current-state notes after shadow-readiness hardening: model/report-only shadow signal audit records, operator-visible shadow drawdown, UAT1 universe snapshot loading, and representative API-error / structured-log redaction verification exist.
+- UAT2 updates current-state notes after the bounded no-order shadow run: the UAT1 observation-only universe was evaluated across `sleeve_15m`, `sleeve_1h`, and `sleeve_4h` using public Hyperliquid candle snapshots, shadow audit records were emitted, and UAT3 remains blocked.
 - Phase 8.0.1 accepted the previously dirty Obsidian memory refresh as the strategic baseline and updated it to current Phase 8.0/8.0.1 truth.
 - Phase 8.0.2 updates current-phase/coordination/decision notes for active submit-lease operator-summary truth only; full project memory remains untouched.
 - SV1.0.1 updates current-phase/coordination/decision notes for strategy-validation research-truth/report hardening only; full project memory remains untouched.
@@ -151,6 +152,14 @@ Last reviewed: `2026-05-10T08:00:33Z`
 `docs/uat1_1_shadow_signal_audit_and_drawdown_readiness.md`
 - Founder/operator UAT1.1 shadow-readiness report.
 - Records the shadow signal audit schema/surface, no-live-artifact boundary, UAT2 timing assumptions, operator-visible shadow drawdown state, drawdown reason codes, structured log/API error redaction verification status, UAT1 universe snapshot availability, UAT2 readiness decision, and remaining deferred UAT3 blockers.
+
+`docs/uat2_shadow_strategy_top20_observation.md`
+- Founder/operator UAT2 shadow strategy observation report.
+- Records explicit UAT2 shadow/public-read-only runtime flags, the UAT1 observation universe snapshot used, evaluated symbols/components, public candle-fetch status, shadow audit signal summaries, no-trade reasons, next-candle timing availability, shadow drawdown state, ETH `sleeve_1h` evidence-candidate status, no-private/no-order boundary flags, and the UAT3 readiness decision.
+
+`docs/uat2_shadow_strategy_top20_observation_summary.json`
+- Compact UAT2 shadow run summary generated from the same bounded public-read-only run for future dashboard/API consumption.
+- Contains shadow audit records, fetch status, summaries, drawdown state, and boundary flags only; it is not an evidence pack, candle file, local DB export, strategy decision, signal event, order intent, submitted order, approval, routing artifact, paper trade, or live trade.
 
 `core/config/`
 - Pydantic settings, environment profiles, runtime selection, and per-venue / strategy configuration.
@@ -358,7 +367,7 @@ Last reviewed: `2026-05-10T08:00:33Z`
 
 `services/uat/`
 - UAT readiness policy helpers.
-- UAT0.3 adds fixture-only top-20 observation universe resolver models and runtime drawdown monitor models. UAT1 adds explicit public-read-only connectivity helpers for allowed Hyperliquid info types, no-key public top-volume source parsing, Hyperliquid metadata intersection, per-included-asset public sample checks, report rendering, and JSON serialization. UAT1.1 adds model/report-only shadow signal audit records, UAT2 timing policy representation, no-live-artifact boundary checks, UAT1 universe snapshot loading, operator-visible shadow drawdown state, and representative API-error / structured-log redaction verification helpers. UAT helpers require explicit public-read-only mode/network flags for public calls and do not call private/signed/order endpoints, use API keys, submit orders, approve paper/live trading, run Money Flow live strategy decisions, create StrategyDecision/OrderIntent/SubmittedOrder artifacts, or change Money Flow rules.
+- UAT0.3 adds fixture-only top-20 observation universe resolver models and runtime drawdown monitor models. UAT1 adds explicit public-read-only connectivity helpers for allowed Hyperliquid info types, no-key public top-volume source parsing, Hyperliquid metadata intersection, per-included-asset public sample checks, report rendering, and JSON serialization. UAT1.1 adds model/report-only shadow signal audit records, UAT2 timing policy representation, no-live-artifact boundary checks, UAT1 universe snapshot loading, operator-visible shadow drawdown state, and representative API-error / structured-log redaction verification helpers. UAT2 adds a bounded no-order shadow run service that fetches only public Hyperliquid `candleSnapshot` data under explicit UAT2 flags, evaluates current baseline Money Flow rule logic without creating production decision/signal/order artifacts, emits shadow audit records, and renders Markdown/JSON summaries. UAT helpers require explicit public-read-only mode/network flags for public calls and do not call private/signed/order endpoints, use API keys, submit orders, approve paper/live trading, create StrategyDecision/SignalEvent/OrderIntent/PreparedVenueOrder/ExecutionReadinessAssessment/SubmittedOrder artifacts, create approvals/routing artifacts, or change Money Flow rules.
 
 `services/market_data/`
 - Candle bootstrap, persistence, checkpoint semantics, and freshness handling.
@@ -461,6 +470,7 @@ Last reviewed: `2026-05-10T08:00:33Z`
 - Money Flow true replay experiments: `.venv/bin/python scripts/run_money_flow_true_replay_experiments.py --output docs/strategy_validation_sv1_17_true_replay_experiments.md --symbol ETH --component sleeve_1h`; experiments compare lower-RSI plus market-structure replay variants against baseline and remain research-only.
 - UAT1 public read-only connectivity: `.venv/bin/python scripts/run_uat1_public_read_only.py --uat1-public-read-only --allow-public-read-only-network --runtime-mode uat`; this is public read-only only, uses no API keys, and must not call private/signed/order endpoints or run Money Flow live.
 - UAT1.1 shadow readiness is model/report-only through `services.uat.shadow`; it defines future UAT2 audit/drawdown surfaces and creates no strategy/execution artifacts or exchange calls.
+- UAT2 no-order shadow run: `.venv/bin/python scripts/run_uat2_shadow_strategy.py --uat2-shadow-run --shadow-only --public-read-only --allow-public-read-only-network --runtime-mode uat`; this uses the UAT1 snapshot and public Hyperliquid candle snapshots only, emits shadow audit/report artifacts, and must not call private/signed/order endpoints, use API keys, submit orders, create production strategy/execution artifacts, approve paper/live trading, or change Money Flow rules.
 - Routing automation policy/plan/approval inspection and the narrow Phase 7.2 / 7.3 / 7.4 / 7.5 action hooks: `GET /api/v1/routing-automation/policy`, `POST /api/v1/routing-automation/plans/by-desired-trade/{desired_trade_key}`, `POST /api/v1/routing-automation/approvals`, `GET /api/v1/routing-automation/approvals/{approval_id}`, `GET /api/v1/routing-automation/approvals/by-desired-trade/{desired_trade_key}`, `POST /api/v1/routing-automation/approvals/{approval_id}/revoke`, administrative `POST /api/v1/routing-automation/approvals/{approval_id}/consume`, action-executing `POST /api/v1/routing-automation/approvals/{approval_id}/accept-recommendation`, action-executing `POST /api/v1/routing-automation/approvals/{approval_id}/convert-target-choice`, action-executing `POST /api/v1/routing-automation/approvals/{approval_id}/preview-readiness`, and action-executing `POST /api/v1/routing-automation/approvals/{approval_id}/submit`
 - Phase 8.0 operator routed workflow summary: `GET /api/v1/operator-routed-workflows/by-desired-trade/{desired_trade_key}`
 

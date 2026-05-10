@@ -31,12 +31,14 @@ Before substantial work, read the repo memory and Obsidian brain. Before editing
 
 ## Current Important Memory Facts
 
-- Current implemented milestone: `UAT1.1` shadow signal audit, drawdown visibility, and redaction verification complete.
+- Current implemented milestone: `UAT2` bounded no-order shadow strategy observation complete.
 - Strategy Validation SV1 is closed for now.
-- Next proposed phase: UAT2 no-order shadow strategy run.
+- Next proposed phase: UAT3 approval-gated sandbox order design may be scoped only after explicit founder/operator approval.
 - UAT1 public read-only connectivity is complete under strict no-private/no-signed/no-order/no-API-key constraints.
 - UAT1 verified allowed public Hyperliquid info types, fetched a no-key public top-volume source, and resolved observation-only Hyperliquid supported assets.
-- UAT1.1 adds operator-visible shadow drawdown state, shadow signal audit surfaces, and representative structured redaction verification so UAT2 shadow strategy run may proceed as a future no-order phase.
+- UAT1.1 adds operator-visible shadow drawdown state, shadow signal audit surfaces, and representative structured redaction verification.
+- UAT2 evaluated the UAT1 Hyperliquid observation universe across `sleeve_15m`, `sleeve_1h`, and `sleeve_4h` using public read-only candles and shadow audit records only.
+- UAT3 remains blocked until sandbox-order design is explicitly accepted and sandbox drawdown/risk/lifecycle prerequisites are handled.
 - Frozen evidence candidate: Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules.
 - Future UAT observation universe: top-20 high-volume supported assets for behavior validation only.
 - Paper trading is not approved.

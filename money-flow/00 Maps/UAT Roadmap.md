@@ -4,7 +4,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 UAT validates plumbing and behavior. It does not prove profitability.
 
-Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, and UAT1.1 shadow readiness is complete. UAT2 shadow strategy run may proceed as a future no-order phase.
+Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, UAT1.1 shadow readiness is complete, and UAT2 bounded no-order shadow strategy observation is complete. UAT3 sandbox orders remain blocked.
 
 ## Frozen Observation Candidate
 
@@ -24,7 +24,7 @@ Future UAT observation should cover the top 20 high-volume crypto assets support
 
 Top-20 inclusion is not strategy approval. Unsupported or mismatched assets must be excluded with explicit reason codes.
 
-Future UAT2 shadow reports must compare `next_candle_open` and `next_candle_close`. `same_candle_close_research_only` remains research-only.
+UAT2 shadow reports compare `next_candle_open` and `next_candle_close`. `same_candle_close_research_only` remains research-only.
 
 ## UAT0 - Safety / Security / Runtime Hardening
 
@@ -62,13 +62,13 @@ Required docs/tests: read-only adapter tests, secret hygiene tests, sandbox runb
 
 Objective: observe signals and would-trade decisions across the top-20 supported-asset universe without order submission.
 
-Status: may proceed next as a no-order shadow phase. UAT1.1 added operator-visible shadow drawdown state, shadow signal audit surfaces for would-trade/no-trade/risk-block explainability, and representative structured log/API error redaction verification.
+Status: complete. UAT2 ran a bounded no-order shadow evaluation over the UAT1 Hyperliquid observation universe using public read-only candles and shadow audit records only.
 
 Allowed behavior: shadow signal generation, would-trade logging, compare `next_candle_open`, compare `next_candle_close`, no-trade logging, risk observation, dashboard/operator inspection.
 
 Forbidden behavior: order submission, live-capital paths, auto-submit.
 
-Success criteria: signals are explainable, gated, auditable, and safe under runtime failures.
+Success criteria: signals are explainable, gated, auditable, and safe under runtime failures. UAT2 produced 45 shadow audit records across 15 symbols and 3 sleeves, with 11 `would_open`, 34 `no_trade`, 0 `invalid`, and 0 `risk_blocked` records.
 
 Likely files/modules: strategy runtime, API inspection, dashboard.
 
@@ -76,7 +76,9 @@ Required docs/tests: shadow-mode tests, decision/audit tests, dashboard labeling
 
 ## UAT3 - Approval-Gated Sandbox Orders
 
-Objective: test sandbox order lifecycle only after UAT0-UAT2 pass.
+Objective: test sandbox order lifecycle only after UAT0-UAT2 pass and explicit founder/operator approval accepts sandbox-order design scope.
+
+Status: blocked. UAT2 did not clear sandbox order execution; it only completed no-order shadow observation.
 
 Allowed behavior: explicitly approved tiny sandbox/testnet orders, starting with a small operator-approved subset.
 

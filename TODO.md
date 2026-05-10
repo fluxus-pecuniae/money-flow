@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-10T08:00:33Z`
+Last reviewed: `2026-05-10T08:38:49Z`
 
 ## Active Follow-Ups
 
@@ -31,8 +31,14 @@ Last reviewed: `2026-05-10T08:00:33Z`
 ### T-098
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `UAT2 no-order shadow strategy run is complete. The explicit UAT2 runner requires shadow-only and public-read-only flags, loads the UAT1 observation-only universe snapshot, fetches only Hyperliquid public candleSnapshot data, evaluates current baseline Money Flow rules without creating production strategy/execution artifacts, writes shadow audit records, compares next_candle_open and next_candle_close availability, labels same_candle_close_research_only as research-only, and reports shadow_simulated_drawdown / not_live_account_drawdown with no PnL simulation. The generated UAT2 run evaluated 15 observation-only assets across sleeve_15m, sleeve_1h, and sleeve_4h: 45 public candle fetches succeeded, 11 records were would_open, 34 were no_trade, and UAT3 remains blocked. No StrategyDecision, SignalEvent, OrderIntent, PreparedVenueOrder, ExecutionReadinessAssessment, SubmittedOrder, approvals, private/signed/order endpoint calls, API-key usage, paper/live behavior, routing expansion, Money Flow rule change, strategy variant, or evidence pack was added.`
+
+### T-099
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `Implement UAT2 shadow strategy run across the UAT1 Hyperliquid top-20 observation universe. UAT2 must be no-order shadow mode only, compare next_candle_open and next_candle_close, write shadow signal audit records/no-trade/would-trade/risk-block explanations, update shadow_simulated_drawdown / not_live_account_drawdown state, and create no StrategyDecision, OrderIntent, SubmittedOrder, approvals, private/signed/order endpoint calls, API-key usage, paper/live behavior, routing expansion, Money Flow rule changes, or evidence packs.`
+- `summary`: `Scope UAT3 approval-gated sandbox order design only after founder/operator acceptance. UAT3 remains blocked by explicit approval to proceed, sandbox/live account drawdown feed wiring, UAT-specific risk/kill-switch/audit visibility verification, and approval/submit-lease sandbox lifecycle verification. UAT3 must not become automatic top-20 order submission and must not use live endpoints, paper trading, routing expansion, Money Flow rule changes, or unapproved order submission.`
 
 ### T-094
 

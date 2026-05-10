@@ -18,7 +18,7 @@ Money Flow combines:
 - submitted-order lifecycle and reconciliation truth.
 - operator observability.
 - future UAT/sandbox behavior validation.
-- UAT0 safety/security/runtime readiness plus UAT0.1 API/runtime lockout, UAT0.2 adapter-policy/redaction hardening, UAT0.3 top-20 universe/drawdown readiness preflight, and UAT1 public read-only connectivity/universe resolution.
+- UAT0 safety/security/runtime readiness plus UAT0.1 API/runtime lockout, UAT0.2 adapter-policy/redaction hardening, UAT0.3 top-20 universe/drawdown readiness preflight, UAT1 public read-only connectivity/universe resolution, UAT1.1 shadow-readiness surfaces, and UAT2 bounded no-order shadow observation.
 
 ## Platform Tracks Completed
 
@@ -91,9 +91,9 @@ Excluded from current UAT:
 - Aster / Binance / OKX / Coinbase / Kraken.
 - cross-venue comparison.
 
-## UAT0 / UAT0.1 / UAT0.2 / UAT0.3 / UAT1 Outcome
+## UAT0 / UAT0.1 / UAT0.2 / UAT0.3 / UAT1 / UAT1.1 / UAT2 Outcome
 
-UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT0.3 top-20 universe and drawdown readiness preflight is complete. UAT1 public read-only connectivity is complete. UAT1.1 shadow readiness is complete. UAT2 shadow strategy run may proceed as a future no-order phase.
+UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT0.3 top-20 universe and drawdown readiness preflight is complete. UAT1 public read-only connectivity is complete. UAT1.1 shadow readiness is complete. UAT2 bounded no-order shadow observation is complete. UAT3 sandbox orders remain blocked.
 
 Closed by UAT0.1:
 
@@ -124,17 +124,31 @@ Closed by UAT1:
 - The UAT1 report resolved 15 Hyperliquid USDC perpetual observation candidates and 5 excluded assets from the public top-20 source at run time.
 - No private endpoints, signed endpoints, order endpoints, API keys, order submissions, strategy decisions, order intents, submitted orders, paper/live behavior, evidence packs, or Money Flow rule changes were used or created.
 
-Remaining UAT blockers:
+Closed by UAT1.1:
 
 - Representative structured application log/API error redaction is verified for UAT2; deployment-specific middleware/logging smoke tests remain before UAT3.
-- UAT1.1 adds operator-visible shadow drawdown state for UAT2.
-- UAT1.1 adds a shadow signal audit surface for would-trade/no-trade/risk-block explainability.
+- Operator-visible shadow drawdown state exists for UAT2.
+- A shadow signal audit surface exists for would-trade/no-trade/risk-block explainability.
+
+Closed by UAT2:
+
+- Explicit UAT2 shadow mode and public-read-only flags are required.
+- The UAT1 universe snapshot was evaluated across `sleeve_15m`, `sleeve_1h`, and `sleeve_4h`.
+- UAT2 created 45 shadow audit records: 11 `would_open`, 34 `no_trade`, 0 `invalid`, and 0 `risk_blocked`.
+- ETH `sleeve_1h` produced `no_trade` with `macd_not_constructive`.
+- UAT2 represented `next_candle_open` and `next_candle_close`; `same_candle_close_research_only` remained research-only.
+- Shadow drawdown was labeled `shadow_simulated_drawdown` / `not_live_account_drawdown` and did not imply live account equity or performance.
+- No private endpoints, signed endpoints, order endpoints, API keys, order submissions, strategy decisions, order intents, submitted orders, approvals, paper/live behavior, evidence packs, routing artifacts, or Money Flow rule changes were used or created.
+
+Remaining UAT blockers:
+
+- UAT3 requires explicit founder/operator approval before sandbox-order design is scoped.
 - UAT3 needs sandbox/live account drawdown feed wiring.
 - Existing approval gates, execution defaults, venue submit flags, and submit-lease uncertainty protections are useful but require later UAT-specific verification.
 
-Future UAT observation is not ETH-only. UAT1/UAT2 should cover the top 20 high-volume crypto assets supported by the selected UAT venue/environment for platform behavior validation. Top-20 inclusion is not strategy approval.
+Future UAT observation is not ETH-only. UAT1/UAT2 cover the top 20 high-volume crypto assets supported by the selected UAT venue/environment for platform behavior validation. Top-20 inclusion is not strategy approval.
 
-Future UAT2 shadow timing should compare `next_candle_open` and `next_candle_close`. `same_candle_close_research_only` remains research-only.
+UAT2 shadow timing compares `next_candle_open` and `next_candle_close`. `same_candle_close_research_only` remains research-only.
 
 ## Paper / Live Status
 
@@ -153,8 +167,8 @@ The current evidence cycle can justify UAT0 safety/runtime hardening and later s
 - UAT0.2: adapter runtime-policy and redaction hardening complete.
 - UAT0.3: top-20 universe and drawdown readiness preflight complete.
 - UAT1: top-20 universe plus read-only venue/market metadata complete under strict public-read-only constraints.
-- UAT2: next shadow strategy run across top-20 supported assets, no orders.
-- UAT3: approval-gated sandbox orders.
+- UAT2: bounded no-order shadow strategy observation across top-20 supported assets complete.
+- UAT3: approval-gated sandbox order design remains blocked pending explicit founder/operator approval and sandbox lifecycle prerequisites.
 - UAT4: sandbox / simulated trading review.
 
 UAT1 public read-only connectivity is complete under strict constraints. UAT1 used no API keys, private endpoints, signed endpoints, order endpoints, paper trading, live trading, or order submission.
@@ -166,7 +180,7 @@ UAT1 public read-only connectivity is complete under strict constraints. UAT1 us
 - fail-safe sandbox/live mode separation verification.
 - risk-limit enforcement.
 - UAT3 sandbox/live drawdown feed wiring and verification.
-- UAT2 implementation using the shadow signal audit and shadow drawdown surfaces.
+- UAT3 explicit design approval and sandbox lifecycle prerequisites.
 - kill switch behavior.
 - debug stack trace exposure hardening.
 - audit logging review.
