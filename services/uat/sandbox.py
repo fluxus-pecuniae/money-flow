@@ -38,6 +38,13 @@ class SandboxReadinessReason(StrEnum):
     REAL_CAPITAL_LABEL_NOT_FALSE = "real_capital_label_not_false"
 
 
+class SandboxArtifactBoundary(StrEnum):
+    PERSISTENCE = "persistence"
+    API_SERIALIZATION = "api_serialization"
+    DASHBOARD_DISPLAY = "dashboard_display"
+    REPORT_GENERATION = "report_generation"
+
+
 class SandboxApprovalRejectReason(StrEnum):
     UAT_RUN_ID_MISSING = "missing_uat_run_id"
     WRONG_UAT_RUN_ID = "wrong_uat_run_id"
@@ -97,6 +104,16 @@ class SandboxDryRunRejectReason(StrEnum):
     SANDBOX_ARTIFACT_LABELING_NOT_ENFORCED_ON_PERSISTENCE = (
         "sandbox_artifact_labeling_not_enforced_on_persistence"
     )
+    SANDBOX_ARTIFACT_LABELING_NOT_ENFORCED_ON_API_SERIALIZATION = (
+        "sandbox_artifact_labeling_not_enforced_on_api_serialization"
+    )
+    SANDBOX_ARTIFACT_LABELING_NOT_ENFORCED_ON_DASHBOARD_DISPLAY = (
+        "sandbox_artifact_labeling_not_enforced_on_dashboard_display"
+    )
+    SANDBOX_ARTIFACT_LABELING_NOT_ENFORCED_ON_REPORT_GENERATION = (
+        "sandbox_artifact_labeling_not_enforced_on_report_generation"
+    )
+    REAL_SANDBOX_SUBMIT_PATH_REQUIRED = "real_sandbox_submit_path_required"
 
 
 @dataclass(frozen=True)
@@ -107,6 +124,27 @@ class SandboxCheckResult:
     @property
     def blocked(self) -> bool:
         return not self.allowed
+
+
+@dataclass(frozen=True)
+class SandboxRuntimePolicySemantics:
+    exchange_order_submission_enabled: str
+    sandbox_order_submission_enabled: str
+    live_endpoint_access: str
+
+
+def get_sandbox_runtime_policy_semantics() -> SandboxRuntimePolicySemantics:
+    """Return the UAT3 runtime flag semantics used by docs, tests, and dry-runs."""
+
+    return SandboxRuntimePolicySemantics(
+        exchange_order_submission_enabled=(
+            "broad/global/non-sandbox exchange order submission; must remain false for UAT3 sandbox tests"
+        ),
+        sandbox_order_submission_enabled=(
+            "explicit sandbox/testnet-only submission flag; may become true only in a separately approved UAT3.1 run"
+        ),
+        live_endpoint_access="live endpoint access must remain false for every UAT3 sandbox/testnet path",
+    )
 
 
 @dataclass(frozen=True)
@@ -175,6 +213,43 @@ def validate_sandbox_artifact_labels(labels: SandboxArtifactLabels) -> SandboxCh
     if labels.real_capital:
         reasons.append(SandboxReadinessReason.REAL_CAPITAL_LABEL_NOT_FALSE.value)
     return SandboxCheckResult(allowed=not reasons, reason_codes=tuple(reasons))
+
+
+@dataclass(frozen=True)
+class SandboxArtifactBoundaryValidation:
+    boundary: SandboxArtifactBoundary
+    result: SandboxCheckResult
+    creates_order_intent: bool = False
+    creates_prepared_order: bool = False
+    creates_submitted_order: bool = False
+    creates_executable_approval: bool = False
+    calls_exchange: bool = False
+
+
+def validate_sandbox_artifact_boundary(
+    *,
+    labels: SandboxArtifactLabels,
+    boundary: SandboxArtifactBoundary,
+) -> SandboxArtifactBoundaryValidation:
+    """Validate sandbox labels before a future artifact crosses a named boundary."""
+
+    return SandboxArtifactBoundaryValidation(
+        boundary=boundary,
+        result=validate_sandbox_artifact_labels(labels),
+    )
+
+
+def validate_sandbox_artifact_boundaries(
+    *,
+    labels: SandboxArtifactLabels,
+    boundaries: tuple[SandboxArtifactBoundary, ...] = (
+        SandboxArtifactBoundary.PERSISTENCE,
+        SandboxArtifactBoundary.API_SERIALIZATION,
+        SandboxArtifactBoundary.DASHBOARD_DISPLAY,
+        SandboxArtifactBoundary.REPORT_GENERATION,
+    ),
+) -> tuple[SandboxArtifactBoundaryValidation, ...]:
+    return tuple(validate_sandbox_artifact_boundary(labels=labels, boundary=boundary) for boundary in boundaries)
 
 
 @dataclass(frozen=True)
@@ -570,3 +645,149 @@ def evaluate_uat3_sandbox_submission_preflight(
         submit_preflight_result=submit_result,
         would_submit_if_enabled=allowed,
     )
+
+
+@dataclass(frozen=True)
+class UAT3SandboxExecutableGateDryRunInput:
+    runtime_policy: SandboxRuntimePolicy
+    artifact_labels: SandboxArtifactLabels
+    approval_scope: SandboxApprovalScope
+    approval_candidate: SandboxApprovalCandidate
+    risk_limits: SandboxRiskLimits
+    risk_request: SandboxRiskRequest
+    submit_request: SandboxSubmitPreflightRequest
+    submit_state: SandboxSubmitPreflightState
+    now_utc: datetime
+    sandbox_drawdown_feed: SandboxDrawdownFeedFixture | None
+    founder_operator_actual_submission_approved: bool = False
+    drawdown_feed_status: str = "sandbox_drawdown_feed_fixture_only"
+    artifact_boundary_enforcement: tuple[SandboxArtifactBoundary, ...] = (
+        SandboxArtifactBoundary.PERSISTENCE,
+        SandboxArtifactBoundary.API_SERIALIZATION,
+        SandboxArtifactBoundary.DASHBOARD_DISPLAY,
+        SandboxArtifactBoundary.REPORT_GENERATION,
+    )
+    real_sandbox_submit_path_wired: bool = False
+
+
+@dataclass(frozen=True)
+class UAT3SandboxExecutableGateDryRunResult:
+    allowed: bool
+    reason_codes: tuple[str, ...]
+    gate_results: dict[str, object]
+    runtime_policy_result: SandboxCheckResult
+    artifact_boundary_results: tuple[SandboxArtifactBoundaryValidation, ...]
+    approval_scope_result: SandboxCheckResult
+    risk_gate_result: SandboxCheckResult
+    drawdown_feed_status: str
+    submit_preflight_result: SandboxCheckResult
+    creates_order_intent: bool = False
+    creates_prepared_order: bool = False
+    creates_submitted_order: bool = False
+    creates_executable_approval: bool = False
+    calls_exchange: bool = False
+    would_require_founder_approval: bool = True
+    would_require_live_fed_sandbox_drawdown: bool = True
+    would_require_real_sandbox_submit_path: bool = True
+
+    @property
+    def blocked(self) -> bool:
+        return not self.allowed
+
+
+class UAT3SandboxDryRunGateService:
+    """Composes future executable UAT3 sandbox gates without side effects."""
+
+    def evaluate(self, preflight: UAT3SandboxExecutableGateDryRunInput) -> UAT3SandboxExecutableGateDryRunResult:
+        runtime_result = preflight.runtime_policy.evaluate_for_sandbox_submission()
+        boundary_results = validate_sandbox_artifact_boundaries(
+            labels=preflight.artifact_labels,
+            boundaries=preflight.artifact_boundary_enforcement,
+        )
+        approval_result = validate_sandbox_approval_scope(
+            scope=preflight.approval_scope,
+            candidate=preflight.approval_candidate,
+            now_utc=preflight.now_utc,
+        )
+        risk_result = evaluate_sandbox_risk_gates(
+            limits=preflight.risk_limits,
+            request=preflight.risk_request,
+        )
+        submit_result = evaluate_sandbox_submit_preflight(
+            request=preflight.submit_request,
+            state=preflight.submit_state,
+        )
+
+        reasons: list[str] = []
+        reasons.extend(runtime_result.reason_codes)
+        for boundary_result in boundary_results:
+            reasons.extend(boundary_result.result.reason_codes)
+        reasons.extend(approval_result.reason_codes)
+        reasons.extend(risk_result.reason_codes)
+        reasons.extend(submit_result.reason_codes)
+
+        if not preflight.founder_operator_actual_submission_approved:
+            reasons.append(
+                SandboxDryRunRejectReason.FOUNDER_OPERATOR_ACTUAL_SANDBOX_SUBMISSION_APPROVAL_REQUIRED.value
+            )
+        if preflight.sandbox_drawdown_feed is None:
+            reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_MISSING.value)
+        if preflight.drawdown_feed_status == SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_FIXTURE_ONLY.value:
+            reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_FIXTURE_ONLY.value)
+        if preflight.drawdown_feed_status != "sandbox_drawdown_feed_live_fed_verified":
+            reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_LIVE_FED_REQUIRED.value)
+        if not preflight.real_sandbox_submit_path_wired:
+            reasons.append(SandboxDryRunRejectReason.REAL_SANDBOX_SUBMIT_PATH_REQUIRED.value)
+
+        enforced_boundaries = set(preflight.artifact_boundary_enforcement)
+        boundary_missing_reasons = {
+            SandboxArtifactBoundary.PERSISTENCE: (
+                SandboxDryRunRejectReason.SANDBOX_ARTIFACT_LABELING_NOT_ENFORCED_ON_PERSISTENCE.value
+            ),
+            SandboxArtifactBoundary.API_SERIALIZATION: (
+                SandboxDryRunRejectReason.SANDBOX_ARTIFACT_LABELING_NOT_ENFORCED_ON_API_SERIALIZATION.value
+            ),
+            SandboxArtifactBoundary.DASHBOARD_DISPLAY: (
+                SandboxDryRunRejectReason.SANDBOX_ARTIFACT_LABELING_NOT_ENFORCED_ON_DASHBOARD_DISPLAY.value
+            ),
+            SandboxArtifactBoundary.REPORT_GENERATION: (
+                SandboxDryRunRejectReason.SANDBOX_ARTIFACT_LABELING_NOT_ENFORCED_ON_REPORT_GENERATION.value
+            ),
+        }
+        for boundary, reason in boundary_missing_reasons.items():
+            if boundary not in enforced_boundaries:
+                reasons.append(reason)
+
+        unique_reasons = tuple(dict.fromkeys(reasons))
+        allowed = not unique_reasons
+        gate_results: dict[str, object] = {
+            "runtime_policy": runtime_result,
+            "artifact_boundaries": boundary_results,
+            "approval_scope": approval_result,
+            "risk_gate": risk_result,
+            "drawdown_feed_status": preflight.drawdown_feed_status,
+            "submit_preflight": submit_result,
+            "runtime_policy_semantics": get_sandbox_runtime_policy_semantics(),
+        }
+        return UAT3SandboxExecutableGateDryRunResult(
+            allowed=allowed,
+            reason_codes=unique_reasons,
+            gate_results=gate_results,
+            runtime_policy_result=runtime_result,
+            artifact_boundary_results=boundary_results,
+            approval_scope_result=approval_result,
+            risk_gate_result=risk_result,
+            drawdown_feed_status=preflight.drawdown_feed_status,
+            submit_preflight_result=submit_result,
+            would_require_founder_approval=not preflight.founder_operator_actual_submission_approved,
+            would_require_live_fed_sandbox_drawdown=(
+                preflight.drawdown_feed_status != "sandbox_drawdown_feed_live_fed_verified"
+            ),
+            would_require_real_sandbox_submit_path=not preflight.real_sandbox_submit_path_wired,
+        )
+
+
+def evaluate_uat3_sandbox_executable_gate_dry_run(
+    preflight: UAT3SandboxExecutableGateDryRunInput,
+) -> UAT3SandboxExecutableGateDryRunResult:
+    return UAT3SandboxDryRunGateService().evaluate(preflight)

@@ -122,7 +122,7 @@ UAT3.0.2 remains fixture-only and does not call private account endpoints.
 
 ## Artifact Label Persistence Enforcement Status
 
-Status: `blocked`.
+Status at UAT3.0.2: `blocked`.
 
 UAT3.0.1 validates sandbox labels in memory. UAT3.0.2 makes the persistence/API/dashboard/report enforcement gap explicit in the unified dry-run preflight.
 
@@ -141,6 +141,10 @@ Expected later enforcement points:
 - review bundles / handoff reports
 
 UAT3.0.2 does not create artifacts and does not implement persistence wiring.
+
+UAT3.0.3 follow-up status: `implemented_boundary_helpers`.
+
+UAT3.0.3 adds pure sandbox artifact label enforcement helpers for persistence, API serialization, dashboard display, and report generation boundaries. These helpers are still dry-run/readiness helpers only; they do not create persisted artifacts or enable actual sandbox order submission.
 
 ## Dashboard Readiness
 

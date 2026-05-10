@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-10T12:57:00Z - UAT3.0.3 - Sandbox Gate Wiring And Label Enforcement Complete
+
+- `decision`: Add dry-run sandbox artifact boundary enforcement helpers and a dry-run executable gate service before any UAT3.1 sandbox submit path is considered.
+- `why`: UAT3.0.2 made missing artifact-label persistence enforcement explicit and combined fixture gates into one dry-run preflight. Future sandbox/testnet submission needs a clearer boundary model covering persistence, API serialization, dashboard display, and report generation, plus one composed dry-run path that calls approval scope, risk, drawdown, runtime, and submit-lease checks together.
+- `scope`: UAT3.0.3 adds sandbox artifact boundary validators, testable runtime policy semantics, `UAT3SandboxDryRunGateService`, `evaluate_uat3_sandbox_executable_gate_dry_run`, dashboard readiness text, docs, and tests. It does not submit orders, create real `OrderIntent` / `PreparedVenueOrder` / `SubmittedOrder` / executable approval artifacts, call private/signed/order endpoints, use exchange API keys, approve paper/live trading, change Money Flow rules, add routing expansion, or generate evidence packs.
+- `result`: UAT3.1 actual sandbox order submission remains blocked. Dry-run gate output now reports no order intent, prepared order, submitted order, executable approval, or exchange call creation while blocking missing founder actual-submission approval, fixture-only drawdown, missing real sandbox submit path, approval/risk failures, and submit-lease duplicate/uncertainty failures.
+- `follow_up_implications`: UAT3.1 may proceed only after explicit founder/operator approval for actual sandbox submission, real sandbox/testnet submit-path wiring, sandbox-only private endpoint separation, live-fed sandbox account drawdown, executable approval/risk gate wiring to persistence/submit, and submit-lease integration verification.
+
 ## 2026-05-10T12:10:00Z - UAT3.0.2 - Sandbox Gate Dry-Run Preflight Complete
 
 - `decision`: Add a unified fixture-only sandbox gate dry-run preflight and harden UAT3.0.1 sandbox runtime/risk numeric policy before any UAT3.1 submit path is considered.

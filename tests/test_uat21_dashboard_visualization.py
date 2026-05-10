@@ -79,7 +79,9 @@ def test_uat2_dashboard_exposes_would_open_warning_timing_and_drawdown_truth() -
     assert "unified dry-run preflight" in dashboard
     assert "runtime full-blocker propagation" in dashboard
     assert "numeric edge-case validation" in dashboard
-    assert "artifact label persistence enforcement" in dashboard
+    assert "artifact label boundary enforcement" in dashboard
+    assert "dry-run executable gate service" in dashboard
+    assert "global orders disabled; sandbox orders separately gated" in dashboard
     assert "no interactive approval action exists" in dashboard
 
 

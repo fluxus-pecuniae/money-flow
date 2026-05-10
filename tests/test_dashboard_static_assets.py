@@ -38,7 +38,9 @@ def test_evidence_dashboard_uses_gus_design_tokens_and_boundaries() -> None:
     assert "Unified dry-run preflight" in js
     assert "Runtime full-blocker propagation" in js
     assert "Numeric edge-case validation" in js
-    assert "Artifact label persistence enforcement" in js
+    assert "Artifact label boundary enforcement" in js
+    assert "Dry-run executable gate service" in js
+    assert "global orders disabled; sandbox orders separately gated" in js
     assert "No interactive approval action exists" in js
     assert "SV1.15 Hypothesis Experiments" in html
     assert "experiment-replay-filter" in html

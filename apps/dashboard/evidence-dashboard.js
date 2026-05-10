@@ -1583,15 +1583,23 @@
           <div><span>Unified dry-run preflight</span><strong>implemented</strong></div>
           <div><span>Runtime full-blocker propagation</span><strong>implemented</strong></div>
           <div><span>Numeric edge-case validation</span><strong>implemented</strong></div>
+          <div><span>Artifact label boundary enforcement</span><strong>implemented for persistence / API / dashboard / report helpers</strong></div>
+          <div><span>Dry-run executable gate service</span><strong>implemented</strong></div>
+          <div><span>Approval scope dry-run wiring</span><strong>implemented</strong></div>
+          <div><span>Risk gate dry-run wiring</span><strong>implemented</strong></div>
+          <div><span>Submit lease dry-run wiring</span><strong>implemented</strong></div>
+          <div><span>Runtime policy semantics</span><strong>global orders disabled; sandbox orders separately gated</strong></div>
           <div><span>Actual sandbox approval</span><strong>missing</strong></div>
-          <div><span>Artifact label persistence enforcement</span><strong>missing</strong></div>
+          <div><span>Sandbox drawdown feed</span><strong>fixture only / missing live-fed sandbox account truth</strong></div>
+          <div><span>Real sandbox submit path</span><strong>missing</strong></div>
           <div><span>Lifecycle verification</span><strong>fixture-tested design only</strong></div>
           <div><span>Active order submission button</span><strong>false</strong></div>
         </div>
         <ul class="check-list">
           <li>UAT3.0.1 adds fixture/readiness validators only; it does not enable actual sandbox submission.</li>
           <li>UAT3.0.2 adds unified dry-run gate preflight, full runtime blocker propagation, and numeric edge-case validation only; it does not enable actual sandbox submission.</li>
-          <li>UAT3.1 is blocked by founder/operator approval for actual sandbox submission, live-fed sandbox drawdown, sandbox submit path wiring, executable approval-scope wiring, risk gate wiring, submit-lease integration verification, and sandbox artifact label persistence enforcement.</li>
+          <li>UAT3.0.3 adds boundary-label enforcement helpers and dry-run executable gate wiring only; it does not enable actual sandbox submission.</li>
+          <li>UAT3.1 is blocked by founder/operator approval for actual sandbox submission, live-fed sandbox drawdown, sandbox submit path wiring, executable approval-scope wiring to real persistence, risk gate wiring to the real submit path, and submit-lease integration verification.</li>
           <li>No dashboard control creates an approval, order intent, submitted order, or sandbox order.</li>
         </ul>
       `;
