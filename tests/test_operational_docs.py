@@ -69,6 +69,7 @@ REQUIRED_FILES = [
     "docs/uat0_3_top20_universe_and_drawdown_readiness.md",
     "docs/uat1_public_read_only_connectivity_and_top20_universe.md",
     "docs/uat1_public_read_only_connectivity_and_top20_universe_summary.json",
+    "docs/uat1_1_shadow_signal_audit_and_drawdown_readiness.md",
 ]
 
 
@@ -117,11 +118,11 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "canonical Obsidian command center" in command_center
-    assert "`UAT1` public read-only connectivity and top-20 universe resolution is complete" in current_phase
+    assert "`UAT1.1` shadow signal audit, drawdown visibility, and redaction verification is complete" in current_phase
     assert "SV1.18" in command_center
     assert "UAT0" in command_center
     assert "UAT1 public read-only connectivity is complete" in command_center
-    assert "UAT2 is blocked" in command_center
+    assert "UAT2 shadow strategy run may proceed" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
     assert "Strategy Validation" in moved_memory
@@ -129,7 +130,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "money_flow_hyperliquid_eth_1h_baseline_uat_candidate" in moved_memory
     assert "Paper trading is not approved" in moved_memory
     assert "UAT1 public read-only connectivity is complete" in moved_memory
-    assert "UAT2 is blocked" in moved_memory
+    assert "UAT2 shadow strategy run may proceed" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
 
@@ -143,11 +144,11 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert "Current implemented milestone | `UAT1` public read-only connectivity and top-20 universe resolution complete" in command_center
+    assert "Current implemented milestone | `UAT1.1` shadow signal audit, drawdown visibility, and redaction verification complete" in command_center
     assert "Canonical command center" in compatibility_command_center
     assert "SV1 is closed for now" in current_dashboard
     assert "UAT1 public read-only connectivity is complete" in current_dashboard
-    assert "UAT2 is blocked" in current_dashboard
+    assert "UAT2 shadow strategy run may proceed" in current_dashboard
     assert "Strategy Validation is now its own major track" in Path("money-flow/00 Maps/Phase Timeline.md").read_text()
     assert "What Strategy Validation Did" in sv_map
     assert "What Strategy Validation Did Not Prove" in sv_map
@@ -259,6 +260,7 @@ def test_uat0_operational_truth_is_current() -> None:
     uat02_report = Path("docs/uat0_2_adapter_runtime_policy_and_redaction.md").read_text()
     uat03_report = Path("docs/uat0_3_top20_universe_and_drawdown_readiness.md").read_text()
     uat1_report = Path("docs/uat1_public_read_only_connectivity_and_top20_universe.md").read_text()
+    uat11_report = Path("docs/uat1_1_shadow_signal_audit_and_drawdown_readiness.md").read_text()
     current_notes = [
         Path("money-flow/00_Money_Flow_Command_Center.md").read_text(),
         Path("money-flow/01_Current_Phase.md").read_text(),
@@ -320,14 +322,26 @@ def test_uat0_operational_truth_is_current() -> None:
     assert "Top-20 inclusion means observation candidate only" in uat1_report
     assert "UAT2 is blocked" in uat1_report
 
+    assert "UAT1.1 Shadow Signal Audit And Drawdown Readiness" in uat11_report
+    assert "next_candle_open" in uat11_report
+    assert "next_candle_close" in uat11_report
+    assert "same_candle_close_research_only" in uat11_report
+    assert "Shadow audit no-live-artifact check: `true`" in uat11_report
+    assert "not_live_account_drawdown" in uat11_report
+    assert "UAT2 shadow strategy run may proceed" in uat11_report
+    assert "StrategyDecision" in uat11_report
+    assert "OrderIntent" in uat11_report
+    assert "SubmittedOrder" in uat11_report
+
     for note in current_notes:
         assert "UAT0" in note
         assert "UAT0.1" in note
         assert "UAT0.2" in note
         assert "UAT0.3" in note
         assert "UAT1 public read-only connectivity" in note
+        assert "UAT1.1" in note
         assert "complete" in note.lower()
-        assert "UAT2 is blocked" in note
+        assert "UAT2 shadow strategy run may proceed" in note
         assert "Paper trading is not approved" in note
         assert "Live trading is not approved" in note
         assert "Exchange order submission is not approved" in note

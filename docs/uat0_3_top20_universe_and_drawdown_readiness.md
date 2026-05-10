@@ -218,7 +218,7 @@ Broader structured application logging, middleware error responses, and deployme
 | Hyperliquid public read-only allowlist | `implemented_as_policy_artifact` | P1 closed enough for UAT1 attempt | no | no | no | Actual endpoint URL/sandbox behavior is UAT1 verification. |
 | Hyperliquid endpoint URL/sandbox verification | `needs_verification` | P1 | no | yes | yes | UAT1 read-only task; must not use private/signed/order endpoints. |
 | Top-20 source/intersection resolver | `implemented_fixture_policy` | P1 closed enough for UAT1 attempt | no | no | no | Live source fetch deferred to UAT1. |
-| Runtime drawdown monitor | `implemented_design_and_fixture_model` | P1 closed enough for UAT1 attempt | no | yes | yes | UAT2 needs operator-visible shadow state; UAT3 needs sandbox account feed. |
+| Runtime drawdown monitor | `implemented_design_and_fixture_model` | P1 closed enough for UAT1 attempt | no | yes | yes | UAT1.1 adds operator-visible shadow state for UAT2; UAT3 needs sandbox account feed. |
 | Structured log/API error redaction | `implemented_fixture_baseline` | P1 partially closed | no | yes | yes | Broader app/middleware verification remains. |
 | Risk/kill switch/audit visibility | `needs_verification` | P1/P2 | no | yes | yes | Later UAT0.x/UAT2/UAT3 checks. |
 

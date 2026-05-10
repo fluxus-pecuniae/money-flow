@@ -2,17 +2,17 @@
 
 ## Current Implemented Milestone
 
-`UAT1` public read-only connectivity and top-20 universe resolution is complete.
+`UAT1.1` shadow signal audit, drawdown visibility, and redaction verification is complete.
 
-SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one evidence candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap. OB1.0 overhauled the Obsidian project brain. UAT0 audited safety/security/runtime readiness and blocked UAT1 until named gaps were closed. UAT0.1 closes the P0 API auth/authz baseline and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds fixture-tested top-20 universe resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design. UAT1 verifies allowed public Hyperliquid endpoint behavior, fetches a no-key public top-volume source, resolves the Hyperliquid-supported top-20 observation universe, and keeps UAT2 blocked pending shadow-readiness blockers.
+SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one evidence candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap. OB1.0 overhauled the Obsidian project brain. UAT0 audited safety/security/runtime readiness and blocked UAT1 until named gaps were closed. UAT0.1 closes the P0 API auth/authz baseline and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds fixture-tested top-20 universe resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design. UAT1 verifies allowed public Hyperliquid endpoint behavior, fetches a no-key public top-volume source, and resolves the Hyperliquid-supported top-20 observation universe. UAT1.1 adds shadow signal audit records, operator-visible shadow drawdown state, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification.
 
 SV1.18 is complete.
 
 ## Next Proposed Phase
 
-`UAT2` shadow strategy run only after remaining blockers are closed.
+`UAT2` shadow strategy run as no-order observation.
 
-UAT2 is blocked. UAT remains plumbing and behavior validation only. It is not paper trading, live trading, exchange order submission, routing expansion, or strategy optimization.
+UAT2 shadow strategy run may proceed as a future no-order phase. UAT remains plumbing and behavior validation only. It is not paper trading, live trading, exchange order submission, routing expansion, or strategy optimization.
 
 ## Frozen UAT Observation Candidate
 
@@ -99,13 +99,17 @@ UAT1 is now complete:
 - The generated UAT1 report includes 15 Hyperliquid USDC perpetual observation candidates and 5 excluded assets.
 - No private, signed, or order endpoints were called; no strategy decisions, order intents, submitted orders, paper trades, live trades, evidence packs, or Money Flow rule changes were created.
 
+UAT1.1 is now complete:
+
+- Shadow signal audit records exist for no-trade / would-trade / risk-block explainability.
+- Operator-visible shadow drawdown state exists and is clearly not live-account drawdown.
+- UAT1 universe snapshot loading is available for UAT2.
+- Representative structured API-error/log redaction verification exists.
+- No UAT2 loop, strategy decisions, order intents, submitted orders, paper/live behavior, evidence packs, exchange calls, private/signed/order endpoints, or Money Flow rule changes were created.
+
 Remaining later blockers:
 
-- Broader structured application log/API error redaction needs verification before UAT2/UAT3.
-- UAT2 needs operator-visible shadow drawdown state.
-- UAT2 needs a shadow signal audit surface for would-trade/no-trade/risk-block explainability.
 - UAT3 needs sandbox/live account drawdown feed wiring.
-- Existing approval gates and submit leases are useful but require UAT3 verification before sandbox orders.
 - Existing approval gates and submit leases are useful but require UAT3 verification before sandbox orders.
 
 ## Required Reading For Next Work

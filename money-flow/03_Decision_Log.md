@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-10T08:00:33Z - UAT1.1 - Shadow Readiness Clears UAT2 Start Blockers
+
+- `decision`: Add model/report-only shadow signal audit records, operator-visible shadow drawdown state, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification so UAT2 shadow strategy run may proceed as a future no-order phase.
+- `why`: UAT2 should not begin until operators can inspect would-trade/no-trade/risk-block reasons, shadow drawdown state, and timing assumptions without creating live trading artifacts or exposing obvious secrets in representative error/log payloads.
+- `scope`: UAT1.1 does not run the UAT2 shadow strategy loop, does not run Money Flow over live data, calls no private/signed/order endpoints, uses no exchange API keys, submits no orders, creates no `StrategyDecision`, `OrderIntent`, or `SubmittedOrder`, approves no paper/live trading, changes no Money Flow rules, adds no routing behavior, and generates no evidence packs.
+- `follow_up_implications`: UAT2 must remain shadow-only, use the UAT1 top-20 Hyperliquid observation universe, compare `next_candle_open` and `next_candle_close`, keep `same_candle_close_research_only` research-only, and write/inspect shadow audit and drawdown state without order submission.
+
 ## 2026-05-10T07:18:43Z - UAT1 - Public Read-Only Connectivity Complete, UAT2 Blocked
 
 - `decision`: Complete UAT1 public-read-only connectivity and top-20 universe resolution under explicit public-read-only network gating, while keeping UAT2 blocked.

@@ -13,6 +13,47 @@ Entry schema:
 
 ---
 
+## v2026.05.10.004
+
+- `recorded_at_utc`: `2026-05-10T08:00:33Z`
+- `scope`: `UAT1.1 shadow signal audit, drawdown visibility, and redaction verification`
+- `intent`: `Native entry. Added UAT shadow-readiness models for future UAT2 signal audit records, no-live-artifact boundary checks, operator-visible shadow drawdown state, UAT1 universe snapshot loading, and representative API-error / structured-log redaction verification. Added a founder/operator UAT1.1 report and tests proving next_candle_open / next_candle_close shadow timing is represented, same_candle_close remains research-only, shadow drawdown is not live-account drawdown, and no StrategyDecision, OrderIntent, SubmittedOrder, paper/live, routing, exchange, or order-submission artifacts are created. UAT2 shadow strategy run may proceed as a future no-order phase; UAT1.1 does not implement UAT2, run Money Flow over live data, call private/signed endpoints, use exchange API keys, submit orders, approve paper/live trading, change Money Flow rules, or generate evidence packs.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/uat0_safety_security_runtime_hardening.md`
+  - `docs/uat1_public_read_only_connectivity_and_top20_universe.md`
+  - `docs/uat1_1_shadow_signal_audit_and_drawdown_readiness.md`
+  - `core/logging/setup.py`
+  - `core/security.py`
+  - `services/uat/__init__.py`
+  - `services/uat/shadow.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_uat0_safety_report.py`
+  - `tests/test_uat11_shadow_readiness.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/40 Operations/UAT0 Safety Runtime Hardening.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_uat11_shadow_readiness.py`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat11_shadow_readiness.py tests/test_uat1_public_read_only_connectivity.py tests/test_uat03_top20_universe_and_drawdown.py tests/test_uat02_adapter_runtime_policy_and_redaction.py tests/test_uat01_api_auth_runtime_lockout.py tests/test_uat0_safety_report.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase2_services.py tests/test_phase4a_venues.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+
 ## v2026.05.10.003
 
 - `recorded_at_utc`: `2026-05-10T07:18:43Z`

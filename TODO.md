@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-10T07:18:43Z`
+Last reviewed: `2026-05-10T08:00:33Z`
 
 ## Active Follow-Ups
 
@@ -25,8 +25,14 @@ Last reviewed: `2026-05-10T07:18:43Z`
 ### T-097
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `UAT1.1 adds the UAT2 shadow-readiness surface: model/report-only shadow signal audit records, next_candle_open and next_candle_close timing assumptions, same_candle_close_research_only exclusion from primary UAT2 assumptions, no-live-artifact boundary flags, operator-visible shadow drawdown state labeled not-live-account, representative API-error / structured-log redaction verification, and UAT1 universe snapshot loading. UAT2 shadow strategy run may proceed as a future no-order phase. No UAT2 loop, Money Flow live-data evaluation, private/signed endpoint call, API-key use, order submission, StrategyDecision, OrderIntent, SubmittedOrder, paper/live behavior, routing expansion, Money Flow rule change, or evidence pack was added.`
+
+### T-098
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `Before UAT2 shadow strategy run, add operator-visible shadow drawdown state, a shadow signal audit surface for would-trade/no-trade/risk-block explainability across the top-20 observation universe, and broader structured application log/API error redaction verification. UAT2 must remain shadow-only, compare next_candle_open and next_candle_close, and create no order submissions, paper/live behavior, private/signed/order endpoint calls, routing expansion, or Money Flow rule changes.`
+- `summary`: `Implement UAT2 shadow strategy run across the UAT1 Hyperliquid top-20 observation universe. UAT2 must be no-order shadow mode only, compare next_candle_open and next_candle_close, write shadow signal audit records/no-trade/would-trade/risk-block explanations, update shadow_simulated_drawdown / not_live_account_drawdown state, and create no StrategyDecision, OrderIntent, SubmittedOrder, approvals, private/signed/order endpoint calls, API-key usage, paper/live behavior, routing expansion, Money Flow rule changes, or evidence packs.`
 
 ### T-094
 

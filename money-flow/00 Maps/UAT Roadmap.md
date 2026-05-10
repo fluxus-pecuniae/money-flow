@@ -4,7 +4,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 UAT validates plumbing and behavior. It does not prove profitability.
 
-Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, and UAT1 public read-only connectivity / top-20 universe resolution is complete. UAT2 is blocked pending shadow-readiness blockers.
+Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, and UAT1.1 shadow readiness is complete. UAT2 shadow strategy run may proceed as a future no-order phase.
 
 ## Frozen Observation Candidate
 
@@ -62,7 +62,7 @@ Required docs/tests: read-only adapter tests, secret hygiene tests, sandbox runb
 
 Objective: observe signals and would-trade decisions across the top-20 supported-asset universe without order submission.
 
-Status: blocked. Remaining blockers are operator-visible shadow drawdown state, shadow signal audit surfaces for would-trade/no-trade/risk-block explainability, and broader structured log/API error redaction verification.
+Status: may proceed next as a no-order shadow phase. UAT1.1 added operator-visible shadow drawdown state, shadow signal audit surfaces for would-trade/no-trade/risk-block explainability, and representative structured log/API error redaction verification.
 
 Allowed behavior: shadow signal generation, would-trade logging, compare `next_candle_open`, compare `next_candle_close`, no-trade logging, risk observation, dashboard/operator inspection.
 

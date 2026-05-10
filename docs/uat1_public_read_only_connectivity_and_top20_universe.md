@@ -2,6 +2,8 @@
 
 Recorded at: `2026-05-10T07:18:43Z`
 
+UAT1.1 follow-up: `docs/uat1_1_shadow_signal_audit_and_drawdown_readiness.md` adds model/report-only shadow signal audit, operator-visible shadow drawdown, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification. UAT2 shadow strategy run may proceed as a future no-order phase; UAT1.1 does not run UAT2, run Money Flow over live data, submit orders, create strategy/execution artifacts, or approve paper/live trading.
+
 ## Scope
 
 UAT1 is public read-only connectivity and universe resolution only. It does not run Money Flow, submit orders, use API keys, call private endpoints, call signed endpoints, call order endpoints, add paper trading, add live trading, add routing behavior, change Money Flow rules, or generate evidence packs.

@@ -93,7 +93,7 @@ Excluded from current UAT:
 
 ## UAT0 / UAT0.1 / UAT0.2 / UAT0.3 / UAT1 Outcome
 
-UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT0.3 top-20 universe and drawdown readiness preflight is complete. UAT1 public read-only connectivity is complete. UAT2 is blocked.
+UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT0.3 top-20 universe and drawdown readiness preflight is complete. UAT1 public read-only connectivity is complete. UAT1.1 shadow readiness is complete. UAT2 shadow strategy run may proceed as a future no-order phase.
 
 Closed by UAT0.1:
 
@@ -126,9 +126,9 @@ Closed by UAT1:
 
 Remaining UAT blockers:
 
-- Broader structured application log/API error redaction needs verification before UAT2/UAT3.
-- UAT2 needs operator-visible shadow drawdown state.
-- UAT2 needs a shadow signal audit surface for would-trade/no-trade/risk-block explainability.
+- Representative structured application log/API error redaction is verified for UAT2; deployment-specific middleware/logging smoke tests remain before UAT3.
+- UAT1.1 adds operator-visible shadow drawdown state for UAT2.
+- UAT1.1 adds a shadow signal audit surface for would-trade/no-trade/risk-block explainability.
 - UAT3 needs sandbox/live account drawdown feed wiring.
 - Existing approval gates, execution defaults, venue submit flags, and submit-lease uncertainty protections are useful but require later UAT-specific verification.
 
@@ -153,7 +153,7 @@ The current evidence cycle can justify UAT0 safety/runtime hardening and later s
 - UAT0.2: adapter runtime-policy and redaction hardening complete.
 - UAT0.3: top-20 universe and drawdown readiness preflight complete.
 - UAT1: top-20 universe plus read-only venue/market metadata complete under strict public-read-only constraints.
-- UAT2: blocked shadow strategy run across top-20 supported assets, no orders.
+- UAT2: next shadow strategy run across top-20 supported assets, no orders.
 - UAT3: approval-gated sandbox orders.
 - UAT4: sandbox / simulated trading review.
 
@@ -161,12 +161,12 @@ UAT1 public read-only connectivity is complete under strict constraints. UAT1 us
 
 ## Major Deferred Items
 
-- broader structured log/API error redaction verification before UAT2/UAT3.
+- deployment-specific structured log/API error redaction smoke tests before UAT3.
 - secret hygiene beyond representative helper tests.
 - fail-safe sandbox/live mode separation verification.
 - risk-limit enforcement.
-- operator-visible shadow/live drawdown monitoring for UAT2/UAT3.
-- shadow signal audit surfaces for UAT2 would-trade/no-trade/risk-block explainability.
+- UAT3 sandbox/live drawdown feed wiring and verification.
+- UAT2 implementation using the shadow signal audit and shadow drawdown surfaces.
 - kill switch behavior.
 - debug stack trace exposure hardening.
 - audit logging review.

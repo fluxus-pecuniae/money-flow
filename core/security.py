@@ -113,3 +113,15 @@ def redact_sensitive_structure(value: Any) -> Any:
     if isinstance(value, Sequence) and not isinstance(value, (bytes, bytearray, str)):
         return [redact_sensitive_structure(item) for item in value]
     return value
+
+
+def redact_api_error_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
+    """Redact a representative API error payload before client/operator exposure."""
+
+    return redact_sensitive_structure(dict(payload))
+
+
+def redact_structured_log_event(event: Mapping[str, Any]) -> dict[str, Any]:
+    """Redact a representative structured log event before rendering or persistence."""
+
+    return redact_sensitive_structure(dict(event))

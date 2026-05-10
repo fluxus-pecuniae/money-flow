@@ -9,6 +9,13 @@ import structlog
 from pythonjsonlogger.json import JsonFormatter
 
 from core.config.settings import LoggingConfig
+from core.security import redact_structured_log_event
+
+
+def redact_structlog_event(_, __, event_dict):
+    """Structlog processor that redacts obvious secret-bearing fields."""
+
+    return redact_structured_log_event(event_dict)
 
 
 def configure_logging(config: LoggingConfig) -> None:
@@ -32,6 +39,7 @@ def configure_logging(config: LoggingConfig) -> None:
             structlog.stdlib.add_logger_name,
             structlog.processors.TimeStamper(fmt="iso", utc=True),
             structlog.processors.dict_tracebacks,
+            redact_structlog_event,
             structlog.processors.JSONRenderer()
             if config.json_logs
             else structlog.dev.ConsoleRenderer(),

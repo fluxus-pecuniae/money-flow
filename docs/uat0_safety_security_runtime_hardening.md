@@ -8,7 +8,9 @@ UAT0.2 update: `docs/uat0_2_adapter_runtime_policy_and_redaction.md` closed the 
 
 UAT0.3 update: `docs/uat0_3_top20_universe_and_drawdown_readiness.md` adds a fixture-tested top-20 UAT observation-universe resolver policy, completes the Hyperliquid public read-only info-type allowlist enough for a later UAT1 attempt, adds a fixture-tested runtime drawdown monitor policy/model, and changes the UAT1 decision to `UAT1 read-only connectivity may proceed` under public-read-only constraints. UAT0.3 makes no exchange calls and does not implement UAT1.
 
-UAT1 update: `docs/uat1_public_read_only_connectivity_and_top20_universe.md` verifies explicit public-read-only Hyperliquid endpoint behavior, fetches a no-key public CoinGecko top-volume source, resolves the Hyperliquid-supported observation universe, and keeps UAT2 blocked pending shadow-readiness blockers. UAT1 does not use API keys, call private/signed/order endpoints, submit orders, run Money Flow live, create strategy/execution artifacts, add paper/live behavior, change Money Flow rules, or generate evidence packs.
+UAT1 update: `docs/uat1_public_read_only_connectivity_and_top20_universe.md` verifies explicit public-read-only Hyperliquid endpoint behavior, fetches a no-key public CoinGecko top-volume source, resolves the Hyperliquid-supported observation universe, and kept UAT2 blocked at that time pending shadow-readiness blockers. UAT1 does not use API keys, call private/signed/order endpoints, submit orders, run Money Flow live, create strategy/execution artifacts, add paper/live behavior, change Money Flow rules, or generate evidence packs.
+
+UAT1.1 update: `docs/uat1_1_shadow_signal_audit_and_drawdown_readiness.md` adds model/report-only shadow signal audit, operator-visible shadow drawdown state, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification. UAT2 shadow strategy run may proceed as a future no-order phase; UAT1.1 does not implement UAT2, run Money Flow over live data, submit orders, or create strategy/execution artifacts.
 
 ## Scope
 
@@ -108,9 +110,9 @@ Future UAT2 reports should show, per symbol/component:
 | Runtime mode separation | `implemented` | UAT0.1 adds `RuntimeSafetyPolicy`; UAT0.2 verifies adapter-helper enforcement before private/signed/order transport. |
 | Sandbox/live separation | `needs_verification` | UAT0.1 adds runtime lockout flags and API auth; UAT0.2 adds the Hyperliquid future-UAT1 read-only allowlist artifact, but actual endpoint verification remains deferred to UAT1. |
 | Risk limits | `needs_verification` | Risk services and readiness checks exist; broad UAT candidate/top-20 enforcement still needs verification. |
-| Drawdown monitoring | `implemented_design` | UAT0.3 adds a fixture-tested UAT drawdown monitor policy/model; UAT2 still needs operator-visible shadow state and UAT3 needs sandbox/live account feed wiring. |
+| Drawdown monitoring | `implemented_shadow_visibility` | UAT0.3 adds a fixture-tested UAT drawdown monitor policy/model; UAT1.1 adds operator-visible shadow drawdown state for UAT2. UAT3 still needs sandbox/live account feed wiring. |
 | Kill switch / disable controls | `needs_verification` | `RISK_TRADING_ENABLED=false` blocks risk approval, but global UAT/candidate/universe disable controls are not complete. |
-| Audit logging | `needs_verification` | Persisted workflow artifacts provide partial traceability; UAT mode changes, top-20 inclusion/exclusion, and shadow decisions need explicit audit coverage. |
+| Audit logging | `implemented_shadow_audit_surface` | Persisted workflow artifacts provide partial traceability; UAT1.1 adds model/report-only shadow signal audit records for future UAT2. UAT mode-change and UAT3 lifecycle audit verification remain deferred. |
 | Approval gates | `implemented` | Phase 7 approval gates are lineage/scope-bound; they still need UAT3-specific verification before sandbox orders. |
 | Duplicate order / submit lease | `implemented` | Submit leases and adapter uncertainty states block unsafe repeat submit guidance; UAT3 must reverify under sandbox lifecycle tests. |
 | Uncertainty handling | `implemented` | `adapter_submit_may_have_started` and `adapter_submit_persistence_unknown` require manual reconciliation before repeat submit. |
@@ -133,10 +135,10 @@ UAT0.1 status: `implemented`.
 
 Sensitive `/api/v1` routes now require scoped bearer auth. High-risk administrative consume, submit/cancel/amend/retry, account, and private-state surfaces require elevated scopes. See `docs/uat0_1_api_auth_runtime_lockout.md` for the route inventory.
 
-Required before UAT1:
+Superseded UAT1 preflight items, now closed by UAT0.3/UAT1/UAT1.1:
 
 - verify selected Hyperliquid public read-only endpoint URLs and sandbox/testnet behavior without private/signed calls;
-- complete broader structured log/API error redaction review;
+- complete representative structured log/API error redaction verification;
 - implement top-20 symbol/market identity resolution policy.
 
 ## Secret / Key Hygiene Review
@@ -199,7 +201,7 @@ Required report fields:
 | --- | --- | --- |
 | `runtime_drawdown_monitoring_status` | `implemented_design` | UAT0.3 adds a fixture-tested drawdown monitor policy/model from caller-supplied observed equity values. It is not live-fed account truth yet. |
 | `strategy_validation_drawdown_status` | `implemented` | Backtest/replay reports include closed-trade and mark-to-market drawdown. |
-| `uat_drawdown_blocker_status` | `required_before_uat2_uat3` | UAT1 may proceed with monitor designed but not live-fed; UAT2/UAT3 need runtime drawdown state, thresholds, reason codes, and operator visibility. |
+| `uat_drawdown_blocker_status` | `implemented_for_uat2_shadow_required_before_uat3` | UAT1.1 adds shadow drawdown state, thresholds, reason codes, and operator visibility for UAT2. UAT3 still needs sandbox/live account drawdown feed wiring and testing. |
 
 Kill-switch status is `needs_verification`: risk-level trading disable exists, but explicit global UAT disable, candidate disable, universe disable, venue disable, and order-submission disable controls must be verified or added before shadow/sandbox phases.
 
@@ -273,7 +275,7 @@ Status: `needs_verification`.
 | Approval gates | `implemented` | P2 | no | no | yes | Existing gates are strong; sandbox-order path needs UAT3 proof. |
 | Submit lease / duplicate prevention | `implemented` | P2 | no | no | yes | Existing submit lease/uncertainty states need sandbox lifecycle proof. |
 | Exchange endpoint safety | `implemented_baseline` | P1 closed enough for UAT1 attempt | yes | yes | yes | Adapter-level private/signed/order guards and Hyperliquid public read-only info-type allowlist exist; actual UAT1 read-only connectivity remains deferred to the UAT1 phase. |
-| Dashboard/operator visibility | `needs_verification` | P2 | no | yes | yes | UAT2 needs top-20 shadow and risk/no-trade visibility. |
+| Dashboard/operator visibility | `needs_verification` | P2 | no | yes | yes | UAT2 implementation should expose top-20 shadow and risk/no-trade visibility; UAT1.1 adds the model/report-only audit surface. |
 
 ## Corrected UAT Roadmap
 
@@ -311,22 +313,25 @@ This is still not proof of edge.
 
 `UAT1 read-only connectivity may proceed`.
 
-UAT1 has now been completed under those constraints. `UAT2 is blocked`.
+UAT1 has now been completed under those constraints. UAT1.1 also completed the shadow-readiness blockers for no-order UAT2.
 
-Blocking reasons:
+UAT2 readiness update:
+
+`UAT2 shadow strategy run may proceed`.
 
 Conditions:
 
 - UAT1 is public read-only only.
 - UAT1 may fetch public top-20 source data and public Hyperliquid market metadata only.
 - UAT1 must not use API keys, private endpoints, signed endpoints, order endpoints, paper trading, live trading, or order submission.
-- UAT1 must verify Hyperliquid public read-only endpoint URLs and sandbox/testnet/public behavior before UAT2.
+- UAT2 must remain shadow-only.
+- UAT2 must compare `next_candle_open` and `next_candle_close`.
+- UAT2 must keep `same_candle_close_research_only` research-only.
+- UAT2 must not submit orders, use API keys, call private/signed/order endpoints, create strategy/execution artifacts, or approve paper/live trading.
 
 Remaining blockers for UAT2/UAT3:
 
-- P1 broader structured application log/API error redaction still needs sandbox-like verification.
-- P1 UAT2 drawdown monitor operator visibility is not wired.
-- P1 UAT2 shadow signal audit surface is not wired.
+- P2 deployment-specific middleware/logging redaction smoke tests remain useful before or during UAT2.
 - P1 UAT3 sandbox/live account drawdown feed is not wired.
 - P1 risk/kill-switch/audit/operator visibility checks still need UAT-specific verification.
 

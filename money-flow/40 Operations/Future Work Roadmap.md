@@ -4,11 +4,11 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 ## Immediate Future
 
-Current implemented milestone: `UAT1` public read-only connectivity and top-20 universe resolution complete.
+Current implemented milestone: `UAT1.1` shadow signal audit, drawdown visibility, and redaction verification complete.
 
-Next proposed phase: `UAT2` shadow strategy run only after remaining blockers are closed.
+Next proposed phase: `UAT2` no-order shadow strategy run.
 
-UAT1 public read-only connectivity is complete under strict constraints: no private endpoints, no signed endpoints, no order endpoints, no API keys, no paper trading, no live trading, and no order submission. UAT2 is blocked by operator-visible shadow drawdown state, shadow signal audit surfaces, and broader structured log/API error redaction verification.
+UAT1 public read-only connectivity is complete under strict constraints: no private endpoints, no signed endpoints, no order endpoints, no API keys, no paper trading, no live trading, and no order submission. UAT1.1 adds model/report-only shadow signal audit records, operator-visible shadow drawdown state, UAT1 universe snapshot loading, and representative structured log/API error redaction verification. UAT2 shadow strategy run may proceed as a future no-order phase.
 
 UAT0 was plumbing and behavior validation preparation only. UAT0.1 closes the P0 sensitive-route auth/authz and central runtime-lockout baseline. UAT0.2 closes the adapter-level runtime-policy baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction tests. UAT0.3 adds fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design. UAT1 verified allowed public-read-only Hyperliquid endpoint behavior and resolved the no-key public top-volume source against Hyperliquid supported markets. It did not implement private/signed endpoint calls, exchange order submission, paper trading, live trading, routing expansion, strategy execution, or Money Flow rule changes.
 
@@ -35,7 +35,7 @@ See [[00 Maps/UAT Roadmap|UAT Roadmap]].
 - UAT0.2: adapter runtime-policy and redaction hardening complete.
 - UAT0.3: top-20 universe and drawdown readiness preflight complete.
 - UAT1: top-20 universe plus read-only venue/market metadata complete under strict public-read-only constraints.
-- UAT2: blocked shadow strategy run across top-20 supported assets with `next_candle_open` / `next_candle_close`, no orders.
+- UAT2: no-order shadow strategy run across top-20 supported assets with `next_candle_open` / `next_candle_close`.
 - UAT3: approval-gated sandbox orders.
 - UAT4: sandbox / simulated trading review.
 
@@ -43,9 +43,7 @@ See [[00 Maps/UAT Roadmap|UAT Roadmap]].
 
 Before paper/live trading or production-like deployment, the project must address:
 
-- broader structured application log/API error redaction verification.
-- operator-visible UAT2 shadow drawdown state.
-- UAT2 shadow signal audit surface.
+- deployment-level structured application log/API error redaction verification beyond representative UAT1.1 tests.
 - key and secret hygiene beyond representative helper tests.
 - fail-safe live/demo separation.
 - configured risk-limit enforcement.
