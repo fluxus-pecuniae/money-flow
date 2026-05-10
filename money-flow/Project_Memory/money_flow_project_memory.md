@@ -189,7 +189,7 @@ Closed by UAT3.0.4:
 - Credential boundary validation and redaction helpers exist for sandbox/testnet-only credentials.
 - Sandbox private read-only account/balance/position/equity categories are separated from order/cancel/amend/retry/live-private endpoint categories.
 - Sandbox account drawdown feed modeling exists with `sandbox_account` / `not_live_account` labels and explicit unavailable-field truth.
-- UAT3 dry-run preflight can consume `sandbox_drawdown_feed_live_fed_verified`, but live-fed sandbox drawdown is not verified because the exact private-read-only credential approval was not present.
+- UAT3 dry-run preflight can consume `sandbox_drawdown_feed_live_fed_verified`; UAT3.0.5 later verified that status through the approved Hyperliquid testnet read-only account-state path.
 - UAT3.1 actual sandbox order submission remains blocked.
 - No credentials were used, no private endpoints were called, no order/cancel/amend/retry endpoints were called, and no orders, real order intents, prepared orders, submitted orders, executable approvals, paper/live behavior, routing expansion, evidence packs, or Money Flow rule changes were used or created.
 
@@ -199,7 +199,8 @@ Closed by UAT3.0.5:
 - Sandbox/testnet credential environment status is inspectable without retaining private key values.
 - Live Hyperliquid endpoint URLs are blocked by sandbox/testnet boundary validation.
 - Hyperliquid sandbox account-state payload parsing can produce `sandbox_account` / `not_live_account` drawdown feed truth from caller-supplied sandbox account payloads.
-- Local `HYPERLIQUID_UAT_SANDBOX_*` env vars were missing, so no credentials were loaded, no API keys were used, no private endpoints were called, and live-fed sandbox drawdown remains `sandbox_drawdown_feed_missing`.
+- The approved rerun used the Hyperliquid testnet base URL for one read-only account-state request, returned HTTP 200, and produced `sandbox_drawdown_feed_live_fed_verified`.
+- No API key/private key was sent and no order/cancel/amend/retry endpoint was called.
 - UAT3.1 actual sandbox order submission remains blocked.
 - No order/cancel/amend/retry endpoints were called, and no orders, real order intents, prepared orders, submitted orders, executable approvals, paper/live behavior, routing expansion, evidence packs, or Money Flow rule changes were used or created.
 
@@ -207,7 +208,7 @@ Remaining UAT blockers:
 
 - UAT3.1 requires explicit founder/operator approval before actual sandbox order submission.
 - UAT3.1 needs sandbox runtime submission enablement and sandbox-only private endpoint separation wired to a real sandbox/testnet account.
-- UAT3.1 needs live-fed sandbox account drawdown feed wiring; UAT3.0.5 could not verify it because local sandbox/testnet credential env vars were missing.
+- UAT3.1 no longer has the private read-only live-fed sandbox drawdown verification blocker from UAT3.0.4; UAT3.0.5 verified sandbox account drawdown through the approved testnet read-only account-state path.
 - Approval scope validation and risk gates must be wired to executable UAT3.1 gates.
 - Submit lease / duplicate-prevention must be integration-verified with the future sandbox submit path.
 - Boundary-label helper enforcement exists, but future UAT3.1 still needs those helpers wired to real persistence/API/dashboard/report flows.
@@ -240,7 +241,7 @@ The current evidence cycle can justify UAT0 safety/runtime hardening and later s
 - UAT3.0.2: sandbox gate integration dry-run / policy hardening complete; actual UAT3.1 sandbox order submission remains blocked.
 - UAT3.0.3: sandbox gate wiring / label-enforcement hardening complete; boundary-label helpers and dry-run executable gate service exist; actual UAT3.1 sandbox order submission remains blocked.
 - UAT3.0.4: sandbox private read-only drawdown readiness complete; credential approval/boundary validation, endpoint category separation, redaction, and sandbox account drawdown feed modeling exist; no credentials or private endpoints were used because explicit approval was absent.
-- UAT3.0.5: sandbox/testnet private read-only drawdown verification complete; exact approval text and sandbox/testnet credential boundaries are validated, but local credential env vars were missing, so no credentials/private endpoints were used and live-fed sandbox drawdown remains blocked.
+- UAT3.0.5: sandbox/testnet private read-only drawdown verification complete; exact approval text and sandbox/testnet credential boundaries are validated, one Hyperliquid testnet read-only account-state request returned HTTP 200, and `sandbox_drawdown_feed_live_fed_verified` is recorded with no API key/private key or order endpoint use.
 - UAT3.1: first approval-gated sandbox order remains blocked pending explicit approval and sandbox lifecycle prerequisites.
 - UAT4: sandbox / simulated trading review.
 

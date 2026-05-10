@@ -357,8 +357,9 @@ def test_uat305_report_exists_and_records_blocked_local_credential_status() -> N
     assert "UAT3.0.5 Sandbox Private Read-Only Drawdown Verification" in text
     assert REQUIRED_UAT305_PRIVATE_READ_ONLY_APPROVAL_TEXT in text
     assert "approval status | `verified`" in text
-    assert "credential source status | `blocked_missing_local_environment`" in text
-    assert "sandbox_drawdown_feed_missing" in text
+    assert "credential source status | `verified_local_environment`" in text
+    assert "sandbox_drawdown_feed_live_fed_verified" in text
+    assert "private account endpoints called | `true_read_only_account_state_only`" in text
     assert "order endpoints called | `false`" in text
     assert "UAT3.1 is blocked" in text
     assert "Actual sandbox order submission is not approved" in text

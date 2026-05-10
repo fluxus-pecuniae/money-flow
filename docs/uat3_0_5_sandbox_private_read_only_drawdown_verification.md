@@ -2,6 +2,8 @@
 
 Recorded at: `2026-05-10T14:20:21Z`
 
+Verification rerun at: `2026-05-10T15:06:29Z`
+
 ## Scope
 
 UAT3.0.5 is sandbox/testnet private read-only account-state and drawdown-feed verification readiness.
@@ -17,9 +19,9 @@ Actual sandbox order submission is not approved. Exchange order submission is no
 | Field | Status |
 | --- | --- |
 | approval status | `verified` |
-| credential source status | `blocked_missing_local_environment` |
-| sandbox drawdown feed status | `sandbox_drawdown_feed_missing` |
-| private account endpoints called | `false` |
+| credential source status | `verified_local_environment` |
+| sandbox drawdown feed status | `sandbox_drawdown_feed_live_fed_verified` |
+| private account endpoints called | `true_read_only_account_state_only` |
 | order endpoints called | `false` |
 | API keys used | `false` |
 | UAT3.1 readiness | `blocked` |
@@ -62,7 +64,7 @@ This approval is not founder/operator approval for actual UAT3.1 sandbox order s
 
 ## Credential Source Status
 
-Status: `blocked_missing_local_environment`.
+Status: `verified_local_environment`.
 
 UAT3.0.5 uses local environment-variable boundary checks only. Credentials must not be pasted into source, docs, Obsidian, reports, tests, or logs.
 
@@ -70,13 +72,13 @@ Expected local environment variables:
 
 | Variable | Current status |
 | --- | --- |
-| `HYPERLIQUID_UAT_SANDBOX_PRIVATE_KEY` | `missing` |
-| `HYPERLIQUID_UAT_SANDBOX_ACCOUNT` | `missing` |
-| `HYPERLIQUID_UAT_SANDBOX_BASE_URL` | `missing` |
+| `HYPERLIQUID_UAT_SANDBOX_PRIVATE_KEY` | `present_redacted_not_logged` |
+| `HYPERLIQUID_UAT_SANDBOX_ACCOUNT` | `present_redacted_not_logged` |
+| `HYPERLIQUID_UAT_SANDBOX_BASE_URL` | `verified_testnet_https` |
 
-Because the required local sandbox/testnet credential environment was missing in this run, UAT3.0.5 did not load credentials, did not use API keys, did not call sandbox/testnet private endpoints, and did not verify live-fed sandbox account drawdown.
+The sandbox/testnet base URL was verified as `https://api.hyperliquid-testnet.xyz`. The live Hyperliquid URL `https://api.hyperliquid.xyz` remains explicitly blocked for UAT3.0.5 private read-only verification. Do not use live endpoints as fallback.
 
-If credentials are supplied later, the base URL must be provably sandbox/testnet. The live Hyperliquid URL `https://api.hyperliquid.xyz` is explicitly blocked for UAT3.0.5 private read-only verification. Do not use live endpoints as fallback.
+The UAT3.0.5 rerun used only the account identifier against the sandbox/testnet read-only account-state path. It did not sign a request, did not send an API key, and did not use the private key value.
 
 ## Redaction Status
 
@@ -95,16 +97,16 @@ No raw sandbox/testnet key or secret is included in this report, Obsidian, tests
 
 ## Private Read-Only Endpoint Categories Used
 
-Status: `blocked_no_private_call`.
+Status: `verified_private_read_only_account_state`.
 
 Allowed only after approval and safe sandbox/testnet credentials:
 
 | Category | UAT3.0.5 status |
 | --- | --- |
-| `sandbox_private_read_only_account` | `blocked_missing_local_environment` |
-| `sandbox_private_read_only_balance` | `blocked_missing_local_environment` |
-| `sandbox_private_read_only_position` | `blocked_missing_local_environment` |
-| `sandbox_private_read_only_equity` | `blocked_missing_local_environment` |
+| `sandbox_private_read_only_account` | `verified_read_only_account_state_http_200` |
+| `sandbox_private_read_only_balance` | `represented_in_account_state_if_available` |
+| `sandbox_private_read_only_position` | `represented_in_account_state_if_available` |
+| `sandbox_private_read_only_equity` | `verified_account_equity_available` |
 
 Forbidden in UAT3.0.5:
 
@@ -122,7 +124,7 @@ Endpoint category checks run before any modeled transport. Order-capable categor
 
 ## No-Order Endpoint Confirmation
 
-Status: `verified_fixture`.
+Status: `verified_runtime_and_rerun`.
 
 | Boundary | Value |
 | --- | --- |
@@ -142,37 +144,35 @@ Status: `verified_fixture`.
 
 ## Sandbox Drawdown Feed Status
 
-Status: `blocked_missing_local_environment`.
+Status: `verified_live_fed_sandbox_account`.
 
 Current UAT3.0.5 drawdown status:
 
 ```text
-sandbox_drawdown_feed_missing
+sandbox_drawdown_feed_live_fed_verified
 ```
 
-No sandbox/testnet account-state response was fetched because local sandbox/testnet credentials were not configured. UAT3.0.5 therefore did not compute a live-fed sandbox account drawdown feed.
-
-The implementation can parse caller-supplied Hyperliquid sandbox/testnet account-state payloads into a feed labeled:
+The rerun fetched sandbox/testnet account-state data from the approved Hyperliquid testnet base URL and computed a live-fed sandbox account drawdown feed. The feed is labeled:
 
 - `source = sandbox_account`;
 - `not_live_account = true`;
 - `status = sandbox_drawdown_feed_live_fed_verified`.
 
-That path remains gated by exact UAT3.0.5 approval, sandbox/testnet endpoint verification, credential-boundary validation, and private-read-only endpoint category checks.
+The feed reported drawdown within limit. It did not imply live account equity, paper trading, live trading, or order approval.
 
 ## Fields Available / Unavailable
 
-Status: `blocked_missing_local_environment`.
+Status: `verified_partial_account_state`.
 
 | Field | Current UAT3.0.5 status |
 | --- | --- |
-| Sandbox account equity | `unavailable_missing_local_sandbox_credentials` |
-| Sandbox realized PnL | `unavailable_missing_local_sandbox_credentials` |
-| Sandbox unrealized PnL | `unavailable_missing_local_sandbox_credentials` |
-| Open positions summary | `unavailable_missing_local_sandbox_credentials` |
-| Max sandbox equity | `unavailable_missing_local_sandbox_credentials` |
-| Min sandbox equity | `unavailable_missing_local_sandbox_credentials` |
-| Drawdown amount / percent | `unavailable_missing_local_sandbox_credentials` |
+| Sandbox account equity | `available_redacted` |
+| Sandbox realized PnL | `unavailable_from_sandbox_account_response` |
+| Sandbox unrealized PnL | `unavailable_from_sandbox_account_response` |
+| Open positions summary | `unavailable_from_sandbox_account_response` |
+| Max sandbox equity | `available_redacted` |
+| Min sandbox equity | `available_redacted` |
+| Drawdown amount / percent | `computed_redacted_within_limit` |
 
 If an approved sandbox/testnet account response omits fields, UAT3.0.5 marks them with:
 
@@ -184,7 +184,7 @@ Do not invent missing account values.
 
 ## UAT3 Preflight Drawdown Status
 
-Status: `implemented_blocked_current_run`.
+Status: `implemented_verified_current_run`.
 
 UAT3 dry-run preflight can consume:
 
@@ -196,10 +196,10 @@ UAT3 dry-run preflight can consume:
 Current UAT3.0.5 status remains:
 
 ```text
-sandbox_drawdown_feed_missing
+sandbox_drawdown_feed_live_fed_verified
 ```
 
-The prior live-fed sandbox account drawdown blocker is not cleared in this run because local sandbox/testnet credentials were missing and no account-state response was fetched.
+The prior live-fed sandbox account drawdown blocker is cleared for the UAT3.0.5 private read-only account-state verification boundary. Actual UAT3.1 sandbox order submission remains blocked by the separate actual-submission approval, real submit-path wiring, executable gate wiring, and submit-lease integration blockers.
 
 ## UAT3.1 Readiness Decision
 
@@ -208,8 +208,6 @@ The prior live-fed sandbox account drawdown blocker is not cleared in this run b
 Remaining blockers:
 
 - `founder_operator_explicit_approval_required_before_uat3_1_actual_sandbox_submission`
-- `sandbox_account_drawdown_feed_missing`
-- `sandbox_private_endpoint_separation_not_wired_to_real_sandbox_account`
 - `sandbox_submit_path_not_implemented`
 - `uat3_approval_scope_not_wired_to_executable_gate`
 - `uat3_risk_gate_not_wired_to_submit_path`
@@ -229,7 +227,7 @@ Actual sandbox order submission is not approved.
 | ExecutionReadinessAssessment rows created | `false` |
 | SubmittedOrder rows created | `false` |
 | Executable approvals created | `false` |
-| Private account endpoints called | `false` |
+| Private account endpoints called | `true_read_only_account_state_only` |
 | Private order endpoints called | `false` |
 | Signed order endpoint calls made | `false` |
 | Exchange API keys used | `false` |

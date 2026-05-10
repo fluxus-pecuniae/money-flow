@@ -174,13 +174,13 @@ Required docs/tests: UAT3.0.4 private read-only sandbox drawdown tests, operatio
 
 Objective: validate the explicit private-read-only approval boundary, sandbox/testnet credential environment boundary, and sandbox account-state drawdown-feed parsing without submitting orders or calling order-capable endpoints.
 
-Status: complete. The exact founder/operator private-read-only approval text is present, sandbox/testnet credential env checks exist, live Hyperliquid base URLs are blocked, and Hyperliquid sandbox account-state payload parsing can build a not-live-account drawdown feed from caller-supplied sandbox account truth. Local `HYPERLIQUID_UAT_SANDBOX_*` env vars were missing, so no credentials were loaded, no API keys were used, no private endpoints were called, and live-fed sandbox drawdown remains blocked.
+Status: complete. The exact founder/operator private-read-only approval text is present, sandbox/testnet credential env checks exist, live Hyperliquid base URLs are blocked, and Hyperliquid sandbox account-state payload parsing can build a not-live-account drawdown feed. The approved rerun used the Hyperliquid testnet base URL for one read-only account-state request, returned HTTP 200, and produced `sandbox_drawdown_feed_live_fed_verified`. No API key/private key was sent and no order endpoint was called.
 
 Allowed behavior: approval-text validation, sandbox/testnet env boundary checks, redaction tests, fixture account-state parsing, no-order endpoint lockout verification, docs, tests.
 
 Forbidden behavior: order submission, cancel, amend, retry, live endpoints, live API-key use, executable approvals, real order intents, prepared orders, submitted orders, paper trades, live trades, route expansion, automatic top-20 order submission.
 
-Success criteria: future UAT3.1 remains blocked unless live-fed sandbox account drawdown is verified from sandbox/testnet account truth and all sandbox order gates are separately wired and approved.
+Success criteria: future UAT3.1 remains blocked unless all sandbox order gates are separately wired and approved; private read-only live-fed sandbox account drawdown is now verified for the UAT3.0.5 account-state boundary.
 
 Likely files/modules: `services/uat/sandbox.py`, `docs/uat3_0_5_sandbox_private_read_only_drawdown_verification.md`, operational docs, Obsidian notes.
 
@@ -190,7 +190,7 @@ Required docs/tests: UAT3.0.5 sandbox private read-only drawdown verification te
 
 Objective: test one tiny approval-gated sandbox/testnet order only after all UAT3.0 blockers are closed and explicit founder/operator approval authorizes actual sandbox submission.
 
-Status: blocked. UAT3.0.5 validates private-read-only approval and sandbox/testnet credential boundaries, but local sandbox/testnet credential env vars were missing and live-fed drawdown remains blocked. Actual sandbox submission remains blocked until the gates are wired to an executable sandbox/testnet path with explicit founder/operator actual-submission approval, live-fed sandbox account drawdown, submit-lease integration verification, executable approval/risk wiring, and real sandbox submit path wiring.
+Status: blocked. UAT3.0.5 verifies private-read-only sandbox/testnet account-state drawdown, but actual sandbox submission remains blocked until the gates are wired to an executable sandbox/testnet path with explicit founder/operator actual-submission approval, submit-lease integration verification, executable approval/risk wiring, and real sandbox submit path wiring.
 
 Allowed behavior: explicitly approved tiny sandbox/testnet orders for a small operator-approved subset, starting with Hyperliquid ETH `sleeve_1h`.
 

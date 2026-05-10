@@ -426,8 +426,9 @@ def test_uat0_operational_truth_is_current() -> None:
 
     assert "UAT3.0.5 Sandbox Private Read-Only Drawdown Verification" in uat305_report
     assert "approval status | `verified`" in uat305_report
-    assert "credential source status | `blocked_missing_local_environment`" in uat305_report
-    assert "sandbox_drawdown_feed_missing" in uat305_report
+    assert "credential source status | `verified_local_environment`" in uat305_report
+    assert "sandbox_drawdown_feed_live_fed_verified" in uat305_report
+    assert "private account endpoints called | `true_read_only_account_state_only`" in uat305_report
     assert "order endpoints called | `false`" in uat305_report
     assert "`UAT3.1 is blocked`" in uat305_report
     assert "Actual sandbox order submission is not approved" in uat305_report

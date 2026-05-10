@@ -174,14 +174,14 @@ Closed by UAT3.0.5:
 - sandbox/testnet credential environment status is inspectable without retaining private key values;
 - live Hyperliquid endpoint URLs are blocked by sandbox/testnet boundary validation;
 - Hyperliquid sandbox account-state payload parsing can produce a `sandbox_account` / `not_live_account` drawdown feed from caller-supplied sandbox account truth;
-- local sandbox/testnet credential env vars were missing, so no credentials were loaded, no API keys were used, no private endpoints were called, and live-fed sandbox drawdown remains blocked;
+- the approved rerun used the Hyperliquid testnet base URL for one read-only account-state request, returned HTTP 200, and produced `sandbox_drawdown_feed_live_fed_verified`;
+- no API key/private key was sent, and no order/cancel/amend/retry endpoint was called;
 - order/cancel/amend/retry endpoints remain blocked even when private read-only categories are modeled;
 - no order intent, prepared order, submitted order, executable approval, order/cancel/amend/retry endpoint call, live API-key use, paper/live behavior, evidence pack, routing artifact, or Money Flow rule change was added.
 
 Remaining before UAT3.1:
 
 - explicit founder/operator approval for actual sandbox submission;
-- live-fed sandbox account drawdown from sandbox/testnet account truth;
 - real sandbox submit path wiring;
 - executable approval-scope gate wiring to persistence;
 - risk gate wiring to the actual future sandbox submit path;

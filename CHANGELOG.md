@@ -13,6 +13,39 @@ Entry schema:
 
 ---
 
+## v2026.05.10.014
+
+- `recorded_at_utc`: `2026-05-10T15:06:29Z`
+- `scope`: `UAT3.0.5 sandbox/testnet private read-only drawdown verification rerun`
+- `intent`: `Native entry. Reran UAT3.0.5 after local .env received the UAT-specific sandbox/testnet variables. The exact private-read-only approval boundary and testnet base URL were validated, one Hyperliquid testnet read-only account-state request returned HTTP 200, and the UAT3.0.5 report now records sandbox_drawdown_feed_live_fed_verified. No API key/private key was sent, no order/cancel/amend/retry endpoint was called, no actual sandbox order submission was approved, and no OrderIntent, PreparedVenueOrder, ExecutionReadinessAssessment, SubmittedOrder, executable approval, paper/live behavior, routing expansion, Money Flow rule change, or evidence pack was added. UAT3.1 remains blocked by actual-submission approval, real sandbox submit path wiring, executable approval/risk wiring, and submit-lease integration verification.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/uat3_0_5_sandbox_private_read_only_drawdown_verification.md`
+  - `tests/test_operational_docs.py`
+  - `tests/test_uat305_sandbox_private_read_only_drawdown_verification.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/40 Operations/UAT0 Safety Runtime Hardening.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/Operational Memory.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py tests/test_uat305_sandbox_private_read_only_drawdown_verification.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-uat3.0.5-review.zip`
+  - `review bundle exclusion and UAT sandbox credential scan passed`
+
 ## v2026.05.10.013
 
 - `recorded_at_utc`: `2026-05-10T14:20:21Z`

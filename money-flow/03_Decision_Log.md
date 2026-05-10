@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-10T15:06:29Z - UAT3.0.5 - Testnet Read-Only Drawdown Verified
+
+- `decision`: Rerun UAT3.0.5 with local UAT-specific sandbox/testnet environment variables and record the resulting private-read-only drawdown verification.
+- `why`: The first UAT3.0.5 pass had approval but no local UAT sandbox credentials. After the founder/operator added the variables to local `.env`, the safe next step was to validate the testnet boundary and call only the approved account-state read-only path.
+- `scope`: One Hyperliquid testnet account-state read-only request returned HTTP 200 and produced a `sandbox_account` / `not_live_account` drawdown feed with `sandbox_drawdown_feed_live_fed_verified`. No API key/private key was sent, no order/cancel/amend/retry endpoint was called, and no real `OrderIntent`, `PreparedVenueOrder`, `SubmittedOrder`, executable approval, paper/live behavior, routing expansion, Money Flow rule change, or evidence pack was created.
+- `result`: The live-fed sandbox drawdown verification blocker is cleared for the UAT3.0.5 private read-only account-state boundary. UAT3.1 actual sandbox order submission remains blocked.
+- `follow_up_implications`: UAT3.1 still requires explicit founder/operator actual-submission approval, real sandbox submit-path wiring, executable approval/risk gates wired to persistence/submit, submit-lease integration verification, and no live/paper/order ambiguity.
+
 ## 2026-05-10T14:20:21Z - UAT3.0.5 - Sandbox Private Read-Only Approval Validated, Drawdown Still Blocked
 
 - `decision`: Validate the exact UAT3.0.5 sandbox/testnet private read-only credential-use approval boundary, add sandbox/testnet credential environment checks, block live Hyperliquid endpoints, and add Hyperliquid sandbox account-state drawdown parsing while preserving no-order boundaries.
