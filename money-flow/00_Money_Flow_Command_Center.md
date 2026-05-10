@@ -6,17 +6,17 @@ This is the canonical Obsidian command center for Money Flow agents and founder 
 
 | Field | Current State |
 | --- | --- |
-| Current implemented milestone | `UAT0.3` top-20 universe and drawdown readiness preflight complete |
+| Current implemented milestone | `UAT1` public read-only connectivity and top-20 universe resolution complete |
 | Current major track | Strategy Validation evidence cycle is closed |
-| Next proposed phase | `UAT1` public read-only top-20 universe and Hyperliquid market metadata verification |
-| UAT status | UAT1 public read-only connectivity may proceed under strict constraints |
+| Next proposed phase | `UAT2` shadow strategy run only after remaining blockers are closed |
+| UAT status | UAT1 public read-only connectivity is complete; UAT2 is blocked |
 | Paper trading | Not approved |
 | Live trading | Not approved |
 | Exchange order submission | Not approved |
 | Routing / SOR expansion | Deferred |
 | Production Money Flow rules | Unchanged |
 
-SV1.18 is complete. UAT0 is complete as a safety/security/runtime audit. UAT0.1 closes the P0 API auth/authz baseline for sensitive `/api/v1` routes and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds a fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and a fixture-tested runtime drawdown monitor model. UAT1 public read-only connectivity may proceed under strict no-private/no-signed/no-order/no-API-key constraints. UAT is plumbing and behavior validation. The frozen evidence candidate is Hyperliquid ETH `sleeve_1h` current baseline. Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved.
+SV1.18 is complete. UAT0 is complete as a safety/security/runtime audit. UAT0.1 closes the P0 API auth/authz baseline for sensitive `/api/v1` routes and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds a fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and a fixture-tested runtime drawdown monitor model. UAT1 verified explicit public-read-only Hyperliquid endpoint behavior, fetched a no-key public CoinGecko top-volume source, intersected it with Hyperliquid USDC perpetual metadata, and kept all included assets observation-only. UAT2 is blocked by remaining operator-visible shadow drawdown, shadow signal audit, and broader structured redaction work. UAT is plumbing and behavior validation. The frozen evidence candidate is Hyperliquid ETH `sleeve_1h` current baseline. Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved.
 
 ## Frozen UAT Observation Candidate
 
@@ -84,9 +84,21 @@ UAT0.3 closes the UAT1 preflight baseline:
 - Top-20 source/intersection resolver policy exists and is fixture-tested.
 - Hyperliquid public read-only info types are allowlisted for future UAT1: `meta`, `metaAndAssetCtxs`, `allMids`, `l2Book`, `candleSnapshot`, and `fundingHistory`.
 - Runtime drawdown monitor policy/model exists and is fixture-tested from caller-supplied observed equity.
-- UAT1 public read-only connectivity may proceed under strict constraints.
+- UAT1 public read-only connectivity preflight was satisfied and UAT1 has now completed under strict constraints.
 
 Remaining blockers before UAT2/UAT3 include broader structured application log/API error redaction verification, operator-visible UAT2 drawdown state, UAT3 sandbox account drawdown feed wiring, and UAT-specific risk/kill-switch/audit visibility verification.
+
+## UAT1 Result
+
+UAT1 public read-only connectivity is complete:
+
+- Explicit UAT1 public-read-only network mode was required before network access.
+- Hyperliquid public `info` endpoint behavior was verified for `meta`, `metaAndAssetCtxs`, `allMids`, `l2Book`, `candleSnapshot`, and `fundingHistory`.
+- CoinGecko public markets data was used as a no-key top-volume source.
+- The top-20 source list resolved to 15 Hyperliquid USDC perpetual observation candidates and 5 excluded assets in the generated UAT1 report.
+- No API keys, private endpoints, signed endpoints, order endpoints, order submissions, paper/live behavior, Money Flow live strategy evaluation, evidence packs, or live artifacts were used or created.
+
+UAT2 is blocked until operator-visible shadow drawdown state, shadow signal audit surfaces, and broader structured log/API error redaction verification are complete.
 
 Read [[00 Maps/UAT Roadmap|UAT Roadmap]] and [[40 Operations/UAT0 Safety Runtime Hardening|UAT0 Safety Runtime Hardening]] before any UAT work.
 

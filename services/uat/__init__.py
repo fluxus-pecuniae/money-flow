@@ -1,6 +1,6 @@
 """Research/UAT readiness helpers.
 
-These helpers are policy and fixture-test utilities only. They do not connect to
-exchanges, submit orders, or authorize paper/live trading.
+Policy helpers are fixture-testable by default. UAT1 public-read-only helpers
+may connect only when explicit public-read-only network flags are supplied; no
+helper submits orders or authorizes paper/live trading.
 """
-

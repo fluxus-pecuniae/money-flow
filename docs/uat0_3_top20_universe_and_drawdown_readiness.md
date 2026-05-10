@@ -10,6 +10,8 @@ UAT0.3 does not implement UAT1, does not connect to exchanges, does not call pub
 
 Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved.
 
+UAT1 follow-up: `docs/uat1_public_read_only_connectivity_and_top20_universe.md` completed the allowed public-read-only endpoint verification and top-20 universe resolution. UAT2 remains blocked by shadow-readiness blockers.
+
 ## Evidence Candidate Versus UAT Universe
 
 The ETH evidence candidate remains frozen:
@@ -248,7 +250,8 @@ Rationale:
 
 UAT1 is still not paper trading, not live trading, not order submission, not a profitability test, and not strategy approval.
 
+UAT1 follow-up result: UAT1 public read-only connectivity is complete under those constraints. UAT2 is blocked until operator-visible shadow drawdown state, shadow signal audit surfaces, and broader structured log/API error redaction verification are complete.
+
 ## Boundary Confirmation
 
 UAT0.3 created no `MandateDesiredTrade`, `StrategyDecision`, `SignalEvent`, `OrderIntent`, `PreparedVenueOrder`, `ExecutionReadinessAssessment`, `SubmittedOrder`, routing artifacts, approvals, paper trades, live trades, exchange calls, public exchange calls, private/signed calls, order endpoint calls, evidence packs, or strategy-rule changes.
-

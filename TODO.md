@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-10T06:24:03Z`
+Last reviewed: `2026-05-10T07:18:43Z`
 
 ## Active Follow-Ups
 
@@ -14,13 +14,19 @@ Last reviewed: `2026-05-10T06:24:03Z`
 
 - `priority`: `high`
 - `status`: `done`
-- `summary`: `UAT0 safety/security/runtime hardening audit is complete. UAT0.1 closes the P0 API auth/authz baseline for sensitive routes and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and verifies representative bearer/API-key/secret/password/DB URL redaction. UAT0.3 adds fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design; UAT1 public read-only connectivity may proceed under strict no-private/no-signed/no-order/no-API-key constraints. UAT0 defines the future top-20 supported-asset UAT observation universe and future UAT2 next_candle_open / next_candle_close shadow fill-timing policy while keeping same_candle_close_research_only research-only. No exchange calls, order submissions, API-key use, paper/live behavior, Money Flow rule changes, routing expansion, or evidence-pack generation were added.`
+- `summary`: `UAT0 safety/security/runtime hardening audit is complete. UAT0.1 closes the P0 API auth/authz baseline for sensitive routes and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and verifies representative bearer/API-key/secret/password/DB URL redaction. UAT0.3 adds fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design. UAT1 completes explicit public-read-only Hyperliquid endpoint verification and no-key public top-volume source / Hyperliquid observation-universe resolution. UAT0 defines the future top-20 supported-asset UAT observation universe and future UAT2 next_candle_open / next_candle_close shadow fill-timing policy while keeping same_candle_close_research_only research-only. No private/signed/order endpoint calls, order submissions, API-key use, paper/live behavior, Money Flow live strategy execution, Money Flow rule changes, routing expansion, or evidence-pack generation were added.`
 
 ### T-093
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `UAT1 public read-only connectivity is complete. The UAT1 CLI requires explicit public-read-only network flags, verifies allowed Hyperliquid public info types, fetches public CoinGecko top-volume data without API keys, intersects the source list with Hyperliquid USDC perpetual metadata, records included/excluded observation-only assets, and keeps UAT2 blocked. No private/signed/order endpoints, API keys, order submissions, paper/live behavior, Money Flow live strategy execution, routing changes, Money Flow rule changes, or evidence packs were added.`
+
+### T-097
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `UAT1 public read-only connectivity may proceed under strict constraints after UAT0.3. The next phase should fetch public top-20 source data and Hyperliquid public market metadata only, run the top-20 resolver with real public data, and verify endpoint URL/sandbox behavior without private/signed/order endpoints, API keys, paper trading, live trading, or order submission. Broader structured application log/API error redaction, operator-visible UAT2 drawdown state, UAT3 sandbox account drawdown feed, and UAT-specific risk/kill-switch/audit visibility remain future blockers.`
+- `summary`: `Before UAT2 shadow strategy run, add operator-visible shadow drawdown state, a shadow signal audit surface for would-trade/no-trade/risk-block explainability across the top-20 observation universe, and broader structured application log/API error redaction verification. UAT2 must remain shadow-only, compare next_candle_open and next_candle_close, and create no order submissions, paper/live behavior, private/signed/order endpoint calls, routing expansion, or Money Flow rule changes.`
 
 ### T-094
 

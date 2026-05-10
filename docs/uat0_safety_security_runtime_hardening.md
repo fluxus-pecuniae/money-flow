@@ -8,6 +8,8 @@ UAT0.2 update: `docs/uat0_2_adapter_runtime_policy_and_redaction.md` closed the 
 
 UAT0.3 update: `docs/uat0_3_top20_universe_and_drawdown_readiness.md` adds a fixture-tested top-20 UAT observation-universe resolver policy, completes the Hyperliquid public read-only info-type allowlist enough for a later UAT1 attempt, adds a fixture-tested runtime drawdown monitor policy/model, and changes the UAT1 decision to `UAT1 read-only connectivity may proceed` under public-read-only constraints. UAT0.3 makes no exchange calls and does not implement UAT1.
 
+UAT1 update: `docs/uat1_public_read_only_connectivity_and_top20_universe.md` verifies explicit public-read-only Hyperliquid endpoint behavior, fetches a no-key public CoinGecko top-volume source, resolves the Hyperliquid-supported observation universe, and keeps UAT2 blocked pending shadow-readiness blockers. UAT1 does not use API keys, call private/signed/order endpoints, submit orders, run Money Flow live, create strategy/execution artifacts, add paper/live behavior, change Money Flow rules, or generate evidence packs.
+
 ## Scope
 
 UAT0 is a safety, security, runtime, and operational-readiness audit. It does not connect to exchanges, does not use API keys, does not call private or signed endpoints, does not submit orders, does not run paper trading, does not run live trading, does not change Money Flow rules, and does not generate evidence packs.
@@ -309,6 +311,8 @@ This is still not proof of edge.
 
 `UAT1 read-only connectivity may proceed`.
 
+UAT1 has now been completed under those constraints. `UAT2 is blocked`.
+
 Blocking reasons:
 
 Conditions:
@@ -322,6 +326,7 @@ Remaining blockers for UAT2/UAT3:
 
 - P1 broader structured application log/API error redaction still needs sandbox-like verification.
 - P1 UAT2 drawdown monitor operator visibility is not wired.
+- P1 UAT2 shadow signal audit surface is not wired.
 - P1 UAT3 sandbox/live account drawdown feed is not wired.
 - P1 risk/kill-switch/audit/operator visibility checks still need UAT-specific verification.
 

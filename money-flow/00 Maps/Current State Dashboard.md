@@ -4,7 +4,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 ## Today In One Sentence
 
-Money Flow is a controlled trading-system substrate plus Strategy Validation research platform; SV1 is closed for now, one Hyperliquid ETH `sleeve_1h` baseline evidence candidate is frozen, UAT0 safety / security / runtime audit is complete, UAT0.1 API auth/runtime lockout hardening is complete, UAT0.2 adapter policy/read-only allowlist/redaction hardening is complete, UAT0.3 top-20 universe/drawdown readiness preflight is complete, and UAT1 public read-only connectivity may proceed under strict constraints.
+Money Flow is a controlled trading-system substrate plus Strategy Validation research platform; SV1 is closed for now, one Hyperliquid ETH `sleeve_1h` baseline evidence candidate is frozen, UAT0 safety / security / runtime audit is complete, UAT0.1 API auth/runtime lockout hardening is complete, UAT0.2 adapter policy/read-only allowlist/redaction hardening is complete, UAT0.3 top-20 universe/drawdown readiness preflight is complete, UAT1 public read-only connectivity is complete, and UAT2 is blocked pending shadow-readiness blockers.
 
 SV1.18 is complete.
 
@@ -26,7 +26,8 @@ Money Flow can generate strategy decisions, route through controlled same-target
 | UAT0.1 | hardening complete | Sensitive API routes now require scoped auth and runtime lockout defaults are inspectable. |
 | UAT0.2 | hardening complete | Adapter private/signed/order paths are runtime-policy guarded before transport; Hyperliquid has a future-UAT1 read-only allowlist artifact; representative redaction is tested. |
 | UAT0.3 | preflight complete | Fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlist, and runtime drawdown monitor model exist. |
-| UAT1 | may proceed under constraints | Public read-only top-20 source and Hyperliquid market metadata verification only; no private/signed/order endpoints, API keys, paper/live trading, or order submission. |
+| UAT1 | complete | Explicit public-read-only Hyperliquid endpoint verification plus no-key public top-volume source ingestion and top-20 Hyperliquid observation-universe resolution. |
+| UAT2 | blocked | Shadow strategy run waits for operator-visible shadow drawdown, shadow signal audit surfaces, and broader structured log/API error redaction verification. |
 
 ## Current Candidate
 
@@ -75,9 +76,9 @@ Current UAT scope excludes:
 
 ## Next Phase
 
-`UAT1` public read-only top-20 universe and Hyperliquid market metadata verification.
+`UAT2` shadow strategy run after remaining blockers are closed.
 
-UAT0.1 closed the P0 API authentication/authorization and central runtime lockout baseline. UAT0.2 closed the adapter-level runtime-policy baseline, added the Hyperliquid future-UAT1 read-only allowlist artifact, and tested representative bearer/API-key/secret/password/DB URL redaction. UAT0.3 added fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and a runtime drawdown monitor model. Remaining later blockers include broader structured application log/API error redaction verification, UAT2 operator-visible drawdown state, UAT3 sandbox account drawdown feed wiring, and UAT-specific risk/kill-switch/audit visibility verification.
+UAT0.1 closed the P0 API authentication/authorization and central runtime lockout baseline. UAT0.2 closed the adapter-level runtime-policy baseline, added the Hyperliquid future-UAT1 read-only allowlist artifact, and tested representative bearer/API-key/secret/password/DB URL redaction. UAT0.3 added fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and a runtime drawdown monitor model. UAT1 verified public read-only Hyperliquid endpoint behavior and resolved the public top-20 supported observation universe without API keys, private/signed/order endpoints, order submission, or strategy execution. Remaining later blockers include broader structured application log/API error redaction verification, UAT2 operator-visible drawdown state, UAT2 shadow signal audit surfaces, UAT3 sandbox account drawdown feed wiring, and UAT-specific risk/kill-switch/audit visibility verification.
 
 UAT is plumbing and behavior validation.
 

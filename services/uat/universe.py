@@ -18,6 +18,7 @@ class UATUniverseExclusionReason(StrEnum):
     NOT_ENABLED_FOR_UAT = "not_enabled_for_uat"
     TOP20_SOURCE_MISSING_VOLUME = "top20_source_missing_volume"
     TOP20_SOURCE_STALE = "top20_source_stale"
+    PUBLIC_READ_ONLY_FETCH_FAILED = "public_read_only_fetch_failed"
 
 
 @dataclass(frozen=True)
@@ -230,4 +231,3 @@ class Top20UniverseResolver:
             included=tuple(included),
             excluded=tuple(excluded),
         )
-

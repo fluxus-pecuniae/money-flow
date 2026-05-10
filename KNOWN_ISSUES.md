@@ -1,6 +1,6 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-05-10T06:24:03Z`
+Last reviewed: `2026-05-10T07:18:43Z`
 
 ## Open Items
 
@@ -15,8 +15,8 @@ Last reviewed: `2026-05-10T06:24:03Z`
 
 - `status`: `open`
 - `area`: `UAT safety/security/runtime readiness`
-- `summary`: `UAT0 completed the safety/security/runtime audit. UAT0.1 closes the P0 API authentication/authorization baseline for sensitive /api/v1 routes and adds an inspectable fail-safe RuntimeSafetyPolicy. UAT0.2 closes the adapter-level runtime-policy baseline by guarding private/signed/order adapter paths before transport, defines a Hyperliquid future-UAT1 read-only allowlist artifact, and verifies representative bearer/API-key/secret/password/DB URL redaction. UAT0.3 adds fixture-tested top-20 universe resolver policy, Hyperliquid public read-only info-type allowlisting, and a fixture-tested runtime drawdown monitor model. UAT1 public read-only connectivity may proceed under strict no-private/no-signed/no-order/no-API-key constraints.`
-- `impact`: `UAT1 remains read-only only and must verify public top-20 source ingestion plus Hyperliquid public endpoint URL/sandbox behavior without private/signed/order paths. The frozen evidence candidate remains Hyperliquid ETH USDC perpetual sleeve_1h baseline current rules, while future UAT observation must cover top-20 supported assets for behavior/plumbing validation only. Broader structured log/API error redaction, UAT2 operator-visible drawdown state, UAT3 sandbox account drawdown feed, risk/kill-switch/audit visibility, paper trading, live trading, exchange order submission, routing expansion, and strategy changes remain deferred.`
+- `summary`: `UAT0 completed the safety/security/runtime audit. UAT0.1 closes the P0 API authentication/authorization baseline for sensitive /api/v1 routes and adds an inspectable fail-safe RuntimeSafetyPolicy. UAT0.2 closes the adapter-level runtime-policy baseline by guarding private/signed/order adapter paths before transport, defines a Hyperliquid future-UAT1 read-only allowlist artifact, and verifies representative bearer/API-key/secret/password/DB URL redaction. UAT0.3 adds fixture-tested top-20 universe resolver policy, Hyperliquid public read-only info-type allowlisting, and a fixture-tested runtime drawdown monitor model. UAT1 completes explicit public-read-only Hyperliquid endpoint verification and no-key public top-volume source / Hyperliquid observation-universe resolution.`
+- `impact`: `UAT2 remains blocked by operator-visible shadow drawdown state, shadow signal audit surfaces, and broader structured log/API error redaction verification. The frozen evidence candidate remains Hyperliquid ETH USDC perpetual sleeve_1h baseline current rules, while future UAT observation covers top-20 supported assets for behavior/plumbing validation only. Top-20 inclusion is observation-only, not strategy approval. Paper trading, live trading, exchange order submission, private/signed/order endpoint use, routing expansion, and strategy changes remain deferred.`
 
 ### K-002
 

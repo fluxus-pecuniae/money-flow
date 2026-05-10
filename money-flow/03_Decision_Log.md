@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-10T07:18:43Z - UAT1 - Public Read-Only Connectivity Complete, UAT2 Blocked
+
+- `decision`: Complete UAT1 public-read-only connectivity and top-20 universe resolution under explicit public-read-only network gating, while keeping UAT2 blocked.
+- `why`: The platform needed one controlled public-read-only verification pass before shadow strategy work. UAT1 verified Hyperliquid allowed public info types, fetched a no-key public top-volume source, intersected supported Hyperliquid USDC perpetual markets, and preserved observation-only labels without implying strategy approval.
+- `scope`: UAT1 uses no API keys, calls no private/signed/order endpoints, submits no orders, runs no Money Flow live strategy evaluation, creates no strategy decisions/order intents/submitted orders, approves no paper/live trading, changes no Money Flow rules, adds no routing behavior, and generates no evidence packs.
+- `follow_up_implications`: UAT2 remains blocked until operator-visible shadow drawdown state, shadow signal audit surfaces, and broader structured log/API error redaction verification are complete. Future UAT2 must remain shadow-only and compare `next_candle_open` and `next_candle_close`.
+
 ## 2026-05-09T14:17:37Z - UAT0 - Block UAT1 Until Safety Gates Are Explicit
 
 - `decision`: Complete UAT0 as a safety/security/runtime audit and block UAT1 read-only connectivity until API auth/authz, fail-safe UAT mode gating, live endpoint lockout, secret/log/error redaction verification, and top-20 market identity prerequisites are closed.

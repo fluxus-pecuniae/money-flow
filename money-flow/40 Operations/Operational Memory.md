@@ -31,11 +31,12 @@ Before substantial work, read the repo memory and Obsidian brain. Before editing
 
 ## Current Important Memory Facts
 
-- Current implemented milestone: `UAT0.3` top-20 universe and drawdown readiness preflight complete.
+- Current implemented milestone: `UAT1` public read-only connectivity and top-20 universe resolution complete.
 - Strategy Validation SV1 is closed for now.
-- Next proposed phase: remaining UAT0 P1 blocker remediation before UAT1.
-- UAT1 public read-only connectivity may proceed under strict no-private/no-signed/no-order/no-API-key constraints.
-- UAT0.3 added fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design without exchange calls.
+- Next proposed phase: UAT2 shadow strategy run only after remaining blockers are closed.
+- UAT1 public read-only connectivity is complete under strict no-private/no-signed/no-order/no-API-key constraints.
+- UAT1 verified allowed public Hyperliquid info types, fetched a no-key public top-volume source, and resolved observation-only Hyperliquid supported assets.
+- UAT2 is blocked by operator-visible shadow drawdown state, shadow signal audit surfaces, and broader structured redaction verification.
 - Frozen evidence candidate: Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules.
 - Future UAT observation universe: top-20 high-volume supported assets for behavior validation only.
 - Paper trading is not approved.

@@ -2,17 +2,17 @@
 
 ## Current Implemented Milestone
 
-`UAT0.3` top-20 universe and drawdown readiness preflight is complete.
+`UAT1` public read-only connectivity and top-20 universe resolution is complete.
 
-SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one evidence candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap. OB1.0 overhauled the Obsidian project brain. UAT0 audited safety/security/runtime readiness and blocked UAT1 until named gaps were closed. UAT0.1 closes the P0 API auth/authz baseline and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds fixture-tested top-20 universe resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design.
+SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one evidence candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap. OB1.0 overhauled the Obsidian project brain. UAT0 audited safety/security/runtime readiness and blocked UAT1 until named gaps were closed. UAT0.1 closes the P0 API auth/authz baseline and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds fixture-tested top-20 universe resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design. UAT1 verifies allowed public Hyperliquid endpoint behavior, fetches a no-key public top-volume source, resolves the Hyperliquid-supported top-20 observation universe, and keeps UAT2 blocked pending shadow-readiness blockers.
 
 SV1.18 is complete.
 
 ## Next Proposed Phase
 
-`UAT1` public read-only top-20 universe and Hyperliquid market metadata verification.
+`UAT2` shadow strategy run only after remaining blockers are closed.
 
-UAT1 public read-only connectivity may proceed under strict constraints. UAT remains plumbing and behavior validation only. It is not paper trading, live trading, exchange order submission, routing expansion, or strategy optimization.
+UAT2 is blocked. UAT remains plumbing and behavior validation only. It is not paper trading, live trading, exchange order submission, routing expansion, or strategy optimization.
 
 ## Frozen UAT Observation Candidate
 
@@ -89,12 +89,21 @@ UAT0.3 closes the UAT1 preflight baseline:
 - Top-20 source/intersection resolver policy exists and is fixture-tested.
 - Hyperliquid public read-only info types are allowlisted for future UAT1.
 - Runtime drawdown monitor policy/model exists and is fixture-tested from caller-supplied observed equity.
-- UAT1 public read-only connectivity may proceed with no private endpoints, no signed endpoints, no order endpoints, no API keys, no paper trading, no live trading, and no order submission.
+- UAT1 public read-only connectivity preflight was satisfied with no private endpoints, no signed endpoints, no order endpoints, no API keys, no paper trading, no live trading, and no order submission. UAT1 is now complete.
+
+UAT1 is now complete:
+
+- Explicit UAT1 public-read-only mode was required before network calls.
+- Hyperliquid public read-only info types were verified with HTTP 200 and usable response shape.
+- CoinGecko public markets data was fetched without API keys as the top-volume source.
+- The generated UAT1 report includes 15 Hyperliquid USDC perpetual observation candidates and 5 excluded assets.
+- No private, signed, or order endpoints were called; no strategy decisions, order intents, submitted orders, paper trades, live trades, evidence packs, or Money Flow rule changes were created.
 
 Remaining later blockers:
 
 - Broader structured application log/API error redaction needs verification before UAT2/UAT3.
 - UAT2 needs operator-visible shadow drawdown state.
+- UAT2 needs a shadow signal audit surface for would-trade/no-trade/risk-block explainability.
 - UAT3 needs sandbox/live account drawdown feed wiring.
 - Existing approval gates and submit leases are useful but require UAT3 verification before sandbox orders.
 - Existing approval gates and submit leases are useful but require UAT3 verification before sandbox orders.
