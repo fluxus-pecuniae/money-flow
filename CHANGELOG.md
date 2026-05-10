@@ -13,6 +13,48 @@ Entry schema:
 
 ---
 
+## v2026.05.10.018
+
+- `recorded_at_utc`: `2026-05-10T19:50:14Z`
+- `scope`: `UAT3.3 Hyperliquid account targeting + tick/lot precision + one sandbox lifecycle attempt`
+- `intent`: `Native entry. Added explicit Hyperliquid UAT account targeting resolution that separates master/user accounts, API-wallet signer, and subaccount/vault targets; normal master/user mode omits vaultAddress, while subaccount/vault mode requires an explicit target vaultAddress. Added a reusable Decimal-based Hyperliquid precision formatter using meta szDecimals, five-significant-figure price rules, and perp max price decimals; UAT3.3 validates formatting across the UAT observation universe and plans ETH post-only testnet orders with exchange-valid price/size. The approved UAT3.3 runner verified account targeting, signer authorization, live-fed sandbox drawdown, runtime/risk/lease/label gates, and generated sanitized report/summary output. It correctly blocked before /exchange because the configured target subaccount returned live-fed sandbox equity of 0.0, so order attempt count was 0. No order/cancel/amend/retry endpoint was called, no OrderIntent, PreparedVenueOrder, SubmittedOrder, executable approval, paper/live behavior, routing expansion, Money Flow rule change, evidence pack, live endpoint use, secret exposure, broad top-20 submission, or repeated sandbox order was created.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/uat3_2_second_sandbox_order_attempt.md`
+  - `docs/uat3_3_hyperliquid_account_targeting_precision_and_order_attempt.md`
+  - `docs/uat3_3_hyperliquid_account_targeting_precision_and_order_attempt_summary.json`
+  - `scripts/run_uat33_hyperliquid_precision_order.py`
+  - `services/exchange/hyperliquid/precision.py`
+  - `services/uat/sandbox.py`
+  - `services/uat/sandbox_order.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_uat33_hyperliquid_account_precision.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/run_uat33_hyperliquid_precision_order.py --execute-approved-uat33`
+  - `.venv/bin/python -m compileall services/exchange/hyperliquid/precision.py services/uat/sandbox_order.py scripts/run_uat33_hyperliquid_precision_order.py tests/test_uat33_hyperliquid_account_precision.py`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat33_hyperliquid_account_precision.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat33_hyperliquid_account_precision.py tests/test_uat32_second_sandbox_order_attempt.py tests/test_uat31_first_sandbox_order_attempt.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat0_safety_report.py tests/test_uat01_api_auth_runtime_lockout.py tests/test_uat02_adapter_runtime_policy_and_redaction.py tests/test_uat03_top20_universe_and_drawdown.py tests/test_uat1_public_read_only_connectivity.py tests/test_uat11_shadow_readiness.py tests/test_uat2_shadow_strategy.py tests/test_uat21_dashboard_visualization.py tests/test_uat30_sandbox_order_design.py tests/test_uat301_sandbox_readiness.py tests/test_uat302_sandbox_gate_dry_run.py tests/test_uat303_sandbox_gate_wiring.py tests/test_uat304_sandbox_private_read_only_drawdown.py tests/test_uat305_sandbox_private_read_only_drawdown_verification.py tests/test_uat306_sandbox_submit_path_dry_run.py tests/test_uat31_first_sandbox_order_attempt.py tests/test_uat32_second_sandbox_order_attempt.py tests/test_uat33_hyperliquid_account_precision.py tests/test_api.py tests/test_config.py tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-uat3.3-review.zip`
+  - `review bundle secret scan: REVIEW_BUNDLE_SECRET_SCAN_OK files=378 secret_values_checked=5`
+
 ## v2026.05.10.017
 
 - `recorded_at_utc`: `2026-05-10T17:50:18Z`

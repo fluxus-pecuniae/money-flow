@@ -4,7 +4,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 UAT validates plumbing and behavior. It does not prove profitability.
 
-Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, UAT1.1 shadow readiness is complete, UAT2 bounded no-order shadow strategy observation is complete, UAT2.1 dashboard visualization is complete, UAT3.0 sandbox-order design/readiness is complete, UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete, UAT3.0.2 sandbox gate integration dry-run / policy hardening is complete, UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete, UAT3.0.4 sandbox private read-only drawdown readiness is complete, UAT3.0.5 sandbox/testnet private read-only drawdown verification is complete, UAT3.0.6 sandbox submit path dry-run wiring is complete, UAT3.1 first sandbox/testnet lifecycle probe is complete, and UAT3.2 fixed-key preflight / second sandbox lifecycle attempt is complete as blocked before order transport. Additional sandbox orders require separate approval.
+Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, UAT1.1 shadow readiness is complete, UAT2 bounded no-order shadow strategy observation is complete, UAT2.1 dashboard visualization is complete, UAT3.0 sandbox-order design/readiness is complete, UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete, UAT3.0.2 sandbox gate integration dry-run / policy hardening is complete, UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete, UAT3.0.4 sandbox private read-only drawdown readiness is complete, UAT3.0.5 sandbox/testnet private read-only drawdown verification is complete, UAT3.0.6 sandbox submit path dry-run wiring is complete, UAT3.1 first sandbox/testnet lifecycle probe is complete, UAT3.2 fixed-key preflight / second sandbox lifecycle attempt is complete as blocked before order transport, and UAT3.3 Hyperliquid account-targeting / precision hardening is complete as blocked before order transport. Additional sandbox orders require separate approval.
 
 ## Frozen Observation Candidate
 
@@ -234,15 +234,31 @@ Likely files/modules: `services/uat/sandbox_order.py`, `scripts/run_uat32_second
 
 Required docs/tests: UAT3.2 fixed-key readiness tests, one-attempt gating tests, secret-redaction tests, operational-doc current-state tests, review-bundle hygiene checks.
 
-## UAT3.3 - Additional Sandbox Lifecycle Testing
+## UAT3.3 - Hyperliquid Account Targeting + Tick/Lot Precision + One Sandbox Lifecycle Attempt
 
-Objective: future accepted/open -> cancel lifecycle coverage after a separate approval and after testnet user/API-wallet/equity readiness is proven.
+Objective: fix Hyperliquid account-targeting semantics and tick/lot precision before a one-shot sandbox lifecycle attempt.
 
-Status: blocked. UAT3.3 requires separate founder/operator approval, recognized and authorized Hyperliquid testnet user/API wallet, sufficient sandbox equity, current live-fed sandbox drawdown, duplicate-prevention safety, and all no-live/no-paper/no-fanout boundaries.
+Status: complete as blocked before order transport. Founder/operator approval was present; normal master/user mode now omits `vaultAddress`; subaccount/vault mode uses only the configured explicit target; API-wallet signer identity is separate from target account identity; ETH order price/size formatting follows Hyperliquid `szDecimals`, five-significant-figure, and perp max-decimal rules; and UAT-universe precision validation is reported. The runner verified account targeting and signer authorization for the configured subaccount, generated a sanitized planned ETH post-only order under 10 USDC notional, and blocked before `/exchange` because target subaccount equity was `0.0`. Order attempt count was `0`; no order/cancel/amend/retry endpoint was called.
+
+Allowed behavior: approval-text validation, sandbox/testnet account targeting, public read-only market data for precision/nonmarketable order shaping, private read-only sandbox account/drawdown checks, UAT-universe precision validation, and exactly one order attempt only if all gates pass.
+
+Forbidden behavior: live endpoints, live API keys, paper trades, live trades, broad top-20 order submission, repeated orders, fanout, SOR, target reselection, route executor behavior, production auto-submit, Money Flow rule changes, and evidence packs.
+
+Success criteria: account targeting and precision must be unambiguous before any order transport. The recorded UAT3.3 run met those gates but did not meet the sandbox equity gate, so it correctly blocked.
+
+Likely files/modules: `services/exchange/hyperliquid/precision.py`, `services/uat/sandbox_order.py`, `scripts/run_uat33_hyperliquid_precision_order.py`, `docs/uat3_3_hyperliquid_account_targeting_precision_and_order_attempt.md`, operational docs, Obsidian notes.
+
+Required docs/tests: UAT3.3 account-targeting tests, Hyperliquid precision tests, one-attempt gating tests, secret-redaction checks, operational-doc current-state tests, review-bundle hygiene checks.
+
+## UAT3.4 - Additional Sandbox Lifecycle Testing
+
+Objective: future accepted/open -> cancel lifecycle coverage after a separate approval and after testnet target-account equity readiness is proven.
+
+Status: blocked. UAT3.4 requires separate founder/operator approval, sufficient live-fed sandbox equity on the configured Hyperliquid target account/subaccount, current not-live-account drawdown, duplicate-prevention safety, and all no-live/no-paper/no-fanout boundaries.
 
 ## UAT4.0 - Live UAT Trading Dashboard / Chart Cockpit
 
-Objective: future dashboard phase requested by founder for live UAT review, not implemented in UAT3.2.
+Objective: future dashboard phase requested by founder for live UAT review, not implemented in UAT3.2 or UAT3.3.
 
 Requested capabilities: live charts for watched pairs, green entry arrows, red exit arrows, routed orders tab, observed/traded watchlist, market data for watched pairs, EMA5 / EMA10 / SMA20 / RSI / MACD overlays, regime/trend context if available, UAT order lifecycle overlay, sandbox/not-live labels, and no paper/live confusion.
 

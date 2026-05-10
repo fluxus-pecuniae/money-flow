@@ -1,0 +1,296 @@
+{
+  "account_api_wallet_readiness": {
+    "account_address_abbrev": "0xb645...34a9",
+    "account_role": "subaccount",
+    "allowed": false,
+    "api_wallet_authorized_for_account": true,
+    "checked": true,
+    "reason_codes": [
+      "sandbox_account_equity_insufficient"
+    ],
+    "sandbox_account_equity_available": true,
+    "sandbox_account_equity_sufficient": false,
+    "sandbox_drawdown_live_fed_verified": true,
+    "sandbox_drawdown_not_stale": true,
+    "signer_address_abbrev": "0xd4c9...a551",
+    "signer_role": "agent"
+  },
+  "account_targeting_status": "verified",
+  "account_targeting_summary": {
+    "account_role": "subaccount",
+    "endpoint_is_testnet": true,
+    "environment": "testnet",
+    "signer_address_abbrev": "0xd4c9...a551",
+    "target_account_abbrev": "0xb645...34a9",
+    "vaultAddress_abbrev_if_present": "0xb645...34a9",
+    "vaultAddress_present": true
+  },
+  "allowed_to_submit": false,
+  "approval_verified": true,
+  "blocked": true,
+  "cancel_endpoint_called": false,
+  "cancel_status": "not_attempted",
+  "drawdown_feed": {
+    "max_drawdown_percent": null,
+    "not_live_account": true,
+    "sandbox_account_equity": "0.0",
+    "sandbox_account_equity_available": true,
+    "source": "sandbox_account",
+    "status": "sandbox_drawdown_feed_live_fed_verified",
+    "threshold_breached": false,
+    "timestamp_utc": "2026-05-10T20:08:08.759004+00:00",
+    "unavailable_fields": [
+      "sandbox_realized_pnl",
+      "sandbox_unrealized_pnl",
+      "open_positions_summary"
+    ]
+  },
+  "endpoint_is_testnet": true,
+  "next_readiness_decision": "UAT3.4 is blocked",
+  "open_order_remains": false,
+  "order_attempt_count": 0,
+  "order_endpoint_called": false,
+  "order_status": "blocked",
+  "precision_formatter_status": "needs_followup",
+  "precision_validation": [
+    {
+      "asset_id": 3,
+      "formatted_sample_post_only_buy_price": "82950",
+      "formatted_sample_size": "0.00012",
+      "max_price_decimals": 1,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "82950.5",
+      "symbol": "BTC",
+      "sz_decimals": 5
+    },
+    {
+      "asset_id": 4,
+      "formatted_sample_post_only_buy_price": "2440.7",
+      "formatted_sample_size": "0.004",
+      "max_price_decimals": 2,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "2440.75",
+      "symbol": "ETH",
+      "sz_decimals": 4
+    },
+    {
+      "asset_id": 0,
+      "formatted_sample_post_only_buy_price": "98.125",
+      "formatted_sample_size": "0.1",
+      "max_price_decimals": 4,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "98.125",
+      "symbol": "SOL",
+      "sz_decimals": 2
+    },
+    {
+      "asset_id": null,
+      "formatted_sample_post_only_buy_price": null,
+      "formatted_sample_size": null,
+      "max_price_decimals": null,
+      "precision_validation_passed": false,
+      "reason_codes": [
+        "unsupported_by_hyperliquid_meta"
+      ],
+      "sample_mid": null,
+      "symbol": "XRP",
+      "sz_decimals": null
+    },
+    {
+      "asset_id": 193,
+      "formatted_sample_post_only_buy_price": "138.65",
+      "formatted_sample_size": "1",
+      "max_price_decimals": 6,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "138.65",
+      "symbol": "ZEC",
+      "sz_decimals": 0
+    },
+    {
+      "asset_id": 6,
+      "formatted_sample_post_only_buy_price": "663.23",
+      "formatted_sample_size": "0.015",
+      "max_price_decimals": 3,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "663.23",
+      "symbol": "BNB",
+      "sz_decimals": 3
+    },
+    {
+      "asset_id": 25,
+      "formatted_sample_post_only_buy_price": "1.3797",
+      "formatted_sample_size": "7.2",
+      "max_price_decimals": 5,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "1.3797",
+      "symbol": "SUI",
+      "sz_decimals": 1
+    },
+    {
+      "asset_id": 44,
+      "formatted_sample_post_only_buy_price": "2.4185",
+      "formatted_sample_size": "4.1",
+      "max_price_decimals": 5,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "2.41855",
+      "symbol": "TON",
+      "sz_decimals": 1
+    },
+    {
+      "asset_id": 173,
+      "formatted_sample_post_only_buy_price": "0.11115",
+      "formatted_sample_size": "89",
+      "max_price_decimals": 6,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "0.11115",
+      "symbol": "DOGE",
+      "sz_decimals": 0
+    },
+    {
+      "asset_id": null,
+      "formatted_sample_post_only_buy_price": null,
+      "formatted_sample_size": null,
+      "max_price_decimals": null,
+      "precision_validation_passed": false,
+      "reason_codes": [
+        "unsupported_by_hyperliquid_meta"
+      ],
+      "sample_mid": null,
+      "symbol": "TRX",
+      "sz_decimals": null
+    },
+    {
+      "asset_id": 159,
+      "formatted_sample_post_only_buy_price": "0.12514",
+      "formatted_sample_size": "79",
+      "max_price_decimals": 6,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "0.12514",
+      "symbol": "LAYER",
+      "sz_decimals": 0
+    },
+    {
+      "asset_id": 207,
+      "formatted_sample_post_only_buy_price": "0.065451",
+      "formatted_sample_size": "152",
+      "max_price_decimals": 6,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "0.065451",
+      "symbol": "CHIP",
+      "sz_decimals": 0
+    },
+    {
+      "asset_id": null,
+      "formatted_sample_post_only_buy_price": null,
+      "formatted_sample_size": null,
+      "max_price_decimals": null,
+      "precision_validation_passed": false,
+      "reason_codes": [
+        "unsupported_by_hyperliquid_meta"
+      ],
+      "sample_mid": null,
+      "symbol": "UNI",
+      "sz_decimals": null
+    },
+    {
+      "asset_id": 87,
+      "formatted_sample_post_only_buy_price": "0.42024",
+      "formatted_sample_size": "23",
+      "max_price_decimals": 6,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "0.420245",
+      "symbol": "ONDO",
+      "sz_decimals": 0
+    },
+    {
+      "asset_id": 21,
+      "formatted_sample_post_only_buy_price": "103.01",
+      "formatted_sample_size": "0.09",
+      "max_price_decimals": 4,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "103.01",
+      "symbol": "AAVE",
+      "sz_decimals": 2
+    }
+  ],
+  "reason_codes": [
+    "sandbox_account_equity_insufficient"
+  ],
+  "reconciliation_status": "not_attempted",
+  "recorded_at_utc": "2026-05-10T20:08:08.759004Z",
+  "risk_gate_allowed": true,
+  "runtime_policy_allowed": true,
+  "sandbox_artifact_labels_allowed": true,
+  "sanitized_cancel_response": {},
+  "sanitized_order_request": {
+    "account_role": "subaccount",
+    "action_summary": {
+      "grouping": "na",
+      "orders": [
+        {
+          "a": 4,
+          "b": true,
+          "c": "0xe7219956c4cd07a387eabfc257cb943e",
+          "p": "2438.9",
+          "r": false,
+          "s": "0.0041",
+          "t": {
+            "limit": {
+              "tif": "Alo"
+            }
+          }
+        }
+      ],
+      "type": "order"
+    },
+    "asset_id": 4,
+    "client_order_id_present": true,
+    "dry_run_planned_not_submitted": true,
+    "endpoint": "/exchange",
+    "endpoint_category": "sandbox_order_submission",
+    "endpoint_is_testnet": true,
+    "environment": "testnet",
+    "estimated_notional": "9.99949",
+    "limit_price": "2438.9",
+    "max_price_decimals": 2,
+    "order_type": "post_only_limit",
+    "price_precision_reason": "price_formatted_down_5_sig_figs_and_max_2_decimals",
+    "quantity": "0.0041",
+    "raw_signed_payload_included_in_report": false,
+    "side": "buy",
+    "signature_included_in_report": false,
+    "signer_address_abbrev": "0xd4c9...a551",
+    "size_precision_reason": "size_formatted_down_sz_decimals_4",
+    "symbol": "ETH",
+    "target_account_abbrev": "0xb645...34a9",
+    "tif": "Alo",
+    "vaultAddress_abbrev_if_present": "0xb645...34a9",
+    "vaultAddress_present": true
+  },
+  "sanitized_order_response": {},
+  "sanitized_reconciliation": {},
+  "side_effect_flags": {
+    "creates_executable_approval": false,
+    "creates_order_intent": false,
+    "creates_prepared_order": false,
+    "creates_submitted_order": false,
+    "live_trading_added": false,
+    "paper_trading_added": false
+  },
+  "submit_lease_allowed": true,
+  "uat_run_id": "uat3_3_hyperliquid_account_targeting_precision_order_attempt",
+  "unexpected_fill": false,
+  "unknown_state": false
+}

@@ -19,11 +19,20 @@ from typing import Any, Protocol
 import httpx
 
 from core.security import redact_sensitive_structure, redact_sensitive_text
+from services.exchange.hyperliquid.precision import (
+    HyperliquidPrecisionFormatter,
+    hyperliquid_formatter_from_meta_asset,
+)
 from services.exchange.hyperliquid.signing import float_to_wire, sign_l1_action, signer_address
 from services.uat.sandbox import (
     HYPERLIQUID_UAT_SANDBOX_ACCOUNT_ENV,
+    HYPERLIQUID_UAT_SANDBOX_ACCOUNT_IS_VAULT_ENV,
+    HYPERLIQUID_UAT_SANDBOX_ACCOUNT_ROLE_ENV,
     HYPERLIQUID_UAT_SANDBOX_BASE_URL_ENV,
+    HYPERLIQUID_UAT_SANDBOX_MASTER_ACCOUNT_ENV,
     HYPERLIQUID_UAT_SANDBOX_PRIVATE_KEY_ENV,
+    HYPERLIQUID_UAT_SANDBOX_TARGET_ACCOUNT_ENV,
+    HYPERLIQUID_UAT_SANDBOX_VAULT_ADDRESS_ENV,
     SandboxAccountDrawdownFeed,
     SandboxAccountStateSnapshot,
     SandboxAdapterEndpointClassification,
@@ -135,6 +144,30 @@ UAT32_CANDIDATE_ID = "manual_sandbox_lifecycle_probe_eth_testnet_second_attempt"
 UAT32_MAX_NOTIONAL = Decimal("10")
 UAT32_DRAWDOWN_THRESHOLD = Decimal("0.05")
 
+UAT33_RUN_ID = "uat3_3_hyperliquid_account_targeting_precision_order_attempt"
+UAT33_APPROVAL_ID = "uat3_3_founder_actual_sandbox_submission_approval"
+UAT33_COMPONENT = "manual_sandbox_lifecycle_probe"
+UAT33_CANDIDATE_ID = "manual_sandbox_lifecycle_probe_eth_testnet_precision_targeting"
+UAT33_MAX_NOTIONAL = Decimal("10")
+UAT33_DRAWDOWN_THRESHOLD = Decimal("0.05")
+UAT33_UNIVERSE_SYMBOLS: tuple[str, ...] = (
+    "BTC",
+    "ETH",
+    "SOL",
+    "XRP",
+    "ZEC",
+    "BNB",
+    "SUI",
+    "TON",
+    "DOGE",
+    "TRX",
+    "LAYER",
+    "CHIP",
+    "UNI",
+    "ONDO",
+    "AAVE",
+)
+
 
 class UAT31RejectReason:
     APPROVAL_REQUIRED = "founder_operator_actual_sandbox_submission_approval_required"
@@ -181,6 +214,15 @@ class UAT32RejectReason:
     OPEN_ORDER_REMAINS = "open_order_remains_manual_cleanup_required"
 
 
+class UAT33RejectReason:
+    ACCOUNT_TARGETING_BLOCKED = "hyperliquid_account_targeting_blocked"
+    UNKNOWN_ACCOUNT_ROLE = "hyperliquid_account_role_unknown"
+    VAULT_ADDRESS_REQUIRED = "hyperliquid_vault_or_subaccount_address_required"
+    NORMAL_ACCOUNT_VAULT_FORBIDDEN = "hyperliquid_normal_account_vault_address_forbidden"
+    TARGET_ACCOUNT_MISSING = "hyperliquid_target_account_missing"
+    PRECISION_VALIDATION_FAILED = "hyperliquid_precision_validation_failed"
+
+
 @dataclass(frozen=True)
 class UAT31ManualProbeLabels:
     base: SandboxArtifactLabels
@@ -201,6 +243,47 @@ class UAT31MarketPlan:
     estimated_notional: Decimal
     tif: str
     cloid: str
+    price_precision_reason: str = "legacy_price_precision"
+    size_precision_reason: str = "legacy_size_precision"
+    max_price_decimals: int | None = None
+
+
+@dataclass(frozen=True)
+class HyperliquidAccountTarget:
+    target_account: str
+    signer_address: str
+    account_role: str
+    vault_address: str | None
+    master_or_user_account: str | None = None
+
+    @property
+    def vault_address_present(self) -> bool:
+        return self.vault_address is not None
+
+
+@dataclass(frozen=True)
+class HyperliquidAccountTargetResult:
+    allowed: bool
+    reason_codes: tuple[str, ...]
+    target: HyperliquidAccountTarget | None
+    summary: Mapping[str, Any]
+
+    @property
+    def blocked(self) -> bool:
+        return not self.allowed
+
+
+@dataclass(frozen=True)
+class UAT33PrecisionValidationRow:
+    symbol: str
+    asset_id: int | None
+    sz_decimals: int | None
+    max_price_decimals: int | None
+    sample_mid: str | None
+    formatted_sample_post_only_buy_price: str | None
+    formatted_sample_size: str | None
+    precision_validation_passed: bool
+    reason_codes: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -406,6 +489,21 @@ def build_uat32_artifact_labels() -> UAT31ManualProbeLabels:
     )
 
 
+def build_uat33_artifact_labels() -> UAT31ManualProbeLabels:
+    return UAT31ManualProbeLabels(
+        base=SandboxArtifactLabels(
+            sandbox=True,
+            testnet=True,
+            not_live=True,
+            not_paper=True,
+            uat_run_id=UAT33_RUN_ID,
+            sandbox_order=True,
+            live_endpoint_access=False,
+            real_capital=False,
+        )
+    )
+
+
 def build_uat31_idempotency_key(*, account_id: str, observed_at_utc: datetime) -> str:
     seed = f"{UAT31_RUN_ID}:{UAT31_APPROVAL_ID}:hyperliquid:{account_id}:ETH:{observed_at_utc.isoformat()}"
     return "0x" + hashlib.sha256(seed.encode("utf-8")).hexdigest()[:32]
@@ -414,6 +512,103 @@ def build_uat31_idempotency_key(*, account_id: str, observed_at_utc: datetime) -
 def build_uat32_idempotency_key(*, account_id: str, observed_at_utc: datetime) -> str:
     seed = f"{UAT32_RUN_ID}:{UAT32_APPROVAL_ID}:hyperliquid:{account_id}:ETH:{observed_at_utc.isoformat()}"
     return "0x" + hashlib.sha256(seed.encode("utf-8")).hexdigest()[:32]
+
+
+def build_uat33_idempotency_key(*, account_id: str, observed_at_utc: datetime) -> str:
+    seed = f"{UAT33_RUN_ID}:{UAT33_APPROVAL_ID}:hyperliquid:{account_id}:ETH:{observed_at_utc.isoformat()}"
+    return "0x" + hashlib.sha256(seed.encode("utf-8")).hexdigest()[:32]
+
+
+def _normalize_account_role(role: str | None) -> str | None:
+    normalized = (role or "").strip().lower()
+    aliases = {
+        "master": "master",
+        "user": "user",
+        "normal": "user",
+        "subaccount": "subaccount",
+        "sub_account": "subaccount",
+        "vault": "vault",
+    }
+    return aliases.get(normalized)
+
+
+def _env_truth(value: str | None) -> bool:
+    return (value or "").strip().lower() in {"1", "true", "yes", "y"}
+
+
+def _summary_address(value: str | None) -> str | None:
+    return _abbr_address(value)
+
+
+def resolve_hyperliquid_uat_account_target(
+    *,
+    env: Mapping[str, str | None],
+    signer: str,
+    account_role_payload: Any | None = None,
+) -> HyperliquidAccountTargetResult:
+    """Resolve Hyperliquid signer/account/vault semantics for UAT order payloads."""
+
+    configured_account = str(env.get(HYPERLIQUID_UAT_SANDBOX_ACCOUNT_ENV) or "").strip()
+    raw_target_account = str(env.get(HYPERLIQUID_UAT_SANDBOX_TARGET_ACCOUNT_ENV) or "").strip()
+    target_account = raw_target_account or configured_account
+    master_account = str(env.get(HYPERLIQUID_UAT_SANDBOX_MASTER_ACCOUNT_ENV) or "").strip() or None
+    explicit_vault = str(env.get(HYPERLIQUID_UAT_SANDBOX_VAULT_ADDRESS_ENV) or "").strip() or None
+    configured_role = _normalize_account_role(env.get(HYPERLIQUID_UAT_SANDBOX_ACCOUNT_ROLE_ENV))
+    observed_role = _normalize_account_role(_role_from_payload(account_role_payload))
+    account_is_vault = _env_truth(env.get(HYPERLIQUID_UAT_SANDBOX_ACCOUNT_IS_VAULT_ENV))
+
+    role = configured_role or observed_role
+    if account_is_vault and role is None:
+        role = "vault"
+    if role is None and signer.lower() == target_account.lower():
+        role = "user"
+
+    reasons: list[str] = []
+    if not target_account:
+        reasons.append(UAT33RejectReason.TARGET_ACCOUNT_MISSING)
+    if role is None:
+        reasons.append(UAT33RejectReason.UNKNOWN_ACCOUNT_ROLE)
+
+    vault_address: str | None = None
+    if role in {"master", "user"}:
+        if explicit_vault:
+            reasons.append(UAT33RejectReason.NORMAL_ACCOUNT_VAULT_FORBIDDEN)
+    elif role in {"subaccount", "vault"}:
+        if explicit_vault and not raw_target_account:
+            target_account = explicit_vault
+        vault_address = explicit_vault or raw_target_account
+        if not vault_address and observed_role in {"subaccount", "vault"}:
+            vault_address = configured_account
+        if not vault_address:
+            reasons.append(UAT33RejectReason.VAULT_ADDRESS_REQUIRED)
+    elif role is not None:
+        reasons.append(UAT33RejectReason.UNKNOWN_ACCOUNT_ROLE)
+
+    target = None
+    if not reasons and role is not None:
+        target = HyperliquidAccountTarget(
+            target_account=target_account.lower(),
+            signer_address=signer.lower(),
+            account_role=role,
+            vault_address=vault_address.lower() if vault_address else None,
+            master_or_user_account=(master_account or configured_account or target_account).lower(),
+        )
+
+    summary = {
+        "target_account_abbrev": _summary_address(target_account),
+        "signer_address_abbrev": _summary_address(signer),
+        "account_role": role,
+        "vaultAddress_present": bool(vault_address),
+        "vaultAddress_abbrev_if_present": _summary_address(vault_address),
+        "environment": "testnet",
+        "endpoint_is_testnet": True,
+    }
+    return HyperliquidAccountTargetResult(
+        allowed=not reasons,
+        reason_codes=tuple(dict.fromkeys(reasons)),
+        target=target,
+        summary=summary,
+    )
 
 
 def build_uat31_market_plan(
@@ -427,13 +622,13 @@ def build_uat31_market_plan(
     if not isinstance(universe, list):
         return None, (UAT31RejectReason.ETH_MARKET_METADATA_MISSING,)
     asset_id: int | None = None
-    sz_decimals: int | None = None
+    formatter: HyperliquidPrecisionFormatter | None = None
     for index, asset in enumerate(universe):
         if isinstance(asset, Mapping) and str(asset.get("name", "")).upper() == "ETH":
             asset_id = index
-            sz_decimals = int(asset.get("szDecimals", 4))
+            formatter = hyperliquid_formatter_from_meta_asset(asset_id=index, asset=dict(asset))
             break
-    if asset_id is None or sz_decimals is None:
+    if asset_id is None or formatter is None:
         return None, (UAT31RejectReason.ETH_MARKET_METADATA_MISSING,)
 
     levels = l2_book_payload.get("levels")
@@ -446,18 +641,18 @@ def build_uat31_market_plan(
 
     best_bid = Decimal(str(bids[0].get("px")))
     best_ask = Decimal(str(asks[0].get("px")))
-    price_tick = Decimal("1").scaleb(-(6 - sz_decimals))
-    limit_price = best_bid - price_tick
+    price_result = formatter.format_price_down(best_bid)
+    limit_price = price_result.formatted_value
     if limit_price <= 0 or limit_price >= best_ask:
         return None, (UAT31RejectReason.NON_MARKETABLE_LIMIT_REQUIRED,)
 
-    quantity_step = Decimal("1").scaleb(-sz_decimals)
-    quantity = ((max_notional / limit_price) // quantity_step) * quantity_step
+    quantity_result = formatter.format_size_down(max_notional / limit_price)
+    quantity = quantity_result.formatted_value
     if quantity <= 0:
         return None, (UAT31RejectReason.QUANTITY_NOT_POSITIVE,)
     estimated_notional = quantity * limit_price
     if estimated_notional > max_notional:
-        quantity = (((max_notional / limit_price) - quantity_step) // quantity_step) * quantity_step
+        quantity = formatter.format_size_down(quantity - formatter.size_step).formatted_value
         estimated_notional = quantity * limit_price
     if quantity <= 0 or estimated_notional <= 0:
         return None, (UAT31RejectReason.QUANTITY_NOT_POSITIVE,)
@@ -466,7 +661,7 @@ def build_uat31_market_plan(
         UAT31MarketPlan(
             asset_id=asset_id,
             symbol="ETH",
-            sz_decimals=sz_decimals,
+            sz_decimals=formatter.sz_decimals,
             best_bid=best_bid,
             best_ask=best_ask,
             limit_price=limit_price,
@@ -474,9 +669,102 @@ def build_uat31_market_plan(
             estimated_notional=estimated_notional,
             tif="Alo",
             cloid=cloid,
+            price_precision_reason=price_result.reason,
+            size_precision_reason=quantity_result.reason,
+            max_price_decimals=formatter.max_price_decimals,
         ),
         (),
     )
+
+
+def validate_uat33_universe_precision(
+    *,
+    meta_payload: Mapping[str, Any],
+    mids_payload: Mapping[str, Any],
+    symbols: tuple[str, ...] = UAT33_UNIVERSE_SYMBOLS,
+) -> tuple[UAT33PrecisionValidationRow, ...]:
+    universe = meta_payload.get("universe")
+    mids = mids_payload.get("mids", mids_payload)
+    rows: list[UAT33PrecisionValidationRow] = []
+    if not isinstance(universe, list):
+        return tuple(
+            UAT33PrecisionValidationRow(
+                symbol=symbol,
+                asset_id=None,
+                sz_decimals=None,
+                max_price_decimals=None,
+                sample_mid=None,
+                formatted_sample_post_only_buy_price=None,
+                formatted_sample_size=None,
+                precision_validation_passed=False,
+                reason_codes=("hyperliquid_meta_universe_missing",),
+            )
+            for symbol in symbols
+        )
+
+    by_symbol = {
+        str(asset.get("name", "")).upper(): (index, asset)
+        for index, asset in enumerate(universe)
+        if isinstance(asset, Mapping)
+    }
+    for symbol in symbols:
+        item = by_symbol.get(symbol)
+        if item is None:
+            rows.append(
+                UAT33PrecisionValidationRow(
+                    symbol=symbol,
+                    asset_id=None,
+                    sz_decimals=None,
+                    max_price_decimals=None,
+                    sample_mid=None,
+                    formatted_sample_post_only_buy_price=None,
+                    formatted_sample_size=None,
+                    precision_validation_passed=False,
+                    reason_codes=("unsupported_by_hyperliquid_meta",),
+                )
+            )
+            continue
+        asset_id, asset = item
+        formatter = hyperliquid_formatter_from_meta_asset(asset_id=asset_id, asset=dict(asset))
+        raw_mid = mids.get(symbol) if isinstance(mids, Mapping) else None
+        if raw_mid is None:
+            rows.append(
+                UAT33PrecisionValidationRow(
+                    symbol=symbol,
+                    asset_id=asset_id,
+                    sz_decimals=formatter.sz_decimals,
+                    max_price_decimals=formatter.max_price_decimals,
+                    sample_mid=None,
+                    formatted_sample_post_only_buy_price=None,
+                    formatted_sample_size=None,
+                    precision_validation_passed=False,
+                    reason_codes=("sample_mid_missing",),
+                )
+            )
+            continue
+        mid = Decimal(str(raw_mid))
+        price = formatter.format_price_down(mid)
+        raw_sample_size = Decimal("0")
+        if price.formatted_value > 0:
+            raw_sample_size = max(Decimal("10") / price.formatted_value, formatter.size_step)
+        size = formatter.format_size_down(raw_sample_size) if price.formatted_value > 0 else None
+        passed = bool(price.formatted_value > 0 and size is not None and size.formatted_value > 0)
+        rows.append(
+            UAT33PrecisionValidationRow(
+                symbol=symbol,
+                asset_id=asset_id,
+                sz_decimals=formatter.sz_decimals,
+                max_price_decimals=formatter.max_price_decimals,
+                sample_mid=str(mid),
+                formatted_sample_post_only_buy_price=price.wire_value,
+                formatted_sample_size=size.wire_value if size is not None else None,
+                precision_validation_passed=passed,
+                reason_codes=()
+                if passed
+                else (UAT33RejectReason.PRECISION_VALIDATION_FAILED,),
+            )
+        )
+    return tuple(rows)
 
 
 def _abbr_address(value: str | None) -> str | None:
@@ -503,6 +791,16 @@ def _agent_user_from_payload(payload: Any) -> str | None:
         return None
     user = data.get("user")
     return str(user).lower() if user is not None else None
+
+
+def _subaccount_master_from_payload(payload: Any) -> str | None:
+    if not isinstance(payload, Mapping):
+        return None
+    data = payload.get("data")
+    if not isinstance(data, Mapping):
+        return None
+    master = data.get("master")
+    return str(master).lower() if master is not None else None
 
 
 def evaluate_uat32_account_api_wallet_readiness(
@@ -545,6 +843,12 @@ def evaluate_uat32_account_api_wallet_readiness(
         authorized = True
     elif signer_role == "agent" and _agent_user_from_payload(signer_role_payload) == account:
         authorized = account_role not in {None, "missing", "agent"}
+    elif (
+        signer_role == "agent"
+        and account_role == "subaccount"
+        and _agent_user_from_payload(signer_role_payload) == _subaccount_master_from_payload(account_role_payload)
+    ):
+        authorized = _subaccount_master_from_payload(account_role_payload) is not None
 
     if not authorized:
         reasons.append(UAT32RejectReason.API_WALLET_NOT_AUTHORIZED)
@@ -956,10 +1260,14 @@ class UAT31FirstSandboxOrderAttemptService:
         private_key: str,
         account_id: str,
         is_mainnet: bool,
+        account_target: HyperliquidAccountTarget | None = None,
     ) -> dict[str, Any]:
         nonce = int(time.time() * 1000)
         signer = signer_address(private_key)
-        vault_address = account_id.lower() if signer != account_id.lower() else None
+        if account_target is not None:
+            vault_address = account_target.vault_address
+        else:
+            vault_address = account_id.lower() if signer != account_id.lower() else None
         return {
             "action": action,
             "nonce": nonce,
@@ -1126,6 +1434,28 @@ class UAT32SecondSandboxOrderAttemptService(UAT31FirstSandboxOrderAttemptService
             drawdown_threshold=UAT32_DRAWDOWN_THRESHOLD,
             status=SandboxDrawdownFeedStatus.LIVE_FED_VERIFIED,
         )
+        account_target = resolve_hyperliquid_uat_account_target(
+            env=env,
+            signer=signer,
+            account_role_payload=account_role_payload,
+        )
+        if not account_target.allowed:
+            lifecycle = UAT31LifecycleResult(
+                **{**asdict(empty_lifecycle), "reason_codes": account_target.reason_codes}
+            )
+            return self._blocked_result32(
+                approval_result,
+                lifecycle,
+                tuple(
+                    dict.fromkeys(
+                        [UAT33RejectReason.ACCOUNT_TARGETING_BLOCKED, *account_target.reason_codes]
+                    )
+                ),
+                credential_status=credential_status,
+                drawdown_feed=drawdown_feed,
+                market_plan=market_plan,
+            )
+        assert account_target.target is not None
         readiness = evaluate_uat32_account_api_wallet_readiness(
             account_id=account_id,
             signer=signer,
@@ -1254,6 +1584,7 @@ class UAT32SecondSandboxOrderAttemptService(UAT31FirstSandboxOrderAttemptService
             private_key=private_key,
             account_id=account_id,
             is_mainnet=False,
+            account_target=account_target.target,
         )
         try:
             order_response = await self._transport.post_json("/exchange", order_payload)
@@ -1299,6 +1630,7 @@ class UAT32SecondSandboxOrderAttemptService(UAT31FirstSandboxOrderAttemptService
                 private_key=private_key,
                 account_id=account_id,
                 is_mainnet=False,
+                account_target=account_target.target,
             )
             try:
                 cancel_response = await self._transport.post_json("/exchange", cancel_payload)

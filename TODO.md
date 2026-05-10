@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-10T17:50:18Z`
+Last reviewed: `2026-05-10T19:50:14Z`
 
 ## Active Follow-Ups
 
@@ -55,8 +55,14 @@ Last reviewed: `2026-05-10T17:50:18Z`
 ### T-110
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `UAT3.3 Hyperliquid account targeting and tick/lot precision hardening is complete. The UAT order path now separates normal master/user accounts from API-wallet signers and explicit subaccount/vault targets: normal mode omits vaultAddress, while subaccount/vault mode includes only the configured explicit subaccount/vault address. A Decimal-based Hyperliquid precision formatter uses meta szDecimals, five-significant-figure price rules, and perp max price decimals; UAT3.3 validates formatting across the UAT observation universe and plans ETH post-only prices/sizes with exchange-valid formatting. The approved runner verified account targeting, signer authorization, live-fed sandbox drawdown, runtime/risk/lease/label gates, and produced sanitized reports, then correctly blocked before /exchange because the configured target subaccount reported live-fed sandbox equity of 0.0. Order attempt count was 0; no order/cancel/amend/retry endpoint was called; no production order artifacts, executable approvals, paper/live behavior, routing expansion, Money Flow rule change, evidence pack, live endpoint, broad top-20 submission, or repeated sandbox order was created.`
+
+### T-111
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `UAT3.3 additional sandbox lifecycle testing remains blocked until a separate founder/operator approval exists and Hyperliquid testnet account/API-wallet readiness can prove the target sandbox account is recognized, the signer/API wallet is recognized and authorized, and sufficient testnet equity is available for the tiny nonmarketable/post-only ETH order. UAT3.3 must remain sandbox/testnet only, one explicitly scoped attempt at a time, with no paper/live trading, no broad top-20 submission, no auto-submit, no routing expansion, and no Money Flow rule change.`
+- `summary`: `UAT3.4 additional sandbox lifecycle testing remains blocked until the configured Hyperliquid testnet target account/subaccount has sufficient testnet equity visible through live-fed sandbox account state. Account targeting semantics and ETH precision formatting are now fixed, and the signer/API wallet is recognized as an agent authorized for the target subaccount's master account, but UAT3.3 did not submit because the target subaccount equity gate returned 0.0. Any future attempt still requires separate founder/operator approval, one-attempt-only scope, sandbox/testnet endpoint verification, live-fed not-live-account drawdown, approval/risk/lease/label gates, no live endpoint, no paper/live trading, no broad top-20 submission, no routing/SOR/fanout, and no Money Flow rule change.`
 
 ### T-109
 

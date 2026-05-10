@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-10T17:50:18Z`
+Last reviewed: `2026-05-10T19:50:14Z`
 
 ## Top-Level Structure
 
@@ -80,6 +80,7 @@ Last reviewed: `2026-05-10T17:50:18Z`
 - UAT3.0.6 updates current-state notes after sandbox submit path dry-run wiring: a non-persistent sandbox submission plan and dry-run gate chain now compose actual-submission approval, live-fed drawdown status, approval scope, risk gates, submit-lease duplicate prevention, endpoint classification, and sandbox artifact-label boundary validation without creating order artifacts or calling exchanges. UAT3.1 actual sandbox submission remains blocked.
 - UAT3.1 updates current-state notes after the first approval-gated sandbox/testnet lifecycle probe: exact founder/operator approval was verified, one Hyperliquid testnet ETH post-only limit order attempt under 10 USDC notional was made, the venue rejected the request with a sanitized user/API-wallet-not-found response, no cancel was required, reconciliation found no open order, and no production `OrderIntent`, `PreparedVenueOrder`, `SubmittedOrder`, executable approval, paper/live behavior, routing expansion, Money Flow rule change, or evidence pack was created.
 - UAT3.2 updates current-state notes after the fixed-key preflight / second approval-gated sandbox lifecycle attempt: exact founder/operator approval was verified, fixed-key account/API-wallet readiness blocked before order transport because the testnet user/API wallet was still not recognized/authorized and account equity was insufficient, zero order attempts were made, no order/cancel/amend/retry endpoint was called, and the future UAT4.0 dashboard chart cockpit request was captured as roadmap-only.
+- UAT3.3 updates current-state notes after Hyperliquid account targeting and tick/lot precision hardening: normal master/user mode omits `vaultAddress`, subaccount/vault mode uses only the explicit configured target, the API-wallet signer remains separate from the target account, ETH price/size are formatted with Hyperliquid precision rules, and the approved runner blocked before order transport because the target subaccount live-fed equity was `0.0`. No order endpoint was called.
 - Phase 8.0.1 accepted the previously dirty Obsidian memory refresh as the strategic baseline and updated it to current Phase 8.0/8.0.1 truth.
 - Phase 8.0.2 updates current-phase/coordination/decision notes for active submit-lease operator-summary truth only; full project memory remains untouched.
 - SV1.0.1 updates current-phase/coordination/decision notes for strategy-validation research-truth/report hardening only; full project memory remains untouched.
@@ -228,10 +229,24 @@ Last reviewed: `2026-05-10T17:50:18Z`
 - Records that account/API-wallet readiness blocked before order transport, `order_attempt_count` is `0`, order/cancel endpoints were not called, and all production execution side-effect flags are false.
 - Includes lifecycle status, drawdown status, sandbox labels, side-effect flags, sanitized request/response/reconciliation payloads, and no secret values.
 
+`docs/uat3_3_hyperliquid_account_targeting_precision_and_order_attempt.md`
+- Founder/operator UAT3.3 Hyperliquid account-targeting / precision report.
+- Records account role resolution, `vaultAddress` behavior, signer/target account summaries, UAT-universe precision validation, live-fed sandbox drawdown, runtime/scope/risk/lease/label gates, sanitized planned ETH post-only order shape, zero-attempt blocked lifecycle result, no-live/no-paper/no-secret boundary confirmation, and UAT3.4 blocked decision.
+
+`docs/uat3_3_hyperliquid_account_targeting_precision_and_order_attempt_summary.json`
+- Sanitized machine-readable UAT3.3 summary.
+- Records that account targeting was verified, ETH precision formatting produced an exchange-valid planned post-only shape, live-fed sandbox drawdown was available, but sandbox account equity was `0.0`; therefore `order_attempt_count` is `0`, order/cancel endpoints were not called, and all production execution side-effect flags are false.
+
+`services/exchange/hyperliquid/precision.py`
+- Decimal-only Hyperliquid precision formatter.
+- Uses asset metadata `szDecimals`, perpetual max price decimals `6 - szDecimals`, five-significant-figure price formatting, and size flooring to asset size precision. It is used by UAT3.3 order planning and UAT observation-universe precision validation.
+
 `services/uat/sandbox_order.py`
 - UAT3.1 one-shot sandbox/testnet lifecycle probe helper.
 - UAT3.2 fixed-key preflight / second sandbox/testnet lifecycle-attempt helper.
+- UAT3.3 Hyperliquid account-targeting and precision helper.
 - `scripts/run_uat32_second_sandbox_order.py` refuses to run without `--execute-approved-uat32`, validates exact UAT3.2 founder/operator approval before loading `.env`, writes sanitized UAT3.2 Markdown/JSON reports, and blocks before order transport when account/API-wallet readiness fails.
+- `scripts/run_uat33_hyperliquid_precision_order.py` refuses to run without `--execute-approved-uat33`, resolves normal user/master versus subaccount/vault targeting, validates Hyperliquid precision across the UAT observation universe, writes sanitized UAT3.3 Markdown/JSON reports, and blocks before order transport when the configured target account fails readiness gates.
 - Validates the exact actual-submission approval text, sandbox/testnet endpoint boundary, one-order maximum, manual lifecycle-probe labels, live-fed sandbox drawdown, UAT3 dry-run gates, post-only/non-marketable ETH order shaping, sanitized response summaries, and no production artifact side-effect flags before allowing a single testnet order transport call.
 
 `services/uat/sandbox.py`

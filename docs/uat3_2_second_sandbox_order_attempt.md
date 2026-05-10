@@ -177,3 +177,11 @@ UAT3.2 does not implement this dashboard phase.
 ## Next Readiness Decision
 
 `UAT3.3 is blocked`
+
+## UAT3.3 Follow-Up
+
+Status: `implemented`
+
+UAT3.3 later resolved the Hyperliquid account-targeting ambiguity and ETH tick/lot precision blocker. Normal master/user mode now omits `vaultAddress`; subaccount/vault mode uses only the explicit configured subaccount/vault target. The UAT3.3 runner verified signer authorization for the configured subaccount, generated a sanitized exchange-valid ETH post-only planned order under 10 USDC notional, and then correctly blocked before `/exchange` because the target subaccount live-fed sandbox equity was `0.0`.
+
+UAT3.3 did not submit an order, did not call order/cancel/amend/retry endpoints, and did not approve paper trading, live trading, broad top-20 order submission, or future orders.

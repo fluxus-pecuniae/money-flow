@@ -12,5 +12,7 @@ path in dry-run mode only, with no order transport. UAT3.1 helpers support one
 explicitly founder-approved Hyperliquid testnet lifecycle probe without creating
 production execution artifacts or authorizing paper/live trading. UAT3.2 helpers
 add fixed-key account/API-wallet readiness before a second approved sandbox
-lifecycle attempt and block before order transport when readiness fails.
+lifecycle attempt and block before order transport when readiness fails. UAT3.3
+helpers harden Hyperliquid account targeting and precision before any approved
+sandbox transport and still block when target-account equity is insufficient.
 """
