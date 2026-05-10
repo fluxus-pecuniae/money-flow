@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-10T09:22:47Z - UAT2.1 - UAT2 Dashboard Review Surface Complete, UAT3 Still Blocked
+
+- `decision`: Add a review-only UAT2 Shadow Run dashboard view and founder approval readiness pack for the completed UAT2 no-order shadow run.
+- `why`: Founder/operator review needs to inspect the 45 UAT2 shadow audit records, would-open versus no-trade outcomes, ETH `sleeve_1h` candidate truth, timing assumptions, shadow drawdown labels, forbidden-artifact boundary flags, and UAT3 blockers without reading only Markdown/JSON.
+- `scope`: UAT2.1 visualizes `docs/uat2_shadow_strategy_top20_observation_summary.json` in the existing static dashboard and adds docs/tests. It does not implement UAT3, submit sandbox orders, create executable approvals, create `StrategyDecision`, `SignalEvent`, `OrderIntent`, `PreparedVenueOrder`, `ExecutionReadinessAssessment`, `SubmittedOrder`, or routing artifacts, call private/signed endpoints, use API keys, approve paper/live trading, change Money Flow rules, or generate evidence packs.
+- `result`: The dashboard shows summary cards, a filterable signal matrix, would-open review, no-trade reason breakdowns, the ETH evidence-candidate card, `next_candle_open` / `next_candle_close` timing status, `same_candle_close_research_only` research-only truth, not-live-account shadow drawdown, UAT3 blockers, and no-forbidden-artifact boundary flags.
+- `follow_up_implications`: UAT3 remains blocked until explicit founder/operator approval accepts sandbox-order design scope and sandbox account drawdown feed wiring plus approval/submit-lease lifecycle verification are addressed.
+
 ## 2026-05-10T08:38:49Z - UAT2 - No-Order Shadow Observation Complete, UAT3 Blocked
 
 - `decision`: Complete UAT2 as a bounded no-order Money Flow shadow observation across the UAT1 Hyperliquid top-20-supported universe using public read-only candles and shadow audit records only.

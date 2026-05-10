@@ -12,6 +12,10 @@
     "../../docs/strategy_validation_sv1_17_true_replay_experiments_summary.json",
   ];
 
+  const DEFAULT_UAT2_SUMMARY_FILES = [
+    "../../docs/uat2_shadow_strategy_top20_observation_summary.json",
+  ];
+
   const SV115_BASELINE = [
     {
       component: "sleeve_15m",
@@ -396,6 +400,13 @@
     activeView: "evidence",
     experimentMode: "sv115_overlays",
     sv117FullSuiteRows: null,
+    uat2Summary: null,
+    uatFilters: {
+      symbol: "all",
+      component: "all",
+      status: "all",
+      reason: "all",
+    },
   };
 
   const elements = {
@@ -441,6 +452,21 @@
     experimentFindings: document.querySelector("#experiment-findings"),
     experimentMethodology: document.querySelector("#experiment-methodology"),
     experimentTable: document.querySelector("#experiment-table"),
+    uatSummaryCards: document.querySelector("#uat-summary-cards"),
+    uatSymbolFilter: document.querySelector("#uat-symbol-filter"),
+    uatComponentFilter: document.querySelector("#uat-component-filter"),
+    uatStatusFilter: document.querySelector("#uat-status-filter"),
+    uatReasonFilter: document.querySelector("#uat-reason-filter"),
+    uatEthCandidateCard: document.querySelector("#uat-eth-candidate-card"),
+    uat3ReadinessPanel: document.querySelector("#uat3-readiness-panel"),
+    uatBoundaryPanel: document.querySelector("#uat-boundary-panel"),
+    uatSignalMatrix: document.querySelector("#uat-signal-matrix"),
+    uatWouldOpenTable: document.querySelector("#uat-would-open-table"),
+    uatNoTradeOverall: document.querySelector("#uat-no-trade-overall"),
+    uatNoTradeComponent: document.querySelector("#uat-no-trade-component"),
+    uatNoTradeSymbol: document.querySelector("#uat-no-trade-symbol"),
+    uatTimingPanel: document.querySelector("#uat-timing-panel"),
+    uatDrawdownCard: document.querySelector("#uat-drawdown-card"),
   };
 
   function decimal(value, fallback = 0) {
@@ -544,7 +570,9 @@
   }
 
   function setActiveView(view) {
-    state.activeView = ["evidence", "experiments", "strategy"].includes(view) ? view : "evidence";
+    state.activeView = ["evidence", "experiments", "uat-shadow", "strategy"].includes(view)
+      ? view
+      : "evidence";
     elements.viewTabs.forEach((tab) => {
       tab.setAttribute("aria-selected", String(tab.dataset.view === state.activeView));
     });
@@ -1202,6 +1230,404 @@
     renderExperimentTable();
   }
 
+  function uatRecords() {
+    return Array.isArray(state.uat2Summary?.audit_records) ? state.uat2Summary.audit_records : [];
+  }
+
+  function countRecordsBy(records, key) {
+    return records.reduce((counts, row) => {
+      const value = row[key] || "unknown";
+      counts[value] = (counts[value] || 0) + 1;
+      return counts;
+    }, {});
+  }
+
+  function countNoTradeReasons(records) {
+    const counts = {};
+    records
+      .filter((row) => row.signal_status === "no_trade")
+      .forEach((row) => {
+        (row.reason_codes || ["unknown"]).forEach((reason) => {
+          counts[reason] = (counts[reason] || 0) + 1;
+        });
+      });
+    return Object.entries(counts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  }
+
+  function uniqueSorted(values) {
+    return Array.from(new Set(values.filter(Boolean))).sort((a, b) => String(a).localeCompare(String(b)));
+  }
+
+  function renderSelect(select, values, activeValue, labelAll) {
+    if (!select) return;
+    select.innerHTML = [
+      `<option value="all">${escapeHtml(labelAll)}</option>`,
+      ...values.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`),
+    ].join("");
+    select.value = values.includes(activeValue) ? activeValue : "all";
+  }
+
+  function uatFilteredRecords(records) {
+    const filters = state.uatFilters;
+    return records.filter((row) => {
+      const reasons = row.reason_codes || [];
+      return (
+        (filters.symbol === "all" || row.symbol === filters.symbol) &&
+        (filters.component === "all" || row.component === filters.component) &&
+        (filters.status === "all" || row.signal_status === filters.status) &&
+        (filters.reason === "all" || reasons.includes(filters.reason))
+      );
+    });
+  }
+
+  function renderUatFilters(records) {
+    const symbols = uniqueSorted(records.map((row) => row.symbol));
+    const components = uniqueSorted(records.map((row) => row.component));
+    const statuses = uniqueSorted(records.map((row) => row.signal_status));
+    const reasons = uniqueSorted(records.flatMap((row) => row.reason_codes || []));
+
+    renderSelect(elements.uatSymbolFilter, symbols, state.uatFilters.symbol, "All symbols");
+    renderSelect(elements.uatComponentFilter, components, state.uatFilters.component, "All components");
+    renderSelect(elements.uatStatusFilter, statuses, state.uatFilters.status, "All statuses");
+    renderSelect(elements.uatReasonFilter, reasons, state.uatFilters.reason, "All reasons");
+
+    [
+      [elements.uatSymbolFilter, "symbol"],
+      [elements.uatComponentFilter, "component"],
+      [elements.uatStatusFilter, "status"],
+      [elements.uatReasonFilter, "reason"],
+    ].forEach(([select, key]) => {
+      if (!select) return;
+      select.onchange = () => {
+        state.uatFilters[key] = select.value || "all";
+        renderUatDashboard();
+      };
+    });
+  }
+
+  function renderUatSummaryCards(records) {
+    if (!elements.uatSummaryCards) return;
+    const summary = state.uat2Summary;
+    const signalCounts = countRecordsBy(records, "signal_status");
+    const fetchResults = Array.isArray(summary?.candle_fetch_results) ? summary.candle_fetch_results : [];
+    const successes = fetchResults.filter((row) => row.success).length;
+    const failures = fetchResults.filter((row) => !row.success).length;
+    const boundary = summary?.boundary_flags || {};
+    const mode = summary?.mode || {};
+    const cards = [
+      ["Run id", summary?.run_id || "not loaded", "bounded shadow run"],
+      ["Runtime mode", mode.runtime_mode || "unknown", "explicit UAT mode"],
+      ["Shadow only", String(Boolean(mode.shadow_only)), "no order action"],
+      ["Symbols", String((summary?.symbols_evaluated || []).length), (summary?.symbols_evaluated || []).join(", ")],
+      ["Components", String((summary?.components_evaluated || []).length), (summary?.components_evaluated || []).join(", ")],
+      ["Shadow records", String(records.length), "audit records"],
+      ["Would open", String(signalCounts.would_open || 0), "shadow would-open"],
+      ["No trade", String(signalCounts.no_trade || 0), "shadow no-trade"],
+      ["Invalid", String(signalCounts.invalid || 0), "shadow invalid"],
+      ["Risk blocked", String(signalCounts.risk_blocked || 0), "shadow risk-blocked"],
+      ["Candle fetch OK", String(successes), "public read-only"],
+      ["Candle fetch fail", String(failures), "public read-only"],
+      ["No API keys used", String(boundary.api_keys_used === false), "boundary flag"],
+      ["No private endpoints", String(boundary.private_endpoints_called === false), "boundary flag"],
+      ["No signed endpoints", String(boundary.signed_endpoints_called === false), "boundary flag"],
+      ["No order endpoints", String(boundary.order_endpoints_called === false), "boundary flag"],
+      ["No orders submitted", String(boundary.orders_submitted === false), "boundary flag"],
+      ["No strategy decisions", String(boundary.strategy_decisions_created === false), "boundary flag"],
+      ["No order intents", String(boundary.order_intents_created === false), "boundary flag"],
+      ["No submitted orders", String(boundary.submitted_orders_created === false), "boundary flag"],
+    ];
+
+    elements.uatSummaryCards.innerHTML = cards
+      .map(
+        ([label, value, detail]) => `
+          <article class="metric-cell">
+            <span class="metric-label">${escapeHtml(label)}</span>
+            <strong>${escapeHtml(value)}</strong>
+            <small>${escapeHtml(detail)}</small>
+          </article>
+        `,
+      )
+      .join("");
+  }
+
+  function renderUatSignalMatrix(rows) {
+    if (!elements.uatSignalMatrix) return;
+    if (!rows.length) {
+      setEmpty(elements.uatSignalMatrix, "No UAT2 shadow records match the selected filters.");
+      return;
+    }
+    elements.uatSignalMatrix.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Component</th>
+            <th>Timeframe</th>
+            <th>Status</th>
+            <th>Reason Codes</th>
+            <th>Next Open</th>
+            <th>Next Close</th>
+            <th>Risk Status</th>
+            <th>Operator Explanation</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map((row) => `
+            <tr>
+              <td>${escapeHtml(row.symbol)}</td>
+              <td>${escapeHtml(row.component)}</td>
+              <td>${escapeHtml(row.timeframe)}</td>
+              <td><span class="pill ${row.signal_status === "would_open" ? "warn" : "good"}">${escapeHtml(row.signal_status)}</span></td>
+              <td>${escapeHtml((row.reason_codes || []).join(", ") || "none")}</td>
+              <td>${escapeHtml(row.timing_status_by_assumption?.next_candle_open || "not_applicable")}</td>
+              <td>${escapeHtml(row.timing_status_by_assumption?.next_candle_close || "not_applicable")}</td>
+              <td>${escapeHtml(row.risk_summary?.risk_status || "unknown")}</td>
+              <td>${escapeHtml(row.operator_visible_explanation || "")}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderUatWouldOpen(records) {
+    if (!elements.uatWouldOpenTable) return;
+    const rows = records.filter((row) => row.signal_status === "would_open");
+    if (!rows.length) {
+      setEmpty(elements.uatWouldOpenTable, "No shadow would-open records loaded.");
+      return;
+    }
+    elements.uatWouldOpenTable.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Component</th>
+            <th>Candle Close</th>
+            <th>Reason Codes</th>
+            <th>Latest Close</th>
+            <th>RSI</th>
+            <th>MACD / Hist</th>
+            <th>EMA5 / EMA10 / SMA20</th>
+            <th>Next Open</th>
+            <th>Next Close</th>
+            <th>Risk Summary</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map((row) => {
+            const ind = row.indicator_summary || {};
+            return `
+              <tr>
+                <td>${escapeHtml(row.symbol)}</td>
+                <td>${escapeHtml(`${row.component} / ${row.timeframe}`)}</td>
+                <td>${escapeHtml(row.candle_close_time_utc)}</td>
+                <td>${escapeHtml((row.reason_codes || []).join(", "))}</td>
+                <td>${escapeHtml(ind.latest_close)}</td>
+                <td>${escapeHtml(ind.rsi14)}</td>
+                <td>${escapeHtml(`${ind.macd || "n/a"} / ${ind.macd_histogram || "n/a"}`)}</td>
+                <td>${escapeHtml(`${ind.ema5 || "n/a"} / ${ind.ema10 || "n/a"} / ${ind.sma20 || "n/a"}`)}</td>
+                <td>${escapeHtml(`${row.timing_status_by_assumption?.next_candle_open || "n/a"}: ${ind.next_candle_open || "n/a"}`)}</td>
+                <td>${escapeHtml(`${row.timing_status_by_assumption?.next_candle_close || "n/a"}: ${ind.next_candle_close || "n/a"}`)}</td>
+                <td>${escapeHtml(row.risk_summary?.risk_status || "unknown")}</td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderUatNoTradeBreakdown(records) {
+    const overall = countNoTradeReasons(records);
+    if (!overall.length) {
+      setEmpty(elements.uatNoTradeOverall, "No no-trade records loaded.");
+    } else {
+      const max = Math.max(...overall.map(([, count]) => count), 1);
+      elements.uatNoTradeOverall.innerHTML = overall
+        .map(([reason, count]) => `
+          <div class="bar-row">
+            <span class="bar-label">${escapeHtml(reason)}</span>
+            <div class="bar-track"><div class="bar-fill positive" style="width:${Math.max(3, Math.round((count / max) * 100))}%"></div></div>
+            <span class="bar-value">${escapeHtml(count)}</span>
+          </div>
+        `)
+        .join("");
+    }
+
+    const renderGroupedReasons = (target, groupKey) => {
+      if (!target) return;
+      const grouped = {};
+      records
+        .filter((row) => row.signal_status === "no_trade")
+        .forEach((row) => {
+          const group = row[groupKey] || "unknown";
+          grouped[group] ||= {};
+          (row.reason_codes || ["unknown"]).forEach((reason) => {
+            grouped[group][reason] = (grouped[group][reason] || 0) + 1;
+          });
+        });
+      const rows = Object.entries(grouped).sort((a, b) => a[0].localeCompare(b[0]));
+      if (!rows.length) {
+        setEmpty(target, "No grouped no-trade reasons loaded.");
+        return;
+      }
+      target.innerHTML = `
+        <table>
+          <thead><tr><th>${escapeHtml(groupKey)}</th><th>Reason Counts</th></tr></thead>
+          <tbody>
+            ${rows.map(([group, counts]) => `
+              <tr>
+                <td>${escapeHtml(group)}</td>
+                <td>${escapeHtml(Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([reason, count]) => `${reason}: ${count}`).join(", "))}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    };
+
+    renderGroupedReasons(elements.uatNoTradeComponent, "component");
+    renderGroupedReasons(elements.uatNoTradeSymbol, "symbol");
+  }
+
+  function renderUatEthCandidate(records) {
+    if (!elements.uatEthCandidateCard) return;
+    const record = records.find((row) => row.symbol === "ETH" && row.component === "sleeve_1h");
+    const reasons = record?.reason_codes?.join(", ") || "not loaded";
+    elements.uatEthCandidateCard.innerHTML = `
+      <article class="component-card" aria-current="true">
+        <div class="component-card-header">
+          <span class="component-card-title">money_flow_hyperliquid_eth_1h_baseline_uat_candidate</span>
+          <span>observation-only</span>
+        </div>
+        <p class="card-note">Hyperliquid ETH USDC perpetual / sleeve_1h / current baseline Money Flow rules.</p>
+        <div class="component-card-metrics">
+          <div class="mini-metric"><span>UAT2 status</span><strong>${escapeHtml(record?.signal_status || "not loaded")}</strong></div>
+          <div class="mini-metric"><span>Reason</span><strong>${escapeHtml(reasons)}</strong></div>
+          <div class="mini-metric"><span>Orders</span><strong>not approved</strong></div>
+        </div>
+        <p class="strategy-note">Evidence candidate status: observation candidate only. Paper trading: not approved. Live trading: not approved. Order submission: not approved.</p>
+      </article>
+    `;
+  }
+
+  function renderUatTimingAndDrawdown(records) {
+    if (elements.uatTimingPanel) {
+      const timingCounts = records.reduce((counts, row) => {
+        ["next_candle_open", "next_candle_close"].forEach((key) => {
+          const status = row.timing_status_by_assumption?.[key] || "not_applicable";
+          counts[`${key}:${status}`] = (counts[`${key}:${status}`] || 0) + 1;
+        });
+        return counts;
+      }, {});
+      elements.uatTimingPanel.innerHTML = `
+        <ul class="check-list">
+          <li><strong>next_candle_open</strong>: represented in UAT2 shadow records.</li>
+          <li><strong>next_candle_close</strong>: represented in UAT2 shadow records.</li>
+          <li><strong>same_candle_close_research_only</strong>: excluded from UAT2 primary action assumptions and remains research-only.</li>
+          <li>Timing status counts: ${escapeHtml(Object.entries(timingCounts).map(([key, value]) => `${key}=${value}`).join(", "))}</li>
+          <li>UAT2 does not execute any action from these assumptions.</li>
+        </ul>
+      `;
+    }
+    if (!elements.uatDrawdownCard) return;
+    const drawdown = state.uat2Summary?.shadow_drawdown_state || {};
+    elements.uatDrawdownCard.innerHTML = `
+      <div class="boundary-grid">
+        <div><span>Source</span><strong>${escapeHtml(drawdown.source || "not loaded")}</strong></div>
+        <div><span>Not live account drawdown</span><strong>${escapeHtml(String(Boolean(drawdown.not_live_account_drawdown)))}</strong></div>
+        <div><span>Initial shadow equity</span><strong>${escapeHtml(drawdown.initial_shadow_equity ?? "n/a")}</strong></div>
+        <div><span>Current shadow equity</span><strong>${escapeHtml(drawdown.current_shadow_equity ?? "n/a")}</strong></div>
+        <div><span>Max drawdown amount</span><strong>${escapeHtml(drawdown.max_drawdown_amount ?? "n/a")}</strong></div>
+        <div><span>Max drawdown percent</span><strong>${escapeHtml(drawdown.max_drawdown_percent ?? "n/a")}</strong></div>
+        <div><span>Threshold breached</span><strong>${escapeHtml(String(Boolean(drawdown.threshold_breached)))}</strong></div>
+        <div><span>Reason codes</span><strong>${escapeHtml((drawdown.reason_codes || []).join(", ") || "none")}</strong></div>
+      </div>
+      <div class="warning-banner">UAT2 did not simulate PnL. This is not live account drawdown. This is not performance validation.</div>
+    `;
+  }
+
+  function renderUatReadinessAndBoundaries() {
+    if (elements.uat3ReadinessPanel) {
+      const blockers = state.uat2Summary?.remaining_blockers || [];
+      elements.uat3ReadinessPanel.innerHTML = `
+        <div class="warning-banner"><strong>UAT3 is blocked.</strong></div>
+        <ul class="check-list">
+          ${blockers.map((blocker) => `<li>${escapeHtml(blocker)}</li>`).join("")}
+          <li>Founder approval at this stage would approve UAT3 sandbox-order design/scoping only.</li>
+          <li>It would not approve actual sandbox order submission.</li>
+          <li>It would not approve paper trading.</li>
+          <li>It would not approve live trading.</li>
+          <li>No interactive approval action exists in this dashboard.</li>
+        </ul>
+      `;
+    }
+
+    if (!elements.uatBoundaryPanel) return;
+    const boundary = state.uat2Summary?.boundary_flags || {};
+    const fields = [
+      "api_keys_used",
+      "private_endpoints_called",
+      "signed_endpoints_called",
+      "order_endpoints_called",
+      "orders_submitted",
+      "strategy_decisions_created",
+      "signal_events_created",
+      "order_intents_created",
+      "prepared_orders_created",
+      "execution_readiness_assessments_created",
+      "submitted_orders_created",
+      "approvals_created",
+      "routing_artifacts_created",
+      "paper_trading_added",
+      "live_trading_added",
+      "evidence_packs_generated",
+      "money_flow_rules_changed",
+    ];
+    elements.uatBoundaryPanel.innerHTML = fields
+      .map((field) => {
+        const value = Boolean(boundary[field]);
+        return `
+          <div class="${value ? "critical" : ""}">
+            <span>${escapeHtml(field)}</span>
+            <strong>${escapeHtml(String(value))}</strong>
+          </div>
+        `;
+      })
+      .join("");
+  }
+
+  function renderUatDashboard() {
+    const records = uatRecords();
+    if (!state.uat2Summary) {
+      if (elements.uatSummaryCards) setEmpty(elements.uatSummaryCards, "UAT2 summary JSON not loaded.");
+      [
+        elements.uatSignalMatrix,
+        elements.uatWouldOpenTable,
+        elements.uatEthCandidateCard,
+        elements.uat3ReadinessPanel,
+        elements.uatBoundaryPanel,
+        elements.uatNoTradeOverall,
+        elements.uatNoTradeComponent,
+        elements.uatNoTradeSymbol,
+        elements.uatTimingPanel,
+        elements.uatDrawdownCard,
+      ].forEach((target) => {
+        if (target) setEmpty(target, "Load docs/uat2_shadow_strategy_top20_observation_summary.json.");
+      });
+      return;
+    }
+    renderUatFilters(records);
+    renderUatSummaryCards(records);
+    renderUatEthCandidate(records);
+    renderUatReadinessAndBoundaries();
+    renderUatSignalMatrix(uatFilteredRecords(records));
+    renderUatWouldOpen(records);
+    renderUatNoTradeBreakdown(records);
+    renderUatTimingAndDrawdown(records);
+  }
+
   function render() {
     const summaries = allSummaries();
     const selected = activeSummaries();
@@ -1212,6 +1638,7 @@
     renderDetail(selected);
     renderRunTable(selected);
     renderExperiments();
+    renderUatDashboard();
   }
 
   function classifyJson(payload) {
@@ -1220,6 +1647,7 @@
     if (Array.isArray(payload?.summary_rows) && payload?.report === "sv1_17_true_replay_experiment_summary") {
       return "experiment_summary";
     }
+    if (Array.isArray(payload?.audit_records) && payload?.uat3_readiness_decision) return "uat2_shadow_summary";
     return "unknown";
   }
 
@@ -1237,6 +1665,7 @@
     }
 
     await loadDefaultExperimentSummaries();
+    await loadDefaultUat2Summaries();
 
     if (!loaded.length) {
       elements.sourceLabel.textContent = "Manual load";
@@ -1283,6 +1712,7 @@
         if (type === "review") state.review = payload;
         if (type === "batch") state.batches.push(payload);
         if (type === "experiment_summary") state.sv117FullSuiteRows = normalizeReplayRows(payload.summary_rows);
+        if (type === "uat2_shadow_summary") state.uat2Summary = payload;
       });
       state.selectedComponent = "all";
       elements.sourceLabel.textContent = "Manual JSON loaded";
@@ -1299,6 +1729,21 @@
         const payload = await response.json();
         if (classifyJson(payload) === "experiment_summary") {
           state.sv117FullSuiteRows = normalizeReplayRows(payload.summary_rows);
+        }
+      } catch (error) {
+        console.warn(`Could not load ${path}`, error);
+      }
+    }
+  }
+
+  async function loadDefaultUat2Summaries() {
+    for (const path of DEFAULT_UAT2_SUMMARY_FILES) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        if (classifyJson(payload) === "uat2_shadow_summary") {
+          state.uat2Summary = payload;
         }
       } catch (error) {
         console.warn(`Could not load ${path}`, error);

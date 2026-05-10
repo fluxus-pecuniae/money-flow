@@ -4,7 +4,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 UAT validates plumbing and behavior. It does not prove profitability.
 
-Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, UAT1.1 shadow readiness is complete, and UAT2 bounded no-order shadow strategy observation is complete. UAT3 sandbox orders remain blocked.
+Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, UAT1.1 shadow readiness is complete, UAT2 bounded no-order shadow strategy observation is complete, and UAT2.1 dashboard visualization is complete. UAT3 sandbox orders remain blocked.
 
 ## Frozen Observation Candidate
 
@@ -62,7 +62,7 @@ Required docs/tests: read-only adapter tests, secret hygiene tests, sandbox runb
 
 Objective: observe signals and would-trade decisions across the top-20 supported-asset universe without order submission.
 
-Status: complete. UAT2 ran a bounded no-order shadow evaluation over the UAT1 Hyperliquid observation universe using public read-only candles and shadow audit records only.
+Status: complete. UAT2 ran a bounded no-order shadow evaluation over the UAT1 Hyperliquid observation universe using public read-only candles and shadow audit records only. UAT2.1 then added the review-only dashboard visualization for the UAT2 summary JSON.
 
 Allowed behavior: shadow signal generation, would-trade logging, compare `next_candle_open`, compare `next_candle_close`, no-trade logging, risk observation, dashboard/operator inspection.
 
@@ -72,7 +72,23 @@ Success criteria: signals are explainable, gated, auditable, and safe under runt
 
 Likely files/modules: strategy runtime, API inspection, dashboard.
 
-Required docs/tests: shadow-mode tests, decision/audit tests, dashboard labeling tests.
+Required docs/tests: shadow-mode tests, decision/audit tests, dashboard labeling tests. UAT2.1 covers the current dashboard visualization layer and keeps UAT3 approval readiness informational only.
+
+## UAT2.1 - Dashboard Visualization + Founder Approval Readiness Pack
+
+Objective: make the UAT2 shadow run visually reviewable without enabling orders or approval actions.
+
+Status: complete. The static dashboard has a UAT2 Shadow Run view that loads `docs/uat2_shadow_strategy_top20_observation_summary.json`, displays summary cards, a filterable signal matrix, would-open records, no-trade reason breakdowns, the ETH evidence-candidate card, timing assumptions, shadow drawdown, boundary flags, and UAT3 blockers.
+
+Allowed behavior: local dashboard visualization, manual JSON loading, founder/operator review, docs/tests.
+
+Forbidden behavior: order submission, executable approvals, paper trades, live trades, private/signed endpoints, API keys, routing expansion, Money Flow rule changes.
+
+Success criteria: the founder can review the UAT2 shadow run and UAT3 blockers while seeing that would-open records are not orders and that UAT3 remains blocked.
+
+Likely files/modules: `apps/dashboard/`, `docs/uat2_1_dashboard_visualization_and_approval_readiness.md`, operational docs.
+
+Required docs/tests: dashboard static asset tests, UAT2.1 visualization tests, operational-doc current-state tests.
 
 ## UAT3 - Approval-Gated Sandbox Orders
 

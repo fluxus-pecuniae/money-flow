@@ -39,6 +39,7 @@
       <nav class="view-tabs" aria-label="Dashboard sections">
         <button class="view-tab" type="button" data-view="evidence" aria-selected="true">Evidence</button>
         <button class="view-tab" type="button" data-view="experiments" aria-selected="false">Experiments</button>
+        <button class="view-tab" type="button" data-view="uat-shadow" aria-selected="false">UAT2 Shadow Run</button>
         <button class="view-tab" type="button" data-view="strategy" aria-selected="false">Strategy</button>
       </nav>
 
@@ -196,6 +197,129 @@
             <p>Completed-trade overlays and diagnostics, not true forward replays or authorization.</p>
           </div>
           <div id="experiment-table" class="data-table-shell"></div>
+        </section>
+      </section>
+
+      <section id="uat-shadow-view" class="dashboard-view" data-view-panel="uat-shadow" hidden>
+        <section class="strategy-panel" aria-labelledby="uat-shadow-title">
+          <div class="section-heading">
+            <h2 id="uat-shadow-title">UAT2 Shadow Run</h2>
+            <p id="uat-shadow-subtitle">No-order shadow observation from <code>docs/uat2_shadow_strategy_top20_observation_summary.json</code>.</p>
+          </div>
+
+          <section class="toolbar-band" aria-label="UAT2 shadow filters">
+            <div class="uat-filter-grid">
+              <label>
+                <span>Symbol</span>
+                <select id="uat-symbol-filter"></select>
+              </label>
+              <label>
+                <span>Component</span>
+                <select id="uat-component-filter"></select>
+              </label>
+              <label>
+                <span>Status</span>
+                <select id="uat-status-filter"></select>
+              </label>
+              <label>
+                <span>Reason</span>
+                <select id="uat-reason-filter"></select>
+              </label>
+            </div>
+            <div class="boundary-flags">
+              <span class="pill warn">Shadow only</span>
+              <span class="pill warn">Observation-only universe</span>
+              <span class="pill warn">No order action</span>
+            </div>
+          </section>
+        </section>
+
+        <section id="uat-summary-cards" class="metric-grid metric-grid-wide" aria-label="UAT2 summary cards"></section>
+
+        <section class="split-layout">
+          <section class="component-panel" aria-labelledby="uat-eth-title">
+            <div class="section-heading">
+              <h2 id="uat-eth-title">ETH Evidence Candidate</h2>
+              <p>Observation candidate only.</p>
+            </div>
+            <div id="uat-eth-candidate-card" class="component-list"></div>
+          </section>
+
+          <section class="detail-panel" aria-labelledby="uat-readiness-title">
+            <div class="section-heading">
+              <h2 id="uat-readiness-title">UAT3 Approval Readiness</h2>
+              <p>Blocked; review/scoping only.</p>
+            </div>
+            <div class="detail-grid">
+              <div class="detail-box detail-box-wide">
+                <h3>Readiness Panel</h3>
+                <div id="uat3-readiness-panel"></div>
+              </div>
+              <div class="detail-box detail-box-wide">
+                <h3>Boundary Confirmation</h3>
+                <div id="uat-boundary-panel" class="boundary-grid"></div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="table-panel" aria-labelledby="uat-matrix-title">
+          <div class="section-heading">
+            <h2 id="uat-matrix-title">Signal Matrix</h2>
+            <p>Filterable shadow records; would-open is not an order.</p>
+          </div>
+          <div id="uat-signal-matrix" class="data-table-shell"></div>
+        </section>
+
+        <section class="table-panel" aria-labelledby="uat-would-open-title">
+          <div class="section-heading">
+            <h2 id="uat-would-open-title">Would-Open Signals</h2>
+            <p>Shadow conditions met; no order intent was created and no order was submitted.</p>
+          </div>
+          <div class="warning-banner">
+            Would-open means the shadow strategy conditions were met. No order intent was created. No order was submitted.
+          </div>
+          <div id="uat-would-open-table" class="data-table-shell"></div>
+        </section>
+
+        <section class="split-layout">
+          <section class="detail-panel" aria-labelledby="uat-no-trade-title">
+            <div class="section-heading">
+              <h2 id="uat-no-trade-title">No-Trade Reason Breakdown</h2>
+              <p>No-trade is an observed shadow decision, not a failure.</p>
+            </div>
+            <div class="detail-grid">
+              <div class="detail-box detail-box-wide">
+                <h3>Overall</h3>
+                <div id="uat-no-trade-overall" class="bar-list"></div>
+              </div>
+              <div class="detail-box detail-box-wide">
+                <h3>By Component</h3>
+                <div id="uat-no-trade-component" class="data-table-shell"></div>
+              </div>
+              <div class="detail-box detail-box-wide">
+                <h3>By Symbol</h3>
+                <div id="uat-no-trade-symbol" class="data-table-shell"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="detail-panel" aria-labelledby="uat-timing-title">
+            <div class="section-heading">
+              <h2 id="uat-timing-title">Timing And Drawdown</h2>
+              <p>Timing assumptions are represented only; UAT2 executes no action.</p>
+            </div>
+            <div class="detail-grid">
+              <div class="detail-box detail-box-wide">
+                <h3>Timing Assumptions</h3>
+                <div id="uat-timing-panel"></div>
+              </div>
+              <div class="detail-box detail-box-wide">
+                <h3>Shadow Drawdown</h3>
+                <div id="uat-drawdown-card"></div>
+              </div>
+            </div>
+          </section>
         </section>
       </section>
 

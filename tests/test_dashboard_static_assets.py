@@ -21,6 +21,15 @@ def test_evidence_dashboard_uses_gus_design_tokens_and_boundaries() -> None:
     assert "box-shadow" not in css
     assert "Evidence Dashboard" in html
     assert "data-view=\"experiments\"" in html
+    assert "data-view=\"uat-shadow\"" in html
+    assert "UAT2 Shadow Run" in html
+    assert "uat2_shadow_strategy_top20_observation_summary.json" in js
+    assert "renderUatDashboard" in js
+    assert "uat-signal-matrix" in html
+    assert "uat-would-open-table" in html
+    assert "uat-boundary-panel" in html
+    assert "Would-open means the shadow strategy conditions were met" in html
+    assert "No interactive approval action exists" in js
     assert "SV1.15 Hypothesis Experiments" in html
     assert "experiment-replay-filter" in html
     assert "SV1.16 True Replay Results" in js

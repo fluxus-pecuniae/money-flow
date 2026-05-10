@@ -172,3 +172,9 @@ Remaining blockers:
 - `uat3_approval_submit_lease_lifecycle_verification_required`
 
 UAT3 may not submit sandbox orders until a later explicit phase scopes approval-gated sandbox order design and the founder/operator explicitly accepts that scope.
+
+## UAT2.1 Dashboard Follow-Up
+
+UAT2.1 adds dashboard visualization for this UAT2 summary in `apps/dashboard/` and documents the review surface in `docs/uat2_1_dashboard_visualization_and_approval_readiness.md`.
+
+The dashboard UAT2 tab loads `docs/uat2_shadow_strategy_top20_observation_summary.json`, shows the 45 shadow records, would-open/no-trade breakdowns, ETH `sleeve_1h` candidate status, timing assumptions, not-live-account shadow drawdown, boundary flags, and UAT3 blockers. It is informational only: it does not implement UAT3, create approvals, enable order submission, approve paper/live trading, or change Money Flow rules.

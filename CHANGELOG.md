@@ -13,6 +13,51 @@ Entry schema:
 
 ---
 
+## v2026.05.10.006
+
+- `recorded_at_utc`: `2026-05-10T09:22:47Z`
+- `scope`: `UAT2.1 dashboard visualization and founder approval readiness pack`
+- `intent`: `Native entry. Added a review-only UAT2 Shadow Run view to the existing static dashboard. The view loads docs/uat2_shadow_strategy_top20_observation_summary.json, renders UAT2 summary cards, a filterable signal matrix, would-open inspection, no-trade reason breakdowns, the ETH sleeve_1h evidence-candidate card, next_candle_open / next_candle_close timing status, same_candle_close_research_only research-only truth, not-live-account shadow drawdown, no-forbidden-artifact boundary flags, and an informational UAT3 blocked readiness panel. No interactive approval action, sandbox order submission, StrategyDecision, SignalEvent, OrderIntent, PreparedVenueOrder, ExecutionReadinessAssessment, SubmittedOrder, executable approval, private/signed endpoint call, API-key use, paper/live behavior, routing behavior, Money Flow rule change, or evidence pack was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/uat2_shadow_strategy_top20_observation.md`
+  - `docs/uat2_1_dashboard_visualization_and_approval_readiness.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_uat21_dashboard_visualization.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/UAT0 Safety Runtime Hardening.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_uat21_dashboard_visualization.py tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat21_dashboard_visualization.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat2_shadow_strategy.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-uat2.1-review.zip`
+  - `review bundle exclusion scan passed`
+
 ## v2026.05.10.005
 
 - `recorded_at_utc`: `2026-05-10T08:38:49Z`

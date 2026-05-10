@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-10T08:38:49Z`
+Last reviewed: `2026-05-10T09:22:47Z`
 
 ## Top-Level Structure
 
@@ -70,6 +70,7 @@ Last reviewed: `2026-05-10T08:38:49Z`
 - UAT1 updates current-state notes after public read-only connectivity and top-20 universe resolution: explicit public-read-only network mode was used, Hyperliquid allowed public info types were verified, a public no-key CoinGecko top-volume source was fetched, Hyperliquid-supported observation-only assets were resolved, and UAT2 remained blocked at that point by shadow-readiness gaps. No private/signed/order endpoints, API keys, order submissions, Money Flow live strategy execution, paper/live behavior, routing behavior, Money Flow rule changes, or evidence packs were added.
 - UAT1.1 updates current-state notes after shadow-readiness hardening: model/report-only shadow signal audit records, operator-visible shadow drawdown, UAT1 universe snapshot loading, and representative API-error / structured-log redaction verification exist.
 - UAT2 updates current-state notes after the bounded no-order shadow run: the UAT1 observation-only universe was evaluated across `sleeve_15m`, `sleeve_1h`, and `sleeve_4h` using public Hyperliquid candle snapshots, shadow audit records were emitted, and UAT3 remains blocked.
+- UAT2.1 updates current-state notes after dashboard visualization/readiness work: the static dashboard now loads the UAT2 summary JSON, displays shadow signal/reason/timing/drawdown/boundary panels, and shows UAT3 as blocked without adding approval/order actions.
 - Phase 8.0.1 accepted the previously dirty Obsidian memory refresh as the strategic baseline and updated it to current Phase 8.0/8.0.1 truth.
 - Phase 8.0.2 updates current-phase/coordination/decision notes for active submit-lease operator-summary truth only; full project memory remains untouched.
 - SV1.0.1 updates current-phase/coordination/decision notes for strategy-validation research-truth/report hardening only; full project memory remains untouched.
@@ -121,6 +122,7 @@ Last reviewed: `2026-05-10T08:38:49Z`
 - SV1.16 and SV1.17 replay results are wired into the dashboard under the `Experiments` tab replay filter, separate from Evidence-tab evidence-pack/review data. SV1.17 full-suite rows load from `docs/strategy_validation_sv1_17_true_replay_experiments_summary.json`. The static dashboard remains visualization-only for local evidence and experiment/replay artifacts.
 - SV1.18 adds no dashboard runtime behavior; UAT closeout remains a founder-readable docs/reporting layer.
 - UAT0 adds no dashboard runtime behavior; future dashboard/operator visibility for top-20 shadow observation remains a UAT2 prerequisite.
+- UAT2.1 adds the `UAT2 Shadow Run` tab. It loads `docs/uat2_shadow_strategy_top20_observation_summary.json`, renders summary cards, a filterable signal matrix, would-open inspection, no-trade reason breakdowns, the ETH evidence-candidate card, timing/drawdown panels, no-artifact boundary flags, and an informational UAT3 blocked readiness checklist. It creates no approval action, order intent, submitted order, exchange call, paper/live behavior, routing behavior, or Money Flow rule change.
 
 `docs/uat0_safety_security_runtime_hardening.md`
 - Founder/operator UAT0 safety, security, runtime, and operational-readiness audit.
@@ -160,6 +162,10 @@ Last reviewed: `2026-05-10T08:38:49Z`
 `docs/uat2_shadow_strategy_top20_observation_summary.json`
 - Compact UAT2 shadow run summary generated from the same bounded public-read-only run for future dashboard/API consumption.
 - Contains shadow audit records, fetch status, summaries, drawdown state, and boundary flags only; it is not an evidence pack, candle file, local DB export, strategy decision, signal event, order intent, submitted order, approval, routing artifact, paper trade, or live trade.
+
+`docs/uat2_1_dashboard_visualization_and_approval_readiness.md`
+- Founder/operator UAT2.1 dashboard and review-readiness report.
+- Documents the dashboard UAT2 tab, loaded JSON path, UAT2 counts, ETH evidence-candidate card, timing and not-live-account drawdown truth, boundary confirmation, UAT3 blocked readiness panel, and no-approval/no-order boundary.
 
 `core/config/`
 - Pydantic settings, environment profiles, runtime selection, and per-venue / strategy configuration.
@@ -670,3 +676,9 @@ Last reviewed: `2026-05-10T08:38:49Z`
 
 `tests/test_operational_docs.py`
 - operational-doc existence/reference validation plus review-bundle hygiene validation against an actually produced ZIP
+
+`tests/test_dashboard_static_assets.py`
+- Static dashboard asset checks, including SV evidence/experiment tabs and the UAT2 Shadow Run view wiring.
+
+`tests/test_uat21_dashboard_visualization.py`
+- UAT2.1 dashboard visualization checks: verifies the UAT2 summary JSON loads, expected UAT2 counts are represented, the signal matrix / would-open / no-trade / ETH candidate / timing / drawdown / UAT3 blocked panels are present, no interactive approval action is added, and forbidden paper/live/order/profitability language is absent from the dashboard surface.
