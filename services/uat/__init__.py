@@ -10,5 +10,7 @@ private-read-only credential/drawdown boundaries without retaining secret values
 or enabling order endpoints. UAT3.0.6 helpers wire the future sandbox submit
 path in dry-run mode only, with no order transport. UAT3.1 helpers support one
 explicitly founder-approved Hyperliquid testnet lifecycle probe without creating
-production execution artifacts or authorizing paper/live trading.
+production execution artifacts or authorizing paper/live trading. UAT3.2 helpers
+add fixed-key account/API-wallet readiness before a second approved sandbox
+lifecycle attempt and block before order transport when readiness fails.
 """

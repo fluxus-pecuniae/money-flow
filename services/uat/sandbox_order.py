@@ -1,9 +1,9 @@
-"""UAT3.1 one-shot sandbox/testnet order lifecycle probe.
+"""UAT3.1/UAT3.2 one-shot sandbox/testnet order lifecycle probes.
 
 This module is intentionally separate from production execution models. It
-supports one founder-approved Hyperliquid testnet lifecycle probe and does not
-create OrderIntent, PreparedVenueOrder, SubmittedOrder, executable approvals,
-paper-trading, or live-trading artifacts.
+supports founder-approved Hyperliquid testnet lifecycle probes and does not
+create production OrderIntent, PreparedVenueOrder, SubmittedOrder, executable
+approvals, paper-trading, or live-trading artifacts.
 """
 
 from __future__ import annotations
@@ -91,6 +91,50 @@ UAT31_CANDIDATE_ID = "manual_sandbox_lifecycle_probe_eth_testnet"
 UAT31_MAX_NOTIONAL = Decimal("10")
 UAT31_DRAWDOWN_THRESHOLD = Decimal("0.05")
 
+REQUIRED_UAT32_ACTUAL_SUBMISSION_APPROVAL_TEXT = """FOUNDER / OPERATOR APPROVAL — UAT3.2 SECOND SANDBOX ORDER ATTEMPT
+
+I approve one approval-gated sandbox/testnet order submission attempt under the exact scope below.
+
+Approved scope:
+- Venue: Hyperliquid testnet / sandbox only
+- Symbol: ETH USDC perpetual
+- Purpose: sandbox lifecycle plumbing validation only
+- Strategy status: not a Money Flow performance test
+- Order source: manual sandbox lifecycle probe, not an approved strategy signal
+- Maximum order count: 1 order attempt
+- Order type: non-marketable limit order or post-only limit order if supported
+- Side: buy/open only if it can be placed safely as non-marketable; otherwise block
+- Maximum notional: use the minimum practical testnet notional, capped at 10 USDC equivalent
+- Expected lifecycle: submit -> accepted/open or rejected -> cancel if open -> reconcile
+- If unexpectedly filled: stop, report immediately, and do not place any additional order without separate approval
+- Environment: sandbox/testnet only
+- Live endpoint access: not approved
+- Paper trading: not approved
+- Live trading: not approved
+- Broad top-20 order submission: not approved
+- Repeated orders: not approved
+- Auto-submit: not approved
+
+Required gates:
+- sandbox runtime policy must pass
+- sandbox/testnet account/API-wallet readiness must pass
+- live-fed sandbox drawdown must be available
+- approval scope must match this approval exactly
+- sandbox risk gates must pass
+- submit lease / duplicate prevention must pass
+- sandbox artifact labels must be enforced
+- no live endpoint may be reachable
+- all secrets must remain redacted
+
+This approval does not authorize paper trading, live trading, production auto-submit, real-capital trading, or additional sandbox orders."""
+
+UAT32_RUN_ID = "uat3_2_second_sandbox_order_attempt"
+UAT32_APPROVAL_ID = "uat3_2_founder_actual_sandbox_submission_approval"
+UAT32_COMPONENT = "manual_sandbox_lifecycle_probe"
+UAT32_CANDIDATE_ID = "manual_sandbox_lifecycle_probe_eth_testnet_second_attempt"
+UAT32_MAX_NOTIONAL = Decimal("10")
+UAT32_DRAWDOWN_THRESHOLD = Decimal("0.05")
+
 
 class UAT31RejectReason:
     APPROVAL_REQUIRED = "founder_operator_actual_sandbox_submission_approval_required"
@@ -104,6 +148,33 @@ class UAT31RejectReason:
     PUBLIC_ORDER_BOOK_MISSING = "public_order_book_missing"
     QUANTITY_NOT_POSITIVE = "sandbox_positive_quantity_required"
     GATES_BLOCKED = "uat31_gate_chain_blocked"
+    ORDER_TRANSPORT_FAILED = "sandbox_order_transport_failed"
+    CANCEL_TRANSPORT_FAILED = "sandbox_cancel_transport_failed"
+    UNEXPECTED_FILL = "unexpected_fill_stop_no_additional_order"
+    OPEN_ORDER_REMAINS = "open_order_remains_manual_cleanup_required"
+
+
+class UAT32RejectReason:
+    APPROVAL_REQUIRED = "founder_operator_actual_sandbox_submission_approval_required"
+    SANDBOX_ENDPOINT_REQUIRED = "sandbox_testnet_endpoint_required"
+    LIVE_ENDPOINT_FORBIDDEN = "live_endpoint_forbidden"
+    CREDENTIALS_MISSING = "sandbox_credentials_missing"
+    CREDENTIALS_INVALID = "sandbox_credentials_invalid"
+    PRIOR_ATTEMPT_EXISTS = "uat32_prior_order_attempt_exists"
+    FIXED_KEY_READINESS_FAILED = "fixed_key_account_api_wallet_readiness_failed"
+    TESTNET_USER_NOT_FOUND = "hyperliquid_testnet_user_not_found"
+    TESTNET_API_WALLET_NOT_FOUND = "hyperliquid_testnet_api_wallet_not_found"
+    API_WALLET_NOT_AUTHORIZED = "hyperliquid_testnet_api_wallet_not_authorized_for_account"
+    ACCOUNT_EQUITY_UNAVAILABLE = "sandbox_account_equity_unavailable"
+    ACCOUNT_EQUITY_INSUFFICIENT = "sandbox_account_equity_insufficient"
+    WALLET_READINESS_UNKNOWN = "sandbox_account_wallet_readiness_unknown"
+    DRAWDOWN_FEED_STALE = "sandbox_drawdown_feed_stale"
+    NON_MARKETABLE_LIMIT_REQUIRED = "non_marketable_limit_required"
+    POST_ONLY_REQUIRED = "post_only_limit_required"
+    ETH_MARKET_METADATA_MISSING = "eth_market_metadata_missing"
+    PUBLIC_ORDER_BOOK_MISSING = "public_order_book_missing"
+    QUANTITY_NOT_POSITIVE = "sandbox_positive_quantity_required"
+    GATES_BLOCKED = "uat32_gate_chain_blocked"
     ORDER_TRANSPORT_FAILED = "sandbox_order_transport_failed"
     CANCEL_TRANSPORT_FAILED = "sandbox_cancel_transport_failed"
     UNEXPECTED_FILL = "unexpected_fill_stop_no_additional_order"
@@ -141,6 +212,23 @@ class UAT31TransportResponse:
 
 
 @dataclass(frozen=True)
+class UAT32AccountApiWalletReadiness:
+    checked: bool
+    allowed: bool
+    reason_codes: tuple[str, ...]
+    account_role: str | None
+    signer_role: str | None
+    signer_is_target_account: bool
+    api_wallet_authorized_for_account: bool
+    sandbox_account_equity_available: bool
+    sandbox_account_equity_sufficient: bool
+    sandbox_drawdown_live_fed_verified: bool
+    sandbox_drawdown_not_stale: bool
+    signer_address_abbrev: str | None = None
+    account_address_abbrev: str | None = None
+
+
+@dataclass(frozen=True)
 class UAT31LifecycleResult:
     order_attempt_count: int
     order_endpoint_called: bool
@@ -163,6 +251,31 @@ class UAT31FirstSandboxOrderAttemptResult:
     reason_codes: tuple[str, ...]
     approval_result: SandboxCheckResult
     credential_status: Any | None
+    runtime_policy_result: SandboxCheckResult | None
+    gate_result: Any | None
+    drawdown_feed: SandboxAccountDrawdownFeed | None
+    market_plan: UAT31MarketPlan | None
+    lifecycle: UAT31LifecycleResult
+    sanitized_order_request: Mapping[str, Any]
+    sanitized_order_response: Mapping[str, Any]
+    sanitized_cancel_response: Mapping[str, Any]
+    sanitized_reconciliation: Mapping[str, Any]
+    creates_order_intent: bool = False
+    creates_prepared_order: bool = False
+    creates_submitted_order: bool = False
+    creates_executable_approval: bool = False
+    paper_trading_added: bool = False
+    live_trading_added: bool = False
+
+
+@dataclass(frozen=True)
+class UAT32SecondSandboxOrderAttemptResult:
+    allowed_to_submit: bool
+    blocked: bool
+    reason_codes: tuple[str, ...]
+    approval_result: SandboxCheckResult
+    credential_status: Any | None
+    account_api_wallet_readiness: UAT32AccountApiWalletReadiness | None
     runtime_policy_result: SandboxCheckResult | None
     gate_result: Any | None
     drawdown_feed: SandboxAccountDrawdownFeed | None
@@ -208,6 +321,16 @@ def validate_uat31_actual_submission_approval_text(approval_text: str) -> Sandbo
     )
 
 
+def validate_uat32_actual_submission_approval_text(approval_text: str) -> SandboxCheckResult:
+    normalized = approval_text.replace("\r\n", "\n").strip()
+    required = REQUIRED_UAT32_ACTUAL_SUBMISSION_APPROVAL_TEXT.strip()
+    allowed = required in normalized
+    return SandboxCheckResult(
+        allowed=allowed,
+        reason_codes=() if allowed else (UAT32RejectReason.APPROVAL_REQUIRED,),
+    )
+
+
 def validate_uat31_manual_probe_labels(labels: UAT31ManualProbeLabels) -> SandboxCheckResult:
     reasons = list(_label_result(labels.base).reason_codes)
     if not labels.manual_sandbox_lifecycle_probe:
@@ -239,6 +362,20 @@ def build_uat31_runtime_policy() -> SandboxRuntimePolicy:
     )
 
 
+def build_uat32_runtime_policy() -> SandboxRuntimePolicy:
+    return SandboxRuntimePolicy(
+        runtime_mode="uat_sandbox",
+        live_trading_enabled=False,
+        paper_trading_enabled=False,
+        exchange_order_submission_enabled=False,
+        sandbox_order_submission_enabled=True,
+        private_exchange_endpoints_enabled=True,
+        live_endpoint_access=False,
+        api_keys_required=True,
+        sandbox_only=True,
+    )
+
+
 def build_uat31_artifact_labels() -> UAT31ManualProbeLabels:
     return UAT31ManualProbeLabels(
         base=SandboxArtifactLabels(
@@ -254,8 +391,28 @@ def build_uat31_artifact_labels() -> UAT31ManualProbeLabels:
     )
 
 
+def build_uat32_artifact_labels() -> UAT31ManualProbeLabels:
+    return UAT31ManualProbeLabels(
+        base=SandboxArtifactLabels(
+            sandbox=True,
+            testnet=True,
+            not_live=True,
+            not_paper=True,
+            uat_run_id=UAT32_RUN_ID,
+            sandbox_order=True,
+            live_endpoint_access=False,
+            real_capital=False,
+        )
+    )
+
+
 def build_uat31_idempotency_key(*, account_id: str, observed_at_utc: datetime) -> str:
     seed = f"{UAT31_RUN_ID}:{UAT31_APPROVAL_ID}:hyperliquid:{account_id}:ETH:{observed_at_utc.isoformat()}"
+    return "0x" + hashlib.sha256(seed.encode("utf-8")).hexdigest()[:32]
+
+
+def build_uat32_idempotency_key(*, account_id: str, observed_at_utc: datetime) -> str:
+    seed = f"{UAT32_RUN_ID}:{UAT32_APPROVAL_ID}:hyperliquid:{account_id}:ETH:{observed_at_utc.isoformat()}"
     return "0x" + hashlib.sha256(seed.encode("utf-8")).hexdigest()[:32]
 
 
@@ -319,6 +476,110 @@ def build_uat31_market_plan(
             cloid=cloid,
         ),
         (),
+    )
+
+
+def _abbr_address(value: str | None) -> str | None:
+    if not value:
+        return None
+    normalized = value.lower()
+    if len(normalized) <= 12:
+        return normalized
+    return f"{normalized[:6]}...{normalized[-4:]}"
+
+
+def _role_from_payload(payload: Any) -> str | None:
+    if not isinstance(payload, Mapping):
+        return None
+    role = payload.get("role")
+    return str(role).lower() if role is not None else None
+
+
+def _agent_user_from_payload(payload: Any) -> str | None:
+    if not isinstance(payload, Mapping):
+        return None
+    data = payload.get("data")
+    if not isinstance(data, Mapping):
+        return None
+    user = data.get("user")
+    return str(user).lower() if user is not None else None
+
+
+def evaluate_uat32_account_api_wallet_readiness(
+    *,
+    account_id: str,
+    signer: str,
+    account_role_payload: Any,
+    signer_role_payload: Any,
+    drawdown_feed: SandboxAccountDrawdownFeed,
+    requested_notional: Decimal,
+    now_utc: datetime,
+    max_age_seconds: int = 900,
+) -> UAT32AccountApiWalletReadiness:
+    """Validate fixed-key readiness using Hyperliquid read-only role/account truth.
+
+    Hyperliquid's public info API exposes `userRole`, where an API wallet is
+    represented as role `agent` with `data.user` pointing to the approved user.
+    UAT3.2 requires either direct account signing or an agent role explicitly
+    linked to the configured sandbox account before any order-capable call.
+    """
+
+    account = account_id.lower()
+    signer_normalized = signer.lower()
+    account_role = _role_from_payload(account_role_payload)
+    signer_role = _role_from_payload(signer_role_payload)
+    signer_is_target = signer_normalized == account
+    reasons: list[str] = []
+
+    if account_role is None or signer_role is None:
+        reasons.append(UAT32RejectReason.WALLET_READINESS_UNKNOWN)
+    if account_role == "missing":
+        reasons.append(UAT32RejectReason.TESTNET_USER_NOT_FOUND)
+    if signer_role == "missing":
+        reasons.append(UAT32RejectReason.TESTNET_API_WALLET_NOT_FOUND)
+    if account_role == "agent":
+        reasons.append(UAT32RejectReason.API_WALLET_NOT_AUTHORIZED)
+
+    authorized = False
+    if signer_is_target and account_role not in {None, "missing", "agent"}:
+        authorized = True
+    elif signer_role == "agent" and _agent_user_from_payload(signer_role_payload) == account:
+        authorized = account_role not in {None, "missing", "agent"}
+
+    if not authorized:
+        reasons.append(UAT32RejectReason.API_WALLET_NOT_AUTHORIZED)
+
+    equity = drawdown_feed.sandbox_account_equity
+    equity_available = equity is not None
+    if not equity_available:
+        reasons.append(UAT32RejectReason.ACCOUNT_EQUITY_UNAVAILABLE)
+    equity_sufficient = bool(equity_available and equity >= requested_notional)
+    if equity_available and not equity_sufficient:
+        reasons.append(UAT32RejectReason.ACCOUNT_EQUITY_INSUFFICIENT)
+
+    live_fed = drawdown_feed.status == SandboxDrawdownFeedStatus.LIVE_FED_VERIFIED
+    if not live_fed:
+        reasons.append(SandboxDrawdownFeedStatus.LIVE_FED_VERIFIED.value)
+    age_seconds = (now_utc - drawdown_feed.timestamp_utc).total_seconds()
+    not_stale = 0 <= age_seconds <= max_age_seconds
+    if not not_stale:
+        reasons.append(UAT32RejectReason.DRAWDOWN_FEED_STALE)
+
+    unique = tuple(dict.fromkeys(str(reason) for reason in reasons))
+    return UAT32AccountApiWalletReadiness(
+        checked=True,
+        allowed=not unique,
+        reason_codes=unique,
+        account_role=account_role,
+        signer_role=signer_role,
+        signer_is_target_account=signer_is_target,
+        api_wallet_authorized_for_account=authorized,
+        sandbox_account_equity_available=equity_available,
+        sandbox_account_equity_sufficient=equity_sufficient,
+        sandbox_drawdown_live_fed_verified=live_fed,
+        sandbox_drawdown_not_stale=not_stale,
+        signer_address_abbrev=_abbr_address(signer_normalized),
+        account_address_abbrev=_abbr_address(account),
     )
 
 
@@ -767,6 +1028,399 @@ class UAT31FirstSandboxOrderAttemptService:
         }
 
 
+class UAT32SecondSandboxOrderAttemptService(UAT31FirstSandboxOrderAttemptService):
+    """Second one-shot sandbox/testnet lifecycle probe with fixed-key preflight."""
+
+    async def execute(
+        self,
+        *,
+        approval_text: str,
+        env: Mapping[str, str | None],
+        prior_attempt_exists: bool,
+        now_utc: datetime | None = None,
+    ) -> UAT32SecondSandboxOrderAttemptResult:
+        now = now_utc or datetime.now(tz=UTC)
+        approval_result = validate_uat32_actual_submission_approval_text(approval_text)
+        empty_lifecycle = UAT31LifecycleResult(
+            order_attempt_count=0,
+            order_endpoint_called=False,
+            cancel_endpoint_called=False,
+            order_status="blocked",
+            exchange_order_id=None,
+            client_order_id=None,
+            cancel_status="not_attempted",
+            reconciliation_status="not_attempted",
+            unexpected_fill=False,
+            open_order_remains=False,
+            unknown_state=False,
+            reason_codes=approval_result.reason_codes,
+        )
+        if not approval_result.allowed:
+            return self._blocked_result32(approval_result, empty_lifecycle, approval_result.reason_codes)
+
+        credential_status = load_hyperliquid_uat_sandbox_credential_env_status(env)
+        endpoint_result = validate_sandbox_testnet_base_url(credential_status.base_url)
+        reasons: list[str] = list(credential_status.reason_codes) + list(endpoint_result.reason_codes)
+        if not credential_status.credentials_available:
+            reasons.append(UAT32RejectReason.CREDENTIALS_MISSING)
+        if not credential_status.endpoint_sandbox_verified or not endpoint_result.allowed:
+            reasons.append(UAT32RejectReason.SANDBOX_ENDPOINT_REQUIRED)
+        if prior_attempt_exists:
+            reasons.append(UAT32RejectReason.PRIOR_ATTEMPT_EXISTS)
+        if reasons:
+            return self._blocked_result32(
+                approval_result,
+                empty_lifecycle,
+                tuple(dict.fromkeys(reasons)),
+                credential_status=credential_status,
+            )
+
+        account_id = str(env[HYPERLIQUID_UAT_SANDBOX_ACCOUNT_ENV] or "").strip()
+        private_key = str(env[HYPERLIQUID_UAT_SANDBOX_PRIVATE_KEY_ENV] or "").strip()
+        try:
+            signer = signer_address(private_key)
+        except Exception:  # noqa: BLE001
+            return self._blocked_result32(
+                approval_result,
+                empty_lifecycle,
+                (UAT32RejectReason.CREDENTIALS_INVALID,),
+                credential_status=credential_status,
+            )
+        cloid = build_uat32_idempotency_key(account_id=account_id, observed_at_utc=now)
+
+        meta_payload = await self._transport.post_json("/info", {"type": "meta"})
+        l2_payload = await self._transport.post_json("/info", {"type": "l2Book", "coin": "ETH"})
+        market_plan, market_reasons = build_uat31_market_plan(
+            meta_payload=meta_payload,
+            l2_book_payload=l2_payload,
+            max_notional=UAT32_MAX_NOTIONAL,
+            cloid=cloid,
+        )
+        if market_plan is None:
+            return self._blocked_result32(
+                approval_result,
+                empty_lifecycle,
+                market_reasons,
+                credential_status=credential_status,
+            )
+
+        account_role_payload = await self._transport.post_json(
+            "/info",
+            {"type": "userRole", "user": account_id},
+        )
+        signer_role_payload = await self._transport.post_json(
+            "/info",
+            {"type": "userRole", "user": signer},
+        )
+        account_state = await self._transport.post_json(
+            "/info",
+            {"type": "clearinghouseState", "user": account_id},
+        )
+        snapshot = build_hyperliquid_sandbox_account_snapshot_from_payload(
+            payload=account_state if isinstance(account_state, Mapping) else {},
+            sandbox_account_id=account_id,
+            observed_at_utc=now,
+        )
+        drawdown_feed = build_sandbox_account_drawdown_feed(
+            snapshot=snapshot,
+            drawdown_threshold=UAT32_DRAWDOWN_THRESHOLD,
+            status=SandboxDrawdownFeedStatus.LIVE_FED_VERIFIED,
+        )
+        readiness = evaluate_uat32_account_api_wallet_readiness(
+            account_id=account_id,
+            signer=signer,
+            account_role_payload=account_role_payload,
+            signer_role_payload=signer_role_payload,
+            drawdown_feed=drawdown_feed,
+            requested_notional=market_plan.estimated_notional,
+            now_utc=now,
+        )
+        if not readiness.allowed:
+            lifecycle = UAT31LifecycleResult(
+                **{**asdict(empty_lifecycle), "reason_codes": readiness.reason_codes}
+            )
+            return self._blocked_result32(
+                approval_result,
+                lifecycle,
+                tuple(dict.fromkeys([UAT32RejectReason.FIXED_KEY_READINESS_FAILED, *readiness.reason_codes])),
+                credential_status=credential_status,
+                account_api_wallet_readiness=readiness,
+                drawdown_feed=drawdown_feed,
+                market_plan=market_plan,
+            )
+
+        runtime_policy = build_uat32_runtime_policy()
+        labels = build_uat32_artifact_labels()
+        label_result = validate_uat31_manual_probe_labels(labels)
+        approval_scope = SandboxApprovalScope(
+            approval_id=UAT32_APPROVAL_ID,
+            uat_run_id=UAT32_RUN_ID,
+            venue="hyperliquid",
+            account_id=account_id,
+            symbol="ETH",
+            component=UAT32_COMPONENT,
+            max_notional_or_quantity=UAT32_MAX_NOTIONAL,
+            expires_at_utc=now + timedelta(minutes=30),
+            environment="testnet",
+        )
+        approval_candidate = SandboxApprovalCandidate(
+            uat_run_id=UAT32_RUN_ID,
+            venue="hyperliquid",
+            account_id=account_id,
+            symbol="ETH",
+            component=UAT32_COMPONENT,
+            requested_notional_or_quantity=market_plan.estimated_notional,
+            environment="testnet",
+        )
+        submit_key = SandboxSubmitAttemptKey(
+            approval_id=UAT32_APPROVAL_ID,
+            uat_run_id=UAT32_RUN_ID,
+            venue="hyperliquid",
+            account_id=account_id,
+            symbol="ETH",
+            component=UAT32_COMPONENT,
+            environment="testnet",
+        )
+        dry_run = evaluate_uat3_sandbox_submit_path_dry_run(
+            UAT3SandboxSubmitPathDryRunInput(
+                runtime_policy=runtime_policy,
+                artifact_labels=labels.base,
+                approval_scope=approval_scope,
+                approval_candidate=approval_candidate,
+                risk_limits=SandboxRiskLimits(
+                    max_sandbox_notional=UAT32_MAX_NOTIONAL,
+                    max_sandbox_order_count=1,
+                    max_daily_sandbox_order_count=1,
+                    max_sandbox_drawdown_pct=UAT32_DRAWDOWN_THRESHOLD,
+                    allowed_symbols=("ETH",),
+                    allowed_venue_accounts=(account_id,),
+                    allowed_venues=("hyperliquid",),
+                ),
+                risk_request=SandboxRiskRequest(
+                    venue="hyperliquid",
+                    account_id=account_id,
+                    symbol="ETH",
+                    notional=market_plan.estimated_notional,
+                    current_order_count=0,
+                    current_daily_order_count=0,
+                    sandbox_drawdown_pct=drawdown_feed.max_drawdown_percent or Decimal("0"),
+                    live_account=False,
+                    live_endpoint_access=False,
+                    kill_switch_enabled=False,
+                    runtime_policy=runtime_policy,
+                ),
+                submit_request=SandboxSubmitPreflightRequest(
+                    key=submit_key,
+                    submit_lease_acquired=True,
+                    idempotency_key=cloid,
+                    top20_fanout=False,
+                    route_executor_behavior=False,
+                ),
+                submit_state=SandboxSubmitPreflightState(),
+                now_utc=now,
+                sandbox_drawdown_feed=drawdown_feed,
+                endpoint_classification=SandboxAdapterEndpointClassification(
+                    endpoint_category=SandboxPrivateEndpointCategory.SANDBOX_ORDER_SUBMISSION,
+                    transport_invoked=False,
+                    calls_exchange=False,
+                ),
+                candidate_id=UAT32_CANDIDATE_ID,
+                order_side="buy",
+                order_type="post_only_limit",
+                founder_operator_actual_submission_approved=True,
+                drawdown_feed_status=SandboxDrawdownFeedStatus.LIVE_FED_VERIFIED.value,
+            )
+        )
+        gate_reasons = list(dry_run.reason_codes) + list(label_result.reason_codes)
+        if gate_reasons:
+            lifecycle = UAT31LifecycleResult(
+                **{**asdict(empty_lifecycle), "reason_codes": tuple(dict.fromkeys(gate_reasons))}
+            )
+            return self._blocked_result32(
+                approval_result,
+                lifecycle,
+                tuple(dict.fromkeys([UAT32RejectReason.GATES_BLOCKED, *gate_reasons])),
+                credential_status=credential_status,
+                account_api_wallet_readiness=readiness,
+                runtime_policy_result=dry_run.runtime_policy_result,
+                gate_result=dry_run,
+                drawdown_feed=drawdown_feed,
+                market_plan=market_plan,
+            )
+
+        order_action = self._order_action(market_plan)
+        order_payload = self._signed_payload(
+            action=order_action,
+            private_key=private_key,
+            account_id=account_id,
+            is_mainnet=False,
+        )
+        try:
+            order_response = await self._transport.post_json("/exchange", order_payload)
+        except Exception as exc:  # noqa: BLE001
+            lifecycle = UAT31LifecycleResult(
+                order_attempt_count=1,
+                order_endpoint_called=True,
+                cancel_endpoint_called=False,
+                order_status="unknown",
+                exchange_order_id=None,
+                client_order_id=market_plan.cloid,
+                cancel_status="not_attempted",
+                reconciliation_status="not_attempted",
+                unexpected_fill=False,
+                open_order_remains=False,
+                unknown_state=True,
+                reason_codes=(UAT32RejectReason.ORDER_TRANSPORT_FAILED, redact_sensitive_text(str(exc))),
+            )
+            return self._result32(
+                allowed_to_submit=True,
+                approval_result=approval_result,
+                credential_status=credential_status,
+                account_api_wallet_readiness=readiness,
+                runtime_policy_result=dry_run.runtime_policy_result,
+                gate_result=dry_run,
+                drawdown_feed=drawdown_feed,
+                market_plan=market_plan,
+                lifecycle=lifecycle,
+                sanitized_order_request=self._sanitize_order_request(order_action, market_plan),
+                sanitized_order_response={"error": redact_sensitive_text(str(exc))},
+            )
+
+        order_status, oid, status_reasons = self._parse_order_response(order_response)
+        cancel_response: Any | None = None
+        cancel_status = "not_required"
+        cancel_called = False
+        unexpected_fill = order_status in {"filled", "partial_fill"}
+        if order_status == "open" and oid is not None:
+            cancel_called = True
+            cancel_action = {"type": "cancel", "cancels": [{"a": market_plan.asset_id, "o": int(oid)}]}
+            cancel_payload = self._signed_payload(
+                action=cancel_action,
+                private_key=private_key,
+                account_id=account_id,
+                is_mainnet=False,
+            )
+            try:
+                cancel_response = await self._transport.post_json("/exchange", cancel_payload)
+                cancel_status = "cancel_acknowledged" if self._action_ok(cancel_response) else "cancel_rejected"
+            except Exception as exc:  # noqa: BLE001
+                cancel_response = {"error": redact_sensitive_text(str(exc))}
+                cancel_status = "cancel_unknown"
+                status_reasons.append(UAT32RejectReason.CANCEL_TRANSPORT_FAILED)
+
+        reconciliation_payloads: dict[str, Any] = {}
+        if oid is not None:
+            reconciliation_payloads["order_status"] = await self._transport.post_json(
+                "/info",
+                {"type": "orderStatus", "user": account_id, "oid": int(oid)},
+            )
+        reconciliation_payloads["open_orders"] = await self._transport.post_json(
+            "/info",
+            {"type": "frontendOpenOrders", "user": account_id},
+        )
+        post_account_state = await self._transport.post_json(
+            "/info",
+            {"type": "clearinghouseState", "user": account_id},
+        )
+        reconciliation_payloads["account_state"] = post_account_state
+
+        open_order_remains = self._open_order_remains(reconciliation_payloads.get("open_orders"), oid)
+        if open_order_remains:
+            status_reasons.append(UAT32RejectReason.OPEN_ORDER_REMAINS)
+        lifecycle = UAT31LifecycleResult(
+            order_attempt_count=1,
+            order_endpoint_called=True,
+            cancel_endpoint_called=cancel_called,
+            order_status=order_status,
+            exchange_order_id=str(oid) if oid is not None else None,
+            client_order_id=market_plan.cloid,
+            cancel_status=cancel_status,
+            reconciliation_status="completed" if not open_order_remains else "open_order_remaining",
+            unexpected_fill=unexpected_fill,
+            open_order_remains=open_order_remains,
+            unknown_state=order_status == "unknown" or cancel_status == "cancel_unknown",
+            reason_codes=tuple(dict.fromkeys(status_reasons)),
+        )
+        return self._result32(
+            allowed_to_submit=True,
+            approval_result=approval_result,
+            credential_status=credential_status,
+            account_api_wallet_readiness=readiness,
+            runtime_policy_result=dry_run.runtime_policy_result,
+            gate_result=dry_run,
+            drawdown_feed=drawdown_feed,
+            market_plan=market_plan,
+            lifecycle=lifecycle,
+            sanitized_order_request=self._sanitize_order_request(order_action, market_plan),
+            sanitized_order_response=_sanitize_payload(order_response),
+            sanitized_cancel_response=_sanitize_payload(cancel_response or {}),
+            sanitized_reconciliation=_sanitize_payload(reconciliation_payloads),
+        )
+
+    def _blocked_result32(
+        self,
+        approval_result: SandboxCheckResult,
+        lifecycle: UAT31LifecycleResult,
+        reason_codes: tuple[str, ...],
+        *,
+        credential_status: Any | None = None,
+        account_api_wallet_readiness: UAT32AccountApiWalletReadiness | None = None,
+        runtime_policy_result: SandboxCheckResult | None = None,
+        gate_result: Any | None = None,
+        drawdown_feed: SandboxAccountDrawdownFeed | None = None,
+        market_plan: UAT31MarketPlan | None = None,
+    ) -> UAT32SecondSandboxOrderAttemptResult:
+        return self._result32(
+            allowed_to_submit=False,
+            approval_result=approval_result,
+            credential_status=credential_status,
+            account_api_wallet_readiness=account_api_wallet_readiness,
+            runtime_policy_result=runtime_policy_result,
+            gate_result=gate_result,
+            drawdown_feed=drawdown_feed,
+            market_plan=market_plan,
+            lifecycle=lifecycle,
+            reason_codes=reason_codes,
+        )
+
+    def _result32(
+        self,
+        *,
+        allowed_to_submit: bool,
+        approval_result: SandboxCheckResult,
+        credential_status: Any | None,
+        account_api_wallet_readiness: UAT32AccountApiWalletReadiness | None,
+        runtime_policy_result: SandboxCheckResult | None,
+        gate_result: Any | None,
+        drawdown_feed: SandboxAccountDrawdownFeed | None,
+        market_plan: UAT31MarketPlan | None,
+        lifecycle: UAT31LifecycleResult,
+        reason_codes: tuple[str, ...] | None = None,
+        sanitized_order_request: Mapping[str, Any] | None = None,
+        sanitized_order_response: Mapping[str, Any] | None = None,
+        sanitized_cancel_response: Mapping[str, Any] | None = None,
+        sanitized_reconciliation: Mapping[str, Any] | None = None,
+    ) -> UAT32SecondSandboxOrderAttemptResult:
+        combined = tuple(dict.fromkeys(reason_codes or lifecycle.reason_codes))
+        return UAT32SecondSandboxOrderAttemptResult(
+            allowed_to_submit=allowed_to_submit,
+            blocked=bool(combined) and not allowed_to_submit,
+            reason_codes=combined,
+            approval_result=approval_result,
+            credential_status=credential_status,
+            account_api_wallet_readiness=account_api_wallet_readiness,
+            runtime_policy_result=runtime_policy_result,
+            gate_result=gate_result,
+            drawdown_feed=drawdown_feed,
+            market_plan=market_plan,
+            lifecycle=lifecycle,
+            sanitized_order_request=sanitized_order_request or {},
+            sanitized_order_response=sanitized_order_response or {},
+            sanitized_cancel_response=sanitized_cancel_response or {},
+            sanitized_reconciliation=sanitized_reconciliation or {},
+        )
+
+
 def _sanitize_payload(payload: Any) -> Any:
     return redact_sensitive_structure(payload)
 
@@ -789,6 +1443,91 @@ def result_to_summary_dict(result: UAT31FirstSandboxOrderAttemptResult) -> dict[
         "unexpected_fill": result.lifecycle.unexpected_fill,
         "open_order_remains": result.lifecycle.open_order_remains,
         "unknown_state": result.lifecycle.unknown_state,
+        "sandbox_labels": {
+            "sandbox": True,
+            "testnet": True,
+            "not_live": True,
+            "not_paper": True,
+            "manual_sandbox_lifecycle_probe": True,
+            "not_strategy_signal": True,
+            "not_performance_validation": True,
+            "live_endpoint_access": False,
+            "real_capital": False,
+        },
+        "market_plan": None
+        if market is None
+        else {
+            "symbol": market.symbol,
+            "limit_price": str(market.limit_price),
+            "quantity": str(market.quantity),
+            "estimated_notional": str(market.estimated_notional),
+            "tif": market.tif,
+        },
+        "drawdown_feed": None
+        if drawdown is None
+        else {
+            "status": drawdown.status.value,
+            "source": drawdown.source,
+            "not_live_account": drawdown.not_live_account,
+            "timestamp_utc": drawdown.timestamp_utc.isoformat(),
+            "sandbox_account_equity_available": drawdown.sandbox_account_equity is not None,
+            "max_drawdown_percent": (
+                str(drawdown.max_drawdown_percent) if drawdown.max_drawdown_percent is not None else None
+            ),
+            "threshold_breached": drawdown.threshold_breached,
+            "unavailable_fields": list(drawdown.unavailable_fields),
+        },
+        "side_effect_flags": {
+            "creates_order_intent": result.creates_order_intent,
+            "creates_prepared_order": result.creates_prepared_order,
+            "creates_submitted_order": result.creates_submitted_order,
+            "creates_executable_approval": result.creates_executable_approval,
+            "paper_trading_added": result.paper_trading_added,
+            "live_trading_added": result.live_trading_added,
+        },
+        "sanitized_order_request": result.sanitized_order_request,
+        "sanitized_order_response": result.sanitized_order_response,
+        "sanitized_cancel_response": result.sanitized_cancel_response,
+        "sanitized_reconciliation": result.sanitized_reconciliation,
+    }
+
+
+def result_to_uat32_summary_dict(result: UAT32SecondSandboxOrderAttemptResult) -> dict[str, Any]:
+    drawdown = result.drawdown_feed
+    market = result.market_plan
+    readiness = result.account_api_wallet_readiness
+    return {
+        "uat_run_id": UAT32_RUN_ID,
+        "approval_verified": result.approval_result.allowed,
+        "allowed_to_submit": result.allowed_to_submit,
+        "blocked": result.blocked,
+        "reason_codes": list(result.reason_codes),
+        "order_attempt_count": result.lifecycle.order_attempt_count,
+        "order_endpoint_called": result.lifecycle.order_endpoint_called,
+        "cancel_endpoint_called": result.lifecycle.cancel_endpoint_called,
+        "order_status": result.lifecycle.order_status,
+        "cancel_status": result.lifecycle.cancel_status,
+        "reconciliation_status": result.lifecycle.reconciliation_status,
+        "unexpected_fill": result.lifecycle.unexpected_fill,
+        "open_order_remains": result.lifecycle.open_order_remains,
+        "unknown_state": result.lifecycle.unknown_state,
+        "account_api_wallet_readiness": None
+        if readiness is None
+        else {
+            "checked": readiness.checked,
+            "allowed": readiness.allowed,
+            "reason_codes": list(readiness.reason_codes),
+            "account_role": readiness.account_role,
+            "signer_role": readiness.signer_role,
+            "signer_is_target_account": readiness.signer_is_target_account,
+            "api_wallet_authorized_for_account": readiness.api_wallet_authorized_for_account,
+            "sandbox_account_equity_available": readiness.sandbox_account_equity_available,
+            "sandbox_account_equity_sufficient": readiness.sandbox_account_equity_sufficient,
+            "sandbox_drawdown_live_fed_verified": readiness.sandbox_drawdown_live_fed_verified,
+            "sandbox_drawdown_not_stale": readiness.sandbox_drawdown_not_stale,
+            "signer_address_abbrev": readiness.signer_address_abbrev,
+            "account_address_abbrev": readiness.account_address_abbrev,
+        },
         "sandbox_labels": {
             "sandbox": True,
             "testnet": True,

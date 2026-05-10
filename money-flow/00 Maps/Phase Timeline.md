@@ -11,7 +11,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 | Controlled automation | Phase 7 | Approval-gated same-target action hooks with safety closeout; no full SOR. |
 | Operator observability | Phase 8 | Read-only routed workflow/manual-resolution inspection and submit-lease truth. |
 | Strategy Validation | SV1.0-SV1.18.1 | Hyperliquid public evidence cycle, dynamic equity, diagnostics, replay experiments, and UAT candidate freeze. |
-| UAT | UAT0-UAT4 | UAT3.1 first sandbox/testnet lifecycle probe complete; additional sandbox lifecycle testing requires separate approval. |
+| UAT | UAT0-UAT4 | UAT3.2 fixed-key preflight complete as blocked before order transport; UAT3.3 requires separate approval plus recognized/authorized testnet user/API wallet and sufficient sandbox equity. |
 
 Strategy Validation is now its own major track. It is not an active sub-phase of Phase 8.
 
@@ -42,9 +42,9 @@ Strategy Validation is now its own major track. It is not an active sub-phase of
 
 ## Current State
 
-Current implemented milestone: `UAT3.1` first sandbox/testnet lifecycle probe complete.
+Current implemented milestone: `UAT3.2` fixed-key preflight / second sandbox lifecycle attempt complete as blocked before order transport.
 
-Next proposed phase: `UAT3.2` additional sandbox lifecycle testing may be scoped only with separate approval and sandbox account/API-wallet configuration review.
+Next proposed phase: `UAT3.3` is blocked until separate approval plus fixed testnet account/API-wallet/equity readiness.
 
 Paper trading is not approved. Live trading is not approved. Additional exchange order submission is not approved.
 
@@ -62,7 +62,8 @@ Paper trading is not approved. Live trading is not approved. Additional exchange
 - UAT3.0.2: fixture-only sandbox gate dry-run preflight, full runtime blocker propagation, and invalid numeric rejection complete.
 - UAT3.0.3: sandbox artifact label boundary helpers and dry-run executable gate service complete.
 - UAT3.1: first approval-gated sandbox/testnet lifecycle probe complete; one Hyperliquid testnet ETH post-only limit attempt was rejected by venue user/API-wallet validation, no cancel was required, and reconciliation found no open order.
-- UAT3.2: additional sandbox lifecycle testing is not approved; it requires separate founder/operator approval and should first address sandbox account/API-wallet configuration before accepted/open -> cancel coverage.
-- UAT4: sandbox / simulated trading review.
+- UAT3.2: fixed-key preflight / second sandbox lifecycle attempt complete as blocked before order transport; separate approval was verified, account/API-wallet readiness failed, order attempt count was `0`, and no order endpoint was called.
+- UAT3.3: additional sandbox lifecycle testing is blocked; it requires separate founder/operator approval, recognized/authorized testnet user/API wallet, and sufficient sandbox equity before accepted/open -> cancel coverage.
+- UAT4.0: live UAT trading dashboard / chart cockpit requested as a future roadmap phase only.
 
 See [[00 Maps/UAT Roadmap|UAT Roadmap]].

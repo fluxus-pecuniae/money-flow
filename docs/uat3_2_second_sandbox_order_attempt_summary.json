@@ -1,0 +1,86 @@
+{
+  "account_api_wallet_readiness": {
+    "account_address_abbrev": "0x0bf8...a3ee",
+    "account_role": "missing",
+    "allowed": false,
+    "api_wallet_authorized_for_account": false,
+    "checked": true,
+    "reason_codes": [
+      "hyperliquid_testnet_user_not_found",
+      "hyperliquid_testnet_api_wallet_not_found",
+      "hyperliquid_testnet_api_wallet_not_authorized_for_account",
+      "sandbox_account_equity_insufficient"
+    ],
+    "sandbox_account_equity_available": true,
+    "sandbox_account_equity_sufficient": false,
+    "sandbox_drawdown_live_fed_verified": true,
+    "sandbox_drawdown_not_stale": true,
+    "signer_address_abbrev": "0x1155...f669",
+    "signer_is_target_account": false,
+    "signer_role": "missing"
+  },
+  "allowed_to_submit": false,
+  "approval_verified": true,
+  "blocked": true,
+  "cancel_endpoint_called": false,
+  "cancel_status": "not_attempted",
+  "drawdown_feed": {
+    "max_drawdown_percent": null,
+    "not_live_account": true,
+    "sandbox_account_equity_available": true,
+    "source": "sandbox_account",
+    "status": "sandbox_drawdown_feed_live_fed_verified",
+    "threshold_breached": false,
+    "timestamp_utc": "2026-05-10T17:48:06.282821+00:00",
+    "unavailable_fields": [
+      "sandbox_realized_pnl",
+      "sandbox_unrealized_pnl",
+      "open_positions_summary"
+    ]
+  },
+  "market_plan": {
+    "estimated_notional": "9.958449",
+    "limit_price": "2428.89",
+    "quantity": "0.0041",
+    "symbol": "ETH",
+    "tif": "Alo"
+  },
+  "open_order_remains": false,
+  "order_attempt_count": 0,
+  "order_endpoint_called": false,
+  "order_status": "blocked",
+  "reason_codes": [
+    "fixed_key_account_api_wallet_readiness_failed",
+    "hyperliquid_testnet_user_not_found",
+    "hyperliquid_testnet_api_wallet_not_found",
+    "hyperliquid_testnet_api_wallet_not_authorized_for_account",
+    "sandbox_account_equity_insufficient"
+  ],
+  "reconciliation_status": "not_attempted",
+  "sandbox_labels": {
+    "live_endpoint_access": false,
+    "manual_sandbox_lifecycle_probe": true,
+    "not_live": true,
+    "not_paper": true,
+    "not_performance_validation": true,
+    "not_strategy_signal": true,
+    "real_capital": false,
+    "sandbox": true,
+    "testnet": true
+  },
+  "sanitized_cancel_response": {},
+  "sanitized_order_request": {},
+  "sanitized_order_response": {},
+  "sanitized_reconciliation": {},
+  "side_effect_flags": {
+    "creates_executable_approval": false,
+    "creates_order_intent": false,
+    "creates_prepared_order": false,
+    "creates_submitted_order": false,
+    "live_trading_added": false,
+    "paper_trading_added": false
+  },
+  "uat_run_id": "uat3_2_second_sandbox_order_attempt",
+  "unexpected_fill": false,
+  "unknown_state": false
+}

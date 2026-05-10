@@ -6,17 +6,17 @@ This is the canonical Obsidian command center for Money Flow agents and founder 
 
 | Field | Current State |
 | --- | --- |
-| Current implemented milestone | `UAT3.1` first approval-gated sandbox/testnet order attempt complete |
+| Current implemented milestone | `UAT3.2` fixed-key preflight / second sandbox lifecycle attempt complete as blocked before order transport |
 | Current major track | Strategy Validation evidence cycle is closed |
-| Next proposed phase | `UAT3.2` additional sandbox lifecycle testing may be scoped only with separate approval |
-| UAT status | UAT2 no-order shadow observation, UAT2.1 dashboard visualization, UAT3.0 sandbox-order design, UAT3.0.1 fixture/readiness hardening, UAT3.0.2 dry-run gate hardening, UAT3.0.3 dry-run executable gate wiring / label enforcement, UAT3.0.4 private read-only sandbox drawdown readiness, UAT3.0.5 sandbox/testnet private read-only drawdown verification, UAT3.0.6 sandbox submit path dry-run wiring, and UAT3.1 first sandbox/testnet lifecycle probe are complete |
+| Next proposed phase | `UAT3.3` remains blocked until separate approval plus recognized/authorized testnet user/API wallet and sufficient testnet equity |
+| UAT status | UAT2 no-order shadow observation, UAT2.1 dashboard visualization, UAT3.0 sandbox-order design, UAT3.0.1 fixture/readiness hardening, UAT3.0.2 dry-run gate hardening, UAT3.0.3 dry-run executable gate wiring / label enforcement, UAT3.0.4 private read-only sandbox drawdown readiness, UAT3.0.5 sandbox/testnet private read-only drawdown verification, UAT3.0.6 sandbox submit path dry-run wiring, UAT3.1 first sandbox/testnet lifecycle probe, and UAT3.2 fixed-key readiness preflight are complete |
 | Paper trading | Not approved |
 | Live trading | Not approved |
 | Additional exchange order submission | Not approved |
 | Routing / SOR expansion | Deferred |
 | Production Money Flow rules | Unchanged |
 
-SV1.18 is complete. UAT0 is complete as a safety/security/runtime audit. UAT0.1 closes the P0 API auth/authz baseline for sensitive `/api/v1` routes and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds a fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and a fixture-tested runtime drawdown monitor model. UAT1 verified explicit public-read-only Hyperliquid endpoint behavior, fetched a no-key public CoinGecko top-volume source, intersected it with Hyperliquid USDC perpetual metadata, and kept all included assets observation-only. UAT1.1 added model/report-only shadow signal audit records, operator-visible shadow drawdown, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification. UAT2 no-order shadow observation is complete; it evaluated the UAT1 Hyperliquid top-20-supported universe using only public read-only candles. UAT2.1 adds a dashboard UAT2 Shadow Run tab and founder-readiness pack so the UAT2 summary is visually reviewable without enabling approvals or orders. UAT3.0.6 sandbox submit path dry-run wiring is complete as part of the UAT3 sandbox/testnet gate-chain hardening. UAT3.1 is complete: exact founder/operator approval was verified, one Hyperliquid testnet ETH post-only limit order attempt under 10 USDC notional was made, Hyperliquid rejected it with a sanitized user/API-wallet-not-found response, no cancel was required, and reconciliation found no open order. UAT3.1 created no production `OrderIntent`, `PreparedVenueOrder`, `SubmittedOrder`, executable approval, paper/live behavior, broad top-20 order submission, routing expansion, Money Flow rule change, evidence pack, live endpoint use, or second order. UAT is plumbing and behavior validation. The frozen evidence candidate is Hyperliquid ETH `sleeve_1h` current baseline. Paper trading is not approved. Live trading is not approved. Additional exchange order submission is not approved.
+SV1.18 is complete. UAT0 is complete as a safety/security/runtime audit. UAT0.1 closes the P0 API auth/authz baseline for sensitive `/api/v1` routes and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds a fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and a fixture-tested runtime drawdown monitor model. UAT1 verified explicit public-read-only Hyperliquid endpoint behavior, fetched a no-key public CoinGecko top-volume source, intersected it with Hyperliquid USDC perpetual metadata, and kept all included assets observation-only. UAT1.1 added model/report-only shadow signal audit records, operator-visible shadow drawdown, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification. UAT2 no-order shadow observation is complete; it evaluated the UAT1 Hyperliquid top-20-supported universe using only public read-only candles. UAT2.1 adds a dashboard UAT2 Shadow Run tab and founder-readiness pack so the UAT2 summary is visually reviewable without enabling approvals or orders. UAT3.0.6 sandbox submit path dry-run wiring is complete as part of the UAT3 sandbox/testnet gate-chain hardening. UAT3.1 is complete: exact founder/operator approval was verified, one Hyperliquid testnet ETH post-only limit order attempt under 10 USDC notional was made, Hyperliquid rejected it with a sanitized user/API-wallet-not-found response, no cancel was required, and reconciliation found no open order. UAT3.2 is complete as a blocked fixed-key preflight: exact separate approval was verified, account/API-wallet readiness still failed before order transport, order attempt count was `0`, no order/cancel/amend/retry endpoint was called, and UAT4.0 dashboard chart cockpit was captured as a future request only. UAT3.1/UAT3.2 created no production `OrderIntent`, `PreparedVenueOrder`, `SubmittedOrder`, executable approval, paper/live behavior, broad top-20 order submission, routing expansion, Money Flow rule change, evidence pack, live endpoint use, or unapproved repeated order. UAT is plumbing and behavior validation. The frozen evidence candidate is Hyperliquid ETH `sleeve_1h` current baseline. Paper trading is not approved. Live trading is not approved. Additional exchange order submission is not approved.
 
 ## Frozen UAT Observation Candidate
 
@@ -30,7 +30,7 @@ Candidate id: `money_flow_hyperliquid_eth_1h_baseline_uat_candidate`
 | Component | `sleeve_1h` |
 | Rules | Current baseline Money Flow rules |
 | Initial UAT mode | Observation / shadow first |
-| Execution status | One approved Hyperliquid testnet lifecycle probe attempted; additional exchange order submission is not approved |
+| Execution status | UAT3.1 made one approved Hyperliquid testnet attempt; UAT3.2 blocked before order transport; additional exchange order submission is not approved |
 
 This candidate is not a production strategy, not paper-trading approval, and not live-trading approval. It is the narrowest current evidence candidate for UAT behavior observation.
 
@@ -86,7 +86,7 @@ UAT0.3 closes the UAT1 preflight baseline:
 - Runtime drawdown monitor policy/model exists and is fixture-tested from caller-supplied observed equity.
 - UAT1 public read-only connectivity preflight was satisfied and UAT1 has now completed under strict constraints.
 
-UAT3.1 later used the UAT3.0.6 gate chain for one approved sandbox/testnet lifecycle probe. Additional sandbox order attempts now require separate UAT3.2 approval and sandbox account/API-wallet configuration review.
+UAT3.1 later used the UAT3.0.6 gate chain for one approved sandbox/testnet lifecycle probe. UAT3.2 later verified separate approval but blocked before order transport because sandbox account/API-wallet readiness still failed. Additional sandbox order attempts now require separate UAT3.3 approval plus recognized/authorized testnet user/API wallet and sufficient testnet equity.
 
 ## UAT1 / UAT1.1 Result
 
@@ -181,7 +181,17 @@ UAT3.1 first sandbox/testnet lifecycle probe is complete:
 - Exactly one Hyperliquid testnet ETH post-only limit order attempt under 10 USDC notional was made.
 - Hyperliquid rejected the attempt with a sanitized user/API-wallet-not-found response; no cancel was required, reconciliation found no open order, and no unexpected fill occurred.
 - No production `OrderIntent`, `PreparedVenueOrder`, `SubmittedOrder`, executable approval, paper/live behavior, broad top-20 order submission, routing expansion, Money Flow rule change, evidence pack, live endpoint use, or second order was created.
-- UAT3.2 additional sandbox lifecycle testing may be scoped only with separate founder/operator approval and after sandbox account/API-wallet configuration is reviewed.
+- UAT3.2 later verified separate founder/operator approval but blocked before order transport because the testnet user/API wallet was still not recognized/authorized and sandbox equity was insufficient.
+
+UAT3.2 fixed-key preflight / second sandbox lifecycle attempt is complete:
+
+- Exact founder/operator approval for one second sandbox/testnet order submission attempt was present and validated.
+- The runner verified Hyperliquid testnet endpoint identity, live-fed sandbox drawdown, approval scope, sandbox labels, submit-lease duplicate prevention, and fixed-target ETH post-only/nonmarketable order shape before any order-capable transport.
+- Account/API-wallet readiness blocked because the testnet user/API wallet was not recognized/authorized and sandbox equity was insufficient for the tiny under-10-USDC order.
+- Order attempt count was `0`; no order/cancel/amend/retry endpoint was called; cancel and reconciliation were not attempted because no order existed.
+- No production `OrderIntent`, `PreparedVenueOrder`, `SubmittedOrder`, executable approval, paper/live behavior, broad top-20 order submission, routing expansion, Money Flow rule change, evidence pack, live endpoint use, or unapproved repeated order was created.
+- Future UAT4.0 live UAT trading dashboard / chart cockpit was captured as a roadmap request only.
+- UAT3.3 remains blocked until separate founder/operator approval plus recognized/authorized testnet user/API wallet and sufficient testnet equity are available.
 
 Read [[00 Maps/UAT Roadmap|UAT Roadmap]] and [[40 Operations/UAT0 Safety Runtime Hardening|UAT0 Safety Runtime Hardening]] before any UAT work.
 

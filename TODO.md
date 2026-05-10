@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-10T16:41:12Z`
+Last reviewed: `2026-05-10T17:50:18Z`
 
 ## Active Follow-Ups
 
@@ -52,11 +52,17 @@ Last reviewed: `2026-05-10T16:41:12Z`
 - `status`: `done`
 - `summary`: `UAT3.1 ran after exact founder/operator approval for one sandbox/testnet order submission attempt. The UAT3.1 runner validates approval text, sandbox/testnet endpoint identity, live-fed sandbox drawdown, approval scope, risk gates, submit-lease duplicate prevention, sandbox artifact labels, and post-only/non-marketable ETH order shape before one transport call. The approved run made exactly one Hyperliquid testnet ETH order attempt under 10 USDC notional; Hyperliquid rejected it with a sanitized user/API-wallet-not-found response, so no cancel was required and reconciliation found no open order. No real OrderIntent, PreparedVenueOrder, SubmittedOrder, executable approval, paper/live behavior, broad top-20 order submission, route expansion, Money Flow rule change, evidence pack, live endpoint use, or second order was created.`
 
-### T-109
+### T-110
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `Any UAT3.2 additional sandbox lifecycle testing requires a separate founder/operator approval. Before another attempt, verify the Hyperliquid testnet account/API wallet configuration so the sandbox order can progress beyond the UAT3.1 sanitized user/API-wallet-not-found rejection if the goal is accepted/open -> cancel lifecycle coverage. UAT3.2 must remain sandbox/testnet only, one explicitly scoped attempt at a time, with no paper/live trading, no broad top-20 submission, no auto-submit, no routing expansion, and no Money Flow rule change.`
+- `summary`: `UAT3.3 additional sandbox lifecycle testing remains blocked until a separate founder/operator approval exists and Hyperliquid testnet account/API-wallet readiness can prove the target sandbox account is recognized, the signer/API wallet is recognized and authorized, and sufficient testnet equity is available for the tiny nonmarketable/post-only ETH order. UAT3.3 must remain sandbox/testnet only, one explicitly scoped attempt at a time, with no paper/live trading, no broad top-20 submission, no auto-submit, no routing expansion, and no Money Flow rule change.`
+
+### T-109
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `UAT3.2 ran after separate founder/operator approval for one second sandbox/testnet order attempt. The UAT3.2 runner validates exact approval text, fixed-key account/API-wallet readiness, sandbox/testnet endpoint identity, live-fed sandbox drawdown, approval scope, risk gates, submit-lease duplicate prevention, sandbox artifact labels, and post-only/nonmarketable ETH order shape before any order-capable transport. The recorded run blocked before /exchange because the testnet user/API wallet was still not recognized/authorized and sandbox equity was insufficient for the tiny under-10-USDC order. Order attempt count was 0, no order/cancel/amend/retry endpoint was called, and no real OrderIntent, PreparedVenueOrder, SubmittedOrder, executable approval, paper/live behavior, broad top-20 order submission, route expansion, Money Flow rule change, evidence pack, live endpoint use, or second order was created. UAT4.0 dashboard chart cockpit was captured as a future roadmap request only.`
 
 ### T-103
 

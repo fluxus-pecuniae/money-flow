@@ -200,3 +200,5 @@ The report includes only sanitized request/response summaries. It does not inclu
 ## Next Readiness Decision
 
 `UAT3.2 additional sandbox lifecycle testing may be scoped`
+
+Historical successor note: UAT3.2 was separately approved and executed as a fixed-key account/API-wallet readiness preflight. It blocked before any order transport because the Hyperliquid testnet user/API wallet was still not recognized/authorized and sandbox equity was insufficient; no second order attempt was made.

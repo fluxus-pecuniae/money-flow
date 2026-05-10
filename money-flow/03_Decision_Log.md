@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-10T17:50:18Z - UAT3.2 - Fixed-Key Preflight Blocked Before Order Transport
+
+- `decision`: Execute UAT3.2 only as one separately approved Hyperliquid testnet fixed-key readiness preflight plus one possible sandbox lifecycle attempt if every gate passed.
+- `why`: UAT3.1 reached the order endpoint and was safely rejected because the testnet user/API wallet did not exist. The founder/operator reported fixed credentials and supplied separate approval, so the next safe step was account/API-wallet readiness before any second order-capable transport.
+- `scope`: UAT3.2 validates exact approval text, sandbox/testnet endpoint boundary, fixed-key account/API-wallet recognition/authorization, live-fed sandbox drawdown, approval scope, risk gates, submit-lease duplicate prevention, sandbox artifact labels, endpoint classification, and nonmarketable/post-only ETH order shape. It must not submit live orders, use live keys, place more than one sandbox order attempt, create production `OrderIntent`, `PreparedVenueOrder`, `SubmittedOrder`, executable approval, paper/live behavior, routing expansion, Money Flow rule changes, evidence packs, broad top-20 submission, fanout, SOR, or target reselection.
+- `result`: Exact UAT3.2 approval was verified, but fixed-key account/API-wallet readiness failed before `/exchange`: the testnet user/API wallet was still not recognized/authorized and sandbox equity was insufficient. Order attempt count was `0`; no order/cancel/amend/retry endpoint was called; no production execution artifacts or paper/live behavior were created.
+- `follow_up_implications`: UAT3.3 remains blocked until separate founder/operator approval exists and Hyperliquid testnet user/API wallet recognition/authorization plus sufficient sandbox equity are verifiably fixed. UAT4.0 live UAT trading dashboard / chart cockpit was captured as a future roadmap request only.
+
 ## 2026-05-10T15:42:33Z - UAT3.0.6 - Sandbox Submit Path Dry-Run Wired
 
 - `decision`: Add a non-persistent sandbox submission plan and dry-run submit-path gate service before any UAT3.1 sandbox order attempt is considered.

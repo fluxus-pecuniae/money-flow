@@ -82,6 +82,8 @@ REQUIRED_FILES = [
     "docs/uat3_0_6_sandbox_submit_path_dry_run_wiring.md",
     "docs/uat3_1_first_sandbox_order_attempt.md",
     "docs/uat3_1_first_sandbox_order_attempt_summary.json",
+    "docs/uat3_2_second_sandbox_order_attempt.md",
+    "docs/uat3_2_second_sandbox_order_attempt_summary.json",
 ]
 
 
@@ -130,7 +132,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "canonical Obsidian command center" in command_center
-    assert "`UAT3.1` first approval-gated sandbox/testnet order attempt is complete" in current_phase
+    assert "`UAT3.2` fixed-key preflight / second approval-gated sandbox/testnet lifecycle attempt is complete" in current_phase
     assert "SV1.18" in command_center
     assert "UAT0" in command_center
     assert "UAT1 public read-only connectivity is complete" in command_center
@@ -138,6 +140,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "UAT2.1 dashboard visualization is complete" in command_center
     assert "UAT3.0.6 sandbox submit path dry-run wiring is complete" in command_center
     assert "UAT3.1 first sandbox/testnet lifecycle probe is complete" in command_center
+    assert "UAT3.2 is complete as a blocked fixed-key preflight" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
     assert "Strategy Validation" in moved_memory
@@ -149,6 +152,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "UAT2.1 dashboard visualization is complete" in moved_memory
     assert "UAT3.0.6 sandbox submit path dry-run wiring is complete" in moved_memory
     assert "UAT3.1 first sandbox/testnet lifecycle probe is complete" in moved_memory
+    assert "UAT3.2 fixed-key readiness preflight" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
 
@@ -163,7 +167,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
     assert (
-        "Current implemented milestone | `UAT3.1` first approval-gated sandbox/testnet order attempt complete"
+        "Current implemented milestone | `UAT3.2` fixed-key preflight / second sandbox lifecycle attempt complete as blocked before order transport"
         in command_center
     )
     assert "Canonical command center" in compatibility_command_center
@@ -173,6 +177,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     assert "UAT2.1 dashboard visualization is complete" in current_dashboard
     assert "UAT3.0.6 sandbox submit path dry-run wiring is complete" in current_dashboard
     assert "UAT3.1 first sandbox/testnet lifecycle probe is complete" in current_dashboard
+    assert "UAT3.2 fixed-key preflight" in current_dashboard
     assert "Strategy Validation is now its own major track" in Path("money-flow/00 Maps/Phase Timeline.md").read_text()
     assert "What Strategy Validation Did" in sv_map
     assert "What Strategy Validation Did Not Prove" in sv_map
@@ -297,6 +302,7 @@ def test_uat0_operational_truth_is_current() -> None:
     uat305_report = Path("docs/uat3_0_5_sandbox_private_read_only_drawdown_verification.md").read_text()
     uat306_report = Path("docs/uat3_0_6_sandbox_submit_path_dry_run_wiring.md").read_text()
     uat31_report = Path("docs/uat3_1_first_sandbox_order_attempt.md").read_text()
+    uat32_report = Path("docs/uat3_2_second_sandbox_order_attempt.md").read_text()
     current_notes = [
         Path("money-flow/00_Money_Flow_Command_Center.md").read_text(),
         Path("money-flow/01_Current_Phase.md").read_text(),
@@ -474,6 +480,24 @@ def test_uat0_operational_truth_is_current() -> None:
     assert "Paper trading is not approved" in uat31_report
     assert "Live trading is not approved" in uat31_report
 
+    assert "UAT3.2 Second Sandbox Order Attempt" in uat32_report
+    assert "Approval text presence: `verified`" in uat32_report
+    assert "Fixed-Key Account / API-Wallet Readiness" in uat32_report
+    assert "Status: `blocked`" in uat32_report
+    assert "Order attempt count | `0`" in uat32_report
+    assert "Order status | `blocked`" in uat32_report
+    assert "hyperliquid_testnet_user_not_found" in uat32_report
+    assert "hyperliquid_testnet_api_wallet_not_found" in uat32_report
+    assert "sandbox_account_equity_insufficient" in uat32_report
+    assert "OrderIntent | `false`" in uat32_report
+    assert "PreparedVenueOrder | `false`" in uat32_report
+    assert "SubmittedOrder | `false`" in uat32_report
+    assert "Executable approval | `false`" in uat32_report
+    assert "`UAT3.3 is blocked`" in uat32_report
+    assert "UAT4.0 — Live UAT Trading Dashboard / Chart Cockpit" in uat32_report
+    assert "Paper trading is not approved" in uat32_report
+    assert "Live trading is not approved" in uat32_report
+
     for note in current_notes:
         assert "UAT0" in note
         assert "UAT0.1" in note
@@ -487,6 +511,7 @@ def test_uat0_operational_truth_is_current() -> None:
         assert "UAT3" in note
         assert "UAT3.0.6" in note
         assert "UAT3.1" in note
+        assert "UAT3.2" in note
         assert "Paper trading is not approved" in note
         assert "Live trading is not approved" in note
         assert (
