@@ -32,6 +32,9 @@ def test_evidence_dashboard_uses_gus_design_tokens_and_boundaries() -> None:
     assert "Would-open means the shadow strategy conditions were met" in html
     assert "UAT3.0 design/readiness only" in js
     assert "Actual sandbox order submission is not approved" in js
+    assert "Sandbox runtime policy" in js
+    assert "Sandbox artifact label validator" in js
+    assert "Risk gate evaluator" in js
     assert "No interactive approval action exists" in js
     assert "SV1.15 Hypothesis Experiments" in html
     assert "experiment-replay-filter" in html

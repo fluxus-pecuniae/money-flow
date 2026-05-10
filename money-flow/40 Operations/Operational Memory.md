@@ -31,15 +31,16 @@ Before substantial work, read the repo memory and Obsidian brain. Before editing
 
 ## Current Important Memory Facts
 
-- Current implemented milestone: `UAT3.0` sandbox order design/readiness complete.
+- Current implemented milestone: `UAT3.0.1` sandbox runtime / approval / risk readiness hardening complete.
 - Strategy Validation SV1 is closed for now.
-- Next proposed phase: `UAT3.1` first approval-gated sandbox order remains blocked until explicit founder/operator approval, sandbox runtime policy, sandbox account drawdown feed, approval scope verification, submit-lease lifecycle verification, risk gates, and sandbox artifact labeling are implemented/tested.
+- Next proposed phase: `UAT3.1` first approval-gated sandbox order remains blocked until explicit founder/operator approval, live-fed sandbox drawdown, real sandbox submit path wiring, executable approval-scope gate wiring, risk gate wiring, submit-lease integration verification, and sandbox artifact-label persistence enforcement are complete.
 - UAT1 public read-only connectivity is complete under strict no-private/no-signed/no-order/no-API-key constraints.
 - UAT1 verified allowed public Hyperliquid info types, fetched a no-key public top-volume source, and resolved observation-only Hyperliquid supported assets.
 - UAT1.1 adds operator-visible shadow drawdown state, shadow signal audit surfaces, and representative structured redaction verification.
 - UAT2 evaluated the UAT1 Hyperliquid observation universe across `sleeve_15m`, `sleeve_1h`, and `sleeve_4h` using public read-only candles and shadow audit records only.
 - UAT2.1 made the UAT2 shadow run visible in the dashboard without adding approval/order controls.
 - UAT3.0 defines the sandbox-order design, founder approval template, sandbox runtime policy, sandbox drawdown feed requirements, approval lifecycle, submit-lease/duplicate-prevention design, and risk gate design.
+- UAT3.0.1 adds fixture-only readiness validators for fail-closed sandbox runtime policy, sandbox artifact labels, actual-submission approval scope, sandbox risk gates, sandbox drawdown feed fixtures, and submit-lease duplicate-prevention checks.
 - UAT3.1 actual sandbox order submission remains blocked.
 - Frozen evidence candidate: Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules.
 - Future UAT observation universe: top-20 high-volume supported assets for behavior validation only.

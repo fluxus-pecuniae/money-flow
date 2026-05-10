@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-10T09:22:47Z`
+Last reviewed: `2026-05-10T10:55:00Z`
 
 ## Active Follow-Ups
 
@@ -50,7 +50,13 @@ Last reviewed: `2026-05-10T09:22:47Z`
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `Implement UAT3.1 only after explicit founder/operator approval for actual sandbox submission. Required prerequisites: sandbox runtime mode and sandbox-only private endpoint separation, sandbox account drawdown feed wiring, UAT3 approval-scope verification, submit-lease/lifecycle fixture plus integration verification, risk gate implementation, sandbox artifact labeling, and no live/paper/order ambiguity. UAT3.1 must still be sandbox/testnet only and must not become automatic top-20 order submission.`
+- `summary`: `Implement UAT3.1 only after explicit founder/operator approval for actual sandbox submission. UAT3.0.1 adds fixture-only readiness primitives for sandbox runtime policy, sandbox artifact labels, approval scope validation, sandbox risk gates, sandbox drawdown feed fixture, and submit-lease duplicate-prevention checks, but UAT3.1 still requires real sandbox submit-path wiring, sandbox-only private endpoint separation, live-fed sandbox account drawdown, executable approval-scope wiring, submit-lease/lifecycle integration verification, risk-gate wiring, persistence-level sandbox artifact labeling, and no live/paper/order ambiguity. UAT3.1 must still be sandbox/testnet only and must not become automatic top-20 order submission.`
+
+### T-103
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete. Added fail-closed SandboxRuntimePolicy, sandbox artifact label validation, actual-submission approval-scope validation, sandbox risk-gate fixture evaluation, sandbox drawdown feed fixture support, and submit-lease / duplicate-prevention fixture checks. Tightened the UAT3.1 actual sandbox approval template and updated the dashboard UAT3 panel to show fixture/readiness status. UAT3.1 actual sandbox order submission remains blocked. No orders, real order intents, submitted orders, executable approvals, private/signed/order endpoints, exchange API keys, paper/live behavior, routing expansion, Money Flow rule changes, or evidence packs were added.`
 
 ### T-099
 

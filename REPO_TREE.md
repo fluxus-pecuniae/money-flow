@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-10T10:10:00Z`
+Last reviewed: `2026-05-10T10:55:00Z`
 
 ## Top-Level Structure
 
@@ -72,6 +72,7 @@ Last reviewed: `2026-05-10T10:10:00Z`
 - UAT2 updates current-state notes after the bounded no-order shadow run: the UAT1 observation-only universe was evaluated across `sleeve_15m`, `sleeve_1h`, and `sleeve_4h` using public Hyperliquid candle snapshots, shadow audit records were emitted, and later UAT3.0 sandbox order design/readiness completed while UAT3.1 actual sandbox submission remains blocked.
 - UAT2.1 updates current-state notes after dashboard visualization/readiness work: the static dashboard now loads the UAT2 summary JSON, displays shadow signal/reason/timing/drawdown/boundary panels, and shows UAT3 as blocked without adding approval/order actions.
 - UAT3.0 updates current-state notes after sandbox-order design/readiness work: the future initial sandbox subset is narrowed to Hyperliquid ETH `sleeve_1h`, the founder/operator approval template and lifecycle/risk/drawdown/submit-lease requirements are documented, the dashboard adds an informational design panel, and UAT3.1 actual sandbox submission remains blocked.
+- UAT3.0.1 updates current-state notes after sandbox runtime / approval / risk readiness hardening: fixture-only validators now cover fail-closed sandbox runtime policy, sandbox artifact labels, actual-submission approval scope, sandbox risk gates, sandbox drawdown feed fixtures, and submit-lease duplicate-prevention checks. UAT3.1 actual sandbox submission remains blocked.
 - Phase 8.0.1 accepted the previously dirty Obsidian memory refresh as the strategic baseline and updated it to current Phase 8.0/8.0.1 truth.
 - Phase 8.0.2 updates current-phase/coordination/decision notes for active submit-lease operator-summary truth only; full project memory remains untouched.
 - SV1.0.1 updates current-phase/coordination/decision notes for strategy-validation research-truth/report hardening only; full project memory remains untouched.
@@ -125,6 +126,7 @@ Last reviewed: `2026-05-10T10:10:00Z`
 - UAT0 adds no dashboard runtime behavior; future dashboard/operator visibility for top-20 shadow observation remains a UAT2 prerequisite.
 - UAT2.1 adds the `UAT2 Shadow Run` tab. It loads `docs/uat2_shadow_strategy_top20_observation_summary.json`, renders summary cards, a filterable signal matrix, would-open inspection, no-trade reason breakdowns, the ETH evidence-candidate card, timing/drawdown panels, no-artifact boundary flags, and an informational UAT3 blocked readiness checklist. It creates no approval action, order intent, submitted order, exchange call, paper/live behavior, routing behavior, or Money Flow rule change.
 - UAT3.0 adds an informational UAT3.0 sandbox design panel to the same UAT dashboard view. It shows the narrow ETH `sleeve_1h` sandbox subset, actual sandbox submission as not approved, founder approval as required, sandbox account drawdown feed as missing, and approval/submit-lease/lifecycle verification as designed but not complete. It adds no active order-submission or approval control.
+- UAT3.0.1 updates that panel with fixture/readiness status for sandbox runtime policy, sandbox artifact label validation, approval scope validation, risk gates, sandbox drawdown feed fixtures, and submit-lease duplicate-prevention checks. It still adds no active order-submission or approval control.
 
 `docs/uat0_safety_security_runtime_hardening.md`
 - Founder/operator UAT0 safety, security, runtime, and operational-readiness audit.
@@ -173,6 +175,15 @@ Last reviewed: `2026-05-10T10:10:00Z`
 - Founder/operator UAT3.0 sandbox-order design and readiness report.
 - Defines the narrow initial sandbox subset, future approval template, sandbox runtime policy, sandbox account drawdown feed requirements, approval-gated lifecycle, sandbox artifact labeling, submit-lease / duplicate prevention, approval gate, risk gate, dashboard readiness, and UAT3.1 blocked decision.
 - It is design/readiness only and creates no order intents, submitted orders, executable approvals, exchange calls, paper/live behavior, routing expansion, Money Flow rule changes, or evidence packs.
+
+`docs/uat3_0_1_sandbox_runtime_approval_risk_readiness.md`
+- Founder/operator UAT3.0.1 sandbox runtime / approval / risk readiness report.
+- Records the fixture-tested `SandboxRuntimePolicy`, sandbox artifact-label validator, sharpened actual-submission approval template, approval-scope validator, sandbox risk-gate evaluator, sandbox drawdown feed fixture, submit-lease duplicate-prevention fixture, dashboard readiness, UAT3.1 blocked decision, and no-order/no-artifact boundary.
+
+`services/uat/sandbox.py`
+- Fixture-only UAT3 sandbox readiness helpers.
+- Defines fail-closed sandbox runtime policy evaluation, sandbox artifact label validation, actual-submission approval-scope validation, sandbox risk-gate evaluation, sandbox drawdown feed fixtures, and submit-lease duplicate-prevention checks.
+- Creates no trading artifacts, submits no orders, calls no exchange endpoints, and authorizes no paper/live behavior.
 
 `core/config/`
 - Pydantic settings, environment profiles, runtime selection, and per-venue / strategy configuration.

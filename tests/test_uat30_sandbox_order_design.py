@@ -119,8 +119,15 @@ def test_dashboard_has_informational_uat3_design_panel_without_order_button() ->
     assert "hyperliquid eth usdc perpetual / sleeve_1h" in dashboard
     assert "broad top-20 order submission" in dashboard
     assert "not approved" in dashboard
+    assert "sandbox runtime policy" in dashboard
+    assert "fixture/implemented" in dashboard
+    assert "sandbox artifact label validator" in dashboard
+    assert "approval scope validator" in dashboard
+    assert "fixture-tested" in dashboard
+    assert "risk gate evaluator" in dashboard
     assert "sandbox account drawdown feed" in dashboard
-    assert "missing" in dashboard
+    assert "fixture only / missing live sandbox feed" in dashboard
+    assert "submit lease duplicate-prevention" in dashboard
     assert "active order submission button</span><strong>false" in dashboard
     assert "create approval" not in dashboard
     assert "submit sandbox order" not in dashboard

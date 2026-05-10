@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-10T10:55:00Z - UAT3.0.1 - Sandbox Runtime / Approval / Risk Readiness Fixtures Complete
+
+- `decision`: Add fixture-only readiness primitives for the future UAT3.1 sandbox order path while keeping actual sandbox submission blocked.
+- `why`: UAT3.0 documented the required runtime, approval, drawdown, artifact-label, submit-lease, and risk gates. Before any real sandbox/testnet order attempt can be considered, those requirements need concrete testable primitives that fail closed without creating execution artifacts.
+- `scope`: UAT3.0.1 adds `SandboxRuntimePolicy`, sandbox artifact-label validation, actual-submission approval-scope validation, sandbox risk-gate fixture evaluation, sandbox drawdown feed fixture support, submit-lease duplicate-prevention fixture checks, sharper UAT3.1 approval wording, dashboard readiness status, and docs/tests. It does not submit orders, create real `OrderIntent` / `SubmittedOrder` / executable approval artifacts, call private/signed/order endpoints, use exchange API keys, approve paper/live trading, change Money Flow rules, add routing expansion, or generate evidence packs.
+- `result`: UAT3.1 actual sandbox order submission remains blocked. Fixture checks now cover fail-closed runtime defaults, sandbox labels, approval scope mismatches/expiry/live/broad-top20 cases, risk-gate blocks, not-live-account sandbox drawdown fixtures, duplicate/uncertain submit blocking, cross-venue retry blocking, no top-20 fanout, and no route executor behavior.
+- `follow_up_implications`: UAT3.1 may proceed only after explicit founder/operator approval for actual sandbox submission, real sandbox/testnet submit-path wiring, sandbox-only private endpoint separation, live-fed sandbox account drawdown, executable approval/risk gate wiring, submit-lease integration verification, and persistence-level sandbox artifact-label enforcement.
+
 ## 2026-05-10T09:22:47Z - UAT2.1 - UAT2 Dashboard Review Surface Complete, UAT3 Still Blocked
 
 - `decision`: Add a review-only UAT2 Shadow Run dashboard view and founder approval readiness pack for the completed UAT2 no-order shadow run.

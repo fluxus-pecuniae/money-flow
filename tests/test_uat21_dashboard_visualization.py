@@ -71,6 +71,11 @@ def test_uat2_dashboard_exposes_would_open_warning_timing_and_drawdown_truth() -
     assert "uat3 is blocked" in dashboard
     assert "uat3.0 design/readiness only" in dashboard
     assert "actual sandbox order submission is not approved" in dashboard
+    assert "sandbox runtime policy" in dashboard
+    assert "fixture/implemented" in dashboard
+    assert "approval scope validator" in dashboard
+    assert "risk gate evaluator" in dashboard
+    assert "submit lease duplicate-prevention" in dashboard
     assert "no interactive approval action exists" in dashboard
 
 

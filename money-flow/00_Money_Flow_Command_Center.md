@@ -6,17 +6,17 @@ This is the canonical Obsidian command center for Money Flow agents and founder 
 
 | Field | Current State |
 | --- | --- |
-| Current implemented milestone | `UAT3.0` sandbox order design/readiness complete |
+| Current implemented milestone | `UAT3.0.1` sandbox runtime / approval / risk readiness hardening complete |
 | Current major track | Strategy Validation evidence cycle is closed |
 | Next proposed phase | `UAT3.1` first approval-gated sandbox order remains blocked until prerequisites are closed |
-| UAT status | UAT2 no-order shadow observation, UAT2.1 dashboard visualization, and UAT3.0 sandbox-order design are complete; UAT3.1 actual sandbox order submission remains blocked |
+| UAT status | UAT2 no-order shadow observation, UAT2.1 dashboard visualization, UAT3.0 sandbox-order design, and UAT3.0.1 fixture/readiness hardening are complete; UAT3.1 actual sandbox order submission remains blocked |
 | Paper trading | Not approved |
 | Live trading | Not approved |
 | Exchange order submission | Not approved |
 | Routing / SOR expansion | Deferred |
 | Production Money Flow rules | Unchanged |
 
-SV1.18 is complete. UAT0 is complete as a safety/security/runtime audit. UAT0.1 closes the P0 API auth/authz baseline for sensitive `/api/v1` routes and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds a fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and a fixture-tested runtime drawdown monitor model. UAT1 verified explicit public-read-only Hyperliquid endpoint behavior, fetched a no-key public CoinGecko top-volume source, intersected it with Hyperliquid USDC perpetual metadata, and kept all included assets observation-only. UAT1.1 added model/report-only shadow signal audit records, operator-visible shadow drawdown, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification. UAT2 no-order shadow observation is complete; it evaluated the UAT1 Hyperliquid top-20-supported universe using only public read-only candles. UAT2.1 adds a dashboard UAT2 Shadow Run tab and founder-readiness pack so the UAT2 summary is visually reviewable without enabling approvals or orders. UAT3.0 defines the future sandbox-order design, approval template, lifecycle, sandbox drawdown feed, artifact labeling, submit-lease, approval, and risk-gate requirements. UAT3.1 actual sandbox order submission remains blocked. UAT is plumbing and behavior validation. The frozen evidence candidate is Hyperliquid ETH `sleeve_1h` current baseline. Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved.
+SV1.18 is complete. UAT0 is complete as a safety/security/runtime audit. UAT0.1 closes the P0 API auth/authz baseline for sensitive `/api/v1` routes and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds a fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and a fixture-tested runtime drawdown monitor model. UAT1 verified explicit public-read-only Hyperliquid endpoint behavior, fetched a no-key public CoinGecko top-volume source, intersected it with Hyperliquid USDC perpetual metadata, and kept all included assets observation-only. UAT1.1 added model/report-only shadow signal audit records, operator-visible shadow drawdown, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification. UAT2 no-order shadow observation is complete; it evaluated the UAT1 Hyperliquid top-20-supported universe using only public read-only candles. UAT2.1 adds a dashboard UAT2 Shadow Run tab and founder-readiness pack so the UAT2 summary is visually reviewable without enabling approvals or orders. UAT3.0 defines the future sandbox-order design, approval template, lifecycle, sandbox drawdown feed, artifact labeling, submit-lease, approval, and risk-gate requirements. UAT3.0.1 adds fixture-only sandbox runtime policy, sandbox artifact label validation, actual-submission approval-scope validation, sandbox risk-gate evaluation, sandbox drawdown feed fixture support, and submit-lease duplicate-prevention checks. UAT3.1 actual sandbox order submission remains blocked. UAT is plumbing and behavior validation. The frozen evidence candidate is Hyperliquid ETH `sleeve_1h` current baseline. Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved.
 
 ## Frozen UAT Observation Candidate
 
@@ -130,6 +130,16 @@ UAT3.0 sandbox order design is complete:
 - The dashboard UAT view includes an informational UAT3.0 design/readiness panel.
 - UAT3.1 actual sandbox order submission remains blocked.
 - No order intent, submitted order, executable approval, private/signed endpoint call, exchange API-key use, paper/live behavior, routing artifact, evidence pack, or Money Flow rule change was added.
+
+UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete:
+
+- Fail-closed `SandboxRuntimePolicy` exists and is fixture-tested.
+- Sandbox artifact label validation exists and fails unsafe/missing labels.
+- Future UAT3.1 actual-submission approval wording now separates design approval from one sandbox/testnet order-attempt approval.
+- Approval scope validation, sandbox risk gate evaluation, sandbox drawdown feed fixtures, and submit-lease duplicate-prevention fixtures are implemented and tested.
+- Dashboard UAT view shows fixture/readiness status.
+- UAT3.1 actual sandbox order submission remains blocked.
+- No order intent, submitted order, executable approval, private/signed/order endpoint call, exchange API-key use, paper/live behavior, routing artifact, evidence pack, or Money Flow rule change was added.
 
 Read [[00 Maps/UAT Roadmap|UAT Roadmap]] and [[40 Operations/UAT0 Safety Runtime Hardening|UAT0 Safety Runtime Hardening]] before any UAT work.
 

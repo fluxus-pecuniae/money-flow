@@ -41,29 +41,35 @@ Distinctions:
 
 Status: `defined_template_only`.
 
-Future UAT3.1 actual sandbox submission requires an explicit approval record with this exact intent:
+UAT3.0 completed design/scoping approval only. It did not approve an actual sandbox order submission.
+
+Future UAT3.1 actual sandbox submission requires a separate explicit approval record with this exact intent:
 
 ```text
-I approve UAT3.1 sandbox/testnet order submission design for the explicitly scoped sandbox test only.
+I approve one approval-gated sandbox/testnet order submission attempt under the exact scope below.
 
 This approval is for sandbox/testnet only.
 This approval does not approve live trading.
 This approval does not approve paper trading with real capital.
 This approval does not approve production auto-submit.
 This approval does not approve broad top-20 order submission.
+This approval does not approve repeated orders beyond the approved count.
 
-Venue: Hyperliquid sandbox/testnet only
+Venue: Hyperliquid
+Environment: sandbox/testnet only
 Symbol: ETH
 Product: USDC perpetual
 Component: sleeve_1h
 Rules: current baseline Money Flow rules
 Maximum notional or quantity: <operator-filled tiny sandbox limit>
 Maximum sandbox orders: <operator-filled small count>
+Allowed order type: <operator-filled sandbox order type>
 Time window: <operator-filled start/end>
+Account / sandbox account id: <operator-filled sandbox account id>
 Kill switch / disable control: <operator-filled control id>
 Expected lifecycle to test: submit, accepted/open, partial fill or full fill if available, cancel, reject, expired, unknown/uncertainty, reconciliation, operator report
 
-I understand this does not approve actual live trading, real-capital paper trading, route expansion, automatic top-20 order submission, or production auto-submit.
+I understand this approval is not live trading approval, not real-capital paper trading approval, not route expansion approval, not automatic top-20 order submission approval, and not production auto-submit approval.
 ```
 
 UAT2.1 dashboard acceptance does not authorize sandbox-order submission. UAT3.0 produces the template only; it does not execute it.

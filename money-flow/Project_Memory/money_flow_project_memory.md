@@ -18,7 +18,7 @@ Money Flow combines:
 - submitted-order lifecycle and reconciliation truth.
 - operator observability.
 - future UAT/sandbox behavior validation.
-- UAT0 safety/security/runtime readiness plus UAT0.1 API/runtime lockout, UAT0.2 adapter-policy/redaction hardening, UAT0.3 top-20 universe/drawdown readiness preflight, UAT1 public read-only connectivity/universe resolution, UAT1.1 shadow-readiness surfaces, UAT2 bounded no-order shadow observation, UAT2.1 dashboard visualization, and UAT3.0 sandbox-order design/readiness.
+- UAT0 safety/security/runtime readiness plus UAT0.1 API/runtime lockout, UAT0.2 adapter-policy/redaction hardening, UAT0.3 top-20 universe/drawdown readiness preflight, UAT1 public read-only connectivity/universe resolution, UAT1.1 shadow-readiness surfaces, UAT2 bounded no-order shadow observation, UAT2.1 dashboard visualization, UAT3.0 sandbox-order design/readiness, and UAT3.0.1 sandbox runtime / approval / risk readiness hardening.
 
 ## Platform Tracks Completed
 
@@ -91,9 +91,9 @@ Excluded from current UAT:
 - Aster / Binance / OKX / Coinbase / Kraken.
 - cross-venue comparison.
 
-## UAT0 / UAT0.1 / UAT0.2 / UAT0.3 / UAT1 / UAT1.1 / UAT2 / UAT2.1 / UAT3.0 Outcome
+## UAT0 / UAT0.1 / UAT0.2 / UAT0.3 / UAT1 / UAT1.1 / UAT2 / UAT2.1 / UAT3.0 / UAT3.0.1 Outcome
 
-UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT0.3 top-20 universe and drawdown readiness preflight is complete. UAT1 public read-only connectivity is complete. UAT1.1 shadow readiness is complete. UAT2 bounded no-order shadow observation is complete. UAT2.1 dashboard visualization is complete. UAT3.0 sandbox order design is complete. UAT3.0 sandbox-order readiness is documented. UAT3.1 actual sandbox order submission remains blocked.
+UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT0.3 top-20 universe and drawdown readiness preflight is complete. UAT1 public read-only connectivity is complete. UAT1.1 shadow readiness is complete. UAT2 bounded no-order shadow observation is complete. UAT2.1 dashboard visualization is complete. UAT3.0 sandbox order design is complete. UAT3.0 sandbox-order readiness is documented. UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete. UAT3.1 actual sandbox order submission remains blocked.
 
 Closed by UAT0.1:
 
@@ -151,17 +151,28 @@ Closed by UAT3.0:
 
 - The future initial sandbox-order subset is defined as Hyperliquid ETH USDC perpetual `sleeve_1h` current baseline rules only.
 - The founder/operator approval template, sandbox runtime policy, sandbox account drawdown feed requirements, approval-gated lifecycle, sandbox artifact labeling, submit-lease / duplicate-prevention design, approval gate design, and risk gate design are documented.
-- The dashboard UAT view has an informational UAT3.0 design/readiness panel.
+- The dashboard UAT view has an informational UAT3.0/UAT3.0.1 design/readiness panel.
 - UAT3.1 actual sandbox order submission remains blocked.
 - No orders, real order intents, submitted orders, executable approvals, private/signed endpoint calls, exchange API keys, paper/live behavior, routing expansion, evidence packs, or Money Flow rule changes were used or created.
+
+Closed by UAT3.0.1:
+
+- Fail-closed `SandboxRuntimePolicy` fixture/readiness helper exists and defaults sandbox submission, private endpoints, live endpoint access, paper/live trading, and generic exchange order submission to disabled.
+- Sandbox artifact label validation exists and fails unsafe/missing sandbox/testnet/not-live/not-paper labels.
+- Future UAT3.1 actual-submission approval wording is separate from design/scoping approval and requires exact venue, environment, symbol, component, max size/count, order type, time window, sandbox account, kill switch, and lifecycle scope.
+- Approval scope validation, sandbox risk gate evaluation, sandbox drawdown feed fixture support, and submit-lease duplicate-prevention fixture checks exist and are test-covered.
+- Dashboard UAT view shows fixture/readiness status.
+- UAT3.1 actual sandbox order submission remains blocked.
+- No orders, real order intents, submitted orders, executable approvals, private/signed/order endpoint calls, exchange API keys, paper/live behavior, routing expansion, evidence packs, or Money Flow rule changes were used or created.
 
 Remaining UAT blockers:
 
 - UAT3.1 requires explicit founder/operator approval before actual sandbox order submission.
-- UAT3.1 needs sandbox runtime submission enablement and sandbox-only private endpoint separation.
-- UAT3.1 needs sandbox/live account drawdown feed wiring.
-- Existing approval gates, execution defaults, venue submit flags, and submit-lease uncertainty protections are useful but require later UAT-specific verification.
-- Sandbox artifact labeling and risk gates must be implemented and verified before actual sandbox submission.
+- UAT3.1 needs sandbox runtime submission enablement and sandbox-only private endpoint separation wired to a real sandbox/testnet account.
+- UAT3.1 needs live-fed sandbox account drawdown feed wiring.
+- Approval scope validation and risk gates must be wired to executable UAT3.1 gates.
+- Submit lease / duplicate-prevention must be integration-verified with the future sandbox submit path.
+- Sandbox artifact labeling must be enforced at persistence/API/dashboard/report boundaries before actual sandbox submission.
 
 Future UAT observation is not ETH-only. UAT1/UAT2 cover the top 20 high-volume crypto assets supported by the selected UAT venue/environment for platform behavior validation. Top-20 inclusion is not strategy approval.
 

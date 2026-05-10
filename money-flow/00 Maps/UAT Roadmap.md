@@ -4,7 +4,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 UAT validates plumbing and behavior. It does not prove profitability.
 
-Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, UAT1.1 shadow readiness is complete, UAT2 bounded no-order shadow strategy observation is complete, UAT2.1 dashboard visualization is complete, and UAT3.0 sandbox-order design/readiness is complete. UAT3.1 actual sandbox order submission remains blocked.
+Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, UAT1.1 shadow readiness is complete, UAT2 bounded no-order shadow strategy observation is complete, UAT2.1 dashboard visualization is complete, UAT3.0 sandbox-order design/readiness is complete, and UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete. UAT3.1 actual sandbox order submission remains blocked.
 
 ## Frozen Observation Candidate
 
@@ -106,11 +106,27 @@ Likely files/modules: `docs/uat3_0_sandbox_order_design_and_readiness.md`, `apps
 
 Required docs/tests: UAT3.0 report tests, dashboard no-order-control tests, operational-doc current-state tests.
 
+## UAT3.0.1 - Sandbox Runtime / Approval / Risk Readiness Hardening
+
+Objective: convert UAT3.0 design requirements into fixture-testable readiness primitives without enabling actual sandbox order submission.
+
+Status: complete. Fail-closed sandbox runtime policy, sandbox artifact label validation, actual-submission approval scope validation, sandbox risk gate evaluator, sandbox drawdown feed fixture, and submit-lease duplicate-prevention fixture checks exist and are tested. Dashboard UAT view shows fixture/readiness status.
+
+Allowed behavior: fixture/stub validation, docs, dashboard readiness labels, tests.
+
+Forbidden behavior: actual sandbox order submission, live endpoints, private/signed/order endpoint calls, API-key use, executable approvals, real order intents, submitted orders, paper trades, live trades, route expansion, automatic top-20 order submission.
+
+Success criteria: UAT3.1 blockers are more precise and readiness primitives fail closed without creating artifacts.
+
+Likely files/modules: `services/uat/sandbox.py`, `docs/uat3_0_1_sandbox_runtime_approval_risk_readiness.md`, `apps/dashboard/`, operational docs, Obsidian notes.
+
+Required docs/tests: UAT3.0.1 sandbox readiness tests, dashboard no-order-control tests, operational-doc current-state tests.
+
 ## UAT3.1 - First Approval-Gated Sandbox Order
 
 Objective: test one tiny approval-gated sandbox/testnet order only after all UAT3.0 blockers are closed and explicit founder/operator approval authorizes actual sandbox submission.
 
-Status: blocked.
+Status: blocked. UAT3.0.1 fixture readiness primitives exist, but actual sandbox submission remains blocked until they are wired to an executable sandbox/testnet path with explicit founder/operator approval and live-fed sandbox account drawdown.
 
 Allowed behavior: explicitly approved tiny sandbox/testnet orders for a small operator-approved subset, starting with Hyperliquid ETH `sleeve_1h`.
 

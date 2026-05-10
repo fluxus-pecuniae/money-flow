@@ -11,7 +11,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 | Controlled automation | Phase 7 | Approval-gated same-target action hooks with safety closeout; no full SOR. |
 | Operator observability | Phase 8 | Read-only routed workflow/manual-resolution inspection and submit-lease truth. |
 | Strategy Validation | SV1.0-SV1.18.1 | Hyperliquid public evidence cycle, dynamic equity, diagnostics, replay experiments, and UAT candidate freeze. |
-| UAT | UAT0-UAT4 | UAT3.0 sandbox order design/readiness complete; UAT3.1 actual sandbox order submission remains blocked; sandbox review remains planned. |
+| UAT | UAT0-UAT4 | UAT3.0.1 sandbox runtime / approval / risk readiness hardening complete; UAT3.1 actual sandbox order submission remains blocked; sandbox review remains planned. |
 
 Strategy Validation is now its own major track. It is not an active sub-phase of Phase 8.
 
@@ -42,7 +42,7 @@ Strategy Validation is now its own major track. It is not an active sub-phase of
 
 ## Current State
 
-Current implemented milestone: `UAT3.0` sandbox order design/readiness complete.
+Current implemented milestone: `UAT3.0.1` sandbox runtime / approval / risk readiness hardening complete.
 
 Next proposed phase: `UAT3.1` first approval-gated sandbox order remains blocked until explicit founder/operator approval and sandbox runtime/drawdown/approval/submit-lease/risk/artifact-labeling prerequisites are implemented and test-covered.
 
@@ -58,7 +58,8 @@ Paper trading is not approved. Live trading is not approved. Exchange order subm
 - UAT2: bounded no-order shadow strategy run across top-20 supported assets with `next_candle_open` and `next_candle_close` complete.
 - UAT2.1: dashboard visualization and founder approval readiness pack complete.
 - UAT3.0: sandbox order design/readiness complete with no orders, no order intents, no submitted orders, and no executable approvals.
-- UAT3.1: first approval-gated sandbox order remains blocked pending explicit founder/operator approval and sandbox runtime/drawdown/approval/submit-lease/risk/artifact-labeling prerequisites.
+- UAT3.0.1: fixture-only sandbox runtime policy, sandbox artifact label validation, approval-scope validation, risk gate evaluation, sandbox drawdown feed fixture, and submit-lease duplicate-prevention checks complete.
+- UAT3.1: first approval-gated sandbox order remains blocked pending explicit founder/operator approval, live-fed sandbox drawdown, real sandbox submit path wiring, executable approval-scope gate wiring, risk gate wiring, submit-lease integration verification, and sandbox artifact-label persistence enforcement.
 - UAT4: sandbox / simulated trading review.
 
 See [[00 Maps/UAT Roadmap|UAT Roadmap]].

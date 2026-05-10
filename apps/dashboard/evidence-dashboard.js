@@ -1574,15 +1574,18 @@
           <div><span>Initial sandbox subset</span><strong>Hyperliquid ETH USDC perpetual / sleeve_1h</strong></div>
           <div><span>Broad top-20 order submission</span><strong>not approved</strong></div>
           <div><span>Founder approval</span><strong>required for actual sandbox submission</strong></div>
-          <div><span>Sandbox account drawdown feed</span><strong>missing</strong></div>
-          <div><span>Approval gate</span><strong>designed_needs_verification</strong></div>
-          <div><span>Submit lease lifecycle</span><strong>designed_needs_verification</strong></div>
-          <div><span>Lifecycle verification</span><strong>designed_needs_verification</strong></div>
+          <div><span>Sandbox runtime policy</span><strong>fixture/implemented</strong></div>
+          <div><span>Sandbox artifact label validator</span><strong>implemented</strong></div>
+          <div><span>Approval scope validator</span><strong>fixture-tested</strong></div>
+          <div><span>Risk gate evaluator</span><strong>fixture-tested</strong></div>
+          <div><span>Sandbox account drawdown feed</span><strong>fixture only / missing live sandbox feed</strong></div>
+          <div><span>Submit lease duplicate-prevention</span><strong>fixture-tested</strong></div>
+          <div><span>Lifecycle verification</span><strong>fixture-tested design only</strong></div>
           <div><span>Active order submission button</span><strong>false</strong></div>
         </div>
         <ul class="check-list">
-          <li>UAT3.0 defines the future sandbox/testnet approval template and lifecycle only.</li>
-          <li>UAT3.1 is blocked by founder/operator approval for actual sandbox submission, sandbox account drawdown feed wiring, approval-scope verification, submit-lease lifecycle verification, risk gates, and sandbox artifact labeling.</li>
+          <li>UAT3.0.1 adds fixture/readiness validators only; it does not enable actual sandbox submission.</li>
+          <li>UAT3.1 is blocked by founder/operator approval for actual sandbox submission, live-fed sandbox drawdown, sandbox submit path wiring, executable approval-scope wiring, risk gate wiring, submit-lease integration verification, and sandbox artifact label enforcement.</li>
           <li>No dashboard control creates an approval, order intent, submitted order, or sandbox order.</li>
         </ul>
       `;
