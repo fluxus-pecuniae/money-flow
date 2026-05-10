@@ -2,17 +2,17 @@
 
 ## Current Implemented Milestone
 
-`UAT2.1` dashboard visualization and founder readiness is complete.
+`UAT3.0` sandbox order design and readiness is complete.
 
-SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one evidence candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap. OB1.0 overhauled the Obsidian project brain. UAT0 audited safety/security/runtime readiness and blocked UAT1 until named gaps were closed. UAT0.1 closes the P0 API auth/authz baseline and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds fixture-tested top-20 universe resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design. UAT1 verifies allowed public Hyperliquid endpoint behavior, fetches a no-key public top-volume source, and resolves the Hyperliquid-supported top-20 observation universe. UAT1.1 adds shadow signal audit records, operator-visible shadow drawdown state, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification. UAT2 completed a bounded no-order Money Flow shadow observation across the UAT1 Hyperliquid top-20-supported universe. UAT2.1 makes that UAT2 output visually reviewable in the static dashboard and adds an informational UAT3 blocked readiness panel.
+SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one evidence candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap. OB1.0 overhauled the Obsidian project brain. UAT0 audited safety/security/runtime readiness and blocked UAT1 until named gaps were closed. UAT0.1 closes the P0 API auth/authz baseline and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds fixture-tested top-20 universe resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design. UAT1 verifies allowed public Hyperliquid endpoint behavior, fetches a no-key public top-volume source, and resolves the Hyperliquid-supported top-20 observation universe. UAT1.1 adds shadow signal audit records, operator-visible shadow drawdown state, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification. UAT2 completed a bounded no-order Money Flow shadow observation across the UAT1 Hyperliquid top-20-supported universe. UAT2.1 makes that UAT2 output visually reviewable in the static dashboard and adds an informational UAT3 blocked readiness panel. UAT3.0 defines the future sandbox-order scope, founder/operator approval template, sandbox runtime policy, sandbox drawdown feed requirements, lifecycle, artifact labeling, submit-lease, approval, and risk-gate requirements without enabling submission.
 
 SV1.18 is complete.
 
 ## Next Proposed Phase
 
-`UAT3` approval-gated sandbox order design may be scoped only after explicit founder/operator approval.
+`UAT3.1` first approval-gated sandbox order remains blocked.
 
-UAT3 remains blocked. UAT remains plumbing and behavior validation only. It is not paper trading, live trading, exchange order submission, routing expansion, or strategy optimization.
+UAT3.1 may proceed only after explicit founder/operator approval for actual sandbox submission, sandbox runtime submission enablement, sandbox account drawdown feed wiring, UAT3 approval-scope verification, submit-lease/lifecycle verification, risk gate implementation, and sandbox artifact labeling. UAT remains plumbing and behavior validation only. It is not paper trading, live trading, unrestricted exchange order submission, routing expansion, or strategy optimization.
 
 ## Frozen UAT Observation Candidate
 
@@ -121,14 +121,24 @@ UAT2.1 is now complete:
 
 - The static dashboard has a `UAT2 Shadow Run` tab sourced from `docs/uat2_shadow_strategy_top20_observation_summary.json`.
 - It displays UAT2 summary cards, a filterable 45-record shadow signal matrix, would-open inspection, no-trade reason breakdowns, ETH `sleeve_1h` candidate truth, timing assumptions, not-live-account shadow drawdown, no-artifact boundary flags, and UAT3 blockers.
-- UAT3 remains blocked; the dashboard adds no active approval action and cannot enable orders.
+- UAT3.1 actual sandbox order submission remains blocked; the dashboard adds no active approval action and cannot enable orders.
 - No private/signed/order endpoints, API keys, order submissions, strategy decisions, order intents, submitted orders, approvals, paper/live behavior, evidence packs, routing artifacts, or Money Flow rule changes were created.
+
+UAT3.0 is now complete:
+
+- Initial sandbox-order scope is defined as Hyperliquid ETH USDC perpetual `sleeve_1h` current baseline rules only.
+- Founder/operator approval template, sandbox runtime policy, sandbox account drawdown feed requirements, approval-gated lifecycle, sandbox artifact labeling, submit-lease / duplicate-prevention design, approval gate design, and risk gate design are documented.
+- Dashboard UAT view includes an informational UAT3.0 design/readiness panel.
+- UAT3.1 actual sandbox order submission remains blocked.
+- No order intent, submitted order, executable approval, private/signed endpoint call, exchange API-key use, paper/live behavior, evidence pack, routing artifact, or Money Flow rule change was created.
 
 Remaining later blockers:
 
-- UAT3 needs sandbox/live account drawdown feed wiring.
-- Existing approval gates and submit leases are useful but require UAT3 verification before sandbox orders.
-- Founder/operator approval is required before any UAT3 sandbox-order design work starts.
+- UAT3.1 needs explicit founder/operator approval for actual sandbox submission.
+- UAT3.1 needs sandbox runtime submission enablement and sandbox-only private endpoint separation.
+- UAT3.1 needs sandbox account drawdown feed wiring.
+- Existing approval gates and submit leases are useful but require UAT3.1 verification before sandbox orders.
+- Sandbox artifact labeling and risk gate implementation remain required before any actual sandbox order submission.
 
 ## Required Reading For Next Work
 

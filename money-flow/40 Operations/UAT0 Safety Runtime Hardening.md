@@ -2,7 +2,7 @@
 
 Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
-UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT0.3 top-20 universe and drawdown readiness preflight is complete. UAT1 public read-only connectivity and top-20 universe resolution is complete. UAT1.1 shadow readiness is complete. UAT2 bounded no-order shadow strategy observation is complete. UAT2.1 dashboard visualization is complete. UAT3 sandbox orders remain blocked.
+UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT0.3 top-20 universe and drawdown readiness preflight is complete. UAT1 public read-only connectivity and top-20 universe resolution is complete. UAT1.1 shadow readiness is complete. UAT2 bounded no-order shadow strategy observation is complete. UAT2.1 dashboard visualization is complete. UAT3.0 sandbox-order design/readiness is complete. UAT3.1 actual sandbox order submission remains blocked.
 
 ## Result
 
@@ -20,6 +20,7 @@ Founder/operator report:
 - `docs/uat1_1_shadow_signal_audit_and_drawdown_readiness.md`
 - `docs/uat2_shadow_strategy_top20_observation.md`
 - `docs/uat2_1_dashboard_visualization_and_approval_readiness.md`
+- `docs/uat3_0_sandbox_order_design_and_readiness.md`
 
 ## Evidence Candidate vs Observation Universe
 
@@ -47,7 +48,7 @@ UAT2 shadow timing compared `next_candle_open` and `next_candle_close`. `same_ca
 | Sandbox/testnet environment gating | needs_verification | P1 Hyperliquid allowlist exists; endpoint URL/sandbox behavior remains UAT1 verification |
 | Hyperliquid public read-only endpoint behavior | verified_public_only | P1 closed by UAT1 |
 | Risk limit enforcement | needs_verification | P1 |
-| Runtime drawdown calculation and monitoring | implemented_shadow_visibility | P1 closed for UAT2 shadow by UAT1.1; UAT3 account feed wiring remains |
+| Runtime drawdown calculation and monitoring | implemented_shadow_visibility | P1 closed for UAT2 shadow by UAT1.1; UAT3.1 sandbox account feed wiring remains |
 | Kill switch / disable switch | needs_verification | P1 |
 | Debug stack traces not exposed to users | needs_verification | P1 |
 | Audit logging | implemented_shadow_audit_surface | P1 closed for UAT2 shadow by UAT1.1; UAT3 lifecycle audit verification remains |
@@ -60,7 +61,7 @@ UAT2 shadow timing compared `next_candle_open` and `next_candle_close`. `same_ca
 
 `UAT1 read-only connectivity may proceed`.
 
-UAT1 is now complete. UAT1.1 is now complete. UAT2 is now complete. UAT2.1 is now complete. `UAT3 is blocked`.
+UAT1 is now complete. UAT1.1 is now complete. UAT2 is now complete. UAT2.1 is now complete. UAT3.0 design/readiness is now complete. `UAT3.1 is blocked`.
 
 Closed by UAT0.1:
 
@@ -120,11 +121,19 @@ Closed by UAT2.1:
 - UAT2 summary cards, a filterable signal matrix, would-open review, no-trade reason breakdowns, ETH candidate truth, timing assumptions, not-live-account drawdown, boundary flags, and UAT3 blockers are visible;
 - no approval action, order submission path, paper/live behavior, routing behavior, evidence pack, or Money Flow rule change was added.
 
-Remaining before UAT3:
+Closed by UAT3.0:
 
-- explicit founder/operator approval for UAT3 sandbox-order design scope;
+- future initial sandbox-order subset is defined as Hyperliquid ETH USDC perpetual `sleeve_1h` current baseline rules only;
+- founder/operator approval template, sandbox runtime policy, sandbox account drawdown feed requirements, approval-gated lifecycle, sandbox artifact labeling, submit-lease / duplicate-prevention design, approval gate design, and risk gate design are documented;
+- dashboard UAT view includes an informational UAT3.0 design/readiness panel;
+- no order intent, submitted order, executable approval, private/signed endpoint call, exchange API-key use, paper/live behavior, evidence pack, routing artifact, or Money Flow rule change was added.
+
+Remaining before UAT3.1:
+
+- explicit founder/operator approval for actual sandbox submission;
+- sandbox runtime submission enablement and sandbox-only private endpoint separation;
 - sandbox/live account drawdown feed wiring;
-- UAT-specific risk, kill-switch, approval, submit-lease, and lifecycle verification.
+- UAT-specific risk, kill-switch, approval, submit-lease, lifecycle, and artifact-labeling verification.
 
 ## Forbidden Until Later Gated Phases
 

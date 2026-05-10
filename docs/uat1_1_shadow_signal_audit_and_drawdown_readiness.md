@@ -101,7 +101,7 @@ UAT2 was accepted as next work and completed as no-order shadow mode. It compare
 
 Remaining blockers:
 - none for UAT2 shadow-only start; UAT3 sandbox-order blockers remain deferred.
-- UAT3 remains blocked pending explicit founder/operator approval for sandbox-order design, sandbox account drawdown feed wiring, and UAT3 approval/submit-lease/lifecycle verification.
+- UAT3.0 later completed sandbox-order design/readiness. UAT3.1 actual sandbox order submission remains blocked pending explicit founder/operator approval, sandbox account drawdown feed wiring, and UAT3 approval/submit-lease/lifecycle verification.
 
 ## Boundary Confirmation
 

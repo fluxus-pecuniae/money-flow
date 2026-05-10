@@ -459,6 +459,7 @@
     uatReasonFilter: document.querySelector("#uat-reason-filter"),
     uatEthCandidateCard: document.querySelector("#uat-eth-candidate-card"),
     uat3ReadinessPanel: document.querySelector("#uat3-readiness-panel"),
+    uat3DesignPanel: document.querySelector("#uat3-design-panel"),
     uatBoundaryPanel: document.querySelector("#uat-boundary-panel"),
     uatSignalMatrix: document.querySelector("#uat-signal-matrix"),
     uatWouldOpenTable: document.querySelector("#uat-would-open-table"),
@@ -1564,6 +1565,29 @@
       `;
     }
 
+    if (elements.uat3DesignPanel) {
+      elements.uat3DesignPanel.innerHTML = `
+        <div class="warning-banner"><strong>UAT3.0 design/readiness only.</strong> Actual sandbox order submission is not approved.</div>
+        <div class="boundary-grid">
+          <div><span>UAT3.0 design status</span><strong>defined</strong></div>
+          <div><span>UAT3.1 actual sandbox order status</span><strong>blocked</strong></div>
+          <div><span>Initial sandbox subset</span><strong>Hyperliquid ETH USDC perpetual / sleeve_1h</strong></div>
+          <div><span>Broad top-20 order submission</span><strong>not approved</strong></div>
+          <div><span>Founder approval</span><strong>required for actual sandbox submission</strong></div>
+          <div><span>Sandbox account drawdown feed</span><strong>missing</strong></div>
+          <div><span>Approval gate</span><strong>designed_needs_verification</strong></div>
+          <div><span>Submit lease lifecycle</span><strong>designed_needs_verification</strong></div>
+          <div><span>Lifecycle verification</span><strong>designed_needs_verification</strong></div>
+          <div><span>Active order submission button</span><strong>false</strong></div>
+        </div>
+        <ul class="check-list">
+          <li>UAT3.0 defines the future sandbox/testnet approval template and lifecycle only.</li>
+          <li>UAT3.1 is blocked by founder/operator approval for actual sandbox submission, sandbox account drawdown feed wiring, approval-scope verification, submit-lease lifecycle verification, risk gates, and sandbox artifact labeling.</li>
+          <li>No dashboard control creates an approval, order intent, submitted order, or sandbox order.</li>
+        </ul>
+      `;
+    }
+
     if (!elements.uatBoundaryPanel) return;
     const boundary = state.uat2Summary?.boundary_flags || {};
     const fields = [
@@ -1607,6 +1631,7 @@
         elements.uatWouldOpenTable,
         elements.uatEthCandidateCard,
         elements.uat3ReadinessPanel,
+        elements.uat3DesignPanel,
         elements.uatBoundaryPanel,
         elements.uatNoTradeOverall,
         elements.uatNoTradeComponent,

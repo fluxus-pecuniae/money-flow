@@ -6,17 +6,17 @@ This is the canonical Obsidian command center for Money Flow agents and founder 
 
 | Field | Current State |
 | --- | --- |
-| Current implemented milestone | `UAT2.1` dashboard visualization and founder readiness complete |
+| Current implemented milestone | `UAT3.0` sandbox order design/readiness complete |
 | Current major track | Strategy Validation evidence cycle is closed |
-| Next proposed phase | `UAT3` approval-gated sandbox order design may be scoped only after explicit founder/operator approval |
-| UAT status | UAT2 no-order shadow observation and UAT2.1 dashboard visualization are complete; UAT3 sandbox orders remain blocked |
+| Next proposed phase | `UAT3.1` first approval-gated sandbox order remains blocked until prerequisites are closed |
+| UAT status | UAT2 no-order shadow observation, UAT2.1 dashboard visualization, and UAT3.0 sandbox-order design are complete; UAT3.1 actual sandbox order submission remains blocked |
 | Paper trading | Not approved |
 | Live trading | Not approved |
 | Exchange order submission | Not approved |
 | Routing / SOR expansion | Deferred |
 | Production Money Flow rules | Unchanged |
 
-SV1.18 is complete. UAT0 is complete as a safety/security/runtime audit. UAT0.1 closes the P0 API auth/authz baseline for sensitive `/api/v1` routes and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds a fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and a fixture-tested runtime drawdown monitor model. UAT1 verified explicit public-read-only Hyperliquid endpoint behavior, fetched a no-key public CoinGecko top-volume source, intersected it with Hyperliquid USDC perpetual metadata, and kept all included assets observation-only. UAT1.1 added model/report-only shadow signal audit records, operator-visible shadow drawdown, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification. UAT2 no-order shadow observation is complete; it evaluated the UAT1 Hyperliquid top-20-supported universe using only public read-only candles. UAT2.1 adds a dashboard UAT2 Shadow Run tab and founder-readiness pack so the UAT2 summary is visually reviewable without enabling approvals or orders. UAT is plumbing and behavior validation. The frozen evidence candidate is Hyperliquid ETH `sleeve_1h` current baseline. Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved.
+SV1.18 is complete. UAT0 is complete as a safety/security/runtime audit. UAT0.1 closes the P0 API auth/authz baseline for sensitive `/api/v1` routes and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds a fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and a fixture-tested runtime drawdown monitor model. UAT1 verified explicit public-read-only Hyperliquid endpoint behavior, fetched a no-key public CoinGecko top-volume source, intersected it with Hyperliquid USDC perpetual metadata, and kept all included assets observation-only. UAT1.1 added model/report-only shadow signal audit records, operator-visible shadow drawdown, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification. UAT2 no-order shadow observation is complete; it evaluated the UAT1 Hyperliquid top-20-supported universe using only public read-only candles. UAT2.1 adds a dashboard UAT2 Shadow Run tab and founder-readiness pack so the UAT2 summary is visually reviewable without enabling approvals or orders. UAT3.0 defines the future sandbox-order design, approval template, lifecycle, sandbox drawdown feed, artifact labeling, submit-lease, approval, and risk-gate requirements. UAT3.1 actual sandbox order submission remains blocked. UAT is plumbing and behavior validation. The frozen evidence candidate is Hyperliquid ETH `sleeve_1h` current baseline. Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved.
 
 ## Frozen UAT Observation Candidate
 
@@ -86,7 +86,7 @@ UAT0.3 closes the UAT1 preflight baseline:
 - Runtime drawdown monitor policy/model exists and is fixture-tested from caller-supplied observed equity.
 - UAT1 public read-only connectivity preflight was satisfied and UAT1 has now completed under strict constraints.
 
-Remaining blockers before UAT3 include explicit founder/operator approval for sandbox-order design, sandbox account drawdown feed wiring, UAT-specific risk/kill-switch/audit visibility verification, and sandbox lifecycle verification.
+Remaining blockers before UAT3.1 actual sandbox order submission include explicit founder/operator approval for actual sandbox submission, sandbox runtime submission enablement, sandbox account drawdown feed wiring, UAT-specific risk/kill-switch/audit visibility verification, sandbox artifact labeling, approval-scope verification, and sandbox lifecycle verification.
 
 ## UAT1 / UAT1.1 Result
 
@@ -114,7 +114,7 @@ UAT2 shadow observation is complete:
 - ETH `sleeve_1h` produced `no_trade` with `macd_not_constructive`.
 - Shadow drawdown was labeled `shadow_simulated_drawdown` / `not_live_account_drawdown`; no PnL or live account equity was implied.
 - No API keys, private endpoints, signed endpoints, order endpoints, order submissions, strategy decisions, order intents, submitted orders, approvals, paper/live behavior, evidence packs, routing artifacts, or Money Flow rule changes were used or created.
-- UAT3 remains blocked until a later explicit sandbox-order design phase is accepted.
+- UAT3.1 actual sandbox order submission remains blocked until explicit founder/operator approval and sandbox runtime/drawdown/approval/submit-lease/risk/artifact-labeling prerequisites are implemented and test-covered.
 
 UAT2.1 dashboard visualization is complete:
 
@@ -122,6 +122,14 @@ UAT2.1 dashboard visualization is complete:
 - The tab shows summary cards, filterable shadow signal matrix, would-open records, no-trade reason breakdowns, ETH `sleeve_1h` candidate status, timing assumptions, not-live-account shadow drawdown, no-artifact boundary flags, and UAT3 blockers.
 - The UAT3 readiness panel is informational only and says UAT3 is blocked.
 - No approval action, order intent, submitted order, exchange call, paper/live behavior, routing artifact, evidence pack, or Money Flow rule change was added.
+
+UAT3.0 sandbox order design is complete:
+
+- The future initial sandbox subset is Hyperliquid ETH USDC perpetual `sleeve_1h` current baseline rules only.
+- The founder/operator approval template, sandbox runtime policy, sandbox account drawdown feed requirements, approval-gated lifecycle, sandbox artifact labeling, submit-lease / duplicate-prevention design, approval gate design, and risk gate design are documented.
+- The dashboard UAT view includes an informational UAT3.0 design/readiness panel.
+- UAT3.1 actual sandbox order submission remains blocked.
+- No order intent, submitted order, executable approval, private/signed endpoint call, exchange API-key use, paper/live behavior, routing artifact, evidence pack, or Money Flow rule change was added.
 
 Read [[00 Maps/UAT Roadmap|UAT Roadmap]] and [[40 Operations/UAT0 Safety Runtime Hardening|UAT0 Safety Runtime Hardening]] before any UAT work.
 

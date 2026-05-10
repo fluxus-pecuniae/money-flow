@@ -4,7 +4,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 UAT validates plumbing and behavior. It does not prove profitability.
 
-Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, UAT1.1 shadow readiness is complete, UAT2 bounded no-order shadow strategy observation is complete, and UAT2.1 dashboard visualization is complete. UAT3 sandbox orders remain blocked.
+Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, UAT1.1 shadow readiness is complete, UAT2 bounded no-order shadow strategy observation is complete, UAT2.1 dashboard visualization is complete, and UAT3.0 sandbox-order design/readiness is complete. UAT3.1 actual sandbox order submission remains blocked.
 
 ## Frozen Observation Candidate
 
@@ -84,17 +84,49 @@ Allowed behavior: local dashboard visualization, manual JSON loading, founder/op
 
 Forbidden behavior: order submission, executable approvals, paper trades, live trades, private/signed endpoints, API keys, routing expansion, Money Flow rule changes.
 
-Success criteria: the founder can review the UAT2 shadow run and UAT3 blockers while seeing that would-open records are not orders and that UAT3 remains blocked.
+Success criteria: the founder can review the UAT2 shadow run and UAT3.1 blockers while seeing that would-open records are not orders and that actual sandbox order submission remains blocked.
 
 Likely files/modules: `apps/dashboard/`, `docs/uat2_1_dashboard_visualization_and_approval_readiness.md`, operational docs.
 
 Required docs/tests: dashboard static asset tests, UAT2.1 visualization tests, operational-doc current-state tests.
 
+## UAT3.0 - Sandbox Order Design + Approval/Lifecycle Readiness
+
+Objective: define the future approval-gated sandbox-order scope, lifecycle, and safety gates without submitting orders.
+
+Status: complete. The initial future sandbox subset is Hyperliquid ETH USDC perpetual `sleeve_1h` current baseline rules only. The founder/operator approval template, sandbox runtime policy, sandbox account drawdown feed requirements, approval-gated lifecycle, sandbox artifact labels, submit-lease / duplicate-prevention requirements, approval scope, risk gates, and dashboard readiness are documented.
+
+Allowed behavior: design/reporting, fixture/stub thinking, dashboard readiness panel, tests, docs.
+
+Forbidden behavior: actual sandbox order submission, live endpoints, private/signed endpoint calls, API-key use, executable approvals, order intents, submitted orders, paper trades, live trades, route expansion, automatic top-20 order submission.
+
+Success criteria: the founder can see exactly what UAT3.1 would require before any sandbox order.
+
+Likely files/modules: `docs/uat3_0_sandbox_order_design_and_readiness.md`, `apps/dashboard/`, operational docs, Obsidian notes.
+
+Required docs/tests: UAT3.0 report tests, dashboard no-order-control tests, operational-doc current-state tests.
+
+## UAT3.1 - First Approval-Gated Sandbox Order
+
+Objective: test one tiny approval-gated sandbox/testnet order only after all UAT3.0 blockers are closed and explicit founder/operator approval authorizes actual sandbox submission.
+
+Status: blocked.
+
+Allowed behavior: explicitly approved tiny sandbox/testnet orders for a small operator-approved subset, starting with Hyperliquid ETH `sleeve_1h`.
+
+Forbidden behavior: live endpoints, real-capital paper trading, unrestricted automation, route expansion, automatic top-20 order submission.
+
+Success criteria: submit, reject, cancel, fill, uncertainty, and reconcile paths are safe and auditable against sandbox/testnet account truth.
+
+Likely files/modules: execution service, exchange adapter, order lifecycle, approvals, runtime policy, risk, dashboard.
+
+Required docs/tests: sandbox lifecycle tests, duplicate-prevention tests, sandbox approval tests, sandbox drawdown feed tests, artifact-labeling tests.
+
 ## UAT3 - Approval-Gated Sandbox Orders
 
 Objective: test sandbox order lifecycle only after UAT0-UAT2 pass and explicit founder/operator approval accepts sandbox-order design scope.
 
-Status: blocked. UAT2 did not clear sandbox order execution; it only completed no-order shadow observation.
+Status: split into UAT3.0 design/readiness complete and UAT3.1 actual sandbox submission blocked. UAT2 did not clear sandbox order execution; it only completed no-order shadow observation.
 
 Allowed behavior: explicitly approved tiny sandbox/testnet orders, starting with a small operator-approved subset.
 

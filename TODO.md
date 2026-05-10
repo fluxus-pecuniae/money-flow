@@ -40,11 +40,23 @@ Last reviewed: `2026-05-10T09:22:47Z`
 - `status`: `done`
 - `summary`: `UAT2.1 dashboard visualization and founder approval readiness pack is complete. The existing static dashboard now loads docs/uat2_shadow_strategy_top20_observation_summary.json in a UAT2 Shadow Run view, shows summary cards, a filterable 45-record signal matrix, would-open inspection, no-trade reason breakdowns, the ETH sleeve_1h evidence-candidate card, next_candle_open / next_candle_close timing status, same_candle_close_research_only research-only truth, not-live-account shadow drawdown, boundary confirmation, and UAT3 blocked readiness. No approval action, sandbox order submission, StrategyDecision, SignalEvent, OrderIntent, PreparedVenueOrder, ExecutionReadinessAssessment, SubmittedOrder, routing artifact, private/signed endpoint call, API-key use, paper/live behavior, Money Flow rule change, or evidence pack was added.`
 
-### T-099
+### T-101
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `UAT3.0 sandbox-order design/readiness is complete. The founder/operator report defines the initial ETH sleeve_1h sandbox subset, approval template, sandbox runtime policy, sandbox account drawdown feed requirements, approval-gated lifecycle, sandbox artifact labels, submit-lease / duplicate-prevention design, approval gate design, risk gate design, UAT3.1 blockers, and dashboard readiness. The dashboard UAT view now has an informational UAT3.0 design panel. UAT3.1 actual sandbox order submission remains blocked. No orders, real order intents, submitted orders, executable approvals, private/signed endpoints, exchange API keys, paper/live behavior, routing expansion, Money Flow rule changes, or evidence packs were added.`
+
+### T-102
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `Scope UAT3 approval-gated sandbox order design only after founder/operator acceptance. UAT3 remains blocked by explicit approval to proceed, sandbox/live account drawdown feed wiring, UAT-specific risk/kill-switch/audit visibility verification, and approval/submit-lease sandbox lifecycle verification. UAT3 must not become automatic top-20 order submission and must not use live endpoints, paper trading, routing expansion, Money Flow rule changes, or unapproved order submission.`
+- `summary`: `Implement UAT3.1 only after explicit founder/operator approval for actual sandbox submission. Required prerequisites: sandbox runtime mode and sandbox-only private endpoint separation, sandbox account drawdown feed wiring, UAT3 approval-scope verification, submit-lease/lifecycle fixture plus integration verification, risk gate implementation, sandbox artifact labeling, and no live/paper/order ambiguity. UAT3.1 must still be sandbox/testnet only and must not become automatic top-20 order submission.`
+
+### T-099
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `UAT3 approval-gated sandbox order design has been scoped in UAT3.0 as design/readiness only. Actual UAT3.1 sandbox order submission remains blocked by explicit approval, sandbox runtime enablement, sandbox account drawdown feed wiring, UAT-specific risk/kill-switch/audit visibility verification, sandbox artifact labeling, and approval/submit-lease lifecycle verification. UAT3 must not become automatic top-20 order submission and must not use live endpoints, paper trading, routing expansion, Money Flow rule changes, or unapproved order submission.`
 
 ### T-094
 

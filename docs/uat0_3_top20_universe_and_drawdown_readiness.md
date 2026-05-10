@@ -250,7 +250,7 @@ Rationale:
 
 UAT1 is still not paper trading, not live trading, not order submission, not a profitability test, and not strategy approval.
 
-UAT1 follow-up result: UAT1 public read-only connectivity is complete under those constraints. Historical UAT1 result kept UAT2 blocked until operator-visible shadow drawdown state, shadow signal audit surfaces, and broader structured log/API error redaction verification were complete. UAT1.1 later closed those no-order shadow-readiness blockers, and UAT2 has now completed a bounded no-order shadow observation. UAT3 remains blocked.
+UAT1 follow-up result: UAT1 public read-only connectivity is complete under those constraints. Historical UAT1 result kept UAT2 blocked until operator-visible shadow drawdown state, shadow signal audit surfaces, and broader structured log/API error redaction verification were complete. UAT1.1 later closed those no-order shadow-readiness blockers, UAT2 completed bounded no-order shadow observation, and UAT3.0 completed sandbox-order design/readiness. UAT3.1 actual sandbox order submission remains blocked.
 
 ## Boundary Confirmation
 

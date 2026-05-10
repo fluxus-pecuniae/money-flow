@@ -4,7 +4,7 @@ Recorded at: `2026-05-10T07:18:43Z`
 
 UAT1.1 follow-up: `docs/uat1_1_shadow_signal_audit_and_drawdown_readiness.md` adds model/report-only shadow signal audit, operator-visible shadow drawdown, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification. UAT1.1 cleared UAT2 start blockers for a future no-order phase; UAT1.1 does not run UAT2, run Money Flow over live data, submit orders, create strategy/execution artifacts, or approve paper/live trading.
 
-UAT2 follow-up: `docs/uat2_shadow_strategy_top20_observation.md` completed a bounded no-order shadow strategy observation using this UAT1 universe snapshot, public read-only Hyperliquid candles, and shadow audit records only. UAT2 did not use API keys, private/signed/order endpoints, order submission, strategy/execution artifacts, paper/live behavior, routing artifacts, Money Flow rule changes, or evidence packs. UAT3 remains blocked pending explicit sandbox-order design approval and deeper sandbox lifecycle wiring.
+UAT2 follow-up: `docs/uat2_shadow_strategy_top20_observation.md` completed a bounded no-order shadow strategy observation using this UAT1 universe snapshot, public read-only Hyperliquid candles, and shadow audit records only. UAT2 did not use API keys, private/signed/order endpoints, order submission, strategy/execution artifacts, paper/live behavior, routing artifacts, Money Flow rule changes, or evidence packs. UAT3.0 later completed sandbox-order design/readiness; UAT3.1 actual sandbox order submission remains blocked pending explicit founder/operator approval and deeper sandbox lifecycle wiring.
 
 ## Scope
 

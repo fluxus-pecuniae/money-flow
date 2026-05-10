@@ -24,6 +24,7 @@ def test_uat2_dashboard_tab_loads_summary_json_and_required_sections() -> None:
     assert "uat-timing-panel" in html
     assert "uat-drawdown-card" in html
     assert "uat3-readiness-panel" in html
+    assert "uat3-design-panel" in html
     assert "uat-boundary-panel" in html
     assert "uat2_shadow_strategy_top20_observation_summary.json" in js
     assert "uat2_shadow_summary" in js
@@ -68,6 +69,8 @@ def test_uat2_dashboard_exposes_would_open_warning_timing_and_drawdown_truth() -
     assert "not live account drawdown" in dashboard
     assert "this is not performance validation" in dashboard
     assert "uat3 is blocked" in dashboard
+    assert "uat3.0 design/readiness only" in dashboard
+    assert "actual sandbox order submission is not approved" in dashboard
     assert "no interactive approval action exists" in dashboard
 
 
@@ -96,6 +99,7 @@ def test_uat2_dashboard_has_no_order_enabling_approval_button_or_forbidden_langu
     assert "create approval" not in dashboard
     assert "approval button" not in dashboard
     assert "enable orders" not in dashboard
+    assert "submit sandbox order" not in dashboard
     assert "paper trading approved" not in dashboard
     assert "live trading approved" not in dashboard
     assert "order submission approved" not in dashboard

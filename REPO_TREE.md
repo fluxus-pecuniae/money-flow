@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-10T09:22:47Z`
+Last reviewed: `2026-05-10T10:10:00Z`
 
 ## Top-Level Structure
 
@@ -69,8 +69,9 @@ Last reviewed: `2026-05-10T09:22:47Z`
 - UAT0.3 updates current-state notes after top-20 universe/drawdown readiness preflight: fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design exist; UAT1 public read-only connectivity may proceed under strict no-private/no-signed/no-order/no-API-key constraints.
 - UAT1 updates current-state notes after public read-only connectivity and top-20 universe resolution: explicit public-read-only network mode was used, Hyperliquid allowed public info types were verified, a public no-key CoinGecko top-volume source was fetched, Hyperliquid-supported observation-only assets were resolved, and UAT2 remained blocked at that point by shadow-readiness gaps. No private/signed/order endpoints, API keys, order submissions, Money Flow live strategy execution, paper/live behavior, routing behavior, Money Flow rule changes, or evidence packs were added.
 - UAT1.1 updates current-state notes after shadow-readiness hardening: model/report-only shadow signal audit records, operator-visible shadow drawdown, UAT1 universe snapshot loading, and representative API-error / structured-log redaction verification exist.
-- UAT2 updates current-state notes after the bounded no-order shadow run: the UAT1 observation-only universe was evaluated across `sleeve_15m`, `sleeve_1h`, and `sleeve_4h` using public Hyperliquid candle snapshots, shadow audit records were emitted, and UAT3 remains blocked.
+- UAT2 updates current-state notes after the bounded no-order shadow run: the UAT1 observation-only universe was evaluated across `sleeve_15m`, `sleeve_1h`, and `sleeve_4h` using public Hyperliquid candle snapshots, shadow audit records were emitted, and later UAT3.0 sandbox order design/readiness completed while UAT3.1 actual sandbox submission remains blocked.
 - UAT2.1 updates current-state notes after dashboard visualization/readiness work: the static dashboard now loads the UAT2 summary JSON, displays shadow signal/reason/timing/drawdown/boundary panels, and shows UAT3 as blocked without adding approval/order actions.
+- UAT3.0 updates current-state notes after sandbox-order design/readiness work: the future initial sandbox subset is narrowed to Hyperliquid ETH `sleeve_1h`, the founder/operator approval template and lifecycle/risk/drawdown/submit-lease requirements are documented, the dashboard adds an informational design panel, and UAT3.1 actual sandbox submission remains blocked.
 - Phase 8.0.1 accepted the previously dirty Obsidian memory refresh as the strategic baseline and updated it to current Phase 8.0/8.0.1 truth.
 - Phase 8.0.2 updates current-phase/coordination/decision notes for active submit-lease operator-summary truth only; full project memory remains untouched.
 - SV1.0.1 updates current-phase/coordination/decision notes for strategy-validation research-truth/report hardening only; full project memory remains untouched.
@@ -123,6 +124,7 @@ Last reviewed: `2026-05-10T09:22:47Z`
 - SV1.18 adds no dashboard runtime behavior; UAT closeout remains a founder-readable docs/reporting layer.
 - UAT0 adds no dashboard runtime behavior; future dashboard/operator visibility for top-20 shadow observation remains a UAT2 prerequisite.
 - UAT2.1 adds the `UAT2 Shadow Run` tab. It loads `docs/uat2_shadow_strategy_top20_observation_summary.json`, renders summary cards, a filterable signal matrix, would-open inspection, no-trade reason breakdowns, the ETH evidence-candidate card, timing/drawdown panels, no-artifact boundary flags, and an informational UAT3 blocked readiness checklist. It creates no approval action, order intent, submitted order, exchange call, paper/live behavior, routing behavior, or Money Flow rule change.
+- UAT3.0 adds an informational UAT3.0 sandbox design panel to the same UAT dashboard view. It shows the narrow ETH `sleeve_1h` sandbox subset, actual sandbox submission as not approved, founder approval as required, sandbox account drawdown feed as missing, and approval/submit-lease/lifecycle verification as designed but not complete. It adds no active order-submission or approval control.
 
 `docs/uat0_safety_security_runtime_hardening.md`
 - Founder/operator UAT0 safety, security, runtime, and operational-readiness audit.
@@ -166,6 +168,11 @@ Last reviewed: `2026-05-10T09:22:47Z`
 `docs/uat2_1_dashboard_visualization_and_approval_readiness.md`
 - Founder/operator UAT2.1 dashboard and review-readiness report.
 - Documents the dashboard UAT2 tab, loaded JSON path, UAT2 counts, ETH evidence-candidate card, timing and not-live-account drawdown truth, boundary confirmation, UAT3 blocked readiness panel, and no-approval/no-order boundary.
+
+`docs/uat3_0_sandbox_order_design_and_readiness.md`
+- Founder/operator UAT3.0 sandbox-order design and readiness report.
+- Defines the narrow initial sandbox subset, future approval template, sandbox runtime policy, sandbox account drawdown feed requirements, approval-gated lifecycle, sandbox artifact labeling, submit-lease / duplicate prevention, approval gate, risk gate, dashboard readiness, and UAT3.1 blocked decision.
+- It is design/readiness only and creates no order intents, submitted orders, executable approvals, exchange calls, paper/live behavior, routing expansion, Money Flow rule changes, or evidence packs.
 
 `core/config/`
 - Pydantic settings, environment profiles, runtime selection, and per-venue / strategy configuration.
@@ -681,4 +688,5 @@ Last reviewed: `2026-05-10T09:22:47Z`
 - Static dashboard asset checks, including SV evidence/experiment tabs and the UAT2 Shadow Run view wiring.
 
 `tests/test_uat21_dashboard_visualization.py`
-- UAT2.1 dashboard visualization checks: verifies the UAT2 summary JSON loads, expected UAT2 counts are represented, the signal matrix / would-open / no-trade / ETH candidate / timing / drawdown / UAT3 blocked panels are present, no interactive approval action is added, and forbidden paper/live/order/profitability language is absent from the dashboard surface.
+- UAT2.1 dashboard visualization checks: verifies the UAT2 summary JSON loads, expected UAT2 counts are represented, the signal matrix / would-open / no-trade / ETH candidate / timing / drawdown / UAT3 blocked and UAT3.0 design panels are present, no interactive approval action is added, and forbidden paper/live/order/profitability language is absent from the dashboard surface.
+- UAT3.0 sandbox-order design checks: verifies the design report, founder approval template, narrow ETH `sleeve_1h` sandbox subset, sandbox runtime/drawdown/artifact/approval/submit-lease/risk requirements, UAT3.1 blocked decision, dashboard design panel, no active order control, and no order/exchange/live artifact boundaries.

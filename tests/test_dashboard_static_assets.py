@@ -28,7 +28,10 @@ def test_evidence_dashboard_uses_gus_design_tokens_and_boundaries() -> None:
     assert "uat-signal-matrix" in html
     assert "uat-would-open-table" in html
     assert "uat-boundary-panel" in html
+    assert "uat3-design-panel" in html
     assert "Would-open means the shadow strategy conditions were met" in html
+    assert "UAT3.0 design/readiness only" in js
+    assert "Actual sandbox order submission is not approved" in js
     assert "No interactive approval action exists" in js
     assert "SV1.15 Hypothesis Experiments" in html
     assert "experiment-replay-filter" in html
