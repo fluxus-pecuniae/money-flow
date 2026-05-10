@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-10T15:42:33Z - UAT3.0.6 - Sandbox Submit Path Dry-Run Wired
+
+- `decision`: Add a non-persistent sandbox submission plan and dry-run submit-path gate service before any UAT3.1 sandbox order attempt is considered.
+- `why`: UAT3.0.5 verified live-fed sandbox account drawdown, but actual submission still needs proof that approval, drawdown, risk, submit-lease, endpoint classification, and sandbox-label gates compose before any order transport can be enabled.
+- `scope`: UAT3.0.6 adds `UAT3SandboxSubmissionPlan`, `UAT3SandboxSubmitDryRunService`, endpoint-classification checks for the future `sandbox_order_submission` category, live-fed drawdown freshness/label checks, docs, and tests. It does not submit orders, create real `OrderIntent` / `PreparedVenueOrder` / `SubmittedOrder` / executable approval artifacts, call order/cancel/amend/retry endpoints, use exchange API keys, approve paper/live trading, change Money Flow rules, add routing expansion, or generate evidence packs.
+- `result`: UAT3.1 actual sandbox order submission remains blocked. The dry-run path now reports no order intent, prepared order, submitted order, executable approval, or exchange call creation while blocking missing founder actual-submission approval, stale/missing drawdown, approval/risk failures, submit-lease duplicate/uncertainty failures, endpoint-classification failures, and missing sandbox labels.
+- `follow_up_implications`: UAT3.1 may proceed only after explicit founder/operator actual-submission approval, explicit later-phase sandbox/testnet order transport enablement, and final operator review proving the real submit path preserves the dry-run gates.
+
 ## 2026-05-10T15:06:29Z - UAT3.0.5 - Testnet Read-Only Drawdown Verified
 
 - `decision`: Rerun UAT3.0.5 with local UAT-specific sandbox/testnet environment variables and record the resulting private-read-only drawdown verification.

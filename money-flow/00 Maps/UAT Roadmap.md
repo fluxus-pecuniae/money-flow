@@ -4,7 +4,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 UAT validates plumbing and behavior. It does not prove profitability.
 
-Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, UAT1.1 shadow readiness is complete, UAT2 bounded no-order shadow strategy observation is complete, UAT2.1 dashboard visualization is complete, UAT3.0 sandbox-order design/readiness is complete, UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete, UAT3.0.2 sandbox gate integration dry-run / policy hardening is complete, UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete, UAT3.0.4 sandbox private read-only drawdown readiness is complete, and UAT3.0.5 sandbox/testnet private read-only drawdown verification is complete. UAT3.1 actual sandbox order submission remains blocked.
+Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, UAT1.1 shadow readiness is complete, UAT2 bounded no-order shadow strategy observation is complete, UAT2.1 dashboard visualization is complete, UAT3.0 sandbox-order design/readiness is complete, UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete, UAT3.0.2 sandbox gate integration dry-run / policy hardening is complete, UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete, UAT3.0.4 sandbox private read-only drawdown readiness is complete, UAT3.0.5 sandbox/testnet private read-only drawdown verification is complete, and UAT3.0.6 sandbox submit path dry-run wiring is complete. UAT3.1 actual sandbox order submission remains blocked.
 
 ## Frozen Observation Candidate
 
@@ -186,11 +186,27 @@ Likely files/modules: `services/uat/sandbox.py`, `docs/uat3_0_5_sandbox_private_
 
 Required docs/tests: UAT3.0.5 sandbox private read-only drawdown verification tests, operational-doc current-state tests, review-bundle hygiene checks.
 
+## UAT3.0.6 - Sandbox Submit Path Dry-Run Wiring + Executable Gate Integration
+
+Objective: wire the future sandbox submit path in dry-run mode without submitting orders or creating real execution artifacts.
+
+Status: complete. A non-persistent sandbox submission plan and dry-run submit gate chain now compose runtime policy, founder actual-submission approval status, sandbox artifact labels, approval scope validation, live-fed sandbox drawdown status, risk gates, submit-lease duplicate prevention, and adapter endpoint classification. The future endpoint category is classified as `sandbox_order_submission`, but transport is not invoked and `calls_exchange=false`.
+
+Allowed behavior: dry-run plan construction, fixture/live-fed status consumption, gate-chain integration checks, reason-code reporting, docs, tests.
+
+Forbidden behavior: order submission, cancel, amend, retry, live endpoints, live API-key use, executable approvals, real order intents, prepared orders, submitted orders, paper trades, live trades, route expansion, automatic top-20 order submission.
+
+Success criteria: future UAT3.1 remains blocked unless actual-submission approval exists, live-fed sandbox drawdown is current, approval/risk/submit-lease/artifact-label/endpoint gates pass, and a later explicit phase enables actual sandbox/testnet transport.
+
+Likely files/modules: `services/uat/sandbox.py`, `docs/uat3_0_6_sandbox_submit_path_dry_run_wiring.md`, operational docs, Obsidian notes.
+
+Required docs/tests: UAT3.0.6 sandbox submit path dry-run tests, operational-doc current-state tests, review-bundle hygiene checks.
+
 ## UAT3.1 - First Approval-Gated Sandbox Order
 
 Objective: test one tiny approval-gated sandbox/testnet order only after all UAT3.0 blockers are closed and explicit founder/operator approval authorizes actual sandbox submission.
 
-Status: blocked. UAT3.0.5 verifies private-read-only sandbox/testnet account-state drawdown, but actual sandbox submission remains blocked until the gates are wired to an executable sandbox/testnet path with explicit founder/operator actual-submission approval, submit-lease integration verification, executable approval/risk wiring, and real sandbox submit path wiring.
+Status: blocked. UAT3.0.6 wires the future sandbox submit path in dry-run mode and consumes the UAT3.0.5 live-fed sandbox drawdown status, but actual sandbox submission remains blocked until explicit founder/operator actual-submission approval exists, a later UAT3.1 phase enables actual sandbox/testnet transport, and the operator reviews the dry-run output immediately before the first attempt.
 
 Allowed behavior: explicitly approved tiny sandbox/testnet orders for a small operator-approved subset, starting with Hyperliquid ETH `sleeve_1h`.
 

@@ -13,6 +13,48 @@ Entry schema:
 
 ---
 
+## v2026.05.10.015
+
+- `recorded_at_utc`: `2026-05-10T15:42:33Z`
+- `scope`: `UAT3.0.6 sandbox submit path dry-run wiring`
+- `intent`: `Native entry. Added a non-persistent UAT3SandboxSubmissionPlan and UAT3SandboxSubmitDryRunService that compose runtime policy, founder actual-submission approval status, sandbox artifact-label boundary validation, approval scope validation, live-fed sandbox drawdown status, sandbox risk gates, submit-lease duplicate-prevention checks, and adapter endpoint classification. The dry-run classifies the future endpoint as sandbox_order_submission but forbids transport invocation in UAT3.0.6 and reports calls_exchange=false, creates_order_intent=false, creates_prepared_order=false, creates_submitted_order=false, and creates_executable_approval=false. UAT3.1 remains blocked pending explicit founder/operator actual-submission approval, explicit later-phase sandbox/testnet order transport enablement, and final operator review of the dry-run output. No orders were submitted, no real OrderIntent, PreparedVenueOrder, ExecutionReadinessAssessment, SubmittedOrder, executable approval, order/cancel/amend/retry endpoint call, live API-key use, paper/live behavior, routing expansion, Money Flow rule change, or evidence pack was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/uat3_0_5_sandbox_private_read_only_drawdown_verification.md`
+  - `docs/uat3_0_6_sandbox_submit_path_dry_run_wiring.md`
+  - `services/uat/__init__.py`
+  - `services/uat/sandbox.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_uat306_sandbox_submit_path_dry_run.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/30 Strategy/Money Flow Strategy Lab.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/Operational Memory.md`
+  - `money-flow/40 Operations/UAT0 Safety Runtime Hardening.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat306_sandbox_submit_path_dry_run.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat0_safety_report.py tests/test_uat01_api_auth_runtime_lockout.py tests/test_uat02_adapter_runtime_policy_and_redaction.py tests/test_uat03_top20_universe_and_drawdown.py tests/test_uat1_public_read_only_connectivity.py tests/test_uat11_shadow_readiness.py tests/test_uat2_shadow_strategy.py tests/test_uat21_dashboard_visualization.py tests/test_uat30_sandbox_order_design.py tests/test_uat301_sandbox_readiness.py tests/test_uat302_sandbox_gate_dry_run.py tests/test_uat303_sandbox_gate_wiring.py tests/test_uat304_sandbox_private_read_only_drawdown.py tests/test_uat305_sandbox_private_read_only_drawdown_verification.py tests/test_uat306_sandbox_submit_path_dry_run.py tests/test_api.py tests/test_config.py tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-uat3.0.6-review.zip`
+  - `review bundle exclusion and local UAT sandbox private/account value scan passed`
+
 ## v2026.05.10.014
 
 - `recorded_at_utc`: `2026-05-10T15:06:29Z`

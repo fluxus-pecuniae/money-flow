@@ -199,6 +199,21 @@ class SandboxDryRunRejectReason(StrEnum):
         "sandbox_artifact_labeling_not_enforced_on_report_generation"
     )
     REAL_SANDBOX_SUBMIT_PATH_REQUIRED = "real_sandbox_submit_path_required"
+    ENDPOINT_CATEGORY_UNKNOWN = "endpoint_category_unknown"
+    ENDPOINT_CATEGORY_NOT_SANDBOX_ORDER_SUBMISSION = (
+        "endpoint_category_not_sandbox_order_submission"
+    )
+    SANDBOX_ORDER_ENDPOINT_TRANSPORT_FORBIDDEN_IN_UAT306 = (
+        "sandbox_order_endpoint_transport_forbidden_in_uat306"
+    )
+    SANDBOX_DRAWDOWN_FEED_STALE = "sandbox_drawdown_feed_stale"
+    SANDBOX_DRAWDOWN_FEED_NOT_LIVE_FED_VERIFIED = (
+        "sandbox_drawdown_feed_not_live_fed_verified"
+    )
+    SANDBOX_DRAWDOWN_FEED_NOT_LABELED_NOT_LIVE_ACCOUNT = (
+        "sandbox_drawdown_feed_not_labeled_not_live_account"
+    )
+    SANDBOX_DRAWDOWN_THRESHOLD_BREACHED = "sandbox_drawdown_threshold_breached"
 
 
 @dataclass(frozen=True)
@@ -1530,3 +1545,268 @@ def evaluate_uat3_sandbox_executable_gate_dry_run(
     preflight: UAT3SandboxExecutableGateDryRunInput,
 ) -> UAT3SandboxExecutableGateDryRunResult:
     return UAT3SandboxDryRunGateService().evaluate(preflight)
+
+
+@dataclass(frozen=True)
+class SandboxAdapterEndpointClassification:
+    endpoint_category: SandboxPrivateEndpointCategory
+    transport_invoked: bool = False
+    calls_exchange: bool = False
+
+
+def evaluate_uat306_sandbox_order_endpoint_classification(
+    classification: SandboxAdapterEndpointClassification,
+) -> SandboxCheckResult:
+    """Classify the future sandbox order endpoint without invoking transport."""
+
+    reasons: list[str] = []
+    if classification.endpoint_category == SandboxPrivateEndpointCategory.UNKNOWN:
+        reasons.append(SandboxDryRunRejectReason.ENDPOINT_CATEGORY_UNKNOWN.value)
+    if classification.endpoint_category != SandboxPrivateEndpointCategory.SANDBOX_ORDER_SUBMISSION:
+        reasons.append(
+            SandboxDryRunRejectReason.ENDPOINT_CATEGORY_NOT_SANDBOX_ORDER_SUBMISSION.value
+        )
+    if classification.transport_invoked or classification.calls_exchange:
+        reasons.append(
+            SandboxDryRunRejectReason.SANDBOX_ORDER_ENDPOINT_TRANSPORT_FORBIDDEN_IN_UAT306.value
+        )
+    return SandboxCheckResult(allowed=not reasons, reason_codes=tuple(dict.fromkeys(reasons)))
+
+
+@dataclass(frozen=True)
+class UAT3SandboxSubmissionPlan:
+    """Non-persistent UAT3.0.6 sandbox submit dry-run plan.
+
+    This object is a review/check artifact only. It is not an OrderIntent,
+    PreparedVenueOrder, SubmittedOrder, executable approval, or adapter request.
+    """
+
+    uat_run_id: str
+    venue: str
+    environment: str
+    account_id: str
+    symbol: str
+    component: str
+    candidate_id: str
+    order_side: str
+    order_type: str
+    requested_notional_or_quantity: Decimal
+    max_notional_or_quantity: Decimal
+    approval_id: str
+    idempotency_key: str
+    submit_lease_key: str
+    sandbox_labels: SandboxArtifactLabels
+    runtime_policy_snapshot: SandboxRuntimePolicy
+    drawdown_feed_status: str
+    risk_gate_result: SandboxCheckResult
+    approval_scope_result: SandboxCheckResult
+    submit_lease_result: SandboxCheckResult
+    artifact_label_result: SandboxCheckResult
+    endpoint_category: SandboxPrivateEndpointCategory = (
+        SandboxPrivateEndpointCategory.SANDBOX_ORDER_SUBMISSION
+    )
+    endpoint_transport_invoked: bool = False
+    would_submit_if_enabled: bool = False
+    creates_order_intent: bool = False
+    creates_prepared_order: bool = False
+    creates_submitted_order: bool = False
+    creates_executable_approval: bool = False
+    calls_exchange: bool = False
+
+    @property
+    def submit_path_key(self) -> tuple[str, str, str, str, str, str]:
+        return (
+            self.uat_run_id,
+            self.venue.lower(),
+            self.account_id,
+            self.symbol.upper(),
+            self.component,
+            self.environment.lower(),
+        )
+
+
+@dataclass(frozen=True)
+class UAT3SandboxSubmitPathDryRunInput:
+    runtime_policy: SandboxRuntimePolicy
+    artifact_labels: SandboxArtifactLabels
+    approval_scope: SandboxApprovalScope
+    approval_candidate: SandboxApprovalCandidate
+    risk_limits: SandboxRiskLimits
+    risk_request: SandboxRiskRequest
+    submit_request: SandboxSubmitPreflightRequest
+    submit_state: SandboxSubmitPreflightState
+    now_utc: datetime
+    sandbox_drawdown_feed: SandboxAccountDrawdownFeed | None
+    endpoint_classification: SandboxAdapterEndpointClassification
+    candidate_id: str = "money_flow_hyperliquid_eth_1h_baseline_uat_candidate"
+    order_side: str = "buy"
+    order_type: str = "market"
+    founder_operator_actual_submission_approved: bool = False
+    drawdown_feed_status: str = SandboxDrawdownFeedStatus.LIVE_FED_VERIFIED.value
+    drawdown_feed_max_age_seconds: int = 900
+
+
+@dataclass(frozen=True)
+class UAT3SandboxSubmitPathDryRunResult:
+    allowed_for_future_submit: bool
+    blocked: bool
+    reason_codes: tuple[str, ...]
+    gate_results: dict[str, object]
+    submission_plan: UAT3SandboxSubmissionPlan
+    runtime_policy_result: SandboxCheckResult
+    approval_requirement_result: SandboxCheckResult
+    artifact_boundary_results: tuple[SandboxArtifactBoundaryValidation, ...]
+    approval_scope_result: SandboxCheckResult
+    drawdown_feed_result: SandboxCheckResult
+    risk_gate_result: SandboxCheckResult
+    submit_preflight_result: SandboxCheckResult
+    endpoint_classification_result: SandboxCheckResult
+    would_call_exchange: bool = False
+    would_create_order_intent: bool = False
+    would_create_prepared_order: bool = False
+    would_create_submitted_order: bool = False
+    would_create_executable_approval: bool = False
+    would_submit_if_enabled: bool = False
+
+
+class UAT3SandboxSubmitDryRunService:
+    """Dry-run-only future sandbox submit-path gate chain.
+
+    The service intentionally returns side-effect flags as false. It composes
+    gates in the same order a later UAT3.1 submit path must respect, but it
+    never persists artifacts, creates approvals, invokes adapters, or submits.
+    """
+
+    def evaluate(
+        self,
+        dry_run_input: UAT3SandboxSubmitPathDryRunInput,
+    ) -> UAT3SandboxSubmitPathDryRunResult:
+        runtime_result = dry_run_input.runtime_policy.evaluate_for_sandbox_submission()
+        approval_requirement_result = SandboxCheckResult(
+            allowed=dry_run_input.founder_operator_actual_submission_approved,
+            reason_codes=()
+            if dry_run_input.founder_operator_actual_submission_approved
+            else (
+                SandboxDryRunRejectReason.FOUNDER_OPERATOR_ACTUAL_SANDBOX_SUBMISSION_APPROVAL_REQUIRED.value,
+            ),
+        )
+        boundary_results = validate_sandbox_artifact_boundaries(
+            labels=dry_run_input.artifact_labels,
+        )
+        approval_scope_result = validate_sandbox_approval_scope(
+            scope=dry_run_input.approval_scope,
+            candidate=dry_run_input.approval_candidate,
+            now_utc=dry_run_input.now_utc,
+        )
+        drawdown_feed_result = self._evaluate_drawdown_feed(dry_run_input)
+        risk_gate_result = evaluate_sandbox_risk_gates(
+            limits=dry_run_input.risk_limits,
+            request=dry_run_input.risk_request,
+        )
+        submit_preflight_result = evaluate_sandbox_submit_preflight(
+            request=dry_run_input.submit_request,
+            state=dry_run_input.submit_state,
+        )
+        endpoint_result = evaluate_uat306_sandbox_order_endpoint_classification(
+            dry_run_input.endpoint_classification,
+        )
+
+        reasons: list[str] = []
+        reasons.extend(runtime_result.reason_codes)
+        reasons.extend(approval_requirement_result.reason_codes)
+        for boundary_result in boundary_results:
+            reasons.extend(boundary_result.result.reason_codes)
+        reasons.extend(approval_scope_result.reason_codes)
+        reasons.extend(drawdown_feed_result.reason_codes)
+        reasons.extend(risk_gate_result.reason_codes)
+        reasons.extend(submit_preflight_result.reason_codes)
+        reasons.extend(endpoint_result.reason_codes)
+        unique_reasons = tuple(dict.fromkeys(reasons))
+
+        artifact_result = validate_sandbox_artifact_labels(dry_run_input.artifact_labels)
+        plan = UAT3SandboxSubmissionPlan(
+            uat_run_id=dry_run_input.approval_candidate.uat_run_id,
+            venue=dry_run_input.approval_candidate.venue,
+            environment=dry_run_input.approval_candidate.environment,
+            account_id=dry_run_input.approval_candidate.account_id,
+            symbol=dry_run_input.approval_candidate.symbol,
+            component=dry_run_input.approval_candidate.component,
+            candidate_id=dry_run_input.candidate_id,
+            order_side=dry_run_input.order_side,
+            order_type=dry_run_input.order_type,
+            requested_notional_or_quantity=dry_run_input.approval_candidate.requested_notional_or_quantity,
+            max_notional_or_quantity=dry_run_input.approval_scope.max_notional_or_quantity,
+            approval_id=dry_run_input.approval_scope.approval_id,
+            idempotency_key=dry_run_input.submit_request.idempotency_key,
+            submit_lease_key=":".join(dry_run_input.submit_request.key.candidate_fingerprint),
+            sandbox_labels=dry_run_input.artifact_labels,
+            runtime_policy_snapshot=dry_run_input.runtime_policy,
+            drawdown_feed_status=dry_run_input.drawdown_feed_status,
+            risk_gate_result=risk_gate_result,
+            approval_scope_result=approval_scope_result,
+            submit_lease_result=submit_preflight_result,
+            artifact_label_result=artifact_result,
+            endpoint_category=dry_run_input.endpoint_classification.endpoint_category,
+            endpoint_transport_invoked=dry_run_input.endpoint_classification.transport_invoked,
+        )
+
+        allowed_for_future_submit = not unique_reasons
+        gate_results: dict[str, object] = {
+            "runtime_policy": runtime_result,
+            "founder_actual_submission_approval": approval_requirement_result,
+            "artifact_boundaries": boundary_results,
+            "approval_scope": approval_scope_result,
+            "drawdown_feed": drawdown_feed_result,
+            "risk_gate": risk_gate_result,
+            "submit_preflight": submit_preflight_result,
+            "endpoint_classification": endpoint_result,
+            "runtime_policy_semantics": get_sandbox_runtime_policy_semantics(),
+        }
+        return UAT3SandboxSubmitPathDryRunResult(
+            allowed_for_future_submit=allowed_for_future_submit,
+            blocked=not allowed_for_future_submit,
+            reason_codes=unique_reasons,
+            gate_results=gate_results,
+            submission_plan=plan,
+            runtime_policy_result=runtime_result,
+            approval_requirement_result=approval_requirement_result,
+            artifact_boundary_results=boundary_results,
+            approval_scope_result=approval_scope_result,
+            drawdown_feed_result=drawdown_feed_result,
+            risk_gate_result=risk_gate_result,
+            submit_preflight_result=submit_preflight_result,
+            endpoint_classification_result=endpoint_result,
+        )
+
+    def _evaluate_drawdown_feed(
+        self,
+        dry_run_input: UAT3SandboxSubmitPathDryRunInput,
+    ) -> SandboxCheckResult:
+        reasons: list[str] = []
+        feed = dry_run_input.sandbox_drawdown_feed
+        if feed is None:
+            reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_MISSING.value)
+            return SandboxCheckResult(allowed=False, reason_codes=tuple(reasons))
+
+        if dry_run_input.drawdown_feed_status == SandboxDrawdownFeedStatus.MISSING.value:
+            reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_MISSING.value)
+        if dry_run_input.drawdown_feed_status == SandboxDrawdownFeedStatus.FIXTURE_ONLY.value:
+            reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_FIXTURE_ONLY.value)
+        if dry_run_input.drawdown_feed_status != SandboxDrawdownFeedStatus.LIVE_FED_VERIFIED.value:
+            reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_NOT_LIVE_FED_VERIFIED.value)
+        reasons.extend(validate_sandbox_account_drawdown_feed(feed, require_live_fed=True).reason_codes)
+        if not feed.not_live_account:
+            reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_NOT_LABELED_NOT_LIVE_ACCOUNT.value)
+        if feed.threshold_breached:
+            reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_THRESHOLD_BREACHED.value)
+
+        age_seconds = (_as_aware_utc(dry_run_input.now_utc) - _as_aware_utc(feed.timestamp_utc)).total_seconds()
+        if age_seconds < 0 or age_seconds > dry_run_input.drawdown_feed_max_age_seconds:
+            reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_STALE.value)
+        return SandboxCheckResult(allowed=not reasons, reason_codes=tuple(dict.fromkeys(reasons)))
+
+
+def evaluate_uat3_sandbox_submit_path_dry_run(
+    dry_run_input: UAT3SandboxSubmitPathDryRunInput,
+) -> UAT3SandboxSubmitPathDryRunResult:
+    return UAT3SandboxSubmitDryRunService().evaluate(dry_run_input)

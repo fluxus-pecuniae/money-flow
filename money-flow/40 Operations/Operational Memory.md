@@ -31,9 +31,9 @@ Before substantial work, read the repo memory and Obsidian brain. Before editing
 
 ## Current Important Memory Facts
 
-- Current implemented milestone: `UAT3.0.5` sandbox/testnet private read-only drawdown verification complete.
+- Current implemented milestone: `UAT3.0.6` sandbox submit path dry-run wiring complete.
 - Strategy Validation SV1 is closed for now.
-- Next proposed phase: `UAT3.1` first approval-gated sandbox order remains blocked until explicit founder/operator actual-submission approval, real sandbox submit path wiring, executable approval-scope gate wiring to persistence, risk gate wiring to the submit path, and submit-lease integration verification are complete.
+- Next proposed phase: `UAT3.1` first approval-gated sandbox order remains blocked until explicit founder/operator actual-submission approval, explicit later-phase sandbox/testnet order transport enablement, final operator review of the UAT3.0.6 dry-run output, and no live/paper/order ambiguity are complete.
 - UAT1 public read-only connectivity is complete under strict no-private/no-signed/no-order/no-API-key constraints.
 - UAT1 verified allowed public Hyperliquid info types, fetched a no-key public top-volume source, and resolved observation-only Hyperliquid supported assets.
 - UAT1.1 adds operator-visible shadow drawdown state, shadow signal audit surfaces, and representative structured redaction verification.
@@ -45,6 +45,7 @@ Before substantial work, read the repo memory and Obsidian brain. Before editing
 - UAT3.0.3 adds sandbox artifact label boundary helpers for persistence/API/dashboard/report surfaces and a dry-run executable gate service that composes runtime, label, approval, risk, drawdown, and submit-lease checks without side effects.
 - UAT3.0.4 adds private read-only sandbox account policy, credential approval/boundary validation, endpoint category separation, redaction, and sandbox account drawdown feed modeling.
 - UAT3.0.5 validates exact private-read-only approval and sandbox/testnet credential boundaries, performs one Hyperliquid testnet read-only account-state request, and verifies `sandbox_drawdown_feed_live_fed_verified`; no API key/private key or order endpoint was used.
+- UAT3.0.6 wires the future sandbox submit path in dry-run mode through a non-persistent submission plan plus actual-submission approval, live-fed drawdown, approval scope, risk, submit-lease duplicate prevention, endpoint classification, and sandbox label checks; no artifacts are created and no exchange is called.
 - UAT3.1 actual sandbox order submission remains blocked.
 - Frozen evidence candidate: Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules.
 - Future UAT observation universe: top-20 high-volume supported assets for behavior validation only.

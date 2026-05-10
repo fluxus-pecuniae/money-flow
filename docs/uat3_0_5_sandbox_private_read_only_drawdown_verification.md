@@ -201,6 +201,8 @@ sandbox_drawdown_feed_live_fed_verified
 
 The prior live-fed sandbox account drawdown blocker is cleared for the UAT3.0.5 private read-only account-state verification boundary. Actual UAT3.1 sandbox order submission remains blocked by the separate actual-submission approval, real submit-path wiring, executable gate wiring, and submit-lease integration blockers.
 
+UAT3.0.6 follow-up status: the future sandbox submit path is now wired in dry-run mode through a non-persistent submission plan and gate chain that consumes this live-fed drawdown status, checks approval scope, risk gates, submit-lease duplicate prevention, endpoint classification, and sandbox labels, and still creates no order artifacts or exchange calls. Actual UAT3.1 sandbox order submission remains blocked until explicit founder/operator actual-submission approval and later transport enablement exist.
+
 ## UAT3.1 Readiness Decision
 
 `UAT3.1 is blocked`.
