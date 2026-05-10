@@ -2,7 +2,7 @@
 
 Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
-UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT0.3 top-20 universe and drawdown readiness preflight is complete. UAT1 public read-only connectivity and top-20 universe resolution is complete. UAT1.1 shadow readiness is complete. UAT2 bounded no-order shadow strategy observation is complete. UAT2.1 dashboard visualization is complete. UAT3.0 sandbox-order design/readiness is complete. UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete. UAT3.0.2 sandbox gate integration dry-run / policy hardening is complete. UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete. UAT3.1 actual sandbox order submission remains blocked.
+UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT0.3 top-20 universe and drawdown readiness preflight is complete. UAT1 public read-only connectivity and top-20 universe resolution is complete. UAT1.1 shadow readiness is complete. UAT2 bounded no-order shadow strategy observation is complete. UAT2.1 dashboard visualization is complete. UAT3.0 sandbox-order design/readiness is complete. UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete. UAT3.0.2 sandbox gate integration dry-run / policy hardening is complete. UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete. UAT3.0.4 sandbox private read-only drawdown readiness is complete. UAT3.1 actual sandbox order submission remains blocked.
 
 ## Result
 
@@ -24,6 +24,7 @@ Founder/operator report:
 - `docs/uat3_0_1_sandbox_runtime_approval_risk_readiness.md`
 - `docs/uat3_0_2_sandbox_gate_integration_dry_run.md`
 - `docs/uat3_0_3_sandbox_gate_wiring_and_label_enforcement.md`
+- `docs/uat3_0_4_sandbox_private_read_only_drawdown.md`
 
 ## Evidence Candidate vs Observation Universe
 
@@ -64,7 +65,7 @@ UAT2 shadow timing compared `next_candle_open` and `next_candle_close`. `same_ca
 
 `UAT1 read-only connectivity may proceed`.
 
-UAT1 is now complete. UAT1.1 is now complete. UAT2 is now complete. UAT2.1 is now complete. UAT3.0 design/readiness is now complete. UAT3.0.1 fixture/readiness hardening is now complete. UAT3.0.2 dry-run gate hardening is now complete. UAT3.0.3 dry-run executable gate wiring and label-enforcement hardening is now complete. `UAT3.1 is blocked`.
+UAT1 is now complete. UAT1.1 is now complete. UAT2 is now complete. UAT2.1 is now complete. UAT3.0 design/readiness is now complete. UAT3.0.1 fixture/readiness hardening is now complete. UAT3.0.2 dry-run gate hardening is now complete. UAT3.0.3 dry-run executable gate wiring and label-enforcement hardening is now complete. UAT3.0.4 private read-only sandbox drawdown readiness is now complete. `UAT3.1 is blocked`.
 
 Closed by UAT0.1:
 
@@ -155,6 +156,16 @@ Closed by UAT3.0.3:
 - runtime policy semantics now distinguish broad/global exchange order submission from sandbox/testnet-only submission gating;
 - dashboard UAT view reports boundary-label enforcement and dry-run executable gate wiring status;
 - no order intent, prepared order, submitted order, executable approval, private/signed/order endpoint call, exchange API-key use, paper/live behavior, evidence pack, routing artifact, or Money Flow rule change was added.
+
+Closed by UAT3.0.4:
+
+- fail-closed private read-only sandbox account policy exists;
+- exact founder/operator credential approval validation exists;
+- credential boundary validation and redaction helpers exist;
+- private read-only account/balance/position/equity categories are separated from order/cancel/amend/retry/live-private categories;
+- sandbox account drawdown feed modeling exists with `sandbox_account` and `not_live_account` labels;
+- explicit credential approval was absent, so no API keys were used and no private endpoints were called;
+- no order intent, prepared order, submitted order, executable approval, order/cancel/amend/retry endpoint call, live API-key use, paper/live behavior, evidence pack, routing artifact, or Money Flow rule change was added.
 
 Remaining before UAT3.1:
 

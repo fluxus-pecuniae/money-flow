@@ -187,6 +187,10 @@ sandbox_drawdown_feed_live_fed_required
 
 No private account endpoints were called.
 
+UAT3.0.4 follow-up status: `implemented_model_only_blocked_live_feed`.
+
+UAT3.0.4 adds private read-only sandbox account policy, credential approval/boundary validation, endpoint category separation, redaction checks, and sandbox account drawdown feed modeling. The required explicit private-read-only credential approval was not present, so no API keys were used, no private endpoints were called, and live-fed sandbox account drawdown remains blocked.
+
 ## Dashboard Readiness
 
 Status: `implemented_informational_only`.

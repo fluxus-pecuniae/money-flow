@@ -2,9 +2,9 @@
 
 ## Current Implemented Milestone
 
-`UAT3.0.3` sandbox gate wiring / label-enforcement hardening is complete.
+`UAT3.0.4` sandbox private read-only drawdown readiness is complete.
 
-SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one evidence candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap. OB1.0 overhauled the Obsidian project brain. UAT0 audited safety/security/runtime readiness and blocked UAT1 until named gaps were closed. UAT0.1 closes the P0 API auth/authz baseline and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds fixture-tested top-20 universe resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design. UAT1 verifies allowed public Hyperliquid endpoint behavior, fetches a no-key public top-volume source, and resolves the Hyperliquid-supported top-20 observation universe. UAT1.1 adds shadow signal audit records, operator-visible shadow drawdown state, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification. UAT2 completed a bounded no-order Money Flow shadow observation across the UAT1 Hyperliquid top-20-supported universe. UAT2.1 makes that UAT2 output visually reviewable in the static dashboard and adds an informational UAT3 blocked readiness panel. UAT3.0 defines the future sandbox-order scope, founder/operator approval template, sandbox runtime policy, sandbox drawdown feed requirements, lifecycle, artifact labeling, submit-lease, approval, and risk-gate requirements without enabling submission. UAT3.0.1 converts those requirements into fixture-only readiness primitives without enabling submission. UAT3.0.2 hardens those primitives with full runtime-policy blocker propagation, non-positive sandbox numeric validation, and a unified fixture-only dry-run preflight without enabling submission. UAT3.0.3 adds sandbox artifact label boundary helpers and a dry-run executable gate service without enabling submission.
+SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one evidence candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap. OB1.0 overhauled the Obsidian project brain. UAT0 audited safety/security/runtime readiness and blocked UAT1 until named gaps were closed. UAT0.1 closes the P0 API auth/authz baseline and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds fixture-tested top-20 universe resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design. UAT1 verifies allowed public Hyperliquid endpoint behavior, fetches a no-key public top-volume source, and resolves the Hyperliquid-supported top-20 observation universe. UAT1.1 adds shadow signal audit records, operator-visible shadow drawdown state, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification. UAT2 completed a bounded no-order Money Flow shadow observation across the UAT1 Hyperliquid top-20-supported universe. UAT2.1 makes that UAT2 output visually reviewable in the static dashboard and adds an informational UAT3 blocked readiness panel. UAT3.0 defines the future sandbox-order scope, founder/operator approval template, sandbox runtime policy, sandbox drawdown feed requirements, lifecycle, artifact labeling, submit-lease, approval, and risk-gate requirements without enabling submission. UAT3.0.1 converts those requirements into fixture-only readiness primitives without enabling submission. UAT3.0.2 hardens those primitives with full runtime-policy blocker propagation, non-positive sandbox numeric validation, and a unified fixture-only dry-run preflight without enabling submission. UAT3.0.3 adds sandbox artifact label boundary helpers and a dry-run executable gate service without enabling submission. UAT3.0.4 adds private read-only sandbox account policy, credential approval/boundary validation, endpoint category separation, redaction checks, and sandbox account drawdown feed modeling without using credentials or calling private endpoints because explicit approval was not present.
 
 SV1.18 is complete.
 
@@ -12,7 +12,7 @@ SV1.18 is complete.
 
 `UAT3.1` first approval-gated sandbox order remains blocked.
 
-UAT3.1 may proceed only after explicit founder/operator approval for actual sandbox submission, sandbox runtime submission enablement, sandbox-only private endpoint separation, sandbox account drawdown feed wiring, executable approval-scope wiring, submit-lease/lifecycle integration verification, risk gate wiring, and persistence-level sandbox artifact labeling. UAT remains plumbing and behavior validation only. It is not paper trading, live trading, unrestricted exchange order submission, routing expansion, or strategy optimization.
+UAT3.1 may proceed only after explicit founder/operator approval for actual sandbox submission, sandbox runtime submission enablement, sandbox-only private endpoint separation, live-fed sandbox account drawdown feed wiring, executable approval-scope wiring, submit-lease/lifecycle integration verification, risk gate wiring, and persistence-level sandbox artifact labeling. UAT remains plumbing and behavior validation only. It is not paper trading, live trading, unrestricted exchange order submission, routing expansion, or strategy optimization.
 
 ## Frozen UAT Observation Candidate
 
@@ -159,11 +159,21 @@ UAT3.0.3 is now complete:
 - UAT3.1 actual sandbox order submission remains blocked.
 - No order intent, prepared order, submitted order, executable approval, private/signed/order endpoint call, exchange API-key use, paper/live behavior, evidence pack, routing artifact, or Money Flow rule change was created.
 
+UAT3.0.4 is now complete:
+
+- Private read-only sandbox account policy and endpoint categories distinguish account/balance/position/equity reads from order submission/cancel/amend/retry paths.
+- Credential approval and credential-boundary validation require the exact founder/operator private-read-only approval text before any sandbox/testnet private read-only credential use.
+- Credential redaction covers representative authorization headers, bearer tokens, API keys, secrets, passwords, private keys, and DB URLs.
+- Sandbox account drawdown feed modeling can represent unavailable fields explicitly and can report `sandbox_drawdown_feed_missing`, `sandbox_drawdown_feed_fixture_only`, `sandbox_drawdown_feed_private_read_only_verified`, and `sandbox_drawdown_feed_live_fed_verified`.
+- The required private-read-only credential approval was not present, so no credentials were used and no private endpoints were called.
+- UAT3.1 actual sandbox order submission remains blocked.
+- No order intent, prepared order, submitted order, executable approval, private endpoint call, order endpoint call, exchange API-key use, paper/live behavior, evidence pack, routing artifact, or Money Flow rule change was created.
+
 Remaining later blockers:
 
 - UAT3.1 needs explicit founder/operator approval for actual sandbox submission.
 - UAT3.1 needs sandbox runtime submission enablement and sandbox-only private endpoint separation wired to a real sandbox/testnet account.
-- UAT3.1 needs live-fed sandbox account drawdown wiring.
+- UAT3.1 needs live-fed sandbox account drawdown wiring; UAT3.0.4 only modeled the feed because private read-only approval was absent.
 - Approval scope validation and risk gates must be wired to executable UAT3.1 gates.
 - Submit lease / duplicate-prevention must be integration-verified with the future sandbox submit path.
 - Sandbox artifact labeling helpers now cover persistence/API/dashboard/report boundaries, but future UAT3.1 still needs that enforcement wired to real persistence/API/dashboard/report artifact flows before any actual sandbox order submission.

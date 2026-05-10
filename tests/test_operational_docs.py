@@ -77,6 +77,7 @@ REQUIRED_FILES = [
     "docs/uat3_0_1_sandbox_runtime_approval_risk_readiness.md",
     "docs/uat3_0_2_sandbox_gate_integration_dry_run.md",
     "docs/uat3_0_3_sandbox_gate_wiring_and_label_enforcement.md",
+    "docs/uat3_0_4_sandbox_private_read_only_drawdown.md",
 ]
 
 
@@ -125,13 +126,13 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "canonical Obsidian command center" in command_center
-    assert "`UAT3.0.3` sandbox gate wiring / label-enforcement hardening is complete" in current_phase
+    assert "`UAT3.0.4` sandbox private read-only drawdown readiness is complete" in current_phase
     assert "SV1.18" in command_center
     assert "UAT0" in command_center
     assert "UAT1 public read-only connectivity is complete" in command_center
     assert "UAT2 no-order shadow observation is complete" in command_center
     assert "UAT2.1 dashboard visualization is complete" in command_center
-    assert "UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete" in command_center
+    assert "UAT3.0.4 sandbox private read-only drawdown readiness is complete" in command_center
     assert "UAT3.1 actual sandbox order submission remains blocked" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
@@ -142,7 +143,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "UAT1 public read-only connectivity is complete" in moved_memory
     assert "UAT2 bounded no-order shadow observation is complete" in moved_memory
     assert "UAT2.1 dashboard visualization is complete" in moved_memory
-    assert "UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete" in moved_memory
+    assert "UAT3.0.4 sandbox private read-only drawdown readiness is complete" in moved_memory
     assert "UAT3.1 actual sandbox order submission remains blocked" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
@@ -158,7 +159,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
     assert (
-        "Current implemented milestone | `UAT3.0.3` sandbox gate wiring / label-enforcement hardening complete"
+        "Current implemented milestone | `UAT3.0.4` sandbox private read-only drawdown readiness complete"
         in command_center
     )
     assert "Canonical command center" in compatibility_command_center
@@ -166,7 +167,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     assert "UAT1 public read-only connectivity is complete" in current_dashboard
     assert "UAT2 bounded no-order shadow strategy observation is complete" in current_dashboard
     assert "UAT2.1 dashboard visualization is complete" in current_dashboard
-    assert "UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete" in current_dashboard
+    assert "UAT3.0.4 sandbox private read-only drawdown readiness is complete" in current_dashboard
     assert "UAT3.1 actual sandbox order submission remains blocked" in current_dashboard
     assert "Strategy Validation is now its own major track" in Path("money-flow/00 Maps/Phase Timeline.md").read_text()
     assert "What Strategy Validation Did" in sv_map
@@ -284,6 +285,7 @@ def test_uat0_operational_truth_is_current() -> None:
     uat301_report = Path("docs/uat3_0_1_sandbox_runtime_approval_risk_readiness.md").read_text()
     uat302_report = Path("docs/uat3_0_2_sandbox_gate_integration_dry_run.md").read_text()
     uat303_report = Path("docs/uat3_0_3_sandbox_gate_wiring_and_label_enforcement.md").read_text()
+    uat304_report = Path("docs/uat3_0_4_sandbox_private_read_only_drawdown.md").read_text()
     current_notes = [
         Path("money-flow/00_Money_Flow_Command_Center.md").read_text(),
         Path("money-flow/01_Current_Phase.md").read_text(),
@@ -407,6 +409,18 @@ def test_uat0_operational_truth_is_current() -> None:
     assert "Actual sandbox order submission is not approved" in uat303_report
     assert "Paper trading is not approved" in uat303_report
     assert "Live trading is not approved" in uat303_report
+
+    assert "UAT3.0.4 Sandbox Private Read-Only Drawdown" in uat304_report
+    assert "approval status for private read-only credentials" in uat304_report
+    assert "Private Read-Only Account Policy" in uat304_report
+    assert "Endpoint Classification" in uat304_report
+    assert "Sandbox Account Drawdown Feed Status" in uat304_report
+    assert "No-Order Endpoint Confirmation" in uat304_report
+    assert "sandbox_drawdown_feed_live_fed_verified" in uat304_report
+    assert "`UAT3.1 is blocked`" in uat304_report
+    assert "Actual sandbox order submission is not approved" in uat304_report
+    assert "Paper trading is not approved" in uat304_report
+    assert "Live trading is not approved" in uat304_report
 
     for note in current_notes:
         assert "UAT0" in note

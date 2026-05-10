@@ -7,15 +7,23 @@ or create executable approvals.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from enum import StrEnum
+from typing import Any
+
+from core.security import redact_sensitive_structure
 
 
 SANDBOX_RUNTIME_MODES: tuple[str, ...] = ("sandbox", "uat_sandbox")
 SANDBOX_ENVIRONMENTS: tuple[str, ...] = ("sandbox", "testnet", "uat_sandbox")
 RUNTIME_POLICY_RISK_REASON_PREFIX = "runtime_policy_"
+REQUIRED_UAT304_PRIVATE_READ_ONLY_APPROVAL_TEXT = (
+    "I approve UAT3.0.4 sandbox/testnet private read-only credential use "
+    "for account-state and drawdown-feed verification only."
+)
 
 
 class SandboxReadinessReason(StrEnum):
@@ -43,6 +51,59 @@ class SandboxArtifactBoundary(StrEnum):
     API_SERIALIZATION = "api_serialization"
     DASHBOARD_DISPLAY = "dashboard_display"
     REPORT_GENERATION = "report_generation"
+
+
+class SandboxPrivateEndpointCategory(StrEnum):
+    SANDBOX_PRIVATE_READ_ONLY_ACCOUNT = "sandbox_private_read_only_account"
+    SANDBOX_PRIVATE_READ_ONLY_POSITION = "sandbox_private_read_only_position"
+    SANDBOX_PRIVATE_READ_ONLY_BALANCE = "sandbox_private_read_only_balance"
+    SANDBOX_PRIVATE_READ_ONLY_EQUITY = "sandbox_private_read_only_equity"
+    SANDBOX_ORDER_SUBMISSION = "sandbox_order_submission"
+    SANDBOX_ORDER_CANCEL = "sandbox_order_cancel"
+    SANDBOX_ORDER_AMEND = "sandbox_order_amend"
+    SANDBOX_ORDER_RETRY = "sandbox_order_retry"
+    LIVE_PRIVATE_FORBIDDEN = "live_private_forbidden"
+    UNKNOWN = "unknown"
+
+
+class SandboxDrawdownFeedStatus(StrEnum):
+    MISSING = "sandbox_drawdown_feed_missing"
+    FIXTURE_ONLY = "sandbox_drawdown_feed_fixture_only"
+    PRIVATE_READ_ONLY_VERIFIED = "sandbox_drawdown_feed_private_read_only_verified"
+    LIVE_FED_VERIFIED = "sandbox_drawdown_feed_live_fed_verified"
+
+
+class SandboxPrivateReadOnlyRejectReason(StrEnum):
+    PRIVATE_READ_ONLY_APPROVAL_REQUIRED = "sandbox_private_read_only_approval_required"
+    PRIVATE_READ_ONLY_APPROVAL_TEXT_MISMATCH = "sandbox_private_read_only_approval_text_mismatch"
+    PRIVATE_READ_ONLY_APPROVAL_IDENTITY_MISSING = "sandbox_private_read_only_approval_identity_missing"
+    SANDBOX_ENVIRONMENT_REQUIRED = "sandbox_environment_required"
+    CREDENTIALS_MISSING = "sandbox_private_read_only_credentials_missing"
+    CREDENTIALS_NOT_SANDBOX_ONLY = "sandbox_private_read_only_credentials_not_sandbox_only"
+    CREDENTIALS_SOURCE_UNAPPROVED = "sandbox_private_read_only_credentials_source_unapproved"
+    CREDENTIALS_COMMITTED = "sandbox_credentials_committed_to_repo"
+    CREDENTIALS_LOGGED = "sandbox_credentials_logged"
+    CREDENTIALS_WRITTEN_TO_OBSIDIAN = "sandbox_credentials_written_to_obsidian"
+    CREDENTIALS_INCLUDED_IN_REVIEW_BUNDLE = "sandbox_credentials_included_in_review_bundle"
+    RAW_AUTHORIZATION_HEADER_EXPOSED = "raw_authorization_header_exposed"
+    RUNTIME_MODE_NOT_SANDBOX = "runtime_mode_not_sandbox"
+    LIVE_TRADING_ENABLED = "live_trading_enabled"
+    PAPER_TRADING_ENABLED = "paper_trading_enabled"
+    GLOBAL_ORDER_SUBMISSION_ENABLED = "exchange_order_submission_enabled"
+    SANDBOX_ORDER_SUBMISSION_ENABLED_FORBIDDEN = "sandbox_order_submission_enabled_forbidden_for_private_read_only"
+    PRIVATE_ENDPOINTS_DISABLED = "private_exchange_endpoints_disabled"
+    PRIVATE_ENDPOINTS_NOT_SANDBOX_ONLY = "private_exchange_endpoints_not_sandbox_only"
+    LIVE_ENDPOINT_FORBIDDEN = "live_endpoint_forbidden"
+    API_KEYS_REQUIRED_FLAG_FALSE = "sandbox_private_read_only_api_keys_required_flag_false"
+    CATEGORY_NOT_ALLOWED_FOR_UAT304 = "private_endpoint_category_not_allowed_for_uat304"
+    ORDER_ENDPOINT_FORBIDDEN = "order_endpoint_forbidden"
+    CANCEL_ENDPOINT_FORBIDDEN = "cancel_endpoint_forbidden"
+    AMEND_ENDPOINT_FORBIDDEN = "amend_endpoint_forbidden"
+    RETRY_ENDPOINT_FORBIDDEN = "retry_endpoint_forbidden"
+    LIVE_PRIVATE_ENDPOINT_FORBIDDEN = "live_private_endpoint_forbidden"
+    UNKNOWN_ENDPOINT_CATEGORY_FORBIDDEN = "unknown_endpoint_category_forbidden"
+    SANDBOX_DRAWDOWN_FEED_NOT_SANDBOX_ACCOUNT = "sandbox_drawdown_feed_not_sandbox_account"
+    SANDBOX_DRAWDOWN_FEED_LIVE_ACCOUNT_FORBIDDEN = "sandbox_drawdown_feed_live_account_forbidden"
 
 
 class SandboxApprovalRejectReason(StrEnum):
@@ -180,6 +241,181 @@ class SandboxRuntimePolicy:
         if not self.api_keys_required:
             reasons.append(SandboxReadinessReason.SANDBOX_API_KEYS_NOT_CONFIGURED.value)
         return SandboxCheckResult(allowed=not reasons, reason_codes=tuple(reasons))
+
+    def evaluate_for_sandbox_private_read_only(self) -> SandboxCheckResult:
+        """Evaluate UAT3.0.4 private-read-only sandbox account access.
+
+        This is intentionally separate from sandbox submission policy: private
+        read-only account state may require sandbox/testnet credentials, while
+        both global exchange submission and sandbox order submission must remain
+        disabled for UAT3.0.4.
+        """
+
+        reasons: list[str] = []
+        if self.runtime_mode not in SANDBOX_RUNTIME_MODES:
+            reasons.append(SandboxPrivateReadOnlyRejectReason.RUNTIME_MODE_NOT_SANDBOX.value)
+        if self.live_trading_enabled:
+            reasons.append(SandboxPrivateReadOnlyRejectReason.LIVE_TRADING_ENABLED.value)
+        if self.paper_trading_enabled:
+            reasons.append(SandboxPrivateReadOnlyRejectReason.PAPER_TRADING_ENABLED.value)
+        if self.exchange_order_submission_enabled:
+            reasons.append(SandboxPrivateReadOnlyRejectReason.GLOBAL_ORDER_SUBMISSION_ENABLED.value)
+        if self.sandbox_order_submission_enabled:
+            reasons.append(
+                SandboxPrivateReadOnlyRejectReason.SANDBOX_ORDER_SUBMISSION_ENABLED_FORBIDDEN.value
+            )
+        if not self.private_exchange_endpoints_enabled:
+            reasons.append(SandboxPrivateReadOnlyRejectReason.PRIVATE_ENDPOINTS_DISABLED.value)
+        if not self.sandbox_only:
+            reasons.append(SandboxPrivateReadOnlyRejectReason.PRIVATE_ENDPOINTS_NOT_SANDBOX_ONLY.value)
+        if self.live_endpoint_access:
+            reasons.append(SandboxPrivateReadOnlyRejectReason.LIVE_ENDPOINT_FORBIDDEN.value)
+        if not self.api_keys_required:
+            reasons.append(SandboxPrivateReadOnlyRejectReason.API_KEYS_REQUIRED_FLAG_FALSE.value)
+        return SandboxCheckResult(allowed=not reasons, reason_codes=tuple(reasons))
+
+
+@dataclass(frozen=True)
+class SandboxPrivateReadOnlyApproval:
+    approval_text: str = ""
+    approved_by: str = ""
+    approved_at_utc: datetime | None = None
+
+
+def validate_sandbox_private_read_only_approval(
+    approval: SandboxPrivateReadOnlyApproval | None,
+) -> SandboxCheckResult:
+    reasons: list[str] = []
+    if approval is None:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.PRIVATE_READ_ONLY_APPROVAL_REQUIRED.value)
+        return SandboxCheckResult(allowed=False, reason_codes=tuple(reasons))
+    if REQUIRED_UAT304_PRIVATE_READ_ONLY_APPROVAL_TEXT not in approval.approval_text:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.PRIVATE_READ_ONLY_APPROVAL_TEXT_MISMATCH.value)
+    if not approval.approved_by.strip() or approval.approved_at_utc is None:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.PRIVATE_READ_ONLY_APPROVAL_IDENTITY_MISSING.value)
+    return SandboxCheckResult(allowed=not reasons, reason_codes=tuple(reasons))
+
+
+@dataclass(frozen=True)
+class SandboxCredentialBoundary:
+    environment: str
+    credential_source: str
+    credentials_available: bool
+    sandbox_or_testnet_only: bool
+    approved_secret_source: bool = True
+    live_credentials: bool = False
+    committed_to_repo: bool = False
+    logged: bool = False
+    written_to_obsidian: bool = False
+    included_in_review_bundle: bool = False
+    raw_authorization_header_exposed: bool = False
+    sample_config_payload: Mapping[str, Any] | None = None
+
+
+def validate_sandbox_credential_boundary(
+    boundary: SandboxCredentialBoundary,
+) -> SandboxCheckResult:
+    reasons: list[str] = []
+    if _normalize(boundary.environment) not in SANDBOX_ENVIRONMENTS:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.SANDBOX_ENVIRONMENT_REQUIRED.value)
+    if not boundary.credentials_available:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.CREDENTIALS_MISSING.value)
+    if not boundary.sandbox_or_testnet_only or boundary.live_credentials:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.CREDENTIALS_NOT_SANDBOX_ONLY.value)
+    if not boundary.approved_secret_source:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.CREDENTIALS_SOURCE_UNAPPROVED.value)
+    if boundary.committed_to_repo:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.CREDENTIALS_COMMITTED.value)
+    if boundary.logged:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.CREDENTIALS_LOGGED.value)
+    if boundary.written_to_obsidian:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.CREDENTIALS_WRITTEN_TO_OBSIDIAN.value)
+    if boundary.included_in_review_bundle:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.CREDENTIALS_INCLUDED_IN_REVIEW_BUNDLE.value)
+    if boundary.raw_authorization_header_exposed:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.RAW_AUTHORIZATION_HEADER_EXPOSED.value)
+    return SandboxCheckResult(allowed=not reasons, reason_codes=tuple(reasons))
+
+
+def redact_sandbox_credential_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
+    """Redact a representative sandbox credential/config payload before display."""
+
+    redacted = redact_sensitive_structure(dict(payload))
+    if not isinstance(redacted, dict):  # Defensive; dict input should remain dict.
+        return {}
+    return redacted
+
+
+@dataclass(frozen=True)
+class SandboxPrivateReadOnlyAccountPolicy:
+    venue: str = "hyperliquid"
+    environment: str = "testnet"
+    allowed_categories: tuple[SandboxPrivateEndpointCategory, ...] = (
+        SandboxPrivateEndpointCategory.SANDBOX_PRIVATE_READ_ONLY_ACCOUNT,
+        SandboxPrivateEndpointCategory.SANDBOX_PRIVATE_READ_ONLY_POSITION,
+        SandboxPrivateEndpointCategory.SANDBOX_PRIVATE_READ_ONLY_BALANCE,
+        SandboxPrivateEndpointCategory.SANDBOX_PRIVATE_READ_ONLY_EQUITY,
+    )
+    forbidden_categories: tuple[SandboxPrivateEndpointCategory, ...] = (
+        SandboxPrivateEndpointCategory.SANDBOX_ORDER_SUBMISSION,
+        SandboxPrivateEndpointCategory.SANDBOX_ORDER_CANCEL,
+        SandboxPrivateEndpointCategory.SANDBOX_ORDER_AMEND,
+        SandboxPrivateEndpointCategory.SANDBOX_ORDER_RETRY,
+        SandboxPrivateEndpointCategory.LIVE_PRIVATE_FORBIDDEN,
+        SandboxPrivateEndpointCategory.UNKNOWN,
+    )
+    explicit_approval_required: bool = True
+    fail_closed: bool = True
+    calls_exchange: bool = False
+    creates_order_intent: bool = False
+    creates_prepared_order: bool = False
+    creates_submitted_order: bool = False
+    creates_executable_approval: bool = False
+
+
+@dataclass(frozen=True)
+class SandboxPrivateReadOnlyAccessRequest:
+    category: SandboxPrivateEndpointCategory
+    runtime_policy: SandboxRuntimePolicy
+    approval: SandboxPrivateReadOnlyApproval | None
+    credential_boundary: SandboxCredentialBoundary
+
+
+def evaluate_sandbox_private_read_only_access(
+    *,
+    policy: SandboxPrivateReadOnlyAccountPolicy,
+    request: SandboxPrivateReadOnlyAccessRequest,
+) -> SandboxCheckResult:
+    """Evaluate UAT3.0.4 private read-only access without network side effects."""
+
+    reasons: list[str] = []
+    if policy.explicit_approval_required:
+        reasons.extend(validate_sandbox_private_read_only_approval(request.approval).reason_codes)
+    reasons.extend(validate_sandbox_credential_boundary(request.credential_boundary).reason_codes)
+    reasons.extend(request.runtime_policy.evaluate_for_sandbox_private_read_only().reason_codes)
+
+    category = request.category
+    if category in {
+        SandboxPrivateEndpointCategory.SANDBOX_ORDER_SUBMISSION,
+        SandboxPrivateEndpointCategory.SANDBOX_ORDER_CANCEL,
+        SandboxPrivateEndpointCategory.SANDBOX_ORDER_AMEND,
+        SandboxPrivateEndpointCategory.SANDBOX_ORDER_RETRY,
+    }:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.ORDER_ENDPOINT_FORBIDDEN.value)
+    if category == SandboxPrivateEndpointCategory.SANDBOX_ORDER_CANCEL:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.CANCEL_ENDPOINT_FORBIDDEN.value)
+    if category == SandboxPrivateEndpointCategory.SANDBOX_ORDER_AMEND:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.AMEND_ENDPOINT_FORBIDDEN.value)
+    if category == SandboxPrivateEndpointCategory.SANDBOX_ORDER_RETRY:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.RETRY_ENDPOINT_FORBIDDEN.value)
+    if category == SandboxPrivateEndpointCategory.LIVE_PRIVATE_FORBIDDEN:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.LIVE_PRIVATE_ENDPOINT_FORBIDDEN.value)
+    if category == SandboxPrivateEndpointCategory.UNKNOWN:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.UNKNOWN_ENDPOINT_CATEGORY_FORBIDDEN.value)
+    if category not in policy.allowed_categories:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.CATEGORY_NOT_ALLOWED_FOR_UAT304.value)
+
+    return SandboxCheckResult(allowed=not reasons, reason_codes=tuple(dict.fromkeys(reasons)))
 
 
 @dataclass(frozen=True)
@@ -425,6 +661,43 @@ class SandboxDrawdownFeedFixture:
     not_live_account: bool = True
 
 
+@dataclass(frozen=True)
+class SandboxAccountStateSnapshot:
+    venue: str
+    sandbox_account_id: str
+    timestamp_utc: datetime
+    sandbox_account_equity: Decimal | None
+    sandbox_realized_pnl: Decimal | None = None
+    sandbox_unrealized_pnl: Decimal | None = None
+    open_positions_summary: tuple[str, ...] = ()
+    max_sandbox_equity: Decimal | None = None
+    min_sandbox_equity: Decimal | None = None
+    source: str = "sandbox_account"
+    not_live_account: bool = True
+
+
+@dataclass(frozen=True)
+class SandboxAccountDrawdownFeed:
+    venue: str
+    sandbox_account_id: str
+    source: str
+    not_live_account: bool
+    timestamp_utc: datetime
+    sandbox_account_equity: Decimal | None
+    sandbox_realized_pnl: Decimal | None
+    sandbox_unrealized_pnl: Decimal | None
+    open_positions_summary: tuple[str, ...]
+    max_sandbox_equity: Decimal | None
+    min_sandbox_equity: Decimal | None
+    max_drawdown_amount: Decimal | None
+    max_drawdown_percent: Decimal | None
+    drawdown_threshold: Decimal
+    threshold_breached: bool | None
+    reason_codes: tuple[str, ...]
+    unavailable_fields: tuple[str, ...]
+    status: SandboxDrawdownFeedStatus
+
+
 def build_sandbox_drawdown_feed_fixture(
     *,
     sandbox_account_equity: Decimal,
@@ -462,6 +735,107 @@ def build_sandbox_drawdown_feed_fixture(
         timestamp_utc=timestamp_utc,
         venue_account_id=venue_account_id,
     )
+
+
+def build_sandbox_account_drawdown_feed(
+    *,
+    snapshot: SandboxAccountStateSnapshot,
+    drawdown_threshold: Decimal,
+    status: SandboxDrawdownFeedStatus = SandboxDrawdownFeedStatus.PRIVATE_READ_ONLY_VERIFIED,
+) -> SandboxAccountDrawdownFeed:
+    """Build a sandbox account drawdown feed from caller-supplied account truth.
+
+    The function does not fetch account state. UAT3.0.4 may pass a real sandbox
+    account snapshot only after explicit private-read-only credential approval.
+    Without approval, tests use local fixtures and reports must mark the feed
+    blocked or fixture-only.
+    """
+
+    if drawdown_threshold < 0:
+        raise ValueError(SandboxRiskRejectReason.SANDBOX_DRAWDOWN_THRESHOLD_INVALID.value)
+
+    unavailable: list[str] = []
+    reasons: list[str] = []
+    if snapshot.source != "sandbox_account":
+        reasons.append(SandboxPrivateReadOnlyRejectReason.SANDBOX_DRAWDOWN_FEED_NOT_SANDBOX_ACCOUNT.value)
+    if not snapshot.not_live_account:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.SANDBOX_DRAWDOWN_FEED_LIVE_ACCOUNT_FORBIDDEN.value)
+    if snapshot.sandbox_account_equity is None:
+        unavailable.append("sandbox_account_equity")
+    if snapshot.sandbox_realized_pnl is None:
+        unavailable.append("sandbox_realized_pnl")
+    if snapshot.sandbox_unrealized_pnl is None:
+        unavailable.append("sandbox_unrealized_pnl")
+    if not snapshot.open_positions_summary:
+        unavailable.append("open_positions_summary")
+
+    max_equity = snapshot.max_sandbox_equity
+    min_equity = snapshot.min_sandbox_equity
+    max_drawdown_amount: Decimal | None = None
+    max_drawdown_percent: Decimal | None = None
+    threshold_breached: bool | None = None
+    if snapshot.sandbox_account_equity is not None:
+        max_equity = max_equity if max_equity is not None else snapshot.sandbox_account_equity
+        min_equity = min_equity if min_equity is not None else snapshot.sandbox_account_equity
+        max_drawdown_amount = max(Decimal("0"), max_equity - snapshot.sandbox_account_equity)
+        max_drawdown_percent = max_drawdown_amount / max_equity if max_equity > 0 else None
+        threshold_breached = (
+            max_drawdown_percent is not None and max_drawdown_percent >= drawdown_threshold
+        )
+        if threshold_breached:
+            reasons.append("sandbox_drawdown_threshold_breached")
+        else:
+            reasons.append("sandbox_drawdown_within_limit")
+    else:
+        reasons.append("sandbox_account_equity_unavailable")
+
+    if status == SandboxDrawdownFeedStatus.PRIVATE_READ_ONLY_VERIFIED:
+        reasons.append(SandboxDrawdownFeedStatus.PRIVATE_READ_ONLY_VERIFIED.value)
+    elif status == SandboxDrawdownFeedStatus.LIVE_FED_VERIFIED:
+        reasons.append(SandboxDrawdownFeedStatus.LIVE_FED_VERIFIED.value)
+    elif status == SandboxDrawdownFeedStatus.FIXTURE_ONLY:
+        reasons.append(SandboxDrawdownFeedStatus.FIXTURE_ONLY.value)
+    else:
+        reasons.append(SandboxDrawdownFeedStatus.MISSING.value)
+
+    return SandboxAccountDrawdownFeed(
+        venue=snapshot.venue,
+        sandbox_account_id=snapshot.sandbox_account_id,
+        source=snapshot.source,
+        not_live_account=snapshot.not_live_account,
+        timestamp_utc=snapshot.timestamp_utc,
+        sandbox_account_equity=snapshot.sandbox_account_equity,
+        sandbox_realized_pnl=snapshot.sandbox_realized_pnl,
+        sandbox_unrealized_pnl=snapshot.sandbox_unrealized_pnl,
+        open_positions_summary=snapshot.open_positions_summary,
+        max_sandbox_equity=max_equity,
+        min_sandbox_equity=min_equity,
+        max_drawdown_amount=max_drawdown_amount,
+        max_drawdown_percent=max_drawdown_percent,
+        drawdown_threshold=drawdown_threshold,
+        threshold_breached=threshold_breached,
+        reason_codes=tuple(dict.fromkeys(reasons)),
+        unavailable_fields=tuple(unavailable),
+        status=status,
+    )
+
+
+def validate_sandbox_account_drawdown_feed(
+    feed: SandboxAccountDrawdownFeed | None,
+    *,
+    require_live_fed: bool = True,
+) -> SandboxCheckResult:
+    reasons: list[str] = []
+    if feed is None:
+        reasons.append(SandboxDrawdownFeedStatus.MISSING.value)
+        return SandboxCheckResult(allowed=False, reason_codes=tuple(reasons))
+    if feed.source != "sandbox_account":
+        reasons.append(SandboxPrivateReadOnlyRejectReason.SANDBOX_DRAWDOWN_FEED_NOT_SANDBOX_ACCOUNT.value)
+    if not feed.not_live_account:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.SANDBOX_DRAWDOWN_FEED_LIVE_ACCOUNT_FORBIDDEN.value)
+    if require_live_fed and feed.status != SandboxDrawdownFeedStatus.LIVE_FED_VERIFIED:
+        reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_LIVE_FED_REQUIRED.value)
+    return SandboxCheckResult(allowed=not reasons, reason_codes=tuple(dict.fromkeys(reasons)))
 
 
 @dataclass(frozen=True)
@@ -561,7 +935,7 @@ class UAT3SandboxGateDryRunInput:
     submit_request: SandboxSubmitPreflightRequest
     submit_state: SandboxSubmitPreflightState
     now_utc: datetime
-    sandbox_drawdown_feed: SandboxDrawdownFeedFixture | None
+    sandbox_drawdown_feed: SandboxDrawdownFeedFixture | SandboxAccountDrawdownFeed | None
     founder_operator_actual_submission_approved: bool = False
     drawdown_feed_status: str = "sandbox_drawdown_feed_fixture_only"
     artifact_labels_persistence_enforced: bool = False
@@ -623,9 +997,11 @@ def evaluate_uat3_sandbox_submission_preflight(
         )
     if preflight.sandbox_drawdown_feed is None:
         reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_MISSING.value)
-    if preflight.drawdown_feed_status == SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_FIXTURE_ONLY.value:
+    if preflight.drawdown_feed_status == SandboxDrawdownFeedStatus.MISSING.value:
+        reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_MISSING.value)
+    if preflight.drawdown_feed_status == SandboxDrawdownFeedStatus.FIXTURE_ONLY.value:
         reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_FIXTURE_ONLY.value)
-    if preflight.require_live_fed_drawdown and preflight.drawdown_feed_status != "sandbox_drawdown_feed_live_fed_verified":
+    if preflight.require_live_fed_drawdown and preflight.drawdown_feed_status != SandboxDrawdownFeedStatus.LIVE_FED_VERIFIED.value:
         reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_LIVE_FED_REQUIRED.value)
     if not preflight.artifact_labels_persistence_enforced:
         reasons.append(
@@ -658,7 +1034,7 @@ class UAT3SandboxExecutableGateDryRunInput:
     submit_request: SandboxSubmitPreflightRequest
     submit_state: SandboxSubmitPreflightState
     now_utc: datetime
-    sandbox_drawdown_feed: SandboxDrawdownFeedFixture | None
+    sandbox_drawdown_feed: SandboxDrawdownFeedFixture | SandboxAccountDrawdownFeed | None
     founder_operator_actual_submission_approved: bool = False
     drawdown_feed_status: str = "sandbox_drawdown_feed_fixture_only"
     artifact_boundary_enforcement: tuple[SandboxArtifactBoundary, ...] = (
@@ -732,9 +1108,11 @@ class UAT3SandboxDryRunGateService:
             )
         if preflight.sandbox_drawdown_feed is None:
             reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_MISSING.value)
-        if preflight.drawdown_feed_status == SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_FIXTURE_ONLY.value:
+        if preflight.drawdown_feed_status == SandboxDrawdownFeedStatus.MISSING.value:
+            reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_MISSING.value)
+        if preflight.drawdown_feed_status == SandboxDrawdownFeedStatus.FIXTURE_ONLY.value:
             reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_FIXTURE_ONLY.value)
-        if preflight.drawdown_feed_status != "sandbox_drawdown_feed_live_fed_verified":
+        if preflight.drawdown_feed_status != SandboxDrawdownFeedStatus.LIVE_FED_VERIFIED.value:
             reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_LIVE_FED_REQUIRED.value)
         if not preflight.real_sandbox_submit_path_wired:
             reasons.append(SandboxDryRunRejectReason.REAL_SANDBOX_SUBMIT_PATH_REQUIRED.value)
@@ -781,7 +1159,7 @@ class UAT3SandboxDryRunGateService:
             submit_preflight_result=submit_result,
             would_require_founder_approval=not preflight.founder_operator_actual_submission_approved,
             would_require_live_fed_sandbox_drawdown=(
-                preflight.drawdown_feed_status != "sandbox_drawdown_feed_live_fed_verified"
+                preflight.drawdown_feed_status != SandboxDrawdownFeedStatus.LIVE_FED_VERIFIED.value
             ),
             would_require_real_sandbox_submit_path=not preflight.real_sandbox_submit_path_wired,
         )

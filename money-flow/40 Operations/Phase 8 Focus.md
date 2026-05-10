@@ -8,7 +8,7 @@ This is historical/operator-control context.
 
 Phase 8.0 implemented read-only operator workflow observability and manual-resolution inspection. Phase 8.0.1 cleaned the Obsidian memory / working-tree baseline. Phase 8.0.2 fixed active submit-lease operator-summary truth.
 
-Current implemented milestone is `UAT3.0` sandbox order design/readiness complete. Current next proposed track is `UAT3.1`, but actual sandbox order submission remains blocked until explicit founder/operator approval and sandbox runtime/drawdown/approval/submit-lease/risk/artifact-labeling prerequisites are implemented and test-covered. Phase 8 is not the active next phase.
+Current implemented milestone is `UAT3.0.4` sandbox private read-only drawdown readiness complete. Current next proposed track is `UAT3.1`, but actual sandbox order submission remains blocked until explicit founder/operator approval and sandbox runtime/drawdown/approval/submit-lease/risk/artifact-labeling prerequisites are implemented and test-covered. Phase 8 is not the active next phase.
 
 ## Phase 8.0 Purpose
 

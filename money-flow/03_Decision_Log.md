@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-10T13:58:00Z - UAT3.0.4 - Sandbox Private Read-Only Drawdown Readiness Complete
+
+- `decision`: Add fail-closed sandbox/testnet private read-only account-state policy, credential approval/boundary validation, endpoint category separation, redaction helpers, and sandbox account drawdown feed modeling before any UAT3.1 sandbox submit path is considered.
+- `why`: UAT3.0.3 left live-fed sandbox account drawdown as a blocker. Future sandbox/testnet order testing needs account drawdown visibility, but private read-only credential use must be explicitly approved and separated from all order-capable endpoints before any private endpoint is reachable.
+- `scope`: UAT3.0.4 adds private read-only sandbox account policy helpers, exact approval-text validation, credential-boundary/redaction checks, private read-only versus order endpoint categories, sandbox account drawdown feed modeling, dry-run preflight drawdown-status support, docs, and tests. Because the exact founder/operator approval text was not present, it does not use API keys or call private endpoints. It does not submit orders, create real `OrderIntent` / `PreparedVenueOrder` / `SubmittedOrder` / executable approval artifacts, call order/cancel/amend/retry endpoints, approve paper/live trading, change Money Flow rules, add routing expansion, or generate evidence packs.
+- `result`: UAT3.1 actual sandbox order submission remains blocked. Private read-only drawdown remains blocked until explicit credential approval and real sandbox/testnet account wiring exist; order-capable categories remain blocked even when private read-only sandbox account policy is enabled.
+- `follow_up_implications`: UAT3.1 may proceed only after explicit founder/operator actual-submission approval, live-fed sandbox account drawdown from sandbox/testnet account truth, real sandbox submit-path wiring, executable approval/risk gates wired to persistence/submit, submit-lease integration verification, and no live/paper/order ambiguity.
+
 ## 2026-05-10T12:57:00Z - UAT3.0.3 - Sandbox Gate Wiring And Label Enforcement Complete
 
 - `decision`: Add dry-run sandbox artifact boundary enforcement helpers and a dry-run executable gate service before any UAT3.1 sandbox submit path is considered.
