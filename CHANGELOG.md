@@ -13,6 +13,49 @@ Entry schema:
 
 ---
 
+## v2026.05.10.013
+
+- `recorded_at_utc`: `2026-05-10T14:20:21Z`
+- `scope`: `UAT3.0.5 sandbox/testnet private read-only credential and drawdown feed verification`
+- `intent`: `Native entry. Added UAT3.0.5 approval validation for sandbox/testnet private read-only credential use, sandbox/testnet base-URL verification, environment-status inspection without retaining secret values, Hyperliquid sandbox account-state payload parsing into not-live-account drawdown feeds, UAT3 dry-run preflight consumption of live-fed drawdown status, representative credential redaction checks, and a founder/operator UAT3.0.5 report. The exact private-read-only approval is now present, but local HYPERLIQUID_UAT_SANDBOX_* environment variables were missing, so no credentials were loaded, no API keys were used, no private endpoints were called, and live-fed sandbox drawdown remains blocked. UAT3.1 remains blocked. No orders were submitted, no real OrderIntent, PreparedVenueOrder, ExecutionReadinessAssessment, SubmittedOrder, executable approval, order/cancel/amend/retry endpoint call, live API-key use, paper/live behavior, routing expansion, Money Flow rule change, or evidence pack was added.`
+- `affected_files`:
+  - `.env.example`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/uat3_0_4_sandbox_private_read_only_drawdown.md`
+  - `docs/uat3_0_5_sandbox_private_read_only_drawdown_verification.md`
+  - `services/uat/__init__.py`
+  - `services/uat/sandbox.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_uat305_sandbox_private_read_only_drawdown_verification.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/30 Strategy/Money Flow Strategy Lab.md`
+  - `money-flow/40 Operations/UAT0 Safety Runtime Hardening.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/Operational Memory.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat305_sandbox_private_read_only_drawdown_verification.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat01_api_auth_runtime_lockout.py tests/test_uat02_adapter_runtime_policy_and_redaction.py tests/test_uat1_public_read_only_connectivity.py tests/test_uat11_shadow_readiness.py tests/test_uat2_shadow_strategy.py tests/test_uat21_dashboard_visualization.py tests/test_uat30_sandbox_order_design.py tests/test_uat301_sandbox_readiness.py tests/test_uat302_sandbox_gate_dry_run.py tests/test_uat303_sandbox_gate_wiring.py tests/test_uat304_sandbox_private_read_only_drawdown.py tests/test_uat305_sandbox_private_read_only_drawdown_verification.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-uat3.0.5-review.zip`
+  - `review bundle exclusion and secret-like pattern scan passed`
+
 ## v2026.05.10.012
 
 - `recorded_at_utc`: `2026-05-10T13:45:12Z`

@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-10T13:45:12Z`
+Last reviewed: `2026-05-10T14:20:21Z`
 
 ## Top-Level Structure
 
@@ -76,6 +76,7 @@ Last reviewed: `2026-05-10T13:45:12Z`
 - UAT3.0.2 updates current-state notes after sandbox gate integration dry-run / policy hardening: risk gates now propagate all sandbox runtime-policy blockers, non-positive quantity/notional/limit/drawdown values are rejected, and the unified dry-run sandbox gate preflight combines runtime, labels, approval scope, risk, drawdown, and submit-lease checks. UAT3.1 actual sandbox submission remains blocked.
 - UAT3.0.3 updates current-state notes after sandbox gate wiring / label-enforcement hardening: sandbox artifact boundary validators cover persistence/API/dashboard/report helper surfaces, and a dry-run executable gate service composes runtime, boundary labels, approval scope, risk gates, drawdown status, and submit-lease checks. UAT3.1 actual sandbox submission remains blocked.
 - UAT3.0.4 updates current-state notes after sandbox private read-only drawdown readiness: private read-only sandbox account policy, credential approval/boundary validation, endpoint category separation, redaction helpers, and sandbox account drawdown feed modeling exist. The required private read-only credential approval was not present, so no credentials were used and no private endpoints were called. UAT3.1 actual sandbox submission remains blocked.
+- UAT3.0.5 updates current-state notes after sandbox/testnet private read-only credential and drawdown verification: exact private-read-only approval is present, sandbox/testnet credential/base-URL verification helpers exist, Hyperliquid sandbox account-state payloads can be parsed into not-live-account drawdown feeds, and order-capable categories remain blocked. Local sandbox credential environment variables were missing in the run, so no credentials were loaded, no private endpoints were called, and live-fed drawdown remains blocked. UAT3.1 actual sandbox submission remains blocked.
 - Phase 8.0.1 accepted the previously dirty Obsidian memory refresh as the strategic baseline and updated it to current Phase 8.0/8.0.1 truth.
 - Phase 8.0.2 updates current-phase/coordination/decision notes for active submit-lease operator-summary truth only; full project memory remains untouched.
 - SV1.0.1 updates current-phase/coordination/decision notes for strategy-validation research-truth/report hardening only; full project memory remains untouched.
@@ -199,9 +200,13 @@ Last reviewed: `2026-05-10T13:45:12Z`
 - Founder/operator UAT3.0.4 sandbox private read-only drawdown readiness report.
 - Records the required private read-only credential approval boundary, credential safety/redaction status, private read-only account policy, endpoint classification, sandbox account drawdown feed model/status, no-order endpoint confirmation, UAT3 preflight drawdown-status support, UAT3.1 blocked decision, and no-order/no-artifact boundary.
 
+`docs/uat3_0_5_sandbox_private_read_only_drawdown_verification.md`
+- Founder/operator UAT3.0.5 sandbox/testnet private read-only credential and drawdown-feed verification report.
+- Records the exact UAT3.0.5 approval boundary, local sandbox credential environment status, redaction status, private-read-only endpoint categories, no-order endpoint confirmation, sandbox drawdown-feed status, missing local credential blocker, UAT3 preflight drawdown status, UAT3.1 blocked decision, and no-order/no-artifact boundary.
+
 `services/uat/sandbox.py`
 - Fixture-only UAT3 sandbox readiness helpers.
-- Defines fail-closed sandbox runtime policy evaluation, sandbox private read-only account policy evaluation, credential approval/boundary validation, redacted credential payload serialization, sandbox artifact label validation, sandbox artifact boundary validation, actual-submission approval-scope validation, sandbox risk-gate evaluation, sandbox drawdown feed fixtures and sandbox account drawdown feed modeling, submit-lease duplicate-prevention checks, unified dry-run preflight, and dry-run executable gate service composition.
+- Defines fail-closed sandbox runtime policy evaluation, sandbox private read-only account policy evaluation, UAT3.0.5 approval and sandbox/testnet credential-environment verification, redacted credential payload serialization, Hyperliquid sandbox account-state payload parsing into not-live-account drawdown feeds, sandbox artifact label validation, sandbox artifact boundary validation, actual-submission approval-scope validation, sandbox risk-gate evaluation, sandbox drawdown feed fixtures and sandbox account drawdown feed modeling, submit-lease duplicate-prevention checks, unified dry-run preflight, and dry-run executable gate service composition.
 - Creates no trading artifacts, submits no orders, calls no exchange endpoints, and authorizes no paper/live behavior.
 
 `core/config/`

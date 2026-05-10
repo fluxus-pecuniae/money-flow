@@ -2,6 +2,8 @@
 
 Recorded at: `2026-05-10T13:58:00Z`
 
+Follow-up: UAT3.0.5 validated the exact private-read-only approval text and added sandbox/testnet credential environment checks plus Hyperliquid sandbox account-state drawdown parsing. The local `HYPERLIQUID_UAT_SANDBOX_*` environment variables were missing, so no credentials were loaded, no API keys were used, no private endpoints were called, and live-fed sandbox drawdown remains blocked.
+
 ## Scope
 
 UAT3.0.4 is private read-only sandbox drawdown readiness and credential-boundary preflight.

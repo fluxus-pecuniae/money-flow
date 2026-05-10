@@ -2,7 +2,7 @@
 
 Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
-UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT0.3 top-20 universe and drawdown readiness preflight is complete. UAT1 public read-only connectivity and top-20 universe resolution is complete. UAT1.1 shadow readiness is complete. UAT2 bounded no-order shadow strategy observation is complete. UAT2.1 dashboard visualization is complete. UAT3.0 sandbox-order design/readiness is complete. UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete. UAT3.0.2 sandbox gate integration dry-run / policy hardening is complete. UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete. UAT3.0.4 sandbox private read-only drawdown readiness is complete. UAT3.1 actual sandbox order submission remains blocked.
+UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT0.3 top-20 universe and drawdown readiness preflight is complete. UAT1 public read-only connectivity and top-20 universe resolution is complete. UAT1.1 shadow readiness is complete. UAT2 bounded no-order shadow strategy observation is complete. UAT2.1 dashboard visualization is complete. UAT3.0 sandbox-order design/readiness is complete. UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete. UAT3.0.2 sandbox gate integration dry-run / policy hardening is complete. UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete. UAT3.0.4 sandbox private read-only drawdown readiness is complete. UAT3.0.5 sandbox/testnet private read-only drawdown verification is complete. UAT3.1 actual sandbox order submission remains blocked.
 
 ## Result
 
@@ -25,6 +25,7 @@ Founder/operator report:
 - `docs/uat3_0_2_sandbox_gate_integration_dry_run.md`
 - `docs/uat3_0_3_sandbox_gate_wiring_and_label_enforcement.md`
 - `docs/uat3_0_4_sandbox_private_read_only_drawdown.md`
+- `docs/uat3_0_5_sandbox_private_read_only_drawdown_verification.md`
 
 ## Evidence Candidate vs Observation Universe
 
@@ -65,7 +66,7 @@ UAT2 shadow timing compared `next_candle_open` and `next_candle_close`. `same_ca
 
 `UAT1 read-only connectivity may proceed`.
 
-UAT1 is now complete. UAT1.1 is now complete. UAT2 is now complete. UAT2.1 is now complete. UAT3.0 design/readiness is now complete. UAT3.0.1 fixture/readiness hardening is now complete. UAT3.0.2 dry-run gate hardening is now complete. UAT3.0.3 dry-run executable gate wiring and label-enforcement hardening is now complete. UAT3.0.4 private read-only sandbox drawdown readiness is now complete. `UAT3.1 is blocked`.
+UAT1 is now complete. UAT1.1 is now complete. UAT2 is now complete. UAT2.1 is now complete. UAT3.0 design/readiness is now complete. UAT3.0.1 fixture/readiness hardening is now complete. UAT3.0.2 dry-run gate hardening is now complete. UAT3.0.3 dry-run executable gate wiring and label-enforcement hardening is now complete. UAT3.0.4 private read-only sandbox drawdown readiness is now complete. UAT3.0.5 sandbox/testnet private read-only drawdown verification is now complete. `UAT3.1 is blocked`.
 
 Closed by UAT0.1:
 
@@ -167,10 +168,20 @@ Closed by UAT3.0.4:
 - explicit credential approval was absent, so no API keys were used and no private endpoints were called;
 - no order intent, prepared order, submitted order, executable approval, order/cancel/amend/retry endpoint call, live API-key use, paper/live behavior, evidence pack, routing artifact, or Money Flow rule change was added.
 
+Closed by UAT3.0.5:
+
+- exact UAT3.0.5 founder/operator private-read-only approval text is validated;
+- sandbox/testnet credential environment status is inspectable without retaining private key values;
+- live Hyperliquid endpoint URLs are blocked by sandbox/testnet boundary validation;
+- Hyperliquid sandbox account-state payload parsing can produce a `sandbox_account` / `not_live_account` drawdown feed from caller-supplied sandbox account truth;
+- local sandbox/testnet credential env vars were missing, so no credentials were loaded, no API keys were used, no private endpoints were called, and live-fed sandbox drawdown remains blocked;
+- order/cancel/amend/retry endpoints remain blocked even when private read-only categories are modeled;
+- no order intent, prepared order, submitted order, executable approval, order/cancel/amend/retry endpoint call, live API-key use, paper/live behavior, evidence pack, routing artifact, or Money Flow rule change was added.
+
 Remaining before UAT3.1:
 
 - explicit founder/operator approval for actual sandbox submission;
-- live-fed sandbox account drawdown;
+- live-fed sandbox account drawdown from sandbox/testnet account truth;
 - real sandbox submit path wiring;
 - executable approval-scope gate wiring to persistence;
 - risk gate wiring to the actual future sandbox submit path;

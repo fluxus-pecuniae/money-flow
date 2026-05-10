@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-10T14:20:21Z - UAT3.0.5 - Sandbox Private Read-Only Approval Validated, Drawdown Still Blocked
+
+- `decision`: Validate the exact UAT3.0.5 sandbox/testnet private read-only credential-use approval boundary, add sandbox/testnet credential environment checks, block live Hyperliquid endpoints, and add Hyperliquid sandbox account-state drawdown parsing while preserving no-order boundaries.
+- `why`: UAT3.0.4 left live-fed sandbox account drawdown blocked because private-read-only approval was absent. UAT3.0.5 has approval for account-state/drawdown verification only, so the next safe step is to verify the credential boundary and drawdown parser without enabling order-capable paths.
+- `scope`: UAT3.0.5 adds UAT3.0.5 approval validation, sandbox/testnet env status inspection for `HYPERLIQUID_UAT_SANDBOX_*`, sandbox/testnet base URL validation, credential-boundary status mapping, Hyperliquid sandbox account-state payload parsing into `sandbox_account` / `not_live_account` drawdown feeds, docs, and tests. Local sandbox/testnet credential env vars were missing, so no credentials were loaded, no API keys were used, and no private endpoints were called. It does not submit orders, create real `OrderIntent` / `PreparedVenueOrder` / `SubmittedOrder` / executable approval artifacts, call order/cancel/amend/retry endpoints, approve paper/live trading, change Money Flow rules, add routing expansion, or generate evidence packs.
+- `result`: UAT3.1 actual sandbox order submission remains blocked. Live-fed sandbox drawdown remains `sandbox_drawdown_feed_missing` until sandbox/testnet credentials and a verifiable sandbox/testnet account-state read are supplied under the private-read-only boundary. Order-capable categories remain blocked.
+- `follow_up_implications`: UAT3.1 may proceed only after explicit founder/operator actual-submission approval, live-fed sandbox account drawdown from sandbox/testnet account truth, real sandbox submit-path wiring, executable approval/risk gates wired to persistence/submit, submit-lease integration verification, and no live/paper/order ambiguity.
+
 ## 2026-05-10T13:58:00Z - UAT3.0.4 - Sandbox Private Read-Only Drawdown Readiness Complete
 
 - `decision`: Add fail-closed sandbox/testnet private read-only account-state policy, credential approval/boundary validation, endpoint category separation, redaction helpers, and sandbox account drawdown feed modeling before any UAT3.1 sandbox submit path is considered.

@@ -13,6 +13,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from enum import StrEnum
 from typing import Any
+from urllib.parse import urlparse
 
 from core.security import redact_sensitive_structure
 
@@ -24,6 +25,14 @@ REQUIRED_UAT304_PRIVATE_READ_ONLY_APPROVAL_TEXT = (
     "I approve UAT3.0.4 sandbox/testnet private read-only credential use "
     "for account-state and drawdown-feed verification only."
 )
+REQUIRED_UAT305_PRIVATE_READ_ONLY_APPROVAL_TEXT = (
+    "I approve UAT3.0.5 sandbox/testnet private read-only credential use "
+    "for account-state and drawdown-feed verification only."
+)
+HYPERLIQUID_UAT_SANDBOX_PRIVATE_KEY_ENV = "HYPERLIQUID_UAT_SANDBOX_PRIVATE_KEY"
+HYPERLIQUID_UAT_SANDBOX_ACCOUNT_ENV = "HYPERLIQUID_UAT_SANDBOX_ACCOUNT"
+HYPERLIQUID_UAT_SANDBOX_BASE_URL_ENV = "HYPERLIQUID_UAT_SANDBOX_BASE_URL"
+HYPERLIQUID_TESTNET_API_HOST = "api.hyperliquid-testnet.xyz"
 
 
 class SandboxReadinessReason(StrEnum):
@@ -74,13 +83,27 @@ class SandboxDrawdownFeedStatus(StrEnum):
 
 
 class SandboxPrivateReadOnlyRejectReason(StrEnum):
+    FOUNDER_OPERATOR_PRIVATE_READ_ONLY_APPROVAL_REQUIRED = (
+        "founder_operator_private_read_only_approval_required"
+    )
     PRIVATE_READ_ONLY_APPROVAL_REQUIRED = "sandbox_private_read_only_approval_required"
     PRIVATE_READ_ONLY_APPROVAL_TEXT_MISMATCH = "sandbox_private_read_only_approval_text_mismatch"
     PRIVATE_READ_ONLY_APPROVAL_IDENTITY_MISSING = "sandbox_private_read_only_approval_identity_missing"
     SANDBOX_ENVIRONMENT_REQUIRED = "sandbox_environment_required"
     CREDENTIALS_MISSING = "sandbox_private_read_only_credentials_missing"
     CREDENTIALS_NOT_SANDBOX_ONLY = "sandbox_private_read_only_credentials_not_sandbox_only"
+    CREDENTIALS_NOT_VERIFIED_AS_SANDBOX = (
+        "sandbox_private_read_only_credentials_not_verified_as_sandbox"
+    )
     CREDENTIALS_SOURCE_UNAPPROVED = "sandbox_private_read_only_credentials_source_unapproved"
+    PRIVATE_KEY_MISSING = "sandbox_private_read_only_private_key_missing"
+    ACCOUNT_MISSING = "sandbox_private_read_only_account_missing"
+    BASE_URL_MISSING = "sandbox_private_read_only_base_url_missing"
+    BASE_URL_NOT_HTTPS = "sandbox_private_read_only_base_url_not_https"
+    BASE_URL_LIVE_FORBIDDEN = "sandbox_private_read_only_base_url_live_forbidden"
+    BASE_URL_NOT_RECOGNIZED_AS_SANDBOX = (
+        "sandbox_private_read_only_base_url_not_recognized_as_sandbox"
+    )
     CREDENTIALS_COMMITTED = "sandbox_credentials_committed_to_repo"
     CREDENTIALS_LOGGED = "sandbox_credentials_logged"
     CREDENTIALS_WRITTEN_TO_OBSIDIAN = "sandbox_credentials_written_to_obsidian"
@@ -104,6 +127,7 @@ class SandboxPrivateReadOnlyRejectReason(StrEnum):
     UNKNOWN_ENDPOINT_CATEGORY_FORBIDDEN = "unknown_endpoint_category_forbidden"
     SANDBOX_DRAWDOWN_FEED_NOT_SANDBOX_ACCOUNT = "sandbox_drawdown_feed_not_sandbox_account"
     SANDBOX_DRAWDOWN_FEED_LIVE_ACCOUNT_FORBIDDEN = "sandbox_drawdown_feed_live_account_forbidden"
+    UNAVAILABLE_FROM_SANDBOX_ACCOUNT_RESPONSE = "unavailable_from_sandbox_account_response"
 
 
 class SandboxApprovalRejectReason(StrEnum):
@@ -284,16 +308,37 @@ class SandboxPrivateReadOnlyApproval:
 
 def validate_sandbox_private_read_only_approval(
     approval: SandboxPrivateReadOnlyApproval | None,
+    *,
+    required_text: str = REQUIRED_UAT304_PRIVATE_READ_ONLY_APPROVAL_TEXT,
 ) -> SandboxCheckResult:
     reasons: list[str] = []
     if approval is None:
         reasons.append(SandboxPrivateReadOnlyRejectReason.PRIVATE_READ_ONLY_APPROVAL_REQUIRED.value)
         return SandboxCheckResult(allowed=False, reason_codes=tuple(reasons))
-    if REQUIRED_UAT304_PRIVATE_READ_ONLY_APPROVAL_TEXT not in approval.approval_text:
+    if required_text not in approval.approval_text:
         reasons.append(SandboxPrivateReadOnlyRejectReason.PRIVATE_READ_ONLY_APPROVAL_TEXT_MISMATCH.value)
     if not approval.approved_by.strip() or approval.approved_at_utc is None:
         reasons.append(SandboxPrivateReadOnlyRejectReason.PRIVATE_READ_ONLY_APPROVAL_IDENTITY_MISSING.value)
     return SandboxCheckResult(allowed=not reasons, reason_codes=tuple(reasons))
+
+
+def validate_uat305_private_read_only_approval(
+    approval: SandboxPrivateReadOnlyApproval | None,
+) -> SandboxCheckResult:
+    """Validate the exact UAT3.0.5 private-read-only approval boundary."""
+
+    if approval is None:
+        return SandboxCheckResult(
+            allowed=False,
+            reason_codes=(
+                SandboxPrivateReadOnlyRejectReason.FOUNDER_OPERATOR_PRIVATE_READ_ONLY_APPROVAL_REQUIRED.value,
+                SandboxPrivateReadOnlyRejectReason.PRIVATE_READ_ONLY_APPROVAL_REQUIRED.value,
+            ),
+        )
+    return validate_sandbox_private_read_only_approval(
+        approval,
+        required_text=REQUIRED_UAT305_PRIVATE_READ_ONLY_APPROVAL_TEXT,
+    )
 
 
 @dataclass(frozen=True)
@@ -310,6 +355,105 @@ class SandboxCredentialBoundary:
     included_in_review_bundle: bool = False
     raw_authorization_header_exposed: bool = False
     sample_config_payload: Mapping[str, Any] | None = None
+
+
+@dataclass(frozen=True)
+class SandboxPrivateReadOnlyCredentialEnvStatus:
+    private_key_env_var: str
+    account_env_var: str
+    base_url_env_var: str
+    private_key_present: bool
+    account_present: bool
+    base_url_present: bool
+    base_url: str
+    endpoint_sandbox_verified: bool
+    credential_source: str = "environment"
+    api_keys_used: bool = False
+    private_endpoint_called: bool = False
+    order_endpoint_called: bool = False
+    reason_codes: tuple[str, ...] = ()
+
+    @property
+    def credentials_available(self) -> bool:
+        return self.private_key_present and self.account_present and self.base_url_present
+
+
+def validate_sandbox_testnet_base_url(base_url: str) -> SandboxCheckResult:
+    """Require an unambiguous sandbox/testnet endpoint before private read-only access."""
+
+    value = base_url.strip()
+    reasons: list[str] = []
+    if not value:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.BASE_URL_MISSING.value)
+        return SandboxCheckResult(allowed=False, reason_codes=tuple(reasons))
+
+    parsed = urlparse(value)
+    host = (parsed.hostname or "").lower()
+    if parsed.scheme != "https":
+        reasons.append(SandboxPrivateReadOnlyRejectReason.BASE_URL_NOT_HTTPS.value)
+    if host in {"api.hyperliquid.xyz", "hyperliquid.xyz"}:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.BASE_URL_LIVE_FORBIDDEN.value)
+    if not ("testnet" in host or "sandbox" in host):
+        reasons.append(SandboxPrivateReadOnlyRejectReason.BASE_URL_NOT_RECOGNIZED_AS_SANDBOX.value)
+    if host and host != HYPERLIQUID_TESTNET_API_HOST and "testnet" not in host and "sandbox" not in host:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.BASE_URL_NOT_RECOGNIZED_AS_SANDBOX.value)
+    return SandboxCheckResult(allowed=not reasons, reason_codes=tuple(dict.fromkeys(reasons)))
+
+
+def load_hyperliquid_uat_sandbox_credential_env_status(
+    env: Mapping[str, str | None],
+) -> SandboxPrivateReadOnlyCredentialEnvStatus:
+    """Inspect sandbox credential environment without retaining secret values."""
+
+    private_key_present = bool((env.get(HYPERLIQUID_UAT_SANDBOX_PRIVATE_KEY_ENV) or "").strip())
+    account_present = bool((env.get(HYPERLIQUID_UAT_SANDBOX_ACCOUNT_ENV) or "").strip())
+    base_url = (env.get(HYPERLIQUID_UAT_SANDBOX_BASE_URL_ENV) or "").strip()
+    endpoint_result = validate_sandbox_testnet_base_url(base_url)
+
+    reasons: list[str] = []
+    if not private_key_present:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.PRIVATE_KEY_MISSING.value)
+    if not account_present:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.ACCOUNT_MISSING.value)
+    if not base_url:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.BASE_URL_MISSING.value)
+    reasons.extend(endpoint_result.reason_codes)
+    if private_key_present and account_present and base_url and not endpoint_result.allowed:
+        reasons.append(SandboxPrivateReadOnlyRejectReason.CREDENTIALS_NOT_VERIFIED_AS_SANDBOX.value)
+
+    return SandboxPrivateReadOnlyCredentialEnvStatus(
+        private_key_env_var=HYPERLIQUID_UAT_SANDBOX_PRIVATE_KEY_ENV,
+        account_env_var=HYPERLIQUID_UAT_SANDBOX_ACCOUNT_ENV,
+        base_url_env_var=HYPERLIQUID_UAT_SANDBOX_BASE_URL_ENV,
+        private_key_present=private_key_present,
+        account_present=account_present,
+        base_url_present=bool(base_url),
+        base_url=base_url,
+        endpoint_sandbox_verified=endpoint_result.allowed,
+        reason_codes=tuple(dict.fromkeys(reasons)),
+    )
+
+
+def credential_boundary_from_uat305_env_status(
+    status: SandboxPrivateReadOnlyCredentialEnvStatus,
+) -> SandboxCredentialBoundary:
+    return SandboxCredentialBoundary(
+        environment="testnet" if status.endpoint_sandbox_verified else "unknown",
+        credential_source=status.credential_source,
+        credentials_available=status.credentials_available,
+        sandbox_or_testnet_only=status.endpoint_sandbox_verified,
+        approved_secret_source=status.credential_source == "environment",
+        live_credentials=not status.endpoint_sandbox_verified and status.base_url_present,
+        sample_config_payload={
+            "private_key_env_var": status.private_key_env_var,
+            "account_env_var": status.account_env_var,
+            "base_url_env_var": status.base_url_env_var,
+            "private_key_present": status.private_key_present,
+            "account_present": status.account_present,
+            "base_url": status.base_url,
+            "Authorization": "Bearer representative-sandbox-token",
+        },
+    )
 
 
 def validate_sandbox_credential_boundary(
@@ -365,6 +509,7 @@ class SandboxPrivateReadOnlyAccountPolicy:
         SandboxPrivateEndpointCategory.UNKNOWN,
     )
     explicit_approval_required: bool = True
+    required_approval_text: str = REQUIRED_UAT304_PRIVATE_READ_ONLY_APPROVAL_TEXT
     fail_closed: bool = True
     calls_exchange: bool = False
     creates_order_intent: bool = False
@@ -390,7 +535,12 @@ def evaluate_sandbox_private_read_only_access(
 
     reasons: list[str] = []
     if policy.explicit_approval_required:
-        reasons.extend(validate_sandbox_private_read_only_approval(request.approval).reason_codes)
+        reasons.extend(
+            validate_sandbox_private_read_only_approval(
+                request.approval,
+                required_text=policy.required_approval_text,
+            ).reason_codes
+        )
     reasons.extend(validate_sandbox_credential_boundary(request.credential_boundary).reason_codes)
     reasons.extend(request.runtime_policy.evaluate_for_sandbox_private_read_only().reason_codes)
 
@@ -698,6 +848,41 @@ class SandboxAccountDrawdownFeed:
     status: SandboxDrawdownFeedStatus
 
 
+@dataclass(frozen=True)
+class UAT305PrivateReadOnlyDrawdownVerificationResult:
+    approval_result: SandboxCheckResult
+    credential_env_status: SandboxPrivateReadOnlyCredentialEnvStatus
+    credential_boundary_result: SandboxCheckResult
+    account_access_result: SandboxCheckResult
+    order_lockout_results: dict[SandboxPrivateEndpointCategory, SandboxCheckResult]
+    sandbox_drawdown_feed: SandboxAccountDrawdownFeed | None
+    drawdown_feed_status: SandboxDrawdownFeedStatus
+    private_endpoint_called: bool = False
+    order_endpoint_called: bool = False
+    api_keys_used: bool = False
+    creates_order_intent: bool = False
+    creates_prepared_order: bool = False
+    creates_submitted_order: bool = False
+    creates_executable_approval: bool = False
+
+    @property
+    def reason_codes(self) -> tuple[str, ...]:
+        reasons: list[str] = []
+        reasons.extend(self.approval_result.reason_codes)
+        reasons.extend(self.credential_env_status.reason_codes)
+        reasons.extend(self.credential_boundary_result.reason_codes)
+        reasons.extend(self.account_access_result.reason_codes)
+        for result in self.order_lockout_results.values():
+            reasons.extend(result.reason_codes)
+        if self.sandbox_drawdown_feed is None:
+            reasons.append(SandboxDrawdownFeedStatus.MISSING.value)
+        return tuple(dict.fromkeys(reasons))
+
+    @property
+    def live_fed_drawdown_verified(self) -> bool:
+        return self.drawdown_feed_status == SandboxDrawdownFeedStatus.LIVE_FED_VERIFIED
+
+
 def build_sandbox_drawdown_feed_fixture(
     *,
     sandbox_account_equity: Decimal,
@@ -820,6 +1005,173 @@ def build_sandbox_account_drawdown_feed(
     )
 
 
+def build_hyperliquid_sandbox_account_snapshot_from_payload(
+    *,
+    payload: Mapping[str, Any],
+    sandbox_account_id: str,
+    observed_at_utc: datetime | None = None,
+) -> SandboxAccountStateSnapshot:
+    """Build a sandbox account snapshot from a Hyperliquid account-state payload.
+
+    This parser does not fetch network data and does not sign requests. Callers
+    may supply a real sandbox/testnet private-read-only response only after the
+    UAT3.0.5 approval and credential boundary gates pass.
+    """
+
+    margin_summary = payload.get("marginSummary") if isinstance(payload.get("marginSummary"), Mapping) else {}
+    cross_margin = (
+        payload.get("crossMarginSummary") if isinstance(payload.get("crossMarginSummary"), Mapping) else {}
+    )
+    account_value = _decimal_or_none(
+        margin_summary.get("accountValue")
+        if isinstance(margin_summary, Mapping)
+        else None
+    )
+    if account_value is None:
+        account_value = _decimal_or_none(cross_margin.get("accountValue") if isinstance(cross_margin, Mapping) else None)
+
+    asset_positions = payload.get("assetPositions")
+    open_positions: list[str] = []
+    unrealized_pnl = Decimal("0")
+    saw_unrealized_pnl = False
+    if isinstance(asset_positions, list):
+        for item in asset_positions:
+            if not isinstance(item, Mapping):
+                continue
+            position = item.get("position")
+            if not isinstance(position, Mapping):
+                continue
+            coin = str(position.get("coin") or "unknown")
+            size = str(position.get("szi") or position.get("sz") or "0")
+            value = str(position.get("positionValue") or "0")
+            if size not in {"0", "0.0", ""}:
+                open_positions.append(f"{coin} size={size} value={value}")
+            pnl_value = _decimal_or_none(position.get("unrealizedPnl"))
+            if pnl_value is not None:
+                unrealized_pnl += pnl_value
+                saw_unrealized_pnl = True
+
+    payload_time = _decimal_or_none(payload.get("time"))
+    timestamp = observed_at_utc
+    if timestamp is None and payload_time is not None:
+        timestamp = datetime.fromtimestamp(int(payload_time) / 1000, tz=UTC)
+    if timestamp is None:
+        timestamp = datetime.now(tz=UTC)
+
+    return SandboxAccountStateSnapshot(
+        venue="hyperliquid",
+        sandbox_account_id=sandbox_account_id,
+        timestamp_utc=timestamp,
+        sandbox_account_equity=account_value,
+        sandbox_realized_pnl=_decimal_or_none(payload.get("realizedPnl")),
+        sandbox_unrealized_pnl=unrealized_pnl if saw_unrealized_pnl else None,
+        open_positions_summary=tuple(open_positions),
+        max_sandbox_equity=account_value,
+        min_sandbox_equity=account_value,
+        source="sandbox_account",
+        not_live_account=True,
+    )
+
+
+def evaluate_uat305_private_read_only_drawdown_verification(
+    *,
+    approval: SandboxPrivateReadOnlyApproval | None,
+    env: Mapping[str, str | None],
+    account_state_payload: Mapping[str, Any] | None = None,
+    drawdown_threshold: Decimal = Decimal("0.05"),
+    observed_at_utc: datetime | None = None,
+) -> UAT305PrivateReadOnlyDrawdownVerificationResult:
+    """Evaluate UAT3.0.5 private-read-only drawdown readiness without side effects.
+
+    The function never reads or returns secret values, never submits orders, and
+    never calls network transport. Supplying an account-state payload represents
+    a caller-provided sandbox/testnet read-only response after external transport
+    controls have already passed.
+    """
+
+    approval_result = validate_uat305_private_read_only_approval(approval)
+    env_status = load_hyperliquid_uat_sandbox_credential_env_status(env)
+    credential_boundary = credential_boundary_from_uat305_env_status(env_status)
+    credential_result = validate_sandbox_credential_boundary(credential_boundary)
+    runtime_policy = SandboxRuntimePolicy(
+        runtime_mode="uat_sandbox",
+        live_trading_enabled=False,
+        paper_trading_enabled=False,
+        exchange_order_submission_enabled=False,
+        sandbox_order_submission_enabled=False,
+        private_exchange_endpoints_enabled=True,
+        live_endpoint_access=False,
+        api_keys_required=True,
+        sandbox_only=True,
+    )
+    account_access_result = evaluate_sandbox_private_read_only_access(
+        policy=SandboxPrivateReadOnlyAccountPolicy(
+            required_approval_text=REQUIRED_UAT305_PRIVATE_READ_ONLY_APPROVAL_TEXT,
+        ),
+        request=SandboxPrivateReadOnlyAccessRequest(
+            category=SandboxPrivateEndpointCategory.SANDBOX_PRIVATE_READ_ONLY_ACCOUNT,
+            runtime_policy=runtime_policy,
+            approval=approval,
+            credential_boundary=credential_boundary,
+        ),
+    )
+
+    order_lockout_results = {
+        category: evaluate_sandbox_private_read_only_access(
+            policy=SandboxPrivateReadOnlyAccountPolicy(
+                required_approval_text=REQUIRED_UAT305_PRIVATE_READ_ONLY_APPROVAL_TEXT,
+            ),
+            request=SandboxPrivateReadOnlyAccessRequest(
+                category=category,
+                runtime_policy=runtime_policy,
+                approval=approval,
+                credential_boundary=credential_boundary,
+            ),
+        )
+        for category in (
+            SandboxPrivateEndpointCategory.SANDBOX_ORDER_SUBMISSION,
+            SandboxPrivateEndpointCategory.SANDBOX_ORDER_CANCEL,
+            SandboxPrivateEndpointCategory.SANDBOX_ORDER_AMEND,
+            SandboxPrivateEndpointCategory.SANDBOX_ORDER_RETRY,
+        )
+    }
+
+    feed: SandboxAccountDrawdownFeed | None = None
+    status = SandboxDrawdownFeedStatus.MISSING
+    if (
+        account_state_payload is not None
+        and approval_result.allowed
+        and env_status.credentials_available
+        and env_status.endpoint_sandbox_verified
+        and credential_result.allowed
+        and account_access_result.allowed
+    ):
+        snapshot = build_hyperliquid_sandbox_account_snapshot_from_payload(
+            payload=account_state_payload,
+            sandbox_account_id="configured_sandbox_account",
+            observed_at_utc=observed_at_utc,
+        )
+        feed = build_sandbox_account_drawdown_feed(
+            snapshot=snapshot,
+            drawdown_threshold=drawdown_threshold,
+            status=SandboxDrawdownFeedStatus.LIVE_FED_VERIFIED,
+        )
+        status = SandboxDrawdownFeedStatus.LIVE_FED_VERIFIED
+
+    return UAT305PrivateReadOnlyDrawdownVerificationResult(
+        approval_result=approval_result,
+        credential_env_status=env_status,
+        credential_boundary_result=credential_result,
+        account_access_result=account_access_result,
+        order_lockout_results=order_lockout_results,
+        sandbox_drawdown_feed=feed,
+        drawdown_feed_status=status,
+        private_endpoint_called=feed is not None,
+        order_endpoint_called=False,
+        api_keys_used=False,
+    )
+
+
 def validate_sandbox_account_drawdown_feed(
     feed: SandboxAccountDrawdownFeed | None,
     *,
@@ -836,6 +1188,15 @@ def validate_sandbox_account_drawdown_feed(
     if require_live_fed and feed.status != SandboxDrawdownFeedStatus.LIVE_FED_VERIFIED:
         reasons.append(SandboxDryRunRejectReason.SANDBOX_DRAWDOWN_FEED_LIVE_FED_REQUIRED.value)
     return SandboxCheckResult(allowed=not reasons, reason_codes=tuple(dict.fromkeys(reasons)))
+
+
+def _decimal_or_none(value: Any) -> Decimal | None:
+    if value is None:
+        return None
+    try:
+        return Decimal(str(value))
+    except Exception:  # noqa: BLE001
+        return None
 
 
 @dataclass(frozen=True)
