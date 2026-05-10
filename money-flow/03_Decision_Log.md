@@ -9,6 +9,13 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `scope`: UAT0 adds docs/tests and audit truth only. It makes no exchange calls, uses no API keys, submits no orders, creates no paper/live artifacts, changes no Money Flow rules, adds no routing behavior, implements no UAT1/UAT2/UAT3 runtime, and generates no evidence packs.
 - `follow_up_implications`: Future UAT observation should cover top 20 high-volume crypto assets supported by the selected UAT venue/environment, but top-20 inclusion is not strategy approval. Future UAT2 shadow timing should compare `next_candle_open` and `next_candle_close`; `same_candle_close_research_only` remains research-only.
 
+## 2026-05-10T06:24:03Z - UAT0.3 - Public Read-Only UAT1 May Proceed Under Constraints
+
+- `decision`: Add fixture-tested top-20 UAT observation-universe resolver policy, Hyperliquid public read-only info-type allowlisting, and a fixture-tested runtime drawdown monitor model, then allow UAT1 public read-only connectivity to proceed under strict no-private/no-signed/no-order/no-API-key constraints.
+- `why`: UAT1 needs enough policy truth to fetch public top-volume source data and public selected-venue market metadata without implying strategy approval or trading authorization. Runtime drawdown does not need live account feed for UAT1 metadata, but UAT2/UAT3 need visible shadow/sandbox drawdown state before signal observation or sandbox orders.
+- `scope`: UAT0.3 adds policy/model code, tests, and docs only. It does not implement UAT1, connect to exchanges, call public/private/signed/order endpoints, use exchange API keys, submit orders, approve paper/live trading, change Money Flow rules, add routing behavior, or generate evidence packs.
+- `follow_up_implications`: UAT1 remains public read-only only and must verify actual Hyperliquid endpoint URLs/sandbox behavior plus public top-20 source ingestion. Broader structured log/API error redaction, UAT2 operator-visible drawdown state, UAT3 sandbox account drawdown feed, and UAT-specific risk/kill-switch/audit visibility remain later blockers.
+
 ## 2026-05-10T05:38:05Z - UAT0.2 - Adapter Runtime Policy Must Block Before Transport
 
 - `decision`: Add adapter-helper endpoint classification and enforce `RuntimeSafetyPolicy` before private, signed, unknown, or order-like adapter transport can run. Define Hyperliquid as the selected future UAT1 venue with a public-read-only allowlist artifact and keep UAT1 blocked until the remaining prerequisites are closed.

@@ -31,11 +31,11 @@ Before substantial work, read the repo memory and Obsidian brain. Before editing
 
 ## Current Important Memory Facts
 
-- Current implemented milestone: `UAT0.2` adapter runtime-policy and redaction hardening complete.
+- Current implemented milestone: `UAT0.3` top-20 universe and drawdown readiness preflight complete.
 - Strategy Validation SV1 is closed for now.
 - Next proposed phase: remaining UAT0 P1 blocker remediation before UAT1.
-- UAT1 is blocked until Hyperliquid public read-only endpoint URL/sandbox verification, broader structured application log/API error redaction verification, runtime drawdown monitoring, and top-20 market identity prerequisites close.
-- UAT0.2 added adapter private/signed/order runtime-policy guards before transport, a Hyperliquid future-UAT1 read-only allowlist artifact, and representative redaction tests without exchange calls.
+- UAT1 public read-only connectivity may proceed under strict no-private/no-signed/no-order/no-API-key constraints.
+- UAT0.3 added fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design without exchange calls.
 - Frozen evidence candidate: Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules.
 - Future UAT observation universe: top-20 high-volume supported assets for behavior validation only.
 - Paper trading is not approved.

@@ -66,6 +66,7 @@ REQUIRED_FILES = [
     "docs/uat0_safety_security_runtime_hardening.md",
     "docs/uat0_1_api_auth_runtime_lockout.md",
     "docs/uat0_2_adapter_runtime_policy_and_redaction.md",
+    "docs/uat0_3_top20_universe_and_drawdown_readiness.md",
 ]
 
 
@@ -114,17 +115,17 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "canonical Obsidian command center" in command_center
-    assert "`UAT0.2` adapter runtime-policy and redaction hardening is complete" in current_phase
+    assert "`UAT0.3` top-20 universe and drawdown readiness preflight is complete" in current_phase
     assert "SV1.18" in command_center
     assert "UAT0" in command_center
-    assert "UAT1 is blocked" in command_center
+    assert "UAT1 public read-only connectivity may proceed" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
     assert "Strategy Validation" in moved_memory
     assert "SV1.18-SV1.18.1" in moved_memory
     assert "money_flow_hyperliquid_eth_1h_baseline_uat_candidate" in moved_memory
     assert "Paper trading is not approved" in moved_memory
-    assert "UAT1 is blocked" in moved_memory
+    assert "UAT1 public read-only connectivity may proceed" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
 
@@ -138,10 +139,10 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert "Current implemented milestone | `UAT0.2` adapter runtime-policy and redaction hardening complete" in command_center
+    assert "Current implemented milestone | `UAT0.3` top-20 universe and drawdown readiness preflight complete" in command_center
     assert "Canonical command center" in compatibility_command_center
     assert "SV1 is closed for now" in current_dashboard
-    assert "UAT1 is blocked" in current_dashboard
+    assert "UAT1 public read-only connectivity may proceed" in current_dashboard
     assert "Strategy Validation is now its own major track" in Path("money-flow/00 Maps/Phase Timeline.md").read_text()
     assert "What Strategy Validation Did" in sv_map
     assert "What Strategy Validation Did Not Prove" in sv_map
@@ -149,7 +150,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     assert "UAT1 - Top-20 Universe + Read-Only Venue/Market Metadata" in uat_roadmap
     assert "UAT validates plumbing and behavior" in uat_roadmap
     assert "money_flow_hyperliquid_eth_1h_baseline_uat_candidate" in candidate_freeze
-    assert "UAT1 is blocked" in project_memory
+    assert "UAT1 public read-only connectivity may proceed" in project_memory
 
 
 def test_current_state_notes_keep_uat_boundaries() -> None:
@@ -251,6 +252,7 @@ def test_uat0_operational_truth_is_current() -> None:
     report = Path("docs/uat0_safety_security_runtime_hardening.md").read_text()
     uat01_report = Path("docs/uat0_1_api_auth_runtime_lockout.md").read_text()
     uat02_report = Path("docs/uat0_2_adapter_runtime_policy_and_redaction.md").read_text()
+    uat03_report = Path("docs/uat0_3_top20_universe_and_drawdown_readiness.md").read_text()
     current_notes = [
         Path("money-flow/00_Money_Flow_Command_Center.md").read_text(),
         Path("money-flow/01_Current_Phase.md").read_text(),
@@ -259,7 +261,7 @@ def test_uat0_operational_truth_is_current() -> None:
         Path("money-flow/40 Operations/UAT0 Safety Runtime Hardening.md").read_text(),
     ]
 
-    assert "UAT1 is blocked" in report
+    assert "UAT1 read-only connectivity may proceed" in report
     assert "API authentication / authorization" in report
     assert "UAT0.1" in report
     assert "RuntimeSafetyPolicy" in report
@@ -284,16 +286,28 @@ def test_uat0_operational_truth_is_current() -> None:
     assert "Hyperliquid UAT1 Read-Only Allowlist" in uat02_report
     assert "Forbidden Endpoint Categories" in uat02_report
     assert "Redaction Verification Status" in uat02_report
-    assert "`UAT1 is blocked`" in uat02_report
+    assert "UAT0.2 decision at the time: `UAT1 is blocked`" in uat02_report
+    assert "UAT0.3 updated decision: `UAT1 read-only connectivity may proceed`" in uat02_report
     assert "Paper trading is not approved" in uat02_report
     assert "Live trading is not approved" in uat02_report
     assert "Exchange order submission is not approved" in uat02_report
+
+    assert "Top-20 Universe Policy" in uat03_report
+    assert "Hyperliquid Market Intersection Logic" in uat03_report
+    assert "Runtime Drawdown Monitoring Policy" in uat03_report
+    assert "`UAT1 read-only connectivity may proceed`" in uat03_report
+    assert "does not connect to exchanges" in uat03_report
+    assert "does not submit orders" in uat03_report
+    assert "Paper trading is not approved" in uat03_report
+    assert "Live trading is not approved" in uat03_report
+    assert "Exchange order submission is not approved" in uat03_report
 
     for note in current_notes:
         assert "UAT0" in note
         assert "UAT0.1" in note
         assert "UAT0.2" in note
-        assert "UAT1 is blocked" in note
+        assert "UAT0.3" in note
+        assert "UAT1 public read-only connectivity may proceed" in note
         assert "Paper trading is not approved" in note
         assert "Live trading is not approved" in note
         assert "Exchange order submission is not approved" in note

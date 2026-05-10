@@ -2,17 +2,17 @@
 
 ## Current Implemented Milestone
 
-`UAT0.2` adapter runtime-policy and redaction hardening is complete.
+`UAT0.3` top-20 universe and drawdown readiness preflight is complete.
 
-SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one evidence candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap. OB1.0 overhauled the Obsidian project brain. UAT0 audited safety/security/runtime readiness and blocked UAT1 until named gaps are closed. UAT0.1 closes the P0 API auth/authz baseline and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification.
+SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one evidence candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap. OB1.0 overhauled the Obsidian project brain. UAT0 audited safety/security/runtime readiness and blocked UAT1 until named gaps were closed. UAT0.1 closes the P0 API auth/authz baseline and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification. UAT0.3 adds fixture-tested top-20 universe resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design.
 
 SV1.18 is complete.
 
 ## Next Proposed Phase
 
-Remaining UAT0 P1 blocker remediation before `UAT1` read-only top-20 universe and market metadata work.
+`UAT1` public read-only top-20 universe and Hyperliquid market metadata verification.
 
-UAT1 is blocked. UAT remains plumbing and behavior validation only. It is not paper trading, live trading, exchange order submission, routing expansion, or strategy optimization.
+UAT1 public read-only connectivity may proceed under strict constraints. UAT remains plumbing and behavior validation only. It is not paper trading, live trading, exchange order submission, routing expansion, or strategy optimization.
 
 ## Frozen UAT Observation Candidate
 
@@ -69,27 +69,34 @@ Excluded from UAT scope:
 - Aster / Binance / OKX / Coinbase / Kraken
 - cross-venue comparison
 
-## UAT0 / UAT0.1 / UAT0.2 Result
+## UAT0 / UAT0.1 / UAT0.2 / UAT0.3 Result
 
-UAT0 found UAT1 is blocked. UAT0.1 closes these P0 items:
+UAT0 initially found UAT1 blocked. UAT0.1 closed these P0 items:
 
 - API authentication / authorization for sensitive `/api/v1` routes.
 - High-risk route authorization for admin consume, submit/cancel/amend/retry, account, and private-state surfaces.
 - Inspectable fail-safe runtime safety policy with paper/live/order/private endpoint flags disabled by default.
 - Test-only auth bypass limited to `API_RUNTIME_MODE=test`.
 
-UAT0.2 closes or partially closes these P1 items:
+UAT0.2 closed or partially closed these P1 items:
 
 - Adapter-level private/signed/order runtime-policy enforcement is implemented and tested before transport.
 - Hyperliquid selected-venue future-UAT1 read-only allowlist exists as a testable policy artifact.
 - Representative redaction for bearer tokens, API keys, secrets, passwords, and DB URLs is tested.
 
-UAT1 remains blocked until these remaining P1 gaps are closed or explicitly accepted:
+UAT0.3 closes the UAT1 preflight baseline:
 
-- Hyperliquid public read-only endpoint URLs and sandbox/testnet behavior need explicit UAT1 verification.
-- Broader structured application log/API error redaction needs verification.
-- Runtime drawdown monitoring is missing.
-- Top-20 market identity resolution is not implemented.
+- Top-20 source/intersection resolver policy exists and is fixture-tested.
+- Hyperliquid public read-only info types are allowlisted for future UAT1.
+- Runtime drawdown monitor policy/model exists and is fixture-tested from caller-supplied observed equity.
+- UAT1 public read-only connectivity may proceed with no private endpoints, no signed endpoints, no order endpoints, no API keys, no paper trading, no live trading, and no order submission.
+
+Remaining later blockers:
+
+- Broader structured application log/API error redaction needs verification before UAT2/UAT3.
+- UAT2 needs operator-visible shadow drawdown state.
+- UAT3 needs sandbox/live account drawdown feed wiring.
+- Existing approval gates and submit leases are useful but require UAT3 verification before sandbox orders.
 - Existing approval gates and submit leases are useful but require UAT3 verification before sandbox orders.
 
 ## Required Reading For Next Work

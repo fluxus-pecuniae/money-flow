@@ -18,7 +18,7 @@ Money Flow combines:
 - submitted-order lifecycle and reconciliation truth.
 - operator observability.
 - future UAT/sandbox behavior validation.
-- UAT0 safety/security/runtime readiness plus UAT0.1 API/runtime lockout and UAT0.2 adapter-policy/redaction hardening.
+- UAT0 safety/security/runtime readiness plus UAT0.1 API/runtime lockout, UAT0.2 adapter-policy/redaction hardening, and UAT0.3 top-20 universe/drawdown readiness preflight.
 
 ## Platform Tracks Completed
 
@@ -91,9 +91,9 @@ Excluded from current UAT:
 - Aster / Binance / OKX / Coinbase / Kraken.
 - cross-venue comparison.
 
-## UAT0 / UAT0.1 / UAT0.2 Outcome
+## UAT0 / UAT0.1 / UAT0.2 / UAT0.3 Outcome
 
-UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT1 read-only connectivity is blocked.
+UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT0.3 top-20 universe and drawdown readiness preflight is complete. UAT1 public read-only connectivity may proceed under strict constraints.
 
 Closed by UAT0.1:
 
@@ -109,12 +109,19 @@ Closed or partially closed by UAT0.2:
 - Hyperliquid has a future-UAT1 read-only allowlist artifact.
 - Representative bearer/API-key/secret/password/DB URL redaction is tested.
 
+Closed by UAT0.3:
+
+- Fixture-tested top-20 resolver policy and Hyperliquid market-intersection logic.
+- Hyperliquid public read-only info-type allowlist for `meta`, `metaAndAssetCtxs`, `allMids`, `l2Book`, `candleSnapshot`, and `fundingHistory`.
+- Fixture-tested runtime drawdown monitor policy/model.
+- UAT1 public read-only connectivity may proceed under no-private/no-signed/no-order/no-API-key constraints.
+
 Remaining UAT blockers:
 
-- Hyperliquid public read-only endpoint URLs and sandbox/testnet behavior need verification.
-- Broader structured application log/API error redaction needs verification.
-- Runtime drawdown monitoring is missing.
-- Top-20 symbol / market identity resolution is not implemented.
+- Hyperliquid public read-only endpoint URLs and sandbox/testnet behavior need UAT1 verification.
+- Broader structured application log/API error redaction needs verification before UAT2/UAT3.
+- UAT2 needs operator-visible shadow drawdown state.
+- UAT3 needs sandbox/live account drawdown feed wiring.
 - Existing approval gates, execution defaults, venue submit flags, and submit-lease uncertainty protections are useful but require later UAT-specific verification.
 
 Future UAT observation is not ETH-only. UAT1/UAT2 should cover the top 20 high-volume crypto assets supported by the selected UAT venue/environment for platform behavior validation. Top-20 inclusion is not strategy approval.
@@ -136,21 +143,22 @@ The current evidence cycle can justify UAT0 safety/runtime hardening and later s
 - UAT0: safety / security / runtime hardening audit complete.
 - UAT0.1: API auth/authz and runtime lockout hardening complete.
 - UAT0.2: adapter runtime-policy and redaction hardening complete.
-- UAT1: top-20 universe plus read-only venue/market metadata after blockers close.
+- UAT0.3: top-20 universe and drawdown readiness preflight complete.
+- UAT1: top-20 universe plus read-only venue/market metadata may proceed under strict public-read-only constraints.
 - UAT2: shadow strategy run across top-20 supported assets, no orders.
 - UAT3: approval-gated sandbox orders.
 - UAT4: sandbox / simulated trading review.
 
-UAT1 is blocked until remaining UAT0.x P1 blockers close or are explicitly accepted in a separate gated phase.
+UAT1 public read-only connectivity may proceed under strict constraints. UAT1 must not use API keys, private endpoints, signed endpoints, order endpoints, paper trading, live trading, or order submission.
 
 ## Major Deferred Items
 
-- Hyperliquid public read-only endpoint URL/sandbox verification.
-- broader structured log/API error redaction verification.
+- Hyperliquid public read-only endpoint URL/sandbox verification during UAT1.
+- broader structured log/API error redaction verification before UAT2/UAT3.
 - secret hygiene beyond representative helper tests.
 - fail-safe sandbox/live mode separation verification.
 - risk-limit enforcement.
-- real drawdown monitoring.
+- operator-visible shadow/live drawdown monitoring for UAT2/UAT3.
 - kill switch behavior.
 - debug stack trace exposure hardening.
 - audit logging review.

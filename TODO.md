@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-10T05:38:05Z`
+Last reviewed: `2026-05-10T06:24:03Z`
 
 ## Active Follow-Ups
 
@@ -14,13 +14,13 @@ Last reviewed: `2026-05-10T05:38:05Z`
 
 - `priority`: `high`
 - `status`: `done`
-- `summary`: `UAT0 safety/security/runtime hardening audit is complete. UAT0.1 closes the P0 API auth/authz baseline for sensitive routes and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and verifies representative bearer/API-key/secret/password/DB URL redaction while leaving UAT1 blocked by remaining endpoint-verification, broader redaction, runtime drawdown, and top-20 symbol/market identity gaps. UAT0 defines the future top-20 supported-asset UAT observation universe and future UAT2 next_candle_open / next_candle_close shadow fill-timing policy while keeping same_candle_close_research_only research-only. No exchange calls, order submissions, API-key use, paper/live behavior, Money Flow rule changes, routing expansion, or evidence-pack generation were added.`
+- `summary`: `UAT0 safety/security/runtime hardening audit is complete. UAT0.1 closes the P0 API auth/authz baseline for sensitive routes and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and verifies representative bearer/API-key/secret/password/DB URL redaction. UAT0.3 adds fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design; UAT1 public read-only connectivity may proceed under strict no-private/no-signed/no-order/no-API-key constraints. UAT0 defines the future top-20 supported-asset UAT observation universe and future UAT2 next_candle_open / next_candle_close shadow fill-timing policy while keeping same_candle_close_research_only research-only. No exchange calls, order submissions, API-key use, paper/live behavior, Money Flow rule changes, routing expansion, or evidence-pack generation were added.`
 
 ### T-093
 
 - `priority`: `high`
 - `status`: `future`
-- `summary`: `Before UAT1 read-only connectivity can proceed, verify Hyperliquid public read-only endpoint URLs and sandbox/testnet behavior, broaden structured application log/API error redaction checks, add runtime drawdown monitoring or an accepted UAT prerequisite, and implement top-20 symbol/market identity resolution. UAT0.1 closed the P0 API auth/authz and central runtime-policy baseline, and UAT0.2 closed the adapter-level runtime-policy / read-only allowlist / representative redaction baseline, but UAT1 remains blocked until remaining P1 blockers are closed or explicitly accepted in a separate gated phase.`
+- `summary`: `UAT1 public read-only connectivity may proceed under strict constraints after UAT0.3. The next phase should fetch public top-20 source data and Hyperliquid public market metadata only, run the top-20 resolver with real public data, and verify endpoint URL/sandbox behavior without private/signed/order endpoints, API keys, paper trading, live trading, or order submission. Broader structured application log/API error redaction, operator-visible UAT2 drawdown state, UAT3 sandbox account drawdown feed, and UAT-specific risk/kill-switch/audit visibility remain future blockers.`
 
 ### T-094
 
@@ -33,6 +33,12 @@ Last reviewed: `2026-05-10T05:38:05Z`
 - `priority`: `high`
 - `status`: `done`
 - `summary`: `UAT0.2 adds adapter-level runtime-policy enforcement before private/signed/order transport, classifies public read-only adapter methods, defines a Hyperliquid future-UAT1 read-only allowlist artifact, and verifies representative redaction for bearer tokens, API keys, secrets, passwords, and DB URLs. UAT1 remains blocked by Hyperliquid public read-only endpoint URL/sandbox verification, broader structured application log/API error redaction verification, runtime drawdown monitoring, and top-20 symbol/market identity resolution. No exchange calls, public/private/signed/order endpoint calls, API-key use, order submissions, paper/live behavior, routing changes, Money Flow rule changes, or evidence packs were added.`
+
+### T-096
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `UAT0.3 adds fixture-tested top-20 UAT observation-universe policy/resolver logic, Hyperliquid public read-only info-type allowlisting for meta, metaAndAssetCtxs, allMids, l2Book, candleSnapshot, and fundingHistory, and a fixture-tested runtime drawdown monitor policy/model. UAT1 public read-only connectivity may proceed under strict constraints. No exchange calls, real top-20 fetches, public/private/signed/order endpoint calls, API-key use, order submissions, paper/live behavior, routing changes, Money Flow rule changes, or evidence packs were added.`
 
 ### T-091
 

@@ -2,6 +2,8 @@
 
 Recorded at: `2026-05-10T05:38:05Z`
 
+UAT0.3 follow-up: `docs/uat0_3_top20_universe_and_drawdown_readiness.md` adds the fixture-tested top-20 resolver policy and drawdown monitor model, extends the Hyperliquid public read-only info-type allowlist, and records that UAT1 public read-only connectivity may proceed under strict no-private/no-signed/no-order/no-API-key constraints.
+
 ## Scope
 
 UAT0.2 is a narrow safety-hardening phase. It verifies adapter-level runtime-policy enforcement, defines the selected-venue read-only endpoint allowlist for future UAT1, and strengthens representative redaction checks.
@@ -193,7 +195,9 @@ Review bundles continue to use `.archiveignore` through `scripts/create_review_b
 
 ## UAT1 Readiness Decision
 
-`UAT1 is blocked`.
+UAT0.2 decision at the time: `UAT1 is blocked`.
+
+UAT0.3 updated decision: `UAT1 read-only connectivity may proceed` under public-read-only constraints after adding the top-20 resolver policy, drawdown monitor model, and expanded Hyperliquid read-only info-type allowlist.
 
 Closed or partially closed by UAT0.2:
 

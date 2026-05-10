@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-09T15:35:00Z`
+Last reviewed: `2026-05-10T06:24:03Z`
 
 ## Top-Level Structure
 
@@ -65,7 +65,8 @@ Last reviewed: `2026-05-09T15:35:00Z`
 - OB1.0 reorganizes current truth so `money-flow/00_Money_Flow_Command_Center.md` is the only canonical command center; `money-flow/Money Flow Command Center.md` is a compatibility pointer. Strategy Validation is represented as its own closed major track through SV1.18.1, and UAT0 is the next proposed track.
 - UAT0 updates the current-state notes after the safety/security/runtime audit: UAT0 audit is complete, UAT1 read-only connectivity is blocked by named safety gaps, the future UAT observation universe is top-20 supported assets, and UAT2 fill timing must compare `next_candle_open` and `next_candle_close` while keeping `same_candle_close_research_only` research-only.
 - UAT0.1 updates current-state notes after the P0 API auth/authz and runtime lockout hardening: sensitive `/api/v1` routes require scoped bearer auth, a central fail-safe runtime safety policy is inspectable, UAT1 remains blocked by remaining P1 safety gaps, and no exchange connectivity/order submission/paper/live behavior is added.
-- UAT0.2 updates current-state notes after adapter runtime-policy hardening: adapter private/signed/order paths are guarded before transport, public read-only methods are classified, a Hyperliquid future-UAT1 read-only allowlist artifact exists, representative redaction is tested, UAT1 remains blocked by remaining P1 endpoint-verification/redaction/drawdown/identity gaps, and no exchange connectivity/order submission/paper/live behavior is added.
+- UAT0.2 updates current-state notes after adapter runtime-policy hardening: adapter private/signed/order paths are guarded before transport, public read-only methods are classified, a Hyperliquid future-UAT1 read-only allowlist artifact exists, representative redaction is tested, and no exchange connectivity/order submission/paper/live behavior is added.
+- UAT0.3 updates current-state notes after top-20 universe/drawdown readiness preflight: fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design exist; UAT1 public read-only connectivity may proceed under strict no-private/no-signed/no-order/no-API-key constraints.
 - Phase 8.0.1 accepted the previously dirty Obsidian memory refresh as the strategic baseline and updated it to current Phase 8.0/8.0.1 truth.
 - Phase 8.0.2 updates current-phase/coordination/decision notes for active submit-lease operator-summary truth only; full project memory remains untouched.
 - SV1.0.1 updates current-phase/coordination/decision notes for strategy-validation research-truth/report hardening only; full project memory remains untouched.
@@ -131,7 +132,11 @@ Last reviewed: `2026-05-09T15:35:00Z`
 `docs/uat0_2_adapter_runtime_policy_and_redaction.md`
 - Founder/operator UAT0.2 hardening report.
 - Records the adapter safety inventory, adapter-level runtime-policy guard status, public read-only method classification, selected Hyperliquid future-UAT1 read-only allowlist artifact, forbidden endpoint categories, redaction verification status, remaining blockers, and UAT1 readiness decision.
-- UAT0.2 closes the adapter-level runtime-policy / allowlist / representative redaction baseline but leaves UAT1 blocked by Hyperliquid endpoint URL/sandbox verification, broader structured log/API error redaction, runtime drawdown monitoring, and top-20 identity gaps.
+- UAT0.2 closes the adapter-level runtime-policy / allowlist / representative redaction baseline. UAT0.3 later updates UAT1 readiness truth after adding top-20 resolver and drawdown monitor policy artifacts.
+
+`docs/uat0_3_top20_universe_and_drawdown_readiness.md`
+- Founder/operator UAT0.3 readiness report.
+- Records top-20 source requirements, Hyperliquid market-intersection logic, inclusion/exclusion reason codes, ETH evidence-candidate versus top-20 observation-universe truth, Hyperliquid public read-only info-type allowlist status, runtime drawdown monitoring policy/status, redaction verification status, remaining blockers, and the UAT1 public-read-only readiness decision.
 
 `core/config/`
 - Pydantic settings, environment profiles, runtime selection, and per-venue / strategy configuration.
@@ -331,6 +336,11 @@ Last reviewed: `2026-05-09T15:35:00Z`
 `services/exchange/safety.py`
 - UAT0.2 exchange endpoint safety policy helpers.
 - Defines endpoint categories, REST/Hyperliquid payload classifiers, runtime-policy enforcement decisions, and the Hyperliquid future-UAT1 read-only allowlist artifact.
+- UAT0.3 extends the Hyperliquid public info-type allowlist/classification to cover the future UAT1 public-read-only set: `meta`, `metaAndAssetCtxs`, `allMids`, `l2Book`, `candleSnapshot`, and `fundingHistory`.
+
+`services/uat/`
+- UAT readiness policy helpers.
+- UAT0.3 adds fixture-only top-20 observation universe resolver models and runtime drawdown monitor models. These helpers do not fetch market data, connect to exchanges, submit orders, approve paper/live trading, or change Money Flow rules.
 
 `services/market_data/`
 - Candle bootstrap, persistence, checkpoint semantics, and freshness handling.

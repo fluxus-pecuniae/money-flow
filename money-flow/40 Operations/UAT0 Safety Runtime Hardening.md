@@ -2,7 +2,7 @@
 
 Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
-UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT1 is blocked.
+UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT0.3 top-20 universe and drawdown readiness preflight is complete. UAT1 public read-only connectivity may proceed under strict constraints.
 
 ## Result
 
@@ -15,6 +15,7 @@ Founder/operator report:
 - `docs/uat0_safety_security_runtime_hardening.md`
 - `docs/uat0_1_api_auth_runtime_lockout.md`
 - `docs/uat0_2_adapter_runtime_policy_and_redaction.md`
+- `docs/uat0_3_top20_universe_and_drawdown_readiness.md`
 
 ## Evidence Candidate vs Observation Universe
 
@@ -41,18 +42,18 @@ Future UAT2 shadow timing must compare `next_candle_open` and `next_candle_close
 | Fail-safe UAT/read-only/shadow/live mode separation | implemented_baseline | P1 adapter guard baseline closed by UAT0.2 |
 | Sandbox/testnet environment gating | needs_verification | P1 Hyperliquid allowlist exists; endpoint URL/sandbox behavior remains UAT1 verification |
 | Risk limit enforcement | needs_verification | P1 |
-| Runtime drawdown calculation and monitoring | missing | P1 |
+| Runtime drawdown calculation and monitoring | implemented_design | P1 closed enough for UAT1; UAT2/UAT3 wiring remains |
 | Kill switch / disable switch | needs_verification | P1 |
 | Debug stack traces not exposed to users | needs_verification | P1 |
 | Audit logging | needs_verification | P1 |
-| Top-20 symbol / market identity resolution | needs_verification | P1 |
+| Top-20 symbol / market identity resolution | implemented_fixture_policy | P1 closed enough for UAT1; public-source/venue metadata verification remains UAT1 work |
 | Operator confirmation gates | implemented, needs UAT3 verification | P2 |
 | Duplicate order prevention | implemented, needs UAT3 verification | P2 |
 | Submit lease / uncertainty handling remains active | implemented, needs UAT3 verification | P2 |
 
 ## UAT1 Readiness
 
-`UAT1 is blocked`.
+`UAT1 read-only connectivity may proceed`.
 
 Closed by UAT0.1:
 
@@ -66,12 +67,18 @@ Closed or partially closed by UAT0.2:
 - Hyperliquid future-UAT1 read-only allowlist artifact exists;
 - bearer/API-key/secret/password/DB URL redaction helper behavior is tested;
 
-Required before UAT1:
+Closed by UAT0.3:
 
-- verify broader no-secret structured application logging, API errors, and sanitized tracebacks;
+- fixture-tested top-20 public source / Hyperliquid market-intersection resolver policy;
+- Hyperliquid public read-only info-type allowlist for `meta`, `metaAndAssetCtxs`, `allMids`, `l2Book`, `candleSnapshot`, and `fundingHistory`;
+- fixture-tested runtime drawdown monitor policy/model.
+
+Required in UAT1:
+
 - verify Hyperliquid public read-only endpoint URLs and sandbox/testnet behavior without private/order access;
-- implement runtime drawdown monitoring or explicitly accept it as a later UAT prerequisite;
-- implement top-20 public source selection and market identity resolution.
+- fetch public top-20 source data without private keys or signed endpoints;
+- fetch public Hyperliquid metadata only through allowlisted public read-only categories;
+- run the resolver with real public metadata and preserve observation-only / not-strategy-approved labels.
 
 ## Forbidden Until Later Gated Phases
 

@@ -37,6 +37,9 @@ class UATReadOnlyEndpointPolicy:
     private_endpoint_status: str
     order_endpoint_status: str
     notes: str
+    allowed_public_info_types: tuple[str, ...] = ()
+    endpoint_url_status: str = "needs_verification"
+    sandbox_or_testnet_status: str = "needs_verification"
 
 
 HYPERLIQUID_UAT1_READ_ONLY_ALLOWLIST = UATReadOnlyEndpointPolicy(
@@ -59,6 +62,14 @@ HYPERLIQUID_UAT1_READ_ONLY_ALLOWLIST = UATReadOnlyEndpointPolicy(
         "Future UAT1 may use unsigned public Hyperliquid metadata, candles, tickers, "
         "order-book snapshots, and public funding metadata only after a separate UAT1 phase. "
         "Private account state, signed requests, API keys, and order endpoints remain forbidden."
+    ),
+    allowed_public_info_types=(
+        "allMids",
+        "candleSnapshot",
+        "fundingHistory",
+        "l2Book",
+        "meta",
+        "metaAndAssetCtxs",
     ),
 )
 
@@ -136,6 +147,7 @@ _HYPERLIQUID_PUBLIC_INFO_TYPES = {
     "fundingHistory",
     "l2Book",
     "meta",
+    "metaAndAssetCtxs",
     "spotMeta",
     "spotMetaAndAssetCtxs",
 }

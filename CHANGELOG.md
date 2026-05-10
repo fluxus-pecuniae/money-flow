@@ -13,6 +13,48 @@ Entry schema:
 
 ---
 
+## v2026.05.10.002
+
+- `recorded_at_utc`: `2026-05-10T06:24:03Z`
+- `scope`: `UAT0.3 top-20 universe resolver, runtime drawdown monitoring, and UAT1 readiness preflight`
+- `intent`: `Native entry. Added fixture-only UAT top-20 observation-universe policy and resolver models, explicit Hyperliquid market-intersection inclusion/exclusion reason codes, and a fixture-tested runtime drawdown monitor policy/model. Extended Hyperliquid public read-only info-type classification/allowlisting for future UAT1 metadata work, added a founder/operator UAT0.3 report, and updated repo/Obsidian truth so UAT1 public read-only connectivity may proceed under strict no-private/no-signed/no-order/no-API-key constraints. No UAT1 implementation, exchange calls, real top-20 fetches, public/private/signed/order endpoint calls, exchange API-key use, order submissions, paper/live behavior, routing behavior, Money Flow rule changes, or evidence-pack generation were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/uat0_safety_security_runtime_hardening.md`
+  - `docs/uat0_2_adapter_runtime_policy_and_redaction.md`
+  - `docs/uat0_3_top20_universe_and_drawdown_readiness.md`
+  - `services/exchange/safety.py`
+  - `services/uat/__init__.py`
+  - `services/uat/drawdown.py`
+  - `services/uat/universe.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_uat03_top20_universe_and_drawdown.py`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/Operational Memory.md`
+  - `money-flow/40 Operations/UAT0 Safety Runtime Hardening.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat03_top20_universe_and_drawdown.py tests/test_uat02_adapter_runtime_policy_and_redaction.py tests/test_uat01_api_auth_runtime_lockout.py tests/test_uat0_safety_report.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-uat0.3-review.zip`
+
 ## v2026.05.10.001
 
 - `recorded_at_utc`: `2026-05-10T05:38:05Z`

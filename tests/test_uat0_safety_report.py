@@ -51,7 +51,7 @@ def test_uat0_shadow_fill_timing_policy_is_explicit() -> None:
     assert "remains research-only" in report
 
 
-def test_uat0_blocker_matrix_and_readiness_decision_are_conservative() -> None:
+def test_uat0_blocker_matrix_and_readiness_decision_are_current() -> None:
     report = REPORT.read_text()
 
     assert "UAT0 Blocker Matrix" in report
@@ -59,9 +59,10 @@ def test_uat0_blocker_matrix_and_readiness_decision_are_conservative() -> None:
     assert "`implemented` | P0 closed by UAT0.1" in report
     assert "Live endpoint lockout" in report
     assert "`implemented` | P0 closed by UAT0.1 / adapter baseline closed by UAT0.2" in report
-    assert "UAT1 is blocked" in report
+    assert "UAT1 read-only connectivity may proceed" in report
+    assert "UAT1 is public read-only only" in report
     assert "Sensitive `/api/v1` routes now require scoped bearer auth" in report
-    assert "closes the adapter-level runtime-policy enforcement baseline" in report
+    assert "closed the adapter-level runtime-policy enforcement baseline" in report
 
 
 def test_uat0_exchange_endpoint_table_covers_supported_venues() -> None:
@@ -78,14 +79,14 @@ def test_uat0_exchange_endpoint_table_covers_supported_venues() -> None:
         assert venue in report
 
 
-def test_uat0_current_notes_reflect_blocked_uat1_truth() -> None:
+def test_uat0_current_notes_reflect_uat1_public_read_only_truth() -> None:
     current_phase = Path("money-flow/01_Current_Phase.md").read_text()
     command_center = Path("money-flow/00_Money_Flow_Command_Center.md").read_text()
     uat_roadmap = Path("money-flow/00 Maps/UAT Roadmap.md").read_text()
 
     for note in (current_phase, command_center, uat_roadmap):
         assert "UAT0" in note
-        assert "UAT1 is blocked" in note
+        assert "UAT1 public read-only connectivity may proceed" in note
         assert "top 20" in note
         assert "next_candle_open" in note
         assert "next_candle_close" in note

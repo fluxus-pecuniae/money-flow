@@ -4,13 +4,13 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 ## Immediate Future
 
-Current implemented milestone: `UAT0.2` adapter runtime-policy and redaction hardening complete.
+Current implemented milestone: `UAT0.3` top-20 universe and drawdown readiness preflight complete.
 
-Next proposed phase: remaining UAT0 P1 blocker remediation before `UAT1`.
+Next proposed phase: `UAT1` public read-only top-20 universe and Hyperliquid market metadata verification.
 
-UAT1 read-only connectivity is blocked until Hyperliquid public read-only endpoint URL/sandbox verification, broader structured log/API error redaction verification, runtime drawdown monitoring, and top-20 symbol/market identity prerequisites are closed.
+UAT1 public read-only connectivity may proceed under strict constraints: no private endpoints, no signed endpoints, no order endpoints, no API keys, no paper trading, no live trading, and no order submission.
 
-UAT0 was plumbing and behavior validation preparation only. UAT0.1 closes the P0 sensitive-route auth/authz and central runtime-lockout baseline. UAT0.2 closes the adapter-level runtime-policy baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction tests. It did not implement exchange connectivity, private/signed endpoint calls, exchange order submission, paper trading, live trading, routing expansion, or Money Flow rule changes.
+UAT0 was plumbing and behavior validation preparation only. UAT0.1 closes the P0 sensitive-route auth/authz and central runtime-lockout baseline. UAT0.2 closes the adapter-level runtime-policy baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction tests. UAT0.3 adds fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and runtime drawdown monitor design. It did not implement exchange connectivity, private/signed endpoint calls, exchange order submission, paper trading, live trading, routing expansion, or Money Flow rule changes.
 
 Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved.
 
@@ -33,7 +33,8 @@ See [[00 Maps/UAT Roadmap|UAT Roadmap]].
 - UAT0: safety / security / runtime hardening audit complete.
 - UAT0.1: API auth/authz and runtime lockout hardening complete.
 - UAT0.2: adapter runtime-policy and redaction hardening complete.
-- UAT1: top-20 universe plus read-only venue/market metadata after blockers close.
+- UAT0.3: top-20 universe and drawdown readiness preflight complete.
+- UAT1: top-20 universe plus read-only venue/market metadata under strict public-read-only constraints.
 - UAT2: shadow strategy run across top-20 supported assets with `next_candle_open` / `next_candle_close`, no orders.
 - UAT3: approval-gated sandbox orders.
 - UAT4: sandbox / simulated trading review.
