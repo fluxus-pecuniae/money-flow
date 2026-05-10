@@ -2,7 +2,9 @@
 
 Recorded at: `2026-05-09T14:17:37Z`
 
-UAT0.1 update: `docs/uat0_1_api_auth_runtime_lockout.md` closes the P0 API auth/authz gap for sensitive routes and adds an inspectable runtime safety policy. UAT1 remains blocked by the remaining P1 safety gaps listed below.
+UAT0.1 update: `docs/uat0_1_api_auth_runtime_lockout.md` closes the P0 API auth/authz gap for sensitive routes and adds an inspectable runtime safety policy.
+
+UAT0.2 update: `docs/uat0_2_adapter_runtime_policy_and_redaction.md` closes the adapter-level runtime-policy enforcement baseline, adds a testable Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction checks. UAT1 remains blocked by remaining P1 safety gaps listed below.
 
 ## Scope
 
@@ -98,9 +100,9 @@ Future UAT2 reports should show, per symbol/component:
 | Area | Status | Notes |
 | --- | --- | --- |
 | API authentication / authorization | `implemented` | UAT0.1 protects `/api/v1` with scoped bearer auth and stricter operator/admin scopes for sensitive route groups. |
-| Secret/key hygiene | `needs_verification` | `.env`, virtualenvs, DB files, caches, generated evidence packs, and review bundles are excluded by `.archiveignore`; log/API redaction still needs explicit UAT verification. |
-| Runtime mode separation | `implemented_baseline` | UAT0.1 adds `RuntimeSafetyPolicy`; adapter-level enforcement still needs verification before UAT1/UAT2. |
-| Sandbox/live separation | `needs_verification` | UAT0.1 adds runtime lockout flags and API auth; selected-venue sandbox/read-only endpoint policy remains deferred. |
+| Secret/key hygiene | `implemented_baseline` | `.env`, virtualenvs, DB files, caches, generated evidence packs, and review bundles are excluded by `.archiveignore`; UAT0.2 adds representative redaction tests, while full application log/API redaction review remains. |
+| Runtime mode separation | `implemented` | UAT0.1 adds `RuntimeSafetyPolicy`; UAT0.2 verifies adapter-helper enforcement before private/signed/order transport. |
+| Sandbox/live separation | `needs_verification` | UAT0.1 adds runtime lockout flags and API auth; UAT0.2 adds the Hyperliquid future-UAT1 read-only allowlist artifact, but actual endpoint verification remains deferred to UAT1. |
 | Risk limits | `needs_verification` | Risk services and readiness checks exist; broad UAT candidate/top-20 enforcement still needs verification. |
 | Drawdown monitoring | `missing` | Strategy Validation drawdown exists; runtime UAT drawdown monitoring is not a real operator control yet. |
 | Kill switch / disable controls | `needs_verification` | `RISK_TRADING_ENABLED=false` blocks risk approval, but global UAT/candidate/universe disable controls are not complete. |
@@ -109,7 +111,7 @@ Future UAT2 reports should show, per symbol/component:
 | Duplicate order / submit lease | `implemented` | Submit leases and adapter uncertainty states block unsafe repeat submit guidance; UAT3 must reverify under sandbox lifecycle tests. |
 | Uncertainty handling | `implemented` | `adapter_submit_may_have_started` and `adapter_submit_persistence_unknown` require manual reconciliation before repeat submit. |
 | Debug stack trace exposure | `needs_verification` | `APP_DEBUG` defaults false, but structured traceback/log exposure needs explicit sandbox-like verification. |
-| Endpoint safety | `implemented_baseline` | UAT0.1 protects sensitive route groups with auth/scopes; adapter-level runtime-policy assertions remain a P1 verification item. |
+| Endpoint safety | `implemented` | UAT0.1 protects sensitive route groups with auth/scopes; UAT0.2 blocks private/signed/order adapter paths before transport by default. |
 | UAT1 readiness | `blocked` | UAT1 read-only connectivity should not proceed until P0/P1 blockers below are closed or explicitly accepted. |
 
 ## API Authentication / Authorization Review
@@ -129,9 +131,8 @@ Sensitive `/api/v1` routes now require scoped bearer auth. High-risk administrat
 
 Required before UAT1:
 
-- verify adapter-level runtime-policy enforcement;
-- verify structured log/error redaction;
-- define selected-venue read-only/sandbox endpoint policy;
+- verify selected Hyperliquid public read-only endpoint URLs and sandbox/testnet behavior without private/signed calls;
+- complete broader structured log/API error redaction review;
 - implement top-20 symbol/market identity resolution.
 
 ## Secret / Key Hygiene Review
@@ -143,12 +144,11 @@ Current positives:
 - Config summary responses do not expose raw DB URLs, API keys, or secrets.
 - Venue account API responses expose credential reference labels rather than raw secrets.
 
-Remaining status: `needs_verification`.
+Remaining status: `implemented_baseline`.
 
 Required hardening:
 
-- verify no secrets appear in structured logs or tracebacks;
-- add explicit redaction for key/secret/token-like fields in error/log paths;
+- verify no secrets appear in all structured logs or tracebacks;
 - keep DB URLs sanitized in docs and operator output;
 - keep `.env` and generated local artifacts out of review bundles.
 
@@ -167,8 +167,7 @@ UAT0.1 adds `RuntimeSafetyPolicy`, with fail-safe defaults.
 
 Required before UAT1/UAT2:
 
-- verify adapter-level assertions that this policy is enforced on any future exchange connectivity path;
-- define selected-venue sandbox/read-only endpoint policy;
+- verify Hyperliquid public read-only endpoint URLs and sandbox/testnet behavior in the explicit UAT1 phase;
 - keep `exchange_order_submission_enabled=false`, `paper_trading_enabled=false`, `live_trading_enabled=false`, and `private_exchange_endpoints_enabled=false` until later explicit phases.
 
 ## Exchange Endpoint Safety
@@ -255,10 +254,10 @@ Status: `needs_verification`.
 | Area | Status | Severity | Required before UAT1? | Required before UAT2? | Required before UAT3? | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | API auth | `implemented` | P0 closed by UAT0.1 | yes | yes | yes | Sensitive `/api/v1` routes require scoped bearer auth. |
-| Secret hygiene | `needs_verification` | P1 | yes | yes | yes | Bundle hygiene is good; log/error redaction needs proof. |
-| Runtime mode separation | `implemented_baseline` | P1 | yes | yes | yes | `RuntimeSafetyPolicy` exists; adapter-level enforcement still needs verification. |
-| Live endpoint lockout | `implemented_baseline` | P0 closed by UAT0.1 | yes | yes | yes | Lockout flags default safe; adapter-level enforcement still needs verification. |
-| Sandbox/testnet config | `needs_verification` | P1 | yes | yes | yes | Hyperliquid/OKX known; venue-specific policy needed. |
+| Secret hygiene | `implemented_baseline` | P1 partially closed by UAT0.2 | yes | yes | yes | Bundle hygiene and representative redaction are tested; full log/error review remains. |
+| Runtime mode separation | `implemented` | P1 closed by UAT0.2 | yes | yes | yes | `RuntimeSafetyPolicy` exists and adapter helper enforcement is verified for private/signed/order categories. |
+| Live endpoint lockout | `implemented` | P0 closed by UAT0.1 / adapter baseline closed by UAT0.2 | yes | yes | yes | Lockout flags default safe and private/signed/order adapter paths block before transport. |
+| Sandbox/testnet config | `needs_verification` | P1 | yes | yes | yes | Hyperliquid UAT1 read-only allowlist exists; actual endpoint URL/sandbox behavior still needs UAT1 verification. |
 | Top-20 universe policy | `implemented` | P2 | yes | yes | yes | Policy exists; UAT1 must implement source/intersection process. |
 | Symbol/market identity resolution | `needs_verification` | P1 | yes | yes | yes | Must prove venue/product/quote/settlement identity before top-20 observation. |
 | Fill-timing policy | `implemented` | P2 | no | yes | yes | UAT2 uses `next_candle_open` and `next_candle_close`; same-candle stays research-only. |
@@ -269,7 +268,7 @@ Status: `needs_verification`.
 | Audit logging | `needs_verification` | P1 | no | yes | yes | Shadow and UAT mode audit fields need coverage. |
 | Approval gates | `implemented` | P2 | no | no | yes | Existing gates are strong; sandbox-order path needs UAT3 proof. |
 | Submit lease / duplicate prevention | `implemented` | P2 | no | no | yes | Existing submit lease/uncertainty states need sandbox lifecycle proof. |
-| Exchange endpoint safety | `needs_verification` | P1 | yes | yes | yes | Auth/mode baseline exists; selected-venue endpoint policy and adapter enforcement remain. |
+| Exchange endpoint safety | `implemented_baseline` | P1 partially closed by UAT0.2 | yes | yes | yes | Adapter-level private/signed/order guards and Hyperliquid read-only allowlist exist; actual UAT1 read-only connectivity remains deferred. |
 | Dashboard/operator visibility | `needs_verification` | P2 | no | yes | yes | UAT2 needs top-20 shadow and risk/no-trade visibility. |
 
 ## Corrected UAT Roadmap
@@ -310,9 +309,8 @@ This is still not proof of edge.
 
 Blocking reasons:
 
-- P1 secret/log/error redaction needs sandbox-like verification.
-- P1 adapter-level runtime-policy enforcement needs verification.
-- P1 selected-venue sandbox/read-only endpoint policy is not implemented.
+- P1 broader structured application log/API error redaction still needs sandbox-like verification.
+- P1 Hyperliquid public read-only endpoint URL and sandbox/testnet behavior still need explicit UAT1 verification.
 - P1 symbol/market identity resolution and selected-venue top-20 process are not implemented yet.
 - P1 runtime drawdown monitoring is missing.
 

@@ -171,7 +171,8 @@ def test_representative_secret_redaction() -> None:
     assert redacted["Authorization"] == REDACTED_VALUE
     assert redacted["nested"]["db_password"] == REDACTED_VALUE
     assert redacted["nested"]["safe"] == "visible"
-    assert redacted["url"] == REDACTED_VALUE
+    assert "pass" not in redacted["url"]
+    assert REDACTED_VALUE in redacted["url"]
 
 
 def test_uat01_report_records_auth_runtime_and_readiness_truth() -> None:

@@ -52,9 +52,15 @@ from core.domain.models import (
 )
 from core.interfaces.services import ExchangeAdapter
 from core.logging.setup import get_logger
+from core.security import redact_sensitive_text
 from db.models import FillModel, InstrumentModel, PositionModel, SubmittedOrderModel, SymbolModel, VenueAccountModel
 from db.session import SessionLocal
 from services.exchange.common import list_instruments_for_venue, persist_symbol_catalog
+from services.exchange.safety import (
+    ExchangeEndpointCategory,
+    classify_rest_endpoint,
+    evaluate_runtime_policy_for_endpoint,
+)
 
 TransportCallable = Callable[..., Awaitable[Any]]
 
@@ -323,6 +329,37 @@ class ReadOnlyVenueAdapter(ExchangeAdapter):
     ) -> dict[str, str] | None:
         return None
 
+    def _assert_runtime_policy_allows_endpoint(
+        self,
+        *,
+        category: ExchangeEndpointCategory,
+        method: str,
+        path: str,
+    ) -> None:
+        decision = evaluate_runtime_policy_for_endpoint(
+            category=category,
+            runtime_policy=self.settings.runtime_safety,
+            integration=self.integration,
+        )
+        if decision.allowed:
+            return
+        raise VenueAdapterError(
+            f"{self.integration.name} runtime policy blocked {category.value} endpoint before transport.",
+            reason_codes=list(decision.reason_codes),
+            payload={
+                "endpoint_category": category.value,
+                "method": method,
+                "path": path,
+                "runtime_mode": self.settings.runtime_safety.runtime_mode,
+                "exchange_order_submission_enabled": (
+                    self.settings.runtime_safety.exchange_order_submission_enabled
+                ),
+                "private_exchange_endpoints_enabled": (
+                    self.settings.runtime_safety.private_exchange_endpoints_enabled
+                ),
+            },
+        )
+
     @staticmethod
     def _render_json_body(
         body: dict[str, Any],
@@ -384,6 +421,8 @@ class ReadOnlyVenueAdapter(ExchangeAdapter):
         rendered_body: str,
         headers: dict[str, str] | None = None,
     ) -> Any:
+        category = classify_rest_endpoint(method, path, body=rendered_body, headers=headers)
+        self._assert_runtime_policy_allows_endpoint(category=category, method=method, path=path)
         try:
             if self._transport is not None:
                 try:
@@ -412,15 +451,18 @@ class ReadOnlyVenueAdapter(ExchangeAdapter):
             self._last_error = None
             return result
         except Exception as exc:  # noqa: BLE001
-            self._last_error = str(exc)
+            redacted_error = redact_sensitive_text(str(exc))
+            self._last_error = redacted_error
             self._logger.error(
                 "venue_exact_request_failed",
                 venue=self.integration.venue.value,
                 method=method,
                 path=path,
-                error=str(exc),
+                error=redacted_error,
             )
-            raise VenueAdapterError(f"{self.integration.name} exact request failed for {path}: {exc}") from exc
+            raise VenueAdapterError(
+                f"{self.integration.name} exact request failed for {path}: {redacted_error}"
+            ) from exc
 
     def _submitted_order_from_response(
         self,
@@ -1367,6 +1409,8 @@ class ReadOnlyVenueAdapter(ExchangeAdapter):
         body: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
     ) -> Any:
+        category = classify_rest_endpoint(method, path, params=params, body=body, headers=headers)
+        self._assert_runtime_policy_allows_endpoint(category=category, method=method, path=path)
         try:
             if self._transport is not None:
                 if body is None and headers is None:
@@ -1393,15 +1437,18 @@ class ReadOnlyVenueAdapter(ExchangeAdapter):
             self._last_error = None
             return result
         except Exception as exc:  # noqa: BLE001
-            self._last_error = str(exc)
+            redacted_error = redact_sensitive_text(str(exc))
+            self._last_error = redacted_error
             self._logger.error(
                 "venue_request_failed",
                 venue=self.integration.venue.value,
                 method=method,
                 path=path,
-                error=str(exc),
+                error=redacted_error,
             )
-            raise VenueAdapterError(f"{self.integration.name} request failed for {path}: {exc}") from exc
+            raise VenueAdapterError(
+                f"{self.integration.name} request failed for {path}: {redacted_error}"
+            ) from exc
 
     async def _ping(self) -> None:
         raise NotImplementedError

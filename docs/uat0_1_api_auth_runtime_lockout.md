@@ -150,11 +150,16 @@ Closed by UAT0.1:
 - P0 unauthenticated access to admin consume, submit/cancel/amend/retry, account, and private exchange surfaces.
 - P0 missing inspectable runtime safety policy.
 
+Partially closed by UAT0.2:
+
+- P1 adapter-level runtime-policy enforcement baseline.
+- P1 selected-venue Hyperliquid read-only allowlist artifact.
+- P1 representative redaction helper coverage and adapter-helper error redaction.
+
 Remaining blockers:
 
-- P1 adapter-level runtime-policy enforcement needs verification.
-- P1 structured log / error redaction needs broader verification.
-- P1 selected-venue sandbox/read-only endpoint policy is not implemented.
+- P1 Hyperliquid public read-only endpoint URLs and sandbox/testnet behavior need explicit UAT1 verification.
+- P1 structured application log / API error redaction needs broader verification.
 - P1 runtime drawdown monitoring is missing.
 - P1 top-20 symbol / market identity resolution is not implemented.
 

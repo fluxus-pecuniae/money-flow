@@ -13,6 +13,57 @@ Entry schema:
 
 ---
 
+## v2026.05.10.001
+
+- `recorded_at_utc`: `2026-05-10T05:38:05Z`
+- `scope`: `UAT0.2 adapter runtime policy enforcement and redaction verification`
+- `intent`: `Native entry. Closed the adapter-level runtime-policy baseline by adding exchange endpoint safety classification, runtime-policy checks before private/signed/order transport, and Hyperliquid payload classification. Added a Hyperliquid future-UAT1 read-only allowlist artifact, strengthened representative redaction for bearer tokens, API keys, secrets, passwords, and database URLs, and documented the selected-venue read-only policy plus remaining UAT1 blockers. UAT1 remains blocked by Hyperliquid public read-only endpoint URL/sandbox verification, broader structured application log/API error redaction verification, runtime drawdown monitoring, and top-20 symbol/market identity resolution. No UAT1 connectivity, public/private/signed/order endpoint calls, exchange API-key use, order submission, paper/live behavior, routing behavior, Money Flow rule changes, or evidence-pack generation were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/uat0_safety_security_runtime_hardening.md`
+  - `docs/uat0_1_api_auth_runtime_lockout.md`
+  - `docs/uat0_2_adapter_runtime_policy_and_redaction.md`
+  - `core/security.py`
+  - `services/exchange/base.py`
+  - `services/exchange/hyperliquid/adapter.py`
+  - `services/exchange/safety.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_phase2_services.py`
+  - `tests/test_phase3_strategy.py`
+  - `tests/test_phase4a_venues.py`
+  - `tests/test_uat0_safety_report.py`
+  - `tests/test_uat01_api_auth_runtime_lockout.py`
+  - `tests/test_uat02_adapter_runtime_policy_and_redaction.py`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/00 Maps/Platform Architecture Map.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/30 Strategy/Money Flow Strategy Lab.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/Operational Memory.md`
+  - `money-flow/40 Operations/UAT0 Safety Runtime Hardening.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat02_adapter_runtime_policy_and_redaction.py tests/test_uat01_api_auth_runtime_lockout.py tests/test_uat0_safety_report.py tests/test_phase4a_venues.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase2_services.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-uat0.2-review.zip`
+
 ## v2026.05.09.005
 
 - `recorded_at_utc`: `2026-05-09T15:35:00Z`

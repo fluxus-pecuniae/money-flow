@@ -38,6 +38,8 @@ def _settings(**overrides: object) -> AppSettings:
         "EXCHANGE_USE_TESTNET": True,
         "EXCHANGE_ACCOUNT_ADDRESS": "0xabc123",
         "EXCHANGE_ACCOUNT_LABEL": "primary",
+        "PRIVATE_EXCHANGE_ENDPOINTS_ENABLED": True,
+        "EXCHANGE_ORDER_SUBMISSION_ENABLED": True,
     }
     defaults.update(overrides)
     return AppSettings(**defaults)

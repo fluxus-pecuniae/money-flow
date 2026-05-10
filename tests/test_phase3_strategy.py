@@ -58,6 +58,8 @@ def build_settings(**overrides: object) -> AppSettings:
         "EXCHANGE_ACCOUNT_ADDRESS": "acct",
         "EXCHANGE_ACCOUNT_LABEL": "primary",
         "MARKET_DATA_STALE_AFTER_SECONDS": 10_000,
+        "PRIVATE_EXCHANGE_ENDPOINTS_ENABLED": True,
+        "EXCHANGE_ORDER_SUBMISSION_ENABLED": True,
     }
     base.update(overrides)
     return AppSettings(_env_file=None, **base)

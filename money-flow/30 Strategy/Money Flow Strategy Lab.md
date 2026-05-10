@@ -10,7 +10,7 @@ Keep the Money Flow strategy thread visible while platform, routing, execution, 
 
 Money Flow is the first strategy family. It is not the universal vocabulary of the platform.
 
-Current Strategy Validation state: SV1 is closed for now. SV1.18 froze exactly one evidence candidate, Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules, after the Hyperliquid public campaign evidence cycle, dynamic-equity simulation, trade-anatomy diagnostics, and true replay experiments. UAT0 safety / security / runtime audit is complete, UAT0.1 API auth/authz and runtime lockout hardening is complete, and UAT1 is blocked until remaining P1 hardening gaps close.
+Current Strategy Validation state: SV1 is closed for now. SV1.18 froze exactly one evidence candidate, Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules, after the Hyperliquid public campaign evidence cycle, dynamic-equity simulation, trade-anatomy diagnostics, and true replay experiments. UAT0 safety / security / runtime audit is complete, UAT0.1 API auth/authz and runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, and UAT1 is blocked until remaining P1 hardening gaps close.
 
 Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved. Production Money Flow rules are unchanged.
 

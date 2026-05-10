@@ -31,11 +31,13 @@ Money Flow is a mandate-driven platform with these implemented layers:
 
 ## Current Priority
 
-UAT0 safety / security / runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. Current priority is remaining UAT0 P1 blocker remediation before UAT1 read-only top-20 universe and market metadata work.
+UAT0 safety / security / runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. Current priority is remaining UAT0 P1 blocker remediation before UAT1 read-only top-20 universe and market metadata work.
 
 Closed by UAT0.1: scoped API auth/authz for sensitive `/api/v1` routes and central fail-safe runtime lockout defaults.
 
-Remaining blockers: adapter-level runtime-policy enforcement verification, selected-venue sandbox/read-only endpoint policy, secret/log/error redaction verification, runtime drawdown monitoring, and top-20 symbol/market identity resolution.
+Closed by UAT0.2: adapter private/signed/order runtime-policy guards before transport, public read-only classification, a Hyperliquid future-UAT1 read-only allowlist artifact, and representative bearer/API-key/secret/password/DB URL redaction tests.
+
+Remaining blockers: Hyperliquid public read-only endpoint URL/sandbox verification, broader structured application log/API error redaction verification, runtime drawdown monitoring, and top-20 symbol/market identity resolution.
 
 ## Canonical Repo Docs
 

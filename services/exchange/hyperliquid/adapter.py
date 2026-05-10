@@ -61,6 +61,7 @@ from core.domain.models import (
 from core.interfaces.hyperliquid import HyperliquidAdapterContract
 from core.interfaces.services import ExchangeAdapter
 from core.logging.setup import get_logger
+from core.security import redact_sensitive_text
 from db.models import (
     ExchangeAccountSnapshotModel,
     FillModel,
@@ -81,6 +82,12 @@ from services.exchange.base import (
 )
 from services.exchange.common import list_instruments_for_venue
 from services.exchange.hyperliquid.signing import float_to_wire, sign_l1_action, signer_address
+from services.exchange.safety import (
+    ExchangeEndpointCategory,
+    classify_hyperliquid_exchange_payload,
+    classify_hyperliquid_info_payload,
+    evaluate_runtime_policy_for_endpoint,
+)
 
 INFO_PATH = "/info"
 STATE_KEY_LAST_EXCHANGE_SYNC = "hyperliquid:last_exchange_sync"
@@ -223,6 +230,25 @@ class HyperliquidExchangeAdapter(ExchangeAdapter, HyperliquidAdapterContract):
         self._session_sequence = 0
         self._last_success_at: datetime | None = None
         self._last_error: str | None = None
+
+    def _assert_runtime_policy_allows_endpoint(
+        self,
+        *,
+        category: ExchangeEndpointCategory,
+        method: str,
+        path: str,
+    ) -> None:
+        decision = evaluate_runtime_policy_for_endpoint(
+            category=category,
+            runtime_policy=self.settings.runtime_safety,
+            integration=self.integration,
+        )
+        if decision.allowed:
+            return
+        raise HyperliquidAdapterError(
+            f"Hyperliquid runtime policy blocked {category.value} endpoint before transport.",
+            reason_codes=list(decision.reason_codes),
+        )
 
     @staticmethod
     def _focused_binding(context: Any) -> Any | None:
@@ -2328,6 +2354,12 @@ class HyperliquidExchangeAdapter(ExchangeAdapter, HyperliquidAdapterContract):
         return self._http_client
 
     async def _info_request(self, payload: dict[str, Any]) -> Any:
+        category = classify_hyperliquid_info_payload(payload)
+        self._assert_runtime_policy_allows_endpoint(
+            category=category,
+            method="POST",
+            path=INFO_PATH,
+        )
         try:
             if self._transport is not None:
                 result = await self._transport(payload)
@@ -2340,16 +2372,25 @@ class HyperliquidExchangeAdapter(ExchangeAdapter, HyperliquidAdapterContract):
             self._last_error = None
             return result
         except Exception as exc:  # noqa: BLE001
-            self._last_error = str(exc)
+            redacted_error = redact_sensitive_text(str(exc))
+            self._last_error = redacted_error
             self._logger.error(
                 "hyperliquid_info_request_failed",
                 payload_type=payload.get("type"),
                 environment=self.settings.app.environment.value,
-                error=str(exc),
+                error=redacted_error,
             )
-            raise HyperliquidAdapterError(f"Hyperliquid request failed for {payload.get('type')}: {exc}") from exc
+            raise HyperliquidAdapterError(
+                f"Hyperliquid request failed for {payload.get('type')}: {redacted_error}"
+            ) from exc
 
     async def _exchange_request(self, payload: dict[str, Any], *, path: str = "/exchange") -> Any:
+        category = classify_hyperliquid_exchange_payload(payload)
+        self._assert_runtime_policy_allows_endpoint(
+            category=category,
+            method="POST",
+            path=path,
+        )
         try:
             if self._transport is not None:
                 result = await self._transport(payload)
@@ -2362,14 +2403,17 @@ class HyperliquidExchangeAdapter(ExchangeAdapter, HyperliquidAdapterContract):
             self._last_error = None
             return result
         except Exception as exc:  # noqa: BLE001
-            self._last_error = str(exc)
+            redacted_error = redact_sensitive_text(str(exc))
+            self._last_error = redacted_error
             self._logger.error(
                 "hyperliquid_exchange_request_failed",
                 path=path,
                 environment=self.settings.app.environment.value,
-                error=str(exc),
+                error=redacted_error,
             )
-            raise HyperliquidAdapterError(f"Hyperliquid submission failed for {path}: {exc}") from exc
+            raise HyperliquidAdapterError(
+                f"Hyperliquid submission failed for {path}: {redacted_error}"
+            ) from exc
 
     def _resolve_execution_context(
         self,

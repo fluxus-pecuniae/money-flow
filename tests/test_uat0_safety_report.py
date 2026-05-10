@@ -58,10 +58,10 @@ def test_uat0_blocker_matrix_and_readiness_decision_are_conservative() -> None:
     assert "API auth" in report
     assert "`implemented` | P0 closed by UAT0.1" in report
     assert "Live endpoint lockout" in report
-    assert "`implemented_baseline` | P0 closed by UAT0.1" in report
+    assert "`implemented` | P0 closed by UAT0.1 / adapter baseline closed by UAT0.2" in report
     assert "UAT1 is blocked" in report
     assert "Sensitive `/api/v1` routes now require scoped bearer auth" in report
-    assert "adapter-level runtime-policy enforcement needs verification" in report
+    assert "closes the adapter-level runtime-policy enforcement baseline" in report
 
 
 def test_uat0_exchange_endpoint_table_covers_supported_venues() -> None:

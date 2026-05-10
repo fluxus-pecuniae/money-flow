@@ -2,9 +2,9 @@
 
 ## Current Implemented Milestone
 
-`UAT0.1` API auth/authz and runtime lockout hardening is complete.
+`UAT0.2` adapter runtime-policy and redaction hardening is complete.
 
-SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one evidence candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap. OB1.0 overhauled the Obsidian project brain. UAT0 audited safety/security/runtime readiness and blocked UAT1 until named gaps are closed. UAT0.1 closes the P0 API auth/authz baseline and adds an inspectable fail-safe runtime safety policy.
+SV1.18 closed the current Strategy Validation evidence cycle and froze exactly one evidence candidate. SV1.18.1 closed the remaining Obsidian coordination handoff gap. OB1.0 overhauled the Obsidian project brain. UAT0 audited safety/security/runtime readiness and blocked UAT1 until named gaps are closed. UAT0.1 closes the P0 API auth/authz baseline and adds an inspectable fail-safe runtime safety policy. UAT0.2 closes the adapter-level runtime-policy enforcement baseline, adds a Hyperliquid future-UAT1 read-only allowlist artifact, and strengthens representative redaction verification.
 
 SV1.18 is complete.
 
@@ -69,7 +69,7 @@ Excluded from UAT scope:
 - Aster / Binance / OKX / Coinbase / Kraken
 - cross-venue comparison
 
-## UAT0 / UAT0.1 Result
+## UAT0 / UAT0.1 / UAT0.2 Result
 
 UAT0 found UAT1 is blocked. UAT0.1 closes these P0 items:
 
@@ -78,11 +78,16 @@ UAT0 found UAT1 is blocked. UAT0.1 closes these P0 items:
 - Inspectable fail-safe runtime safety policy with paper/live/order/private endpoint flags disabled by default.
 - Test-only auth bypass limited to `API_RUNTIME_MODE=test`.
 
+UAT0.2 closes or partially closes these P1 items:
+
+- Adapter-level private/signed/order runtime-policy enforcement is implemented and tested before transport.
+- Hyperliquid selected-venue future-UAT1 read-only allowlist exists as a testable policy artifact.
+- Representative redaction for bearer tokens, API keys, secrets, passwords, and DB URLs is tested.
+
 UAT1 remains blocked until these remaining P1 gaps are closed or explicitly accepted:
 
-- Adapter-level runtime-policy enforcement needs verification.
-- Selected-venue sandbox/read-only endpoint policy is not implemented.
-- Secret/log/error redaction needs verification.
+- Hyperliquid public read-only endpoint URLs and sandbox/testnet behavior need explicit UAT1 verification.
+- Broader structured application log/API error redaction needs verification.
 - Runtime drawdown monitoring is missing.
 - Top-20 market identity resolution is not implemented.
 - Existing approval gates and submit leases are useful but require UAT3 verification before sandbox orders.

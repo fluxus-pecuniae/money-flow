@@ -4,7 +4,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 ## Today In One Sentence
 
-Money Flow is a controlled trading-system substrate plus Strategy Validation research platform; SV1 is closed for now, one Hyperliquid ETH `sleeve_1h` baseline evidence candidate is frozen, UAT0 safety / security / runtime audit is complete, UAT0.1 API auth/runtime lockout hardening is complete, and UAT1 is blocked until remaining P1 hardening gaps are closed.
+Money Flow is a controlled trading-system substrate plus Strategy Validation research platform; SV1 is closed for now, one Hyperliquid ETH `sleeve_1h` baseline evidence candidate is frozen, UAT0 safety / security / runtime audit is complete, UAT0.1 API auth/runtime lockout hardening is complete, UAT0.2 adapter policy/read-only allowlist/redaction hardening is complete, and UAT1 is blocked until remaining P1 hardening gaps are closed.
 
 SV1.18 is complete.
 
@@ -24,7 +24,8 @@ Money Flow can generate strategy decisions, route through controlled same-target
 | Strategy Validation SV1 | closed | Current Hyperliquid evidence cycle is complete through SV1.18.1. |
 | UAT0 | audit complete | Safety/security/runtime blockers are documented. |
 | UAT0.1 | hardening complete | Sensitive API routes now require scoped auth and runtime lockout defaults are inspectable. |
-| UAT1 | blocked | Read-only top-20 universe and market metadata work must wait for remaining P1 runtime/endpoint/redaction/drawdown/identity prerequisites. |
+| UAT0.2 | hardening complete | Adapter private/signed/order paths are runtime-policy guarded before transport; Hyperliquid has a future-UAT1 read-only allowlist artifact; representative redaction is tested. |
+| UAT1 | blocked | Read-only top-20 universe and market metadata work must wait for remaining P1 endpoint-verification/redaction/drawdown/identity prerequisites. |
 
 ## Current Candidate
 
@@ -75,7 +76,7 @@ Current UAT scope excludes:
 
 Remaining UAT0 P1 blocker remediation before `UAT1`.
 
-UAT0.1 closed the P0 API authentication/authorization and central runtime lockout baseline. Remaining blockers include adapter-level runtime-policy enforcement verification, selected-venue sandbox/read-only endpoint policy, secret/log/error redaction verification, runtime drawdown monitoring, and top-20 symbol/market identity resolution.
+UAT0.1 closed the P0 API authentication/authorization and central runtime lockout baseline. UAT0.2 closed the adapter-level runtime-policy baseline, added the Hyperliquid future-UAT1 read-only allowlist artifact, and tested representative bearer/API-key/secret/password/DB URL redaction. Remaining blockers include broader structured application log/API error redaction verification, Hyperliquid public read-only endpoint URL and sandbox/testnet verification, runtime drawdown monitoring, and top-20 symbol/market identity resolution.
 
 UAT is plumbing and behavior validation.
 

@@ -39,6 +39,8 @@ def build_settings() -> AppSettings:
         EXCHANGE_API_KEY="test-key",
         EXCHANGE_API_SECRET="test-secret",
         MARKET_DATA_CHECKPOINT_OVERLAP_BARS=1,
+        PRIVATE_EXCHANGE_ENDPOINTS_ENABLED=True,
+        EXCHANGE_ORDER_SUBMISSION_ENABLED=True,
     )
 
 

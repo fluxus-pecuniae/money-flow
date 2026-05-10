@@ -4,7 +4,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 UAT validates plumbing and behavior. It does not prove profitability.
 
-Current status: UAT0 safety/security/runtime audit is complete, and UAT0.1 API auth/authz plus runtime lockout hardening is complete. UAT1 is blocked until adapter-level runtime-policy enforcement, selected-venue sandbox/read-only endpoint policy, secret/log/error redaction verification, runtime drawdown monitoring, and top-20 market identity prerequisites are closed.
+Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, and UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete. UAT1 is blocked until remaining P1 endpoint-verification, broader redaction, runtime drawdown, and top-20 market identity prerequisites are closed.
 
 ## Frozen Observation Candidate
 
@@ -30,7 +30,7 @@ Future UAT2 shadow reports must compare `next_candle_open` and `next_candle_clos
 
 Objective: make the platform safe enough to connect to sandbox/read-only systems later.
 
-Status: audit complete; UAT0.1 closed the P0 API auth/authz and central runtime-policy baseline; UAT1 remains blocked.
+Status: audit complete; UAT0.1 closed the P0 API auth/authz and central runtime-policy baseline; UAT0.2 closed the adapter-level runtime-policy baseline and added a Hyperliquid future-UAT1 read-only allowlist artifact; UAT1 remains blocked.
 
 Allowed behavior: config hardening, auth review, secret hygiene, mode gating, risk/drawdown visibility, kill-switch verification, audit checks, tests, docs.
 

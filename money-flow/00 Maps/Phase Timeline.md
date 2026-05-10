@@ -42,7 +42,7 @@ Strategy Validation is now its own major track. It is not an active sub-phase of
 
 ## Current State
 
-Current implemented milestone: `UAT0.1` API auth/authz and runtime lockout hardening complete.
+Current implemented milestone: `UAT0.2` adapter runtime-policy and redaction hardening complete.
 
 Next proposed phase: remaining UAT0 P1 blocker remediation before `UAT1`.
 
@@ -52,6 +52,7 @@ Paper trading is not approved. Live trading is not approved. Exchange order subm
 
 - UAT0: safety / security / runtime hardening audit complete.
 - UAT0.1: API auth/authz and runtime lockout hardening complete.
+- UAT0.2: adapter runtime-policy baseline, Hyperliquid future-UAT1 read-only allowlist artifact, and representative redaction verification complete.
 - UAT1: top-20 universe plus read-only venue/market metadata after blockers close.
 - UAT2: shadow strategy run across top-20 supported assets with `next_candle_open` and `next_candle_close`, no orders.
 - UAT3: approval-gated sandbox orders.

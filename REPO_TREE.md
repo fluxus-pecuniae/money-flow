@@ -65,6 +65,7 @@ Last reviewed: `2026-05-09T15:35:00Z`
 - OB1.0 reorganizes current truth so `money-flow/00_Money_Flow_Command_Center.md` is the only canonical command center; `money-flow/Money Flow Command Center.md` is a compatibility pointer. Strategy Validation is represented as its own closed major track through SV1.18.1, and UAT0 is the next proposed track.
 - UAT0 updates the current-state notes after the safety/security/runtime audit: UAT0 audit is complete, UAT1 read-only connectivity is blocked by named safety gaps, the future UAT observation universe is top-20 supported assets, and UAT2 fill timing must compare `next_candle_open` and `next_candle_close` while keeping `same_candle_close_research_only` research-only.
 - UAT0.1 updates current-state notes after the P0 API auth/authz and runtime lockout hardening: sensitive `/api/v1` routes require scoped bearer auth, a central fail-safe runtime safety policy is inspectable, UAT1 remains blocked by remaining P1 safety gaps, and no exchange connectivity/order submission/paper/live behavior is added.
+- UAT0.2 updates current-state notes after adapter runtime-policy hardening: adapter private/signed/order paths are guarded before transport, public read-only methods are classified, a Hyperliquid future-UAT1 read-only allowlist artifact exists, representative redaction is tested, UAT1 remains blocked by remaining P1 endpoint-verification/redaction/drawdown/identity gaps, and no exchange connectivity/order submission/paper/live behavior is added.
 - Phase 8.0.1 accepted the previously dirty Obsidian memory refresh as the strategic baseline and updated it to current Phase 8.0/8.0.1 truth.
 - Phase 8.0.2 updates current-phase/coordination/decision notes for active submit-lease operator-summary truth only; full project memory remains untouched.
 - SV1.0.1 updates current-phase/coordination/decision notes for strategy-validation research-truth/report hardening only; full project memory remains untouched.
@@ -127,13 +128,18 @@ Last reviewed: `2026-05-09T15:35:00Z`
 - Records the sensitive route inventory, scoped bearer-token auth implementation, authorization scope map, runtime safety defaults, live/private/order lockout status, test-only auth bypass policy, redaction baseline, remaining blockers, and UAT1 readiness decision.
 - UAT0.1 closes the P0 API auth/authz baseline but leaves UAT1 blocked by remaining P1 adapter-policy, redaction, selected-venue sandbox/read-only, runtime drawdown, and top-20 identity gaps.
 
+`docs/uat0_2_adapter_runtime_policy_and_redaction.md`
+- Founder/operator UAT0.2 hardening report.
+- Records the adapter safety inventory, adapter-level runtime-policy guard status, public read-only method classification, selected Hyperliquid future-UAT1 read-only allowlist artifact, forbidden endpoint categories, redaction verification status, remaining blockers, and UAT1 readiness decision.
+- UAT0.2 closes the adapter-level runtime-policy / allowlist / representative redaction baseline but leaves UAT1 blocked by Hyperliquid endpoint URL/sandbox verification, broader structured log/API error redaction, runtime drawdown monitoring, and top-20 identity gaps.
+
 `core/config/`
 - Pydantic settings, environment profiles, runtime selection, and per-venue / strategy configuration.
 - UAT0.1 adds `APIAuthConfig` and `RuntimeSafetyPolicy` settings. Defaults remain fail-safe: API auth enabled, paper/live/order/private endpoint flags disabled, and sandbox mode required.
 
 `core/security.py`
 - Security helper module for UAT/API hardening.
-- Defines API auth scopes/principals plus representative redaction helpers for secret-like keys, bearer tokens, and database URLs.
+- Defines API auth scopes/principals plus representative redaction helpers for secret-like keys, bearer tokens, API-key/secret/password key-value text, and database URLs.
 
 `core/domain/`
 - Shared typed domain models and enums.
@@ -290,6 +296,7 @@ Last reviewed: `2026-05-09T15:35:00Z`
 - Deepest current lifecycle path.
 - Truthful cancel acknowledgement, native limit-order amend, deeper order-status-plus-fill reconciliation, and direct private open-order/recent-fill/open-position polling now exist for the current perpetual scope where account context is available.
 - Direct open-position mark price now uses venue `markPx`, derives from `positionValue / abs(szi)` when needed, and remains `None` when no truthful mark price can be derived.
+- UAT0.2 classifies Hyperliquid `info` / `exchange` payloads by endpoint safety category and enforces runtime policy before private/signed/order transport.
 
 `services/exchange/aster/`
 - Perpetual adapter with submit, reconcile, cancel, and bounded same-target retry support.
@@ -320,6 +327,10 @@ Last reviewed: `2026-05-09T15:35:00Z`
 
 `services/exchange/registry.py`
 - Venue registry/factory used by the control plane to inspect Hyperliquid, Aster, OKX, Coinbase Advanced Trade, Binance, and Kraken side by side.
+
+`services/exchange/safety.py`
+- UAT0.2 exchange endpoint safety policy helpers.
+- Defines endpoint categories, REST/Hyperliquid payload classifiers, runtime-policy enforcement decisions, and the Hyperliquid future-UAT1 read-only allowlist artifact.
 
 `services/market_data/`
 - Candle bootstrap, persistence, checkpoint semantics, and freshness handling.

@@ -9,6 +9,13 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `scope`: UAT0 adds docs/tests and audit truth only. It makes no exchange calls, uses no API keys, submits no orders, creates no paper/live artifacts, changes no Money Flow rules, adds no routing behavior, implements no UAT1/UAT2/UAT3 runtime, and generates no evidence packs.
 - `follow_up_implications`: Future UAT observation should cover top 20 high-volume crypto assets supported by the selected UAT venue/environment, but top-20 inclusion is not strategy approval. Future UAT2 shadow timing should compare `next_candle_open` and `next_candle_close`; `same_candle_close_research_only` remains research-only.
 
+## 2026-05-10T05:38:05Z - UAT0.2 - Adapter Runtime Policy Must Block Before Transport
+
+- `decision`: Add adapter-helper endpoint classification and enforce `RuntimeSafetyPolicy` before private, signed, unknown, or order-like adapter transport can run. Define Hyperliquid as the selected future UAT1 venue with a public-read-only allowlist artifact and keep UAT1 blocked until the remaining prerequisites are closed.
+- `why`: API auth is not enough for exchange-facing safety. Future UAT work must prove that private/signed/order calls cannot bypass route protection or central runtime lockouts, and founder/operator review needs an explicit read-only allowlist before any connectivity phase.
+- `scope`: UAT0.2 adds adapter guards, a testable read-only allowlist artifact, representative redaction hardening, tests, and docs only. It does not implement UAT1, connect to exchanges, call public/private/signed/order endpoints, use exchange API keys, submit orders, approve paper/live trading, change Money Flow rules, add routing behavior, or generate evidence packs.
+- `follow_up_implications`: UAT1 remains blocked by top-20 symbol/market identity resolution, runtime drawdown monitoring, explicit Hyperliquid public read-only endpoint URL/sandbox verification, and broader structured application log/API error redaction review. UAT1 remains read-only only when later allowed.
+
 ## 2026-05-09T13:21:46Z - OB1.0 - Obsidian Brain Separates SV Closeout From UAT0
 
 - `decision`: Make `money-flow/00_Money_Flow_Command_Center.md` the single canonical command center, add dedicated Strategy Validation and UAT roadmap maps, and treat SV1.18.1 as the completed milestone with UAT0 as the next proposed track.
