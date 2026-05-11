@@ -5,6 +5,7 @@ from pathlib import Path
 
 from services.strategy_validation.historical_replay import (
     PT002_BASELINE_STRATEGY_ID,
+    PT002_EMA5_SMA20_CROSS_CLOSE_STRATEGY_ID,
     PT002_NO_MACD_STRATEGY_ID,
     PT002_REPORT_NAME,
     PT002_SYMBOLS,
@@ -61,7 +62,7 @@ def test_btc_eth_sol_15m_1h_4h_datasets_are_audited_and_replay_ready() -> None:
         assert "historical_db_unreachable" in summary["db_audit"][0]["reason_codes"]
 
 
-def test_historical_replay_contains_baseline_and_macd_removed_for_all_symbols_and_timeframes() -> None:
+def test_historical_replay_contains_all_research_strategies_for_all_symbols_and_timeframes() -> None:
     summary = _summary()
     strategies = {row["id"]: row for row in summary["strategies"]}
     replay_keys = {
@@ -76,11 +77,19 @@ def test_historical_replay_contains_baseline_and_macd_removed_for_all_symbols_an
     assert strategies[PT002_NO_MACD_STRATEGY_ID]["label"] == "MACD removed"
     assert strategies[PT002_NO_MACD_STRATEGY_ID]["research_only"] is True
     assert strategies[PT002_NO_MACD_STRATEGY_ID]["changes_production_rules"] is False
-    assert len(summary["replays"]) == len(PT002_SYMBOLS) * len(PT002_TIMEFRAMES) * 2
+    assert PT002_EMA5_SMA20_CROSS_CLOSE_STRATEGY_ID in strategies
+    assert strategies[PT002_EMA5_SMA20_CROSS_CLOSE_STRATEGY_ID]["label"] == "Only close on 5/20 cross"
+    assert strategies[PT002_EMA5_SMA20_CROSS_CLOSE_STRATEGY_ID]["research_only"] is True
+    assert strategies[PT002_EMA5_SMA20_CROSS_CLOSE_STRATEGY_ID]["changes_production_rules"] is False
+    assert len(summary["replays"]) == len(PT002_SYMBOLS) * len(PT002_TIMEFRAMES) * len(summary["strategies"])
 
     expected = {
         (strategy_id, symbol, timeframe)
-        for strategy_id in (PT002_BASELINE_STRATEGY_ID, PT002_NO_MACD_STRATEGY_ID)
+        for strategy_id in (
+            PT002_BASELINE_STRATEGY_ID,
+            PT002_NO_MACD_STRATEGY_ID,
+            PT002_EMA5_SMA20_CROSS_CLOSE_STRATEGY_ID,
+        )
         for symbol in PT002_SYMBOLS
         for timeframe in PT002_TIMEFRAMES
     }
@@ -108,6 +117,30 @@ def test_macd_removed_replay_removes_macd_entry_and_rollover_exit_gates_without_
     assert all(
         "macd_rollover" not in row["reason_counts"]["exit_reason_counts"]
         for row in macd_removed
+    )
+    assert summary["boundary_flags"]["changes_money_flow_rules"] is False
+
+
+def test_ema5_sma20_cross_close_replay_waits_for_bearish_cross_close() -> None:
+    summary = _summary()
+    cross_close = [
+        row for row in summary["replays"]
+        if row["strategy_id"] == PT002_EMA5_SMA20_CROSS_CLOSE_STRATEGY_ID
+    ]
+
+    assert cross_close
+    assert all(row["research_only"] is True for row in cross_close)
+    assert any(
+        "ema5_sma20_bearish_cross_close" in row["reason_counts"]["exit_reason_counts"]
+        for row in cross_close
+    )
+    assert all(
+        "ma_alignment_break" not in row["reason_counts"]["exit_reason_counts"]
+        for row in cross_close
+    )
+    assert all(
+        "macd_rollover" not in row["reason_counts"]["exit_reason_counts"]
+        for row in cross_close
     )
     assert summary["boundary_flags"]["changes_money_flow_rules"] is False
 
@@ -203,14 +236,18 @@ def test_dashboard_has_historical_replay_tab_and_stable_chart_container() -> Non
     assert "Historical Replay" in html
     assert "historical-replay-strategy-filter" in html
     assert "Replay strategy" in html
+    assert "historical-replay-arrow-descriptions-toggle" in html
+    assert "Show arrow descriptions" in html
     assert "historical-replay-chart" in html
     assert "Trade Inspector" in html
+    assert "Click a chart arrow or trade row" in html
     assert "BTC / ETH / SOL Comparison" in html
     assert "Sandbox Execution Plumbing" in html
     assert "pt0_0_2_historical_strategy_replay_summary.json" in js
     assert "baseline_current_money_flow_rules" in js
     assert "strategy_id" in js
     assert "Replay strategy:" in js
+    assert '["15m", "1h", "4h", "1D"]' in js
     assert "renderHistoricalReplayChart" in js
     assert "historicalOscillatorRows" in js
     assert "historicalMacdHistogramRows" in js
@@ -222,9 +259,18 @@ def test_dashboard_has_historical_replay_tab_and_stable_chart_container() -> Non
     assert "createPriceLine" in js
     assert "historicalChartMarkers" in js
     assert "historicalMarkerLines" in js
+    assert "historicalMarkerObjectId" in js
+    assert "markerTradeIds" in js
+    assert "subscribeClick" in js
+    assert "hoveredObjectId" in js
+    assert "selectHistoricalReplayTrade" in js
+    assert "showArrowDescriptions: true" in js
+    assert "historicalMarkerPnlLine" in js
+    assert "if (!state.historicalReplay.showArrowDescriptions)" in js
     assert ".flatMap((marker)" in js
     assert "size: index === 0 ? 1 : 0" in js
     assert "Net PnL:" in js
+    assert "PnL:" in js
     assert "Entry:" in js
     assert "Exit:" in js
     assert "marker.fill_assumption" not in js
@@ -238,6 +284,10 @@ def test_dashboard_has_historical_replay_tab_and_stable_chart_container() -> Non
     assert ".historical-overlay-legend" in css
     assert ".legend-dot.rsi" in css
     assert ".legend-dot.macd-signal" in css
+    assert ".historical-replay-controls label.checkbox-control" in css
+    assert ".trade-inspector-card" in css
+    assert ".trade-inspector-hero" in css
+    assert ".reason-chip" in css
 
 
 def test_dashboard_separates_historical_replay_from_sandbox_execution_and_has_no_order_controls() -> None:
@@ -271,6 +321,8 @@ def test_pt002_report_exists_and_records_boundaries() -> None:
     assert "PT0.0.2 Historical Strategy Replay Cockpit" in report
     assert "Hyperliquid testnet market data is not strategy truth" in report
     assert "MACD removed" in report
+    assert "Only close on 5/20 cross" in report
+    assert "ema5_sma20_bearish_cross_close" in report
     assert "research-only" in report
     assert "No orders are submitted by PT0.0.2" in report
     assert "Money Flow rules are unchanged" in report

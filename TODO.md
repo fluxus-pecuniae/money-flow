@@ -1,8 +1,26 @@
 # TODO
 
-Last reviewed: `2026-05-11T17:40:05Z`
+Last reviewed: `2026-05-11T23:12:00Z`
 
 ## Active Follow-Ups
+
+### T-122
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV2.0 Money Flow 1D sleeve and expanded evidence refresh is complete. Money Flow v1.2 now includes sleeve_1d as a real first-class sleeve with initial non-optimized 1D settings while preserving existing 15m/1h/4h settings. Hyperliquid public mainnet metadata resolved BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, AVAX, and SHIB, with SHIB explicitly mapped to venue symbol kSHIB. Public mainnet candleSnapshot rows were fetched for supported symbols across 15m/1h/4h/1D, Jan 2025 target coverage is reached for 4h and 1D, and 15m/1h carry hyperliquid_public_5000_candle_limit horizon warnings. The dashboard surfaces Money Flow v1.2, sleeve_1d, expanded symbol readiness, and the SV2.0 compact evidence summary while keeping sandbox execution separate. No orders, order controls, private/signed/order endpoints, API keys, testnet strategy truth, live trading, real capital, SOR/fanout/CBBO/target reselection, or parameter optimization were added.`
+
+### T-123
+
+- `priority`: `medium`
+- `status`: `future`
+- `summary`: `SV2.x full evidence-pack generation and DB-backed candle import remain future work. SV2.0.1 explicitly marks the refreshed public-mainnet candles as fetched/normalized/staged-only, not DB-imported, and blocks canonical evidence status with canonical_sv2_evidence_packs_missing until the hardened importer/upsert path and canonical evidence-pack machinery are used. A future phase should confirm the intended DB/import target and artifact policy, upsert the refreshed public-mainnet candles into the canonical strategy-validation candle store, and generate ignored full evidence-pack directories for Money Flow v1.2 without changing strategy parameters or using testnet data as strategy truth.`
+
+### T-124
+
+- `priority`: `high`
+- `status`: `future`
+- `summary`: `SOR-EV1 / stop-loss / strategy-variant evidence should remain blocked until the team either generates canonical SV2.0.1 evidence packs from DB-imported hardened candle data or explicitly accepts staged compact SV2 rows as noncanonical exploratory input. Compact SV2 rows now force-close dataset-end open positions and count entry fees at open, but they are labeled compact_provisional_replay_not_canonical_evidence and cannot be called final canonical evidence.`
 
 ### T-118
 
@@ -14,13 +32,13 @@ Last reviewed: `2026-05-11T17:40:05Z`
 
 - `priority`: `high`
 - `status`: `done`
-- `summary`: `PT0.0.2 historical strategy replay cockpit is complete. The dashboard now has a Historical Replay tab backed by docs/pt0_0_2_historical_strategy_replay_summary.json, generated from the trusted SV1.17 historical full-suite baseline replay export. BTC/ETH/SOL x 15m/1h/4h datasets are audited and replay-ready, historical candles render through TradingView Lightweight Charts, green/red historical entry/exit markers are shown, the trade inspector exposes reasons/indicators/cost/PnL/equity details, the dynamic 10,000 USDC equity path is visible, and BTC/ETH/SOL comparison plus separate sandbox execution plumbing views exist. The replay-strategy selector supports OG replay/strategy and research-only MACD removed across all symbols/timeframes. Hyperliquid testnet market data is not strategy truth. No orders, order controls, private/signed/order endpoints, API keys, live endpoint use, Money Flow rule changes, strategy optimization, or evidence packs were added.`
+- `summary`: `PT0.0.2 historical strategy replay cockpit is complete. The dashboard now has a Historical Replay tab backed by historical replay summary JSON generated from the trusted SV1.17 historical full-suite baseline replay export. BTC/ETH/SOL x 15m/1h/4h datasets are audited and replay-ready, historical candles render through TradingView Lightweight Charts, green/red historical entry/exit markers are shown, the trade inspector exposes reasons/indicators/cost/PnL/equity details, the dynamic 10,000 USDC equity path is visible, and BTC/ETH/SOL comparison plus separate sandbox execution plumbing views exist. The replay-strategy selector supports OG replay/strategy, research-only MACD removed, and research-only Only close on 5/20 cross across all symbols/timeframes. Hyperliquid testnet market data is not strategy truth. No orders, order controls, private/signed/order endpoints, API keys, live endpoint use, Money Flow rule changes, strategy optimization, or evidence packs were added.`
 
 ### T-120
 
 - `priority`: `high`
 - `status`: `done`
-- `summary`: `PT0.0.3 historical data horizon and 1D replay support is complete. The dashboard now prefers docs/pt0_0_3_historical_strategy_replay_summary.json, supports 15m/1h/4h/1D historical replay selection, shows a Jan 2025 target-start data-horizon panel, and reports actual earliest/latest candles plus warning reason codes per BTC/ETH/SOL timeframe. Current committed local data does not reach 2025-01-01T00:00:00Z. 1D candles are deterministically aggregated from 4h historical replay candles and labeled as not a new production Money Flow 1D sleeve. No orders, order controls, private/signed/order endpoints, API keys, live endpoint use, testnet strategy truth, Money Flow rule changes, strategy optimization, or evidence packs were added.`
+- `summary`: `PT0.0.3 historical data horizon and 1D replay support is complete. The dashboard now prefers docs/pt0_0_3_historical_strategy_replay_summary.json, preserves that payload instead of overwriting it with PT0.0.2 fallback data, supports 15m/1h/4h/1D historical replay selection, shows a Jan 2025 target-start data-horizon panel, and reports actual earliest/latest candles plus warning reason codes per BTC/ETH/SOL timeframe. Current committed local data does not reach 2025-01-01T00:00:00Z. 1D candles are deterministically aggregated from 4h historical replay candles and labeled as not a new production Money Flow 1D sleeve. No orders, order controls, private/signed/order endpoints, API keys, live endpoint use, testnet strategy truth, Money Flow rule changes, strategy optimization, or evidence packs were added.`
 
 ### T-121
 

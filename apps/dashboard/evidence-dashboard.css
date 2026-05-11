@@ -727,6 +727,24 @@ h3 {
   text-transform: uppercase;
 }
 
+.historical-replay-controls label.checkbox-control {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  min-width: 190px;
+  padding: 0 var(--spacing-2);
+}
+
+.historical-replay-controls label.checkbox-control input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-sandbox);
+}
+
+.historical-replay-controls label.checkbox-control span {
+  line-height: 1.2;
+}
+
 .historical-truth-banner {
   align-items: flex-start;
   border-color: rgba(248, 193, 92, 0.4);
@@ -803,6 +821,11 @@ h3 {
 .historical-chart-panel,
 .historical-inspector-panel {
   min-height: 0;
+}
+
+.historical-inspector-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .historical-replay-chart .tradingview-lightweight-chart {
@@ -890,6 +913,125 @@ h3 {
   color: var(--color-text);
   font-family: var(--font-mono);
   font-size: 14px;
+}
+
+.trade-inspector-card {
+  display: grid;
+  gap: var(--spacing-4);
+  height: 100%;
+  min-height: 0;
+  padding: var(--spacing-4);
+  overflow: auto;
+  background:
+    radial-gradient(circle at top right, rgba(34, 211, 238, 0.1), transparent 32%),
+    linear-gradient(180deg, rgba(12, 22, 29, 0.98), rgba(7, 12, 18, 0.98));
+}
+
+.trade-inspector-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(118px, 0.44fr);
+  gap: var(--spacing-3);
+  align-items: stretch;
+  padding-bottom: var(--spacing-3);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.trade-inspector-hero > div,
+.trade-inspector-metric,
+.trade-inspector-section {
+  min-width: 0;
+  border: 1px solid rgba(133, 156, 171, 0.16);
+  border-radius: var(--radius-md);
+  background: rgba(4, 9, 14, 0.58);
+}
+
+.trade-inspector-hero > div {
+  display: grid;
+  gap: 4px;
+  align-content: center;
+  padding: var(--spacing-3);
+}
+
+.trade-inspector-hero strong,
+.trade-inspector-pnl strong,
+.trade-inspector-metric strong {
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+}
+
+.trade-inspector-hero small,
+.trade-inspector-pnl span,
+.trade-inspector-pnl small,
+.trade-inspector-metric span,
+.trade-inspector-metric small {
+  color: var(--color-muted);
+  font-size: 10px;
+  line-height: 1.25;
+}
+
+.trade-inspector-pnl.positive strong {
+  color: var(--color-green);
+}
+
+.trade-inspector-pnl.negative strong {
+  color: var(--color-red);
+}
+
+.trade-inspector-metrics,
+.trade-inspector-indicators {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-3);
+}
+
+.trade-inspector-metric {
+  display: grid;
+  gap: 3px;
+  padding: var(--spacing-3);
+}
+
+.trade-inspector-metric strong {
+  color: var(--color-text);
+  font-size: 13px;
+}
+
+.trade-inspector-section {
+  display: grid;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+}
+
+.trade-inspector-section h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.reason-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.reason-chip {
+  max-width: 100%;
+  padding: 5px 7px;
+  overflow-wrap: anywhere;
+  border: 1px solid rgba(37, 208, 132, 0.28);
+  border-radius: 999px;
+  background: rgba(37, 208, 132, 0.09);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.reason-chip.muted {
+  border-color: rgba(133, 156, 171, 0.18);
+  background: rgba(133, 156, 171, 0.08);
+  color: var(--color-muted);
 }
 
 .historical-replay-bottom {

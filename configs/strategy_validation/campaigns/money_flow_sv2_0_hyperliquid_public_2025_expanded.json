@@ -1,0 +1,131 @@
+{
+  "campaign_name": "money_flow_sv2_0_hyperliquid_public_2025_expanded",
+  "description": "SV2.0 Money Flow v1.2 public-mainnet historical evidence campaign with real 1D sleeve and requested expanded Hyperliquid universe. Public candleSnapshot may be limited to the most recent 5000 candles; missing Jan 2025 coverage is data readiness truth, not strategy failure.",
+  "campaign_status": "sv2_0_public_historical_refresh_and_evidence_rebuild",
+  "money_flow_version": "money_flow_v1_2",
+  "window_convention": "(start_at, end_at] candle closes; closes exactly at start are excluded and closes on or before end are included.",
+  "venue": "hyperliquid",
+  "environment": "backtest",
+  "data_source": "hyperliquid_public_mainnet_candleSnapshot",
+  "testnet_prices_used_as_strategy_truth": false,
+  "requested_universe": [
+    "BTC",
+    "ETH",
+    "SOL",
+    "XRP",
+    "DOGE",
+    "HYPE",
+    "BNB",
+    "SUI",
+    "AVAX",
+    "SHIB"
+  ],
+  "symbols": [
+    {
+      "symbol": "BTC",
+      "instrument_key": "perpetual:linear:BTC:USDC:USDC"
+    },
+    {
+      "symbol": "ETH",
+      "instrument_key": "perpetual:linear:ETH:USDC:USDC"
+    },
+    {
+      "symbol": "SOL",
+      "instrument_key": "perpetual:linear:SOL:USDC:USDC"
+    },
+    {
+      "symbol": "XRP",
+      "instrument_key": "perpetual:linear:XRP:USDC:USDC"
+    },
+    {
+      "symbol": "DOGE",
+      "instrument_key": "perpetual:linear:DOGE:USDC:USDC"
+    },
+    {
+      "symbol": "HYPE",
+      "instrument_key": "perpetual:linear:HYPE:USDC:USDC"
+    },
+    {
+      "symbol": "BNB",
+      "instrument_key": "perpetual:linear:BNB:USDC:USDC"
+    },
+    {
+      "symbol": "SUI",
+      "instrument_key": "perpetual:linear:SUI:USDC:USDC"
+    },
+    {
+      "symbol": "AVAX",
+      "instrument_key": "perpetual:linear:AVAX:USDC:USDC"
+    },
+    {
+      "symbol": "SHIB",
+      "instrument_key": "perpetual:linear:SHIB:USDC:USDC"
+    }
+  ],
+  "components": [
+    "sleeve_15m",
+    "sleeve_1h",
+    "sleeve_4h",
+    "sleeve_1d"
+  ],
+  "timeframe_windows": [
+    {
+      "component": "sleeve_15m",
+      "timeframe": "15m",
+      "label": "sv2_0_public_15m_latest_5000_or_target",
+      "start": "2025-01-01T00:00:00Z",
+      "end": "current_utc_at_fetch",
+      "source": "hyperliquid_public_mainnet_candleSnapshot",
+      "status": "fetch_and_report_actual_horizon"
+    },
+    {
+      "component": "sleeve_1h",
+      "timeframe": "1h",
+      "label": "sv2_0_public_1h_latest_5000_or_target",
+      "start": "2025-01-01T00:00:00Z",
+      "end": "current_utc_at_fetch",
+      "source": "hyperliquid_public_mainnet_candleSnapshot",
+      "status": "fetch_and_report_actual_horizon"
+    },
+    {
+      "component": "sleeve_4h",
+      "timeframe": "4h",
+      "label": "sv2_0_public_4h_latest_5000_or_target",
+      "start": "2025-01-01T00:00:00Z",
+      "end": "current_utc_at_fetch",
+      "source": "hyperliquid_public_mainnet_candleSnapshot",
+      "status": "fetch_and_report_actual_horizon"
+    },
+    {
+      "component": "sleeve_1d",
+      "timeframe": "1d",
+      "label": "sv2_0_public_1d_target_2025",
+      "start": "2025-01-01T00:00:00Z",
+      "end": "current_utc_at_fetch",
+      "source": "hyperliquid_public_mainnet_candleSnapshot",
+      "status": "real_money_flow_1d_sleeve_evidence_window"
+    }
+  ],
+  "fill_timings": [
+    "next_candle_open",
+    "next_candle_close"
+  ],
+  "fee_bps_values": [
+    "5"
+  ],
+  "slippage_bps_values": [
+    "3"
+  ],
+  "initial_capital": "10000",
+  "capital_sizing_mode": "dynamic_equity_pct",
+  "position_notional_pct": "1.0",
+  "output_dir": "reports/strategy_validation",
+  "research_boundaries": {
+    "creates_live_artifacts": false,
+    "calls_exchange_adapters": false,
+    "calls_private_exchange_endpoints": false,
+    "calls_exchange_order_endpoints": false,
+    "uses_testnet_prices_as_strategy_truth": false,
+    "optimizes_parameters": false
+  }
+}

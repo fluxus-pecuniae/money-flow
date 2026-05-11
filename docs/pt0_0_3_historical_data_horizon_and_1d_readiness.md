@@ -6,6 +6,14 @@ Status: implemented
 
 PT0.0.3 extends the historical replay cockpit to include `1D` historical replay support and truthful data-horizon reporting for BTC, ETH, and SOL across `15m`, `1h`, `4h`, and `1D`.
 
+SV2.0 supersession note:
+
+```text
+PT0.0.3 did not create a production Money Flow 1D sleeve.
+SV2.0 later adds sleeve_1d as a real Money Flow v1.2 sleeve.
+SV2.0 also refreshes Hyperliquid public mainnet data for the expanded BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX/SHIB universe.
+```
+
 Target historical start:
 
 ```text
@@ -27,7 +35,8 @@ Status: verified
 - Hyperliquid testnet market data is not strategy truth.
 - Money Flow rules are unchanged.
 - No strategy parameters were optimized.
-- No stop-loss, entry, RSI, MACD, market-structure, or SOR variants were added.
+- No stop-loss, entry, RSI, market-structure, or SOR variants were added.
+- Research-only replay variants are available for visual analysis; they do not change production Money Flow rules.
 - No paper/live execution behavior was added.
 - Sandbox execution plumbing remains separate from historical replay.
 
@@ -68,7 +77,8 @@ Important boundary:
 ```text
 1D candles aggregated from 4h historical replay candles.
 1D candles are aggregated from 4h historical replay candles.
-This does not create a new Money Flow 1D sleeve.
+This did not create a new Money Flow 1D sleeve in PT0.0.3.
+SV2.0 later creates sleeve_1d as the real Money Flow v1.2 sleeve.
 ```
 
 Aggregation convention:
@@ -104,11 +114,12 @@ The Jan 2025 target is not met by the currently committed local replay source. T
 
 Status: implemented
 
-The Historical Replay tab now loads `docs/pt0_0_3_historical_strategy_replay_summary.json` before falling back to PT0.0.2.
+The Historical Replay tab now loads `docs/pt0_0_3_historical_strategy_replay_summary.json` before falling back to PT0.0.2. The loader keeps the first available PT0.0.3 payload instead of overwriting it with the older PT0.0.2 fallback, so `1D` remains visible in the timeframe selector.
 
 Dashboard additions:
 
 - `1D` appears in the timeframe selector.
+- Replay strategy selector includes `OG replay / strategy`, `MACD removed`, and `Only close on 5/20 cross`.
 - Data horizon panel shows target start, earliest available, latest available, coverage, source, aggregation status, and warnings.
 - `1D` selections are explicitly labeled as aggregated from lower-timeframe historical replay data.
 - Testnet data remains labeled as not strategy truth.
@@ -156,6 +167,7 @@ Status: verified
 - No orders were submitted.
 - Money Flow rules are unchanged.
 - No 1D production strategy sleeve was created.
+- `Only close on 5/20 cross` is research-only and does not change production Money Flow rules.
 
 ## Next Recommended Phase
 

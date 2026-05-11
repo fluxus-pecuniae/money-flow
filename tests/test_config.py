@@ -4,11 +4,17 @@ from core.domain.enums import Environment, InstrumentResolutionMode, MarketDataS
 
 def test_settings_load_default_sleeves() -> None:
     settings = get_settings()
-    assert [s.sleeve_id for s in settings.sleeves] == ["sleeve_15m", "sleeve_1h", "sleeve_4h"]
+    assert [s.sleeve_id for s in settings.sleeves] == [
+        "sleeve_15m",
+        "sleeve_1h",
+        "sleeve_4h",
+        "sleeve_1d",
+    ]
     assert [component.sleeve_id for component in settings.components] == [
         "sleeve_15m",
         "sleeve_1h",
         "sleeve_4h",
+        "sleeve_1d",
     ]
 
 
@@ -35,7 +41,12 @@ def test_live_profile_loads() -> None:
 def test_money_flow_config_loads() -> None:
     settings = get_settings()
     assert settings.money_flow.strategy_enabled is True
-    assert [s.sleeve_id for s in settings.money_flow.sleeves] == ["sleeve_15m", "sleeve_1h", "sleeve_4h"]
+    assert [s.sleeve_id for s in settings.money_flow.sleeves] == [
+        "sleeve_15m",
+        "sleeve_1h",
+        "sleeve_4h",
+        "sleeve_1d",
+    ]
 
 
 def test_runtime_selection_defaults_are_explicit() -> None:

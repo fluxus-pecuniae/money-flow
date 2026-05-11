@@ -12,6 +12,11 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+# Some test modules import package namespaces that initialize settings at
+# collection time. Keep local .env overrides out before collection begins.
+AppSettings.model_config["env_file"] = None
+get_settings.cache_clear()
+
 
 _SETTINGS_ENV_PREFIXES = (
     "APP_",

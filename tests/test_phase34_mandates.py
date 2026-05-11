@@ -50,6 +50,7 @@ def test_runtime_context_bootstraps_default_mandate_hierarchy() -> None:
     assert len(context.bindings) == 1
     assert [item.component_key for item in context.bindings[0].component_configs] == [
         "sleeve_15m",
+        "sleeve_1d",
         "sleeve_1h",
         "sleeve_4h",
     ]

@@ -23,7 +23,7 @@ def _now() -> datetime:
 
 
 class MoneyFlowStrategyFamily(StrategyFamilyModule):
-    STRATEGY_VERSION = "money_flow_v1_1"
+    STRATEGY_VERSION = "money_flow_v1_2"
 
     def __init__(self, settings: AppSettings | None = None) -> None:
         self.settings = settings or get_settings()
@@ -76,15 +76,24 @@ class MoneyFlowStrategyFamily(StrategyFamilyModule):
             )
             return StrategyEvaluationResult(signal_event=signal, decision=decision)
 
-        invalid_reason = _validate_input(evaluation_input, sleeve)
-        if invalid_reason is not None:
+        invalid_input = _validate_input(evaluation_input, sleeve)
+        if invalid_input is not None:
+            invalid_reason, invalid_reason_codes = invalid_input
+            invalid_provenance = {
+                **base_provenance,
+                "reason_codes": list(invalid_reason_codes),
+            }
+            invalid_features = {
+                "status": "invalid",
+                "reason_codes": list(invalid_reason_codes),
+            }
             signal = _build_signal(
                 evaluation_input=evaluation_input,
                 signal_type=SignalType.NO_TRADE,
                 generated_at=decision_time,
                 reason_code=invalid_reason,
-                provenance=base_provenance,
-                features={"status": "invalid"},
+                provenance=invalid_provenance,
+                features=invalid_features,
             )
             decision = _build_decision(
                 evaluation_input=evaluation_input,
@@ -94,8 +103,8 @@ class MoneyFlowStrategyFamily(StrategyFamilyModule):
                 reason_code=invalid_reason,
                 confidence=None,
                 rationale=f"Money Flow invalid-state rejection: {invalid_reason}.",
-                provenance=base_provenance,
-                features=signal.features,
+                provenance=invalid_provenance,
+                features=invalid_features,
                 signal_id=signal.signal_id,
             )
             return StrategyEvaluationResult(signal_event=signal, decision=decision)
@@ -197,26 +206,49 @@ class MoneyFlowStrategyFamily(StrategyFamilyModule):
 def _validate_input(
     evaluation_input: StrategyEvaluationInput,
     sleeve: MoneyFlowSleeveConfig,
-) -> str | None:
+) -> tuple[str, tuple[str, ...]] | None:
     if not _self_enabled(evaluation_input, sleeve):
-        return "sleeve_disabled"
+        return "sleeve_disabled", ("sleeve_disabled",)
     if not evaluation_input.instrument_active:
-        return "instrument_inactive"
+        return "instrument_inactive", ("instrument_inactive",)
     if not evaluation_input.instrument_strategy_eligible:
-        return "instrument_not_strategy_eligible"
+        return "instrument_not_strategy_eligible", ("instrument_not_strategy_eligible",)
     if not evaluation_input.market_data_fresh:
-        return "stale_market_data"
+        return "stale_market_data", ("stale_market_data",)
     if evaluation_input.indicator_snapshot is None:
-        return "missing_indicator_snapshot"
+        return "missing_indicator_snapshot", ("missing_indicator_snapshot",)
     if evaluation_input.latest_candle is None:
-        return "missing_latest_candle"
+        return "missing_latest_candle", ("missing_latest_candle",)
     if not evaluation_input.indicator_boundary_aligned:
-        return "stale_indicator_snapshot"
+        return "stale_indicator_snapshot", ("stale_indicator_snapshot",)
     if evaluation_input.history_bars < sleeve.min_history_bars:
-        return "insufficient_history"
+        return "insufficient_history", ("insufficient_history",)
     if evaluation_input.instrument_key == "":
-        return "malformed_instrument_mapping"
+        return "malformed_instrument_mapping", ("malformed_instrument_mapping",)
+    missing_indicator_reasons = _missing_indicator_reason_codes(evaluation_input.indicator_snapshot)
+    if missing_indicator_reasons:
+        return "missing_indicator_field", missing_indicator_reasons
     return None
+
+
+def _missing_indicator_reason_codes(snapshot: IndicatorSnapshot) -> tuple[str, ...]:
+    required_fields = (
+        ("ema_5", "missing_ema5"),
+        ("ema_10", "missing_ema10"),
+        ("sma_20", "missing_sma20"),
+        ("rsi_14", "missing_rsi"),
+        ("macd", "missing_macd"),
+        ("macd_signal", "missing_macd_signal"),
+        ("macd_histogram", "missing_macd_histogram"),
+    )
+    reason_codes: list[str] = []
+    for field_name, reason_code in required_fields:
+        value = getattr(snapshot, field_name)
+        if value is None or not value.is_finite():
+            reason_codes.append(reason_code)
+    if not reason_codes:
+        return ()
+    return ("missing_indicator_field", *reason_codes, "invalid_indicator_snapshot")
 
 
 def _self_enabled(evaluation_input: StrategyEvaluationInput, sleeve: MoneyFlowSleeveConfig) -> bool:
@@ -233,13 +265,21 @@ def _money_flow_features(
     sleeve: MoneyFlowSleeveConfig,
     latest_close: float,
 ) -> dict[str, object]:
-    ema5 = float(snapshot.ema_5 or 0)
-    ema10 = float(snapshot.ema_10 or 0)
-    sma20 = float(snapshot.sma_20 or 0)
-    rsi = float(snapshot.rsi_14 or 0)
-    macd = float(snapshot.macd or 0)
-    macd_signal = float(snapshot.macd_signal or 0)
-    macd_hist = float(snapshot.macd_histogram or 0)
+    assert snapshot.ema_5 is not None
+    assert snapshot.ema_10 is not None
+    assert snapshot.sma_20 is not None
+    assert snapshot.rsi_14 is not None
+    assert snapshot.macd is not None
+    assert snapshot.macd_signal is not None
+    assert snapshot.macd_histogram is not None
+
+    ema5 = float(snapshot.ema_5)
+    ema10 = float(snapshot.ema_10)
+    sma20 = float(snapshot.sma_20)
+    rsi = float(snapshot.rsi_14)
+    macd = float(snapshot.macd)
+    macd_signal = float(snapshot.macd_signal)
+    macd_hist = float(snapshot.macd_histogram)
 
     bullish_alignment = ema5 > ema10 > sma20
     bearish_alignment_break = ema5 <= ema10 or ema10 <= sma20 or latest_close < ema10

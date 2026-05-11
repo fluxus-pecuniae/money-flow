@@ -5,7 +5,9 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import BaseModel, Field, computed_field
+from decimal import Decimal
+
+from pydantic import BaseModel, Field, computed_field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from core.config.profiles import (
@@ -540,7 +542,7 @@ class AppSettings(BaseSettings):
     sleeve_15m_enabled: bool = Field(default=True, alias="SLEEVE_15M_ENABLED")
     sleeve_15m_timeframe: Timeframe = Field(default=Timeframe.M15, alias="SLEEVE_15M_TIMEFRAME")
     sleeve_15m_capital_allocation_pct: float = Field(
-        default=0.34,
+        default=0.25,
         alias="SLEEVE_15M_CAPITAL_ALLOCATION_PCT",
     )
     sleeve_15m_max_open_risk_pct: float = Field(
@@ -551,7 +553,7 @@ class AppSettings(BaseSettings):
     sleeve_1h_enabled: bool = Field(default=True, alias="SLEEVE_1H_ENABLED")
     sleeve_1h_timeframe: Timeframe = Field(default=Timeframe.H1, alias="SLEEVE_1H_TIMEFRAME")
     sleeve_1h_capital_allocation_pct: float = Field(
-        default=0.33,
+        default=0.25,
         alias="SLEEVE_1H_CAPITAL_ALLOCATION_PCT",
     )
     sleeve_1h_max_open_risk_pct: float = Field(
@@ -562,13 +564,35 @@ class AppSettings(BaseSettings):
     sleeve_4h_enabled: bool = Field(default=True, alias="SLEEVE_4H_ENABLED")
     sleeve_4h_timeframe: Timeframe = Field(default=Timeframe.H4, alias="SLEEVE_4H_TIMEFRAME")
     sleeve_4h_capital_allocation_pct: float = Field(
-        default=0.33,
+        default=0.25,
         alias="SLEEVE_4H_CAPITAL_ALLOCATION_PCT",
     )
     sleeve_4h_max_open_risk_pct: float = Field(
         default=0.02,
         alias="SLEEVE_4H_MAX_OPEN_RISK_PCT",
     )
+    sleeve_1d_enabled: bool = Field(default=True, alias="SLEEVE_1D_ENABLED")
+    sleeve_1d_timeframe: Timeframe = Field(default=Timeframe.D1, alias="SLEEVE_1D_TIMEFRAME")
+    sleeve_1d_capital_allocation_pct: float = Field(
+        default=0.25,
+        alias="SLEEVE_1D_CAPITAL_ALLOCATION_PCT",
+    )
+    sleeve_1d_max_open_risk_pct: float = Field(
+        default=0.02,
+        alias="SLEEVE_1D_MAX_OPEN_RISK_PCT",
+    )
+
+    @model_validator(mode="after")
+    def validate_enabled_sleeve_allocation_budget(self) -> "AppSettings":
+        enabled_allocations = (
+            Decimal(str(self.sleeve_15m_capital_allocation_pct)) if self.sleeve_15m_enabled else Decimal("0"),
+            Decimal(str(self.sleeve_1h_capital_allocation_pct)) if self.sleeve_1h_enabled else Decimal("0"),
+            Decimal(str(self.sleeve_4h_capital_allocation_pct)) if self.sleeve_4h_enabled else Decimal("0"),
+            Decimal(str(self.sleeve_1d_capital_allocation_pct)) if self.sleeve_1d_enabled else Decimal("0"),
+        )
+        if sum(enabled_allocations) > Decimal("1.0"):
+            raise ValueError("enabled_sleeve_capital_allocation_pct_sum_exceeds_1_0")
+        return self
 
     money_flow_strategy_enabled: bool = Field(default=True, alias="MONEY_FLOW_STRATEGY_ENABLED")
 
@@ -672,6 +696,39 @@ class AppSettings(BaseSettings):
     money_flow_4h_close_on_macd_rollover: bool = Field(
         default=True,
         alias="MONEY_FLOW_4H_CLOSE_ON_MACD_ROLLOVER",
+    )
+    money_flow_1d_min_history_bars: int = Field(default=50, alias="MONEY_FLOW_1D_MIN_HISTORY_BARS")
+    money_flow_1d_rsi_floor: float = Field(default=46.0, alias="MONEY_FLOW_1D_RSI_FLOOR")
+    money_flow_1d_rsi_ceiling: float = Field(default=72.0, alias="MONEY_FLOW_1D_RSI_CEILING")
+    money_flow_1d_overbought_rsi: float = Field(default=78.0, alias="MONEY_FLOW_1D_OVERBOUGHT_RSI")
+    money_flow_1d_require_macd_confirmation: bool = Field(
+        default=True,
+        alias="MONEY_FLOW_1D_REQUIRE_MACD_CONFIRMATION",
+    )
+    money_flow_1d_allow_pullback_entries: bool = Field(
+        default=True,
+        alias="MONEY_FLOW_1D_ALLOW_PULLBACK_ENTRIES",
+    )
+    money_flow_1d_allow_continuation_entries: bool = Field(
+        default=True,
+        alias="MONEY_FLOW_1D_ALLOW_CONTINUATION_ENTRIES",
+    )
+    money_flow_1d_max_extension_pct_above_ema5: float = Field(
+        default=0.03,
+        alias="MONEY_FLOW_1D_MAX_EXTENSION_PCT_ABOVE_EMA5",
+    )
+    money_flow_1d_trim_on_overbought_rsi: bool = Field(
+        default=True,
+        alias="MONEY_FLOW_1D_TRIM_ON_OVERBOUGHT_RSI",
+    )
+    money_flow_1d_trim_rsi: float = Field(default=84.0, alias="MONEY_FLOW_1D_TRIM_RSI")
+    money_flow_1d_close_on_ma_break: bool = Field(
+        default=True,
+        alias="MONEY_FLOW_1D_CLOSE_ON_MA_BREAK",
+    )
+    money_flow_1d_close_on_macd_rollover: bool = Field(
+        default=True,
+        alias="MONEY_FLOW_1D_CLOSE_ON_MACD_ROLLOVER",
     )
 
     @property
@@ -971,6 +1028,13 @@ class AppSettings(BaseSettings):
                 capital_allocation_pct=self.sleeve_4h_capital_allocation_pct,
                 max_open_risk_pct=self.sleeve_4h_max_open_risk_pct,
             ),
+            SleeveConfig(
+                sleeve_id="sleeve_1d",
+                timeframe=self.sleeve_1d_timeframe,
+                enabled=self.sleeve_1d_enabled,
+                capital_allocation_pct=self.sleeve_1d_capital_allocation_pct,
+                max_open_risk_pct=self.sleeve_1d_max_open_risk_pct,
+            ),
         ]
 
     @property
@@ -1032,6 +1096,23 @@ class AppSettings(BaseSettings):
                     trim_rsi=self.money_flow_4h_trim_rsi,
                     close_on_ma_break=self.money_flow_4h_close_on_ma_break,
                     close_on_macd_rollover=self.money_flow_4h_close_on_macd_rollover,
+                ),
+                MoneyFlowSleeveConfig(
+                    sleeve_id="sleeve_1d",
+                    timeframe=self.sleeve_1d_timeframe,
+                    enabled=self.sleeve_1d_enabled,
+                    min_history_bars=self.money_flow_1d_min_history_bars,
+                    rsi_floor=self.money_flow_1d_rsi_floor,
+                    rsi_ceiling=self.money_flow_1d_rsi_ceiling,
+                    overbought_rsi=self.money_flow_1d_overbought_rsi,
+                    require_macd_confirmation=self.money_flow_1d_require_macd_confirmation,
+                    allow_pullback_entries=self.money_flow_1d_allow_pullback_entries,
+                    allow_continuation_entries=self.money_flow_1d_allow_continuation_entries,
+                    max_extension_pct_above_ema5=self.money_flow_1d_max_extension_pct_above_ema5,
+                    trim_on_overbought_rsi=self.money_flow_1d_trim_on_overbought_rsi,
+                    trim_rsi=self.money_flow_1d_trim_rsi,
+                    close_on_ma_break=self.money_flow_1d_close_on_ma_break,
+                    close_on_macd_rollover=self.money_flow_1d_close_on_macd_rollover,
                 ),
             ),
         )

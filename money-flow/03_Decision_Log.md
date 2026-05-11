@@ -2,6 +2,20 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-11T20:34:00Z - Historical Replay - 5EMA/20MA Cross-Close Variant Added
+
+- `decision`: Add `Only close on 5/20 cross` as a research-only Historical Replay strategy and keep it out of production Money Flow rules.
+- `scope`: The replay summary now includes OG replay/strategy, MACD removed, and Only close on 5/20 cross rows across BTC/ETH/SOL and available 15m/1h/4h/1D dashboard views. The new variant keeps baseline entry checks but waits for EMA5 to cross below SMA20 before close validation instead of closing solely because price closed below SMA20.
+- `result`: The dashboard replay-strategy dropdown can switch to the new variant, the PT0.0.3 loader keeps 1D visible by preserving the first/latest summary payload, and chart arrows can optionally hide entry/exit descriptions and show only PnL.
+- `follow_up_implications`: Founder review can visually compare the new close rule hypothesis before any future strategy-design decision. Production Money Flow rules, order behavior, live trading boundaries, and sandbox execution plumbing remain unchanged.
+
+## 2026-05-11T21:27:44Z - SV2.0 - 1D Sleeve Added And Expanded Public-Mainnet Evidence Refreshed
+
+- `decision`: Add `sleeve_1d` as a real first-class Money Flow sleeve and update the strategy version to Money Flow v1.2.
+- `scope`: Existing 15m/1h/4h settings remain unchanged. The new 1D baseline is non-optimized: 50 bars, RSI 46-72, overbought 78, trim 84, max EMA5 extension 3.0%, and MACD required. The requested BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX/SHIB universe is resolved through Hyperliquid public mainnet metadata, with SHIB explicitly mapped to `kSHIB`.
+- `result`: Public mainnet `candleSnapshot` rows were fetched for supported symbols across 15m/1h/4h/1D. 4h and 1D reach the Jan 2025 target; 15m and 1h are limited by Hyperliquid public recent-candle availability and carry `hyperliquid_public_5000_candle_limit`. Compact dynamic-equity evidence rows and dashboard readiness are available in `docs/sv2_0_historical_data_refresh_summary.json`.
+- `follow_up_implications`: A later SV2.x phase may generate full ignored evidence packs and/or DB-backed candle imports after artifact policy is confirmed. SV2.0 submits no orders, calls no private/signed/order endpoints, uses no API keys, uses no testnet data as strategy truth, and does not optimize parameters.
+
 ## 2026-05-11T17:40:05Z - PT0.0.3 - 1D Replay Is Aggregated Horizon View, Not New Strategy Sleeve
 
 - `decision`: Add `1D` to the Historical Replay cockpit as a deterministic historical-data horizon view while keeping production Money Flow sleeves unchanged.
@@ -596,3 +610,10 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `why`: The founder wants to monitor Money Flow behavior in real time this week with real charting, paper-equity truth, Hyperliquid sandbox confirmation, and broader supported-asset scanner visibility while preserving no-live and no-real-capital boundaries.
 - `rejected_alternatives`: Enabling live trading; using live exchange API keys; real-capital trading; production auto-submit; unbounded automation; smart routing/SOR/fanout/CBBO; cross-venue routing; changing Money Flow rules; strategy optimization; market-making; submitting unsupported assets; adding a general live order button.
 - `follow_up_implications`: PT0.1 may be scoped as a supervised top-20 paper/sandbox runtime week. It must keep live trading, real-capital trading, live endpoints, cross-venue routing, SOR/fanout/CBBO, unsupported-asset routing, and Money Flow rule changes blocked unless a separate explicit phase approves them.
+
+## 2026-05-11T23:12:00Z - SV2.0.1 - Compact SV2 Rows Are Not Canonical Evidence
+
+- `decision`: Treat SV2 compact staged rows as provisional/noncanonical until refreshed public candles pass the canonical hardened DB import/upsert path and the strategy-validation evidence-pack machinery produces non-empty pack paths. Normalize Hyperliquid public close timestamps to canonical close slots, force-close dataset-end compact open positions with entry-fee accounting, split staged/imported/evidence-ready truth, set four-sleeve runtime allocations to 0.25 each, canonicalize internal `1d`, and reject missing indicators instead of defaulting them to zero.
+- `why`: SOR-EV1 and stop-loss/strategy-variant evidence need clean baseline truth. Silent open-position omission, `.999Z` close slots, staged data reported as imported, allocation sums above 100%, mixed `1D`/`1d` joins, and zero-defaulted missing indicators could make evidence conclusions misleading.
+- `rejected_alternatives`: Calling compact rows canonical evidence; treating fetched/staged JSON as DB import; leaving dataset-end open positions silent; relying on Hyperliquid raw `.999Z` close timestamps; reducing independent evidence scenarios to 2,500 USDC because runtime sleeves are 0.25 each; allowing missing indicators to trigger false close/reduce behavior; starting SOR-EV1 in the same phase.
+- `follow_up_implications`: SOR-EV1 remains blocked unless canonical SV2 evidence packs are generated from DB-imported hardened candle data or a separate explicit decision accepts staged compact rows as noncanonical exploratory input. No orders, private/signed/order endpoints, API keys, testnet strategy truth, live trading, SOR/fanout/CBBO, variants, or parameter optimization were added.

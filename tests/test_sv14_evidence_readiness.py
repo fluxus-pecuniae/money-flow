@@ -115,6 +115,8 @@ def test_canonical_research_campaign_configs_parse_successfully() -> None:
         if "first_evidence_data_plan" not in path.read_text(encoding="utf-8")
         and "supported_venues_public_candle_readiness_data_plan"
         not in path.read_text(encoding="utf-8")
+        and "sv2_0_public_historical_refresh_and_evidence_rebuild"
+        not in path.read_text(encoding="utf-8")
     ]
 
     assert {path.name for path in config_paths} == {

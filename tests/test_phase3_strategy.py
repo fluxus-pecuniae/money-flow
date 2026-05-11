@@ -549,6 +549,54 @@ def test_money_flow_reduce_and_hold_paths_with_existing_position() -> None:
     assert hold_result[0].signal_event is None
 
 
+def test_missing_indicator_fields_do_not_default_to_zero_or_false_close_open_position() -> None:
+    settings = build_settings()
+    session_factory = build_test_session_factory()
+    instrument_ref_id, symbol_id, _ = seed_symbol(session_factory)
+    seed_candles(
+        session_factory,
+        instrument_ref_id=instrument_ref_id,
+        symbol_id=symbol_id,
+        symbol="BTC",
+        timeframe=Timeframe.H1,
+        closes=bullish_closes(),
+    )
+    seed_open_position(
+        session_factory,
+        instrument_ref_id=instrument_ref_id,
+        symbol_id=symbol_id,
+        symbol="BTC",
+    )
+    indicator_service = DefaultIndicatorService(settings, session_factory=session_factory)
+    asyncio.run(indicator_service.refresh_snapshots(instrument_ref_id, "BTC", "hyperliquid", Timeframe.H1.value))
+    with session_factory() as session:
+        latest_snapshot = session.scalars(
+            select(IndicatorSnapshotModel)
+            .where(IndicatorSnapshotModel.symbol == "BTC")
+            .where(IndicatorSnapshotModel.timeframe == Timeframe.H1)
+            .order_by(IndicatorSnapshotModel.as_of.desc())
+        ).first()
+        assert latest_snapshot is not None
+        latest_snapshot.rsi_14 = None
+        latest_snapshot.macd = None
+        latest_snapshot.ema_5 = None
+        session.commit()
+
+    engine = build_engine(settings, session_factory)
+    result = asyncio.run(engine.evaluate_sleeve("sleeve_1h", symbols=["BTC"]))
+
+    decision = result[0].decision
+    assert decision.status == StrategyDecisionStatus.INVALID
+    assert decision.action == DecisionAction.NOOP
+    assert decision.reason_code == "missing_indicator_field"
+    assert decision.features["status"] == "invalid"
+    assert "missing_rsi" in decision.features["reason_codes"]
+    assert "missing_macd" in decision.features["reason_codes"]
+    assert "missing_ema5" in decision.features["reason_codes"]
+    assert result[0].signal_event is not None
+    assert result[0].signal_event.reason_code == "missing_indicator_field"
+
+
 def test_strategy_persistence_and_api_inspection() -> None:
     settings = build_settings(
         MONEY_FLOW_15M_RSI_CEILING=90.0,

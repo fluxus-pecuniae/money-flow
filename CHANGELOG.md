@@ -13,6 +13,168 @@ Entry schema:
 
 ---
 
+## v2026.05.11.021
+
+- `recorded_at_utc`: `2026-05-11T23:01:36Z`
+- `scope`: `SV2.0.1 canonical evidence truth, 1D data/runtime hotfix, and repo hygiene`
+- `intent`: `Native entry. Fixed SV2 evidence truth issues before SOR-EV1 by normalizing Hyperliquid public candle close slots to exact canonical timeframe boundaries, separating fetched/normalized/staged data from DB-imported/canonical-evidence-ready data, blocking canonical evidence status when only compact staged rows exist, adding dataset-end force-close/MTM accounting and entry-fee-at-open accounting to compact SV2 rows, setting four-sleeve runtime allocation defaults to 0.25 each with enabled-sum validation, canonicalizing internal 1D timeframe to 1d while keeping dashboard display label 1D, and rejecting missing Money Flow EMA/RSI/MACD fields instead of defaulting them to zero. Existing 15m/1h/4h strategy rule settings remain unchanged. No orders, private/signed/order endpoints, API keys, testnet strategy truth, live trading, SOR/fanout/CBBO/target reselection, strategy variants, or parameter optimization were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `KNOWN_ISSUES.md`
+  - `core/config/settings.py`
+  - `services/strategy/money_flow.py`
+  - `services/strategy_validation/sv2.py`
+  - `scripts/run_sv20_historical_refresh.py`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/sv2_0_historical_data_refresh_summary.json`
+  - `docs/sv2_0_historical_data_refresh_1d_and_expanded_universe_readiness.md`
+  - `docs/sv2_0_money_flow_1d_sleeve_expanded_universe_evidence_rebuild.md`
+  - `docs/sv2_0_1_canonical_evidence_truth_hotfix.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `tests/conftest.py`
+  - `tests/test_phase3_strategy.py`
+  - `tests/test_sv20_money_flow_1d_expanded_evidence.py`
+  - `tests/test_sv201_canonical_evidence_truth_hotfix.py`
+  - `tests/test_operational_docs.py`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python scripts/run_sv20_historical_refresh.py --fetch-public-data --output docs/sv2_0_historical_data_refresh_summary.json --timeout-seconds 20`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_sv201_canonical_evidence_truth_hotfix.py tests/test_sv20_money_flow_1d_expanded_evidence.py tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt002_historical_strategy_replay_cockpit.py tests/test_pt003_historical_data_horizon_1d.py`
+  - `.venv/bin/python -m pytest -q tests/test_config.py tests/test_dashboard_static_assets.py tests/test_phase34_mandates.py::test_runtime_context_bootstraps_default_mandate_hierarchy tests/test_sv14_evidence_readiness.py::test_canonical_research_campaign_configs_parse_successfully`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `package/build checks not run because no package.json exists in repo root`
+
+## v2026.05.11.020
+
+- `recorded_at_utc`: `2026-05-11T21:27:44Z`
+- `scope`: `SV2.0 Money Flow 1D sleeve, expanded Hyperliquid public data refresh, and evidence dashboard update`
+- `intent`: `Native entry. Added sleeve_1d as a first-class Money Flow v1.2 sleeve with initial non-optimized baseline settings while preserving the existing 15m/1h/4h sleeve settings. Added SV2.0 Hyperliquid public-mainnet metadata/candle refresh helpers and script, resolved the requested BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX/SHIB universe through public metadata, fetched public candleSnapshot data for supported symbols across 15m/1h/4h/1D to the Jan 2025 target where possible, recorded 5000-candle public-horizon limits, and wrote compact readiness/evidence summary JSON plus founder-readable SV2.0 reports. Updated the dashboard Historical Replay/Strategy views to surface Money Flow v1.2, sleeve_1d, expanded symbols, and SV2.0 readiness without using Hyperliquid testnet prices as strategy truth. No orders, private/signed/order endpoints, API keys, live trading, paper/live execution, SOR/fanout/CBBO/target reselection, or parameter optimization were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `core/config/settings.py`
+  - `services/strategy/money_flow.py`
+  - `services/strategy_validation/sv2.py`
+  - `scripts/run_sv20_historical_refresh.py`
+  - `configs/strategy_validation/campaigns/money_flow_sv2_0_hyperliquid_public_2025_expanded.json`
+  - `docs/sv2_0_historical_data_refresh_summary.json`
+  - `docs/sv2_0_historical_data_refresh_1d_and_expanded_universe_readiness.md`
+  - `docs/sv2_0_money_flow_1d_sleeve_expanded_universe_evidence_rebuild.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `KNOWN_ISSUES.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/pt0_0_3_historical_data_horizon_and_1d_readiness.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `tests/test_config.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_phase34_mandates.py`
+  - `tests/test_sv14_evidence_readiness.py`
+  - `tests/test_sv20_money_flow_1d_expanded_evidence.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python scripts/run_sv20_historical_refresh.py --fetch-public-data --output docs/sv2_0_historical_data_refresh_summary.json`
+  - `.venv/bin/python -m pytest -q tests/test_config.py tests/test_sv20_money_flow_1d_expanded_evidence.py`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py tests/test_config.py tests/test_sv20_money_flow_1d_expanded_evidence.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt002_historical_strategy_replay_cockpit.py tests/test_pt003_historical_data_horizon_1d.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase34_mandates.py::test_runtime_context_bootstraps_default_mandate_hierarchy tests/test_sv14_evidence_readiness.py::test_canonical_research_campaign_configs_parse_successfully`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv2.0-review.zip`
+  - `review bundle inspection confirmed SV2.0 files are present; .env/.venv/Git metadata/caches/nested review archives are excluded; broad secret-pattern hits were limited to .env.example placeholders and deterministic test fixture keys`
+
+## v2026.05.11.019
+
+- `recorded_at_utc`: `2026-05-11T20:58:00Z`
+- `scope`: `Historical Replay marker-click trade inspector polish`
+- `intent`: `Native entry. Wired Historical Replay TradingView marker clicks to select the linked replay trade in the Trade Inspector and improved the inspector layout with a selected-trade summary, net-PnL badge, entry/exit reason chips, indicator tiles, and cost/equity sections. Trade table row clicks now update the inspector/equity/table selection without forcing a full chart/dashboard rebuild. This is dashboard visualization only and adds no orders, order controls, private/signed/order endpoints, live endpoint use, exchange API keys, Money Flow production rule changes, routing behavior, or evidence packs.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `tests/test_pt002_historical_strategy_replay_cockpit.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_pt002_historical_strategy_replay_cockpit.py tests/test_dashboard_static_assets.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `git diff --check`
+
+## v2026.05.11.018
+
+- `recorded_at_utc`: `2026-05-11T20:34:00Z`
+- `scope`: `Historical Replay 5EMA/20MA cross-close research variant, 1D loader fix, and arrow-description toggle`
+- `intent`: `Native entry. Added a research-only Historical Replay strategy named Only close on 5/20 cross. It keeps baseline entry checks and waits for EMA5 to cross below SMA20 before close validation instead of closing solely because price closed below SMA20. Regenerated PT0.0.2 and PT0.0.3 replay summary JSON so the variant is available across BTC/ETH/SOL 15m/1h/4h and aggregated 1D dashboard views. Fixed the dashboard loader so the PT0.0.3 summary is not overwritten by the older PT0.0.2 fallback, restoring visible 1D selection. Added a simple Historical Replay checkbox that lets the founder hide arrow descriptions and display only PnL. This is historical replay visualization/research only and adds no orders, order controls, private/signed/order endpoints, live endpoint use, exchange API keys, production Money Flow rule changes, routing behavior, or evidence packs.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `docs/pt0_0_2_historical_strategy_replay_cockpit.md`
+  - `docs/pt0_0_2_historical_strategy_replay_summary.json`
+  - `docs/pt0_0_3_historical_data_horizon_and_1d_readiness.md`
+  - `docs/pt0_0_3_historical_strategy_replay_summary.json`
+  - `services/strategy_validation/historical_replay.py`
+  - `tests/test_pt002_historical_strategy_replay_cockpit.py`
+  - `tests/test_pt003_historical_data_horizon_1d.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall services/strategy_validation apps/dashboard tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_pt002_historical_strategy_replay_cockpit.py tests/test_pt003_historical_data_horizon_1d.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `git diff --check`
+
 ## v2026.05.11.017
 
 - `recorded_at_utc`: `2026-05-11T17:40:05Z`

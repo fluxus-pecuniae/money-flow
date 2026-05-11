@@ -99,6 +99,9 @@ REQUIRED_FILES = [
     "docs/pt0_0_2_historical_strategy_replay_summary.json",
     "docs/pt0_0_3_historical_data_horizon_and_1d_readiness.md",
     "docs/pt0_0_3_historical_strategy_replay_summary.json",
+    "docs/sv2_0_historical_data_refresh_1d_and_expanded_universe_readiness.md",
+    "docs/sv2_0_money_flow_1d_sleeve_expanded_universe_evidence_rebuild.md",
+    "docs/sv2_0_1_canonical_evidence_truth_hotfix.md",
 ]
 
 
@@ -147,23 +150,25 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "canonical Obsidian command center" in command_center
-    assert "`PT0.0.3` Historical Data Horizon + 1D Replay Support is complete" in current_phase
+    assert "`SV2.0.1` Canonical Evidence Truth + 1D Data/Runtime Hotfix is complete" in current_phase
     assert "SV1.18" in command_center
     assert "UAT0" in command_center
     assert "UAT1 public read-only connectivity is complete" in command_center
-    assert "UAT2 no-order shadow observation is complete" in command_center
+    assert "UAT2 no-order shadow observation" in command_center
     assert "UAT2.1 dashboard visualization is complete" in command_center
     assert "UAT3.0.6 sandbox submit path dry-run wiring" in command_center
     assert "UAT3.1 first sandbox/testnet lifecycle probe is complete" in command_center
     assert "UAT3.2 fixed-key readiness preflight" in command_center
-    assert "UAT3.4 is complete: the Hyperliquid testnet ETH route" in command_center
-    assert "UAT4.0 is complete" in command_center
-    assert "UAT4.1 is complete" in command_center
-    assert "UAT4.2 is complete" in command_center
-    assert "PT0 is complete" in command_center
-    assert "PT0.0.1 is complete" in command_center
-    assert "PT0.0.2 is complete" in command_center
-    assert "PT0.0.3 is complete" in command_center
+    assert "UAT3.4 fixed-target sandbox routing ledger" in command_center
+    assert "UAT4.0 read-only chart cockpit" in command_center
+    assert "UAT4.1 exchange-style dashboard redesign" in command_center
+    assert "UAT4.2 live-market/paper-equity monitoring" in command_center
+    assert "PT0 TradingView charts" in command_center
+    assert "PT0.0.1 chart stability hotfix" in command_center
+    assert "PT0.0.2 historical replay cockpit" in command_center
+    assert "PT0.0.3 historical data horizon" in command_center
+    assert "SV2.0 is complete" in command_center
+    assert "SV2.0.1 is complete" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
     assert "Strategy Validation" in moved_memory
@@ -185,6 +190,8 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "PT0 TradingView charting and top-20 paper/sandbox runtime foundation is complete" in moved_memory
     assert "PT0.0.2 historical strategy replay cockpit is complete" in moved_memory
     assert "PT0.0.3 historical data horizon and 1D replay support is complete" in moved_memory
+    assert "SV2.0 Money Flow 1D sleeve and expanded public-mainnet evidence refresh is complete" in moved_memory
+    assert "SV2.0.1 canonical evidence truth hotfix" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
 
@@ -199,7 +206,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
     assert (
-        "Current implemented milestone | `PT0.0.3` Historical Data Horizon + 1D Replay Support complete"
+        "Current implemented milestone | `SV2.0.1` Canonical Evidence Truth + 1D Data/Runtime Hotfix complete"
         in command_center
     )
     assert "Canonical command center" in compatibility_command_center
@@ -219,6 +226,8 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     assert "PT0.0.1 TradingView chart stability P0 hotfix is complete" in current_dashboard
     assert "PT0.0.2 historical strategy replay cockpit is complete" in current_dashboard
     assert "PT0.0.3 historical data horizon / 1D replay support is complete" in current_dashboard
+    assert "SV2.0" in current_dashboard
+    assert "SV2.0.1" in current_dashboard
     assert "Strategy Validation is now its own major track" in Path("money-flow/00 Maps/Phase Timeline.md").read_text()
     assert "What Strategy Validation Did" in sv_map
     assert "What Strategy Validation Did Not Prove" in sv_map
@@ -355,6 +364,9 @@ def test_uat0_operational_truth_is_current() -> None:
     pt001_report = Path("docs/pt0_0_1_tradingview_chart_stability_hotfix.md").read_text()
     pt002_report = Path("docs/pt0_0_2_historical_strategy_replay_cockpit.md").read_text()
     pt003_report = Path("docs/pt0_0_3_historical_data_horizon_and_1d_readiness.md").read_text()
+    sv20_readiness_report = Path("docs/sv2_0_historical_data_refresh_1d_and_expanded_universe_readiness.md").read_text()
+    sv20_evidence_report = Path("docs/sv2_0_money_flow_1d_sleeve_expanded_universe_evidence_rebuild.md").read_text()
+    sv201_report = Path("docs/sv2_0_1_canonical_evidence_truth_hotfix.md").read_text()
     current_notes = [
         Path("money-flow/00_Money_Flow_Command_Center.md").read_text(),
         Path("money-flow/01_Current_Phase.md").read_text(),
@@ -635,6 +647,19 @@ def test_uat0_operational_truth_is_current() -> None:
     assert "Hyperliquid testnet market data is not strategy truth" in pt003_report
     assert "No orders were submitted" in pt003_report
     assert "Money Flow rules are unchanged" in pt003_report
+    assert "SV2.0 Historical Data Refresh + 1D + Expanded Universe Readiness" in sv20_readiness_report
+    assert "SV2.0 Money Flow 1D Sleeve + Expanded Universe Evidence Rebuild" in sv20_evidence_report
+    assert "Money Flow v1.2" in sv20_evidence_report
+    assert "sleeve_1d" in sv20_evidence_report
+    assert "SHIB | kSHIB" in sv20_readiness_report
+    assert "Hyperliquid public mainnet" in sv20_readiness_report
+    assert "Testnet market data is not strategy truth" in sv20_evidence_report
+    assert "No orders were submitted" in sv20_readiness_report
+    assert "SV2.0.1 Canonical Evidence Truth Hotfix" in sv201_report
+    assert "compact_replay_rows_not_canonical_evidence" in sv201_report
+    assert "canonical_sv2_evidence_packs_missing" in sv201_report
+    assert "db_imported = false" in sv201_report
+    assert "Live trading is not approved" in sv201_report
 
     for note in current_notes:
         assert "UAT0" in note
@@ -664,6 +689,9 @@ def test_uat0_operational_truth_is_current() -> None:
             or "Additional exchange order submission is not approved" in note
             or "Live exchange order submission is not approved" in note
         )
+    for note in current_notes[:4]:
+        assert "SV2.0" in note
+        assert "SV2.0.1" in note
 
 
 def test_current_phase_handoff_and_coordination_are_closed() -> None:
@@ -680,7 +708,7 @@ def test_current_phase_handoff_and_coordination_are_closed() -> None:
 
     for note in (command_center, current_phase, current_dashboard):
         assert "SV1.18" in note
-        assert "SV1.18 is complete" in note
+        assert "SV2.0" in note
         assert "UAT0" in note
         assert "PAPER TRADING IS APPROVED." in note or "Paper trading is approved for Hyperliquid testnet/sandbox only" in note
         assert "Live trading is not approved" in note

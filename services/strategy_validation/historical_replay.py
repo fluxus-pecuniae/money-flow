@@ -36,6 +36,7 @@ PT003_DAILY_TIMEFRAME = "1D"
 PT003_DAILY_SOURCE_TIMEFRAME = "4h"
 PT002_BASELINE_STRATEGY_ID = "baseline_current_money_flow_rules"
 PT002_NO_MACD_STRATEGY_ID = "macd_removed_research_only"
+PT002_EMA5_SMA20_CROSS_CLOSE_STRATEGY_ID = "only_close_on_5_20_cross_research_only"
 PT002_STRATEGIES = (
     {
         "id": PT002_BASELINE_STRATEGY_ID,
@@ -54,7 +55,18 @@ PT002_STRATEGIES = (
         "research_only": True,
         "changes_production_rules": False,
     },
+    {
+        "id": PT002_EMA5_SMA20_CROSS_CLOSE_STRATEGY_ID,
+        "label": "Only close on 5/20 cross",
+        "description": (
+            "Research-only historical replay that keeps baseline entry checks but does not close "
+            "only because price closes below SMA20. Close validation waits for EMA5 to cross below SMA20."
+        ),
+        "research_only": True,
+        "changes_production_rules": False,
+    },
 )
+PT002_REPLAY_STRATEGY_IDS = tuple(row["id"] for row in PT002_STRATEGIES)
 _SLEEVE_PARAMS = {
     "sleeve_15m": {"overbought_rsi": Decimal("72"), "trim_rsi": Decimal("78"), "max_extension": Decimal("0.018")},
     "sleeve_1h": {"overbought_rsi": Decimal("74"), "trim_rsi": Decimal("80"), "max_extension": Decimal("0.02")},
@@ -624,8 +636,9 @@ def _fill_context(contexts: list[dict[str, Any]], signal_index: int, fill_assump
     return context, str(context.get("open")), str(context.get("candle_open_time") or _context_time(context))
 
 
-def _simulated_no_macd_trade(
+def _simulated_research_trade(
     *,
+    strategy_id: str,
     result: dict[str, Any],
     entry_context: dict[str, Any],
     entry_fill: tuple[dict[str, Any], str, str],
@@ -659,7 +672,7 @@ def _simulated_no_macd_trade(
     equity_after = equity_before + net_pnl
     payload = "|".join(
         [
-            PT002_NO_MACD_STRATEGY_ID,
+            strategy_id,
             str(symbol),
             str(timeframe),
             str(entry_fill[2]),
@@ -709,16 +722,42 @@ def _simulated_no_macd_trade(
         "forced_exit": forced_exit,
         "market_regime": entry_context.get("market_regime_label"),
         "source": "historical_replay",
-        "strategy_id": PT002_NO_MACD_STRATEGY_ID,
+        "strategy_id": strategy_id,
         "labels": {
             "historical_paper_replay": True,
             "not_live": True,
             "not_testnet_order": True,
             "not_real_capital": True,
-            "research_variant": PT002_NO_MACD_STRATEGY_ID,
+            "research_variant": strategy_id,
         },
     }
     return trade
+
+
+def _simulated_no_macd_trade(
+    *,
+    result: dict[str, Any],
+    entry_context: dict[str, Any],
+    entry_fill: tuple[dict[str, Any], str, str],
+    exit_context: dict[str, Any],
+    exit_fill: tuple[dict[str, Any], str, str],
+    entry_reason: str,
+    exit_reason: str,
+    equity_before: Decimal,
+    forced_exit: bool,
+) -> dict[str, Any]:
+    return _simulated_research_trade(
+        strategy_id=PT002_NO_MACD_STRATEGY_ID,
+        result=result,
+        entry_context=entry_context,
+        entry_fill=entry_fill,
+        exit_context=exit_context,
+        exit_fill=exit_fill,
+        entry_reason=entry_reason,
+        exit_reason=exit_reason,
+        equity_before=equity_before,
+        forced_exit=forced_exit,
+    )
 
 
 def _summary_from_trades(trades: list[dict[str, Any]], no_trade: Counter[str], invalid: Counter[str]) -> dict[str, Any]:
@@ -840,6 +879,141 @@ def _no_macd_replay_from_result(result: dict[str, Any]) -> dict[str, Any]:
         "strategy_id": PT002_NO_MACD_STRATEGY_ID,
         "strategy_label": _strategy_metadata(PT002_NO_MACD_STRATEGY_ID)["label"],
         "strategy_description": _strategy_metadata(PT002_NO_MACD_STRATEGY_ID)["description"],
+        "research_only": True,
+        "symbol": (result.get("request") or {}).get("symbol"),
+        "timeframe": result.get("timeframe"),
+        "component": ((result.get("request") or {}).get("component_keys") or ["unknown"])[0],
+        "candles": candles,
+        "indicators": [_indicator_from_context(context) for context in contexts],
+        "markers": _trade_markers(trades),
+        "trades": trades,
+        "equity_curve": _equity_curve(trades, candles[0]["time"] if candles else None),
+        "summary": summary,
+        "reason_counts": {
+            "entry_reason_counts": dict(
+                Counter(reason for trade in trades for reason in trade.get("entry_reason_codes", []))
+            ),
+            "exit_reason_counts": dict(
+                Counter(reason for trade in trades for reason in trade.get("exit_reason_codes", []))
+            ),
+            "no_trade_reason_counts": summary["no_trade_reason_counts"],
+            "invalid_reason_counts": summary["invalid_reason_counts"],
+        },
+        "data_source": PT002_SOURCE_KIND,
+        "strategy_truth_lane": "historical_strategy_truth",
+        "testnet_prices_used_as_strategy_truth": False,
+    }
+
+
+def _baseline_entry_rejection(context: dict[str, Any]) -> str | None:
+    status = str(context.get("baseline_status") or "")
+    reasons = [str(reason) for reason in (context.get("baseline_reason_codes") or []) if reason]
+    if status == "invalid":
+        return reasons[0] if reasons else "invalid"
+    if status == "proposed":
+        return None
+    return str(context.get("entry_rejection_reason") or (reasons[0] if reasons else "no_trade"))
+
+
+def _ema5_sma20_cross_exit_reason(
+    previous_context: dict[str, Any] | None,
+    context: dict[str, Any],
+) -> str | None:
+    if previous_context is None:
+        return None
+    previous_ema5 = _context_decimal(previous_context, "ema5")
+    previous_sma20 = _context_decimal(previous_context, "sma20")
+    ema5 = _context_decimal(context, "ema5")
+    sma20 = _context_decimal(context, "sma20")
+    if None in (previous_ema5, previous_sma20, ema5, sma20):
+        return None
+    assert previous_ema5 is not None and previous_sma20 is not None and ema5 is not None and sma20 is not None
+    if previous_ema5 >= previous_sma20 and ema5 < sma20:
+        return "ema5_sma20_bearish_cross_close"
+    return None
+
+
+def _ema5_sma20_cross_close_replay_from_result(result: dict[str, Any]) -> dict[str, Any]:
+    contexts = list(result.get("contexts") or [])
+    trades: list[dict[str, Any]] = []
+    no_trade: Counter[str] = Counter()
+    invalid: Counter[str] = Counter()
+    equity = Decimal(PT002_INITIAL_EQUITY)
+    open_entry: tuple[dict[str, Any], tuple[dict[str, Any], str, str], str, Decimal] | None = None
+    previous_context: dict[str, Any] | None = None
+    for index, context in enumerate(contexts):
+        if open_entry is not None:
+            exit_reason = _ema5_sma20_cross_exit_reason(previous_context, context)
+            if exit_reason is None:
+                previous_context = context
+                continue
+            exit_fill = _fill_context(contexts, index, PT002_DEFAULT_FILL_ASSUMPTION)
+            if exit_fill is None:
+                previous_context = context
+                continue
+            trade = _simulated_research_trade(
+                strategy_id=PT002_EMA5_SMA20_CROSS_CLOSE_STRATEGY_ID,
+                result=result,
+                entry_context=open_entry[0],
+                entry_fill=open_entry[1],
+                exit_context=context,
+                exit_fill=exit_fill,
+                entry_reason=open_entry[2],
+                exit_reason=exit_reason,
+                equity_before=open_entry[3],
+                forced_exit=False,
+            )
+            trades.append(trade)
+            equity = _decimal(trade.get("equity_after_trade"), equity) or equity
+            open_entry = None
+            previous_context = context
+            continue
+
+        reason = _baseline_entry_rejection(context)
+        if reason in {"insufficient_history", "invalid"}:
+            invalid[reason] += 1
+            previous_context = context
+            continue
+        if reason is not None:
+            no_trade[reason] += 1
+            previous_context = context
+            continue
+        fill = _fill_context(contexts, index, PT002_DEFAULT_FILL_ASSUMPTION)
+        if fill is None:
+            no_trade["open_signal_skipped_no_fill_candle_for_next_candle_open"] += 1
+            previous_context = context
+            continue
+        open_entry = (context, fill, "baseline_entry_allowed", equity)
+        previous_context = context
+
+    if open_entry is not None and contexts:
+        last_context = contexts[-1]
+        force_fill = (last_context, str(last_context.get("close")), str(_context_time(last_context)))
+        trade = _simulated_research_trade(
+            strategy_id=PT002_EMA5_SMA20_CROSS_CLOSE_STRATEGY_ID,
+            result=result,
+            entry_context=open_entry[0],
+            entry_fill=open_entry[1],
+            exit_context=last_context,
+            exit_fill=force_fill,
+            entry_reason=open_entry[2],
+            exit_reason="end_of_window_forced_close",
+            equity_before=open_entry[3],
+            forced_exit=True,
+        )
+        trades.append(trade)
+
+    max_equity = Decimal(PT002_INITIAL_EQUITY)
+    for trade in trades:
+        trade["drawdown_after_trade"] = _drawdown_after(trade.get("equity_after_trade"), max_equity)
+        max_equity = max(max_equity, _decimal(trade.get("equity_after_trade"), max_equity) or max_equity)
+
+    candles = [_candle_from_context(context) for context in contexts]
+    summary = _summary_from_trades(trades, no_trade, invalid)
+    return {
+        "strategy_id": PT002_EMA5_SMA20_CROSS_CLOSE_STRATEGY_ID,
+        "strategy_label": _strategy_metadata(PT002_EMA5_SMA20_CROSS_CLOSE_STRATEGY_ID)["label"],
+        "strategy_description": _strategy_metadata(PT002_EMA5_SMA20_CROSS_CLOSE_STRATEGY_ID)["description"],
         "research_only": True,
         "symbol": (result.get("request") or {}).get("symbol"),
         "timeframe": result.get("timeframe"),
@@ -1273,6 +1447,7 @@ def build_pt002_historical_replay_summary_from_sv117_payload(
             datasets.append(_dataset_from_result(result))
             replays.append(_replay_from_result(result))
             replays.append(_no_macd_replay_from_result(result))
+            replays.append(_ema5_sma20_cross_close_replay_from_result(result))
 
     comparison = [_comparison_from_replay(replay) for replay in replays]
     selected = next(
@@ -1417,7 +1592,7 @@ def build_pt003_historical_replay_summary_from_pt002_summary(
                     ),
                 )
             )
-            for strategy_id in (PT002_BASELINE_STRATEGY_ID, PT002_NO_MACD_STRATEGY_ID):
+            for strategy_id in PT002_REPLAY_STRATEGY_IDS:
                 replay = source_lookup.get((strategy_id, symbol, timeframe))
                 if replay:
                     replay = deepcopy(replay)
@@ -1425,7 +1600,7 @@ def build_pt003_historical_replay_summary_from_pt002_summary(
                     replays.append(replay)
 
         first_daily_replay: dict[str, Any] | None = None
-        for strategy_id in (PT002_BASELINE_STRATEGY_ID, PT002_NO_MACD_STRATEGY_ID):
+        for strategy_id in PT002_REPLAY_STRATEGY_IDS:
             source_replay = source_lookup.get((strategy_id, symbol, PT003_DAILY_SOURCE_TIMEFRAME))
             if not source_replay:
                 continue

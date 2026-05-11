@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-11T14:18:00Z`
+Last reviewed: `2026-05-11T21:27:44Z`
 
 ## Top-Level Structure
 
@@ -62,6 +62,7 @@ Last reviewed: `2026-05-11T14:18:00Z`
 - SV1.16.1 hardens replay methodology truth by adding explicit production-rule-in-replay-state field semantics, variant-divergence metadata, and separated production-rule rejection / variant-admitted-from-rejection / variant no-trade counters without changing production Money Flow rules.
 - SV1.17 adds true replay experiment reporting for lower-RSI plus market-structure variants, expanded to the full Hyperliquid public BTC/ETH/SOL x 15m/1h/4h matrix under `dynamic_equity_pct`. It does not alter campaign configs, production Money Flow rules, paper/live behavior, routing, or execution.
 - SV1.18 closes the current evidence cycle and freezes exactly one UAT observation candidate, Hyperliquid ETH `sleeve_1h` baseline current rules, while excluding 15m/4h/lower-RSI/market-structure/cross-venue candidates from current UAT scope. It is closeout and UAT planning only, not a campaign config change, import, evidence-pack generation, paper/live approval, routing, or execution.
+- SV2.0 adds `configs/strategy_validation/campaigns/money_flow_sv2_0_hyperliquid_public_2025_expanded.json`, the Money Flow v1.2 expanded public-mainnet evidence config. It covers BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, AVAX, and SHIB across `sleeve_15m`, `sleeve_1h`, `sleeve_4h`, and `sleeve_1d`, records the Jan 2025 target start, uses `dynamic_equity_pct`, and explicitly keeps testnet data out of strategy truth.
 - SV1.11 adds `configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json`, an offline/manual manifest for research-only BTC/ETH/SOL Hyperliquid perpetual USDC `instruments` and `symbols` rows required before candle imports. SV1.11.1 marks the example as requiring operator verification before non-dry-run writes, SV1.11.2 keeps the research seed non-trading by rejecting true strategy/trading eligibility, and the 2026-05-05 SV1.12.x research pass updates the manifest with public Hyperliquid `meta`-verified asset ids, size decimals, leverage, margin table ids, and derived tick/step values while leaving operator verification and trading/strategy eligibility false.
 
 `money-flow/`
@@ -153,8 +154,9 @@ Last reviewed: `2026-05-11T14:18:00Z`
 - UAT4.2 wires the cockpit to `docs/uat4_2_live_market_dashboard_and_paper_equity_monitor_summary.json`, showing refreshed public-read-only market data, deterministic indicators, paper-observation markers, internal paper-equity state, sandbox balance-poll policy, and explicit positions/unavailable-state visibility. It still adds no order, cancel, retry, amend, approval, live, route, or auto-trade controls.
 - PT0 adds the official local TradingView Lightweight Charts bundle for the UAT/PT cockpit and browser-side Hyperliquid testnet public candle polling.
 - PT0.0.1 stabilizes the TradingView chart by bounding chart height, containing parent chart layout, reusing chart/series handles across 15-second public refreshes, removing the `autoSize` / ResizeObserver `applyOptions` feedback-loop risk, limiting `fitContent()` to new symbol/timeframe initialization, and adding query flags to disable public polling while using local PT0/UAT4.2 JSON fallback. It adds no order controls and calls no private/signed/order/live endpoints.
-- PT0.0.2 adds a separate `Historical Replay` tab. It loads `docs/pt0_0_2_historical_strategy_replay_summary.json`, renders historical BTC/ETH/SOL replay candles through TradingView Lightweight Charts, overlays EMA5/EMA10/SMA20 and historical entry/exit markers, shows a trade inspector, dynamic 10,000 USDC equity panel, BTC/ETH/SOL comparison table, and keeps the UAT3.4 sandbox execution ledger separate. The tab now includes a replay-strategy dropdown for `OG replay / strategy` and research-only `MACD removed` across all BTC/ETH/SOL x 15m/1h/4h combinations. Historical/mainnet public candle replay data is strategy truth; Hyperliquid testnet prices are not strategy truth.
-- PT0.0.3 updates `Historical Replay` to prefer `docs/pt0_0_3_historical_strategy_replay_summary.json`, adds `1D` timeframe selection, displays Jan 2025 target-start data-horizon truth, and labels 1D as deterministic aggregation from 4h historical replay candles rather than a new production Money Flow sleeve. The dashboard still has no order controls and does not call private/signed/order/live endpoints.
+- PT0.0.2 adds a separate `Historical Replay` tab. It loads historical replay summaries, renders historical BTC/ETH/SOL replay candles through TradingView Lightweight Charts, overlays EMA5/EMA10/SMA20 and historical entry/exit markers, shows a trade inspector, dynamic 10,000 USDC equity panel, BTC/ETH/SOL comparison table, and keeps the UAT3.4 sandbox execution ledger separate. The tab now includes a replay-strategy dropdown for `OG replay / strategy`, research-only `MACD removed`, and research-only `Only close on 5/20 cross` across all BTC/ETH/SOL x 15m/1h/4h combinations. Historical/mainnet public candle replay data is strategy truth; Hyperliquid testnet prices are not strategy truth.
+- PT0.0.3 updates `Historical Replay` to prefer `docs/pt0_0_3_historical_strategy_replay_summary.json`, keeps the PT0.0.3 payload from being overwritten by PT0.0.2 fallback data, adds `1D` timeframe selection, displays Jan 2025 target-start data-horizon truth, and labels 1D as deterministic aggregation from 4h historical replay candles rather than a new production Money Flow sleeve. The dashboard still has no order controls and does not call private/signed/order/live endpoints.
+- SV2.0 updates the dashboard Strategy and Historical Replay surfaces to display Money Flow v1.2, the real `sleeve_1d`, expanded Hyperliquid public-mainnet readiness/evidence rows, and explicit SHIB -> `kSHIB` alias truth from `docs/sv2_0_historical_data_refresh_summary.json`. Expanded symbols without full replay chart payloads are shown as readiness/evidence rows instead of being silently substituted with another chart. The dashboard still has no order controls and does not call private/signed/order/live endpoints.
 
 `docs/uat0_safety_security_runtime_hardening.md`
 - Founder/operator UAT0 safety, security, runtime, and operational-readiness audit.
@@ -302,7 +304,23 @@ Last reviewed: `2026-05-11T14:18:00Z`
 
 `docs/pt0_0_3_historical_strategy_replay_summary.json`
 - Dashboard-consumed PT0.0.3 historical replay summary.
-- Extends the PT0.0.2 trusted historical replay export with BTC/ETH/SOL x 15m/1h/4h/1D readiness rows, actual data horizon rows, 1D candles aggregated from 4h replay candles, strategy replay rows, indicators, markers, trades, equity curves, comparison rows, Jan 2025 target-start truth, and no-order/no-testnet-strategy-truth flags.
+- Extends the PT0.0.2 trusted historical replay export with BTC/ETH/SOL x 15m/1h/4h/1D readiness rows, actual data horizon rows, 1D candles aggregated from 4h replay candles, baseline/MACD-removed/5EMA-20MA-cross-close strategy replay rows, indicators, markers, trades, equity curves, comparison rows, Jan 2025 target-start truth, and no-order/no-testnet-strategy-truth flags.
+
+`docs/sv2_0_historical_data_refresh_summary.json`
+- Dashboard-consumed compact SV2.0/SV2.0.1 public-mainnet historical refresh and evidence-truth summary.
+- Contains Money Flow v1.2, `sleeve_1d` settings, requested/supported/excluded universe truth, Hyperliquid public mainnet source metadata, market identity rows, BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX/SHIB x 15m/1h/4h/1d readiness rows, canonical close-slot normalization, staged-vs-DB-imported flags, canonical-evidence blocked status, compact non-canonical dynamic-equity rows with final-open-position accounting, no-testnet-strategy-truth flags, and no-order/no-private-endpoint flags.
+
+`docs/sv2_0_historical_data_refresh_1d_and_expanded_universe_readiness.md`
+- Founder/operator SV2.0/SV2.0.1 historical-data readiness report.
+- Records the requested expanded universe, Hyperliquid market identity resolution including SHIB -> `kSHIB`, public mainnet candleSnapshot source, Jan 2025 target horizon, public 5000-candle limits, canonical close-slot normalization, staged-only truth, `db_imported=false`, canonical-evidence blocked status, and no-order/no-live boundaries.
+
+`docs/sv2_0_money_flow_1d_sleeve_expanded_universe_evidence_rebuild.md`
+- Founder/operator SV2.0/SV2.0.1 evidence rebuild report.
+- Records Money Flow v1.2, initial non-optimized `sleeve_1d` settings, preserved 15m/1h/4h settings, compact non-canonical dynamic-equity rows, dataset-end open-position accounting, canonical evidence blocked status, dashboard status, limitations, and next evidence-pack/DB-import follow-up.
+
+`docs/sv2_0_1_canonical_evidence_truth_hotfix.md`
+- Founder/operator SV2.0.1 hotfix report.
+- Records open-position accounting, Hyperliquid close-time normalization, canonical evidence status, import/staging truth, sleeve allocation budget, timeframe canonicalization, missing-indicator handling, SHIB/kSHIB status, no-order/no-live confirmation, and remaining blocker before SOR-EV1.
 
 `apps/dashboard/vendor/`
 - PT0 vendored third-party charting bundle from the official `lightweight-charts` package.
@@ -339,9 +357,18 @@ Last reviewed: `2026-05-11T14:18:00Z`
 
 `services/strategy_validation/historical_replay.py`
 - PT0.0.2 historical replay export helpers.
+- Adds research-only replay variants for MACD removed and `Only close on 5/20 cross` without changing production Money Flow rules.
 - Audits persisted strategy-validation candle availability when DB connectivity is available and builds the dashboard replay summary from the trusted SV1.17 historical full-suite baseline export. It labels historical candle replay data as strategy truth, marks Hyperliquid testnet prices as not strategy truth, generates baseline plus research-only MACD-removed historical markers/trades/equity curves, and creates no orders or exchange calls.
-- PT0.0.3 adds Jan 2025 target-start readiness helpers, 1D deterministic aggregation from 4h historical replay candles, actual horizon rows, and an export builder that does not create a production Money Flow 1D sleeve.
+- PT0.0.3 adds Jan 2025 target-start readiness helpers, 1D deterministic aggregation from 4h historical replay candles, actual horizon rows, and an export builder that did not create a production Money Flow 1D sleeve in that phase. SV2.0 later supersedes that state by adding the real `sleeve_1d` in strategy config and by loading direct Hyperliquid public-mainnet 1d readiness/evidence rows through the SV2.0 summary.
 - Defaults to no network calls, no credentials, no private/signed/order endpoints, no live endpoint, no order submissions, no SOR/fanout/CBBO/target reselection, and no trading artifacts.
+
+`services/strategy_validation/sv2.py`
+- SV2.0/SV2.0.1 Hyperliquid public-mainnet historical refresh helpers.
+- Resolves the requested expanded universe through public metadata, explicitly handles SHIB alias identity, builds public `candleSnapshot` requests for 15m/1h/4h/1d, normalizes Hyperliquid `.999Z` close times to canonical close slots while preserving raw venue close time, records Jan 2025 horizon/5000-candle-limit truth, separates fetched/normalized/staged/DB-imported/canonical-evidence flags, labels compact rows as non-canonical, and builds compact dynamic-equity rows with entry-fee-at-open plus dataset-end force-close/MTM accounting without calling private/signed/order/testnet endpoints or using API keys.
+
+`scripts/run_sv20_historical_refresh.py`
+- SV2.0/SV2.0.1 public-mainnet metadata/candle refresh script.
+- Writes `docs/sv2_0_historical_data_refresh_summary.json` when run with `--fetch-public-data`; default/no-network mode can still build blocked readiness from supplied metadata or empty metadata. The script targets only `https://api.hyperliquid.xyz/info` public info, refuses non-mainnet-public URL use, and records fetched/normalized/staged rows as `db_imported=false` until the hardened importer path is used.
 
 `scripts/refresh_pt0_runtime_summary.py`
 - Generates the committed PT0 dashboard/runtime summary from deterministic helpers plus existing UAT3.3/UAT3.4/UAT4.2 summaries.
@@ -358,6 +385,7 @@ Last reviewed: `2026-05-11T14:18:00Z`
 `core/config/`
 - Pydantic settings, environment profiles, runtime selection, and per-venue / strategy configuration.
 - UAT0.1 adds `APIAuthConfig` and `RuntimeSafetyPolicy` settings. Defaults remain fail-safe: API auth enabled, paper/live/order/private endpoint flags disabled, and sandbox mode required.
+- SV2.0 adds `sleeve_1d` and `MONEY_FLOW_1D_*` settings to the Money Flow strategy config. SV2.0.1 sets runtime sleeve allocations to 0.25 each and validates enabled allocation sum <= 1.0. Existing `sleeve_15m`, `sleeve_1h`, and `sleeve_4h` rule defaults remain unchanged.
 
 `core/security.py`
 - Security helper module for UAT/API hardening.
@@ -908,3 +936,9 @@ Last reviewed: `2026-05-11T14:18:00Z`
 
 `tests/test_pt003_historical_data_horizon_1d.py`
 - PT0.0.3 historical horizon checks: verifies Jan 2025 target-start truth, BTC/ETH/SOL x 15m/1h/4h/1D readiness rows, actual earliest-after-target reporting, labeled 1D aggregation from 4h, dynamic equity preservation, 1D replay export contents, dashboard data-horizon panel, no-testnet-strategy-truth boundary, and no-order/no-private-endpoint dashboard boundaries.
+
+`tests/test_sv20_money_flow_1d_expanded_evidence.py`
+- SV2.0/SV2.0.1 Money Flow 1D and expanded-universe checks: verifies Money Flow v1.2 includes `sleeve_1d`, existing 15m/1h/4h settings remain unchanged, internal SV2 timeframe is `1d` with display label `1D`, Hyperliquid public mainnet candle payloads stay public/read-only, SHIB alias resolution is explicit, readiness rows split staged data from DB-imported/canonical evidence truth, and dashboard/docs expose the expanded universe without order behavior.
+
+`tests/test_sv201_canonical_evidence_truth_hotfix.py`
+- SV2.0.1 canonical evidence truth hotfix checks: verifies Hyperliquid `.999Z` close times normalize to exact boundaries, staged-only data cannot report `imported=true`, compact rows force-close final open positions and count entry fees at open, compact rows cannot be labeled canonical evidence, runtime sleeve allocations are 0.25 each with sum validation, and internal/display timeframe canonicalization remains `1d`/`1D`.

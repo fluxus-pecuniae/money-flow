@@ -13,6 +13,8 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 | SV1.13-SV1.13.2 | First evidence + dynamic equity | Hyperliquid public evidence generated; ETH `sleeve_1h` was strongest observed pocket. |
 | SV1.14-SV1.17 | Diagnostics / replay experiments | Trade anatomy, market-structure diagnostics, completed-trade overlays, rejected-signal replay, and full-suite true replay experiments. Variants did not beat the ETH 1h baseline control pocket. |
 | SV1.18-SV1.18.1 | Closeout / UAT candidate freeze | ETH 1h baseline frozen for UAT observation; coordination handoff cleaned up. |
+| SV2.0 | 1D sleeve / expanded public-mainnet evidence refresh | Money Flow v1.2 adds real `sleeve_1d`; BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX/SHIB are resolved through Hyperliquid public mainnet metadata; SHIB maps to `kSHIB`; 15m/1h/4h/1D public candle readiness and compact dynamic-equity evidence are recorded. |
+| SV2.0.1 | Canonical evidence truth hotfix | Compact SV2 rows are explicitly noncanonical; dataset-end open positions are force-closed with entry-fee accounting; Hyperliquid close slots are normalized; staged/imported/canonical-evidence truth is separated; runtime allocations are 0.25 each; internal timeframe is `1d` with display label `1D`; missing indicators are invalid instead of zero. Canonical evidence packs remain blocked. |
 
 ## What Strategy Validation Proved
 
@@ -21,6 +23,8 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 - Dynamic-equity per-scenario simulation exists.
 - Lower-RSI variants did not beat ETH `sleeve_1h` baseline in the accepted true replay work.
 - 15m and 4h are excluded from current UAT candidate scope.
+- SV2.0 proves only that 1D is now represented as a baseline Money Flow sleeve and that expanded Hyperliquid public-mainnet readiness/evidence can be generated for the requested universe; it does not prove profitability.
+- SV2.0.1 proves evidence-truth guardrails are explicit; it does not generate canonical evidence packs.
 
 ## What Strategy Validation Did Not Prove
 
@@ -35,6 +39,8 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 - It did not model partial fills.
 - It did not model latency or outages.
 - It did not model live reject / cancel / fill reconciliation behavior.
+- SV2.0 did not optimize 1D parameters, approve live trading, submit orders, or generate full committed evidence-pack directories.
+- SV2.0.1 did not make compact staged rows canonical evidence, did not import staged candles into the DB, and did not unblock SOR-EV1 by itself.
 
 ## Current Candidate
 

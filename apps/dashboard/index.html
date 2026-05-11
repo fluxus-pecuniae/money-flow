@@ -223,6 +223,10 @@
               <span>Fill assumption</span>
               <select id="historical-replay-fill-filter"></select>
             </label>
+            <label class="checkbox-control" title="Toggle entry/exit reason text on chart arrows.">
+              <input id="historical-replay-arrow-descriptions-toggle" type="checkbox" checked>
+              <span>Show arrow descriptions</span>
+            </label>
           </div>
         </section>
 
@@ -249,7 +253,7 @@
           <aside class="historical-inspector-panel" aria-labelledby="historical-inspector-title">
             <div class="rail-heading">
               <h2 id="historical-inspector-title">Trade Inspector</h2>
-              <p>Click a row to inspect entry, exit, indicators, costs, and dynamic equity.</p>
+              <p>Click a chart arrow or trade row to inspect entry, exit, indicators, costs, and dynamic equity.</p>
             </div>
             <div id="historical-trade-inspector" class="market-micro-panel"></div>
           </aside>
@@ -600,7 +604,7 @@
         <section class="strategy-panel" aria-labelledby="strategy-map-title">
           <div class="section-heading">
             <h2 id="strategy-map-title">Strategy Logic</h2>
-            <p>Current Money Flow v1.1 rule flow, shown without changing rules.</p>
+            <p>Current Money Flow v1.2 rule flow, including the real 1D sleeve added in SV2.0.</p>
           </div>
 
           <div class="strategy-flow">
@@ -694,9 +698,19 @@
                     <td>2.5%</td>
                     <td>required</td>
                   </tr>
+                  <tr>
+                    <td>1D / sleeve_1d</td>
+                    <td>50 bars</td>
+                    <td>46-72</td>
+                    <td>78</td>
+                    <td>84</td>
+                    <td>3.0%</td>
+                    <td>required</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
+            <p class="strategy-note">SV2.0 adds `sleeve_1d` as an initial baseline, not an optimized parameter set. Existing 15m / 1h / 4h settings remain unchanged.</p>
           </article>
 
           <article class="strategy-card confidence-card">
@@ -720,6 +734,6 @@
     </main>
 
     <script src="./vendor/lightweight-charts.standalone.production.js?v=5.2.0"></script>
-    <script src="./evidence-dashboard.js?v=pt0"></script>
+    <script src="./evidence-dashboard.js?v=pt003-marker-click"></script>
   </body>
 </html>

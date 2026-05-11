@@ -33,6 +33,10 @@
     "../../docs/pt0_0_2_historical_strategy_replay_summary.json",
   ];
 
+  const DEFAULT_SV20_SUMMARY_FILES = [
+    "../../docs/sv2_0_historical_data_refresh_summary.json",
+  ];
+
   const HYPERLIQUID_TESTNET_PUBLIC_INFO_URL = "https://api.hyperliquid-testnet.xyz/info";
   const TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION = "5.2.0";
   const CHART_BACKGROUND_COLOR = "#10171b";
@@ -475,6 +479,7 @@
     uat42Summary: null,
     pt0Summary: null,
     pt002HistoricalReplay: null,
+    sv20Summary: null,
     tradingViewChart: {
       chart: null,
       mount: null,
@@ -496,6 +501,7 @@
       volumeSeries: null,
       indicatorSeries: {},
       markerHandle: null,
+      markerTradeIds: new Map(),
       key: null,
       ready: false,
       pendingResizeFrame: null,
@@ -540,6 +546,7 @@
       timeframe: "1h",
       fillAssumption: "next_candle_open",
       selectedTradeId: null,
+      showArrowDescriptions: true,
     },
   };
 
@@ -590,6 +597,7 @@
     historicalReplayTimeframeFilter: document.querySelector("#historical-replay-timeframe-filter"),
     historicalReplayFillFilter: document.querySelector("#historical-replay-fill-filter"),
     historicalReplayStrategyFilter: document.querySelector("#historical-replay-strategy-filter"),
+    historicalReplayArrowDescriptionsToggle: document.querySelector("#historical-replay-arrow-descriptions-toggle"),
     historicalReplaySourceStatus: document.querySelector("#historical-replay-source-status"),
     historicalReplayDataHorizonPanel: document.querySelector("#historical-data-horizon-panel"),
     historicalReplayChart: document.querySelector("#historical-replay-chart"),
@@ -1451,12 +1459,26 @@
     return Array.from(new Set(values.filter(Boolean))).sort((a, b) => String(a).localeCompare(String(b)));
   }
 
+  function canonicalTimeframe(value) {
+    const raw = String(value || "").trim();
+    return raw === "1D" ? "1d" : raw;
+  }
+
+  function displayTimeframe(value) {
+    const canonical = canonicalTimeframe(value);
+    return canonical === "1d" ? "1D" : canonical;
+  }
+
+  function sameTimeframe(left, right) {
+    return canonicalTimeframe(left) === canonicalTimeframe(right);
+  }
+
   function renderSelect(select, values, activeValue, labelAll) {
     if (!select) return;
     const normalized = values.map((value) =>
       typeof value === "object" && value !== null
         ? { value: value.value, label: value.label || value.value }
-        : { value, label: value },
+        : { value, label: displayTimeframe(value) },
     );
     select.innerHTML = [
       `<option value="all">${escapeHtml(labelAll)}</option>`,
@@ -2440,6 +2462,7 @@
     chartState.volumeSeries = null;
     chartState.indicatorSeries = {};
     chartState.markerHandle = null;
+    chartState.markerTradeIds = new Map();
     chartState.key = null;
     chartState.ready = false;
     chartState.lastVisibleRange = null;
@@ -2452,16 +2475,21 @@
   }
 
   function selectedHistoricalReplay() {
-    return historicalReplays().find(
+    const exact = historicalReplays().find(
       (row) =>
         (row.strategy_id || "baseline_current_money_flow_rules") === state.historicalReplay.strategyId &&
         row.symbol === state.historicalReplay.symbol &&
-        row.timeframe === state.historicalReplay.timeframe,
-    ) || historicalReplays()[0] || null;
+        sameTimeframe(row.timeframe, state.historicalReplay.timeframe),
+    );
+    if (exact) return exact;
+    if (!state.historicalReplay.symbol && !state.historicalReplay.timeframe) {
+      return historicalReplays()[0] || null;
+    }
+    return null;
   }
 
   function historicalReplayKey() {
-    return `${state.historicalReplay.strategyId}|${state.historicalReplay.symbol}|${state.historicalReplay.timeframe}|${state.historicalReplay.fillAssumption}`;
+    return `${state.historicalReplay.strategyId}|${state.historicalReplay.symbol}|${canonicalTimeframe(state.historicalReplay.timeframe)}|${state.historicalReplay.fillAssumption}`;
   }
 
   const HISTORICAL_PRICE_PANE = 0;
@@ -2561,8 +2589,16 @@
     return money(value);
   }
 
+  function historicalMarkerPnlLine(value) {
+    return `PnL: ${historicalMarkerPnl(value)}`;
+  }
+
   function historicalMarkerLines(replay, marker) {
     const trade = historicalTradeForMarker(replay, marker);
+    const pnlValue = trade?.net_pnl ?? marker?.net_pnl;
+    if (!state.historicalReplay.showArrowDescriptions) {
+      return [historicalMarkerPnlLine(pnlValue)];
+    }
     const markerReasons = Array.isArray(marker?.reason_codes) ? marker.reason_codes : [];
     const markerType = String(marker?.marker_type || "");
     const entryReasons = trade?.entry_reason_codes?.length
@@ -2580,11 +2616,22 @@
       parts.push(`Entry: ${historicalMarkerReasons(entryReasons, "n/a")}`);
     }
     parts.push(`Exit: ${historicalMarkerReasons(exitReasons, "n/a")}`);
-    parts.push(`Net PnL: ${historicalMarkerPnl(trade?.net_pnl ?? marker?.net_pnl)}`);
+    parts.push(`Net PnL: ${historicalMarkerPnl(pnlValue)}`);
     return parts;
   }
 
-  function historicalChartMarkers(replay, candles) {
+  function historicalMarkerObjectId(marker, parsed, index) {
+    const raw = [
+      marker?.trade_id || "no-trade",
+      marker?.marker_type || "marker",
+      parsed,
+      index,
+    ].join("-");
+    return `historical-marker-${raw.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+  }
+
+  function historicalChartMarkers(replay, candles, markerTradeIds = new Map()) {
+    markerTradeIds.clear();
     if (!candles.length) return [];
     const firstTime = candles[0].time;
     const lastTime = candles.at(-1).time;
@@ -2603,11 +2650,47 @@
         };
         return historicalMarkerLines(replay, marker).map((line, index) => ({
           ...markerBase,
+          id: historicalMarkerObjectId(marker, parsed, index),
           size: index === 0 ? 1 : 0,
           text: line,
-        }));
+        })).map((chartMarker) => {
+          if (marker.trade_id) {
+            markerTradeIds.set(chartMarker.id, marker.trade_id);
+          }
+          return chartMarker;
+        });
       })
       .filter(Boolean);
+  }
+
+  function lightweightChartTimeToUnix(value) {
+    if (value === null || value === undefined || value === "") return NaN;
+    if (Number.isFinite(value)) return Number(value);
+    if (value && typeof value === "object" && value.year && value.month && value.day) {
+      return Math.floor(Date.UTC(value.year, value.month - 1, value.day) / 1000);
+    }
+    return chartTime(value);
+  }
+
+  function historicalTradeIdFromChartClick(param, replay) {
+    const objectId = param?.hoveredObjectId || param?.hoveredObject?.id || null;
+    const mappedTradeId = objectId ? state.historicalReplayChart.markerTradeIds?.get(objectId) : null;
+    if (mappedTradeId) return mappedTradeId;
+    const clickedTime = lightweightChartTimeToUnix(param?.time);
+    if (!Number.isFinite(clickedTime)) return null;
+    const marker = (replay?.markers || []).find(
+      (row) => row.trade_id && chartTime(row.time) === clickedTime,
+    );
+    return marker?.trade_id || null;
+  }
+
+  function selectHistoricalReplayTrade(tradeId) {
+    if (!tradeId) return;
+    state.historicalReplay.selectedTradeId = tradeId;
+    const replay = selectedHistoricalReplay();
+    renderHistoricalTradeInspector(replay);
+    renderHistoricalEquityPanel(replay);
+    renderHistoricalTradesTable(replay);
   }
 
   function resizeHistoricalReplayChart() {
@@ -2678,7 +2761,9 @@
     chartState.indicatorSeries.MACD?.setData(historicalOscillatorRows(replay, "MACD"));
     chartState.indicatorSeries.MACD_signal?.setData(historicalOscillatorRows(replay, "MACD_signal"));
     chartState.indicatorSeries.MACD_histogram?.setData(historicalMacdHistogramRows(replay));
-    const markers = historicalChartMarkers(replay, candles);
+    const markerTradeIds = chartState.markerTradeIds || new Map();
+    const markers = historicalChartMarkers(replay, candles, markerTradeIds);
+    chartState.markerTradeIds = markerTradeIds;
     if (chartState.markerHandle && typeof chartState.markerHandle.setMarkers === "function") {
       chartState.markerHandle.setMarkers(markers);
     } else if (typeof chartState.candleSeries.setMarkers === "function") {
@@ -2715,7 +2800,7 @@
       <div class="tradingview-chart-topline">
         <div>
           <strong>${escapeHtml(state.historicalReplay.symbol)}-PERP historical replay</strong>
-          <span>${escapeHtml(replay.strategy_label || state.historicalReplay.strategyId)} / ${escapeHtml(state.historicalReplay.timeframe)} / ${escapeHtml(state.historicalReplay.fillAssumption)} / not testnet strategy truth</span>
+          <span>${escapeHtml(replay.strategy_label || state.historicalReplay.strategyId)} / ${escapeHtml(displayTimeframe(state.historicalReplay.timeframe))} / ${escapeHtml(state.historicalReplay.fillAssumption)} / not testnet strategy truth</span>
         </div>
         <div class="chart-price-tape">
           <span>Latest historical close</span>
@@ -2873,11 +2958,20 @@
     lineSeries.MACD_histogram = macdHistogram;
     applyHistoricalReplayPaneScale(chart, HISTORICAL_RSI_PANE);
     applyHistoricalReplayPaneScale(chart, HISTORICAL_MACD_PANE);
-    const markers = historicalChartMarkers(replay, candles);
+    chartState.markerTradeIds = new Map();
+    const markers = historicalChartMarkers(replay, candles, chartState.markerTradeIds);
     if (typeof tv.createSeriesMarkers === "function") {
       chartState.markerHandle = tv.createSeriesMarkers(candleSeries, markers);
     } else if (typeof candleSeries.setMarkers === "function") {
       candleSeries.setMarkers(markers);
+    }
+    if (typeof chart.subscribeClick === "function") {
+      chart.subscribeClick((param) => {
+        const tradeId = historicalTradeIdFromChartClick(param, replay);
+        if (tradeId) {
+          selectHistoricalReplayTrade(tradeId);
+        }
+      });
     }
     chart.timeScale().fitContent();
     chartState.chart = chart;
@@ -2898,8 +2992,15 @@
 
   function renderHistoricalReplayFilters() {
     const summary = state.pt002HistoricalReplay || {};
-    const symbols = Array.isArray(summary.symbols) ? summary.symbols : ["BTC", "ETH", "SOL"];
-    const timeframes = Array.isArray(summary.timeframes) ? summary.timeframes : ["15m", "1h", "4h"];
+    const sv20 = state.sv20Summary || {};
+    const symbols = Array.from(new Set([
+      ...(Array.isArray(summary.symbols) ? summary.symbols : ["BTC", "ETH", "SOL"]),
+      ...(Array.isArray(sv20.symbols) ? sv20.symbols : []),
+    ]));
+    const timeframes = Array.from(new Set([
+      ...(Array.isArray(summary.timeframes) ? summary.timeframes : ["15m", "1h", "4h", "1D"]),
+      ...(Array.isArray(sv20.timeframes) ? sv20.timeframes : []),
+    ].map(canonicalTimeframe)));
     const fills = Array.isArray(summary.fill_assumptions)
       ? summary.fill_assumptions.map((row) => row.id || row)
       : ["next_candle_open", "next_candle_close", "same_candle_close_research_only"];
@@ -2915,6 +3016,13 @@
     renderSelect(elements.historicalReplaySymbolFilter, symbols, state.historicalReplay.symbol, "Select symbol");
     renderSelect(elements.historicalReplayTimeframeFilter, timeframes, state.historicalReplay.timeframe, "Select timeframe");
     renderSelect(elements.historicalReplayFillFilter, fills, state.historicalReplay.fillAssumption, "Select fill");
+    if (elements.historicalReplayArrowDescriptionsToggle) {
+      elements.historicalReplayArrowDescriptionsToggle.checked = Boolean(state.historicalReplay.showArrowDescriptions);
+      elements.historicalReplayArrowDescriptionsToggle.onchange = () => {
+        state.historicalReplay.showArrowDescriptions = elements.historicalReplayArrowDescriptionsToggle.checked;
+        renderHistoricalReplay();
+      };
+    }
     if (elements.historicalReplayStrategyFilter) {
       elements.historicalReplayStrategyFilter.onchange = () => {
         state.historicalReplay.strategyId = elements.historicalReplayStrategyFilter.value === "all"
@@ -2937,7 +3045,7 @@
       elements.historicalReplayTimeframeFilter.onchange = () => {
         state.historicalReplay.timeframe = elements.historicalReplayTimeframeFilter.value === "all"
           ? "1h"
-          : elements.historicalReplayTimeframeFilter.value;
+          : canonicalTimeframe(elements.historicalReplayTimeframeFilter.value);
         state.historicalReplay.selectedTradeId = null;
         renderHistoricalReplay();
       };
@@ -2955,44 +3063,59 @@
   function renderHistoricalReplaySourceStatus(replay) {
     if (!elements.historicalReplaySourceStatus) return;
     const summary = state.pt002HistoricalReplay || {};
-    const dataset = (summary.datasets || []).find(
-      (row) => row.symbol === state.historicalReplay.symbol && row.timeframe === state.historicalReplay.timeframe,
-    );
+    const sv20Source = state.sv20Summary?.source || {};
+    const dataset = historicalReadinessForSelection();
     const warnings = dataset?.reason_codes || [];
     elements.historicalReplaySourceStatus.innerHTML = `
       <span>Replay strategy: ${escapeHtml(replay?.strategy_label || state.historicalReplay.strategyId)}</span>
       <span>Research-only: ${escapeHtml(replay?.research_only ? "yes" : "no")}</span>
-      <span>Source: ${escapeHtml(summary.source?.source_kind || "historical source not loaded")}</span>
+      <span>Money Flow version: ${escapeHtml(state.sv20Summary?.money_flow_version || "money_flow_v1_1 replay source")}</span>
+      <span>Source: ${escapeHtml(sv20Source.historical_strategy_truth || dataset?.source || summary.source?.source_kind || "historical source not loaded")}</span>
       <span>Target start: ${escapeHtml(summary.target_start_at || dataset?.target_start_at || "n/a")}</span>
-      <span>Range: ${escapeHtml(dataset?.start_time || "n/a")} -> ${escapeHtml(dataset?.end_time || "n/a")}</span>
+      <span>Range: ${escapeHtml(dataset?.start_time || dataset?.earliest_candle || "n/a")} -> ${escapeHtml(dataset?.end_time || dataset?.latest_candle || "n/a")}</span>
       <span>Target met: ${escapeHtml(dataset?.target_start_met ? "yes" : "no")}</span>
       <span>Coverage: ${escapeHtml(dataset?.target_coverage_percent ? pct(dataset.target_coverage_percent) : dataset?.coverage_percent || "n/a")}</span>
       <span>Candles: ${escapeHtml(dataset?.candle_count ?? replay?.candles?.length ?? 0)}</span>
       <span>Replay-ready: ${escapeHtml(dataset?.replay_ready ? "yes" : "no")}</span>
       <span>Aggregation: ${escapeHtml(dataset?.aggregation_used ? `from ${dataset.aggregation_source_timeframe || "lower timeframe"}` : "source candles")}</span>
       <span>Warnings: ${escapeHtml(warnings.slice(0, 3).join(", ") || "none")}</span>
-      <span>Testnet strategy truth: ${escapeHtml(summary.source?.testnet_prices_used_as_strategy_truth === false ? "false" : "unknown")}</span>
+      <span>Testnet strategy truth: ${escapeHtml(sv20Source.testnet_prices_used_as_strategy_truth === false || summary.source?.testnet_prices_used_as_strategy_truth === false ? "false" : "unknown")}</span>
     `;
+  }
+
+  function historicalReadinessRows() {
+    const ptRows = Array.isArray(state.pt002HistoricalReplay?.data_readiness)
+      ? state.pt002HistoricalReplay.data_readiness
+      : Array.isArray(state.pt002HistoricalReplay?.datasets)
+        ? state.pt002HistoricalReplay.datasets
+        : [];
+    const sv20Rows = Array.isArray(state.sv20Summary?.data_readiness)
+      ? state.sv20Summary.data_readiness
+      : [];
+    return [...sv20Rows, ...ptRows];
+  }
+
+  function historicalReadinessForSelection() {
+    return historicalReadinessRows().find(
+      (row) =>
+        (row.symbol || row.requested_symbol) === state.historicalReplay.symbol &&
+        sameTimeframe(row.timeframe, state.historicalReplay.timeframe),
+    );
   }
 
   function renderHistoricalDataHorizonPanel() {
     if (!elements.historicalReplayDataHorizonPanel) return;
     const summary = state.pt002HistoricalReplay || {};
-    const rows = Array.isArray(summary.data_readiness)
-      ? summary.data_readiness
-      : Array.isArray(summary.datasets)
-        ? summary.datasets
-        : [];
-    const selected = rows.find(
-      (row) => row.symbol === state.historicalReplay.symbol && row.timeframe === state.historicalReplay.timeframe,
-    );
+    const selected = historicalReadinessForSelection();
     if (!selected) {
       setEmpty(elements.historicalReplayDataHorizonPanel, "Historical data horizon is unavailable for this selection.");
       return;
     }
     const aggregationCopy = selected.aggregation_used
       ? `1D candles aggregated from ${selected.aggregation_source_timeframe || "lower timeframe"} historical replay data.`
-      : "Candles loaded from historical replay source.";
+      : selected.component === "sleeve_1d"
+        ? "SV2.0 treats 1D as a real Money Flow sleeve; source readiness is direct Hyperliquid public mainnet 1d candles when available."
+        : "Candles loaded from historical replay source.";
     elements.historicalReplayDataHorizonPanel.innerHTML = `
       <article>
         <span>Target start</span>
@@ -3001,12 +3124,12 @@
       </article>
       <article>
         <span>Earliest available</span>
-        <strong>${escapeHtml(selected.actual_earliest_available || selected.start_time || "missing")}</strong>
+        <strong>${escapeHtml(selected.actual_earliest_available || selected.start_time || selected.earliest_candle || "missing")}</strong>
         <small>${escapeHtml(selected.target_start_met ? "target_start_available" : "earliest_available_after_target")}</small>
       </article>
       <article>
         <span>Latest available</span>
-        <strong>${escapeHtml(selected.actual_latest_available || selected.end_time || "missing")}</strong>
+        <strong>${escapeHtml(selected.actual_latest_available || selected.end_time || selected.latest_candle || "missing")}</strong>
         <small>${escapeHtml(selected.replay_ready ? "replay_ready" : "data_missing")}</small>
       </article>
       <article>
@@ -3016,8 +3139,13 @@
       </article>
       <article class="${selected.aggregation_used ? "warning" : ""}">
         <span>Source</span>
-        <strong>${escapeHtml(selected.source_kind || selected.selected_data_source || "historical source")}</strong>
+        <strong>${escapeHtml(selected.source_kind || selected.selected_data_source || selected.source || "historical source")}</strong>
         <small>${escapeHtml(aggregationCopy)}</small>
+      </article>
+      <article>
+        <span>Component</span>
+        <strong>${escapeHtml(selected.component || "n/a")}</strong>
+        <small>${escapeHtml(state.sv20Summary?.money_flow_version || "Money Flow v1.1 replay")}</small>
       </article>
       <article class="wide">
         <span>Warnings</span>
@@ -3045,27 +3173,77 @@
     }
     const entry = trade.entry_indicators || {};
     const exit = trade.exit_indicators || {};
+    const entryReasons = Array.isArray(trade.entry_reason_codes) ? trade.entry_reason_codes : [];
+    const exitReasons = Array.isArray(trade.exit_reason_codes) ? trade.exit_reason_codes : [];
+    const reasonChips = (reasons, emptyLabel) => {
+      const values = reasons.map((reason) => String(reason || "").trim()).filter(Boolean);
+      if (!values.length) return `<span class="reason-chip muted">${escapeHtml(emptyLabel)}</span>`;
+      return values.map((reason) => `<span class="reason-chip">${escapeHtml(reason)}</span>`).join("");
+    };
+    const metricTile = (label, value, detail = "") => `
+      <article class="trade-inspector-metric">
+        <span>${escapeHtml(label)}</span>
+        <strong>${escapeHtml(value)}</strong>
+        ${detail ? `<small>${escapeHtml(detail)}</small>` : ""}
+      </article>
+    `;
+    const pnlClass = decimal(trade.net_pnl) >= 0 ? "positive" : "negative";
     elements.historicalTradeInspector.innerHTML = `
-      <dl class="micro-list">
-        <div><dt>Trade</dt><dd>${escapeHtml(trade.trade_id)}</dd></div>
-        <div><dt>Symbol / TF</dt><dd>${escapeHtml(trade.symbol)} ${escapeHtml(trade.timeframe)}</dd></div>
-        <div><dt>Side</dt><dd>${escapeHtml(trade.side || "n/a")}</dd></div>
-        <div><dt>Entry signal</dt><dd>${escapeHtml(trade.entry_signal_time || "n/a")}</dd></div>
-        <div><dt>Entry fill</dt><dd>${escapeHtml(trade.entry_fill_time || "n/a")} @ ${escapeHtml(compactNumber(trade.entry_price))}</dd></div>
-        <div><dt>Exit signal</dt><dd>${escapeHtml(trade.exit_signal_time || "n/a")}</dd></div>
-        <div><dt>Exit fill</dt><dd>${escapeHtml(trade.exit_fill_time || "n/a")} @ ${escapeHtml(compactNumber(trade.exit_price))}</dd></div>
-        <div><dt>Entry reasons</dt><dd>${escapeHtml((trade.entry_reason_codes || []).join(", "))}</dd></div>
-        <div><dt>Exit reasons</dt><dd>${escapeHtml((trade.exit_reason_codes || []).join(", "))}</dd></div>
-        <div><dt>Entry RSI</dt><dd>${escapeHtml(compactNumber(entry.RSI))}</dd></div>
-        <div><dt>Entry MA stack</dt><dd>EMA5 ${escapeHtml(compactNumber(entry.EMA5))} / EMA10 ${escapeHtml(compactNumber(entry.EMA10))} / SMA20 ${escapeHtml(compactNumber(entry.SMA20))}</dd></div>
-        <div><dt>Entry MACD</dt><dd>${escapeHtml(compactNumber(entry.MACD))} / signal ${escapeHtml(compactNumber(entry.MACD_signal))} / hist ${escapeHtml(compactNumber(entry.MACD_histogram))}</dd></div>
-        <div><dt>Exit RSI</dt><dd>${escapeHtml(compactNumber(exit.RSI))}</dd></div>
-        <div><dt>Costs</dt><dd>fee ${escapeHtml(trade.fee_bps)} bps / slip ${escapeHtml(trade.slippage_bps)} bps / paid ${escapeHtml(money(trade.fees))}</dd></div>
-        <div><dt>Net PnL</dt><dd>${escapeHtml(money(trade.net_pnl))}</dd></div>
-        <div><dt>Equity</dt><dd>${escapeHtml(money(trade.equity_before_trade))} -> ${escapeHtml(money(trade.equity_after_trade))}</dd></div>
-        <div><dt>Drawdown after</dt><dd>${escapeHtml(money(trade.drawdown_after_trade))}</dd></div>
-        <div><dt>Regime</dt><dd>${escapeHtml(entry.market_regime || trade.market_regime || "n/a")}</dd></div>
-      </dl>
+      <section class="trade-inspector-card" aria-label="Selected historical replay trade">
+        <header class="trade-inspector-hero">
+          <div>
+            <span class="eyebrow">Selected trade</span>
+            <strong>${escapeHtml(String(trade.trade_id || "n/a").slice(0, 18))}</strong>
+            <small>${escapeHtml(trade.symbol)} ${escapeHtml(displayTimeframe(trade.timeframe))} / ${escapeHtml(trade.side || "n/a")} / historical replay only</small>
+          </div>
+          <div class="trade-inspector-pnl ${pnlClass}">
+            <span>Net PnL</span>
+            <strong>${escapeHtml(money(trade.net_pnl))}</strong>
+            <small>fees and slippage included</small>
+          </div>
+        </header>
+
+        <div class="trade-inspector-metrics">
+          ${metricTile("Entry", `${compactNumber(trade.entry_price)} USDC`, trade.entry_fill_time || "fill time n/a")}
+          ${metricTile("Exit", `${compactNumber(trade.exit_price)} USDC`, trade.exit_fill_time || "fill time n/a")}
+          ${metricTile("Equity", `${money(trade.equity_before_trade)} -> ${money(trade.equity_after_trade)}`, "dynamic paper replay")}
+          ${metricTile("Drawdown", money(trade.drawdown_after_trade), "after selected trade")}
+        </div>
+
+        <section class="trade-inspector-section">
+          <h3>Why It Entered</h3>
+          <div class="reason-chip-row">${reasonChips(entryReasons, "entry reason unavailable")}</div>
+        </section>
+
+        <section class="trade-inspector-section">
+          <h3>Why It Exited</h3>
+          <div class="reason-chip-row">${reasonChips(exitReasons, "exit reason unavailable")}</div>
+        </section>
+
+        <section class="trade-inspector-section">
+          <h3>Entry Indicators</h3>
+          <div class="trade-inspector-indicators">
+            ${metricTile("RSI", compactNumber(entry.RSI))}
+            ${metricTile("EMA5", compactNumber(entry.EMA5))}
+            ${metricTile("EMA10", compactNumber(entry.EMA10))}
+            ${metricTile("SMA20", compactNumber(entry.SMA20))}
+            ${metricTile("MACD", compactNumber(entry.MACD))}
+            ${metricTile("Signal", compactNumber(entry.MACD_signal))}
+            ${metricTile("Histogram", compactNumber(entry.MACD_histogram))}
+            ${metricTile("Regime", entry.market_regime || trade.market_regime || "n/a")}
+          </div>
+        </section>
+
+        <section class="trade-inspector-section">
+          <h3>Exit / Cost Context</h3>
+          <div class="trade-inspector-indicators">
+            ${metricTile("Exit RSI", compactNumber(exit.RSI))}
+            ${metricTile("Fees", money(trade.fees), `${trade.fee_bps ?? "n/a"} bps`)}
+            ${metricTile("Slippage", `${trade.slippage_bps ?? "n/a"} bps`)}
+            ${metricTile("Gross PnL", trade.gross_pnl === null || trade.gross_pnl === undefined ? "n/a" : money(trade.gross_pnl))}
+          </div>
+        </section>
+      </section>
     `;
   }
 
@@ -3149,8 +3327,7 @@
     `;
     elements.historicalReplayTradesTable.querySelectorAll("[data-trade-id]").forEach((target) => {
       target.addEventListener("click", () => {
-        state.historicalReplay.selectedTradeId = target.dataset.tradeId || null;
-        renderHistoricalReplay();
+        selectHistoricalReplayTrade(target.dataset.tradeId || null);
       });
     });
   }
@@ -3186,7 +3363,7 @@
           ${rows.map((row) => `
             <tr>
               <td>${escapeHtml(row.symbol)}</td>
-              <td>${escapeHtml(row.timeframe)}</td>
+              <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
               <td>${escapeHtml(row.strategy_label || row.strategy_id || "OG replay / strategy")}</td>
               <td>${escapeHtml(row.status)}</td>
               <td>${escapeHtml(money(row.ending_equity))}</td>
@@ -3258,11 +3435,18 @@
     if (replay && (!state.historicalReplay.strategyId || !state.historicalReplay.symbol || !state.historicalReplay.timeframe)) {
       state.historicalReplay.strategyId = replay.strategy_id || "baseline_current_money_flow_rules";
       state.historicalReplay.symbol = replay.symbol || "ETH";
-      state.historicalReplay.timeframe = replay.timeframe || "1h";
+      state.historicalReplay.timeframe = canonicalTimeframe(replay.timeframe || "1h");
     }
     renderHistoricalReplaySourceStatus(replay);
     renderHistoricalDataHorizonPanel();
-    renderHistoricalReplayChart(replay);
+    if (replay) {
+      renderHistoricalReplayChart(replay);
+    } else {
+      setEmpty(
+        elements.historicalReplayChart,
+        "No replay chart is loaded for this SV2.0 symbol/timeframe yet. Check the data horizon panel for support, import, and evidence readiness.",
+      );
+    }
     renderHistoricalTradeInspector(replay);
     renderHistoricalEquityPanel(replay);
     renderHistoricalTradesTable(replay);
@@ -4349,6 +4533,7 @@
     if (payload?.report === "uat3_4_sandbox_routing_pipeline_and_order_ledger") return "uat34_routed_orders_summary";
     if (payload?.report === "uat4_2_live_market_dashboard_and_paper_equity_monitor") return "uat42_live_monitor_summary";
     if (payload?.report === "pt0_tradingview_charts_and_top20_paper_sandbox_runtime") return "pt0_runtime_summary";
+    if (payload?.report === "sv2_0_money_flow_1d_sleeve_expanded_universe_evidence_rebuild") return "sv20_summary";
     if (
       payload?.report === "pt0_0_2_historical_strategy_replay_cockpit" ||
       payload?.report === "pt0_0_3_historical_data_horizon_and_1d_replay"
@@ -4374,6 +4559,7 @@
     await loadDefaultUat34Summaries();
     await loadDefaultUat42Summaries();
     await loadDefaultPt0Summaries();
+    await loadDefaultSv20Summaries();
     await loadDefaultPt002HistoricalReplaySummary();
 
     if (!loaded.length) {
@@ -4425,6 +4611,7 @@
         if (type === "uat34_routed_orders_summary") state.uat34Summary = payload;
         if (type === "uat42_live_monitor_summary") state.uat42Summary = payload;
         if (type === "pt0_runtime_summary") state.pt0Summary = payload;
+        if (type === "sv20_summary") state.sv20Summary = payload;
         if (type === "pt002_historical_replay_summary") state.pt002HistoricalReplay = payload;
       });
       state.selectedComponent = "all";
@@ -4509,6 +4696,21 @@
     }
   }
 
+  async function loadDefaultSv20Summaries() {
+    for (const path of DEFAULT_SV20_SUMMARY_FILES) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        if (classifyJson(payload) === "sv20_summary") {
+          state.sv20Summary = payload;
+        }
+      } catch (error) {
+        console.warn(`Could not load ${path}`, error);
+      }
+    }
+  }
+
   async function loadDefaultPt002HistoricalReplaySummary() {
     for (const path of DEFAULT_PT002_REPLAY_SUMMARY_FILES) {
       try {
@@ -4517,6 +4719,7 @@
         const payload = await response.json();
         if (classifyJson(payload) === "pt002_historical_replay_summary") {
           state.pt002HistoricalReplay = payload;
+          break;
         }
       } catch (error) {
         console.warn(`Could not load ${path}`, error);

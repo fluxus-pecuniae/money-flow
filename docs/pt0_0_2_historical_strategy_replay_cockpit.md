@@ -8,7 +8,7 @@
 | Strategy truth source | verified | Replay uses historical public candle replay data from the SV1.17 baseline export. |
 | Testnet strategy truth | verified | Hyperliquid testnet market data is not strategy truth. Testnet remains sandbox execution plumbing only. |
 | Orders | verified | No orders are submitted by PT0.0.2. No order controls were added. |
-| Money Flow rules | verified | Money Flow rules are unchanged. The baseline replay remains the OG replay/strategy; the MACD-removed replay is research-only. |
+| Money Flow rules | verified | Money Flow rules are unchanged. The baseline replay remains the OG replay/strategy; MACD-removed and 5EMA/20MA cross-close replays are research-only. |
 
 ## Why Testnet Is Not Strategy Truth
 
@@ -35,8 +35,9 @@ Hyperliquid testnet prices and order books are not representative enough for str
 | --- | --- | --- |
 | OG replay / strategy | implemented | Current baseline Money Flow rules with MACD entry confirmation and MACD-rollover exits. |
 | MACD removed | implemented | Research-only replay variant across all BTC/ETH/SOL 15m/1h/4h datasets. MACD entry confirmation and MACD-rollover exit checks are removed; other entry, exit, fill, cost, and dynamic-equity rules remain unchanged. |
+| Only close on 5/20 cross | implemented | Research-only replay variant across all BTC/ETH/SOL 15m/1h/4h datasets. Baseline entry checks remain, but close validation waits for EMA5 to cross below SMA20 instead of closing solely because price closes below SMA20. |
 
-The dashboard `Historical Replay` tab now has a replay-strategy dropdown so the founder can switch between the OG replay/strategy and the MACD-removed research replay without treating the variant as production strategy truth.
+The dashboard `Historical Replay` tab now has a replay-strategy dropdown so the founder can switch between the OG replay/strategy, MACD-removed research replay, and 5EMA/20MA cross-close research replay without treating either variant as production strategy truth.
 
 ## Replay-Ready Datasets
 
@@ -46,7 +47,7 @@ The dashboard `Historical Replay` tab now has a replay-strategy dropdown so the 
 | ETH | verified | verified | verified |
 | SOL | verified | verified | verified |
 
-All nine symbol/timeframe datasets are available. The dashboard summary now includes 18 replay combinations: nine OG baseline replays and nine MACD-removed research replays.
+All nine symbol/timeframe datasets are available. The dashboard summary now includes 27 replay combinations: nine OG baseline replays, nine MACD-removed research replays, and nine 5EMA/20MA cross-close research replays.
 
 ## Fill And Cost Assumptions
 
@@ -73,7 +74,7 @@ All nine symbol/timeframe datasets are available. The dashboard summary now incl
 | Feature | Status | Notes |
 | --- | --- | --- |
 | Historical Replay tab | implemented | Added to the dashboard navigation. |
-| Replay strategy selector | implemented | Dropdown supports `OG replay / strategy` and `MACD removed`. |
+| Replay strategy selector | implemented | Dropdown supports `OG replay / strategy`, `MACD removed`, and `Only close on 5/20 cross`. |
 | TradingView chart | implemented | Historical candlesticks with visible price scale and bounded chart height. |
 | Indicator overlays | implemented | EMA5, EMA10, and SMA20 render on the price pane. RSI 14 and MACD now render in separate TradingView panes inside the same chart instance, sharing the candle time scale/crosshair while keeping separate value scales; RSI/MACD values also remain available in the trade inspector/export. MACD values are inspectable even when the MACD-removed replay variant does not use MACD as a gate. |
 | Entry markers | implemented | Green markers represent historical replay entry fills only. |
@@ -111,6 +112,18 @@ All nine symbol/timeframe datasets are available. The dashboard summary now incl
 | SOL 1h | 8,260.51 | -1,739.49 | 143 | 2,854.24 |
 | SOL 4h | 6,628.20 | -3,371.80 | 37 | 3,371.80 |
 
+## Only Close On 5/20 Cross Research Replay
+
+Status: implemented
+
+This variant is research-only. It keeps baseline entry checks and changes close validation so a price close below SMA20 is not enough by itself. The replay closes only after EMA5 crosses below SMA20, with exit reason:
+
+```text
+ema5_sma20_bearish_cross_close
+```
+
+It is not a production Money Flow rule change and is included only for visual founder analysis in Historical Replay.
+
 ## Limitations
 
 | Limitation | Status | Notes |
@@ -142,3 +155,4 @@ All nine symbol/timeframe datasets are available. The dashboard summary now incl
 | No orders are submitted by PT0.0.2 | verified |
 | Money Flow rules are unchanged | verified |
 | MACD removed is research-only | verified |
+| Only close on 5/20 cross is research-only | verified |
