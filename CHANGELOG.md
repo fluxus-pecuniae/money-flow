@@ -17,7 +17,7 @@ Entry schema:
 
 - `recorded_at_utc`: `2026-05-11T15:13:11Z`
 - `scope`: `Dashboard primary tab cleanup`
-- `intent`: `Native entry. Reordered the visible dashboard navigation to Experiments, Historical Replay, Evidence, and Strategy; made Historical Replay the default visible view; removed UAT Chart Cockpit and UAT2 Shadow Run from the top-level tab bar while preserving their hidden legacy panels for regression coverage and historical context. No order controls, private/signed/order endpoints, live endpoint use, exchange API keys, Money Flow rule changes, routing behavior, or sandbox orders were added.`
+- `intent`: `Native entry. Reordered the visible dashboard navigation to Strategy, Historical Replay, Evidence, and Experiments; made Historical Replay the default visible view; removed UAT Chart Cockpit and UAT2 Shadow Run from the top-level tab bar while preserving their hidden legacy panels for regression coverage and historical context. No order controls, private/signed/order endpoints, live endpoint use, exchange API keys, Money Flow rule changes, routing behavior, or sandbox orders were added.`
 - `affected_files`:
   - `CHANGELOG.md`
   - `apps/dashboard/DESIGN.md`

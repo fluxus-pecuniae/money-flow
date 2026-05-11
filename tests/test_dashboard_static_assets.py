@@ -36,8 +36,9 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert 'data-view="strategy"' in nav
     assert 'data-view="uat-shadow"' not in nav
     assert 'data-view="uat-cockpit"' not in nav
-    assert nav.index('data-view="experiments"') < nav.index('data-view="historical-replay"')
+    assert nav.index('data-view="strategy"') < nav.index('data-view="historical-replay"')
     assert nav.index('data-view="historical-replay"') < nav.index('data-view="evidence"')
+    assert nav.index('data-view="evidence"') < nav.index('data-view="experiments"')
     assert 'data-view="historical-replay" aria-selected="true"' in nav
     assert "Money Flow UAT Workstation" in html
     assert "UAT Chart Cockpit" in html
