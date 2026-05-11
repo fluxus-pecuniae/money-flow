@@ -643,6 +643,14 @@ h3 {
   font-size: var(--text-caption);
 }
 
+.tradingview-chart-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 104px;
+  gap: var(--spacing-3);
+  min-height: 0;
+  overflow: hidden;
+}
+
 .tradingview-lightweight-chart {
   height: clamp(420px, 56vh, 680px);
   min-height: 0;
@@ -652,6 +660,34 @@ h3 {
   border: 1px solid var(--color-line);
   border-radius: var(--radius-md);
   background: #071014;
+}
+
+.chart-price-axis-readout {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-3);
+  min-height: 0;
+  padding: var(--spacing-4);
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(13, 24, 31, 0.96), rgba(7, 16, 20, 0.96));
+}
+
+.chart-price-axis-readout span,
+.chart-price-axis-readout small {
+  color: var(--color-muted);
+  font-size: 10px;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.chart-price-axis-readout strong {
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
 }
 
 .tradingview-attribution {
@@ -1339,6 +1375,15 @@ td {
   .bar-row,
   .rule-chain li {
     grid-template-columns: 1fr;
+  }
+
+  .tradingview-chart-stage {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-price-axis-readout {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: center;
   }
 
   .uat-left-rail,

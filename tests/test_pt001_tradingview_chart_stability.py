@@ -13,6 +13,8 @@ def _dashboard_assets() -> tuple[str, str, str]:
 def test_chart_container_has_stable_explicit_height_and_bounded_parents() -> None:
     _html, _js, css = _dashboard_assets()
 
+    assert ".tradingview-chart-stage" in css
+    assert "grid-template-columns: minmax(0, 1fr) 104px;" in css
     assert ".tradingview-lightweight-chart" in css
     assert "height: clamp(420px, 56vh, 680px);" in css
     assert "min-height: 0;" in css
@@ -22,6 +24,33 @@ def test_chart_container_has_stable_explicit_height_and_bounded_parents() -> Non
     assert "contain: layout paint;" in css
     assert ".uat-center-cockpit" in css
     assert "overflow: hidden;" in css
+
+
+def test_non_selected_symbols_do_not_chart_synthetic_local_fallback_candles() -> None:
+    _html, js, _css = _dashboard_assets()
+
+    assert "function marketHasSelectedLiveCandles(market)" in js
+    assert "state.liveMarketData?.enabled && !marketHasSelectedLiveCandles(market)" in js
+    assert "candles: hasSelectedCandles ? candles : []" in js
+    assert "candles_source: hasSelectedCandles ? \"hyperliquid_testnet_candleSnapshot\" : \"awaiting_selected_symbol_candleSnapshot\"" in js
+    assert "selected_live_candles: hasSelectedCandles" in js
+    assert "live_public_mid_only_waiting_for_selected_candles" in js
+
+
+def test_price_scale_and_explicit_price_readout_are_visible() -> None:
+    _html, js, css = _dashboard_assets()
+
+    assert "chart-price-axis-readout" in js
+    assert "data-chart-axis-latest" in js
+    assert "Price USDC" in js
+    assert "rightPriceScale" in js
+    assert "visible: true" in js
+    assert "borderVisible: true" in js
+    assert "priceLineVisible: true" in js
+    assert "lastValueVisible: true" in js
+    assert "priceFormat: chartPriceFormat(candles)" in js
+    assert ".chart-price-axis-readout" in css
+    assert "font-family: var(--font-mono);" in css
 
 
 def test_chart_refresh_reuses_existing_series_instead_of_recreating_chart() -> None:

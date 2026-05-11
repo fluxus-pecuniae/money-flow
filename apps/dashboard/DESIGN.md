@@ -162,9 +162,11 @@ The design avoids default-looking large report text and favors dense workstation
 
 - The chart area must be central.
 - PT0 uses TradingView Lightweight Charts for candlesticks, volume histogram, crosshair, price scale, time scale, resize handling, EMA overlays, and markers.
-- PT0 prefers live Hyperliquid testnet public candles, falls back to refreshed public-read-only monitor candles, then falls back to committed PT0/UAT summaries.
+- PT0 prefers live Hyperliquid testnet public candles. While browser live polling is enabled, the chart must wait for the selected symbol/timeframe `candleSnapshot` and must not render non-selected symbols from committed synthetic/local fallback candles as if they were live.
+- Local PT0/UAT summaries may still populate watchlist, side-panel, and fallback status text; chart rendering from local summaries is reserved for explicit disabled-polling/debug fallback states.
 - The dashboard uses a local official `lightweight-charts` standalone bundle, not TradingView Advanced Charts, not the Trading Platform library, and not the hosted TradingView widget.
 - If candles are insufficient, display explicit unavailable states.
+- The native Lightweight Charts right price scale must remain visible, and the dashboard adds a compact `Price USDC` readout beside the chart for latest/high/low/open/close price context.
 - PT0.0.1 chart stability requires an explicit bounded chart height, currently implemented as a responsive clamp rather than min-height-only sizing.
 - Parent chart containers must use `min-height: 0` and `overflow: hidden` where needed so Lightweight Charts children cannot grow the page.
 - The TradingView chart instance and series handles must be reused across 15-second public refreshes whenever the selected symbol/timeframe has not changed.

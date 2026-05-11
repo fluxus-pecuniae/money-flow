@@ -2019,6 +2019,9 @@
   }
 
   function chartCandles(market) {
+    if (state.liveMarketData?.enabled && !marketHasSelectedLiveCandles(market)) {
+      return [];
+    }
     const candles = Array.isArray(market?.candles) ? market.candles : [];
     return candles
       .map((candle) => ({
@@ -2037,6 +2040,17 @@
         Number.isFinite(candle.close),
       )
       .sort((a, b) => a.time - b.time);
+  }
+
+  function marketHasSelectedLiveCandles(market) {
+    return (
+      market?.source === "hyperliquid_testnet_public_read_only_browser_poll" &&
+      market?.candles_source === "hyperliquid_testnet_candleSnapshot" &&
+      market?.selected_live_candles === true &&
+      market?.public_read_only_confirmation === true &&
+      Array.isArray(market?.candles) &&
+      market.candles.length > 0
+    );
   }
 
   function indicatorSeries(candles, label, period) {
@@ -2126,6 +2140,49 @@
     }));
   }
 
+  function chartPricePrecision(candles) {
+    const latest = Math.abs(decimal(candles.at(-1)?.close, 0));
+    if (latest >= 1000) return 1;
+    if (latest >= 100) return 2;
+    if (latest >= 1) return 4;
+    return 6;
+  }
+
+  function chartPriceFormat(candles) {
+    const precision = chartPricePrecision(candles);
+    return {
+      type: "price",
+      precision,
+      minMove: Number(`1e-${precision}`),
+    };
+  }
+
+  function formatChartPrice(value, candles) {
+    const numeric = decimal(value, NaN);
+    if (!Number.isFinite(numeric)) return "n/a";
+    const precision = chartPricePrecision(candles);
+    return numeric.toLocaleString("en-US", {
+      minimumFractionDigits: Math.min(precision, 2),
+      maximumFractionDigits: precision,
+    });
+  }
+
+  function chartPriceStats(candles) {
+    const latest = candles.at(-1);
+    if (!latest) {
+      return { latest: "n/a", high: "n/a", low: "n/a", open: "n/a", close: "n/a" };
+    }
+    const high = Math.max(...candles.map((candle) => candle.high));
+    const low = Math.min(...candles.map((candle) => candle.low));
+    return {
+      latest: formatChartPrice(latest.close, candles),
+      high: formatChartPrice(high, candles),
+      low: formatChartPrice(low, candles),
+      open: formatChartPrice(latest.open, candles),
+      close: formatChartPrice(latest.close, candles),
+    };
+  }
+
   function updateTradingViewChartData(candles) {
     const chartState = state.tradingViewChart;
     if (!chartState.candleSeries || !chartState.volumeSeries) return;
@@ -2157,11 +2214,22 @@
     const symbolTarget = elements.uatPriceChart?.querySelector("[data-chart-symbol]");
     const candleTarget = elements.uatPriceChart?.querySelector("[data-chart-candle]");
     const latestTarget = elements.uatPriceChart?.querySelector("[data-chart-latest]");
+    const axisLatestTarget = elements.uatPriceChart?.querySelector("[data-chart-axis-latest]");
+    const axisHighTarget = elements.uatPriceChart?.querySelector("[data-chart-axis-high]");
+    const axisLowTarget = elements.uatPriceChart?.querySelector("[data-chart-axis-low]");
+    const axisOpenTarget = elements.uatPriceChart?.querySelector("[data-chart-axis-open]");
+    const axisCloseTarget = elements.uatPriceChart?.querySelector("[data-chart-axis-close]");
+    const stats = chartPriceStats(candles);
     if (symbolTarget) symbolTarget.textContent = `${state.uatCockpit.symbol}-PERP`;
     if (candleTarget) {
       candleTarget.textContent = `${state.uatCockpit.timeframe} latest candle ${market?.last_candle_close_time || record?.candle_close_time_utc || "n/a"}`;
     }
-    if (latestTarget) latestTarget.textContent = compactNumber(market?.latest_price || candles.at(-1)?.close || "n/a");
+    if (latestTarget) latestTarget.textContent = stats.latest;
+    if (axisLatestTarget) axisLatestTarget.textContent = stats.latest;
+    if (axisHighTarget) axisHighTarget.textContent = `H ${stats.high}`;
+    if (axisLowTarget) axisLowTarget.textContent = `L ${stats.low}`;
+    if (axisOpenTarget) axisOpenTarget.textContent = `O ${stats.open}`;
+    if (axisCloseTarget) axisCloseTarget.textContent = `C ${stats.close}`;
   }
 
   function renderTradingViewLightweightChart(record, market) {
@@ -2178,6 +2246,7 @@
     }
 
     destroyTradingViewChart();
+    const priceStats = chartPriceStats(candles);
     elements.uatPriceChart.innerHTML = `
       <div class="tradingview-chart-topline">
         <div>
@@ -2186,10 +2255,20 @@
         </div>
         <div class="chart-price-tape">
           <span>Latest</span>
-          <strong data-chart-latest>${escapeHtml(compactNumber(market?.latest_price || candles.at(-1)?.close || "n/a"))}</strong>
+          <strong data-chart-latest>${escapeHtml(priceStats.latest)}</strong>
         </div>
       </div>
-      <div class="tradingview-lightweight-chart" role="img" aria-label="TradingView Lightweight Charts candlestick chart"></div>
+      <div class="tradingview-chart-stage">
+        <div class="tradingview-lightweight-chart" role="img" aria-label="TradingView Lightweight Charts candlestick chart with visible right price scale"></div>
+        <aside class="chart-price-axis-readout" aria-label="Selected asset price scale">
+          <span>Price USDC</span>
+          <strong data-chart-axis-latest>${escapeHtml(priceStats.latest)}</strong>
+          <small data-chart-axis-high>H ${escapeHtml(priceStats.high)}</small>
+          <small data-chart-axis-low>L ${escapeHtml(priceStats.low)}</small>
+          <small data-chart-axis-open>O ${escapeHtml(priceStats.open)}</small>
+          <small data-chart-axis-close>C ${escapeHtml(priceStats.close)}</small>
+        </aside>
+      </div>
       <div class="tradingview-attribution">Charts: TradingView Lightweight Charts v${TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION} (Apache-2.0). Public read-only Hyperliquid testnet data; no API keys, private endpoints, signed endpoints, order endpoints, or live endpoints.</div>
     `;
 
@@ -2211,7 +2290,11 @@
         mode: tv.CrosshairMode.Normal,
       },
       rightPriceScale: {
+        visible: true,
+        borderVisible: true,
         borderColor: "rgba(133, 156, 171, 0.18)",
+        entireTextOnly: false,
+        scaleMargins: { top: 0.06, bottom: 0.22 },
       },
       timeScale: {
         borderColor: "rgba(133, 156, 171, 0.18)",
@@ -2225,6 +2308,9 @@
       borderVisible: false,
       wickUpColor: "#25d084",
       wickDownColor: "#ff5a66",
+      priceFormat: chartPriceFormat(candles),
+      priceLineVisible: true,
+      lastValueVisible: true,
     });
     candleSeries.setData(chartPriceRows(candles));
 
@@ -2245,6 +2331,7 @@
       const line = chart.addSeries(tv.LineSeries, {
         color,
         lineWidth: 2,
+        priceFormat: chartPriceFormat(candles),
         priceLineVisible: false,
         lastValueVisible: true,
         title: label,
@@ -3234,6 +3321,7 @@
       const fallback = localRows.find((row) => row.symbol === watchSymbol) || {};
       const mid = mids && Object.prototype.hasOwnProperty.call(mids, watchSymbol) ? mids[watchSymbol] : fallback.latest_price;
       const isSelected = watchSymbol === symbol;
+      const hasSelectedCandles = isSelected && candles.length > 0;
       return {
         ...fallback,
         symbol: watchSymbol,
@@ -3244,13 +3332,20 @@
         latest_price: mid ? String(mid) : fallback.latest_price || null,
         mid_price: mid ? String(mid) : fallback.mid_price || null,
         mark_price: mid ? String(mid) : fallback.mark_price || null,
-        candles: isSelected && candles.length ? candles : fallback.candles || [],
-        candle_data_available: isSelected && candles.length ? true : Boolean(fallback.candle_data_available),
-        selected_timeframe_available: isSelected && candles.length ? true : Boolean(fallback.selected_timeframe_available),
-        last_candle_close_time: isSelected && candles.length ? candles.at(-1).timestamp_utc : fallback.last_candle_close_time || null,
-        source: "hyperliquid_testnet_public_read_only_browser_poll",
+        candles: hasSelectedCandles ? candles : [],
+        candles_source: hasSelectedCandles ? "hyperliquid_testnet_candleSnapshot" : "awaiting_selected_symbol_candleSnapshot",
+        selected_live_candles: hasSelectedCandles,
+        candle_data_available: hasSelectedCandles,
+        selected_timeframe_available: hasSelectedCandles,
+        last_candle_close_time: hasSelectedCandles ? candles.at(-1).timestamp_utc : null,
+        source: hasSelectedCandles
+          ? "hyperliquid_testnet_public_read_only_browser_poll"
+          : "hyperliquid_testnet_public_allMids_browser_poll",
         endpoint_category: "public_read_only",
-        market_data_status: "live_public_read_only_streaming",
+        market_data_status: hasSelectedCandles
+          ? "live_public_read_only_streaming"
+          : "live_public_mid_only_waiting_for_selected_candles",
+        failure_reason: hasSelectedCandles ? null : "selected_symbol_candleSnapshot_not_loaded_yet",
         public_read_only_confirmation: true,
         private_signed_order_endpoints_called: false,
       };

@@ -13,6 +13,28 @@ Entry schema:
 
 ---
 
+## v2026.05.11.008
+
+- `recorded_at_utc`: `2026-05-11T12:24:11Z`
+- `scope`: `PT0 dashboard chart correctness Playwright hotfix`
+- `intent`: `Native entry. Ran Playwright against the local dashboard and verified Hyperliquid testnet public candle responses for BTC/SOL contain both red and green candles. Fixed the dashboard path that allowed non-selected symbols to inherit committed local fallback candles while the row was labeled as live public data, which could make non-ETH charts appear as all-green synthetic candles before that symbol's live candleSnapshot completed. The chart now requires selected-symbol live candleSnapshot data while live polling is enabled, keeps non-selected rows as mid-only until selected candles load, and adds an explicit right-side Price USDC readout plus stronger Lightweight Charts price-scale/last-price settings. No order controls, private/signed/order endpoints, exchange API keys, live endpoint use, Money Flow rule changes, routing changes, or sandbox orders were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `tests/test_pt001_tradingview_chart_stability.py`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `Playwright Chromium UI smoke against http://127.0.0.1:8765/apps/dashboard/index.html`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_pt001_tradingview_chart_stability.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt0_tradingview_paper_sandbox_runtime.py tests/test_uat42_live_market_dashboard_paper_equity.py tests/test_dashboard_static_assets.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt0-chart-correctness-review.zip`
+
 ## v2026.05.11.007
 
 - `recorded_at_utc`: `2026-05-11T11:42:10Z`
