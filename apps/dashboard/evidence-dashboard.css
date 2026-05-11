@@ -600,6 +600,11 @@ h3 {
   background: var(--color-panel-2);
 }
 
+#uat-live-chart-status {
+  border-color: rgba(40, 215, 197, 0.42);
+  color: var(--color-teal);
+}
+
 .exchange-chart-shell {
   display: grid;
   gap: var(--spacing-4);

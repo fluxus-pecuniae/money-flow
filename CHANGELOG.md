@@ -13,6 +13,27 @@ Entry schema:
 
 ---
 
+## v2026.05.11.005
+
+- `recorded_at_utc`: `2026-05-11T08:58:00Z`
+- `scope`: `UAT4.2 live public charting hotfix`
+- `intent`: `Native entry. Added browser-side Hyperliquid testnet public-read-only chart polling to the UAT cockpit using only allowlisted public info payloads (`allMids` and `candleSnapshot`) with a 15-second refresh interval and fallback to the committed UAT4.2 local summary JSON. The dashboard computes live EMA5, EMA10, SMA20, RSI, MACD, MACD signal, and MACD histogram from fetched public candles when available. No API keys, private/signed/order endpoints, live endpoint, order controls, trading runtime, Money Flow rule changes, routing/SOR/fanout, or evidence packs were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/uat4_2_live_market_dashboard_and_paper_equity_monitor.md`
+  - `tests/test_uat40_dashboard_chart_cockpit.py`
+  - `tests/test_uat42_live_market_dashboard_paper_equity.py`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_uat42_live_market_dashboard_paper_equity.py tests/test_uat40_dashboard_chart_cockpit.py tests/test_uat41_exchange_dashboard_redesign.py tests/test_dashboard_static_assets.py`
+
 ## v2026.05.11.004
 
 - `recorded_at_utc`: `2026-05-11T08:26:12Z`

@@ -24,6 +24,16 @@
     "../../docs/uat4_2_live_market_dashboard_and_paper_equity_monitor_summary.json",
   ];
 
+  const HYPERLIQUID_TESTNET_PUBLIC_INFO_URL = "https://api.hyperliquid-testnet.xyz/info";
+  const LIVE_MARKET_REFRESH_MS = 15000;
+  const LIVE_CHART_CANDLE_COUNT = 96;
+  const LIVE_TIMEFRAME_MINUTES = {
+    "15m": 15,
+    "1h": 60,
+    "4h": 240,
+  };
+  const LIVE_PUBLIC_INFO_TYPES = new Set(["allMids", "candleSnapshot"]);
+
   const UAT_WATCHLIST_SYMBOLS = [
     "BTC",
     "ETH",
@@ -431,6 +441,21 @@
     uat2Summary: null,
     uat34Summary: null,
     uat42Summary: null,
+    liveMarketData: {
+      enabled: true,
+      status: "not_started",
+      endpoint: HYPERLIQUID_TESTNET_PUBLIC_INFO_URL,
+      refreshMs: LIVE_MARKET_REFRESH_MS,
+      lastUpdatedUtc: null,
+      error: null,
+      market_data: [],
+      indicator_snapshots: [],
+      privateSignedOrderEndpointsCalled: false,
+      orderEndpointsCalled: false,
+      liveEndpointCalled: false,
+      timer: null,
+      inFlight: false,
+    },
     uatFilters: {
       symbol: "all",
       component: "all",
@@ -523,6 +548,7 @@
     uatMarketInfoPanel: document.querySelector("#uat-market-info-panel"),
     uatSignalContextPanel: document.querySelector("#uat-signal-context-panel"),
     uatRiskContextPanel: document.querySelector("#uat-risk-context-panel"),
+    uatLiveChartStatus: document.querySelector("#uat-live-chart-status"),
     uatRouteStatusCard: document.querySelector("#uat-route-status-card"),
     uatEquitySourceCard: document.querySelector("#uat-equity-source-card"),
     uatPaperEquityCard: document.querySelector("#uat-paper-equity-card"),
@@ -1814,7 +1840,16 @@
   }
 
   function uat42MarketRows() {
-    return Array.isArray(state.uat42Summary?.market_data) ? state.uat42Summary.market_data : [];
+    const staticRows = Array.isArray(state.uat42Summary?.market_data) ? state.uat42Summary.market_data : [];
+    const liveRows = Array.isArray(state.liveMarketData?.market_data) ? state.liveMarketData.market_data : [];
+    if (!liveRows.length) return staticRows;
+    const merged = new Map(staticRows.map((row) => [`${row.symbol}|${row.timeframe}`, row]));
+    liveRows.forEach((row) => {
+      const key = `${row.symbol}|${row.timeframe}`;
+      const fallback = merged.get(key) || staticRows.find((item) => item.symbol === row.symbol) || {};
+      merged.set(key, { ...fallback, ...row });
+    });
+    return Array.from(merged.values());
   }
 
   function uat42MarketFor(symbol, timeframe) {
@@ -1827,6 +1862,13 @@
   }
 
   function uat42IndicatorFor(symbol, timeframe) {
+    const liveRows = Array.isArray(state.liveMarketData?.indicator_snapshots)
+      ? state.liveMarketData.indicator_snapshots
+      : [];
+    const liveMatch =
+      liveRows.find((row) => row.symbol === symbol && row.timeframe === timeframe) ||
+      liveRows.find((row) => row.symbol === symbol);
+    if (liveMatch) return liveMatch;
     const rows = Array.isArray(state.uat42Summary?.indicator_snapshots)
       ? state.uat42Summary.indicator_snapshots
       : [];
@@ -1879,6 +1921,7 @@
           ? "ETH"
           : elements.uatCockpitSymbolFilter.value;
         renderUatCockpit();
+        refreshLiveMarketData();
       };
     }
     if (elements.uatCockpitTimeframeFilter) {
@@ -1887,12 +1930,22 @@
           ? "1h"
           : elements.uatCockpitTimeframeFilter.value;
         renderUatCockpit();
+        refreshLiveMarketData();
       };
     }
   }
 
   function selectedCockpitRecord() {
     return uatRecordFor(state.uatCockpit.symbol, state.uatCockpit.timeframe);
+  }
+
+  function renderUatLiveChartStatus() {
+    if (!elements.uatLiveChartStatus) return;
+    const live = state.liveMarketData || {};
+    const status = live.status || "not_started";
+    const updated = live.lastUpdatedUtc ? `last update ${live.lastUpdatedUtc}` : "waiting for first update";
+    const error = live.error ? `; ${live.error}` : "";
+    elements.uatLiveChartStatus.textContent = `Live chart: ${status}; public-read-only testnet; ${updated}; refresh ${Math.round(LIVE_MARKET_REFRESH_MS / 1000)}s${error}`;
   }
 
   function renderUatCockpitSummaryCards() {
@@ -1905,10 +1958,12 @@
     const routeStatus = state.uat34Summary?.route_definition?.route_id ? "ETH route ledger visible" : "route not loaded";
     const paperEquity = uat42PaperEquity();
     const poll = uat42Polling();
+    const live = state.liveMarketData || {};
     const cards = [
       ["Environment", "sandbox/testnet", "no live endpoint"],
       ["Market", `${state.uatCockpit.symbol}-PERP`, "Hyperliquid"],
       ["Timeframe", state.uatCockpit.timeframe, "15m / 1h / 4h"],
+      ["Live chart", live.status || "not_started", live.lastUpdatedUtc || "public-read-only testnet"],
       ["Signal", activeStatus, activePaperSignal ? "paper observation scanner" : "shadow audit status"],
       ["Route", routeStatus, "fixed-target only"],
       ["Records", `${records.length} shadow / ${ledger.length} routed / ${uat42MarketRows().length} market`, "local refresh JSON"],
@@ -2120,7 +2175,7 @@
               `).join("")}
             </div>
           </div>
-          <p class="chart-disclaimer">UAT4.2 refresh JSON uses public-read-only market shape and sandbox/testnet labels. No API keys, private order endpoints, signed order endpoints, or live endpoints are used by this dashboard.</p>
+          <p class="chart-disclaimer">${escapeHtml(liveChartDisclaimer())}</p>
         `;
       }
     }
@@ -2589,6 +2644,11 @@
     const records = routedLedgerRecords();
     const poll = uat42Polling();
     const events = [
+      [
+        "live_public_charting",
+        state.liveMarketData?.status || "not_started",
+        `${state.liveMarketData?.lastUpdatedUtc || "waiting"}; Hyperliquid testnet public info only; no keys/private/signed/order endpoints`,
+      ],
       ["uat4.2_monitor", "live_public_market_data_summary_loaded", "public-read-only refresh JSON; no keys"],
       ["uat4.2_paper_equity", "internal_10000_usdc_ledger_visible", "paper-equity simulation; not real capital"],
       ["uat4.2_balance_poll", `${poll.poll_interval_seconds || 60}s sandbox private read-only policy`, "order-capable categories forbidden"],
@@ -2672,9 +2732,214 @@
     `;
   }
 
+  function liveChartDisclaimer() {
+    const live = state.liveMarketData || {};
+    if (live.status === "live_public_read_only_connected") {
+      return `Live chart is polling Hyperliquid testnet public info every ${Math.round(LIVE_MARKET_REFRESH_MS / 1000)} seconds. No API keys, private order endpoints, signed order endpoints, or live endpoints are used; order endpoints are also not used.`;
+    }
+    if (live.error) {
+      return `Live public chart polling is unavailable (${live.error}). Dashboard is falling back to committed UAT4.2 local summary JSON. No API keys, private order endpoints, signed order endpoints, or live endpoints are used; order endpoints are also not used.`;
+    }
+    return "Live public chart polling is starting. Dashboard falls back to committed UAT4.2 local summary JSON until the first public-read-only update arrives. No API keys, private order endpoints, signed order endpoints, or live endpoints are used; order endpoints are also not used.";
+  }
+
+  async function postHyperliquidPublicInfo(payload) {
+    if (!payload || !LIVE_PUBLIC_INFO_TYPES.has(payload.type)) {
+      throw new Error("dashboard_live_chart_public_info_type_not_allowlisted");
+    }
+    const body = JSON.stringify(payload);
+    if (/\"user\"|\"action\"|\"signature\"|\"vaultAddress\"/i.test(body)) {
+      throw new Error("dashboard_live_chart_private_or_order_payload_forbidden");
+    }
+    const response = await fetch(HYPERLIQUID_TESTNET_PUBLIC_INFO_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body,
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      throw new Error(`public_read_only_http_${response.status}`);
+    }
+    return response.json();
+  }
+
+  function liveCandlePayload(symbol, timeframe) {
+    const intervalMinutes = LIVE_TIMEFRAME_MINUTES[timeframe] || 60;
+    const endTime = Date.now();
+    const startTime = endTime - intervalMinutes * LIVE_CHART_CANDLE_COUNT * 60 * 1000;
+    return {
+      type: "candleSnapshot",
+      req: {
+        coin: symbol,
+        interval: timeframe,
+        startTime,
+        endTime,
+      },
+    };
+  }
+
+  function normalizeLiveCandles(payload) {
+    if (!Array.isArray(payload)) return [];
+    return payload
+      .map((row) => {
+        const startedAt = Number(row.t ?? row.T ?? row.time ?? row.timestamp ?? 0);
+        return {
+          timestamp_utc: Number.isFinite(startedAt) && startedAt > 0 ? new Date(startedAt).toISOString() : "n/a",
+          open: String(row.o ?? row.open ?? ""),
+          high: String(row.h ?? row.high ?? ""),
+          low: String(row.l ?? row.low ?? ""),
+          close: String(row.c ?? row.close ?? ""),
+          volume: String(row.v ?? row.volume ?? "0"),
+        };
+      })
+      .filter((row) => row.close !== "");
+  }
+
+  function computeDashboardIndicators(candles, symbol, timeframe) {
+    const closes = candles.map((row) => decimal(row.close)).filter((value) => Number.isFinite(value));
+    const timestamp = candles.at(-1)?.timestamp_utc || new Date().toISOString();
+    const value = (label, raw, enough) => ({
+      label,
+      value: enough && Number.isFinite(raw) ? String(roundDisplay(raw)) : null,
+      enough_history: Boolean(enough && Number.isFinite(raw)),
+      reason: enough && Number.isFinite(raw) ? "computed_live_public_read_only" : "indicator_unavailable_insufficient_history",
+    });
+    const macdValues = macd(closes);
+    return {
+      symbol,
+      timeframe,
+      timestamp_utc: timestamp,
+      EMA5: value("EMA5", ema(closes, 5), closes.length >= 5),
+      EMA10: value("EMA10", ema(closes, 10), closes.length >= 10),
+      SMA20: value("SMA20", sma(closes, 20), closes.length >= 20),
+      RSI: value("RSI", rsi(closes, 14), closes.length >= 15),
+      MACD: value("MACD", macdValues.macd, closes.length >= 35),
+      "MACD signal": value("MACD signal", macdValues.signal, closes.length >= 35),
+      "MACD histogram": value("MACD histogram", macdValues.histogram, closes.length >= 35),
+    };
+  }
+
+  function sma(values, period) {
+    if (values.length < period) return NaN;
+    return values.slice(-period).reduce((sum, value) => sum + value, 0) / period;
+  }
+
+  function ema(values, period) {
+    if (values.length < period) return NaN;
+    const multiplier = 2 / (period + 1);
+    let current = values.slice(0, period).reduce((sum, value) => sum + value, 0) / period;
+    values.slice(period).forEach((value) => {
+      current = (value - current) * multiplier + current;
+    });
+    return current;
+  }
+
+  function rsi(values, period) {
+    if (values.length <= period) return NaN;
+    const gains = [];
+    const losses = [];
+    for (let index = 1; index < values.length; index += 1) {
+      const delta = values[index] - values[index - 1];
+      gains.push(Math.max(delta, 0));
+      losses.push(Math.abs(Math.min(delta, 0)));
+    }
+    let avgGain = gains.slice(0, period).reduce((sum, value) => sum + value, 0) / period;
+    let avgLoss = losses.slice(0, period).reduce((sum, value) => sum + value, 0) / period;
+    for (let index = period; index < gains.length; index += 1) {
+      avgGain = (avgGain * (period - 1) + gains[index]) / period;
+      avgLoss = (avgLoss * (period - 1) + losses[index]) / period;
+    }
+    if (avgLoss === 0) return 100;
+    return 100 - 100 / (1 + avgGain / avgLoss);
+  }
+
+  function macd(values) {
+    if (values.length < 35) return { macd: NaN, signal: NaN, histogram: NaN };
+    const macdSeries = [];
+    for (let index = 26; index <= values.length; index += 1) {
+      const slice = values.slice(0, index);
+      macdSeries.push(ema(slice, 12) - ema(slice, 26));
+    }
+    const signal = ema(macdSeries, 9);
+    const latest = macdSeries.at(-1);
+    return { macd: latest, signal, histogram: latest - signal };
+  }
+
+  function roundDisplay(value) {
+    return Math.round(value * 1_000_000) / 1_000_000;
+  }
+
+  function buildLiveMarketRows(mids, symbol, timeframe, candles) {
+    const localRows = Array.isArray(state.uat42Summary?.market_data) ? state.uat42Summary.market_data : [];
+    return UAT_WATCHLIST_SYMBOLS.map((watchSymbol) => {
+      const fallback = localRows.find((row) => row.symbol === watchSymbol) || {};
+      const mid = mids && Object.prototype.hasOwnProperty.call(mids, watchSymbol) ? mids[watchSymbol] : fallback.latest_price;
+      const isSelected = watchSymbol === symbol;
+      return {
+        ...fallback,
+        symbol: watchSymbol,
+        venue: "hyperliquid",
+        product_type: "USDC perpetual",
+        quote_or_settlement: "USDC",
+        timeframe,
+        latest_price: mid ? String(mid) : fallback.latest_price || null,
+        mid_price: mid ? String(mid) : fallback.mid_price || null,
+        mark_price: mid ? String(mid) : fallback.mark_price || null,
+        candles: isSelected && candles.length ? candles : fallback.candles || [],
+        candle_data_available: isSelected && candles.length ? true : Boolean(fallback.candle_data_available),
+        selected_timeframe_available: isSelected && candles.length ? true : Boolean(fallback.selected_timeframe_available),
+        last_candle_close_time: isSelected && candles.length ? candles.at(-1).timestamp_utc : fallback.last_candle_close_time || null,
+        source: "hyperliquid_testnet_public_read_only_browser_poll",
+        endpoint_category: "public_read_only",
+        market_data_status: "live_public_read_only_streaming",
+        public_read_only_confirmation: true,
+        private_signed_order_endpoints_called: false,
+      };
+    });
+  }
+
+  function sanitizeLiveChartError(error) {
+    const message = String(error?.message || error || "unknown_error");
+    return message.replace(/[A-Fa-f0-9]{32,}/g, "[REDACTED]").slice(0, 120);
+  }
+
+  async function refreshLiveMarketData() {
+    if (!state.liveMarketData.enabled || state.liveMarketData.inFlight || typeof fetch !== "function") return;
+    state.liveMarketData.inFlight = true;
+    state.liveMarketData.status = "live_public_read_only_refreshing";
+    renderUatLiveChartStatus();
+    try {
+      const symbol = state.uatCockpit.symbol || "ETH";
+      const timeframe = state.uatCockpit.timeframe || "1h";
+      const [mids, candlePayload] = await Promise.all([
+        postHyperliquidPublicInfo({ type: "allMids" }),
+        postHyperliquidPublicInfo(liveCandlePayload(symbol, timeframe)),
+      ]);
+      const candles = normalizeLiveCandles(candlePayload);
+      state.liveMarketData.market_data = buildLiveMarketRows(mids, symbol, timeframe, candles);
+      state.liveMarketData.indicator_snapshots = candles.length ? [computeDashboardIndicators(candles, symbol, timeframe)] : [];
+      state.liveMarketData.status = "live_public_read_only_connected";
+      state.liveMarketData.lastUpdatedUtc = new Date().toISOString();
+      state.liveMarketData.error = null;
+    } catch (error) {
+      state.liveMarketData.status = "live_public_read_only_unavailable";
+      state.liveMarketData.error = sanitizeLiveChartError(error);
+    } finally {
+      state.liveMarketData.inFlight = false;
+      render();
+    }
+  }
+
+  function startLiveMarketPolling() {
+    if (!state.liveMarketData.enabled || state.liveMarketData.timer || typeof fetch !== "function") return;
+    refreshLiveMarketData();
+    state.liveMarketData.timer = window.setInterval(refreshLiveMarketData, LIVE_MARKET_REFRESH_MS);
+  }
+
   function renderUatCockpit() {
     renderUatBottomTabs();
     renderUatCockpitFilters();
+    renderUatLiveChartStatus();
     renderUatCockpitSummaryCards();
     renderUatWatchlist();
     renderUatMarketDataCoverage();
@@ -2917,4 +3182,5 @@
   setActiveView(state.activeView);
   render();
   loadDefaultFiles();
+  startLiveMarketPolling();
 })();

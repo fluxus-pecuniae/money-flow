@@ -30,6 +30,10 @@ The public market-data policy allows only Hyperliquid public-read-only info cate
 
 The default generated summary is deterministic local refresh JSON for dashboard/runtime tests. It does not read credentials, call network, call private endpoints, call signed endpoints, or call order endpoints. A future operator refresh can wire caller-supplied public transport under the same public-read-only validator.
 
+Live-charting hotfix status: `implemented`
+
+The browser now polls Hyperliquid testnet public `allMids` and `candleSnapshot` every 15 seconds for watchlist prices and the selected chart. This uses no API keys, private endpoints, signed endpoints, order endpoints, order controls, or live endpoint. If public polling is unavailable, the cockpit falls back to `docs/uat4_2_live_market_dashboard_and_paper_equity_monitor_summary.json`.
+
 ## Watchlist Coverage
 
 Status: `verified`

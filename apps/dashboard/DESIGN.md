@@ -155,12 +155,12 @@ The design avoids default-looking large report text and favors dense workstation
 - Show `market_data_unavailable` instead of fabricated values.
 - Label sources as `local_summary_json`, `refreshed_public_read_only_local_json`, or `public_read_only`.
 - Never require private endpoints or API keys for dashboard display.
-- UAT4.2 supports a local refresh summary path and public-read-only monitor helpers. Browser display still uses committed/local JSON unless a future operator runtime supplies a refresh endpoint.
+- UAT4.2 supports a local refresh summary path and public-read-only monitor helpers. The live-charting hotfix lets the browser poll Hyperliquid testnet public `allMids` and `candleSnapshot` every 15 seconds, then falls back to committed/local JSON if public polling fails.
 
 ## Chart Rules
 
 - The chart area must be central.
-- UAT4.2 prefers refreshed public-read-only monitor candles and falls back to committed UAT summaries.
+- UAT4.2 prefers live Hyperliquid testnet public candles, falls back to refreshed public-read-only monitor candles, then falls back to committed UAT summaries.
 - Any future live chart library must remain public-read-only unless a later phase explicitly scopes otherwise.
 - If candles are insufficient, display explicit unavailable states.
 

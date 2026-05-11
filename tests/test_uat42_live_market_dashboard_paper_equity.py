@@ -147,6 +147,22 @@ def test_dashboard_loads_uat42_summary_and_renders_live_monitor_surfaces() -> No
     assert ".market-change.positive" in css
 
 
+def test_dashboard_live_charting_polls_public_testnet_only() -> None:
+    html, js, _css = _dashboard_assets()
+
+    assert "uat-live-chart-status" in html
+    assert "https://api.hyperliquid-testnet.xyz/info" in js
+    assert "LIVE_MARKET_REFRESH_MS = 15000" in js
+    assert "allMids" in js
+    assert "candleSnapshot" in js
+    assert "live_public_read_only_connected" in js
+    assert "hyperliquid_testnet_public_read_only_browser_poll" in js
+    assert "dashboard_live_chart_private_or_order_payload_forbidden" in js
+    assert "No API keys, private order endpoints, signed order endpoints, or live endpoints are used" in js
+    assert "order endpoints are also not used" in js
+    assert "https://api.hyperliquid.xyz/info" not in js
+
+
 def test_dashboard_watchlist_indicators_markers_and_no_order_controls() -> None:
     html, js, _css = _dashboard_assets()
     dashboard = f"{html}\n{js}"
