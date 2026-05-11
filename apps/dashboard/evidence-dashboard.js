@@ -2454,6 +2454,10 @@
     return `${state.historicalReplay.strategyId}|${state.historicalReplay.symbol}|${state.historicalReplay.timeframe}|${state.historicalReplay.fillAssumption}`;
   }
 
+  const HISTORICAL_PRICE_PANE = 0;
+  const HISTORICAL_RSI_PANE = 1;
+  const HISTORICAL_MACD_PANE = 2;
+
   function historicalChartCandles(replay) {
     return (replay?.candles || [])
       .map((candle) => ({
@@ -2507,6 +2511,14 @@
     }));
   }
 
+  function historicalConstantRows(candles, value) {
+    if (!candles.length) return [];
+    return [
+      { time: candles[0].time, value },
+      { time: candles.at(-1).time, value },
+    ];
+  }
+
   function historicalLatestIndicatorValue(replay, key) {
     const row = historicalOscillatorRows(replay, key).at(-1);
     return row ? compactNumber(row.value) : "indicator_unavailable";
@@ -2518,7 +2530,7 @@
       <span><b class="legend-dot macd"></b>MACD ${escapeHtml(historicalLatestIndicatorValue(replay, "MACD"))}</span>
       <span><b class="legend-dot macd-signal"></b>Signal ${escapeHtml(historicalLatestIndicatorValue(replay, "MACD_signal"))}</span>
       <span><b class="legend-dot macd-histogram"></b>Hist ${escapeHtml(historicalLatestIndicatorValue(replay, "MACD_histogram"))}</span>
-      <span>All indicator series share the candle time scale.</span>
+      <span>RSI and MACD use separate TradingView panes with the same candle time scale.</span>
     `;
   }
 
@@ -2549,6 +2561,38 @@
     if (!chartState.chart || !chartState.mount) return;
     const { width, height } = chartDimensions(chartState.mount);
     chartState.chart.resize(width, height);
+    setHistoricalReplayPaneHeights(chartState.chart, height);
+  }
+
+  function setHistoricalReplayPaneHeights(chart, height) {
+    if (!chart || typeof chart.panes !== "function") return;
+    const panes = chart.panes();
+    if (!Array.isArray(panes) || panes.length < 3) return;
+    const priceHeight = Math.max(390, Math.round(height * 0.58));
+    const rsiHeight = Math.max(140, Math.round(height * 0.18));
+    const macdHeight = Math.max(160, height - priceHeight - rsiHeight);
+    [
+      [HISTORICAL_PRICE_PANE, priceHeight],
+      [HISTORICAL_RSI_PANE, rsiHeight],
+      [HISTORICAL_MACD_PANE, macdHeight],
+    ].forEach(([paneIndex, paneHeight]) => {
+      if (typeof panes[paneIndex]?.setHeight === "function") {
+        panes[paneIndex].setHeight(paneHeight);
+      }
+    });
+  }
+
+  function applyHistoricalReplayPaneScale(chart, paneIndex) {
+    if (!chart || typeof chart.priceScale !== "function") return;
+    try {
+      chart.priceScale("right", paneIndex).applyOptions({
+        visible: true,
+        borderVisible: true,
+        borderColor: "rgba(133, 156, 171, 0.18)",
+      });
+    } catch (_error) {
+      // Lightweight Charts creates pane scales lazily; missing pane scales are non-fatal.
+    }
   }
 
   function scheduleHistoricalReplayChartResize() {
@@ -2575,6 +2619,8 @@
       chartState.indicatorSeries[label]?.setData(historicalIndicatorRows(replay, label));
     });
     chartState.indicatorSeries.RSI?.setData(historicalOscillatorRows(replay, "RSI"));
+    chartState.indicatorSeries.RSI_floor?.setData(historicalConstantRows(candles, 0));
+    chartState.indicatorSeries.RSI_ceiling?.setData(historicalConstantRows(candles, 100));
     chartState.indicatorSeries.MACD?.setData(historicalOscillatorRows(replay, "MACD"));
     chartState.indicatorSeries.MACD_signal?.setData(historicalOscillatorRows(replay, "MACD_signal"));
     chartState.indicatorSeries.MACD_histogram?.setData(historicalMacdHistogramRows(replay));
@@ -2655,7 +2701,7 @@
         visible: true,
         borderVisible: true,
         borderColor: "rgba(133, 156, 171, 0.18)",
-        scaleMargins: { top: 0.05, bottom: 0.46 },
+        scaleMargins: { top: 0.05, bottom: 0.08 },
       },
       timeScale: {
         borderColor: "rgba(133, 156, 171, 0.18)",
@@ -2672,14 +2718,14 @@
       priceFormat: chartPriceFormat(candles),
       priceLineVisible: true,
       lastValueVisible: true,
-    });
+    }, HISTORICAL_PRICE_PANE);
     candleSeries.setData(chartPriceRows(candles));
     const volumeSeries = chart.addSeries(tv.HistogramSeries, {
       priceFormat: { type: "volume" },
       priceScaleId: "volume",
       color: "rgba(107, 132, 145, 0.35)",
-    });
-    chart.priceScale("volume").applyOptions({ scaleMargins: { top: 0.94, bottom: 0 } });
+    }, HISTORICAL_PRICE_PANE);
+    chart.priceScale("volume", HISTORICAL_PRICE_PANE).applyOptions({ scaleMargins: { top: 0.94, bottom: 0 } });
     volumeSeries.setData(chartVolumeRows(candles));
     const lineSeries = {};
     [
@@ -2694,52 +2740,64 @@
         priceLineVisible: false,
         lastValueVisible: true,
         title: label,
-      });
+      }, HISTORICAL_PRICE_PANE);
       line.setData(historicalIndicatorRows(replay, label));
       lineSeries[label] = line;
     });
     const rsiSeries = chart.addSeries(tv.LineSeries, {
       color: "#22d3ee",
       lineWidth: 2,
-      priceScaleId: "rsi",
+      priceScaleId: "right",
       priceFormat: { type: "price", precision: 2, minMove: 0.01 },
       priceLineVisible: true,
       lastValueVisible: true,
       title: "RSI 14",
-    });
-    chart.priceScale("rsi").applyOptions({
-      visible: false,
-      borderVisible: false,
-      scaleMargins: { top: 0.61, bottom: 0.25 },
-    });
+    }, HISTORICAL_RSI_PANE);
     rsiSeries.setData(historicalOscillatorRows(replay, "RSI"));
     if (typeof rsiSeries.createPriceLine === "function") {
       rsiSeries.createPriceLine({ price: 70, color: "rgba(255, 90, 102, 0.55)", lineWidth: 1, lineStyle: tv.LineStyle.Dashed, axisLabelVisible: false, title: "RSI 70" });
       rsiSeries.createPriceLine({ price: 30, color: "rgba(37, 208, 132, 0.45)", lineWidth: 1, lineStyle: tv.LineStyle.Dashed, axisLabelVisible: false, title: "RSI 30" });
     }
     lineSeries.RSI = rsiSeries;
+    const rsiFloor = chart.addSeries(tv.LineSeries, {
+      color: "rgba(0, 0, 0, 0)",
+      lineWidth: 1,
+      priceScaleId: "right",
+      priceFormat: { type: "price", precision: 2, minMove: 0.01 },
+      priceLineVisible: false,
+      lastValueVisible: false,
+      title: "RSI floor",
+    }, HISTORICAL_RSI_PANE);
+    rsiFloor.setData(historicalConstantRows(candles, 0));
+    const rsiCeiling = chart.addSeries(tv.LineSeries, {
+      color: "rgba(0, 0, 0, 0)",
+      lineWidth: 1,
+      priceScaleId: "right",
+      priceFormat: { type: "price", precision: 2, minMove: 0.01 },
+      priceLineVisible: false,
+      lastValueVisible: false,
+      title: "RSI ceiling",
+    }, HISTORICAL_RSI_PANE);
+    rsiCeiling.setData(historicalConstantRows(candles, 100));
+    lineSeries.RSI_floor = rsiFloor;
+    lineSeries.RSI_ceiling = rsiCeiling;
     const macdHistogram = chart.addSeries(tv.HistogramSeries, {
-      priceScaleId: "macd",
+      priceScaleId: "right",
       priceFormat: { type: "price", precision: 4, minMove: 0.0001 },
       base: 0,
       color: "rgba(37, 208, 132, 0.42)",
       title: "MACD histogram",
-    });
-    chart.priceScale("macd").applyOptions({
-      visible: false,
-      borderVisible: false,
-      scaleMargins: { top: 0.78, bottom: 0.08 },
-    });
+    }, HISTORICAL_MACD_PANE);
     macdHistogram.setData(historicalMacdHistogramRows(replay));
     const macdLine = chart.addSeries(tv.LineSeries, {
       color: "#22d3ee",
       lineWidth: 2,
-      priceScaleId: "macd",
+      priceScaleId: "right",
       priceFormat: { type: "price", precision: 4, minMove: 0.0001 },
       priceLineVisible: true,
       lastValueVisible: true,
       title: "MACD",
-    });
+    }, HISTORICAL_MACD_PANE);
     macdLine.setData(historicalOscillatorRows(replay, "MACD"));
     if (typeof macdLine.createPriceLine === "function") {
       macdLine.createPriceLine({ price: 0, color: "rgba(201, 213, 220, 0.35)", lineWidth: 1, lineStyle: tv.LineStyle.Dashed, axisLabelVisible: false, title: "MACD zero" });
@@ -2752,11 +2810,13 @@
       priceLineVisible: true,
       lastValueVisible: true,
       title: "MACD signal",
-    });
+    }, HISTORICAL_MACD_PANE);
     macdSignalLine.setData(historicalOscillatorRows(replay, "MACD_signal"));
     lineSeries.MACD = macdLine;
     lineSeries.MACD_signal = macdSignalLine;
     lineSeries.MACD_histogram = macdHistogram;
+    applyHistoricalReplayPaneScale(chart, HISTORICAL_RSI_PANE);
+    applyHistoricalReplayPaneScale(chart, HISTORICAL_MACD_PANE);
     const markers = historicalChartMarkers(replay, candles);
     if (typeof tv.createSeriesMarkers === "function") {
       chartState.markerHandle = tv.createSeriesMarkers(candleSeries, markers);
@@ -2771,6 +2831,7 @@
     chartState.indicatorSeries = lineSeries;
     chartState.key = chartKey;
     chartState.ready = true;
+    setHistoricalReplayPaneHeights(chart, height);
     if (typeof ResizeObserver !== "undefined") {
       const observer = new ResizeObserver(scheduleHistoricalReplayChartResize);
       observer.observe(mount);

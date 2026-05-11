@@ -75,7 +75,7 @@ All nine symbol/timeframe datasets are available. The dashboard summary now incl
 | Historical Replay tab | implemented | Added to the dashboard navigation. |
 | Replay strategy selector | implemented | Dropdown supports `OG replay / strategy` and `MACD removed`. |
 | TradingView chart | implemented | Historical candlesticks with visible price scale and bounded chart height. |
-| Indicator overlays | implemented | EMA5, EMA10, and SMA20 render on the price chart. RSI 14 and MACD now render inside the same TradingView chart on the same time scale as the candles, using bounded vertical indicator bands; RSI/MACD values also remain available in the trade inspector/export. MACD values are inspectable even when the MACD-removed replay variant does not use MACD as a gate. |
+| Indicator overlays | implemented | EMA5, EMA10, and SMA20 render on the price pane. RSI 14 and MACD now render in separate TradingView panes inside the same chart instance, sharing the candle time scale/crosshair while keeping separate value scales; RSI/MACD values also remain available in the trade inspector/export. MACD values are inspectable even when the MACD-removed replay variant does not use MACD as a gate. |
 | Entry markers | implemented | Green markers represent historical replay entry fills only. |
 | Exit markers | implemented | Red markers represent historical replay exit fills; yellow markers represent trim/reduce events when present. |
 | Trade inspector | implemented | Shows entry/exit timing, reasons, indicators, costs, PnL, equity, drawdown, and regime. |
@@ -117,7 +117,7 @@ All nine symbol/timeframe datasets are available. The dashboard summary now incl
 | --- | --- | --- |
 | Playback controls | deferred | Static replay display is implemented first; play/pause and step-one-candle controls are deferred to PT0.0.3. |
 | DB-backed live replay regeneration | needs_verification | Local DB connectivity must be restored or explicitly configured before regenerating directly from persisted candles. |
-| Advanced RSI/MACD interactions | deferred | RSI and MACD are time-aligned with candles in the same chart; click-to-select directly from indicator bands can be added later. |
+| Advanced RSI/MACD interactions | deferred | RSI and MACD are time-aligned with candles in separate TradingView panes; click-to-select directly from indicator panes can be added later. |
 | MACD-removed production interpretation | deferred | The MACD-removed result is research-only and does not approve a Money Flow rule change. |
 
 ## Next Recommended Phase

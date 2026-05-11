@@ -764,9 +764,9 @@ h3 {
 }
 
 .historical-replay-chart .tradingview-lightweight-chart {
-  height: clamp(560px, 70vh, 860px);
+  height: clamp(720px, 82vh, 1040px);
   min-height: 0;
-  max-height: 860px;
+  max-height: 1040px;
   overflow: hidden;
   contain: layout paint size;
 }

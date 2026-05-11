@@ -214,12 +214,15 @@ def test_dashboard_has_historical_replay_tab_and_stable_chart_container() -> Non
     assert "renderHistoricalReplayChart" in js
     assert "historicalOscillatorRows" in js
     assert "historicalMacdHistogramRows" in js
-    assert 'priceScaleId: "rsi"' in js
-    assert 'priceScaleId: "macd"' in js
+    assert "HISTORICAL_RSI_PANE" in js
+    assert "HISTORICAL_MACD_PANE" in js
+    assert "setHistoricalReplayPaneHeights" in js
+    assert "chart.panes" in js
+    assert "historicalConstantRows" in js
     assert "createPriceLine" in js
     assert "historicalChartMarkers" in js
     assert ".historical-replay-chart .tradingview-lightweight-chart" in css
-    assert "height: clamp(560px, 70vh, 860px);" in css
+    assert "height: clamp(720px, 82vh, 1040px);" in css
     assert "contain: layout paint size;" in css
     assert ".historical-overlay-legend" in css
     assert ".legend-dot.rsi" in css
