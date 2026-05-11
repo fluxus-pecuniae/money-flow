@@ -8,23 +8,45 @@ def test_evidence_dashboard_static_assets_exist() -> None:
     assert (dashboard_dir / "evidence-dashboard.css").exists()
     assert (dashboard_dir / "evidence-dashboard.js").exists()
     assert (dashboard_dir / "README.md").exists()
+    assert (dashboard_dir / "DESIGN.md").exists()
 
 
-def test_evidence_dashboard_uses_gus_design_tokens_and_boundaries() -> None:
+def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() -> None:
     html = Path("apps/dashboard/index.html").read_text(encoding="utf-8")
     css = Path("apps/dashboard/evidence-dashboard.css").read_text(encoding="utf-8")
     js = Path("apps/dashboard/evidence-dashboard.js").read_text(encoding="utf-8")
 
     assert "../../variables.css" in css
-    assert "--color-grid-canvas" in css
-    assert "--color-scroll-highlight" in css
-    assert "box-shadow" not in css
+    assert "--color-shell" in css
+    assert "--color-panel" in css
+    assert "--color-green" in css
+    assert "--color-red" in css
+    assert "--color-amber" in css
+    assert ".uat-workstation-grid" in css
+    assert ".exchange-chart-shell" in css
+    assert ".uat-right-rail" in css
+    assert ".uat-bottom-blotter" in css
     assert "Evidence Dashboard" in html
     assert "data-view=\"experiments\"" in html
     assert "data-view=\"uat-shadow\"" in html
+    assert "data-view=\"uat-cockpit\"" in html
+    assert "Money Flow UAT Workstation" in html
+    assert "UAT Chart Cockpit" in html
+    assert "Markets" in html
+    assert "Order Book" in html
+    assert "Market Info" in html
+    assert "Signal Context" in html
+    assert "Risk Context" in html
+    assert "data-uat-bottom-tab=\"routed\"" in html
+    assert "data-uat-bottom-tab=\"shadow\"" in html
+    assert "data-uat-bottom-tab=\"balances\"" in html
+    assert "data-uat-bottom-tab=\"lifecycle\"" in html
+    assert "data-uat-bottom-tab=\"audit\"" in html
     assert "UAT2 Shadow Run" in html
     assert "uat2_shadow_strategy_top20_observation_summary.json" in js
     assert "renderUatDashboard" in js
+    assert "renderUatRightRail" in js
+    assert "renderUatBottomTabs" in js
     assert "uat-signal-matrix" in html
     assert "uat-would-open-table" in html
     assert "uat-boundary-panel" in html

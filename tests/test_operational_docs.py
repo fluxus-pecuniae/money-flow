@@ -137,7 +137,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "canonical Obsidian command center" in command_center
-    assert "`UAT4.0` live UAT dashboard / chart cockpit is complete" in current_phase
+    assert "`UAT4.1` exchange-style dashboard redesign is complete" in current_phase
     assert "SV1.18" in command_center
     assert "UAT0" in command_center
     assert "UAT1 public read-only connectivity is complete" in command_center
@@ -148,6 +148,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "UAT3.2 fixed-key readiness preflight" in command_center
     assert "UAT3.4 is complete: the Hyperliquid testnet ETH route" in command_center
     assert "UAT4.0 is complete" in command_center
+    assert "UAT4.1 is complete" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
     assert "Strategy Validation" in moved_memory
@@ -163,6 +164,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "UAT3.3 Hyperliquid account-targeting / precision hardening is complete" in moved_memory
     assert "UAT3.4 production-like sandbox routing pipeline and routed-order ledger are complete" in moved_memory
     assert "UAT4.0 read-only dashboard/chart cockpit is complete" in moved_memory
+    assert "UAT4.1 exchange-style dashboard redesign is complete" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
 
@@ -177,7 +179,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
     assert (
-        "Current implemented milestone | `UAT4.0` live UAT dashboard/chart cockpit complete"
+        "Current implemented milestone | `UAT4.1` exchange-style dashboard redesign complete"
         in command_center
     )
     assert "Canonical command center" in compatibility_command_center
@@ -191,6 +193,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     assert "UAT3.3" in command_center
     assert "UAT3.4" in current_dashboard
     assert "UAT4.0 read-only dashboard/chart cockpit is complete" in current_dashboard
+    assert "UAT4.1 exchange-style dashboard redesign is complete" in current_dashboard
     assert "Strategy Validation is now its own major track" in Path("money-flow/00 Maps/Phase Timeline.md").read_text()
     assert "What Strategy Validation Did" in sv_map
     assert "What Strategy Validation Did Not Prove" in sv_map
@@ -319,6 +322,7 @@ def test_uat0_operational_truth_is_current() -> None:
     uat33_report = Path("docs/uat3_3_hyperliquid_account_targeting_precision_and_order_attempt.md").read_text()
     uat34_report = Path("docs/uat3_4_sandbox_routing_pipeline_and_order_ledger.md").read_text()
     uat40_report = Path("docs/uat4_0_live_uat_dashboard_chart_cockpit.md").read_text()
+    uat41_report = Path("docs/uat4_1_exchange_style_dashboard_redesign.md").read_text()
     current_notes = [
         Path("money-flow/00_Money_Flow_Command_Center.md").read_text(),
         Path("money-flow/01_Current_Phase.md").read_text(),
@@ -559,6 +563,15 @@ def test_uat0_operational_truth_is_current() -> None:
     assert "Live trading is not approved" in uat40_report
     assert "No private/signed/order endpoints" in uat40_report
 
+    assert "UAT4.1 Exchange-Style Dashboard Redesign" in uat41_report
+    assert "UAT4.1 is dashboard redesign only" in uat41_report
+    assert "exchange-style UAT workstation" in uat41_report
+    assert "DESIGN.md Replacement Status" in uat41_report
+    assert "Routed Orders" in uat41_report
+    assert "no order controls" in uat41_report
+    assert "Paper trading is not approved" in uat41_report
+    assert "Live trading is not approved" in uat41_report
+
     for note in current_notes:
         assert "UAT0" in note
         assert "UAT0.1" in note
@@ -575,6 +588,7 @@ def test_uat0_operational_truth_is_current() -> None:
         assert "UAT3.2" in note
         assert "UAT3.3" in note
         assert "UAT4.0" in note
+        assert "UAT4.1" in note
         assert "Paper trading is not approved" in note
         assert "Live trading is not approved" in note
         assert (

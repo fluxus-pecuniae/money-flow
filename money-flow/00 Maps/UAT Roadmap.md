@@ -4,7 +4,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 UAT validates plumbing and behavior. It does not prove profitability.
 
-Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, UAT1.1 shadow readiness is complete, UAT2 bounded no-order shadow strategy observation is complete, UAT2.1 dashboard visualization is complete, UAT3.0 sandbox-order design/readiness is complete, UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete, UAT3.0.2 sandbox gate integration dry-run / policy hardening is complete, UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete, UAT3.0.4 sandbox private read-only drawdown readiness is complete, UAT3.0.5 sandbox/testnet private read-only drawdown verification is complete, UAT3.0.6 sandbox submit path dry-run wiring is complete, UAT3.1 first sandbox/testnet lifecycle probe is complete, UAT3.2 fixed-key preflight / second sandbox lifecycle attempt is complete as blocked before order transport, UAT3.3 Hyperliquid account-targeting / precision hardening is complete with a later successful follow-up lifecycle, UAT3.4 fixed-target sandbox routing / routed-order ledger is complete, and UAT4.0 read-only dashboard/chart cockpit is complete. Additional sandbox orders require separate approval.
+Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, UAT1.1 shadow readiness is complete, UAT2 bounded no-order shadow strategy observation is complete, UAT2.1 dashboard visualization is complete, UAT3.0 sandbox-order design/readiness is complete, UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete, UAT3.0.2 sandbox gate integration dry-run / policy hardening is complete, UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete, UAT3.0.4 sandbox private read-only drawdown readiness is complete, UAT3.0.5 sandbox/testnet private read-only drawdown verification is complete, UAT3.0.6 sandbox submit path dry-run wiring is complete, UAT3.1 first sandbox/testnet lifecycle probe is complete, UAT3.2 fixed-key preflight / second sandbox lifecycle attempt is complete as blocked before order transport, UAT3.3 Hyperliquid account-targeting / precision hardening is complete with a later successful follow-up lifecycle, UAT3.4 fixed-target sandbox routing / routed-order ledger is complete, UAT4.0 read-only dashboard/chart cockpit is complete, and UAT4.1 exchange-style dashboard redesign is complete. Additional sandbox orders require separate approval.
 
 ## Frozen Observation Candidate
 
@@ -268,7 +268,19 @@ Status: complete. The static dashboard now has a `UAT Chart Cockpit` tab sourced
 
 Implemented capabilities: local static chart snapshots for watched pairs, green shadow/sandbox-entry markers, red sandbox-cancel markers, routed orders tab, observed watchlist, market-data coverage, EMA5 / EMA10 / SMA20 / RSI / MACD labels, UAT order lifecycle overlay, sandbox/not-live labels, and no paper/live confusion.
 
-Deferred capabilities: public-read-only live refresh and richer charting can be scoped as UAT4.1. Private/signed/order endpoints, API keys, and order controls remain forbidden.
+Deferred capabilities: public-read-only live refresh and richer charting can be scoped as UAT4.2. Private/signed/order endpoints, API keys, and order controls remain forbidden.
+
+## UAT4.1 - Exchange-Style Dashboard Redesign + DESIGN.md Rebuild
+
+Objective: rebuild the UAT dashboard around a usable exchange-like trading workstation layout without adding any order controls or exchange calls.
+
+Status: complete. The static dashboard now uses a compact top bar, persistent safety banner, left observation-only market rail, central chart cockpit, right order-book / market-info / signal-context / risk-context rail, and bottom blotter tabs for Routed Orders, Shadow Signals, Balances / Positions, Lifecycle, and Audit / Logs. The canonical dashboard design doc is `apps/dashboard/DESIGN.md`; root `DESIGN.md` is only a pointer.
+
+Allowed behavior: local dashboard visualization, committed UAT2/UAT3.4 summary loading, marker/indicator/routed-ledger organization, no-order safety labeling, docs, and tests.
+
+Forbidden behavior: order buttons, cancel/retry/amend/approval controls, paper/live toggles, private/signed/order endpoints, exchange API keys, live trading, paper trading, Money Flow rule changes, smart routing/SOR/fanout/target reselection, broad top-20 orders, production auto-submit, and evidence packs.
+
+Deferred capabilities: UAT4.2 may scope public-read-only live refresh, a real chart library, and richer public market-data coverage while preserving no-key/no-private/no-signed/no-order boundaries.
 
 ## UAT3.2 - Additional Sandbox Lifecycle Testing
 

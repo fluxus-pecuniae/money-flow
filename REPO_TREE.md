@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-11T06:45:00Z`
+Last reviewed: `2026-05-11T07:03:40Z`
 
 ## Top-Level Structure
 
@@ -11,6 +11,7 @@ Last reviewed: `2026-05-11T06:45:00Z`
 ├── .gitignore
 ├── AGENTS.md
 ├── CHANGELOG.md
+├── DESIGN.md
 ├── KNOWN_ISSUES.md
 ├── TODO.md
 ├── REPO_TREE.md
@@ -37,6 +38,10 @@ Last reviewed: `2026-05-11T06:45:00Z`
 `.archiveignore`
 - Review-bundle hygiene guard consumed by `scripts/create_review_bundle.py`.
 - Excludes Git metadata, local secrets, virtualenvs, caches, generated archives, generated strategy-validation evidence packs, database/socket state, and Obsidian app state such as `money-flow/.obsidian/` from handoff ZIPs while keeping sample configs and tracked Obsidian markdown notes reviewable.
+
+`DESIGN.md`
+- Root pointer only.
+- Points dashboard designers/operators to the canonical dashboard design system at `apps/dashboard/DESIGN.md`.
 
 `configs/strategy_validation/`
 - Strategy Validation research campaign configs.
@@ -142,6 +147,8 @@ Last reviewed: `2026-05-11T06:45:00Z`
 - UAT3.0.4 does not update the dashboard. Private read-only sandbox drawdown readiness remains documented/tested only and still adds no active order-submission or approval control.
 - UAT3.1 does not update the dashboard. The one-shot lifecycle probe is documented in `docs/uat3_1_first_sandbox_order_attempt.md` and has no general dashboard order button or repeated-order control.
 - UAT3.4 adds a routed-orders visibility section to the UAT dashboard. It loads `docs/uat3_4_sandbox_routing_pipeline_and_order_ledger_summary.json`, shows run/route/lifecycle/cancel/reconcile/equity-source/sandbox-label truth, and still has no order button, repeated-order control, live control, or approval action.
+- UAT4.0 adds the read-only UAT Chart Cockpit from committed UAT2/UAT3.4 summaries.
+- UAT4.1 rebuilds that cockpit into an exchange-style workstation with compact top bar, left market rail, central chart cockpit, right order-book/market/signal/risk rail, bottom blotter tabs, and the canonical `apps/dashboard/DESIGN.md` design system. It remains local-summary-only and adds no order, cancel, retry, amend, approval, paper/live, route, or auto-trade controls.
 
 `docs/uat0_safety_security_runtime_hardening.md`
 - Founder/operator UAT0 safety, security, runtime, and operational-readiness audit.
@@ -250,6 +257,10 @@ Last reviewed: `2026-05-11T06:45:00Z`
 `docs/uat4_0_live_uat_dashboard_chart_cockpit.md`
 - Founder/operator UAT4.0 dashboard/chart cockpit report.
 - Records dashboard sections, watchlist, market-data coverage, chart/indicator labels, entry/exit marker semantics, routed orders tab, active sandbox route card, unified equity-source visibility, no-order-control confirmation, limitations, and next dashboard improvements.
+
+`docs/uat4_1_exchange_style_dashboard_redesign.md`
+- Founder/operator UAT4.1 dashboard redesign report.
+- Records the UAT4.0 usability problems, exchange-style layout principles, `apps/dashboard/DESIGN.md` replacement status, top bar / watchlist / chart cockpit / right rail / bottom blotter sections, marker and routed-order semantics, no-order-control confirmation, remaining UI limitations, and next dashboard work.
 
 `services/exchange/hyperliquid/precision.py`
 - Decimal-only Hyperliquid precision formatter.
@@ -808,3 +819,6 @@ Last reviewed: `2026-05-11T06:45:00Z`
 
 `tests/test_uat40_dashboard_chart_cockpit.py`
 - UAT4.0 dashboard cockpit checks: verifies the UAT Chart Cockpit tab, observation-only watchlist, active ETH sandbox route card, market-data coverage, indicator labels, shadow/sandbox marker semantics, routed-order ledger fields, persistent no-paper/no-live/no-order-control safety labels, and absence of order/cancel/retry/amend/approval/paper-live controls.
+
+`tests/test_uat41_exchange_dashboard_redesign.py`
+- UAT4.1 exchange-style dashboard redesign checks: verifies the rebuilt canonical design doc, root design pointer, exchange workstation sections, top bar, watchlist, central chart, right rail, bottom blotter tabs, routed-order lifecycle visibility, observation-only watchlist labels, indicator/marker semantics, and absence of order/cancel/retry/amend/approval/paper-live controls.

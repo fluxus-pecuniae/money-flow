@@ -435,6 +435,8 @@
     uatCockpit: {
       symbol: "ETH",
       timeframe: "1h",
+      watchlistFilter: "all",
+      bottomTab: "routed",
       routedSymbol: "all",
       routedLifecycle: "all",
       routedEnvironment: "all",
@@ -506,11 +508,16 @@
     uatCockpitSummaryCards: document.querySelector("#uat-cockpit-summary-cards"),
     uatCockpitSymbolFilter: document.querySelector("#uat-cockpit-symbol-filter"),
     uatCockpitTimeframeFilter: document.querySelector("#uat-cockpit-timeframe-filter"),
+    uatWatchlistFilters: document.querySelector("#uat-watchlist-filters"),
     uatWatchlistTable: document.querySelector("#uat-watchlist-table"),
     uatPriceChart: document.querySelector("#uat-price-chart"),
     uatIndicatorPanel: document.querySelector("#uat-indicator-panel"),
     uatMarkerPanel: document.querySelector("#uat-marker-panel"),
     uatMarketDataCoverage: document.querySelector("#uat-market-data-coverage"),
+    uatOrderBookPanel: document.querySelector("#uat-order-book-panel"),
+    uatMarketInfoPanel: document.querySelector("#uat-market-info-panel"),
+    uatSignalContextPanel: document.querySelector("#uat-signal-context-panel"),
+    uatRiskContextPanel: document.querySelector("#uat-risk-context-panel"),
     uatRouteStatusCard: document.querySelector("#uat-route-status-card"),
     uatEquitySourceCard: document.querySelector("#uat-equity-source-card"),
     uatRoutedSymbolFilter: document.querySelector("#uat-routed-symbol-filter"),
@@ -519,6 +526,10 @@
     uatRoutedLabelFilter: document.querySelector("#uat-routed-label-filter"),
     uatCockpitRoutedOrdersTable: document.querySelector("#uat-cockpit-routed-orders-table"),
     uatShadowSignalOverlay: document.querySelector("#uat-shadow-signal-overlay"),
+    uatBottomTabs: Array.from(document.querySelectorAll("[data-uat-bottom-tab]")),
+    uatBottomPanels: Array.from(document.querySelectorAll("[data-uat-bottom-panel]")),
+    uatLifecyclePanel: document.querySelector("#uat-lifecycle-panel"),
+    uatAuditLogPanel: document.querySelector("#uat-audit-log-panel"),
   };
 
   function decimal(value, fallback = 0) {
@@ -539,6 +550,15 @@
     return `${(decimal(value) * 100).toLocaleString(undefined, {
       maximumFractionDigits: 1,
     })}%`;
+  }
+
+  function compactNumber(value, digits = 4) {
+    if (value === null || value === undefined || value === "") return "n/a";
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed)) return String(value);
+    return parsed.toLocaleString(undefined, {
+      maximumFractionDigits: digits,
+    });
   }
 
   function cleanComponentName(component) {
@@ -1819,76 +1839,120 @@
     if (!elements.uatCockpitSummaryCards) return;
     const records = uatRecords();
     const ledger = routedLedgerRecords();
+    const activeRecord = selectedCockpitRecord();
+    const activeStatus = activeRecord?.signal_status || "no_data";
+    const routeStatus = state.uat34Summary?.route_definition?.route_id ? "ETH route ledger visible" : "route not loaded";
     const cards = [
-      ["Watched pairs", String(UAT_WATCHLIST_SYMBOLS.length), "UAT1 observation assets"],
-      ["Chart source", "local JSON", "live public refresh deferred"],
-      ["Indicator labels", "EMA5 EMA10 SMA20 RSI MACD", "deterministic from UAT2 summaries"],
-      ["Shadow records", String(records.length), "would-open/no-trade overlay source"],
-      ["Routed records", String(ledger.length), "UAT3.4 sandbox ledger"],
-      ["Order controls", "absent", "visualization only"],
-      ["Private endpoints", "not called", "dashboard uses committed summaries"],
-      ["Paper/live", "not approved", "sandbox/not-live labels only"],
-      ["Active route", state.uat34Summary?.route_definition?.route_id || "not loaded", "fixed target"],
-      ["Selected equity", state.uat34Summary?.equity_resolution?.selected_equity_source || "not loaded", "visibility only"],
+      ["Environment", "sandbox/testnet", "no live endpoint"],
+      ["Market", `${state.uatCockpit.symbol}-PERP`, "Hyperliquid"],
+      ["Timeframe", state.uatCockpit.timeframe, "15m / 1h / 4h"],
+      ["Signal", activeStatus, "shadow audit status"],
+      ["Route", routeStatus, "fixed-target only"],
+      ["Records", `${records.length} shadow / ${ledger.length} routed`, "local JSON"],
+      ["Orders", "disabled in UI", "visualization only"],
+      ["Paper / Live", "not approved", "sandbox labels required"],
     ];
     elements.uatCockpitSummaryCards.innerHTML = cards
       .map(([label, value, detail]) => `
-        <article class="metric-cell">
-          <span class="metric-label">${escapeHtml(label)}</span>
+        <div class="status-chip">
+          <span>${escapeHtml(label)}</span>
           <strong>${escapeHtml(value)}</strong>
           <small>${escapeHtml(detail)}</small>
-        </article>
+        </div>
       `)
       .join("");
   }
 
   function renderUatWatchlist() {
     if (!elements.uatWatchlistTable) return;
-    elements.uatWatchlistTable.innerHTML = `
-      <table>
-        <thead>
-          <tr>
-            <th>Symbol</th>
-            <th>Venue</th>
-            <th>Product</th>
-            <th>Quote / Settlement</th>
-            <th>Market Data</th>
-            <th>Chart Available</th>
-            <th>Precision</th>
-            <th>UAT Status</th>
-            <th>Order Enabled</th>
-            <th>Paper / Live</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${UAT_WATCHLIST_SYMBOLS.map((symbol) => {
-            const records = uatRecords().filter((row) => row.symbol === symbol);
-            const precision = precisionBySymbol(symbol);
-            const chartAvailable = records.length > 0;
-            const orderEnabled = symbol === "ETH" ? "sandbox route ledger only; no dashboard control" : "false";
-            const precisionStatus = precision
-              ? precision.precision_validation_passed
-                ? "passed"
-                : `failed: ${(precision.reason_codes || []).join(", ")}`
-              : "not loaded";
-            return `
-              <tr>
-                <td>${escapeHtml(symbol)}</td>
-                <td>Hyperliquid</td>
-                <td>USDC perpetual</td>
-                <td>USDC / USDC</td>
-                <td>${escapeHtml(chartAvailable ? "market_data_available_from_uat2_summary" : "market_data_unavailable")}</td>
-                <td>${escapeHtml(String(chartAvailable))}</td>
-                <td>${escapeHtml(precisionStatus)}</td>
-                <td>observation-only</td>
-                <td>${escapeHtml(orderEnabled)}</td>
-                <td>false / false</td>
-              </tr>
-            `;
-          }).join("")}
-        </tbody>
-      </table>
-    `;
+    const filterOptions = [
+      ["all", "All"],
+      ["would_open", "Would-open"],
+      ["no_trade", "No-trade"],
+      ["active_sandbox_route", "Active sandbox route"],
+      ["missing_data", "Missing data"],
+      ["favorites", "Favorites"],
+    ];
+    if (elements.uatWatchlistFilters) {
+      elements.uatWatchlistFilters.innerHTML = filterOptions
+        .map(([id, label]) => `
+          <button class="micro-tab" type="button" role="tab" aria-selected="${state.uatCockpit.watchlistFilter === id}" data-watchlist-filter="${escapeHtml(id)}">${escapeHtml(label)}</button>
+        `)
+        .join("");
+      elements.uatWatchlistFilters.querySelectorAll("button").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.uatCockpit.watchlistFilter = button.dataset.watchlistFilter || "all";
+          renderUatCockpit();
+        });
+      });
+    }
+
+    const rows = UAT_WATCHLIST_SYMBOLS.map((symbol) => {
+      const records = uatRecords().filter((row) => row.symbol === symbol);
+      const selectedRecord = uatRecordFor(symbol, state.uatCockpit.timeframe) || records[0];
+      const precision = precisionBySymbol(symbol);
+      const chartAvailable = records.length > 0;
+      const latest = selectedRecord?.indicator_summary?.latest_close || precision?.sample_mid || "n/a";
+      const signalStatus = selectedRecord?.signal_status || "no_data";
+      const precisionStatus = precision
+        ? precision.precision_validation_passed
+          ? "precision_ok"
+          : `precision_blocked: ${(precision.reason_codes || []).join(", ")}`
+        : "precision_not_loaded";
+      const isActiveRoute = symbol === "ETH" && routedLedgerRecords().some((row) => row.symbol === "ETH");
+      return {
+        symbol,
+        latest,
+        signalStatus,
+        precisionStatus,
+        chartAvailable,
+        marketDataStatus: chartAvailable ? "market_data_available_from_uat2_summary" : "market_data_unavailable",
+        orderStatus: isActiveRoute
+          ? "ETH sandbox route ledger visible; manual approval required for every sandbox order"
+          : "not approved for orders",
+        activeRoute: isActiveRoute,
+      };
+    }).filter((row) => {
+      switch (state.uatCockpit.watchlistFilter) {
+        case "would_open":
+          return row.signalStatus === "would_open";
+        case "no_trade":
+          return row.signalStatus === "no_trade";
+        case "active_sandbox_route":
+          return row.activeRoute;
+        case "missing_data":
+          return !row.chartAvailable;
+        case "favorites":
+          return row.symbol === "ETH";
+        default:
+          return true;
+      }
+    });
+
+    if (!rows.length) {
+      setEmpty(elements.uatWatchlistTable, "No watched markets match the selected filter.");
+      return;
+    }
+    elements.uatWatchlistTable.innerHTML = rows
+      .map((row) => `
+        <button class="market-row ${row.symbol === state.uatCockpit.symbol ? "active" : ""}" type="button" data-symbol="${escapeHtml(row.symbol)}">
+          <span class="market-symbol">${escapeHtml(row.symbol)}</span>
+          <span class="market-product">Hyperliquid perp / USDC</span>
+          <span class="market-price">${escapeHtml(compactNumber(row.latest))}</span>
+          <span class="market-change muted">24h change unavailable</span>
+          <span class="market-signal ${row.signalStatus === "would_open" ? "positive" : row.signalStatus === "no_trade" ? "neutral" : "warn"}">${escapeHtml(row.signalStatus)}</span>
+          <span class="market-data-state">${escapeHtml(row.marketDataStatus)}</span>
+          <span class="market-badge">observation only</span>
+          <span class="market-badge warn">${escapeHtml(row.orderStatus)}</span>
+        </button>
+      `)
+      .join("");
+    elements.uatWatchlistTable.querySelectorAll("button").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.uatCockpit.symbol = button.dataset.symbol || "ETH";
+        renderUatCockpit();
+      });
+    });
   }
 
   function renderUatMarketDataCoverage() {
@@ -1936,36 +2000,52 @@
         setEmpty(elements.uatPriceChart, "No chart snapshot is available for the selected pair/timeframe.");
       } else {
         const ind = record.indicator_summary || {};
+        const markers = uatCockpitMarkers().filter((row) => row.symbol === record.symbol);
         const values = [
-          ["Latest close", ind.latest_close],
+          ["open", ind.next_candle_open],
           ["EMA5", ind.ema5],
+          ["close", ind.latest_close],
           ["EMA10", ind.ema10],
           ["SMA20", ind.sma20],
-          ["Next open", ind.next_candle_open],
-          ["Next close", ind.next_candle_close],
+          ["next", ind.next_candle_close],
         ].filter(([, value]) => value !== undefined && value !== null && value !== "");
         const nums = values.map(([, value]) => decimal(value));
         const min = Math.min(...nums);
         const max = Math.max(...nums);
         const span = Math.max(max - min, 1);
         elements.uatPriceChart.innerHTML = `
-          <div class="uat-chart-title-row">
-            <strong>${escapeHtml(record.symbol)} ${escapeHtml(record.timeframe)}</strong>
-            <span>candle close ${escapeHtml(record.candle_close_time_utc)}</span>
+          <div class="exchange-chart-topline">
+            <div>
+              <strong>${escapeHtml(record.symbol)}-PERP</strong>
+              <span>${escapeHtml(record.timeframe)} candle close ${escapeHtml(record.candle_close_time_utc)}</span>
+            </div>
+            <div class="chart-price-tape">
+              <span>Latest</span>
+              <strong>${escapeHtml(compactNumber(ind.latest_close))}</strong>
+            </div>
           </div>
-          <div class="uat-chart-bars" aria-label="Static chart display from UAT summary values">
+          <div class="exchange-chart-canvas" aria-label="Deterministic chart display from UAT summary values">
+            <div class="chart-grid-lines" aria-hidden="true"></div>
             ${values.map(([label, value]) => {
-              const width = Math.max(5, Math.round(((decimal(value) - min) / span) * 92) + 5);
+              const left = Math.max(4, Math.round(((decimal(value) - min) / span) * 88) + 4);
+              const markerClass = ["EMA5", "EMA10", "SMA20"].includes(label) ? "indicator" : "price";
               return `
-                <div class="uat-chart-row">
+                <div class="chart-level ${markerClass}" style="left:${left}%">
                   <span>${escapeHtml(label)}</span>
-                  <div class="bar-track"><div class="bar-fill positive" style="width:${width}%"></div></div>
-                  <strong>${escapeHtml(value)}</strong>
+                  <strong>${escapeHtml(compactNumber(value))}</strong>
                 </div>
               `;
             }).join("")}
+            <div class="chart-marker-layer">
+              ${markers.slice(0, 5).map((marker, index) => `
+                <div class="chart-marker ${marker.markerType.startsWith("green") ? "green" : "red"}" style="left:${Math.min(86, 12 + index * 17)}%">
+                  <span>${marker.markerType.startsWith("green") ? "▲" : "▼"}</span>
+                  <small>${escapeHtml(marker.markerType.replace("green marker: ", "").replace("red marker: ", ""))}</small>
+                </div>
+              `).join("")}
+            </div>
           </div>
-          <p class="strategy-note">Chart display is a deterministic local snapshot, not a live feed. UAT4.1 may add public-read-only refresh without keys.</p>
+          <p class="chart-disclaimer">Deterministic static chart shell from local UAT summaries. Live public refresh is deferred; no private, signed, or order endpoints are used.</p>
         `;
       }
     }
@@ -1982,12 +2062,13 @@
       ["Regime label", "indicator_unavailable_insufficient_history"],
       ["Trend label", "indicator_unavailable_insufficient_history"],
       ["Volatility label", "indicator_unavailable_insufficient_history"],
+      ["Entry quality", record?.signal_status === "would_open" ? "entry_conditions_met_shadow_only" : "indicator_unavailable_insufficient_history"],
     ];
     elements.uatIndicatorPanel.innerHTML = indicatorRows
       .map(([label, value]) => `
-        <div>
+        <div class="indicator-tile">
           <span>${escapeHtml(label)}</span>
-          <strong>${escapeHtml(value || "indicator_unavailable_insufficient_history")}</strong>
+          <strong>${escapeHtml(compactNumber(value || "indicator_unavailable_insufficient_history"))}</strong>
         </div>
       `)
       .join("");
@@ -2064,12 +2145,88 @@
               <td>${escapeHtml(row.source)}</td>
               <td>${escapeHtml(row.reasonCodes.join(", ") || "none")}</td>
               <td>${escapeHtml(row.orderId)}</td>
-              <td>${escapeHtml(row.labels)}</td>
+              <td>${escapeHtml(`${row.labels}; tooltip includes sandbox/not-live and no paper/live confirmation`)}</td>
             </tr>
           `).join("")}
         </tbody>
       </table>
     `;
+  }
+
+  function renderUatRightRail() {
+    const record = selectedCockpitRecord();
+    const ind = record?.indicator_summary || {};
+    const precision = precisionBySymbol(state.uatCockpit.symbol) || {};
+    const route = state.uat34Summary?.route_definition || {};
+    const equity = state.uat34Summary?.equity_resolution || {};
+    const drawdown = state.uat34Summary?.drawdown_feed || {};
+    const reasons = record?.reason_codes?.join(", ") || "none";
+    const riskReasons = record?.risk_summary?.risk_reason_codes?.join(", ") || "none";
+    const microRows = (rows) => rows
+      .map(([label, value, tone]) => `
+        <div class="micro-row ${tone || ""}">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(compactNumber(value))}</strong>
+        </div>
+      `)
+      .join("");
+
+    if (elements.uatOrderBookPanel) {
+      elements.uatOrderBookPanel.innerHTML = `
+        ${microRows([
+          ["Bid", "order_book_unavailable_local_summary_only", "muted"],
+          ["Ask", "order_book_unavailable_local_summary_only", "muted"],
+          ["Spread", "market_data_unavailable", "muted"],
+          ["Reference close", ind.latest_close || "n/a", "positive"],
+          ["Source", "local_summary_json", ""],
+          ["Endpoint category", "public_read_only", ""],
+          ["Private endpoint", "not used", "safe"],
+        ])}
+      `;
+    }
+
+    if (elements.uatMarketInfoPanel) {
+      elements.uatMarketInfoPanel.innerHTML = `
+        ${microRows([
+          ["Latest price", ind.latest_close || precision.sample_mid || "n/a", "positive"],
+          ["Mark price", "market_data_unavailable", "muted"],
+          ["24h volume", "market_data_unavailable", "muted"],
+          ["Open interest", "market_data_unavailable", "muted"],
+          ["Funding", "market_data_unavailable", "muted"],
+          ["Asset id", precision.asset_id ?? "n/a", ""],
+          ["Tick/lot precision", precision.precision_validation_passed === true ? "passed" : precision.reason_codes?.join(", ") || "not loaded", precision.precision_validation_passed === true ? "safe" : "warn"],
+        ])}
+      `;
+    }
+
+    if (elements.uatSignalContextPanel) {
+      elements.uatSignalContextPanel.innerHTML = `
+        ${microRows([
+          ["Money Flow status", record?.signal_status || "no_data", record?.signal_status === "would_open" ? "positive" : "neutral"],
+          ["Component", record?.component || "n/a", ""],
+          ["RSI state", ind.rsi14 || "indicator_unavailable", ""],
+          ["MACD state", ind.macd_histogram ? `histogram ${ind.macd_histogram}` : "indicator_unavailable", ""],
+          ["Trend stack", ind.ema5 && ind.ema10 && ind.sma20 ? "EMA/SMA values loaded" : "indicator_unavailable", ""],
+          ["Entry quality", record?.signal_status === "would_open" ? "shadow would-open only" : "no shadow entry", record?.signal_status === "would_open" ? "positive" : "neutral"],
+          ["No-trade reason", record?.signal_status === "no_trade" ? reasons : "not_applicable", ""],
+        ])}
+      `;
+    }
+
+    if (elements.uatRiskContextPanel) {
+      elements.uatRiskContextPanel.innerHTML = `
+        ${microRows([
+          ["Sandbox route", route.route_id || "not loaded", ""],
+          ["Drawdown status", drawdown.status || "not loaded", drawdown.status === "sandbox_drawdown_feed_live_fed_verified" ? "safe" : "warn"],
+          ["Equity source", equity.selected_equity_source || "not loaded", ""],
+          ["Sandbox equity", equity.selected_sandbox_equity || drawdown.sandbox_account_equity || "n/a", ""],
+          ["Not-live-account", String(Boolean(drawdown.not_live_account)), "safe"],
+          ["Risk status", record?.risk_summary?.risk_status || "not loaded", ""],
+          ["Risk reasons", riskReasons, ""],
+          ["Order submission", "disabled in dashboard", "safe"],
+        ])}
+      `;
+    }
   }
 
   function renderUatRouteAndEquityCards() {
@@ -2224,6 +2381,72 @@
     `;
   }
 
+  function renderUatBottomTabs() {
+    elements.uatBottomTabs.forEach((tab) => {
+      const selected = tab.dataset.uatBottomTab === state.uatCockpit.bottomTab;
+      tab.setAttribute("aria-selected", String(selected));
+      tab.onclick = () => {
+        state.uatCockpit.bottomTab = tab.dataset.uatBottomTab || "routed";
+        renderUatCockpit();
+      };
+    });
+    elements.uatBottomPanels.forEach((panel) => {
+      panel.hidden = panel.dataset.uatBottomPanel !== state.uatCockpit.bottomTab;
+    });
+  }
+
+  function renderUatLifecyclePanel() {
+    if (!elements.uatLifecyclePanel) return;
+    const records = routedLedgerRecords();
+    if (!records.length) {
+      setEmpty(elements.uatLifecyclePanel, "No routed sandbox lifecycle records loaded.");
+      return;
+    }
+    const record = records[0];
+    const steps = [
+      ["planned", "complete", "fixed-target sandbox route selected"],
+      ["submitted", record.endpoint_called ? "complete" : "not_reached", "exactly one sandbox/testnet endpoint call in UAT3.4"],
+      ["accepted/open", record.reason_codes?.includes("order_accepted_open") ? "complete" : "not_reached", `oid ${record.order_id || "n/a"}`],
+      ["canceled", record.cancel_status === "success" ? "complete" : "not_reached", `cancel status ${record.cancel_status || "n/a"}`],
+      ["reconciled", record.reconciliation_status === "completed" ? "complete" : "not_reached", `open order remains ${String(Boolean(record.open_order_remains))}`],
+    ];
+    elements.uatLifecyclePanel.innerHTML = steps
+      .map(([step, status, detail]) => `
+        <div class="lifecycle-step ${status === "complete" ? "complete" : ""}">
+          <span>${escapeHtml(step)}</span>
+          <strong>${escapeHtml(status)}</strong>
+          <small>${escapeHtml(detail)}</small>
+        </div>
+      `)
+      .join("");
+  }
+
+  function renderUatAuditPanel() {
+    if (!elements.uatAuditLogPanel) return;
+    const records = routedLedgerRecords();
+    const events = [
+      ["uat4.1_dashboard", "exchange_style_redesign", "dashboard visualization only; no exchange call"],
+      ["uat4.0_cockpit", "local_json_loaded", "UAT2 shadow summary and UAT3.4 routed ledger"],
+      ["uat3.4_route", records.length ? "accepted/open -> canceled -> reconciled lifecycle" : "ledger_missing", "sandbox/testnet lifecycle probe; not live; not paper"],
+      ["safety", "order controls disabled", "top-20 assets remain observation-only"],
+      ["security", "secrets redacted", "dashboard displays sanitized summaries only"],
+    ];
+    elements.uatAuditLogPanel.innerHTML = `
+      <table>
+        <thead><tr><th>Source</th><th>Event</th><th>Sanitized detail</th></tr></thead>
+        <tbody>
+          ${events.map(([source, event, detail]) => `
+            <tr>
+              <td>${escapeHtml(source)}</td>
+              <td>${escapeHtml(event)}</td>
+              <td>${escapeHtml(detail)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
   function renderUatShadowSignalOverlay() {
     if (!elements.uatShadowSignalOverlay) return;
     const rows = uatRecords().filter((row) => row.symbol === state.uatCockpit.symbol);
@@ -2240,6 +2463,8 @@
             <th>Timeframe</th>
             <th>Status</th>
             <th>Reason codes</th>
+            <th>next_candle_open</th>
+            <th>next_candle_close</th>
             <th>Marker mapping</th>
             <th>Same-candle close</th>
             <th>Operator explanation</th>
@@ -2253,6 +2478,8 @@
               <td>${escapeHtml(row.timeframe)}</td>
               <td>${escapeHtml(row.signal_status)}</td>
               <td>${escapeHtml((row.reason_codes || []).join(", ") || "none")}</td>
+              <td>${escapeHtml(row.timing_status_by_assumption?.next_candle_open || "n/a")}</td>
+              <td>${escapeHtml(row.timing_status_by_assumption?.next_candle_close || "n/a")}</td>
               <td>${escapeHtml(row.signal_status === "would_open" ? "green marker: shadow would-open, not actual trade" : "side-panel only")}</td>
               <td>same_candle_close_research_only remains research-only</td>
               <td>${escapeHtml(row.operator_visible_explanation || "")}</td>
@@ -2264,15 +2491,19 @@
   }
 
   function renderUatCockpit() {
+    renderUatBottomTabs();
     renderUatCockpitFilters();
     renderUatCockpitSummaryCards();
     renderUatWatchlist();
     renderUatMarketDataCoverage();
     renderUatChartAndIndicators();
     renderUatMarkers();
+    renderUatRightRail();
     renderUatRouteAndEquityCards();
     renderUatCockpitRoutedOrders();
     renderUatShadowSignalOverlay();
+    renderUatLifecyclePanel();
+    renderUatAuditPanel();
   }
 
   function renderUatDashboard() {

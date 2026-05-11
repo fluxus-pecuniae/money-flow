@@ -13,6 +13,51 @@ Entry schema:
 
 ---
 
+## v2026.05.11.003
+
+- `recorded_at_utc`: `2026-05-11T07:03:40Z`
+- `scope`: `UAT4.1 exchange-style dashboard redesign + DESIGN.md rebuild`
+- `intent`: `Native entry. Rebuilt the UAT Chart Cockpit around an exchange-style workstation layout with compact top bar, persistent safety banner, left market/watchlist rail, central chart cockpit, right order-book/market/signal/risk context rail, and bottom blotter tabs for Routed Orders, Shadow Signals, Balances / Positions, Lifecycle, and Audit / Logs. Replaced the old root-only Gus design note with a pointer and added canonical apps/dashboard/DESIGN.md from scratch. The dashboard continues to load only committed local UAT2 shadow and UAT3.4 routed-ledger JSON summaries, uses no exchange API keys, calls no private/signed/order endpoints, submits no orders, creates no order artifacts or executable approvals, adds no paper/live behavior, changes no Money Flow rules, adds no routing/SOR/fanout/target-reselection behavior, and generates no evidence packs.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `DESIGN.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/uat4_0_live_uat_dashboard_chart_cockpit.md`
+  - `docs/uat4_1_exchange_style_dashboard_redesign.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_uat40_dashboard_chart_cockpit.py`
+  - `tests/test_uat41_exchange_dashboard_redesign.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat41_exchange_dashboard_redesign.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat40_dashboard_chart_cockpit.py tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-uat4.1-review.zip`
+  - `review bundle path exclusion scan`
+  - `review bundle exact sandbox secret value scan`
+
 ## v2026.05.11.002
 
 - `recorded_at_utc`: `2026-05-11T06:45:00Z`

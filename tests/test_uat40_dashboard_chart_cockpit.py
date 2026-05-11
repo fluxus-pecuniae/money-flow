@@ -37,18 +37,26 @@ def test_uat_chart_cockpit_tab_and_sections_exist() -> None:
     assert "data-view=\"uat-cockpit\"" in html
     assert "UAT Chart Cockpit" in html
     assert "Live UAT Charts" in html
+    assert "uat-workstation-grid" in html
     assert "uat-watchlist-table" in html
     assert "uat-market-data-coverage" in html
     assert "uat-price-chart" in html
     assert "uat-indicator-panel" in html
     assert "uat-marker-panel" in html
+    assert "uat-order-book-panel" in html
+    assert "uat-market-info-panel" in html
+    assert "uat-signal-context-panel" in html
+    assert "uat-risk-context-panel" in html
     assert "uat-route-status-card" in html
     assert "uat-equity-source-card" in html
     assert "uat-cockpit-routed-orders-table" in html
     assert "uat-shadow-signal-overlay" in html
     assert "renderUatCockpit" in js
     assert "UAT_WATCHLIST_SYMBOLS" in js
-    assert ".uat-chart-shell" in css
+    assert ".exchange-chart-shell" in css
+    assert ".uat-left-rail" in css
+    assert ".uat-right-rail" in css
+    assert ".uat-bottom-blotter" in css
     assert ".marker-pill.green" in css
     assert ".marker-pill.red" in css
     assert "docs/uat2_shadow_strategy_top20_observation_summary.json" in dashboard
@@ -63,7 +71,8 @@ def test_uat_watchlist_assets_are_observation_only_and_not_order_approved() -> N
         assert f"\"{symbol}\"" in js
 
     assert "observation-only" in dashboard
-    assert "sandbox route ledger only; no dashboard control" in dashboard
+    assert "ETH sandbox route ledger visible; manual approval required for every sandbox order" in dashboard
+    assert "not approved for orders" in dashboard
     assert "Paper trading is not approved" in dashboard
     assert "Live trading is not approved" in dashboard
     assert "Top-20 assets are observation-only" in dashboard
@@ -93,7 +102,7 @@ def test_routed_orders_tab_renders_uat34_lifecycle_fields() -> None:
     html, js, _css = _dashboard_assets()
     dashboard = f"{html}\n{js}"
 
-    assert "Routed Orders Tab" in html
+    assert "Routed Orders" in html
     assert "fixed_target_hyperliquid_testnet_eth" in json.dumps(payload)
     assert record["lifecycle_status"] == "canceled"
     assert record["cancel_status"] == "success"
@@ -114,8 +123,8 @@ def test_market_data_coverage_uses_public_read_only_local_summaries() -> None:
     assert "market_data_available_from_uat2_summary" in dashboard
     assert "market_data_unavailable" in dashboard
     assert "public_read_only / local_summary_json" in dashboard
-    assert "live public refresh deferred" in dashboard
-    assert "No private endpoints" in dashboard
+    assert "live_public_refresh_deferred_to_uat4_2" in dashboard
+    assert "no private, signed, or order endpoints are used" in dashboard
 
 
 def test_dashboard_has_no_order_or_paper_live_controls() -> None:
@@ -140,5 +149,5 @@ def test_dashboard_has_no_order_or_paper_live_controls() -> None:
     for phrase in forbidden:
         assert phrase not in dashboard
 
-    assert "order submission controls are disabled" in dashboard
+    assert "order controls are disabled" in dashboard
     assert "no order controls" in dashboard

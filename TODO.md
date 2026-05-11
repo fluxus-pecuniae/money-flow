@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-11T06:45:00Z`
+Last reviewed: `2026-05-11T07:03:40Z`
 
 ## Active Follow-Ups
 
@@ -69,6 +69,12 @@ Last reviewed: `2026-05-11T06:45:00Z`
 - `priority`: `high`
 - `status`: `done`
 - `summary`: `UAT4.0 live UAT dashboard/chart cockpit is complete. The static dashboard now has a read-only UAT Chart Cockpit tab sourced from committed UAT2 shadow and UAT3.4 routed-order summary JSON, showing the UAT watchlist, market-data coverage, static chart snapshots, EMA5/EMA10/SMA20/RSI/MACD labels, shadow/sandbox lifecycle markers, active fixed-target ETH sandbox route card, unified equity-source visibility, routed-order ledger filters, and shadow-signal overlays. No order, cancel, retry, amend, approval, paper/live, route, or auto-trade controls were added. UAT4.0 does not call private/signed/order endpoints, use exchange API keys, submit orders, create production order artifacts or executable approvals, change Money Flow rules, add routing expansion, or generate evidence packs.`
+
+### T-114
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `UAT4.1 exchange-style dashboard redesign is complete. The static dashboard cockpit has been rebuilt around a trading-workstation layout: compact top bar, persistent safety banner, left market/watchlist rail, central chart cockpit, right order-book / market-info / signal-context / risk-context rail, and bottom blotter tabs for Routed Orders, Shadow Signals, Balances / Positions, Lifecycle, and Audit / Logs. The canonical dashboard design system is now apps/dashboard/DESIGN.md, with root DESIGN.md reduced to a pointer. UAT4.1 remains dashboard redesign only: no order, cancel, retry, amend, approval, paper/live, route, auto-trade, private/signed/order endpoint, exchange API-key, Money Flow rule, routing expansion, or evidence-pack behavior was added.`
 
 ### T-112
 

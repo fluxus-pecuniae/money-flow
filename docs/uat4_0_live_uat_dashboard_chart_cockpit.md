@@ -246,7 +246,13 @@ Status: `deferred`.
 
 Status: `deferred`.
 
-Potential UAT4.1 scope:
+UAT4.1 follow-up:
+
+- UAT4.1 replaced the first report-card-style cockpit with an exchange-style workstation layout.
+- The canonical dashboard design system moved to `apps/dashboard/DESIGN.md`; root `DESIGN.md` is now only a pointer.
+- UAT4.1 kept the dashboard static/local-summary-only and added no order controls, private/signed/order endpoints, API-key use, paper trading, live trading, Money Flow rule changes, routing expansion, or evidence packs.
+
+Potential UAT4.2 scope:
 
 - public-read-only live refresh for watched pairs
 - richer candlestick chart rendering
@@ -255,7 +261,7 @@ Potential UAT4.1 scope:
 - market-data freshness timers
 - no-private/no-signed/no-order endpoint telemetry at dashboard runtime
 
-UAT4.1 must still avoid order controls, API keys, private/signed endpoints, paper trading, live trading, and Money Flow rule changes unless separately scoped.
+UAT4.2 must still avoid order controls, API keys, private/signed endpoints, paper trading, live trading, and Money Flow rule changes unless separately scoped.
 
 ## Boundary Rules
 
