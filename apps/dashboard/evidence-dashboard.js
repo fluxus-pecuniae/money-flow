@@ -2500,117 +2500,25 @@
       .sort((a, b) => a.time - b.time);
   }
 
-  function historicalIndicatorPointPath(rows, minValue, maxValue, width = 600, height = 116) {
-    if (rows.length < 2) return "";
-    const pad = 10;
-    const valueSpan = maxValue - minValue || 1;
-    return rows
-      .map((row, index) => {
-        const x = pad + (index / (rows.length - 1)) * (width - pad * 2);
-        const y = pad + ((maxValue - row.value) / valueSpan) * (height - pad * 2);
-        return `${x.toFixed(2)},${y.toFixed(2)}`;
-      })
-      .join(" ");
+  function historicalMacdHistogramRows(replay) {
+    return historicalOscillatorRows(replay, "MACD_histogram").map((row) => ({
+      ...row,
+      color: row.value >= 0 ? "rgba(37, 208, 132, 0.52)" : "rgba(255, 90, 102, 0.52)",
+    }));
   }
 
-  function historicalIndicatorY(value, minValue, maxValue, height = 116) {
-    const pad = 10;
-    const valueSpan = maxValue - minValue || 1;
-    return pad + ((maxValue - value) / valueSpan) * (height - pad * 2);
+  function historicalLatestIndicatorValue(replay, key) {
+    const row = historicalOscillatorRows(replay, key).at(-1);
+    return row ? compactNumber(row.value) : "indicator_unavailable";
   }
 
-  function historicalMacdRange(...groups) {
-    const values = groups.flat().map((row) => row.value).filter(Number.isFinite);
-    values.push(0);
-    if (!values.length) return { min: -1, max: 1 };
-    let min = Math.min(...values);
-    let max = Math.max(...values);
-    if (min === max) {
-      min -= 1;
-      max += 1;
-    }
-    const pad = Math.max((max - min) * 0.12, 0.000001);
-    return { min: min - pad, max: max + pad };
-  }
-
-  function renderHistoricalRsiPane(replay) {
-    const rows = historicalOscillatorRows(replay, "RSI");
-    if (rows.length < 2) {
-      return `
-        <section id="historical-rsi-pane" class="historical-indicator-pane unavailable" data-indicator-pane="rsi">
-          <header><strong>RSI 14</strong><span>indicator_unavailable_insufficient_history</span></header>
-        </section>
-      `;
-    }
-    const latest = rows.at(-1);
-    const points = historicalIndicatorPointPath(rows, 0, 100);
-    const y70 = historicalIndicatorY(70, 0, 100).toFixed(2);
-    const y30 = historicalIndicatorY(30, 0, 100).toFixed(2);
+  function renderHistoricalIndicatorLegend(replay) {
     return `
-      <section id="historical-rsi-pane" class="historical-indicator-pane" data-indicator-pane="rsi">
-        <header>
-          <strong>RSI 14</strong>
-          <span>latest ${escapeHtml(compactNumber(latest?.value))}</span>
-        </header>
-        <svg class="historical-indicator-svg" viewBox="0 0 600 116" role="img" aria-label="Historical replay RSI indicator pane">
-          <line class="historical-indicator-reference overbought" x1="10" y1="${y70}" x2="590" y2="${y70}"></line>
-          <line class="historical-indicator-reference oversold" x1="10" y1="${y30}" x2="590" y2="${y30}"></line>
-          <polyline class="historical-indicator-line rsi" points="${points}"></polyline>
-        </svg>
-        <footer><span>70 overbought</span><span>30 oversold</span><span>historical replay only</span></footer>
-      </section>
-    `;
-  }
-
-  function renderHistoricalMacdPane(replay) {
-    const macd = historicalOscillatorRows(replay, "MACD");
-    const signal = historicalOscillatorRows(replay, "MACD_signal");
-    const histogram = historicalOscillatorRows(replay, "MACD_histogram");
-    if (macd.length < 2 || signal.length < 2) {
-      return `
-        <section id="historical-macd-pane" class="historical-indicator-pane unavailable" data-indicator-pane="macd">
-          <header><strong>MACD</strong><span>indicator_unavailable_insufficient_history</span></header>
-        </section>
-      `;
-    }
-    const range = historicalMacdRange(macd, signal, histogram);
-    const zeroY = historicalIndicatorY(0, range.min, range.max).toFixed(2);
-    const macdPoints = historicalIndicatorPointPath(macd, range.min, range.max);
-    const signalPoints = historicalIndicatorPointPath(signal, range.min, range.max);
-    const latestMacd = macd.at(-1);
-    const latestSignal = signal.at(-1);
-    const barWidth = Math.max(1, 560 / Math.max(histogram.length, 1));
-    const histogramPaths = { positive: [], negative: [] };
-    histogram.forEach((row, index) => {
-      const x = 10 + index * barWidth;
-      const y = historicalIndicatorY(row.value, range.min, range.max);
-      const isPositive = row.value >= 0;
-      histogramPaths[isPositive ? "positive" : "negative"].push(`M${x.toFixed(2)},${zeroY}L${x.toFixed(2)},${y.toFixed(2)}`);
-    });
-    return `
-      <section id="historical-macd-pane" class="historical-indicator-pane" data-indicator-pane="macd">
-        <header>
-          <strong>MACD</strong>
-          <span>macd ${escapeHtml(compactNumber(latestMacd?.value))} / signal ${escapeHtml(compactNumber(latestSignal?.value))}</span>
-        </header>
-        <svg class="historical-indicator-svg" viewBox="0 0 600 116" role="img" aria-label="Historical replay MACD indicator pane">
-          <line class="historical-indicator-reference zero" x1="10" y1="${zeroY}" x2="590" y2="${zeroY}"></line>
-          <path class="historical-macd-histogram positive" d="${histogramPaths.positive.join("")}"></path>
-          <path class="historical-macd-histogram negative" d="${histogramPaths.negative.join("")}"></path>
-          <polyline class="historical-indicator-line macd" points="${macdPoints}"></polyline>
-          <polyline class="historical-indicator-line macd-signal" points="${signalPoints}"></polyline>
-        </svg>
-        <footer><span>green/red histogram</span><span>cyan MACD</span><span>amber signal</span></footer>
-      </section>
-    `;
-  }
-
-  function renderHistoricalIndicatorPanes(replay) {
-    return `
-      <div class="historical-indicator-panes" data-historical-indicator-panes>
-        ${renderHistoricalRsiPane(replay)}
-        ${renderHistoricalMacdPane(replay)}
-      </div>
+      <span><b class="legend-dot rsi"></b>RSI 14 ${escapeHtml(historicalLatestIndicatorValue(replay, "RSI"))}</span>
+      <span><b class="legend-dot macd"></b>MACD ${escapeHtml(historicalLatestIndicatorValue(replay, "MACD"))}</span>
+      <span><b class="legend-dot macd-signal"></b>Signal ${escapeHtml(historicalLatestIndicatorValue(replay, "MACD_signal"))}</span>
+      <span><b class="legend-dot macd-histogram"></b>Hist ${escapeHtml(historicalLatestIndicatorValue(replay, "MACD_histogram"))}</span>
+      <span>All indicator series share the candle time scale.</span>
     `;
   }
 
@@ -2666,6 +2574,10 @@
     ["EMA5", "EMA10", "SMA20"].forEach((label) => {
       chartState.indicatorSeries[label]?.setData(historicalIndicatorRows(replay, label));
     });
+    chartState.indicatorSeries.RSI?.setData(historicalOscillatorRows(replay, "RSI"));
+    chartState.indicatorSeries.MACD?.setData(historicalOscillatorRows(replay, "MACD"));
+    chartState.indicatorSeries.MACD_signal?.setData(historicalOscillatorRows(replay, "MACD_signal"));
+    chartState.indicatorSeries.MACD_histogram?.setData(historicalMacdHistogramRows(replay));
     const markers = historicalChartMarkers(replay, candles);
     if (chartState.markerHandle && typeof chartState.markerHandle.setMarkers === "function") {
       chartState.markerHandle.setMarkers(markers);
@@ -2675,9 +2587,9 @@
     if (chartState.lastVisibleRange && typeof timeScale?.setVisibleLogicalRange === "function") {
       timeScale.setVisibleLogicalRange(chartState.lastVisibleRange);
     }
-    const panes = elements.historicalReplayChart?.querySelector("[data-historical-indicator-panes]");
-    if (panes) {
-      panes.outerHTML = renderHistoricalIndicatorPanes(replay);
+    const legend = elements.historicalReplayChart?.querySelector("[data-historical-indicator-legend]");
+    if (legend) {
+      legend.innerHTML = renderHistoricalIndicatorLegend(replay);
     }
     scheduleHistoricalReplayChartResize();
   }
@@ -2721,7 +2633,7 @@
           <small>C ${escapeHtml(priceStats.close)}</small>
         </aside>
       </div>
-      ${renderHistoricalIndicatorPanes(replay)}
+      <div class="historical-overlay-legend" data-historical-indicator-legend>${renderHistoricalIndicatorLegend(replay)}</div>
       <div class="tradingview-attribution">Charts: TradingView Lightweight Charts v${TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION} (Apache-2.0). Historical replay data only; Hyperliquid testnet prices are not strategy truth.</div>
     `;
     const mount = elements.historicalReplayChart.querySelector(".tradingview-lightweight-chart");
@@ -2743,7 +2655,7 @@
         visible: true,
         borderVisible: true,
         borderColor: "rgba(133, 156, 171, 0.18)",
-        scaleMargins: { top: 0.06, bottom: 0.22 },
+        scaleMargins: { top: 0.05, bottom: 0.46 },
       },
       timeScale: {
         borderColor: "rgba(133, 156, 171, 0.18)",
@@ -2767,7 +2679,7 @@
       priceScaleId: "volume",
       color: "rgba(107, 132, 145, 0.35)",
     });
-    chart.priceScale("volume").applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
+    chart.priceScale("volume").applyOptions({ scaleMargins: { top: 0.94, bottom: 0 } });
     volumeSeries.setData(chartVolumeRows(candles));
     const lineSeries = {};
     [
@@ -2786,6 +2698,65 @@
       line.setData(historicalIndicatorRows(replay, label));
       lineSeries[label] = line;
     });
+    const rsiSeries = chart.addSeries(tv.LineSeries, {
+      color: "#22d3ee",
+      lineWidth: 2,
+      priceScaleId: "rsi",
+      priceFormat: { type: "price", precision: 2, minMove: 0.01 },
+      priceLineVisible: true,
+      lastValueVisible: true,
+      title: "RSI 14",
+    });
+    chart.priceScale("rsi").applyOptions({
+      visible: false,
+      borderVisible: false,
+      scaleMargins: { top: 0.61, bottom: 0.25 },
+    });
+    rsiSeries.setData(historicalOscillatorRows(replay, "RSI"));
+    if (typeof rsiSeries.createPriceLine === "function") {
+      rsiSeries.createPriceLine({ price: 70, color: "rgba(255, 90, 102, 0.55)", lineWidth: 1, lineStyle: tv.LineStyle.Dashed, axisLabelVisible: false, title: "RSI 70" });
+      rsiSeries.createPriceLine({ price: 30, color: "rgba(37, 208, 132, 0.45)", lineWidth: 1, lineStyle: tv.LineStyle.Dashed, axisLabelVisible: false, title: "RSI 30" });
+    }
+    lineSeries.RSI = rsiSeries;
+    const macdHistogram = chart.addSeries(tv.HistogramSeries, {
+      priceScaleId: "macd",
+      priceFormat: { type: "price", precision: 4, minMove: 0.0001 },
+      base: 0,
+      color: "rgba(37, 208, 132, 0.42)",
+      title: "MACD histogram",
+    });
+    chart.priceScale("macd").applyOptions({
+      visible: false,
+      borderVisible: false,
+      scaleMargins: { top: 0.78, bottom: 0.08 },
+    });
+    macdHistogram.setData(historicalMacdHistogramRows(replay));
+    const macdLine = chart.addSeries(tv.LineSeries, {
+      color: "#22d3ee",
+      lineWidth: 2,
+      priceScaleId: "macd",
+      priceFormat: { type: "price", precision: 4, minMove: 0.0001 },
+      priceLineVisible: true,
+      lastValueVisible: true,
+      title: "MACD",
+    });
+    macdLine.setData(historicalOscillatorRows(replay, "MACD"));
+    if (typeof macdLine.createPriceLine === "function") {
+      macdLine.createPriceLine({ price: 0, color: "rgba(201, 213, 220, 0.35)", lineWidth: 1, lineStyle: tv.LineStyle.Dashed, axisLabelVisible: false, title: "MACD zero" });
+    }
+    const macdSignalLine = chart.addSeries(tv.LineSeries, {
+      color: "#f8c15c",
+      lineWidth: 2,
+      priceScaleId: "macd",
+      priceFormat: { type: "price", precision: 4, minMove: 0.0001 },
+      priceLineVisible: true,
+      lastValueVisible: true,
+      title: "MACD signal",
+    });
+    macdSignalLine.setData(historicalOscillatorRows(replay, "MACD_signal"));
+    lineSeries.MACD = macdLine;
+    lineSeries.MACD_signal = macdSignalLine;
+    lineSeries.MACD_histogram = macdHistogram;
     const markers = historicalChartMarkers(replay, candles);
     if (typeof tv.createSeriesMarkers === "function") {
       chartState.markerHandle = tv.createSeriesMarkers(candleSeries, markers);

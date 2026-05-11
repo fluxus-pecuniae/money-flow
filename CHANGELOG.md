@@ -17,7 +17,7 @@ Entry schema:
 
 - `recorded_at_utc`: `2026-05-11T16:35:57Z`
 - `scope`: `Historical Replay RSI/MACD indicator visibility`
-- `intent`: `Native entry. Fixed the Historical Replay chart usability gap where RSI and MACD were available only in export/trade-inspector data but were not visible as chart indicators. The replay chart now renders bounded RSI 14 and MACD indicator panes directly below the historical candlestick chart while preserving EMA5/EMA10/SMA20 overlays on the price chart. The MACD pane shows histogram, MACD line, and signal line; the RSI pane shows 70/30 reference levels. This is dashboard visualization only and adds no orders, order controls, private/signed/order endpoints, live endpoint use, exchange API keys, Money Flow rule changes, routing behavior, or evidence packs.`
+- `intent`: `Native entry. Fixed the Historical Replay chart usability gap where RSI and MACD were available only in export/trade-inspector data but were not visible on the candle time scale. The replay chart now renders RSI 14 and MACD inside the same TradingView chart as the historical candlesticks, with dedicated bounded vertical indicator bands that pan/zoom on the same time axis as entries and exits. EMA5/EMA10/SMA20 remain on the price chart, and the MACD overlay includes histogram, MACD line, signal line, and zero reference while RSI includes 70/30 reference lines. This is dashboard visualization only and adds no orders, order controls, private/signed/order endpoints, live endpoint use, exchange API keys, Money Flow rule changes, routing behavior, or evidence packs.`
 - `affected_files`:
   - `CHANGELOG.md`
   - `README.md`
