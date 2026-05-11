@@ -694,6 +694,139 @@ h3 {
   padding-top: var(--spacing-2);
 }
 
+.historical-replay-workstation {
+  display: grid;
+  gap: var(--spacing-5);
+}
+
+.historical-replay-topbar,
+.historical-truth-banner {
+  display: flex;
+  gap: var(--spacing-4);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-5);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  background: rgba(11, 17, 24, 0.98);
+}
+
+.historical-replay-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  justify-content: flex-end;
+}
+
+.historical-replay-controls label {
+  display: grid;
+  gap: 4px;
+  min-width: 148px;
+  color: var(--color-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.historical-truth-banner {
+  align-items: flex-start;
+  border-color: rgba(248, 193, 92, 0.4);
+  color: var(--color-amber);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+}
+
+.historical-truth-banner span {
+  color: var(--color-muted);
+}
+
+.historical-replay-grid {
+  display: grid;
+  grid-template-columns: minmax(580px, 1.65fr) minmax(300px, 0.7fr);
+  gap: var(--spacing-5);
+  align-items: stretch;
+  min-height: 0;
+}
+
+.historical-chart-panel,
+.historical-inspector-panel,
+.historical-replay-bottom .table-panel {
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  background: rgba(11, 17, 24, 0.98);
+}
+
+.historical-replay-chart,
+.historical-chart-panel,
+.historical-inspector-panel {
+  min-height: 0;
+}
+
+.historical-replay-chart .tradingview-lightweight-chart {
+  height: clamp(440px, 58vh, 700px);
+  min-height: 0;
+  max-height: 700px;
+  overflow: hidden;
+  contain: layout paint size;
+}
+
+.historical-equity-panel {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  border-top: 1px solid var(--color-line);
+  background: var(--color-panel);
+}
+
+.historical-equity-card {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--spacing-3);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-panel-2);
+}
+
+.historical-equity-card span,
+.historical-equity-card small {
+  color: var(--color-muted);
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.historical-equity-card strong {
+  overflow-wrap: anywhere;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 14px;
+}
+
+.historical-replay-bottom {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: var(--spacing-5);
+}
+
+.historical-replay-bottom .table-panel:last-child {
+  grid-column: 1 / -1;
+}
+
+.text-row-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-blue);
+  font-family: var(--font-mono);
+  cursor: pointer;
+}
+
+.active-row {
+  background: rgba(40, 215, 197, 0.08);
+}
+
 .exchange-chart-topline {
   display: flex;
   align-items: center;
@@ -1315,6 +1448,11 @@ td {
     grid-template-columns: minmax(240px, 0.8fr) minmax(0, 1.5fr);
   }
 
+  .historical-replay-grid,
+  .historical-replay-bottom {
+    grid-template-columns: 1fr;
+  }
+
   .uat-right-rail {
     grid-column: 1 / -1;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1336,8 +1474,11 @@ td {
   .uat-filter-grid,
   .boundary-grid,
   .uat-topbar,
+  .historical-replay-topbar,
+  .historical-equity-panel,
   .uat-workstation-grid,
   .uat-topbar-selects,
+  .historical-replay-controls,
   .indicator-grid,
   .lifecycle-timeline,
   .uat-right-rail {
@@ -1362,6 +1503,10 @@ td {
   .toolbar-band,
   .uat-safety-banner {
     align-items: stretch;
+    flex-direction: column;
+  }
+
+  .historical-truth-banner {
     flex-direction: column;
   }
 

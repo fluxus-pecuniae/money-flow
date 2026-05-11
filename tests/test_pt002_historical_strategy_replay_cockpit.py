@@ -1,0 +1,193 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from services.strategy_validation.historical_replay import (
+    PT002_REPORT_NAME,
+    PT002_SYMBOLS,
+    PT002_TIMEFRAMES,
+    build_pt002_historical_replay_summary_from_sv117_payload,
+)
+
+
+SUMMARY_PATH = Path("docs/pt0_0_2_historical_strategy_replay_summary.json")
+REPORT_PATH = Path("docs/pt0_0_2_historical_strategy_replay_cockpit.md")
+
+
+def _summary() -> dict:
+    return json.loads(SUMMARY_PATH.read_text())
+
+
+def _dashboard_assets() -> tuple[str, str, str]:
+    html = Path("apps/dashboard/index.html").read_text(encoding="utf-8")
+    js = Path("apps/dashboard/evidence-dashboard.js").read_text(encoding="utf-8")
+    css = Path("apps/dashboard/evidence-dashboard.css").read_text(encoding="utf-8")
+    return html, js, css
+
+
+def test_historical_replay_summary_uses_historical_truth_not_testnet_prices() -> None:
+    summary = _summary()
+
+    assert summary["report"] == PT002_REPORT_NAME
+    assert summary["source"]["strategy_truth_lane"] == "historical_strategy_truth"
+    assert summary["source"]["source_kind"] == "trusted_offline_historical_candles"
+    assert summary["source"]["testnet_prices_used_as_strategy_truth"] is False
+    assert summary["source"]["private_or_signed_endpoints_used"] is False
+    assert summary["source"]["order_endpoints_used"] is False
+    assert summary["boundary_flags"]["uses_historical_candles_only_for_replay"] is True
+    assert summary["boundary_flags"]["submits_orders"] is False
+    assert summary["boundary_flags"]["calls_order_endpoints"] is False
+    assert summary["sandbox_execution_ledger_separate"] is True
+
+
+def test_btc_eth_sol_15m_1h_4h_datasets_are_audited_and_replay_ready() -> None:
+    summary = _summary()
+    datasets = {(row["symbol"], row["timeframe"]): row for row in summary["datasets"]}
+
+    assert set(datasets) == {(symbol, timeframe) for symbol in PT002_SYMBOLS for timeframe in PT002_TIMEFRAMES}
+    for symbol in PT002_SYMBOLS:
+        for timeframe in PT002_TIMEFRAMES:
+            row = datasets[(symbol, timeframe)]
+            assert row["available"] is True
+            assert row["replay_ready"] is True
+            assert row["candle_count"] > 0
+            assert "historical_candles_available" in row["reason_codes"]
+
+    assert summary["db_audit"]
+    assert "historical_db_unreachable" in summary["db_audit"][0]["reason_codes"]
+
+
+def test_replay_export_contains_candles_indicators_markers_trades_and_equity_curve() -> None:
+    summary = _summary()
+    replay = next(row for row in summary["replays"] if row["symbol"] == "ETH" and row["timeframe"] == "1h")
+
+    assert replay["candles"]
+    assert replay["indicators"]
+    assert replay["markers"]
+    assert replay["trades"]
+    assert replay["equity_curve"]
+    assert replay["strategy_truth_lane"] == "historical_strategy_truth"
+    assert replay["testnet_prices_used_as_strategy_truth"] is False
+    assert {"EMA5", "EMA10", "SMA20", "RSI", "MACD", "MACD_signal", "MACD_histogram"}.issubset(
+        replay["indicators"][0].keys()
+    )
+
+
+def test_dynamic_equity_starts_at_10000_and_updates_after_winning_and_losing_trades() -> None:
+    summary = _summary()
+    all_trades = [trade for replay in summary["replays"] for trade in replay["trades"]]
+
+    assert summary["initial_equity"] == "10000"
+    assert summary["capital_sizing_mode"] == "dynamic_equity_pct"
+    assert summary["sizing_policy"]["sizing_basis"] == "realized_equity"
+    assert summary["sizing_policy"]["does_not_reset_each_trade_to_static_10000"] is True
+    assert any(float(trade["net_pnl"]) < 0 for trade in all_trades)
+    assert any(float(trade["net_pnl"]) > 0 for trade in all_trades)
+
+    eth_1h = next(row for row in summary["replays"] if row["symbol"] == "ETH" and row["timeframe"] == "1h")
+    first, second = eth_1h["trades"][0], eth_1h["trades"][1]
+    assert first["equity_before_trade"] == "10000.00000000"
+    assert second["equity_before_trade"] == first["equity_after_trade"]
+    assert second["notional_used"] != "10000.00000000"
+
+
+def test_fill_assumptions_and_costs_are_visible() -> None:
+    summary = _summary()
+    fills = {row["id"]: row for row in summary["fill_assumptions"]}
+
+    assert fills["next_candle_open"]["default"] is True
+    assert fills["next_candle_close"]["research_only"] is False
+    assert fills["same_candle_close_research_only"]["research_only"] is True
+    assert summary["selected_fill_assumption"] == "next_candle_open"
+    assert summary["cost_assumptions"] == {"fee_bps": "5", "slippage_bps": "3"}
+
+
+def test_green_and_red_markers_represent_historical_entry_and_exit_fills() -> None:
+    summary = _summary()
+    markers = [marker for replay in summary["replays"] for marker in replay["markers"]]
+
+    assert any(marker["color_role"] == "green" and marker["marker_type"] == "entry_fill" for marker in markers)
+    assert any(marker["color_role"] == "red" and marker["marker_type"] == "exit_fill" for marker in markers)
+    assert all(marker["source"] == "historical_replay" for marker in markers)
+    assert all("live" not in marker["label"].lower() for marker in markers)
+
+
+def test_builder_marks_missing_dataset_with_clear_reason_code() -> None:
+    minimal_payload = {
+        "baseline_results": [
+            {
+                "request": {"symbol": "BTC", "component_keys": ["sleeve_15m"], "start_at": "2026-01-01T00:00:00Z", "end_at": "2026-01-02T00:00:00Z"},
+                "timeframe": "15m",
+                "contexts": [
+                    {
+                        "candle_close_time": "2026-01-01T00:15:00Z",
+                        "candle_open_time": "2026-01-01T00:00:00Z",
+                        "open": "1",
+                        "high": "2",
+                        "low": "1",
+                        "close": "2",
+                    }
+                ],
+                "trades": [],
+                "metrics": {"starting_equity": "10000", "ending_equity": "10000", "number_of_trades": 0},
+                "data_coverage": {"actual_candle_count": 1, "expected_candle_count": 1, "coverage_percent": "1.00000000"},
+            }
+        ]
+    }
+    summary = build_pt002_historical_replay_summary_from_sv117_payload(minimal_payload)
+    missing = [row for row in summary["datasets"] if not row["available"]]
+
+    assert len(missing) == 8
+    assert all("historical_candles_missing" in row["reason_codes"] for row in missing)
+
+
+def test_dashboard_has_historical_replay_tab_and_stable_chart_container() -> None:
+    html, js, css = _dashboard_assets()
+
+    assert 'data-view="historical-replay"' in html
+    assert "Historical Replay" in html
+    assert "historical-replay-chart" in html
+    assert "Trade Inspector" in html
+    assert "BTC / ETH / SOL Comparison" in html
+    assert "Sandbox Execution Plumbing" in html
+    assert "pt0_0_2_historical_strategy_replay_summary.json" in js
+    assert "renderHistoricalReplayChart" in js
+    assert "historicalChartMarkers" in js
+    assert ".historical-replay-chart .tradingview-lightweight-chart" in css
+    assert "height: clamp(440px, 58vh, 700px);" in css
+    assert "contain: layout paint size;" in css
+
+
+def test_dashboard_separates_historical_replay_from_sandbox_execution_and_has_no_order_controls() -> None:
+    html, js, _css = _dashboard_assets()
+    dashboard = f"{html}\n{js}".lower()
+
+    assert "testnet prices are not used for strategy validation" in dashboard
+    assert "historical replay data only" in dashboard
+    assert "sandbox execution ledger remains separate" not in dashboard
+    assert "sandbox execution plumbing" in dashboard
+    assert "https://api.hyperliquid.xyz/info" not in js
+    assert "historical replay" in dashboard
+    for phrase in (
+        "submit order button",
+        "cancel order button",
+        "retry button",
+        "amend button",
+        "approve order button",
+        "market buy",
+        "market sell",
+        "paper/live toggle",
+        "auto-trade toggle",
+    ):
+        assert phrase not in dashboard
+
+
+def test_pt002_report_exists_and_records_boundaries() -> None:
+    assert REPORT_PATH.exists()
+    report = REPORT_PATH.read_text()
+
+    assert "PT0.0.2 Historical Strategy Replay Cockpit" in report
+    assert "Hyperliquid testnet market data is not strategy truth" in report
+    assert "No orders are submitted by PT0.0.2" in report
+    assert "Money Flow rules are unchanged" in report

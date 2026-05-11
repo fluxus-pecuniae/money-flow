@@ -39,6 +39,7 @@
       <nav class="view-tabs" aria-label="Dashboard sections">
         <button class="view-tab" type="button" data-view="evidence" aria-selected="true">Evidence</button>
         <button class="view-tab" type="button" data-view="experiments" aria-selected="false">Experiments</button>
+        <button class="view-tab" type="button" data-view="historical-replay" aria-selected="false">Historical Replay</button>
         <button class="view-tab" type="button" data-view="uat-cockpit" aria-selected="false">UAT Chart Cockpit</button>
         <button class="view-tab" type="button" data-view="uat-shadow" aria-selected="false">UAT2 Shadow Run</button>
         <button class="view-tab" type="button" data-view="strategy" aria-selected="false">Strategy</button>
@@ -198,6 +199,82 @@
             <p>Completed-trade overlays and diagnostics, not true forward replays or authorization.</p>
           </div>
           <div id="experiment-table" class="data-table-shell"></div>
+        </section>
+      </section>
+
+      <section id="historical-replay-view" class="dashboard-view historical-replay-workstation" data-view-panel="historical-replay" hidden>
+        <section class="historical-replay-topbar" aria-labelledby="historical-replay-title">
+          <div>
+            <p class="eyebrow">Historical Strategy Truth</p>
+            <h2 id="historical-replay-title">Money Flow Historical Replay Cockpit</h2>
+          </div>
+          <div class="historical-replay-controls" aria-label="Historical replay controls">
+            <label>
+              <span>Symbol</span>
+              <select id="historical-replay-symbol-filter"></select>
+            </label>
+            <label>
+              <span>Timeframe</span>
+              <select id="historical-replay-timeframe-filter"></select>
+            </label>
+            <label>
+              <span>Fill assumption</span>
+              <select id="historical-replay-fill-filter"></select>
+            </label>
+          </div>
+        </section>
+
+        <div class="historical-truth-banner">
+          Historical replay uses historical candle data. Hyperliquid testnet is used only for sandbox execution plumbing. Testnet prices are not used for strategy validation.
+          <span>No orders are submitted. No private, signed, or order endpoints are used.</span>
+        </div>
+
+        <section class="historical-replay-grid" aria-label="Historical replay cockpit">
+          <section class="historical-chart-panel" aria-labelledby="historical-chart-title">
+            <div class="chart-header">
+              <div>
+                <p class="eyebrow">TradingView Lightweight Charts</p>
+                <h2 id="historical-chart-title">Historical Candles + Money Flow Markers</h2>
+              </div>
+              <div id="historical-replay-source-status" class="chart-header-meta"></div>
+            </div>
+            <div id="historical-replay-chart" class="exchange-chart-shell historical-replay-chart"></div>
+            <div id="historical-replay-equity-panel" class="historical-equity-panel"></div>
+          </section>
+
+          <aside class="historical-inspector-panel" aria-labelledby="historical-inspector-title">
+            <div class="rail-heading">
+              <h2 id="historical-inspector-title">Trade Inspector</h2>
+              <p>Click a row to inspect entry, exit, indicators, costs, and dynamic equity.</p>
+            </div>
+            <div id="historical-trade-inspector" class="market-micro-panel"></div>
+          </aside>
+        </section>
+
+        <section class="historical-replay-bottom" aria-label="Historical replay ledgers">
+          <article class="table-panel" aria-labelledby="historical-trades-title">
+            <div class="section-heading">
+              <h2 id="historical-trades-title">Historical Replay Trades</h2>
+              <p>Dynamic 10,000 USDC paper-equity simulation; not live, not testnet orders, not real capital.</p>
+            </div>
+            <div id="historical-replay-trades-table" class="data-table-shell"></div>
+          </article>
+
+          <article class="table-panel" aria-labelledby="historical-comparison-title">
+            <div class="section-heading">
+              <h2 id="historical-comparison-title">BTC / ETH / SOL Comparison</h2>
+              <p>Each symbol/timeframe is an independent replay scenario, not one combined account.</p>
+            </div>
+            <div id="historical-comparison-table" class="data-table-shell"></div>
+          </article>
+
+          <article class="table-panel" aria-labelledby="historical-sandbox-ledger-title">
+            <div class="section-heading">
+              <h2 id="historical-sandbox-ledger-title">Sandbox Execution Plumbing</h2>
+              <p>UAT3.4 routed-order ledger remains separate from historical strategy replay equity.</p>
+            </div>
+            <div id="historical-sandbox-ledger" class="data-table-shell"></div>
+          </article>
         </section>
       </section>
 

@@ -13,6 +13,57 @@ Entry schema:
 
 ---
 
+## v2026.05.11.010
+
+- `recorded_at_utc`: `2026-05-11T14:18:00Z`
+- `scope`: `PT0.0.2 historical strategy replay cockpit`
+- `intent`: `Native entry. Added a historical Money Flow replay cockpit that uses historical public candle replay data as strategy truth for BTC/ETH/SOL across 15m/1h/4h, explicitly separating historical strategy truth from Hyperliquid testnet sandbox execution plumbing. The dashboard now loads a PT0.0.2 replay summary JSON, renders historical TradingView Lightweight Charts candles with EMA overlays and entry/exit markers, exposes a trade inspector, dynamic 10,000 USDC paper-equity panel, BTC/ETH/SOL comparison table, and a separate sandbox execution ledger. PT0.0.2 submits no orders, adds no order controls, calls no private/signed/order endpoints, uses no API keys or live endpoint, changes no Money Flow rules, and uses no Hyperliquid testnet prices as strategy truth.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime.md`
+  - `docs/pt0_0_2_historical_strategy_replay_cockpit.md`
+  - `docs/pt0_0_2_historical_strategy_replay_summary.json`
+  - `services/strategy_validation/__init__.py`
+  - `services/strategy_validation/historical_replay.py`
+  - `scripts/refresh_pt002_historical_replay_summary.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_pt001_tradingview_chart_stability.py`
+  - `tests/test_pt002_historical_strategy_replay_cockpit.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/UAT0 Safety Runtime Hardening.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt001_tradingview_chart_stability.py tests/test_pt002_historical_strategy_replay_cockpit.py tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_sv116_replay_instrumentation.py tests/test_sv117_true_replay_experiments.py tests/test_sv1132_dynamic_equity.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt0_tradingview_paper_sandbox_runtime.py tests/test_uat42_live_market_dashboard_paper_equity.py tests/test_uat41_exchange_dashboard_redesign.py tests/test_uat40_dashboard_chart_cockpit.py tests/test_uat21_dashboard_visualization.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt002_historical_strategy_replay_cockpit.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt0.0.2-review.zip`
+  - `Review-bundle forbidden-path scan: 0 forbidden paths excluding tracked .env.example; secret-pattern scan excluding .env.example: 0 hits.`
+
 ## v2026.05.11.009
 
 - `recorded_at_utc`: `2026-05-11T12:43:30Z`

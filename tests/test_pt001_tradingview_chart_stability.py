@@ -74,8 +74,9 @@ def test_autosize_feedback_loop_and_refresh_fitcontent_are_removed() -> None:
     assert "applyOptions({ autoSize: true })" not in js
     assert "new ResizeObserver(scheduleTradingViewResize)" in js
     assert "chart.resize(width, height)" in js
-    assert js.count(".fitContent()") == 1
+    assert js.count(".fitContent()") == 2
     assert "chartState.fitContentApplied = true;" in js
+    assert "renderHistoricalReplayChart" in js
 
 
 def test_live_polling_is_single_instance_and_can_be_disabled_by_query() -> None:

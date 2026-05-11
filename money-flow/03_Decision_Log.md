@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-11T14:18:00Z - PT0.0.2 - Historical Candles Are Strategy Truth
+
+- `decision`: Pause Hyperliquid testnet-live market monitoring as a strategy-truth source and add a Historical Replay cockpit for Money Flow visual validation.
+- `scope`: PT0.0.2 uses historical public candle replay data for BTC/ETH/SOL across 15m/1h/4h, generates a committed replay summary JSON, and renders historical TradingView candles, EMA overlays, green/red entry/exit markers, trade inspector, dynamic 10,000 USDC equity, BTC/ETH/SOL comparison, and a separate sandbox execution ledger.
+- `result`: Hyperliquid testnet prices are explicitly not strategy truth; testnet remains sandbox execution plumbing only. No orders were submitted, no private/signed/order endpoints were called, no API keys were used, and Money Flow rules were unchanged.
+- `follow_up_implications`: PT0.0.3 may add playback controls and market-structure inspection. PT0.1 supervised runtime must use trusted market data for strategy truth and continue to keep live trading and real-capital trading unapproved.
+
 ## 2026-05-11T11:42:10Z - PT0.0.1 - TradingView Chart Stability P0 Fixed
 
 - `decision`: Stabilize the PT0 TradingView Lightweight Charts cockpit before any supervised paper/sandbox runtime week.

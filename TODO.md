@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-11T11:42:10Z`
+Last reviewed: `2026-05-11T14:18:00Z`
 
 ## Active Follow-Ups
 
@@ -9,6 +9,18 @@ Last reviewed: `2026-05-11T11:42:10Z`
 - `priority`: `high`
 - `status`: `done`
 - `summary`: `PT0.0.1 TradingView chart stability P0 hotfix is complete. The UAT/PT dashboard now gives the Lightweight Charts mount an explicit bounded height, contains parent chart layout, reuses the existing chart and series handles across 15-second public refreshes, removes the autoSize / ResizeObserver applyOptions feedback-loop risk, limits fitContent to new symbol/timeframe initialization, keeps a single live polling timer guard, and supports disableLivePolling/livePolling query flags for local JSON fallback. No orders were submitted, no order controls were added, no private/signed/order/live endpoint calls were added, no exchange API keys were used, and PT0 paper/sandbox routing policy remains unchanged.`
+
+### T-119
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `PT0.0.2 historical strategy replay cockpit is complete. The dashboard now has a Historical Replay tab backed by docs/pt0_0_2_historical_strategy_replay_summary.json, generated from the trusted SV1.17 historical full-suite baseline replay export. BTC/ETH/SOL x 15m/1h/4h datasets are audited and replay-ready, historical candles render through TradingView Lightweight Charts, green/red historical entry/exit markers are shown, the trade inspector exposes reasons/indicators/cost/PnL/equity details, the dynamic 10,000 USDC equity path is visible, and BTC/ETH/SOL comparison plus separate sandbox execution plumbing views exist. Hyperliquid testnet market data is not strategy truth. No orders, order controls, private/signed/order endpoints, API keys, live endpoint use, Money Flow rule changes, strategy optimization, or evidence packs were added.`
+
+### T-120
+
+- `priority`: `high`
+- `status`: `future`
+- `summary`: `PT0.0.3 historical replay playback controls and market-structure inspector is future work. It should add play/pause, step-one-candle, selected-trade replay, support/resistance diagnostics, recent high/low context, ATR/invalidation context, and richer marker navigation while preserving historical candle strategy truth, no-order/no-live boundaries, and unchanged Money Flow rules.`
 
 ### T-092
 

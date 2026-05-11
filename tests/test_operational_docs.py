@@ -95,6 +95,8 @@ REQUIRED_FILES = [
     "docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime.md",
     "docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime_summary.json",
     "docs/pt0_0_1_tradingview_chart_stability_hotfix.md",
+    "docs/pt0_0_2_historical_strategy_replay_cockpit.md",
+    "docs/pt0_0_2_historical_strategy_replay_summary.json",
 ]
 
 
@@ -143,7 +145,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "canonical Obsidian command center" in command_center
-    assert "`PT0.0.1` TradingView chart stability P0 hotfix is complete" in current_phase
+    assert "`PT0.0.2` Historical Strategy Replay Cockpit is complete" in current_phase
     assert "SV1.18" in command_center
     assert "UAT0" in command_center
     assert "UAT1 public read-only connectivity is complete" in command_center
@@ -158,6 +160,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "UAT4.2 is complete" in command_center
     assert "PT0 is complete" in command_center
     assert "PT0.0.1 is complete" in command_center
+    assert "PT0.0.2 is complete" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
     assert "Strategy Validation" in moved_memory
@@ -177,6 +180,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "UAT4.1 exchange-style dashboard redesign is complete" in moved_memory
     assert "UAT4.2 live market dashboard and paper-equity monitor is complete" in moved_memory
     assert "PT0 TradingView charting and top-20 paper/sandbox runtime foundation is complete" in moved_memory
+    assert "PT0.0.2 historical strategy replay cockpit is complete" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
 
@@ -191,7 +195,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
     assert (
-        "Current implemented milestone | `PT0.0.1` TradingView chart stability P0 hotfix complete"
+        "Current implemented milestone | `PT0.0.2` Historical Strategy Replay Cockpit complete"
         in command_center
     )
     assert "Canonical command center" in compatibility_command_center
@@ -209,6 +213,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     assert "UAT4.2 live market dashboard and paper-equity monitor is complete" in current_dashboard
     assert "PT0 TradingView charts and top-20 paper/sandbox runtime foundation is complete" in current_dashboard
     assert "PT0.0.1 TradingView chart stability P0 hotfix is complete" in current_dashboard
+    assert "PT0.0.2 historical strategy replay cockpit is complete" in current_dashboard
     assert "Strategy Validation is now its own major track" in Path("money-flow/00 Maps/Phase Timeline.md").read_text()
     assert "What Strategy Validation Did" in sv_map
     assert "What Strategy Validation Did Not Prove" in sv_map
@@ -343,6 +348,7 @@ def test_uat0_operational_truth_is_current() -> None:
     uat42_report = Path("docs/uat4_2_live_market_dashboard_and_paper_equity_monitor.md").read_text()
     pt0_report = Path("docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime.md").read_text()
     pt001_report = Path("docs/pt0_0_1_tradingview_chart_stability_hotfix.md").read_text()
+    pt002_report = Path("docs/pt0_0_2_historical_strategy_replay_cockpit.md").read_text()
     current_notes = [
         Path("money-flow/00_Money_Flow_Command_Center.md").read_text(),
         Path("money-flow/01_Current_Phase.md").read_text(),
@@ -612,6 +618,11 @@ def test_uat0_operational_truth_is_current() -> None:
     assert "PT0.0.1 does not change PT0 paper-equity math" in pt0_report
     assert "Live trading is not approved" in pt001_report
     assert "Orders submitted by PT0.0.1 | `verified: false`" in pt001_report
+    assert "PT0.0.2 Historical Strategy Replay Cockpit" in pt002_report
+    assert "Hyperliquid testnet market data is not strategy truth" in pt002_report
+    assert "Historical/mainnet candle data is strategy truth" in pt002_report
+    assert "No orders are submitted by PT0.0.2" in pt002_report
+    assert "Money Flow rules are unchanged" in pt002_report
 
     for note in current_notes:
         assert "UAT0" in note
@@ -632,6 +643,7 @@ def test_uat0_operational_truth_is_current() -> None:
         assert "UAT4.1" in note
         assert "UAT4.2" in note
         assert "PT0.0.1" in note
+        assert "PT0.0.2" in note
         assert "PAPER TRADING IS APPROVED." in note or "Paper trading is approved for Hyperliquid testnet/sandbox only" in note
         assert "Live trading is not approved" in note
         assert (

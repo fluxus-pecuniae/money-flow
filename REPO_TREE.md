@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-11T11:42:10Z`
+Last reviewed: `2026-05-11T14:18:00Z`
 
 ## Top-Level Structure
 
@@ -153,6 +153,7 @@ Last reviewed: `2026-05-11T11:42:10Z`
 - UAT4.2 wires the cockpit to `docs/uat4_2_live_market_dashboard_and_paper_equity_monitor_summary.json`, showing refreshed public-read-only market data, deterministic indicators, paper-observation markers, internal paper-equity state, sandbox balance-poll policy, and explicit positions/unavailable-state visibility. It still adds no order, cancel, retry, amend, approval, live, route, or auto-trade controls.
 - PT0 adds the official local TradingView Lightweight Charts bundle for the UAT/PT cockpit and browser-side Hyperliquid testnet public candle polling.
 - PT0.0.1 stabilizes the TradingView chart by bounding chart height, containing parent chart layout, reusing chart/series handles across 15-second public refreshes, removing the `autoSize` / ResizeObserver `applyOptions` feedback-loop risk, limiting `fitContent()` to new symbol/timeframe initialization, and adding query flags to disable public polling while using local PT0/UAT4.2 JSON fallback. It adds no order controls and calls no private/signed/order/live endpoints.
+- PT0.0.2 adds a separate `Historical Replay` tab. It loads `docs/pt0_0_2_historical_strategy_replay_summary.json`, renders historical BTC/ETH/SOL replay candles through TradingView Lightweight Charts, overlays EMA5/EMA10/SMA20 and historical entry/exit markers, shows a trade inspector, dynamic 10,000 USDC equity panel, BTC/ETH/SOL comparison table, and keeps the UAT3.4 sandbox execution ledger separate. Historical/mainnet public candle replay data is strategy truth; Hyperliquid testnet prices are not strategy truth.
 
 `docs/uat0_safety_security_runtime_hardening.md`
 - Founder/operator UAT0 safety, security, runtime, and operational-readiness audit.
@@ -286,6 +287,14 @@ Last reviewed: `2026-05-11T11:42:10Z`
 - Founder/operator PT0.0.1 hotfix report.
 - Records the P0 chart vertical-growth/page-scroll bug, root cause, chart sizing fix, chart lifecycle fix, polling/timer fix, manual verification status, no-order/no-live confirmation, remaining browser-regression limitation, and PT0.1 next-phase note.
 
+`docs/pt0_0_2_historical_strategy_replay_cockpit.md`
+- Founder/operator PT0.0.2 report.
+- Records why Hyperliquid testnet market data is not strategy truth, the historical replay source, BTC/ETH/SOL dataset readiness, fill/cost assumptions, dynamic 10,000 USDC equity policy, dashboard replay cockpit status, chart/marker/trade-inspector/equity/comparison status, sandbox-ledger separation, limitations, and PT0.0.3/PT0.1 roadmap.
+
+`docs/pt0_0_2_historical_strategy_replay_summary.json`
+- Dashboard-consumed PT0.0.2 historical replay summary.
+- Contains replay-ready BTC/ETH/SOL x 15m/1h/4h datasets, candles, indicators, historical entry/exit markers, trade inspector records, dynamic equity curves, comparison rows, source hash, DB audit status, no-order/no-live flags, and `testnet_prices_used_as_strategy_truth=false`.
+
 `apps/dashboard/vendor/`
 - PT0 vendored third-party charting bundle from the official `lightweight-charts` package.
 - Contains `lightweight-charts.standalone.production.js`, `LICENSE`, and `package.json`; the dashboard uses this local bundle instead of a hosted TradingView widget.
@@ -318,10 +327,18 @@ Last reviewed: `2026-05-11T11:42:10Z`
 `services/uat/pt0_runtime.py`
 - PT0 paper/sandbox runtime foundation helpers.
 - Defines the explicit paper/top-20 approval statements, top-20 Hyperliquid testnet-supported paper universe eligibility, internal 10,000 USDC paper-equity ledger wrapper, realized-equity sizing policy, PT0 runtime limits, route-candidate risk decisions, paper scanner records, and summary generation for the dashboard.
+
+`services/strategy_validation/historical_replay.py`
+- PT0.0.2 historical replay export helpers.
+- Audits persisted strategy-validation candle availability when DB connectivity is available and builds the dashboard replay summary from the trusted SV1.17 historical full-suite baseline export. It labels historical candle replay data as strategy truth, marks Hyperliquid testnet prices as not strategy truth, generates historical markers/trades/equity curves, and creates no orders or exchange calls.
 - Defaults to no network calls, no credentials, no private/signed/order endpoints, no live endpoint, no order submissions, no SOR/fanout/CBBO/target reselection, and no trading artifacts.
 
 `scripts/refresh_pt0_runtime_summary.py`
 - Generates the committed PT0 dashboard/runtime summary from deterministic helpers plus existing UAT3.3/UAT3.4/UAT4.2 summaries.
+
+`scripts/refresh_pt002_historical_replay_summary.py`
+- Generates the committed PT0.0.2 dashboard replay summary from the trusted offline SV1.17 historical full-suite replay JSON and an optional persisted-candle DB audit.
+- It does not call exchange endpoints, use credentials, submit orders, change Money Flow rules, import candles, or generate evidence packs.
 - Default mode performs no network calls, reads no credentials, and calls no private/signed/order endpoints.
 
 `core/config/`
@@ -871,3 +888,6 @@ Last reviewed: `2026-05-11T11:42:10Z`
 
 `tests/test_pt001_tradingview_chart_stability.py`
 - PT0.0.1 dashboard stability checks: verifies explicit chart height, parent containment, no `autoSize` chart feedback loop, refresh-time series updates without chart destruction, single polling timer guard, live-polling disable query flags, public-read-only endpoint boundaries, no order controls, and no live/paper toggle enabling live.
+
+`tests/test_pt002_historical_strategy_replay_cockpit.py`
+- PT0.0.2 historical replay cockpit checks: verifies historical replay truth uses the committed replay summary rather than Hyperliquid testnet prices, audits BTC/ETH/SOL x 15m/1h/4h readiness, requires dynamic 10,000 USDC equity updates, validates fill/cost assumptions, checks entry/exit marker semantics, verifies the dashboard Historical Replay tab and stable chart container, confirms sandbox execution ledger separation, and enforces no-order/no-live dashboard boundaries.

@@ -235,6 +235,13 @@ Closed by UAT3.4:
 - UAT4.0 chart cockpit visibility exists and UAT4.1 exchange-style redesign exists without order/cancel/retry/amend/approval/paper-live controls;
 - no production order artifacts, executable approvals, paper/live behavior, broad top-20 submission, smart routing/SOR/fanout/target reselection, Money Flow rule change, evidence pack, live endpoint use, or secret exposure was created.
 
+Closed by PT0.0.2:
+
+- Historical Replay cockpit uses historical public candle replay data as strategy truth for BTC/ETH/SOL x 15m/1h/4h;
+- Hyperliquid testnet prices are not strategy truth and remain sandbox execution plumbing only;
+- dashboard replay markers, trade inspector, dynamic 10,000 USDC paper-equity path, comparison table, and separate sandbox execution ledger exist;
+- no orders, order controls, private/signed/order endpoints, API keys, live endpoint use, Money Flow rule changes, or evidence packs were added.
+
 Remaining before UAT3.5:
 
 - complete UAT-universe precision validation for all observation symbols or document venue non-support precisely;

@@ -99,6 +99,10 @@ INTERNAL PAPER EQUITY STARTS AT 10,000 USDC.
 
 The dashboard still has no submit, cancel, retry, amend, approve, market buy/sell, live toggle, paper/live toggle, or auto-trade controls.
 
+## PT0.0.2 Historical Replay Note
+
+PT0.0.2 adds a separate Historical Replay cockpit. Historical public candle replay data is Money Flow strategy truth for that cockpit; Hyperliquid testnet prices are not strategy truth and remain sandbox execution plumbing only. The replay cockpit submits no orders, calls no private/signed/order endpoints, uses no API keys, changes no Money Flow rules, and keeps the UAT3.4 sandbox execution ledger separate from historical replay equity.
+
 ## Remaining Blockers For PT0.1
 
 - `needs_verification`: supervised continuous scanner operation over the full week.

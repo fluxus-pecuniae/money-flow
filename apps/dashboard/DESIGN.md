@@ -162,6 +162,9 @@ The design avoids default-looking large report text and favors dense workstation
 
 - The chart area must be central.
 - PT0 uses TradingView Lightweight Charts for candlesticks, volume histogram, crosshair, price scale, time scale, resize handling, EMA overlays, and markers.
+- PT0.0.2 adds a separate Historical Replay chart lane. It must use historical public candle replay JSON as strategy truth and must not use Hyperliquid testnet public live prices as strategy truth.
+- Historical replay markers mean historical paper replay fills only: green is entry fill, red is exit fill, yellow is trim/reduce. They are not live trades and not testnet orders.
+- Historical replay must keep the sandbox execution ledger visually separate from replay equity and PnL.
 - PT0 prefers live Hyperliquid testnet public candles. While browser live polling is enabled, the chart must wait for the selected symbol/timeframe `candleSnapshot` and must not render non-selected symbols from committed synthetic/local fallback candles as if they were live.
 - Local PT0/UAT summaries may still populate watchlist, side-panel, and fallback status text; chart rendering from local summaries is reserved for explicit disabled-polling/debug fallback states.
 - The dashboard uses a local official `lightweight-charts` standalone bundle, not TradingView Advanced Charts, not the Trading Platform library, and not the hosted TradingView widget.
