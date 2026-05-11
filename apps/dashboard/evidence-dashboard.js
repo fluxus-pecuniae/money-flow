@@ -2534,6 +2534,46 @@
     `;
   }
 
+  function historicalTradeForMarker(replay, marker) {
+    if (!marker?.trade_id) return null;
+    return (replay?.trades || []).find((trade) => trade.trade_id === marker.trade_id) || null;
+  }
+
+  function historicalMarkerReasons(reasons, fallback) {
+    const values = (Array.isArray(reasons) ? reasons : [])
+      .map((reason) => String(reason || "").trim())
+      .filter(Boolean);
+    return values.length ? values.join(", ") : fallback;
+  }
+
+  function historicalMarkerPnl(value) {
+    if (value === null || value === undefined || value === "") return "n/a";
+    return money(value);
+  }
+
+  function historicalMarkerLabel(replay, marker) {
+    const trade = historicalTradeForMarker(replay, marker);
+    const markerReasons = Array.isArray(marker?.reason_codes) ? marker.reason_codes : [];
+    const markerType = String(marker?.marker_type || "");
+    const entryReasons = trade?.entry_reason_codes?.length
+      ? trade.entry_reason_codes
+      : markerType.includes("entry")
+        ? markerReasons
+        : [];
+    const exitReasons = trade?.exit_reason_codes?.length
+      ? trade.exit_reason_codes
+      : markerType.includes("exit")
+        ? markerReasons
+        : [];
+    const parts = [];
+    if (entryReasons.length) {
+      parts.push(`Entry: ${historicalMarkerReasons(entryReasons, "n/a")}`);
+    }
+    parts.push(`Exit: ${historicalMarkerReasons(exitReasons, "n/a")}`);
+    parts.push(`Net PnL: ${historicalMarkerPnl(trade?.net_pnl ?? marker?.net_pnl)}`);
+    return parts.join(" | ");
+  }
+
   function historicalChartMarkers(replay, candles) {
     if (!candles.length) return [];
     const firstTime = candles[0].time;
@@ -2550,7 +2590,7 @@
           position: isEntry ? "belowBar" : "aboveBar",
           color: isEntry ? "#25d084" : isTrim ? "#f8c15c" : "#ff5a66",
           shape: isEntry ? "arrowUp" : isTrim ? "circle" : "arrowDown",
-          text: `${marker.label || marker.marker_type}; ${marker.trade_id || "trade"}; ${marker.fill_assumption || "n/a"}`,
+          text: historicalMarkerLabel(replay, marker),
         };
       })
       .filter(Boolean);

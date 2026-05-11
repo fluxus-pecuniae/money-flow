@@ -221,6 +221,11 @@ def test_dashboard_has_historical_replay_tab_and_stable_chart_container() -> Non
     assert "historicalConstantRows" in js
     assert "createPriceLine" in js
     assert "historicalChartMarkers" in js
+    assert "historicalMarkerLabel" in js
+    assert "Net PnL:" in js
+    assert "Entry:" in js
+    assert "Exit:" in js
+    assert "marker.fill_assumption" not in js
     assert ".historical-replay-chart .tradingview-lightweight-chart" in css
     assert "height: clamp(720px, 82vh, 1040px);" in css
     assert "contain: layout paint size;" in css

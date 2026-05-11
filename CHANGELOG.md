@@ -13,6 +13,21 @@ Entry schema:
 
 ---
 
+## v2026.05.11.015
+
+- `recorded_at_utc`: `2026-05-11T17:13:15Z`
+- `scope`: `Historical Replay marker label simplification`
+- `intent`: `Native entry. Simplified Historical Replay chart arrow labels by removing trade IDs, fill assumptions, and generic entry_fill/exit_fill wording from marker text. Entry/exit arrows now display only entry reason when available, exit reason, and net PnL from the linked replay trade. This is dashboard visualization only and adds no orders, order controls, private/signed/order endpoints, live endpoint use, exchange API keys, Money Flow rule changes, routing behavior, or evidence packs.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `tests/test_pt002_historical_strategy_replay_cockpit.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_pt002_historical_strategy_replay_cockpit.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt002_historical_strategy_replay_cockpit.py tests/test_operational_docs.py`
+  - `git diff --check`
+
 ## v2026.05.11.014
 
 - `recorded_at_utc`: `2026-05-11T17:02:42Z`
