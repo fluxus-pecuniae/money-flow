@@ -659,7 +659,7 @@ h3 {
   contain: layout paint size;
   border: 1px solid var(--color-line);
   border-radius: var(--radius-md);
-  background: #071014;
+  background: #10171b;
 }
 
 .chart-price-axis-readout {

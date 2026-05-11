@@ -13,6 +13,25 @@ Entry schema:
 
 ---
 
+## v2026.05.11.016
+
+- `recorded_at_utc`: `2026-05-11T17:18:07Z`
+- `scope`: `Dashboard monochrome candles and stacked replay marker rows`
+- `intent`: `Native entry. Updated the TradingView dashboard chart palette so live and historical candlesticks use black/white candle bodies on a muted graphite background that preserves EMA, RSI, MACD, and entry/exit marker contrast. Down candles keep light borders and wicks for visibility. Historical Replay marker labels now stack entry reason, exit reason, and net PnL as separate marker rows instead of a single long line. This is dashboard visualization only and adds no orders, order controls, private/signed/order endpoints, live endpoint use, exchange API keys, Money Flow rule changes, routing behavior, or evidence packs.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `money-flow/05_Agent_Coordination.md`
+  - `tests/test_pt002_historical_strategy_replay_cockpit.py`
+  - `tests/test_pt0_tradingview_paper_sandbox_runtime.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_pt002_historical_strategy_replay_cockpit.py tests/test_pt0_tradingview_paper_sandbox_runtime.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_uat40_dashboard_chart_cockpit.py tests/test_operational_docs.py`
+  - `git diff --check`
+
 ## v2026.05.11.015
 
 - `recorded_at_utc`: `2026-05-11T17:13:15Z`

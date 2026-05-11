@@ -135,6 +135,11 @@ The dashboard uses an exchange-like dark theme.
 | UAT warning | `--color-amber` | `#f3ba2f` |
 | Sandbox status | `--color-blue` | `#19a7ce` |
 | Sandbox accent | `--color-teal` | `#28d7c5` |
+| Chart background | `CHART_BACKGROUND_COLOR` | `#10171b` |
+| Up candle body | `CANDLE_UP_COLOR` | `#f5f7f2` |
+| Down candle body | `CANDLE_DOWN_COLOR` | `#050607` |
+
+TradingView candlesticks use a black/white palette so candle direction does not compete with green/red entry/exit markers, RSI/MACD colors, or EMA overlays. Down candles keep light borders and wicks so they remain visible on the muted chart background.
 
 ## Typography System
 

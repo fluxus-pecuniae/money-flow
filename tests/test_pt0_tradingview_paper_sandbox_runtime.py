@@ -75,6 +75,11 @@ def test_tradingview_lightweight_charts_local_bundle_is_used() -> None:
     assert "vendor/lightweight-charts.standalone.production.js" in html
     assert "LightweightCharts" in js
     assert "CandlestickSeries" in js
+    assert "CANDLE_UP_COLOR" in js
+    assert "CANDLE_DOWN_COLOR" in js
+    assert "CHART_BACKGROUND_COLOR" in js
+    assert "borderUpColor: CANDLE_BORDER_COLOR" in js
+    assert "borderDownColor: CANDLE_BORDER_COLOR" in js
     assert "HistogramSeries" in js
     assert "LineSeries" in js
     assert "createSeriesMarkers" in js

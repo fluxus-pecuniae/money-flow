@@ -34,6 +34,12 @@
 
   const HYPERLIQUID_TESTNET_PUBLIC_INFO_URL = "https://api.hyperliquid-testnet.xyz/info";
   const TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION = "5.2.0";
+  const CHART_BACKGROUND_COLOR = "#10171b";
+  const CHART_TEXT_COLOR = "#d8e1e5";
+  const CANDLE_UP_COLOR = "#f5f7f2";
+  const CANDLE_DOWN_COLOR = "#050607";
+  const CANDLE_BORDER_COLOR = "#e7ece8";
+  const CANDLE_WICK_COLOR = "#e7ece8";
   const LIVE_MARKET_REFRESH_MS = 15000;
   const LIVE_CHART_CANDLE_COUNT = 96;
   const LIVE_TIMEFRAME_MINUTES = {
@@ -2322,8 +2328,8 @@
       width,
       height,
       layout: {
-        background: { type: tv.ColorType.Solid, color: "#071014" },
-        textColor: "#c9d5dc",
+        background: { type: tv.ColorType.Solid, color: CHART_BACKGROUND_COLOR },
+        textColor: CHART_TEXT_COLOR,
         attributionLogo: false,
       },
       grid: {
@@ -2347,11 +2353,13 @@
       },
     });
     const candleSeries = chart.addSeries(tv.CandlestickSeries, {
-      upColor: "#25d084",
-      downColor: "#ff5a66",
-      borderVisible: false,
-      wickUpColor: "#25d084",
-      wickDownColor: "#ff5a66",
+      upColor: CANDLE_UP_COLOR,
+      downColor: CANDLE_DOWN_COLOR,
+      borderVisible: true,
+      borderUpColor: CANDLE_BORDER_COLOR,
+      borderDownColor: CANDLE_BORDER_COLOR,
+      wickUpColor: CANDLE_WICK_COLOR,
+      wickDownColor: CANDLE_WICK_COLOR,
       priceFormat: chartPriceFormat(candles),
       priceLineVisible: true,
       lastValueVisible: true,
@@ -2551,7 +2559,7 @@
     return money(value);
   }
 
-  function historicalMarkerLabel(replay, marker) {
+  function historicalMarkerLines(replay, marker) {
     const trade = historicalTradeForMarker(replay, marker);
     const markerReasons = Array.isArray(marker?.reason_codes) ? marker.reason_codes : [];
     const markerType = String(marker?.marker_type || "");
@@ -2571,7 +2579,7 @@
     }
     parts.push(`Exit: ${historicalMarkerReasons(exitReasons, "n/a")}`);
     parts.push(`Net PnL: ${historicalMarkerPnl(trade?.net_pnl ?? marker?.net_pnl)}`);
-    return parts.join(" | ");
+    return parts;
   }
 
   function historicalChartMarkers(replay, candles) {
@@ -2579,19 +2587,23 @@
     const firstTime = candles[0].time;
     const lastTime = candles.at(-1).time;
     return (replay?.markers || [])
-      .map((marker) => {
+      .flatMap((marker) => {
         const parsed = chartTime(marker.time);
-        if (parsed < firstTime || parsed > lastTime) return null;
+        if (parsed < firstTime || parsed > lastTime) return [];
         const role = marker.color_role || "gray";
         const isEntry = role === "green";
         const isTrim = role === "yellow";
-        return {
+        const markerBase = {
           time: parsed,
           position: isEntry ? "belowBar" : "aboveBar",
           color: isEntry ? "#25d084" : isTrim ? "#f8c15c" : "#ff5a66",
           shape: isEntry ? "arrowUp" : isTrim ? "circle" : "arrowDown",
-          text: historicalMarkerLabel(replay, marker),
         };
+        return historicalMarkerLines(replay, marker).map((line, index) => ({
+          ...markerBase,
+          size: index === 0 ? 1 : 0,
+          text: line,
+        }));
       })
       .filter(Boolean);
   }
@@ -2728,8 +2740,8 @@
       width,
       height,
       layout: {
-        background: { type: tv.ColorType.Solid, color: "#071014" },
-        textColor: "#c9d5dc",
+        background: { type: tv.ColorType.Solid, color: CHART_BACKGROUND_COLOR },
+        textColor: CHART_TEXT_COLOR,
         attributionLogo: false,
       },
       grid: {
@@ -2750,11 +2762,13 @@
       },
     });
     const candleSeries = chart.addSeries(tv.CandlestickSeries, {
-      upColor: "#25d084",
-      downColor: "#ff5a66",
-      borderVisible: false,
-      wickUpColor: "#25d084",
-      wickDownColor: "#ff5a66",
+      upColor: CANDLE_UP_COLOR,
+      downColor: CANDLE_DOWN_COLOR,
+      borderVisible: true,
+      borderUpColor: CANDLE_BORDER_COLOR,
+      borderDownColor: CANDLE_BORDER_COLOR,
+      wickUpColor: CANDLE_WICK_COLOR,
+      wickDownColor: CANDLE_WICK_COLOR,
       priceFormat: chartPriceFormat(candles),
       priceLineVisible: true,
       lastValueVisible: true,
