@@ -109,7 +109,7 @@ def test_indicators_markers_and_right_rail_context_are_safe() -> None:
     assert "red marker: sandbox cancel" in dashboard
     assert "not actual trade" in dashboard
     assert "not performance validation" in dashboard
-    assert "order_book_unavailable_local_summary_only" in dashboard
+    assert "order_book_unavailable" in dashboard
     assert "public_read_only" in dashboard
     assert "Private endpoint" in dashboard
     assert "not used" in dashboard

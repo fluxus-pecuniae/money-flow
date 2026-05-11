@@ -15,4 +15,6 @@ add fixed-key account/API-wallet readiness before a second approved sandbox
 lifecycle attempt and block before order transport when readiness fails. UAT3.3
 helpers harden Hyperliquid account targeting and precision before any approved
 sandbox transport and still block when target-account equity is insufficient.
+UAT4.2 helpers add read-only live-market monitor and internal paper-equity
+fixtures without order controls, live endpoints, or production trading artifacts.
 """

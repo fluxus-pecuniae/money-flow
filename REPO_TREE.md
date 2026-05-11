@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-11T07:03:40Z`
+Last reviewed: `2026-05-11T08:08:44Z`
 
 ## Top-Level Structure
 
@@ -88,6 +88,7 @@ Last reviewed: `2026-05-11T07:03:40Z`
 - UAT3.3 updates current-state notes after Hyperliquid account targeting and tick/lot precision hardening: normal master/user mode omits `vaultAddress`, subaccount/vault mode uses only the explicit configured target, the API-wallet signer remains separate from the target account, ETH price/size are formatted with Hyperliquid precision rules, and a later founder-approved follow-up verified one accepted/open ETH testnet order, successful cancel, and no-open-order reconciliation.
 - UAT3.4 updates current-state notes after sandbox routing operationalization: the working ETH testnet route is represented as `fixed_target_hyperliquid_testnet_eth`, routed sandbox order ledger records exist, active account mode is normal user with `vaultAddress` omitted, standard perp clearinghouse equity is selected for the current route, unified/portfolio spot-clearinghouse USDC fallback remains supported, and the dashboard exposes routed-order ledger visibility without adding order controls.
 - UAT4.0 updates current-state notes after the live UAT dashboard/chart cockpit: the static dashboard now exposes a read-only UAT Chart Cockpit from committed UAT2/UAT3.4 JSON summaries, including watchlist, market-data coverage, chart snapshot, indicators, shadow/sandbox markers, route/equity cards, routed-order ledger filters, and persistent no-order-control safety labeling.
+- UAT4.2 updates current-state notes after live-market monitoring and internal paper-equity visibility: the dashboard now loads a UAT4.2 monitor summary JSON with public-read-only market rows, deterministic indicator snapshots, paper-observation scanner records, 60-second sandbox private-read-only balance polling policy, and an internal 10,000 USDC paper-equity ledger while still adding no order controls or order endpoints.
 - Phase 8.0.1 accepted the previously dirty Obsidian memory refresh as the strategic baseline and updated it to current Phase 8.0/8.0.1 truth.
 - Phase 8.0.2 updates current-phase/coordination/decision notes for active submit-lease operator-summary truth only; full project memory remains untouched.
 - SV1.0.1 updates current-phase/coordination/decision notes for strategy-validation research-truth/report hardening only; full project memory remains untouched.
@@ -149,6 +150,7 @@ Last reviewed: `2026-05-11T07:03:40Z`
 - UAT3.4 adds a routed-orders visibility section to the UAT dashboard. It loads `docs/uat3_4_sandbox_routing_pipeline_and_order_ledger_summary.json`, shows run/route/lifecycle/cancel/reconcile/equity-source/sandbox-label truth, and still has no order button, repeated-order control, live control, or approval action.
 - UAT4.0 adds the read-only UAT Chart Cockpit from committed UAT2/UAT3.4 summaries.
 - UAT4.1 rebuilds that cockpit into an exchange-style workstation with compact top bar, left market rail, central chart cockpit, right order-book/market/signal/risk rail, bottom blotter tabs, and the canonical `apps/dashboard/DESIGN.md` design system. It remains local-summary-only and adds no order, cancel, retry, amend, approval, paper/live, route, or auto-trade controls.
+- UAT4.2 wires the cockpit to `docs/uat4_2_live_market_dashboard_and_paper_equity_monitor_summary.json`, showing refreshed public-read-only market data, deterministic indicators, paper-observation markers, internal paper-equity state, sandbox balance-poll policy, and explicit positions/unavailable-state visibility. It still adds no order, cancel, retry, amend, approval, live, route, or auto-trade controls.
 
 `docs/uat0_safety_security_runtime_hardening.md`
 - Founder/operator UAT0 safety, security, runtime, and operational-readiness audit.
@@ -262,6 +264,14 @@ Last reviewed: `2026-05-11T07:03:40Z`
 - Founder/operator UAT4.1 dashboard redesign report.
 - Records the UAT4.0 usability problems, exchange-style layout principles, `apps/dashboard/DESIGN.md` replacement status, top bar / watchlist / chart cockpit / right rail / bottom blotter sections, marker and routed-order semantics, no-order-control confirmation, remaining UI limitations, and next dashboard work.
 
+`docs/uat4_2_live_market_dashboard_and_paper_equity_monitor.md`
+- Founder/operator UAT4.2 live-market monitoring and paper-equity dashboard report.
+- Records live public market-data status, watchlist coverage, indicator computation, strategy scanner status, entry/exit marker semantics, 60-second sandbox private-read-only balance polling policy, internal 10,000 USDC paper-equity ledger, sizing policy, routed-orders visibility, no-order-control confirmation, and PT0 roadmap capture.
+
+`docs/uat4_2_live_market_dashboard_and_paper_equity_monitor_summary.json`
+- Dashboard-consumed UAT4.2 monitor summary.
+- Records public-read-only market snapshots for the UAT watchlist, indicator snapshots, paper-observation scanner records, sandbox balance confirmation/poll policy, internal paper-equity state, future sizing policy, routed-order source status, and no-order/no-live side-effect flags.
+
 `services/exchange/hyperliquid/precision.py`
 - Decimal-only Hyperliquid precision formatter.
 - Uses asset metadata `szDecimals`, perpetual max price decimals `6 - szDecimals`, five-significant-figure price formatting, and size flooring to asset size precision. It is used by UAT3.3 order planning and UAT observation-universe precision validation.
@@ -274,12 +284,18 @@ Last reviewed: `2026-05-11T07:03:40Z`
 - `scripts/run_uat32_second_sandbox_order.py` refuses to run without `--execute-approved-uat32`, validates exact UAT3.2 founder/operator approval before loading `.env`, writes sanitized UAT3.2 Markdown/JSON reports, and blocks before order transport when account/API-wallet readiness fails.
 - `scripts/run_uat33_hyperliquid_precision_order.py` refuses to run without `--execute-approved-uat33`, resolves normal user/master versus subaccount/vault targeting, validates Hyperliquid precision across the UAT observation universe, writes sanitized UAT3.3 Markdown/JSON reports, and blocks before order transport when the configured target account fails readiness gates.
 - `scripts/run_uat34_sandbox_routing_pipeline.py` refuses to run without `--execute-approved-uat34`, uses the fixed-target Hyperliquid testnet ETH route, preserves standard/unified equity-source reporting, enforces runtime/risk/lease/label/precision/endpoint gates, writes sanitized routed ledger Markdown/JSON reports, and caps approved UAT3.4 attempts at three without adding broad routing or dashboard order controls.
+- `scripts/refresh_uat42_live_monitor.py` generates the UAT4.2 dashboard monitor summary from deterministic read-only helpers and the existing UAT3.4 routed-order summary. Default mode performs no network calls, reads no credentials, and calls no private/signed/order endpoints.
 - Validates the exact actual-submission approval text, sandbox/testnet endpoint boundary, one-order maximum, manual lifecycle-probe labels, live-fed sandbox drawdown, UAT3 dry-run gates, post-only/non-marketable ETH order shaping, sanitized response summaries, and no production artifact side-effect flags before allowing a single testnet order transport call.
 
 `services/uat/sandbox.py`
 - Fixture-only UAT3 sandbox readiness helpers.
 - Defines fail-closed sandbox runtime policy evaluation, sandbox private read-only account policy evaluation, UAT3.0.5 approval and sandbox/testnet credential-environment verification, redacted credential payload serialization, Hyperliquid sandbox account-state payload parsing into not-live-account drawdown feeds, sandbox artifact label validation, sandbox artifact boundary validation, actual-submission approval-scope validation, sandbox risk-gate evaluation, sandbox drawdown feed fixtures and sandbox account drawdown feed modeling, submit-lease duplicate-prevention checks, unified dry-run preflight, dry-run executable gate service composition, non-persistent UAT3.0.6 sandbox submission plans, and dry-run submit-path gate chaining.
 - Creates no trading artifacts, submits no orders, calls no exchange endpoints, and authorizes no paper/live behavior.
+
+`services/uat/live_monitor.py`
+- UAT4.2 read-only live-market monitor and internal paper-equity helpers.
+- Defines public-read-only Hyperliquid market-data policy validation, deterministic market snapshot fixtures, indicator computation, paper-observation scanner records, 60-second sandbox private-read-only balance polling policy, internal 10,000 USDC paper-equity ledger, future sizing policy from current paper equity, and summary generation for the dashboard.
+- Defaults to no network calls, no credentials, no private/signed/order endpoints, no live endpoint, and no trading artifacts.
 
 `core/config/`
 - Pydantic settings, environment profiles, runtime selection, and per-venue / strategy configuration.
@@ -822,3 +838,6 @@ Last reviewed: `2026-05-11T07:03:40Z`
 
 `tests/test_uat41_exchange_dashboard_redesign.py`
 - UAT4.1 exchange-style dashboard redesign checks: verifies the rebuilt canonical design doc, root design pointer, exchange workstation sections, top bar, watchlist, central chart, right rail, bottom blotter tabs, routed-order lifecycle visibility, observation-only watchlist labels, indicator/marker semantics, and absence of order/cancel/retry/amend/approval/paper-live controls.
+
+`tests/test_uat42_live_market_dashboard_paper_equity.py`
+- UAT4.2 dashboard/runtime monitor checks: verifies public-read-only market-data policy, watchlist coverage, deterministic indicators and insufficient-history labeling, observation-only scanner side effects, 60-second sandbox private-read-only balance polling policy, internal 10,000 USDC paper-equity ledger math, sizing from current paper equity, dashboard live-monitor surfaces, marker semantics, no order controls, report existence, and PT0 roadmap capture.

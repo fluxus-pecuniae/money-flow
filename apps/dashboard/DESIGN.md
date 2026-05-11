@@ -151,16 +151,16 @@ The design avoids default-looking large report text and favors dense workstation
 
 ## Market Data Display Rules
 
-- Show latest price/mid only when present in local UAT summaries or public read-only data.
+- Show latest price/mid only when present in local UAT summaries, UAT4.2 local refresh JSON, or public read-only data.
 - Show `market_data_unavailable` instead of fabricated values.
-- Label sources as `local_summary_json` or `public_read_only`.
+- Label sources as `local_summary_json`, `refreshed_public_read_only_local_json`, or `public_read_only`.
 - Never require private endpoints or API keys for dashboard display.
-- Live public refresh is deferred until separately scoped.
+- UAT4.2 supports a local refresh summary path and public-read-only monitor helpers. Browser display still uses committed/local JSON unless a future operator runtime supplies a refresh endpoint.
 
 ## Chart Rules
 
 - The chart area must be central.
-- UAT4.1 uses a deterministic chart shell from committed local summaries.
+- UAT4.2 prefers refreshed public-read-only monitor candles and falls back to committed UAT summaries.
 - Any future live chart library must remain public-read-only unless a later phase explicitly scopes otherwise.
 - If candles are insufficient, display explicit unavailable states.
 
@@ -168,11 +168,13 @@ The design avoids default-looking large report text and favors dense workstation
 
 Green markers mean:
 - `shadow would-open`
+- `paper observation would-open`
 - `sandbox order accepted/open`
 - `sandbox fill` if ever applicable
 
 Red markers mean:
 - `shadow would-close`
+- `paper observation would-close`
 - `sandbox cancel`
 - `sandbox exit` if ever applicable
 
@@ -181,13 +183,13 @@ Marker tooltips/rows must include:
 - component or route
 - timeframe
 - timestamp
-- source: shadow audit or routed sandbox ledger
+- source: shadow audit, paper observation scanner, or routed sandbox ledger
 - reason codes
 - order id when available
 - sandbox/not-live labels
 - no paper/live confirmation
 
-Shadow markers are not actual trades. Sandbox lifecycle probes are not strategy performance trades.
+Shadow and paper-observation markers are not actual trades. Sandbox lifecycle probes are not strategy performance trades.
 
 ## Routed Order Display Rules
 
@@ -218,6 +220,8 @@ No retry, cancel, amend, route, or approval actions are allowed in the dashboard
 - UAT cockpit: `sandbox/testnet observation only`.
 - Paper trading: `not approved`.
 - Live trading: `not approved`.
+- Internal paper equity: `paper-equity simulation`, `not real capital`.
+- Sandbox balance confirmation: `sandbox private read-only`, `not live account`.
 - Top-20 assets: `observation only`.
 - ETH route: fixed-target sandbox route ledger visibility only; manual approval is required for every sandbox order.
 - Routed ledger records: sandbox/testnet lifecycle records, not paper, not live, not performance validation.
@@ -242,12 +246,12 @@ If future control mocks are ever shown, they must be disabled, inert, and labele
 
 ## Future Roadmap
 
-Deferred UAT4.x work:
-- public read-only live candle refresh
+Deferred UAT/PT work:
+- PT0 approval-gated paper/sandbox trading runtime
+- operator-served live public refresh endpoint
 - real order-book/public depth display
 - chart-library replacement for the deterministic shell
 - richer crosshair / tooltip behavior
-- indicator recomputation from live public candles
 - routed-order timeline overlays on the chart
 
 None of the above authorize order submission, paper trading, live trading, private endpoints, signed endpoints, API-key use, routing expansion, or Money Flow rule changes.

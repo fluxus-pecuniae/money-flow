@@ -76,6 +76,18 @@ Last reviewed: `2026-05-11T07:03:40Z`
 - `status`: `done`
 - `summary`: `UAT4.1 exchange-style dashboard redesign is complete. The static dashboard cockpit has been rebuilt around a trading-workstation layout: compact top bar, persistent safety banner, left market/watchlist rail, central chart cockpit, right order-book / market-info / signal-context / risk-context rail, and bottom blotter tabs for Routed Orders, Shadow Signals, Balances / Positions, Lifecycle, and Audit / Logs. The canonical dashboard design system is now apps/dashboard/DESIGN.md, with root DESIGN.md reduced to a pointer. UAT4.1 remains dashboard redesign only: no order, cancel, retry, amend, approval, paper/live, route, auto-trade, private/signed/order endpoint, exchange API-key, Money Flow rule, routing expansion, or evidence-pack behavior was added.`
 
+### T-115
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `UAT4.2 live market dashboard and paper-equity monitor is complete. Added read-only UAT4.2 monitor helpers, a dashboard summary refresh script, committed UAT4.2 summary JSON, dashboard wiring for public-read-only market rows, deterministic indicators, paper-observation scanner markers, sandbox private-read-only 60-second balance polling policy, internal 10,000 USDC paper-equity ledger, and current-equity sizing policy visibility. UAT4.2 does not add order controls, submit orders, call live endpoints, call private order endpoints, use exchange API keys, create execution artifacts, change Money Flow rules, add routing/SOR/fanout, or generate evidence packs. PT0 approval-gated paper/sandbox trading runtime is captured as future work.`
+
+### T-116
+
+- `priority`: `high`
+- `status`: `future`
+- `summary`: `PT0 approval-gated paper/sandbox trading runtime is future work. It should include controlled internal paper-equity ledger, Hyperliquid sandbox/testnet only, no live endpoint, realized/unrealized PnL tracking, order sizing from current equity, approval-gated strategy-to-order path, risk limits, kill switch, dashboard monitoring, and no broad top-20 order submission unless separately approved. UAT4.2 captures this roadmap but does not implement PT0.`
+
 ### T-112
 
 - `priority`: `high`

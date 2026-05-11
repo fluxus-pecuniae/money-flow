@@ -13,6 +13,54 @@ Entry schema:
 
 ---
 
+## v2026.05.11.004
+
+- `recorded_at_utc`: `2026-05-11T08:26:12Z`
+- `scope`: `UAT4.2 live market dashboard + paper-equity runtime monitor`
+- `intent`: `Native entry. Added read-only UAT4.2 monitor helpers for public-read-only Hyperliquid market data policy validation, deterministic indicator snapshots, paper-observation scanner records, a 60-second sandbox private-read-only balance polling policy, internal 10,000 USDC paper-equity ledger math, and future sizing policy visibility. Wired the exchange-style dashboard to the UAT4.2 monitor summary JSON so the founder can inspect refreshed market rows, indicators, entry/exit markers, sandbox balance confirmation, internal paper-equity state, and routed sandbox lifecycle history. Captured PT0 approval-gated paper/sandbox runtime as future work. UAT4.2 adds no order controls, submits no orders, calls no live endpoints, calls no private order endpoints, uses no exchange API keys, creates no production execution artifacts or executable approvals, changes no Money Flow rules, adds no smart routing/SOR/fanout/target-reselection behavior, and generates no evidence packs.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/uat4_1_exchange_style_dashboard_redesign.md`
+  - `docs/uat4_2_live_market_dashboard_and_paper_equity_monitor.md`
+  - `docs/uat4_2_live_market_dashboard_and_paper_equity_monitor_summary.json`
+  - `services/uat/__init__.py`
+  - `services/uat/live_monitor.py`
+  - `scripts/refresh_uat42_live_monitor.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_uat40_dashboard_chart_cockpit.py`
+  - `tests/test_uat41_exchange_dashboard_redesign.py`
+  - `tests/test_uat42_live_market_dashboard_paper_equity.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat42_live_market_dashboard_paper_equity.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat41_exchange_dashboard_redesign.py tests/test_uat40_dashboard_chart_cockpit.py tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-uat4.2-review.zip`
+  - `review bundle path exclusion scan`
+  - `review bundle exact sandbox secret value scan`
+
 ## v2026.05.11.003
 
 - `recorded_at_utc`: `2026-05-11T07:03:40Z`

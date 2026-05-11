@@ -61,6 +61,7 @@ def test_uat_chart_cockpit_tab_and_sections_exist() -> None:
     assert ".marker-pill.red" in css
     assert "docs/uat2_shadow_strategy_top20_observation_summary.json" in dashboard
     assert "docs/uat3_4_sandbox_routing_pipeline_and_order_ledger_summary.json" in dashboard
+    assert "docs/uat4_2_live_market_dashboard_and_paper_equity_monitor_summary.json" in dashboard
 
 
 def test_uat_watchlist_assets_are_observation_only_and_not_order_approved() -> None:
@@ -120,11 +121,11 @@ def test_market_data_coverage_uses_public_read_only_local_summaries() -> None:
     html, js, _css = _dashboard_assets()
     dashboard = f"{html}\n{js}"
 
-    assert "market_data_available_from_uat2_summary" in dashboard
+    assert "refreshed_public_read_only_local_json" in dashboard
     assert "market_data_unavailable" in dashboard
     assert "public_read_only / local_summary_json" in dashboard
-    assert "live_public_refresh_deferred_to_uat4_2" in dashboard
-    assert "no private, signed, or order endpoints are used" in dashboard
+    assert "UAT4.2 local refresh JSON" in dashboard
+    assert "No API keys, private order endpoints, signed order endpoints, or live endpoints are used" in dashboard
 
 
 def test_dashboard_has_no_order_or_paper_live_controls() -> None:

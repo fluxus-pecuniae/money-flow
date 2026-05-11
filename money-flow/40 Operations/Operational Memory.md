@@ -31,9 +31,9 @@ Before substantial work, read the repo memory and Obsidian brain. Before editing
 
 ## Current Important Memory Facts
 
-- Current implemented milestone: `UAT3.2` fixed-key preflight / second sandbox lifecycle attempt complete as blocked before order transport.
+- Current implemented milestone: `UAT4.2` live market dashboard and internal paper-equity monitor complete.
 - Strategy Validation SV1 is closed for now.
-- Next proposed phase: `UAT3.3` is blocked pending separate approval plus fixed testnet account/API-wallet/equity readiness.
+- Next proposed phase: `PT0` approval-gated paper/sandbox trading runtime may be scoped separately; `UAT3.5` additional sandbox routing lifecycle tests remain blocked by incomplete UAT-universe precision validation and separate approval.
 - UAT1 public read-only connectivity is complete under strict no-private/no-signed/no-order/no-API-key constraints.
 - UAT1 verified allowed public Hyperliquid info types, fetched a no-key public top-volume source, and resolved observation-only Hyperliquid supported assets.
 - UAT1.1 adds operator-visible shadow drawdown state, shadow signal audit surfaces, and representative structured redaction verification.
@@ -48,6 +48,11 @@ Before substantial work, read the repo memory and Obsidian brain. Before editing
 - UAT3.0.6 wires the future sandbox submit path in dry-run mode through a non-persistent submission plan plus actual-submission approval, live-fed drawdown, approval scope, risk, submit-lease duplicate prevention, endpoint classification, and sandbox label checks; no artifacts are created and no exchange is called.
 - UAT3.1 verified exact founder/operator approval, made one Hyperliquid testnet ETH post-only limit attempt under 10 USDC notional, received a sanitized user/API-wallet-not-found rejection, required no cancel, reconciled no open order, and created no production execution artifacts.
 - UAT3.2 verified separate founder/operator approval but blocked before order transport because fixed-key account/API-wallet readiness still failed; order attempt count was `0`, no order/cancel/amend/retry endpoint was called, and UAT4.0 dashboard chart cockpit was later implemented as read-only visualization.
+- UAT3.3 fixed Hyperliquid account targeting and ETH precision; a later approved follow-up verified accepted/open -> cancel lifecycle on Hyperliquid testnet.
+- UAT3.4 operationalized that route as a fixed-target sandbox routing pipeline with routed-order ledger visibility and unified-equity compatibility.
+- UAT4.0 added a read-only dashboard/chart cockpit.
+- UAT4.1 rebuilt the cockpit as an exchange-style workstation.
+- UAT4.2 added public-read-only monitor rows, deterministic indicators, paper-observation markers, a 60-second sandbox private-read-only balance polling policy, and an internal 10,000 USDC paper-equity ledger without adding order controls or order endpoints.
 - Frozen evidence candidate: Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules.
 - Future UAT observation universe: top-20 high-volume supported assets for behavior validation only.
 - Paper trading is not approved.

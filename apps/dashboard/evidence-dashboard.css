@@ -564,6 +564,14 @@ h3 {
   color: var(--color-green);
 }
 
+.market-change.positive {
+  color: var(--color-green);
+}
+
+.market-change.negative {
+  color: var(--color-red);
+}
+
 .market-signal.neutral {
   color: var(--color-blue);
 }
@@ -663,6 +671,14 @@ h3 {
 
 .chart-level.indicator {
   border-color: var(--color-blue);
+}
+
+.chart-level.candle {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.chart-level.candle strong {
+  opacity: 0;
 }
 
 .chart-marker-layer {
@@ -810,13 +826,13 @@ h3 {
 
 .blotter-grid {
   display: grid;
-  grid-template-columns: minmax(240px, 0.8fr) minmax(240px, 0.8fr) minmax(420px, 1.4fr);
+  grid-template-columns: repeat(4, minmax(220px, 1fr));
   gap: var(--spacing-5);
   padding: var(--spacing-5);
 }
 
 .wide {
-  grid-column: auto;
+  grid-column: 1 / -1;
 }
 
 .lifecycle-timeline {

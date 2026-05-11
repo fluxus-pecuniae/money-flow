@@ -144,17 +144,17 @@ All top-20 watchlist assets remain observation-only. ETH shows routed sandbox le
 
 Status: `implemented`.
 
-The chart is now the center of the UAT cockpit. UAT4.1 still uses deterministic static chart values from committed local JSON:
+The chart is now the center of the UAT cockpit. UAT4.1 uses deterministic static chart values from committed local JSON:
 
 ```text
 docs/uat2_shadow_strategy_top20_observation_summary.json
 docs/uat3_4_sandbox_routing_pipeline_and_order_ledger_summary.json
 ```
 
-Live public refresh is deferred:
+UAT4.2 later added the first local live-monitor summary path:
 
 ```text
-live_public_refresh_deferred_to_uat4_2
+uat4_2_local_live_monitor_summary
 ```
 
 No private/signed/order endpoints or API keys are required.
@@ -278,12 +278,14 @@ Status: `deferred`.
 
 ## Next Dashboard Work
 
-Status: `deferred`.
+Status: `implemented_by_uat4_2_for_monitoring_baseline`; richer live deployment remains `deferred`.
 
-Recommended next phase:
+UAT4.2 now adds a read-only live-market monitor summary path, deterministic indicator snapshots, paper-observation markers, a 60-second sandbox private-read-only balance polling policy, and internal 10,000 USDC paper-equity visibility.
+
+Next future phase:
 
 ```text
-UAT4.2 - public-read-only live market refresh / chart-library integration
+PT0 - Approval-Gated Paper/Sandbox Trading Runtime
 ```
 
-UAT4.2 should remain no-key, public-read-only, no private/signed/order endpoints, no order controls, no paper/live trading, no Money Flow rule changes, and no routing expansion unless separately scoped.
+PT0 must remain separately scoped. UAT4.2 does not submit orders, add order controls, call live endpoints, call private order endpoints, use exchange API keys, enable live trading, change Money Flow rules, or add routing behavior.
