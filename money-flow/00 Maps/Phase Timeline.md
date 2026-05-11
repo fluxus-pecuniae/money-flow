@@ -65,6 +65,6 @@ Paper trading is not approved. Live trading is not approved. Additional exchange
 - UAT3.2: fixed-key preflight / second sandbox lifecycle attempt complete as blocked before order transport; separate approval was verified, account/API-wallet readiness failed, order attempt count was `0`, and no order endpoint was called.
 - UAT3.3: Hyperliquid account-targeting / precision hardening complete as blocked before order transport; account targeting and ETH precision are fixed, but target subaccount equity is `0.0`.
 - UAT3.4: additional sandbox lifecycle testing is blocked; it requires separate founder/operator approval and sufficient sandbox equity before accepted/open -> cancel coverage.
-- UAT4.0: live UAT trading dashboard / chart cockpit requested as a future roadmap phase only.
+- UAT4.0: live UAT trading dashboard / chart cockpit complete as read-only local visualization.
 
 See [[00 Maps/UAT Roadmap|UAT Roadmap]].

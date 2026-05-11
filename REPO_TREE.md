@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-11T05:50:00Z`
+Last reviewed: `2026-05-11T06:45:00Z`
 
 ## Top-Level Structure
 
@@ -82,6 +82,7 @@ Last reviewed: `2026-05-11T05:50:00Z`
 - UAT3.2 updates current-state notes after the fixed-key preflight / second approval-gated sandbox lifecycle attempt: exact founder/operator approval was verified, fixed-key account/API-wallet readiness blocked before order transport because the testnet user/API wallet was still not recognized/authorized and account equity was insufficient, zero order attempts were made, no order/cancel/amend/retry endpoint was called, and the future UAT4.0 dashboard chart cockpit request was captured as roadmap-only.
 - UAT3.3 updates current-state notes after Hyperliquid account targeting and tick/lot precision hardening: normal master/user mode omits `vaultAddress`, subaccount/vault mode uses only the explicit configured target, the API-wallet signer remains separate from the target account, ETH price/size are formatted with Hyperliquid precision rules, and a later founder-approved follow-up verified one accepted/open ETH testnet order, successful cancel, and no-open-order reconciliation.
 - UAT3.4 updates current-state notes after sandbox routing operationalization: the working ETH testnet route is represented as `fixed_target_hyperliquid_testnet_eth`, routed sandbox order ledger records exist, active account mode is normal user with `vaultAddress` omitted, standard perp clearinghouse equity is selected for the current route, unified/portfolio spot-clearinghouse USDC fallback remains supported, and the dashboard exposes routed-order ledger visibility without adding order controls.
+- UAT4.0 updates current-state notes after the live UAT dashboard/chart cockpit: the static dashboard now exposes a read-only UAT Chart Cockpit from committed UAT2/UAT3.4 JSON summaries, including watchlist, market-data coverage, chart snapshot, indicators, shadow/sandbox markers, route/equity cards, routed-order ledger filters, and persistent no-order-control safety labeling.
 - Phase 8.0.1 accepted the previously dirty Obsidian memory refresh as the strategic baseline and updated it to current Phase 8.0/8.0.1 truth.
 - Phase 8.0.2 updates current-phase/coordination/decision notes for active submit-lease operator-summary truth only; full project memory remains untouched.
 - SV1.0.1 updates current-phase/coordination/decision notes for strategy-validation research-truth/report hardening only; full project memory remains untouched.
@@ -244,7 +245,11 @@ Last reviewed: `2026-05-11T05:50:00Z`
 
 `docs/uat3_4_sandbox_routing_pipeline_and_order_ledger_summary.json`
 - Sanitized machine-readable UAT3.4 route/ledger summary consumed by the dashboard routed-orders section.
-- Records that account targeting was verified, ETH precision formatting produced an exchange-valid planned post-only shape, live-fed sandbox drawdown was available, but sandbox account equity was `0.0`; therefore `order_attempt_count` is `0`, order/cancel endpoints were not called, and all production execution side-effect flags are false.
+- Records that account targeting was verified, ETH precision formatting produced an exchange-valid post-only shape, live-fed sandbox drawdown was available with selected equity source `standard_perp_clearinghouse`, one UAT3.4 lifecycle attempt called the order endpoint once, the accepted/open order was canceled through one cancel endpoint call, reconciliation found no open order, and all production execution side-effect flags remain false.
+
+`docs/uat4_0_live_uat_dashboard_chart_cockpit.md`
+- Founder/operator UAT4.0 dashboard/chart cockpit report.
+- Records dashboard sections, watchlist, market-data coverage, chart/indicator labels, entry/exit marker semantics, routed orders tab, active sandbox route card, unified equity-source visibility, no-order-control confirmation, limitations, and next dashboard improvements.
 
 `services/exchange/hyperliquid/precision.py`
 - Decimal-only Hyperliquid precision formatter.
@@ -800,3 +805,6 @@ Last reviewed: `2026-05-11T05:50:00Z`
 
 `tests/test_uat34_sandbox_routing_pipeline.py`
 - UAT3.4 sandbox routing pipeline checks: verifies standard perp equity selection, unified spot USDC fallback, fixed-target ETH-only route validation, top-20/fanout/SOR/target-reselection/route-executor blockers, routed ledger lifecycle/cancel/reconcile/equity-source/sandbox-label fields, duplicate submit preflight blocking, and UAT4.0 roadmap capture.
+
+`tests/test_uat40_dashboard_chart_cockpit.py`
+- UAT4.0 dashboard cockpit checks: verifies the UAT Chart Cockpit tab, observation-only watchlist, active ETH sandbox route card, market-data coverage, indicator labels, shadow/sandbox marker semantics, routed-order ledger fields, persistent no-paper/no-live/no-order-control safety labels, and absence of order/cancel/retry/amend/approval/paper-live controls.

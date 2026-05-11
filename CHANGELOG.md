@@ -13,6 +13,49 @@ Entry schema:
 
 ---
 
+## v2026.05.11.002
+
+- `recorded_at_utc`: `2026-05-11T06:45:00Z`
+- `scope`: `UAT4.0 live UAT dashboard / chart cockpit`
+- `intent`: `Native entry. Added a read-only UAT Chart Cockpit to the static dashboard. The cockpit loads committed UAT2 shadow and UAT3.4 routed-order summary JSON, renders the UAT watchlist, market-data coverage, static chart snapshots, EMA5/EMA10/SMA20/RSI/MACD indicator labels, shadow/sandbox lifecycle markers, the active fixed-target ETH sandbox route card, unified equity-source visibility, routed-order ledger filters, and shadow-signal overlays. The routed-orders table remains visualization-only and no dashboard order, cancel, retry, amend, approval, paper/live, route, or auto-trade controls were added. UAT4.0 calls no private/signed/order endpoints, uses no exchange API keys, submits no orders, creates no production order artifacts or executable approvals, changes no Money Flow rules, adds no routing expansion, and generates no evidence packs.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/uat3_4_sandbox_routing_pipeline_and_order_ledger.md`
+  - `docs/uat4_0_live_uat_dashboard_chart_cockpit.md`
+  - `tests/test_operational_docs.py`
+  - `tests/test_uat40_dashboard_chart_cockpit.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/40 Operations/UAT0 Safety Runtime Hardening.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat40_dashboard_chart_cockpit.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat21_dashboard_visualization.py tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat0_safety_report.py tests/test_uat01_api_auth_runtime_lockout.py tests/test_uat02_adapter_runtime_policy_and_redaction.py tests/test_uat03_top20_universe_and_drawdown.py tests/test_uat1_public_read_only_connectivity.py tests/test_uat11_shadow_readiness.py tests/test_uat2_shadow_strategy.py tests/test_uat21_dashboard_visualization.py tests/test_uat30_sandbox_order_design.py tests/test_uat301_sandbox_readiness.py tests/test_uat302_sandbox_gate_dry_run.py tests/test_uat303_sandbox_gate_wiring.py tests/test_uat304_sandbox_private_read_only_drawdown.py tests/test_uat305_sandbox_private_read_only_drawdown_verification.py tests/test_uat306_sandbox_submit_path_dry_run.py tests/test_uat31_first_sandbox_order_attempt.py tests/test_uat32_second_sandbox_order_attempt.py tests/test_uat33_hyperliquid_account_precision.py tests/test_uat34_sandbox_routing_pipeline.py tests/test_uat40_dashboard_chart_cockpit.py tests/test_api.py tests/test_config.py tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-uat4.0-review.zip`
+  - `review bundle path exclusion scan`
+  - `review bundle exact sandbox secret value scan`
+
 ## v2026.05.11.001
 
 - `recorded_at_utc`: `2026-05-11T05:50:00Z`

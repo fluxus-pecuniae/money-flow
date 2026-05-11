@@ -394,6 +394,57 @@ h3 {
   line-height: 1.2;
 }
 
+.uat-chart-shell {
+  display: grid;
+  gap: var(--spacing-10);
+  padding: var(--spacing-10);
+  border: 2px solid var(--color-grid-line);
+  background: var(--color-paper-white);
+}
+
+.uat-chart-title-row {
+  display: flex;
+  gap: var(--spacing-10);
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-body-sm);
+}
+
+.uat-chart-bars {
+  display: grid;
+  gap: var(--spacing-7);
+}
+
+.uat-chart-row {
+  display: grid;
+  grid-template-columns: 110px minmax(140px, 1fr) 150px;
+  gap: var(--spacing-7);
+  align-items: center;
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+}
+
+.marker-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 var(--spacing-8);
+  border: 2px solid var(--color-grid-line);
+  border-radius: var(--radius-buttons);
+  white-space: nowrap;
+}
+
+.marker-pill.green {
+  color: var(--color-paper-white);
+  background: var(--color-grid-canvas);
+}
+
+.marker-pill.red {
+  color: var(--color-paper-white);
+  background: var(--color-alert-red);
+}
+
 .split-layout {
   display: grid;
   grid-template-columns: minmax(300px, 0.95fr) minmax(0, 1.55fr);
@@ -731,6 +782,7 @@ th {
   .strategy-flow,
   .strategy-grid,
   .score-stack,
+  .uat-chart-row,
   .uat-filter-grid,
   .boundary-grid {
     grid-template-columns: 1fr;

@@ -48,7 +48,7 @@ See [[00 Maps/UAT Roadmap|UAT Roadmap]].
 - UAT3.2: fixed-key preflight / second sandbox lifecycle attempt complete as blocked before order transport; separate approval was verified, account/API-wallet readiness failed, order attempt count was `0`, and no order endpoint was called.
 - UAT3.3: Hyperliquid account-targeting / precision hardening complete as blocked before order transport; normal accounts omit `vaultAddress`, subaccount/vault targets use explicit `vaultAddress`, ETH precision formatting is fixed, and target subaccount equity was `0.0`.
 - UAT3.4: additional sandbox lifecycle testing is blocked; it requires separate founder/operator approval and sufficient sandbox equity before attempting accepted/open -> cancel coverage.
-- UAT4.0: live UAT trading dashboard / chart cockpit requested as a future roadmap phase only.
+- UAT4.0: live UAT trading dashboard / chart cockpit is complete as read-only local visualization; public-read-only live refresh may be scoped later.
 - UAT4: sandbox / simulated trading review.
 
 ## Pre-Paper / Live Trading Blockers

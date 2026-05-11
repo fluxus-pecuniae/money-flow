@@ -143,7 +143,9 @@ Requested capabilities: live charts for watched pairs; green entry arrows; red e
 
 ## Next Readiness Decision
 
-UAT4.0 readiness decision: `UAT4.0 live UAT dashboard/chart cockpit may be scoped`
+UAT4.0 readiness decision: `UAT4.0 live UAT dashboard/chart cockpit is complete`
+
+UAT4.0 implementation note: the static dashboard now includes a read-only `UAT Chart Cockpit` tab that consumes the UAT2 shadow summary and this UAT3.4 routed-order ledger summary. It shows watchlist, market-data coverage, static chart snapshots, indicator labels, shadow/sandbox lifecycle markers, the active ETH sandbox route, unified equity-source visibility, and routed-order ledger filters. It adds no order controls and makes no private/signed/order endpoint calls.
 
 UAT3.5 readiness decision: `UAT3.5 is blocked`
 

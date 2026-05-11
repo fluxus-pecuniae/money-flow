@@ -20,6 +20,26 @@
     "../../docs/uat3_4_sandbox_routing_pipeline_and_order_ledger_summary.json",
   ];
 
+  const UAT_WATCHLIST_SYMBOLS = [
+    "BTC",
+    "ETH",
+    "SOL",
+    "XRP",
+    "ZEC",
+    "BNB",
+    "SUI",
+    "TON",
+    "DOGE",
+    "TRX",
+    "LAYER",
+    "CHIP",
+    "UNI",
+    "ONDO",
+    "AAVE",
+  ];
+
+  const UAT_COCKPIT_TIMEFRAMES = ["15m", "1h", "4h"];
+
   const SV115_BASELINE = [
     {
       component: "sleeve_15m",
@@ -412,6 +432,14 @@
       status: "all",
       reason: "all",
     },
+    uatCockpit: {
+      symbol: "ETH",
+      timeframe: "1h",
+      routedSymbol: "all",
+      routedLifecycle: "all",
+      routedEnvironment: "all",
+      routedLabel: "all",
+    },
   };
 
   const elements = {
@@ -475,6 +503,22 @@
     uatDrawdownCard: document.querySelector("#uat-drawdown-card"),
     uatRoutedOrdersSummary: document.querySelector("#uat-routed-orders-summary"),
     uatRoutedOrdersTable: document.querySelector("#uat-routed-orders-table"),
+    uatCockpitSummaryCards: document.querySelector("#uat-cockpit-summary-cards"),
+    uatCockpitSymbolFilter: document.querySelector("#uat-cockpit-symbol-filter"),
+    uatCockpitTimeframeFilter: document.querySelector("#uat-cockpit-timeframe-filter"),
+    uatWatchlistTable: document.querySelector("#uat-watchlist-table"),
+    uatPriceChart: document.querySelector("#uat-price-chart"),
+    uatIndicatorPanel: document.querySelector("#uat-indicator-panel"),
+    uatMarkerPanel: document.querySelector("#uat-marker-panel"),
+    uatMarketDataCoverage: document.querySelector("#uat-market-data-coverage"),
+    uatRouteStatusCard: document.querySelector("#uat-route-status-card"),
+    uatEquitySourceCard: document.querySelector("#uat-equity-source-card"),
+    uatRoutedSymbolFilter: document.querySelector("#uat-routed-symbol-filter"),
+    uatRoutedLifecycleFilter: document.querySelector("#uat-routed-lifecycle-filter"),
+    uatRoutedEnvironmentFilter: document.querySelector("#uat-routed-environment-filter"),
+    uatRoutedLabelFilter: document.querySelector("#uat-routed-label-filter"),
+    uatCockpitRoutedOrdersTable: document.querySelector("#uat-cockpit-routed-orders-table"),
+    uatShadowSignalOverlay: document.querySelector("#uat-shadow-signal-overlay"),
   };
 
   function decimal(value, fallback = 0) {
@@ -578,7 +622,7 @@
   }
 
   function setActiveView(view) {
-    state.activeView = ["evidence", "experiments", "uat-shadow", "strategy"].includes(view)
+    state.activeView = ["evidence", "experiments", "uat-cockpit", "uat-shadow", "strategy"].includes(view)
       ? view
       : "evidence";
     elements.viewTabs.forEach((tab) => {
@@ -1726,6 +1770,511 @@
     `;
   }
 
+  function uatRecordFor(symbol, timeframe) {
+    return uatRecords().find((row) => row.symbol === symbol && row.timeframe === timeframe) || null;
+  }
+
+  function precisionBySymbol(symbol) {
+    const rows = Array.isArray(state.uat34Summary?.precision_validation)
+      ? state.uat34Summary.precision_validation
+      : [];
+    return rows.find((row) => row.symbol === symbol) || null;
+  }
+
+  function routedLedgerRecords() {
+    return Array.isArray(state.uat34Summary?.ledger_records) ? state.uat34Summary.ledger_records : [];
+  }
+
+  function renderUatCockpitFilters() {
+    renderSelect(elements.uatCockpitSymbolFilter, UAT_WATCHLIST_SYMBOLS, state.uatCockpit.symbol, "All watched pairs");
+    renderSelect(
+      elements.uatCockpitTimeframeFilter,
+      UAT_COCKPIT_TIMEFRAMES,
+      state.uatCockpit.timeframe,
+      "All timeframes",
+    );
+    if (elements.uatCockpitSymbolFilter) {
+      elements.uatCockpitSymbolFilter.onchange = () => {
+        state.uatCockpit.symbol = elements.uatCockpitSymbolFilter.value === "all"
+          ? "ETH"
+          : elements.uatCockpitSymbolFilter.value;
+        renderUatCockpit();
+      };
+    }
+    if (elements.uatCockpitTimeframeFilter) {
+      elements.uatCockpitTimeframeFilter.onchange = () => {
+        state.uatCockpit.timeframe = elements.uatCockpitTimeframeFilter.value === "all"
+          ? "1h"
+          : elements.uatCockpitTimeframeFilter.value;
+        renderUatCockpit();
+      };
+    }
+  }
+
+  function selectedCockpitRecord() {
+    return uatRecordFor(state.uatCockpit.symbol, state.uatCockpit.timeframe);
+  }
+
+  function renderUatCockpitSummaryCards() {
+    if (!elements.uatCockpitSummaryCards) return;
+    const records = uatRecords();
+    const ledger = routedLedgerRecords();
+    const cards = [
+      ["Watched pairs", String(UAT_WATCHLIST_SYMBOLS.length), "UAT1 observation assets"],
+      ["Chart source", "local JSON", "live public refresh deferred"],
+      ["Indicator labels", "EMA5 EMA10 SMA20 RSI MACD", "deterministic from UAT2 summaries"],
+      ["Shadow records", String(records.length), "would-open/no-trade overlay source"],
+      ["Routed records", String(ledger.length), "UAT3.4 sandbox ledger"],
+      ["Order controls", "absent", "visualization only"],
+      ["Private endpoints", "not called", "dashboard uses committed summaries"],
+      ["Paper/live", "not approved", "sandbox/not-live labels only"],
+      ["Active route", state.uat34Summary?.route_definition?.route_id || "not loaded", "fixed target"],
+      ["Selected equity", state.uat34Summary?.equity_resolution?.selected_equity_source || "not loaded", "visibility only"],
+    ];
+    elements.uatCockpitSummaryCards.innerHTML = cards
+      .map(([label, value, detail]) => `
+        <article class="metric-cell">
+          <span class="metric-label">${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
+          <small>${escapeHtml(detail)}</small>
+        </article>
+      `)
+      .join("");
+  }
+
+  function renderUatWatchlist() {
+    if (!elements.uatWatchlistTable) return;
+    elements.uatWatchlistTable.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Venue</th>
+            <th>Product</th>
+            <th>Quote / Settlement</th>
+            <th>Market Data</th>
+            <th>Chart Available</th>
+            <th>Precision</th>
+            <th>UAT Status</th>
+            <th>Order Enabled</th>
+            <th>Paper / Live</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${UAT_WATCHLIST_SYMBOLS.map((symbol) => {
+            const records = uatRecords().filter((row) => row.symbol === symbol);
+            const precision = precisionBySymbol(symbol);
+            const chartAvailable = records.length > 0;
+            const orderEnabled = symbol === "ETH" ? "sandbox route ledger only; no dashboard control" : "false";
+            const precisionStatus = precision
+              ? precision.precision_validation_passed
+                ? "passed"
+                : `failed: ${(precision.reason_codes || []).join(", ")}`
+              : "not loaded";
+            return `
+              <tr>
+                <td>${escapeHtml(symbol)}</td>
+                <td>Hyperliquid</td>
+                <td>USDC perpetual</td>
+                <td>USDC / USDC</td>
+                <td>${escapeHtml(chartAvailable ? "market_data_available_from_uat2_summary" : "market_data_unavailable")}</td>
+                <td>${escapeHtml(String(chartAvailable))}</td>
+                <td>${escapeHtml(precisionStatus)}</td>
+                <td>observation-only</td>
+                <td>${escapeHtml(orderEnabled)}</td>
+                <td>false / false</td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderUatMarketDataCoverage() {
+    if (!elements.uatMarketDataCoverage) return;
+    elements.uatMarketDataCoverage.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Latest Price / Mid</th>
+            <th>Candles</th>
+            <th>Selected Timeframe</th>
+            <th>Last Candle Close</th>
+            <th>Source</th>
+            <th>Endpoint Category</th>
+            <th>Failure Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${UAT_WATCHLIST_SYMBOLS.map((symbol) => {
+            const record = uatRecordFor(symbol, state.uatCockpit.timeframe) || uatRecords().find((row) => row.symbol === symbol);
+            const latest = record?.indicator_summary?.latest_close || precisionBySymbol(symbol)?.sample_mid || "n/a";
+            return `
+              <tr>
+                <td>${escapeHtml(symbol)}</td>
+                <td>${escapeHtml(latest)}</td>
+                <td>${escapeHtml(record ? "yes" : "no")}</td>
+                <td>${escapeHtml(state.uatCockpit.timeframe)}</td>
+                <td>${escapeHtml(record?.candle_close_time_utc || "n/a")}</td>
+                <td>docs/uat2_shadow_strategy_top20_observation_summary.json</td>
+                <td>public_read_only / local_summary_json</td>
+                <td>${escapeHtml(record ? "none" : "market_data_unavailable")}</td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderUatChartAndIndicators() {
+    const record = selectedCockpitRecord();
+    if (elements.uatPriceChart) {
+      if (!record) {
+        setEmpty(elements.uatPriceChart, "No chart snapshot is available for the selected pair/timeframe.");
+      } else {
+        const ind = record.indicator_summary || {};
+        const values = [
+          ["Latest close", ind.latest_close],
+          ["EMA5", ind.ema5],
+          ["EMA10", ind.ema10],
+          ["SMA20", ind.sma20],
+          ["Next open", ind.next_candle_open],
+          ["Next close", ind.next_candle_close],
+        ].filter(([, value]) => value !== undefined && value !== null && value !== "");
+        const nums = values.map(([, value]) => decimal(value));
+        const min = Math.min(...nums);
+        const max = Math.max(...nums);
+        const span = Math.max(max - min, 1);
+        elements.uatPriceChart.innerHTML = `
+          <div class="uat-chart-title-row">
+            <strong>${escapeHtml(record.symbol)} ${escapeHtml(record.timeframe)}</strong>
+            <span>candle close ${escapeHtml(record.candle_close_time_utc)}</span>
+          </div>
+          <div class="uat-chart-bars" aria-label="Static chart display from UAT summary values">
+            ${values.map(([label, value]) => {
+              const width = Math.max(5, Math.round(((decimal(value) - min) / span) * 92) + 5);
+              return `
+                <div class="uat-chart-row">
+                  <span>${escapeHtml(label)}</span>
+                  <div class="bar-track"><div class="bar-fill positive" style="width:${width}%"></div></div>
+                  <strong>${escapeHtml(value)}</strong>
+                </div>
+              `;
+            }).join("")}
+          </div>
+          <p class="strategy-note">Chart display is a deterministic local snapshot, not a live feed. UAT4.1 may add public-read-only refresh without keys.</p>
+        `;
+      }
+    }
+    if (!elements.uatIndicatorPanel) return;
+    const ind = record?.indicator_summary || {};
+    const indicatorRows = [
+      ["EMA5", ind.ema5],
+      ["EMA10", ind.ema10],
+      ["SMA20", ind.sma20],
+      ["RSI", ind.rsi14],
+      ["MACD", ind.macd],
+      ["MACD signal", ind.macd_signal],
+      ["MACD histogram", ind.macd_histogram],
+      ["Regime label", "indicator_unavailable_insufficient_history"],
+      ["Trend label", "indicator_unavailable_insufficient_history"],
+      ["Volatility label", "indicator_unavailable_insufficient_history"],
+    ];
+    elements.uatIndicatorPanel.innerHTML = indicatorRows
+      .map(([label, value]) => `
+        <div>
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value || "indicator_unavailable_insufficient_history")}</strong>
+        </div>
+      `)
+      .join("");
+  }
+
+  function uatCockpitMarkers() {
+    const shadowMarkers = uatRecords()
+      .filter((row) => ["would_open", "would_close"].includes(row.signal_status))
+      .map((row) => ({
+        symbol: row.symbol,
+        component: row.component,
+        timestamp: row.candle_close_time_utc,
+        markerType: row.signal_status === "would_open" ? "green marker: shadow would-open" : "red marker: shadow would-close",
+        source: "shadow audit",
+        reasonCodes: row.reason_codes || [],
+        orderId: "n/a",
+        labels: "shadow signal; no order intent; no paper/live",
+      }));
+    const routedMarkers = routedLedgerRecords().flatMap((row) => [
+      {
+        symbol: row.symbol,
+        component: row.route_id,
+        timestamp: state.uat34Summary?.recorded_at_utc || "uat3.4",
+        markerType: "green marker: sandbox order accepted/open",
+        source: "routed sandbox order ledger",
+        reasonCodes: row.reason_codes || [],
+        orderId: row.order_id || "n/a",
+        labels: "sandbox/testnet lifecycle probe; not live; not paper; not performance validation",
+      },
+      {
+        symbol: row.symbol,
+        component: row.route_id,
+        timestamp: state.uat34Summary?.recorded_at_utc || "uat3.4",
+        markerType: "red marker: sandbox cancel",
+        source: "routed sandbox order ledger",
+        reasonCodes: [row.cancel_status || "cancel_status_unknown"],
+        orderId: row.order_id || "n/a",
+        labels: "sandbox cancel; not live; not paper; not performance validation",
+      },
+    ]);
+    return [...shadowMarkers, ...routedMarkers];
+  }
+
+  function renderUatMarkers() {
+    if (!elements.uatMarkerPanel) return;
+    const markers = uatCockpitMarkers().filter(
+      (row) => state.uatCockpit.symbol === "all" || row.symbol === state.uatCockpit.symbol,
+    );
+    if (!markers.length) {
+      setEmpty(elements.uatMarkerPanel, "No UAT markers match the selected pair.");
+      return;
+    }
+    elements.uatMarkerPanel.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Component / Route</th>
+            <th>Timestamp</th>
+            <th>Marker Type</th>
+            <th>Source</th>
+            <th>Reasons</th>
+            <th>OID</th>
+            <th>Labels</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${markers.map((row) => `
+            <tr>
+              <td>${escapeHtml(row.symbol)}</td>
+              <td>${escapeHtml(row.component)}</td>
+              <td>${escapeHtml(row.timestamp)}</td>
+              <td><span class="marker-pill ${row.markerType.startsWith("green") ? "green" : "red"}">${escapeHtml(row.markerType)}</span></td>
+              <td>${escapeHtml(row.source)}</td>
+              <td>${escapeHtml(row.reasonCodes.join(", ") || "none")}</td>
+              <td>${escapeHtml(row.orderId)}</td>
+              <td>${escapeHtml(row.labels)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderUatRouteAndEquityCards() {
+    const route = state.uat34Summary?.route_definition || {};
+    const account = state.uat34Summary?.account_targeting_summary || {};
+    const equity = state.uat34Summary?.equity_resolution || {};
+    if (elements.uatRouteStatusCard) {
+      const rows = [
+        ["Route id", route.route_id || "fixed_target_hyperliquid_testnet_eth"],
+        ["Venue", "Hyperliquid"],
+        ["Environment", route.environment || "testnet/sandbox"],
+        ["Symbol", route.symbol || "ETH"],
+        ["Account role", account.account_role || "user"],
+        ["vaultAddress", account.vaultAddress_present ? "present" : "omitted"],
+        ["Selected equity source", equity.selected_equity_source || "standard_perp_clearinghouse"],
+        ["Unified compatibility", state.uat34Summary?.unified_mode_compatibility_status || "supported"],
+        ["Order scope", "sandbox only"],
+        ["Paper/live", "not approved"],
+        ["Broad top-20 orders", "not approved"],
+      ];
+      elements.uatRouteStatusCard.innerHTML = rows
+        .map(([label, value]) => `<div><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`)
+        .join("");
+    }
+    if (!elements.uatEquitySourceCard) return;
+    const equityRows = [
+      ["selected_equity_source", equity.selected_equity_source || "not loaded"],
+      ["standard_perp_clearinghouse status", equity.perp_account_value ? "available" : "not loaded"],
+      ["perp_account_value", equity.perp_account_value ?? "n/a"],
+      ["perp_withdrawable", equity.perp_withdrawable ?? "n/a"],
+      ["unified_margin_spot_clearinghouse fallback status", "supported"],
+      ["spot_usdc_total", equity.spot_usdc_total ?? "n/a"],
+      ["spot_usdc_hold", equity.spot_usdc_hold ?? "n/a"],
+      ["selected_sandbox_equity", equity.selected_sandbox_equity ?? "n/a"],
+    ];
+    elements.uatEquitySourceCard.innerHTML = equityRows
+      .map(([label, value]) => `<div><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`)
+      .join("");
+  }
+
+  function renderUatCockpitRoutedFilters(records) {
+    renderSelect(elements.uatRoutedSymbolFilter, uniqueSorted(records.map((row) => row.symbol)), state.uatCockpit.routedSymbol, "All symbols");
+    renderSelect(
+      elements.uatRoutedLifecycleFilter,
+      uniqueSorted(records.map((row) => row.lifecycle_status)),
+      state.uatCockpit.routedLifecycle,
+      "All lifecycle states",
+    );
+    renderSelect(
+      elements.uatRoutedEnvironmentFilter,
+      uniqueSorted(records.map((row) => row.environment)),
+      state.uatCockpit.routedEnvironment,
+      "All environments",
+    );
+    renderSelect(elements.uatRoutedLabelFilter, ["sandbox_not_live"], state.uatCockpit.routedLabel, "All labels");
+    [
+      [elements.uatRoutedSymbolFilter, "routedSymbol"],
+      [elements.uatRoutedLifecycleFilter, "routedLifecycle"],
+      [elements.uatRoutedEnvironmentFilter, "routedEnvironment"],
+      [elements.uatRoutedLabelFilter, "routedLabel"],
+    ].forEach(([select, key]) => {
+      if (!select) return;
+      select.onchange = () => {
+        state.uatCockpit[key] = select.value || "all";
+        renderUatCockpit();
+      };
+    });
+  }
+
+  function renderUatCockpitRoutedOrders() {
+    const records = routedLedgerRecords();
+    renderUatCockpitRoutedFilters(records);
+    if (!elements.uatCockpitRoutedOrdersTable) return;
+    const filtered = records.filter((row) => {
+      const labels = row.sandbox_labels || {};
+      const labelOk =
+        state.uatCockpit.routedLabel === "all" ||
+        (labels.sandbox === true && labels.not_live === true && labels.not_paper === true);
+      return (
+        (state.uatCockpit.routedSymbol === "all" || row.symbol === state.uatCockpit.routedSymbol) &&
+        (state.uatCockpit.routedLifecycle === "all" || row.lifecycle_status === state.uatCockpit.routedLifecycle) &&
+        (state.uatCockpit.routedEnvironment === "all" || row.environment === state.uatCockpit.routedEnvironment) &&
+        labelOk
+      );
+    });
+    if (!filtered.length) {
+      setEmpty(elements.uatCockpitRoutedOrdersTable, "No routed sandbox orders match the selected filters.");
+      return;
+    }
+    elements.uatCockpitRoutedOrdersTable.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Run id</th>
+            <th>Route id</th>
+            <th>Route type</th>
+            <th>Venue</th>
+            <th>Environment</th>
+            <th>Symbol</th>
+            <th>Side</th>
+            <th>Order type</th>
+            <th>Limit price</th>
+            <th>Size</th>
+            <th>Notional</th>
+            <th>TIF</th>
+            <th>Asset id</th>
+            <th>OID</th>
+            <th>Lifecycle</th>
+            <th>Cancel</th>
+            <th>Reconcile</th>
+            <th>Open remains</th>
+            <th>Position changed</th>
+            <th>Equity source</th>
+            <th>Sandbox labels</th>
+            <th>No paper/live</th>
+            <th>Sanitized response</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filtered.map((row) => {
+            const labels = row.sandbox_labels || {};
+            return `
+              <tr>
+                <td>${escapeHtml(row.uat_run_id)}</td>
+                <td>${escapeHtml(row.route_id)}</td>
+                <td>${escapeHtml(row.route_type)}</td>
+                <td>${escapeHtml(row.venue)}</td>
+                <td>${escapeHtml(row.environment)}</td>
+                <td>${escapeHtml(row.symbol)}</td>
+                <td>${escapeHtml(row.side)}</td>
+                <td>${escapeHtml(row.order_type)}</td>
+                <td>${escapeHtml(row.limit_price)}</td>
+                <td>${escapeHtml(row.size)}</td>
+                <td>${escapeHtml(row.estimated_notional)}</td>
+                <td>${escapeHtml(row.tif)}</td>
+                <td>${escapeHtml(row.asset_id)}</td>
+                <td>${escapeHtml(row.order_id || "n/a")}</td>
+                <td>${escapeHtml(row.lifecycle_status)}</td>
+                <td>${escapeHtml(row.cancel_status)}</td>
+                <td>${escapeHtml(row.reconciliation_status)}</td>
+                <td>${escapeHtml(String(Boolean(row.open_order_remains)))}</td>
+                <td>${escapeHtml(row.position_changed)}</td>
+                <td>${escapeHtml(row.selected_equity_source)}</td>
+                <td>${escapeHtml(`sandbox=${labels.sandbox}; testnet=${labels.testnet}; not_live=${labels.not_live}; not_paper=${labels.not_paper}`)}</td>
+                <td>${escapeHtml(String(Boolean(row.no_live_no_paper_confirmation)))}</td>
+                <td>${escapeHtml(JSON.stringify(row.sanitized_exchange_response || {}))}</td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderUatShadowSignalOverlay() {
+    if (!elements.uatShadowSignalOverlay) return;
+    const rows = uatRecords().filter((row) => row.symbol === state.uatCockpit.symbol);
+    if (!rows.length) {
+      setEmpty(elements.uatShadowSignalOverlay, "No shadow signals available for the selected pair.");
+      return;
+    }
+    elements.uatShadowSignalOverlay.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Component</th>
+            <th>Timeframe</th>
+            <th>Status</th>
+            <th>Reason codes</th>
+            <th>Marker mapping</th>
+            <th>Same-candle close</th>
+            <th>Operator explanation</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map((row) => `
+            <tr>
+              <td>${escapeHtml(row.symbol)}</td>
+              <td>${escapeHtml(row.component)}</td>
+              <td>${escapeHtml(row.timeframe)}</td>
+              <td>${escapeHtml(row.signal_status)}</td>
+              <td>${escapeHtml((row.reason_codes || []).join(", ") || "none")}</td>
+              <td>${escapeHtml(row.signal_status === "would_open" ? "green marker: shadow would-open, not actual trade" : "side-panel only")}</td>
+              <td>same_candle_close_research_only remains research-only</td>
+              <td>${escapeHtml(row.operator_visible_explanation || "")}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderUatCockpit() {
+    renderUatCockpitFilters();
+    renderUatCockpitSummaryCards();
+    renderUatWatchlist();
+    renderUatMarketDataCoverage();
+    renderUatChartAndIndicators();
+    renderUatMarkers();
+    renderUatRouteAndEquityCards();
+    renderUatCockpitRoutedOrders();
+    renderUatShadowSignalOverlay();
+  }
+
   function renderUatDashboard() {
     const records = uatRecords();
     if (!state.uat2Summary) {
@@ -1770,6 +2319,7 @@
     renderDetail(selected);
     renderRunTable(selected);
     renderExperiments();
+    renderUatCockpit();
     renderUatDashboard();
   }
 

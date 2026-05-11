@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-11T05:50:00Z`
+Last reviewed: `2026-05-11T06:45:00Z`
 
 ## Active Follow-Ups
 
@@ -62,7 +62,13 @@ Last reviewed: `2026-05-11T05:50:00Z`
 
 - `priority`: `high`
 - `status`: `done`
-- `summary`: `UAT3.4 production-like sandbox routing operationalization is complete. The fixed-target route is Hyperliquid testnet ETH only, normal user account mode omits vaultAddress, standard perp clearinghouse equity is selected for the active route, unified/portfolio spot-clearinghouse USDC fallback remains implemented/tested, route validation rejects non-ETH/top-20/fanout/SOR/target-reselection/route-executor behavior, and routed sandbox order ledger records expose lifecycle/cancel/reconcile/equity-source/sandbox-label truth. The approved UAT3.4 run made exactly one ETH post-only testnet attempt under the 20 USDC cap; Hyperliquid accepted the order open, the runner canceled it successfully, and reconciliation found no open order. No live endpoint, secret exposure, production order artifacts, paper/live behavior, broad top-20 order submission, smart routing, Money Flow rule change, or evidence pack was added. UAT3.5 remains blocked by incomplete UAT-universe precision validation for testnet-unsupported observation symbols; UAT4.0 dashboard/chart cockpit may be scoped.`
+- `summary`: `UAT3.4 production-like sandbox routing operationalization is complete. The fixed-target route is Hyperliquid testnet ETH only, normal user account mode omits vaultAddress, standard perp clearinghouse equity is selected for the active route, unified/portfolio spot-clearinghouse USDC fallback remains implemented/tested, route validation rejects non-ETH/top-20/fanout/SOR/target-reselection/route-executor behavior, and routed sandbox order ledger records expose lifecycle/cancel/reconcile/equity-source/sandbox-label truth. The approved UAT3.4 run made exactly one ETH post-only testnet attempt under the 20 USDC cap; Hyperliquid accepted the order open, the runner canceled it successfully, and reconciliation found no open order. No live endpoint, secret exposure, production order artifacts, paper/live behavior, broad top-20 order submission, smart routing, Money Flow rule change, or evidence pack was added. UAT3.5 remains blocked by incomplete UAT-universe precision validation for testnet-unsupported observation symbols.`
+
+### T-113
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `UAT4.0 live UAT dashboard/chart cockpit is complete. The static dashboard now has a read-only UAT Chart Cockpit tab sourced from committed UAT2 shadow and UAT3.4 routed-order summary JSON, showing the UAT watchlist, market-data coverage, static chart snapshots, EMA5/EMA10/SMA20/RSI/MACD labels, shadow/sandbox lifecycle markers, active fixed-target ETH sandbox route card, unified equity-source visibility, routed-order ledger filters, and shadow-signal overlays. No order, cancel, retry, amend, approval, paper/live, route, or auto-trade controls were added. UAT4.0 does not call private/signed/order endpoints, use exchange API keys, submit orders, create production order artifacts or executable approvals, change Money Flow rules, add routing expansion, or generate evidence packs.`
 
 ### T-112
 

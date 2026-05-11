@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Money Flow Evidence Dashboard</title>
-    <link rel="stylesheet" href="./evidence-dashboard.css?v=uat3.4" />
+    <link rel="stylesheet" href="./evidence-dashboard.css?v=uat4.0" />
   </head>
   <body>
     <header class="top-strip">
@@ -39,6 +39,7 @@
       <nav class="view-tabs" aria-label="Dashboard sections">
         <button class="view-tab" type="button" data-view="evidence" aria-selected="true">Evidence</button>
         <button class="view-tab" type="button" data-view="experiments" aria-selected="false">Experiments</button>
+        <button class="view-tab" type="button" data-view="uat-cockpit" aria-selected="false">UAT Chart Cockpit</button>
         <button class="view-tab" type="button" data-view="uat-shadow" aria-selected="false">UAT2 Shadow Run</button>
         <button class="view-tab" type="button" data-view="strategy" aria-selected="false">Strategy</button>
       </nav>
@@ -197,6 +198,131 @@
             <p>Completed-trade overlays and diagnostics, not true forward replays or authorization.</p>
           </div>
           <div id="experiment-table" class="data-table-shell"></div>
+        </section>
+      </section>
+
+      <section id="uat-cockpit-view" class="dashboard-view" data-view-panel="uat-cockpit" hidden>
+        <section class="strategy-panel" aria-labelledby="uat-cockpit-title">
+          <div class="section-heading">
+            <h2 id="uat-cockpit-title">UAT Chart Cockpit</h2>
+            <p>Read-only UAT market observation and sandbox lifecycle visualization from committed local JSON summaries.</p>
+          </div>
+          <div id="uat-cockpit-safety-banner" class="warning-banner">
+            UAT sandbox/testnet observation only. Paper trading is not approved. Live trading is not approved. Order submission controls are disabled. Top-20 assets are observation-only.
+          </div>
+          <section class="toolbar-band" aria-label="UAT chart cockpit filters">
+            <div class="uat-filter-grid">
+              <label>
+                <span>Watched pair</span>
+                <select id="uat-cockpit-symbol-filter"></select>
+              </label>
+              <label>
+                <span>Timeframe</span>
+                <select id="uat-cockpit-timeframe-filter"></select>
+              </label>
+            </div>
+            <div class="boundary-flags">
+              <span class="pill warn">Visualization only</span>
+              <span class="pill warn">No private endpoints</span>
+              <span class="pill warn">No order controls</span>
+            </div>
+          </section>
+        </section>
+
+        <section id="uat-cockpit-summary-cards" class="metric-grid metric-grid-wide" aria-label="UAT chart cockpit summary"></section>
+
+        <section class="split-layout">
+          <section class="component-panel" aria-labelledby="uat-watchlist-title">
+            <div class="section-heading">
+              <h2 id="uat-watchlist-title">UAT Watchlist</h2>
+              <p>Observation-only unless explicitly stated otherwise.</p>
+            </div>
+            <div id="uat-watchlist-table" class="data-table-shell"></div>
+          </section>
+
+          <section class="detail-panel" aria-labelledby="uat-chart-title">
+            <div class="section-heading">
+              <h2 id="uat-chart-title">Live UAT Charts</h2>
+              <p id="uat-chart-subtitle">Static near-live snapshot from UAT2/UAT3.4 JSON; live public refresh is deferred.</p>
+            </div>
+            <div class="detail-grid">
+              <div class="detail-box detail-box-wide">
+                <h3>Chart Display</h3>
+                <div id="uat-price-chart" class="uat-chart-shell"></div>
+              </div>
+              <div class="detail-box detail-box-wide">
+                <h3>Indicator Overlay</h3>
+                <div id="uat-indicator-panel" class="boundary-grid"></div>
+              </div>
+              <div class="detail-box detail-box-wide">
+                <h3>Entry / Exit Markers</h3>
+                <div id="uat-marker-panel" class="data-table-shell"></div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="split-layout">
+          <section class="detail-panel" aria-labelledby="uat-market-coverage-title">
+            <div class="section-heading">
+              <h2 id="uat-market-coverage-title">Market Data Coverage</h2>
+              <p>Public read-only and local summary sources only.</p>
+            </div>
+            <div id="uat-market-data-coverage" class="data-table-shell"></div>
+          </section>
+
+          <section class="detail-panel" aria-labelledby="uat-route-card-title">
+            <div class="section-heading">
+              <h2 id="uat-route-card-title">UAT Route Status</h2>
+              <p>Fixed-target sandbox route visibility only.</p>
+            </div>
+            <div class="detail-grid">
+              <div class="detail-box detail-box-wide">
+                <h3>Active Sandbox Route</h3>
+                <div id="uat-route-status-card" class="boundary-grid"></div>
+              </div>
+              <div class="detail-box detail-box-wide">
+                <h3>Unified Mode Visibility</h3>
+                <div id="uat-equity-source-card" class="boundary-grid"></div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="table-panel" aria-labelledby="uat-cockpit-routed-orders-title">
+          <div class="section-heading">
+            <h2 id="uat-cockpit-routed-orders-title">Routed Orders Tab</h2>
+            <p>UAT3.4 sandbox/testnet lifecycle records. No submission controls are present.</p>
+          </div>
+          <div class="toolbar-band" aria-label="Routed orders filters">
+            <div class="uat-filter-grid">
+              <label>
+                <span>Symbol</span>
+                <select id="uat-routed-symbol-filter"></select>
+              </label>
+              <label>
+                <span>Lifecycle</span>
+                <select id="uat-routed-lifecycle-filter"></select>
+              </label>
+              <label>
+                <span>Environment</span>
+                <select id="uat-routed-environment-filter"></select>
+              </label>
+              <label>
+                <span>Sandbox labels</span>
+                <select id="uat-routed-label-filter"></select>
+              </label>
+            </div>
+          </div>
+          <div id="uat-cockpit-routed-orders-table" class="data-table-shell"></div>
+        </section>
+
+        <section class="table-panel" aria-labelledby="uat-shadow-signals-title">
+          <div class="section-heading">
+            <h2 id="uat-shadow-signals-title">Shadow Signals</h2>
+            <p>Shadow would-open/no-trade records are not actual trades and create no strategy or order artifacts.</p>
+          </div>
+          <div id="uat-shadow-signal-overlay" class="data-table-shell"></div>
         </section>
       </section>
 
@@ -459,6 +585,6 @@
       </section>
     </main>
 
-    <script src="./evidence-dashboard.js?v=uat3.0.3"></script>
+    <script src="./evidence-dashboard.js?v=uat4.0"></script>
   </body>
 </html>

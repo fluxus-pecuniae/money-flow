@@ -171,7 +171,7 @@
       "selected_equity_source": "standard_perp_clearinghouse",
       "side": "buy",
       "size": "0.0085",
-      "submit_lease_key": "uat3_4_sandbox_routing_pipeline_order_ledger:hyperliquid:0x75806061D3EBD6876B718dEdB7037F2cAC5d8222:ETH:manual_sandbox_lifecycle_probe_1:testnet",
+      "submit_lease_key": "uat3_4_sandbox_routing_pipeline_order_ledger:hyperliquid:0x7580...8222:ETH:manual_sandbox_lifecycle_probe_1:testnet",
       "symbol": "ETH",
       "tif": "Alo",
       "uat_run_id": "uat3_4_sandbox_routing_pipeline_order_ledger",
@@ -406,7 +406,7 @@
     "target": "0x7580...8222",
     "vaultAddress": "omitted"
   },
-  "uat4_readiness_decision": "UAT4.0 live UAT dashboard/chart cockpit may be scoped",
+  "uat4_readiness_decision": "UAT4.0 live UAT dashboard/chart cockpit is complete",
   "uat_run_id": "uat3_4_sandbox_routing_pipeline_order_ledger",
   "unexpected_fill": false,
   "unified_mode_compatibility_status": "implemented",
