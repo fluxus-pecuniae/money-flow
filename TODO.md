@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-10T19:50:14Z`
+Last reviewed: `2026-05-11T05:50:00Z`
 
 ## Active Follow-Ups
 
@@ -61,8 +61,14 @@ Last reviewed: `2026-05-10T19:50:14Z`
 ### T-111
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `UAT3.4 production-like sandbox routing operationalization is complete. The fixed-target route is Hyperliquid testnet ETH only, normal user account mode omits vaultAddress, standard perp clearinghouse equity is selected for the active route, unified/portfolio spot-clearinghouse USDC fallback remains implemented/tested, route validation rejects non-ETH/top-20/fanout/SOR/target-reselection/route-executor behavior, and routed sandbox order ledger records expose lifecycle/cancel/reconcile/equity-source/sandbox-label truth. The approved UAT3.4 run made exactly one ETH post-only testnet attempt under the 20 USDC cap; Hyperliquid accepted the order open, the runner canceled it successfully, and reconciliation found no open order. No live endpoint, secret exposure, production order artifacts, paper/live behavior, broad top-20 order submission, smart routing, Money Flow rule change, or evidence pack was added. UAT3.5 remains blocked by incomplete UAT-universe precision validation for testnet-unsupported observation symbols; UAT4.0 dashboard/chart cockpit may be scoped.`
+
+### T-112
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `UAT3.4 additional sandbox lifecycle testing remains blocked until the configured Hyperliquid testnet target account/subaccount has sufficient testnet equity visible through live-fed sandbox account state. Account targeting semantics and ETH precision formatting are now fixed, and the signer/API wallet is recognized as an agent authorized for the target subaccount's master account, but UAT3.3 did not submit because the target subaccount equity gate returned 0.0. Any future attempt still requires separate founder/operator approval, one-attempt-only scope, sandbox/testnet endpoint verification, live-fed not-live-account drawdown, approval/risk/lease/label gates, no live endpoint, no paper/live trading, no broad top-20 submission, no routing/SOR/fanout, and no Money Flow rule change.`
+- `summary`: `UAT3.5 additional sandbox routing lifecycle tests remain blocked until UAT-universe precision validation is complete or the unsupported Hyperliquid testnet observation symbols are explicitly scoped out of routing precision acceptance. The UAT3.4 ETH route succeeded and is ledgered, but XRP, TRX, and UNI were not present in the current Hyperliquid testnet meta response used for pair-universe precision validation. Any future sandbox routing tests still require separate founder/operator approval, ETH-only or explicitly approved symbol scope, sandbox/testnet endpoint verification, live-fed not-live-account drawdown, approval/risk/lease/label gates, no live endpoint, no paper/live trading, no broad top-20 submission, no SOR/fanout/target reselection, and no Money Flow rule change.`
 
 ### T-109
 

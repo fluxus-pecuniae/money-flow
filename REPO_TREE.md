@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-10T19:50:14Z`
+Last reviewed: `2026-05-11T05:50:00Z`
 
 ## Top-Level Structure
 
@@ -80,7 +80,8 @@ Last reviewed: `2026-05-10T19:50:14Z`
 - UAT3.0.6 updates current-state notes after sandbox submit path dry-run wiring: a non-persistent sandbox submission plan and dry-run gate chain now compose actual-submission approval, live-fed drawdown status, approval scope, risk gates, submit-lease duplicate prevention, endpoint classification, and sandbox artifact-label boundary validation without creating order artifacts or calling exchanges. UAT3.1 actual sandbox submission remains blocked.
 - UAT3.1 updates current-state notes after the first approval-gated sandbox/testnet lifecycle probe: exact founder/operator approval was verified, one Hyperliquid testnet ETH post-only limit order attempt under 10 USDC notional was made, the venue rejected the request with a sanitized user/API-wallet-not-found response, no cancel was required, reconciliation found no open order, and no production `OrderIntent`, `PreparedVenueOrder`, `SubmittedOrder`, executable approval, paper/live behavior, routing expansion, Money Flow rule change, or evidence pack was created.
 - UAT3.2 updates current-state notes after the fixed-key preflight / second approval-gated sandbox lifecycle attempt: exact founder/operator approval was verified, fixed-key account/API-wallet readiness blocked before order transport because the testnet user/API wallet was still not recognized/authorized and account equity was insufficient, zero order attempts were made, no order/cancel/amend/retry endpoint was called, and the future UAT4.0 dashboard chart cockpit request was captured as roadmap-only.
-- UAT3.3 updates current-state notes after Hyperliquid account targeting and tick/lot precision hardening: normal master/user mode omits `vaultAddress`, subaccount/vault mode uses only the explicit configured target, the API-wallet signer remains separate from the target account, ETH price/size are formatted with Hyperliquid precision rules, and the approved runner blocked before order transport because the target subaccount live-fed equity was `0.0`. No order endpoint was called.
+- UAT3.3 updates current-state notes after Hyperliquid account targeting and tick/lot precision hardening: normal master/user mode omits `vaultAddress`, subaccount/vault mode uses only the explicit configured target, the API-wallet signer remains separate from the target account, ETH price/size are formatted with Hyperliquid precision rules, and a later founder-approved follow-up verified one accepted/open ETH testnet order, successful cancel, and no-open-order reconciliation.
+- UAT3.4 updates current-state notes after sandbox routing operationalization: the working ETH testnet route is represented as `fixed_target_hyperliquid_testnet_eth`, routed sandbox order ledger records exist, active account mode is normal user with `vaultAddress` omitted, standard perp clearinghouse equity is selected for the current route, unified/portfolio spot-clearinghouse USDC fallback remains supported, and the dashboard exposes routed-order ledger visibility without adding order controls.
 - Phase 8.0.1 accepted the previously dirty Obsidian memory refresh as the strategic baseline and updated it to current Phase 8.0/8.0.1 truth.
 - Phase 8.0.2 updates current-phase/coordination/decision notes for active submit-lease operator-summary truth only; full project memory remains untouched.
 - SV1.0.1 updates current-phase/coordination/decision notes for strategy-validation research-truth/report hardening only; full project memory remains untouched.
@@ -139,6 +140,7 @@ Last reviewed: `2026-05-10T19:50:14Z`
 - UAT3.0.3 updates that panel with artifact label boundary enforcement, dry-run executable gate service, approval/risk/submit-lease dry-run wiring, runtime policy semantics, missing actual sandbox approval, fixture-only drawdown, and missing real sandbox submit path truth. It still adds no active order-submission or approval control.
 - UAT3.0.4 does not update the dashboard. Private read-only sandbox drawdown readiness remains documented/tested only and still adds no active order-submission or approval control.
 - UAT3.1 does not update the dashboard. The one-shot lifecycle probe is documented in `docs/uat3_1_first_sandbox_order_attempt.md` and has no general dashboard order button or repeated-order control.
+- UAT3.4 adds a routed-orders visibility section to the UAT dashboard. It loads `docs/uat3_4_sandbox_routing_pipeline_and_order_ledger_summary.json`, shows run/route/lifecycle/cancel/reconcile/equity-source/sandbox-label truth, and still has no order button, repeated-order control, live control, or approval action.
 
 `docs/uat0_safety_security_runtime_hardening.md`
 - Founder/operator UAT0 safety, security, runtime, and operational-readiness audit.
@@ -231,10 +233,17 @@ Last reviewed: `2026-05-10T19:50:14Z`
 
 `docs/uat3_3_hyperliquid_account_targeting_precision_and_order_attempt.md`
 - Founder/operator UAT3.3 Hyperliquid account-targeting / precision report.
-- Records account role resolution, `vaultAddress` behavior, signer/target account summaries, UAT-universe precision validation, live-fed sandbox drawdown, runtime/scope/risk/lease/label gates, sanitized planned ETH post-only order shape, zero-attempt blocked lifecycle result, no-live/no-paper/no-secret boundary confirmation, and UAT3.4 blocked decision.
+- Records account role resolution, `vaultAddress` behavior, signer/target account summaries, UAT-universe precision validation, live-fed sandbox drawdown, runtime/scope/risk/lease/label gates, sanitized ETH post-only order shape, minimum-order-value rejection truth, the later successful follow-up lifecycle, no-live/no-paper/no-secret boundary confirmation, and UAT3.4 scoping decision.
 
 `docs/uat3_3_hyperliquid_account_targeting_precision_and_order_attempt_summary.json`
 - Sanitized machine-readable UAT3.3 summary.
+
+`docs/uat3_4_sandbox_routing_pipeline_and_order_ledger.md`
+- Founder/operator UAT3.4 fixed-target sandbox routing and routed-order ledger report.
+- Records the UAT3.3 success recap, current normal-user account mode with `vaultAddress` omitted, standard-perp selected equity source, unified-mode compatibility, fixed-target Hyperliquid testnet ETH route definition, UAT-universe precision validation, routed-order ledger, one accepted/open-then-canceled ETH lifecycle attempt, no-top-20/no-live/no-paper boundary confirmation, UAT4.0 dashboard roadmap status, and UAT3.5 blocked decision.
+
+`docs/uat3_4_sandbox_routing_pipeline_and_order_ledger_summary.json`
+- Sanitized machine-readable UAT3.4 route/ledger summary consumed by the dashboard routed-orders section.
 - Records that account targeting was verified, ETH precision formatting produced an exchange-valid planned post-only shape, live-fed sandbox drawdown was available, but sandbox account equity was `0.0`; therefore `order_attempt_count` is `0`, order/cancel endpoints were not called, and all production execution side-effect flags are false.
 
 `services/exchange/hyperliquid/precision.py`
@@ -245,8 +254,10 @@ Last reviewed: `2026-05-10T19:50:14Z`
 - UAT3.1 one-shot sandbox/testnet lifecycle probe helper.
 - UAT3.2 fixed-key preflight / second sandbox/testnet lifecycle-attempt helper.
 - UAT3.3 Hyperliquid account-targeting and precision helper.
+- UAT3.4 fixed-target sandbox route definition, routed-order ledger record helpers, ETH-only route validation, active normal-user account-mode validation, and sandbox label mapping for dashboard/report ledgers.
 - `scripts/run_uat32_second_sandbox_order.py` refuses to run without `--execute-approved-uat32`, validates exact UAT3.2 founder/operator approval before loading `.env`, writes sanitized UAT3.2 Markdown/JSON reports, and blocks before order transport when account/API-wallet readiness fails.
 - `scripts/run_uat33_hyperliquid_precision_order.py` refuses to run without `--execute-approved-uat33`, resolves normal user/master versus subaccount/vault targeting, validates Hyperliquid precision across the UAT observation universe, writes sanitized UAT3.3 Markdown/JSON reports, and blocks before order transport when the configured target account fails readiness gates.
+- `scripts/run_uat34_sandbox_routing_pipeline.py` refuses to run without `--execute-approved-uat34`, uses the fixed-target Hyperliquid testnet ETH route, preserves standard/unified equity-source reporting, enforces runtime/risk/lease/label/precision/endpoint gates, writes sanitized routed ledger Markdown/JSON reports, and caps approved UAT3.4 attempts at three without adding broad routing or dashboard order controls.
 - Validates the exact actual-submission approval text, sandbox/testnet endpoint boundary, one-order maximum, manual lifecycle-probe labels, live-fed sandbox drawdown, UAT3 dry-run gates, post-only/non-marketable ETH order shaping, sanitized response summaries, and no production artifact side-effect flags before allowing a single testnet order transport call.
 
 `services/uat/sandbox.py`
@@ -569,6 +580,7 @@ Last reviewed: `2026-05-10T19:50:14Z`
 - UAT2 no-order shadow run: `.venv/bin/python scripts/run_uat2_shadow_strategy.py --uat2-shadow-run --shadow-only --public-read-only --allow-public-read-only-network --runtime-mode uat`; this uses the UAT1 snapshot and public Hyperliquid candle snapshots only, emits shadow audit/report artifacts, and must not call private/signed/order endpoints, use API keys, submit orders, create production strategy/execution artifacts, approve paper/live trading, or change Money Flow rules.
 - UAT3.1 first sandbox/testnet lifecycle probe: `.venv/bin/python scripts/run_uat31_first_sandbox_order.py --execute-approved-uat31`; this is one founder-approved Hyperliquid testnet ETH post-only/nonmarketable lifecycle probe only, creates no production execution artifacts, and must not be reused for repeated orders, paper/live trading, broad top-20 submission, routing expansion, or Money Flow performance validation.
 - UAT3.2 fixed-key preflight / second sandbox lifecycle attempt: `.venv/bin/python scripts/run_uat32_second_sandbox_order.py --execute-approved-uat32`; this is one separately founder-approved Hyperliquid testnet ETH lifecycle attempt only. The recorded run blocked before order transport because account/API-wallet readiness failed, so `order_attempt_count` is `0`.
+- UAT3.4 fixed-target sandbox routing ledger run: `.venv/bin/python scripts/run_uat34_sandbox_routing_pipeline.py --execute-approved-uat34 --attempts 1`; this is approved Hyperliquid testnet ETH fixed-target sandbox routing only, writes routed ledger reports, and is not smart routing, SOR, fanout, broad top-20 submission, paper/live trading, or strategy performance validation.
 - Routing automation policy/plan/approval inspection and the narrow Phase 7.2 / 7.3 / 7.4 / 7.5 action hooks: `GET /api/v1/routing-automation/policy`, `POST /api/v1/routing-automation/plans/by-desired-trade/{desired_trade_key}`, `POST /api/v1/routing-automation/approvals`, `GET /api/v1/routing-automation/approvals/{approval_id}`, `GET /api/v1/routing-automation/approvals/by-desired-trade/{desired_trade_key}`, `POST /api/v1/routing-automation/approvals/{approval_id}/revoke`, administrative `POST /api/v1/routing-automation/approvals/{approval_id}/consume`, action-executing `POST /api/v1/routing-automation/approvals/{approval_id}/accept-recommendation`, action-executing `POST /api/v1/routing-automation/approvals/{approval_id}/convert-target-choice`, action-executing `POST /api/v1/routing-automation/approvals/{approval_id}/preview-readiness`, and action-executing `POST /api/v1/routing-automation/approvals/{approval_id}/submit`
 - Phase 8.0 operator routed workflow summary: `GET /api/v1/operator-routed-workflows/by-desired-trade/{desired_trade_key}`
 
@@ -773,7 +785,7 @@ Last reviewed: `2026-05-10T19:50:14Z`
 - Static dashboard asset checks, including SV evidence/experiment tabs and the UAT2 Shadow Run view wiring.
 
 `tests/test_uat21_dashboard_visualization.py`
-- UAT2.1 dashboard visualization checks: verifies the UAT2 summary JSON loads, expected UAT2 counts are represented, the signal matrix / would-open / no-trade / ETH candidate / timing / drawdown / UAT3 blocked and UAT3.0 design panels are present, no interactive approval action is added, and forbidden paper/live/order/profitability language is absent from the dashboard surface.
+- UAT2.1 dashboard visualization checks: verifies the UAT2 summary JSON loads, expected UAT2 counts are represented, the signal matrix / would-open / no-trade / ETH candidate / timing / drawdown / UAT3 panels and UAT3.4 routed-orders visibility are present, no interactive approval action is added, and forbidden paper/live/order/profitability language is absent from the dashboard surface.
 - UAT3.0 sandbox-order design checks: verifies the design report, founder approval template, narrow ETH `sleeve_1h` sandbox subset, sandbox runtime/drawdown/artifact/approval/submit-lease/risk requirements, UAT3.1 blocked decision, dashboard design panel, no active order control, and no order/exchange/live artifact boundaries.
 
 `tests/test_uat304_sandbox_private_read_only_drawdown.py`
@@ -785,3 +797,6 @@ Last reviewed: `2026-05-10T19:50:14Z`
 `tests/test_uat31_first_sandbox_order_attempt.py`
 - UAT3.1 first sandbox/testnet lifecycle probe checks: verifies exact approval is required before credential/transport use, live endpoints block, prior attempts block, manual lifecycle-probe labels are enforced, post-only/nonmarketable order shaping remains under the 10 USDC cap, transport is called only after all gates pass, cancel is scoped only to the submitted sandbox order if open, unexpected fill stops further action, summaries remain redacted, and no production `OrderIntent`, `PreparedVenueOrder`, `SubmittedOrder`, executable approval, paper/live behavior, broad top-20 submission, or second order is created.
 - UAT3.2 fixed-key preflight / second sandbox lifecycle attempt checks: verifies exact UAT3.2 approval is required before credential/transport use, fixed-key account/API-wallet readiness is evaluated, live endpoints and prior attempts block, manual lifecycle-probe labels are enforced, order transport is called only when all gates pass, readiness failures block before `/exchange`, cancel is scoped only to the submitted sandbox order if open, unexpected fills stop further action, summaries remain redacted, the UAT4.0 dashboard roadmap request is captured, and no production execution artifacts, paper/live behavior, broad top-20 submission, or second order is created.
+
+`tests/test_uat34_sandbox_routing_pipeline.py`
+- UAT3.4 sandbox routing pipeline checks: verifies standard perp equity selection, unified spot USDC fallback, fixed-target ETH-only route validation, top-20/fanout/SOR/target-reselection/route-executor blockers, routed ledger lifecycle/cancel/reconcile/equity-source/sandbox-label fields, duplicate submit preflight blocking, and UAT4.0 roadmap capture.

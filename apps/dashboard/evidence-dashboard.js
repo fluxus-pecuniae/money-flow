@@ -16,6 +16,10 @@
     "../../docs/uat2_shadow_strategy_top20_observation_summary.json",
   ];
 
+  const DEFAULT_UAT34_SUMMARY_FILES = [
+    "../../docs/uat3_4_sandbox_routing_pipeline_and_order_ledger_summary.json",
+  ];
+
   const SV115_BASELINE = [
     {
       component: "sleeve_15m",
@@ -401,6 +405,7 @@
     experimentMode: "sv115_overlays",
     sv117FullSuiteRows: null,
     uat2Summary: null,
+    uat34Summary: null,
     uatFilters: {
       symbol: "all",
       component: "all",
@@ -468,6 +473,8 @@
     uatNoTradeSymbol: document.querySelector("#uat-no-trade-symbol"),
     uatTimingPanel: document.querySelector("#uat-timing-panel"),
     uatDrawdownCard: document.querySelector("#uat-drawdown-card"),
+    uatRoutedOrdersSummary: document.querySelector("#uat-routed-orders-summary"),
+    uatRoutedOrdersTable: document.querySelector("#uat-routed-orders-table"),
   };
 
   function decimal(value, fallback = 0) {
@@ -1639,6 +1646,86 @@
       .join("");
   }
 
+  function renderUatRoutedOrders() {
+    const summary = state.uat34Summary;
+    const records = Array.isArray(summary?.ledger_records) ? summary.ledger_records : [];
+    if (elements.uatRoutedOrdersSummary) {
+      const equity = summary?.equity_resolution || {};
+      const cards = [
+        ["Route", summary?.route_definition?.route_id || "not loaded"],
+        ["Attempts", String(summary?.uat34_lifecycle_attempt_count ?? 0)],
+        ["Order endpoint calls", String(summary?.order_endpoint_call_count ?? 0)],
+        ["Cancel endpoint calls", String(summary?.cancel_endpoint_call_count ?? 0)],
+        ["Equity source", equity.selected_equity_source || "not loaded"],
+        ["Unified compatibility", summary?.unified_mode_compatibility_status || "not loaded"],
+        ["No live endpoint", String(summary?.side_effect_flags?.live_endpoint_used === false)],
+        ["No paper/live", String(summary?.side_effect_flags?.paper_trading_added === false && summary?.side_effect_flags?.live_trading_added === false)],
+      ];
+      elements.uatRoutedOrdersSummary.innerHTML = cards
+        .map(([label, value]) => `
+          <div>
+            <span>${escapeHtml(label)}</span>
+            <strong>${escapeHtml(value)}</strong>
+          </div>
+        `)
+        .join("");
+    }
+    if (!elements.uatRoutedOrdersTable) return;
+    if (!records.length) {
+      setEmpty(elements.uatRoutedOrdersTable, "No UAT3.4 routed sandbox ledger records loaded.");
+      return;
+    }
+    elements.uatRoutedOrdersTable.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Run</th>
+            <th>Route</th>
+            <th>Venue</th>
+            <th>Environment</th>
+            <th>Symbol</th>
+            <th>Side</th>
+            <th>Order Type</th>
+            <th>Price</th>
+            <th>Size</th>
+            <th>Notional</th>
+            <th>Lifecycle</th>
+            <th>OID</th>
+            <th>Cancel</th>
+            <th>Reconcile</th>
+            <th>Equity Source</th>
+            <th>Labels</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${records.map((row) => {
+            const labels = row.sandbox_labels || {};
+            return `
+              <tr>
+                <td>${escapeHtml(row.uat_run_id)}</td>
+                <td>${escapeHtml(row.route_id)}</td>
+                <td>${escapeHtml(row.venue)}</td>
+                <td>${escapeHtml(row.environment)}</td>
+                <td>${escapeHtml(row.symbol)}</td>
+                <td>${escapeHtml(row.side)}</td>
+                <td>${escapeHtml(row.order_type)}</td>
+                <td>${escapeHtml(row.limit_price)}</td>
+                <td>${escapeHtml(row.size)}</td>
+                <td>${escapeHtml(row.estimated_notional)}</td>
+                <td><span class="pill good">${escapeHtml(row.lifecycle_status)}</span></td>
+                <td>${escapeHtml(row.order_id || "n/a")}</td>
+                <td>${escapeHtml(row.cancel_status)}</td>
+                <td>${escapeHtml(row.reconciliation_status)}</td>
+                <td>${escapeHtml(row.selected_equity_source)}</td>
+                <td>${escapeHtml(`sandbox=${labels.sandbox}; not_live=${labels.not_live}; not_paper=${labels.not_paper}`)}</td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
   function renderUatDashboard() {
     const records = uatRecords();
     if (!state.uat2Summary) {
@@ -1655,9 +1742,11 @@
         elements.uatNoTradeSymbol,
         elements.uatTimingPanel,
         elements.uatDrawdownCard,
+        elements.uatRoutedOrdersTable,
       ].forEach((target) => {
         if (target) setEmpty(target, "Load docs/uat2_shadow_strategy_top20_observation_summary.json.");
       });
+      renderUatRoutedOrders();
       return;
     }
     renderUatFilters(records);
@@ -1668,6 +1757,7 @@
     renderUatWouldOpen(records);
     renderUatNoTradeBreakdown(records);
     renderUatTimingAndDrawdown(records);
+    renderUatRoutedOrders();
   }
 
   function render() {
@@ -1690,6 +1780,7 @@
       return "experiment_summary";
     }
     if (Array.isArray(payload?.audit_records) && payload?.uat3_readiness_decision) return "uat2_shadow_summary";
+    if (payload?.report === "uat3_4_sandbox_routing_pipeline_and_order_ledger") return "uat34_routed_orders_summary";
     return "unknown";
   }
 
@@ -1708,6 +1799,7 @@
 
     await loadDefaultExperimentSummaries();
     await loadDefaultUat2Summaries();
+    await loadDefaultUat34Summaries();
 
     if (!loaded.length) {
       elements.sourceLabel.textContent = "Manual load";
@@ -1755,6 +1847,7 @@
         if (type === "batch") state.batches.push(payload);
         if (type === "experiment_summary") state.sv117FullSuiteRows = normalizeReplayRows(payload.summary_rows);
         if (type === "uat2_shadow_summary") state.uat2Summary = payload;
+        if (type === "uat34_routed_orders_summary") state.uat34Summary = payload;
       });
       state.selectedComponent = "all";
       elements.sourceLabel.textContent = "Manual JSON loaded";
@@ -1786,6 +1879,21 @@
         const payload = await response.json();
         if (classifyJson(payload) === "uat2_shadow_summary") {
           state.uat2Summary = payload;
+        }
+      } catch (error) {
+        console.warn(`Could not load ${path}`, error);
+      }
+    }
+  }
+
+  async function loadDefaultUat34Summaries() {
+    for (const path of DEFAULT_UAT34_SUMMARY_FILES) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        if (classifyJson(payload) === "uat34_routed_orders_summary") {
+          state.uat34Summary = payload;
         }
       } catch (error) {
         console.warn(`Could not load ${path}`, error);

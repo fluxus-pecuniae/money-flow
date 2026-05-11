@@ -26,9 +26,14 @@ def test_uat2_dashboard_tab_loads_summary_json_and_required_sections() -> None:
     assert "uat3-readiness-panel" in html
     assert "uat3-design-panel" in html
     assert "uat-boundary-panel" in html
+    assert "uat-routed-orders-summary" in html
+    assert "uat-routed-orders-table" in html
     assert "uat2_shadow_strategy_top20_observation_summary.json" in js
+    assert "uat3_4_sandbox_routing_pipeline_and_order_ledger_summary.json" in js
     assert "uat2_shadow_summary" in js
+    assert "uat34_routed_orders_summary" in js
     assert "renderUatDashboard" in js
+    assert "renderUatRoutedOrders" in js
     assert ".boundary-grid" in css
     assert ".uat-filter-grid" in css
 
@@ -82,6 +87,9 @@ def test_uat2_dashboard_exposes_would_open_warning_timing_and_drawdown_truth() -
     assert "artifact label boundary enforcement" in dashboard
     assert "dry-run executable gate service" in dashboard
     assert "global orders disabled; sandbox orders separately gated" in dashboard
+    assert "uat routed orders" in dashboard
+    assert "sandbox/testnet routed-order ledger visibility only" in dashboard
+    assert "the dashboard has no order controls" in dashboard
     assert "no interactive approval action exists" in dashboard
 
 

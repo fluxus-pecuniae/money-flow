@@ -13,6 +13,56 @@ Entry schema:
 
 ---
 
+## v2026.05.11.001
+
+- `recorded_at_utc`: `2026-05-11T05:50:00Z`
+- `scope`: `UAT3.4 production-like sandbox routing pipeline + routed-order ledger + unified-mode compatibility`
+- `intent`: `Native entry. Added a testable Hyperliquid sandbox equity-source resolver that preserves standard perp clearinghouse equity and unified/portfolio spot-clearinghouse USDC fallback support. Added a fixed-target UAT3.4 sandbox route definition for Hyperliquid testnet ETH only, routed sandbox order ledger records, route validation that rejects non-ETH/top-20/fanout/SOR/target-reselection/route-executor behavior, and a UAT3.4 runner that composes account targeting, precision, approval/risk/lease/label/drawdown/endpoint gates before sandbox transport. The approved UAT3.4 run made exactly one ETH testnet post-only order attempt, received accepted/open from Hyperliquid, canceled the open order successfully, reconciled to no open order, and wrote sanitized Markdown/JSON ledger reports. The dashboard now loads the UAT3.4 routed-order ledger and displays routed sandbox order lifecycle status without adding order controls. UAT3.5 remains blocked by incomplete UAT-universe precision validation for testnet-unsupported observation symbols; UAT4.0 dashboard/chart cockpit may be scoped. No live endpoint, live key, production OrderIntent, PreparedVenueOrder, SubmittedOrder, executable approval, paper/live behavior, broad top-20 submission, smart routing/SOR/fanout/CBBO/target reselection, Money Flow rule change, evidence pack, secret exposure, or unapproved repeated order was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/uat3_3_hyperliquid_account_targeting_precision_and_order_attempt.md`
+  - `docs/uat3_3_hyperliquid_account_targeting_precision_and_order_attempt_summary.json`
+  - `docs/uat3_4_sandbox_routing_pipeline_and_order_ledger.md`
+  - `docs/uat3_4_sandbox_routing_pipeline_and_order_ledger_summary.json`
+  - `scripts/run_uat34_sandbox_routing_pipeline.py`
+  - `services/uat/sandbox.py`
+  - `services/uat/sandbox_order.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_uat21_dashboard_visualization.py`
+  - `tests/test_uat34_sandbox_routing_pipeline.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/40 Operations/UAT0 Safety Runtime Hardening.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/run_uat34_sandbox_routing_pipeline.py --execute-approved-uat34 --attempts 1`
+  - `.venv/bin/python -m py_compile services/uat/sandbox.py services/uat/sandbox_order.py scripts/run_uat34_sandbox_routing_pipeline.py tests/test_uat34_sandbox_routing_pipeline.py`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat34_sandbox_routing_pipeline.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat21_dashboard_visualization.py tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat0_safety_report.py tests/test_uat01_api_auth_runtime_lockout.py tests/test_uat02_adapter_runtime_policy_and_redaction.py tests/test_uat03_top20_universe_and_drawdown.py tests/test_uat1_public_read_only_connectivity.py tests/test_uat11_shadow_readiness.py tests/test_uat2_shadow_strategy.py tests/test_uat21_dashboard_visualization.py tests/test_uat30_sandbox_order_design.py tests/test_uat301_sandbox_readiness.py tests/test_uat302_sandbox_gate_dry_run.py tests/test_uat303_sandbox_gate_wiring.py tests/test_uat304_sandbox_private_read_only_drawdown.py tests/test_uat305_sandbox_private_read_only_drawdown_verification.py tests/test_uat306_sandbox_submit_path_dry_run.py tests/test_uat31_first_sandbox_order_attempt.py tests/test_uat32_second_sandbox_order_attempt.py tests/test_uat33_hyperliquid_account_precision.py tests/test_uat34_sandbox_routing_pipeline.py tests/test_api.py tests/test_config.py tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-uat3.4-review.zip`
+  - `review bundle path exclusion scan`
+  - `review bundle sandbox/exchange secret value scan`
+
 ## v2026.05.10.018
 
 - `recorded_at_utc`: `2026-05-10T19:50:14Z`

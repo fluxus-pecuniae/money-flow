@@ -88,6 +88,14 @@ class SandboxDrawdownFeedStatus(StrEnum):
     LIVE_FED_VERIFIED = "sandbox_drawdown_feed_live_fed_verified"
 
 
+class HyperliquidSandboxEquitySource(StrEnum):
+    STANDARD_PERP_CLEARINGHOUSE = "standard_perp_clearinghouse"
+    UNIFIED_MARGIN_SPOT_CLEARINGHOUSE = "unified_margin_spot_clearinghouse"
+    PORTFOLIO_MARGIN_SPOT_CLEARINGHOUSE = "portfolio_margin_spot_clearinghouse"
+    UNIFIED_MARGIN_SPOT_CLEARINGHOUSE_FALLBACK = "unified_margin_spot_clearinghouse_fallback"
+    UNKNOWN = "unknown"
+
+
 class SandboxPrivateReadOnlyRejectReason(StrEnum):
     FOUNDER_OPERATOR_PRIVATE_READ_ONLY_APPROVAL_REQUIRED = (
         "founder_operator_private_read_only_approval_required"
@@ -848,6 +856,17 @@ class SandboxAccountStateSnapshot:
 
 
 @dataclass(frozen=True)
+class HyperliquidSandboxEquityResolution:
+    selected_equity_source: HyperliquidSandboxEquitySource
+    perp_account_value: Decimal | None
+    perp_withdrawable: Decimal | None
+    spot_usdc_total: Decimal | None
+    spot_usdc_hold: Decimal | None
+    selected_sandbox_equity: Decimal | None
+    reason_codes: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class SandboxAccountDrawdownFeed:
     venue: str
     sandbox_account_id: str
@@ -1091,6 +1110,89 @@ def build_hyperliquid_sandbox_account_snapshot_from_payload(
         min_sandbox_equity=account_value,
         source="sandbox_account",
         not_live_account=True,
+    )
+
+
+def _hyperliquid_spot_usdc_balance(payload: Mapping[str, Any]) -> tuple[Decimal | None, Decimal | None]:
+    balances = payload.get("balances")
+    if not isinstance(balances, list):
+        return None, None
+    for item in balances:
+        if not isinstance(item, Mapping):
+            continue
+        if str(item.get("coin") or "").upper() != "USDC":
+            continue
+        return _decimal_or_none(item.get("total")), _decimal_or_none(item.get("hold"))
+    return None, None
+
+
+def resolve_hyperliquid_sandbox_equity_source(
+    *,
+    perp_payload: Mapping[str, Any],
+    spot_payload: Mapping[str, Any] | None = None,
+    unified_mode_hint: bool = False,
+    portfolio_margin_hint: bool = False,
+) -> HyperliquidSandboxEquityResolution:
+    """Resolve sandbox equity without assuming standard perp-only margin.
+
+    Hyperliquid unified/portfolio margin can expose usable USDC in
+    spotClearinghouseState while clearinghouseState accountValue is zero. This
+    resolver keeps the active UAT standard-perp path while preserving unified
+    compatibility for gates and reports.
+    """
+
+    margin_summary = perp_payload.get("marginSummary") if isinstance(perp_payload.get("marginSummary"), Mapping) else {}
+    cross_margin = (
+        perp_payload.get("crossMarginSummary")
+        if isinstance(perp_payload.get("crossMarginSummary"), Mapping)
+        else {}
+    )
+    perp_account_value = _decimal_or_none(
+        margin_summary.get("accountValue") if isinstance(margin_summary, Mapping) else None
+    )
+    if perp_account_value is None:
+        perp_account_value = _decimal_or_none(
+            cross_margin.get("accountValue") if isinstance(cross_margin, Mapping) else None
+        )
+    perp_withdrawable = _decimal_or_none(perp_payload.get("withdrawable"))
+
+    spot_usdc_total: Decimal | None = None
+    spot_usdc_hold: Decimal | None = None
+    spot_available: Decimal | None = None
+    if spot_payload is not None:
+        spot_usdc_total, spot_usdc_hold = _hyperliquid_spot_usdc_balance(spot_payload)
+        if spot_usdc_total is not None and spot_usdc_hold is not None:
+            spot_available = spot_usdc_total - spot_usdc_hold
+
+    reasons: list[str] = []
+    selected_source = HyperliquidSandboxEquitySource.UNKNOWN
+    selected_equity: Decimal | None = None
+    if perp_account_value is not None and perp_account_value > 0:
+        selected_source = HyperliquidSandboxEquitySource.STANDARD_PERP_CLEARINGHOUSE
+        selected_equity = perp_account_value
+        reasons.append("standard_perp_clearinghouse_equity_selected")
+    elif spot_available is not None and spot_available > 0:
+        if portfolio_margin_hint:
+            selected_source = HyperliquidSandboxEquitySource.PORTFOLIO_MARGIN_SPOT_CLEARINGHOUSE
+            reasons.append("portfolio_margin_spot_clearinghouse_equity_selected")
+        elif unified_mode_hint:
+            selected_source = HyperliquidSandboxEquitySource.UNIFIED_MARGIN_SPOT_CLEARINGHOUSE
+            reasons.append("unified_margin_spot_clearinghouse_equity_selected")
+        else:
+            selected_source = HyperliquidSandboxEquitySource.UNIFIED_MARGIN_SPOT_CLEARINGHOUSE_FALLBACK
+            reasons.append("unified_margin_spot_clearinghouse_fallback_selected")
+        selected_equity = spot_available
+    else:
+        reasons.append("sandbox_equity_source_unavailable")
+
+    return HyperliquidSandboxEquityResolution(
+        selected_equity_source=selected_source,
+        perp_account_value=perp_account_value,
+        perp_withdrawable=perp_withdrawable,
+        spot_usdc_total=spot_usdc_total,
+        spot_usdc_hold=spot_usdc_hold,
+        selected_sandbox_equity=selected_equity,
+        reason_codes=tuple(dict.fromkeys(reasons)),
     )
 
 

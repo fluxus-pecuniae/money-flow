@@ -134,16 +134,16 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "canonical Obsidian command center" in command_center
-    assert "`UAT3.3` Hyperliquid account targeting / tick-lot precision hardening is complete" in current_phase
+    assert "`UAT3.4` production-like sandbox routing pipeline / routed-order ledger is complete" in current_phase
     assert "SV1.18" in command_center
     assert "UAT0" in command_center
     assert "UAT1 public read-only connectivity is complete" in command_center
     assert "UAT2 no-order shadow observation is complete" in command_center
     assert "UAT2.1 dashboard visualization is complete" in command_center
-    assert "UAT3.0.6 sandbox submit path dry-run wiring is complete" in command_center
+    assert "UAT3.0.6 sandbox submit path dry-run wiring" in command_center
     assert "UAT3.1 first sandbox/testnet lifecycle probe is complete" in command_center
-    assert "UAT3.2 is complete as a blocked fixed-key preflight" in command_center
-    assert "UAT3.3 is complete as a blocked Hyperliquid account-targeting / precision pass" in command_center
+    assert "UAT3.2 fixed-key readiness preflight" in command_center
+    assert "UAT3.4 is complete: the Hyperliquid testnet ETH route" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
     assert "Strategy Validation" in moved_memory
@@ -157,6 +157,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "UAT3.1 first sandbox/testnet lifecycle probe is complete" in moved_memory
     assert "UAT3.2 fixed-key readiness preflight" in moved_memory
     assert "UAT3.3 Hyperliquid account-targeting / precision hardening is complete" in moved_memory
+    assert "UAT3.4 production-like sandbox routing pipeline and routed-order ledger are complete" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
 
@@ -171,7 +172,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
     assert (
-        "Current implemented milestone | `UAT3.3` Hyperliquid account targeting / precision hardening complete as blocked before order transport"
+        "Current implemented milestone | `UAT3.4` fixed-target sandbox routing pipeline and routed-order ledger complete"
         in command_center
     )
     assert "Canonical command center" in compatibility_command_center
@@ -183,6 +184,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     assert "UAT3.1 first sandbox/testnet lifecycle probe is complete" in current_dashboard
     assert "UAT3.2 fixed-key preflight" in current_dashboard
     assert "UAT3.3" in command_center
+    assert "UAT3.4" in current_dashboard
     assert "Strategy Validation is now its own major track" in Path("money-flow/00 Maps/Phase Timeline.md").read_text()
     assert "What Strategy Validation Did" in sv_map
     assert "What Strategy Validation Did Not Prove" in sv_map
@@ -309,6 +311,7 @@ def test_uat0_operational_truth_is_current() -> None:
     uat31_report = Path("docs/uat3_1_first_sandbox_order_attempt.md").read_text()
     uat32_report = Path("docs/uat3_2_second_sandbox_order_attempt.md").read_text()
     uat33_report = Path("docs/uat3_3_hyperliquid_account_targeting_precision_and_order_attempt.md").read_text()
+    uat34_report = Path("docs/uat3_4_sandbox_routing_pipeline_and_order_ledger.md").read_text()
     current_notes = [
         Path("money-flow/00_Money_Flow_Command_Center.md").read_text(),
         Path("money-flow/01_Current_Phase.md").read_text(),
@@ -510,17 +513,35 @@ def test_uat0_operational_truth_is_current() -> None:
     assert "Subaccount/vault mode uses `vaultAddress` only for the explicit subaccount/vault target" in uat33_report
     assert "Price formatting enforces up to five significant figures" in uat33_report or "five significant figures" in uat33_report
     assert "ETH" in uat33_report
-    assert "Order attempt count | `0`" in uat33_report
-    assert "Order status | `blocked`" in uat33_report
-    assert "sandbox_account_equity_insufficient" in uat33_report
-    assert "dry_run_planned_not_submitted" in uat33_report
+    assert "Order attempt count | `1`" in uat33_report
+    assert "Order status | `rejected`" in uat33_report
+    assert "Order must have minimum value of $10. asset=4" in uat33_report
+    assert "Successful Follow-Up Sandbox Lifecycle" in uat33_report
+    assert "order accepted open" in uat33_report
+    assert "Cancel response: `success`" in uat33_report
     assert "OrderIntent | `false`" in uat33_report
     assert "PreparedVenueOrder | `false`" in uat33_report
     assert "SubmittedOrder | `false`" in uat33_report
     assert "Executable approval | `false`" in uat33_report
-    assert "`UAT3.4 is blocked`" in uat33_report
+    assert "`UAT3.4 additional sandbox lifecycle testing may be scoped`" in uat33_report
     assert "Paper trading" in uat33_report
     assert "Live trading" in uat33_report
+
+    assert "UAT3.4 Sandbox Routing Pipeline And Order Ledger" in uat34_report
+    assert "UAT3.4 operationalizes the successful sandbox route" in uat34_report
+    assert "standard_perp_clearinghouse" in uat34_report
+    assert "unified_margin_spot_clearinghouse" in uat34_report
+    assert "fixed_target_hyperliquid_testnet_eth" in uat34_report
+    assert "| uat3_4_sandbox_routing_pipeline_order_ledger | fixed_target_hyperliquid_testnet_eth" in uat34_report
+    assert "| UAT3.4 lifecycle attempts | `1` |" in uat34_report
+    assert "| Order endpoint calls | `1` |" in uat34_report
+    assert "| Cancel endpoint calls | `1` |" in uat34_report
+    assert "Top-20 order submission: `false`" in uat34_report
+    assert "Live endpoint used: `false`" in uat34_report
+    assert "Paper trading: `not approved`" in uat34_report
+    assert "Live trading: `not approved`" in uat34_report
+    assert "UAT4.0 live UAT dashboard/chart cockpit may be scoped" in uat34_report
+    assert "UAT3.5 is blocked" in uat34_report
 
     for note in current_notes:
         assert "UAT0" in note

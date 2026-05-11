@@ -1,0 +1,414 @@
+{
+  "account_targeting_summary": {
+    "account_role": "user",
+    "endpoint_is_testnet": true,
+    "environment": "testnet",
+    "signer_address_abbrev": "0x0f42...04d9",
+    "target_account_abbrev": "0x7580...8222",
+    "vaultAddress_abbrev_if_present": null,
+    "vaultAddress_present": false
+  },
+  "approval_verified": true,
+  "cancel_endpoint_call_count": 1,
+  "drawdown_feed": {
+    "max_drawdown_percent": "0E+1",
+    "not_live_account": true,
+    "sandbox_account_equity": "999.0",
+    "source": "sandbox_account",
+    "status": "sandbox_drawdown_feed_live_fed_verified",
+    "threshold_breached": false,
+    "timestamp_utc": "2026-05-11T05:47:36.982043+00:00",
+    "unavailable_fields": [
+      "sandbox_realized_pnl",
+      "sandbox_unrealized_pnl",
+      "open_positions_summary"
+    ]
+  },
+  "equity_resolution": {
+    "perp_account_value": "999.0",
+    "perp_withdrawable": "999.0",
+    "reason_codes": [
+      "standard_perp_clearinghouse_equity_selected"
+    ],
+    "selected_equity_source": "standard_perp_clearinghouse",
+    "selected_sandbox_equity": "999.0",
+    "spot_usdc_hold": "0.0",
+    "spot_usdc_total": "0.0"
+  },
+  "ledger_records": [
+    {
+      "approval_id": "uat3_4_founder_sandbox_routing_operationalization_approval",
+      "asset_id": 4,
+      "cancel_status": "success",
+      "endpoint_called": true,
+      "environment": "testnet",
+      "estimated_notional": "19.9410",
+      "idempotency_key": "0x63912028b1447dd574570d3880356a86",
+      "lifecycle_status": "canceled",
+      "limit_price": "2346",
+      "no_live_no_paper_confirmation": true,
+      "open_order_remains": false,
+      "order_id": "52874322602",
+      "order_type": "post_only_limit",
+      "position_changed": "no",
+      "reason_codes": [
+        "order_accepted_open"
+      ],
+      "reconciliation_status": "completed",
+      "route_id": "fixed_target_hyperliquid_testnet_eth",
+      "route_type": "fixed_target_sandbox",
+      "sandbox_labels": {
+        "live_endpoint_access": false,
+        "manual_sandbox_lifecycle_probe": true,
+        "not_live": true,
+        "not_paper": true,
+        "not_performance_validation": true,
+        "not_strategy_signal": true,
+        "real_capital": false,
+        "sandbox": true,
+        "sandbox_order": true,
+        "testnet": true,
+        "uat_run_id": "uat3_4_sandbox_routing_pipeline_order_ledger"
+      },
+      "sanitized_cancel_response": {
+        "response": {
+          "data": {
+            "statuses": [
+              "success"
+            ]
+          },
+          "type": "cancel"
+        },
+        "status": "ok"
+      },
+      "sanitized_exchange_response": {
+        "response": {
+          "data": {
+            "statuses": [
+              {
+                "resting": {
+                  "cloid": "0x63912028b1447dd574570d3880356a86",
+                  "oid": 52874322602
+                }
+              }
+            ]
+          },
+          "type": "order"
+        },
+        "status": "ok"
+      },
+      "sanitized_order_request": {
+        "account_role": "user",
+        "action_summary": {
+          "grouping": "na",
+          "orders": [
+            {
+              "a": 4,
+              "b": true,
+              "c": "0x63912028b1447dd574570d3880356a86",
+              "p": "2346",
+              "r": false,
+              "s": "0.0085",
+              "t": {
+                "limit": {
+                  "tif": "Alo"
+                }
+              }
+            }
+          ],
+          "type": "order"
+        },
+        "asset_id": 4,
+        "client_order_id_present": true,
+        "endpoint": "/exchange",
+        "endpoint_category": "sandbox_order_submission",
+        "endpoint_is_testnet": true,
+        "environment": "testnet",
+        "estimated_notional": "19.9410",
+        "limit_price": "2346",
+        "order_type": "post_only_limit",
+        "quantity": "0.0085",
+        "raw_signed_payload_included_in_report": false,
+        "selected_equity_source": "standard_perp_clearinghouse",
+        "side": "buy",
+        "signature_included_in_report": false,
+        "signer_address_abbrev": "0x0f42...04d9",
+        "symbol": "ETH",
+        "target_account_abbrev": "0x7580...8222",
+        "tif": "Alo",
+        "vaultAddress_abbrev_if_present": null,
+        "vaultAddress_present": false
+      },
+      "sanitized_reconciliation": {
+        "account_state_available": true,
+        "open_orders": [],
+        "order_status": {
+          "order": {
+            "order": {
+              "children": [],
+              "cloid": "0x63912028b1447dd574570d3880356a86",
+              "coin": "ETH",
+              "isPositionTpsl": false,
+              "isTrigger": false,
+              "limitPx": "2346.0",
+              "oid": 52874322602,
+              "orderType": "Limit",
+              "origSz": "0.0085",
+              "reduceOnly": false,
+              "side": "B",
+              "sz": "0.0085",
+              "tif": "Alo",
+              "timestamp": 1778478460142,
+              "triggerCondition": "N/A",
+              "triggerPx": "0.0"
+            },
+            "status": "canceled",
+            "statusTimestamp": 1778478460894
+          },
+          "status": "order"
+        }
+      },
+      "selected_equity_source": "standard_perp_clearinghouse",
+      "side": "buy",
+      "size": "0.0085",
+      "submit_lease_key": "uat3_4_sandbox_routing_pipeline_order_ledger:hyperliquid:0x75806061D3EBD6876B718dEdB7037F2cAC5d8222:ETH:manual_sandbox_lifecycle_probe_1:testnet",
+      "symbol": "ETH",
+      "tif": "Alo",
+      "uat_run_id": "uat3_4_sandbox_routing_pipeline_order_ledger",
+      "venue": "hyperliquid"
+    }
+  ],
+  "open_order_remains": false,
+  "order_endpoint_call_count": 1,
+  "precision_validation": [
+    {
+      "asset_id": 3,
+      "formatted_sample_post_only_buy_price": "80993",
+      "formatted_sample_size": "0.00012",
+      "max_price_decimals": 1,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "80993.0",
+      "symbol": "BTC",
+      "sz_decimals": 5
+    },
+    {
+      "asset_id": 4,
+      "formatted_sample_post_only_buy_price": "2350.2",
+      "formatted_sample_size": "0.0042",
+      "max_price_decimals": 2,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "2350.2",
+      "symbol": "ETH",
+      "sz_decimals": 4
+    },
+    {
+      "asset_id": 0,
+      "formatted_sample_post_only_buy_price": "97.099",
+      "formatted_sample_size": "0.1",
+      "max_price_decimals": 4,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "97.099",
+      "symbol": "SOL",
+      "sz_decimals": 2
+    },
+    {
+      "asset_id": null,
+      "formatted_sample_post_only_buy_price": null,
+      "formatted_sample_size": null,
+      "max_price_decimals": null,
+      "precision_validation_passed": false,
+      "reason_codes": [
+        "unsupported_by_hyperliquid_meta"
+      ],
+      "sample_mid": null,
+      "symbol": "XRP",
+      "sz_decimals": null
+    },
+    {
+      "asset_id": 193,
+      "formatted_sample_post_only_buy_price": "138.65",
+      "formatted_sample_size": "1",
+      "max_price_decimals": 6,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "138.65",
+      "symbol": "ZEC",
+      "sz_decimals": 0
+    },
+    {
+      "asset_id": 6,
+      "formatted_sample_post_only_buy_price": "654.65",
+      "formatted_sample_size": "0.015",
+      "max_price_decimals": 3,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "654.65",
+      "symbol": "BNB",
+      "sz_decimals": 3
+    },
+    {
+      "asset_id": 25,
+      "formatted_sample_post_only_buy_price": "1.2899",
+      "formatted_sample_size": "7.7",
+      "max_price_decimals": 5,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "1.2899",
+      "symbol": "SUI",
+      "sz_decimals": 1
+    },
+    {
+      "asset_id": 44,
+      "formatted_sample_post_only_buy_price": "2.3212",
+      "formatted_sample_size": "4.3",
+      "max_price_decimals": 5,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "2.3212",
+      "symbol": "TON",
+      "sz_decimals": 1
+    },
+    {
+      "asset_id": 173,
+      "formatted_sample_post_only_buy_price": "0.10947",
+      "formatted_sample_size": "91",
+      "max_price_decimals": 6,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "0.109475",
+      "symbol": "DOGE",
+      "sz_decimals": 0
+    },
+    {
+      "asset_id": null,
+      "formatted_sample_post_only_buy_price": null,
+      "formatted_sample_size": null,
+      "max_price_decimals": null,
+      "precision_validation_passed": false,
+      "reason_codes": [
+        "unsupported_by_hyperliquid_meta"
+      ],
+      "sample_mid": null,
+      "symbol": "TRX",
+      "sz_decimals": null
+    },
+    {
+      "asset_id": 159,
+      "formatted_sample_post_only_buy_price": "0.12684",
+      "formatted_sample_size": "78",
+      "max_price_decimals": 6,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "0.126845",
+      "symbol": "LAYER",
+      "sz_decimals": 0
+    },
+    {
+      "asset_id": 207,
+      "formatted_sample_post_only_buy_price": "0.060684",
+      "formatted_sample_size": "164",
+      "max_price_decimals": 6,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "0.060684",
+      "symbol": "CHIP",
+      "sz_decimals": 0
+    },
+    {
+      "asset_id": null,
+      "formatted_sample_post_only_buy_price": null,
+      "formatted_sample_size": null,
+      "max_price_decimals": null,
+      "precision_validation_passed": false,
+      "reason_codes": [
+        "unsupported_by_hyperliquid_meta"
+      ],
+      "sample_mid": null,
+      "symbol": "UNI",
+      "sz_decimals": null
+    },
+    {
+      "asset_id": 87,
+      "formatted_sample_post_only_buy_price": "0.44965",
+      "formatted_sample_size": "22",
+      "max_price_decimals": 6,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "0.449655",
+      "symbol": "ONDO",
+      "sz_decimals": 0
+    },
+    {
+      "asset_id": 21,
+      "formatted_sample_post_only_buy_price": "100.02",
+      "formatted_sample_size": "0.09",
+      "max_price_decimals": 4,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "sample_mid": "100.0275",
+      "symbol": "AAVE",
+      "sz_decimals": 2
+    }
+  ],
+  "reason_codes": [
+    "order_accepted_open",
+    "uat_universe_precision_validation_incomplete"
+  ],
+  "recorded_at_utc": "2026-05-11T05:47:36.982043Z",
+  "report": "uat3_4_sandbox_routing_pipeline_and_order_ledger",
+  "route_definition": {
+    "account_role": "user",
+    "approval_required": true,
+    "environment": "testnet",
+    "idempotency_key_required": true,
+    "live_endpoint_forbidden": true,
+    "max_attempts": 3,
+    "notional_cap": "20",
+    "order_type": "post_only_limit",
+    "product": "USDC perpetual",
+    "route_id": "fixed_target_hyperliquid_testnet_eth",
+    "route_type": "fixed_target_sandbox",
+    "sandbox_labels_required": true,
+    "submit_lease_required": true,
+    "symbol": "ETH",
+    "vault_address_present": false,
+    "venue": "hyperliquid"
+  },
+  "side_effect_flags": {
+    "broad_top20_order_submission": false,
+    "creates_executable_approval": false,
+    "creates_order_intent": false,
+    "creates_prepared_order": false,
+    "creates_submitted_order": false,
+    "live_endpoint_used": false,
+    "live_trading_added": false,
+    "paper_trading_added": false
+  },
+  "uat34_lifecycle_attempt_count": 1,
+  "uat35_readiness_decision": "UAT3.5 is blocked",
+  "uat3_3_success_recap": {
+    "account_role": "user",
+    "account_targeting": "verified",
+    "cancel_endpoint_called": "yes_only_for_accepted_open_order",
+    "cancel_response": "success",
+    "equity": "999.0",
+    "equity_source": "standard_perp_clearinghouse",
+    "exchange_response": "order accepted open oid=52873216602",
+    "live_endpoint_used": false,
+    "order": "ETH post-only limit buy price=2344.2 size=0.0063 notional=14.76846 tif=Alo asset_id=4",
+    "order_endpoint_called": "yes_exactly_once",
+    "reconciliation": "canceled_open_orders_empty",
+    "secrets_printed": false,
+    "signer_api_wallet": "0x0f42...04d9",
+    "target": "0x7580...8222",
+    "vaultAddress": "omitted"
+  },
+  "uat4_readiness_decision": "UAT4.0 live UAT dashboard/chart cockpit may be scoped",
+  "uat_run_id": "uat3_4_sandbox_routing_pipeline_order_ledger",
+  "unexpected_fill": false,
+  "unified_mode_compatibility_status": "implemented",
+  "unknown_state": false
+}

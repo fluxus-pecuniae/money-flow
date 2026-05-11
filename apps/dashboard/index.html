@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Money Flow Evidence Dashboard</title>
-    <link rel="stylesheet" href="./evidence-dashboard.css?v=uat3.0.3" />
+    <link rel="stylesheet" href="./evidence-dashboard.css?v=uat3.4" />
   </head>
   <body>
     <header class="top-strip">
@@ -235,6 +235,15 @@
         </section>
 
         <section id="uat-summary-cards" class="metric-grid metric-grid-wide" aria-label="UAT2 summary cards"></section>
+
+        <section class="table-panel" aria-labelledby="uat-routed-orders-title">
+          <div class="section-heading">
+            <h2 id="uat-routed-orders-title">UAT Routed Orders</h2>
+            <p>Sandbox/testnet routed-order ledger visibility only. The dashboard has no order controls.</p>
+          </div>
+          <div id="uat-routed-orders-summary" class="boundary-grid"></div>
+          <div id="uat-routed-orders-table" class="data-table-shell"></div>
+        </section>
 
         <section class="split-layout">
           <section class="component-panel" aria-labelledby="uat-eth-title">

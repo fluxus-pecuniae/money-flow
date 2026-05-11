@@ -41,6 +41,7 @@ from services.uat.sandbox import (
     SandboxArtifactLabels,
     SandboxCheckResult,
     SandboxDrawdownFeedStatus,
+    HyperliquidSandboxEquitySource,
     SandboxPrivateEndpointCategory,
     SandboxRiskLimits,
     SandboxRiskRequest,
@@ -168,6 +169,16 @@ UAT33_UNIVERSE_SYMBOLS: tuple[str, ...] = (
     "AAVE",
 )
 
+UAT34_RUN_ID = "uat3_4_sandbox_routing_pipeline_order_ledger"
+UAT34_APPROVAL_ID = "uat3_4_founder_sandbox_routing_operationalization_approval"
+UAT34_ROUTE_ID = "fixed_target_hyperliquid_testnet_eth"
+UAT34_ROUTE_TYPE = "fixed_target_sandbox"
+UAT34_COMPONENT = "manual_sandbox_lifecycle_probe"
+UAT34_CANDIDATE_ID_PREFIX = "uat3_4_fixed_target_eth_lifecycle_attempt"
+UAT34_MAX_NOTIONAL = Decimal("20")
+UAT34_MAX_ATTEMPTS = 3
+UAT34_DRAWDOWN_THRESHOLD = Decimal("0.05")
+
 
 class UAT31RejectReason:
     APPROVAL_REQUIRED = "founder_operator_actual_sandbox_submission_approval_required"
@@ -221,6 +232,20 @@ class UAT33RejectReason:
     NORMAL_ACCOUNT_VAULT_FORBIDDEN = "hyperliquid_normal_account_vault_address_forbidden"
     TARGET_ACCOUNT_MISSING = "hyperliquid_target_account_missing"
     PRECISION_VALIDATION_FAILED = "hyperliquid_precision_validation_failed"
+
+
+class UAT34RejectReason:
+    FIXED_TARGET_ROUTE_REQUIRED = "fixed_target_hyperliquid_testnet_eth_required"
+    NON_ETH_SYMBOL_FORBIDDEN = "uat34_non_eth_symbol_forbidden"
+    NON_HYPERLIQUID_VENUE_FORBIDDEN = "uat34_non_hyperliquid_venue_forbidden"
+    NON_TESTNET_ENVIRONMENT_FORBIDDEN = "uat34_non_testnet_environment_forbidden"
+    TOP20_BROAD_ORDER_FORBIDDEN = "uat34_top20_broad_order_forbidden"
+    SOR_FORBIDDEN = "uat34_sor_forbidden"
+    FANOUT_FORBIDDEN = "uat34_fanout_forbidden"
+    TARGET_RESELECTION_FORBIDDEN = "uat34_target_reselection_forbidden"
+    ROUTE_EXECUTOR_FORBIDDEN = "uat34_route_executor_forbidden"
+    ACTIVE_ROUTE_REQUIRES_USER_ACCOUNT = "uat34_active_route_requires_user_account"
+    ACTIVE_ROUTE_REQUIRES_VAULT_ADDRESS_OMITTED = "uat34_active_route_requires_vault_address_omitted"
 
 
 @dataclass(frozen=True)
@@ -325,6 +350,83 @@ class UAT31LifecycleResult:
     open_order_remains: bool
     unknown_state: bool
     reason_codes: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class UAT34SandboxRouteDefinition:
+    route_id: str = UAT34_ROUTE_ID
+    route_type: str = UAT34_ROUTE_TYPE
+    venue: str = "hyperliquid"
+    environment: str = "testnet"
+    symbol: str = "ETH"
+    product: str = "USDC perpetual"
+    account_role: str = "user"
+    vault_address_present: bool = False
+    order_type: str = "post_only_limit"
+    notional_cap: Decimal = UAT34_MAX_NOTIONAL
+    max_attempts: int = UAT34_MAX_ATTEMPTS
+    submit_lease_required: bool = True
+    idempotency_key_required: bool = True
+    approval_required: bool = True
+    sandbox_labels_required: bool = True
+    live_endpoint_forbidden: bool = True
+
+
+@dataclass(frozen=True)
+class UAT34RouteCandidate:
+    route_id: str
+    venue: str
+    environment: str
+    symbol: str
+    top20_broad_submission: bool = False
+    sor: bool = False
+    fanout: bool = False
+    target_reselection: bool = False
+    route_executor_behavior: bool = False
+
+
+@dataclass(frozen=True)
+class UATSandboxRoutedOrderRecord:
+    uat_run_id: str
+    route_id: str
+    route_type: str
+    venue: str
+    environment: str
+    symbol: str
+    side: str
+    order_type: str
+    limit_price: str | None
+    size: str | None
+    estimated_notional: str | None
+    tif: str | None
+    asset_id: int | None
+    approval_id: str
+    submit_lease_key: str
+    idempotency_key: str
+    endpoint_called: bool
+    order_id: str | None
+    lifecycle_status: str
+    cancel_status: str
+    reconciliation_status: str
+    open_order_remains: bool
+    position_changed: str
+    selected_equity_source: str
+    sandbox_labels: Mapping[str, Any]
+    no_live_no_paper_confirmation: bool
+    sanitized_exchange_response: Mapping[str, Any]
+    reason_codes: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class UATSandboxRoutedOrderLedger:
+    uat_run_id: str
+    route_id: str
+    max_attempts: int
+    records: tuple[UATSandboxRoutedOrderRecord, ...]
+
+    @property
+    def attempt_count(self) -> int:
+        return sum(1 for record in self.records if record.endpoint_called)
 
 
 @dataclass(frozen=True)
@@ -504,6 +606,21 @@ def build_uat33_artifact_labels() -> UAT31ManualProbeLabels:
     )
 
 
+def build_uat34_artifact_labels() -> UAT31ManualProbeLabels:
+    return UAT31ManualProbeLabels(
+        base=SandboxArtifactLabels(
+            sandbox=True,
+            testnet=True,
+            not_live=True,
+            not_paper=True,
+            uat_run_id=UAT34_RUN_ID,
+            sandbox_order=True,
+            live_endpoint_access=False,
+            real_capital=False,
+        )
+    )
+
+
 def build_uat31_idempotency_key(*, account_id: str, observed_at_utc: datetime) -> str:
     seed = f"{UAT31_RUN_ID}:{UAT31_APPROVAL_ID}:hyperliquid:{account_id}:ETH:{observed_at_utc.isoformat()}"
     return "0x" + hashlib.sha256(seed.encode("utf-8")).hexdigest()[:32]
@@ -517,6 +634,126 @@ def build_uat32_idempotency_key(*, account_id: str, observed_at_utc: datetime) -
 def build_uat33_idempotency_key(*, account_id: str, observed_at_utc: datetime) -> str:
     seed = f"{UAT33_RUN_ID}:{UAT33_APPROVAL_ID}:hyperliquid:{account_id}:ETH:{observed_at_utc.isoformat()}"
     return "0x" + hashlib.sha256(seed.encode("utf-8")).hexdigest()[:32]
+
+
+def build_uat34_idempotency_key(*, account_id: str, attempt_number: int, observed_at_utc: datetime) -> str:
+    seed = (
+        f"{UAT34_RUN_ID}:{UAT34_APPROVAL_ID}:hyperliquid:{account_id}:ETH:"
+        f"{attempt_number}:{observed_at_utc.isoformat()}"
+    )
+    return "0x" + hashlib.sha256(seed.encode("utf-8")).hexdigest()[:32]
+
+
+def build_uat34_route_definition() -> UAT34SandboxRouteDefinition:
+    return UAT34SandboxRouteDefinition()
+
+
+def validate_uat34_fixed_target_route(candidate: UAT34RouteCandidate) -> SandboxCheckResult:
+    reasons: list[str] = []
+    if candidate.route_id != UAT34_ROUTE_ID:
+        reasons.append(UAT34RejectReason.FIXED_TARGET_ROUTE_REQUIRED)
+    if candidate.venue.lower() != "hyperliquid":
+        reasons.append(UAT34RejectReason.NON_HYPERLIQUID_VENUE_FORBIDDEN)
+    if candidate.environment.lower() not in {"testnet", "sandbox", "uat_sandbox"}:
+        reasons.append(UAT34RejectReason.NON_TESTNET_ENVIRONMENT_FORBIDDEN)
+    if candidate.symbol.upper() != "ETH":
+        reasons.append(UAT34RejectReason.NON_ETH_SYMBOL_FORBIDDEN)
+    if candidate.top20_broad_submission:
+        reasons.append(UAT34RejectReason.TOP20_BROAD_ORDER_FORBIDDEN)
+    if candidate.sor:
+        reasons.append(UAT34RejectReason.SOR_FORBIDDEN)
+    if candidate.fanout:
+        reasons.append(UAT34RejectReason.FANOUT_FORBIDDEN)
+    if candidate.target_reselection:
+        reasons.append(UAT34RejectReason.TARGET_RESELECTION_FORBIDDEN)
+    if candidate.route_executor_behavior:
+        reasons.append(UAT34RejectReason.ROUTE_EXECUTOR_FORBIDDEN)
+    return SandboxCheckResult(allowed=not reasons, reason_codes=tuple(dict.fromkeys(reasons)))
+
+
+def validate_uat34_active_account_mode(account_target: HyperliquidAccountTargetResult) -> SandboxCheckResult:
+    reasons: list[str] = []
+    if account_target.blocked:
+        reasons.extend(account_target.reason_codes)
+    target = account_target.target
+    if target is None:
+        reasons.append(UAT33RejectReason.ACCOUNT_TARGETING_BLOCKED)
+    elif target.account_role not in {"user", "master"}:
+        reasons.append(UAT34RejectReason.ACTIVE_ROUTE_REQUIRES_USER_ACCOUNT)
+    if target is not None and target.vault_address_present:
+        reasons.append(UAT34RejectReason.ACTIVE_ROUTE_REQUIRES_VAULT_ADDRESS_OMITTED)
+    return SandboxCheckResult(allowed=not reasons, reason_codes=tuple(dict.fromkeys(reasons)))
+
+
+def sandbox_labels_to_ledger_mapping(labels: UAT31ManualProbeLabels) -> Mapping[str, Any]:
+    return {
+        **asdict(labels.base),
+        "manual_sandbox_lifecycle_probe": labels.manual_sandbox_lifecycle_probe,
+        "not_strategy_signal": labels.not_strategy_signal,
+        "not_performance_validation": labels.not_performance_validation,
+    }
+
+
+def build_uat34_routed_order_record(
+    *,
+    attempt_number: int,
+    market_plan: UAT31MarketPlan | None,
+    lifecycle: UAT31LifecycleResult,
+    selected_equity_source: HyperliquidSandboxEquitySource | str,
+    sanitized_exchange_response: Mapping[str, Any],
+    labels: UAT31ManualProbeLabels,
+    account_id: str,
+) -> UATSandboxRoutedOrderRecord:
+    component = f"{UAT34_COMPONENT}_{attempt_number}"
+    submit_key = SandboxSubmitAttemptKey(
+        approval_id=UAT34_APPROVAL_ID,
+        uat_run_id=UAT34_RUN_ID,
+        venue="hyperliquid",
+        account_id=account_id,
+        symbol="ETH",
+        component=component,
+        environment="testnet",
+    )
+    status = lifecycle.order_status
+    if lifecycle.order_status == "open":
+        status = "accepted_open"
+    if lifecycle.cancel_status in {"cancel_acknowledged", "success"} and not lifecycle.open_order_remains:
+        status = "canceled"
+    equity_source = (
+        selected_equity_source.value
+        if isinstance(selected_equity_source, HyperliquidSandboxEquitySource)
+        else str(selected_equity_source)
+    )
+    return UATSandboxRoutedOrderRecord(
+        uat_run_id=UAT34_RUN_ID,
+        route_id=UAT34_ROUTE_ID,
+        route_type=UAT34_ROUTE_TYPE,
+        venue="hyperliquid",
+        environment="testnet",
+        symbol="ETH",
+        side="buy",
+        order_type="post_only_limit",
+        limit_price=str(market_plan.limit_price) if market_plan else None,
+        size=str(market_plan.quantity) if market_plan else None,
+        estimated_notional=str(market_plan.estimated_notional) if market_plan else None,
+        tif=market_plan.tif if market_plan else None,
+        asset_id=market_plan.asset_id if market_plan else None,
+        approval_id=UAT34_APPROVAL_ID,
+        submit_lease_key=":".join(submit_key.candidate_fingerprint),
+        idempotency_key=market_plan.cloid if market_plan else "",
+        endpoint_called=lifecycle.order_endpoint_called,
+        order_id=lifecycle.exchange_order_id,
+        lifecycle_status=status,
+        cancel_status=lifecycle.cancel_status,
+        reconciliation_status=lifecycle.reconciliation_status,
+        open_order_remains=lifecycle.open_order_remains,
+        position_changed="unknown" if lifecycle.unknown_state else "no",
+        selected_equity_source=equity_source,
+        sandbox_labels=sandbox_labels_to_ledger_mapping(labels),
+        no_live_no_paper_confirmation=True,
+        sanitized_exchange_response=sanitized_exchange_response,
+        reason_codes=lifecycle.reason_codes,
+    )
 
 
 def _normalize_account_role(role: str | None) -> str | None:
