@@ -771,6 +771,115 @@ h3 {
   contain: layout paint size;
 }
 
+.historical-indicator-panes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--spacing-3);
+  min-height: 0;
+  margin-top: var(--spacing-3);
+}
+
+.historical-indicator-pane {
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(13, 24, 31, 0.98), rgba(7, 16, 20, 0.98));
+  contain: layout paint;
+}
+
+.historical-indicator-pane header,
+.historical-indicator-pane footer {
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-2) var(--spacing-3);
+}
+
+.historical-indicator-pane header {
+  border-bottom: 1px solid rgba(133, 156, 171, 0.12);
+}
+
+.historical-indicator-pane footer {
+  border-top: 1px solid rgba(133, 156, 171, 0.12);
+}
+
+.historical-indicator-pane strong {
+  color: var(--color-text);
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+}
+
+.historical-indicator-pane span {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.historical-indicator-pane.unavailable {
+  min-height: 86px;
+}
+
+.historical-indicator-svg {
+  display: block;
+  width: 100%;
+  height: 126px;
+  min-height: 0;
+}
+
+.historical-indicator-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.1;
+}
+
+.historical-indicator-line.rsi {
+  stroke: #26c6da;
+}
+
+.historical-indicator-line.macd {
+  stroke: #26c6da;
+}
+
+.historical-indicator-line.macd-signal {
+  stroke: #f8c15c;
+}
+
+.historical-indicator-reference {
+  stroke: rgba(133, 156, 171, 0.22);
+  stroke-dasharray: 4 4;
+  stroke-width: 1;
+}
+
+.historical-indicator-reference.overbought {
+  stroke: rgba(255, 90, 102, 0.45);
+}
+
+.historical-indicator-reference.oversold {
+  stroke: rgba(37, 208, 132, 0.38);
+}
+
+.historical-indicator-reference.zero {
+  stroke: rgba(201, 213, 220, 0.28);
+}
+
+.historical-macd-histogram {
+  fill: none;
+  stroke-width: 2;
+}
+
+.historical-macd-histogram.positive {
+  stroke: rgba(37, 208, 132, 0.52);
+}
+
+.historical-macd-histogram.negative {
+  stroke: rgba(255, 90, 102, 0.52);
+}
+
 .historical-equity-panel {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -1479,6 +1588,7 @@ td {
   .uat-workstation-grid,
   .uat-topbar-selects,
   .historical-replay-controls,
+  .historical-indicator-panes,
   .indicator-grid,
   .lifecycle-timeline,
   .uat-right-rail {

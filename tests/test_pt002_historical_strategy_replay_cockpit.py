@@ -212,10 +212,17 @@ def test_dashboard_has_historical_replay_tab_and_stable_chart_container() -> Non
     assert "strategy_id" in js
     assert "Replay strategy:" in js
     assert "renderHistoricalReplayChart" in js
+    assert "renderHistoricalRsiPane" in js
+    assert "renderHistoricalMacdPane" in js
+    assert "historicalOscillatorRows" in js
     assert "historicalChartMarkers" in js
     assert ".historical-replay-chart .tradingview-lightweight-chart" in css
     assert "height: clamp(440px, 58vh, 700px);" in css
     assert "contain: layout paint size;" in css
+    assert ".historical-indicator-panes" in css
+    assert ".historical-indicator-line.rsi" in css
+    assert ".historical-indicator-line.macd" in css
+    assert ".historical-macd-histogram" in css
 
 
 def test_dashboard_separates_historical_replay_from_sandbox_execution_and_has_no_order_controls() -> None:

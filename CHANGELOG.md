@@ -13,6 +13,27 @@ Entry schema:
 
 ---
 
+## v2026.05.11.013
+
+- `recorded_at_utc`: `2026-05-11T16:35:57Z`
+- `scope`: `Historical Replay RSI/MACD indicator visibility`
+- `intent`: `Native entry. Fixed the Historical Replay chart usability gap where RSI and MACD were available only in export/trade-inspector data but were not visible as chart indicators. The replay chart now renders bounded RSI 14 and MACD indicator panes directly below the historical candlestick chart while preserving EMA5/EMA10/SMA20 overlays on the price chart. The MACD pane shows histogram, MACD line, and signal line; the RSI pane shows 70/30 reference levels. This is dashboard visualization only and adds no orders, order controls, private/signed/order endpoints, live endpoint use, exchange API keys, Money Flow rule changes, routing behavior, or evidence packs.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `docs/pt0_0_2_historical_strategy_replay_cockpit.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `tests/test_pt002_historical_strategy_replay_cockpit.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_pt002_historical_strategy_replay_cockpit.py`
+  - `git diff --check`
+
 ## v2026.05.11.012
 
 - `recorded_at_utc`: `2026-05-11T15:46:08Z`

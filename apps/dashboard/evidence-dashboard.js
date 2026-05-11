@@ -2490,6 +2490,130 @@
       .sort((a, b) => a.time - b.time);
   }
 
+  function historicalOscillatorRows(replay, key) {
+    return (replay?.indicators || [])
+      .map((row) => ({
+        time: chartTime(row.timestamp_utc || row.time),
+        value: decimal(row[key], NaN),
+      }))
+      .filter((row) => Number.isFinite(row.time) && Number.isFinite(row.value))
+      .sort((a, b) => a.time - b.time);
+  }
+
+  function historicalIndicatorPointPath(rows, minValue, maxValue, width = 600, height = 116) {
+    if (rows.length < 2) return "";
+    const pad = 10;
+    const valueSpan = maxValue - minValue || 1;
+    return rows
+      .map((row, index) => {
+        const x = pad + (index / (rows.length - 1)) * (width - pad * 2);
+        const y = pad + ((maxValue - row.value) / valueSpan) * (height - pad * 2);
+        return `${x.toFixed(2)},${y.toFixed(2)}`;
+      })
+      .join(" ");
+  }
+
+  function historicalIndicatorY(value, minValue, maxValue, height = 116) {
+    const pad = 10;
+    const valueSpan = maxValue - minValue || 1;
+    return pad + ((maxValue - value) / valueSpan) * (height - pad * 2);
+  }
+
+  function historicalMacdRange(...groups) {
+    const values = groups.flat().map((row) => row.value).filter(Number.isFinite);
+    values.push(0);
+    if (!values.length) return { min: -1, max: 1 };
+    let min = Math.min(...values);
+    let max = Math.max(...values);
+    if (min === max) {
+      min -= 1;
+      max += 1;
+    }
+    const pad = Math.max((max - min) * 0.12, 0.000001);
+    return { min: min - pad, max: max + pad };
+  }
+
+  function renderHistoricalRsiPane(replay) {
+    const rows = historicalOscillatorRows(replay, "RSI");
+    if (rows.length < 2) {
+      return `
+        <section id="historical-rsi-pane" class="historical-indicator-pane unavailable" data-indicator-pane="rsi">
+          <header><strong>RSI 14</strong><span>indicator_unavailable_insufficient_history</span></header>
+        </section>
+      `;
+    }
+    const latest = rows.at(-1);
+    const points = historicalIndicatorPointPath(rows, 0, 100);
+    const y70 = historicalIndicatorY(70, 0, 100).toFixed(2);
+    const y30 = historicalIndicatorY(30, 0, 100).toFixed(2);
+    return `
+      <section id="historical-rsi-pane" class="historical-indicator-pane" data-indicator-pane="rsi">
+        <header>
+          <strong>RSI 14</strong>
+          <span>latest ${escapeHtml(compactNumber(latest?.value))}</span>
+        </header>
+        <svg class="historical-indicator-svg" viewBox="0 0 600 116" role="img" aria-label="Historical replay RSI indicator pane">
+          <line class="historical-indicator-reference overbought" x1="10" y1="${y70}" x2="590" y2="${y70}"></line>
+          <line class="historical-indicator-reference oversold" x1="10" y1="${y30}" x2="590" y2="${y30}"></line>
+          <polyline class="historical-indicator-line rsi" points="${points}"></polyline>
+        </svg>
+        <footer><span>70 overbought</span><span>30 oversold</span><span>historical replay only</span></footer>
+      </section>
+    `;
+  }
+
+  function renderHistoricalMacdPane(replay) {
+    const macd = historicalOscillatorRows(replay, "MACD");
+    const signal = historicalOscillatorRows(replay, "MACD_signal");
+    const histogram = historicalOscillatorRows(replay, "MACD_histogram");
+    if (macd.length < 2 || signal.length < 2) {
+      return `
+        <section id="historical-macd-pane" class="historical-indicator-pane unavailable" data-indicator-pane="macd">
+          <header><strong>MACD</strong><span>indicator_unavailable_insufficient_history</span></header>
+        </section>
+      `;
+    }
+    const range = historicalMacdRange(macd, signal, histogram);
+    const zeroY = historicalIndicatorY(0, range.min, range.max).toFixed(2);
+    const macdPoints = historicalIndicatorPointPath(macd, range.min, range.max);
+    const signalPoints = historicalIndicatorPointPath(signal, range.min, range.max);
+    const latestMacd = macd.at(-1);
+    const latestSignal = signal.at(-1);
+    const barWidth = Math.max(1, 560 / Math.max(histogram.length, 1));
+    const histogramPaths = { positive: [], negative: [] };
+    histogram.forEach((row, index) => {
+      const x = 10 + index * barWidth;
+      const y = historicalIndicatorY(row.value, range.min, range.max);
+      const isPositive = row.value >= 0;
+      histogramPaths[isPositive ? "positive" : "negative"].push(`M${x.toFixed(2)},${zeroY}L${x.toFixed(2)},${y.toFixed(2)}`);
+    });
+    return `
+      <section id="historical-macd-pane" class="historical-indicator-pane" data-indicator-pane="macd">
+        <header>
+          <strong>MACD</strong>
+          <span>macd ${escapeHtml(compactNumber(latestMacd?.value))} / signal ${escapeHtml(compactNumber(latestSignal?.value))}</span>
+        </header>
+        <svg class="historical-indicator-svg" viewBox="0 0 600 116" role="img" aria-label="Historical replay MACD indicator pane">
+          <line class="historical-indicator-reference zero" x1="10" y1="${zeroY}" x2="590" y2="${zeroY}"></line>
+          <path class="historical-macd-histogram positive" d="${histogramPaths.positive.join("")}"></path>
+          <path class="historical-macd-histogram negative" d="${histogramPaths.negative.join("")}"></path>
+          <polyline class="historical-indicator-line macd" points="${macdPoints}"></polyline>
+          <polyline class="historical-indicator-line macd-signal" points="${signalPoints}"></polyline>
+        </svg>
+        <footer><span>green/red histogram</span><span>cyan MACD</span><span>amber signal</span></footer>
+      </section>
+    `;
+  }
+
+  function renderHistoricalIndicatorPanes(replay) {
+    return `
+      <div class="historical-indicator-panes" data-historical-indicator-panes>
+        ${renderHistoricalRsiPane(replay)}
+        ${renderHistoricalMacdPane(replay)}
+      </div>
+    `;
+  }
+
   function historicalChartMarkers(replay, candles) {
     if (!candles.length) return [];
     const firstTime = candles[0].time;
@@ -2551,6 +2675,10 @@
     if (chartState.lastVisibleRange && typeof timeScale?.setVisibleLogicalRange === "function") {
       timeScale.setVisibleLogicalRange(chartState.lastVisibleRange);
     }
+    const panes = elements.historicalReplayChart?.querySelector("[data-historical-indicator-panes]");
+    if (panes) {
+      panes.outerHTML = renderHistoricalIndicatorPanes(replay);
+    }
     scheduleHistoricalReplayChartResize();
   }
 
@@ -2593,6 +2721,7 @@
           <small>C ${escapeHtml(priceStats.close)}</small>
         </aside>
       </div>
+      ${renderHistoricalIndicatorPanes(replay)}
       <div class="tradingview-attribution">Charts: TradingView Lightweight Charts v${TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION} (Apache-2.0). Historical replay data only; Hyperliquid testnet prices are not strategy truth.</div>
     `;
     const mount = elements.historicalReplayChart.querySelector(".tradingview-lightweight-chart");
