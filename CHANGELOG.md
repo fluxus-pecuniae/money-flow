@@ -13,6 +13,20 @@ Entry schema:
 
 ---
 
+## v2026.05.11.009
+
+- `recorded_at_utc`: `2026-05-11T12:43:30Z`
+- `scope`: `Dashboard UAT cockpit summary-header simplification`
+- `intent`: `Native entry. Reduced the UAT cockpit summary-card header strip to the single Environment card requested by the founder/operator. The symbol/timeframe selectors, chart, watchlist, right rail, blotter tabs, safety banners, public-read-only chart polling, and no-order/no-live boundaries remain unchanged. No order controls, private/signed/order endpoints, exchange API keys, live endpoint use, Money Flow rule changes, routing changes, or sandbox orders were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `git diff --check`
+
 ## v2026.05.11.008
 
 - `recorded_at_utc`: `2026-05-11T12:24:11Z`

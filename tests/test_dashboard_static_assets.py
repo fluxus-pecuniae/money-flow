@@ -111,3 +111,28 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "calls_exchange_order_endpoints" in js
     assert "Manual review" in js
     assert "paper_trading_auto_approved" not in js
+
+
+def test_uat_cockpit_summary_header_only_shows_environment_card() -> None:
+    js = Path("apps/dashboard/evidence-dashboard.js").read_text(encoding="utf-8")
+    start = js.index("function renderUatCockpitSummaryCards()")
+    end = js.index("function renderUatWatchlist()", start)
+    summary_renderer = js[start:end]
+
+    assert '["Environment", "sandbox/testnet", "no live endpoint"]' in summary_renderer
+    for removed_label in (
+        '["Market"',
+        '["Timeframe"',
+        '["Charting"',
+        '["Live chart"',
+        '["Paper"',
+        '["Top-20"',
+        '["Signal"',
+        '["Route"',
+        '["Records"',
+        '["Paper equity"',
+        '["Balance poll"',
+        '["Orders"',
+        '["Live / capital"',
+    ):
+        assert removed_label not in summary_renderer

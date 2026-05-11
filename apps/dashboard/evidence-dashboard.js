@@ -2410,32 +2410,8 @@
 
   function renderUatCockpitSummaryCards() {
     if (!elements.uatCockpitSummaryCards) return;
-    const records = uatRecords();
-    const ledger = routedLedgerRecords();
-    const activeRecord = selectedCockpitRecord();
-    const activePaperSignal = uat42SignalFor(state.uatCockpit.symbol, state.uatCockpit.timeframe);
-    const activeStatus = activePaperSignal?.status || activeRecord?.signal_status || "no_data";
-    const routeStatus = state.uat34Summary?.route_definition?.route_id ? "ETH route ledger visible" : "route not loaded";
-    const paperEquity = uat42PaperEquity();
-    const poll = uat42Polling();
-    const live = state.liveMarketData || {};
-    const pt0Approvals = pt0ApprovalSummary();
-    const eligibleCount = (state.pt0Summary?.paper_universe || []).filter((row) => row.paper_eligibility === "eligible").length;
     const cards = [
       ["Environment", "sandbox/testnet", "no live endpoint"],
-      ["Market", `${state.uatCockpit.symbol}-PERP`, "Hyperliquid"],
-      ["Timeframe", state.uatCockpit.timeframe, "15m / 1h / 4h"],
-      ["Charting", `TradingView Lightweight Charts ${TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION}`, "local official bundle"],
-      ["Live chart", live.status || "not_started", live.lastUpdatedUtc || "public-read-only testnet"],
-      ["Paper", pt0Approvals.paper_trading || "PAPER TRADING IS APPROVED.", "testnet/sandbox only"],
-      ["Top-20", `${eligibleCount || 0}/${UAT_WATCHLIST_SYMBOLS.length} eligible`, pt0Approvals.broader_top20 || "approval loaded from PT0 summary"],
-      ["Signal", activeStatus, activePaperSignal ? "paper observation scanner" : "shadow audit status"],
-      ["Route", routeStatus, "fixed-target only"],
-      ["Records", `${records.length} shadow / ${ledger.length} routed / ${uat42MarketRows().length} market`, "local refresh JSON"],
-      ["Paper equity", paperEquity.current_paper_equity || "not loaded", "internal simulation"],
-      ["Balance poll", `${poll.poll_interval_seconds || 60}s`, "sandbox private read-only"],
-      ["Orders", "controls disabled", "visualization only"],
-      ["Live / capital", "not real capital", "live not approved"],
     ];
     elements.uatCockpitSummaryCards.innerHTML = cards
       .map(([label, value, detail]) => `
