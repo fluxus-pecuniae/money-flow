@@ -380,6 +380,7 @@ h3 {
 .exchange-workstation {
   display: grid;
   gap: var(--spacing-5);
+  min-height: 0;
 }
 
 .uat-topbar {
@@ -587,7 +588,9 @@ h3 {
 
 .uat-center-cockpit {
   display: grid;
-  grid-template-rows: auto minmax(390px, 1fr) auto auto;
+  grid-template-rows: auto auto auto auto;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .chart-header-meta {
@@ -612,6 +615,9 @@ h3 {
 .exchange-chart-shell {
   display: grid;
   gap: var(--spacing-4);
+  min-height: 0;
+  overflow: hidden;
+  contain: layout paint;
   padding: var(--spacing-5);
   background:
     radial-gradient(circle at 82% 12%, rgba(40, 215, 197, 0.1), transparent 28%),
@@ -638,8 +644,11 @@ h3 {
 }
 
 .tradingview-lightweight-chart {
-  min-height: 430px;
+  height: clamp(420px, 56vh, 680px);
+  min-height: 0;
+  max-height: 680px;
   overflow: hidden;
+  contain: layout paint size;
   border: 1px solid var(--color-line);
   border-radius: var(--radius-md);
   background: #071014;

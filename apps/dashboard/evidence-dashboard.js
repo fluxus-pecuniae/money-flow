@@ -46,6 +46,15 @@
     "metaAndAssetCtxs",
   ]);
 
+  function livePollingDisabledByQuery() {
+    try {
+      const params = new URLSearchParams(window.location.search || "");
+      return params.get("disableLivePolling") === "true" || params.get("livePolling") === "false";
+    } catch (_error) {
+      return false;
+    }
+  }
+
   const UAT_WATCHLIST_SYMBOLS = [
     "BTC",
     "ETH",
@@ -456,14 +465,22 @@
     pt0Summary: null,
     tradingViewChart: {
       chart: null,
+      mount: null,
+      candleSeries: null,
+      volumeSeries: null,
+      indicatorSeries: {},
       key: null,
       markerHandle: null,
       resizeObserver: null,
+      pendingResizeFrame: null,
       ready: false,
+      fitContentApplied: false,
+      lastVisibleRange: null,
     },
     liveMarketData: {
-      enabled: true,
-      status: "not_started",
+      enabled: !livePollingDisabledByQuery(),
+      status: livePollingDisabledByQuery() ? "live_public_polling_disabled" : "not_started",
+      disabledReason: livePollingDisabledByQuery() ? "query_flag" : null,
       endpoint: HYPERLIQUID_TESTNET_PUBLIC_INFO_URL,
       refreshMs: LIVE_MARKET_REFRESH_MS,
       lastUpdatedUtc: null,
@@ -705,6 +722,9 @@
     elements.viewPanels.forEach((panel) => {
       panel.hidden = panel.dataset.viewPanel !== state.activeView;
     });
+    if (state.activeView === "uat-cockpit") {
+      scheduleTradingViewResize();
+    }
   }
 
   function renderMetrics(summaries) {
@@ -1965,6 +1985,14 @@
 
   function destroyTradingViewChart() {
     const chartState = state.tradingViewChart;
+    if (chartState.pendingResizeFrame) {
+      if (typeof window.cancelAnimationFrame === "function") {
+        window.cancelAnimationFrame(chartState.pendingResizeFrame);
+      } else {
+        window.clearTimeout(chartState.pendingResizeFrame);
+      }
+      chartState.pendingResizeFrame = null;
+    }
     if (chartState.resizeObserver) {
       chartState.resizeObserver.disconnect();
       chartState.resizeObserver = null;
@@ -1973,9 +2001,15 @@
       chartState.chart.remove();
       chartState.chart = null;
     }
+    chartState.mount = null;
+    chartState.candleSeries = null;
+    chartState.volumeSeries = null;
+    chartState.indicatorSeries = {};
     chartState.markerHandle = null;
     chartState.key = null;
     chartState.ready = false;
+    chartState.fitContentApplied = false;
+    chartState.lastVisibleRange = null;
   }
 
   function chartTime(timestamp) {
@@ -2049,22 +2083,110 @@
     });
   }
 
+  function selectedChartKey() {
+    return `${state.uatCockpit.symbol}|${state.uatCockpit.timeframe}`;
+  }
+
+  function chartDimensions(mount) {
+    const rect = mount.getBoundingClientRect();
+    const width = Math.max(320, Math.floor(rect.width || mount.clientWidth || 720));
+    const height = Math.max(320, Math.floor(rect.height || mount.clientHeight || 520));
+    return { width, height };
+  }
+
+  function resizeTradingViewChart() {
+    const chartState = state.tradingViewChart;
+    if (!chartState.chart || !chartState.mount) return;
+    const { width, height } = chartDimensions(chartState.mount);
+    chartState.chart.resize(width, height);
+  }
+
+  function scheduleTradingViewResize() {
+    const chartState = state.tradingViewChart;
+    if (!chartState.chart || !chartState.mount) return;
+    if (chartState.pendingResizeFrame) return;
+    const raf = typeof window.requestAnimationFrame === "function"
+      ? window.requestAnimationFrame
+      : (callback) => window.setTimeout(callback, 16);
+    chartState.pendingResizeFrame = raf(() => {
+      chartState.pendingResizeFrame = null;
+      resizeTradingViewChart();
+    });
+  }
+
+  function chartPriceRows(candles) {
+    return candles.map(({ time, open, high, low, close }) => ({ time, open, high, low, close }));
+  }
+
+  function chartVolumeRows(candles) {
+    return candles.map((candle) => ({
+      time: candle.time,
+      value: candle.volume,
+      color: candle.close >= candle.open ? "rgba(37, 208, 132, 0.26)" : "rgba(255, 90, 102, 0.26)",
+    }));
+  }
+
+  function updateTradingViewChartData(candles) {
+    const chartState = state.tradingViewChart;
+    if (!chartState.candleSeries || !chartState.volumeSeries) return;
+    const timeScale = chartState.chart?.timeScale?.();
+    chartState.lastVisibleRange = timeScale?.getVisibleLogicalRange?.() || null;
+    chartState.candleSeries.setData(chartPriceRows(candles));
+    chartState.volumeSeries.setData(chartVolumeRows(candles));
+    [
+      ["EMA5", 5],
+      ["EMA10", 10],
+      ["SMA20", 20],
+    ].forEach(([label, period]) => {
+      chartState.indicatorSeries[label]?.setData(indicatorSeries(candles, label, period));
+    });
+    const markers = chartMarkers(candles);
+    if (chartState.markerHandle && typeof chartState.markerHandle.setMarkers === "function") {
+      chartState.markerHandle.setMarkers(markers);
+    } else if (typeof chartState.candleSeries.setMarkers === "function") {
+      chartState.candleSeries.setMarkers(markers);
+    }
+    const updatedTimeScale = chartState.chart?.timeScale?.();
+    if (chartState.lastVisibleRange && typeof updatedTimeScale?.setVisibleLogicalRange === "function") {
+      updatedTimeScale.setVisibleLogicalRange(chartState.lastVisibleRange);
+    }
+    scheduleTradingViewResize();
+  }
+
+  function updateTradingViewTopline(market, record, candles) {
+    const symbolTarget = elements.uatPriceChart?.querySelector("[data-chart-symbol]");
+    const candleTarget = elements.uatPriceChart?.querySelector("[data-chart-candle]");
+    const latestTarget = elements.uatPriceChart?.querySelector("[data-chart-latest]");
+    if (symbolTarget) symbolTarget.textContent = `${state.uatCockpit.symbol}-PERP`;
+    if (candleTarget) {
+      candleTarget.textContent = `${state.uatCockpit.timeframe} latest candle ${market?.last_candle_close_time || record?.candle_close_time_utc || "n/a"}`;
+    }
+    if (latestTarget) latestTarget.textContent = compactNumber(market?.latest_price || candles.at(-1)?.close || "n/a");
+  }
+
   function renderTradingViewLightweightChart(record, market) {
     const tv = lightweightCharts();
     if (!elements.uatPriceChart || !tv) return false;
     const candles = chartCandles(market);
     if (!candles.length) return false;
-    destroyTradingViewChart();
+    const chartState = state.tradingViewChart;
+    const chartKey = selectedChartKey();
+    if (chartState.ready && chartState.key === chartKey && chartState.chart && chartState.candleSeries && chartState.volumeSeries) {
+      updateTradingViewTopline(market, record, candles);
+      updateTradingViewChartData(candles);
+      return true;
+    }
 
+    destroyTradingViewChart();
     elements.uatPriceChart.innerHTML = `
       <div class="tradingview-chart-topline">
         <div>
-          <strong>${escapeHtml(state.uatCockpit.symbol)}-PERP</strong>
-          <span>${escapeHtml(state.uatCockpit.timeframe)} latest candle ${escapeHtml(market?.last_candle_close_time || record?.candle_close_time_utc || "n/a")}</span>
+          <strong data-chart-symbol>${escapeHtml(state.uatCockpit.symbol)}-PERP</strong>
+          <span data-chart-candle>${escapeHtml(state.uatCockpit.timeframe)} latest candle ${escapeHtml(market?.last_candle_close_time || record?.candle_close_time_utc || "n/a")}</span>
         </div>
         <div class="chart-price-tape">
           <span>Latest</span>
-          <strong>${escapeHtml(compactNumber(market?.latest_price || candles.at(-1)?.close || "n/a"))}</strong>
+          <strong data-chart-latest>${escapeHtml(compactNumber(market?.latest_price || candles.at(-1)?.close || "n/a"))}</strong>
         </div>
       </div>
       <div class="tradingview-lightweight-chart" role="img" aria-label="TradingView Lightweight Charts candlestick chart"></div>
@@ -2072,8 +2194,10 @@
     `;
 
     const mount = elements.uatPriceChart.querySelector(".tradingview-lightweight-chart");
+    const { width, height } = chartDimensions(mount);
     const chart = tv.createChart(mount, {
-      autoSize: true,
+      width,
+      height,
       layout: {
         background: { type: tv.ColorType.Solid, color: "#071014" },
         textColor: "#c9d5dc",
@@ -2102,7 +2226,7 @@
       wickUpColor: "#25d084",
       wickDownColor: "#ff5a66",
     });
-    candleSeries.setData(candles.map(({ time, open, high, low, close }) => ({ time, open, high, low, close })));
+    candleSeries.setData(chartPriceRows(candles));
 
     const volumeSeries = chart.addSeries(tv.HistogramSeries, {
       priceFormat: { type: "volume" },
@@ -2110,12 +2234,9 @@
       color: "rgba(107, 132, 145, 0.35)",
     });
     chart.priceScale("volume").applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
-    volumeSeries.setData(candles.map((candle) => ({
-      time: candle.time,
-      value: candle.volume,
-      color: candle.close >= candle.open ? "rgba(37, 208, 132, 0.26)" : "rgba(255, 90, 102, 0.26)",
-    })));
+    volumeSeries.setData(chartVolumeRows(candles));
 
+    const lineSeries = {};
     [
       ["EMA5", 5, "#26c6da"],
       ["EMA10", 10, "#f8c15c"],
@@ -2129,6 +2250,7 @@
         title: label,
       });
       line.setData(indicatorSeries(candles, label, period));
+      lineSeries[label] = line;
     });
 
     const markers = chartMarkers(candles);
@@ -2138,13 +2260,18 @@
       candleSeries.setMarkers(markers);
     }
     chart.timeScale().fitContent();
-    state.tradingViewChart.chart = chart;
-    state.tradingViewChart.key = `${state.uatCockpit.symbol}|${state.uatCockpit.timeframe}|${candles.at(-1)?.time}`;
-    state.tradingViewChart.ready = true;
+    chartState.chart = chart;
+    chartState.mount = mount;
+    chartState.candleSeries = candleSeries;
+    chartState.volumeSeries = volumeSeries;
+    chartState.indicatorSeries = lineSeries;
+    chartState.key = chartKey;
+    chartState.ready = true;
+    chartState.fitContentApplied = true;
     if (typeof ResizeObserver !== "undefined") {
-      const observer = new ResizeObserver(() => chart.applyOptions({ autoSize: true }));
+      const observer = new ResizeObserver(scheduleTradingViewResize);
       observer.observe(mount);
-      state.tradingViewChart.resizeObserver = observer;
+      chartState.resizeObserver = observer;
     }
     return true;
   }
@@ -2185,6 +2312,10 @@
     if (!elements.uatLiveChartStatus) return;
     const live = state.liveMarketData || {};
     const status = live.status || "not_started";
+    if (!live.enabled) {
+      elements.uatLiveChartStatus.textContent = `Live chart: live_public_polling_disabled; local PT0/UAT4.2 fallback only; no Hyperliquid public polling; refresh ${Math.round(LIVE_MARKET_REFRESH_MS / 1000)}s disabled`;
+      return;
+    }
     const updated = live.lastUpdatedUtc ? `last update ${live.lastUpdatedUtc}` : "waiting for first update";
     const error = live.error ? `; ${live.error}` : "";
     elements.uatLiveChartStatus.textContent = `Live chart: ${status}; public-read-only testnet; ${updated}; refresh ${Math.round(LIVE_MARKET_REFRESH_MS / 1000)}s${error}`;
@@ -2959,6 +3090,9 @@
 
   function liveChartDisclaimer() {
     const live = state.liveMarketData || {};
+    if (!live.enabled) {
+      return "Live public chart polling is disabled by query flag. Dashboard is using committed PT0/UAT4.2 local summary JSON only. No API keys, private order endpoints, signed order endpoints, order endpoints, or live endpoints are used.";
+    }
     if (live.status === "live_public_read_only_connected") {
       return `TradingView Lightweight Charts is rendering Hyperliquid testnet public info every ${Math.round(LIVE_MARKET_REFRESH_MS / 1000)} seconds. No API keys, private order endpoints, signed order endpoints, order endpoints, or live endpoints are used.`;
     }

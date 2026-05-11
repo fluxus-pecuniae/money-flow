@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-11T08:08:44Z`
+Last reviewed: `2026-05-11T11:42:10Z`
 
 ## Top-Level Structure
 
@@ -151,6 +151,8 @@ Last reviewed: `2026-05-11T08:08:44Z`
 - UAT4.0 adds the read-only UAT Chart Cockpit from committed UAT2/UAT3.4 summaries.
 - UAT4.1 rebuilds that cockpit into an exchange-style workstation with compact top bar, left market rail, central chart cockpit, right order-book/market/signal/risk rail, bottom blotter tabs, and the canonical `apps/dashboard/DESIGN.md` design system. It remains local-summary-only and adds no order, cancel, retry, amend, approval, paper/live, route, or auto-trade controls.
 - UAT4.2 wires the cockpit to `docs/uat4_2_live_market_dashboard_and_paper_equity_monitor_summary.json`, showing refreshed public-read-only market data, deterministic indicators, paper-observation markers, internal paper-equity state, sandbox balance-poll policy, and explicit positions/unavailable-state visibility. It still adds no order, cancel, retry, amend, approval, live, route, or auto-trade controls.
+- PT0 adds the official local TradingView Lightweight Charts bundle for the UAT/PT cockpit and browser-side Hyperliquid testnet public candle polling.
+- PT0.0.1 stabilizes the TradingView chart by bounding chart height, containing parent chart layout, reusing chart/series handles across 15-second public refreshes, removing the `autoSize` / ResizeObserver `applyOptions` feedback-loop risk, limiting `fitContent()` to new symbol/timeframe initialization, and adding query flags to disable public polling while using local PT0/UAT4.2 JSON fallback. It adds no order controls and calls no private/signed/order/live endpoints.
 
 `docs/uat0_safety_security_runtime_hardening.md`
 - Founder/operator UAT0 safety, security, runtime, and operational-readiness audit.
@@ -279,6 +281,10 @@ Last reviewed: `2026-05-11T08:08:44Z`
 `docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime_summary.json`
 - Dashboard-consumed PT0 paper/sandbox runtime summary.
 - Records official local TradingView Lightweight Charts bundle metadata, paper approval statements, top-20 paper universe eligibility, paper scanner records, internal 10,000 USDC paper-equity state, sizing policy, 60-second sandbox private-read-only polling policy, PT0 runtime limits, and routing side-effect flags.
+
+`docs/pt0_0_1_tradingview_chart_stability_hotfix.md`
+- Founder/operator PT0.0.1 hotfix report.
+- Records the P0 chart vertical-growth/page-scroll bug, root cause, chart sizing fix, chart lifecycle fix, polling/timer fix, manual verification status, no-order/no-live confirmation, remaining browser-regression limitation, and PT0.1 next-phase note.
 
 `apps/dashboard/vendor/`
 - PT0 vendored third-party charting bundle from the official `lightweight-charts` package.
@@ -862,3 +868,6 @@ Last reviewed: `2026-05-11T08:08:44Z`
 
 `tests/test_uat42_live_market_dashboard_paper_equity.py`
 - UAT4.2 dashboard/runtime monitor checks: verifies public-read-only market-data policy, watchlist coverage, deterministic indicators and insufficient-history labeling, observation-only scanner side effects, 60-second sandbox private-read-only balance polling policy, internal 10,000 USDC paper-equity ledger math, sizing from current paper equity, dashboard live-monitor surfaces, marker semantics, no order controls, report existence, and PT0 roadmap capture.
+
+`tests/test_pt001_tradingview_chart_stability.py`
+- PT0.0.1 dashboard stability checks: verifies explicit chart height, parent containment, no `autoSize` chart feedback loop, refresh-time series updates without chart destruction, single polling timer guard, live-polling disable query flags, public-read-only endpoint boundaries, no order controls, and no live/paper toggle enabling live.

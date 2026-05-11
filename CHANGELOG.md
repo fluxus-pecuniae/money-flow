@@ -13,6 +13,42 @@ Entry schema:
 
 ---
 
+## v2026.05.11.007
+
+- `recorded_at_utc`: `2026-05-11T11:42:10Z`
+- `scope`: `PT0.0.1 TradingView chart stability P0 hotfix`
+- `intent`: `Native entry. Fixed the founder-reported dashboard P0 where the TradingView Lightweight Charts region could grow/scroll the page downward and then jump back on the 15-second public market refresh. The hotfix gives the chart a stable bounded container height, removes the Lightweight Charts autoSize / ResizeObserver applyOptions feedback-loop risk, reuses the existing chart and series handles across live refreshes, restricts fitContent to initial symbol/timeframe creation, preserves the single polling timer guard, and adds query flags to disable browser-side public polling while falling back to local PT0/UAT4.2 JSON. PT0.0.1 adds no order controls, submits no orders, calls no private/signed/order endpoints, uses no exchange API keys, calls no live endpoint, changes no Money Flow rules, and does not alter PT0 paper/sandbox routing policy.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime.md`
+  - `docs/pt0_0_1_tradingview_chart_stability_hotfix.md`
+  - `tests/test_operational_docs.py`
+  - `tests/test_pt001_tradingview_chart_stability.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt001_tradingview_chart_stability.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt0_tradingview_paper_sandbox_runtime.py tests/test_uat42_live_market_dashboard_paper_equity.py tests/test_uat41_exchange_dashboard_redesign.py tests/test_uat40_dashboard_chart_cockpit.py tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt0.0.1-review.zip`
+
 ## v2026.05.11.006
 
 - `recorded_at_utc`: `2026-05-11T10:32:00Z`

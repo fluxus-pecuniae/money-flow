@@ -1,6 +1,6 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-05-11T10:32:00Z`
+Last reviewed: `2026-05-11T11:42:10Z`
 
 ## Open Items
 
@@ -15,7 +15,7 @@ Last reviewed: `2026-05-11T10:32:00Z`
 
 - `status`: `open`
 - `area`: `PT0 paper/sandbox runtime supervision`
-- `summary`: `PT0 approves and implements the Hyperliquid testnet/sandbox paper-runtime foundation with TradingView Lightweight Charts, top-20 paper eligibility, internal 10,000 USDC paper equity, 60-second sandbox private-read-only balance polling policy, and risk-gated route-candidate modeling, but continuous supervised runtime operation is not yet implemented.`
+- `summary`: `PT0 approves and implements the Hyperliquid testnet/sandbox paper-runtime foundation with TradingView Lightweight Charts, top-20 paper eligibility, internal 10,000 USDC paper equity, 60-second sandbox private-read-only balance polling policy, and risk-gated route-candidate modeling. PT0.0.1 resolves the P0 TradingView chart vertical-growth/page-scroll hotfix by stabilizing chart sizing and refresh lifecycle. Continuous supervised runtime operation is not yet implemented.`
 - `impact`: `PT0.1 must still scope continuous scanner execution, real-time paper-equity/PnL updates, supervised top-20 paper/sandbox route-candidate handling, operational no-live smoke checks, and runtime monitoring before the founder can leave the system running throughout the week. Live trading, real capital, live keys, production auto-submit, SOR/fanout/CBBO/target reselection, cross-venue routing, and Money Flow rule changes remain not approved.`
 
 ### K-014

@@ -4,7 +4,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 UAT validates plumbing and behavior. It does not prove profitability.
 
-Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, UAT1.1 shadow readiness is complete, UAT2 bounded no-order shadow strategy observation is complete, UAT2.1 dashboard visualization is complete, UAT3.0 sandbox-order design/readiness is complete, UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete, UAT3.0.2 sandbox gate integration dry-run / policy hardening is complete, UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete, UAT3.0.4 sandbox private read-only drawdown readiness is complete, UAT3.0.5 sandbox/testnet private read-only drawdown verification is complete, UAT3.0.6 sandbox submit path dry-run wiring is complete, UAT3.1 first sandbox/testnet lifecycle probe is complete, UAT3.2 fixed-key preflight / second sandbox lifecycle attempt is complete as blocked before order transport, UAT3.3 Hyperliquid account-targeting / precision hardening is complete with a later successful follow-up lifecycle, UAT3.4 fixed-target sandbox routing / routed-order ledger is complete, UAT4.0 read-only dashboard/chart cockpit is complete, UAT4.1 exchange-style dashboard redesign is complete, UAT4.2 live market dashboard / internal paper-equity monitor is complete, and PT0 TradingView charts plus top-20 paper/sandbox runtime foundation is complete. PAPER TRADING IS APPROVED. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED. Live trading and real-capital trading remain not approved.
+Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, UAT1.1 shadow readiness is complete, UAT2 bounded no-order shadow strategy observation is complete, UAT2.1 dashboard visualization is complete, UAT3.0 sandbox-order design/readiness is complete, UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete, UAT3.0.2 sandbox gate integration dry-run / policy hardening is complete, UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete, UAT3.0.4 sandbox private read-only drawdown readiness is complete, UAT3.0.5 sandbox/testnet private read-only drawdown verification is complete, UAT3.0.6 sandbox submit path dry-run wiring is complete, UAT3.1 first sandbox/testnet lifecycle probe is complete, UAT3.2 fixed-key preflight / second sandbox lifecycle attempt is complete as blocked before order transport, UAT3.3 Hyperliquid account-targeting / precision hardening is complete with a later successful follow-up lifecycle, UAT3.4 fixed-target sandbox routing / routed-order ledger is complete, UAT4.0 read-only dashboard/chart cockpit is complete, UAT4.1 exchange-style dashboard redesign is complete, UAT4.2 live market dashboard / internal paper-equity monitor is complete, PT0 TradingView charts plus top-20 paper/sandbox runtime foundation is complete, and PT0.0.1 TradingView chart stability P0 hotfix is complete. PAPER TRADING IS APPROVED. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED. Live trading and real-capital trading remain not approved.
 
 ## Frozen Observation Candidate
 
@@ -308,11 +308,21 @@ Allowed behavior: Hyperliquid testnet/sandbox only, internal 10,000 USDC paper-e
 
 Forbidden behavior: live trading, real-capital trading, live exchange API keys, production auto-submit, unbounded automation, smart routing/SOR/fanout/CBBO, cross-venue routing, Money Flow rule changes, strategy optimization, market-making, unsupported assets, and live endpoint use.
 
+## PT0.0.1 — TradingView Chart Stability P0 Hotfix
+
+Objective: fix the founder-reported chart/page auto-scroll and vertical-growth P0 before any supervised runtime week.
+
+Status: complete. The dashboard now bounds the TradingView chart height, contains parent chart layout, reuses existing chart/series handles across 15-second public refreshes, removes the `autoSize` / ResizeObserver `applyOptions` feedback-loop risk, limits `fitContent()` to new symbol/timeframe initialization, keeps a single polling timer guard, and supports live-polling disable query flags for local JSON fallback.
+
+Allowed behavior: frontend chart stability fixes, public-read-only chart refresh preservation, local JSON fallback, docs, and tests.
+
+Forbidden behavior: order submission, order controls, private/signed/order endpoint calls, live endpoint use, exchange API-key use, live trading, Money Flow rule changes, SOR/fanout/CBBO/target reselection, or routing-policy changes.
+
 ## PT0.1 — Supervised Top-20 Paper/Sandbox Runtime Week
 
 Objective: future phase to operate the PT0 scanner/runtime foundation continuously under supervision.
 
-Status: not implemented. PT0.1 requires separate scope before continuous runtime, repeated sandbox routing, or supervised strategy-to-order operation.
+Status: not implemented. PT0.1 requires separate scope before continuous runtime, repeated sandbox routing, or supervised strategy-to-order operation, and should wait for founder/operator browser confirmation that PT0.0.1 resolved the chart growth/auto-scroll issue.
 
 Allowed future behavior if separately approved: run scanner continuously, update charts in real time, route eligible top-20 paper/sandbox orders under limits, update internal paper equity, update positions/PnL, show arrows on chart, and let the founder monitor throughout the week without live trading or cross-venue routing.
 

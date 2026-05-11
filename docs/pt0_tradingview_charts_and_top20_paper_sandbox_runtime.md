@@ -22,6 +22,12 @@ PT0 establishes the approved Hyperliquid testnet/sandbox paper-runtime foundatio
 | Balance/position polling | `implemented` | The polling policy remains 60 seconds, sandbox private read-only only, and forbids order/cancel/amend/retry/live categories. |
 | Routing foundation | `implemented` | Top-20 paper/sandbox route candidates are modeled for Hyperliquid testnet only. Runtime order routing is default-disabled by `PT0_SANDBOX_ORDER_ROUTING_ENABLED=false`. |
 
+## PT0.0.1 Stability Hotfix
+
+PT0.0.1 fixes the dashboard P0 where the TradingView chart could grow/scroll the page downward and jump back around the 15-second refresh. The chart now has a stable bounded container height, live refreshes update existing chart/series handles where possible, the autosize feedback-loop risk is removed, `fitContent()` is not called on every refresh, and live public polling can be disabled with `?disableLivePolling=true` or `?livePolling=false` to use local summary JSON fallback.
+
+PT0.0.1 does not change PT0 paper-equity math, routing policy, risk limits, scanner scope, order routing defaults, or Money Flow rules.
+
 ## Non-Goals
 
 PT0 does not enable live trading, live exchange API keys, real-capital trading, production auto-submit, unbounded automation, smart routing, SOR, fanout, CBBO, target reselection, cross-venue routing, Money Flow rule changes, strategy optimization, market-making, evidence packs, or dashboard order buttons.

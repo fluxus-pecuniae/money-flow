@@ -165,6 +165,14 @@ The design avoids default-looking large report text and favors dense workstation
 - PT0 prefers live Hyperliquid testnet public candles, falls back to refreshed public-read-only monitor candles, then falls back to committed PT0/UAT summaries.
 - The dashboard uses a local official `lightweight-charts` standalone bundle, not TradingView Advanced Charts, not the Trading Platform library, and not the hosted TradingView widget.
 - If candles are insufficient, display explicit unavailable states.
+- PT0.0.1 chart stability requires an explicit bounded chart height, currently implemented as a responsive clamp rather than min-height-only sizing.
+- Parent chart containers must use `min-height: 0` and `overflow: hidden` where needed so Lightweight Charts children cannot grow the page.
+- The TradingView chart instance and series handles must be reused across 15-second public refreshes whenever the selected symbol/timeframe has not changed.
+- Live refreshes should call `setData()`, `setMarkers()`, and explicit `chart.resize(width, height)` from measured dimensions instead of destroying/recreating the chart.
+- `autoSize: true` must not be reintroduced without proving it cannot form a ResizeObserver feedback loop.
+- `chart.applyOptions({ autoSize: true })` must not be called from `ResizeObserver`.
+- `fitContent()` should run only on initial chart creation for a symbol/timeframe or from a future explicit reset-view action, never on every live refresh.
+- Emergency public-polling fallback flags are supported: `?disableLivePolling=true` and `?livePolling=false`.
 
 ## Signal Marker Rules
 

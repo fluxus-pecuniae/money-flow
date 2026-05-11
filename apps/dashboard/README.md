@@ -20,7 +20,16 @@ The `Experiments` tab shows the committed SV1.15/SV1.15.1 controlled hypothesis 
 
 The `Experiments` tab also has a replay filter. Use `SV1.15 overlays` for the completed-trade overlay diagnostics, `SV1.16 true replay` for the rejected-signal replay result from `docs/strategy_validation_sv1_16_rejected_signal_replay.md`, `SV1.17 replay round 1` for the initial ETH 1h lower-RSI slice, and `SV1.17 full suite` for BTC/ETH/SOL across 15m/1h/4h from `docs/strategy_validation_sv1_17_true_replay_experiments_summary.json`. Replay views show baseline versus research-only variants, replay-only entries, rejected-entry counts, ending equity, drawdown, and methodology boundaries. They remain research-only and are not mixed into the Evidence tab.
 
-The `UAT Chart Cockpit` tab loads `docs/uat2_shadow_strategy_top20_observation_summary.json`, `docs/uat3_4_sandbox_routing_pipeline_and_order_ledger_summary.json`, `docs/uat4_2_live_market_dashboard_and_paper_equity_monitor_summary.json`, and `docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime_summary.json` by default when served from the repo root. UAT4.1 redesigns it as an exchange-style workstation: compact top bar, left market/watchlist rail, central chart cockpit, right order-book/market/signal/risk rail, and bottom blotter tabs for Routed Orders / Paper Trades, Shadow Signals, Balances / Positions, Lifecycle, and Audit / Logs. PT0 uses the official local TradingView Lightweight Charts standalone bundle from `apps/dashboard/vendor/lightweight-charts.standalone.production.js` for candlesticks, volume, EMA overlays, crosshair, time/price scales, resize handling, and green/red markers. The browser polls Hyperliquid testnet public `allMids` and `candleSnapshot` every 15 seconds, computes live indicator labels from public candles when available, and falls back to committed local summary JSON. It does not use API keys or call private/signed/order endpoints.
+The `UAT Chart Cockpit` tab loads `docs/uat2_shadow_strategy_top20_observation_summary.json`, `docs/uat3_4_sandbox_routing_pipeline_and_order_ledger_summary.json`, `docs/uat4_2_live_market_dashboard_and_paper_equity_monitor_summary.json`, and `docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime_summary.json` by default when served from the repo root. UAT4.1 redesigns it as an exchange-style workstation: compact top bar, left market/watchlist rail, central chart cockpit, right order-book/market/signal/risk rail, and bottom blotter tabs for Routed Orders / Paper Trades, Shadow Signals, Balances / Positions, Lifecycle, and Audit / Logs. PT0 uses the official local TradingView Lightweight Charts standalone bundle from `apps/dashboard/vendor/lightweight-charts.standalone.production.js` for candlesticks, volume, EMA overlays, crosshair, time/price scales, resize handling, and green/red markers. PT0.0.1 stabilizes that chart: the chart mount has an explicit bounded height, parent containers prevent layout growth loops, live refreshes update existing chart/series handles instead of destroying/recreating the chart, `fitContent()` is not called on every refresh, and the browser keeps a single live polling timer. The browser polls Hyperliquid testnet public `allMids` and `candleSnapshot` every 15 seconds, computes live indicator labels from public candles when available, and falls back to committed local summary JSON. It does not use API keys or call private/signed/order endpoints.
+
+For emergency chart debugging, append either query flag:
+
+```text
+?disableLivePolling=true
+?livePolling=false
+```
+
+When live polling is disabled, the cockpit uses committed PT0/UAT4.2 local summary JSON and does not call Hyperliquid public endpoints.
 
 PAPER TRADING IS APPROVED for Hyperliquid testnet/sandbox only. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED under PT0 metadata, precision, risk, lease, label, and no-live gates. Live trading, real-capital trading, live exchange API keys, SOR/fanout/CBBO/target reselection, cross-venue routing, production auto-submit, and dashboard order controls remain not approved.
 
@@ -45,3 +54,12 @@ apps/dashboard/vendor/package.json
 ```
 
 The dashboard uses TradingView Lightweight Charts, not TradingView Advanced Charts, not the Trading Platform library, and not the hosted TradingView widget. Chart attribution is displayed below the chart.
+
+PT0.0.1 chart-stability rules:
+
+- The chart container uses a fixed bounded responsive height rather than min-height-only sizing.
+- Live 15-second refreshes update existing candlestick, volume, EMA, and marker handles where possible.
+- The chart is destroyed/recreated only for symbol/timeframe changes or invalid chart state.
+- `autoSize: true` is intentionally not used in the chart options.
+- `ResizeObserver` schedules explicit `chart.resize(width, height)` calls and does not call `chart.applyOptions({ autoSize: true })`.
+- `fitContent()` runs only on first creation for a selected symbol/timeframe.

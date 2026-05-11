@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-11T10:32:00Z`
+Last reviewed: `2026-05-11T11:42:10Z`
 
 ## Active Follow-Ups
+
+### T-118
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `PT0.0.1 TradingView chart stability P0 hotfix is complete. The UAT/PT dashboard now gives the Lightweight Charts mount an explicit bounded height, contains parent chart layout, reuses the existing chart and series handles across 15-second public refreshes, removes the autoSize / ResizeObserver applyOptions feedback-loop risk, limits fitContent to new symbol/timeframe initialization, keeps a single live polling timer guard, and supports disableLivePolling/livePolling query flags for local JSON fallback. No orders were submitted, no order controls were added, no private/signed/order/live endpoint calls were added, no exchange API keys were used, and PT0 paper/sandbox routing policy remains unchanged.`
 
 ### T-092
 

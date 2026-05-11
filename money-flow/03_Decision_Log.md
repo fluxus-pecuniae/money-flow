@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-11T11:42:10Z - PT0.0.1 - TradingView Chart Stability P0 Fixed
+
+- `decision`: Stabilize the PT0 TradingView Lightweight Charts cockpit before any supervised paper/sandbox runtime week.
+- `why`: Founder review found the page/chart grew or scrolled downward without user action and snapped back around the 15-second public market refresh, making the dashboard unusable for monitoring.
+- `scope`: PT0.0.1 bounds chart height, contains chart parents, reuses existing chart/series handles across live refreshes, removes the `autoSize` / ResizeObserver `applyOptions` feedback-loop risk, limits `fitContent()` to new symbol/timeframe initialization, preserves the single polling timer guard, and adds `disableLivePolling` / `livePolling=false` query flags for local JSON fallback. It does not submit orders, add order controls, call private/signed/order/live endpoints, use exchange API keys, change Money Flow rules, or change PT0 paper/sandbox routing policy.
+- `result`: Static/dashboard tests now cover the risky chart patterns and public-read-only/no-order boundaries. Browser visual confirmation remains the final operator check before PT0.1 is run continuously.
+- `follow_up_implications`: PT0.1 may be scoped only after founder/operator confirms the chart no longer auto-scrolls/grows during real browser monitoring; live trading and real-capital trading remain not approved.
+
 ## 2026-05-11T08:08:44Z - UAT4.2 - Live Market Dashboard And Paper-Equity Monitor Added
 
 - `decision`: Add a read-only UAT4.2 market-monitor and internal paper-equity visibility layer to the exchange-style dashboard without creating a trading runtime.
