@@ -170,6 +170,8 @@ The design avoids default-looking large report text and favors dense workstation
 - PT0 uses TradingView Lightweight Charts for candlesticks, volume histogram, crosshair, price scale, time scale, resize handling, EMA overlays, and markers.
 - PT0.0.2 adds a separate Historical Replay chart lane. It must use historical public candle replay JSON as strategy truth and must not use Hyperliquid testnet public live prices as strategy truth.
 - Historical Replay has a strategy selector. `OG replay / strategy` is the current baseline; `MACD removed` is a research-only replay variant across BTC/ETH/SOL x 15m/1h/4h and must not be presented as a production Money Flow rule change.
+- PT0.0.3 adds `1D` to Historical Replay and a data-horizon panel. The `1D` view is labeled as deterministic aggregation from `4h` historical replay candles and must not be presented as a new production Money Flow 1D sleeve.
+- Historical Replay must show target start, actual earliest/latest available candles, target coverage, source, aggregation status, and warnings so missing Jan 2025 data is visible instead of silently shortening the window.
 - Historical Replay must make RSI and MACD visible during entry/exit review. EMA5/EMA10/SMA20 remain on the price pane, while RSI 14 and MACD render in separate TradingView panes inside the same chart instance so the crosshair/time scale stays aligned with candles and each indicator has its own readable value scale.
 - Historical replay markers mean historical paper replay fills only: green is entry fill, red is exit fill, yellow is trim/reduce. They are not live trades and not testnet orders.
 - Historical replay must keep the sandbox execution ledger visually separate from replay equity and PnL.

@@ -4,7 +4,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 UAT validates plumbing and behavior. It does not prove profitability.
 
-Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, UAT1.1 shadow readiness is complete, UAT2 bounded no-order shadow strategy observation is complete, UAT2.1 dashboard visualization is complete, UAT3.0 sandbox-order design/readiness is complete, UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete, UAT3.0.2 sandbox gate integration dry-run / policy hardening is complete, UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete, UAT3.0.4 sandbox private read-only drawdown readiness is complete, UAT3.0.5 sandbox/testnet private read-only drawdown verification is complete, UAT3.0.6 sandbox submit path dry-run wiring is complete, UAT3.1 first sandbox/testnet lifecycle probe is complete, UAT3.2 fixed-key preflight / second sandbox lifecycle attempt is complete as blocked before order transport, UAT3.3 Hyperliquid account-targeting / precision hardening is complete with a later successful follow-up lifecycle, UAT3.4 fixed-target sandbox routing / routed-order ledger is complete, UAT4.0 read-only dashboard/chart cockpit is complete, UAT4.1 exchange-style dashboard redesign is complete, UAT4.2 live market dashboard / internal paper-equity monitor is complete, PT0 TradingView charts plus top-20 paper/sandbox runtime foundation is complete, PT0.0.1 TradingView chart stability P0 hotfix is complete, and PT0.0.2 historical strategy replay cockpit is complete. PAPER TRADING IS APPROVED. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED. Live trading and real-capital trading remain not approved.
+Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, UAT1.1 shadow readiness is complete, UAT2 bounded no-order shadow strategy observation is complete, UAT2.1 dashboard visualization is complete, UAT3.0 sandbox-order design/readiness is complete, UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete, UAT3.0.2 sandbox gate integration dry-run / policy hardening is complete, UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete, UAT3.0.4 sandbox private read-only drawdown readiness is complete, UAT3.0.5 sandbox/testnet private read-only drawdown verification is complete, UAT3.0.6 sandbox submit path dry-run wiring is complete, UAT3.1 first sandbox/testnet lifecycle probe is complete, UAT3.2 fixed-key preflight / second sandbox lifecycle attempt is complete as blocked before order transport, UAT3.3 Hyperliquid account-targeting / precision hardening is complete with a later successful follow-up lifecycle, UAT3.4 fixed-target sandbox routing / routed-order ledger is complete, UAT4.0 read-only dashboard/chart cockpit is complete, UAT4.1 exchange-style dashboard redesign is complete, UAT4.2 live market dashboard / internal paper-equity monitor is complete, PT0 TradingView charts plus top-20 paper/sandbox runtime foundation is complete, PT0.0.1 TradingView chart stability P0 hotfix is complete, PT0.0.2 historical strategy replay cockpit is complete, and PT0.0.3 historical data horizon / 1D replay support is complete. PAPER TRADING IS APPROVED. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED. Live trading and real-capital trading remain not approved.
 
 ## Frozen Observation Candidate
 
@@ -328,9 +328,19 @@ Allowed behavior: historical public candle replay visualization, dynamic interna
 
 Forbidden behavior: Hyperliquid testnet prices as strategy truth, order submission, private/signed/order endpoint calls, API keys, live endpoint use, Money Flow rule changes, strategy optimization, SOR/fanout/CBBO/target reselection, evidence packs, or live trading.
 
-## PT0.0.3 — Historical Replay Playback Controls + Market Structure Inspector
+## PT0.0.3 — Historical Data Horizon + 1D Replay Support
 
-Objective: future phase for play/pause, step-one-candle, selected-trade replay, support/resistance diagnostics, recent high/low context, ATR/invalidation context, and richer marker navigation.
+Objective: extend the Historical Replay cockpit with 1D timeframe selection, a Jan 2025 target-start data horizon audit, actual source/coverage warnings, and replay exports for founder analysis before strategy experiments.
+
+Status: complete. BTC/ETH/SOL x 15m/1h/4h/1D readiness is reported in `docs/pt0_0_3_historical_strategy_replay_summary.json`; current committed local data does not reach `2025-01-01T00:00:00Z`; 1D is deterministically aggregated from 4h historical replay candles and is not a new production Money Flow sleeve.
+
+Allowed behavior: historical public candle replay visualization, data-readiness reporting, deterministic 1D aggregation from historical lower-timeframe candles, dynamic 10,000 USDC paper-equity replay, dashboard/report/test updates, and no-order sandbox ledger visibility.
+
+Forbidden behavior: Hyperliquid testnet prices as strategy truth, order submission, private/signed/order endpoint calls, API keys, live endpoint use, Money Flow rule changes, strategy optimization, SOR/fanout/CBBO/target reselection, evidence packs, or live trading.
+
+## PT0.0.4 — Historical Data Backfill + Replay Regeneration
+
+Objective: future phase to import or attach trusted BTC/ETH/SOL public historical candles back to Jan 2025 where possible, then regenerate 15m/1h/4h/1D replay exports.
 
 Status: not implemented.
 

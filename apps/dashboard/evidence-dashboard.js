@@ -29,6 +29,7 @@
   ];
 
   const DEFAULT_PT002_REPLAY_SUMMARY_FILES = [
+    "../../docs/pt0_0_3_historical_strategy_replay_summary.json",
     "../../docs/pt0_0_2_historical_strategy_replay_summary.json",
   ];
 
@@ -590,6 +591,7 @@
     historicalReplayFillFilter: document.querySelector("#historical-replay-fill-filter"),
     historicalReplayStrategyFilter: document.querySelector("#historical-replay-strategy-filter"),
     historicalReplaySourceStatus: document.querySelector("#historical-replay-source-status"),
+    historicalReplayDataHorizonPanel: document.querySelector("#historical-data-horizon-panel"),
     historicalReplayChart: document.querySelector("#historical-replay-chart"),
     historicalReplayEquityPanel: document.querySelector("#historical-replay-equity-panel"),
     historicalTradeInspector: document.querySelector("#historical-trade-inspector"),
@@ -2956,14 +2958,72 @@
     const dataset = (summary.datasets || []).find(
       (row) => row.symbol === state.historicalReplay.symbol && row.timeframe === state.historicalReplay.timeframe,
     );
+    const warnings = dataset?.reason_codes || [];
     elements.historicalReplaySourceStatus.innerHTML = `
       <span>Replay strategy: ${escapeHtml(replay?.strategy_label || state.historicalReplay.strategyId)}</span>
       <span>Research-only: ${escapeHtml(replay?.research_only ? "yes" : "no")}</span>
       <span>Source: ${escapeHtml(summary.source?.source_kind || "historical source not loaded")}</span>
+      <span>Target start: ${escapeHtml(summary.target_start_at || dataset?.target_start_at || "n/a")}</span>
       <span>Range: ${escapeHtml(dataset?.start_time || "n/a")} -> ${escapeHtml(dataset?.end_time || "n/a")}</span>
+      <span>Target met: ${escapeHtml(dataset?.target_start_met ? "yes" : "no")}</span>
+      <span>Coverage: ${escapeHtml(dataset?.target_coverage_percent ? pct(dataset.target_coverage_percent) : dataset?.coverage_percent || "n/a")}</span>
       <span>Candles: ${escapeHtml(dataset?.candle_count ?? replay?.candles?.length ?? 0)}</span>
       <span>Replay-ready: ${escapeHtml(dataset?.replay_ready ? "yes" : "no")}</span>
+      <span>Aggregation: ${escapeHtml(dataset?.aggregation_used ? `from ${dataset.aggregation_source_timeframe || "lower timeframe"}` : "source candles")}</span>
+      <span>Warnings: ${escapeHtml(warnings.slice(0, 3).join(", ") || "none")}</span>
       <span>Testnet strategy truth: ${escapeHtml(summary.source?.testnet_prices_used_as_strategy_truth === false ? "false" : "unknown")}</span>
+    `;
+  }
+
+  function renderHistoricalDataHorizonPanel() {
+    if (!elements.historicalReplayDataHorizonPanel) return;
+    const summary = state.pt002HistoricalReplay || {};
+    const rows = Array.isArray(summary.data_readiness)
+      ? summary.data_readiness
+      : Array.isArray(summary.datasets)
+        ? summary.datasets
+        : [];
+    const selected = rows.find(
+      (row) => row.symbol === state.historicalReplay.symbol && row.timeframe === state.historicalReplay.timeframe,
+    );
+    if (!selected) {
+      setEmpty(elements.historicalReplayDataHorizonPanel, "Historical data horizon is unavailable for this selection.");
+      return;
+    }
+    const aggregationCopy = selected.aggregation_used
+      ? `1D candles aggregated from ${selected.aggregation_source_timeframe || "lower timeframe"} historical replay data.`
+      : "Candles loaded from historical replay source.";
+    elements.historicalReplayDataHorizonPanel.innerHTML = `
+      <article>
+        <span>Target start</span>
+        <strong>${escapeHtml(summary.target_start_at || selected.target_start_at || "2025-01-01T00:00:00Z")}</strong>
+        <small>requested PT0.0.3 horizon</small>
+      </article>
+      <article>
+        <span>Earliest available</span>
+        <strong>${escapeHtml(selected.actual_earliest_available || selected.start_time || "missing")}</strong>
+        <small>${escapeHtml(selected.target_start_met ? "target_start_available" : "earliest_available_after_target")}</small>
+      </article>
+      <article>
+        <span>Latest available</span>
+        <strong>${escapeHtml(selected.actual_latest_available || selected.end_time || "missing")}</strong>
+        <small>${escapeHtml(selected.replay_ready ? "replay_ready" : "data_missing")}</small>
+      </article>
+      <article>
+        <span>Coverage</span>
+        <strong>${escapeHtml(selected.target_coverage_percent ? pct(selected.target_coverage_percent) : selected.coverage_percent || "n/a")}</strong>
+        <small>${escapeHtml(selected.candle_count ?? 0)} candles / target window</small>
+      </article>
+      <article class="${selected.aggregation_used ? "warning" : ""}">
+        <span>Source</span>
+        <strong>${escapeHtml(selected.source_kind || selected.selected_data_source || "historical source")}</strong>
+        <small>${escapeHtml(aggregationCopy)}</small>
+      </article>
+      <article class="wide">
+        <span>Warnings</span>
+        <strong>${escapeHtml((selected.reason_codes || []).join(", ") || "none")}</strong>
+        <small>Missing data is reported as data readiness, not strategy failure.</small>
+      </article>
     `;
   }
 
@@ -3184,12 +3244,13 @@
     if (!state.pt002HistoricalReplay) {
       [
         elements.historicalReplayChart,
+        elements.historicalReplayDataHorizonPanel,
         elements.historicalTradeInspector,
         elements.historicalReplayTradesTable,
         elements.historicalComparisonTable,
         elements.historicalSandboxLedger,
       ].forEach((target) => {
-        if (target) setEmpty(target, "Load docs/pt0_0_2_historical_strategy_replay_summary.json.");
+        if (target) setEmpty(target, "Load docs/pt0_0_3_historical_strategy_replay_summary.json or docs/pt0_0_2_historical_strategy_replay_summary.json.");
       });
       return;
     }
@@ -3200,6 +3261,7 @@
       state.historicalReplay.timeframe = replay.timeframe || "1h";
     }
     renderHistoricalReplaySourceStatus(replay);
+    renderHistoricalDataHorizonPanel();
     renderHistoricalReplayChart(replay);
     renderHistoricalTradeInspector(replay);
     renderHistoricalEquityPanel(replay);
@@ -4287,7 +4349,10 @@
     if (payload?.report === "uat3_4_sandbox_routing_pipeline_and_order_ledger") return "uat34_routed_orders_summary";
     if (payload?.report === "uat4_2_live_market_dashboard_and_paper_equity_monitor") return "uat42_live_monitor_summary";
     if (payload?.report === "pt0_tradingview_charts_and_top20_paper_sandbox_runtime") return "pt0_runtime_summary";
-    if (payload?.report === "pt0_0_2_historical_strategy_replay_cockpit") return "pt002_historical_replay_summary";
+    if (
+      payload?.report === "pt0_0_2_historical_strategy_replay_cockpit" ||
+      payload?.report === "pt0_0_3_historical_data_horizon_and_1d_replay"
+    ) return "pt002_historical_replay_summary";
     return "unknown";
   }
 

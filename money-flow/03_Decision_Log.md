@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-11T17:40:05Z - PT0.0.3 - 1D Replay Is Aggregated Horizon View, Not New Strategy Sleeve
+
+- `decision`: Add `1D` to the Historical Replay cockpit as a deterministic historical-data horizon view while keeping production Money Flow sleeves unchanged.
+- `scope`: PT0.0.3 loads the trusted PT0.0.2 historical replay summary, reports Jan 2025 target-start readiness for BTC/ETH/SOL x 15m/1h/4h/1D, and creates `docs/pt0_0_3_historical_strategy_replay_summary.json`.
+- `result`: Current committed local data does not reach `2025-01-01T00:00:00Z`; actual earliest/latest ranges and target coverage are shown per dataset. `1D` candles are aggregated from 4h historical replay candles and labeled `not_a_new_1d_money_flow_sleeve`.
+- `follow_up_implications`: A future PT0.0.4 backfill/regeneration phase should source trusted BTC/ETH/SOL historical candles back to Jan 2025 where possible before deeper playback/market-structure inspection. No orders, endpoint calls, rule changes, or strategy optimizations were added.
+
 ## 2026-05-11T15:46:08Z - Historical Replay - MACD-Removed Research Variant Added
 
 - `decision`: Add a research-only MACD-removed historical replay path to the PT0.0.2 Historical Replay cockpit.

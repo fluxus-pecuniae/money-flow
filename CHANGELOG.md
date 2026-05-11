@@ -13,6 +13,46 @@ Entry schema:
 
 ---
 
+## v2026.05.11.017
+
+- `recorded_at_utc`: `2026-05-11T17:40:05Z`
+- `scope`: `PT0.0.3 historical data horizon and 1D replay support`
+- `intent`: `Native entry. Extended the Historical Replay cockpit with 1D timeframe support, Jan 2025 target-start data readiness truth, and a dashboard data-horizon panel. Added a PT0.0.3 replay summary generated from the committed trusted PT0.0.2 historical replay source. Current local data does not reach 2025-01-01T00:00:00Z; actual earliest/latest timestamps, target coverage, source labels, and warning reason codes are reported per BTC/ETH/SOL x 15m/1h/4h/1D dataset. 1D candles are deterministically aggregated from 4h historical replay candles and explicitly labeled as not a new production Money Flow 1D sleeve. This phase submits no orders, calls no order/private/signed endpoints, uses no Hyperliquid testnet prices as strategy truth, changes no Money Flow rules, adds no strategy variants, adds no SOR/fanout/CBBO/routing behavior, and exposes no secrets.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/pt0_0_2_historical_strategy_replay_cockpit.md`
+  - `docs/pt0_0_3_historical_data_horizon_and_1d_readiness.md`
+  - `docs/pt0_0_3_historical_strategy_replay_summary.json`
+  - `services/strategy_validation/__init__.py`
+  - `services/strategy_validation/historical_replay.py`
+  - `scripts/refresh_pt003_historical_replay_summary.py`
+  - `tests/test_pt003_historical_data_horizon_1d.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt003_historical_data_horizon_1d.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt002_historical_strategy_replay_cockpit.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `git diff --check`
+
 ## v2026.05.11.016
 
 - `recorded_at_utc`: `2026-05-11T17:18:07Z`

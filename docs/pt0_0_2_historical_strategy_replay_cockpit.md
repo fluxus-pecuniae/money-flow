@@ -115,14 +115,17 @@ All nine symbol/timeframe datasets are available. The dashboard summary now incl
 
 | Limitation | Status | Notes |
 | --- | --- | --- |
-| Playback controls | deferred | Static replay display is implemented first; play/pause and step-one-candle controls are deferred to PT0.0.3. |
+| 1D and longer horizon | implemented in PT0.0.3 | PT0.0.3 adds `1D` dashboard/replay support and Jan 2025 horizon readiness truth without changing Money Flow rules. |
+| Playback controls | deferred | Static replay display is implemented first; play/pause and step-one-candle controls are deferred beyond PT0.0.3. |
 | DB-backed live replay regeneration | needs_verification | Local DB connectivity must be restored or explicitly configured before regenerating directly from persisted candles. |
 | Advanced RSI/MACD interactions | deferred | RSI and MACD are time-aligned with candles in separate TradingView panes; click-to-select directly from indicator panes can be added later. |
 | MACD-removed production interpretation | deferred | The MACD-removed result is research-only and does not approve a Money Flow rule change. |
 
 ## Next Recommended Phase
 
-`PT0.0.3 - Historical Replay Playback Controls + Market Structure Inspector` may be scoped next for play/pause, candle stepping, selected-trade replay, support/resistance diagnostics, recent high/low context, ATR, and invalidation context.
+`PT0.0.3 - Historical Data Horizon + 1D Replay Support` extends this cockpit with `1D` replay support, target-start readiness truth for `2025-01-01T00:00:00Z`, and a dashboard data horizon panel. It does not create a new production 1D Money Flow sleeve.
+
+`PT0.0.4 - Historical Data Backfill + Replay Regeneration` may be scoped next to import trusted BTC/ETH/SOL historical candles back to Jan 2025 and regenerate the full replay export.
 
 `PT0.1 - Supervised Paper Runtime Using Trusted Market Data` remains a later phase. It should use trusted market data for strategy truth, keep testnet as execution plumbing, and preserve the internal 10,000 USDC paper-equity ledger.
 

@@ -154,6 +154,7 @@ Last reviewed: `2026-05-11T14:18:00Z`
 - PT0 adds the official local TradingView Lightweight Charts bundle for the UAT/PT cockpit and browser-side Hyperliquid testnet public candle polling.
 - PT0.0.1 stabilizes the TradingView chart by bounding chart height, containing parent chart layout, reusing chart/series handles across 15-second public refreshes, removing the `autoSize` / ResizeObserver `applyOptions` feedback-loop risk, limiting `fitContent()` to new symbol/timeframe initialization, and adding query flags to disable public polling while using local PT0/UAT4.2 JSON fallback. It adds no order controls and calls no private/signed/order/live endpoints.
 - PT0.0.2 adds a separate `Historical Replay` tab. It loads `docs/pt0_0_2_historical_strategy_replay_summary.json`, renders historical BTC/ETH/SOL replay candles through TradingView Lightweight Charts, overlays EMA5/EMA10/SMA20 and historical entry/exit markers, shows a trade inspector, dynamic 10,000 USDC equity panel, BTC/ETH/SOL comparison table, and keeps the UAT3.4 sandbox execution ledger separate. The tab now includes a replay-strategy dropdown for `OG replay / strategy` and research-only `MACD removed` across all BTC/ETH/SOL x 15m/1h/4h combinations. Historical/mainnet public candle replay data is strategy truth; Hyperliquid testnet prices are not strategy truth.
+- PT0.0.3 updates `Historical Replay` to prefer `docs/pt0_0_3_historical_strategy_replay_summary.json`, adds `1D` timeframe selection, displays Jan 2025 target-start data-horizon truth, and labels 1D as deterministic aggregation from 4h historical replay candles rather than a new production Money Flow sleeve. The dashboard still has no order controls and does not call private/signed/order/live endpoints.
 
 `docs/uat0_safety_security_runtime_hardening.md`
 - Founder/operator UAT0 safety, security, runtime, and operational-readiness audit.
@@ -295,6 +296,14 @@ Last reviewed: `2026-05-11T14:18:00Z`
 - Dashboard-consumed PT0.0.2 historical replay summary.
 - Contains replay-ready BTC/ETH/SOL x 15m/1h/4h datasets, baseline and MACD-removed research-only replay strategies, candles, indicators, historical entry/exit markers, trade inspector records, dynamic equity curves, comparison rows, source hash, DB audit status, no-order/no-live flags, and `testnet_prices_used_as_strategy_truth=false`.
 
+`docs/pt0_0_3_historical_data_horizon_and_1d_readiness.md`
+- Founder/operator PT0.0.3 report.
+- Records 1D replay support, Jan 2025 target-start readiness, actual available candle horizons, data source labels, aggregation truth, dynamic equity preservation, no-testnet-strategy-truth boundary, no-order/no-live confirmation, and next historical backfill need.
+
+`docs/pt0_0_3_historical_strategy_replay_summary.json`
+- Dashboard-consumed PT0.0.3 historical replay summary.
+- Extends the PT0.0.2 trusted historical replay export with BTC/ETH/SOL x 15m/1h/4h/1D readiness rows, actual data horizon rows, 1D candles aggregated from 4h replay candles, strategy replay rows, indicators, markers, trades, equity curves, comparison rows, Jan 2025 target-start truth, and no-order/no-testnet-strategy-truth flags.
+
 `apps/dashboard/vendor/`
 - PT0 vendored third-party charting bundle from the official `lightweight-charts` package.
 - Contains `lightweight-charts.standalone.production.js`, `LICENSE`, and `package.json`; the dashboard uses this local bundle instead of a hosted TradingView widget.
@@ -331,6 +340,7 @@ Last reviewed: `2026-05-11T14:18:00Z`
 `services/strategy_validation/historical_replay.py`
 - PT0.0.2 historical replay export helpers.
 - Audits persisted strategy-validation candle availability when DB connectivity is available and builds the dashboard replay summary from the trusted SV1.17 historical full-suite baseline export. It labels historical candle replay data as strategy truth, marks Hyperliquid testnet prices as not strategy truth, generates baseline plus research-only MACD-removed historical markers/trades/equity curves, and creates no orders or exchange calls.
+- PT0.0.3 adds Jan 2025 target-start readiness helpers, 1D deterministic aggregation from 4h historical replay candles, actual horizon rows, and an export builder that does not create a production Money Flow 1D sleeve.
 - Defaults to no network calls, no credentials, no private/signed/order endpoints, no live endpoint, no order submissions, no SOR/fanout/CBBO/target reselection, and no trading artifacts.
 
 `scripts/refresh_pt0_runtime_summary.py`
@@ -340,6 +350,10 @@ Last reviewed: `2026-05-11T14:18:00Z`
 - Generates the committed PT0.0.2 dashboard replay summary from the trusted offline SV1.17 historical full-suite replay JSON and an optional persisted-candle DB audit.
 - It does not call exchange endpoints, use credentials, submit orders, change Money Flow rules, import candles, or generate evidence packs.
 - Default mode performs no network calls, reads no credentials, and calls no private/signed/order endpoints.
+
+`scripts/refresh_pt003_historical_replay_summary.py`
+- Generates the committed PT0.0.3 dashboard replay summary from the PT0.0.2 trusted replay summary and optional persisted-candle DB audit.
+- It adds 1D aggregation/readiness truth and Jan 2025 target-start reporting without importing candles, calling exchange endpoints, using credentials, submitting orders, changing Money Flow rules, or generating evidence packs.
 
 `core/config/`
 - Pydantic settings, environment profiles, runtime selection, and per-venue / strategy configuration.
@@ -891,3 +905,6 @@ Last reviewed: `2026-05-11T14:18:00Z`
 
 `tests/test_pt002_historical_strategy_replay_cockpit.py`
 - PT0.0.2 historical replay cockpit checks: verifies historical replay truth uses the committed replay summary rather than Hyperliquid testnet prices, audits BTC/ETH/SOL x 15m/1h/4h readiness, requires dynamic 10,000 USDC equity updates, validates fill/cost assumptions, checks entry/exit marker semantics, verifies the dashboard Historical Replay tab and stable chart container, confirms sandbox execution ledger separation, and enforces no-order/no-live dashboard boundaries.
+
+`tests/test_pt003_historical_data_horizon_1d.py`
+- PT0.0.3 historical horizon checks: verifies Jan 2025 target-start truth, BTC/ETH/SOL x 15m/1h/4h/1D readiness rows, actual earliest-after-target reporting, labeled 1D aggregation from 4h, dynamic equity preservation, 1D replay export contents, dashboard data-horizon panel, no-testnet-strategy-truth boundary, and no-order/no-private-endpoint dashboard boundaries.

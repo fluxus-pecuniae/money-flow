@@ -242,6 +242,13 @@ Closed by PT0.0.2:
 - dashboard replay markers, trade inspector, dynamic 10,000 USDC paper-equity path, comparison table, and separate sandbox execution ledger exist;
 - no orders, order controls, private/signed/order endpoints, API keys, live endpoint use, Money Flow rule changes, or evidence packs were added.
 
+Closed by PT0.0.3:
+
+- Historical Replay adds 1D selection and Jan 2025 target-start data-horizon truth for BTC/ETH/SOL x 15m/1h/4h/1D;
+- current local data does not reach Jan 2025 and reports actual available horizons instead of silently shortening the window;
+- 1D is deterministic aggregation from 4h historical replay candles and is not a new production Money Flow sleeve;
+- no orders, order controls, private/signed/order endpoints, API keys, live endpoint use, testnet strategy truth, Money Flow rule changes, or evidence packs were added.
+
 Remaining before UAT3.5:
 
 - complete UAT-universe precision validation for all observation symbols or document venue non-support precisely;

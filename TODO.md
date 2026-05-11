@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-11T14:18:00Z`
+Last reviewed: `2026-05-11T17:40:05Z`
 
 ## Active Follow-Ups
 
@@ -19,8 +19,14 @@ Last reviewed: `2026-05-11T14:18:00Z`
 ### T-120
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `PT0.0.3 historical data horizon and 1D replay support is complete. The dashboard now prefers docs/pt0_0_3_historical_strategy_replay_summary.json, supports 15m/1h/4h/1D historical replay selection, shows a Jan 2025 target-start data-horizon panel, and reports actual earliest/latest candles plus warning reason codes per BTC/ETH/SOL timeframe. Current committed local data does not reach 2025-01-01T00:00:00Z. 1D candles are deterministically aggregated from 4h historical replay candles and labeled as not a new production Money Flow 1D sleeve. No orders, order controls, private/signed/order endpoints, API keys, live endpoint use, testnet strategy truth, Money Flow rule changes, strategy optimization, or evidence packs were added.`
+
+### T-121
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `PT0.0.3 historical replay playback controls and market-structure inspector is future work. It should add play/pause, step-one-candle, selected-trade replay, support/resistance diagnostics, recent high/low context, ATR/invalidation context, and richer marker navigation while preserving historical candle strategy truth, no-order/no-live boundaries, and unchanged Money Flow rules.`
+- `summary`: `PT0.0.4 historical data backfill and replay regeneration is future work. It should import or attach trusted Hyperliquid BTC/ETH/SOL public historical candles back to 2025-01-01T00:00:00Z where available, regenerate 15m/1h/4h/1D replay exports, preserve historical candle strategy truth, and keep no-order/no-live/no-rule-change boundaries. Playback controls and market-structure inspection can be scoped after the data horizon is trustworthy.`
 
 ### T-092
 

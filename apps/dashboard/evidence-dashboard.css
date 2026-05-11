@@ -739,6 +739,48 @@ h3 {
   color: var(--color-muted);
 }
 
+.historical-data-horizon-panel {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--spacing-3);
+  min-width: 0;
+}
+
+.historical-data-horizon-panel article {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: var(--spacing-3);
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: rgba(11, 17, 24, 0.94);
+}
+
+.historical-data-horizon-panel article.wide {
+  grid-column: span 2;
+}
+
+.historical-data-horizon-panel article.warning {
+  border-color: rgba(243, 186, 47, 0.48);
+  background: rgba(40, 33, 14, 0.54);
+}
+
+.historical-data-horizon-panel article span {
+  color: var(--color-muted);
+  font-size: 10px;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.historical-data-horizon-panel article strong {
+  overflow-wrap: anywhere;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.25;
+}
+
 .historical-replay-grid {
   display: grid;
   grid-template-columns: minmax(580px, 1.65fr) minmax(300px, 0.7fr);
@@ -1499,6 +1541,10 @@ td {
     grid-template-columns: 1fr;
   }
 
+  .historical-data-horizon-panel {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .uat-right-rail {
     grid-column: 1 / -1;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1522,6 +1568,7 @@ td {
   .uat-topbar,
   .historical-replay-topbar,
   .historical-equity-panel,
+  .historical-data-horizon-panel,
   .uat-workstation-grid,
   .uat-topbar-selects,
   .historical-replay-controls,
@@ -1554,6 +1601,10 @@ td {
 
   .historical-truth-banner {
     flex-direction: column;
+  }
+
+  .historical-data-horizon-panel article.wide {
+    grid-column: auto;
   }
 
   .detail-box,
