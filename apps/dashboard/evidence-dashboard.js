@@ -528,6 +528,7 @@
       routedLabel: "all",
     },
     historicalReplay: {
+      strategyId: "baseline_current_money_flow_rules",
       symbol: "ETH",
       timeframe: "1h",
       fillAssumption: "next_candle_open",
@@ -581,6 +582,7 @@
     historicalReplaySymbolFilter: document.querySelector("#historical-replay-symbol-filter"),
     historicalReplayTimeframeFilter: document.querySelector("#historical-replay-timeframe-filter"),
     historicalReplayFillFilter: document.querySelector("#historical-replay-fill-filter"),
+    historicalReplayStrategyFilter: document.querySelector("#historical-replay-strategy-filter"),
     historicalReplaySourceStatus: document.querySelector("#historical-replay-source-status"),
     historicalReplayChart: document.querySelector("#historical-replay-chart"),
     historicalReplayEquityPanel: document.querySelector("#historical-replay-equity-panel"),
@@ -1443,11 +1445,16 @@
 
   function renderSelect(select, values, activeValue, labelAll) {
     if (!select) return;
+    const normalized = values.map((value) =>
+      typeof value === "object" && value !== null
+        ? { value: value.value, label: value.label || value.value }
+        : { value, label: value },
+    );
     select.innerHTML = [
       `<option value="all">${escapeHtml(labelAll)}</option>`,
-      ...values.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`),
+      ...normalized.map((row) => `<option value="${escapeHtml(row.value)}">${escapeHtml(row.label)}</option>`),
     ].join("");
-    select.value = values.includes(activeValue) ? activeValue : "all";
+    select.value = normalized.some((row) => row.value === activeValue) ? activeValue : "all";
   }
 
   function uatFilteredRecords(records) {
@@ -2436,12 +2443,15 @@
 
   function selectedHistoricalReplay() {
     return historicalReplays().find(
-      (row) => row.symbol === state.historicalReplay.symbol && row.timeframe === state.historicalReplay.timeframe,
+      (row) =>
+        (row.strategy_id || "baseline_current_money_flow_rules") === state.historicalReplay.strategyId &&
+        row.symbol === state.historicalReplay.symbol &&
+        row.timeframe === state.historicalReplay.timeframe,
     ) || historicalReplays()[0] || null;
   }
 
   function historicalReplayKey() {
-    return `${state.historicalReplay.symbol}|${state.historicalReplay.timeframe}|${state.historicalReplay.fillAssumption}`;
+    return `${state.historicalReplay.strategyId}|${state.historicalReplay.symbol}|${state.historicalReplay.timeframe}|${state.historicalReplay.fillAssumption}`;
   }
 
   function historicalChartCandles(replay) {
@@ -2565,7 +2575,7 @@
       <div class="tradingview-chart-topline">
         <div>
           <strong>${escapeHtml(state.historicalReplay.symbol)}-PERP historical replay</strong>
-          <span>${escapeHtml(state.historicalReplay.timeframe)} / ${escapeHtml(state.historicalReplay.fillAssumption)} / not testnet strategy truth</span>
+          <span>${escapeHtml(replay.strategy_label || state.historicalReplay.strategyId)} / ${escapeHtml(state.historicalReplay.timeframe)} / ${escapeHtml(state.historicalReplay.fillAssumption)} / not testnet strategy truth</span>
         </div>
         <div class="chart-price-tape">
           <span>Latest historical close</span>
@@ -2676,9 +2686,27 @@
     const fills = Array.isArray(summary.fill_assumptions)
       ? summary.fill_assumptions.map((row) => row.id || row)
       : ["next_candle_open", "next_candle_close", "same_candle_close_research_only"];
+    const strategies = Array.isArray(summary.strategies) && summary.strategies.length
+      ? summary.strategies.map((row) => ({ value: row.id, label: row.label || row.id }))
+      : [{ value: "baseline_current_money_flow_rules", label: "OG replay / strategy" }];
+    renderSelect(
+      elements.historicalReplayStrategyFilter,
+      strategies,
+      state.historicalReplay.strategyId,
+      "Select replay strategy",
+    );
     renderSelect(elements.historicalReplaySymbolFilter, symbols, state.historicalReplay.symbol, "Select symbol");
     renderSelect(elements.historicalReplayTimeframeFilter, timeframes, state.historicalReplay.timeframe, "Select timeframe");
     renderSelect(elements.historicalReplayFillFilter, fills, state.historicalReplay.fillAssumption, "Select fill");
+    if (elements.historicalReplayStrategyFilter) {
+      elements.historicalReplayStrategyFilter.onchange = () => {
+        state.historicalReplay.strategyId = elements.historicalReplayStrategyFilter.value === "all"
+          ? "baseline_current_money_flow_rules"
+          : elements.historicalReplayStrategyFilter.value;
+        state.historicalReplay.selectedTradeId = null;
+        renderHistoricalReplay();
+      };
+    }
     if (elements.historicalReplaySymbolFilter) {
       elements.historicalReplaySymbolFilter.onchange = () => {
         state.historicalReplay.symbol = elements.historicalReplaySymbolFilter.value === "all"
@@ -2714,6 +2742,8 @@
       (row) => row.symbol === state.historicalReplay.symbol && row.timeframe === state.historicalReplay.timeframe,
     );
     elements.historicalReplaySourceStatus.innerHTML = `
+      <span>Replay strategy: ${escapeHtml(replay?.strategy_label || state.historicalReplay.strategyId)}</span>
+      <span>Research-only: ${escapeHtml(replay?.research_only ? "yes" : "no")}</span>
       <span>Source: ${escapeHtml(summary.source?.source_kind || "historical source not loaded")}</span>
       <span>Range: ${escapeHtml(dataset?.start_time || "n/a")} -> ${escapeHtml(dataset?.end_time || "n/a")}</span>
       <span>Candles: ${escapeHtml(dataset?.candle_count ?? replay?.candles?.length ?? 0)}</span>
@@ -2853,7 +2883,9 @@
   function renderHistoricalComparisonTable() {
     if (!elements.historicalComparisonTable) return;
     const rows = Array.isArray(state.pt002HistoricalReplay?.comparison)
-      ? state.pt002HistoricalReplay.comparison
+      ? state.pt002HistoricalReplay.comparison.filter(
+        (row) => (row.strategy_id || "baseline_current_money_flow_rules") === state.historicalReplay.strategyId,
+      )
       : [];
     if (!rows.length) {
       setEmpty(elements.historicalComparisonTable, "Historical comparison rows are not loaded.");
@@ -2865,6 +2897,7 @@
           <tr>
             <th>Symbol</th>
             <th>Timeframe</th>
+            <th>Replay Strategy</th>
             <th>Status</th>
             <th>Ending Equity</th>
             <th>Net PnL</th>
@@ -2879,6 +2912,7 @@
             <tr>
               <td>${escapeHtml(row.symbol)}</td>
               <td>${escapeHtml(row.timeframe)}</td>
+              <td>${escapeHtml(row.strategy_label || row.strategy_id || "OG replay / strategy")}</td>
               <td>${escapeHtml(row.status)}</td>
               <td>${escapeHtml(money(row.ending_equity))}</td>
               <td class="${decimal(row.net_pnl) >= 0 ? "positive" : "negative"}">${escapeHtml(money(row.net_pnl))}</td>
@@ -2945,7 +2979,8 @@
       return;
     }
     const replay = selectedHistoricalReplay();
-    if (replay && (!state.historicalReplay.symbol || !state.historicalReplay.timeframe)) {
+    if (replay && (!state.historicalReplay.strategyId || !state.historicalReplay.symbol || !state.historicalReplay.timeframe)) {
+      state.historicalReplay.strategyId = replay.strategy_id || "baseline_current_money_flow_rules";
       state.historicalReplay.symbol = replay.symbol || "ETH";
       state.historicalReplay.timeframe = replay.timeframe || "1h";
     }

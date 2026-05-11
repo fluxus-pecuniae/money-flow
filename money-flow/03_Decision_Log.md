@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-11T15:46:08Z - Historical Replay - MACD-Removed Research Variant Added
+
+- `decision`: Add a research-only MACD-removed historical replay path to the PT0.0.2 Historical Replay cockpit.
+- `scope`: The replay summary now includes OG replay/strategy and MACD-removed rows across BTC/ETH/SOL x 15m/1h/4h, and the dashboard exposes a replay-strategy dropdown under Historical Replay.
+- `result`: MACD entry confirmation and MACD-rollover exit checks are removed only for this historical replay variant. Production Money Flow rules, order behavior, live trading boundaries, and sandbox execution plumbing remain unchanged.
+- `follow_up_implications`: Founder review can compare OG baseline versus MACD-removed behavior visually before any future strategy-design decision. Any production rule change remains separately unapproved.
+
 ## 2026-05-11T14:18:00Z - PT0.0.2 - Historical Candles Are Strategy Truth
 
 - `decision`: Pause Hyperliquid testnet-live market monitoring as a strategy-truth source and add a Historical Replay cockpit for Money Flow visual validation.

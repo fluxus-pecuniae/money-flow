@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 
 from services.strategy_validation.historical_replay import (
+    PT002_BASELINE_STRATEGY_ID,
+    PT002_NO_MACD_STRATEGY_ID,
     PT002_REPORT_NAME,
     PT002_SYMBOLS,
     PT002_TIMEFRAMES,
@@ -54,8 +56,60 @@ def test_btc_eth_sol_15m_1h_4h_datasets_are_audited_and_replay_ready() -> None:
             assert row["candle_count"] > 0
             assert "historical_candles_available" in row["reason_codes"]
 
-    assert summary["db_audit"]
-    assert "historical_db_unreachable" in summary["db_audit"][0]["reason_codes"]
+    assert "db_audit" in summary
+    if summary["db_audit"]:
+        assert "historical_db_unreachable" in summary["db_audit"][0]["reason_codes"]
+
+
+def test_historical_replay_contains_baseline_and_macd_removed_for_all_symbols_and_timeframes() -> None:
+    summary = _summary()
+    strategies = {row["id"]: row for row in summary["strategies"]}
+    replay_keys = {
+        (row["strategy_id"], row["symbol"], row["timeframe"])
+        for row in summary["replays"]
+    }
+
+    assert PT002_BASELINE_STRATEGY_ID in strategies
+    assert strategies[PT002_BASELINE_STRATEGY_ID]["label"] == "OG replay / strategy"
+    assert strategies[PT002_BASELINE_STRATEGY_ID]["research_only"] is False
+    assert PT002_NO_MACD_STRATEGY_ID in strategies
+    assert strategies[PT002_NO_MACD_STRATEGY_ID]["label"] == "MACD removed"
+    assert strategies[PT002_NO_MACD_STRATEGY_ID]["research_only"] is True
+    assert strategies[PT002_NO_MACD_STRATEGY_ID]["changes_production_rules"] is False
+    assert len(summary["replays"]) == len(PT002_SYMBOLS) * len(PT002_TIMEFRAMES) * 2
+
+    expected = {
+        (strategy_id, symbol, timeframe)
+        for strategy_id in (PT002_BASELINE_STRATEGY_ID, PT002_NO_MACD_STRATEGY_ID)
+        for symbol in PT002_SYMBOLS
+        for timeframe in PT002_TIMEFRAMES
+    }
+    assert replay_keys == expected
+
+
+def test_macd_removed_replay_removes_macd_entry_and_rollover_exit_gates_without_changing_production_rules() -> None:
+    summary = _summary()
+    macd_removed = [
+        row for row in summary["replays"]
+        if row["strategy_id"] == PT002_NO_MACD_STRATEGY_ID
+    ]
+    baseline = [
+        row for row in summary["replays"]
+        if row["strategy_id"] == PT002_BASELINE_STRATEGY_ID
+    ]
+
+    assert macd_removed
+    assert all(row["research_only"] is True for row in macd_removed)
+    assert all(row["research_only"] is False for row in baseline)
+    assert any(
+        "macd_removed_entry_allowed" in row["reason_counts"]["entry_reason_counts"]
+        for row in macd_removed
+    )
+    assert all(
+        "macd_rollover" not in row["reason_counts"]["exit_reason_counts"]
+        for row in macd_removed
+    )
+    assert summary["boundary_flags"]["changes_money_flow_rules"] is False
 
 
 def test_replay_export_contains_candles_indicators_markers_trades_and_equity_curve() -> None:
@@ -147,11 +201,16 @@ def test_dashboard_has_historical_replay_tab_and_stable_chart_container() -> Non
 
     assert 'data-view="historical-replay"' in html
     assert "Historical Replay" in html
+    assert "historical-replay-strategy-filter" in html
+    assert "Replay strategy" in html
     assert "historical-replay-chart" in html
     assert "Trade Inspector" in html
     assert "BTC / ETH / SOL Comparison" in html
     assert "Sandbox Execution Plumbing" in html
     assert "pt0_0_2_historical_strategy_replay_summary.json" in js
+    assert "baseline_current_money_flow_rules" in js
+    assert "strategy_id" in js
+    assert "Replay strategy:" in js
     assert "renderHistoricalReplayChart" in js
     assert "historicalChartMarkers" in js
     assert ".historical-replay-chart .tradingview-lightweight-chart" in css
@@ -189,5 +248,7 @@ def test_pt002_report_exists_and_records_boundaries() -> None:
 
     assert "PT0.0.2 Historical Strategy Replay Cockpit" in report
     assert "Hyperliquid testnet market data is not strategy truth" in report
+    assert "MACD removed" in report
+    assert "research-only" in report
     assert "No orders are submitted by PT0.0.2" in report
     assert "Money Flow rules are unchanged" in report

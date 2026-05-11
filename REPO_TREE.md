@@ -153,7 +153,7 @@ Last reviewed: `2026-05-11T14:18:00Z`
 - UAT4.2 wires the cockpit to `docs/uat4_2_live_market_dashboard_and_paper_equity_monitor_summary.json`, showing refreshed public-read-only market data, deterministic indicators, paper-observation markers, internal paper-equity state, sandbox balance-poll policy, and explicit positions/unavailable-state visibility. It still adds no order, cancel, retry, amend, approval, live, route, or auto-trade controls.
 - PT0 adds the official local TradingView Lightweight Charts bundle for the UAT/PT cockpit and browser-side Hyperliquid testnet public candle polling.
 - PT0.0.1 stabilizes the TradingView chart by bounding chart height, containing parent chart layout, reusing chart/series handles across 15-second public refreshes, removing the `autoSize` / ResizeObserver `applyOptions` feedback-loop risk, limiting `fitContent()` to new symbol/timeframe initialization, and adding query flags to disable public polling while using local PT0/UAT4.2 JSON fallback. It adds no order controls and calls no private/signed/order/live endpoints.
-- PT0.0.2 adds a separate `Historical Replay` tab. It loads `docs/pt0_0_2_historical_strategy_replay_summary.json`, renders historical BTC/ETH/SOL replay candles through TradingView Lightweight Charts, overlays EMA5/EMA10/SMA20 and historical entry/exit markers, shows a trade inspector, dynamic 10,000 USDC equity panel, BTC/ETH/SOL comparison table, and keeps the UAT3.4 sandbox execution ledger separate. Historical/mainnet public candle replay data is strategy truth; Hyperliquid testnet prices are not strategy truth.
+- PT0.0.2 adds a separate `Historical Replay` tab. It loads `docs/pt0_0_2_historical_strategy_replay_summary.json`, renders historical BTC/ETH/SOL replay candles through TradingView Lightweight Charts, overlays EMA5/EMA10/SMA20 and historical entry/exit markers, shows a trade inspector, dynamic 10,000 USDC equity panel, BTC/ETH/SOL comparison table, and keeps the UAT3.4 sandbox execution ledger separate. The tab now includes a replay-strategy dropdown for `OG replay / strategy` and research-only `MACD removed` across all BTC/ETH/SOL x 15m/1h/4h combinations. Historical/mainnet public candle replay data is strategy truth; Hyperliquid testnet prices are not strategy truth.
 
 `docs/uat0_safety_security_runtime_hardening.md`
 - Founder/operator UAT0 safety, security, runtime, and operational-readiness audit.
@@ -293,7 +293,7 @@ Last reviewed: `2026-05-11T14:18:00Z`
 
 `docs/pt0_0_2_historical_strategy_replay_summary.json`
 - Dashboard-consumed PT0.0.2 historical replay summary.
-- Contains replay-ready BTC/ETH/SOL x 15m/1h/4h datasets, candles, indicators, historical entry/exit markers, trade inspector records, dynamic equity curves, comparison rows, source hash, DB audit status, no-order/no-live flags, and `testnet_prices_used_as_strategy_truth=false`.
+- Contains replay-ready BTC/ETH/SOL x 15m/1h/4h datasets, baseline and MACD-removed research-only replay strategies, candles, indicators, historical entry/exit markers, trade inspector records, dynamic equity curves, comparison rows, source hash, DB audit status, no-order/no-live flags, and `testnet_prices_used_as_strategy_truth=false`.
 
 `apps/dashboard/vendor/`
 - PT0 vendored third-party charting bundle from the official `lightweight-charts` package.
@@ -330,7 +330,7 @@ Last reviewed: `2026-05-11T14:18:00Z`
 
 `services/strategy_validation/historical_replay.py`
 - PT0.0.2 historical replay export helpers.
-- Audits persisted strategy-validation candle availability when DB connectivity is available and builds the dashboard replay summary from the trusted SV1.17 historical full-suite baseline export. It labels historical candle replay data as strategy truth, marks Hyperliquid testnet prices as not strategy truth, generates historical markers/trades/equity curves, and creates no orders or exchange calls.
+- Audits persisted strategy-validation candle availability when DB connectivity is available and builds the dashboard replay summary from the trusted SV1.17 historical full-suite baseline export. It labels historical candle replay data as strategy truth, marks Hyperliquid testnet prices as not strategy truth, generates baseline plus research-only MACD-removed historical markers/trades/equity curves, and creates no orders or exchange calls.
 - Defaults to no network calls, no credentials, no private/signed/order endpoints, no live endpoint, no order submissions, no SOR/fanout/CBBO/target reselection, and no trading artifacts.
 
 `scripts/refresh_pt0_runtime_summary.py`

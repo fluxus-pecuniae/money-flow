@@ -28,6 +28,32 @@ PT002_FILL_ASSUMPTIONS = (
 PT002_DEFAULT_FILL_ASSUMPTION = "next_candle_open"
 PT002_SOURCE_KIND = "trusted_offline_historical_candles"
 PT002_WINDOW_CONVENTION = "(start_at, end_at]"
+PT002_BASELINE_STRATEGY_ID = "baseline_current_money_flow_rules"
+PT002_NO_MACD_STRATEGY_ID = "macd_removed_research_only"
+PT002_STRATEGIES = (
+    {
+        "id": PT002_BASELINE_STRATEGY_ID,
+        "label": "OG replay / strategy",
+        "description": "Current Money Flow rules with MACD entry confirmation and MACD-rollover exits.",
+        "research_only": False,
+        "changes_production_rules": False,
+    },
+    {
+        "id": PT002_NO_MACD_STRATEGY_ID,
+        "label": "MACD removed",
+        "description": (
+            "Research-only historical replay with MACD entry confirmation and MACD-rollover "
+            "exit checks removed. Other Money Flow checks remain unchanged."
+        ),
+        "research_only": True,
+        "changes_production_rules": False,
+    },
+)
+_SLEEVE_PARAMS = {
+    "sleeve_15m": {"overbought_rsi": Decimal("72"), "trim_rsi": Decimal("78"), "max_extension": Decimal("0.018")},
+    "sleeve_1h": {"overbought_rsi": Decimal("74"), "trim_rsi": Decimal("80"), "max_extension": Decimal("0.02")},
+    "sleeve_4h": {"overbought_rsi": Decimal("76"), "trim_rsi": Decimal("82"), "max_extension": Decimal("0.025")},
+}
 
 
 @dataclass(frozen=True)
@@ -57,6 +83,24 @@ def _money(value: Any, places: int = 8) -> str:
         decimal = Decimal("0")
     quant = Decimal("1").scaleb(-places)
     return str(decimal.quantize(quant))
+
+
+def _decimal(value: Any, default: Decimal | None = None) -> Decimal | None:
+    try:
+        return Decimal(str(value))
+    except (InvalidOperation, TypeError, ValueError):
+        return default
+
+
+def _quantity(value: Any) -> str:
+    decimal = _decimal(value, Decimal("0")) or Decimal("0")
+    return str(decimal.quantize(Decimal("0.000000000001")))
+
+
+def _ratio(numerator: Decimal, denominator: Decimal) -> str | None:
+    if denominator == 0:
+        return None
+    return _money(numerator / denominator)
 
 
 def _source_hash(path: Path | None) -> str | None:
@@ -401,6 +445,13 @@ def _summary_from_metrics(metrics: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _strategy_metadata(strategy_id: str) -> dict[str, Any]:
+    return next(
+        (dict(row) for row in PT002_STRATEGIES if row["id"] == strategy_id),
+        dict(PT002_STRATEGIES[0]),
+    )
+
+
 def _replay_from_result(result: dict[str, Any]) -> dict[str, Any]:
     contexts = list(result.get("contexts") or [])
     contexts_by_time = _context_by_time(contexts)
@@ -416,6 +467,10 @@ def _replay_from_result(result: dict[str, Any]) -> dict[str, Any]:
         trades.append(normalized)
     candles = [_candle_from_context(context) for context in contexts]
     return {
+        "strategy_id": PT002_BASELINE_STRATEGY_ID,
+        "strategy_label": _strategy_metadata(PT002_BASELINE_STRATEGY_ID)["label"],
+        "strategy_description": _strategy_metadata(PT002_BASELINE_STRATEGY_ID)["description"],
+        "research_only": False,
         "symbol": (result.get("request") or {}).get("symbol"),
         "timeframe": result.get("timeframe"),
         "component": ((result.get("request") or {}).get("component_keys") or ["unknown"])[0],
@@ -432,6 +487,318 @@ def _replay_from_result(result: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _context_decimal(context: dict[str, Any], key: str) -> Decimal | None:
+    return _decimal(context.get(key))
+
+
+def _no_macd_entry_rejection(context: dict[str, Any]) -> str | None:
+    if context.get("baseline_status") == "invalid":
+        return str((context.get("baseline_reason_codes") or ["invalid"])[0])
+    component = str(context.get("component_key") or "")
+    params = _SLEEVE_PARAMS.get(component, _SLEEVE_PARAMS["sleeve_1h"])
+    close = _context_decimal(context, "close")
+    ema5 = _context_decimal(context, "ema5")
+    ema10 = _context_decimal(context, "ema10")
+    sma20 = _context_decimal(context, "sma20")
+    rsi = _context_decimal(context, "rsi14")
+    floor = _context_decimal(context, "rsi_sleeve_floor")
+    ceiling = _context_decimal(context, "rsi_sleeve_ceiling")
+    if None in (close, ema5, ema10, sma20, rsi, floor, ceiling):
+        return "insufficient_history"
+    assert close is not None and ema5 is not None and ema10 is not None and sma20 is not None
+    assert rsi is not None and floor is not None and ceiling is not None
+    if not (ema5 > ema10 > sma20):
+        return "bearish_alignment"
+    if rsi >= params["overbought_rsi"]:
+        return "overextended_rsi"
+    if not (floor <= rsi <= ceiling):
+        return "rsi_not_constructive"
+    max_extension = params["max_extension"]
+    pullback_ok = close >= ema10 and close <= ema5 * (Decimal("1") + max_extension)
+    continuation_ok = close > ema5 and close <= ema5 * (Decimal("1") + max_extension)
+    if not (pullback_ok or continuation_ok):
+        return "entry_quality_not_constructive"
+    extension = ((close / ema5) - Decimal("1")) if ema5 else Decimal("0")
+    if extension > max_extension:
+        return "price_too_extended"
+    return None
+
+
+def _no_macd_exit_reason(context: dict[str, Any]) -> str | None:
+    component = str(context.get("component_key") or "")
+    params = _SLEEVE_PARAMS.get(component, _SLEEVE_PARAMS["sleeve_1h"])
+    close = _context_decimal(context, "close")
+    ema5 = _context_decimal(context, "ema5")
+    ema10 = _context_decimal(context, "ema10")
+    sma20 = _context_decimal(context, "sma20")
+    rsi = _context_decimal(context, "rsi14")
+    if None in (close, ema5, ema10, sma20, rsi):
+        return None
+    assert close is not None and ema5 is not None and ema10 is not None and sma20 is not None and rsi is not None
+    if ema5 <= ema10 or ema10 <= sma20 or close < ema10:
+        return "ma_alignment_break"
+    if close < sma20 or ema5 <= ema10:
+        return "trend_invalidated"
+    if rsi >= params["trim_rsi"]:
+        return "trim_on_overbought_rsi"
+    return None
+
+
+def _fill_context(contexts: list[dict[str, Any]], signal_index: int, fill_assumption: str) -> tuple[dict[str, Any], str, str] | None:
+    if fill_assumption == "same_candle_close_research_only":
+        context = contexts[signal_index]
+        return context, str(context.get("close")), str(_context_time(context))
+    next_index = signal_index + 1
+    if next_index >= len(contexts):
+        return None
+    context = contexts[next_index]
+    if fill_assumption == "next_candle_close":
+        return context, str(context.get("close")), str(_context_time(context))
+    return context, str(context.get("open")), str(context.get("candle_open_time") or _context_time(context))
+
+
+def _simulated_no_macd_trade(
+    *,
+    result: dict[str, Any],
+    entry_context: dict[str, Any],
+    entry_fill: tuple[dict[str, Any], str, str],
+    exit_context: dict[str, Any],
+    exit_fill: tuple[dict[str, Any], str, str],
+    entry_reason: str,
+    exit_reason: str,
+    equity_before: Decimal,
+    forced_exit: bool,
+) -> dict[str, Any]:
+    symbol = (result.get("request") or {}).get("symbol")
+    timeframe = result.get("timeframe")
+    component = ((result.get("request") or {}).get("component_keys") or ["unknown"])[0]
+    fee_rate = Decimal("5") / Decimal("10000")
+    slippage_rate = Decimal("3") / Decimal("10000")
+    raw_entry = _decimal(entry_fill[1], Decimal("0")) or Decimal("0")
+    raw_exit = _decimal(exit_fill[1], Decimal("0")) or Decimal("0")
+    entry_price = raw_entry * (Decimal("1") + slippage_rate)
+    exit_price = raw_exit * (Decimal("1") - slippage_rate)
+    notional = equity_before
+    size = (notional / entry_price) if entry_price else Decimal("0")
+    entry_fee = notional * fee_rate
+    exit_notional = exit_price * size
+    exit_fee = exit_notional * fee_rate
+    entry_slippage = (entry_price - raw_entry) * size
+    exit_slippage = (raw_exit - exit_price) * size
+    gross_pnl = (raw_exit - raw_entry) * size
+    fees = entry_fee + exit_fee
+    slippage = entry_slippage + exit_slippage
+    net_pnl = gross_pnl - fees - slippage
+    equity_after = equity_before + net_pnl
+    payload = "|".join(
+        [
+            PT002_NO_MACD_STRATEGY_ID,
+            str(symbol),
+            str(timeframe),
+            str(entry_fill[2]),
+            str(exit_fill[2]),
+            entry_reason,
+            exit_reason,
+        ]
+    )
+    trade = {
+        "trade_id": f"svt-{sha256(payload.encode('utf-8')).hexdigest()[:24]}",
+        "symbol": symbol,
+        "timeframe": timeframe,
+        "component": component,
+        "side": "buy",
+        "entry_signal_time": _context_time(entry_context),
+        "entry_fill_time": entry_fill[2],
+        "entry_time": entry_fill[2],
+        "entry_price": _money(entry_price),
+        "entry_reason_codes": [entry_reason],
+        "entry_indicators": _trade_indicator_snapshot(
+            {"entry_signal_time": _context_time(entry_context)},
+            _context_by_time([entry_context]),
+            "entry",
+        ),
+        "exit_signal_time": _context_time(exit_context),
+        "exit_fill_time": exit_fill[2],
+        "exit_time": exit_fill[2],
+        "exit_price": _money(exit_price),
+        "exit_reason_codes": [exit_reason],
+        "exit_indicators": _trade_indicator_snapshot(
+            {"exit_signal_time": _context_time(exit_context)},
+            _context_by_time([exit_context]),
+            "exit",
+        ),
+        "fill_assumption": PT002_DEFAULT_FILL_ASSUMPTION,
+        "fee_bps": "5",
+        "slippage_bps": "3",
+        "fees": _money(fees),
+        "slippage_cost": _money(slippage),
+        "gross_pnl": _money(gross_pnl),
+        "net_pnl": _money(net_pnl),
+        "equity_before_trade": _money(equity_before),
+        "equity_after_trade": _money(equity_after),
+        "drawdown_after_trade": "0.00000000",
+        "notional_used": _money(notional),
+        "position_size": _quantity(size),
+        "forced_exit": forced_exit,
+        "market_regime": entry_context.get("market_regime_label"),
+        "source": "historical_replay",
+        "strategy_id": PT002_NO_MACD_STRATEGY_ID,
+        "labels": {
+            "historical_paper_replay": True,
+            "not_live": True,
+            "not_testnet_order": True,
+            "not_real_capital": True,
+            "research_variant": PT002_NO_MACD_STRATEGY_ID,
+        },
+    }
+    return trade
+
+
+def _summary_from_trades(trades: list[dict[str, Any]], no_trade: Counter[str], invalid: Counter[str]) -> dict[str, Any]:
+    equities = [Decimal(PT002_INITIAL_EQUITY)]
+    pnl_values: list[Decimal] = []
+    fees = Decimal("0")
+    slippage = Decimal("0")
+    for trade in trades:
+        equities.append(_decimal(trade.get("equity_after_trade"), Decimal(PT002_INITIAL_EQUITY)) or Decimal(PT002_INITIAL_EQUITY))
+        pnl_values.append(_decimal(trade.get("net_pnl"), Decimal("0")) or Decimal("0"))
+        fees += _decimal(trade.get("fees"), Decimal("0")) or Decimal("0")
+        slippage += _decimal(trade.get("slippage_cost"), Decimal("0")) or Decimal("0")
+    ending = equities[-1]
+    wins = [value for value in pnl_values if value > 0]
+    losses = [value for value in pnl_values if value < 0]
+    peak = equities[0]
+    max_drawdown = Decimal("0")
+    for equity in equities:
+        peak = max(peak, equity)
+        max_drawdown = max(max_drawdown, peak - equity)
+    gross_wins = sum(wins, Decimal("0"))
+    gross_losses = abs(sum(losses, Decimal("0")))
+    return {
+        "starting_equity": PT002_INITIAL_EQUITY,
+        "ending_equity": _money(ending),
+        "net_pnl": _money(ending - Decimal(PT002_INITIAL_EQUITY)),
+        "realized_pnl": _money(ending - Decimal(PT002_INITIAL_EQUITY)),
+        "unrealized_pnl": "0.00000000",
+        "max_equity": _money(max(equities)),
+        "min_equity": _money(min(equities)),
+        "max_drawdown": _money(max_drawdown),
+        "max_drawdown_pct": _ratio(max_drawdown, max(equities)) or "0.00000000",
+        "trade_count": len(trades),
+        "win_rate": _ratio(Decimal(len(wins)), Decimal(len(trades))) if trades else "0.00000000",
+        "profit_factor": _ratio(gross_wins, gross_losses) if gross_losses else None,
+        "best_trade": _money(max(pnl_values, default=Decimal("0"))),
+        "worst_trade": _money(min(pnl_values, default=Decimal("0"))),
+        "total_fees": _money(fees),
+        "total_slippage_cost": _money(slippage),
+        "no_trade_reason_counts": dict(sorted(no_trade.items())),
+        "invalid_reason_counts": dict(sorted(invalid.items())),
+    }
+
+
+def _no_macd_replay_from_result(result: dict[str, Any]) -> dict[str, Any]:
+    contexts = list(result.get("contexts") or [])
+    trades: list[dict[str, Any]] = []
+    no_trade: Counter[str] = Counter()
+    invalid: Counter[str] = Counter()
+    equity = Decimal(PT002_INITIAL_EQUITY)
+    open_entry: tuple[dict[str, Any], tuple[dict[str, Any], str, str], str, Decimal] | None = None
+    for index, context in enumerate(contexts):
+        if open_entry is not None:
+            exit_reason = _no_macd_exit_reason(context)
+            if exit_reason is None:
+                continue
+            exit_fill = _fill_context(contexts, index, PT002_DEFAULT_FILL_ASSUMPTION)
+            if exit_fill is None:
+                continue
+            trade = _simulated_no_macd_trade(
+                result=result,
+                entry_context=open_entry[0],
+                entry_fill=open_entry[1],
+                exit_context=context,
+                exit_fill=exit_fill,
+                entry_reason=open_entry[2],
+                exit_reason=exit_reason,
+                equity_before=open_entry[3],
+                forced_exit=False,
+            )
+            trades.append(trade)
+            equity = _decimal(trade.get("equity_after_trade"), equity) or equity
+            open_entry = None
+            continue
+
+        reason = _no_macd_entry_rejection(context)
+        if reason in {"insufficient_history", "invalid"}:
+            invalid[reason] += 1
+            continue
+        if reason is not None:
+            no_trade[reason] += 1
+            continue
+        fill = _fill_context(contexts, index, PT002_DEFAULT_FILL_ASSUMPTION)
+        if fill is None:
+            no_trade["open_signal_skipped_no_fill_candle_for_next_candle_open"] += 1
+            continue
+        entry_reason = (
+            "macd_removed_entry_allowed"
+            if "macd_not_constructive" in (context.get("baseline_reason_codes") or [])
+            or context.get("entry_rejection_reason") == "macd_not_constructive"
+            else "baseline_entry_allowed"
+        )
+        open_entry = (context, fill, entry_reason, equity)
+
+    if open_entry is not None and contexts:
+        last_context = contexts[-1]
+        force_fill = (last_context, str(last_context.get("close")), str(_context_time(last_context)))
+        trade = _simulated_no_macd_trade(
+            result=result,
+            entry_context=open_entry[0],
+            entry_fill=open_entry[1],
+            exit_context=last_context,
+            exit_fill=force_fill,
+            entry_reason=open_entry[2],
+            exit_reason="end_of_window_forced_close",
+            equity_before=open_entry[3],
+            forced_exit=True,
+        )
+        trades.append(trade)
+
+    max_equity = Decimal(PT002_INITIAL_EQUITY)
+    for trade in trades:
+        trade["drawdown_after_trade"] = _drawdown_after(trade.get("equity_after_trade"), max_equity)
+        max_equity = max(max_equity, _decimal(trade.get("equity_after_trade"), max_equity) or max_equity)
+
+    candles = [_candle_from_context(context) for context in contexts]
+    summary = _summary_from_trades(trades, no_trade, invalid)
+    return {
+        "strategy_id": PT002_NO_MACD_STRATEGY_ID,
+        "strategy_label": _strategy_metadata(PT002_NO_MACD_STRATEGY_ID)["label"],
+        "strategy_description": _strategy_metadata(PT002_NO_MACD_STRATEGY_ID)["description"],
+        "research_only": True,
+        "symbol": (result.get("request") or {}).get("symbol"),
+        "timeframe": result.get("timeframe"),
+        "component": ((result.get("request") or {}).get("component_keys") or ["unknown"])[0],
+        "candles": candles,
+        "indicators": [_indicator_from_context(context) for context in contexts],
+        "markers": _trade_markers(trades),
+        "trades": trades,
+        "equity_curve": _equity_curve(trades, candles[0]["time"] if candles else None),
+        "summary": summary,
+        "reason_counts": {
+            "entry_reason_counts": dict(
+                Counter(reason for trade in trades for reason in trade.get("entry_reason_codes", []))
+            ),
+            "exit_reason_counts": dict(
+                Counter(reason for trade in trades for reason in trade.get("exit_reason_codes", []))
+            ),
+            "no_trade_reason_counts": summary["no_trade_reason_counts"],
+            "invalid_reason_counts": summary["invalid_reason_counts"],
+        },
+        "data_source": PT002_SOURCE_KIND,
+        "strategy_truth_lane": "historical_strategy_truth",
+        "testnet_prices_used_as_strategy_truth": False,
+    }
+
+
 def _comparison_from_replay(replay: dict[str, Any]) -> dict[str, Any]:
     trades = replay.get("trades") or []
     summary = replay.get("summary") or {}
@@ -442,6 +809,8 @@ def _comparison_from_replay(replay: dict[str, Any]) -> dict[str, Any]:
         reason for trade in trades for reason in (trade.get("entry_reason_codes") or [])
     ).most_common(3)
     return {
+        "strategy_id": replay.get("strategy_id") or PT002_BASELINE_STRATEGY_ID,
+        "strategy_label": replay.get("strategy_label") or "OG replay / strategy",
         "symbol": replay.get("symbol"),
         "timeframe": replay.get("timeframe"),
         "status": "replay_ready" if replay.get("candles") else "data_missing",
@@ -501,6 +870,7 @@ def build_pt002_historical_replay_summary_from_sv117_payload(
                 continue
             datasets.append(_dataset_from_result(result))
             replays.append(_replay_from_result(result))
+            replays.append(_no_macd_replay_from_result(result))
 
     comparison = [_comparison_from_replay(replay) for replay in replays]
     selected = next(
@@ -532,6 +902,8 @@ def build_pt002_historical_replay_summary_from_sv117_payload(
         "window_convention": PT002_WINDOW_CONVENTION,
         "initial_equity": PT002_INITIAL_EQUITY,
         "capital_sizing_mode": "dynamic_equity_pct",
+        "strategies": list(PT002_STRATEGIES),
+        "selected_strategy_id": PT002_BASELINE_STRATEGY_ID,
         "sizing_policy": {
             "sizing_basis": "realized_equity",
             "risk_display_basis": "realized_plus_unrealized",
@@ -551,6 +923,7 @@ def build_pt002_historical_replay_summary_from_sv117_payload(
         ],
         "replays": replays,
         "selected_replay": {
+            "strategy_id": selected.get("strategy_id") if selected else None,
             "symbol": selected.get("symbol") if selected else None,
             "timeframe": selected.get("timeframe") if selected else None,
         },

@@ -13,6 +13,34 @@ Entry schema:
 
 ---
 
+## v2026.05.11.012
+
+- `recorded_at_utc`: `2026-05-11T15:46:08Z`
+- `scope`: `Historical replay MACD-removed research variant`
+- `intent`: `Native entry. Added a research-only MACD-removed historical replay variant across all BTC/ETH/SOL 15m/1h/4h replay datasets and wired the Historical Replay dashboard to switch between OG replay / strategy and MACD removed. The MACD-removed variant removes MACD entry confirmation and MACD-rollover exit checks for replay inspection only while preserving other entry, exit, fill, cost, and dynamic-equity assumptions. The summary JSON now carries strategy metadata, baseline and MACD-removed replay rows, and strategy-filtered comparison rows. No orders, order controls, private/signed/order endpoints, live endpoints, exchange API keys, Money Flow production rule changes, evidence packs, routing behavior, or live/paper real-capital behavior were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/pt0_0_2_historical_strategy_replay_cockpit.md`
+  - `docs/pt0_0_2_historical_strategy_replay_summary.json`
+  - `services/strategy_validation/__init__.py`
+  - `services/strategy_validation/historical_replay.py`
+  - `tests/test_pt002_historical_strategy_replay_cockpit.py`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall services/strategy_validation apps/dashboard tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_pt002_historical_strategy_replay_cockpit.py`
+
 ## v2026.05.11.011
 
 - `recorded_at_utc`: `2026-05-11T15:13:11Z`
