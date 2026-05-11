@@ -18,7 +18,7 @@ This phase does not submit orders, does not add order controls, does not call li
 | Balance/position polling status | `implemented` | UAT4.2 defines a 60-second sandbox private-read-only polling policy that forbids order/cancel/amend/retry/live categories. |
 | Internal paper-equity ledger | `implemented` | Starting internal paper equity is `10000` USDC; current equity updates as initial plus realized and unrealized PnL. |
 | Routed orders tab | `implemented` | UAT3.4 routed sandbox order ledger remains visible without order controls. |
-| PT0 roadmap | `deferred` | PT0 is captured as the next approval-gated paper/sandbox runtime phase; it is not implemented in UAT4.2. |
+| PT0 supersession | `implemented_by_pt0` | PT0 has superseded the prior roadmap-only PT0 state with TradingView Lightweight Charts and top-20 Hyperliquid-supported paper/sandbox runtime foundation. |
 
 ## Live Market Data Status
 
@@ -151,7 +151,7 @@ Preferred UAT policy:
 
 Future paper/sandbox trades should size from current realized paper equity, not from a static `10000` USDC value on every trade. Unrealized PnL is included in the dashboard risk view.
 
-PT0 must separately approve and gate any strategy-to-order or paper/sandbox trading runtime.
+PT0 now separately approves and gates the paper/sandbox runtime foundation.
 
 ## Dashboard Status
 
@@ -185,27 +185,31 @@ UAT4.2 does not add:
 - paper/live toggle;
 - auto-trade toggle.
 
-Order submission remains disabled in the dashboard. UAT4.2 does not submit orders. UAT4.2 is not live trading. Paper trading is not approved as an automated runtime. Live trading is not approved.
+Order submission remains disabled in the dashboard. UAT4.2 did not submit orders. UAT4.2 is not live trading. PT0 later approved Hyperliquid testnet/sandbox paper trading and broader top-20 supported paper/sandbox scope, but live trading remains not approved.
 
-## Remaining Blockers Before PT0
+Live trading is not approved.
 
-Status: `deferred`
+## PT0 Supersession Status
 
-PT0 remains a future separately scoped phase. Before PT0, the project still needs:
+Status: `implemented_by_pt0`
 
-- explicit PT0 founder/operator approval;
-- paper/sandbox runtime approval gates;
-- strategy-to-paper observation conversion policy;
-- risk limits and kill switch for paper/sandbox runtime;
-- submit-lease behavior for paper/sandbox runtime;
-- live dashboard polling deployment mode;
-- no-live-endpoint and no-secret operational smoke checks.
+PT0 has superseded the prior roadmap-only PT0 state and is now implemented as a separate phase in `docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime.md`.
+
+PT0 adds:
+
+- explicit paper-trading approval for Hyperliquid testnet/sandbox only;
+- explicit broader top-20 Hyperliquid-supported paper/sandbox approval;
+- TradingView Lightweight Charts integration;
+- PT0 paper scanner/runtime summary;
+- top-20 paper universe eligibility and metadata/precision blockers;
+- internal 10,000 USDC paper-equity ledger and sizing policy;
+- PT0 risk limits and sandbox routing default-disabled by `PT0_SANDBOX_ORDER_ROUTING_ENABLED=false`.
 
 ## PT0 Roadmap
 
 Status: `captured`
 
-PT0 — Approval-Gated Paper/Sandbox Trading Runtime should include:
+PT0 — TradingView Lightweight Charts + Broad Top-20 Paper/Sandbox Runtime Foundation now includes:
 
 - controlled paper-equity ledger;
 - Hyperliquid sandbox/testnet only;
@@ -217,10 +221,10 @@ PT0 — Approval-Gated Paper/Sandbox Trading Runtime should include:
 - risk limits;
 - kill switch;
 - dashboard monitoring;
-- no broad top-20 order submission unless separately approved.
+- broader top-20 Hyperliquid-supported paper/sandbox approval, still gated and sandbox/testnet only.
 
 ## Current Decision
 
 UAT4.2 is dashboard/live-monitoring and internal paper-equity visibility only.
 
-PT0 may be scoped next, but PT0 is not implemented by UAT4.2.
+PT0 is implemented after UAT4.2. PT0 remains Hyperliquid testnet/sandbox only and still does not approve live trading or real-capital trading.

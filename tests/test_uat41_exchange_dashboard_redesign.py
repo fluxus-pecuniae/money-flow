@@ -40,8 +40,9 @@ def test_design_doc_is_rebuilt_and_root_design_points_to_dashboard_doc() -> None
     assert "central TradingView-style chart region" in design
     assert "right-side order book / market context / risk context" in design
     assert "bottom blotter" in design
-    assert "sandbox/testnet observation only" in design
-    assert "Paper trading: `not approved`" in design
+    assert "The dashboard is not an order-entry terminal." in design
+    assert "Paper trading: `approved for Hyperliquid testnet/sandbox only`" in design
+    assert "Broader top-20 paper/sandbox trading: `approved under PT0 metadata, precision, risk, lease, label, and no-live gates`" in design
     assert "Live trading: `not approved`" in design
     assert "[`apps/dashboard/DESIGN.md`](apps/dashboard/DESIGN.md)" in root_design
 
@@ -92,9 +93,9 @@ def test_watchlist_assets_are_visible_observation_only_and_filtered() -> None:
     assert "No-trade" in js
     assert "Active sandbox route" in js
     assert "Missing data" in js
-    assert "observation only" in js
-    assert "not approved for orders" in js
-    assert "ETH sandbox route ledger visible; manual approval required for every sandbox order" in js
+    assert "paper/sandbox only" in js
+    assert "paper/sandbox eligible under PT0 gates" in js
+    assert "active ETH sandbox route; approval and risk gates required" in js
 
 
 def test_indicators_markers_and_right_rail_context_are_safe() -> None:
@@ -129,7 +130,6 @@ def test_no_order_private_or_paper_live_controls_are_present() -> None:
         "market sell",
         "paper/live toggle",
         "auto-trade toggle",
-        "paper trading approved",
         "live trading approved",
         "order submission approved",
         "profitable",
@@ -138,7 +138,7 @@ def test_no_order_private_or_paper_live_controls_are_present() -> None:
     for phrase in forbidden:
         assert phrase not in dashboard
 
-    assert "paper trading is not approved" in dashboard
+    assert "paper trading is approved for hyperliquid testnet/sandbox only" in dashboard
     assert "live trading is not approved" in dashboard
     assert "order controls are disabled" in dashboard
-    assert "top-20 assets are observation-only" in dashboard
+    assert "broader top-20 supported paper/sandbox trading is approved" in dashboard

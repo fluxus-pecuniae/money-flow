@@ -272,6 +272,18 @@ Last reviewed: `2026-05-11T08:08:44Z`
 - Dashboard-consumed UAT4.2 monitor summary.
 - Records public-read-only market snapshots for the UAT watchlist, indicator snapshots, paper-observation scanner records, sandbox balance confirmation/poll policy, internal paper-equity state, future sizing policy, routed-order source status, and no-order/no-live side-effect flags.
 
+`docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime.md`
+- Founder/operator PT0 report.
+- Records that PAPER TRADING IS APPROVED and BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED for Hyperliquid testnet/sandbox only, plus TradingView Lightweight Charts status, top-20 eligibility, internal paper equity, balance polling, risk limits, routing-foundation defaults, no-live confirmation, and PT0.1 roadmap.
+
+`docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime_summary.json`
+- Dashboard-consumed PT0 paper/sandbox runtime summary.
+- Records official local TradingView Lightweight Charts bundle metadata, paper approval statements, top-20 paper universe eligibility, paper scanner records, internal 10,000 USDC paper-equity state, sizing policy, 60-second sandbox private-read-only polling policy, PT0 runtime limits, and routing side-effect flags.
+
+`apps/dashboard/vendor/`
+- PT0 vendored third-party charting bundle from the official `lightweight-charts` package.
+- Contains `lightweight-charts.standalone.production.js`, `LICENSE`, and `package.json`; the dashboard uses this local bundle instead of a hosted TradingView widget.
+
 `services/exchange/hyperliquid/precision.py`
 - Decimal-only Hyperliquid precision formatter.
 - Uses asset metadata `szDecimals`, perpetual max price decimals `6 - szDecimals`, five-significant-figure price formatting, and size flooring to asset size precision. It is used by UAT3.3 order planning and UAT observation-universe precision validation.
@@ -296,6 +308,15 @@ Last reviewed: `2026-05-11T08:08:44Z`
 - UAT4.2 read-only live-market monitor and internal paper-equity helpers.
 - Defines public-read-only Hyperliquid market-data policy validation, deterministic market snapshot fixtures, indicator computation, paper-observation scanner records, 60-second sandbox private-read-only balance polling policy, internal 10,000 USDC paper-equity ledger, future sizing policy from current paper equity, and summary generation for the dashboard.
 - Defaults to no network calls, no credentials, no private/signed/order endpoints, no live endpoint, and no trading artifacts.
+
+`services/uat/pt0_runtime.py`
+- PT0 paper/sandbox runtime foundation helpers.
+- Defines the explicit paper/top-20 approval statements, top-20 Hyperliquid testnet-supported paper universe eligibility, internal 10,000 USDC paper-equity ledger wrapper, realized-equity sizing policy, PT0 runtime limits, route-candidate risk decisions, paper scanner records, and summary generation for the dashboard.
+- Defaults to no network calls, no credentials, no private/signed/order endpoints, no live endpoint, no order submissions, no SOR/fanout/CBBO/target reselection, and no trading artifacts.
+
+`scripts/refresh_pt0_runtime_summary.py`
+- Generates the committed PT0 dashboard/runtime summary from deterministic helpers plus existing UAT3.3/UAT3.4/UAT4.2 summaries.
+- Default mode performs no network calls, reads no credentials, and calls no private/signed/order endpoints.
 
 `core/config/`
 - Pydantic settings, environment profiles, runtime selection, and per-venue / strategy configuration.

@@ -119,7 +119,7 @@ def test_uat2_dashboard_has_no_order_enabling_approval_button_or_forbidden_langu
     assert "approval button" not in dashboard
     assert "enable orders" not in dashboard
     assert "submit sandbox order" not in dashboard
-    assert "paper trading approved" not in dashboard
+    assert "paper trading is approved for hyperliquid testnet/sandbox only" in dashboard
     assert "live trading approved" not in dashboard
     assert "order submission approved" not in dashboard
     assert "profitable" not in dashboard

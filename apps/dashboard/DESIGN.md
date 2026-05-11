@@ -15,7 +15,7 @@ The dashboard is not an order-entry terminal.
 - Tie shadow markers and routed sandbox lifecycle markers directly to the active market.
 - Make routed orders readable as a blotter, not as detached report cards.
 - Keep sandbox, paper, and live boundaries visible without overwhelming the screen with prose.
-- Preserve UAT safety: no active order controls, no private/signed/order endpoint calls, no API keys, no paper/live behavior.
+- Preserve PT0 safety: no active order controls, no private/signed/order endpoint calls, no API keys for charts, no live behavior, and no real-capital behavior.
 
 ## User Mental Model
 
@@ -43,7 +43,7 @@ The implementation uses this interaction model and information architecture only
 Top bar:
 - product name: `Money Flow`
 - environment badge: `sandbox/testnet`
-- paper/live status: not approved
+- paper/live status: paper approved for Hyperliquid testnet/sandbox only; live not approved
 - active market selector
 - active venue and timeframe
 - market status: public read-only
@@ -57,7 +57,7 @@ Left rail:
 Center:
 - chart cockpit
 - timeframe context
-- deterministic chart shell from local UAT summaries
+- TradingView Lightweight Charts from the official local bundle
 - indicator dock
 - entry/exit marker dock
 
@@ -107,6 +107,7 @@ The UAT Chart Cockpit has its own bottom blotter tabs:
 - `market-list-shell`
 - `uat-center-cockpit`
 - `exchange-chart-shell`
+- `tradingview-lightweight-chart`
 - `indicator-dock`
 - `marker-dock`
 - `uat-right-rail`
@@ -151,17 +152,18 @@ The design avoids default-looking large report text and favors dense workstation
 
 ## Market Data Display Rules
 
-- Show latest price/mid only when present in local UAT summaries, UAT4.2 local refresh JSON, or public read-only data.
+- Show latest price/mid only when present in local UAT/PT summaries, PT0/UAT4.2 local refresh JSON, or public read-only data.
 - Show `market_data_unavailable` instead of fabricated values.
 - Label sources as `local_summary_json`, `refreshed_public_read_only_local_json`, or `public_read_only`.
 - Never require private endpoints or API keys for dashboard display.
-- UAT4.2 supports a local refresh summary path and public-read-only monitor helpers. The live-charting hotfix lets the browser poll Hyperliquid testnet public `allMids` and `candleSnapshot` every 15 seconds, then falls back to committed/local JSON if public polling fails.
+- PT0 keeps the UAT4.2 local refresh summary path and public-read-only monitor helpers, adds `docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime_summary.json`, and lets the browser poll Hyperliquid testnet public `allMids` and `candleSnapshot` every 15 seconds before falling back to committed/local JSON.
 
 ## Chart Rules
 
 - The chart area must be central.
-- UAT4.2 prefers live Hyperliquid testnet public candles, falls back to refreshed public-read-only monitor candles, then falls back to committed UAT summaries.
-- Any future live chart library must remain public-read-only unless a later phase explicitly scopes otherwise.
+- PT0 uses TradingView Lightweight Charts for candlesticks, volume histogram, crosshair, price scale, time scale, resize handling, EMA overlays, and markers.
+- PT0 prefers live Hyperliquid testnet public candles, falls back to refreshed public-read-only monitor candles, then falls back to committed PT0/UAT summaries.
+- The dashboard uses a local official `lightweight-charts` standalone bundle, not TradingView Advanced Charts, not the Trading Platform library, and not the hosted TradingView widget.
 - If candles are insufficient, display explicit unavailable states.
 
 ## Signal Marker Rules
@@ -218,12 +220,13 @@ No retry, cancel, amend, route, or approval actions are allowed in the dashboard
 ## Sandbox / Paper / Live Labeling Rules
 
 - UAT cockpit: `sandbox/testnet observation only`.
-- Paper trading: `not approved`.
+- Paper trading: `approved for Hyperliquid testnet/sandbox only`.
+- Broader top-20 paper/sandbox trading: `approved under PT0 metadata, precision, risk, lease, label, and no-live gates`.
 - Live trading: `not approved`.
 - Internal paper equity: `paper-equity simulation`, `not real capital`.
 - Sandbox balance confirmation: `sandbox private read-only`, `not live account`.
-- Top-20 assets: `observation only`.
-- ETH route: fixed-target sandbox route ledger visibility only; manual approval is required for every sandbox order.
+- Top-20 assets: `paper/sandbox eligible only when Hyperliquid testnet metadata and precision pass`.
+- ETH route: fixed-target sandbox route ledger visibility plus PT0 route-candidate foundation; runtime routing remains gated and default-disabled.
 - Routed ledger records: sandbox/testnet lifecycle records, not paper, not live, not performance validation.
 
 ## Safety / No-Order-Control Rules
@@ -247,11 +250,10 @@ If future control mocks are ever shown, they must be disabled, inert, and labele
 ## Future Roadmap
 
 Deferred UAT/PT work:
-- PT0 approval-gated paper/sandbox trading runtime
+- PT0.1 supervised top-20 paper/sandbox runtime week
 - operator-served live public refresh endpoint
 - real order-book/public depth display
-- chart-library replacement for the deterministic shell
 - richer crosshair / tooltip behavior
 - routed-order timeline overlays on the chart
 
-None of the above authorize order submission, paper trading, live trading, private endpoints, signed endpoints, API-key use, routing expansion, or Money Flow rule changes.
+None of the above authorize live trading, live endpoints, real-capital trading, private order endpoints, signed order endpoints, API-key exposure, routing expansion, SOR/fanout/CBBO/target reselection, cross-venue routing, or Money Flow rule changes.

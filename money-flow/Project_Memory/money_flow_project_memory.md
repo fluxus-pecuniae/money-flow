@@ -18,7 +18,7 @@ Money Flow combines:
 - submitted-order lifecycle and reconciliation truth.
 - operator observability.
 - future UAT/sandbox behavior validation.
-- UAT0 safety/security/runtime readiness plus UAT0.1 API/runtime lockout, UAT0.2 adapter-policy/redaction hardening, UAT0.3 top-20 universe/drawdown readiness preflight, UAT1 public read-only connectivity/universe resolution, UAT1.1 shadow-readiness surfaces, UAT2 bounded no-order shadow observation, UAT2.1 dashboard visualization, UAT3.0 sandbox-order design/readiness, UAT3.0.1 sandbox runtime / approval / risk readiness hardening, UAT3.0.2 sandbox gate integration dry-run / policy hardening, UAT3.0.3 sandbox gate wiring / label-enforcement hardening, UAT3.0.4 sandbox private read-only drawdown readiness, UAT3.0.5 sandbox/testnet private read-only drawdown verification, UAT3.0.6 sandbox submit path dry-run wiring, UAT3.1 first sandbox/testnet lifecycle probe, UAT3.2 fixed-key readiness preflight / second sandbox lifecycle attempt blocked before order transport, UAT3.3 Hyperliquid account-targeting / precision hardening, UAT3.4 production-like fixed-target sandbox routing pipeline plus routed-order ledger, UAT4.0 read-only dashboard/chart cockpit, UAT4.1 exchange-style dashboard redesign, and UAT4.2 live market dashboard plus internal paper-equity monitor.
+- UAT0 safety/security/runtime readiness plus UAT0.1 API/runtime lockout, UAT0.2 adapter-policy/redaction hardening, UAT0.3 top-20 universe/drawdown readiness preflight, UAT1 public read-only connectivity/universe resolution, UAT1.1 shadow-readiness surfaces, UAT2 bounded no-order shadow observation, UAT2.1 dashboard visualization, UAT3.0 sandbox-order design/readiness, UAT3.0.1 sandbox runtime / approval / risk readiness hardening, UAT3.0.2 sandbox gate integration dry-run / policy hardening, UAT3.0.3 sandbox gate wiring / label-enforcement hardening, UAT3.0.4 sandbox private read-only drawdown readiness, UAT3.0.5 sandbox/testnet private read-only drawdown verification, UAT3.0.6 sandbox submit path dry-run wiring, UAT3.1 first sandbox/testnet lifecycle probe, UAT3.2 fixed-key readiness preflight / second sandbox lifecycle attempt blocked before order transport, UAT3.3 Hyperliquid account-targeting / precision hardening, UAT3.4 production-like fixed-target sandbox routing pipeline plus routed-order ledger, UAT4.0 read-only dashboard/chart cockpit, UAT4.1 exchange-style dashboard redesign, UAT4.2 live market dashboard plus internal paper-equity monitor, and PT0 TradingView charting / top-20 paper-sandbox runtime foundation.
 
 ## Platform Tracks Completed
 
@@ -91,9 +91,9 @@ Excluded from current UAT:
 - Aster / Binance / OKX / Coinbase / Kraken.
 - cross-venue comparison.
 
-## UAT0 / UAT0.1 / UAT0.2 / UAT0.3 / UAT1 / UAT1.1 / UAT2 / UAT2.1 / UAT3.0 / UAT3.0.1 / UAT3.0.2 / UAT3.0.3 / UAT3.0.4 / UAT3.0.5 / UAT3.0.6 / UAT3.1 / UAT3.2 / UAT3.3 / UAT3.4 / UAT4.0 / UAT4.1 / UAT4.2 Outcome
+## UAT0 / UAT0.1 / UAT0.2 / UAT0.3 / UAT1 / UAT1.1 / UAT2 / UAT2.1 / UAT3.0 / UAT3.0.1 / UAT3.0.2 / UAT3.0.3 / UAT3.0.4 / UAT3.0.5 / UAT3.0.6 / UAT3.1 / UAT3.2 / UAT3.3 / UAT3.4 / UAT4.0 / UAT4.1 / UAT4.2 / PT0 Outcome
 
-UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT0.3 top-20 universe and drawdown readiness preflight is complete. UAT1 public read-only connectivity is complete. UAT1.1 shadow readiness is complete. UAT2 bounded no-order shadow observation is complete. UAT2.1 dashboard visualization is complete. UAT3.0 sandbox order design is complete. UAT3.0 sandbox-order readiness is documented. UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete. UAT3.0.2 sandbox gate integration dry-run / policy hardening is complete. UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete. UAT3.0.4 sandbox private read-only drawdown readiness is complete. UAT3.0.5 sandbox/testnet private read-only drawdown verification is complete. UAT3.0.6 sandbox submit path dry-run wiring is complete. UAT3.1 first sandbox/testnet lifecycle probe is complete. UAT3.2 fixed-key readiness preflight / second sandbox lifecycle attempt is complete as blocked before order transport. UAT3.3 Hyperliquid account-targeting / precision hardening is complete with a later accepted/open -> cancel follow-up lifecycle. UAT3.4 production-like sandbox routing pipeline and routed-order ledger are complete. UAT4.0 read-only dashboard/chart cockpit is complete. UAT4.1 exchange-style dashboard redesign is complete. UAT4.2 live market dashboard and paper-equity monitor is complete. UAT4.2 live market dashboard and internal paper-equity monitor is complete.
+UAT0 safety/security/runtime audit is complete. UAT0.1 API auth/authz and runtime lockout hardening is complete. UAT0.2 adapter runtime-policy, read-only allowlist, and representative redaction hardening is complete. UAT0.3 top-20 universe and drawdown readiness preflight is complete. UAT1 public read-only connectivity is complete. UAT1.1 shadow readiness is complete. UAT2 bounded no-order shadow observation is complete. UAT2.1 dashboard visualization is complete. UAT3.0 sandbox order design is complete. UAT3.0 sandbox-order readiness is documented. UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete. UAT3.0.2 sandbox gate integration dry-run / policy hardening is complete. UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete. UAT3.0.4 sandbox private read-only drawdown readiness is complete. UAT3.0.5 sandbox/testnet private read-only drawdown verification is complete. UAT3.0.6 sandbox submit path dry-run wiring is complete. UAT3.1 first sandbox/testnet lifecycle probe is complete. UAT3.2 fixed-key readiness preflight / second sandbox lifecycle attempt is complete as blocked before order transport. UAT3.3 Hyperliquid account-targeting / precision hardening is complete with a later accepted/open -> cancel follow-up lifecycle. UAT3.4 production-like sandbox routing pipeline and routed-order ledger are complete. UAT4.0 read-only dashboard/chart cockpit is complete. UAT4.1 exchange-style dashboard redesign is complete. UAT4.2 live market dashboard and paper-equity monitor is complete. UAT4.2 live market dashboard and internal paper-equity monitor is complete. PT0 TradingView charting and top-20 paper/sandbox runtime foundation is complete.
 
 Closed by UAT0.1:
 
@@ -254,24 +254,31 @@ Closed by the later UAT3.3 follow-up and UAT3.4:
 - UAT4.0 added a read-only static chart cockpit from committed UAT2/UAT3.4 summaries, including watchlist, market-data coverage, static chart snapshots, EMA/RSI/MACD labels, shadow/sandbox lifecycle markers, active route/equity cards, routed-order filters, and no-order-control safety banners.
 - UAT4.1 rebuilt that cockpit as an exchange-style workstation with compact top bar, persistent safety banner, observation-only market rail, central chart cockpit, right order-book/market/signal/risk rail, bottom blotter tabs, and canonical `apps/dashboard/DESIGN.md`. It did not add private/signed/order endpoint calls, API-key use, order controls, paper/live behavior, routing expansion, Money Flow rule changes, or evidence packs.
 - UAT4.2 added read-only public market monitor summary data, deterministic indicator snapshots, paper-observation scanner records, green/red marker semantics, a 60-second sandbox private-read-only balance polling policy, and an internal 10,000 USDC paper-equity ledger with current-equity sizing-policy visibility. It did not add order controls, submit orders, call live endpoints, call private order endpoints, use exchange API keys, create execution artifacts, change Money Flow rules, add routing expansion, or generate evidence packs.
+- PT0 adds the official local TradingView Lightweight Charts bundle, live public Hyperliquid testnet candle rendering, deterministic top-20 paper scanner records, top-20 Hyperliquid-supported paper/sandbox universe eligibility, internal 10,000 USDC paper-equity ledger truth, current-realized-equity sizing policy, 60-second sandbox private-read-only balance polling policy, and default-disabled risk-gated sandbox route-candidate foundation. PAPER TRADING IS APPROVED. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED. PT0 did not submit sandbox orders, add live trading, use live endpoints, expose secrets, add SOR/fanout/CBBO/cross-venue routing, change Money Flow rules, or generate evidence packs.
 
 Remaining UAT blockers:
 
 - UAT3.5 additional sandbox routing lifecycle tests are blocked because UAT-universe precision validation still has unsupported symbols in the current Hyperliquid metadata response.
-- PT0 approval-gated paper/sandbox trading runtime remains future work and requires separate approval, runtime gates, risk limits, kill switch, submit-lease behavior, current-equity sizing enforcement, and no-live-endpoint smoke checks.
-- Additional sandbox order submission, paper trading, live trading, broad top-20 submission, production auto-submit, routing expansion, and Money Flow performance validation remain unapproved.
+- PT0.1 supervised top-20 paper/sandbox runtime week remains future work and requires separate approval, continuous runtime scheduling, runtime gates, risk limits, kill switch, submit-lease behavior, current-equity sizing enforcement, and no-live-endpoint smoke checks.
+- Additional sandbox order submission outside explicit PT/UAT risk-gated scope, live trading, real-capital trading, production auto-submit, routing expansion, and Money Flow performance validation remain unapproved.
 
-Future UAT observation is not ETH-only. UAT1/UAT2 cover the top 20 high-volume crypto assets supported by the selected UAT venue/environment for platform behavior validation. Top-20 inclusion is not strategy approval.
+Future UAT/PT observation is not ETH-only. UAT1/UAT2 covered the top 20 high-volume crypto assets supported by the selected UAT venue/environment for platform behavior validation. PT0 approves the broader Hyperliquid-supported top-20 paper/sandbox universe under metadata, precision, risk, lease, label, and no-live gates. Top-20 inclusion is not live trading approval, cross-venue routing approval, SOR/fanout approval, or strategy profitability proof.
 
 UAT2 shadow timing compares `next_candle_open` and `next_candle_close`. `same_candle_close_research_only` remains research-only.
 
 ## Paper / Live Status
 
-Paper trading is not approved.
+PAPER TRADING IS APPROVED.
+
+BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED.
+
+Paper trading is approved for Hyperliquid testnet/sandbox only. Internal paper equity starts at 10,000 USDC and is separate from the real Hyperliquid sandbox account confirmation balance.
 
 Live trading is not approved.
 
-Additional exchange order submission is not approved.
+Real-capital trading is not approved.
+
+Live exchange order submission is not approved.
 
 The current evidence cycle can justify UAT0 safety/runtime hardening and later shadow observation only if the founder accepts that UAT validates plumbing and behavior, not performance.
 
@@ -298,7 +305,9 @@ The current evidence cycle can justify UAT0 safety/runtime hardening and later s
 - UAT3.5: additional sandbox routing lifecycle tests are blocked pending complete UAT-universe precision coverage and separate approval.
 - UAT4.0: live UAT trading dashboard / chart cockpit complete as read-only local visualization.
 - UAT4.1: exchange-style dashboard redesign complete.
-- UAT4.2: live market dashboard and internal paper-equity monitor complete; PT0 paper/sandbox trading runtime is future work only.
+- UAT4.2: live market dashboard and internal paper-equity monitor complete.
+- PT0: TradingView charting and top-20 paper/sandbox runtime foundation complete; paper trading and broader top-20 Hyperliquid-supported paper/sandbox scope are approved for testnet/sandbox only.
+- PT0.1: supervised top-20 paper/sandbox runtime week is future work only.
 
 UAT1 public read-only connectivity is complete under strict constraints. UAT1 used no API keys, private endpoints, signed endpoints, order endpoints, paper trading, live trading, or order submission.
 

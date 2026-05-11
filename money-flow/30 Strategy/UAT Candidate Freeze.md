@@ -36,9 +36,10 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 ## Warnings
 
 - Profitability is not proven.
-- Paper trading is not approved.
+- PAPER TRADING IS APPROVED. Paper trading is approved for Hyperliquid testnet/sandbox only under PT0.
+- BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED. Broader top-20 Hyperliquid-supported paper/sandbox trading is approved under gates only.
 - Live trading is not approved.
-- Exchange order submission is not approved.
+- Live exchange order submission is not approved.
 - UAT validates plumbing and behavior, not performance.
 
 ## UAT Observation Universe Correction
@@ -57,4 +58,4 @@ Future UAT observation should cover the top 20 high-volume crypto assets support
 - shadow would-trade behavior
 - dashboard/operator visibility
 
-Top-20 inclusion is not strategy approval. It is not paper trading approval, live trading approval, or exchange order submission approval.
+Top-20 inclusion is approved for PT0 paper/sandbox scanning and risk-gated Hyperliquid testnet/sandbox route candidates only. It is not strategy approval, live trading approval, cross-venue routing approval, SOR/fanout approval, or strategy profitability proof.

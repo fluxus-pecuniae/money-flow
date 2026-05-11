@@ -92,6 +92,8 @@ REQUIRED_FILES = [
     "docs/uat4_1_exchange_style_dashboard_redesign.md",
     "docs/uat4_2_live_market_dashboard_and_paper_equity_monitor.md",
     "docs/uat4_2_live_market_dashboard_and_paper_equity_monitor_summary.json",
+    "docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime.md",
+    "docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime_summary.json",
 ]
 
 
@@ -140,7 +142,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "canonical Obsidian command center" in command_center
-    assert "`UAT4.2` live market dashboard and paper-equity monitor is complete" in current_phase
+    assert "`PT0` TradingView charts and top-20 paper/sandbox runtime foundation is complete" in current_phase
     assert "SV1.18" in command_center
     assert "UAT0" in command_center
     assert "UAT1 public read-only connectivity is complete" in command_center
@@ -153,12 +155,14 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "UAT4.0 is complete" in command_center
     assert "UAT4.1 is complete" in command_center
     assert "UAT4.2 is complete" in command_center
+    assert "PT0 is complete" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
     assert "Strategy Validation" in moved_memory
     assert "SV1.18-SV1.18.1" in moved_memory
     assert "money_flow_hyperliquid_eth_1h_baseline_uat_candidate" in moved_memory
-    assert "Paper trading is not approved" in moved_memory
+    assert "PAPER TRADING IS APPROVED." in moved_memory
+    assert "BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED." in moved_memory
     assert "UAT1 public read-only connectivity is complete" in moved_memory
     assert "UAT2 bounded no-order shadow observation is complete" in moved_memory
     assert "UAT2.1 dashboard visualization is complete" in moved_memory
@@ -170,6 +174,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "UAT4.0 read-only dashboard/chart cockpit is complete" in moved_memory
     assert "UAT4.1 exchange-style dashboard redesign is complete" in moved_memory
     assert "UAT4.2 live market dashboard and paper-equity monitor is complete" in moved_memory
+    assert "PT0 TradingView charting and top-20 paper/sandbox runtime foundation is complete" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
 
@@ -184,7 +189,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
     assert (
-        "Current implemented milestone | `UAT4.2` live market dashboard + paper-equity monitor complete"
+        "Current implemented milestone | `PT0` TradingView charts + top-20 paper/sandbox runtime foundation complete"
         in command_center
     )
     assert "Canonical command center" in compatibility_command_center
@@ -200,6 +205,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     assert "UAT4.0 read-only dashboard/chart cockpit is complete" in current_dashboard
     assert "UAT4.1 exchange-style dashboard redesign is complete" in current_dashboard
     assert "UAT4.2 live market dashboard and paper-equity monitor is complete" in current_dashboard
+    assert "PT0 TradingView charts and top-20 paper/sandbox runtime foundation is complete" in current_dashboard
     assert "Strategy Validation is now its own major track" in Path("money-flow/00 Maps/Phase Timeline.md").read_text()
     assert "What Strategy Validation Did" in sv_map
     assert "What Strategy Validation Did Not Prove" in sv_map
@@ -224,12 +230,14 @@ def test_current_state_notes_keep_uat_boundaries() -> None:
 
     for path in current_state_paths:
         note = path.read_text()
-        assert "Paper trading is not approved" in note
+        assert "PAPER TRADING IS APPROVED." in note or "Paper trading is approved for Hyperliquid testnet/sandbox only" in note
+        assert "BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED." in note or "broader top-20 Hyperliquid-supported paper/sandbox trading is approved" in note
         assert "Live trading is not approved" in note
         assert (
             "Exchange order submission is not approved" in note
             or "No exchange order submission approved" in note
             or "Additional exchange order submission is not approved" in note
+            or "Live exchange order submission is not approved" in note
         )
         assert "Hyperliquid" in note
         assert "ETH" in note
@@ -330,6 +338,7 @@ def test_uat0_operational_truth_is_current() -> None:
     uat40_report = Path("docs/uat4_0_live_uat_dashboard_chart_cockpit.md").read_text()
     uat41_report = Path("docs/uat4_1_exchange_style_dashboard_redesign.md").read_text()
     uat42_report = Path("docs/uat4_2_live_market_dashboard_and_paper_equity_monitor.md").read_text()
+    pt0_report = Path("docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime.md").read_text()
     current_notes = [
         Path("money-flow/00_Money_Flow_Command_Center.md").read_text(),
         Path("money-flow/01_Current_Phase.md").read_text(),
@@ -584,9 +593,15 @@ def test_uat0_operational_truth_is_current() -> None:
     assert "Internal 10,000 USDC Paper-Equity Ledger" in uat42_report
     assert "60-second sandbox private-read-only polling policy" in uat42_report
     assert "No-Order-Control Confirmation" in uat42_report
-    assert "PT0 — Approval-Gated Paper/Sandbox Trading Runtime" in uat42_report
+    assert "PT0 has superseded the prior roadmap-only PT0 state" in uat42_report
     assert "does not submit orders" in uat42_report
     assert "Live trading is not approved" in uat42_report
+    assert "PT0 TradingView Charts + Top-20 Paper/Sandbox Runtime Foundation" in pt0_report
+    assert "PAPER TRADING IS APPROVED." in pt0_report
+    assert "BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED." in pt0_report
+    assert "TradingView Lightweight Charts" in pt0_report
+    assert "Live trading is not approved" in pt0_report
+    assert "PT0.1 — Supervised Top-20 Paper/Sandbox Runtime Week" in pt0_report
 
     for note in current_notes:
         assert "UAT0" in note
@@ -606,11 +621,12 @@ def test_uat0_operational_truth_is_current() -> None:
         assert "UAT4.0" in note
         assert "UAT4.1" in note
         assert "UAT4.2" in note
-        assert "Paper trading is not approved" in note
+        assert "PAPER TRADING IS APPROVED." in note or "Paper trading is approved for Hyperliquid testnet/sandbox only" in note
         assert "Live trading is not approved" in note
         assert (
             "Exchange order submission is not approved" in note
             or "Additional exchange order submission is not approved" in note
+            or "Live exchange order submission is not approved" in note
         )
 
 
@@ -630,11 +646,12 @@ def test_current_phase_handoff_and_coordination_are_closed() -> None:
         assert "SV1.18" in note
         assert "SV1.18 is complete" in note
         assert "UAT0" in note
-        assert "Paper trading is not approved" in note
+        assert "PAPER TRADING IS APPROVED." in note or "Paper trading is approved for Hyperliquid testnet/sandbox only" in note
         assert "Live trading is not approved" in note
         assert (
             "Exchange order submission is not approved" in note
             or "Additional exchange order submission is not approved" in note
+            or "Live exchange order submission is not approved" in note
         )
         assert "plumbing and behavior validation" in note
         assert "Hyperliquid ETH" in note

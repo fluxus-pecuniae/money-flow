@@ -24,7 +24,12 @@
     "../../docs/uat4_2_live_market_dashboard_and_paper_equity_monitor_summary.json",
   ];
 
+  const DEFAULT_PT0_SUMMARY_FILES = [
+    "../../docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime_summary.json",
+  ];
+
   const HYPERLIQUID_TESTNET_PUBLIC_INFO_URL = "https://api.hyperliquid-testnet.xyz/info";
+  const TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION = "5.2.0";
   const LIVE_MARKET_REFRESH_MS = 15000;
   const LIVE_CHART_CANDLE_COUNT = 96;
   const LIVE_TIMEFRAME_MINUTES = {
@@ -32,7 +37,14 @@
     "1h": 60,
     "4h": 240,
   };
-  const LIVE_PUBLIC_INFO_TYPES = new Set(["allMids", "candleSnapshot"]);
+  const LIVE_PUBLIC_INFO_TYPES = new Set([
+    "allMids",
+    "candleSnapshot",
+    "fundingHistory",
+    "l2Book",
+    "meta",
+    "metaAndAssetCtxs",
+  ]);
 
   const UAT_WATCHLIST_SYMBOLS = [
     "BTC",
@@ -441,6 +453,14 @@
     uat2Summary: null,
     uat34Summary: null,
     uat42Summary: null,
+    pt0Summary: null,
+    tradingViewChart: {
+      chart: null,
+      key: null,
+      markerHandle: null,
+      resizeObserver: null,
+      ready: false,
+    },
     liveMarketData: {
       enabled: true,
       status: "not_started",
@@ -1829,14 +1849,26 @@
   }
 
   function precisionBySymbol(symbol) {
-    const rows = Array.isArray(state.uat34Summary?.precision_validation)
+    const pt0Rows = Array.isArray(state.pt0Summary?.paper_universe)
+      ? state.pt0Summary.paper_universe
+      : [];
+    const uatRows = Array.isArray(state.uat34Summary?.precision_validation)
       ? state.uat34Summary.precision_validation
       : [];
-    return rows.find((row) => row.symbol === symbol) || null;
+    return (
+      pt0Rows.find((row) => row.symbol === symbol) ||
+      uatRows.find((row) => row.symbol === symbol) ||
+      null
+    );
   }
 
   function routedLedgerRecords() {
     return Array.isArray(state.uat34Summary?.ledger_records) ? state.uat34Summary.ledger_records : [];
+  }
+
+  function pt0PaperTradeRows() {
+    const rows = state.pt0Summary?.routed_orders_paper_trades?.records;
+    return Array.isArray(rows) ? rows : [];
   }
 
   function uat42MarketRows() {
@@ -1880,8 +1912,10 @@
   }
 
   function uat42SignalRecords() {
-    const records = state.uat42Summary?.strategy_scanner?.records;
-    return Array.isArray(records) ? records : [];
+    const pt0Records = state.pt0Summary?.paper_scanner?.records;
+    const uat42Records = state.uat42Summary?.strategy_scanner?.records;
+    if (Array.isArray(pt0Records) && pt0Records.length) return pt0Records;
+    return Array.isArray(uat42Records) ? uat42Records : [];
   }
 
   function uat42SignalFor(symbol, timeframe) {
@@ -1900,11 +1934,219 @@
   }
 
   function uat42PaperEquity() {
-    return state.uat42Summary?.paper_equity || {};
+    return state.pt0Summary?.paper_equity || state.uat42Summary?.paper_equity || {};
   }
 
   function uat42Polling() {
-    return state.uat42Summary?.balance_position_polling || {};
+    return state.pt0Summary?.balance_position_polling || state.uat42Summary?.balance_position_polling || {};
+  }
+
+  function pt0UniverseAsset(symbol) {
+    const rows = Array.isArray(state.pt0Summary?.paper_universe) ? state.pt0Summary.paper_universe : [];
+    return rows.find((row) => row.symbol === symbol) || null;
+  }
+
+  function pt0Eligibility(symbol) {
+    const asset = pt0UniverseAsset(symbol);
+    return asset?.paper_eligibility || "blocked_metadata_not_loaded";
+  }
+
+  function pt0ApprovalSummary() {
+    return state.pt0Summary?.approval_statements || {};
+  }
+
+  function pt0SizingPolicy() {
+    return state.pt0Summary?.sizing_policy || state.uat42Summary?.sizing_policy || {};
+  }
+
+  function lightweightCharts() {
+    return window.LightweightCharts || null;
+  }
+
+  function destroyTradingViewChart() {
+    const chartState = state.tradingViewChart;
+    if (chartState.resizeObserver) {
+      chartState.resizeObserver.disconnect();
+      chartState.resizeObserver = null;
+    }
+    if (chartState.chart) {
+      chartState.chart.remove();
+      chartState.chart = null;
+    }
+    chartState.markerHandle = null;
+    chartState.key = null;
+    chartState.ready = false;
+  }
+
+  function chartTime(timestamp) {
+    const parsed = Date.parse(timestamp || "");
+    if (!Number.isFinite(parsed)) return Math.floor(Date.now() / 1000);
+    return Math.floor(parsed / 1000);
+  }
+
+  function chartCandles(market) {
+    const candles = Array.isArray(market?.candles) ? market.candles : [];
+    return candles
+      .map((candle) => ({
+        time: chartTime(candle.timestamp_utc),
+        open: decimal(candle.open, NaN),
+        high: decimal(candle.high, NaN),
+        low: decimal(candle.low, NaN),
+        close: decimal(candle.close, NaN),
+        volume: decimal(candle.volume, 0),
+      }))
+      .filter((candle) =>
+        Number.isFinite(candle.time) &&
+        Number.isFinite(candle.open) &&
+        Number.isFinite(candle.high) &&
+        Number.isFinite(candle.low) &&
+        Number.isFinite(candle.close),
+      )
+      .sort((a, b) => a.time - b.time);
+  }
+
+  function indicatorSeries(candles, label, period) {
+    const closes = candles.map((candle) => candle.close);
+    if (closes.length < period) return [];
+    if (label === "SMA20") {
+      return candles.slice(period - 1).map((candle, index) => ({
+        time: candle.time,
+        value: roundDisplay(
+          closes.slice(index, index + period).reduce((sum, value) => sum + value, 0) / period,
+        ),
+      }));
+    }
+    const multiplier = 2 / (period + 1);
+    let current = closes.slice(0, period).reduce((sum, value) => sum + value, 0) / period;
+    const rows = [{ time: candles[period - 1].time, value: roundDisplay(current) }];
+    for (let index = period; index < closes.length; index += 1) {
+      current = (closes[index] - current) * multiplier + current;
+      rows.push({ time: candles[index].time, value: roundDisplay(current) });
+    }
+    return rows;
+  }
+
+  function chartMarkers(candles) {
+    if (!candles.length) return [];
+    const firstTime = candles[0].time;
+    const lastTime = candles.at(-1).time;
+    const selectedMarkers = uatCockpitMarkers()
+      .filter((row) => row.symbol === state.uatCockpit.symbol)
+      .slice(-8);
+    return selectedMarkers.map((row, index) => {
+      const parsed = chartTime(row.timestamp);
+      const time = parsed >= firstTime && parsed <= lastTime
+        ? parsed
+        : candles[Math.min(candles.length - 1, Math.max(0, candles.length - selectedMarkers.length + index))].time;
+      const isGreen = row.markerType.startsWith("green");
+      return {
+        time,
+        position: isGreen ? "belowBar" : "aboveBar",
+        color: isGreen ? "#25d084" : "#ff5a66",
+        shape: isGreen ? "arrowUp" : "arrowDown",
+        text: `${row.markerType.replace("green marker: ", "").replace("red marker: ", "")}; ${row.source}; ${row.orderId || "n/a"}`,
+      };
+    });
+  }
+
+  function renderTradingViewLightweightChart(record, market) {
+    const tv = lightweightCharts();
+    if (!elements.uatPriceChart || !tv) return false;
+    const candles = chartCandles(market);
+    if (!candles.length) return false;
+    destroyTradingViewChart();
+
+    elements.uatPriceChart.innerHTML = `
+      <div class="tradingview-chart-topline">
+        <div>
+          <strong>${escapeHtml(state.uatCockpit.symbol)}-PERP</strong>
+          <span>${escapeHtml(state.uatCockpit.timeframe)} latest candle ${escapeHtml(market?.last_candle_close_time || record?.candle_close_time_utc || "n/a")}</span>
+        </div>
+        <div class="chart-price-tape">
+          <span>Latest</span>
+          <strong>${escapeHtml(compactNumber(market?.latest_price || candles.at(-1)?.close || "n/a"))}</strong>
+        </div>
+      </div>
+      <div class="tradingview-lightweight-chart" role="img" aria-label="TradingView Lightweight Charts candlestick chart"></div>
+      <div class="tradingview-attribution">Charts: TradingView Lightweight Charts v${TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION} (Apache-2.0). Public read-only Hyperliquid testnet data; no API keys, private endpoints, signed endpoints, order endpoints, or live endpoints.</div>
+    `;
+
+    const mount = elements.uatPriceChart.querySelector(".tradingview-lightweight-chart");
+    const chart = tv.createChart(mount, {
+      autoSize: true,
+      layout: {
+        background: { type: tv.ColorType.Solid, color: "#071014" },
+        textColor: "#c9d5dc",
+        attributionLogo: false,
+      },
+      grid: {
+        vertLines: { color: "rgba(133, 156, 171, 0.08)" },
+        horzLines: { color: "rgba(133, 156, 171, 0.08)" },
+      },
+      crosshair: {
+        mode: tv.CrosshairMode.Normal,
+      },
+      rightPriceScale: {
+        borderColor: "rgba(133, 156, 171, 0.18)",
+      },
+      timeScale: {
+        borderColor: "rgba(133, 156, 171, 0.18)",
+        timeVisible: true,
+        secondsVisible: false,
+      },
+    });
+    const candleSeries = chart.addSeries(tv.CandlestickSeries, {
+      upColor: "#25d084",
+      downColor: "#ff5a66",
+      borderVisible: false,
+      wickUpColor: "#25d084",
+      wickDownColor: "#ff5a66",
+    });
+    candleSeries.setData(candles.map(({ time, open, high, low, close }) => ({ time, open, high, low, close })));
+
+    const volumeSeries = chart.addSeries(tv.HistogramSeries, {
+      priceFormat: { type: "volume" },
+      priceScaleId: "volume",
+      color: "rgba(107, 132, 145, 0.35)",
+    });
+    chart.priceScale("volume").applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
+    volumeSeries.setData(candles.map((candle) => ({
+      time: candle.time,
+      value: candle.volume,
+      color: candle.close >= candle.open ? "rgba(37, 208, 132, 0.26)" : "rgba(255, 90, 102, 0.26)",
+    })));
+
+    [
+      ["EMA5", 5, "#26c6da"],
+      ["EMA10", 10, "#f8c15c"],
+      ["SMA20", 20, "#b68cff"],
+    ].forEach(([label, period, color]) => {
+      const line = chart.addSeries(tv.LineSeries, {
+        color,
+        lineWidth: 2,
+        priceLineVisible: false,
+        lastValueVisible: true,
+        title: label,
+      });
+      line.setData(indicatorSeries(candles, label, period));
+    });
+
+    const markers = chartMarkers(candles);
+    if (typeof tv.createSeriesMarkers === "function") {
+      state.tradingViewChart.markerHandle = tv.createSeriesMarkers(candleSeries, markers);
+    } else if (typeof candleSeries.setMarkers === "function") {
+      candleSeries.setMarkers(markers);
+    }
+    chart.timeScale().fitContent();
+    state.tradingViewChart.chart = chart;
+    state.tradingViewChart.key = `${state.uatCockpit.symbol}|${state.uatCockpit.timeframe}|${candles.at(-1)?.time}`;
+    state.tradingViewChart.ready = true;
+    if (typeof ResizeObserver !== "undefined") {
+      const observer = new ResizeObserver(() => chart.applyOptions({ autoSize: true }));
+      observer.observe(mount);
+      state.tradingViewChart.resizeObserver = observer;
+    }
+    return true;
   }
 
   function renderUatCockpitFilters() {
@@ -1959,18 +2201,23 @@
     const paperEquity = uat42PaperEquity();
     const poll = uat42Polling();
     const live = state.liveMarketData || {};
+    const pt0Approvals = pt0ApprovalSummary();
+    const eligibleCount = (state.pt0Summary?.paper_universe || []).filter((row) => row.paper_eligibility === "eligible").length;
     const cards = [
       ["Environment", "sandbox/testnet", "no live endpoint"],
       ["Market", `${state.uatCockpit.symbol}-PERP`, "Hyperliquid"],
       ["Timeframe", state.uatCockpit.timeframe, "15m / 1h / 4h"],
+      ["Charting", `TradingView Lightweight Charts ${TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION}`, "local official bundle"],
       ["Live chart", live.status || "not_started", live.lastUpdatedUtc || "public-read-only testnet"],
+      ["Paper", pt0Approvals.paper_trading || "PAPER TRADING IS APPROVED.", "testnet/sandbox only"],
+      ["Top-20", `${eligibleCount || 0}/${UAT_WATCHLIST_SYMBOLS.length} eligible`, pt0Approvals.broader_top20 || "approval loaded from PT0 summary"],
       ["Signal", activeStatus, activePaperSignal ? "paper observation scanner" : "shadow audit status"],
       ["Route", routeStatus, "fixed-target only"],
       ["Records", `${records.length} shadow / ${ledger.length} routed / ${uat42MarketRows().length} market`, "local refresh JSON"],
       ["Paper equity", paperEquity.current_paper_equity || "not loaded", "internal simulation"],
       ["Balance poll", `${poll.poll_interval_seconds || 60}s`, "sandbox private read-only"],
       ["Orders", "controls disabled", "visualization only"],
-      ["Paper / Live", "not real capital", "live not approved"],
+      ["Live / capital", "not real capital", "live not approved"],
     ];
     elements.uatCockpitSummaryCards.innerHTML = cards
       .map(([label, value, detail]) => `
@@ -2013,11 +2260,13 @@
       const market = uat42MarketFor(symbol, state.uatCockpit.timeframe);
       const paperSignal = uat42SignalFor(symbol, state.uatCockpit.timeframe);
       const precision = precisionBySymbol(symbol);
+      const eligibility = pt0Eligibility(symbol);
+      const eligibilityReasons = (pt0UniverseAsset(symbol)?.reason_codes || []).join(", ");
       const chartAvailable = Boolean(market?.candle_data_available) || records.length > 0;
       const latest = market?.latest_price || selectedRecord?.indicator_summary?.latest_close || precision?.sample_mid || "n/a";
       const signalStatus = paperSignal?.status || selectedRecord?.signal_status || "no_data";
       const precisionStatus = precision
-        ? precision.precision_validation_passed
+        ? precision.precision_validation_passed || precision.paper_eligibility === "eligible"
           ? "precision_ok"
           : `precision_blocked: ${(precision.reason_codes || []).join(", ")}`
         : "precision_not_loaded";
@@ -2032,8 +2281,12 @@
         chartAvailable,
         marketDataStatus: market?.market_data_status || (chartAvailable ? "refreshed_public_read_only_local_json" : "market_data_unavailable"),
         orderStatus: isActiveRoute
-          ? "ETH sandbox route ledger visible; manual approval required for every sandbox order"
-          : "not approved for orders",
+          ? "active ETH sandbox route; approval and risk gates required"
+          : eligibility === "eligible"
+          ? "paper/sandbox eligible under PT0 gates"
+          : eligibility,
+        eligibility,
+        eligibilityReasons,
         activeRoute: isActiveRoute,
       };
     }).filter((row) => {
@@ -2066,8 +2319,8 @@
           <span class="market-change ${decimal(row.change24h) >= 0 ? "positive" : "negative"}">${escapeHtml(row.change24h === null || row.change24h === undefined ? "24h change unavailable" : pct(decimal(row.change24h)))}</span>
           <span class="market-signal ${row.signalStatus === "would_open" ? "positive" : row.signalStatus === "no_trade" ? "neutral" : "warn"}">${escapeHtml(row.signalStatus)}</span>
           <span class="market-data-state">${escapeHtml(row.marketDataStatus)}</span>
-          <span class="market-badge">observation only</span>
-          <span class="market-badge warn">${escapeHtml(row.orderStatus)}</span>
+          <span class="market-badge">paper/sandbox only</span>
+          <span class="market-badge ${row.eligibility === "eligible" ? "safe" : "warn"}" title="${escapeHtml(row.eligibilityReasons || row.orderStatus)}">${escapeHtml(row.orderStatus)}</span>
         </button>
       `)
       .join("");
@@ -2107,7 +2360,7 @@
                 <td>${escapeHtml(market?.candle_data_available ? "yes" : record ? "yes_local_shadow" : "no")}</td>
                 <td>${escapeHtml(state.uatCockpit.timeframe)}</td>
                 <td>${escapeHtml(market?.last_candle_close_time || record?.candle_close_time_utc || "n/a")}</td>
-                <td>${escapeHtml(market ? "docs/uat4_2_live_market_dashboard_and_paper_equity_monitor_summary.json" : "docs/uat2_shadow_strategy_top20_observation_summary.json")}</td>
+                <td>${escapeHtml(market ? "Hyperliquid testnet public polling / PT0-UAT4.2 JSON fallback" : "docs/uat2_shadow_strategy_top20_observation_summary.json")}</td>
                 <td>${escapeHtml(market?.endpoint_category || "public_read_only / local_summary_json")}</td>
                 <td>${escapeHtml(market?.failure_reason || (record ? "none" : "market_data_unavailable"))}</td>
               </tr>
@@ -2124,59 +2377,17 @@
     const liveIndicators = uat42IndicatorFor(state.uatCockpit.symbol, state.uatCockpit.timeframe);
     if (elements.uatPriceChart) {
       if (!record && !market) {
+        destroyTradingViewChart();
         setEmpty(elements.uatPriceChart, "No chart snapshot is available for the selected pair/timeframe.");
       } else {
-        const ind = record.indicator_summary || {};
-        const candles = Array.isArray(market?.candles) ? market.candles.slice(-24) : [];
-        const markers = uatCockpitMarkers().filter((row) => row.symbol === state.uatCockpit.symbol);
-        const values = candles.length
-          ? candles.map((candle, index) => [`c${index}`, candle.close])
-          : [
-          ["open", ind.next_candle_open],
-          ["EMA5", uat42IndicatorValue(liveIndicators, "EMA5") || ind.ema5],
-          ["close", ind.latest_close],
-          ["EMA10", uat42IndicatorValue(liveIndicators, "EMA10") || ind.ema10],
-          ["SMA20", uat42IndicatorValue(liveIndicators, "SMA20") || ind.sma20],
-          ["next", ind.next_candle_close],
-        ].filter(([, value]) => value !== undefined && value !== null && value !== "");
-        const nums = values.map(([, value]) => decimal(value));
-        const min = Math.min(...nums);
-        const max = Math.max(...nums);
-        const span = Math.max(max - min, 1);
-        elements.uatPriceChart.innerHTML = `
-          <div class="exchange-chart-topline">
-            <div>
-              <strong>${escapeHtml(state.uatCockpit.symbol)}-PERP</strong>
-              <span>${escapeHtml(state.uatCockpit.timeframe)} latest candle ${escapeHtml(market?.last_candle_close_time || record?.candle_close_time_utc || "n/a")}</span>
-            </div>
-            <div class="chart-price-tape">
-              <span>Latest</span>
-              <strong>${escapeHtml(compactNumber(market?.latest_price || ind.latest_close || "n/a"))}</strong>
-            </div>
-          </div>
-          <div class="exchange-chart-canvas" aria-label="Deterministic chart display from refreshed public-read-only UAT values">
-            <div class="chart-grid-lines" aria-hidden="true"></div>
-            ${values.map(([label, value]) => {
-              const left = Math.max(4, Math.round(((decimal(value) - min) / span) * 88) + 4);
-              const markerClass = ["EMA5", "EMA10", "SMA20"].includes(label) ? "indicator" : candles.length ? "candle" : "price";
-              return `
-                <div class="chart-level ${markerClass}" style="left:${left}%">
-                  <span>${escapeHtml(candles.length ? "" : label)}</span>
-                  <strong>${escapeHtml(compactNumber(value))}</strong>
-                </div>
-              `;
-            }).join("")}
-            <div class="chart-marker-layer">
-              ${markers.slice(0, 5).map((marker, index) => `
-                <div class="chart-marker ${marker.markerType.startsWith("green") ? "green" : "red"}" style="left:${Math.min(86, 12 + index * 17)}%">
-                  <span>${marker.markerType.startsWith("green") ? "▲" : "▼"}</span>
-                  <small>${escapeHtml(marker.markerType.replace("green marker: ", "").replace("red marker: ", ""))}</small>
-                </div>
-              `).join("")}
-            </div>
-          </div>
-          <p class="chart-disclaimer">${escapeHtml(liveChartDisclaimer())}</p>
-        `;
+        const rendered = renderTradingViewLightweightChart(record, market);
+        if (!rendered) {
+          destroyTradingViewChart();
+          setEmpty(
+            elements.uatPriceChart,
+            "TradingView Lightweight Charts is waiting for public-read-only candles. Dashboard falls back to PT0/UAT4.2 summary state without inventing chart data.",
+          );
+        }
       }
     }
     if (!elements.uatIndicatorPanel) return;
@@ -2244,14 +2455,14 @@
       .map((row) => ({
         symbol: row.symbol,
         component: row.component,
-        timestamp: row.timestamp_utc,
+        timestamp: row.timestamp_utc || row.candle_close_time,
         markerType: row.status === "would_open"
-          ? "green marker: paper observation would-open"
-          : "red marker: paper observation would-close",
-        source: "paper observation scanner",
+          ? "green marker: paper would-open"
+          : "red marker: paper would-close",
+        source: row.source || "paper scanner",
         reasonCodes: row.reason_codes || [],
         orderId: "n/a",
-        labels: "internal paper-equity observation; not live; not real capital; no order artifact",
+        labels: "internal paper-equity scanner; sandbox/testnet only; not live; not real capital; no order artifact",
       }));
     return [...shadowMarkers, ...paperObservationMarkers, ...routedMarkers];
   }
@@ -2370,7 +2581,7 @@
           ["Drawdown status", drawdown.status || "not loaded", drawdown.status === "sandbox_drawdown_feed_live_fed_verified" ? "safe" : "warn"],
           ["Equity source", equity.selected_equity_source || "not loaded", ""],
           ["Internal paper equity", paperEquity.current_paper_equity || "not loaded", "safe"],
-          ["Sizing basis", state.uat42Summary?.sizing_policy?.sizing_basis || "not loaded", ""],
+          ["Sizing basis", pt0SizingPolicy().sizing_basis || "not loaded", ""],
           ["Balance poll", `${poll.poll_interval_seconds || 60}s sandbox read-only`, "safe"],
           ["Sandbox equity", equity.selected_sandbox_equity || drawdown.sandbox_account_equity || "n/a", ""],
           ["Not-live-account", String(Boolean(drawdown.not_live_account)), "safe"],
@@ -2387,7 +2598,7 @@
     const account = state.uat34Summary?.account_targeting_summary || {};
     const equity = state.uat34Summary?.equity_resolution || {};
     const paperEquity = uat42PaperEquity();
-    const sizingPolicy = state.uat42Summary?.sizing_policy || {};
+    const sizingPolicy = pt0SizingPolicy();
     const polling = uat42Polling();
     const sandboxConfirmation = polling.sandbox_account_confirmation || {};
     if (elements.uatRouteStatusCard) {
@@ -2401,8 +2612,9 @@
         ["Selected equity source", equity.selected_equity_source || "standard_perp_clearinghouse"],
         ["Unified compatibility", state.uat34Summary?.unified_mode_compatibility_status || "supported"],
         ["Order scope", "sandbox only"],
-        ["Paper/live", "not approved"],
-        ["Broad top-20 orders", "not approved"],
+        ["Paper", "approved for testnet/sandbox only"],
+        ["Live", "not approved"],
+        ["Broad top-20 paper/sandbox", "approved under PT0 gates"],
       ];
       elements.uatRouteStatusCard.innerHTML = rows
         .map(([label, value]) => `<div><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`)
@@ -2516,6 +2728,7 @@
 
   function renderUatCockpitRoutedOrders() {
     const records = routedLedgerRecords();
+    const paperRows = pt0PaperTradeRows();
     renderUatCockpitRoutedFilters(records);
     if (!elements.uatCockpitRoutedOrdersTable) return;
     const filtered = records.filter((row) => {
@@ -2539,6 +2752,7 @@
         <thead>
           <tr>
             <th>Run id</th>
+            <th>Source</th>
             <th>Route id</th>
             <th>Route type</th>
             <th>Venue</th>
@@ -2558,6 +2772,9 @@
             <th>Open remains</th>
             <th>Position changed</th>
             <th>Equity source</th>
+            <th>Paper equity before</th>
+            <th>Paper equity after</th>
+            <th>Paper PnL</th>
             <th>Sandbox labels</th>
             <th>No paper/live</th>
             <th>Sanitized response</th>
@@ -2566,9 +2783,11 @@
         <tbody>
           ${filtered.map((row) => {
             const labels = row.sandbox_labels || {};
+            const paper = paperRows.find((item) => item.sandbox_order_id === row.order_id || item.route === row.route_id) || {};
             return `
               <tr>
                 <td>${escapeHtml(row.uat_run_id)}</td>
+                <td>${escapeHtml(paper.source || "routed sandbox order ledger")}</td>
                 <td>${escapeHtml(row.route_id)}</td>
                 <td>${escapeHtml(row.route_type)}</td>
                 <td>${escapeHtml(row.venue)}</td>
@@ -2588,6 +2807,9 @@
                 <td>${escapeHtml(String(Boolean(row.open_order_remains)))}</td>
                 <td>${escapeHtml(row.position_changed)}</td>
                 <td>${escapeHtml(row.selected_equity_source)}</td>
+                <td>${escapeHtml(paper.paper_equity_before || uat42PaperEquity().initial_paper_equity || "10000")}</td>
+                <td>${escapeHtml(paper.paper_equity_after || uat42PaperEquity().current_paper_equity || "10000")}</td>
+                <td>${escapeHtml(`realized=${paper.realized_pnl || uat42PaperEquity().realized_pnl || "0"}; unrealized=${paper.unrealized_pnl || uat42PaperEquity().unrealized_pnl || "0"}`)}</td>
                 <td>${escapeHtml(`sandbox=${labels.sandbox}; testnet=${labels.testnet}; not_live=${labels.not_live}; not_paper=${labels.not_paper}`)}</td>
                 <td>${escapeHtml(String(Boolean(row.no_live_no_paper_confirmation)))}</td>
                 <td>${escapeHtml(JSON.stringify(row.sanitized_exchange_response || {}))}</td>
@@ -2647,15 +2869,18 @@
       [
         "live_public_charting",
         state.liveMarketData?.status || "not_started",
-        `${state.liveMarketData?.lastUpdatedUtc || "waiting"}; Hyperliquid testnet public info only; no keys/private/signed/order endpoints`,
+        `${state.liveMarketData?.lastUpdatedUtc || "waiting"}; TradingView Lightweight Charts; Hyperliquid testnet public info only; no keys/private/signed/order endpoints`,
       ],
+      ["pt0_approval", "paper_trading_approved", "Hyperliquid testnet/sandbox only; live and real-capital trading remain not approved"],
+      ["pt0_top20", "broader_supported_top20_paper_sandbox_approved", "unsupported assets remain blocked by metadata/precision/risk gates"],
+      ["pt0_charting", `TradingView Lightweight Charts ${TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION}`, "official local bundle; hosted widget not used"],
+      ["pt0_paper_equity", "internal_10000_usdc_ledger_visible", "paper-equity simulation; not real capital"],
+      ["pt0_balance_poll", `${poll.poll_interval_seconds || 60}s sandbox private read-only policy`, "order-capable categories forbidden"],
       ["uat4.2_monitor", "live_public_market_data_summary_loaded", "public-read-only refresh JSON; no keys"],
-      ["uat4.2_paper_equity", "internal_10000_usdc_ledger_visible", "paper-equity simulation; not real capital"],
-      ["uat4.2_balance_poll", `${poll.poll_interval_seconds || 60}s sandbox private read-only policy`, "order-capable categories forbidden"],
       ["uat4.1_dashboard", "exchange_style_redesign", "dashboard visualization only; no exchange call"],
       ["uat4.0_cockpit", "local_json_loaded", "UAT2 shadow summary and UAT3.4 routed ledger"],
-      ["uat3.4_route", records.length ? "accepted/open -> canceled -> reconciled lifecycle" : "ledger_missing", "sandbox/testnet lifecycle probe; not live; not paper"],
-      ["safety", "order controls disabled", "top-20 assets remain observation-only"],
+      ["uat3.4_route", records.length ? "accepted/open -> canceled -> reconciled lifecycle" : "ledger_missing", "sandbox/testnet lifecycle probe; not live; not performance validation"],
+      ["safety", "order controls disabled", "paper/sandbox routing remains risk-gated; no live endpoint"],
       ["security", "secrets redacted", "dashboard displays sanitized summaries only"],
     ];
     elements.uatAuditLogPanel.innerHTML = `
@@ -2735,12 +2960,12 @@
   function liveChartDisclaimer() {
     const live = state.liveMarketData || {};
     if (live.status === "live_public_read_only_connected") {
-      return `Live chart is polling Hyperliquid testnet public info every ${Math.round(LIVE_MARKET_REFRESH_MS / 1000)} seconds. No API keys, private order endpoints, signed order endpoints, or live endpoints are used; order endpoints are also not used.`;
+      return `TradingView Lightweight Charts is rendering Hyperliquid testnet public info every ${Math.round(LIVE_MARKET_REFRESH_MS / 1000)} seconds. No API keys, private order endpoints, signed order endpoints, order endpoints, or live endpoints are used.`;
     }
     if (live.error) {
-      return `Live public chart polling is unavailable (${live.error}). Dashboard is falling back to committed UAT4.2 local summary JSON. No API keys, private order endpoints, signed order endpoints, or live endpoints are used; order endpoints are also not used.`;
+      return `Live public chart polling is unavailable (${live.error}). Dashboard is falling back to committed PT0/UAT4.2 local summary JSON. No API keys, private order endpoints, signed order endpoints, order endpoints, or live endpoints are used.`;
     }
-    return "Live public chart polling is starting. Dashboard falls back to committed UAT4.2 local summary JSON until the first public-read-only update arrives. No API keys, private order endpoints, signed order endpoints, or live endpoints are used; order endpoints are also not used.";
+    return "TradingView Lightweight Charts public polling is starting. Dashboard falls back to committed PT0/UAT4.2 local summary JSON until the first public-read-only update arrives. No API keys, private order endpoints, signed order endpoints, order endpoints, or live endpoints are used.";
   }
 
   async function postHyperliquidPublicInfo(payload) {
@@ -3010,6 +3235,7 @@
     if (Array.isArray(payload?.audit_records) && payload?.uat3_readiness_decision) return "uat2_shadow_summary";
     if (payload?.report === "uat3_4_sandbox_routing_pipeline_and_order_ledger") return "uat34_routed_orders_summary";
     if (payload?.report === "uat4_2_live_market_dashboard_and_paper_equity_monitor") return "uat42_live_monitor_summary";
+    if (payload?.report === "pt0_tradingview_charts_and_top20_paper_sandbox_runtime") return "pt0_runtime_summary";
     return "unknown";
   }
 
@@ -3030,6 +3256,7 @@
     await loadDefaultUat2Summaries();
     await loadDefaultUat34Summaries();
     await loadDefaultUat42Summaries();
+    await loadDefaultPt0Summaries();
 
     if (!loaded.length) {
       elements.sourceLabel.textContent = "Manual load";
@@ -3079,6 +3306,7 @@
         if (type === "uat2_shadow_summary") state.uat2Summary = payload;
         if (type === "uat34_routed_orders_summary") state.uat34Summary = payload;
         if (type === "uat42_live_monitor_summary") state.uat42Summary = payload;
+        if (type === "pt0_runtime_summary") state.pt0Summary = payload;
       });
       state.selectedComponent = "all";
       elements.sourceLabel.textContent = "Manual JSON loaded";
@@ -3140,6 +3368,21 @@
         const payload = await response.json();
         if (classifyJson(payload) === "uat42_live_monitor_summary") {
           state.uat42Summary = payload;
+        }
+      } catch (error) {
+        console.warn(`Could not load ${path}`, error);
+      }
+    }
+  }
+
+  async function loadDefaultPt0Summaries() {
+    for (const path of DEFAULT_PT0_SUMMARY_FILES) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        if (classifyJson(payload) === "pt0_runtime_summary") {
+          state.pt0Summary = payload;
         }
       } catch (error) {
         console.warn(`Could not load ${path}`, error);

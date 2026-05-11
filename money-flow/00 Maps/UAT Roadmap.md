@@ -4,7 +4,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 UAT validates plumbing and behavior. It does not prove profitability.
 
-Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, UAT1.1 shadow readiness is complete, UAT2 bounded no-order shadow strategy observation is complete, UAT2.1 dashboard visualization is complete, UAT3.0 sandbox-order design/readiness is complete, UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete, UAT3.0.2 sandbox gate integration dry-run / policy hardening is complete, UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete, UAT3.0.4 sandbox private read-only drawdown readiness is complete, UAT3.0.5 sandbox/testnet private read-only drawdown verification is complete, UAT3.0.6 sandbox submit path dry-run wiring is complete, UAT3.1 first sandbox/testnet lifecycle probe is complete, UAT3.2 fixed-key preflight / second sandbox lifecycle attempt is complete as blocked before order transport, UAT3.3 Hyperliquid account-targeting / precision hardening is complete with a later successful follow-up lifecycle, UAT3.4 fixed-target sandbox routing / routed-order ledger is complete, UAT4.0 read-only dashboard/chart cockpit is complete, UAT4.1 exchange-style dashboard redesign is complete, and UAT4.2 live market dashboard / internal paper-equity monitor is complete. Additional sandbox orders require separate approval.
+Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/authz plus runtime lockout hardening is complete, UAT0.2 adapter runtime-policy / read-only allowlist / representative redaction hardening is complete, UAT0.3 top-20 universe / drawdown readiness preflight is complete, UAT1 public read-only connectivity / top-20 universe resolution is complete, UAT1.1 shadow readiness is complete, UAT2 bounded no-order shadow strategy observation is complete, UAT2.1 dashboard visualization is complete, UAT3.0 sandbox-order design/readiness is complete, UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete, UAT3.0.2 sandbox gate integration dry-run / policy hardening is complete, UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete, UAT3.0.4 sandbox private read-only drawdown readiness is complete, UAT3.0.5 sandbox/testnet private read-only drawdown verification is complete, UAT3.0.6 sandbox submit path dry-run wiring is complete, UAT3.1 first sandbox/testnet lifecycle probe is complete, UAT3.2 fixed-key preflight / second sandbox lifecycle attempt is complete as blocked before order transport, UAT3.3 Hyperliquid account-targeting / precision hardening is complete with a later successful follow-up lifecycle, UAT3.4 fixed-target sandbox routing / routed-order ledger is complete, UAT4.0 read-only dashboard/chart cockpit is complete, UAT4.1 exchange-style dashboard redesign is complete, UAT4.2 live market dashboard / internal paper-equity monitor is complete, and PT0 TradingView charts plus top-20 paper/sandbox runtime foundation is complete. PAPER TRADING IS APPROVED. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED. Live trading and real-capital trading remain not approved.
 
 ## Frozen Observation Candidate
 
@@ -14,7 +14,7 @@ Current status: UAT0 safety/security/runtime audit is complete, UAT0.1 API auth/
 - `sleeve_1h`.
 - Current baseline Money Flow rules.
 - Observation / shadow first.
-- No additional exchange order submission until a later explicitly gated UAT phase.
+- Live exchange order submission is not approved; sandbox/testnet routing remains risk-gated and default-disabled unless explicitly enabled for a scoped run.
 
 This is the evidence candidate, not the whole UAT observation universe.
 
@@ -22,7 +22,7 @@ This is the evidence candidate, not the whole UAT observation universe.
 
 Future UAT observation should cover the top 20 high-volume crypto assets supported by the selected UAT venue/environment. The top-20 universe validates platform behavior, no-trade reasoning, rejected-signal behavior, market metadata resolution, symbol mapping, venue support, risk visibility, shadow would-trade behavior, and dashboard/operator visibility.
 
-Top-20 inclusion is not strategy approval. Unsupported or mismatched assets must be excluded with explicit reason codes.
+Top-20 inclusion is now approved for Hyperliquid-supported paper/sandbox scanning and risk-gated sandbox route candidates only. It is not live trading approval, cross-venue routing approval, SOR/fanout approval, or strategy profitability proof. Unsupported or mismatched assets must be excluded with explicit reason codes.
 
 UAT2 shadow reports compare `next_candle_open` and `next_candle_close`. `same_candle_close_research_only` remains research-only.
 
@@ -298,15 +298,25 @@ Likely files/modules: `services/uat/live_monitor.py`, `scripts/refresh_uat42_liv
 
 Required docs/tests: UAT4.2 dashboard/runtime monitor tests, operational-doc current-state tests, dashboard JS syntax check, review-bundle hygiene checks.
 
-## PT0 — Approval-Gated Paper/Sandbox Trading Runtime
+## PT0 — TradingView Lightweight Charts + Broad Top-20 Paper/Sandbox Runtime Foundation
 
-Objective: future phase to convert observation into a controlled paper/sandbox runtime only after separate founder/operator approval.
+Objective: convert observation into a controlled Hyperliquid testnet/sandbox paper runtime foundation and replace the custom chart shell with TradingView Lightweight Charts.
 
-Status: not implemented. UAT4.2 captures PT0 as roadmap only.
+Status: complete. PAPER TRADING IS APPROVED. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED.
 
-Allowed future behavior if separately approved: controlled internal paper-equity ledger, Hyperliquid sandbox/testnet only, no live endpoint, realized/unrealized PnL tracking, order sizing from current internal paper equity, approval-gated strategy-to-order path, risk limits, kill switch, dashboard monitoring, and no broad top-20 order submission unless separately approved.
+Allowed behavior: Hyperliquid testnet/sandbox only, internal 10,000 USDC paper-equity ledger, top-20 Hyperliquid-supported paper/sandbox scanning, deterministic indicators, TradingView Lightweight Charts, sandbox private-read-only balance/position polling policy, approval/risk/lease/label-gated sandbox route candidates, and current-equity sizing policy.
 
-Forbidden until separately approved: paper/sandbox strategy-to-order runtime, automatic trading, live endpoints, live capital, production auto-submit, smart routing/SOR/fanout, and top-20 order submission.
+Forbidden behavior: live trading, real-capital trading, live exchange API keys, production auto-submit, unbounded automation, smart routing/SOR/fanout/CBBO, cross-venue routing, Money Flow rule changes, strategy optimization, market-making, unsupported assets, and live endpoint use.
+
+## PT0.1 — Supervised Top-20 Paper/Sandbox Runtime Week
+
+Objective: future phase to operate the PT0 scanner/runtime foundation continuously under supervision.
+
+Status: not implemented. PT0.1 requires separate scope before continuous runtime, repeated sandbox routing, or supervised strategy-to-order operation.
+
+Allowed future behavior if separately approved: run scanner continuously, update charts in real time, route eligible top-20 paper/sandbox orders under limits, update internal paper equity, update positions/PnL, show arrows on chart, and let the founder monitor throughout the week without live trading or cross-venue routing.
+
+Forbidden until separately approved: uncontrolled automation, live endpoints, live capital, production auto-submit, smart routing/SOR/fanout/CBBO, cross-venue routing, unsupported asset routing, and Money Flow rule changes.
 
 ## UAT3.2 - Additional Sandbox Lifecycle Testing
 
@@ -350,6 +360,6 @@ Likely files/modules: docs, reports, dashboard.
 
 Required docs/tests: founder review report and regression suite.
 
-## Standing UAT Boundary
+## Standing UAT/PT Boundary
 
-Paper trading is not approved. Live trading is not approved. Additional exchange order submission is not approved before explicit later UAT scope.
+Paper trading is approved for Hyperliquid testnet/sandbox only. PAPER TRADING IS APPROVED. Broader top-20 Hyperliquid-supported paper/sandbox trading is approved under gates. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED. Live trading is not approved. Real-capital trading is not approved. Live exchange order submission is not approved. Additional sandbox/testnet orders outside explicit risk-gated PT/UAT scope are not approved.

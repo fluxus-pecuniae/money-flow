@@ -13,6 +13,55 @@ Entry schema:
 
 ---
 
+## v2026.05.11.006
+
+- `recorded_at_utc`: `2026-05-11T10:32:00Z`
+- `scope`: `PT0 TradingView Lightweight Charts and broad top-20 paper/sandbox runtime foundation`
+- `intent`: `Native entry. Recorded explicit founder/operator approval that PAPER TRADING IS APPROVED and BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED for Hyperliquid testnet/sandbox only. Added deterministic PT0 paper/sandbox runtime helpers, a committed PT0 summary JSON, the official local TradingView Lightweight Charts standalone bundle, and dashboard wiring for candlesticks, volume, EMA overlays, markers, top-20 paper eligibility, internal 10,000 USDC paper-equity, 60-second sandbox private-read-only balance/position polling policy, and risk-gated route-candidate foundations. PT0 keeps sandbox order routing default-disabled by PT0_SANDBOX_ORDER_ROUTING_ENABLED=false and adds no live trading, live endpoint access, real-capital trading, order controls, SOR/fanout/CBBO/target reselection, Money Flow rule changes, or evidence packs.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/vendor/LICENSE`
+  - `apps/dashboard/vendor/lightweight-charts.standalone.production.js`
+  - `apps/dashboard/vendor/package.json`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/uat4_2_live_market_dashboard_and_paper_equity_monitor.md`
+  - `docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime.md`
+  - `docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime_summary.json`
+  - `services/uat/__init__.py`
+  - `services/uat/pt0_runtime.py`
+  - `scripts/refresh_pt0_runtime_summary.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_pt0_tradingview_paper_sandbox_runtime.py`
+  - `tests/test_uat40_dashboard_chart_cockpit.py`
+  - `tests/test_uat41_exchange_dashboard_redesign.py`
+  - `tests/test_uat42_live_market_dashboard_paper_equity.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt0_tradingview_paper_sandbox_runtime.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat42_live_market_dashboard_paper_equity.py tests/test_uat41_exchange_dashboard_redesign.py tests/test_uat40_dashboard_chart_cockpit.py tests/test_dashboard_static_assets.py tests/test_uat34_sandbox_routing_pipeline.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt0-review.zip`
+
 ## v2026.05.11.005
 
 - `recorded_at_utc`: `2026-05-11T08:58:00Z`

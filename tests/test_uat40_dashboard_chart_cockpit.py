@@ -62,23 +62,22 @@ def test_uat_chart_cockpit_tab_and_sections_exist() -> None:
     assert "docs/uat2_shadow_strategy_top20_observation_summary.json" in dashboard
     assert "docs/uat3_4_sandbox_routing_pipeline_and_order_ledger_summary.json" in dashboard
     assert "docs/uat4_2_live_market_dashboard_and_paper_equity_monitor_summary.json" in dashboard
+    assert "docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime_summary.json" in dashboard
 
 
-def test_uat_watchlist_assets_are_observation_only_and_not_order_approved() -> None:
+def test_uat_watchlist_assets_are_paper_sandbox_eligible_and_not_live_approved() -> None:
     html, js, _css = _dashboard_assets()
     dashboard = f"{html}\n{js}"
 
     for symbol in WATCHLIST:
         assert f"\"{symbol}\"" in js
 
-    assert "observation-only" in dashboard
-    assert "ETH sandbox route ledger visible; manual approval required for every sandbox order" in dashboard
-    assert "not approved for orders" in dashboard
-    assert "Paper trading is not approved" in dashboard
+    assert "paper/sandbox only" in dashboard
+    assert "active ETH sandbox route; approval and risk gates required" in dashboard
+    assert "paper/sandbox eligible under PT0 gates" in dashboard
+    assert "PAPER TRADING IS APPROVED FOR HYPERLIQUID TESTNET/SANDBOX ONLY" in dashboard
     assert "Live trading is not approved" in dashboard
-    assert "Top-20 assets are observation-only" in dashboard
-    assert "Broad top-20 orders" in dashboard
-    assert "not approved" in dashboard
+    assert "BROADER TOP-20 SUPPORTED PAPER/SANDBOX TRADING IS APPROVED" in dashboard
 
 
 def test_uat_chart_indicators_and_marker_semantics_are_safe() -> None:
@@ -93,7 +92,7 @@ def test_uat_chart_indicators_and_marker_semantics_are_safe() -> None:
     assert "green marker: sandbox order accepted/open" in dashboard
     assert "red marker: sandbox cancel" in dashboard
     assert "not actual trade" in dashboard
-    assert "sandbox/testnet lifecycle probe; not live; not paper; not performance validation" in dashboard
+    assert "sandbox/testnet lifecycle probe; not live; not performance validation" in dashboard
     assert "same_candle_close_research_only remains research-only" in dashboard
 
 
@@ -124,8 +123,8 @@ def test_market_data_coverage_uses_public_read_only_local_summaries() -> None:
     assert "refreshed_public_read_only_local_json" in dashboard
     assert "market_data_unavailable" in dashboard
     assert "public_read_only / local_summary_json" in dashboard
-    assert "UAT4.2 local refresh JSON" in dashboard
-    assert "No API keys, private order endpoints, signed order endpoints, or live endpoints are used" in dashboard
+    assert "PT0/UAT4.2 local summary JSON" in dashboard
+    assert "No API keys, private order endpoints, signed order endpoints, order endpoints, or live endpoints are used" in dashboard
 
 
 def test_dashboard_has_no_order_or_paper_live_controls() -> None:
@@ -141,7 +140,6 @@ def test_dashboard_has_no_order_or_paper_live_controls() -> None:
         "route order button",
         "auto-trade toggle",
         "paper/live toggle",
-        "paper trading approved",
         "live trading approved",
         "order submission approved",
         "profitable",

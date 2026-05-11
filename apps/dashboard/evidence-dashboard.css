@@ -581,6 +581,10 @@ h3 {
   color: var(--color-amber);
 }
 
+.market-badge.safe {
+  color: var(--color-teal);
+}
+
 .uat-center-cockpit {
   display: grid;
   grid-template-rows: auto minmax(390px, 1fr) auto auto;
@@ -612,6 +616,37 @@ h3 {
   background:
     radial-gradient(circle at 82% 12%, rgba(40, 215, 197, 0.1), transparent 28%),
     var(--color-panel);
+}
+
+.tradingview-chart-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+}
+
+.tradingview-chart-topline strong {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 20px;
+}
+
+.tradingview-chart-topline span,
+.tradingview-attribution {
+  color: var(--color-muted);
+  font-size: var(--text-caption);
+}
+
+.tradingview-lightweight-chart {
+  min-height: 430px;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: #071014;
+}
+
+.tradingview-attribution {
+  padding-top: var(--spacing-2);
 }
 
 .exchange-chart-topline {

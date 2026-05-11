@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-11T07:03:40Z`
+Last reviewed: `2026-05-11T10:32:00Z`
 
 ## Active Follow-Ups
 
@@ -85,8 +85,14 @@ Last reviewed: `2026-05-11T07:03:40Z`
 ### T-116
 
 - `priority`: `high`
+- `status`: `done`
+- `summary`: `PT0 TradingView charting and top-20 paper/sandbox runtime foundation is complete. PAPER TRADING IS APPROVED for Hyperliquid testnet/sandbox only, and BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED under metadata, precision, risk, lease, label, and no-live gates. PT0 adds the official local TradingView Lightweight Charts bundle, deterministic PT0 runtime helpers, committed PT0 summary JSON, top-20 paper universe eligibility, paper scanner records, internal 10,000 USDC paper-equity ledger, realized-equity sizing policy, 60-second sandbox private-read-only balance/position polling policy, and route-candidate risk limits. Runtime sandbox order routing remains default-disabled by PT0_SANDBOX_ORDER_ROUTING_ENABLED=false, and no live trading, real-capital trading, order controls, SOR/fanout/CBBO/target reselection, cross-venue routing, Money Flow rule change, strategy optimization, or evidence pack was added.`
+
+### T-117
+
+- `priority`: `high`
 - `status`: `future`
-- `summary`: `PT0 approval-gated paper/sandbox trading runtime is future work. It should include controlled internal paper-equity ledger, Hyperliquid sandbox/testnet only, no live endpoint, realized/unrealized PnL tracking, order sizing from current equity, approval-gated strategy-to-order path, risk limits, kill switch, dashboard monitoring, and no broad top-20 order submission unless separately approved. UAT4.2 captures this roadmap but does not implement PT0.`
+- `summary`: `PT0.1 supervised top-20 paper/sandbox runtime week is future work. It should run the scanner continuously, update TradingView charts in real time, produce eligible risk-gated paper/sandbox route candidates, update internal paper equity and PnL, display positions/PnL and chart arrows, and allow founder monitoring throughout the week while keeping Hyperliquid testnet/sandbox only. PT0.1 must still exclude live trading, real capital, live exchange API keys, SOR/fanout/CBBO/target reselection, cross-venue routing, Money Flow rule changes, strategy optimization, evidence packs, and unbounded automation unless separately approved.`
 
 ### T-112
 

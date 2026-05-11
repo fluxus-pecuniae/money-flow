@@ -17,4 +17,8 @@ helpers harden Hyperliquid account targeting and precision before any approved
 sandbox transport and still block when target-account equity is insufficient.
 UAT4.2 helpers add read-only live-market monitor and internal paper-equity
 fixtures without order controls, live endpoints, or production trading artifacts.
+PT0 helpers add the approved Hyperliquid testnet/sandbox paper-runtime
+foundation, broader supported top-20 paper universe eligibility, internal
+10,000 USDC paper-equity ledger, and risk-gated route-candidate modeling while
+keeping live endpoints, real capital, and dashboard order controls disabled.
 """

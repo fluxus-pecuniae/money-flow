@@ -1,0 +1,3504 @@
+{
+  "approval_statements": {
+    "broader_top20": "BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED.",
+    "live_trading": "LIVE TRADING IS NOT APPROVED.",
+    "paper_trading": "PAPER TRADING IS APPROVED.",
+    "real_capital": "REAL-CAPITAL TRADING IS NOT APPROVED.",
+    "scope": "Hyperliquid testnet/sandbox only; internal 10,000 USDC paper-equity ledger; top-20 Hyperliquid-supported paper/sandbox scanning and approval/risk-gated sandbox routing foundation."
+  },
+  "balance_position_polling": {
+    "cancel_amend_retry_endpoints_called": false,
+    "not_live_account": true,
+    "order_endpoints_called": false,
+    "policy": {
+      "allowed": true,
+      "allowed_categories": [
+        "sandbox_private_read_only_account",
+        "sandbox_private_read_only_balance",
+        "sandbox_private_read_only_position",
+        "sandbox_private_read_only_equity"
+      ],
+      "amend_endpoints_called": false,
+      "cancel_endpoints_called": false,
+      "environment": "testnet",
+      "forbidden_categories": [
+        "sandbox_order_submission",
+        "sandbox_order_cancel",
+        "sandbox_order_amend",
+        "sandbox_order_retry",
+        "live_private_forbidden",
+        "private_signed_order"
+      ],
+      "live_endpoint_access": false,
+      "next_poll_interval_seconds": 60,
+      "not_live_account_required": true,
+      "order_endpoints_called": false,
+      "poll_interval_seconds": 60,
+      "reason_codes": [],
+      "retry_endpoints_called": false,
+      "source": "sandbox_private_read_only"
+    },
+    "poll_interval_seconds": 60,
+    "polling_allowed": true,
+    "reason_codes": [],
+    "source": "sandbox_private_read_only"
+  },
+  "charting": {
+    "advanced_charts_used": false,
+    "attribution": "Charts use TradingView Lightweight Charts v5.2.0 under Apache-2.0.",
+    "bundle_path": "apps/dashboard/vendor/lightweight-charts.standalone.production.js",
+    "custom_chart_shell_status": "bypassed_by_official_lightweight_charts",
+    "hosted_tradingview_widget_used": false,
+    "library": "TradingView Lightweight Charts",
+    "license_path": "apps/dashboard/vendor/LICENSE",
+    "version": "5.2.0"
+  },
+  "paper_equity": {
+    "confirmation_source": "Hyperliquid sandbox/testnet balance polled every 60 seconds",
+    "current_paper_equity": "10000",
+    "drawdown_amount": "0",
+    "drawdown_percent": "0",
+    "initial_paper_equity": "10000",
+    "labels": {
+      "internal_paper_equity": true,
+      "not_live_account": true,
+      "not_real_capital": true,
+      "sandbox_testnet_confirmation": true
+    },
+    "leverage_assumption": "10x",
+    "max_equity": "10000",
+    "min_equity": "10000",
+    "open_paper_exposure": "0",
+    "realized_equity": "10000",
+    "realized_pnl": "0",
+    "sandbox_balance_reference": "1000",
+    "source": "internal_paper_equity_ledger",
+    "unrealized_pnl": "0"
+  },
+  "paper_scanner": {
+    "forbidden_outputs": [
+      "live StrategyDecision",
+      "live OrderIntent",
+      "live PreparedVenueOrder",
+      "live SubmittedOrder",
+      "live executable approval"
+    ],
+    "mode": "paper_sandbox_observation",
+    "records": [
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_15m",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "81092.748787"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "81113.315417"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "56.729638"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.031143"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "56.760781"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885181"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "81052.245"
+          },
+          "symbol": "BTC",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "BTC",
+        "timeframe": "15m"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_1h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "81092.748787"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "81113.315417"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "56.729638"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.031143"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "56.760781"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885181"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "81052.245"
+          },
+          "symbol": "BTC",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "rsi_not_constructive"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "no_trade",
+        "symbol": "BTC",
+        "timeframe": "1h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_4h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "81092.748787"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "81113.315417"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "56.729638"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.031143"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "56.760781"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885181"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "81052.245"
+          },
+          "symbol": "BTC",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "BTC",
+        "timeframe": "4h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_15m",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "2352.45586"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "2353.052546"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "1.64586"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000904"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "1.646763"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885181"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "2351.28075"
+          },
+          "symbol": "ETH",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "ETH",
+        "timeframe": "15m"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_1h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "2352.45586"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "2353.052546"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "1.64586"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000904"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "1.646763"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885181"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "2351.28075"
+          },
+          "symbol": "ETH",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "rsi_not_constructive"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "no_trade",
+        "symbol": "ETH",
+        "timeframe": "1h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_4h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "2352.45586"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "2353.052546"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "1.64586"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000904"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "1.646763"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885181"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "2351.28075"
+          },
+          "symbol": "ETH",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "ETH",
+        "timeframe": "4h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_15m",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "97.240314"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "97.264969"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.068006"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000037"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.068043"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885181"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "97.19176"
+          },
+          "symbol": "SOL",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "SOL",
+        "timeframe": "15m"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_1h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "97.240314"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "97.264969"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.068006"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000037"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.068043"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885181"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "97.19176"
+          },
+          "symbol": "SOL",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "rsi_not_constructive"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "no_trade",
+        "symbol": "SOL",
+        "timeframe": "1h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_4h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "97.240314"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "97.264969"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.068006"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000037"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.068043"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885181"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "97.19176"
+          },
+          "symbol": "SOL",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "SOL",
+        "timeframe": "4h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_15m",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "0.524914"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "0.525047"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000367"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000367"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.907473"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "0.524652"
+          },
+          "symbol": "XRP",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "paper_universe_unavailable_current_testnet_metadata",
+          "paper_symbol_not_supported_on_testnet",
+          "source_unsupported_by_hyperliquid_meta"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "invalid",
+        "symbol": "XRP",
+        "timeframe": "15m"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_1h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "0.524914"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "0.525047"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000367"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000367"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.907473"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "0.524652"
+          },
+          "symbol": "XRP",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "paper_universe_unavailable_current_testnet_metadata",
+          "paper_symbol_not_supported_on_testnet",
+          "source_unsupported_by_hyperliquid_meta"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "invalid",
+        "symbol": "XRP",
+        "timeframe": "1h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_4h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "0.524914"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "0.525047"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000367"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000367"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.907473"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "0.524652"
+          },
+          "symbol": "XRP",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "paper_universe_unavailable_current_testnet_metadata",
+          "paper_symbol_not_supported_on_testnet",
+          "source_unsupported_by_hyperliquid_meta"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "invalid",
+        "symbol": "XRP",
+        "timeframe": "4h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_15m",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "138.808761"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "138.843966"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.097106"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000053"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.097159"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885191"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "138.73943"
+          },
+          "symbol": "ZEC",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "ZEC",
+        "timeframe": "15m"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_1h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "138.808761"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "138.843966"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.097106"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000053"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.097159"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885191"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "138.73943"
+          },
+          "symbol": "ZEC",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "rsi_not_constructive"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "no_trade",
+        "symbol": "ZEC",
+        "timeframe": "1h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_4h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "138.808761"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "138.843966"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.097106"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000053"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.097159"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885191"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "138.73943"
+          },
+          "symbol": "ZEC",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "ZEC",
+        "timeframe": "4h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_15m",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "655.530535"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "655.696757"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.458495"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000252"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.458746"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885183"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "655.20318"
+          },
+          "symbol": "BNB",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "BNB",
+        "timeframe": "15m"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_1h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "655.530535"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "655.696757"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.458495"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000252"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.458746"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885183"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "655.20318"
+          },
+          "symbol": "BNB",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "rsi_not_constructive"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "no_trade",
+        "symbol": "BNB",
+        "timeframe": "1h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_4h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "655.530535"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "655.696757"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.458495"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000252"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.458746"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885183"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "655.20318"
+          },
+          "symbol": "BNB",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "BNB",
+        "timeframe": "4h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_15m",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "1.292151"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "1.292478"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000903"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000904"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.883042"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "1.291506"
+          },
+          "symbol": "SUI",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "SUI",
+        "timeframe": "15m"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_1h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "1.292151"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "1.292478"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000903"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000904"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.883042"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "1.291506"
+          },
+          "symbol": "SUI",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "rsi_not_constructive"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "no_trade",
+        "symbol": "SUI",
+        "timeframe": "1h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_4h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "1.292151"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "1.292478"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000903"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000904"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.883042"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "1.291506"
+          },
+          "symbol": "SUI",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "SUI",
+        "timeframe": "4h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_15m",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "2.325251"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "2.32584"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.001626"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000001"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.001627"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.886091"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "2.32409"
+          },
+          "symbol": "TON",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "TON",
+        "timeframe": "15m"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_1h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "2.325251"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "2.32584"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.001626"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000001"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.001627"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.886091"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "2.32409"
+          },
+          "symbol": "TON",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "rsi_not_constructive"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "no_trade",
+        "symbol": "TON",
+        "timeframe": "1h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_4h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "2.325251"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "2.32584"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.001626"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000001"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.001627"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.886091"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "2.32409"
+          },
+          "symbol": "TON",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "TON",
+        "timeframe": "4h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_15m",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "0.109677"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "0.109705"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000077"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000077"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "84.031437"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "0.109622"
+          },
+          "symbol": "DOGE",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "DOGE",
+        "timeframe": "15m"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_1h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "0.109677"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "0.109705"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000077"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000077"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "84.031437"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "0.109622"
+          },
+          "symbol": "DOGE",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "rsi_not_constructive"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "no_trade",
+        "symbol": "DOGE",
+        "timeframe": "1h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_4h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "0.109677"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "0.109705"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000077"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000077"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "84.031437"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "0.109622"
+          },
+          "symbol": "DOGE",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "DOGE",
+        "timeframe": "4h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_15m",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "0.081101"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "0.081121"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000057"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000057"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.810583"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "0.08106"
+          },
+          "symbol": "TRX",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "paper_universe_unavailable_current_testnet_metadata",
+          "paper_symbol_not_supported_on_testnet",
+          "source_unsupported_by_hyperliquid_meta"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "invalid",
+        "symbol": "TRX",
+        "timeframe": "15m"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_1h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "0.081101"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "0.081121"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000057"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000057"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.810583"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "0.08106"
+          },
+          "symbol": "TRX",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "paper_universe_unavailable_current_testnet_metadata",
+          "paper_symbol_not_supported_on_testnet",
+          "source_unsupported_by_hyperliquid_meta"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "invalid",
+        "symbol": "TRX",
+        "timeframe": "1h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_4h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "0.081101"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "0.081121"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000057"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000057"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.810583"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "0.08106"
+          },
+          "symbol": "TRX",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "paper_universe_unavailable_current_testnet_metadata",
+          "paper_symbol_not_supported_on_testnet",
+          "source_unsupported_by_hyperliquid_meta"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "invalid",
+        "symbol": "TRX",
+        "timeframe": "4h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_15m",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "0.127016"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "0.127048"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000089"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000089"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.977285"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "0.126952"
+          },
+          "symbol": "LAYER",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "LAYER",
+        "timeframe": "15m"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_1h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "0.127016"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "0.127048"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000089"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000089"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.977285"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "0.126952"
+          },
+          "symbol": "LAYER",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "rsi_not_constructive"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "no_trade",
+        "symbol": "LAYER",
+        "timeframe": "1h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_4h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "0.127016"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "0.127048"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000089"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000089"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.977285"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "0.126952"
+          },
+          "symbol": "LAYER",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "LAYER",
+        "timeframe": "4h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_15m",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "0.060772"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "0.060787"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000042"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000042"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.654326"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "0.060741"
+          },
+          "symbol": "CHIP",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "CHIP",
+        "timeframe": "15m"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_1h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "0.060772"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "0.060787"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000042"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000042"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.654326"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "0.060741"
+          },
+          "symbol": "CHIP",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "rsi_not_constructive"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "no_trade",
+        "symbol": "CHIP",
+        "timeframe": "1h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_4h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "0.060772"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "0.060787"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000042"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000042"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.654326"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "0.060741"
+          },
+          "symbol": "CHIP",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "CHIP",
+        "timeframe": "4h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_15m",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "8.220222"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "8.222307"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.00575"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000003"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.005753"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885353"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "8.216117"
+          },
+          "symbol": "UNI",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "paper_universe_unavailable_current_testnet_metadata",
+          "paper_symbol_not_supported_on_testnet",
+          "source_unsupported_by_hyperliquid_meta"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "invalid",
+        "symbol": "UNI",
+        "timeframe": "15m"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_1h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "8.220222"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "8.222307"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.00575"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000003"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.005753"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885353"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "8.216117"
+          },
+          "symbol": "UNI",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "paper_universe_unavailable_current_testnet_metadata",
+          "paper_symbol_not_supported_on_testnet",
+          "source_unsupported_by_hyperliquid_meta"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "invalid",
+        "symbol": "UNI",
+        "timeframe": "1h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_4h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "8.220222"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "8.222307"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.00575"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000003"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.005753"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885353"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "8.216117"
+          },
+          "symbol": "UNI",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "paper_universe_unavailable_current_testnet_metadata",
+          "paper_symbol_not_supported_on_testnet",
+          "source_unsupported_by_hyperliquid_meta"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "invalid",
+        "symbol": "UNI",
+        "timeframe": "4h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_15m",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "0.45044"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "0.450554"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000315"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000315"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.882033"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "0.450215"
+          },
+          "symbol": "ONDO",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "ONDO",
+        "timeframe": "15m"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_1h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "0.45044"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "0.450554"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000315"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000315"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.882033"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "0.450215"
+          },
+          "symbol": "ONDO",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "rsi_not_constructive"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "no_trade",
+        "symbol": "ONDO",
+        "timeframe": "1h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_4h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "0.45044"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "0.450554"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.000315"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.000315"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.882033"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "0.450215"
+          },
+          "symbol": "ONDO",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "ONDO",
+        "timeframe": "4h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_15m",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "100.19205"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "100.217448"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.070056"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000038"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.070094"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885223"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "100.142032"
+          },
+          "symbol": "AAVE",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "AAVE",
+        "timeframe": "15m"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_1h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "100.19205"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "100.217448"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.070056"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000038"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.070094"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885223"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "100.142032"
+          },
+          "symbol": "AAVE",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "rsi_not_constructive"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "no_trade",
+        "symbol": "AAVE",
+        "timeframe": "1h"
+      },
+      {
+        "candle_close_time": "2026-05-11T08:13:09.921800Z",
+        "component": "sleeve_4h",
+        "creates_executable_approval": false,
+        "creates_order_intent": false,
+        "creates_prepared_order": false,
+        "creates_strategy_decision": false,
+        "creates_submitted_order": false,
+        "indicators": {
+          "EMA10": {
+            "enough_history": true,
+            "label": "EMA10",
+            "reason": "computed",
+            "value": "100.19205"
+          },
+          "EMA5": {
+            "enough_history": true,
+            "label": "EMA5",
+            "reason": "computed",
+            "value": "100.217448"
+          },
+          "MACD": {
+            "enough_history": true,
+            "label": "MACD",
+            "reason": "computed",
+            "value": "0.070056"
+          },
+          "MACD histogram": {
+            "enough_history": true,
+            "label": "MACD histogram",
+            "reason": "computed",
+            "value": "-0.000038"
+          },
+          "MACD signal": {
+            "enough_history": true,
+            "label": "MACD signal",
+            "reason": "computed",
+            "value": "0.070094"
+          },
+          "RSI": {
+            "enough_history": true,
+            "label": "RSI",
+            "reason": "computed",
+            "value": "83.885223"
+          },
+          "SMA20": {
+            "enough_history": true,
+            "label": "SMA20",
+            "reason": "computed",
+            "value": "100.142032"
+          },
+          "symbol": "AAVE",
+          "timeframe": "1h",
+          "timestamp_utc": "2026-05-11T08:13:09.921800Z"
+        },
+        "next_candle_close_context": "observation_only",
+        "next_candle_open_context": "observation_only",
+        "operator_explanation": "PT0 paper/sandbox scanner record only; creates no live StrategyDecision, OrderIntent, PreparedVenueOrder, SubmittedOrder, or executable approval.",
+        "reason_codes": [
+          "pt0_secondary_timeframe_public_refresh_pending"
+        ],
+        "same_candle_close_research_only": "research only",
+        "source": "paper_signal",
+        "status": "would_hold",
+        "symbol": "AAVE",
+        "timeframe": "4h"
+      }
+    ],
+    "symbols": [
+      "BTC",
+      "ETH",
+      "SOL",
+      "XRP",
+      "ZEC",
+      "BNB",
+      "SUI",
+      "TON",
+      "DOGE",
+      "TRX",
+      "LAYER",
+      "CHIP",
+      "UNI",
+      "ONDO",
+      "AAVE"
+    ],
+    "timeframes": [
+      "15m",
+      "1h",
+      "4h"
+    ]
+  },
+  "paper_universe": [
+    {
+      "asset_id": 3,
+      "formatted_sample_post_only_buy_price": "80997",
+      "formatted_sample_size": "0.00012",
+      "market_identity_available": true,
+      "max_price_decimals": 1,
+      "paper_eligibility": "eligible",
+      "precision_metadata_available": true,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "supported_on_testnet": true,
+      "symbol": "BTC",
+      "sz_decimals": 5
+    },
+    {
+      "asset_id": 4,
+      "formatted_sample_post_only_buy_price": "2345.3",
+      "formatted_sample_size": "0.0042",
+      "market_identity_available": true,
+      "max_price_decimals": 2,
+      "paper_eligibility": "eligible",
+      "precision_metadata_available": true,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "supported_on_testnet": true,
+      "symbol": "ETH",
+      "sz_decimals": 4
+    },
+    {
+      "asset_id": 0,
+      "formatted_sample_post_only_buy_price": "97.215",
+      "formatted_sample_size": "0.1",
+      "market_identity_available": true,
+      "max_price_decimals": 4,
+      "paper_eligibility": "eligible",
+      "precision_metadata_available": true,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "supported_on_testnet": true,
+      "symbol": "SOL",
+      "sz_decimals": 2
+    },
+    {
+      "asset_id": null,
+      "formatted_sample_post_only_buy_price": null,
+      "formatted_sample_size": null,
+      "market_identity_available": false,
+      "max_price_decimals": null,
+      "paper_eligibility": "blocked_not_supported_on_testnet",
+      "precision_metadata_available": false,
+      "precision_validation_passed": false,
+      "reason_codes": [
+        "paper_universe_unavailable_current_testnet_metadata",
+        "paper_symbol_not_supported_on_testnet",
+        "source_unsupported_by_hyperliquid_meta"
+      ],
+      "supported_on_testnet": false,
+      "symbol": "XRP",
+      "sz_decimals": null
+    },
+    {
+      "asset_id": 193,
+      "formatted_sample_post_only_buy_price": "138.65",
+      "formatted_sample_size": "1",
+      "market_identity_available": true,
+      "max_price_decimals": 6,
+      "paper_eligibility": "eligible",
+      "precision_metadata_available": true,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "supported_on_testnet": true,
+      "symbol": "ZEC",
+      "sz_decimals": 0
+    },
+    {
+      "asset_id": 6,
+      "formatted_sample_post_only_buy_price": "653.16",
+      "formatted_sample_size": "0.015",
+      "market_identity_available": true,
+      "max_price_decimals": 3,
+      "paper_eligibility": "eligible",
+      "precision_metadata_available": true,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "supported_on_testnet": true,
+      "symbol": "BNB",
+      "sz_decimals": 3
+    },
+    {
+      "asset_id": 25,
+      "formatted_sample_post_only_buy_price": "1.2866",
+      "formatted_sample_size": "7.7",
+      "market_identity_available": true,
+      "max_price_decimals": 5,
+      "paper_eligibility": "eligible",
+      "precision_metadata_available": true,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "supported_on_testnet": true,
+      "symbol": "SUI",
+      "sz_decimals": 1
+    },
+    {
+      "asset_id": 44,
+      "formatted_sample_post_only_buy_price": "2.3154",
+      "formatted_sample_size": "4.3",
+      "market_identity_available": true,
+      "max_price_decimals": 5,
+      "paper_eligibility": "eligible",
+      "precision_metadata_available": true,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "supported_on_testnet": true,
+      "symbol": "TON",
+      "sz_decimals": 1
+    },
+    {
+      "asset_id": 173,
+      "formatted_sample_post_only_buy_price": "0.10931",
+      "formatted_sample_size": "91",
+      "market_identity_available": true,
+      "max_price_decimals": 6,
+      "paper_eligibility": "eligible",
+      "precision_metadata_available": true,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "supported_on_testnet": true,
+      "symbol": "DOGE",
+      "sz_decimals": 0
+    },
+    {
+      "asset_id": null,
+      "formatted_sample_post_only_buy_price": null,
+      "formatted_sample_size": null,
+      "market_identity_available": false,
+      "max_price_decimals": null,
+      "paper_eligibility": "blocked_not_supported_on_testnet",
+      "precision_metadata_available": false,
+      "precision_validation_passed": false,
+      "reason_codes": [
+        "paper_universe_unavailable_current_testnet_metadata",
+        "paper_symbol_not_supported_on_testnet",
+        "source_unsupported_by_hyperliquid_meta"
+      ],
+      "supported_on_testnet": false,
+      "symbol": "TRX",
+      "sz_decimals": null
+    },
+    {
+      "asset_id": 159,
+      "formatted_sample_post_only_buy_price": "0.12954",
+      "formatted_sample_size": "77",
+      "market_identity_available": true,
+      "max_price_decimals": 6,
+      "paper_eligibility": "eligible",
+      "precision_metadata_available": true,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "supported_on_testnet": true,
+      "symbol": "LAYER",
+      "sz_decimals": 0
+    },
+    {
+      "asset_id": 207,
+      "formatted_sample_post_only_buy_price": "0.060491",
+      "formatted_sample_size": "165",
+      "market_identity_available": true,
+      "max_price_decimals": 6,
+      "paper_eligibility": "eligible",
+      "precision_metadata_available": true,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "supported_on_testnet": true,
+      "symbol": "CHIP",
+      "sz_decimals": 0
+    },
+    {
+      "asset_id": null,
+      "formatted_sample_post_only_buy_price": null,
+      "formatted_sample_size": null,
+      "market_identity_available": false,
+      "max_price_decimals": null,
+      "paper_eligibility": "blocked_not_supported_on_testnet",
+      "precision_metadata_available": false,
+      "precision_validation_passed": false,
+      "reason_codes": [
+        "paper_universe_unavailable_current_testnet_metadata",
+        "paper_symbol_not_supported_on_testnet",
+        "source_unsupported_by_hyperliquid_meta"
+      ],
+      "supported_on_testnet": false,
+      "symbol": "UNI",
+      "sz_decimals": null
+    },
+    {
+      "asset_id": 87,
+      "formatted_sample_post_only_buy_price": "0.45108",
+      "formatted_sample_size": "22",
+      "market_identity_available": true,
+      "max_price_decimals": 6,
+      "paper_eligibility": "eligible",
+      "precision_metadata_available": true,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "supported_on_testnet": true,
+      "symbol": "ONDO",
+      "sz_decimals": 0
+    },
+    {
+      "asset_id": 21,
+      "formatted_sample_post_only_buy_price": "99.611",
+      "formatted_sample_size": "0.1",
+      "market_identity_available": true,
+      "max_price_decimals": 4,
+      "paper_eligibility": "eligible",
+      "precision_metadata_available": true,
+      "precision_validation_passed": true,
+      "reason_codes": [],
+      "supported_on_testnet": true,
+      "symbol": "AAVE",
+      "sz_decimals": 2
+    }
+  ],
+  "pt0_1_roadmap_status": "captured_for_supervised_top20_paper_sandbox_runtime_week",
+  "public_market_data_policy": {
+    "allowed_public_info_types": [
+      "allMids",
+      "candleSnapshot",
+      "fundingHistory",
+      "l2Book",
+      "meta",
+      "metaAndAssetCtxs"
+    ],
+    "api_keys_used": false,
+    "endpoint": "https://api.hyperliquid-testnet.xyz/info",
+    "endpoint_category": "public_read_only",
+    "live_endpoint_access": false,
+    "order_endpoints_called": false,
+    "private_endpoints_called": false,
+    "public_read_only": true,
+    "refresh_interval_seconds": 15,
+    "runtime_mode": "uat",
+    "signed_endpoints_called": false,
+    "source": "hyperliquid_testnet_public_read_only"
+  },
+  "recorded_at_utc": "2026-05-11T10:50:14.184410Z",
+  "report": "pt0_tradingview_charts_and_top20_paper_sandbox_runtime",
+  "routed_orders_paper_trades": {
+    "records": [
+      {
+        "cancel_status": "success",
+        "labels": {
+          "not_live": true,
+          "not_real_capital": true,
+          "paper_equity": true,
+          "sandbox": true
+        },
+        "notional": "19.9410",
+        "paper_equity_after": "10000",
+        "paper_equity_before": "10000",
+        "price": "2346",
+        "realized_pnl": "0",
+        "reconciliation_status": "completed",
+        "route": "fixed_target_hyperliquid_testnet_eth",
+        "sandbox_order_id": "52874322602",
+        "side": "buy",
+        "size": "0.0085",
+        "source": "manual sandbox lifecycle probe",
+        "status": "canceled",
+        "symbol": "ETH",
+        "time": "2026-05-11T05:47:36.982043Z",
+        "unrealized_pnl": "0"
+      }
+    ],
+    "source": "paper scanner and UAT3.4 routed sandbox ledger summaries"
+  },
+  "routing_foundation": {
+    "cross_venue_routing_added": false,
+    "default_eth_candidate_decision": {
+      "allowed": false,
+      "calls_exchange": false,
+      "creates_executable_approval": false,
+      "creates_order_intent": false,
+      "creates_prepared_order": false,
+      "creates_strategy_decision": false,
+      "creates_submitted_order": false,
+      "reason_codes": [
+        "pt0_sandbox_order_routing_disabled_by_default"
+      ],
+      "risk_blocked": true
+    },
+    "existing_uat3_4_records_visible": true,
+    "production_auto_submit_added": false,
+    "route_scope": "hyperliquid_testnet_supported_top20_fixed_single_venue",
+    "routing_enabled_default": false,
+    "routing_enabled_env": "PT0_SANDBOX_ORDER_ROUTING_ENABLED",
+    "smart_routing_sor_fanout_added": false
+  },
+  "runtime_limits": {
+    "allowed_environment": "testnet",
+    "allowed_universe": "top20_hyperliquid_supported",
+    "allowed_venue": "hyperliquid",
+    "computed_max_order_notional": "100",
+    "cross_venue_routing_allowed": false,
+    "kill_switch_enabled": false,
+    "live_endpoint_access": false,
+    "max_open_positions": 3,
+    "max_open_positions_per_symbol": 1,
+    "max_order_notional_absolute": "100",
+    "max_order_notional_pct_of_paper_equity": "0.01",
+    "max_orders_per_day": 5,
+    "smart_routing_sor_fanout_allowed": false
+  },
+  "side_effect_flags": {
+    "api_keys_used": false,
+    "cancel_amend_retry_endpoints_called": false,
+    "evidence_packs_generated": false,
+    "live_endpoint_called": false,
+    "live_orders_submitted": false,
+    "live_real_capital_trading_added": false,
+    "money_flow_rules_changed": false,
+    "order_controls_added": false,
+    "order_endpoints_called": false,
+    "private_order_endpoints_called": false,
+    "sandbox_orders_submitted_by_pt0": false,
+    "signed_endpoints_called": false,
+    "smart_routing_sor_fanout_added": false
+  },
+  "sizing_policy": {
+    "policy": "PT0 sizing uses current realized internal paper equity, not the static initial 10,000 USDC. Realized plus unrealized PnL is displayed for risk.",
+    "risk_display_basis": "realized_plus_unrealized",
+    "risk_display_equity": "10000",
+    "sizing_basis": "realized_equity",
+    "sizing_equity": "10000",
+    "use_static_initial_equity": false
+  },
+  "timeframes": [
+    "15m",
+    "1h",
+    "4h"
+  ],
+  "watchlist": [
+    "BTC",
+    "ETH",
+    "SOL",
+    "XRP",
+    "ZEC",
+    "BNB",
+    "SUI",
+    "TON",
+    "DOGE",
+    "TRX",
+    "LAYER",
+    "CHIP",
+    "UNI",
+    "ONDO",
+    "AAVE"
+  ]
+}

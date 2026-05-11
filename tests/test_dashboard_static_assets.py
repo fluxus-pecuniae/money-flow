@@ -24,6 +24,7 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "--color-amber" in css
     assert ".uat-workstation-grid" in css
     assert ".exchange-chart-shell" in css
+    assert ".tradingview-lightweight-chart" in css
     assert ".uat-right-rail" in css
     assert ".uat-bottom-blotter" in css
     assert "Evidence Dashboard" in html
@@ -45,6 +46,8 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "UAT2 Shadow Run" in html
     assert "uat2_shadow_strategy_top20_observation_summary.json" in js
     assert "renderUatDashboard" in js
+    assert "TradingView Lightweight Charts" in js
+    assert "CandlestickSeries" in js
     assert "renderUatRightRail" in js
     assert "renderUatBottomTabs" in js
     assert "uat-signal-matrix" in html

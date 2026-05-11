@@ -11,7 +11,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 | Controlled automation | Phase 7 | Approval-gated same-target action hooks with safety closeout; no full SOR. |
 | Operator observability | Phase 8 | Read-only routed workflow/manual-resolution inspection and submit-lease truth. |
 | Strategy Validation | SV1.0-SV1.18.1 | Hyperliquid public evidence cycle, dynamic equity, diagnostics, replay experiments, and UAT candidate freeze. |
-| UAT | UAT0-UAT4.2 | UAT4.2 live market dashboard and internal paper-equity monitor complete; PT0 paper/sandbox runtime may be scoped separately. |
+| UAT/PT | UAT0-PT0 | PT0 TradingView charts and top-20 paper/sandbox runtime foundation complete; PT0.1 supervised paper/sandbox runtime week may be scoped separately. |
 
 Strategy Validation is now its own major track. It is not an active sub-phase of Phase 8.
 
@@ -42,11 +42,11 @@ Strategy Validation is now its own major track. It is not an active sub-phase of
 
 ## Current State
 
-Current implemented milestone: `UAT4.2` live market dashboard and internal paper-equity monitor complete.
+Current implemented milestone: `PT0` TradingView charts and top-20 paper/sandbox runtime foundation complete.
 
-Next proposed phase: `PT0` approval-gated paper/sandbox trading runtime may be scoped separately; `UAT3.5` additional sandbox routing lifecycle tests remain blocked by incomplete UAT-universe precision validation and separate approval.
+Next proposed phase: `PT0.1` supervised top-20 paper/sandbox runtime week may be scoped separately; `UAT3.5` additional sandbox routing lifecycle tests remain blocked by incomplete UAT-universe precision validation and separate approval.
 
-Paper trading is not approved. Live trading is not approved. Additional exchange order submission is not approved.
+PAPER TRADING IS APPROVED for Hyperliquid testnet/sandbox only. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED under gates. Live trading is not approved. Live exchange order submission is not approved.
 
 ## UAT Track
 
@@ -67,6 +67,7 @@ Paper trading is not approved. Live trading is not approved. Additional exchange
 - UAT3.4: production-like fixed-target sandbox routing pipeline and routed-order ledger complete; one ETH testnet order was accepted/open, canceled successfully, and reconciled with no open order remaining.
 - UAT4.0: live UAT trading dashboard / chart cockpit complete as read-only local visualization.
 - UAT4.1: exchange-style dashboard redesign complete.
-- UAT4.2: live market dashboard and internal paper-equity monitor complete; PT0 paper/sandbox runtime remains future work.
+- UAT4.2: live market dashboard and internal paper-equity monitor complete.
+- PT0: TradingView charts and top-20 paper/sandbox runtime foundation complete; paper trading and broader top-20 Hyperliquid-supported paper/sandbox scope are approved for testnet/sandbox only.
 
 See [[00 Maps/UAT Roadmap|UAT Roadmap]].

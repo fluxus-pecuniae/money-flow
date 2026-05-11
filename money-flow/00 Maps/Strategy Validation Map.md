@@ -55,6 +55,6 @@ Candidate id: `money_flow_hyperliquid_eth_1h_baseline_uat_candidate`
 
 ## Interpretation Rule
 
-Every SV result remains research-only. A scenario can be observed, diagnostically useful, or suitable for UAT observation without proving profitability or authorizing paper/live trading.
+Every SV result remains research-only. A scenario can be observed, diagnostically useful, or suitable for UAT/PT observation without proving profitability or authorizing live trading.
 
-Paper trading is not approved. Live trading is not approved. Exchange order submission is not approved.
+PAPER TRADING IS APPROVED. Paper trading is approved for Hyperliquid testnet/sandbox only under PT0. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED. Broader top-20 Hyperliquid-supported paper/sandbox trading is approved under metadata, precision, risk, lease, label, and no-live gates. Live trading is not approved. Live exchange order submission is not approved.

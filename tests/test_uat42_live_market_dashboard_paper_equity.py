@@ -143,7 +143,7 @@ def test_dashboard_loads_uat42_summary_and_renders_live_monitor_surfaces() -> No
     assert "Internal Paper Equity" in js
     assert "sandbox_private_read_only" in js
     assert "60 seconds" in js
-    assert "UAT4.2 local refresh JSON" in html
+    assert "PT0/UAT4.2 local JSON fallback" in html
     assert ".market-change.positive" in css
 
 
@@ -158,8 +158,7 @@ def test_dashboard_live_charting_polls_public_testnet_only() -> None:
     assert "live_public_read_only_connected" in js
     assert "hyperliquid_testnet_public_read_only_browser_poll" in js
     assert "dashboard_live_chart_private_or_order_payload_forbidden" in js
-    assert "No API keys, private order endpoints, signed order endpoints, or live endpoints are used" in js
-    assert "order endpoints are also not used" in js
+    assert "No API keys, private order endpoints, signed order endpoints, order endpoints, or live endpoints are used" in js
     assert "https://api.hyperliquid.xyz/info" not in js
 
 
@@ -173,10 +172,10 @@ def test_dashboard_watchlist_indicators_markers_and_no_order_controls() -> None:
     for label in ("EMA5", "EMA10", "SMA20", "RSI", "MACD", "MACD signal", "MACD histogram"):
         assert label in dashboard
 
-    assert "observation only" in dashboard
-    assert "not approved for orders" in dashboard
-    assert "green marker: paper observation would-open" in dashboard
-    assert "red marker: paper observation would-close" in dashboard
+    assert "paper/sandbox only" in dashboard
+    assert "paper/sandbox eligible under PT0 gates" in dashboard
+    assert "green marker: paper would-open" in dashboard
+    assert "red marker: paper would-close" in dashboard
     assert "green marker: shadow would-open, not actual trade" in dashboard
     assert "red marker: sandbox cancel" in dashboard
     assert "paper-equity simulation" in dashboard
@@ -189,7 +188,6 @@ def test_dashboard_watchlist_indicators_markers_and_no_order_controls() -> None:
         "approve order button",
         "paper/live toggle",
         "auto-trade toggle",
-        "paper trading approved",
         "live trading approved",
     )
     for phrase in forbidden:
@@ -197,6 +195,7 @@ def test_dashboard_watchlist_indicators_markers_and_no_order_controls() -> None:
 
     assert "order controls are disabled" in lowered
     assert "live trading is not approved" in lowered
+    assert "paper trading is approved for hyperliquid testnet/sandbox only" in lowered
 
 
 def test_uat42_report_and_pt0_roadmap_are_captured() -> None:
@@ -208,4 +207,4 @@ def test_uat42_report_and_pt0_roadmap_are_captured() -> None:
     assert "60-second poll policy" in report
     assert "No-order-control confirmation" in report
     assert "PT0" in report
-    assert "PT0 — Approval-Gated Paper/Sandbox Trading Runtime" in roadmap
+    assert "PT0 — TradingView Lightweight Charts + Broad Top-20 Paper/Sandbox Runtime Foundation" in roadmap

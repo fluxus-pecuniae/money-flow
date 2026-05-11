@@ -31,9 +31,9 @@ Before substantial work, read the repo memory and Obsidian brain. Before editing
 
 ## Current Important Memory Facts
 
-- Current implemented milestone: `UAT4.2` live market dashboard and internal paper-equity monitor complete.
+- Current implemented milestone: `PT0` TradingView charts and top-20 paper/sandbox runtime foundation complete.
 - Strategy Validation SV1 is closed for now.
-- Next proposed phase: `PT0` approval-gated paper/sandbox trading runtime may be scoped separately; `UAT3.5` additional sandbox routing lifecycle tests remain blocked by incomplete UAT-universe precision validation and separate approval.
+- Next proposed phase: `PT0.1` supervised top-20 paper/sandbox runtime week may be scoped separately; `UAT3.5` additional sandbox routing lifecycle tests remain blocked by incomplete UAT-universe precision validation and separate approval.
 - UAT1 public read-only connectivity is complete under strict no-private/no-signed/no-order/no-API-key constraints.
 - UAT1 verified allowed public Hyperliquid info types, fetched a no-key public top-volume source, and resolved observation-only Hyperliquid supported assets.
 - UAT1.1 adds operator-visible shadow drawdown state, shadow signal audit surfaces, and representative structured redaction verification.
@@ -53,11 +53,13 @@ Before substantial work, read the repo memory and Obsidian brain. Before editing
 - UAT4.0 added a read-only dashboard/chart cockpit.
 - UAT4.1 rebuilt the cockpit as an exchange-style workstation.
 - UAT4.2 added public-read-only monitor rows, deterministic indicators, paper-observation markers, a 60-second sandbox private-read-only balance polling policy, and an internal 10,000 USDC paper-equity ledger without adding order controls or order endpoints.
+- PT0 added TradingView Lightweight Charts, top-20 Hyperliquid-supported paper/sandbox universe eligibility, paper scanner records, current-equity sizing, internal 10,000 USDC paper-equity ledger truth, and default-disabled risk-gated sandbox route candidates.
 - Frozen evidence candidate: Hyperliquid ETH `sleeve_1h` baseline current Money Flow rules.
 - Future UAT observation universe: top-20 high-volume supported assets for behavior validation only.
-- Paper trading is not approved.
+- PAPER TRADING IS APPROVED for Hyperliquid testnet/sandbox only.
+- BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED under gates.
 - Live trading is not approved.
-- Additional exchange order submission is not approved.
+- Live exchange order submission is not approved.
 - Phase 8 is historical/operator-control context, not the current next phase.
 
 ## Drift Rules

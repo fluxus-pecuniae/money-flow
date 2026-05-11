@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Money Flow UAT Workstation</title>
-    <link rel="stylesheet" href="./evidence-dashboard.css?v=uat4.2" />
+    <link rel="stylesheet" href="./evidence-dashboard.css?v=pt0" />
   </head>
   <body>
     <header class="top-strip">
@@ -221,8 +221,8 @@
         </section>
 
         <div id="uat-cockpit-safety-banner" class="uat-safety-banner">
-          UAT sandbox/testnet observation only. Paper trading is not approved. Live trading is not approved. Order controls are disabled. Top-20 assets are observation-only.
-          <span>ETH sandbox route exists, but manual approval is required for every sandbox order.</span>
+          PAPER TRADING IS APPROVED FOR HYPERLIQUID TESTNET/SANDBOX ONLY. BROADER TOP-20 SUPPORTED PAPER/SANDBOX TRADING IS APPROVED. LIVE TRADING IS NOT APPROVED. REAL-CAPITAL TRADING IS NOT APPROVED. INTERNAL PAPER EQUITY STARTS AT 10,000 USDC.
+          <span>Live trading is not approved. Order controls are disabled. Order routing is risk-gated. Unsupported top-20 assets are blocked. No live endpoint. No dashboard order controls.</span>
         </div>
 
         <section class="uat-workstation-grid" aria-label="Exchange-style UAT workstation">
@@ -244,7 +244,7 @@
               <div class="chart-header-meta">
                 <span>Venue: Hyperliquid</span>
                 <span>Market status: public read-only</span>
-                <span id="uat-live-chart-status">Live chart: starting public-read-only testnet polling; UAT4.2 local refresh JSON fallback</span>
+                <span id="uat-live-chart-status">Live chart: TradingView Lightweight Charts; public-read-only testnet polling; PT0/UAT4.2 local JSON fallback</span>
               </div>
             </div>
             <div id="uat-price-chart" class="exchange-chart-shell"></div>
@@ -305,8 +305,8 @@
           <section class="blotter-panel" data-uat-bottom-panel="routed" aria-labelledby="uat-cockpit-routed-orders-title">
             <div class="panel-toolbar">
               <div>
-                <h3 id="uat-cockpit-routed-orders-title">Routed Orders</h3>
-                <p>UAT3.4 sandbox/testnet lifecycle records. No order controls are present.</p>
+                <h3 id="uat-cockpit-routed-orders-title">Routed Orders / Paper Trades</h3>
+                <p>PT0 paper scanner rows and UAT3.4 sandbox/testnet lifecycle records. No order controls are present.</p>
               </div>
               <div class="uat-filter-grid compact">
                 <label>
@@ -638,6 +638,7 @@
       </section>
     </main>
 
-    <script src="./evidence-dashboard.js?v=uat4.1"></script>
+    <script src="./vendor/lightweight-charts.standalone.production.js?v=5.2.0"></script>
+    <script src="./evidence-dashboard.js?v=pt0"></script>
   </body>
 </html>
