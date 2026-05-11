@@ -37,15 +37,13 @@
       </section>
 
       <nav class="view-tabs" aria-label="Dashboard sections">
-        <button class="view-tab" type="button" data-view="evidence" aria-selected="true">Evidence</button>
         <button class="view-tab" type="button" data-view="experiments" aria-selected="false">Experiments</button>
-        <button class="view-tab" type="button" data-view="historical-replay" aria-selected="false">Historical Replay</button>
-        <button class="view-tab" type="button" data-view="uat-cockpit" aria-selected="false">UAT Chart Cockpit</button>
-        <button class="view-tab" type="button" data-view="uat-shadow" aria-selected="false">UAT2 Shadow Run</button>
+        <button class="view-tab" type="button" data-view="historical-replay" aria-selected="true">Historical Replay</button>
+        <button class="view-tab" type="button" data-view="evidence" aria-selected="false">Evidence</button>
         <button class="view-tab" type="button" data-view="strategy" aria-selected="false">Strategy</button>
       </nav>
 
-      <section id="evidence-view" class="dashboard-view" data-view-panel="evidence">
+      <section id="evidence-view" class="dashboard-view" data-view-panel="evidence" hidden>
         <section class="metric-grid" aria-label="Evidence summary metrics">
           <article class="metric-cell">
             <span class="metric-label">Packs</span>
@@ -202,7 +200,7 @@
         </section>
       </section>
 
-      <section id="historical-replay-view" class="dashboard-view historical-replay-workstation" data-view-panel="historical-replay" hidden>
+      <section id="historical-replay-view" class="dashboard-view historical-replay-workstation" data-view-panel="historical-replay">
         <section class="historical-replay-topbar" aria-labelledby="historical-replay-title">
           <div>
             <p class="eyebrow">Historical Strategy Truth</p>

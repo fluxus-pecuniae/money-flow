@@ -13,8 +13,10 @@ def _dashboard_assets() -> tuple[str, str, str]:
 
 def test_uat2_dashboard_tab_loads_summary_json_and_required_sections() -> None:
     html, js, css = _dashboard_assets()
+    nav = html[html.index('<nav class="view-tabs"') : html.index("</nav>", html.index('<nav class="view-tabs"'))]
 
-    assert "data-view=\"uat-shadow\"" in html
+    assert "data-view=\"uat-shadow\"" not in nav
+    assert "data-view-panel=\"uat-shadow\"" in html
     assert "UAT2 Shadow Run" in html
     assert "uat-summary-cards" in html
     assert "uat-signal-matrix" in html

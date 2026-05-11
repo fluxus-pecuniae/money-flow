@@ -33,8 +33,10 @@ def _dashboard_assets() -> tuple[str, str, str]:
 def test_uat_chart_cockpit_tab_and_sections_exist() -> None:
     html, js, css = _dashboard_assets()
     dashboard = f"{html}\n{js}"
+    nav = html[html.index('<nav class="view-tabs"') : html.index("</nav>", html.index('<nav class="view-tabs"'))]
 
-    assert "data-view=\"uat-cockpit\"" in html
+    assert "data-view=\"uat-cockpit\"" not in nav
+    assert "data-view-panel=\"uat-cockpit\"" in html
     assert "UAT Chart Cockpit" in html
     assert "Live UAT Charts" in html
     assert "uat-workstation-grid" in html

@@ -460,7 +460,7 @@
     review: null,
     batches: [],
     selectedComponent: "all",
-    activeView: "evidence",
+    activeView: "historical-replay",
     experimentMode: "sv115_overlays",
     sv117FullSuiteRows: null,
     uat2Summary: null,

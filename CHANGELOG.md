@@ -13,6 +13,24 @@ Entry schema:
 
 ---
 
+## v2026.05.11.011
+
+- `recorded_at_utc`: `2026-05-11T15:13:11Z`
+- `scope`: `Dashboard primary tab cleanup`
+- `intent`: `Native entry. Reordered the visible dashboard navigation to Experiments, Historical Replay, Evidence, and Strategy; made Historical Replay the default visible view; removed UAT Chart Cockpit and UAT2 Shadow Run from the top-level tab bar while preserving their hidden legacy panels for regression coverage and historical context. No order controls, private/signed/order endpoints, live endpoint use, exchange API keys, Money Flow rule changes, routing behavior, or sandbox orders were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_uat21_dashboard_visualization.py`
+  - `tests/test_uat40_dashboard_chart_cockpit.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_uat21_dashboard_visualization.py tests/test_uat40_dashboard_chart_cockpit.py tests/test_pt002_historical_strategy_replay_cockpit.py`
+
 ## v2026.05.11.010
 
 - `recorded_at_utc`: `2026-05-11T14:18:00Z`

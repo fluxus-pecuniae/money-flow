@@ -85,12 +85,13 @@ Bottom:
 
 ## Tab Structure
 
-Primary dashboard tabs remain:
-- Evidence
+Primary dashboard tabs are:
 - Experiments
-- UAT Chart Cockpit
-- UAT2 Shadow Run
+- Historical Replay
+- Evidence
 - Strategy
+
+`UAT Chart Cockpit` and `UAT2 Shadow Run` remain hidden legacy panels for regression coverage and historical context, but they are no longer top-level navigation tabs.
 
 The UAT Chart Cockpit has its own bottom blotter tabs:
 - Routed Orders
