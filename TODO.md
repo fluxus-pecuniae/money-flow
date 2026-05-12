@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-12T21:09:29Z`
+Last reviewed: `2026-05-12T22:46:40Z`
 
 ## Active Follow-Ups
+
+### T-132
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `MF-ORIG-EV1 original Money Flow reconstruction is complete as evidence-only research. It adds a formal source-specification and gap matrix, a Strategy Validation-only original Money Flow replay module, and generated Markdown/JSON reports comparing source-faithful 1d-first hypotheses against canonical SV2.0.2 Money Flow v1.2 DB-imported evidence. The reconstruction models Stage 1-4, 5 EMA / 20 SMA triggers, MACD-as-TSI substitute confirmation/warnings, RSI profit-warning trims, prior support/pivot stop proxies, and 1% risk-budget sizing. The source PDF was not present locally, so extraction is explicitly limited to the prompt-provided source summary. Production Money Flow rules remain unchanged; no original hypothesis is production-approved; no orders/private/signed/order endpoints/live behavior/testnet strategy truth/SOR behavior were added.`
 
 ### T-131
 

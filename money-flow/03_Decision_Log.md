@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-12T22:46:40Z - MF-ORIG-EV1 - Original Money Flow Reconstruction Is Evidence-Only
+
+- `decision`: Reconstruct the original Money Flow Trading System as a separate Strategy Validation research family without changing production Money Flow v1.2.
+- `scope`: MF-ORIG-EV1 uses the prompt-provided Gerald Peters September 5, 2019 source summary because the PDF was not present locally. It creates the source-specification/gap-matrix report, implements 1d-primary original hypotheses with Stage 1-4 classification, 5 EMA / 20 SMA triggers, RSI profit-warning trims, MACD-as-TSI substitute confirmation/warnings, prior support/pivot stop proxies, and 1% risk-budget sizing, then compares those hypotheses with canonical SV2.0.2 DB-imported Money Flow v1.2 evidence.
+- `why`: The founder wanted to test whether current Money Flow v1.2 is source-faithful to the original Money Flow Trading System. The first finding is that v1.2 is Money Flow-inspired but not source-faithful in hierarchy: v1.2 uses EMA stack / RSI sleeve / MACD entry gates, while the source hierarchy emphasizes stages, 20 SMA foundation, 5 EMA trigger, RSI warning/profit context, and structure-based stops.
+- `follow_up_implications`: The original hypotheses are not production-approved and do not authorize paper/live behavior. They showed pre-gate aggregate PnL/drawdown improvement but failed candidate gate due control-pocket preservation. Any MF-ORIG-EV2 should first reconcile against the actual PDF and then decide whether dashboard overlays or deeper source-rule modeling are worthwhile.
+
 ## 2026-05-12T21:09:29Z - Historical Replay - Rolling-Range SOR-EV3 Variants Added
 
 - `decision`: Bring `avoid_low_rolling_range_20` and `avoid_low_rolling_range_50` into Historical Replay as full research-only replay strategies.

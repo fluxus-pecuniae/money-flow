@@ -13,6 +13,43 @@ Entry schema:
 
 ---
 
+## v2026.05.12.022
+
+- `recorded_at_utc`: `2026-05-12T22:46:40Z`
+- `scope`: `MF-ORIG-EV1 original Money Flow reconstruction evidence`
+- `intent`: `Native entry. Added a Strategy Validation-only reconstruction of the original Money Flow Trading System from the prompt-provided Gerald Peters September 5, 2019 source summary, created a formal source-specification / gap-matrix report, and generated first-pass evidence-only comparisons against canonical SV2.0.2 Money Flow v1.2 DB-imported packs. The reconstruction treats 1d as the primary original timeframe, models Stage 1-4 classification, 5 EMA / 20 SMA source triggers, RSI profit-warning/trim context, MACD-as-TSI-substitute confirmation/warning, prior-support/pivot stop proxies, and 1% risk-budget sizing. Production Money Flow v1.2 is unchanged; original hypotheses are not production-approved; no orders were submitted; no private/signed/order endpoints were called; no Hyperliquid testnet prices or dashboard date-filter recalculations were used as canonical strategy truth; live trading remains not approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `docs/strategy.md`
+  - `docs/mf_orig_ev1_original_money_flow_reconstruction.md`
+  - `docs/mf_orig_ev1_original_money_flow_reconstruction_summary.json`
+  - `docs/mf_orig_ev1_original_money_flow_spec_and_gap_matrix.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `scripts/build_mf_orig_ev1_original_money_flow.py`
+  - `services/strategy_validation/mf_orig_ev1.py`
+  - `tests/test_mf_orig_ev1_original_money_flow.py`
+- `validation_performed`:
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> .venv/bin/python scripts/build_mf_orig_ev1_original_money_flow.py`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m compileall core services apps tests scripts`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_mf_orig_ev1_original_money_flow.py`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_sv202_canonical_import_evidence.py tests/test_sv201_canonical_evidence_truth_hotfix.py`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_sor_ev1_loss_anatomy.py tests/test_sor_ev2_true_forward_replay.py tests/test_sor_ev3_avoid_sideways_low_volatility.py`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+
 ## v2026.05.12.021
 
 - `recorded_at_utc`: `2026-05-12T21:48:31Z`

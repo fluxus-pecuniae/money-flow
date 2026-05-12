@@ -108,6 +108,9 @@ REQUIRED_FILES = [
     "docs/sor_ev2_true_forward_stop_and_rejected_signal_replay.md",
     "docs/sor_ev2_true_forward_stop_and_rejected_signal_replay_summary.json",
     "docs/sor_ev2_1_evidence_lab_ui.md",
+    "docs/mf_orig_ev1_original_money_flow_spec_and_gap_matrix.md",
+    "docs/mf_orig_ev1_original_money_flow_reconstruction.md",
+    "docs/mf_orig_ev1_original_money_flow_reconstruction_summary.json",
 ]
 
 
@@ -157,6 +160,7 @@ def test_obsidian_brain_workflow_exists() -> None:
 
     assert "canonical Obsidian command center" in command_center
     assert "`SOR-EV2.2` Variant Chart Overlay + Founder Review Workflow is complete" in current_phase
+    assert "`MF-ORIG-EV1` Original Money Flow reconstruction evidence is complete" in current_phase
     assert "`SOR-EV2` True-Forward Stop/Exit + Rejected-Signal Replay is complete" in current_phase
     assert "Baseline parity passed for all `72` canonical SV2.0.2 scenarios" in current_phase
     assert "SV1.18" in command_center
@@ -182,6 +186,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "SOR-EV2 is complete" in command_center
     assert "SOR-EV2.1 is complete" in command_center
     assert "SOR-EV2.2 is complete" in command_center
+    assert "MF-ORIG-EV1 is complete" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
     assert "Strategy Validation" in moved_memory
@@ -206,6 +211,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "SV2.0 Money Flow 1D sleeve and expanded public-mainnet evidence refresh is complete" in moved_memory
     assert "SV2.0.1 canonical evidence truth hotfix" in moved_memory
     assert "SV2.0.2 hardened DB import and canonical evidence-pack generation is complete" in moved_memory
+    assert "MF-ORIG-EV1 original Money Flow reconstruction evidence" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
 
@@ -220,7 +226,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
     assert (
-        "Current implemented milestone | `SOR-EV3` avoid_sideways_low_volatility drilldown complete"
+        "Current implemented milestone | `MF-ORIG-EV1` Original Money Flow reconstruction evidence complete"
         in command_center
     )
     assert "Canonical command center" in compatibility_command_center
