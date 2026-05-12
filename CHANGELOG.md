@@ -13,6 +13,20 @@ Entry schema:
 
 ---
 
+## v2026.05.12.010
+
+- `recorded_at_utc`: `2026-05-12T13:49:09Z`
+- `scope`: `Evidence Lab overlay layout follow-up`
+- `intent`: `Native entry. Moved the Evidence Lab Variant Chart Overlay directly below the Variant Summary Matrix so founder review flows from variant selection into chart inspection before the secondary control/worst-trade diagnostic panels. Behavior is unchanged: no production Money Flow rules changed, no variant was approved, no orders/private/signed/order endpoints were called, no evidence packs were regenerated, and no live/paper runtime or SOR behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/index.html`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `git diff --check`
+
 ## v2026.05.12.009
 
 - `recorded_at_utc`: `2026-05-12T13:18:15Z`

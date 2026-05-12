@@ -172,6 +172,8 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     assert "evidence-lab-toggle-ma-breaks" in html
     assert "Worst Trades Focus" in html
     assert "Control Pocket View" in html
+    assert html.index("Variant Summary Matrix") < html.index("Variant Chart Overlay")
+    assert html.index("Variant Chart Overlay") < html.index("Control Pockets")
 
     assert "sor_ev1_money_flow_trade_loss_anatomy_and_variants_summary.json" in js
     assert "sor_ev2_true_forward_stop_and_rejected_signal_replay_summary.json" in js
