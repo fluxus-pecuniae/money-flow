@@ -39,11 +39,13 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert 'data-view-panel="experiments"' not in html
     assert 'data-view="historical-replay"' in nav
     assert 'data-view="evidence"' in nav
+    assert 'data-view="evidence-lab"' in nav
     assert 'data-view="strategy"' in nav
     assert 'data-view="uat-shadow"' not in nav
     assert 'data-view="uat-cockpit"' not in nav
     assert nav.index('data-view="strategy"') < nav.index('data-view="historical-replay"')
     assert nav.index('data-view="historical-replay"') < nav.index('data-view="evidence"')
+    assert nav.index('data-view="evidence"') < nav.index('data-view="evidence-lab"')
     assert 'data-view="historical-replay" aria-selected="true"' in nav
     assert "Money Flow UAT Workstation" in html
     assert "UAT Chart Cockpit" in html
@@ -131,6 +133,56 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "calls_exchange_order_endpoints" in js
     assert "Manual review" in js
     assert "paper_trading_auto_approved" not in js
+
+
+def test_sor_ev21_evidence_lab_static_ui() -> None:
+    html = Path("apps/dashboard/index.html").read_text(encoding="utf-8")
+    js = Path("apps/dashboard/evidence-dashboard.js").read_text(encoding="utf-8")
+
+    nav = html[html.index('<nav class="view-tabs"') : html.index("</nav>", html.index('<nav class="view-tabs"'))]
+    assert "Evidence Lab" in nav
+    assert 'data-view="evidence-lab"' in nav
+    assert 'data-view="experiments"' not in nav
+    assert "SV1.15 Hypothesis Experiments" not in html
+    assert "Evidence Lab / Variant Review" in html
+    assert "Canonical baseline: SV2.0.2" in html
+    assert "Variant status: evidence-only" in html
+    assert "Production rules changed: no" in html
+    assert "Live approval: no" in html
+    assert "Orders submitted: no" in html
+    assert "Only true_forward_replay variants can become candidates for deeper evidence" in html
+    assert "Dashboard date filters are display-only recalculations from loaded trades" in html
+    assert "Variant Summary Matrix" in html
+    assert "Control Pockets" in html
+    assert "Worst Trades" in html
+    assert "Late Entry Analysis" in html
+    assert "Large Adverse Candle Analysis" in html
+    assert "RSI / MACD Rejections" in html
+    assert "Variant Chart Overlay" in html
+
+    assert "sor_ev1_money_flow_trade_loss_anatomy_and_variants_summary.json" in js
+    assert "sor_ev2_true_forward_stop_and_rejected_signal_replay_summary.json" in js
+    assert "SV202_CANONICAL_TIMESTAMP" in js
+    assert "fixed_stop_loss" in js
+    assert "atr_stop" in js
+    assert "recent_low_stop" in js
+    assert "large_bear_candle_exit" in js
+    assert "earlier_macd_entry" in js
+    assert "lower_rsi_trend_intact_entry" in js
+    assert "extension_filter" in js
+    assert "chop_filter" in js
+    assert "completed_trade_overlay_estimate" in js
+    assert "lookahead_diagnostic_proxy" in js
+    assert "data_not_available_in_sor_ev_bundle" in js
+    assert "variant_chart_overlay_deferred_to_sor_ev2_2" in js
+    assert "production_approved" in js
+    assert "No variant is production-approved" in js
+    assert "calls_private_exchange_endpoints" in js
+    assert "calls_exchange_order_endpoints" in js
+    assert "live trading approved: yes" not in html.lower()
+    assert "submit order" not in html.lower()
+    assert "cancel order" not in html.lower()
+    assert "retry button" not in html.lower()
 
 
 def test_uat_cockpit_summary_header_only_shows_environment_card() -> None:

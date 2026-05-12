@@ -89,7 +89,9 @@ Primary dashboard tabs are:
 - Strategy
 - Historical Replay
 - Evidence
-- Experiments
+- Evidence Lab
+
+The invalid legacy `Experiments` surface is not exposed as a primary tab. Evidence Lab is tied to SOR-EV1/SOR-EV2 committed summaries and canonical SV2.0.2 baseline context only.
 
 `UAT Chart Cockpit` and `UAT2 Shadow Run` remain hidden legacy panels for regression coverage and historical context, but they are no longer top-level navigation tabs.
 
@@ -116,6 +118,13 @@ The UAT Chart Cockpit has its own bottom blotter tabs:
 - `uat-bottom-blotter`
 - `blotter-tabs`
 - `lifecycle-timeline`
+- `evidence-lab-header`
+- `evidence-lab-variant-matrix`
+- `evidence-lab-control-pockets`
+- `evidence-lab-worst-trades`
+- `evidence-lab-late-entry`
+- `evidence-lab-adverse-candles`
+- `evidence-lab-rsi-macd`
 
 ## Color System
 
@@ -217,6 +226,17 @@ Marker tooltips/rows must include:
 - order id when available
 - sandbox/not-live labels
 - no paper/live confirmation
+
+## Evidence Lab Rules
+
+- Evidence Lab reviews SOR-EV1/SOR-EV2 research variants against canonical SV2.0.2 DB-imported evidence.
+- SOR variants are evidence-only and must not be labeled production-approved.
+- Completed-trade overlays and lookahead diagnostics are not production candidates.
+- Only true-forward replay variants can become candidates for deeper canonical evidence.
+- Missing bundle fields must render as `data_not_available_in_sor_ev_bundle`, not as zero.
+- Dashboard date filters are display-only recalculations and do not regenerate canonical evidence packs.
+- Variant chart overlays are deferred to `SOR-EV2.2`; SOR-EV2.1 uses tables/panels for founder review.
+- Evidence Lab must not add order controls, paper/live toggles, private/signed/order endpoint calls, or rule mutation behavior.
 
 Shadow and paper-observation markers are not actual trades. Sandbox lifecycle probes are not strategy performance trades.
 

@@ -13,6 +13,38 @@ Entry schema:
 
 ---
 
+## v2026.05.12.008
+
+- `recorded_at_utc`: `2026-05-12T12:08:11Z`
+- `scope`: `SOR-EV2.1 Evidence Lab / Variant Review dashboard`
+- `intent`: `Native entry. Added a dashboard Evidence Lab tab that loads committed SOR-EV1 and SOR-EV2 summary bundles, labels canonical SV2.0.2 DB-imported evidence as the baseline, and renders a variant matrix, control-pocket impact, worst-trade loss anatomy, late-entry analysis, large adverse-candle analysis, RSI/MACD rejection visibility, and explicit methodology/date-filter warnings. The old invalid Experiments tab remains absent. Variants remain evidence-only; no production Money Flow rules changed, no variant was approved, no orders/private/signed/order endpoints were called, no Hyperliquid testnet prices were used as strategy truth, and no SOR/fanout/CBBO/cross-venue routing behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `docs/sor_ev2_1_evidence_lab_ui.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_operational_docs.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_sor_ev1_loss_anatomy.py tests/test_sor_ev2_true_forward_replay.py tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_pt001_tradingview_chart_stability.py tests/test_pt0_tradingview_paper_sandbox_runtime.py tests/test_uat21_dashboard_visualization.py tests/test_uat40_dashboard_chart_cockpit.py tests/test_uat41_exchange_dashboard_redesign.py tests/test_uat42_live_market_dashboard_paper_equity.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+
 ## v2026.05.12.007
 
 - `recorded_at_utc`: `2026-05-12T11:05:00Z`

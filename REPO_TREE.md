@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-12T08:03:39Z`
+Last reviewed: `2026-05-12T12:08:11Z`
 
 ## Top-Level Structure
 
@@ -159,6 +159,7 @@ Last reviewed: `2026-05-12T08:03:39Z`
 - PT0.0.3 updates `Historical Replay` to prefer `docs/pt0_0_3_historical_strategy_replay_summary.json`, keeps the PT0.0.3 payload from being overwritten by PT0.0.2 fallback data, adds `1D` timeframe selection, displays Jan 2025 target-start data-horizon truth, and labels 1D as deterministic aggregation from 4h historical replay candles rather than a new production Money Flow sleeve. The dashboard still has no order controls and does not call private/signed/order/live endpoints.
 - SV2.0 updates the dashboard Strategy and Historical Replay surfaces to display Money Flow v1.2, the real `sleeve_1d`, expanded Hyperliquid public-mainnet readiness/evidence rows, and explicit SHIB -> `kSHIB` alias truth from `docs/sv2_0_historical_data_refresh_summary.json`. Expanded symbols without full replay chart payloads are shown as readiness/evidence rows instead of being silently substituted with another chart. The dashboard still has no order controls and does not call private/signed/order/live endpoints.
 - SV2.0.2 updates the Historical Replay data-horizon/status surfaces to show canonical evidence-pack status, DB-import truth, evidence-pack count, compact-replay noncanonical truth, and SHIB/kSHIB deferred status from `docs/sv2_0_historical_data_refresh_summary.json`. The follow-up display fix loads ignored SV2.0.2 chart/trade JSON for BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX across 15m/1h/4h/1d, removes the invalid Experiments tab, keeps arrow descriptions off by default, and keeps the dashboard free of order controls/private/signed/order/live endpoint calls.
+- SOR-EV2.1 adds a visible `Evidence Lab` tab that loads committed SOR-EV1/SOR-EV2 summary bundles, labels canonical SV2.0.2 DB-imported evidence as baseline, and renders variant matrix, control-pocket impact, worst trades, late-entry analysis, large adverse-candle context, RSI/MACD rejection visibility, methodology warnings, date-filter noncanonical warnings, and a deferred chart-overlay status. It is UI/visualization only and does not approve variants, mutate Money Flow rules, submit orders, or call private/signed/order/live endpoints.
 
 `docs/uat0_safety_security_runtime_hardening.md`
 - Founder/operator UAT0 safety, security, runtime, and operational-readiness audit.
@@ -323,6 +324,10 @@ Last reviewed: `2026-05-12T08:03:39Z`
 `docs/sv2_0_1_canonical_evidence_truth_hotfix.md`
 - Founder/operator SV2.0.1 hotfix report.
 - Records open-position accounting, Hyperliquid close-time normalization, canonical evidence status, import/staging truth, sleeve allocation budget, timeframe canonicalization, missing-indicator handling, SHIB/kSHIB status, no-order/no-live confirmation, and remaining blocker before SOR-EV1.
+
+`docs/sor_ev2_1_evidence_lab_ui.md`
+- Founder/operator SOR-EV2.1 UI report.
+- Records the Evidence Lab scope, input SOR-EV1/SOR-EV2 bundles, dashboard sections, variant matrix, worst-trade, control-pocket, RSI/MACD, large adverse-candle, chart-overlay-deferred status, limitations, no-order/no-live confirmation, and next recommended evidence-review phase.
 
 `apps/dashboard/vendor/`
 - PT0 vendored third-party charting bundle from the official `lightweight-charts` package.
@@ -916,7 +921,7 @@ Last reviewed: `2026-05-12T08:03:39Z`
 - operational-doc existence/reference validation plus review-bundle hygiene validation against an actually produced ZIP
 
 `tests/test_dashboard_static_assets.py`
-- Static dashboard asset checks, including SV evidence/experiment tabs and the UAT2 Shadow Run view wiring.
+- Static dashboard asset and boundary checks, including SV evidence, Historical Replay, hidden legacy UAT panels, the SOR-EV2.1 Evidence Lab tab, SOR-EV1/SOR-EV2 summary path references, canonical SV2.0.2 label, variant matrix/panel visibility, methodology/date-filter warnings, missing-field unavailable states, absence of the invalid Experiments tab, and no order/private/live controls.
 
 `tests/test_uat21_dashboard_visualization.py`
 - UAT2.1 dashboard visualization checks: verifies the UAT2 summary JSON loads, expected UAT2 counts are represented, the signal matrix / would-open / no-trade / ETH candidate / timing / drawdown / UAT3 panels and UAT3.4 routed-orders visibility are present, no interactive approval action is added, and forbidden paper/live/order/profitability language is absent from the dashboard surface.

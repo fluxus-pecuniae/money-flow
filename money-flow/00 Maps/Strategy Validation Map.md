@@ -18,6 +18,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 | SV2.0.2 | Hardened DB import / canonical evidence packs | Normalized Hyperliquid public mainnet candles are imported through the hardened importer into the intended DB, 36 fully closed per-pair Money Flow v1.2 evidence packs are generated for BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX x 15m/1h/4h/1d, and SHIB/kSHIB is deferred with explicit reason codes. |
 | SOR-EV1 | Loss anatomy / evidence-only variants | Canonical SV2.0.2 packs are analyzed for worst losses, adverse-move/late-entry patterns, fixed-stop completed-trade overlays, deferred true-replay variants, control-pocket impact, and no production candidates. |
 | SOR-EV2 | True-forward stop/exit and rejected-signal replay | Baseline parity passes for all 72 canonical SV2.0.2 scenarios; stop/exit and entry variants are replayed from persisted candle truth; large-loss candle context and control-pocket impact are reported; no variant is promoted. |
+| SOR-EV2.1 | Evidence Lab / Variant Review UI | Dashboard visualization loads SOR-EV1/SOR-EV2 summaries, labels SV2.0.2 as canonical baseline, and shows variant matrix, control pockets, worst trades, late-entry, adverse-candle, and RSI/MACD panels. It is UI-only and promotes no variant. |
 
 ## What Strategy Validation Proved
 
@@ -31,6 +32,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 - SV2.0.2 proves the SV2 baseline now has DB-backed canonical evidence-pack paths with dynamic equity, canonical close slots, fully closed end-boundaries, explicit open-position handling, per-pair full available imported windows, and supported/deferred symbol truth; it still does not prove profitability.
 - SOR-EV1 proves the largest-loss review and evidence-only variant triage can be performed from the canonical SV2.0.2 packs without changing production rules; it does not approve any stop/entry variant.
 - SOR-EV2 proves true-forward replay can test those hypotheses from persisted candle truth with baseline parity; it still does not promote variants or approve production changes.
+- SOR-EV2.1 proves the founder can visually review SOR-EV1/SOR-EV2 bundle outputs in the dashboard; it does not create canonical evidence or approve variants.
 
 ## What Strategy Validation Did Not Prove
 
@@ -50,6 +52,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 - SV2.0.2 did not optimize parameters, add stop-loss or RSI/MACD variants, submit orders, call private/signed/order endpoints, use testnet data as strategy truth, commit large generated evidence packs, or approve live trading.
 - SOR-EV1 did not run true-forward stop/entry replay, did not promote variants, did not change rules, and did not approve paper/live trading.
 - SOR-EV2 did not promote variants, did not change rules, did not approve paper/live trading, and did not use dashboard date-filter numbers as canonical evidence.
+- SOR-EV2.1 did not change Money Flow rules, approve variants, regenerate evidence packs, submit orders, call private/signed/order endpoints, use testnet prices as strategy truth, or make dashboard date-filter/overlay outputs canonical.
 
 ## Current Candidate
 

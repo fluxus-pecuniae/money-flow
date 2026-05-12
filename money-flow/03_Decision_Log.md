@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-12T12:08:11Z - SOR-EV2.1 - Evidence Lab Is Visualization Only
+
+- `decision`: Add a dashboard Evidence Lab / Variant Review surface for SOR-EV1/SOR-EV2 bundle review without treating it as canonical evidence generation or production-rule approval.
+- `scope`: The tab loads committed SOR-EV1 and SOR-EV2 summaries, labels canonical SV2.0.2 DB-imported evidence as the baseline, and shows variant matrix, control pockets, worst trades, late-entry, large adverse-candle, and RSI/MACD rejection panels.
+- `result`: No production Money Flow rule changed, no variant was approved, no orders or private/signed/order endpoints were called, no Hyperliquid testnet price was used as strategy truth, and the invalid legacy Experiments tab remains absent.
+- `follow_up_implications`: Founder review can use Evidence Lab to decide whether a narrower SOR-EV2.2/SOR-EV3 canonical evidence phase is worth scoping. Dashboard date-filter numbers and UI overlays remain noncanonical.
+
 ## 2026-05-12T11:05:00Z - SOR-EV2 - True-Forward Variants Do Not Promote Production Rule Changes
 
 - `decision`: Treat SOR-EV2 true-forward replay as evidence-only triage and promote no variant.

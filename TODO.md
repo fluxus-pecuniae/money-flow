@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-12T11:05:00Z`
+Last reviewed: `2026-05-12T12:08:11Z`
 
 ## Active Follow-Ups
+
+### T-128
+
+- `priority`: `medium`
+- `status`: `done`
+- `summary`: `SOR-EV2.1 Evidence Lab UI is complete. The dashboard now exposes a visible Evidence Lab tab that loads the committed SOR-EV1/SOR-EV2 summary bundles, labels canonical SV2.0.2 DB-imported evidence as the baseline, and shows variant matrix, control-pocket impact, worst-trade loss anatomy, late-entry analysis, large adverse-candle context, RSI/MACD rejection visibility, methodology warnings, date-filter noncanonical warnings, and a deferred chart-overlay status. No production Money Flow rules changed, no variant was approved, no orders/private/signed/order endpoints were called, no Hyperliquid testnet prices were used as strategy truth, and no SOR/fanout/CBBO/cross-venue routing behavior was added.`
 
 ### T-127
 

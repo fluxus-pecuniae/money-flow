@@ -50,6 +50,11 @@
     "../../docs/sv2_0_historical_data_refresh_summary.json",
   ];
 
+  const DEFAULT_SOR_EV_SUMMARY_FILES = [
+    "../../docs/sor_ev1_money_flow_trade_loss_anatomy_and_variants_summary.json",
+    "../../docs/sor_ev2_true_forward_stop_and_rejected_signal_replay_summary.json",
+  ];
+
   const HYPERLIQUID_TESTNET_PUBLIC_INFO_URL = "https://api.hyperliquid-testnet.xyz/info";
   const TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION = "5.2.0";
   const CHART_BACKGROUND_COLOR = "#10171b";
@@ -496,6 +501,8 @@
     pt002HistoricalReplay: null,
     sv202HistoricalReplay: null,
     sv20Summary: null,
+    sorEv1Summary: null,
+    sorEv2Summary: null,
     tradingViewChart: {
       chart: null,
       mount: null,
@@ -593,6 +600,14 @@
     regimeTable: document.querySelector("#regime-table"),
     checklist: document.querySelector("#review-checklist"),
     runTable: document.querySelector("#run-table"),
+    evidenceLabSummaryCards: document.querySelector("#evidence-lab-summary-cards"),
+    evidenceLabVariantMatrix: document.querySelector("#evidence-lab-variant-matrix"),
+    evidenceLabControlPockets: document.querySelector("#evidence-lab-control-pockets"),
+    evidenceLabWorstTrades: document.querySelector("#evidence-lab-worst-trades"),
+    evidenceLabLateEntry: document.querySelector("#evidence-lab-late-entry"),
+    evidenceLabAdverseCandles: document.querySelector("#evidence-lab-adverse-candles"),
+    evidenceLabRsiMacd: document.querySelector("#evidence-lab-rsi-macd"),
+    evidenceLabChartOverlay: document.querySelector("#evidence-lab-chart-overlay"),
     experimentVariantCards: document.querySelector("#experiment-variant-cards"),
     experimentReplayFilter: document.querySelector("#experiment-replay-filter"),
     experimentsTitle: document.querySelector("#experiments-title"),
@@ -1039,7 +1054,7 @@
   }
 
   function setActiveView(view) {
-    state.activeView = ["evidence", "historical-replay", "uat-cockpit", "uat-shadow", "strategy"].includes(view)
+    state.activeView = ["evidence", "evidence-lab", "historical-replay", "uat-cockpit", "uat-shadow", "strategy"].includes(view)
       ? view
       : "evidence";
     elements.viewTabs.forEach((tab) => {
@@ -4986,6 +5001,364 @@
     renderUatRoutedOrders();
   }
 
+  function unavailable(value = "data_not_available_in_sor_ev_bundle") {
+    return value;
+  }
+
+  function hasOwnValue(row, key) {
+    return row && Object.prototype.hasOwnProperty.call(row, key) && row[key] !== null && row[key] !== undefined && row[key] !== "";
+  }
+
+  function formatEvidenceNumber(row, key, digits = 2) {
+    if (!hasOwnValue(row, key)) return unavailable();
+    return compactNumber(row[key], digits);
+  }
+
+  function formatEvidenceMoney(row, key) {
+    if (!hasOwnValue(row, key)) return unavailable();
+    return money(row[key]);
+  }
+
+  function sorVariantFamily(rowOrId) {
+    const id = String(rowOrId?.variant_family || rowOrId?.variant_id || rowOrId || "").toLowerCase();
+    if (id.includes("fixed_stop")) return "fixed_stop_loss";
+    if (id.includes("atr")) return "atr_stop";
+    if (id.includes("recent_low")) return "recent_low_stop";
+    if (id.includes("large_bear") || id.includes("large_red")) return "large_bear_candle_exit";
+    if (id.includes("macd")) return "earlier_macd_entry";
+    if (id.includes("lower_rsi") || id.includes("rsi")) return "lower_rsi_trend_intact_entry";
+    if (id.includes("extension") || id.includes("ema10") || id.includes("sma20")) return "extension_filter";
+    if (id.includes("chop") || id.includes("sideways")) return "chop_filter";
+    return unavailable("unknown_variant_family");
+  }
+
+  function sorOutcomeTaxonomy(row, ev2Summary) {
+    const id = row?.variant_id;
+    const outcome = String(row?.outcome || "").toLowerCase();
+    if (row?.candidate_evidence === true) return "candidate_for_more_evidence";
+    if (outcome.includes("overfit")) return "overfit_risk";
+    if (outcome.includes("insufficient")) return "insufficient_data";
+    if ((ev2Summary?.rejected_variants || []).includes(id) || outcome.includes("reject") || row?.production_approved === false) {
+      return "rejected";
+    }
+    return unavailable("candidate_status_not_in_bundle");
+  }
+
+  function sorVariantRows() {
+    const ev1Rows = Array.isArray(state.sorEv1Summary?.variant_summary) ? state.sorEv1Summary.variant_summary : [];
+    const ev2Rows = Array.isArray(state.sorEv2Summary?.variant_summary) ? state.sorEv2Summary.variant_summary : [];
+    const ev1ById = new Map(ev1Rows.map((row) => [row.variant_id, row]));
+    const ev2ById = new Map(ev2Rows.map((row) => [row.variant_id, row]));
+    return Array.from(new Set([...ev1ById.keys(), ...ev2ById.keys()]))
+      .sort()
+      .map((id) => ({
+        id,
+        ev1: ev1ById.get(id) || null,
+        ev2: ev2ById.get(id) || null,
+        row: ev2ById.get(id) || ev1ById.get(id) || { variant_id: id },
+      }));
+  }
+
+  function renderEvidenceLabSummary() {
+    if (!elements.evidenceLabSummaryCards) return;
+    const ev1 = state.sorEv1Summary;
+    const ev2 = state.sorEv2Summary;
+    const variantCount = sorVariantRows().length;
+    const parity = ev2?.baseline_parity_summary?.status_counts?.baseline_parity_passed ?? ev2?.baseline_parity_summary?.scenario_count;
+    const cards = [
+      ["Baseline", "SV2.0.2", `timestamp ${SV202_CANONICAL_TIMESTAMP}`],
+      ["SOR-EV1 bundle", ev1 ? "loaded" : unavailable(), "loss anatomy and completed-trade overlays"],
+      ["SOR-EV2 bundle", ev2 ? "loaded" : unavailable(), "true-forward stops and rejected-signal replay"],
+      ["Baseline parity", parity ?? unavailable(), "canonical SV2.0.2 scenarios"],
+      ["Variants", variantCount || unavailable(), "evidence-only; none promoted"],
+      ["Production rules", "changed: no", "live/paper approval: no"],
+    ];
+    elements.evidenceLabSummaryCards.innerHTML = cards.map(([label, value, detail]) => `
+      <article class="metric-cell">
+        <span class="metric-label">${escapeHtml(label)}</span>
+        <strong>${escapeHtml(value)}</strong>
+        <small>${escapeHtml(detail)}</small>
+      </article>
+    `).join("");
+  }
+
+  function renderEvidenceLabVariantMatrix() {
+    if (!elements.evidenceLabVariantMatrix) return;
+    const variants = sorVariantRows();
+    if (!variants.length) {
+      setEmpty(elements.evidenceLabVariantMatrix, "data_not_available_in_sor_ev_bundle");
+      return;
+    }
+    const controlById = new Map((state.sorEv2Summary?.control_pocket_impact || []).map((row) => [row.variant_id, row]));
+    elements.evidenceLabVariantMatrix.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Variant ID</th>
+            <th>Variant Family</th>
+            <th>Methodology</th>
+            <th>Outcome Taxonomy</th>
+            <th>Tested</th>
+            <th>Candidate</th>
+            <th>Rejected</th>
+            <th>Ending Equity Delta</th>
+            <th>Drawdown Delta</th>
+            <th>Trade Count Delta</th>
+            <th>Largest Loss Delta</th>
+            <th>Control Pocket Impact</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${variants.map(({ id, row }) => {
+            const control = controlById.get(id);
+            const taxonomy = sorOutcomeTaxonomy(row, state.sorEv2Summary);
+            const controlSummary = control
+              ? `preserved ${control.preserved ?? 0}; improved ${control.improved ?? 0}; damaged ${control.damaged ?? 0}`
+              : unavailable();
+            return `
+              <tr>
+                <td>${escapeHtml(id)}</td>
+                <td>${escapeHtml(sorVariantFamily(row))}</td>
+                <td>${escapeHtml(row.methodology || unavailable())}</td>
+                <td>${escapeHtml(taxonomy)}</td>
+                <td>${row ? "yes" : "no"}</td>
+                <td>${row?.candidate_evidence ? "yes" : "no"}</td>
+                <td>${taxonomy === "rejected" || (state.sorEv2Summary?.rejected_variants || []).includes(id) ? "yes" : "no"}</td>
+                <td>${escapeHtml(formatEvidenceMoney(row, "ending_equity_delta_sum_across_independent_scenarios"))}</td>
+                <td>${escapeHtml(formatEvidenceMoney(row, "max_drawdown_delta_worst"))}</td>
+                <td>${escapeHtml(formatEvidenceNumber(row, "trade_count_delta_sum", 0))}</td>
+                <td>${escapeHtml(unavailable())}</td>
+                <td>${escapeHtml(controlSummary)}</td>
+                <td>${escapeHtml(row.outcome || "No variant is production-approved; review SOR-EV2 reason codes.")}</td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderEvidenceLabControlPockets() {
+    if (!elements.evidenceLabControlPockets) return;
+    const rows = state.sorEv2Summary?.control_pocket_impact || state.sorEv1Summary?.control_pocket_impact || [];
+    if (!rows.length) {
+      setEmpty(elements.evidenceLabControlPockets, unavailable());
+      return;
+    }
+    elements.evidenceLabControlPockets.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Variant</th>
+            <th>Control Pockets</th>
+            <th>Preserved</th>
+            <th>Improved</th>
+            <th>Damaged</th>
+            <th>Lowered Drawdown</th>
+            <th>Lowered Return</th>
+            <th>Trade Count Impact</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map((row) => `
+            <tr>
+              <td>${escapeHtml(row.variant_id)}</td>
+              <td>${escapeHtml(row.control_pocket_count ?? unavailable())}</td>
+              <td>${escapeHtml(row.preserved ?? unavailable())}</td>
+              <td>${escapeHtml(row.improved ?? unavailable())}</td>
+              <td>${escapeHtml(row.damaged ?? unavailable())}</td>
+              <td>${escapeHtml(row.drawdown_reduced ?? unavailable())}</td>
+              <td>${escapeHtml(row.return_reduced ?? unavailable())}</td>
+              <td>${escapeHtml(`increased ${row.trade_count_increased ?? unavailable()}; decreased ${row.trade_count_decreased ?? unavailable()}`)}</td>
+              <td>ETH 1h and positive 1d pockets are preserved only when damaged = 0.</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderEvidenceLabWorstTrades() {
+    if (!elements.evidenceLabWorstTrades) return;
+    const rows = state.sorEv1Summary?.worst_trades || [];
+    if (!rows.length) {
+      setEmpty(elements.evidenceLabWorstTrades, unavailable());
+      return;
+    }
+    elements.evidenceLabWorstTrades.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Symbol</th>
+            <th>Timeframe</th>
+            <th>Fill</th>
+            <th>Entry Time</th>
+            <th>Exit Time</th>
+            <th>Net PnL</th>
+            <th>Equity Before</th>
+            <th>Equity After</th>
+            <th>Entry Classification</th>
+            <th>Exit Reason</th>
+            <th>Large Red Candle</th>
+            <th>MAE</th>
+            <th>Variant Outcome</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.slice(0, 50).map((row) => `
+            <tr>
+              <td>${escapeHtml(row.loss_rank ?? unavailable())}</td>
+              <td>${escapeHtml(row.symbol)}</td>
+              <td>${escapeHtml(row.timeframe)}</td>
+              <td>${escapeHtml(row.fill_timing)}</td>
+              <td>${escapeHtml(row.entry_time)}</td>
+              <td>${escapeHtml(row.exit_time)}</td>
+              <td class="${decimal(row.net_pnl) >= 0 ? "positive" : "negative"}">${escapeHtml(money(row.net_pnl))}</td>
+              <td>${escapeHtml(money(row.equity_before_trade))}</td>
+              <td>${escapeHtml(money(row.equity_after_trade))}</td>
+              <td>${escapeHtml(row.entry_timing_classification || unavailable())}</td>
+              <td>${escapeHtml(row.exit_reason || (row.exit_reason_codes || []).join(", ") || unavailable())}</td>
+              <td>${escapeHtml(row.large_down_candle_classification || row.large_red_candle_flag || unavailable())}</td>
+              <td>${escapeHtml(compactNumber(row.max_adverse_excursion, 2))}</td>
+              <td>${escapeHtml(row.variant_outcome || unavailable())}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderEvidenceLabLateEntry() {
+    if (!elements.evidenceLabLateEntry) return;
+    const counts = state.sorEv1Summary?.late_entry_classifications || {};
+    const categories = [
+      "early_trend_entry",
+      "pullback_entry",
+      "late_extension_entry",
+      "chop_entry",
+      "continuation_entry",
+      "high_RSI_entry",
+      "MACD_late_cross_entry",
+      "overextended_ema_entry",
+      "unknown",
+    ];
+    elements.evidenceLabLateEntry.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Classification</th>
+            <th>Loss Count</th>
+            <th>Founder Question</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${categories.map((category) => `
+            <tr>
+              <td>${escapeHtml(category)}</td>
+              <td>${escapeHtml(hasOwnValue(counts, category) ? counts[category] : unavailable())}</td>
+              <td>${escapeHtml(category.includes("late") || category.includes("chop") || category.includes("overextended") ? "late/chop weakness check" : "context")}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderEvidenceLabAdverseCandles() {
+    if (!elements.evidenceLabAdverseCandles) return;
+    const summary = state.sorEv2Summary?.large_loss_candle_context_summary || {};
+    const ev1BigRed = state.sorEv1Summary?.big_red_candle_summary || {};
+    const rows = [
+      ["losses with large adverse candle", summary.classification_counts?.large_adverse_candle ?? ev1BigRed.losses_from_large_down_candles ?? unavailable()],
+      ["losses where current exit was late", summary.late_exit_after_adverse_candle_count ?? unavailable()],
+      ["losses where fixed stop would have helped", ev1BigRed.stop_would_have_helped ?? summary.stop_would_have_triggered_before_current_exit_count ?? unavailable()],
+      ["losses where ATR stop would have helped", unavailable()],
+      ["losses where recent-low stop would have helped", summary.recent_low_break_before_current_exit_count ?? unavailable()],
+      ["losses where stop would have hurt", ev1BigRed.adverse_move_not_stop_solvable ?? unavailable()],
+    ];
+    elements.evidenceLabAdverseCandles.innerHTML = `
+      <table>
+        <thead>
+          <tr><th>Question</th><th>Count / Status</th></tr>
+        </thead>
+        <tbody>
+          ${rows.map(([label, value]) => `
+            <tr>
+              <td>${escapeHtml(label)}</td>
+              <td>${escapeHtml(value)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderEvidenceLabRsiMacd() {
+    if (!elements.evidenceLabRsiMacd) return;
+    const summary = state.sorEv2Summary?.rejected_signal_replay_summary || state.sorEv1Summary?.rsi_macd_rejection_summary || {};
+    const baselineCounts = summary.baseline_rejection_counts || summary.raw_no_trade_reason_counts || summary.first_failed_reason_counts || {};
+    const admittedCounts = summary.variant_admitted_from_rejection_counts || {};
+    const categories = [
+      "rsi_not_constructive",
+      "macd_not_constructive",
+      "overextended_rsi",
+      "entry_quality_not_constructive",
+      "insufficient_history",
+      "missing_indicator_field",
+      "other",
+    ];
+    elements.evidenceLabRsiMacd.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Reason Category</th>
+            <th>Baseline Rejections</th>
+            <th>Variant-Admitted Count</th>
+            <th>Bad Trades Admitted</th>
+            <th>Good Trades Admitted</th>
+            <th>Methodology</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${categories.map((category) => `
+            <tr>
+              <td>${escapeHtml(category)}</td>
+              <td>${escapeHtml(hasOwnValue(baselineCounts, category) ? baselineCounts[category] : unavailable())}</td>
+              <td>${escapeHtml(hasOwnValue(admittedCounts, category) ? admittedCounts[category] : unavailable())}</td>
+              <td>${escapeHtml(unavailable())}</td>
+              <td>${escapeHtml(unavailable())}</td>
+              <td>${escapeHtml(summary.methodology || unavailable())}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderEvidenceLabChartOverlay() {
+    if (!elements.evidenceLabChartOverlay) return;
+    elements.evidenceLabChartOverlay.innerHTML = `
+      <div class="empty-state">
+        variant_chart_overlay_deferred_to_sor_ev2_2. SOR-EV2.1 loads chart-data JSON only for visualization context when needed; it does not regenerate canonical evidence.
+        Baseline entry = green, baseline exit = red, variant stop exit = orange, variant rejected entry = blue, diagnostic/lookahead = gray.
+      </div>
+    `;
+  }
+
+  function renderEvidenceLab() {
+    renderEvidenceLabSummary();
+    renderEvidenceLabVariantMatrix();
+    renderEvidenceLabControlPockets();
+    renderEvidenceLabWorstTrades();
+    renderEvidenceLabLateEntry();
+    renderEvidenceLabAdverseCandles();
+    renderEvidenceLabRsiMacd();
+    renderEvidenceLabChartOverlay();
+  }
+
   function render() {
     const summaries = allSummaries();
     const selected = activeSummaries();
@@ -4997,6 +5370,7 @@
     renderDetail(selected);
     renderRunTable(selected);
     renderExperiments();
+    renderEvidenceLab();
     renderHistoricalReplay();
     renderUatCockpit();
     renderUatDashboard();
@@ -5013,6 +5387,8 @@
     if (payload?.report === "uat4_2_live_market_dashboard_and_paper_equity_monitor") return "uat42_live_monitor_summary";
     if (payload?.report === "pt0_tradingview_charts_and_top20_paper_sandbox_runtime") return "pt0_runtime_summary";
     if (payload?.report === "sv2_0_money_flow_1d_sleeve_expanded_universe_evidence_rebuild") return "sv20_summary";
+    if (payload?.phase === "SOR-EV1") return "sor_ev1_summary";
+    if (payload?.phase === "SOR-EV2") return "sor_ev2_summary";
     if (payload?.report === "sv2_0_2_dashboard_historical_replay_chart_data") return "sv202_dashboard_chart_data";
     if (
       payload?.report === "pt0_0_2_historical_strategy_replay_cockpit" ||
@@ -5039,6 +5415,7 @@
     await loadDefaultUat42Summaries();
     await loadDefaultPt0Summaries();
     await loadDefaultSv20Summaries();
+    await loadDefaultSorEvSummaries();
     await loadDefaultSv202DashboardChartData();
     await loadDefaultPt002HistoricalReplaySummary();
 
@@ -5104,6 +5481,8 @@
         if (type === "uat42_live_monitor_summary") state.uat42Summary = payload;
         if (type === "pt0_runtime_summary") state.pt0Summary = payload;
         if (type === "sv20_summary") state.sv20Summary = payload;
+        if (type === "sor_ev1_summary") state.sorEv1Summary = payload;
+        if (type === "sor_ev2_summary") state.sorEv2Summary = payload;
         if (type === "pt002_historical_replay_summary") state.pt002HistoricalReplay = payload;
       });
       state.selectedComponent = "all";
@@ -5197,6 +5576,21 @@
         if (classifyJson(payload) === "sv20_summary") {
           state.sv20Summary = payload;
         }
+      } catch (error) {
+        console.warn(`Could not load ${path}`, error);
+      }
+    }
+  }
+
+  async function loadDefaultSorEvSummaries() {
+    for (const path of DEFAULT_SOR_EV_SUMMARY_FILES) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        const type = classifyJson(payload);
+        if (type === "sor_ev1_summary") state.sorEv1Summary = payload;
+        if (type === "sor_ev2_summary") state.sorEv2Summary = payload;
       } catch (error) {
         console.warn(`Could not load ${path}`, error);
       }
