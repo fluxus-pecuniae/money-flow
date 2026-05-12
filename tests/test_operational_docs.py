@@ -102,6 +102,9 @@ REQUIRED_FILES = [
     "docs/sv2_0_historical_data_refresh_1d_and_expanded_universe_readiness.md",
     "docs/sv2_0_money_flow_1d_sleeve_expanded_universe_evidence_rebuild.md",
     "docs/sv2_0_1_canonical_evidence_truth_hotfix.md",
+    "docs/sv2_0_2_canonical_sv2_evidence_packs.md",
+    "docs/sor_ev1_money_flow_trade_loss_anatomy_and_variants.md",
+    "docs/sor_ev1_money_flow_trade_loss_anatomy_and_variants_summary.json",
 ]
 
 
@@ -150,7 +153,8 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "canonical Obsidian command center" in command_center
-    assert "`SV2.0.2` Hardened Candle DB Import + Canonical SV2 Evidence Pack Generation is complete" in current_phase
+    assert "`SOR-EV1` Money Flow Loss Anatomy + Evidence-Only Variant Diagnostics is complete" in current_phase
+    assert "canonical SV2.0.2 DB-imported packs" in current_phase
     assert "SV1.18" in command_center
     assert "UAT0" in command_center
     assert "UAT1 public read-only connectivity is complete" in command_center
@@ -170,6 +174,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "SV2.0 is complete" in command_center
     assert "SV2.0.1 is complete" in command_center
     assert "SV2.0.2 is complete" in command_center
+    assert "SOR-EV1 is complete" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
     assert "Strategy Validation" in moved_memory
@@ -208,7 +213,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
     assert (
-        "Current implemented milestone | `SV2.0.2` Hardened Candle DB Import + Canonical SV2 Evidence Pack Generation complete"
+        "Current implemented milestone | `SOR-EV1` Money Flow loss anatomy and evidence-only variant diagnostics complete"
         in command_center
     )
     assert "Canonical command center" in compatibility_command_center
@@ -231,6 +236,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     assert "SV2.0" in current_dashboard
     assert "SV2.0.1" in current_dashboard
     assert "SV2.0.2" in current_dashboard
+    assert "SOR-EV1" in command_center
     assert "Strategy Validation is now its own major track" in Path("money-flow/00 Maps/Phase Timeline.md").read_text()
     assert "What Strategy Validation Did" in sv_map
     assert "What Strategy Validation Did Not Prove" in sv_map

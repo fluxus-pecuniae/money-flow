@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-12T08:03:39Z`
+Last reviewed: `2026-05-12T10:20:00Z`
 
 ## Active Follow-Ups
+
+### T-126
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SOR-EV1 loss anatomy and evidence-only variant diagnostics are complete. The new report reads only canonical SV2.0.2 DB-imported evidence packs at 20260512T064916Z, explains the worst losses and late-entry/adverse-move patterns, labels fixed-stop results as completed-trade overlay estimates, defers ATR/recent-low/large-bear/RSI/MACD entry variants that require true replay, reports control-pocket impact, and promotes no production candidates. No production Money Flow rules, orders, private/signed/order endpoints, paper/live approvals, evidence-pack regeneration, dashboard date-filter evidence, testnet strategy truth, SOR/fanout/CBBO/target reselection, or route-executor behavior were added.`
 
 ### T-125
 

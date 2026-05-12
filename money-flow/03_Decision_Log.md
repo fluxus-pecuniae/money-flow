@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-12T10:20:00Z - SOR-EV1 - Loss Anatomy Uses Canonical SV2.0.2 Packs Only
+
+- `decision`: Treat canonical SV2.0.2 DB-imported evidence packs as the only SOR-EV1 baseline source and keep all stop/entry variants evidence-only until true-forward replay exists.
+- `scope`: SOR-EV1 analyzes worst losing trades, completed-trade adverse-move / late-entry classifications, aggregate RSI/MACD rejection limitations, fixed-stop overlay estimates, deferred ATR/recent-low/large-bear/entry variants, and control-pocket impact.
+- `result`: No production Money Flow rule was changed, no variant was approved, no evidence packs were regenerated, no dashboard date-filter recalculation was used as canonical evidence, no Hyperliquid testnet price was used as strategy truth, and no order/private/signed endpoint was called.
+- `follow_up_implications`: SOR-EV2 should be true-forward replay if the founder wants to test stop or entry variants seriously. Completed-trade overlays remain hypothesis triage only.
+
 ## 2026-05-12T07:59:37Z - Dashboard - SV2.0.2 Historical Replay Display Uses Canonical Chart Data
 
 - `decision`: Use generated dashboard chart/trade JSON derived from existing SV2.0.2 canonical packs for Historical Replay display instead of regenerating evidence packs or continuing to rely on older PT/SV1.13 dynamic-equity summaries.

@@ -16,6 +16,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 | SV2.0 | 1D sleeve / expanded public-mainnet evidence refresh | Money Flow v1.2 adds real `sleeve_1d`; BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX/SHIB are resolved through Hyperliquid public mainnet metadata; SHIB maps to `kSHIB`; 15m/1h/4h/1D public candle readiness and compact dynamic-equity evidence are recorded. |
 | SV2.0.1 | Canonical evidence truth hotfix | Compact SV2 rows are explicitly noncanonical; dataset-end open positions are force-closed with entry-fee accounting; Hyperliquid close slots are normalized; staged/imported/canonical-evidence truth is separated; runtime allocations are 0.25 each; internal timeframe is `1d` with display label `1D`; missing indicators are invalid instead of zero. Canonical evidence packs remain blocked. |
 | SV2.0.2 | Hardened DB import / canonical evidence packs | Normalized Hyperliquid public mainnet candles are imported through the hardened importer into the intended DB, 36 fully closed per-pair Money Flow v1.2 evidence packs are generated for BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX x 15m/1h/4h/1d, and SHIB/kSHIB is deferred with explicit reason codes. |
+| SOR-EV1 | Loss anatomy / evidence-only variants | Canonical SV2.0.2 packs are analyzed for worst losses, adverse-move/late-entry patterns, fixed-stop completed-trade overlays, deferred true-replay variants, control-pocket impact, and no production candidates. |
 
 ## What Strategy Validation Proved
 
@@ -27,6 +28,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 - SV2.0 proves only that 1D is now represented as a baseline Money Flow sleeve and that expanded Hyperliquid public-mainnet readiness/evidence can be generated for the requested universe; it does not prove profitability.
 - SV2.0.1 proves evidence-truth guardrails are explicit; it does not generate canonical evidence packs.
 - SV2.0.2 proves the SV2 baseline now has DB-backed canonical evidence-pack paths with dynamic equity, canonical close slots, fully closed end-boundaries, explicit open-position handling, per-pair full available imported windows, and supported/deferred symbol truth; it still does not prove profitability.
+- SOR-EV1 proves the largest-loss review and evidence-only variant triage can be performed from the canonical SV2.0.2 packs without changing production rules; it does not approve any stop/entry variant.
 
 ## What Strategy Validation Did Not Prove
 
@@ -44,6 +46,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 - SV2.0 did not optimize 1D parameters, approve live trading, submit orders, or generate full committed evidence-pack directories.
 - SV2.0.1 did not make compact staged rows canonical evidence, did not import staged candles into the DB, and did not unblock SOR-EV1 by itself.
 - SV2.0.2 did not optimize parameters, add stop-loss or RSI/MACD variants, submit orders, call private/signed/order endpoints, use testnet data as strategy truth, commit large generated evidence packs, or approve live trading.
+- SOR-EV1 did not run true-forward stop/entry replay, did not promote variants, did not change rules, and did not approve paper/live trading.
 
 ## Current Candidate
 

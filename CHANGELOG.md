@@ -13,6 +13,37 @@ Entry schema:
 
 ---
 
+## v2026.05.12.006
+
+- `recorded_at_utc`: `2026-05-12T10:20:00Z`
+- `scope`: `SOR-EV1 Money Flow loss anatomy and evidence-only variant diagnostics`
+- `intent`: `Native entry. Added an evidence-only SOR-EV1 loss-anatomy and variant-diagnostics pass over the canonical SV2.0.2 DB-imported evidence packs only. The report identifies worst losses, adverse-move / late-entry classifications, aggregate RSI/MACD rejection limitations, fixed-stop completed-trade overlay estimates, deferred ATR/recent-low/large-bear/entry variants, methodology labels, control-pocket impact, and no-order/no-live boundary flags. No production Money Flow rules were changed, no evidence packs were regenerated, no dashboard date-filter recalculation was used as canonical evidence, no Hyperliquid testnet prices were used as strategy truth, no orders/private/signed/order endpoints were called, and no SOR/fanout/CBBO/target-reselection behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `docs/strategy.md`
+  - `docs/sv2_0_2_canonical_sv2_evidence_packs.md`
+  - `docs/sor_ev1_money_flow_trade_loss_anatomy_and_variants.md`
+  - `docs/sor_ev1_money_flow_trade_loss_anatomy_and_variants_summary.json`
+  - `services/strategy_validation/sor_ev1.py`
+  - `scripts/build_sor_ev1_loss_anatomy.py`
+  - `tests/test_sor_ev1_loss_anatomy.py`
+  - `tests/test_operational_docs.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_sor_ev1_loss_anatomy.py`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_sv202_canonical_import_evidence.py tests/test_sv201_canonical_evidence_truth_hotfix.py tests/test_phase3_strategy.py`
+  - `git diff --check`
+
 ## v2026.05.12.005
 
 - `recorded_at_utc`: `2026-05-12T08:44:25Z`

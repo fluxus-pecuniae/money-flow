@@ -124,3 +124,8 @@ SV2.0.2 imports normalized Hyperliquid public mainnet candles through the harden
 ## No-Order / No-Live Confirmation
 
 - Boundary flags: `{'submits_orders': False, 'calls_order_endpoints': False, 'calls_private_or_signed_endpoints': False, 'uses_api_keys': False, 'uses_testnet_prices_as_strategy_truth': False, 'enables_live_trading': False}`
+
+
+## SOR-EV1 Follow-On Use
+
+SOR-EV1 uses these canonical SV2.0.2 DB-imported pack paths as the only baseline evidence source for loss anatomy and evidence-only variant diagnostics. It does not regenerate packs, does not use dashboard date-filter recalculations as canonical evidence, does not use Hyperliquid testnet prices as strategy truth, and does not change production Money Flow rules.
