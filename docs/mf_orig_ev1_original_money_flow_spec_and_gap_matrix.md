@@ -1,4 +1,6 @@
-# MF-ORIG-EV1 Original Money Flow Spec And Gap Matrix
+# MF-ORIG-EV1.1 Original Money Flow Spec And Gap Matrix
+
+MF-ORIG-EV1.1 preserves the MF-ORIG-EV1 source interpretation but hotpatches accounting/drawdown truth in the regenerated reconstruction report. Pre-hotpatch MF-ORIG-EV1 PnL/drawdown conclusions should not be used.
 
 ## Source Document
 
@@ -33,7 +35,7 @@ The PDF was not present in the repository or common local paths during this impl
 
 ## Required Boundaries
 
-- MF-ORIG-EV1 is evidence-only.
+- MF-ORIG-EV1.1 is evidence-only.
 - Current Money Flow v1.2 production rules remain unchanged.
 - Original Money Flow is not production approved.
 - No paper/live approval follows from MF-ORIG-EV1.

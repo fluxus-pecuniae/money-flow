@@ -160,7 +160,7 @@ def test_obsidian_brain_workflow_exists() -> None:
 
     assert "canonical Obsidian command center" in command_center
     assert "`SOR-EV2.2` Variant Chart Overlay + Founder Review Workflow is complete" in current_phase
-    assert "`MF-ORIG-EV1` Original Money Flow reconstruction evidence is complete" in current_phase
+    assert "`MF-ORIG-EV1.1` Original Money Flow accounting and drawdown hotpatch is complete" in current_phase
     assert "`SOR-EV2` True-Forward Stop/Exit + Rejected-Signal Replay is complete" in current_phase
     assert "Baseline parity passed for all `72` canonical SV2.0.2 scenarios" in current_phase
     assert "SV1.18" in command_center
@@ -186,7 +186,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "SOR-EV2 is complete" in command_center
     assert "SOR-EV2.1 is complete" in command_center
     assert "SOR-EV2.2 is complete" in command_center
-    assert "MF-ORIG-EV1 is complete" in command_center
+    assert "MF-ORIG-EV1.1 is complete as an evidence-truth hotpatch" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
     assert "Strategy Validation" in moved_memory
@@ -211,7 +211,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "SV2.0 Money Flow 1D sleeve and expanded public-mainnet evidence refresh is complete" in moved_memory
     assert "SV2.0.1 canonical evidence truth hotfix" in moved_memory
     assert "SV2.0.2 hardened DB import and canonical evidence-pack generation is complete" in moved_memory
-    assert "MF-ORIG-EV1 original Money Flow reconstruction evidence" in moved_memory
+    assert "MF-ORIG-EV1.1 accounting/drawdown evidence hotpatch" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
 
@@ -226,7 +226,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
     assert (
-        "Current implemented milestone | `MF-ORIG-EV1` Original Money Flow reconstruction evidence complete"
+        "Current implemented milestone | `MF-ORIG-EV1.1` Original Money Flow accounting/drawdown hotpatch complete"
         in command_center
     )
     assert "Canonical command center" in compatibility_command_center

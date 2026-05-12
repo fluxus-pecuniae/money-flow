@@ -174,11 +174,13 @@ class _OpenOriginalPosition:
     entry_reason_codes: tuple[str, ...]
     stage_at_entry: str
     min_equity_seen: Decimal
+    accounting_events: list[dict[str, Any]]
     trimmed: bool = False
-    realized_pnl_so_far: Decimal = Decimal("0")
-    total_exit_fees: Decimal = Decimal("0")
     profit_warning_count: int = 0
     trim_count: int = 0
+    trim_realized_gross_pnl: Decimal = Decimal("0")
+    trim_fees: Decimal = Decimal("0")
+    trim_net_pnl: Decimal = Decimal("0")
 
 
 def build_mf_orig_ev1_report_sync(
@@ -307,9 +309,33 @@ async def build_mf_orig_ev1_report(
         row["outcome_label"] = row["candidate_gate_status"]
 
     report = {
-        "phase": "MF-ORIG-EV1",
+        "phase": "MF-ORIG-EV1.1",
+        "supersedes_phase": "MF-ORIG-EV1",
         "generated_at": generated_at.replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "status": "original_money_flow_reconstruction_ready_for_founder_review",
+        "hotpatch": {
+            "accounting_and_drawdown_hotpatch": "MF-ORIG-EV1.1",
+            "pre_hotpatch_pnl_drawdown_conclusions_quarantined": True,
+            "regenerated_reports_are_current_for_founder_review": True,
+            "fixed_issues": [
+                "entry_fee_counted_once",
+                "trim_pnl_counted_once",
+                "trade_net_pnl_equals_equity_delta",
+                "drawdown_method_peak_to_trough",
+                "positive_1d_pockets_filter_matches_label",
+            ],
+        },
+        "accounting_convention": {
+            "model": "event_ledger_accounting",
+            "starting_equity": "10000",
+            "entry_fee_counted": "exactly_once_as_entry_fee_event",
+            "trim_pnl_counted": "exactly_once_as_trim_close_event",
+            "final_close_scope": "remaining_quantity_only",
+            "trade_net_pnl": "sum_accounting_event_net_amounts",
+            "equity_after_trade": "equity_before_trade_plus_trade_net_pnl",
+            "drawdown_method": "peak_to_trough",
+            "candidate_gate_drawdown_metric": "mark_to_market_max_drawdown",
+        },
         "source_document": SOURCE_DOCUMENT_METADATA,
         "source_rule_extraction": SOURCE_RULE_EXTRACTION,
         "gap_matrix": GAP_MATRIX,
@@ -328,6 +354,7 @@ async def build_mf_orig_ev1_report(
         "excluded_scenarios": skipped_rows,
         "replay_results": replay_rows,
         "hypothesis_summary": hypothesis_summary,
+        "accounting_invariant_summary": _accounting_invariant_summary(trade_rows),
         "trade_samples": trade_rows[:250],
         "control_pocket_results": control_pockets,
         "candidate_status": candidate_status,
@@ -390,8 +417,8 @@ def _run_original_hypothesis(
     no_trade_reasons: Counter[str] = Counter()
     invalid_reasons: Counter[str] = Counter()
     equity = initial_equity
-    max_equity = initial_equity
-    min_equity = initial_equity
+    realized_equity_curve: list[Decimal] = [initial_equity]
+    mark_to_market_equity_curve: list[Decimal] = [initial_equity]
     open_position: _OpenOriginalPosition | None = None
     trim_events = 0
     stop_exits = 0
@@ -406,12 +433,13 @@ def _run_original_hypothesis(
         if open_position is not None and close_time > open_position.entry_time:
             mtm_equity = _mark_to_market_equity(equity, open_position, candle.low)
             open_position.min_equity_seen = min(open_position.min_equity_seen, mtm_equity)
-            min_equity = min(min_equity, mtm_equity)
+            mark_to_market_equity_curve.append(mtm_equity)
             exit_reason = _original_exit_reason(row, context[idx - 1] if idx > 0 else None, candle, open_position)
             if exit_reason == "structure_stop_hit":
                 exit_price = open_position.stop_price
                 trade = _close_original_position(
                     open_position=open_position,
+                    current_realized_equity=equity,
                     exit_signal_time=close_time,
                     exit_time=close_time,
                     exit_price=exit_price,
@@ -421,9 +449,9 @@ def _run_original_hypothesis(
                     stop_fill_model="intrabar_stop_fill_at_stop_price",
                 )
                 trades.append(trade)
-                equity = _money(equity + Decimal(str(trade["net_pnl"])))
-                max_equity = max(max_equity, equity)
-                min_equity = min(min_equity, equity, Decimal(str(trade["min_equity_seen"])))
+                equity = _dec(trade["equity_after_trade"])
+                realized_equity_curve.append(equity)
+                mark_to_market_equity_curve.append(equity)
                 open_position = None
                 stop_exits += 1
                 continue
@@ -435,6 +463,7 @@ def _run_original_hypothesis(
                 exit_price = _apply_slippage(fill["price"], side="sell", slippage_bps=slippage_bps)
                 trade = _close_original_position(
                     open_position=open_position,
+                    current_realized_equity=equity,
                     exit_signal_time=close_time,
                     exit_time=fill["time"],
                     exit_price=exit_price,
@@ -444,21 +473,26 @@ def _run_original_hypothesis(
                     stop_fill_model="not_stop_exit",
                 )
                 trades.append(trade)
-                equity = _money(equity + Decimal(str(trade["net_pnl"])))
-                max_equity = max(max_equity, equity)
-                min_equity = min(min_equity, equity, Decimal(str(trade["min_equity_seen"])))
+                equity = _dec(trade["equity_after_trade"])
+                realized_equity_curve.append(equity)
+                mark_to_market_equity_curve.append(equity)
                 open_position = None
                 continue
             trim_reason = _original_trim_reason(row, context[idx - 1] if idx > 0 else None, candle, open_position)
             if trim_reason and not open_position.trimmed:
                 trim = _trim_original_position(
                     open_position=open_position,
+                    current_realized_equity=equity,
                     trim_signal_time=close_time,
                     trim_price=_apply_slippage(candle.close, side="sell", slippage_bps=slippage_bps),
                     fee_bps=fee_bps,
                     reason=trim_reason,
                 )
-                equity = _money(equity + Decimal(str(trim["net_pnl"])))
+                equity = _dec(trim["realized_equity_after_event"])
+                realized_equity_curve.append(equity)
+                mark_to_market_equity_curve.append(
+                    _mark_to_market_equity(equity, open_position, _dec(trim["price"]))
+                )
                 trim_events += 1
             if _profitable(open_position, candle.close) and row.get("rsi14") is not None and row["rsi14"] > Decimal("70"):
                 open_position.profit_warning_count += 1
@@ -500,8 +534,9 @@ def _run_original_hypothesis(
         if open_position is None:
             no_trade_reasons["no_trade_invalid_stop_distance"] += 1
             continue
-        equity = _money(equity - open_position.entry_fee)
-        min_equity = min(min_equity, equity)
+        equity = _dec(open_position.accounting_events[-1]["realized_equity_after_event"])
+        realized_equity_curve.append(equity)
+        mark_to_market_equity_curve.append(equity)
 
     if open_position is not None:
         last_index = _last_candle_index_in_window(candles, start_at=start_at, end_at=end_at)
@@ -511,8 +546,10 @@ def _run_original_hypothesis(
                 open_position.min_equity_seen,
                 _mark_to_market_equity(equity, open_position, last_candle.low),
             )
+            mark_to_market_equity_curve.append(_mark_to_market_equity(equity, open_position, last_candle.low))
             trade = _close_original_position(
                 open_position=open_position,
+                current_realized_equity=equity,
                 exit_signal_time=_coerce_utc(last_candle.close_time),
                 exit_time=_coerce_utc(last_candle.close_time),
                 exit_price=last_candle.close,
@@ -522,13 +559,19 @@ def _run_original_hypothesis(
                 stop_fill_model="not_stop_exit",
             )
             trades.append(trade)
-            equity = _money(equity + Decimal(str(trade["net_pnl"])))
-            min_equity = min(min_equity, equity, Decimal(str(trade["min_equity_seen"])))
-            max_equity = max(max_equity, equity)
+            equity = _dec(trade["equity_after_trade"])
+            realized_equity_curve.append(equity)
+            mark_to_market_equity_curve.append(equity)
             forced_closes += 1
             limitations.add("open_positions_are_force_closed_at_dataset_end")
 
-    metrics = _original_metrics(trades, initial_equity=initial_equity, ending_equity=equity, min_equity=min_equity)
+    metrics = _original_metrics(
+        trades,
+        initial_equity=initial_equity,
+        ending_equity=equity,
+        realized_equity_curve=realized_equity_curve,
+        mark_to_market_equity_curve=mark_to_market_equity_curve,
+    )
     baseline_net_pnl = _dec(baseline_metrics.get("net_account_pnl"))
     baseline_drawdown = _dec(
         baseline_metrics.get("mark_to_market_max_drawdown") or baseline_metrics.get("max_drawdown")
@@ -547,6 +590,13 @@ def _run_original_hypothesis(
         "ending_equity": _fmt(metrics["ending_equity"]),
         "net_pnl": _fmt(metrics["net_pnl"]),
         "max_drawdown": _fmt(metrics["max_drawdown"]),
+        "drawdown_method": metrics["drawdown_method"],
+        "realized_max_drawdown": _fmt(metrics["realized_max_drawdown"]),
+        "realized_max_drawdown_pct": _fmt(metrics["realized_max_drawdown_pct"]),
+        "mark_to_market_max_drawdown": _fmt(metrics["mark_to_market_max_drawdown"]),
+        "mark_to_market_max_drawdown_pct": _fmt(metrics["mark_to_market_max_drawdown_pct"]),
+        "max_equity": _fmt(metrics["max_equity"]),
+        "min_equity": _fmt(metrics["min_equity"]),
         "largest_loss": _fmt(metrics["largest_loss"]),
         "largest_win": _fmt(metrics["largest_win"]),
         "win_rate": _fmt(metrics["win_rate"]),
@@ -747,7 +797,22 @@ def _open_original_position(
     if quantity <= 0 or notional <= 0:
         return None
     entry_fee = _money(notional * fee_bps / Decimal("10000"))
+    entry_equity_after = _money(equity - entry_fee)
     trade_id = f"mf-orig-{hypothesis_id}-{scenario['symbol']}-{scenario['timeframe']}-{fill_timing.value}-{len(reason_codes)}-{int(fill_time.timestamp())}"
+    accounting_events = [
+        _accounting_event(
+            event_type="entry_fee",
+            timestamp=fill_time,
+            quantity=quantity,
+            price=entry_price,
+            gross_pnl=Decimal("0"),
+            fee=entry_fee,
+            net_amount=-entry_fee,
+            remaining_quantity_after_event=quantity,
+            realized_equity_after_event=entry_equity_after,
+            mark_to_market_equity_after_event=entry_equity_after,
+        )
+    ]
     return _OpenOriginalPosition(
         trade_id=trade_id,
         hypothesis_id=hypothesis_id,
@@ -766,13 +831,15 @@ def _open_original_position(
         notional=_money(notional),
         entry_reason_codes=reason_codes,
         stage_at_entry=stage,
-        min_equity_seen=equity - entry_fee,
+        min_equity_seen=entry_equity_after,
+        accounting_events=accounting_events,
     )
 
 
 def _close_original_position(
     *,
     open_position: _OpenOriginalPosition,
+    current_realized_equity: Decimal,
     exit_signal_time: datetime,
     exit_time: datetime,
     exit_price: Decimal,
@@ -785,9 +852,29 @@ def _close_original_position(
     gross_pnl = (exit_price - open_position.entry_price) * qty
     exit_notional = exit_price * qty
     exit_fee = _money(exit_notional * fee_bps / Decimal("10000"))
-    total_fees = open_position.entry_fee + open_position.total_exit_fees + exit_fee
-    net_pnl = gross_pnl + open_position.realized_pnl_so_far - total_fees
-    equity_after = open_position.equity_before + net_pnl
+    final_close_net_pnl = gross_pnl - exit_fee
+    equity_after = _money(current_realized_equity + final_close_net_pnl)
+    event_type = "forced_close" if forced_exit else "stop_close" if exit_reason == "structure_stop_hit" else "final_close"
+    final_event = _accounting_event(
+        event_type=event_type,
+        timestamp=exit_time,
+        quantity=qty,
+        price=exit_price,
+        gross_pnl=gross_pnl,
+        fee=exit_fee,
+        net_amount=final_close_net_pnl,
+        remaining_quantity_after_event=Decimal("0"),
+        realized_equity_after_event=equity_after,
+        mark_to_market_equity_after_event=equity_after,
+    )
+    accounting_events = [*open_position.accounting_events, final_event]
+    total_fees = sum((_dec(event["fee"]) for event in accounting_events), Decimal("0"))
+    net_pnl = sum((_dec(event["net_amount"]) for event in accounting_events), Decimal("0"))
+    total_gross_pnl = sum((_dec(event["gross_pnl"]) for event in accounting_events), Decimal("0"))
+    min_equity_seen = min(
+        [open_position.min_equity_seen, equity_after]
+        + [_dec(event["mark_to_market_equity_after_event"]) for event in accounting_events]
+    )
     return {
         "trade_id": open_position.trade_id,
         "hypothesis_id": open_position.hypothesis_id,
@@ -807,13 +894,25 @@ def _close_original_position(
         "entry_reason_codes": list(open_position.entry_reason_codes),
         "exit_reason": exit_reason,
         "entry_stage": open_position.stage_at_entry,
-        "gross_pnl": _fmt(gross_pnl + open_position.realized_pnl_so_far),
+        "gross_pnl": _fmt(total_gross_pnl),
         "fees": _fmt(total_fees),
         "net_pnl": _fmt(net_pnl),
+        "equity_before_trade": _fmt(open_position.equity_before),
+        "equity_after_trade": _fmt(equity_after),
         "equity_before": _fmt(open_position.equity_before),
         "equity_after": _fmt(equity_after),
-        "min_equity_seen": _fmt(min(open_position.min_equity_seen, equity_after)),
+        "entry_fee": _fmt(open_position.entry_fee),
         "trim_count": open_position.trim_count,
+        "trim_realized_gross_pnl": _fmt(open_position.trim_realized_gross_pnl),
+        "trim_fees": _fmt(open_position.trim_fees),
+        "trim_net_pnl": _fmt(open_position.trim_net_pnl),
+        "final_close_gross_pnl": _fmt(gross_pnl),
+        "final_close_fee": _fmt(exit_fee),
+        "final_close_net_pnl": _fmt(final_close_net_pnl),
+        "total_fees": _fmt(total_fees),
+        "remaining_quantity_final": _fmt(Decimal("0")),
+        "accounting_events": accounting_events,
+        "min_equity_seen": _fmt(min_equity_seen),
         "profit_warning_count": open_position.profit_warning_count,
         "forced_exit": forced_exit,
         "entry_fill_model": open_position.fill_timing,
@@ -826,6 +925,7 @@ def _close_original_position(
 def _trim_original_position(
     *,
     open_position: _OpenOriginalPosition,
+    current_realized_equity: Decimal,
     trim_signal_time: datetime,
     trim_price: Decimal,
     fee_bps: Decimal,
@@ -836,16 +936,73 @@ def _trim_original_position(
     fee = _money(trim_price * trim_qty * fee_bps / Decimal("10000"))
     net_pnl = gross_pnl - fee
     open_position.remaining_quantity -= trim_qty
-    open_position.realized_pnl_so_far += net_pnl
-    open_position.total_exit_fees += fee
+    realized_equity_after_event = _money(current_realized_equity + net_pnl)
+    mark_to_market_after_event = _money(
+        realized_equity_after_event
+        + ((trim_price - open_position.entry_price) * open_position.remaining_quantity)
+    )
+    event = _accounting_event(
+        event_type="trim_close",
+        timestamp=trim_signal_time,
+        quantity=trim_qty,
+        price=trim_price,
+        gross_pnl=gross_pnl,
+        fee=fee,
+        net_amount=net_pnl,
+        remaining_quantity_after_event=open_position.remaining_quantity,
+        realized_equity_after_event=realized_equity_after_event,
+        mark_to_market_equity_after_event=mark_to_market_after_event,
+    )
+    open_position.accounting_events.append(event)
     open_position.trimmed = True
     open_position.trim_count += 1
+    open_position.trim_realized_gross_pnl += gross_pnl
+    open_position.trim_fees += fee
+    open_position.trim_net_pnl += net_pnl
+    open_position.min_equity_seen = min(open_position.min_equity_seen, realized_equity_after_event, mark_to_market_after_event)
     return {
+        "event_type": "trim_close",
         "trim_time": trim_signal_time.isoformat(),
+        "timestamp": trim_signal_time.isoformat(),
+        "price": _fmt(trim_price),
         "trim_price": _fmt(trim_price),
+        "quantity": _fmt(trim_qty),
         "trim_quantity": _fmt(trim_qty),
         "reason": reason,
+        "gross_pnl": _fmt(gross_pnl),
+        "fee": _fmt(fee),
+        "net_amount": _fmt(net_pnl),
         "net_pnl": _fmt(net_pnl),
+        "remaining_quantity_after_event": _fmt(open_position.remaining_quantity),
+        "realized_equity_after_event": _fmt(realized_equity_after_event),
+        "mark_to_market_equity_after_event": _fmt(mark_to_market_after_event),
+    }
+
+
+def _accounting_event(
+    *,
+    event_type: str,
+    timestamp: datetime,
+    quantity: Decimal,
+    price: Decimal,
+    gross_pnl: Decimal,
+    fee: Decimal,
+    net_amount: Decimal,
+    remaining_quantity_after_event: Decimal,
+    realized_equity_after_event: Decimal,
+    mark_to_market_equity_after_event: Decimal,
+) -> dict[str, Any]:
+    return {
+        "event_type": event_type,
+        "timestamp": timestamp.isoformat(),
+        "quantity": _fmt(quantity),
+        "price": _fmt(price),
+        "gross_pnl": _fmt(gross_pnl),
+        "fee": _fmt(fee),
+        "net_amount": _fmt(net_amount),
+        "remaining_quantity_after_event": _fmt(remaining_quantity_after_event),
+        "realized_equity_after_event": _fmt(realized_equity_after_event),
+        "mark_to_market_equity_after_event": _fmt(mark_to_market_equity_after_event),
     }
 
 
@@ -854,22 +1011,63 @@ def _original_metrics(
     *,
     initial_equity: Decimal,
     ending_equity: Decimal,
-    min_equity: Decimal,
+    realized_equity_curve: Sequence[Decimal],
+    mark_to_market_equity_curve: Sequence[Decimal],
 ) -> dict[str, Any]:
     net_pnls = [Decimal(str(trade["net_pnl"])) for trade in trades]
     wins = [pnl for pnl in net_pnls if pnl > 0]
     losses = [pnl for pnl in net_pnls if pnl < 0]
     profit_factor = (sum(wins, Decimal("0")) / abs(sum(losses, Decimal("0")))) if losses else Decimal("0")
     win_rate = Decimal(len(wins)) / Decimal(len(net_pnls)) if net_pnls else Decimal("0")
+    realized_dd = _drawdown_stats(realized_equity_curve)
+    mtm_dd = _drawdown_stats(mark_to_market_equity_curve)
     return {
         "ending_equity": _money(ending_equity),
         "net_pnl": _money(ending_equity - initial_equity),
-        "max_drawdown": _money(max(Decimal("0"), initial_equity - min_equity)),
+        "max_drawdown": mtm_dd["max_drawdown"],
+        "realized_max_drawdown": realized_dd["max_drawdown"],
+        "realized_max_drawdown_pct": realized_dd["max_drawdown_pct"],
+        "mark_to_market_max_drawdown": mtm_dd["max_drawdown"],
+        "mark_to_market_max_drawdown_pct": mtm_dd["max_drawdown_pct"],
+        "max_equity": mtm_dd["max_equity"],
+        "min_equity": mtm_dd["min_equity"],
+        "drawdown_method": "peak_to_trough",
         "largest_loss": _money(min(net_pnls, default=Decimal("0"))),
         "largest_win": _money(max(net_pnls, default=Decimal("0"))),
         "win_rate": win_rate,
         "profit_factor": profit_factor,
         "trade_count": len(trades),
+    }
+
+
+def _drawdown_stats(curve: Sequence[Decimal]) -> dict[str, Decimal]:
+    if not curve:
+        return {
+            "max_drawdown": Decimal("0"),
+            "max_drawdown_pct": Decimal("0"),
+            "max_equity": Decimal("0"),
+            "min_equity": Decimal("0"),
+        }
+    running_peak = curve[0]
+    max_drawdown = Decimal("0")
+    max_drawdown_pct = Decimal("0")
+    max_equity = curve[0]
+    min_equity = curve[0]
+    for value in curve:
+        max_equity = max(max_equity, value)
+        min_equity = min(min_equity, value)
+        if value > running_peak:
+            running_peak = value
+        drawdown = running_peak - value
+        drawdown_pct = Decimal("0") if running_peak == 0 else drawdown / running_peak
+        if drawdown > max_drawdown:
+            max_drawdown = drawdown
+            max_drawdown_pct = drawdown_pct
+    return {
+        "max_drawdown": _money(max_drawdown),
+        "max_drawdown_pct": max_drawdown_pct,
+        "max_equity": _money(max_equity),
+        "min_equity": _money(min_equity),
     }
 
 
@@ -903,26 +1101,66 @@ def _hypothesis_summary(rows: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
     return output
 
 
+def _accounting_invariant_summary(trades: Sequence[dict[str, Any]]) -> dict[str, Any]:
+    tolerance = Decimal("0.0000001")
+    equity_delta_violations = 0
+    fee_sum_violations = 0
+    remaining_quantity_violations = 0
+    entry_fee_event_violations = 0
+    for trade in trades:
+        equity_delta = _dec(trade["equity_after_trade"]) - _dec(trade["equity_before_trade"])
+        if abs(equity_delta - _dec(trade["net_pnl"])) > tolerance:
+            equity_delta_violations += 1
+        event_fee_sum = sum((_dec(event["fee"]) for event in trade["accounting_events"]), Decimal("0"))
+        if event_fee_sum != _dec(trade["total_fees"]):
+            fee_sum_violations += 1
+        if _dec(trade["remaining_quantity_final"]) != Decimal("0"):
+            remaining_quantity_violations += 1
+        if sum(1 for event in trade["accounting_events"] if event["event_type"] == "entry_fee") != 1:
+            entry_fee_event_violations += 1
+    return {
+        "trade_count_checked": len(trades),
+        "decimal_tolerance": _fmt(tolerance),
+        "equity_delta_violations": equity_delta_violations,
+        "fee_sum_violations": fee_sum_violations,
+        "remaining_quantity_violations": remaining_quantity_violations,
+        "entry_fee_event_violations": entry_fee_event_violations,
+        "status": "passed"
+        if not (
+            equity_delta_violations
+            or fee_sum_violations
+            or remaining_quantity_violations
+            or entry_fee_event_violations
+        )
+        else "failed",
+    }
+
+
 def _control_pocket_impact(rows: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
     pockets = [
-        ("ETH", "1h", "ETH 1h current baseline"),
-        ("*", "1d", "positive 1d pockets"),
+        ("ETH", "1h", "ETH 1h current baseline", "all", True),
+        ("*", "1d", "positive 1d pockets", "baseline_positive", True),
+        ("*", "1d", "all_1d_pockets", "all", False),
     ]
     output: list[dict[str, Any]] = []
     for hypothesis_id in MF_ORIG_HYPOTHESES:
         selected = [row for row in rows if row["hypothesis_id"] == hypothesis_id]
-        for symbol, timeframe, label in pockets:
+        for symbol, timeframe, label, filter_mode, gating_control in pockets:
             pocket_rows = [
                 row
                 for row in selected
                 if (symbol == "*" or row["symbol"] == symbol) and row["timeframe"] == timeframe
             ]
+            if filter_mode == "baseline_positive":
+                pocket_rows = [row for row in pocket_rows if _dec(row.get("baseline_net_pnl")) > 0]
             if not pocket_rows:
                 output.append(
                     {
                         "hypothesis_id": hypothesis_id,
                         "control_pocket": label,
                         "status": "insufficient_data",
+                        "filter": filter_mode,
+                        "gating_control": gating_control,
                         "notes": "No matching source-policy scenario was replayed.",
                     }
                 )
@@ -939,6 +1177,8 @@ def _control_pocket_impact(rows: Sequence[dict[str, Any]]) -> list[dict[str, Any
                     "hypothesis_id": hypothesis_id,
                     "control_pocket": label,
                     "status": status,
+                    "filter": filter_mode,
+                    "gating_control": gating_control,
                     "net_pnl_delta_sum": _fmt(pnl_delta),
                     "worst_drawdown_delta": _fmt(dd_delta),
                     "trade_count": sum(int(row["trade_count"]) for row in pocket_rows),
@@ -951,7 +1191,7 @@ def _candidate_status(summary_rows: Sequence[dict[str, Any]], control_rows: Sequ
     damaged = {
         row["hypothesis_id"]
         for row in control_rows
-        if row.get("status") in {"damaged", "return_reduced"}
+        if row.get("gating_control") is not False and row.get("status") in {"damaged", "return_reduced"}
     }
     output: list[dict[str, Any]] = []
     for row in summary_rows:
@@ -1159,9 +1399,9 @@ def _apply_slippage(price: Decimal, *, side: str, slippage_bps: Decimal) -> Deci
     return _money(price * factor)
 
 
-def _mark_to_market_equity(equity_after_entry_fees: Decimal, open_position: _OpenOriginalPosition, price: Decimal) -> Decimal:
+def _mark_to_market_equity(current_realized_equity: Decimal, open_position: _OpenOriginalPosition, price: Decimal) -> Decimal:
     unrealized = (price - open_position.entry_price) * open_position.remaining_quantity
-    return _money(equity_after_entry_fees + open_position.realized_pnl_so_far + unrealized)
+    return _money(current_realized_equity + unrealized)
 
 
 def _outcome_label(rows: Sequence[dict[str, Any]]) -> str:
@@ -1216,7 +1456,9 @@ def _hypothesis_definitions() -> list[dict[str, Any]]:
 
 def mf_orig_ev1_spec_to_markdown(report: dict[str, Any]) -> str:
     lines = [
-        "# MF-ORIG-EV1 Original Money Flow Spec And Gap Matrix",
+        "# MF-ORIG-EV1.1 Original Money Flow Spec And Gap Matrix",
+        "",
+        "MF-ORIG-EV1.1 preserves the MF-ORIG-EV1 source interpretation but hotpatches accounting/drawdown truth in the regenerated reconstruction report. Pre-hotpatch MF-ORIG-EV1 PnL/drawdown conclusions should not be used.",
         "",
         "## Source Document",
         "",
@@ -1244,7 +1486,7 @@ def mf_orig_ev1_spec_to_markdown(report: dict[str, Any]) -> str:
         "",
         "## Required Boundaries",
         "",
-        "- MF-ORIG-EV1 is evidence-only.",
+        "- MF-ORIG-EV1.1 is evidence-only.",
         "- Current Money Flow v1.2 production rules remain unchanged.",
         "- Original Money Flow is not production approved.",
         "- No paper/live approval follows from MF-ORIG-EV1.",
@@ -1256,11 +1498,22 @@ def mf_orig_ev1_spec_to_markdown(report: dict[str, Any]) -> str:
 
 def mf_orig_ev1_report_to_markdown(report: dict[str, Any]) -> str:
     lines = [
-        "# MF-ORIG-EV1 Original Money Flow Reconstruction",
+        "# MF-ORIG-EV1.1 Original Money Flow Reconstruction Accounting Hotpatch",
         "",
         "## Executive Summary",
         "",
-        "MF-ORIG-EV1 reconstructs the original Money Flow source hierarchy as an evidence-only Strategy Validation replay family and compares it with canonical Money Flow v1.2 SV2.0.2 evidence. Production Money Flow rules are unchanged. No orders are submitted. No private/signed/order endpoints are called.",
+        "MF-ORIG-EV1.1 hotpatches MF-ORIG-EV1 accounting and drawdown truth, regenerates the original Money Flow reconstruction reports, and compares the corrected evidence with canonical Money Flow v1.2 SV2.0.2 evidence. Pre-hotpatch MF-ORIG-EV1 PnL/drawdown conclusions were quarantined until this regeneration. Production Money Flow rules are unchanged. No orders are submitted. No private/signed/order endpoints are called.",
+        "",
+        "## Hotpatch Accounting Convention",
+        "",
+        "- Accounting model: `event_ledger_accounting`.",
+        "- Entry fees are counted exactly once as `entry_fee` accounting events.",
+        "- Trim realized PnL is counted exactly once as `trim_close` accounting events.",
+        "- Final close events close only remaining quantity and do not re-add prior trim PnL.",
+        "- Trade `net_pnl` is the sum of accounting-event `net_amount` values.",
+        "- `equity_after_trade - equity_before_trade == net_pnl` for generated trades.",
+        "- Drawdown method: `peak_to_trough`.",
+        "- Candidate gate drawdown metric: `mark_to_market_max_drawdown`.",
         "",
         "## Source Limitation",
         "",
@@ -1325,11 +1578,22 @@ def mf_orig_ev1_report_to_markdown(report: dict[str, Any]) -> str:
         "- Stops use prior support / confirmed-pivot proxies available before entry; this is a simple structure model and not hand-drawn supply/demand analysis.",
         "- Sizing uses 1% risk budget from current realized equity, entry-to-stop distance, and a current-equity notional cap.",
         "",
+        "## Accounting Invariant Audit",
+        "",
+        f"- Status: `{report['accounting_invariant_summary']['status']}`",
+        f"- Trades checked: `{report['accounting_invariant_summary']['trade_count_checked']}`",
+        f"- Equity-delta violations: `{report['accounting_invariant_summary']['equity_delta_violations']}`",
+        f"- Fee-sum violations: `{report['accounting_invariant_summary']['fee_sum_violations']}`",
+        f"- Remaining-quantity violations: `{report['accounting_invariant_summary']['remaining_quantity_violations']}`",
+        f"- Entry-fee event violations: `{report['accounting_invariant_summary']['entry_fee_event_violations']}`",
+        "",
         "## Comparison Versus Current Money Flow v1.2",
         "",
         "- PnL and drawdown deltas are compared against matching canonical SV2.0.2 Money Flow v1.2 independent scenarios.",
         "- Independent scenario deltas are descriptive sums, not one combined account.",
         "- Pre-gate aggregate improvement is not enough for candidate status when control pockets are damaged.",
+        "- The candidate gate was re-run after MF-ORIG-EV1.1 accounting and drawdown corrections.",
+        "- Candidate conclusions did not change after the correction: all original hypotheses remain `source_faithful_but_underperformed` because baseline-positive 1d control pockets were not preserved.",
     ])
     lines.extend([
         "",
@@ -1349,6 +1613,11 @@ def mf_orig_ev1_report_to_markdown(report: dict[str, Any]) -> str:
         "- Notional cap: current realized equity.",
         "- Stop model: prior support/pivot proxy available before entry; no arbitrary fixed-percent primary stop.",
         "",
+        "## Control Pocket Label Fix",
+        "",
+        "- `positive 1d pockets` now filters to baseline-positive 1d scenarios only.",
+        "- `all_1d_pockets` is reported separately as context and does not imply positivity.",
+        "",
         "## Limitations",
         "",
     ])
@@ -1358,7 +1627,7 @@ def mf_orig_ev1_report_to_markdown(report: dict[str, Any]) -> str:
         "",
         "## Boundary Confirmation",
         "",
-        "- MF-ORIG-EV1 is evidence-only.",
+        "- MF-ORIG-EV1.1 is evidence-only.",
         "- Current Money Flow v1.2 remains unchanged.",
         "- Original Money Flow is not approved for production.",
         "- Live trading is not approved.",

@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-12T23:26:20Z - MF-ORIG-EV1.1 - Accounting / Drawdown Conclusions Supersede MF-ORIG-EV1
+
+- `decision`: Quarantine pre-hotpatch MF-ORIG-EV1 PnL/drawdown conclusions and treat regenerated MF-ORIG-EV1.1 reports as the current founder-review source.
+- `scope`: MF-ORIG-EV1.1 keeps the original source interpretation and hypotheses unchanged, but fixes the research accounting model to event-ledger accounting, counts entry fees and trim PnL exactly once, closes only remaining quantity, computes realized and mark-to-market drawdown as peak-to-trough, audits all generated trades for accounting invariants, and filters `positive 1d pockets` to baseline-positive 1d scenarios.
+- `why`: Review found P1 evidence-truth defects: entry fees and trim PnL could be double-counted, drawdown was not peak-to-trough, and the positive 1d control label included negative baseline 1d rows.
+- `result`: Candidate gates were re-run. The strict conclusion did not change: all original hypotheses remain `source_faithful_but_underperformed` because baseline-positive 1d control pockets were not preserved. Production Money Flow v1.2 remains unchanged, no original hypothesis is approved, and no orders/private/signed/order endpoints/testnet strategy truth/live trading/paper runtime/SOR behavior were added.
+- `follow_up_implications`: Use MF-ORIG-EV1.1 reports, not pre-hotpatch MF-ORIG-EV1 PnL/drawdown numbers, for founder review. Any MF-ORIG-EV2 still needs direct-PDF reconciliation and/or dashboard overlays before source-authority claims.
+
 ## 2026-05-12T22:46:40Z - MF-ORIG-EV1 - Original Money Flow Reconstruction Is Evidence-Only
 
 - `decision`: Reconstruct the original Money Flow Trading System as a separate Strategy Validation research family without changing production Money Flow v1.2.

@@ -1,8 +1,15 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-05-12T22:46:40Z`
+Last reviewed: `2026-05-12T23:26:20Z`
 
 ## Open Items
+
+### K-019
+
+- `status`: `resolved`
+- `area`: `MF-ORIG-EV1 accounting and drawdown evidence truth`
+- `summary`: `MF-ORIG-EV1.1 resolves the review-found P1 defects in the original Money Flow reconstruction evidence. Pre-hotpatch MF-ORIG-EV1 PnL/drawdown conclusions are quarantined. The regenerated MF-ORIG outputs now use event-ledger accounting, count entry fees exactly once, count trim PnL exactly once, close only remaining quantity at final/forced/stop exits, require trade net PnL to match equity delta within an explicit decimal tolerance, compute realized and mark-to-market drawdown as peak-to-trough, and filter positive 1d control pockets to baseline-positive 1d scenarios only.`
+- `impact`: `MF-ORIG-EV1.1 reports are now the current source for founder review. Candidate gates were re-run and the strict conclusion did not change: all four original hypotheses remain source_faithful_but_underperformed because baseline-positive 1d control pockets were not preserved. Production Money Flow v1.2 remains unchanged; no original hypothesis is approved; no orders, private/signed/order endpoints, testnet strategy truth, live trading, paper runtime, or SOR behavior were added.`
 
 ### K-018
 

@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-12T22:46:40Z`
+Last reviewed: `2026-05-12T23:26:20Z`
 
 ## Active Follow-Ups
+
+### T-133
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `MF-ORIG-EV1.1 accounting and drawdown hotpatch is complete. The Strategy Validation-only original Money Flow reconstruction now uses event-ledger accounting with entry_fee, trim_close, final_close, forced_close, and stop_close events; entry fees and trim PnL are counted exactly once; final closes operate only on remaining quantity; trade net PnL equals equity delta within the declared decimal tolerance; drawdown is peak-to-trough for realized and mark-to-market curves; and positive 1d control pockets filter only baseline-positive 1d rows. The MF-ORIG Markdown/JSON reports were regenerated and pre-hotpatch MF-ORIG-EV1 PnL/drawdown conclusions are quarantined. Candidate gates were re-run and still mark all original hypotheses source_faithful_but_underperformed due baseline-positive 1d control-pocket damage. Production Money Flow rules remain unchanged; no original hypothesis is approved; no orders/private/signed/order endpoints/testnet strategy truth/live trading/paper runtime/SOR behavior were added.`
 
 ### T-132
 

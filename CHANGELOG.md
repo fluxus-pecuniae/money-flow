@@ -13,6 +13,40 @@ Entry schema:
 
 ---
 
+## v2026.05.12.023
+
+- `recorded_at_utc`: `2026-05-12T23:26:20Z`
+- `scope`: `MF-ORIG-EV1.1 accounting and drawdown hotpatch`
+- `intent`: `Native entry. Hotpatched the Strategy Validation-only Original Money Flow reconstruction accounting model. MF-ORIG trades now use event-ledger accounting with explicit entry_fee, trim_close, final_close, forced_close, and stop_close events; entry fees and trim PnL are counted exactly once; final closes close only remaining quantity; trade net PnL equals equity delta within the declared decimal tolerance; and drawdown now uses peak-to-trough realized and mark-to-market curves. Regenerated the MF-ORIG Markdown/JSON outputs, quarantined pre-hotpatch MF-ORIG-EV1 PnL/drawdown conclusions, fixed positive 1d control-pocket labeling to filter only baseline-positive 1d rows, and re-ran candidate gates. Production Money Flow v1.2 is unchanged; no original hypothesis is production-approved; no orders were submitted; no private/signed/order endpoints were called; no Hyperliquid testnet prices or dashboard date-filter recalculations were used as canonical strategy truth; live trading remains not approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `docs/strategy.md`
+  - `docs/mf_orig_ev1_original_money_flow_reconstruction.md`
+  - `docs/mf_orig_ev1_original_money_flow_reconstruction_summary.json`
+  - `docs/mf_orig_ev1_original_money_flow_spec_and_gap_matrix.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `services/strategy_validation/mf_orig_ev1.py`
+  - `tests/test_mf_orig_ev1_original_money_flow.py`
+- `validation_performed`:
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> .venv/bin/python scripts/build_mf_orig_ev1_original_money_flow.py`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m compileall core services apps tests scripts`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_mf_orig_ev1_original_money_flow.py`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_sv201_canonical_evidence_truth_hotfix.py tests/test_sv202_canonical_import_evidence.py tests/test_sor_ev1_loss_anatomy.py tests/test_sor_ev2_true_forward_replay.py tests/test_sor_ev3_avoid_sideways_low_volatility.py`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+
 ## v2026.05.12.022
 
 - `recorded_at_utc`: `2026-05-12T22:46:40Z`

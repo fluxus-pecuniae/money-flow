@@ -1,8 +1,19 @@
-# MF-ORIG-EV1 Original Money Flow Reconstruction
+# MF-ORIG-EV1.1 Original Money Flow Reconstruction Accounting Hotpatch
 
 ## Executive Summary
 
-MF-ORIG-EV1 reconstructs the original Money Flow source hierarchy as an evidence-only Strategy Validation replay family and compares it with canonical Money Flow v1.2 SV2.0.2 evidence. Production Money Flow rules are unchanged. No orders are submitted. No private/signed/order endpoints are called.
+MF-ORIG-EV1.1 hotpatches MF-ORIG-EV1 accounting and drawdown truth, regenerates the original Money Flow reconstruction reports, and compares the corrected evidence with canonical Money Flow v1.2 SV2.0.2 evidence. Pre-hotpatch MF-ORIG-EV1 PnL/drawdown conclusions were quarantined until this regeneration. Production Money Flow rules are unchanged. No orders are submitted. No private/signed/order endpoints are called.
+
+## Hotpatch Accounting Convention
+
+- Accounting model: `event_ledger_accounting`.
+- Entry fees are counted exactly once as `entry_fee` accounting events.
+- Trim realized PnL is counted exactly once as `trim_close` accounting events.
+- Final close events close only remaining quantity and do not re-add prior trim PnL.
+- Trade `net_pnl` is the sum of accounting-event `net_amount` values.
+- `equity_after_trade - equity_before_trade == net_pnl` for generated trades.
+- Drawdown method: `peak_to_trough`.
+- Candidate gate drawdown metric: `mark_to_market_max_drawdown`.
 
 ## Source Limitation
 
@@ -30,10 +41,10 @@ The PDF file was not present in the repository or common local Downloads/Documen
 
 | Hypothesis | Scenarios | 1D Scenarios | PnL Delta vs v1.2 | Worst Drawdown Delta | Trades | Performance Label | Candidate Gate |
 | --- | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| `mf_orig_1d_stage2_5_20_crossover` | 54 | 18 | 64649.38000426 | -247.70546258 | 4748 | `improved_pnl_drawdown_pre_gate` | `source_faithful_but_underperformed` |
-| `mf_orig_1d_stage2_breakout_resistance` | 54 | 18 | 68784.26659877 | -1505.67716745 | 2160 | `improved_pnl_drawdown_pre_gate` | `source_faithful_but_underperformed` |
-| `mf_orig_stage2_pullback_reclaim` | 54 | 18 | 64551.3733128 | -247.70546258 | 4702 | `improved_pnl_drawdown_pre_gate` | `source_faithful_but_underperformed` |
-| `mf_orig_stage_filter_only` | 54 | 18 | 70547.38205021 | -897.89820688 | 3949 | `improved_pnl_drawdown_pre_gate` | `source_faithful_but_underperformed` |
+| `mf_orig_1d_stage2_5_20_crossover` | 54 | 18 | 68916.55235178 | -349.29468305 | 4748 | `improved_pnl_drawdown_pre_gate` | `source_faithful_but_underperformed` |
+| `mf_orig_1d_stage2_breakout_resistance` | 54 | 18 | 69438.32917799 | -1281.40684308 | 2160 | `improved_pnl_drawdown_pre_gate` | `source_faithful_but_underperformed` |
+| `mf_orig_stage2_pullback_reclaim` | 54 | 18 | 68828.67772013 | -349.29468305 | 4702 | `improved_pnl_drawdown_pre_gate` | `source_faithful_but_underperformed` |
+| `mf_orig_stage_filter_only` | 54 | 18 | 73030.34302538 | -977.10968817 | 3949 | `improved_pnl_drawdown_pre_gate` | `source_faithful_but_underperformed` |
 
 ## Source Gap Summary
 
@@ -49,27 +60,27 @@ The PDF file was not present in the repository or common local Downloads/Documen
 - `1d` rows: `72` across `4` hypotheses.
 | Hypothesis | Rows | Net PnL Sum | Delta vs v1.2 | Trades |
 | --- | ---: | ---: | ---: | ---: |
-| `mf_orig_1d_stage2_5_20_crossover` | 18 | 1449.29821307 | -21477.64035626 | 237 |
-| `mf_orig_1d_stage2_breakout_resistance` | 18 | -216.98088761 | -23143.91945694 | 118 |
-| `mf_orig_stage2_pullback_reclaim` | 18 | 1812.65385952 | -21114.28470981 | 219 |
-| `mf_orig_stage_filter_only` | 18 | 1357.65103563 | -21569.2875337 | 214 |
+| `mf_orig_1d_stage2_5_20_crossover` | 18 | 1447.82788804 | -21479.11068129 | 237 |
+| `mf_orig_1d_stage2_breakout_resistance` | 18 | -271.30452633 | -23198.24309566 | 118 |
+| `mf_orig_stage2_pullback_reclaim` | 18 | 1805.7498545 | -21121.18871483 | 219 |
+| `mf_orig_stage_filter_only` | 18 | 1333.28998108 | -21593.64858825 | 214 |
 
 ## 4h / 1h Exploratory Evidence
 
 - `4h` rows: `72` across `4` hypotheses.
 | Hypothesis | Rows | Net PnL Sum | Delta vs v1.2 | Trades |
 | --- | ---: | ---: | ---: | ---: |
-| `mf_orig_1d_stage2_5_20_crossover` | 18 | 3241.47688314 | 41901.5822811 | 1652 |
-| `mf_orig_1d_stage2_breakout_resistance` | 18 | -1642.3131035 | 37017.79229446 | 749 |
-| `mf_orig_stage2_pullback_reclaim` | 18 | 2858.34716125 | 41518.45255921 | 1622 |
-| `mf_orig_stage_filter_only` | 18 | 3393.0106881 | 42053.11608606 | 1378 |
+| `mf_orig_1d_stage2_5_20_crossover` | 18 | 3946.33754851 | 42606.44294647 | 1652 |
+| `mf_orig_1d_stage2_breakout_resistance` | 18 | -1421.15154186 | 37238.9538561 | 749 |
+| `mf_orig_stage2_pullback_reclaim` | 18 | 3571.20367796 | 42231.30907592 | 1622 |
+| `mf_orig_stage_filter_only` | 18 | 3877.47637683 | 42537.58177479 | 1378 |
 - `1h` rows: `72` across `4` hypotheses.
 | Hypothesis | Rows | Net PnL Sum | Delta vs v1.2 | Trades |
 | --- | ---: | ---: | ---: | ---: |
-| `mf_orig_1d_stage2_5_20_crossover` | 18 | -21217.24762851 | 44225.43807942 | 2859 |
-| `mf_orig_1d_stage2_breakout_resistance` | 18 | -10532.29194668 | 54910.39376125 | 1293 |
-| `mf_orig_stage2_pullback_reclaim` | 18 | -21295.48024453 | 44147.2054634 | 2861 |
-| `mf_orig_stage_filter_only` | 18 | -15379.13221008 | 50063.55349785 | 2357 |
+| `mf_orig_1d_stage2_5_20_crossover` | 18 | -17653.46562133 | 47789.2200866 | 2859 |
+| `mf_orig_1d_stage2_breakout_resistance` | 18 | -10045.06729038 | 55397.61841755 | 1293 |
+| `mf_orig_stage2_pullback_reclaim` | 18 | -17724.12834889 | 47718.55735904 | 2861 |
+| `mf_orig_stage_filter_only` | 18 | -13356.27586909 | 52086.40983884 | 2357 |
 
 ## Source-Rule Modeling Findings
 
@@ -79,11 +90,22 @@ The PDF file was not present in the repository or common local Downloads/Documen
 - Stops use prior support / confirmed-pivot proxies available before entry; this is a simple structure model and not hand-drawn supply/demand analysis.
 - Sizing uses 1% risk budget from current realized equity, entry-to-stop distance, and a current-equity notional cap.
 
+## Accounting Invariant Audit
+
+- Status: `passed`
+- Trades checked: `15559`
+- Equity-delta violations: `0`
+- Fee-sum violations: `0`
+- Remaining-quantity violations: `0`
+- Entry-fee event violations: `0`
+
 ## Comparison Versus Current Money Flow v1.2
 
 - PnL and drawdown deltas are compared against matching canonical SV2.0.2 Money Flow v1.2 independent scenarios.
 - Independent scenario deltas are descriptive sums, not one combined account.
 - Pre-gate aggregate improvement is not enough for candidate status when control pockets are damaged.
+- The candidate gate was re-run after MF-ORIG-EV1.1 accounting and drawdown corrections.
+- Candidate conclusions did not change after the correction: all original hypotheses remain `source_faithful_but_underperformed` because baseline-positive 1d control pockets were not preserved.
 
 ## Candidate Gate
 
@@ -101,6 +123,11 @@ The PDF file was not present in the repository or common local Downloads/Documen
 - Notional cap: current realized equity.
 - Stop model: prior support/pivot proxy available before entry; no arbitrary fixed-percent primary stop.
 
+## Control Pocket Label Fix
+
+- `positive 1d pockets` now filters to baseline-positive 1d scenarios only.
+- `all_1d_pockets` is reported separately as context and does not imply positivity.
+
 ## Limitations
 
 - `dashboard_date_filters_are_display_only_not_canonical_evidence`
@@ -116,7 +143,7 @@ The PDF file was not present in the repository or common local Downloads/Documen
 
 ## Boundary Confirmation
 
-- MF-ORIG-EV1 is evidence-only.
+- MF-ORIG-EV1.1 is evidence-only.
 - Current Money Flow v1.2 remains unchanged.
 - Original Money Flow is not approved for production.
 - Live trading is not approved.
