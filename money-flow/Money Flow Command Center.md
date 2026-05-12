@@ -12,3 +12,6 @@ Repo operational truth still lives in `AGENTS.md`, `CHANGELOG.md`, `REPO_TREE.md
 
 
 Current canonical command center now records SOR-EV1 as complete; use [[00_Money_Flow_Command_Center]].
+
+
+Current canonical command center now records SOR-EV2 as complete; use [[00_Money_Flow_Command_Center]].

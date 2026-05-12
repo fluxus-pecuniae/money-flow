@@ -13,6 +13,39 @@ Entry schema:
 
 ---
 
+## v2026.05.12.007
+
+- `recorded_at_utc`: `2026-05-12T11:05:00Z`
+- `scope`: `SOR-EV2 true-forward stop/exit and rejected-signal replay`
+- `intent`: `Native entry. Added a true-forward SOR-EV2 replay pass over canonical SV2.0.2 pack references and persisted Strategy Validation candle truth. Baseline parity passed for all 72 canonical scenarios, then fixed-stop, ATR-stop, recent-low, large-bear-candle, earlier-MACD, lower-RSI, extension-filter, and chop-avoidance variants were evaluated as evidence-only true-forward replay. Large-loss candle context now uses DB candle context, rejected-signal counts include RSI/MACD/entry-quality categories, and control-pocket impact is reported. No production Money Flow rules were changed, no variant was approved, no orders/private/signed/order endpoints were called, no dashboard date-filter result was used as canonical evidence, no Hyperliquid testnet prices were used as strategy truth, and no SOR/fanout/CBBO/target-reselection behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `docs/strategy.md`
+  - `docs/sor_ev1_money_flow_trade_loss_anatomy_and_variants.md`
+  - `docs/sor_ev2_true_forward_stop_and_rejected_signal_replay.md`
+  - `docs/sor_ev2_true_forward_stop_and_rejected_signal_replay_summary.json`
+  - `services/strategy_validation/sor_ev2.py`
+  - `scripts/build_sor_ev2_true_forward_replay.py`
+  - `tests/test_sor_ev2_true_forward_replay.py`
+  - `tests/test_operational_docs.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+- `validation_performed`:
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=money_flow .venv/bin/python scripts/build_sor_ev2_true_forward_replay.py`
+  - `.venv/bin/python -m pytest -q tests/test_sor_ev2_true_forward_replay.py`
+  - `.venv/bin/python -m pytest -q tests/test_sor_ev1_loss_anatomy.py`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_sv202_canonical_import_evidence.py tests/test_sv201_canonical_evidence_truth_hotfix.py tests/test_phase3_strategy.py`
+  - `git diff --check`
+
 ## v2026.05.12.006
 
 - `recorded_at_utc`: `2026-05-12T10:20:00Z`

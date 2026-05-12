@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-12T10:20:00Z`
+Last reviewed: `2026-05-12T11:05:00Z`
 
 ## Active Follow-Ups
+
+### T-127
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SOR-EV2 true-forward stop/exit and rejected-signal replay is complete. Baseline replay parity passed for all 72 canonical SV2.0.2 scenarios. Fixed-stop, ATR-stop, recent-low, large-bear-candle, earlier-MACD, lower-RSI, extension-filter, and chop-avoidance variants were evaluated as evidence-only true-forward replay from persisted candle truth. No variant was promoted: fixed/ATR/large-bear stops did not produce a clean control-preserving improvement, lower-RSI/MACD admissions added many bad trades, and extension/chop filters require narrower follow-up despite some aggregate improvements. No production Money Flow rules, orders, private/signed/order endpoints, paper/live approvals, dashboard date-filter evidence, testnet strategy truth, SOR/fanout/CBBO/target reselection, or route-executor behavior were added.`
 
 ### T-126
 

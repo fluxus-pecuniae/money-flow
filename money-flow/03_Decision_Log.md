@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-12T11:05:00Z - SOR-EV2 - True-Forward Variants Do Not Promote Production Rule Changes
+
+- `decision`: Treat SOR-EV2 true-forward replay as evidence-only triage and promote no variant.
+- `scope`: Baseline parity passed for all 72 canonical SV2.0.2 scenarios. Fixed/ATR/recent-low/large-bear stops, earlier-MACD/lower-RSI entries, extension filters, and chop filters were replayed from persisted candle truth.
+- `result`: No variant was clean enough for production-rule-change proposal. Some filters improved aggregate sums, but control-pocket and scenario-level damage kept them out of candidate status. Lower-RSI/MACD admission variants added many bad trades.
+- `follow_up_implications`: Any SOR-EV3 should be narrower and out-of-sample-style; production Money Flow rules remain unchanged.
+
 ## 2026-05-12T10:20:00Z - SOR-EV1 - Loss Anatomy Uses Canonical SV2.0.2 Packs Only
 
 - `decision`: Treat canonical SV2.0.2 DB-imported evidence packs as the only SOR-EV1 baseline source and keep all stop/entry variants evidence-only until true-forward replay exists.

@@ -217,3 +217,7 @@ Run a true-forward SOR-EV2 replay for the most promising stop logic using per-ca
 - `uses_dashboard_date_filter_recalculation`: `False`
 - `uses_hyperliquid_testnet_prices`: `False`
 - `uses_only_canonical_sv2_0_2_pack_paths`: `True`
+
+## SOR-EV2 Follow-On
+
+SOR-EV2 has now run true-forward stop/exit and rejected-signal entry replay from persisted candle truth. It should supersede SOR-EV1 completed-trade overlays for candidate review, while SOR-EV1 remains the loss-anatomy baseline.

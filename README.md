@@ -60,6 +60,8 @@ SV2.0.2 resolves the canonical evidence blocker and was regenerated on 2026-05-1
 
 SOR-EV1 reads those canonical SV2.0.2 packs only and produces an evidence-only loss anatomy plus variant-diagnostics report at [SOR-EV1 Money Flow Trade Loss Anatomy And Evidence-Only Variants](docs/sor_ev1_money_flow_trade_loss_anatomy_and_variants.md). It identifies large-loss patterns, late-entry classifications, fixed-stop completed-trade overlays, deferred true-replay needs, and control-pocket impact. It does not regenerate evidence packs, use dashboard date-filter numbers as canonical evidence, use testnet prices as strategy truth, change Money Flow rules, approve variants, submit orders, or add SOR behavior.
 
+SOR-EV2 follows that with [true-forward stop and rejected-signal replay](docs/sor_ev2_true_forward_stop_and_rejected_signal_replay.md). It passes baseline parity for all 72 canonical SV2.0.2 scenarios, evaluates stop/exit and entry variants using persisted candle truth, reports rejected-signal and large-loss candle context, and still promotes no production variant. Production Money Flow rules remain unchanged.
+
 Machine-local artifacts such as `.git/`, `.venv/`, `.pgdata/`, `.pgsocket/`, `.pytest_cache/`, `.DS_Store`, and Obsidian app state under `money-flow/.obsidian/` are not part of the repo handoff surface. Review/archive packaging now uses `.archiveignore` plus the committed bundling command below so those local artifacts and `.env` do not leak into future review bundles. The tracked Obsidian markdown notes under `money-flow/` are part of the review surface.
 
 ## Source Control Baseline
