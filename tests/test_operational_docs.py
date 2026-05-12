@@ -220,7 +220,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
     assert (
-        "Current implemented milestone | `SOR-EV2.2` Variant Chart Overlay complete"
+        "Current implemented milestone | `SOR-EV3` avoid_sideways_low_volatility drilldown complete"
         in command_center
     )
     assert "Canonical command center" in compatibility_command_center
@@ -247,6 +247,9 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     assert "SOR-EV2" in command_center
     assert "SOR-EV2.1" in command_center
     assert "SOR-EV2.2" in command_center
+    assert "SOR-EV3" in command_center
+    assert "SOR-EV3" in sv_map
+    assert "SOR-EV1-SOR-EV3" in project_memory
     assert "Strategy Validation is now its own major track" in Path("money-flow/00 Maps/Phase Timeline.md").read_text()
     assert "What Strategy Validation Did" in sv_map
     assert "What Strategy Validation Did Not Prove" in sv_map

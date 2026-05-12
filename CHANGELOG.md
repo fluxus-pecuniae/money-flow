@@ -13,6 +13,44 @@ Entry schema:
 
 ---
 
+## v2026.05.12.015
+
+- `recorded_at_utc`: `2026-05-12T19:38:08Z`
+- `scope`: `SOR-EV3 avoid-sideways / low-volatility true-forward drilldown`
+- `intent`: `Native entry. Added the founder-selected avoid_sideways_low_volatility drilldown against canonical SV2.0.2 DB-imported evidence paths. Baseline parity passed for all 72 canonical scenarios; ATR percentile, flat trend, rolling-range compression, MACD-flat chop, and conservative combined filters were replayed true-forward with dynamic equity, blocked-entry attribution, loss-concentration analysis, and control-pocket impact. No variant was promoted. Evidence Lab now loads the SOR-EV3 summary and shows a focused founder-candidate section. Preserved the concurrent Historical Replay Trade Inspector focus-card UI changes already present in the workspace. Production Money Flow rules are unchanged, no orders were submitted, no private/signed/order endpoints were called, no testnet prices were used as strategy truth, no dashboard date-filter recalculations were treated as canonical evidence, and no live/paper runtime or SOR/fanout/CBBO behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/sor_ev3_avoid_sideways_low_volatility.md`
+  - `docs/sor_ev3_avoid_sideways_low_volatility_summary.json`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `scripts/build_sor_ev3_avoid_sideways_low_volatility.py`
+  - `services/strategy_validation/sor_ev3.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_pt002_historical_strategy_replay_cockpit.py`
+  - `tests/test_sor_ev3_avoid_sideways_low_volatility.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_sor_ev3_avoid_sideways_low_volatility.py tests/test_dashboard_static_assets.py`
+  - `SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_sor_ev1_loss_anatomy.py tests/test_sor_ev2_true_forward_replay.py tests/test_sor_ev3_avoid_sideways_low_volatility.py tests/test_sv20_money_flow_1d_expanded_evidence.py tests/test_sv201_canonical_evidence_truth_hotfix.py tests/test_sv202_canonical_import_evidence.py tests/test_dashboard_static_assets.py tests/test_pt002_historical_strategy_replay_cockpit.py tests/test_operational_docs.py tests/test_phase3_strategy.py`
+  - `SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+
 ## v2026.05.12.014
 
 - `recorded_at_utc`: `2026-05-12T18:21:08Z`

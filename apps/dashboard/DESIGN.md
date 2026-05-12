@@ -91,7 +91,7 @@ Primary dashboard tabs are:
 - Evidence
 - Evidence Lab
 
-The invalid legacy `Experiments` surface is not exposed as a primary tab. Evidence Lab is tied to SOR-EV1/SOR-EV2 committed summaries and canonical SV2.0.2 baseline context only.
+The invalid legacy `Experiments` surface is not exposed as a primary tab. Evidence Lab is tied to SOR-EV1/SOR-EV2/SOR-EV3 committed summaries and canonical SV2.0.2 baseline context only.
 
 `UAT Chart Cockpit` and `UAT2 Shadow Run` remain hidden legacy panels for regression coverage and historical context, but they are no longer top-level navigation tabs.
 
@@ -234,7 +234,8 @@ Marker tooltips/rows must include:
 
 ## Evidence Lab Rules
 
-- Evidence Lab reviews SOR-EV1/SOR-EV2 research variants against canonical SV2.0.2 DB-imported evidence.
+- Evidence Lab reviews SOR-EV1/SOR-EV2/SOR-EV3 research variants against canonical SV2.0.2 DB-imported evidence.
+- SOR-EV3 `avoid_sideways_low_volatility` rows must distinguish blocked open signals from matched canonical baseline trades with PnL attribution.
 - SOR variants are evidence-only and must not be labeled approved for production.
 - Completed-trade overlays and lookahead diagnostics are not production candidates.
 - Only true-forward replay variants can become candidates for deeper canonical evidence.

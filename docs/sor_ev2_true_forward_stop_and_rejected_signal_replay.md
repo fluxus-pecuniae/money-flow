@@ -122,7 +122,7 @@ SOR-EV1 found that large losses clustered around `late_extension_entry`, large a
 
 ## Recommended Next Evidence Phase
 
-If the founder wants to continue, run a narrower SOR-EV3 on only the best true-forward candidates and require out-of-sample style date slices plus control-pocket preservation before any production-rule-change proposal. No production change should be made from SOR-EV2 alone.
+SOR-EV3 has since tested the founder-selected `avoid_sideways_low_volatility` family as a focused true-forward drilldown and still promoted no production variant. Any later SOR-EV4 should be narrower, out-of-sample-style, and control-pocket-preserving before any production-rule-change proposal. No production change should be made from SOR-EV2 or SOR-EV3 alone.
 
 ## Boundary Confirmation
 

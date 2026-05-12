@@ -271,6 +271,9 @@ def test_dashboard_has_historical_replay_tab_and_stable_chart_container() -> Non
     assert "subscribeClick" in js
     assert "hoveredObjectId" in js
     assert "selectHistoricalReplayTrade" in js
+    assert "Trade Inspector Focus Mode" in js
+    assert "overlay-inspector-grid trade-inspector-focus-grid" in js
+    assert "historical-replay-focus-card" in js
     assert "showArrowDescriptions: false" in js
     assert "historicalMarkerPnlLine" in js
     assert "if (!state.historicalReplay.showArrowDescriptions)" in js
@@ -293,6 +296,9 @@ def test_dashboard_has_historical_replay_tab_and_stable_chart_container() -> Non
     assert ".legend-dot.macd-signal" in css
     assert ".historical-replay-controls label.checkbox-control" in css
     assert ".trade-inspector-card" in css
+    assert ".historical-replay-focus-card" in css
+    assert ".trade-inspector-focus-grid" in css
+    assert ".overlay-inspector-grid dd.positive" in css
     assert ".trade-inspector-hero" in css
     assert ".reason-chip" in css
 

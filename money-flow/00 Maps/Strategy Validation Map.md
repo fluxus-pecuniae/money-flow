@@ -20,6 +20,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 | SOR-EV2 | True-forward stop/exit and rejected-signal replay | Baseline parity passes for all 72 canonical SV2.0.2 scenarios; stop/exit and entry variants are replayed from persisted candle truth; large-loss candle context and control-pocket impact are reported; no variant is promoted. |
 | SOR-EV2.1 | Evidence Lab / Variant Review UI | Dashboard visualization loads SOR-EV1/SOR-EV2 summaries, labels SV2.0.2 as canonical baseline, and shows variant matrix, control pockets, worst trades, late-entry, adverse-candle, and RSI/MACD panels. It is UI-only and promotes no variant. |
 | SOR-EV2.2 | Variant chart overlay / founder review workflow | Evidence Lab overlays baseline SV2.0.2 entry/exit markers against linkable SOR-EV2 variant/adverse-candle context, adds worst-trade focus and control-pocket overlay review, and shows unavailable states where exact marker data is missing. It is UI-only and promotes no variant. |
+| SOR-EV3 | Founder-selected avoid sideways / low-volatility drilldown | Baseline parity passes for all 72 canonical SV2.0.2 scenarios. ATR-percentile, flat trend, rolling-range compression, MACD-flat chop, and conservative combined blockers are tested as true-forward replay with blocked-entry attribution, avoided-loser/missed-winner counts, loss concentration, and control-pocket impact. No variant is promoted. |
 
 ## What Strategy Validation Proved
 
@@ -35,6 +36,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 - SOR-EV2 proves true-forward replay can test those hypotheses from persisted candle truth with baseline parity; it still does not promote variants or approve production changes.
 - SOR-EV2.1 proves the founder can visually review SOR-EV1/SOR-EV2 bundle outputs in the dashboard; it does not create canonical evidence or approve variants.
 - SOR-EV2.2 proves the founder can inspect baseline markers plus linkable SOR-EV2 context on historical candles in Evidence Lab; unavailable exact variant timestamps are explicit and not guessed.
+- SOR-EV3 proves the broad `avoid_sideways_low_volatility` family can be objectively tested true-forward against canonical SV2.0.2 with blocked-entry attribution, but it does not produce a production candidate.
 
 ## What Strategy Validation Did Not Prove
 
@@ -56,6 +58,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 - SOR-EV2 did not promote variants, did not change rules, did not approve paper/live trading, and did not use dashboard date-filter numbers as canonical evidence.
 - SOR-EV2.1 did not change Money Flow rules, approve variants, regenerate evidence packs, submit orders, call private/signed/order endpoints, use testnet prices as strategy truth, or make dashboard date-filter/overlay outputs canonical.
 - SOR-EV2.2 did not change Money Flow rules, approve variants, regenerate evidence packs, submit orders, call private/signed/order endpoints, use testnet prices as strategy truth, or make dashboard overlays/date filters canonical evidence.
+- SOR-EV3 did not change Money Flow rules, approve variants, run a broad parameter grid, submit orders, call private/signed/order endpoints, use testnet prices as strategy truth, or use dashboard date filters as canonical evidence.
 
 ## Current Candidate
 

@@ -1,8 +1,15 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-05-12T12:08:11Z`
+Last reviewed: `2026-05-12T19:38:08Z`
 
 ## Open Items
+
+### K-017
+
+- `status`: `resolved`
+- `area`: `SOR-EV3 avoid-sideways / low-volatility evidence`
+- `summary`: `SOR-EV3 completed the founder-selected avoid_sideways_low_volatility drilldown against canonical SV2.0.2 DB-imported evidence. Baseline parity passed for all 72 canonical scenarios. ATR percentile, flat trend, rolling-range compression, MACD-flat chop, and conservative combined blockers were evaluated as true-forward replay with dynamic equity, explicit blocked-entry attribution, loss-concentration analysis, and control-pocket impact. Blocked open signals are reported separately from matched canonical baseline trades with PnL attribution.`
+- `impact`: `No variant was promoted: all tested sideways/low-volatility definitions remain evidence-only and rejected/not promoted for production. This result is not proof that no future narrower chop/volatility idea can work, but it prevents treating the broad founder-selected family as approved. Production Money Flow rules remain unchanged; no orders, private/signed/order endpoints, testnet strategy truth, live trading, dashboard-date-filter canonical evidence, or SOR/fanout/CBBO/cross-venue behavior were added.`
 
 ### K-001
 

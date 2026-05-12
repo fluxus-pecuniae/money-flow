@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-12T19:38:08Z - SOR-EV3 - Avoid Sideways / Low-Volatility Variants Remain Evidence-Only
+
+- `decision`: Treat the founder-selected `avoid_sideways_low_volatility` family as tested but not promoted after focused true-forward replay.
+- `scope`: Baseline parity passed for all 72 canonical SV2.0.2 scenarios. ATR percentile, flat SMA20/EMA10 slope, rolling-range compression, MACD-flat chop, and conservative combined blockers were replayed from persisted candle truth with dynamic equity, blocked-entry attribution, loss concentration, and control-pocket impact.
+- `why`: The broad low-volatility/chop definitions did not produce a clean control-preserving candidate. Some variants improved aggregate PnL but damaged control pockets, raised drawdown, or overblocked; blocked open signals are not the same as canonical trade-count reduction.
+- `follow_up_implications`: No production Money Flow rule changed and no variant is approved. Any SOR-EV4 must be narrower, out-of-sample-style, and control-pocket-preserving before rule-change discussion.
+
 ## 2026-05-12T13:18:15Z - SOR-EV2.2 - Evidence Lab Overlays Are Visualization Only
 
 - `decision`: Add Evidence Lab baseline-vs-variant chart overlays for founder review without treating overlay output as canonical evidence or production-rule approval.

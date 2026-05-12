@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-12T13:18:15Z`
+Last reviewed: `2026-05-12T19:38:08Z`
 
 ## Active Follow-Ups
+
+### T-130
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SOR-EV3 founder-selected avoid_sideways_low_volatility drilldown is complete. Baseline parity passed for all 72 canonical SV2.0.2 scenarios, and the controlled true-forward variant set tested ATR percentile, flat SMA20/EMA10 trend, low rolling range, MACD-flat chop, and a conservative combined sideways/low-volatility blocker. Blocked open signals are separated from matched canonical baseline trades with PnL attribution, avoided losers / missed winners are reported, loss-concentration and control-pocket impact are summarized, and no variant was promoted. Evidence Lab now loads docs/sor_ev3_avoid_sideways_low_volatility_summary.json and shows a focused founder-candidate section. No production Money Flow rules changed, no variant was approved, no orders/private/signed/order endpoints were called, no Hyperliquid testnet prices or dashboard date filters were used as canonical strategy truth, and no SOR/fanout/CBBO/cross-venue routing or live/paper runtime was added.`
 
 ### T-129
 

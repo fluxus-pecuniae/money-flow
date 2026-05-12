@@ -146,6 +146,7 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     assert 'data-view="experiments"' not in nav
     assert "SV1.15 Hypothesis Experiments" not in html
     assert "Evidence Lab / Variant Review" in html
+    assert "SOR-EV1/SOR-EV2/SOR-EV3 research variants" in html
     assert "Canonical baseline: SV2.0.2" in html
     assert "Variant status: evidence-only" in html
     assert "Production rules changed: no" in html
@@ -160,6 +161,7 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     assert "Large Adverse Candle Analysis" in html
     assert "RSI / MACD Rejections" in html
     assert "Variant Chart Overlay" in html
+    assert "Founder Candidate: avoid_sideways_low_volatility" in html
     assert "evidence-lab-overlay-symbol" in html
     assert "evidence-lab-overlay-timeframe" in html
     assert "evidence-lab-overlay-fill" in html
@@ -179,6 +181,10 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
 
     assert "sor_ev1_money_flow_trade_loss_anatomy_and_variants_summary.json" in js
     assert "sor_ev2_true_forward_stop_and_rejected_signal_replay_summary.json" in js
+    assert "sor_ev3_avoid_sideways_low_volatility_summary.json" in js
+    assert "renderEvidenceLabFounderCandidate" in js
+    assert "blocked_open_signals" in js
+    assert "signals, not canonical trade-count reduction" in js
     assert "SV202_CANONICAL_TIMESTAMP" in js
     assert "fixed_stop_loss" in js
     assert "atr_stop" in js

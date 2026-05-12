@@ -66,6 +66,8 @@ SOR-EV2.1 adds the [Evidence Lab / Variant Review dashboard](docs/sor_ev2_1_evid
 
 SOR-EV2.2 adds the [Evidence Lab variant chart overlay](docs/sor_ev2_2_variant_chart_overlay.md). The overlay uses SV2.0.2 chart/trade JSON for baseline entry/exit markers and committed SOR-EV1/SOR-EV2 bundle rows for linkable variant/adverse-candle context, plus worst-trade focus and control-pocket views. Missing exact variant timestamps are shown as unavailable rather than guessed. It remains UI/visualization only and changes no production Money Flow rules.
 
+SOR-EV3 adds the founder-selected [avoid sideways / low-volatility drilldown](docs/sor_ev3_avoid_sideways_low_volatility.md). It uses canonical SV2.0.2 pack paths only, passes baseline parity for all 72 canonical scenarios, and true-forward replays ATR-percentile, flat-trend, rolling-range compression, MACD-flat chop, and conservative combined blockers with blocked-entry attribution and control-pocket impact. No variant was promoted; production Money Flow rules remain unchanged. Evidence Lab loads the SOR-EV3 summary in a focused founder-candidate section, but dashboard date filters remain display-only and not canonical evidence.
+
 Machine-local artifacts such as `.git/`, `.venv/`, `.pgdata/`, `.pgsocket/`, `.pytest_cache/`, `.DS_Store`, and Obsidian app state under `money-flow/.obsidian/` are not part of the repo handoff surface. Review/archive packaging now uses `.archiveignore` plus the committed bundling command below so those local artifacts and `.env` do not leak into future review bundles. The tracked Obsidian markdown notes under `money-flow/` are part of the review surface.
 
 ## Source Control Baseline

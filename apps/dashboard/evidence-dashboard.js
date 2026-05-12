@@ -53,6 +53,7 @@
   const DEFAULT_SOR_EV_SUMMARY_FILES = [
     "../../docs/sor_ev1_money_flow_trade_loss_anatomy_and_variants_summary.json",
     "../../docs/sor_ev2_true_forward_stop_and_rejected_signal_replay_summary.json",
+    "../../docs/sor_ev3_avoid_sideways_low_volatility_summary.json",
   ];
 
   const HYPERLIQUID_TESTNET_PUBLIC_INFO_URL = "https://api.hyperliquid-testnet.xyz/info";
@@ -504,6 +505,7 @@
     sv20Summary: null,
     sorEv1Summary: null,
     sorEv2Summary: null,
+    sorEv3Summary: null,
     tradingViewChart: {
       chart: null,
       mount: null,
@@ -629,6 +631,7 @@
     checklist: document.querySelector("#review-checklist"),
     runTable: document.querySelector("#run-table"),
     evidenceLabSummaryCards: document.querySelector("#evidence-lab-summary-cards"),
+    evidenceLabFounderCandidate: document.querySelector("#evidence-lab-founder-candidate"),
     evidenceLabVariantMatrix: document.querySelector("#evidence-lab-variant-matrix"),
     evidenceLabControlPockets: document.querySelector("#evidence-lab-control-pockets"),
     evidenceLabWorstTrades: document.querySelector("#evidence-lab-worst-trades"),
@@ -3660,27 +3663,30 @@
       </article>
     `;
     const pnlClass = decimal(trade.net_pnl) >= 0 ? "positive" : "negative";
+    const exitReason = trade.exit_reason || exitReasons.join(", ") || "exit reason unavailable";
+    const replayMode = trade.rebased_from_date_filter
+      ? "fresh 10k date-window replay"
+      : "historical replay only";
     elements.historicalTradeInspector.innerHTML = `
-      <section class="trade-inspector-card" aria-label="Selected historical replay trade">
-        <header class="trade-inspector-hero">
-          <div>
-            <span class="eyebrow">Selected trade</span>
-            <strong>${escapeHtml(String(trade.trade_id || "n/a").slice(0, 18))}</strong>
-            <small>${escapeHtml(trade.symbol)} ${escapeHtml(displayTimeframe(trade.timeframe))} / ${escapeHtml(trade.side || "n/a")} / historical replay only</small>
-          </div>
-          <div class="trade-inspector-pnl ${pnlClass}">
-            <span>Net PnL</span>
-            <strong>${escapeHtml(money(trade.net_pnl))}</strong>
-            <small>${escapeHtml(trade.rebased_from_date_filter ? "rebased from selected date / fees and slippage included" : "fees and slippage included")}</small>
-          </div>
-        </header>
-
-        <div class="trade-inspector-metrics">
-          ${metricTile("Entry", `${compactNumber(trade.entry_price)} USDC`, trade.entry_fill_time || "fill time n/a")}
-          ${metricTile("Exit", `${compactNumber(trade.exit_price)} USDC`, trade.exit_fill_time || "fill time n/a")}
-          ${metricTile("Equity", `${money(trade.equity_before_trade)} -> ${money(trade.equity_after_trade)}`, trade.rebased_from_date_filter ? "fresh 10k date-window replay" : "dynamic paper replay")}
-          ${metricTile("Drawdown", money(trade.drawdown_after_trade), "after selected trade")}
-        </div>
+      <article class="trade-inspector-card overlay-inspector-card historical-replay-focus-card" aria-label="Selected historical replay trade">
+        <span class="eyebrow">Trade Inspector Focus Mode</span>
+        <h3>${escapeHtml(trade.symbol)} ${escapeHtml(displayTimeframe(trade.timeframe))} ${escapeHtml(String(trade.trade_id || "n/a").slice(0, 12))}</h3>
+        <dl class="overlay-inspector-grid trade-inspector-focus-grid">
+          <dt>Trade</dt><dd>${escapeHtml(String(trade.trade_id || "n/a").slice(0, 18))}</dd>
+          <dt>Symbol</dt><dd>${escapeHtml(trade.symbol || "n/a")}</dd>
+          <dt>Timeframe</dt><dd>${escapeHtml(displayTimeframe(trade.timeframe))}</dd>
+          <dt>Fill assumption</dt><dd>${escapeHtml(trade.fill_timing || state.historicalReplay.fillAssumption || "n/a")}</dd>
+          <dt>Entry fill</dt><dd>${escapeHtml(trade.entry_fill_time || "fill time n/a")}</dd>
+          <dt>Exit fill</dt><dd>${escapeHtml(trade.exit_fill_time || "fill time n/a")}</dd>
+          <dt>Entry price</dt><dd>${escapeHtml(`${compactNumber(trade.entry_price)} USDC`)}</dd>
+          <dt>Exit price</dt><dd>${escapeHtml(`${compactNumber(trade.exit_price)} USDC`)}</dd>
+          <dt>Net PnL</dt><dd class="${pnlClass}">${escapeHtml(money(trade.net_pnl))}</dd>
+          <dt>Equity</dt><dd>${escapeHtml(`${money(trade.equity_before_trade)} -> ${money(trade.equity_after_trade)}`)}</dd>
+          <dt>Drawdown</dt><dd>${escapeHtml(money(trade.drawdown_after_trade))}</dd>
+          <dt>Exit reason</dt><dd>${escapeHtml(exitReason)}</dd>
+          <dt>Mode</dt><dd>${escapeHtml(replayMode)}</dd>
+          <dt>Boundary</dt><dd>${escapeHtml("not production approval / no orders")}</dd>
+        </dl>
 
         <section class="trade-inspector-section">
           <h3>Why It Entered</h3>
@@ -3715,7 +3721,7 @@
             ${metricTile("Gross PnL", trade.gross_pnl === null || trade.gross_pnl === undefined ? "n/a" : money(trade.gross_pnl))}
           </div>
         </section>
-      </section>
+      </article>
     `;
   }
 
@@ -5923,12 +5929,17 @@
     if (!elements.evidenceLabSummaryCards) return;
     const ev1 = state.sorEv1Summary;
     const ev2 = state.sorEv2Summary;
+    const ev3 = state.sorEv3Summary;
     const variantCount = sorVariantRows().length;
     const parity = ev2?.baseline_parity_summary?.status_counts?.baseline_parity_passed ?? ev2?.baseline_parity_summary?.scenario_count;
+    const ev3Candidates = Array.isArray(ev3?.candidate_variants) && ev3.candidate_variants.length
+      ? ev3.candidate_variants.join(", ")
+      : "none";
     const cards = [
       ["Baseline", "SV2.0.2", `timestamp ${SV202_CANONICAL_TIMESTAMP}`],
       ["SOR-EV1 bundle", ev1 ? "loaded" : unavailable(), "loss anatomy and completed-trade overlays"],
       ["SOR-EV2 bundle", ev2 ? "loaded" : unavailable(), "true-forward stops and rejected-signal replay"],
+      ["SOR-EV3 bundle", ev3 ? "loaded" : unavailable(), `avoid_sideways_low_volatility candidates: ${ev3Candidates}`],
       ["Baseline parity", parity ?? unavailable(), "canonical SV2.0.2 scenarios"],
       ["Variants", variantCount || unavailable(), "evidence-only; none promoted"],
       ["Production rules", "changed: no", "live/paper approval: no"],
@@ -5940,6 +5951,80 @@
         <small>${escapeHtml(detail)}</small>
       </article>
     `).join("");
+  }
+
+  function renderEvidenceLabFounderCandidate() {
+    if (!elements.evidenceLabFounderCandidate) return;
+    const ev3 = state.sorEv3Summary;
+    const rows = Array.isArray(ev3?.variant_summary) ? ev3.variant_summary : [];
+    if (!ev3 || !rows.length) {
+      setEmpty(elements.evidenceLabFounderCandidate, "data_not_available_in_sor_ev_bundle");
+      return;
+    }
+    const controlById = new Map((ev3.control_pocket_impact || []).map((row) => [row.variant_id, row]));
+    const parity = ev3.baseline_parity_summary?.status_counts
+      ? Object.entries(ev3.baseline_parity_summary.status_counts).map(([key, value]) => `${key}: ${value}`).join("; ")
+      : unavailable();
+    elements.evidenceLabFounderCandidate.innerHTML = `
+      <div class="metric-grid compact-grid">
+        <article class="metric-cell">
+          <span class="metric-label">Baseline parity</span>
+          <strong>${escapeHtml(parity)}</strong>
+          <small>canonical SV2.0.2 only</small>
+        </article>
+        <article class="metric-cell">
+          <span class="metric-label">Candidate variants</span>
+          <strong>${escapeHtml((ev3.candidate_variants || []).join(", ") || "none")}</strong>
+          <small>no variant is approved for production</small>
+        </article>
+        <article class="metric-cell">
+          <span class="metric-label">Blocked signals</span>
+          <strong>${escapeHtml(compactNumber(ev3.blocked_entry_summary?.total_blocked_open_signals ?? unavailable(), 0))}</strong>
+          <small>signals, not canonical trade-count reduction</small>
+        </article>
+        <article class="metric-cell">
+          <span class="metric-label">Matched trades</span>
+          <strong>${escapeHtml(compactNumber(ev3.blocked_entry_summary?.canonical_blocked_entries ?? unavailable(), 0))}</strong>
+          <small>blocked entries with baseline PnL attribution</small>
+        </article>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Variant</th>
+            <th>Outcome</th>
+            <th>Net PnL Delta</th>
+            <th>Drawdown Delta</th>
+            <th>Blocked Signals</th>
+            <th>Matched Trades</th>
+            <th>Avoided Losers</th>
+            <th>Missed Winners</th>
+            <th>Control Damage</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map((row) => {
+            const control = controlById.get(row.variant_id) || {};
+            const candidate = (ev3.candidate_variants || []).includes(row.variant_id);
+            return `
+              <tr>
+                <td>${escapeHtml(row.variant_id)}</td>
+                <td>${escapeHtml(row.outcome_taxonomy || unavailable())}</td>
+                <td>${escapeHtml(formatEvidenceMoney(row, "net_pnl_delta_sum_across_independent_scenarios"))}</td>
+                <td>${escapeHtml(formatEvidenceMoney(row, "max_drawdown_delta_worst"))}</td>
+                <td>${escapeHtml(formatEvidenceNumber(row, "blocked_open_signals", 0))}</td>
+                <td>${escapeHtml(formatEvidenceNumber(row, "blocked_entries", 0))}</td>
+                <td>${escapeHtml(formatEvidenceNumber(row, "avoided_losers", 0))}</td>
+                <td>${escapeHtml(formatEvidenceNumber(row, "missed_winners", 0))}</td>
+                <td>${escapeHtml(control.damaged ?? unavailable())}</td>
+                <td>${escapeHtml(candidate ? "candidate_for_more_evidence" : "rejected_not_promoted")}</td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    `;
   }
 
   function renderEvidenceLabVariantMatrix() {
@@ -6210,6 +6295,7 @@
 
   function renderEvidenceLab() {
     renderEvidenceLabSummary();
+    renderEvidenceLabFounderCandidate();
     renderEvidenceLabVariantMatrix();
     renderEvidenceLabControlPockets();
     renderEvidenceLabWorstTrades();
@@ -6249,6 +6335,7 @@
     if (payload?.report === "sv2_0_money_flow_1d_sleeve_expanded_universe_evidence_rebuild") return "sv20_summary";
     if (payload?.phase === "SOR-EV1") return "sor_ev1_summary";
     if (payload?.phase === "SOR-EV2") return "sor_ev2_summary";
+    if (payload?.phase === "SOR-EV3") return "sor_ev3_summary";
     if (payload?.report === "sv2_0_2_dashboard_historical_replay_chart_data") return "sv202_dashboard_chart_data";
     if (
       payload?.report === "pt0_0_2_historical_strategy_replay_cockpit" ||
@@ -6343,6 +6430,7 @@
         if (type === "sv20_summary") state.sv20Summary = payload;
         if (type === "sor_ev1_summary") state.sorEv1Summary = payload;
         if (type === "sor_ev2_summary") state.sorEv2Summary = payload;
+        if (type === "sor_ev3_summary") state.sorEv3Summary = payload;
         if (type === "pt002_historical_replay_summary") state.pt002HistoricalReplay = payload;
       });
       state.selectedComponent = "all";
@@ -6451,6 +6539,7 @@
         const type = classifyJson(payload);
         if (type === "sor_ev1_summary") state.sorEv1Summary = payload;
         if (type === "sor_ev2_summary") state.sorEv2Summary = payload;
+        if (type === "sor_ev3_summary") state.sorEv3Summary = payload;
       } catch (error) {
         console.warn(`Could not load ${path}`, error);
       }

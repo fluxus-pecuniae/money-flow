@@ -546,6 +546,16 @@ h3 {
   font-size: 12px;
 }
 
+.overlay-inspector-grid dd.positive,
+.trade-inspector-focus-grid dd.positive {
+  color: var(--color-green);
+}
+
+.overlay-inspector-grid dd.negative,
+.trade-inspector-focus-grid dd.negative {
+  color: var(--color-red);
+}
+
 .evidence-lab-overlay-tables {
   margin-block-start: var(--spacing-4);
 }
@@ -1175,6 +1185,28 @@ h3 {
   background:
     radial-gradient(circle at top right, rgba(34, 211, 238, 0.1), transparent 32%),
     linear-gradient(180deg, rgba(12, 22, 29, 0.98), rgba(7, 12, 18, 0.98));
+}
+
+.historical-replay-focus-card {
+  align-content: start;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+}
+
+.historical-replay-focus-card .eyebrow {
+  color: var(--color-muted);
+}
+
+.historical-replay-focus-card h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.trade-inspector-focus-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .trade-inspector-hero {

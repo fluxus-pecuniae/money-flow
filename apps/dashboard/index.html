@@ -131,10 +131,10 @@
       <section id="evidence-lab-view" class="dashboard-view evidence-lab-view" data-view-panel="evidence-lab" hidden>
         <section class="evidence-lab-header" aria-labelledby="evidence-lab-title">
           <div>
-            <p class="eyebrow">SOR-EV1 / SOR-EV2 review</p>
+            <p class="eyebrow">SOR-EV1 / SOR-EV2 / SOR-EV3 review</p>
             <h2 id="evidence-lab-title">Evidence Lab / Variant Review</h2>
             <p>
-              Evidence Lab reviews SOR-EV1/SOR-EV2 research variants against the canonical SV2.0.2 DB-imported baseline.
+              Evidence Lab reviews SOR-EV1/SOR-EV2/SOR-EV3 research variants against the canonical SV2.0.2 DB-imported baseline.
               Variants are evidence-only; no production Money Flow rule changed.
             </p>
           </div>
@@ -157,6 +157,16 @@
         </div>
 
         <section id="evidence-lab-summary-cards" class="metric-grid evidence-lab-summary" aria-label="Evidence Lab summary"></section>
+
+        <section class="table-panel evidence-lab-panel" aria-labelledby="evidence-lab-founder-candidate-title">
+          <div class="section-heading">
+            <h2 id="evidence-lab-founder-candidate-title">Founder Candidate: avoid_sideways_low_volatility</h2>
+            <p>
+              SOR-EV3 true-forward replay drilldown. Blocks are evidence-only, no variant is approved, and dashboard date filters are not canonical evidence.
+            </p>
+          </div>
+          <div id="evidence-lab-founder-candidate" class="data-table-shell"></div>
+        </section>
 
         <section class="table-panel evidence-lab-panel" aria-labelledby="evidence-lab-overlay-title">
           <div class="section-heading">
