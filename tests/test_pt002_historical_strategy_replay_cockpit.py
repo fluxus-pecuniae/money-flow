@@ -254,8 +254,14 @@ def test_dashboard_has_historical_replay_tab_and_stable_chart_container() -> Non
     assert 'return canonical === "1d" ? "1D" : canonical;' in js
     assert "renderHistoricalReplayChart" in js
     assert "filteredHistoricalReplay" in js
-    assert "Date filter:" in js
+    assert "historical-replay-date-start" in html
+    assert "historicalDateRange" in js
+    assert "Date filter:" not in js
+    assert "Research-only:" not in js
+    assert "Target met:" not in js
     assert "fresh 10k date-window replay" in js
+    assert "chart-price-axis-readout-inline" in js
+    assert "historical-chart-stage" in js
     assert "historicalOscillatorRows" in js
     assert "historicalMacdHistogramRows" in js
     assert "HISTORICAL_RSI_PANE" in js
@@ -291,6 +297,8 @@ def test_dashboard_has_historical_replay_tab_and_stable_chart_container() -> Non
     assert ".historical-replay-chart .tradingview-lightweight-chart" in css
     assert "height: clamp(720px, 82vh, 1040px);" in css
     assert "contain: layout paint size;" in css
+    assert ".historical-chart-stage" in css
+    assert ".chart-price-axis-readout-inline" in css
     assert ".historical-overlay-legend" in css
     assert ".legend-dot.rsi" in css
     assert ".legend-dot.macd-signal" in css

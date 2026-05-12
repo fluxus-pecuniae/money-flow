@@ -111,7 +111,8 @@ def test_dashboard_supports_1d_selector_and_data_horizon_panel() -> None:
     assert "historical-data-horizon-panel" in html
     assert "pt0_0_3_historical_strategy_replay_summary.json" in js
     assert "break;" in js
-    assert "Target start:" in js
+    assert "Target start:" not in js
+    assert "Target start" in js
     assert "Historical data horizon" in js
     assert "1D candles aggregated from" in js
     assert "not testnet strategy truth" in js

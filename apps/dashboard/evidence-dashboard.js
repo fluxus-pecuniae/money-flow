@@ -3217,14 +3217,7 @@
           <strong>${escapeHtml(state.historicalReplay.symbol)}-PERP historical replay</strong>
           <span>${escapeHtml(replay.strategy_label || state.historicalReplay.strategyId)} / ${escapeHtml(displayTimeframe(state.historicalReplay.timeframe))} / ${escapeHtml(state.historicalReplay.fillAssumption)} / not testnet strategy truth</span>
         </div>
-        <div class="chart-price-tape">
-          <span>Latest historical close</span>
-          <strong>${escapeHtml(priceStats.latest)}</strong>
-        </div>
-      </div>
-      <div class="tradingview-chart-stage">
-        <div class="tradingview-lightweight-chart" role="img" aria-label="Historical replay candlestick chart with visible right price scale"></div>
-        <aside class="chart-price-axis-readout" aria-label="Historical replay price scale">
+        <aside class="chart-price-axis-readout chart-price-axis-readout-inline" aria-label="Historical replay price scale">
           <span>Historical price USDC</span>
           <strong>${escapeHtml(priceStats.latest)}</strong>
           <small>H ${escapeHtml(priceStats.high)}</small>
@@ -3232,6 +3225,9 @@
           <small>O ${escapeHtml(priceStats.open)}</small>
           <small>C ${escapeHtml(priceStats.close)}</small>
         </aside>
+      </div>
+      <div class="tradingview-chart-stage historical-chart-stage">
+        <div class="tradingview-lightweight-chart" role="img" aria-label="Historical replay candlestick chart with visible right price scale"></div>
       </div>
       <div class="historical-overlay-legend" data-historical-indicator-legend>${renderHistoricalIndicatorLegend(replay)}</div>
       <div class="tradingview-attribution">Charts: TradingView Lightweight Charts v${TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION} (Apache-2.0). Historical replay data only; Hyperliquid testnet prices are not strategy truth.</div>
@@ -3526,16 +3522,12 @@
     const warnings = dataset?.reason_codes || [];
     elements.historicalReplaySourceStatus.innerHTML = `
       <span>Replay strategy: ${escapeHtml(replay?.strategy_label || state.historicalReplay.strategyId)}</span>
-      <span>Date filter: ${escapeHtml(historicalDateRange().active ? `fresh 10k slice ${historicalDateRange().label}` : "all dates")}</span>
-      <span>Research-only: ${escapeHtml(replay?.research_only ? "yes" : "no")}</span>
       <span>Money Flow version: ${escapeHtml(state.sv20Summary?.money_flow_version || "money_flow_v1_1 replay source")}</span>
       <span>Canonical evidence: ${escapeHtml(canonicalEvidence.status || "not_loaded")}</span>
       <span>Evidence packs: ${escapeHtml((canonicalEvidence.evidence_pack_paths || []).length)}</span>
       <span>Compact replay canonical: ${escapeHtml(canonicalEvidence.compact_replay_rows_are_canonical_evidence === false ? "false" : "unknown")}</span>
       <span>Source: ${escapeHtml(sv20Source.historical_strategy_truth || dataset?.source || summary.source?.source_kind || "historical source not loaded")}</span>
-      <span>Target start: ${escapeHtml(summary.target_start_at || dataset?.target_start_at || "n/a")}</span>
       <span>Range: ${escapeHtml(dataset?.start_time || dataset?.earliest_candle || "n/a")} -> ${escapeHtml(dataset?.end_time || dataset?.latest_candle || "n/a")}</span>
-      <span>Target met: ${escapeHtml(dataset?.target_start_met ? "yes" : "no")}</span>
       <span>Coverage: ${escapeHtml(dataset?.target_coverage_percent ? pct(dataset.target_coverage_percent) : dataset?.coverage_percent || "n/a")}</span>
       <span>Candles: ${escapeHtml(dataset?.candle_count ?? replay?.candles?.length ?? 0)}</span>
       <span>DB imported: ${escapeHtml(dataset?.db_imported ? "yes" : "no")}</span>

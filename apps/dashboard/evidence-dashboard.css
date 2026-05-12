@@ -890,6 +890,10 @@ h3 {
   overflow: hidden;
 }
 
+.historical-chart-stage {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .tradingview-lightweight-chart {
   height: clamp(420px, 56vh, 680px);
   min-height: 0;
@@ -927,6 +931,24 @@ h3 {
   font-size: 15px;
   line-height: 1.15;
   overflow-wrap: anywhere;
+}
+
+.chart-price-axis-readout-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: var(--spacing-2);
+  min-width: min(100%, 420px);
+  padding: var(--spacing-3);
+}
+
+.chart-price-axis-readout-inline span {
+  flex-basis: 100%;
+}
+
+.chart-price-axis-readout-inline strong {
+  font-size: 18px;
 }
 
 .tradingview-attribution {
