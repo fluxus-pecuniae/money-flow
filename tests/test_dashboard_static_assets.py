@@ -113,6 +113,11 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "MACD > signal and histogram >= 0" in html
     assert "RSI reaches the sleeve trim threshold" in html
     assert "Load JSON" in html
+    assert "hero-load-copy" in html
+    assert "review-status" not in html
+    assert "local review" not in js
+    assert html.index("SV2.0.2 canonical evidence packs") < html.index('<nav class="view-tabs"')
+    assert html.index("Load JSON") < html.index('<nav class="view-tabs"')
     assert "setActiveView" in js
     assert "SV115_VARIANTS" in js
     assert "sideways_regime_avoidance_15m" in js

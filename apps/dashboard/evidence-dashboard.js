@@ -1221,7 +1221,9 @@
     const totalActual = summaries.reduce((sum, summary) => sum + summary.actualCandles, 0);
     const coverage = totalExpected > 0 ? totalActual / totalExpected : 0;
 
-    elements.status.textContent = state.review?.paper_readiness_review_status || "local review";
+    if (elements.status) {
+      elements.status.textContent = state.review?.paper_readiness_review_status || "";
+    }
     elements.metricPacks.textContent = String(packCount);
     elements.metricPacksDetail.textContent =
       state.review?.blocked_campaign_count === 0 ? "generated" : "mixed";
