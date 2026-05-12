@@ -156,7 +156,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "canonical Obsidian command center" in command_center
-    assert "`SOR-EV2.1` Evidence Lab / Variant Review dashboard is complete" in current_phase
+    assert "`SOR-EV2.2` Variant Chart Overlay + Founder Review Workflow is complete" in current_phase
     assert "`SOR-EV2` True-Forward Stop/Exit + Rejected-Signal Replay is complete" in current_phase
     assert "Baseline parity passed for all `72` canonical SV2.0.2 scenarios" in current_phase
     assert "SV1.18" in command_center
@@ -181,6 +181,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "SOR-EV1 is complete" in command_center
     assert "SOR-EV2 is complete" in command_center
     assert "SOR-EV2.1 is complete" in command_center
+    assert "SOR-EV2.2 is complete" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
     assert "Strategy Validation" in moved_memory
@@ -219,7 +220,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
     assert (
-        "Current implemented milestone | `SOR-EV2.1` Evidence Lab / Variant Review dashboard complete"
+        "Current implemented milestone | `SOR-EV2.2` Variant Chart Overlay complete"
         in command_center
     )
     assert "Canonical command center" in compatibility_command_center
@@ -245,6 +246,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     assert "SOR-EV1" in command_center
     assert "SOR-EV2" in command_center
     assert "SOR-EV2.1" in command_center
+    assert "SOR-EV2.2" in command_center
     assert "Strategy Validation is now its own major track" in Path("money-flow/00 Maps/Phase Timeline.md").read_text()
     assert "What Strategy Validation Did" in sv_map
     assert "What Strategy Validation Did Not Prove" in sv_map

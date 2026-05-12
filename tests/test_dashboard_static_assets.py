@@ -138,6 +138,7 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
 def test_sor_ev21_evidence_lab_static_ui() -> None:
     html = Path("apps/dashboard/index.html").read_text(encoding="utf-8")
     js = Path("apps/dashboard/evidence-dashboard.js").read_text(encoding="utf-8")
+    report = Path("docs/sor_ev2_2_variant_chart_overlay.md").read_text(encoding="utf-8")
 
     nav = html[html.index('<nav class="view-tabs"') : html.index("</nav>", html.index('<nav class="view-tabs"'))]
     assert "Evidence Lab" in nav
@@ -159,6 +160,18 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     assert "Large Adverse Candle Analysis" in html
     assert "RSI / MACD Rejections" in html
     assert "Variant Chart Overlay" in html
+    assert "evidence-lab-overlay-symbol" in html
+    assert "evidence-lab-overlay-timeframe" in html
+    assert "evidence-lab-overlay-fill" in html
+    assert "evidence-lab-overlay-variant" in html
+    assert "evidence-lab-overlay-mode" in html
+    assert "evidence-lab-toggle-large-loss" in html
+    assert "evidence-lab-toggle-stop-exits" in html
+    assert "evidence-lab-toggle-late-extension" in html
+    assert "evidence-lab-toggle-adverse-candles" in html
+    assert "evidence-lab-toggle-ma-breaks" in html
+    assert "Worst Trades Focus" in html
+    assert "Control Pocket View" in html
 
     assert "sor_ev1_money_flow_trade_loss_anatomy_and_variants_summary.json" in js
     assert "sor_ev2_true_forward_stop_and_rejected_signal_replay_summary.json" in js
@@ -174,15 +187,31 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     assert "completed_trade_overlay_estimate" in js
     assert "lookahead_diagnostic_proxy" in js
     assert "data_not_available_in_sor_ev_bundle" in js
-    assert "variant_chart_overlay_deferred_to_sor_ev2_2" in js
+    assert "exact_overlay_unavailable_from_sor_ev_bundle" in js
+    assert "diagnostic_only_not_candidate" in js
+    assert "renderEvidenceLabOverlayControls" in js
+    assert "renderEvidenceLabOverlayChart" in js
+    assert "evidenceLabBaselineMarkers" in js
+    assert "evidenceLabVariantMarkers" in js
+    assert "renderEvidenceLabWorstFocusTable" in js
+    assert "renderEvidenceLabControlPocketView" in js
+    assert "variant_chart_overlay_deferred_to_sor_ev2_2" not in js
     assert "production_approved" in js
-    assert "No variant is production-approved" in js
+    assert "No variant is approved for production" in js
+    assert "No variant is production-approved" not in js
     assert "calls_private_exchange_endpoints" in js
     assert "calls_exchange_order_endpoints" in js
     assert "live trading approved: yes" not in html.lower()
+    assert "production-approved" not in html.lower()
     assert "submit order" not in html.lower()
     assert "cancel order" not in html.lower()
     assert "retry button" not in html.lower()
+    assert "SOR-EV2.2" in report
+    assert "baseline markers" in report.lower()
+    assert "variant markers" in report.lower()
+    assert "worst-trade focus" in report.lower()
+    assert "control-pocket view" in report.lower()
+    assert "No variant is approved for production" in report
 
 
 def test_uat_cockpit_summary_header_only_shows_environment_card() -> None:

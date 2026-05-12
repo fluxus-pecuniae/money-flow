@@ -85,11 +85,9 @@ The panel summarizes large adverse-candle context from SOR-EV2 and SOR-EV1, incl
 
 ## Chart Overlay
 
-Status: deferred
+Status: superseded_by_sor_ev2_2
 
-`variant_chart_overlay_deferred_to_sor_ev2_2`
-
-SOR-EV2.1 does not block on chart overlays. The Evidence Lab tables are ready for founder review. A later SOR-EV2.2 can add baseline-vs-variant markers on TradingView Lightweight Charts without changing canonical evidence.
+SOR-EV2.1 originally deferred chart overlays. `SOR-EV2.2` now adds Evidence Lab overlay controls, baseline markers, linkable variant/context markers, worst-trade focus mode, control-pocket view, and explicit missing-overlay-data states without changing canonical evidence.
 
 ## Limitations
 
@@ -104,4 +102,4 @@ Status: verified
 
 Status: needs_followup
 
-If founder review identifies a narrow variant worth deeper review, run a separately scoped SOR-EV2.2 or SOR-EV3 evidence phase with backend canonical Strategy Validation runs. Do not use dashboard-only date filters or overlays as canonical evidence.
+If founder review identifies a narrow variant worth deeper review, run a separately scoped SOR-EV3 evidence phase with backend canonical Strategy Validation runs. Do not use dashboard-only date filters or overlays as canonical evidence.

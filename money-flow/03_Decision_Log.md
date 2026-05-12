@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-12T13:18:15Z - SOR-EV2.2 - Evidence Lab Overlays Are Visualization Only
+
+- `decision`: Add Evidence Lab baseline-vs-variant chart overlays for founder review without treating overlay output as canonical evidence or production-rule approval.
+- `scope`: The overlay uses SV2.0.2 chart/trade JSON for baseline entry/exit/forced-close markers and committed SOR-EV1/SOR-EV2 bundle rows for linkable variant/adverse-candle context, worst-trade focus, and control-pocket review.
+- `result`: Missing exact variant marker timestamps are shown as `exact_overlay_unavailable_from_sor_ev_bundle`; non-true-forward methods are labeled `diagnostic_only_not_candidate`. No production Money Flow rule changed, no variant was approved, no orders or private/signed/order endpoints were called, no Hyperliquid testnet price was used as strategy truth, no evidence packs were regenerated, and no live/paper runtime or SOR/fanout/CBBO/cross-venue behavior was added.
+- `follow_up_implications`: Founder review can use overlays to decide whether a narrower backend evidence phase is worth scoping. Dashboard overlays and date filters remain display-only and noncanonical.
+
 ## 2026-05-12T12:08:11Z - SOR-EV2.1 - Evidence Lab Is Visualization Only
 
 - `decision`: Add a dashboard Evidence Lab / Variant Review surface for SOR-EV1/SOR-EV2 bundle review without treating it as canonical evidence generation or production-rule approval.

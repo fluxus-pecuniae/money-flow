@@ -13,6 +13,38 @@ Entry schema:
 
 ---
 
+## v2026.05.12.009
+
+- `recorded_at_utc`: `2026-05-12T13:18:15Z`
+- `scope`: `SOR-EV2.2 Evidence Lab variant chart overlay`
+- `intent`: `Native entry. Added Evidence Lab overlay controls and TradingView Lightweight Charts baseline-vs-variant visualization for SOR-EV1/SOR-EV2 founder review. The overlay renders baseline SV2.0.2 entry/exit/forced-close markers from chart/trade JSON, linkable SOR-EV2 adverse-candle and stop-context markers where exact timestamps exist, a worst-trade focus mode, a selected-trade inspector, control-pocket view, methodology warnings, date-filter noncanonical warnings, and explicit unavailable states when the SOR bundles do not contain exact marker data. SOR-EV2.2 is UI/visualization only: no production Money Flow rules changed, no variant was approved, no orders/private/signed/order endpoints were called, no Hyperliquid testnet prices were used as strategy truth, no live trading/paper runtime/SOR/fanout/CBBO/cross-venue behavior was added, and no canonical evidence packs were regenerated.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `docs/sor_ev2_1_evidence_lab_ui.md`
+  - `docs/sor_ev2_2_variant_chart_overlay.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_operational_docs.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_sor_ev1_loss_anatomy.py tests/test_sor_ev2_true_forward_replay.py tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+
 ## v2026.05.12.008
 
 - `recorded_at_utc`: `2026-05-12T12:08:11Z`

@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-12T12:08:11Z`
+Last reviewed: `2026-05-12T13:18:15Z`
 
 ## Active Follow-Ups
+
+### T-129
+
+- `priority`: `medium`
+- `status`: `done`
+- `summary`: `SOR-EV2.2 Evidence Lab variant chart overlay is complete. The dashboard now has overlay controls for symbol, timeframe, fill assumption, variant, baseline/variant/both mode, large-loss trades, stop/context exits, late-extension entries, adverse candles, and MA/SMA break context. It renders baseline SV2.0.2 entry/exit/forced-close markers from chart/trade JSON, linkable SOR-EV2 adverse-candle and stop-context markers where exact timestamps exist, a worst-trade focus mode, selected-trade inspector, control-pocket view, and explicit data_not_available_in_sor_ev_bundle / exact_overlay_unavailable_from_sor_ev_bundle states where the SOR bundles lack exact overlay data. No production Money Flow rules changed, no variant was approved, no orders/private/signed/order endpoints were called, no Hyperliquid testnet prices were used as strategy truth, no live/paper runtime or SOR/fanout/CBBO/cross-venue behavior was added, and no canonical evidence packs were regenerated.`
 
 ### T-128
 

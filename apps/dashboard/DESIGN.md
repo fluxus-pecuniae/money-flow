@@ -125,6 +125,11 @@ The UAT Chart Cockpit has its own bottom blotter tabs:
 - `evidence-lab-late-entry`
 - `evidence-lab-adverse-candles`
 - `evidence-lab-rsi-macd`
+- `evidence-lab-chart-overlay`
+- `evidence-lab-overlay-controls`
+- `evidence-lab-overlay-inspector`
+- `evidence-lab-worst-focus-table`
+- `evidence-lab-control-pocket-view`
 
 ## Color System
 
@@ -230,12 +235,16 @@ Marker tooltips/rows must include:
 ## Evidence Lab Rules
 
 - Evidence Lab reviews SOR-EV1/SOR-EV2 research variants against canonical SV2.0.2 DB-imported evidence.
-- SOR variants are evidence-only and must not be labeled production-approved.
+- SOR variants are evidence-only and must not be labeled approved for production.
 - Completed-trade overlays and lookahead diagnostics are not production candidates.
 - Only true-forward replay variants can become candidates for deeper canonical evidence.
 - Missing bundle fields must render as `data_not_available_in_sor_ev_bundle`, not as zero.
 - Dashboard date filters are display-only recalculations and do not regenerate canonical evidence packs.
-- Variant chart overlays are deferred to `SOR-EV2.2`; SOR-EV2.1 uses tables/panels for founder review.
+- SOR-EV2.2 variant chart overlays use SV2.0.2 chart/trade JSON as visualization context, not as new canonical evidence.
+- Baseline markers use canonical SV2.0.2 entries/exits: green for baseline entry, red for baseline exit, yellow for forced close.
+- Variant/context markers may render only when SOR-EV2 supplies linkable timestamps. Missing exact marker data must render as `exact_overlay_unavailable_from_sor_ev_bundle`.
+- Non-true-forward overlay methods must display `diagnostic_only_not_candidate`.
+- Worst-trade focus mode may center the chart on a selected loss and update the inspector, but it must not imply a production variant approval.
 - Evidence Lab must not add order controls, paper/live toggles, private/signed/order endpoint calls, or rule mutation behavior.
 
 Shadow and paper-observation markers are not actual trades. Sandbox lifecycle probes are not strategy performance trades.

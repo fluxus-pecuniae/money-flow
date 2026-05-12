@@ -531,6 +531,32 @@
       resizeObserver: null,
       lastVisibleRange: null,
     },
+    evidenceLabOverlay: {
+      symbol: "ETH",
+      timeframe: "1h",
+      fillAssumption: "next_candle_open",
+      variantId: "fixed_stop_loss_pct_2",
+      overlayMode: "both",
+      showLargeLossTrades: true,
+      showStopExits: true,
+      showLateExtensionEntries: false,
+      showAdverseCandles: false,
+      showMaBreaks: false,
+      selectedWorstTradeId: null,
+    },
+    evidenceLabOverlayChart: {
+      chart: null,
+      mount: null,
+      candleSeries: null,
+      volumeSeries: null,
+      indicatorSeries: {},
+      markerHandle: null,
+      markerIds: new Map(),
+      key: null,
+      ready: false,
+      pendingResizeFrame: null,
+      resizeObserver: null,
+    },
     liveMarketData: {
       enabled: !livePollingDisabledByQuery(),
       status: livePollingDisabledByQuery() ? "live_public_polling_disabled" : "not_started",
@@ -608,6 +634,21 @@
     evidenceLabAdverseCandles: document.querySelector("#evidence-lab-adverse-candles"),
     evidenceLabRsiMacd: document.querySelector("#evidence-lab-rsi-macd"),
     evidenceLabChartOverlay: document.querySelector("#evidence-lab-chart-overlay"),
+    evidenceLabOverlaySymbol: document.querySelector("#evidence-lab-overlay-symbol"),
+    evidenceLabOverlayTimeframe: document.querySelector("#evidence-lab-overlay-timeframe"),
+    evidenceLabOverlayFill: document.querySelector("#evidence-lab-overlay-fill"),
+    evidenceLabOverlayVariant: document.querySelector("#evidence-lab-overlay-variant"),
+    evidenceLabOverlayMode: document.querySelector("#evidence-lab-overlay-mode"),
+    evidenceLabToggleLargeLoss: document.querySelector("#evidence-lab-toggle-large-loss"),
+    evidenceLabToggleStopExits: document.querySelector("#evidence-lab-toggle-stop-exits"),
+    evidenceLabToggleLateExtension: document.querySelector("#evidence-lab-toggle-late-extension"),
+    evidenceLabToggleAdverseCandles: document.querySelector("#evidence-lab-toggle-adverse-candles"),
+    evidenceLabToggleMaBreaks: document.querySelector("#evidence-lab-toggle-ma-breaks"),
+    evidenceLabOverlayMethodology: document.querySelector("#evidence-lab-overlay-methodology"),
+    evidenceLabOverlayInspector: document.querySelector("#evidence-lab-overlay-inspector"),
+    evidenceLabWorstFocusTable: document.querySelector("#evidence-lab-worst-focus-table"),
+    evidenceLabControlPocketView: document.querySelector("#evidence-lab-control-pocket-view"),
+    evidenceLabOverlayUnavailable: document.querySelector("#evidence-lab-overlay-unavailable"),
     experimentVariantCards: document.querySelector("#experiment-variant-cards"),
     experimentReplayFilter: document.querySelector("#experiment-replay-filter"),
     experimentsTitle: document.querySelector("#experiments-title"),
@@ -1068,6 +1109,9 @@
     }
     if (state.activeView === "historical-replay") {
       scheduleHistoricalReplayChartResize();
+    }
+    if (state.activeView === "evidence-lab") {
+      scheduleEvidenceLabOverlayChartResize();
     }
   }
 
@@ -5059,6 +5103,809 @@
       }));
   }
 
+  function replayFillAssumption(replay) {
+    return replay?.fill_assumption || replay?.trades?.[0]?.fill_timing || "next_candle_open";
+  }
+
+  function selectedEvidenceLabVariant() {
+    return sorVariantRows().find(({ id }) => id === state.evidenceLabOverlay.variantId) || sorVariantRows()[0] || null;
+  }
+
+  function selectedEvidenceLabReplay() {
+    return (state.sv202HistoricalReplay?.replays || []).find(
+      (row) =>
+        row.symbol === state.evidenceLabOverlay.symbol &&
+        sameTimeframe(row.timeframe, state.evidenceLabOverlay.timeframe) &&
+        replayFillAssumption(row) === state.evidenceLabOverlay.fillAssumption,
+    ) || null;
+  }
+
+  function selectedEvidenceLabContextSamples() {
+    return (state.sorEv2Summary?.large_loss_candle_context_samples || []).filter(
+      (row) =>
+        row.symbol === state.evidenceLabOverlay.symbol &&
+        sameTimeframe(row.timeframe, state.evidenceLabOverlay.timeframe) &&
+        row.fill_timing === state.evidenceLabOverlay.fillAssumption,
+    );
+  }
+
+  function selectedEvidenceLabWorstTrades() {
+    return (state.sorEv1Summary?.worst_trades || []).filter(
+      (row) =>
+        row.symbol === state.evidenceLabOverlay.symbol &&
+        sameTimeframe(row.timeframe, state.evidenceLabOverlay.timeframe) &&
+        row.fill_timing === state.evidenceLabOverlay.fillAssumption,
+    );
+  }
+
+  function evidenceLabVariantResultForSelection() {
+    return (state.sorEv2Summary?.variant_results || []).find(
+      (row) =>
+        row.variant_id === state.evidenceLabOverlay.variantId &&
+        row.symbol === state.evidenceLabOverlay.symbol &&
+        sameTimeframe(row.timeframe, state.evidenceLabOverlay.timeframe) &&
+        row.fill_timing === state.evidenceLabOverlay.fillAssumption,
+    ) || null;
+  }
+
+  function evidenceLabControlPocketForVariant() {
+    return (state.sorEv2Summary?.control_pocket_impact || state.sorEv1Summary?.control_pocket_impact || []).find(
+      (row) => row.variant_id === state.evidenceLabOverlay.variantId,
+    ) || null;
+  }
+
+  function evidenceLabOverlayKey() {
+    const overlay = state.evidenceLabOverlay;
+    return [
+      overlay.symbol,
+      canonicalTimeframe(overlay.timeframe),
+      overlay.fillAssumption,
+      overlay.variantId,
+      overlay.overlayMode,
+      overlay.showLargeLossTrades,
+      overlay.showStopExits,
+      overlay.showLateExtensionEntries,
+      overlay.showAdverseCandles,
+      overlay.showMaBreaks,
+      overlay.selectedWorstTradeId || "none",
+    ].join("|");
+  }
+
+  function renderSelectWithoutAll(select, values, activeValue) {
+    if (!select) return;
+    const normalized = values.map((value) =>
+      typeof value === "object" && value !== null
+        ? { value: value.value, label: value.label || value.value }
+        : { value, label: displayTimeframe(value) },
+    );
+    select.innerHTML = normalized
+      .map((row) => `<option value="${escapeHtml(row.value)}">${escapeHtml(row.label)}</option>`)
+      .join("");
+    if (normalized.some((row) => row.value === activeValue)) {
+      select.value = activeValue;
+    } else if (normalized[0]) {
+      select.value = normalized[0].value;
+    }
+  }
+
+  function evidenceLabOverlaySymbols() {
+    const symbols = uniqueSorted([
+      ...SV202_CANONICAL_SYMBOLS,
+      ...(state.sv202HistoricalReplay?.symbols || []),
+    ]);
+    return symbols.length ? symbols : ["ETH"];
+  }
+
+  function evidenceLabOverlayTimeframes() {
+    const timeframes = uniqueSorted([
+      ...SV202_CANONICAL_TIMEFRAMES,
+      ...(state.sv202HistoricalReplay?.timeframes || []),
+    ].map(canonicalTimeframe));
+    return timeframes.length ? timeframes : ["1h"];
+  }
+
+  function evidenceLabOverlayFillAssumptions() {
+    const fills = uniqueSorted(
+      (state.sv202HistoricalReplay?.replays || []).map(replayFillAssumption),
+    );
+    return fills.length ? fills : ["next_candle_open", "next_candle_close"];
+  }
+
+  function evidenceLabVariantOptions() {
+    const variants = sorVariantRows().map(({ id }) => ({ value: id, label: id }));
+    return variants.length ? variants : [{ value: "data_not_available_in_sor_ev_bundle", label: "data_not_available_in_sor_ev_bundle" }];
+  }
+
+  function syncEvidenceLabOverlaySelection() {
+    const symbols = evidenceLabOverlaySymbols();
+    const timeframes = evidenceLabOverlayTimeframes();
+    const fills = evidenceLabOverlayFillAssumptions();
+    const variants = evidenceLabVariantOptions().map((row) => row.value);
+    if (!symbols.includes(state.evidenceLabOverlay.symbol)) state.evidenceLabOverlay.symbol = symbols[0] || "ETH";
+    if (!timeframes.includes(canonicalTimeframe(state.evidenceLabOverlay.timeframe))) {
+      state.evidenceLabOverlay.timeframe = timeframes.includes("1h") ? "1h" : timeframes[0] || "1h";
+    }
+    if (!fills.includes(state.evidenceLabOverlay.fillAssumption)) {
+      state.evidenceLabOverlay.fillAssumption = fills[0] || "next_candle_open";
+    }
+    if (!variants.includes(state.evidenceLabOverlay.variantId)) {
+      state.evidenceLabOverlay.variantId = variants[0] || "data_not_available_in_sor_ev_bundle";
+    }
+  }
+
+  function renderEvidenceLabOverlayControls() {
+    syncEvidenceLabOverlaySelection();
+    renderSelectWithoutAll(elements.evidenceLabOverlaySymbol, evidenceLabOverlaySymbols(), state.evidenceLabOverlay.symbol);
+    renderSelectWithoutAll(
+      elements.evidenceLabOverlayTimeframe,
+      evidenceLabOverlayTimeframes().map((value) => ({ value, label: displayTimeframe(value) })),
+      canonicalTimeframe(state.evidenceLabOverlay.timeframe),
+    );
+    renderSelectWithoutAll(elements.evidenceLabOverlayFill, evidenceLabOverlayFillAssumptions(), state.evidenceLabOverlay.fillAssumption);
+    renderSelectWithoutAll(elements.evidenceLabOverlayVariant, evidenceLabVariantOptions(), state.evidenceLabOverlay.variantId);
+    if (elements.evidenceLabOverlayMode) elements.evidenceLabOverlayMode.value = state.evidenceLabOverlay.overlayMode;
+    [
+      [elements.evidenceLabToggleLargeLoss, "showLargeLossTrades"],
+      [elements.evidenceLabToggleStopExits, "showStopExits"],
+      [elements.evidenceLabToggleLateExtension, "showLateExtensionEntries"],
+      [elements.evidenceLabToggleAdverseCandles, "showAdverseCandles"],
+      [elements.evidenceLabToggleMaBreaks, "showMaBreaks"],
+    ].forEach(([element, key]) => {
+      if (element) element.checked = Boolean(state.evidenceLabOverlay[key]);
+    });
+
+    if (elements.evidenceLabOverlaySymbol) {
+      elements.evidenceLabOverlaySymbol.onchange = () => {
+        state.evidenceLabOverlay.symbol = elements.evidenceLabOverlaySymbol.value;
+        state.evidenceLabOverlay.selectedWorstTradeId = null;
+        renderEvidenceLabChartOverlay();
+      };
+    }
+    if (elements.evidenceLabOverlayTimeframe) {
+      elements.evidenceLabOverlayTimeframe.onchange = () => {
+        state.evidenceLabOverlay.timeframe = canonicalTimeframe(elements.evidenceLabOverlayTimeframe.value);
+        state.evidenceLabOverlay.selectedWorstTradeId = null;
+        renderEvidenceLabChartOverlay();
+      };
+    }
+    if (elements.evidenceLabOverlayFill) {
+      elements.evidenceLabOverlayFill.onchange = () => {
+        state.evidenceLabOverlay.fillAssumption = elements.evidenceLabOverlayFill.value;
+        state.evidenceLabOverlay.selectedWorstTradeId = null;
+        renderEvidenceLabChartOverlay();
+      };
+    }
+    if (elements.evidenceLabOverlayVariant) {
+      elements.evidenceLabOverlayVariant.onchange = () => {
+        state.evidenceLabOverlay.variantId = elements.evidenceLabOverlayVariant.value;
+        renderEvidenceLabChartOverlay();
+      };
+    }
+    if (elements.evidenceLabOverlayMode) {
+      elements.evidenceLabOverlayMode.onchange = () => {
+        state.evidenceLabOverlay.overlayMode = elements.evidenceLabOverlayMode.value;
+        renderEvidenceLabChartOverlay();
+      };
+    }
+    [
+      [elements.evidenceLabToggleLargeLoss, "showLargeLossTrades"],
+      [elements.evidenceLabToggleStopExits, "showStopExits"],
+      [elements.evidenceLabToggleLateExtension, "showLateExtensionEntries"],
+      [elements.evidenceLabToggleAdverseCandles, "showAdverseCandles"],
+      [elements.evidenceLabToggleMaBreaks, "showMaBreaks"],
+    ].forEach(([element, key]) => {
+      if (element) {
+        element.onchange = () => {
+          state.evidenceLabOverlay[key] = element.checked;
+          renderEvidenceLabChartOverlay();
+        };
+      }
+    });
+  }
+
+  function evidenceLabVariantMethodology() {
+    const variant = selectedEvidenceLabVariant();
+    return variant?.row?.methodology || unavailable();
+  }
+
+  function evidenceLabVariantIsTrueForward() {
+    return evidenceLabVariantMethodology() === "true_forward_replay";
+  }
+
+  function renderEvidenceLabOverlayMethodology() {
+    if (!elements.evidenceLabOverlayMethodology) return;
+    const variant = selectedEvidenceLabVariant();
+    const methodology = evidenceLabVariantMethodology();
+    const diagnosticLabel = evidenceLabVariantIsTrueForward() ? "candidate methodology" : "diagnostic_only_not_candidate";
+    elements.evidenceLabOverlayMethodology.innerHTML = `
+      <strong>Selected variant:</strong> ${escapeHtml(variant?.id || unavailable())}
+      <span>Methodology: ${escapeHtml(methodology)}</span>
+      <span>${escapeHtml(diagnosticLabel)}</span>
+      <span>Only true_forward_replay variants can become candidates for deeper evidence. Completed-trade overlays and lookahead diagnostics are not production candidates. No variant is approved for production, paper runtime, or live trading.</span>
+    `;
+  }
+
+  function destroyEvidenceLabOverlayChart() {
+    const chartState = state.evidenceLabOverlayChart;
+    if (chartState.pendingResizeFrame) {
+      if (typeof window.cancelAnimationFrame === "function") {
+        window.cancelAnimationFrame(chartState.pendingResizeFrame);
+      } else {
+        window.clearTimeout(chartState.pendingResizeFrame);
+      }
+      chartState.pendingResizeFrame = null;
+    }
+    if (chartState.resizeObserver) {
+      chartState.resizeObserver.disconnect();
+      chartState.resizeObserver = null;
+    }
+    if (chartState.chart) {
+      chartState.chart.remove();
+      chartState.chart = null;
+    }
+    chartState.mount = null;
+    chartState.candleSeries = null;
+    chartState.volumeSeries = null;
+    chartState.indicatorSeries = {};
+    chartState.markerHandle = null;
+    chartState.markerIds = new Map();
+    chartState.key = null;
+    chartState.ready = false;
+  }
+
+  function resizeEvidenceLabOverlayChart() {
+    const chartState = state.evidenceLabOverlayChart;
+    if (!chartState.chart || !chartState.mount) return;
+    const { width, height } = chartDimensions(chartState.mount);
+    chartState.chart.resize(width, height);
+  }
+
+  function scheduleEvidenceLabOverlayChartResize() {
+    const chartState = state.evidenceLabOverlayChart;
+    if (!chartState.chart || !chartState.mount) return;
+    if (chartState.pendingResizeFrame) return;
+    const raf = typeof window.requestAnimationFrame === "function"
+      ? window.requestAnimationFrame
+      : (callback) => window.setTimeout(callback, 16);
+    chartState.pendingResizeFrame = raf(() => {
+      chartState.pendingResizeFrame = null;
+      resizeEvidenceLabOverlayChart();
+    });
+  }
+
+  function evidenceLabTradeById(replay, tradeId) {
+    if (!tradeId) return null;
+    return (replay?.trades || []).find((trade) => trade.trade_id === tradeId) || null;
+  }
+
+  function evidenceLabSelectedWorstTrade() {
+    const selectedId = state.evidenceLabOverlay.selectedWorstTradeId;
+    const selected = selectedId
+      ? (state.sorEv1Summary?.worst_trades || []).find((row) => row.trade_id === selectedId)
+      : null;
+    return selected || selectedEvidenceLabWorstTrades()[0] || (state.sorEv1Summary?.worst_trades || [])[0] || null;
+  }
+
+  function evidenceLabSelectedContextSample() {
+    const tradeId = evidenceLabSelectedWorstTrade()?.trade_id;
+    const rows = selectedEvidenceLabContextSamples();
+    return rows.find((row) => row.trade_id === tradeId) || rows[0] || null;
+  }
+
+  function evidenceLabMarkerId(prefix, row, timestamp, index = 0) {
+    const raw = [
+      prefix,
+      row?.trade_id || row?.variant_id || row?.marker_type || "context",
+      timestamp,
+      index,
+    ].join("-");
+    return `evidence-lab-marker-${raw.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+  }
+
+  function evidenceLabBaselineMarkers(replay, candles, markerIds) {
+    if (state.evidenceLabOverlay.overlayMode === "variant") return [];
+    const firstTime = candles[0]?.time;
+    const lastTime = candles.at(-1)?.time;
+    if (!Number.isFinite(firstTime) || !Number.isFinite(lastTime)) return [];
+    return (replay?.markers || [])
+      .flatMap((marker, index) => {
+        const parsed = chartTime(marker.time);
+        if (parsed < firstTime || parsed > lastTime) return [];
+        const trade = evidenceLabTradeById(replay, marker.trade_id);
+        const markerType = String(marker.marker_type || "");
+        const isEntry = markerType.includes("entry") || marker.color_role === "green";
+        const isForcedClose = Boolean(trade?.forced_exit) && markerType.includes("exit");
+        const text = isEntry
+          ? "baseline entry"
+          : isForcedClose
+            ? `baseline forced close ${money(trade?.net_pnl ?? marker.net_pnl)}`
+            : `baseline exit ${money(trade?.net_pnl ?? marker.net_pnl)}`;
+        const id = evidenceLabMarkerId("baseline", marker, parsed, index);
+        if (marker.trade_id) markerIds.set(id, { type: "baseline", tradeId: marker.trade_id });
+        return [{
+          id,
+          time: parsed,
+          position: isEntry ? "belowBar" : "aboveBar",
+          color: isEntry ? "#25d084" : isForcedClose ? "#f8c15c" : "#ff5a66",
+          shape: isEntry ? "arrowUp" : isForcedClose ? "circle" : "arrowDown",
+          text,
+        }];
+      });
+  }
+
+  function evidenceLabLateEntryMarkers(candles, markerIds) {
+    if (!state.evidenceLabOverlay.showLateExtensionEntries) return [];
+    const firstTime = candles[0]?.time;
+    const lastTime = candles.at(-1)?.time;
+    return selectedEvidenceLabWorstTrades()
+      .filter((row) => String(row.entry_timing_classification || "").includes("late_extension"))
+      .flatMap((row, index) => {
+        const parsed = chartTime(row.entry_time);
+        if (parsed < firstTime || parsed > lastTime) return [];
+        const id = evidenceLabMarkerId("late-extension", row, parsed, index);
+        markerIds.set(id, { type: "worst_trade", tradeId: row.trade_id });
+        return [{
+          id,
+          time: parsed,
+          position: "belowBar",
+          color: "#3b82f6",
+          shape: "arrowUp",
+          text: `late-extension entry ${money(row.net_pnl)}`,
+        }];
+      });
+  }
+
+  function evidenceLabAdverseContextMarkers(candles, markerIds) {
+    const firstTime = candles[0]?.time;
+    const lastTime = candles.at(-1)?.time;
+    const selectedFamily = sorVariantFamily(selectedEvidenceLabVariant()?.row || state.evidenceLabOverlay.variantId);
+    const supportsStopContext = [
+      "fixed_stop_loss",
+      "atr_stop",
+      "recent_low_stop",
+      "large_bear_candle_exit",
+    ].includes(selectedFamily);
+    return selectedEvidenceLabContextSamples().flatMap((row, index) => {
+      const parsed = chartTime(row.largest_red_candle_close_time);
+      if (parsed < firstTime || parsed > lastTime) return [];
+      const markers = [];
+      if (state.evidenceLabOverlay.showAdverseCandles) {
+        const id = evidenceLabMarkerId("adverse-candle", row, parsed, index);
+        markerIds.set(id, { type: "context", tradeId: row.trade_id });
+        markers.push({
+          id,
+          time: parsed,
+          position: "aboveBar",
+          color: "#7c3aed",
+          shape: "circle",
+          text: "large adverse candle",
+        });
+      }
+      if (state.evidenceLabOverlay.showStopExits && supportsStopContext && row.stop_would_have_triggered_before_current_exit) {
+        const id = evidenceLabMarkerId("variant-stop-context", row, parsed, index);
+        markerIds.set(id, { type: "context", tradeId: row.trade_id });
+        markers.push({
+          id,
+          time: parsed,
+          position: "aboveBar",
+          color: "#ff9f43",
+          shape: "arrowDown",
+          text: `${state.evidenceLabOverlay.variantId} stop context`,
+        });
+      }
+      return markers;
+    });
+  }
+
+  function evidenceLabWorstTradeFocusMarkers(candles, markerIds) {
+    if (!state.evidenceLabOverlay.showLargeLossTrades) return [];
+    const selected = evidenceLabSelectedWorstTrade();
+    if (!selected) return [];
+    const firstTime = candles[0]?.time;
+    const lastTime = candles.at(-1)?.time;
+    const entryTime = chartTime(selected.entry_time);
+    const exitTime = chartTime(selected.exit_time);
+    return [
+      {
+        time: entryTime,
+        position: "belowBar",
+        color: "#25d084",
+        shape: "arrowUp",
+        text: `selected worst entry ${money(selected.net_pnl)}`,
+      },
+      {
+        time: exitTime,
+        position: "aboveBar",
+        color: "#ff5a66",
+        shape: "arrowDown",
+        text: `selected worst exit ${money(selected.net_pnl)}`,
+      },
+    ].flatMap((marker, index) => {
+      if (marker.time < firstTime || marker.time > lastTime) return [];
+      const id = evidenceLabMarkerId("worst-focus", selected, marker.time, index);
+      markerIds.set(id, { type: "worst_trade", tradeId: selected.trade_id });
+      return [{ ...marker, id }];
+    });
+  }
+
+  function evidenceLabVariantMarkers(replay, candles, markerIds) {
+    if (state.evidenceLabOverlay.overlayMode === "baseline") return [];
+    return [
+      ...evidenceLabWorstTradeFocusMarkers(candles, markerIds),
+      ...evidenceLabAdverseContextMarkers(candles, markerIds),
+      ...evidenceLabLateEntryMarkers(candles, markerIds),
+    ].sort((a, b) => a.time - b.time);
+  }
+
+  function evidenceLabOverlayMarkers(replay, candles, markerIds = new Map()) {
+    markerIds.clear();
+    return [
+      ...evidenceLabBaselineMarkers(replay, candles, markerIds),
+      ...evidenceLabVariantMarkers(replay, candles, markerIds),
+    ].sort((a, b) => a.time - b.time);
+  }
+
+  function evidenceLabOverlayClickTradeId(param, replay) {
+    const objectId = param?.hoveredObjectId || param?.hoveredObject?.id || null;
+    const markerRef = objectId ? state.evidenceLabOverlayChart.markerIds?.get(objectId) : null;
+    if (markerRef?.tradeId) return markerRef.tradeId;
+    const clickedTime = lightweightChartTimeToUnix(param?.time);
+    if (!Number.isFinite(clickedTime)) return null;
+    const marker = (replay?.markers || []).find((row) => row.trade_id && chartTime(row.time) === clickedTime);
+    return marker?.trade_id || null;
+  }
+
+  function selectEvidenceLabWorstTrade(tradeId) {
+    if (!tradeId) return;
+    const worst = (state.sorEv1Summary?.worst_trades || []).find((row) => row.trade_id === tradeId);
+    if (worst) {
+      state.evidenceLabOverlay.symbol = worst.symbol || state.evidenceLabOverlay.symbol;
+      state.evidenceLabOverlay.timeframe = canonicalTimeframe(worst.timeframe || state.evidenceLabOverlay.timeframe);
+      state.evidenceLabOverlay.fillAssumption = worst.fill_timing || state.evidenceLabOverlay.fillAssumption;
+    }
+    state.evidenceLabOverlay.selectedWorstTradeId = tradeId;
+    renderEvidenceLabChartOverlay();
+  }
+
+  function focusEvidenceLabOverlayWindow(replay) {
+    const chartState = state.evidenceLabOverlayChart;
+    const selected = evidenceLabSelectedWorstTrade();
+    if (!chartState.chart || !selected || !state.evidenceLabOverlay.selectedWorstTradeId) return;
+    const candles = historicalChartCandles(replay);
+    if (!candles.length) return;
+    const entryTime = chartTime(selected.entry_time);
+    const exitTime = chartTime(selected.exit_time);
+    const entryIndex = candles.findIndex((row) => row.time >= entryTime);
+    const exitIndex = candles.findIndex((row) => row.time >= exitTime);
+    if (entryIndex < 0 || exitIndex < 0) return;
+    const from = Math.max(0, entryIndex - 24);
+    const to = Math.min(candles.length - 1, exitIndex + 24);
+    const timeScale = chartState.chart.timeScale?.();
+    if (typeof timeScale?.setVisibleLogicalRange === "function") {
+      timeScale.setVisibleLogicalRange({ from, to });
+    }
+  }
+
+  function updateEvidenceLabOverlayChartData(replay, candles) {
+    const chartState = state.evidenceLabOverlayChart;
+    if (!chartState.candleSeries || !chartState.volumeSeries) return;
+    chartState.candleSeries.setData(chartPriceRows(candles));
+    chartState.volumeSeries.setData(chartVolumeRows(candles));
+    ["EMA5", "EMA10", "SMA20"].forEach((label) => {
+      chartState.indicatorSeries[label]?.setData(historicalIndicatorRows(replay, label));
+    });
+    const markers = evidenceLabOverlayMarkers(replay, candles, chartState.markerIds || new Map());
+    if (chartState.markerHandle && typeof chartState.markerHandle.setMarkers === "function") {
+      chartState.markerHandle.setMarkers(markers);
+    } else if (typeof chartState.candleSeries.setMarkers === "function") {
+      chartState.candleSeries.setMarkers(markers);
+    }
+    focusEvidenceLabOverlayWindow(replay);
+    scheduleEvidenceLabOverlayChartResize();
+  }
+
+  function renderEvidenceLabOverlayChart() {
+    const tv = lightweightCharts();
+    if (!elements.evidenceLabChartOverlay || !tv) return false;
+    const replay = selectedEvidenceLabReplay();
+    const candles = historicalChartCandles(replay);
+    if (!replay || !candles.length) {
+      destroyEvidenceLabOverlayChart();
+      setEmpty(elements.evidenceLabChartOverlay, "data_not_available_in_sor_ev_bundle");
+      return false;
+    }
+    const chartState = state.evidenceLabOverlayChart;
+    const chartKey = evidenceLabOverlayKey();
+    if (chartState.ready && chartState.key === chartKey && chartState.chart && chartState.candleSeries && chartState.volumeSeries) {
+      updateEvidenceLabOverlayChartData(replay, candles);
+      return true;
+    }
+
+    destroyEvidenceLabOverlayChart();
+    const priceStats = chartPriceStats(candles);
+    elements.evidenceLabChartOverlay.innerHTML = `
+      <div class="tradingview-chart-topline">
+        <div>
+          <strong>${escapeHtml(state.evidenceLabOverlay.symbol)}-PERP baseline vs variant overlay</strong>
+          <span>${escapeHtml(displayTimeframe(state.evidenceLabOverlay.timeframe))} / ${escapeHtml(state.evidenceLabOverlay.fillAssumption)} / canonical SV2.0.2 visualization context</span>
+        </div>
+        <div class="chart-price-tape">
+          <span>Historical close</span>
+          <strong>${escapeHtml(priceStats.latest)}</strong>
+        </div>
+      </div>
+      <div class="tradingview-chart-stage">
+        <div class="tradingview-lightweight-chart" role="img" aria-label="Evidence Lab baseline and variant marker overlay chart"></div>
+        <aside class="chart-price-axis-readout" aria-label="Evidence Lab price scale">
+          <span>Historical price USDC</span>
+          <strong>${escapeHtml(priceStats.latest)}</strong>
+          <small>H ${escapeHtml(priceStats.high)}</small>
+          <small>L ${escapeHtml(priceStats.low)}</small>
+          <small>O ${escapeHtml(priceStats.open)}</small>
+          <small>C ${escapeHtml(priceStats.close)}</small>
+        </aside>
+      </div>
+      <div class="historical-overlay-legend">
+        <span><b class="legend-dot entry"></b>baseline entry</span>
+        <span><b class="legend-dot exit"></b>baseline exit</span>
+        <span><b class="legend-dot trim"></b>forced close</span>
+        <span><b class="legend-dot sandbox"></b>variant stop/context</span>
+        <span><b class="legend-dot macd"></b>diagnostic/context marker</span>
+      </div>
+      <div class="tradingview-attribution">Charts: TradingView Lightweight Charts v${TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION} (Apache-2.0). Overlay data is display-only and does not regenerate canonical evidence.</div>
+    `;
+    const mount = elements.evidenceLabChartOverlay.querySelector(".tradingview-lightweight-chart");
+    const { width, height } = chartDimensions(mount);
+    const chart = tv.createChart(mount, {
+      width,
+      height,
+      layout: {
+        background: { type: tv.ColorType.Solid, color: CHART_BACKGROUND_COLOR },
+        textColor: CHART_TEXT_COLOR,
+        attributionLogo: false,
+      },
+      grid: {
+        vertLines: { color: "rgba(133, 156, 171, 0.08)" },
+        horzLines: { color: "rgba(133, 156, 171, 0.08)" },
+      },
+      crosshair: { mode: tv.CrosshairMode.Normal },
+      rightPriceScale: {
+        visible: true,
+        borderVisible: true,
+        borderColor: "rgba(133, 156, 171, 0.18)",
+        scaleMargins: { top: 0.05, bottom: 0.12 },
+      },
+      timeScale: {
+        borderColor: "rgba(133, 156, 171, 0.18)",
+        timeVisible: true,
+        secondsVisible: false,
+      },
+    });
+    const candleSeries = chart.addSeries(tv.CandlestickSeries, {
+      upColor: CANDLE_UP_COLOR,
+      downColor: CANDLE_DOWN_COLOR,
+      borderVisible: true,
+      borderUpColor: CANDLE_BORDER_COLOR,
+      borderDownColor: CANDLE_BORDER_COLOR,
+      wickUpColor: CANDLE_WICK_COLOR,
+      wickDownColor: CANDLE_WICK_COLOR,
+      priceFormat: chartPriceFormat(candles),
+      priceLineVisible: true,
+      lastValueVisible: true,
+    });
+    candleSeries.setData(chartPriceRows(candles));
+    const volumeSeries = chart.addSeries(tv.HistogramSeries, {
+      priceFormat: { type: "volume" },
+      priceScaleId: "volume",
+      color: "rgba(107, 132, 145, 0.35)",
+    });
+    chart.priceScale("volume").applyOptions({ scaleMargins: { top: 0.9, bottom: 0 } });
+    volumeSeries.setData(chartVolumeRows(candles));
+    const lineSeries = {};
+    [
+      ["EMA5", "#26c6da"],
+      ["EMA10", "#f8c15c"],
+      ["SMA20", "#b68cff"],
+    ].forEach(([label, color]) => {
+      const line = chart.addSeries(tv.LineSeries, {
+        color,
+        lineWidth: 2,
+        priceFormat: chartPriceFormat(candles),
+        priceLineVisible: false,
+        lastValueVisible: true,
+        title: label,
+      });
+      line.setData(historicalIndicatorRows(replay, label));
+      lineSeries[label] = line;
+    });
+    chartState.markerIds = new Map();
+    const markers = evidenceLabOverlayMarkers(replay, candles, chartState.markerIds);
+    if (typeof tv.createSeriesMarkers === "function") {
+      chartState.markerHandle = tv.createSeriesMarkers(candleSeries, markers);
+    } else if (typeof candleSeries.setMarkers === "function") {
+      candleSeries.setMarkers(markers);
+    }
+    if (typeof chart.subscribeClick === "function") {
+      chart.subscribeClick((param) => {
+        const tradeId = evidenceLabOverlayClickTradeId(param, replay);
+        if (tradeId) selectEvidenceLabWorstTrade(tradeId);
+      });
+    }
+    chart.timeScale().fitContent();
+    chartState.chart = chart;
+    chartState.mount = mount;
+    chartState.candleSeries = candleSeries;
+    chartState.volumeSeries = volumeSeries;
+    chartState.indicatorSeries = lineSeries;
+    chartState.key = chartKey;
+    chartState.ready = true;
+    focusEvidenceLabOverlayWindow(replay);
+    if (typeof ResizeObserver !== "undefined") {
+      const observer = new ResizeObserver(scheduleEvidenceLabOverlayChartResize);
+      observer.observe(mount);
+      chartState.resizeObserver = observer;
+    }
+    return true;
+  }
+
+  function renderEvidenceLabOverlayInspector() {
+    if (!elements.evidenceLabOverlayInspector) return;
+    const worst = evidenceLabSelectedWorstTrade();
+    const context = evidenceLabSelectedContextSample();
+    const scenario = evidenceLabVariantResultForSelection();
+    if (!worst && !scenario) {
+      setEmpty(elements.evidenceLabOverlayInspector, unavailable());
+      return;
+    }
+    const stopStatus = context
+      ? (context.stop_would_have_triggered_before_current_exit ? "stop would have triggered before current exit" : "stop timing not earlier in bundle")
+      : "exact_overlay_unavailable_from_sor_ev_bundle";
+    elements.evidenceLabOverlayInspector.innerHTML = `
+      <article class="overlay-inspector-card">
+        <span class="eyebrow">Worst Trade Focus Mode</span>
+        <h3>${escapeHtml(worst ? `${worst.symbol} ${displayTimeframe(worst.timeframe)} #${worst.loss_rank}` : state.evidenceLabOverlay.variantId)}</h3>
+        <dl class="overlay-inspector-grid">
+          <dt>Rank</dt><dd>${escapeHtml(worst?.loss_rank ?? unavailable())}</dd>
+          <dt>Symbol</dt><dd>${escapeHtml(worst?.symbol || state.evidenceLabOverlay.symbol)}</dd>
+          <dt>Timeframe</dt><dd>${escapeHtml(displayTimeframe(worst?.timeframe || state.evidenceLabOverlay.timeframe))}</dd>
+          <dt>Fill assumption</dt><dd>${escapeHtml(worst?.fill_timing || state.evidenceLabOverlay.fillAssumption)}</dd>
+          <dt>Entry classification</dt><dd>${escapeHtml(worst?.entry_timing_classification || unavailable())}</dd>
+          <dt>Net PnL</dt><dd class="${decimal(worst?.net_pnl) >= 0 ? "positive" : "negative"}">${escapeHtml(worst ? money(worst.net_pnl) : unavailable())}</dd>
+          <dt>Max adverse excursion</dt><dd>${escapeHtml(worst ? compactNumber(worst.max_adverse_excursion, 2) : unavailable())}</dd>
+          <dt>Large red candle</dt><dd>${escapeHtml(context?.classification || worst?.large_down_candle_classification || unavailable())}</dd>
+          <dt>Stop helped/hurt</dt><dd>${escapeHtml(stopStatus)}</dd>
+          <dt>Current exit reason</dt><dd>${escapeHtml(worst?.exit_reason || (worst?.exit_reason_codes || []).join(", ") || unavailable())}</dd>
+          <dt>Variant result</dt><dd>${escapeHtml(scenario?.outcome || scenario?.candidate_status || unavailable())}</dd>
+          <dt>Methodology</dt><dd>${escapeHtml(evidenceLabVariantMethodology())}</dd>
+          <dt>Warning</dt><dd>${escapeHtml(evidenceLabVariantIsTrueForward() ? "true_forward_replay_candidate_methodology" : "diagnostic_only_not_candidate")}</dd>
+        </dl>
+      </article>
+    `;
+  }
+
+  function renderEvidenceLabWorstFocusTable() {
+    if (!elements.evidenceLabWorstFocusTable) return;
+    const rows = selectedEvidenceLabWorstTrades().length
+      ? selectedEvidenceLabWorstTrades()
+      : (state.sorEv1Summary?.worst_trades || []);
+    if (!rows.length) {
+      setEmpty(elements.evidenceLabWorstFocusTable, unavailable());
+      return;
+    }
+    elements.evidenceLabWorstFocusTable.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Focus</th>
+            <th>Rank</th>
+            <th>Symbol</th>
+            <th>TF</th>
+            <th>Fill</th>
+            <th>Entry Class</th>
+            <th>Net PnL</th>
+            <th>Large Red</th>
+            <th>MAE</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.slice(0, 30).map((row) => `
+            <tr class="${row.trade_id === state.evidenceLabOverlay.selectedWorstTradeId ? "active-row" : ""}">
+              <td><button class="text-row-button" type="button" data-evidence-lab-focus-trade="${escapeHtml(row.trade_id || "")}">Focus</button></td>
+              <td>${escapeHtml(row.loss_rank ?? unavailable())}</td>
+              <td>${escapeHtml(row.symbol)}</td>
+              <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
+              <td>${escapeHtml(row.fill_timing)}</td>
+              <td>${escapeHtml(row.entry_timing_classification || unavailable())}</td>
+              <td class="${decimal(row.net_pnl) >= 0 ? "positive" : "negative"}">${escapeHtml(money(row.net_pnl))}</td>
+              <td>${escapeHtml(row.large_down_candle_classification || row.large_red_candle_flag || unavailable())}</td>
+              <td>${escapeHtml(compactNumber(row.max_adverse_excursion, 2))}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+    elements.evidenceLabWorstFocusTable.querySelectorAll("[data-evidence-lab-focus-trade]").forEach((button) => {
+      button.addEventListener("click", () => selectEvidenceLabWorstTrade(button.dataset.evidenceLabFocusTrade));
+    });
+  }
+
+  function renderEvidenceLabControlPocketView() {
+    if (!elements.evidenceLabControlPocketView) return;
+    const row = evidenceLabControlPocketForVariant();
+    const scenario = evidenceLabVariantResultForSelection();
+    if (!row && !scenario) {
+      setEmpty(elements.evidenceLabControlPocketView, unavailable());
+      return;
+    }
+    const tradeCountChange = [
+      `increased ${row?.trade_count_increased ?? unavailable()}`,
+      `decreased ${row?.trade_count_decreased ?? unavailable()}`,
+    ].join("; ");
+    const rows = [
+      ["ETH 1h", row?.damaged === 0 ? "preserved" : "review_required", row?.drawdown_reduced, row?.return_reduced, tradeCountChange, scenario?.outcome || unavailable()],
+      ["positive 1D pockets", row?.preserved ?? unavailable(), row?.drawdown_reduced, row?.return_reduced, tradeCountChange, "positive 1D pockets are evidence-only control pockets"],
+      ["other positive baseline pockets", `preserved ${row?.preserved ?? unavailable()}; improved ${row?.improved ?? unavailable()}; damaged ${row?.damaged ?? unavailable()}`, row?.drawdown_reduced, row?.return_reduced, tradeCountChange, sorOutcomeTaxonomy(row || scenario, state.sorEv2Summary)],
+    ];
+    elements.evidenceLabControlPocketView.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Pocket</th>
+            <th>Preserved / Improved / Damaged</th>
+            <th>Drawdown Reduced</th>
+            <th>Return Reduced</th>
+            <th>Trade Count Changed</th>
+            <th>Why candidate/rejected</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(([pocket, status, drawdown, returnImpact, tradeImpact, note]) => `
+            <tr>
+              <td>${escapeHtml(pocket)}</td>
+              <td>${escapeHtml(status)}</td>
+              <td>${escapeHtml(drawdown ?? unavailable())}</td>
+              <td>${escapeHtml(returnImpact ?? unavailable())}</td>
+              <td>${escapeHtml(tradeImpact)}</td>
+              <td>${escapeHtml(note)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderEvidenceLabOverlayUnavailable(chartRendered) {
+    if (!elements.evidenceLabOverlayUnavailable) return;
+    const messages = [];
+    if (!chartRendered) {
+      messages.push("data_not_available_in_sor_ev_bundle");
+    }
+    const scenario = evidenceLabVariantResultForSelection();
+    if (!scenario) {
+      messages.push("data_not_available_in_sor_ev_bundle: selected variant scenario row is unavailable");
+    }
+    if (state.evidenceLabOverlay.showMaBreaks) {
+      messages.push("exact_overlay_unavailable_from_sor_ev_bundle: SOR-EV2 has MA/SMA break flags, not exact break timestamps");
+    }
+    const selectedFamily = sorVariantFamily(selectedEvidenceLabVariant()?.row || state.evidenceLabOverlay.variantId);
+    if (
+      state.evidenceLabOverlay.showStopExits &&
+      !["fixed_stop_loss", "atr_stop", "recent_low_stop", "large_bear_candle_exit"].includes(selectedFamily)
+    ) {
+      messages.push("data_not_available_in_sor_ev_bundle: selected variant is not a stop/exit family");
+    }
+    if (state.evidenceLabOverlay.showStopExits && !selectedEvidenceLabContextSamples().length) {
+      messages.push("exact_overlay_unavailable_from_sor_ev_bundle: no linkable stop/adverse-candle context rows for this symbol/timeframe/fill");
+    }
+    if (!evidenceLabVariantIsTrueForward()) {
+      messages.push("diagnostic_only_not_candidate: selected methodology is not true_forward_replay");
+    }
+    messages.push("Date filters are display-only recalculations from loaded trades. They do not regenerate canonical evidence packs.");
+    elements.evidenceLabOverlayUnavailable.innerHTML = messages
+      .map((message) => `<span>${escapeHtml(message)}</span>`)
+      .join("");
+  }
+
   function renderEvidenceLabSummary() {
     if (!elements.evidenceLabSummaryCards) return;
     const ev1 = state.sorEv1Summary;
@@ -5130,7 +5977,7 @@
                 <td>${escapeHtml(formatEvidenceNumber(row, "trade_count_delta_sum", 0))}</td>
                 <td>${escapeHtml(unavailable())}</td>
                 <td>${escapeHtml(controlSummary)}</td>
-                <td>${escapeHtml(row.outcome || "No variant is production-approved; review SOR-EV2 reason codes.")}</td>
+                <td>${escapeHtml(row.outcome || "No variant is approved for production; review SOR-EV2 reason codes.")}</td>
               </tr>
             `;
           }).join("")}
@@ -5339,13 +6186,13 @@
   }
 
   function renderEvidenceLabChartOverlay() {
-    if (!elements.evidenceLabChartOverlay) return;
-    elements.evidenceLabChartOverlay.innerHTML = `
-      <div class="empty-state">
-        variant_chart_overlay_deferred_to_sor_ev2_2. SOR-EV2.1 loads chart-data JSON only for visualization context when needed; it does not regenerate canonical evidence.
-        Baseline entry = green, baseline exit = red, variant stop exit = orange, variant rejected entry = blue, diagnostic/lookahead = gray.
-      </div>
-    `;
+    renderEvidenceLabOverlayControls();
+    renderEvidenceLabOverlayMethodology();
+    const chartRendered = renderEvidenceLabOverlayChart();
+    renderEvidenceLabOverlayInspector();
+    renderEvidenceLabWorstFocusTable();
+    renderEvidenceLabControlPocketView();
+    renderEvidenceLabOverlayUnavailable(chartRendered);
   }
 
   function renderEvidenceLab() {

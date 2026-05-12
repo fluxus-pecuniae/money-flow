@@ -74,9 +74,12 @@ def test_autosize_feedback_loop_and_refresh_fitcontent_are_removed() -> None:
     assert "applyOptions({ autoSize: true })" not in js
     assert "new ResizeObserver(scheduleTradingViewResize)" in js
     assert "chart.resize(width, height)" in js
-    assert js.count(".fitContent()") == 2
+    # fitContent remains limited to initial chart creations: live UAT/PT chart,
+    # historical replay chart, and SOR-EV2.2 Evidence Lab overlay chart.
+    assert js.count(".fitContent()") == 3
     assert "chartState.fitContentApplied = true;" in js
     assert "renderHistoricalReplayChart" in js
+    assert "renderEvidenceLabOverlayChart" in js
 
 
 def test_live_polling_is_single_instance_and_can_be_disabled_by_query() -> None:

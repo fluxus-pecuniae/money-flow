@@ -215,7 +215,63 @@
             <h2 id="evidence-lab-overlay-title">Variant Chart Overlay</h2>
             <p>Overlay mode is intentionally separate from canonical evidence and may use chart-data JSON only for visualization.</p>
           </div>
-          <div id="evidence-lab-chart-overlay" class="data-table-shell"></div>
+          <div class="evidence-lab-overlay-controls" aria-label="Evidence Lab variant overlay controls">
+            <label>
+              <span>Symbol</span>
+              <select id="evidence-lab-overlay-symbol"></select>
+            </label>
+            <label>
+              <span>Timeframe</span>
+              <select id="evidence-lab-overlay-timeframe"></select>
+            </label>
+            <label>
+              <span>Fill assumption</span>
+              <select id="evidence-lab-overlay-fill"></select>
+            </label>
+            <label>
+              <span>Variant</span>
+              <select id="evidence-lab-overlay-variant"></select>
+            </label>
+            <label>
+              <span>Overlay mode</span>
+              <select id="evidence-lab-overlay-mode">
+                <option value="both">Baseline + selected variant</option>
+                <option value="baseline">Baseline only</option>
+                <option value="variant">Variant/context only</option>
+              </select>
+            </label>
+          </div>
+          <div class="evidence-lab-overlay-toggles" aria-label="Evidence Lab overlay toggles">
+            <label><input id="evidence-lab-toggle-large-loss" type="checkbox" /> Show large-loss trades</label>
+            <label><input id="evidence-lab-toggle-stop-exits" type="checkbox" /> Show stop/context exits</label>
+            <label><input id="evidence-lab-toggle-late-extension" type="checkbox" /> Show late-extension entries</label>
+            <label><input id="evidence-lab-toggle-adverse-candles" type="checkbox" /> Show adverse candles</label>
+            <label><input id="evidence-lab-toggle-ma-breaks" type="checkbox" /> Show MA/SMA breaks</label>
+          </div>
+          <div class="methodology-warning compact" id="evidence-lab-overlay-methodology" role="note">
+            Only true_forward_replay variants can become candidates for deeper evidence. Completed-trade overlays and lookahead diagnostics are diagnostic only.
+          </div>
+          <div class="evidence-lab-overlay-layout">
+            <div id="evidence-lab-chart-overlay" class="evidence-lab-chart-overlay" aria-label="Evidence Lab baseline versus variant chart overlay"></div>
+            <aside id="evidence-lab-overlay-inspector" class="evidence-lab-overlay-inspector" aria-label="Evidence Lab selected overlay detail"></aside>
+          </div>
+          <section class="evidence-lab-two-column evidence-lab-overlay-tables" aria-label="Evidence Lab overlay support panels">
+            <article class="table-panel evidence-lab-panel">
+              <div class="section-heading">
+                <h3>Worst Trades Focus</h3>
+                <p>Select a loss to center the chart and inspect baseline plus linkable variant context.</p>
+              </div>
+              <div id="evidence-lab-worst-focus-table" class="data-table-shell"></div>
+            </article>
+            <article class="table-panel evidence-lab-panel">
+              <div class="section-heading">
+                <h3>Control Pocket View</h3>
+                <p>Shows whether the selected variant preserved, improved, or damaged ETH 1h, positive 1D pockets, and other positive baseline pockets.</p>
+              </div>
+              <div id="evidence-lab-control-pocket-view" class="data-table-shell"></div>
+            </article>
+          </section>
+          <div id="evidence-lab-overlay-unavailable" class="empty-state"></div>
         </section>
       </section>
 
