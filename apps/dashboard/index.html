@@ -28,7 +28,7 @@
       <section class="load-band" aria-label="Evidence data controls">
         <div class="load-copy">
           <strong id="data-source-label">Local reports</strong>
-          <span id="data-source-detail">Trying to load SV1.13 evidence JSON.</span>
+          <span id="data-source-detail">Trying to load regenerated SV2.0.2 canonical evidence packs.</span>
         </div>
         <label class="file-control">
           <span>Load JSON</span>
@@ -40,7 +40,6 @@
         <button class="view-tab" type="button" data-view="strategy" aria-selected="false">Strategy</button>
         <button class="view-tab" type="button" data-view="historical-replay" aria-selected="true">Historical Replay</button>
         <button class="view-tab" type="button" data-view="evidence" aria-selected="false">Evidence</button>
-        <button class="view-tab" type="button" data-view="experiments" aria-selected="false">Experiments</button>
       </nav>
 
       <section id="evidence-view" class="dashboard-view" data-view-panel="evidence" hidden>
@@ -69,7 +68,26 @@
 
         <section class="toolbar-band" aria-label="Evidence filters">
           <div class="segment-group" id="component-filter" role="tablist" aria-label="Component filter"></div>
+          <div class="date-filter-group" aria-label="Evidence realized exit date filter">
+            <label>
+              <span>Start date</span>
+              <input id="evidence-date-start" type="date" />
+            </label>
+            <label>
+              <span>End date</span>
+              <input id="evidence-date-end" type="date" />
+            </label>
+            <button id="evidence-date-clear" class="segment-button" type="button">Clear dates</button>
+          </div>
           <div class="boundary-flags" id="boundary-flags"></div>
+        </section>
+
+        <section class="table-panel" aria-labelledby="run-table-title">
+          <div class="section-heading">
+            <h2 id="run-table-title">Run Ledger</h2>
+            <p id="run-table-subtitle">Scenario results from loaded batch reports; dynamic equity is per scenario and not one combined account.</p>
+          </div>
+          <div id="run-table" class="data-table-shell"></div>
         </section>
 
         <section class="split-layout">
@@ -107,97 +125,6 @@
             </div>
           </section>
         </section>
-
-        <section class="table-panel" aria-labelledby="run-table-title">
-          <div class="section-heading">
-            <h2 id="run-table-title">Run Ledger</h2>
-            <p id="run-table-subtitle">Scenario results from loaded batch reports; dynamic equity is per scenario and not one combined account.</p>
-          </div>
-          <div id="run-table" class="data-table-shell"></div>
-        </section>
-      </section>
-
-      <section id="experiments-view" class="dashboard-view" data-view-panel="experiments" hidden>
-        <section class="strategy-panel" aria-labelledby="experiments-title">
-          <div class="section-heading">
-            <h2 id="experiments-title">SV1.15 Hypothesis Experiments</h2>
-            <p id="experiments-subtitle">Dynamic-equity diagnostics; overlays are not true forward replays or production rule changes.</p>
-          </div>
-
-          <section class="toolbar-band" aria-label="Experiment replay filters">
-            <div class="segment-group" id="experiment-replay-filter" role="tablist" aria-label="Experiment set filter"></div>
-            <div class="boundary-flags">
-              <span class="pill warn">Manual review only</span>
-              <span class="pill warn">No production rule changes</span>
-            </div>
-          </section>
-
-          <section class="metric-grid" aria-label="SV1.15 experiment summary">
-            <article class="metric-cell">
-              <span id="experiment-metric-a-label" class="metric-label">Baseline Winner</span>
-              <strong id="experiment-metric-a-value">1H</strong>
-              <small id="experiment-metric-a-detail">positive grouped dynamic-equity sum</small>
-            </article>
-            <article class="metric-cell">
-              <span id="experiment-metric-b-label" class="metric-label">Largest 15m Lift</span>
-              <strong id="experiment-metric-b-value">$79.7k</strong>
-              <small id="experiment-metric-b-detail">completed-trade overlay, still negative</small>
-            </article>
-            <article class="metric-cell">
-              <span id="experiment-metric-c-label" class="metric-label">Largest 4h Lift</span>
-              <strong id="experiment-metric-c-value">$30.7k</strong>
-              <small id="experiment-metric-c-detail">completed-trade overlay</small>
-            </article>
-            <article class="metric-cell warning-cell">
-              <span id="experiment-metric-d-label" class="metric-label">Methodology</span>
-              <strong id="experiment-metric-d-value">None</strong>
-              <small id="experiment-metric-d-detail">no hypothesis authorized</small>
-            </article>
-          </section>
-        </section>
-
-        <section class="split-layout">
-          <section class="component-panel" aria-labelledby="experiment-variant-title">
-            <div class="section-heading">
-              <h2 id="experiment-variant-title">One-Change Variants</h2>
-              <p>Delta vs baseline sums across independent scenarios.</p>
-            </div>
-            <div id="experiment-variant-cards" class="component-list"></div>
-          </section>
-
-          <section class="detail-panel" aria-labelledby="experiment-detail-title">
-            <div class="section-heading">
-              <h2 id="experiment-detail-title">Founder Readout</h2>
-              <p>What improved, what damaged ETH 1h, and what remains deferred.</p>
-            </div>
-            <div class="detail-grid">
-              <div class="detail-box detail-box-wide">
-                <h3>Baseline Dynamic Equity</h3>
-                <div id="experiment-baseline-table" class="data-table-shell"></div>
-              </div>
-              <div class="detail-box detail-box-wide">
-                <h3>ETH 1h Preservation</h3>
-                <div id="experiment-eth-table" class="data-table-shell"></div>
-              </div>
-              <div class="detail-box detail-box-wide">
-                <h3>Lower-RSI / Entry-Style Findings</h3>
-                <ul id="experiment-findings" class="check-list"></ul>
-              </div>
-              <div class="detail-box detail-box-wide">
-                <h3>Methodology Boundary</h3>
-                <ul id="experiment-methodology" class="check-list"></ul>
-              </div>
-            </div>
-          </section>
-        </section>
-
-        <section class="table-panel" aria-labelledby="experiment-table-title">
-          <div class="section-heading">
-            <h2 id="experiment-table-title">Experiment Ledger</h2>
-            <p>Completed-trade overlays and diagnostics, not true forward replays or authorization.</p>
-          </div>
-          <div id="experiment-table" class="data-table-shell"></div>
-        </section>
       </section>
 
       <section id="historical-replay-view" class="dashboard-view historical-replay-workstation" data-view-panel="historical-replay">
@@ -223,8 +150,17 @@
               <span>Fill assumption</span>
               <select id="historical-replay-fill-filter"></select>
             </label>
+            <label>
+              <span>Start date</span>
+              <input id="historical-replay-date-start" type="date" />
+            </label>
+            <label>
+              <span>End date</span>
+              <input id="historical-replay-date-end" type="date" />
+            </label>
+            <button id="historical-replay-date-clear" class="segment-button" type="button">Clear dates</button>
             <label class="checkbox-control" title="Toggle entry/exit reason text on chart arrows.">
-              <input id="historical-replay-arrow-descriptions-toggle" type="checkbox" checked>
+              <input id="historical-replay-arrow-descriptions-toggle" type="checkbox">
               <span>Show arrow descriptions</span>
             </label>
           </div>
@@ -734,6 +670,6 @@
     </main>
 
     <script src="./vendor/lightweight-charts.standalone.production.js?v=5.2.0"></script>
-    <script src="./evidence-dashboard.js?v=pt003-marker-click"></script>
+    <script src="./evidence-dashboard.js?v=sv202-20260512-display-fixes"></script>
   </body>
 </html>

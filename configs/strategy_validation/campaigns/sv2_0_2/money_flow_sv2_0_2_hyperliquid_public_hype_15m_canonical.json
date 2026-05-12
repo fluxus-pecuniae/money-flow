@@ -1,5 +1,5 @@
 {
-  "campaign_name": "money_flow_sv2_0_2_hyperliquid_public_15m_canonical_db_imported",
+  "campaign_name": "money_flow_sv2_0_2_hyperliquid_public_hype_15m_canonical_db_imported",
   "campaign_status": "sv2_0_2_canonical_db_imported_evidence",
   "capital_sizing_modes": [
     "dynamic_equity_pct"
@@ -8,7 +8,7 @@
     "sleeve_15m"
   ],
   "data_source": "hyperliquid_public_mainnet_candleSnapshot",
-  "description": "SV2.0.2 Money Flow v1.2 canonical DB-backed evidence for sleeve_15m using imported Hyperliquid public mainnet candles. This is research-only and not paper/live trading.",
+  "description": "SV2.0.2 Money Flow v1.2 canonical DB-backed evidence for HYPE sleeve_15m using imported Hyperliquid public mainnet candles. This is research-only and not paper/live trading.",
   "environment": "backtest",
   "fee_bps_values": [
     "5"
@@ -50,40 +50,8 @@
   ],
   "symbols": [
     {
-      "instrument_key": "perpetual:linear:AVAX:USDC:USDC",
-      "symbol": "AVAX"
-    },
-    {
-      "instrument_key": "perpetual:linear:BNB:USDC:USDC",
-      "symbol": "BNB"
-    },
-    {
-      "instrument_key": "perpetual:linear:BTC:USDC:USDC",
-      "symbol": "BTC"
-    },
-    {
-      "instrument_key": "perpetual:linear:DOGE:USDC:USDC",
-      "symbol": "DOGE"
-    },
-    {
-      "instrument_key": "perpetual:linear:ETH:USDC:USDC",
-      "symbol": "ETH"
-    },
-    {
       "instrument_key": "perpetual:linear:HYPE:USDC:USDC",
       "symbol": "HYPE"
-    },
-    {
-      "instrument_key": "perpetual:linear:SOL:USDC:USDC",
-      "symbol": "SOL"
-    },
-    {
-      "instrument_key": "perpetual:linear:SUI:USDC:USDC",
-      "symbol": "SUI"
-    },
-    {
-      "instrument_key": "perpetual:linear:XRP:USDC:USDC",
-      "symbol": "XRP"
     }
   ],
   "testnet_prices_used_as_strategy_truth": false,
@@ -91,10 +59,10 @@
   "window_convention": "(start_at, end_at] candle closes; closes exactly at start are excluded and closes on or before end are included.",
   "windows": [
     {
-      "description": "Common imported 15m close-slot window across included symbols; Jan 2025 target coverage is reported separately in the readiness table.",
-      "end": "2026-05-12T04:45:00Z",
+      "description": "Full available imported HYPE 15m close-slot window from Hyperliquid public mainnet candleSnapshot; Jan 2025 target coverage is reported separately in the readiness table.",
+      "end": "2026-05-12T06:45:00Z",
       "expected_regime_label": "founder_review_required",
-      "label": "sv2_0_2_public_15m_db_imported_common_window",
+      "label": "sv2_0_2_public_hype_15m_db_imported_full_available_window",
       "start": "2026-03-21T01:45:00Z"
     }
   ]

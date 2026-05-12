@@ -112,6 +112,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     generated_at = datetime.now(UTC).replace(microsecond=0)
     end_at = parse_utc(args.end_at) if args.end_at else generated_at
+    effective_end_at_by_timeframe = effective_closed_end_at_by_timeframe(end_at)
     run_timestamp = parse_utc(args.run_timestamp) if args.run_timestamp else generated_at
     service = MoneyFlowBacktestService(get_settings())
     db_status = inspect_strategy_validation_database_status(service)
@@ -192,7 +193,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             datasets, import_results = fetch_normalize_and_import_datasets(
                 identities=identities,
                 start_at=parse_utc(SV20_TARGET_START_AT),
-                end_at=end_at,
+                effective_end_at_by_timeframe=effective_end_at_by_timeframe,
                 work_dir=args.work_dir,
                 timeout_seconds=args.timeout_seconds,
             )
@@ -217,10 +218,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             evidence_pack_paths = list(evidence_review_payload["generated_evidence_pack_paths"])
             open_position_summary = summarize_open_position_handling(evidence_pack_paths)
 
-    generated_timeframes = generated_timeframes_from_review(evidence_review)
+    generated_dataset_keys = generated_dataset_keys_from_review(evidence_review)
     canonical_ready_datasets = mark_canonical_ready_datasets(
         datasets=datasets,
-        generated_timeframes=generated_timeframes,
+        generated_dataset_keys=generated_dataset_keys,
     )
     readiness_rows = build_sv20_readiness_rows(identities, canonical_ready_datasets)
     canonical_evidence_rows = canonical_evidence_rows_from_packs(evidence_pack_paths)
@@ -237,6 +238,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         "db_blocking_reason_codes": db_blockers,
         "market_identity_seed_result": market_identity_seed_result,
         "import_results": import_results,
+        "requested_end_at_utc": iso_utc(end_at),
+        "effective_closed_end_at_by_timeframe": {
+            timeframe: iso_utc(value)
+            for timeframe, value in effective_end_at_by_timeframe.items()
+        },
         "campaign_config_paths": [str(path) for path in campaign_config_paths],
         "evidence_review": (
             money_flow_evidence_review_to_dict(evidence_review)
@@ -303,6 +309,40 @@ def database_status_to_summary(status: MoneyFlowEvidenceReviewDatabaseStatus) ->
         "blocking_error_type": status.blocking_error_type,
         "blocking_error_message": status.blocking_error_message,
     }
+
+
+def latest_fully_closed_boundary(value: datetime, timeframe: str) -> datetime:
+    """Return the latest canonical close boundary at or before value."""
+
+    value = value.astimezone(UTC)
+    seconds = SV20_TIMEFRAME_SECONDS[canonical_sv20_timeframe(timeframe)]
+    floored = int(value.timestamp()) // seconds * seconds
+    return datetime.fromtimestamp(floored, tz=UTC)
+
+
+def effective_closed_end_at_by_timeframe(value: datetime) -> dict[str, datetime]:
+    return {
+        canonical_sv20_timeframe(timeframe): latest_fully_closed_boundary(value, timeframe)
+        for timeframe in SV20_TIMEFRAMES
+    }
+
+
+def hyperliquid_request_end_for_close_boundary(close_boundary: datetime, timeframe: str) -> datetime:
+    seconds = SV20_TIMEFRAME_SECONDS[canonical_sv20_timeframe(timeframe)]
+    return close_boundary - timedelta(seconds=seconds)
+
+
+def filter_closed_candles(
+    candles: Sequence[dict[str, Any]],
+    *,
+    effective_end_at: datetime,
+) -> tuple[tuple[dict[str, Any], ...], int]:
+    filtered = tuple(
+        candle
+        for candle in candles
+        if parse_utc(str(candle["close_time"])) <= effective_end_at
+    )
+    return filtered, len(candles) - len(filtered)
 
 
 def sv202_canonical_evidence_identities(
@@ -461,7 +501,7 @@ def fetch_normalize_and_import_datasets(
     *,
     identities: Sequence[SV20MarketIdentity],
     start_at: datetime,
-    end_at: datetime,
+    effective_end_at_by_timeframe: dict[str, datetime],
     work_dir: Path,
     timeout_seconds: float,
 ) -> tuple[list[SV20CandleDataset], list[dict[str, Any]]]:
@@ -494,12 +534,18 @@ def fetch_normalize_and_import_datasets(
                 )
                 continue
             try:
+                canonical_timeframe = canonical_sv20_timeframe(timeframe)
+                effective_end_at = effective_end_at_by_timeframe[canonical_timeframe]
+                request_end_at = hyperliquid_request_end_for_close_boundary(
+                    effective_end_at,
+                    canonical_timeframe,
+                )
                 raw = fetch_hyperliquid_public_info(
                     hyperliquid_candle_snapshot_payload(
                         coin=identity.resolved_venue_symbol,
-                        timeframe=timeframe,
+                        timeframe=canonical_timeframe,
                         start_at=start_at,
-                        end_at=end_at,
+                        end_at=request_end_at,
                     ),
                     url=HYPERLIQUID_MAINNET_PUBLIC_INFO_URL,
                     timeout_seconds=timeout_seconds,
@@ -508,12 +554,16 @@ def fetch_normalize_and_import_datasets(
                     raw,
                     requested_symbol=identity.requested_symbol,
                     resolved_venue_symbol=identity.resolved_venue_symbol,
-                    timeframe=timeframe,
+                    timeframe=canonical_timeframe,
+                )
+                candles, filtered_unclosed_count = filter_closed_candles(
+                    candles,
+                    effective_end_at=effective_end_at,
                 )
                 import_path = write_import_candle_file(
                     work_dir=work_dir,
                     identity=identity,
-                    timeframe=timeframe,
+                    timeframe=canonical_timeframe,
                     candles=candles,
                 )
                 result = import_strategy_validation_candles_from_path(
@@ -530,7 +580,10 @@ def fetch_normalize_and_import_datasets(
                     {
                         "requested_symbol": identity.requested_symbol,
                         "resolved_venue_symbol": identity.resolved_venue_symbol,
-                        "timeframe": canonical_sv20_timeframe(timeframe),
+                        "timeframe": canonical_timeframe,
+                        "effective_closed_end_at_utc": iso_utc(effective_end_at),
+                        "hyperliquid_request_end_at_utc": iso_utc(request_end_at),
+                        "filtered_unclosed_candle_count": filtered_unclosed_count,
                     }
                 )
                 import_results.append(result_payload)
@@ -543,15 +596,17 @@ def fetch_normalize_and_import_datasets(
                     import_reasons.append(
                         "trade_count_unavailable_from_hyperliquid_public_candles_canonical_optional"
                     )
+                if filtered_unclosed_count:
+                    import_reasons.append("unclosed_candle_rows_filtered_before_import")
                 target_window_ready = bool(candles) and target_start_is_covered(
                     candles[0]["close_time"],
-                    timeframe,
+                    canonical_timeframe,
                 )
                 datasets.append(
                     SV20CandleDataset(
                         requested_symbol=identity.requested_symbol,
                         resolved_venue_symbol=identity.resolved_venue_symbol,
-                        timeframe=timeframe,
+                        timeframe=canonical_timeframe,
                         fetch_attempted=True,
                         fetched=True,
                         normalized=True,
@@ -637,105 +692,125 @@ def write_sv202_campaign_configs(
     paths: list[Path] = []
     for timeframe in SV20_TIMEFRAMES:
         tf = canonical_sv20_timeframe(timeframe)
-        tf_datasets = [
-            dataset
-            for dataset in datasets
-            if canonical_sv20_timeframe(dataset.timeframe) == tf
-            and dataset.db_imported
-            and dataset.candles
-            and identity_by_symbol.get(dataset.requested_symbol)
-            and identity_by_symbol[dataset.requested_symbol].supported
-        ]
-        if not tf_datasets:
-            continue
-        first_close = max(parse_utc(dataset.candles[0]["close_time"]) for dataset in tf_datasets)
-        last_close = min(parse_utc(dataset.candles[-1]["close_time"]) for dataset in tf_datasets)
-        start = first_close - timedelta(seconds=SV20_TIMEFRAME_SECONDS[tf])
-        if last_close <= start:
-            continue
-        config_symbols = []
-        for dataset in sorted(tf_datasets, key=lambda item: item.requested_symbol):
-            if datasets_by_key.get((dataset.requested_symbol, tf)) is None:
-                continue
-            config_symbols.append(
-                {
-                    "symbol": dataset.requested_symbol,
-                    "instrument_key": canonical_market_identity_instrument_key(dataset.requested_symbol),
-                }
-            )
-        config = {
-            "campaign_name": f"money_flow_sv2_0_2_hyperliquid_public_{tf}_canonical_db_imported",
-            "description": (
-                f"SV2.0.2 Money Flow v1.2 canonical DB-backed evidence for "
-                f"{SV20_COMPONENT_BY_TIMEFRAME[tf]} using imported Hyperliquid public "
-                "mainnet candles. This is research-only and not paper/live trading."
-            ),
-            "campaign_status": "sv2_0_2_canonical_db_imported_evidence",
-            "money_flow_version": SV20_MONEY_FLOW_VERSION,
-            "window_convention": _WINDOW_CONVENTION,
-            "venue": "hyperliquid",
-            "environment": "backtest",
-            "data_source": _SOURCE_LABEL,
-            "testnet_prices_used_as_strategy_truth": False,
-            "requested_universe": list(SV20_REQUESTED_SYMBOLS),
-            "symbols": config_symbols,
-            "components": [SV20_COMPONENT_BY_TIMEFRAME[tf]],
-            "fill_timings": ["next_candle_open", "next_candle_close"],
-            "windows": [
-                {
-                    "label": f"sv2_0_2_public_{tf}_db_imported_common_window",
-                    "start": iso_utc(start),
-                    "end": iso_utc(last_close),
-                    "description": (
-                        f"Common imported {display_sv20_timeframe(tf)} close-slot window "
-                        "across included symbols; Jan 2025 target coverage is reported "
-                        "separately in the readiness table."
-                    ),
-                    "expected_regime_label": "founder_review_required",
-                }
+        tf_datasets = sorted(
+            [
+                dataset
+                for dataset in datasets
+                if canonical_sv20_timeframe(dataset.timeframe) == tf
+                and dataset.db_imported
+                and dataset.candles
+                and identity_by_symbol.get(dataset.requested_symbol)
+                and identity_by_symbol[dataset.requested_symbol].supported
             ],
-            "fee_bps_values": ["5"],
-            "slippage_bps_values": ["3"],
-            "initial_capital": "10000",
-            "capital_sizing_modes": ["dynamic_equity_pct"],
-            "position_notional_pct": "1.0",
-            "output_dir": "reports/strategy_validation",
-            "report_formats": ["json", "markdown"],
-            "research_boundaries": dict(_NO_ORDER_FLAGS),
-        }
-        path = output_dir / f"money_flow_sv2_0_2_hyperliquid_public_{tf}_canonical.json"
-        path.write_text(json.dumps(config, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        paths.append(path)
+            key=lambda item: item.requested_symbol,
+        )
+        for dataset in tf_datasets:
+            first_close = parse_utc(dataset.candles[0]["close_time"])
+            last_close = parse_utc(dataset.candles[-1]["close_time"])
+            start = first_close - timedelta(seconds=SV20_TIMEFRAME_SECONDS[tf])
+            if last_close <= start:
+                continue
+            symbol = dataset.requested_symbol
+            config_symbols = [
+                {
+                    "symbol": symbol,
+                    "instrument_key": canonical_market_identity_instrument_key(symbol),
+                }
+            ]
+            config = {
+                "campaign_name": (
+                    f"money_flow_sv2_0_2_hyperliquid_public_"
+                    f"{symbol.lower()}_{tf}_canonical_db_imported"
+                ),
+                "description": (
+                    f"SV2.0.2 Money Flow v1.2 canonical DB-backed evidence for "
+                    f"{symbol} {SV20_COMPONENT_BY_TIMEFRAME[tf]} using imported "
+                    "Hyperliquid public mainnet candles. This is research-only and "
+                    "not paper/live trading."
+                ),
+                "campaign_status": "sv2_0_2_canonical_db_imported_evidence",
+                "money_flow_version": SV20_MONEY_FLOW_VERSION,
+                "window_convention": _WINDOW_CONVENTION,
+                "venue": "hyperliquid",
+                "environment": "backtest",
+                "data_source": _SOURCE_LABEL,
+                "testnet_prices_used_as_strategy_truth": False,
+                "requested_universe": list(SV20_REQUESTED_SYMBOLS),
+                "symbols": config_symbols,
+                "components": [SV20_COMPONENT_BY_TIMEFRAME[tf]],
+                "fill_timings": ["next_candle_open", "next_candle_close"],
+                "windows": [
+                    {
+                        "label": f"sv2_0_2_public_{symbol.lower()}_{tf}_db_imported_full_available_window",
+                        "start": iso_utc(start),
+                        "end": iso_utc(last_close),
+                        "description": (
+                            f"Full available imported {symbol} {display_sv20_timeframe(tf)} "
+                            "close-slot window from Hyperliquid public mainnet "
+                            "candleSnapshot; Jan 2025 target coverage is reported "
+                            "separately in the readiness table."
+                        ),
+                        "expected_regime_label": "founder_review_required",
+                    }
+                ],
+                "fee_bps_values": ["5"],
+                "slippage_bps_values": ["3"],
+                "initial_capital": "10000",
+                "capital_sizing_modes": ["dynamic_equity_pct"],
+                "position_notional_pct": "1.0",
+                "output_dir": "reports/strategy_validation",
+                "report_formats": ["json", "markdown"],
+                "research_boundaries": dict(_NO_ORDER_FLAGS),
+            }
+            path = output_dir / (
+                f"money_flow_sv2_0_2_hyperliquid_public_{symbol.lower()}_{tf}_canonical.json"
+            )
+            path.write_text(json.dumps(config, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            paths.append(path)
     return paths
 
 
-def generated_timeframes_from_review(
+def generated_dataset_keys_from_review(
     review: MoneyFlowEvidenceReviewSummary | None,
-) -> set[str]:
+) -> set[tuple[str, str]]:
     if review is None:
         return set()
     payload = money_flow_evidence_review_to_dict(review)
-    generated: set[str] = set()
+    generated: set[tuple[str, str]] = set()
     for result in payload["campaign_results"]:
         if not result.get("evidence_pack_generated"):
             continue
         audit_rows = result["data_readiness_audit"]["rows"]
         for row in audit_rows:
-            if row.get("readiness_status") == "covered" and row.get("timeframe"):
-                generated.add(canonical_sv20_timeframe(str(row["timeframe"])))
+            if (
+                row.get("readiness_status") == "covered"
+                and row.get("timeframe")
+                and row.get("symbol")
+            ):
+                generated.add(
+                    (
+                        str(row["symbol"]),
+                        canonical_sv20_timeframe(str(row["timeframe"])),
+                    )
+                )
     return generated
 
 
 def mark_canonical_ready_datasets(
     *,
     datasets: Sequence[SV20CandleDataset],
-    generated_timeframes: set[str],
+    generated_dataset_keys: set[tuple[str, str]],
 ) -> list[SV20CandleDataset]:
     return [
         replace(
             dataset,
             canonical_evidence_ready=(
-                dataset.db_imported and canonical_sv20_timeframe(dataset.timeframe) in generated_timeframes
+                dataset.db_imported
+                and (
+                    dataset.requested_symbol,
+                    canonical_sv20_timeframe(dataset.timeframe),
+                )
+                in generated_dataset_keys
             ),
         )
         for dataset in datasets
@@ -858,6 +933,8 @@ def render_sv202_report(summary: dict[str, Any]) -> str:
         f"- Canonical evidence status: `{canonical_status['status']}`",
         f"- Evidence pack paths: `{canonical_status['evidence_pack_paths']}`",
         f"- SOR-EV1 readiness decision: `{sv202['sor_ev1_readiness_decision']}`",
+        f"- Requested public-data end: `{sv202.get('requested_end_at_utc')}`",
+        f"- Effective fully closed ends: `{sv202.get('effective_closed_end_at_by_timeframe')}`",
         "",
         "## DB / Import Status",
         "",

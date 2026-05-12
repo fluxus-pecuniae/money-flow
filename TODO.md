@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-12T04:50:16Z`
+Last reviewed: `2026-05-12T08:03:39Z`
 
 ## Active Follow-Ups
+
+### T-125
+
+- `priority`: `medium`
+- `status`: `done`
+- `summary`: `SV2.0.2 dashboard display fixes are complete. Historical Replay now loads ignored chart/trade JSON derived from the regenerated canonical evidence packs for BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX x 15m/1h/4h/1d when the local files are present, so 1h exists for all supported symbols and 4h/1d Jan 2025 history remains visible where public data allows. Evidence controls de-duplicate timeframe buttons, component cards include pair context, arrow descriptions default off, the invalid Experiments tab/panel is removed from the visible dashboard, and the misleading legacy dynamic-equity default-load message is gone. No evidence packs were regenerated for this display fix and no strategy/rule/order behavior changed.`
 
 ### T-122
 
@@ -14,13 +20,13 @@ Last reviewed: `2026-05-12T04:50:16Z`
 
 - `priority`: `medium`
 - `status`: `done`
-- `summary`: `SV2.0.2 completes DB-backed candle import and canonical SV2 evidence-pack generation. Normalized Hyperliquid public mainnet candles were imported through the hardened Strategy Validation candle importer into the intended migrated money_flow DB, canonical campaign configs were generated for 15m/1h/4h/1d, and existing evidence-pack machinery emitted ignored canonical evidence packs for Money Flow v1.2. Supported canonical evidence symbols are BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, and AVAX. SHIB remains represented as venue symbol kSHIB but deferred from executable canonical evidence because unit semantics are not clean enough. No strategy parameters were changed and testnet data is not strategy truth.`
+- `summary`: `SV2.0.2 completes DB-backed candle import and canonical SV2 evidence-pack generation. Normalized Hyperliquid public mainnet candles were imported through the hardened Strategy Validation candle importer into the intended migrated money_flow DB, 36 per-symbol/per-timeframe canonical campaign configs were generated for BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX x 15m/1h/4h/1d, and existing evidence-pack machinery emitted ignored canonical evidence packs for Money Flow v1.2. The 2026-05-12 regeneration uses fully closed timeframe end-boundaries and each pair/timeframe's full available imported public window. SHIB remains represented as venue symbol kSHIB but deferred from executable canonical evidence because unit semantics are not clean enough. No strategy parameters were changed and testnet data is not strategy truth.`
 
 ### T-124
 
 - `priority`: `high`
 - `status`: `done`
-- `summary`: `SV2.0.2 removes the canonical-evidence blocker for SOR-EV1. Canonical DB-backed evidence pack paths now exist for Money Flow v1.2 with 15m/1h/4h/1d, dynamic_equity_pct, 10000 USDC initial equity per independent scenario, explicit fee/slippage, force-close-at-dataset-end open-position handling, supported expanded symbols, and unsupported/deferred SHIB reason codes. SOR-EV1 may proceed from this baseline, while live trading, real capital, order submission, SOR/fanout/CBBO/target reselection runtime behavior, and stop-loss/RSI/MACD variants still require separately scoped phases.`
+- `summary`: `SV2.0.2 removes the canonical-evidence blocker for SOR-EV1. Canonical DB-backed evidence pack paths now exist for Money Flow v1.2 with 15m/1h/4h/1d, dynamic_equity_pct, 10000 USDC initial equity per independent scenario, explicit fee/slippage, force-close-at-dataset-end open-position handling, supported expanded symbols, and unsupported/deferred SHIB reason codes. SOR-EV1 may proceed from the regenerated fully closed per-pair baseline, while live trading, real capital, order submission, SOR/fanout/CBBO/target reselection runtime behavior, and stop-loss/RSI/MACD variants still require separately scoped phases.`
 
 ### T-118
 

@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-12T07:59:37Z - Dashboard - SV2.0.2 Historical Replay Display Uses Canonical Chart Data
+
+- `decision`: Use generated dashboard chart/trade JSON derived from existing SV2.0.2 canonical packs for Historical Replay display instead of regenerating evidence packs or continuing to rely on older PT/SV1.13 dynamic-equity summaries.
+- `scope`: The display data covers BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX across 15m/1h/4h/1d when the ignored local files under `reports/strategy_validation/sv2_0_2_dashboard_chart_data/20260512T064916Z/` are present. Evidence controls are de-duplicated by timeframe, component cards include pair context, arrow descriptions default off, and the invalid Experiments surface is not exposed as a dashboard tab.
+- `result`: No evidence packs were regenerated for this fix. The dashboard display now reflects the regenerated SV2.0.2 canonical evidence/trade data and keeps 4h/1d Jan 2025 history visible where available.
+- `follow_up_implications`: If chart files are deleted locally, rerun `scripts/build_sv202_dashboard_chart_data.py` against the existing raw candle JSON and canonical packs. This remains visualization-only and does not change Money Flow rules, import candles, submit orders, call private/signed/order endpoints, or approve live trading.
+
 ## 2026-05-11T20:34:00Z - Historical Replay - 5EMA/20MA Cross-Close Variant Added
 
 - `decision`: Add `Only close on 5/20 cross` as a research-only Historical Replay strategy and keep it out of production Money Flow rules.
@@ -624,3 +631,10 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `why`: SOR-EV1 needs DB-backed canonical evidence-pack paths, not compact staged rows. The intended DB is reachable and current, importer/upsert succeeds on canonical close slots, existing evidence-pack machinery can run Money Flow v1.2 across 15m/1h/4h/1d, and unsupported/deferred symbols remain reason-coded rather than silently dropped.
 - `rejected_alternatives`: Calling staged compact rows canonical; committing large generated candle/evidence-pack artifacts; guessing SHIB/kSHIB unit semantics; using Hyperliquid testnet data as strategy truth; changing 15m/1h/4h or 1D parameters; adding stop-loss/RSI/MACD variants in the import/evidence phase; calling private/signed/order endpoints or submitting orders.
 - `follow_up_implications`: SOR-EV1 may proceed from the SV2.0.2 canonical baseline. Future variant evidence must keep dynamic equity, canonical close-slot data, import truth, unsupported-symbol reason codes, no-testnet-strategy-truth boundaries, and no-order/no-live constraints intact.
+
+## 2026-05-12T07:02:22Z - SV2.0.2 - Regenerate Canonical Evidence With Fully Closed Per-Pair Windows
+
+- `decision`: Regenerate SV2.0.2 canonical evidence packs with fully closed timeframe end-boundaries and per-symbol/per-timeframe campaign configs, so each supported pair backtests as far back as that pair/timeframe's DB-imported public data allows.
+- `why`: The founder asked to regenerate the evidence packs and backtest as far back as the data allows for each pair. The prior common-window config shape could clip evidence to the shortest shared symbol window, and endpoint-edge candles needed explicit fully closed boundary filtering.
+- `result`: The regenerated `20260512T064916Z` run produced 36 canonical packs for BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX x 15m/1h/4h/1d. Effective ends are `15m=2026-05-12T06:45:00Z`, `1h=2026-05-12T06:00:00Z`, `4h=2026-05-12T04:00:00Z`, and `1d=2026-05-12T00:00:00Z`; no latest candle exceeds those boundaries.
+- `follow_up_implications`: SOR-EV1 may proceed from the regenerated SV2.0.2 baseline, but evidence remains research-only and not proof of profitability. No orders, private/signed/order endpoints, API keys, testnet strategy truth, live trading, parameter optimization, SOR/fanout/CBBO, target reselection, or strategy-rule changes were added.

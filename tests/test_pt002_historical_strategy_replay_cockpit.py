@@ -237,6 +237,9 @@ def test_dashboard_has_historical_replay_tab_and_stable_chart_container() -> Non
     assert "historical-replay-strategy-filter" in html
     assert "Replay strategy" in html
     assert "historical-replay-arrow-descriptions-toggle" in html
+    assert "historical-replay-date-start" in html
+    assert "historical-replay-date-end" in html
+    assert "historical-replay-date-clear" in html
     assert "Show arrow descriptions" in html
     assert "historical-replay-chart" in html
     assert "Trade Inspector" in html
@@ -247,8 +250,12 @@ def test_dashboard_has_historical_replay_tab_and_stable_chart_container() -> Non
     assert "baseline_current_money_flow_rules" in js
     assert "strategy_id" in js
     assert "Replay strategy:" in js
-    assert '["15m", "1h", "4h", "1D"]' in js
+    assert '["15m", "1h", "4h", "1d"]' in js
+    assert 'return canonical === "1d" ? "1D" : canonical;' in js
     assert "renderHistoricalReplayChart" in js
+    assert "filteredHistoricalReplay" in js
+    assert "Date filter:" in js
+    assert "fresh 10k date-window replay" in js
     assert "historicalOscillatorRows" in js
     assert "historicalMacdHistogramRows" in js
     assert "HISTORICAL_RSI_PANE" in js
@@ -264,7 +271,7 @@ def test_dashboard_has_historical_replay_tab_and_stable_chart_container() -> Non
     assert "subscribeClick" in js
     assert "hoveredObjectId" in js
     assert "selectHistoricalReplayTrade" in js
-    assert "showArrowDescriptions: true" in js
+    assert "showArrowDescriptions: false" in js
     assert "historicalMarkerPnlLine" in js
     assert "if (!state.historicalReplay.showArrowDescriptions)" in js
     assert ".flatMap((marker)" in js

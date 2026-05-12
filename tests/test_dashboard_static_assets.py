@@ -28,9 +28,15 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert ".uat-right-rail" in css
     assert ".uat-bottom-blotter" in css
     assert "Evidence Dashboard" in html
-    assert "data-view=\"experiments\"" in html
+    assert "Trying to load regenerated SV2.0.2 canonical evidence packs." in html
+    assert "evidence-date-start" in html
+    assert "evidence-date-end" in html
+    assert "evidence-date-clear" in html
+    assert "fresh 10k slice" in js
+    assert "rebased_from_date_filter" in js
     nav = html[html.index('<nav class="view-tabs"') : html.index("</nav>", html.index('<nav class="view-tabs"'))]
-    assert 'data-view="experiments"' in nav
+    assert 'data-view="experiments"' not in nav
+    assert 'data-view-panel="experiments"' not in html
     assert 'data-view="historical-replay"' in nav
     assert 'data-view="evidence"' in nav
     assert 'data-view="strategy"' in nav
@@ -38,7 +44,6 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert 'data-view="uat-cockpit"' not in nav
     assert nav.index('data-view="strategy"') < nav.index('data-view="historical-replay"')
     assert nav.index('data-view="historical-replay"') < nav.index('data-view="evidence"')
-    assert nav.index('data-view="evidence"') < nav.index('data-view="experiments"')
     assert 'data-view="historical-replay" aria-selected="true"' in nav
     assert "Money Flow UAT Workstation" in html
     assert "UAT Chart Cockpit" in html
@@ -76,8 +81,8 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "Dry-run executable gate service" in js
     assert "global orders disabled; sandbox orders separately gated" in js
     assert "No interactive approval action exists" in js
-    assert "SV1.15 Hypothesis Experiments" in html
-    assert "experiment-replay-filter" in html
+    assert "SV1.15 Hypothesis Experiments" not in html
+    assert "experiment-replay-filter" not in html
     assert "SV1.16 True Replay Results" in js
     assert "SV1.17 True Replay Round 1" in js
     assert "SV1.17 Full-Suite True Replay" in js
@@ -95,9 +100,9 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "true_forward_replay_research_only" in js
     assert "variant minus baseline" in js
     assert "baseline remained strongest" in js
-    assert "completed-trade overlay, still negative" in html
-    assert "Methodology Boundary" in html
-    assert "not true forward replays" in html
+    assert "completed-trade overlay, still negative" not in html
+    assert "Methodology Boundary" not in html
+    assert "not true forward replays" not in html
     assert "data-view=\"strategy\"" in html
     assert "Strategy Logic" in html
     assert "EMA5 > EMA10 > SMA20" in html
@@ -113,8 +118,14 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "upper-bound only; not candidate" in js
     assert "No variant is authorized for production, paper trading, or live trading." in js
     assert "No paper trading, live trading, routing, execution behavior, or strategy authorization follows from this replay." in js
-    assert "reports/strategy_validation_reviews/sv1_13_2_dynamic_equity_20260507T104500Z" in js
-    assert "dynamic_equity_pct" in js
+    assert "SV2.0.2 canonical packs loaded" in js
+    assert "regenerated canonical pack JSON files loaded" in js
+    assert "Legacy dynamic equity reports loaded" not in js
+    assert "SV202_DASHBOARD_CHART_FILES" in js
+    assert "sv2_0_2_dashboard_chart_data" in js
+    assert "money_flow_v1_2_canonical" in js
+    assert 'id="historical-replay-arrow-descriptions-toggle" type="checkbox">' in html
+    assert "dynamic_equity_pct" not in js
     assert "Ending Equity" in js
     assert "calls_private_exchange_endpoints" in js
     assert "calls_exchange_order_endpoints" in js

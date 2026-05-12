@@ -15,6 +15,10 @@ from scripts.run_sv202_canonical_import_and_evidence import (
     build_market_identity_manifest,
     canonical_evidence_rows_from_packs,
     db_status_blocking_reason_codes,
+    effective_closed_end_at_by_timeframe,
+    filter_closed_candles,
+    hyperliquid_request_end_for_close_boundary,
+    latest_fully_closed_boundary,
     render_sv202_report,
     sor_ev1_readiness_decision,
     summarize_open_position_handling,
@@ -91,6 +95,46 @@ def test_db_target_must_be_reachable_intended_and_schema_ready() -> None:
     assert "strategy_validation_required_table_missing" in reasons
 
 
+def test_effective_closed_boundaries_are_timeframe_specific() -> None:
+    value = datetime(2026, 5, 12, 4, 41, 57, tzinfo=UTC)
+
+    boundaries = effective_closed_end_at_by_timeframe(value)
+
+    assert boundaries["15m"] == datetime(2026, 5, 12, 4, 30, tzinfo=UTC)
+    assert boundaries["1h"] == datetime(2026, 5, 12, 4, 0, tzinfo=UTC)
+    assert boundaries["4h"] == datetime(2026, 5, 12, 4, 0, tzinfo=UTC)
+    assert boundaries["1d"] == datetime(2026, 5, 12, 0, 0, tzinfo=UTC)
+    assert latest_fully_closed_boundary(datetime(2026, 5, 12, 5, 0, tzinfo=UTC), "1h") == datetime(
+        2026, 5, 12, 5, 0, tzinfo=UTC
+    )
+
+
+def test_hyperliquid_request_end_uses_open_boundary_for_desired_last_close() -> None:
+    assert hyperliquid_request_end_for_close_boundary(
+        datetime(2026, 5, 12, 4, 30, tzinfo=UTC),
+        "15m",
+    ) == datetime(2026, 5, 12, 4, 15, tzinfo=UTC)
+    assert hyperliquid_request_end_for_close_boundary(
+        datetime(2026, 5, 12, 0, 0, tzinfo=UTC),
+        "1d",
+    ) == datetime(2026, 5, 11, 0, 0, tzinfo=UTC)
+
+
+def test_filter_closed_candles_removes_unclosed_or_future_slots() -> None:
+    candles = _candles(count=3, timeframe="15m", start=datetime(2026, 5, 12, 4, 0, tzinfo=UTC))
+
+    filtered, filtered_count = filter_closed_candles(
+        candles,
+        effective_end_at=datetime(2026, 5, 12, 4, 30, tzinfo=UTC),
+    )
+
+    assert filtered_count == 1
+    assert [row["close_time"] for row in filtered] == [
+        "2026-05-12T04:15:00Z",
+        "2026-05-12T04:30:00Z",
+    ]
+
+
 def test_shib_kshib_alias_is_deferred_for_canonical_evidence() -> None:
     identities = resolve_hyperliquid_market_identities(
         {"universe": [{"name": "BTC", "szDecimals": 5}, {"name": "kSHIB", "szDecimals": 0}]},
@@ -161,10 +205,13 @@ def test_campaign_configs_include_1d_v12_dynamic_equity_and_no_testnet_truth(tmp
     paths = write_sv202_campaign_configs(datasets=datasets, identities=identities, output_dir=tmp_path)
     by_name = {path.name: json.loads(path.read_text(encoding="utf-8")) for path in paths}
 
-    assert "money_flow_sv2_0_2_hyperliquid_public_1d_canonical.json" in by_name
-    one_day = by_name["money_flow_sv2_0_2_hyperliquid_public_1d_canonical.json"]
+    assert len(paths) == 8
+    assert "money_flow_sv2_0_2_hyperliquid_public_btc_1d_canonical.json" in by_name
+    one_day = by_name["money_flow_sv2_0_2_hyperliquid_public_btc_1d_canonical.json"]
     assert one_day["money_flow_version"] == "money_flow_v1_2"
     assert one_day["components"] == ["sleeve_1d"]
+    assert one_day["symbols"] == [{"instrument_key": "perpetual:linear:BTC:USDC:USDC", "symbol": "BTC"}]
+    assert "full_available_window" in one_day["windows"][0]["label"]
     assert one_day["capital_sizing_modes"] == ["dynamic_equity_pct"]
     assert one_day["initial_capital"] == "10000"
     assert one_day["testnet_prices_used_as_strategy_truth"] is False

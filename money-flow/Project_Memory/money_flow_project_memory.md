@@ -31,7 +31,7 @@ Money Flow combines:
 | Strategy Validation SV1 | Hyperliquid evidence cycle from backtest truth through dynamic equity, diagnostics, replay experiments, and UAT candidate freeze. |
 | Strategy Validation SV2.0 | Money Flow v1.2 adds real `sleeve_1d`; expanded Hyperliquid public-mainnet readiness/evidence covers BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX/SHIB across 15m/1h/4h/1D. |
 | Strategy Validation SV2.0.1 | Canonical evidence truth hotfix: compact rows are noncanonical, dataset-end open positions are force-closed with entry-fee accounting, Hyperliquid close slots are normalized, staged/imported/canonical-evidence truth is split, allocations are 0.25 each, `1d` is canonical internally, and missing indicators are invalid. |
-| Strategy Validation SV2.0.2 | Hardened canonical import/evidence: normalized Hyperliquid public mainnet candles are DB-imported through the hardened importer, canonical evidence packs exist for 15m/1h/4h/1d, supported symbols are BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX, SHIB/kSHIB is deferred, and SOR-EV1 may proceed. |
+| Strategy Validation SV2.0.2 | Hardened canonical import/evidence: normalized Hyperliquid public mainnet candles are DB-imported through the hardened importer, 36 regenerated fully closed per-pair canonical evidence packs exist for BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX x 15m/1h/4h/1d, SHIB/kSHIB is deferred, and SOR-EV1 may proceed. |
 
 ## Routing / SOR Status
 
@@ -75,7 +75,7 @@ Current accepted interpretation:
 - Current evidence does not prove future performance.
 - SV2.0 adds a real `sleeve_1d` baseline and expanded public-mainnet compact evidence, but does not optimize parameters, approve live trading, or prove profitability.
 - SV2.0.1 makes compact evidence truth stricter: compact rows are provisional/noncanonical, open final positions are force-closed, and staged data is not imported.
-- SV2.0.2 generates DB-backed canonical evidence packs; SOR-EV1 may proceed, but the evidence still does not prove future performance or approve live trading.
+- SV2.0.2 generates DB-backed canonical evidence packs; the 2026-05-12 regeneration uses fully closed per-pair windows so each supported pair/timeframe backtests as far back as its DB-imported public data allows. SOR-EV1 may proceed, but the evidence still does not prove future performance or approve live trading.
 
 ## Current UAT Candidate
 
@@ -108,7 +108,7 @@ Historical Replay now includes three strategy dropdown choices for founder visua
 
 SV2.0 supersedes PT0.0.3's dashboard-only 1D limitation: `sleeve_1d` is now a real Money Flow v1.2 sleeve, while existing 15m/1h/4h settings remain unchanged. The expanded requested evidence universe is BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, AVAX, and SHIB; all are supported by Hyperliquid public mainnet metadata in the current run, with SHIB explicitly resolved as `kSHIB`. Public mainnet 4h and 1D data reach the Jan 2025 target, while 15m and 1h remain limited by Hyperliquid public recent-candle availability.
 
-SV2.0.2 resolves the canonical SV2 evidence blocker: normalized public-mainnet candles were imported into the intended DB through the hardened importer, evidence packs now exist for supported symbols/timeframes, SHIB/kSHIB is deferred with reason codes, and SOR-EV1 may proceed. No orders, private/signed/order endpoints, API keys, testnet strategy truth, live trading, parameter optimization, stop-loss/RSI/MACD variants, SOR/fanout/CBBO, or target reselection were added.
+SV2.0.2 resolves the canonical SV2 evidence blocker: normalized public-mainnet candles were imported into the intended DB through the hardened importer, regenerated fully closed per-pair evidence packs now exist for supported symbols/timeframes, SHIB/kSHIB is deferred with reason codes, and SOR-EV1 may proceed. No orders, private/signed/order endpoints, API keys, testnet strategy truth, live trading, parameter optimization, stop-loss/RSI/MACD variants, SOR/fanout/CBBO, or target reselection were added.
 
 Closed by UAT0.1:
 
@@ -327,8 +327,9 @@ The current evidence cycle can justify UAT0 safety/runtime hardening and later s
 - UAT4.2: live market dashboard and internal paper-equity monitor complete.
 - PT0: TradingView charting and top-20 paper/sandbox runtime foundation complete; paper trading and broader top-20 Hyperliquid-supported paper/sandbox scope are approved for testnet/sandbox only.
 - PT0.0.2: historical strategy replay cockpit complete; historical public candle replay data is strategy truth, Hyperliquid testnet prices are sandbox execution plumbing only.
-- PT0.0.3: historical data horizon and 1D replay support complete; current local data does not reach Jan 2025.
-- PT0.0.4: historical data backfill and replay regeneration are future work only.
+- PT0.0.3: historical data horizon and 1D replay support complete; SV2.0/SV2.0.2 supersede the earlier local-data limitation by providing canonical public-mainnet 4h/1d evidence/chart data back to Jan 2025 where Hyperliquid public history is available.
+- SV2.0.2 dashboard display fix: Historical Replay now loads ignored chart/trade JSON derived from existing regenerated canonical packs for BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX x 15m/1h/4h/1d, with arrow descriptions off by default and the invalid Experiments tab removed.
+- PT0.0.4: broader historical data backfill beyond available Hyperliquid public windows remains future work only.
 - PT0.1: supervised top-20 paper/sandbox runtime week is future work only.
 
 UAT1 public read-only connectivity is complete under strict constraints. UAT1 used no API keys, private endpoints, signed endpoints, order endpoints, paper trading, live trading, or order submission.

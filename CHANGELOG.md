@@ -13,6 +13,104 @@ Entry schema:
 
 ---
 
+## v2026.05.12.005
+
+- `recorded_at_utc`: `2026-05-12T08:44:25Z`
+- `scope`: `Dashboard date-filter fresh 10k slice recalculation`
+- `intent`: `Native entry. Updated the dashboard date-filter semantics so selected Evidence and Historical Replay date windows are displayed as fresh 10000 USDC scenarios. When a start/end range is selected, the browser includes trades entered on/after the start date and exited on/before the end date, then compounds the loaded trade returns from 10000 USDC. Evidence cards, run ledger, detail rows, and Historical Replay equity/trade/marker/comparison values now reflect the rebased date-window slice. This is a browser display recalculation from existing loaded trades, not canonical evidence-pack regeneration. Exact arbitrary-date canonical evidence still requires a backend Strategy Validation run. No evidence packs were regenerated, candles imported, exchange endpoints called, API keys used, orders submitted, strategy rules changed, parameters optimized, live trading approved, or SOR behavior altered.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_pt002_historical_strategy_replay_cockpit.py`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_pt002_historical_strategy_replay_cockpit.py`
+  - `.venv/bin/python -m compileall apps tests`
+  - `git diff --check`
+
+## v2026.05.12.004
+
+- `recorded_at_utc`: `2026-05-12T08:34:33Z`
+- `scope`: `Dashboard evidence and historical replay date filters`
+- `intent`: `Native entry. Added display-only date filters to the Evidence and Historical Replay dashboard surfaces. Evidence filtering uses realized trade exit timestamps from loaded batch reports and recomputes displayed PnL, trade counts, win rate, run ledger rows, component cards, timing/symbol/regime rows, and drawdown from the filtered trades. Historical Replay filtering narrows visible candles/indicators by candle timestamp and realized trades by exit timestamp so chart data, markers, trade table, equity summary, comparison rows, and inspector values reflect the selected date range. This does not regenerate evidence packs, import candles, call exchange endpoints, use API keys, submit orders, change strategy rules, optimize parameters, approve live trading, or alter SOR behavior.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_pt002_historical_strategy_replay_cockpit.py`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_pt002_historical_strategy_replay_cockpit.py`
+  - `.venv/bin/python -m compileall apps tests`
+  - `git diff --check`
+
+## v2026.05.12.003
+
+- `recorded_at_utc`: `2026-05-12T07:59:37Z`
+- `scope`: `SV2.0.2 dashboard historical replay display fixes`
+- `intent`: `Native entry. Fixed the dashboard display layer so Historical Replay can load the regenerated SV2.0.2 canonical per-symbol/per-timeframe evidence into chart/trade views without regenerating evidence packs. Added a local chart-data builder that derives ignored dashboard JSON from existing raw public candles and canonical batch reports, wired the dashboard to load 36 SV2.0.2 chart/trade files for BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX across 15m/1h/4h/1d, kept 4h/1d Jan 2025 history visible where available, de-duplicated Evidence timeframe controls, added pair context to component cards, disabled arrow descriptions by default, removed the invalid Experiments tab/panel from the visible dashboard, and removed the misleading legacy dynamic-equity default-load status. No evidence packs were regenerated for this display fix, and no Money Flow rules, orders, private/signed/order endpoints, API keys, live trading, SOR/fanout/CBBO/target reselection, variants, or parameter optimization were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `scripts/build_sv202_dashboard_chart_data.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_pt002_historical_strategy_replay_cockpit.py`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python scripts/build_sv202_dashboard_chart_data.py --run-timestamp 20260512T064916Z`
+  - `.venv/bin/python -m compileall scripts apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_pt002_historical_strategy_replay_cockpit.py tests/test_pt003_historical_data_horizon_1d.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -c "... verify 36 dashboard chart files: 9 symbols x 4 timeframes ..."`
+  - `curl -I http://127.0.0.1:8765/reports/strategy_validation/sv2_0_2_dashboard_chart_data/20260512T064916Z/hyperliquid_public_eth_4h_chart.json`
+  - `git diff --check`
+
+## v2026.05.12.002
+
+- `recorded_at_utc`: `2026-05-12T07:02:22Z`
+- `scope`: `SV2.0.2 regenerated fully closed per-pair canonical evidence packs`
+- `intent`: `Native entry. Regenerated the SV2.0.2 Money Flow v1.2 canonical evidence packs after adding fully closed timeframe end-boundary handling and per-symbol/per-timeframe campaign config generation. The regenerated run imports/uses Hyperliquid public mainnet DB-backed candles for each supported pair/timeframe as far back as that dataset allows instead of clipping every symbol to a common timeframe window. It produced 36 canonical pack paths for BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, and AVAX across 15m, 1h, 4h, and 1d at timestamp 20260512T064916Z; SHIB/kSHIB remains deferred because unit semantics are not clean enough. Effective closed ends are 15m=2026-05-12T06:45:00Z, 1h=2026-05-12T06:00:00Z, 4h=2026-05-12T04:00:00Z, and 1d=2026-05-12T00:00:00Z. No orders, private/signed/order endpoints, API keys, live trading, testnet strategy truth, SOR/fanout/CBBO/target reselection, strategy-rule changes, variants, or parameter optimization were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `KNOWN_ISSUES.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `configs/strategy_validation/campaigns/sv2_0_2/`
+  - `scripts/run_sv202_canonical_import_and_evidence.py`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/sv2_0_historical_data_refresh_summary.json`
+  - `docs/sv2_0_2_canonical_sv2_evidence_packs.md`
+  - `tests/test_sv202_canonical_import_evidence.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=money_flow SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python scripts/run_sv202_canonical_import_and_evidence.py --fetch-public-data --generate-evidence-packs --timeout-seconds 30 --work-dir /tmp/money-flow-sv202-candles --run-timestamp 2026-05-12T06:49:16Z`
+  - `.venv/bin/python -m pytest -q tests/test_sv202_canonical_import_evidence.py`
+  - `.venv/bin/python -m compileall scripts services/strategy_validation tests/test_sv202_canonical_import_evidence.py`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_sv202_canonical_import_evidence.py tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python - <<'PY' ... fully closed latest-candle boundary verification ... PY`
+
 ## v2026.05.12.001
 
 - `recorded_at_utc`: `2026-05-12T04:50:16Z`
