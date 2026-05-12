@@ -1,0 +1,101 @@
+{
+  "campaign_name": "money_flow_sv2_0_2_hyperliquid_public_4h_canonical_db_imported",
+  "campaign_status": "sv2_0_2_canonical_db_imported_evidence",
+  "capital_sizing_modes": [
+    "dynamic_equity_pct"
+  ],
+  "components": [
+    "sleeve_4h"
+  ],
+  "data_source": "hyperliquid_public_mainnet_candleSnapshot",
+  "description": "SV2.0.2 Money Flow v1.2 canonical DB-backed evidence for sleeve_4h using imported Hyperliquid public mainnet candles. This is research-only and not paper/live trading.",
+  "environment": "backtest",
+  "fee_bps_values": [
+    "5"
+  ],
+  "fill_timings": [
+    "next_candle_open",
+    "next_candle_close"
+  ],
+  "initial_capital": "10000",
+  "money_flow_version": "money_flow_v1_2",
+  "output_dir": "reports/strategy_validation",
+  "position_notional_pct": "1.0",
+  "report_formats": [
+    "json",
+    "markdown"
+  ],
+  "requested_universe": [
+    "BTC",
+    "ETH",
+    "SOL",
+    "XRP",
+    "DOGE",
+    "HYPE",
+    "BNB",
+    "SUI",
+    "AVAX",
+    "SHIB"
+  ],
+  "research_boundaries": {
+    "calls_order_endpoints": false,
+    "calls_private_or_signed_endpoints": false,
+    "enables_live_trading": false,
+    "submits_orders": false,
+    "uses_api_keys": false,
+    "uses_testnet_prices_as_strategy_truth": false
+  },
+  "slippage_bps_values": [
+    "3"
+  ],
+  "symbols": [
+    {
+      "instrument_key": "perpetual:linear:AVAX:USDC:USDC",
+      "symbol": "AVAX"
+    },
+    {
+      "instrument_key": "perpetual:linear:BNB:USDC:USDC",
+      "symbol": "BNB"
+    },
+    {
+      "instrument_key": "perpetual:linear:BTC:USDC:USDC",
+      "symbol": "BTC"
+    },
+    {
+      "instrument_key": "perpetual:linear:DOGE:USDC:USDC",
+      "symbol": "DOGE"
+    },
+    {
+      "instrument_key": "perpetual:linear:ETH:USDC:USDC",
+      "symbol": "ETH"
+    },
+    {
+      "instrument_key": "perpetual:linear:HYPE:USDC:USDC",
+      "symbol": "HYPE"
+    },
+    {
+      "instrument_key": "perpetual:linear:SOL:USDC:USDC",
+      "symbol": "SOL"
+    },
+    {
+      "instrument_key": "perpetual:linear:SUI:USDC:USDC",
+      "symbol": "SUI"
+    },
+    {
+      "instrument_key": "perpetual:linear:XRP:USDC:USDC",
+      "symbol": "XRP"
+    }
+  ],
+  "testnet_prices_used_as_strategy_truth": false,
+  "venue": "hyperliquid",
+  "window_convention": "(start_at, end_at] candle closes; closes exactly at start are excluded and closes on or before end are included.",
+  "windows": [
+    {
+      "description": "Common imported 4h close-slot window across included symbols; Jan 2025 target coverage is reported separately in the readiness table.",
+      "end": "2026-05-12T08:00:00Z",
+      "expected_regime_label": "founder_review_required",
+      "label": "sv2_0_2_public_4h_db_imported_common_window",
+      "start": "2025-01-01T00:00:00Z"
+    }
+  ]
+}

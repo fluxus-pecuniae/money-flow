@@ -150,7 +150,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "canonical Obsidian command center" in command_center
-    assert "`SV2.0.1` Canonical Evidence Truth + 1D Data/Runtime Hotfix is complete" in current_phase
+    assert "`SV2.0.2` Hardened Candle DB Import + Canonical SV2 Evidence Pack Generation is complete" in current_phase
     assert "SV1.18" in command_center
     assert "UAT0" in command_center
     assert "UAT1 public read-only connectivity is complete" in command_center
@@ -169,6 +169,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "PT0.0.3 historical data horizon" in command_center
     assert "SV2.0 is complete" in command_center
     assert "SV2.0.1 is complete" in command_center
+    assert "SV2.0.2 is complete" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
     assert "Strategy Validation" in moved_memory
@@ -192,6 +193,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "PT0.0.3 historical data horizon and 1D replay support is complete" in moved_memory
     assert "SV2.0 Money Flow 1D sleeve and expanded public-mainnet evidence refresh is complete" in moved_memory
     assert "SV2.0.1 canonical evidence truth hotfix" in moved_memory
+    assert "SV2.0.2 hardened DB import and canonical evidence-pack generation is complete" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
 
@@ -206,7 +208,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
     assert (
-        "Current implemented milestone | `SV2.0.1` Canonical Evidence Truth + 1D Data/Runtime Hotfix complete"
+        "Current implemented milestone | `SV2.0.2` Hardened Candle DB Import + Canonical SV2 Evidence Pack Generation complete"
         in command_center
     )
     assert "Canonical command center" in compatibility_command_center
@@ -228,6 +230,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     assert "PT0.0.3 historical data horizon / 1D replay support is complete" in current_dashboard
     assert "SV2.0" in current_dashboard
     assert "SV2.0.1" in current_dashboard
+    assert "SV2.0.2" in current_dashboard
     assert "Strategy Validation is now its own major track" in Path("money-flow/00 Maps/Phase Timeline.md").read_text()
     assert "What Strategy Validation Did" in sv_map
     assert "What Strategy Validation Did Not Prove" in sv_map

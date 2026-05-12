@@ -3064,18 +3064,24 @@
     if (!elements.historicalReplaySourceStatus) return;
     const summary = state.pt002HistoricalReplay || {};
     const sv20Source = state.sv20Summary?.source || {};
+    const canonicalEvidence = state.sv20Summary?.canonical_evidence_status || {};
     const dataset = historicalReadinessForSelection();
     const warnings = dataset?.reason_codes || [];
     elements.historicalReplaySourceStatus.innerHTML = `
       <span>Replay strategy: ${escapeHtml(replay?.strategy_label || state.historicalReplay.strategyId)}</span>
       <span>Research-only: ${escapeHtml(replay?.research_only ? "yes" : "no")}</span>
       <span>Money Flow version: ${escapeHtml(state.sv20Summary?.money_flow_version || "money_flow_v1_1 replay source")}</span>
+      <span>Canonical evidence: ${escapeHtml(canonicalEvidence.status || "not_loaded")}</span>
+      <span>Evidence packs: ${escapeHtml((canonicalEvidence.evidence_pack_paths || []).length)}</span>
+      <span>Compact replay canonical: ${escapeHtml(canonicalEvidence.compact_replay_rows_are_canonical_evidence === false ? "false" : "unknown")}</span>
       <span>Source: ${escapeHtml(sv20Source.historical_strategy_truth || dataset?.source || summary.source?.source_kind || "historical source not loaded")}</span>
       <span>Target start: ${escapeHtml(summary.target_start_at || dataset?.target_start_at || "n/a")}</span>
       <span>Range: ${escapeHtml(dataset?.start_time || dataset?.earliest_candle || "n/a")} -> ${escapeHtml(dataset?.end_time || dataset?.latest_candle || "n/a")}</span>
       <span>Target met: ${escapeHtml(dataset?.target_start_met ? "yes" : "no")}</span>
       <span>Coverage: ${escapeHtml(dataset?.target_coverage_percent ? pct(dataset.target_coverage_percent) : dataset?.coverage_percent || "n/a")}</span>
       <span>Candles: ${escapeHtml(dataset?.candle_count ?? replay?.candles?.length ?? 0)}</span>
+      <span>DB imported: ${escapeHtml(dataset?.db_imported ? "yes" : "no")}</span>
+      <span>Evidence-ready: ${escapeHtml(dataset?.canonical_evidence_ready || dataset?.evidence_ready ? "yes" : "no")}</span>
       <span>Replay-ready: ${escapeHtml(dataset?.replay_ready ? "yes" : "no")}</span>
       <span>Aggregation: ${escapeHtml(dataset?.aggregation_used ? `from ${dataset.aggregation_source_timeframe || "lower timeframe"}` : "source candles")}</span>
       <span>Warnings: ${escapeHtml(warnings.slice(0, 3).join(", ") || "none")}</span>
@@ -3107,6 +3113,7 @@
     if (!elements.historicalReplayDataHorizonPanel) return;
     const summary = state.pt002HistoricalReplay || {};
     const selected = historicalReadinessForSelection();
+    const canonicalEvidence = state.sv20Summary?.canonical_evidence_status || {};
     if (!selected) {
       setEmpty(elements.historicalReplayDataHorizonPanel, "Historical data horizon is unavailable for this selection.");
       return;
@@ -3146,6 +3153,11 @@
         <span>Component</span>
         <strong>${escapeHtml(selected.component || "n/a")}</strong>
         <small>${escapeHtml(state.sv20Summary?.money_flow_version || "Money Flow v1.1 replay")}</small>
+      </article>
+      <article>
+        <span>Canonical evidence</span>
+        <strong>${escapeHtml(canonicalEvidence.status || "not_loaded")}</strong>
+        <small>${escapeHtml(selected.db_imported ? "DB imported through hardened candle importer" : "not DB imported")}</small>
       </article>
       <article class="wide">
         <span>Warnings</span>

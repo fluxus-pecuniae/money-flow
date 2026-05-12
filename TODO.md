@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-11T23:12:00Z`
+Last reviewed: `2026-05-12T04:50:16Z`
 
 ## Active Follow-Ups
 
@@ -13,14 +13,14 @@ Last reviewed: `2026-05-11T23:12:00Z`
 ### T-123
 
 - `priority`: `medium`
-- `status`: `future`
-- `summary`: `SV2.x full evidence-pack generation and DB-backed candle import remain future work. SV2.0.1 explicitly marks the refreshed public-mainnet candles as fetched/normalized/staged-only, not DB-imported, and blocks canonical evidence status with canonical_sv2_evidence_packs_missing until the hardened importer/upsert path and canonical evidence-pack machinery are used. A future phase should confirm the intended DB/import target and artifact policy, upsert the refreshed public-mainnet candles into the canonical strategy-validation candle store, and generate ignored full evidence-pack directories for Money Flow v1.2 without changing strategy parameters or using testnet data as strategy truth.`
+- `status`: `done`
+- `summary`: `SV2.0.2 completes DB-backed candle import and canonical SV2 evidence-pack generation. Normalized Hyperliquid public mainnet candles were imported through the hardened Strategy Validation candle importer into the intended migrated money_flow DB, canonical campaign configs were generated for 15m/1h/4h/1d, and existing evidence-pack machinery emitted ignored canonical evidence packs for Money Flow v1.2. Supported canonical evidence symbols are BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, and AVAX. SHIB remains represented as venue symbol kSHIB but deferred from executable canonical evidence because unit semantics are not clean enough. No strategy parameters were changed and testnet data is not strategy truth.`
 
 ### T-124
 
 - `priority`: `high`
-- `status`: `future`
-- `summary`: `SOR-EV1 / stop-loss / strategy-variant evidence should remain blocked until the team either generates canonical SV2.0.1 evidence packs from DB-imported hardened candle data or explicitly accepts staged compact SV2 rows as noncanonical exploratory input. Compact SV2 rows now force-close dataset-end open positions and count entry fees at open, but they are labeled compact_provisional_replay_not_canonical_evidence and cannot be called final canonical evidence.`
+- `status`: `done`
+- `summary`: `SV2.0.2 removes the canonical-evidence blocker for SOR-EV1. Canonical DB-backed evidence pack paths now exist for Money Flow v1.2 with 15m/1h/4h/1d, dynamic_equity_pct, 10000 USDC initial equity per independent scenario, explicit fee/slippage, force-close-at-dataset-end open-position handling, supported expanded symbols, and unsupported/deferred SHIB reason codes. SOR-EV1 may proceed from this baseline, while live trading, real capital, order submission, SOR/fanout/CBBO/target reselection runtime behavior, and stop-loss/RSI/MACD variants still require separately scoped phases.`
 
 ### T-118
 

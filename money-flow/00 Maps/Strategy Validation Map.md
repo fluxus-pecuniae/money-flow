@@ -15,6 +15,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 | SV1.18-SV1.18.1 | Closeout / UAT candidate freeze | ETH 1h baseline frozen for UAT observation; coordination handoff cleaned up. |
 | SV2.0 | 1D sleeve / expanded public-mainnet evidence refresh | Money Flow v1.2 adds real `sleeve_1d`; BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX/SHIB are resolved through Hyperliquid public mainnet metadata; SHIB maps to `kSHIB`; 15m/1h/4h/1D public candle readiness and compact dynamic-equity evidence are recorded. |
 | SV2.0.1 | Canonical evidence truth hotfix | Compact SV2 rows are explicitly noncanonical; dataset-end open positions are force-closed with entry-fee accounting; Hyperliquid close slots are normalized; staged/imported/canonical-evidence truth is separated; runtime allocations are 0.25 each; internal timeframe is `1d` with display label `1D`; missing indicators are invalid instead of zero. Canonical evidence packs remain blocked. |
+| SV2.0.2 | Hardened DB import / canonical evidence packs | Normalized Hyperliquid public mainnet candles are imported through the hardened importer into the intended DB, canonical Money Flow v1.2 evidence packs are generated for 15m/1h/4h/1d, supported evidence symbols are BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX, and SHIB/kSHIB is deferred with explicit reason codes. |
 
 ## What Strategy Validation Proved
 
@@ -25,6 +26,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 - 15m and 4h are excluded from current UAT candidate scope.
 - SV2.0 proves only that 1D is now represented as a baseline Money Flow sleeve and that expanded Hyperliquid public-mainnet readiness/evidence can be generated for the requested universe; it does not prove profitability.
 - SV2.0.1 proves evidence-truth guardrails are explicit; it does not generate canonical evidence packs.
+- SV2.0.2 proves the SV2 baseline now has DB-backed canonical evidence-pack paths with dynamic equity, canonical close slots, explicit open-position handling, and supported/deferred symbol truth; it still does not prove profitability.
 
 ## What Strategy Validation Did Not Prove
 
@@ -41,6 +43,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 - It did not model live reject / cancel / fill reconciliation behavior.
 - SV2.0 did not optimize 1D parameters, approve live trading, submit orders, or generate full committed evidence-pack directories.
 - SV2.0.1 did not make compact staged rows canonical evidence, did not import staged candles into the DB, and did not unblock SOR-EV1 by itself.
+- SV2.0.2 did not optimize parameters, add stop-loss or RSI/MACD variants, submit orders, call private/signed/order endpoints, use testnet data as strategy truth, commit large generated evidence packs, or approve live trading.
 
 ## Current Candidate
 

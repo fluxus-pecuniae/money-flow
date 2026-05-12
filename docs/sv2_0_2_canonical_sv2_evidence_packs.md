@@ -1,0 +1,124 @@
+# SV2.0.2 Canonical SV2 Evidence Packs
+
+Status: `implemented` where DB import and canonical pack generation completed; `blocked` rows are explicit data or symbol readiness gaps.
+
+SV2.0.2 imports normalized Hyperliquid public mainnet candles through the hardened Strategy Validation candle importer and then uses the existing canonical evidence-pack machinery. It does not submit orders, use private/signed/order endpoints, use API keys, use Hyperliquid testnet prices as strategy truth, optimize parameters, or enable live trading.
+
+## Summary
+
+- Money Flow version: `money_flow_v1_2`
+- 1D sleeve: `real Money Flow sleeve`
+- Existing 15m/1h/4h rules: `unchanged`
+- Canonical evidence status: `canonical`
+- Evidence pack paths: `['reports/strategy_validation/money_flow_sv2_0_2_hyperliquid_public_15m_canonical_db_imported/20260511T235000Z', 'reports/strategy_validation/money_flow_sv2_0_2_hyperliquid_public_1h_canonical_db_imported/20260511T235000Z', 'reports/strategy_validation/money_flow_sv2_0_2_hyperliquid_public_4h_canonical_db_imported/20260511T235000Z', 'reports/strategy_validation/money_flow_sv2_0_2_hyperliquid_public_1d_canonical_db_imported/20260511T235000Z']`
+- SOR-EV1 readiness decision: `SOR-EV1 may proceed`
+
+## DB / Import Status
+
+- Configured DB URL: `postgresql+psycopg://money_flow:***@127.0.0.1:5432/money_flow`
+- DB reachable: `True`
+- Schema status: `migrated_schema_ready`
+- Migrations current: `True`
+- Persisted candle count before/at inspection: `25848`
+- DB blockers: `[]`
+- Import result count: `36`
+
+## Market Identity Status
+
+| requested | venue symbol | supported | asset id | szDecimals | evidence ready | reason codes |
+| --- | --- | --- | ---: | ---: | --- | --- |
+| `BTC` | `BTC` | `True` | `0` | `5` | `True` | `('symbol_supported',)` |
+| `ETH` | `ETH` | `True` | `1` | `4` | `True` | `('symbol_supported',)` |
+| `SOL` | `SOL` | `True` | `5` | `2` | `True` | `('symbol_supported',)` |
+| `XRP` | `XRP` | `True` | `25` | `0` | `True` | `('symbol_supported',)` |
+| `DOGE` | `DOGE` | `True` | `12` | `0` | `True` | `('symbol_supported',)` |
+| `HYPE` | `HYPE` | `True` | `159` | `2` | `True` | `('symbol_supported',)` |
+| `BNB` | `BNB` | `True` | `7` | `3` | `True` | `('symbol_supported',)` |
+| `SUI` | `SUI` | `True` | `14` | `1` | `True` | `('symbol_supported',)` |
+| `AVAX` | `AVAX` | `True` | `6` | `2` | `True` | `('symbol_supported',)` |
+| `SHIB` | `kSHIB` | `False` | `38` | `0` | `False` | `('canonical_evidence_excluded_symbol_deferred', 'symbol_supported', 'venue_symbol_alias_detected', 'venue_symbol_unit_semantics_deferred')` |
+
+## Imported Dataset Table
+
+| symbol | timeframe | fetched | normalized | raw file | db imported | canonical ready | candles | earliest | latest | target start met | reason codes |
+| --- | --- | --- | --- | --- | --- | --- | ---: | --- | --- | --- | --- |
+| `BTC` | `15m` | `True` | `True` | `True` | `True` | `True` | 5013 | `2026-03-20T23:45:00Z` | `2026-05-12T04:45:00Z` | `False` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_earliest_available_after_target', 'historical_import_succeeded', 'historical_target_start_not_available', 'hyperliquid_public_5000_candle_limit', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `BTC` | `1h` | `True` | `True` | `True` | `True` | `True` | 5003 | `2025-10-15T19:00:00Z` | `2026-05-12T05:00:00Z` | `False` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_earliest_available_after_target', 'historical_import_succeeded', 'historical_target_start_not_available', 'hyperliquid_public_5000_candle_limit', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `BTC` | `4h` | `True` | `True` | `True` | `True` | `True` | 2978 | `2025-01-01T04:00:00Z` | `2026-05-12T08:00:00Z` | `True` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_import_succeeded', 'historical_target_start_available', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `BTC` | `1D` | `True` | `True` | `True` | `True` | `True` | 497 | `2025-01-02T00:00:00Z` | `2026-05-13T00:00:00Z` | `True` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_import_succeeded', 'historical_target_start_available', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `ETH` | `15m` | `True` | `True` | `True` | `True` | `True` | 5012 | `2026-03-21T00:00:00Z` | `2026-05-12T04:45:00Z` | `False` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_earliest_available_after_target', 'historical_import_succeeded', 'historical_target_start_not_available', 'hyperliquid_public_5000_candle_limit', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `ETH` | `1h` | `True` | `True` | `True` | `True` | `True` | 5003 | `2025-10-15T19:00:00Z` | `2026-05-12T05:00:00Z` | `False` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_earliest_available_after_target', 'historical_import_succeeded', 'historical_target_start_not_available', 'hyperliquid_public_5000_candle_limit', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `ETH` | `4h` | `True` | `True` | `True` | `True` | `True` | 2978 | `2025-01-01T04:00:00Z` | `2026-05-12T08:00:00Z` | `True` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_import_succeeded', 'historical_target_start_available', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `ETH` | `1D` | `True` | `True` | `True` | `True` | `True` | 497 | `2025-01-02T00:00:00Z` | `2026-05-13T00:00:00Z` | `True` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_import_succeeded', 'historical_target_start_available', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `SOL` | `15m` | `True` | `True` | `True` | `True` | `True` | 5012 | `2026-03-21T00:00:00Z` | `2026-05-12T04:45:00Z` | `False` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_earliest_available_after_target', 'historical_import_succeeded', 'historical_target_start_not_available', 'hyperliquid_public_5000_candle_limit', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `SOL` | `1h` | `True` | `True` | `True` | `True` | `True` | 5003 | `2025-10-15T19:00:00Z` | `2026-05-12T05:00:00Z` | `False` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_earliest_available_after_target', 'historical_import_succeeded', 'historical_target_start_not_available', 'hyperliquid_public_5000_candle_limit', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `SOL` | `4h` | `True` | `True` | `True` | `True` | `True` | 2978 | `2025-01-01T04:00:00Z` | `2026-05-12T08:00:00Z` | `True` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_import_succeeded', 'historical_target_start_available', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `SOL` | `1D` | `True` | `True` | `True` | `True` | `True` | 497 | `2025-01-02T00:00:00Z` | `2026-05-13T00:00:00Z` | `True` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_import_succeeded', 'historical_target_start_available', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `XRP` | `15m` | `True` | `True` | `True` | `True` | `True` | 5009 | `2026-03-21T00:45:00Z` | `2026-05-12T04:45:00Z` | `False` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_earliest_available_after_target', 'historical_import_succeeded', 'historical_target_start_not_available', 'hyperliquid_public_5000_candle_limit', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `XRP` | `1h` | `True` | `True` | `True` | `True` | `True` | 5002 | `2025-10-15T20:00:00Z` | `2026-05-12T05:00:00Z` | `False` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_earliest_available_after_target', 'historical_import_succeeded', 'historical_target_start_not_available', 'hyperliquid_public_5000_candle_limit', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `XRP` | `4h` | `True` | `True` | `True` | `True` | `True` | 2978 | `2025-01-01T04:00:00Z` | `2026-05-12T08:00:00Z` | `True` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_import_succeeded', 'historical_target_start_available', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `XRP` | `1D` | `True` | `True` | `True` | `True` | `True` | 497 | `2025-01-02T00:00:00Z` | `2026-05-13T00:00:00Z` | `True` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_import_succeeded', 'historical_target_start_available', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `DOGE` | `15m` | `True` | `True` | `True` | `True` | `True` | 5011 | `2026-03-21T00:15:00Z` | `2026-05-12T04:45:00Z` | `False` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_earliest_available_after_target', 'historical_import_succeeded', 'historical_target_start_not_available', 'hyperliquid_public_5000_candle_limit', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `DOGE` | `1h` | `True` | `True` | `True` | `True` | `True` | 5003 | `2025-10-15T19:00:00Z` | `2026-05-12T05:00:00Z` | `False` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_earliest_available_after_target', 'historical_import_succeeded', 'historical_target_start_not_available', 'hyperliquid_public_5000_candle_limit', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `DOGE` | `4h` | `True` | `True` | `True` | `True` | `True` | 2978 | `2025-01-01T04:00:00Z` | `2026-05-12T08:00:00Z` | `True` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_import_succeeded', 'historical_target_start_available', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `DOGE` | `1D` | `True` | `True` | `True` | `True` | `True` | 497 | `2025-01-02T00:00:00Z` | `2026-05-13T00:00:00Z` | `True` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_import_succeeded', 'historical_target_start_available', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `HYPE` | `15m` | `True` | `True` | `True` | `True` | `True` | 5004 | `2026-03-21T02:00:00Z` | `2026-05-12T04:45:00Z` | `False` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_earliest_available_after_target', 'historical_import_succeeded', 'historical_target_start_not_available', 'hyperliquid_public_5000_candle_limit', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `HYPE` | `1h` | `True` | `True` | `True` | `True` | `True` | 5001 | `2025-10-15T21:00:00Z` | `2026-05-12T05:00:00Z` | `False` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_earliest_available_after_target', 'historical_import_succeeded', 'historical_target_start_not_available', 'hyperliquid_public_5000_candle_limit', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `HYPE` | `4h` | `True` | `True` | `True` | `True` | `True` | 2978 | `2025-01-01T04:00:00Z` | `2026-05-12T08:00:00Z` | `True` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_import_succeeded', 'historical_target_start_available', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `HYPE` | `1D` | `True` | `True` | `True` | `True` | `True` | 497 | `2025-01-02T00:00:00Z` | `2026-05-13T00:00:00Z` | `True` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_import_succeeded', 'historical_target_start_available', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `BNB` | `15m` | `True` | `True` | `True` | `True` | `True` | 5012 | `2026-03-21T00:00:00Z` | `2026-05-12T04:45:00Z` | `False` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_earliest_available_after_target', 'historical_import_succeeded', 'historical_target_start_not_available', 'hyperliquid_public_5000_candle_limit', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `BNB` | `1h` | `True` | `True` | `True` | `True` | `True` | 5003 | `2025-10-15T19:00:00Z` | `2026-05-12T05:00:00Z` | `False` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_earliest_available_after_target', 'historical_import_succeeded', 'historical_target_start_not_available', 'hyperliquid_public_5000_candle_limit', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `BNB` | `4h` | `True` | `True` | `True` | `True` | `True` | 2978 | `2025-01-01T04:00:00Z` | `2026-05-12T08:00:00Z` | `True` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_import_succeeded', 'historical_target_start_available', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `BNB` | `1D` | `True` | `True` | `True` | `True` | `True` | 497 | `2025-01-02T00:00:00Z` | `2026-05-13T00:00:00Z` | `True` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_import_succeeded', 'historical_target_start_available', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `SUI` | `15m` | `True` | `True` | `True` | `True` | `True` | 5010 | `2026-03-21T00:30:00Z` | `2026-05-12T04:45:00Z` | `False` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_earliest_available_after_target', 'historical_import_succeeded', 'historical_target_start_not_available', 'hyperliquid_public_5000_candle_limit', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `SUI` | `1h` | `True` | `True` | `True` | `True` | `True` | 5002 | `2025-10-15T20:00:00Z` | `2026-05-12T05:00:00Z` | `False` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_earliest_available_after_target', 'historical_import_succeeded', 'historical_target_start_not_available', 'hyperliquid_public_5000_candle_limit', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `SUI` | `4h` | `True` | `True` | `True` | `True` | `True` | 2978 | `2025-01-01T04:00:00Z` | `2026-05-12T08:00:00Z` | `True` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_import_succeeded', 'historical_target_start_available', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `SUI` | `1D` | `True` | `True` | `True` | `True` | `True` | 497 | `2025-01-02T00:00:00Z` | `2026-05-13T00:00:00Z` | `True` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_import_succeeded', 'historical_target_start_available', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `AVAX` | `15m` | `True` | `True` | `True` | `True` | `True` | 5012 | `2026-03-21T00:00:00Z` | `2026-05-12T04:45:00Z` | `False` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_earliest_available_after_target', 'historical_import_succeeded', 'historical_target_start_not_available', 'hyperliquid_public_5000_candle_limit', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `AVAX` | `1h` | `True` | `True` | `True` | `True` | `True` | 5003 | `2025-10-15T19:00:00Z` | `2026-05-12T05:00:00Z` | `False` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_earliest_available_after_target', 'historical_import_succeeded', 'historical_target_start_not_available', 'hyperliquid_public_5000_candle_limit', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `AVAX` | `4h` | `True` | `True` | `True` | `True` | `True` | 2978 | `2025-01-01T04:00:00Z` | `2026-05-12T08:00:00Z` | `True` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_import_succeeded', 'historical_target_start_available', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `AVAX` | `1D` | `True` | `True` | `True` | `True` | `True` | 497 | `2025-01-02T00:00:00Z` | `2026-05-13T00:00:00Z` | `True` | `['canonical_hardened_import_succeeded', 'db_imported_true', 'historical_candles_available', 'historical_import_succeeded', 'historical_target_start_available', 'hyperliquid_public_mainnet_fetch_succeeded', 'symbol_supported']` |
+| `SHIB` | `15m` | `False` | `False` | `False` | `False` | `False` | 0 | `None` | `None` | `False` | `['canonical_evidence_excluded_symbol_deferred', 'canonical_sv2_evidence_packs_missing', 'historical_candles_unavailable', 'historical_data_source_missing', 'historical_import_blocked_symbol_unsupported', 'symbol_supported', 'symbol_unsupported_fetch_skipped', 'venue_symbol_alias_detected', 'venue_symbol_unit_semantics_deferred']` |
+| `SHIB` | `1h` | `False` | `False` | `False` | `False` | `False` | 0 | `None` | `None` | `False` | `['canonical_evidence_excluded_symbol_deferred', 'canonical_sv2_evidence_packs_missing', 'historical_candles_unavailable', 'historical_data_source_missing', 'historical_import_blocked_symbol_unsupported', 'symbol_supported', 'symbol_unsupported_fetch_skipped', 'venue_symbol_alias_detected', 'venue_symbol_unit_semantics_deferred']` |
+| `SHIB` | `4h` | `False` | `False` | `False` | `False` | `False` | 0 | `None` | `None` | `False` | `['canonical_evidence_excluded_symbol_deferred', 'canonical_sv2_evidence_packs_missing', 'historical_candles_unavailable', 'historical_data_source_missing', 'historical_import_blocked_symbol_unsupported', 'symbol_supported', 'symbol_unsupported_fetch_skipped', 'venue_symbol_alias_detected', 'venue_symbol_unit_semantics_deferred']` |
+| `SHIB` | `1D` | `False` | `False` | `False` | `False` | `False` | 0 | `None` | `None` | `False` | `['canonical_evidence_excluded_symbol_deferred', 'canonical_sv2_evidence_packs_missing', 'historical_candles_unavailable', 'historical_data_source_missing', 'historical_import_blocked_symbol_unsupported', 'symbol_supported', 'symbol_unsupported_fetch_skipped', 'venue_symbol_alias_detected', 'venue_symbol_unit_semantics_deferred']` |
+
+## Excluded / Deferred Symbols
+
+- `SHIB`: `['canonical_evidence_excluded_symbol_deferred', 'symbol_supported', 'venue_symbol_alias_detected', 'venue_symbol_unit_semantics_deferred']`
+
+## Canonical Campaign Config Summary
+
+- Campaign config paths: `['configs/strategy_validation/campaigns/sv2_0_2/money_flow_sv2_0_2_hyperliquid_public_15m_canonical.json', 'configs/strategy_validation/campaigns/sv2_0_2/money_flow_sv2_0_2_hyperliquid_public_1h_canonical.json', 'configs/strategy_validation/campaigns/sv2_0_2/money_flow_sv2_0_2_hyperliquid_public_4h_canonical.json', 'configs/strategy_validation/campaigns/sv2_0_2/money_flow_sv2_0_2_hyperliquid_public_1d_canonical.json']`
+- Timeframes: `15m`, `1h`, `4h`, `1d`
+- Initial equity: `10000 USDC` per independent scenario
+- Capital sizing mode: `dynamic_equity_pct`
+- Fill assumptions: `next_candle_open`, `next_candle_close`
+- Fee/slippage: `5 bps` / `3 bps`
+
+## Evidence Summary
+
+| timeframe | runs | symbols | avg ending equity | total trades | worst drawdown |
+| --- | ---: | --- | ---: | ---: | ---: |
+| `15m` | 18 | `['AVAX', 'BNB', 'BTC', 'DOGE', 'ETH', 'HYPE', 'SOL', 'SUI', 'XRP']` | `6943.209935922777777777777778` | 4013 | `4425.93517999` |
+| `1h` | 18 | `['AVAX', 'BNB', 'BTC', 'DOGE', 'ETH', 'HYPE', 'SOL', 'SUI', 'XRP']` | `6364.295238448333333333333333` | 3950 | `5608.75490253` |
+| `4h` | 18 | `['AVAX', 'BNB', 'BTC', 'DOGE', 'ETH', 'HYPE', 'SOL', 'SUI', 'XRP']` | `7857.031174867777777777777778` | 2504 | `8390.24466783` |
+| `1D` | 18 | `['AVAX', 'BNB', 'BTC', 'DOGE', 'ETH', 'HYPE', 'SOL', 'SUI', 'XRP']` | `11190.16441169388888888888889` | 374 | `11416.82897622` |
+
+## Open-Position Handling
+
+- Policy: `force_close_at_dataset_end`
+- Explicit: `True`
+- Forced close count: `18`
+- MTM run count: `72`
+- Excluded open-position count: `0`
+
+## Limitations
+
+- Hyperliquid public candleSnapshot may be limited to the most recent 5000 candles; Jan 2025 target coverage is reported truthfully per row.
+- Evidence packs are research evidence, not proof of profitability and not approval for live trading.
+- SHIB/kSHIB unit semantics are deferred if alias units are not clean enough for canonical evidence.
+
+## No-Order / No-Live Confirmation
+
+- Boundary flags: `{'submits_orders': False, 'calls_order_endpoints': False, 'calls_private_or_signed_endpoints': False, 'uses_api_keys': False, 'uses_testnet_prices_as_strategy_truth': False, 'enables_live_trading': False}`

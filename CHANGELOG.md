@@ -13,6 +13,52 @@ Entry schema:
 
 ---
 
+## v2026.05.12.001
+
+- `recorded_at_utc`: `2026-05-12T04:50:16Z`
+- `scope`: `SV2.0.2 hardened candle DB import and canonical SV2 evidence-pack generation`
+- `intent`: `Native entry. Imported normalized Hyperliquid public mainnet candles through the hardened Strategy Validation candle importer into the intended migrated money_flow DB, generated canonical SV2.0.2 Money Flow v1.2 campaign configs for 15m/1h/4h/1d, and ran the existing canonical evidence-pack machinery to emit DB-backed ignored evidence packs. Supported canonical evidence symbols are BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, and AVAX; requested SHIB is explicitly represented as kSHIB and deferred from canonical evidence because venue-symbol unit semantics are not clean enough. Dynamic equity remains 10000 USDC per independent scenario, dataset-end open positions are force-closed explicitly, compact replay rows remain noncanonical, testnet data is not strategy truth, and SOR-EV1 may proceed from the SV2.0.2 baseline. No orders, private/signed/order endpoints, API keys, live trading, testnet strategy truth, SOR/fanout/CBBO/target reselection, stop-loss/RSI/MACD variants, or parameter optimization were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `KNOWN_ISSUES.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `configs/strategy_validation/campaigns/sv2_0_2/money_flow_sv2_0_2_hyperliquid_public_15m_canonical.json`
+  - `configs/strategy_validation/campaigns/sv2_0_2/money_flow_sv2_0_2_hyperliquid_public_1h_canonical.json`
+  - `configs/strategy_validation/campaigns/sv2_0_2/money_flow_sv2_0_2_hyperliquid_public_4h_canonical.json`
+  - `configs/strategy_validation/campaigns/sv2_0_2/money_flow_sv2_0_2_hyperliquid_public_1d_canonical.json`
+  - `scripts/run_sv202_canonical_import_and_evidence.py`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `docs/sv2_0_historical_data_refresh_summary.json`
+  - `docs/sv2_0_1_canonical_evidence_truth_hotfix.md`
+  - `docs/sv2_0_2_canonical_sv2_evidence_packs.md`
+  - `tests/test_sv202_canonical_import_evidence.py`
+  - `tests/test_operational_docs.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=money_flow SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python scripts/run_sv202_canonical_import_and_evidence.py --fetch-public-data --generate-evidence-packs --timeout-seconds 30 --work-dir /tmp/money-flow-sv202-candles --run-timestamp 2026-05-11T23:50:00Z`
+  - `.venv/bin/python -m pytest -q tests/test_sv202_canonical_import_evidence.py`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_sv20_money_flow_1d_expanded_evidence.py tests/test_sv201_canonical_evidence_truth_hotfix.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt002_historical_strategy_replay_cockpit.py tests/test_pt003_historical_data_horizon_1d.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_sv14_evidence_readiness.py::test_canonical_research_campaign_configs_parse_successfully`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `package/build checks not run because no package.json exists in repo root`
+
 ## v2026.05.11.021
 
 - `recorded_at_utc`: `2026-05-11T23:01:36Z`

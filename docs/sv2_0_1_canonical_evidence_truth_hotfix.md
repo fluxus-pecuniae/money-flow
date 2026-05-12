@@ -4,6 +4,8 @@ Recorded at: `2026-05-11T23:01:36Z`
 
 Status: `implemented_with_canonical_evidence_blocked`
 
+Supersession note: SV2.0.2 resolves the canonical evidence blockers that this SV2.0.1 report intentionally left open. The SV2.0.1 report remains historical truth for the hotfix state at the time; current canonical evidence truth is in `docs/sv2_0_2_canonical_sv2_evidence_packs.md`.
+
 SV2.0.1 fixes P1 evidence/data/runtime truth issues found after SV2.0. It does not optimize Money Flow, does not add variants, does not submit orders, does not call private/signed/order endpoints, does not use API keys, and does not use Hyperliquid testnet prices as strategy truth.
 
 Live trading is not approved.

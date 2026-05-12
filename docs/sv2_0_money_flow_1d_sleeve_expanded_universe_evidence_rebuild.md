@@ -2,11 +2,11 @@
 
 Recorded at: `2026-05-11T23:01:36Z`
 
-Status: `sv2_0_1_truth_hotfixed_canonical_evidence_blocked`
+Status: `superseded_by_sv2_0_2_canonical_evidence_generated`
 
 SV2.0 promotes `1D` from a PT0.0.3 dashboard aggregation into a real Money Flow sleeve: `sleeve_1d`. Money Flow v1.2 is now `sleeve_15m`, `sleeve_1h`, `sleeve_4h`, and `sleeve_1d`. Existing 15m / 1h / 4h sleeve settings remain unchanged. The 1D sleeve settings are an initial baseline and are not optimized.
 
-SV2.0.1 corrects the evidence truth: the committed compact rows are not canonical evidence packs. They are staged, founder-readable, provisional replay/evidence rows generated from Hyperliquid public mainnet candles.
+SV2.0.1 corrects the evidence truth: the committed compact rows are not canonical evidence packs. They are staged, founder-readable, provisional replay/evidence rows generated from Hyperliquid public mainnet candles. SV2.0.2 supersedes the blocked canonical-evidence state by importing normalized supported-symbol candles through the hardened importer and generating canonical evidence packs. Current canonical pack truth is in `docs/sv2_0_2_canonical_sv2_evidence_packs.md`.
 
 No orders were submitted. Live trading is not approved. Testnet market data is not strategy truth. Strategy evidence uses Hyperliquid public mainnet candles only.
 
@@ -53,15 +53,15 @@ SV2.0.1 adds explicit open-position accounting to compact rows:
 - final open positions are force-closed at dataset end;
 - 20 of 40 refreshed compact rows had `open_position_at_end = true` and `forced_close_applied = true`.
 
-These compact rows are still not canonical evidence packs.
+These compact rows are still not canonical evidence packs. SV2.0.2 canonical packs are separate DB-backed artifacts.
 
 ## Canonical Evidence Status
 
-Status: `blocked`
+Status: `resolved_by_sv2_0_2`
 
-Evidence pack paths: none.
+Evidence pack paths now exist in ignored `reports/strategy_validation/` directories; see `docs/sv2_0_2_canonical_sv2_evidence_packs.md`.
 
-Blocked reasons:
+Former SV2.0.1 blocked reasons:
 
 ```text
 canonical_sv2_evidence_packs_missing
@@ -70,6 +70,8 @@ db_imported_false_for_staged_summary
 ```
 
 SV2.0.1 intentionally blocks canonical status because the refreshed public candles are `staged_for_replay=true` but `db_imported=false`. Canonical evidence packs require the hardened import/upsert path and the existing Strategy Validation campaign/evidence-pack machinery.
+
+SV2.0.2 completes that follow-up for supported canonical symbols BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, and AVAX. SHIB/kSHIB remains represented but deferred from canonical evidence because unit semantics are not clean enough.
 
 ## Observed Compact Highlights
 
@@ -95,8 +97,8 @@ Use the JSON summary for all row-level values. Do not treat this table as an opt
 
 ## No-Order / No-Live Confirmation
 
-SV2.0/SV2.0.1 submitted no orders, created no live artifacts, called no private/signed/order endpoints, used no API keys, and did not use Hyperliquid testnet prices as strategy truth.
+SV2.0-SV2.0.2 submitted no orders, created no live artifacts, called no private/signed/order endpoints, used no API keys, and did not use Hyperliquid testnet prices as strategy truth.
 
 ## Remaining Limitation
 
-SOR-EV1 remains blocked if it requires canonical SV2 evidence packs. The next evidence-governance step is to import the refreshed public candles through the canonical hardened importer, then run the existing Strategy Validation campaign/evidence-pack system and record non-empty pack paths.
+SOR-EV1 may proceed from the SV2.0.2 DB-backed canonical baseline. Any SOR-EV1 variant work must remain separately scoped and must not change baseline Money Flow rules unless explicitly approved by that phase.

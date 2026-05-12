@@ -2,9 +2,9 @@
 
 Recorded at: `2026-05-11T23:01:36Z`
 
-Status: `sv2_0_1_truth_hotfixed_staged_not_canonical`
+Status: `superseded_by_sv2_0_2_canonical_db_import`
 
-SV2.0 added `sleeve_1d` as a real Money Flow sleeve and refreshed the requested expanded Hyperliquid public-mainnet candle universe. SV2.0.1 corrects the evidence/data truth labels: the refreshed candles are fetched, normalized, and staged for replay, but they are not DB-imported through the canonical hardened importer and are not canonical-evidence-ready.
+SV2.0 added `sleeve_1d` as a real Money Flow sleeve and refreshed the requested expanded Hyperliquid public-mainnet candle universe. SV2.0.1 corrected the evidence/data truth labels by marking refreshed candles as fetched, normalized, and staged for replay, but not DB-imported or canonical-evidence-ready. SV2.0.2 supersedes that blocker by importing normalized supported-symbol candles through the hardened canonical importer and generating canonical evidence packs. Current canonical evidence truth is in `docs/sv2_0_2_canonical_sv2_evidence_packs.md`.
 
 No orders were submitted. No private, signed, order, testnet-strategy-truth, API-key, paper/live execution, SOR, fanout, CBBO, target-reselection, or route-executor behavior was added.
 
@@ -47,9 +47,9 @@ The compact JSON summary is at `docs/sv2_0_historical_data_refresh_summary.json`
 | `fetched` | true for all 40 rows |
 | `normalized` | true for all 40 rows |
 | `staged_for_replay` | true for all 40 rows |
-| `db_imported` | false for all 40 rows |
-| `canonical_evidence_ready` | false for all 40 rows |
-| `evidence_ready` | false for all 40 rows |
+| `db_imported` | SV2.0.1 staged rows were false; SV2.0.2 imported supported BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX rows through the hardened importer |
+| `canonical_evidence_ready` | SV2.0.1 staged rows were false; SV2.0.2 supported rows are canonical-ready |
+| `evidence_ready` | SV2.0.1 staged rows were false; SV2.0.2 supported rows are evidence-ready |
 
 Reason codes added by SV2.0.1 include:
 
@@ -69,11 +69,11 @@ Examples:
 
 ## Canonical Evidence Readiness
 
-Status: `blocked`
+Status: `resolved_by_sv2_0_2`
 
-Canonical SV2 evidence packs are not generated from this staged summary. Compact replay/evidence rows are provisional founder-readable rows only and must not be labeled canonical evidence.
+Canonical SV2 evidence packs are not generated from SV2.0.1 staged compact rows. SV2.0.2 instead imports normalized supported-symbol candles through the hardened importer and runs existing evidence-pack machinery.
 
-Blocked reason:
+Former SV2.0.1 blocked reasons:
 
 ```text
 canonical_sv2_evidence_packs_missing
@@ -81,6 +81,14 @@ db_imported_false_for_staged_summary
 compact_replay_rows_not_canonical_evidence
 ```
 
+SV2.0.2 status:
+
+```text
+canonical_sv2_evidence_packs_generated
+db_imported_true_for_supported_symbols
+compact_replay_rows_not_canonical_evidence
+```
+
 ## Boundary Confirmation
 
-SV2.0/SV2.0.1 remains Strategy Validation only. It submits no orders, uses no API keys, calls no private/signed/order endpoints, and does not use Hyperliquid testnet data as strategy truth.
+SV2.0-SV2.0.2 remain Strategy Validation only. They submit no orders, use no API keys, call no private/signed/order endpoints, and do not use Hyperliquid testnet data as strategy truth.

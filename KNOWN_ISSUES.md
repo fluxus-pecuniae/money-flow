@@ -1,6 +1,6 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-05-11T23:12:00Z`
+Last reviewed: `2026-05-12T04:50:16Z`
 
 ## Open Items
 
@@ -13,10 +13,10 @@ Last reviewed: `2026-05-11T23:12:00Z`
 
 ### K-016
 
-- `status`: `open`
+- `status`: `resolved`
 - `area`: `SV2.0 evidence artifacts`
-- `summary`: `SV2.0.1 fixes SV2 evidence-truth issues but canonical evidence remains blocked. Money Flow v1.2 has a real sleeve_1d and the requested BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX/SHIB Hyperliquid public-mainnet universe is fetched/normalized/staged into a compact summary JSON, but the rows are not DB-imported through the hardened importer and no canonical SV2 evidence-pack paths exist. Compact rows are now explicitly provisional, count entry fees at open, force-close dataset-end open positions, normalize Hyperliquid .999Z close slots to canonical boundaries, and split staged/imported/evidence-ready truth. 4h and 1D public candleSnapshot rows reach the Jan 2025 target, while 15m and 1h remain limited by Hyperliquid public recent-candle availability and carry hyperliquid_public_5000_candle_limit.`
-- `impact`: `Founder review can use the compact SV2.0.1 readiness/evidence summary and dashboard visibility as noncanonical exploratory evidence only. SOR-EV1 / stop-loss / strategy-variant evidence should remain blocked until canonical packs are generated from DB-imported hardened candle data or a separate decision accepts staged compact rows as noncanonical input. This is an evidence-artifact/governance item, not a strategy failure. No order, private/signed/order endpoint, API key, testnet strategy truth, live trading, SOR/fanout/CBBO, or parameter optimization was added.`
+- `summary`: `SV2.0.2 resolves the SV2 canonical-evidence artifact blocker. Money Flow v1.2 has a real sleeve_1d, normalized Hyperliquid public-mainnet candles have been imported through the hardened candle importer into the intended migrated money_flow DB, and ignored canonical evidence-pack paths now exist for 15m/1h/4h/1d. Supported canonical evidence symbols are BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, and AVAX; requested SHIB is explicitly represented as kSHIB and deferred from canonical evidence because unit semantics are not clean enough. 4h and 1D public candleSnapshot rows reach the Jan 2025 target, while 15m and 1h remain limited by Hyperliquid public recent-candle availability and carry hyperliquid_public_5000_candle_limit.`
+- `impact`: `SOR-EV1 may proceed from the SV2.0.2 baseline. Compact rows remain noncanonical, but DB-backed canonical evidence packs now exist with dynamic_equity_pct, 10000 USDC initial equity per independent scenario, explicit fee/slippage, and force-close-at-dataset-end open-position handling. This is research evidence, not proof of profitability or approval for live trading. No order, private/signed/order endpoint, API key, testnet strategy truth, live trading, SOR/fanout/CBBO, stop-loss/RSI/MACD variant, or parameter optimization was added.`
 
 ### K-015
 
