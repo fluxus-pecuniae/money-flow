@@ -13,6 +13,21 @@ Entry schema:
 
 ---
 
+## v2026.05.12.013
+
+- `recorded_at_utc`: `2026-05-12T16:44:37Z`
+- `scope`: `Evidence Lab overlay order and focus controls follow-up`
+- `intent`: `Native entry. Moved the Evidence Lab Variant Chart Overlay above the Variant Summary Matrix again and added a Clear Focus button in Worst Trades Focus so founder review can reset the selected worst-trade chart focus without changing overlay filters. Behavior remains visualization-only: no production Money Flow rules changed, no variant was approved, no orders/private/signed/order endpoints were called, no evidence packs were regenerated, and no live/paper runtime or SOR behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `git diff --check`
+
 ## v2026.05.12.012
 
 - `recorded_at_utc`: `2026-05-12T14:11:49Z`

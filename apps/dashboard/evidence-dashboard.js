@@ -649,6 +649,7 @@
     evidenceLabToggleHideBaselineEntries: document.querySelector("#evidence-lab-toggle-hide-baseline-entries"),
     evidenceLabOverlayMethodology: document.querySelector("#evidence-lab-overlay-methodology"),
     evidenceLabOverlayInspector: document.querySelector("#evidence-lab-overlay-inspector"),
+    evidenceLabClearFocus: document.querySelector("#evidence-lab-clear-focus"),
     evidenceLabWorstFocusTable: document.querySelector("#evidence-lab-worst-focus-table"),
     evidenceLabControlPocketView: document.querySelector("#evidence-lab-control-pocket-view"),
     evidenceLabOverlayUnavailable: document.querySelector("#evidence-lab-overlay-unavailable"),
@@ -5307,6 +5308,13 @@
         };
       }
     });
+    if (elements.evidenceLabClearFocus) {
+      elements.evidenceLabClearFocus.disabled = !state.evidenceLabOverlay.selectedWorstTradeId;
+      elements.evidenceLabClearFocus.onclick = () => {
+        state.evidenceLabOverlay.selectedWorstTradeId = null;
+        renderEvidenceLabChartOverlay();
+      };
+    }
   }
 
   function evidenceLabVariantMethodology() {

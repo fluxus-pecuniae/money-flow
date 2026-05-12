@@ -158,14 +158,6 @@
 
         <section id="evidence-lab-summary-cards" class="metric-grid evidence-lab-summary" aria-label="Evidence Lab summary"></section>
 
-        <section class="table-panel evidence-lab-panel" aria-labelledby="evidence-lab-variant-matrix-title">
-          <div class="section-heading">
-            <h2 id="evidence-lab-variant-matrix-title">Variant Summary Matrix</h2>
-            <p>All SOR-EV1/SOR-EV2 variants remain evidence-only; rejected variants stay visible.</p>
-          </div>
-          <div id="evidence-lab-variant-matrix" class="data-table-shell"></div>
-        </section>
-
         <section class="table-panel evidence-lab-panel" aria-labelledby="evidence-lab-overlay-title">
           <div class="section-heading">
             <h2 id="evidence-lab-overlay-title">Variant Chart Overlay</h2>
@@ -215,8 +207,11 @@
           <section class="evidence-lab-two-column evidence-lab-overlay-tables" aria-label="Evidence Lab overlay support panels">
             <article class="table-panel evidence-lab-panel">
               <div class="section-heading">
-                <h3>Worst Trades Focus</h3>
-                <p>Select a loss to center the chart and inspect baseline plus linkable variant context.</p>
+                <div>
+                  <h3>Worst Trades Focus</h3>
+                  <p>Select a loss to center the chart and inspect baseline plus linkable variant context.</p>
+                </div>
+                <button id="evidence-lab-clear-focus" class="pill" type="button">Clear Focus</button>
               </div>
               <div id="evidence-lab-worst-focus-table" class="data-table-shell"></div>
             </article>
@@ -229,6 +224,14 @@
             </article>
           </section>
           <div id="evidence-lab-overlay-unavailable" class="empty-state"></div>
+        </section>
+
+        <section class="table-panel evidence-lab-panel" aria-labelledby="evidence-lab-variant-matrix-title">
+          <div class="section-heading">
+            <h2 id="evidence-lab-variant-matrix-title">Variant Summary Matrix</h2>
+            <p>All SOR-EV1/SOR-EV2 variants remain evidence-only; rejected variants stay visible.</p>
+          </div>
+          <div id="evidence-lab-variant-matrix" class="data-table-shell"></div>
         </section>
 
         <section class="evidence-lab-two-column" aria-label="Evidence Lab analysis panels">
