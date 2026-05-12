@@ -13,6 +13,21 @@ Entry schema:
 
 ---
 
+## v2026.05.12.014
+
+- `recorded_at_utc`: `2026-05-12T18:21:08Z`
+- `scope`: `Evidence Lab worst-trade focus table follow-up`
+- `intent`: `Native entry. Decoupled the Worst Trades Focus table from the selected overlay symbol/timeframe/fill so clicking Focus recenters the chart and highlights the selected row while keeping all worst-trade rows visible. Strengthened the focused-row styling and button label for founder review. Behavior remains visualization-only: no production Money Flow rules changed, no variant was approved, no orders/private/signed/order endpoints were called, no evidence packs were regenerated, and no live/paper runtime or SOR behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `git diff --check`
+
 ## v2026.05.12.013
 
 - `recorded_at_utc`: `2026-05-12T16:44:37Z`

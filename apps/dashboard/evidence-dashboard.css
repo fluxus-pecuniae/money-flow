@@ -1304,7 +1304,17 @@ h3 {
 }
 
 .active-row {
-  background: rgba(40, 215, 197, 0.08);
+  background: rgba(245, 247, 242, 0.12);
+  box-shadow: inset 3px 0 0 #f5f7f2;
+}
+
+.active-row td {
+  border-color: rgba(245, 247, 242, 0.28);
+}
+
+.active-row .text-row-button {
+  color: #f5f7f2;
+  font-weight: 800;
 }
 
 .exchange-chart-topline {

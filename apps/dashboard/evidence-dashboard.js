@@ -5800,9 +5800,7 @@
 
   function renderEvidenceLabWorstFocusTable() {
     if (!elements.evidenceLabWorstFocusTable) return;
-    const rows = selectedEvidenceLabWorstTrades().length
-      ? selectedEvidenceLabWorstTrades()
-      : (state.sorEv1Summary?.worst_trades || []);
+    const rows = state.sorEv1Summary?.worst_trades || [];
     if (!rows.length) {
       setEmpty(elements.evidenceLabWorstFocusTable, unavailable());
       return;
@@ -5823,9 +5821,9 @@
           </tr>
         </thead>
         <tbody>
-          ${rows.slice(0, 30).map((row) => `
+          ${rows.map((row) => `
             <tr class="${row.trade_id === state.evidenceLabOverlay.selectedWorstTradeId ? "active-row" : ""}">
-              <td><button class="text-row-button" type="button" data-evidence-lab-focus-trade="${escapeHtml(row.trade_id || "")}">Focus</button></td>
+              <td><button class="text-row-button" type="button" data-evidence-lab-focus-trade="${escapeHtml(row.trade_id || "")}">${row.trade_id === state.evidenceLabOverlay.selectedWorstTradeId ? "Focused" : "Focus"}</button></td>
               <td>${escapeHtml(row.loss_rank ?? unavailable())}</td>
               <td>${escapeHtml(row.symbol)}</td>
               <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>

@@ -203,6 +203,8 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     assert "Hide baseline entries/exits" in html
     assert "hideBaselineMarkers" in js
     assert "evidenceLabClearFocus" in js
+    assert "state.sorEv1Summary?.worst_trades || []" in js
+    assert "Focused" in js
     assert "founder-review feature" in js
     assert "variant_chart_overlay_deferred_to_sor_ev2_2" not in js
     assert "production_approved" in js
