@@ -170,6 +170,7 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     assert "evidence-lab-toggle-late-extension" in html
     assert "evidence-lab-toggle-adverse-candles" in html
     assert "evidence-lab-toggle-ma-breaks" in html
+    assert "evidence-lab-toggle-hide-baseline-entries" in html
     assert "Worst Trades Focus" in html
     assert "Control Pocket View" in html
     assert html.index("Variant Summary Matrix") < html.index("Variant Chart Overlay")
@@ -197,6 +198,9 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     assert "evidenceLabVariantMarkers" in js
     assert "renderEvidenceLabWorstFocusTable" in js
     assert "renderEvidenceLabControlPocketView" in js
+    assert "FOUNDER_REVIEW_MARKER_COLOR" in js
+    assert "hideBaselineEntries" in js
+    assert "founder-review feature" in js
     assert "variant_chart_overlay_deferred_to_sor_ev2_2" not in js
     assert "production_approved" in js
     assert "No variant is approved for production" in js

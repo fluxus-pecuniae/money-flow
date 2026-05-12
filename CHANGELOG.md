@@ -13,6 +13,22 @@ Entry schema:
 
 ---
 
+## v2026.05.12.011
+
+- `recorded_at_utc`: `2026-05-12T13:54:36Z`
+- `scope`: `Evidence Lab founder-review marker visibility follow-up`
+- `intent`: `Native entry. Updated the Evidence Lab overlay so founder-review context markers use a white arrow treatment and added a Hide baseline entries checkbox to reduce baseline-entry noise when reviewing SOR context features. Behavior remains visualization-only: no production Money Flow rules changed, no variant was approved, no orders/private/signed/order endpoints were called, no evidence packs were regenerated, and no live/paper runtime or SOR behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `git diff --check`
+
 ## v2026.05.12.010
 
 - `recorded_at_utc`: `2026-05-12T13:49:09Z`

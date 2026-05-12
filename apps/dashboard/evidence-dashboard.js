@@ -63,6 +63,7 @@
   const CANDLE_DOWN_COLOR = "#050607";
   const CANDLE_BORDER_COLOR = "#e7ece8";
   const CANDLE_WICK_COLOR = "#e7ece8";
+  const FOUNDER_REVIEW_MARKER_COLOR = "#f5f7f2";
   const LIVE_MARKET_REFRESH_MS = 15000;
   const LIVE_CHART_CANDLE_COUNT = 96;
   const LIVE_TIMEFRAME_MINUTES = {
@@ -542,6 +543,7 @@
       showLateExtensionEntries: false,
       showAdverseCandles: false,
       showMaBreaks: false,
+      hideBaselineEntries: false,
       selectedWorstTradeId: null,
     },
     evidenceLabOverlayChart: {
@@ -644,6 +646,7 @@
     evidenceLabToggleLateExtension: document.querySelector("#evidence-lab-toggle-late-extension"),
     evidenceLabToggleAdverseCandles: document.querySelector("#evidence-lab-toggle-adverse-candles"),
     evidenceLabToggleMaBreaks: document.querySelector("#evidence-lab-toggle-ma-breaks"),
+    evidenceLabToggleHideBaselineEntries: document.querySelector("#evidence-lab-toggle-hide-baseline-entries"),
     evidenceLabOverlayMethodology: document.querySelector("#evidence-lab-overlay-methodology"),
     evidenceLabOverlayInspector: document.querySelector("#evidence-lab-overlay-inspector"),
     evidenceLabWorstFocusTable: document.querySelector("#evidence-lab-worst-focus-table"),
@@ -5167,6 +5170,7 @@
       overlay.showLateExtensionEntries,
       overlay.showAdverseCandles,
       overlay.showMaBreaks,
+      overlay.hideBaselineEntries,
       overlay.selectedWorstTradeId || "none",
     ].join("|");
   }
@@ -5250,6 +5254,7 @@
       [elements.evidenceLabToggleLateExtension, "showLateExtensionEntries"],
       [elements.evidenceLabToggleAdverseCandles, "showAdverseCandles"],
       [elements.evidenceLabToggleMaBreaks, "showMaBreaks"],
+      [elements.evidenceLabToggleHideBaselineEntries, "hideBaselineEntries"],
     ].forEach(([element, key]) => {
       if (element) element.checked = Boolean(state.evidenceLabOverlay[key]);
     });
@@ -5293,6 +5298,7 @@
       [elements.evidenceLabToggleLateExtension, "showLateExtensionEntries"],
       [elements.evidenceLabToggleAdverseCandles, "showAdverseCandles"],
       [elements.evidenceLabToggleMaBreaks, "showMaBreaks"],
+      [elements.evidenceLabToggleHideBaselineEntries, "hideBaselineEntries"],
     ].forEach(([element, key]) => {
       if (element) {
         element.onchange = () => {
@@ -5414,6 +5420,7 @@
         const trade = evidenceLabTradeById(replay, marker.trade_id);
         const markerType = String(marker.marker_type || "");
         const isEntry = markerType.includes("entry") || marker.color_role === "green";
+        if (isEntry && state.evidenceLabOverlay.hideBaselineEntries) return [];
         const isForcedClose = Boolean(trade?.forced_exit) && markerType.includes("exit");
         const text = isEntry
           ? "baseline entry"
@@ -5448,7 +5455,7 @@
           id,
           time: parsed,
           position: "belowBar",
-          color: "#3b82f6",
+          color: FOUNDER_REVIEW_MARKER_COLOR,
           shape: "arrowUp",
           text: `late-extension entry ${money(row.net_pnl)}`,
         }];
@@ -5476,8 +5483,8 @@
           id,
           time: parsed,
           position: "aboveBar",
-          color: "#7c3aed",
-          shape: "circle",
+          color: FOUNDER_REVIEW_MARKER_COLOR,
+          shape: "arrowDown",
           text: "large adverse candle",
         });
       }
@@ -5488,7 +5495,7 @@
           id,
           time: parsed,
           position: "aboveBar",
-          color: "#ff9f43",
+          color: FOUNDER_REVIEW_MARKER_COLOR,
           shape: "arrowDown",
           text: `${state.evidenceLabOverlay.variantId} stop context`,
         });
@@ -5509,14 +5516,14 @@
       {
         time: entryTime,
         position: "belowBar",
-        color: "#25d084",
+        color: FOUNDER_REVIEW_MARKER_COLOR,
         shape: "arrowUp",
         text: `selected worst entry ${money(selected.net_pnl)}`,
       },
       {
         time: exitTime,
         position: "aboveBar",
-        color: "#ff5a66",
+        color: FOUNDER_REVIEW_MARKER_COLOR,
         shape: "arrowDown",
         text: `selected worst exit ${money(selected.net_pnl)}`,
       },
@@ -5649,8 +5656,8 @@
         <span><b class="legend-dot entry"></b>baseline entry</span>
         <span><b class="legend-dot exit"></b>baseline exit</span>
         <span><b class="legend-dot trim"></b>forced close</span>
-        <span><b class="legend-dot sandbox"></b>variant stop/context</span>
-        <span><b class="legend-dot macd"></b>diagnostic/context marker</span>
+        <span><b class="legend-dot founder-review"></b>founder-review feature</span>
+        <span>Use Hide baseline entries to reduce baseline entry noise.</span>
       </div>
       <div class="tradingview-attribution">Charts: TradingView Lightweight Charts v${TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION} (Apache-2.0). Overlay data is display-only and does not regenerate canonical evidence.</div>
     `;
