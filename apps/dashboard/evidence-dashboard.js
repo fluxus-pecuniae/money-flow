@@ -543,7 +543,7 @@
       showLateExtensionEntries: false,
       showAdverseCandles: false,
       showMaBreaks: false,
-      hideBaselineEntries: false,
+      hideBaselineMarkers: false,
       selectedWorstTradeId: null,
     },
     evidenceLabOverlayChart: {
@@ -5170,7 +5170,7 @@
       overlay.showLateExtensionEntries,
       overlay.showAdverseCandles,
       overlay.showMaBreaks,
-      overlay.hideBaselineEntries,
+      overlay.hideBaselineMarkers,
       overlay.selectedWorstTradeId || "none",
     ].join("|");
   }
@@ -5254,7 +5254,7 @@
       [elements.evidenceLabToggleLateExtension, "showLateExtensionEntries"],
       [elements.evidenceLabToggleAdverseCandles, "showAdverseCandles"],
       [elements.evidenceLabToggleMaBreaks, "showMaBreaks"],
-      [elements.evidenceLabToggleHideBaselineEntries, "hideBaselineEntries"],
+      [elements.evidenceLabToggleHideBaselineEntries, "hideBaselineMarkers"],
     ].forEach(([element, key]) => {
       if (element) element.checked = Boolean(state.evidenceLabOverlay[key]);
     });
@@ -5298,7 +5298,7 @@
       [elements.evidenceLabToggleLateExtension, "showLateExtensionEntries"],
       [elements.evidenceLabToggleAdverseCandles, "showAdverseCandles"],
       [elements.evidenceLabToggleMaBreaks, "showMaBreaks"],
-      [elements.evidenceLabToggleHideBaselineEntries, "hideBaselineEntries"],
+      [elements.evidenceLabToggleHideBaselineEntries, "hideBaselineMarkers"],
     ].forEach(([element, key]) => {
       if (element) {
         element.onchange = () => {
@@ -5417,10 +5417,10 @@
       .flatMap((marker, index) => {
         const parsed = chartTime(marker.time);
         if (parsed < firstTime || parsed > lastTime) return [];
+        if (state.evidenceLabOverlay.hideBaselineMarkers) return [];
         const trade = evidenceLabTradeById(replay, marker.trade_id);
         const markerType = String(marker.marker_type || "");
         const isEntry = markerType.includes("entry") || marker.color_role === "green";
-        if (isEntry && state.evidenceLabOverlay.hideBaselineEntries) return [];
         const isForcedClose = Boolean(trade?.forced_exit) && markerType.includes("exit");
         const text = isEntry
           ? "baseline entry"
@@ -5657,7 +5657,7 @@
         <span><b class="legend-dot exit"></b>baseline exit</span>
         <span><b class="legend-dot trim"></b>forced close</span>
         <span><b class="legend-dot founder-review"></b>founder-review feature</span>
-        <span>Use Hide baseline entries to reduce baseline entry noise.</span>
+        <span>Use Hide baseline entries/exits to review founder features without baseline marker noise.</span>
       </div>
       <div class="tradingview-attribution">Charts: TradingView Lightweight Charts v${TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION} (Apache-2.0). Overlay data is display-only and does not regenerate canonical evidence.</div>
     `;

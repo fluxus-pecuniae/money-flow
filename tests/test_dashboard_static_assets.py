@@ -199,7 +199,8 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     assert "renderEvidenceLabWorstFocusTable" in js
     assert "renderEvidenceLabControlPocketView" in js
     assert "FOUNDER_REVIEW_MARKER_COLOR" in js
-    assert "hideBaselineEntries" in js
+    assert "Hide baseline entries/exits" in html
+    assert "hideBaselineMarkers" in js
     assert "founder-review feature" in js
     assert "variant_chart_overlay_deferred_to_sor_ev2_2" not in js
     assert "production_approved" in js

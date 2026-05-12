@@ -13,6 +13,21 @@ Entry schema:
 
 ---
 
+## v2026.05.12.012
+
+- `recorded_at_utc`: `2026-05-12T14:11:49Z`
+- `scope`: `Evidence Lab baseline marker visibility follow-up`
+- `intent`: `Native entry. Updated the Evidence Lab overlay checkbox so Hide baseline entries/exits suppresses both baseline entry and baseline exit/forced-close markers, allowing founder-review context features to be viewed without baseline marker noise. Behavior remains visualization-only: no production Money Flow rules changed, no variant was approved, no orders/private/signed/order endpoints were called, no evidence packs were regenerated, and no live/paper runtime or SOR behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `git diff --check`
+
 ## v2026.05.12.011
 
 - `recorded_at_utc`: `2026-05-12T13:54:36Z`
