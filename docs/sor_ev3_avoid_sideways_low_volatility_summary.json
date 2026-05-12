@@ -10069,6 +10069,15 @@
     "uses_hyperliquid_testnet_prices": false,
     "uses_only_canonical_sv2_0_2_pack_paths": true
   },
+  "candidate_gate_policy": {
+    "candidate_requires_avoided_losers_at_least_missed_winners": true,
+    "candidate_requires_no_damaged_control_pockets": true,
+    "candidate_requires_no_worst_drawdown_worsening": true,
+    "candidate_requires_positive_aggregate_net_pnl_delta": true,
+    "candidate_requires_trade_count_reduction_pct_at_most": "55",
+    "candidate_requires_true_forward_replay": true,
+    "promising_label_is_not_production_approval": true
+  },
   "candidate_variants": [],
   "canonical_baseline": {
     "capital_mode": "dynamic_equity_pct",
@@ -10194,7 +10203,7 @@
     }
   ],
   "founder_selected_candidate_family": "avoid_sideways_low_volatility",
-  "generated_at": "2026-05-12T19:31:31Z",
+  "generated_at": "2026-05-12T20:34:17Z",
   "limitations": [
     "dashboard_date_filters_are_display_only_not_canonical_evidence",
     "exit_signal_skipped_no_fill_candle_for_next_candle_close",
@@ -10279,7 +10288,21 @@
       "variant_id": "avoid_sideways_low_volatility_conservative"
     }
   ],
+  "not_promoted_variants": [
+    "avoid_flat_ema10_slope",
+    "avoid_flat_sma20_slope",
+    "avoid_low_atr_percentile_20",
+    "avoid_low_atr_percentile_30",
+    "avoid_low_rolling_range_20",
+    "avoid_low_rolling_range_50",
+    "avoid_macd_flat_chop",
+    "avoid_sideways_low_volatility_conservative"
+  ],
   "phase": "SOR-EV3",
+  "promising_variants": [
+    "avoid_low_rolling_range_20",
+    "avoid_low_rolling_range_50"
+  ],
   "regime_feature_definitions": [
     {
       "definition": "ATR14 divided by candle close.",
@@ -10359,14 +10382,7 @@
     }
   ],
   "rejected_variants": [
-    "avoid_flat_ema10_slope",
-    "avoid_flat_sma20_slope",
-    "avoid_low_atr_percentile_20",
-    "avoid_low_atr_percentile_30",
-    "avoid_low_rolling_range_20",
-    "avoid_low_rolling_range_50",
-    "avoid_macd_flat_chop",
-    "avoid_sideways_low_volatility_conservative"
+    "avoid_low_atr_percentile_30"
   ],
   "status": "avoid_sideways_low_volatility_true_forward_replay_ready_for_founder_review",
   "variant_definitions": [
@@ -10427,6 +10443,14 @@
       "variant_id": "avoid_sideways_low_volatility_conservative"
     }
   ],
+  "variant_label_counts": {
+    "mixed_positive_pnl_control_damage": 3,
+    "not_promoted_low_impact": 1,
+    "not_promoted_mixed_result": 1,
+    "promising_control_pocket_risk": 1,
+    "promising_high_pnl_control_risk": 1,
+    "rejected_negative_aggregate": 1
+  },
   "variant_results": [
     {
       "average_loss": "-43.55671025",
@@ -35927,6 +35951,7 @@
       "blocked_open_signals": 8361,
       "candidate": false,
       "ending_equity_delta_sum_across_independent_scenarios": "14679.99888902",
+      "founder_review_label": "mixed_positive_pnl_control_damage",
       "largest_loss_delta_best": "186.02854386",
       "max_drawdown_delta_worst": "387.95776834",
       "methodology": "true_forward_replay",
@@ -36043,7 +36068,13 @@
         }
       ],
       "production_approved": false,
-      "rejected": true,
+      "promotion_blockers": [
+        "worst_drawdown_worsened",
+        "control_pockets_damaged"
+      ],
+      "promotion_status": "not_promoted",
+      "rejected": false,
+      "review_explanation": "Aggregate PnL improved, but too many strong baseline control pockets lost return, so this should not be promoted without a narrower follow-up.",
       "scenario_count": 72,
       "trade_count_delta_sum": -1630,
       "trade_count_reduction_pct": "15.02719646",
@@ -36057,6 +36088,7 @@
       "blocked_open_signals": 13606,
       "candidate": false,
       "ending_equity_delta_sum_across_independent_scenarios": "14414.66327302",
+      "founder_review_label": "mixed_positive_pnl_control_damage",
       "largest_loss_delta_best": "285.84534334",
       "max_drawdown_delta_worst": "2451.97220482",
       "methodology": "true_forward_replay",
@@ -36173,7 +36205,13 @@
         }
       ],
       "production_approved": false,
-      "rejected": true,
+      "promotion_blockers": [
+        "worst_drawdown_worsened",
+        "control_pockets_damaged"
+      ],
+      "promotion_status": "not_promoted",
+      "rejected": false,
+      "review_explanation": "Aggregate PnL improved, but too many strong baseline control pockets lost return, so this should not be promoted without a narrower follow-up.",
       "scenario_count": 72,
       "trade_count_delta_sum": -2585,
       "trade_count_reduction_pct": "23.83147414",
@@ -36187,6 +36225,7 @@
       "blocked_open_signals": 11164,
       "candidate": false,
       "ending_equity_delta_sum_across_independent_scenarios": "3352.75625247",
+      "founder_review_label": "not_promoted_mixed_result",
       "largest_loss_delta_best": "1621.77289115",
       "max_drawdown_delta_worst": "1473.07030333",
       "methodology": "true_forward_replay",
@@ -36303,7 +36342,13 @@
         }
       ],
       "production_approved": false,
-      "rejected": true,
+      "promotion_blockers": [
+        "worst_drawdown_worsened",
+        "control_pockets_damaged"
+      ],
+      "promotion_status": "not_promoted",
+      "rejected": false,
+      "review_explanation": "Not promoted after strict evidence review; control pockets damaged: 10.",
       "scenario_count": 72,
       "trade_count_delta_sum": -2294,
       "trade_count_reduction_pct": "21.14870471",
@@ -36317,6 +36362,7 @@
       "blocked_open_signals": 15772,
       "candidate": false,
       "ending_equity_delta_sum_across_independent_scenarios": "-12481.40606772",
+      "founder_review_label": "rejected_negative_aggregate",
       "largest_loss_delta_best": "1621.77289115",
       "max_drawdown_delta_worst": "1234.04290198",
       "methodology": "true_forward_replay",
@@ -36433,7 +36479,14 @@
         }
       ],
       "production_approved": false,
+      "promotion_blockers": [
+        "aggregate_net_pnl_delta_not_positive",
+        "worst_drawdown_worsened",
+        "control_pockets_damaged"
+      ],
+      "promotion_status": "not_promoted",
       "rejected": true,
+      "review_explanation": "Aggregate PnL fell versus baseline, so this is a hard rejection for this evidence pass.",
       "scenario_count": 72,
       "trade_count_delta_sum": -3241,
       "trade_count_reduction_pct": "29.87922928",
@@ -36447,6 +36500,7 @@
       "blocked_open_signals": 19321,
       "candidate": false,
       "ending_equity_delta_sum_across_independent_scenarios": "48845.55526731",
+      "founder_review_label": "promising_control_pocket_risk",
       "largest_loss_delta_best": "189.5511059",
       "max_drawdown_delta_worst": "119.72046323",
       "methodology": "true_forward_replay",
@@ -36563,7 +36617,13 @@
         }
       ],
       "production_approved": false,
-      "rejected": true,
+      "promotion_blockers": [
+        "worst_drawdown_worsened",
+        "control_pockets_damaged"
+      ],
+      "promotion_status": "promising_not_promoted",
+      "rejected": false,
+      "review_explanation": "Aggregate PnL and avoided-loser counts are directionally promising, but the result is not clean because drawdown worsened in at least one scenario and control pockets were damaged.",
       "scenario_count": 72,
       "trade_count_delta_sum": -4039,
       "trade_count_reduction_pct": "37.23610215",
@@ -36577,6 +36637,7 @@
       "blocked_open_signals": 23647,
       "candidate": false,
       "ending_equity_delta_sum_across_independent_scenarios": "55197.69963174",
+      "founder_review_label": "promising_high_pnl_control_risk",
       "largest_loss_delta_best": "236.23644884",
       "max_drawdown_delta_worst": "410.24876203",
       "methodology": "true_forward_replay",
@@ -36693,7 +36754,13 @@
         }
       ],
       "production_approved": false,
-      "rejected": true,
+      "promotion_blockers": [
+        "worst_drawdown_worsened",
+        "control_pockets_damaged"
+      ],
+      "promotion_status": "promising_not_promoted",
+      "rejected": false,
+      "review_explanation": "Large aggregate PnL improvement and avoided-loser skew, but promotion is blocked because worst-scenario drawdown worsened and control pockets were damaged.",
       "scenario_count": 72,
       "trade_count_delta_sum": -4897,
       "trade_count_reduction_pct": "45.14612335",
@@ -36707,6 +36774,7 @@
       "blocked_open_signals": 98,
       "candidate": false,
       "ending_equity_delta_sum_across_independent_scenarios": "580.18568893",
+      "founder_review_label": "not_promoted_low_impact",
       "largest_loss_delta_best": "0.24280536",
       "max_drawdown_delta_worst": "29.98203801",
       "methodology": "true_forward_replay",
@@ -36823,7 +36891,12 @@
         }
       ],
       "production_approved": false,
-      "rejected": true,
+      "promotion_blockers": [
+        "worst_drawdown_worsened"
+      ],
+      "promotion_status": "not_promoted",
+      "rejected": false,
+      "review_explanation": "The aggregate change was too small to justify more evidence despite avoiding more losers than winners.",
       "scenario_count": 72,
       "trade_count_delta_sum": -48,
       "trade_count_reduction_pct": "0.44251867",
@@ -36837,6 +36910,7 @@
       "blocked_open_signals": 18640,
       "candidate": false,
       "ending_equity_delta_sum_across_independent_scenarios": "24268.20619967",
+      "founder_review_label": "mixed_positive_pnl_control_damage",
       "largest_loss_delta_best": "285.84534334",
       "max_drawdown_delta_worst": "2451.97220482",
       "methodology": "true_forward_replay",
@@ -36953,7 +37027,13 @@
         }
       ],
       "production_approved": false,
-      "rejected": true,
+      "promotion_blockers": [
+        "worst_drawdown_worsened",
+        "control_pockets_damaged"
+      ],
+      "promotion_status": "not_promoted",
+      "rejected": false,
+      "review_explanation": "Aggregate PnL improved, but too many strong baseline control pockets lost return, so this should not be promoted without a narrower follow-up.",
       "scenario_count": 72,
       "trade_count_delta_sum": -3697,
       "trade_count_reduction_pct": "34.08315663",

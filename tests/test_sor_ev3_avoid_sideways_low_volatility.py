@@ -50,6 +50,9 @@ def test_sor_ev3_feature_definitions_and_controlled_variants_exist(tmp_path: Pat
     for row in report["variant_summary"]:
         assert row["methodology"] == "true_forward_replay"
         assert row["production_approved"] is False
+        assert "founder_review_label" in row
+        assert "promotion_status" in row
+        assert "promotion_blockers" in row
 
 
 def test_sor_ev3_block_reason_logic_is_objective_and_no_zero_fill() -> None:
@@ -89,7 +92,13 @@ def test_sor_ev3_attribution_control_pockets_and_report_language(tmp_path: Path)
     assert "missed_winners" in report["blocked_entry_summary"]["by_variant"][0]
     assert "control_pocket_impact" in report
     assert "loss_concentration_summary" in report
+    assert "candidate_gate_policy" in report
+    assert "promising_variants" in report
+    assert "not_promoted_variants" in report
     assert "true-forward" in markdown
+    assert "founder label meaning" in markdown
+    assert "promising" in markdown
+    assert "not promoted" in markdown
     assert "production money flow rules are unchanged" in markdown
     assert "no order endpoints are called" in markdown
     for forbidden in ("proven", "optimal", "approved for live", "guaranteed", "ready for real trading", "production-approved"):
@@ -106,3 +115,24 @@ def test_sor_ev3_does_not_modify_production_money_flow_rules() -> None:
     assert "avoid_sideways_low_volatility_conservative" not in source
     assert "avoid_low_atr_percentile_20" not in source
     assert "SOR-EV3" not in source
+
+
+def test_sor_ev3_rolling_range_variants_are_exported_for_historical_replay() -> None:
+    source = Path("scripts/build_sv202_dashboard_chart_data.py").read_text(encoding="utf-8")
+    dashboard_js = Path("apps/dashboard/evidence-dashboard.js").read_text(encoding="utf-8")
+
+    assert "SOR_EV3_HISTORICAL_REPLAY_VARIANTS" in source
+    assert '"avoid_low_rolling_range_20"' in source
+    assert '"avoid_low_rolling_range_50"' in source
+    assert "build_sor_ev3_variant_replays" in source
+    assert "include_replay_payload=True" in source
+    assert "sor_ev3_historical_replay_variants" in source
+    assert '"fill_assumption": scenario["fill_timing"]' in source
+    assert "avoid_low_rolling_range_20" not in dashboard_js[
+        dashboard_js.index("HIDDEN_HISTORICAL_REPLAY_STRATEGY_IDS") :
+        dashboard_js.index("function isHistoricalReplayStrategyVisible")
+    ]
+    assert "avoid_low_rolling_range_50" not in dashboard_js[
+        dashboard_js.index("HIDDEN_HISTORICAL_REPLAY_STRATEGY_IDS") :
+        dashboard_js.index("function isHistoricalReplayStrategyVisible")
+    ]

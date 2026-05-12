@@ -248,6 +248,11 @@ def test_dashboard_has_historical_replay_tab_and_stable_chart_container() -> Non
     assert "Sandbox Execution Plumbing" in html
     assert "pt0_0_2_historical_strategy_replay_summary.json" in js
     assert "baseline_current_money_flow_rules" in js
+    assert "macd_removed_research_only" in js
+    assert "only_close_on_5_20_cross_research_only" in js
+    assert ".filter((strategy) => isHistoricalReplayStrategyVisible(strategy.value))" in js
+    assert "MACD removed" not in js
+    assert "Only close on 5/20 cross" not in js
     assert "strategy_id" in js
     assert "Replay strategy:" in js
     assert '["15m", "1h", "4h", "1d"]' in js
@@ -264,9 +269,15 @@ def test_dashboard_has_historical_replay_tab_and_stable_chart_container() -> Non
     assert "historical-chart-stage" in js
     assert "historicalOscillatorRows" in js
     assert "historicalMacdHistogramRows" in js
+    assert "const HISTORICAL_RSI_PANE = 0;" in js
+    assert "const HISTORICAL_PRICE_PANE = 1;" in js
     assert "HISTORICAL_RSI_PANE" in js
     assert "HISTORICAL_MACD_PANE" in js
+    assert "Pane order: RSI, candles, MACD" in js
     assert "setHistoricalReplayPaneHeights" in js
+    assert "setStretchFactor" in js
+    assert "Math.round(height * 0.15)" in js
+    assert "Math.round(height * 0.7)" in js
     assert "chart.panes" in js
     assert "historicalConstantRows" in js
     assert "createPriceLine" in js

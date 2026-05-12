@@ -20,6 +20,7 @@
   const DEFAULT_FILES = [
     ...SV202_CANONICAL_BATCH_FILES,
   ];
+  const EVIDENCE_BATCH_REPORTS_STRATEGY_ID = "canonical_batch_reports";
 
   const DEFAULT_EXPERIMENT_SUMMARY_FILES = [
     "../../docs/strategy_validation_sv1_17_true_replay_experiments_summary.json",
@@ -65,6 +66,42 @@
   const CANDLE_BORDER_COLOR = "#e7ece8";
   const CANDLE_WICK_COLOR = "#e7ece8";
   const FOUNDER_REVIEW_MARKER_COLOR = "#f5f7f2";
+  const SOR_EV3_FOUNDER_LABEL_HELP = {
+    candidate_for_more_evidence: "Passes strict evidence gates; still evidence-only.",
+    promising_high_pnl_control_preserved_trade_count_risk: "Large aggregate PnL improvement and control pockets preserved, but trade-count reduction is large enough to require narrower review.",
+    promising_high_pnl_control_preserved: "Large aggregate PnL improvement with control pockets preserved; still evidence-only.",
+    promising_chop_filter_control_risk: "Directionally useful chop/sideways filter, but control-pocket or drawdown gates failed.",
+    promising_extension_filter_overfit_risk: "Extension filter improved aggregate PnL, but overfit/control-pocket risk remains.",
+    promising_diagnostic_only: "Interesting diagnostic overlay, but not true-forward candidate evidence.",
+    promising_high_pnl_control_risk: "Large aggregate PnL improvement, but drawdown/control-pocket preservation failed.",
+    promising_control_pocket_risk: "Directionally interesting aggregate improvement, but not clean enough for promotion.",
+    mixed_positive_pnl_control_damage: "Positive aggregate PnL with too much damage to strong baseline pockets.",
+    mixed_positive_pnl_drawdown_risk: "Positive aggregate PnL, but worst drawdown worsened.",
+    mixed_small_pnl_drawdown_risk: "Small positive PnL with worse drawdown; not enough for promotion.",
+    not_promoted_no_op: "No material behavior change versus baseline.",
+    not_promoted_insufficient_data: "Evidence bundle does not contain enough data for a useful conclusion.",
+    not_promoted_low_impact: "Too little aggregate impact for more evidence.",
+    deferred_needs_true_forward_replay: "Deferred until true-forward replay data exists.",
+    rejected_negative_aggregate: "Aggregate PnL was worse than baseline.",
+  };
+  const FOUNDER_LABEL_RANK = {
+    candidate_for_more_evidence: 0,
+    promising_high_pnl_control_preserved: 10,
+    promising_high_pnl_control_preserved_trade_count_risk: 11,
+    promising_extension_filter_overfit_risk: 20,
+    promising_chop_filter_control_risk: 21,
+    promising_high_pnl_control_risk: 22,
+    promising_control_pocket_risk: 23,
+    promising_diagnostic_only: 24,
+    mixed_positive_pnl_control_damage: 40,
+    mixed_positive_pnl_drawdown_risk: 41,
+    mixed_small_pnl_drawdown_risk: 42,
+    not_promoted_low_impact: 60,
+    not_promoted_no_op: 61,
+    not_promoted_insufficient_data: 62,
+    deferred_needs_true_forward_replay: 80,
+    rejected_negative_aggregate: 100,
+  };
   const LIVE_MARKET_REFRESH_MS = 15000;
   const LIVE_CHART_CANDLE_COUNT = 96;
   const LIVE_TIMEFRAME_MINUTES = {
@@ -491,8 +528,13 @@
     review: null,
     batches: [],
     selectedComponent: "all",
+    evidenceReplayStrategyId: EVIDENCE_BATCH_REPORTS_STRATEGY_ID,
     evidenceDateStart: "",
     evidenceDateEnd: "",
+    runLedgerSort: {
+      key: "",
+      direction: "desc",
+    },
     activeView: "historical-replay",
     experimentMode: "sv115_overlays",
     sv117FullSuiteRows: null,
@@ -619,6 +661,7 @@
     metricCoverage: document.querySelector("#metric-coverage"),
     metricBoundary: document.querySelector("#metric-boundary"),
     componentFilter: document.querySelector("#component-filter"),
+    evidenceReplayStrategyFilter: document.querySelector("#evidence-replay-strategy-filter"),
     evidenceDateStart: document.querySelector("#evidence-date-start"),
     evidenceDateEnd: document.querySelector("#evidence-date-end"),
     evidenceDateClear: document.querySelector("#evidence-date-clear"),
@@ -630,6 +673,7 @@
     regimeTable: document.querySelector("#regime-table"),
     checklist: document.querySelector("#review-checklist"),
     runTable: document.querySelector("#run-table"),
+    runTableSubtitle: document.querySelector("#run-table-subtitle"),
     evidenceLabSummaryCards: document.querySelector("#evidence-lab-summary-cards"),
     evidenceLabFounderCandidate: document.querySelector("#evidence-lab-founder-candidate"),
     evidenceLabVariantMatrix: document.querySelector("#evidence-lab-variant-matrix"),
@@ -1088,7 +1132,51 @@
   }
 
   function allSummaries() {
-    return state.batches.map(batchSummary).sort((a, b) => a.component.localeCompare(b.component));
+    return state.batches.map(batchSummary).sort((a, b) =>
+      timeframeSortRank(a.timeframe) - timeframeSortRank(b.timeframe) ||
+      a.component.localeCompare(b.component),
+    );
+  }
+
+  function timeframeSortRank(timeframe) {
+    const index = SV202_CANONICAL_TIMEFRAMES.indexOf(canonicalTimeframe(timeframe));
+    return index >= 0 ? index : SV202_CANONICAL_TIMEFRAMES.length;
+  }
+
+  function sv202ReplayStrategies() {
+    const replays = Array.isArray(state.sv202HistoricalReplay?.replays)
+      ? state.sv202HistoricalReplay.replays
+      : [];
+    return Array.from(
+      new Map(
+        replays
+          .map((replay) => [
+            replay.strategy_id || "money_flow_v1_2_canonical",
+            {
+              value: replay.strategy_id || "money_flow_v1_2_canonical",
+              label: replay.strategy_label || replay.strategy_id || "SV2.0.2 replay strategy",
+            },
+          ])
+          .filter(([value]) => value),
+      ).values(),
+    );
+  }
+
+  function evidenceReplayStrategyOptions() {
+    return [
+      {
+        value: EVIDENCE_BATCH_REPORTS_STRATEGY_ID,
+        label: "Canonical evidence packs / batch reports",
+      },
+      ...sv202ReplayStrategies(),
+    ];
+  }
+
+  function selectedEvidenceReplayStrategyLabel() {
+    return (
+      evidenceReplayStrategyOptions().find((option) => option.value === state.evidenceReplayStrategyId)?.label ||
+      "Canonical evidence packs / batch reports"
+    );
   }
 
   function activeSummaries() {
@@ -1161,7 +1249,15 @@
   }
 
   function renderFilters(summaries) {
-    const components = ["all", ...Array.from(new Set(summaries.map((summary) => summary.component)))];
+    const components = [
+      "all",
+      ...Array.from(new Set(
+        summaries
+          .slice()
+          .sort((a, b) => timeframeSortRank(a.timeframe) - timeframeSortRank(b.timeframe) || a.component.localeCompare(b.component))
+          .map((summary) => summary.component),
+      )),
+    ];
     elements.componentFilter.innerHTML = components
       .map((component) => {
         const label = component === "all" ? "All" : cleanComponentName(component);
@@ -1176,6 +1272,20 @@
         render();
       });
     });
+  }
+
+  function renderEvidenceStrategyFilter() {
+    if (!elements.evidenceReplayStrategyFilter) return;
+    const options = evidenceReplayStrategyOptions();
+    if (!options.some((option) => option.value === state.evidenceReplayStrategyId)) {
+      state.evidenceReplayStrategyId = EVIDENCE_BATCH_REPORTS_STRATEGY_ID;
+    }
+    renderSelectWithoutAll(elements.evidenceReplayStrategyFilter, options, state.evidenceReplayStrategyId);
+    elements.evidenceReplayStrategyFilter.onchange = () => {
+      state.evidenceReplayStrategyId =
+        elements.evidenceReplayStrategyFilter.value || EVIDENCE_BATCH_REPORTS_STRATEGY_ID;
+      render();
+    };
   }
 
   function renderEvidenceDateControls() {
@@ -1205,6 +1315,8 @@
   function renderComponentCards(summaries) {
     const maxMagnitude = Math.max(...summaries.map((summary) => Math.abs(summary.totalNetPnl)), 1);
     elements.componentCards.innerHTML = summaries
+      .slice()
+      .sort((a, b) => timeframeSortRank(a.timeframe) - timeframeSortRank(b.timeframe) || a.component.localeCompare(b.component))
       .map((summary) => {
         const width = Math.max(3, Math.round((Math.abs(summary.totalNetPnl) / maxMagnitude) * 100));
         const isSelected =
@@ -1329,11 +1441,239 @@
     elements.checklist.innerHTML = criteria.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
   }
 
+  function evidenceReplayRunLedgerRows() {
+    if (state.evidenceReplayStrategyId === EVIDENCE_BATCH_REPORTS_STRATEGY_ID) return null;
+    const replays = Array.isArray(state.sv202HistoricalReplay?.replays)
+      ? state.sv202HistoricalReplay.replays
+      : [];
+    const range = evidenceDateRange();
+    const replayKey = (replay) =>
+      `${replay.symbol || "unknown"}|${canonicalTimeframe(replay.timeframe)}|${replay.fill_assumption || "unknown"}`;
+    const baselineByKey = new Map();
+    replays
+      .filter((replay) => (replay.strategy_id || "money_flow_v1_2_canonical") === "money_flow_v1_2_canonical")
+      .forEach((replay) => {
+        const scopedReplay = filteredReplayByRange(replay, range);
+        const summary = scopedReplay?.summary || {};
+        baselineByKey.set(replayKey(replay), {
+          net_pnl: summary.net_pnl,
+          max_drawdown: summary.max_drawdown,
+        });
+      });
+    return replays
+      .filter((replay) => (replay.strategy_id || "money_flow_v1_2_canonical") === state.evidenceReplayStrategyId)
+      .filter((replay) => {
+        const component = replay.component || `sleeve_${canonicalTimeframe(replay.timeframe)}`;
+        return state.selectedComponent === "all" || component === state.selectedComponent;
+      })
+      .map((replay) => {
+        const scopedReplay = filteredReplayByRange(replay, range);
+        const summary = scopedReplay?.summary || {};
+        const strategyId = replay.strategy_id || "money_flow_v1_2_canonical";
+        const baseline = baselineByKey.get(replayKey(replay));
+        const result = classifyEvidenceReplayResult({
+          strategy_id: strategyId,
+          net_pnl: summary.net_pnl,
+          max_drawdown: summary.max_drawdown,
+        }, baseline);
+        return {
+          strategy_id: strategyId,
+          strategy_label: replay.strategy_label || replay.strategy_id || "SV2.0.2 replay strategy",
+          component: replay.component || `sleeve_${canonicalTimeframe(replay.timeframe)}`,
+          symbol: replay.symbol || "unknown",
+          timeframe: canonicalTimeframe(replay.timeframe),
+          fill_timing: replay.fill_assumption || "unknown",
+          ending_equity: summary.ending_equity,
+          net_pnl: summary.net_pnl,
+          win_rate: summary.win_rate,
+          trade_count: summary.trade_count,
+          max_drawdown: summary.max_drawdown,
+          source: replay.data_source || replay.strategy_truth_lane || "sv2_0_2_dashboard_chart_data",
+          evidence_pack_path: replay.evidence_pack_path,
+          research_only: replay.research_only !== false,
+          production_approved: replay.production_approved === true,
+          result_label: result.label,
+          result_class: result.className,
+          pnl_delta_vs_v12: result.pnlDelta,
+          drawdown_delta_vs_v12: result.drawdownDelta,
+        };
+      })
+      .sort((left, right) =>
+        left.symbol.localeCompare(right.symbol) ||
+        SV202_CANONICAL_TIMEFRAMES.indexOf(left.timeframe) - SV202_CANONICAL_TIMEFRAMES.indexOf(right.timeframe) ||
+        left.fill_timing.localeCompare(right.fill_timing),
+      );
+  }
+
+  function classifyEvidenceReplayResult(row, baseline) {
+    if ((row.strategy_id || "money_flow_v1_2_canonical") === "money_flow_v1_2_canonical") {
+      return { label: "baseline_v1_2", className: "baseline", pnlDelta: 0, drawdownDelta: 0 };
+    }
+    if (!baseline) {
+      return { label: "baseline_unavailable", className: "unknown", pnlDelta: null, drawdownDelta: null };
+    }
+    const pnlDelta = decimal(row.net_pnl) - decimal(baseline.net_pnl);
+    const drawdownDelta = decimal(row.max_drawdown) - decimal(baseline.max_drawdown);
+    const pnlBetter = pnlDelta > 0;
+    const drawdownBetter = drawdownDelta < 0;
+    if (pnlDelta === 0 && drawdownDelta === 0) {
+      return { label: "same_result", className: "same", pnlDelta, drawdownDelta };
+    }
+    if (pnlBetter && drawdownBetter) {
+      return { label: "improved_pnl_drawdown", className: "good", pnlDelta, drawdownDelta };
+    }
+    if (pnlBetter && !drawdownBetter) {
+      return { label: "improved_pnl_not_drawdown", className: "warn", pnlDelta, drawdownDelta };
+    }
+    if (!pnlBetter && drawdownBetter) {
+      return { label: "improved_drawdown_not_pnl", className: "warn", pnlDelta, drawdownDelta };
+    }
+    return { label: "no bueno", className: "bad", pnlDelta, drawdownDelta };
+  }
+
+  function resultPill(row) {
+    const title = row.pnl_delta_vs_v12 === null || row.drawdown_delta_vs_v12 === null
+      ? "No matching Money Flow v1.2 baseline row found for this symbol/timeframe/fill."
+      : `PnL delta vs v1.2: ${money(row.pnl_delta_vs_v12)}; drawdown delta vs v1.2: ${money(row.drawdown_delta_vs_v12)}. Lower drawdown is better.`;
+    return `<span class="result-pill result-${escapeHtml(row.result_class || "unknown")}" title="${escapeHtml(title)}">${escapeHtml(row.result_label || "baseline_unavailable")}</span>`;
+  }
+
+  function runLedgerSortNumber(value) {
+    if (value === null || value === undefined || value === "") return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  function runLedgerSortButton(key, label) {
+    const active = state.runLedgerSort.key === key;
+    const direction = active ? state.runLedgerSort.direction : "none";
+    return `
+      <button class="run-ledger-sort-button" type="button" data-run-ledger-sort-key="${escapeHtml(key)}" aria-pressed="${active}">
+        <span>${escapeHtml(label)}</span>
+        <small>${escapeHtml(direction === "none" ? "sort" : direction)}</small>
+      </button>
+    `;
+  }
+
+  function sortRunLedgerRows(rows, fallbackSort = null) {
+    const sorted = rows.slice();
+    const key = state.runLedgerSort.key;
+    if (!key) {
+      return fallbackSort ? sorted.sort(fallbackSort) : sorted;
+    }
+    const direction = state.runLedgerSort.direction === "asc" ? 1 : -1;
+    return sorted.sort((left, right) => {
+      const leftValue = runLedgerSortNumber(left[key]);
+      const rightValue = runLedgerSortNumber(right[key]);
+      if (leftValue === null && rightValue === null) return 0;
+      if (leftValue === null) return 1;
+      if (rightValue === null) return -1;
+      return (leftValue - rightValue) * direction;
+    });
+  }
+
+  function bindRunLedgerSortControls() {
+    if (!elements.runTable) return;
+    elements.runTable.querySelectorAll("[data-run-ledger-sort-key]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const key = button.dataset.runLedgerSortKey || "";
+        if (state.runLedgerSort.key === key) {
+          state.runLedgerSort.direction = state.runLedgerSort.direction === "desc" ? "asc" : "desc";
+        } else {
+          state.runLedgerSort.key = key;
+          state.runLedgerSort.direction = "desc";
+        }
+        render();
+      });
+    });
+  }
+
+  function renderEvidenceReplayRunLedger(rows) {
+    const label = selectedEvidenceReplayStrategyLabel();
+    if (elements.runTableSubtitle) {
+      elements.runTableSubtitle.textContent =
+        `Replay strategy: ${label}. Rows are generated Historical Replay scenarios from SV2.0.2 chart-data JSON; not canonical pack regeneration.`;
+    }
+    if (!rows.length) {
+      setEmpty(elements.runTable, "No generated replay rows loaded for this Evidence replay strategy/component selection.");
+      return;
+    }
+    const ledgerRows = rows
+      .map((row) => ({
+        ...row,
+        endingEquity: row.ending_equity,
+        netPnl: row.net_pnl,
+        drawdown: row.max_drawdown,
+      }));
+    const sortedRows = sortRunLedgerRows(ledgerRows);
+    elements.runTable.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Strategy</th>
+            <th>Component</th>
+            <th>Symbol</th>
+            <th>Timeframe</th>
+            <th>Fill</th>
+            <th>${runLedgerSortButton("endingEquity", "Ending Equity")}</th>
+            <th>${runLedgerSortButton("netPnl", "Scenario Net PnL")}</th>
+            <th>Win</th>
+            <th>Trades</th>
+            <th>${runLedgerSortButton("drawdown", "Drawdown")}</th>
+            <th>Result</th>
+            <th>Boundary</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${sortedRows.map((row) => `
+            <tr>
+              <td>${escapeHtml(row.strategy_label)}</td>
+              <td>${escapeHtml(cleanComponentName(row.component))}</td>
+              <td>${escapeHtml(row.symbol)}</td>
+              <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
+              <td>${escapeHtml(row.fill_timing)}</td>
+              <td>${escapeHtml(money(row.ending_equity))}</td>
+              <td class="${decimal(row.net_pnl) >= 0 ? "positive" : "negative"}">${escapeHtml(money(row.net_pnl))}</td>
+              <td>${escapeHtml(row.win_rate === null || row.win_rate === undefined ? "n/a" : pct(row.win_rate))}</td>
+              <td>${escapeHtml(row.trade_count ?? 0)}</td>
+              <td>${escapeHtml(money(row.max_drawdown))}</td>
+              <td>${resultPill(row)}</td>
+              <td>${escapeHtml(row.production_approved ? "unexpected_approved" : "research-only / no production approval")}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+    bindRunLedgerSortControls();
+  }
+
   function renderRunTable(summaries) {
-    const rows = summaries
-      .flatMap((summary) => summary.runSummaries.map((row) => ({ ...row, component: summary.label })))
-      .slice()
-      .sort((a, b) => decimal(b.metrics?.net_pnl) - decimal(a.metrics?.net_pnl))
+    const replayRows = evidenceReplayRunLedgerRows();
+    if (replayRows) {
+      renderEvidenceReplayRunLedger(replayRows);
+      return;
+    }
+    if (elements.runTableSubtitle) {
+      elements.runTableSubtitle.textContent =
+        "Scenario results from loaded batch reports; dynamic equity is per scenario and not one combined account.";
+    }
+    const rawRows = summaries
+      .flatMap((summary) => summary.runSummaries.map((row) => ({
+        ...row,
+        component: summary.label,
+        endingEquity: row.metrics?.ending_equity ?? row.metrics?.net_pnl,
+        netPnl: row.metrics?.net_pnl,
+        drawdown: row.metrics?.mark_to_market_max_drawdown,
+        result_label: "baseline_v1_2",
+        result_class: "baseline",
+        pnl_delta_vs_v12: 0,
+        drawdown_delta_vs_v12: 0,
+      })));
+    if (!rawRows.length) {
+      setEmpty(elements.runTable, "No run summaries loaded.");
+      return;
+    }
+    const rows = sortRunLedgerRows(rawRows, (a, b) => decimal(b.metrics?.net_pnl) - decimal(a.metrics?.net_pnl))
       .slice(0, 36);
 
     if (!rows.length) {
@@ -1351,11 +1691,12 @@
             <th>Fee</th>
             <th>Slip</th>
             <th>Sizing</th>
-            <th>Ending Equity</th>
-            <th>Scenario Net PnL</th>
+            <th>${runLedgerSortButton("endingEquity", "Ending Equity")}</th>
+            <th>${runLedgerSortButton("netPnl", "Scenario Net PnL")}</th>
             <th>Win</th>
             <th>Trades</th>
-            <th>Drawdown</th>
+            <th>${runLedgerSortButton("drawdown", "Drawdown")}</th>
+            <th>Result</th>
           </tr>
         </thead>
         <tbody>
@@ -1374,6 +1715,7 @@
                   <td>${escapeHtml(pct(row.metrics?.win_rate))}</td>
                   <td>${escapeHtml(row.metrics?.number_of_trades ?? 0)}</td>
                   <td>${escapeHtml(money(row.metrics?.mark_to_market_max_drawdown))}</td>
+                  <td>${resultPill(row)}</td>
                 </tr>
               `,
             )
@@ -1381,6 +1723,7 @@
         </tbody>
       </table>
     `;
+    bindRunLedgerSortControls();
   }
 
   function renderExperimentCards() {
@@ -2871,12 +3214,19 @@
     return `${state.historicalReplay.strategyId}|${state.historicalReplay.symbol}|${canonicalTimeframe(state.historicalReplay.timeframe)}|${state.historicalReplay.fillAssumption}|${state.historicalReplay.dateStart}|${state.historicalReplay.dateEnd}`;
   }
 
-  const HISTORICAL_PRICE_PANE = 0;
-  const HISTORICAL_RSI_PANE = 1;
+  const HISTORICAL_RSI_PANE = 0;
+  const HISTORICAL_PRICE_PANE = 1;
   const HISTORICAL_MACD_PANE = 2;
+  const HIDDEN_HISTORICAL_REPLAY_STRATEGY_IDS = new Set([
+    "macd_removed_research_only",
+    "only_close_on_5_20_cross_research_only",
+  ]);
 
-  function filteredHistoricalReplay(replay) {
-    const range = historicalDateRange();
+  function isHistoricalReplayStrategyVisible(strategyId) {
+    return !HIDDEN_HISTORICAL_REPLAY_STRATEGY_IDS.has(strategyId);
+  }
+
+  function filteredReplayByRange(replay, range) {
     if (!replay || !range.active) return replay;
     const candles = (replay.candles || []).filter((row) => inDateRange(row.timestamp_utc || row.time, range));
     const indicators = (replay.indicators || []).filter((row) => inDateRange(row.timestamp_utc || row.time, range));
@@ -2908,6 +3258,10 @@
       },
       date_filter_label: range.label,
     };
+  }
+
+  function filteredHistoricalReplay(replay) {
+    return filteredReplayByRange(replay, historicalDateRange());
   }
 
   function historicalChartCandles(replay) {
@@ -2982,7 +3336,7 @@
       <span><b class="legend-dot macd"></b>MACD ${escapeHtml(historicalLatestIndicatorValue(replay, "MACD"))}</span>
       <span><b class="legend-dot macd-signal"></b>Signal ${escapeHtml(historicalLatestIndicatorValue(replay, "MACD_signal"))}</span>
       <span><b class="legend-dot macd-histogram"></b>Hist ${escapeHtml(historicalLatestIndicatorValue(replay, "MACD_histogram"))}</span>
-      <span>RSI and MACD use separate TradingView panes with the same candle time scale.</span>
+      <span>Pane order: RSI, candles, MACD. All panes share the same candle time scale.</span>
     `;
   }
 
@@ -3119,16 +3473,15 @@
     if (!chart || typeof chart.panes !== "function") return;
     const panes = chart.panes();
     if (!Array.isArray(panes) || panes.length < 3) return;
-    const priceHeight = Math.max(390, Math.round(height * 0.58));
-    const rsiHeight = Math.max(140, Math.round(height * 0.18));
-    const macdHeight = Math.max(160, height - priceHeight - rsiHeight);
     [
-      [HISTORICAL_PRICE_PANE, priceHeight],
-      [HISTORICAL_RSI_PANE, rsiHeight],
-      [HISTORICAL_MACD_PANE, macdHeight],
-    ].forEach(([paneIndex, paneHeight]) => {
-      if (typeof panes[paneIndex]?.setHeight === "function") {
-        panes[paneIndex].setHeight(paneHeight);
+      [HISTORICAL_RSI_PANE, 15, Math.round(height * 0.15)],
+      [HISTORICAL_PRICE_PANE, 70, Math.round(height * 0.7)],
+      [HISTORICAL_MACD_PANE, 15, Math.max(1, Math.round(height * 0.15))],
+    ].forEach(([paneIndex, stretchFactor, fallbackHeight]) => {
+      if (typeof panes[paneIndex]?.setStretchFactor === "function") {
+        panes[paneIndex].setStretchFactor(stretchFactor);
+      } else if (typeof panes[paneIndex]?.setHeight === "function") {
+        panes[paneIndex].setHeight(fallbackHeight);
       }
     });
   }
@@ -3259,43 +3612,7 @@
         secondsVisible: false,
       },
     });
-    const candleSeries = chart.addSeries(tv.CandlestickSeries, {
-      upColor: CANDLE_UP_COLOR,
-      downColor: CANDLE_DOWN_COLOR,
-      borderVisible: true,
-      borderUpColor: CANDLE_BORDER_COLOR,
-      borderDownColor: CANDLE_BORDER_COLOR,
-      wickUpColor: CANDLE_WICK_COLOR,
-      wickDownColor: CANDLE_WICK_COLOR,
-      priceFormat: chartPriceFormat(candles),
-      priceLineVisible: true,
-      lastValueVisible: true,
-    }, HISTORICAL_PRICE_PANE);
-    candleSeries.setData(chartPriceRows(candles));
-    const volumeSeries = chart.addSeries(tv.HistogramSeries, {
-      priceFormat: { type: "volume" },
-      priceScaleId: "volume",
-      color: "rgba(107, 132, 145, 0.35)",
-    }, HISTORICAL_PRICE_PANE);
-    chart.priceScale("volume", HISTORICAL_PRICE_PANE).applyOptions({ scaleMargins: { top: 0.94, bottom: 0 } });
-    volumeSeries.setData(chartVolumeRows(candles));
     const lineSeries = {};
-    [
-      ["EMA5", "#26c6da"],
-      ["EMA10", "#f8c15c"],
-      ["SMA20", "#b68cff"],
-    ].forEach(([label, color]) => {
-      const line = chart.addSeries(tv.LineSeries, {
-        color,
-        lineWidth: 2,
-        priceFormat: chartPriceFormat(candles),
-        priceLineVisible: false,
-        lastValueVisible: true,
-        title: label,
-      }, HISTORICAL_PRICE_PANE);
-      line.setData(historicalIndicatorRows(replay, label));
-      lineSeries[label] = line;
-    });
     const rsiSeries = chart.addSeries(tv.LineSeries, {
       color: "#22d3ee",
       lineWidth: 2,
@@ -3333,6 +3650,42 @@
     rsiCeiling.setData(historicalConstantRows(candles, 100));
     lineSeries.RSI_floor = rsiFloor;
     lineSeries.RSI_ceiling = rsiCeiling;
+    const candleSeries = chart.addSeries(tv.CandlestickSeries, {
+      upColor: CANDLE_UP_COLOR,
+      downColor: CANDLE_DOWN_COLOR,
+      borderVisible: true,
+      borderUpColor: CANDLE_BORDER_COLOR,
+      borderDownColor: CANDLE_BORDER_COLOR,
+      wickUpColor: CANDLE_WICK_COLOR,
+      wickDownColor: CANDLE_WICK_COLOR,
+      priceFormat: chartPriceFormat(candles),
+      priceLineVisible: true,
+      lastValueVisible: true,
+    }, HISTORICAL_PRICE_PANE);
+    candleSeries.setData(chartPriceRows(candles));
+    const volumeSeries = chart.addSeries(tv.HistogramSeries, {
+      priceFormat: { type: "volume" },
+      priceScaleId: "volume",
+      color: "rgba(107, 132, 145, 0.35)",
+    }, HISTORICAL_PRICE_PANE);
+    chart.priceScale("volume", HISTORICAL_PRICE_PANE).applyOptions({ scaleMargins: { top: 0.94, bottom: 0 } });
+    volumeSeries.setData(chartVolumeRows(candles));
+    [
+      ["EMA5", "#26c6da"],
+      ["EMA10", "#f8c15c"],
+      ["SMA20", "#b68cff"],
+    ].forEach(([label, color]) => {
+      const line = chart.addSeries(tv.LineSeries, {
+        color,
+        lineWidth: 2,
+        priceFormat: chartPriceFormat(candles),
+        priceLineVisible: false,
+        lastValueVisible: true,
+        title: label,
+      }, HISTORICAL_PRICE_PANE);
+      line.setData(historicalIndicatorRows(replay, label));
+      lineSeries[label] = line;
+    });
     const macdHistogram = chart.addSeries(tv.HistogramSeries, {
       priceScaleId: "right",
       priceFormat: { type: "price", precision: 4, minMove: 0.0001 },
@@ -3368,6 +3721,7 @@
     lineSeries.MACD_signal = macdSignalLine;
     lineSeries.MACD_histogram = macdHistogram;
     applyHistoricalReplayPaneScale(chart, HISTORICAL_RSI_PANE);
+    applyHistoricalReplayPaneScale(chart, HISTORICAL_PRICE_PANE);
     applyHistoricalReplayPaneScale(chart, HISTORICAL_MACD_PANE);
     chartState.markerTradeIds = new Map();
     const markers = historicalChartMarkers(replay, candles, chartState.markerTradeIds);
@@ -3419,6 +3773,10 @@
       ...replays.map((row) => row.fill_assumption).filter(Boolean),
       ...(Array.isArray(summary.fill_assumptions) ? summary.fill_assumptions.map((row) => row.id || row) : []),
     ]));
+    if (!isHistoricalReplayStrategyVisible(state.historicalReplay.strategyId)) {
+      state.historicalReplay.strategyId = "money_flow_v1_2_canonical";
+      state.historicalReplay.selectedTradeId = null;
+    }
     const strategies = Array.from(
       new Map(
         [
@@ -3434,7 +3792,7 @@
             : []),
         ].filter(([value]) => value),
       ).values(),
-    );
+    ).filter((strategy) => isHistoricalReplayStrategyVisible(strategy.value));
     renderSelect(
       elements.historicalReplayStrategyFilter,
       strategies,
@@ -3566,7 +3924,6 @@
 
   function renderHistoricalDataHorizonPanel() {
     if (!elements.historicalReplayDataHorizonPanel) return;
-    const summary = state.pt002HistoricalReplay || {};
     const selected = historicalReadinessForSelection();
     const canonicalEvidence = state.sv20Summary?.canonical_evidence_status || {};
     if (!selected) {
@@ -3578,20 +3935,12 @@
       : selected.component === "sleeve_1d"
         ? "SV2.0 treats 1D as a real Money Flow sleeve; source readiness is direct Hyperliquid public mainnet 1d candles when available."
         : "Candles loaded from historical replay source.";
+    const rangeStart = selected.actual_earliest_available || selected.start_time || selected.earliest_candle || "missing";
+    const rangeEnd = selected.actual_latest_available || selected.end_time || selected.latest_candle || "missing";
     elements.historicalReplayDataHorizonPanel.innerHTML = `
       <article>
-        <span>Target start</span>
-        <strong>${escapeHtml(summary.target_start_at || selected.target_start_at || "2025-01-01T00:00:00Z")}</strong>
-        <small>requested PT0.0.3 horizon</small>
-      </article>
-      <article>
-        <span>Earliest available</span>
-        <strong>${escapeHtml(selected.actual_earliest_available || selected.start_time || selected.earliest_candle || "missing")}</strong>
-        <small>${escapeHtml(selected.target_start_met ? "target_start_available" : "earliest_available_after_target")}</small>
-      </article>
-      <article>
-        <span>Latest available</span>
-        <strong>${escapeHtml(selected.actual_latest_available || selected.end_time || selected.latest_candle || "missing")}</strong>
+        <span>Range</span>
+        <strong>${escapeHtml(`${rangeStart} -> ${rangeEnd}`)}</strong>
         <small>${escapeHtml(selected.replay_ready ? "replay_ready" : "data_missing")}</small>
       </article>
       <article>
@@ -3603,11 +3952,6 @@
         <span>Source</span>
         <strong>${escapeHtml(selected.source_kind || selected.selected_data_source || selected.source || "historical source")}</strong>
         <small>${escapeHtml(aggregationCopy)}</small>
-      </article>
-      <article>
-        <span>Component</span>
-        <strong>${escapeHtml(selected.component || "n/a")}</strong>
-        <small>${escapeHtml(state.sv20Summary?.money_flow_version || "Money Flow v1.1 replay")}</small>
       </article>
       <article>
         <span>Canonical evidence</span>
@@ -3966,6 +4310,20 @@
     if (!loaded.length) return;
     const replays = loaded.flatMap((payload) => payload.replays || []);
     const dataReadiness = loaded.map((payload) => payload.dataset).filter(Boolean);
+    const strategies = Array.from(
+      new Map(
+        replays
+          .map((replay) => [
+            replay.strategy_id || "money_flow_v1_2_canonical",
+            {
+              id: replay.strategy_id || "money_flow_v1_2_canonical",
+              label: replay.strategy_label || replay.strategy_id || "SV2.0.2 replay strategy",
+              research_only: replay.research_only !== false,
+            },
+          ])
+          .filter(([id]) => id),
+      ).values(),
+    );
     state.sv202HistoricalReplay = {
       report: "sv2_0_2_dashboard_historical_replay_combined",
       source: "SV2.0.2 regenerated canonical DB-imported evidence packs",
@@ -3975,12 +4333,7 @@
         id,
         research_only: false,
       })),
-      strategies: [
-        {
-          id: "money_flow_v1_2_canonical",
-          label: "SV2.0.2 canonical Money Flow v1.2",
-        },
-      ],
+      strategies,
       data_readiness: dataReadiness,
       comparison: replays.map(sv202ComparisonRow),
       replays,
@@ -5071,23 +5424,98 @@
     if (id.includes("atr")) return "atr_stop";
     if (id.includes("recent_low")) return "recent_low_stop";
     if (id.includes("large_bear") || id.includes("large_red")) return "large_bear_candle_exit";
+    if (id.includes("chop") || id.includes("sideways")) return "chop_filter";
     if (id.includes("macd")) return "earlier_macd_entry";
     if (id.includes("lower_rsi") || id.includes("rsi")) return "lower_rsi_trend_intact_entry";
     if (id.includes("extension") || id.includes("ema10") || id.includes("sma20")) return "extension_filter";
-    if (id.includes("chop") || id.includes("sideways")) return "chop_filter";
     return unavailable("unknown_variant_family");
   }
 
   function sorOutcomeTaxonomy(row, ev2Summary) {
-    const id = row?.variant_id;
     const outcome = String(row?.outcome || "").toLowerCase();
     if (row?.candidate_evidence === true) return "candidate_for_more_evidence";
     if (outcome.includes("overfit")) return "overfit_risk";
     if (outcome.includes("insufficient")) return "insufficient_data";
-    if ((ev2Summary?.rejected_variants || []).includes(id) || outcome.includes("reject") || row?.production_approved === false) {
-      return "rejected";
-    }
+    if (outcome.includes("no_op")) return "no_op";
+    if (outcome.includes("deteriorated")) return "deteriorated_vs_baseline";
+    if (outcome.includes("reject")) return "rejected_negative_aggregate";
+    if (row?.production_approved === false) return "not_promoted";
     return unavailable("candidate_status_not_in_bundle");
+  }
+
+  function evidenceLabMetricValue(row, keys) {
+    for (const key of keys) {
+      if (hasOwnValue(row, key)) {
+        const value = Number(row[key]);
+        if (Number.isFinite(value)) return value;
+      }
+    }
+    return null;
+  }
+
+  function evidenceLabVariantReview(row, control, taxonomy) {
+    const methodology = String(row?.methodology || "");
+    const family = sorVariantFamily(row);
+    const pnl = evidenceLabMetricValue(row, [
+      "net_pnl_delta_sum_across_independent_scenarios",
+      "ending_equity_delta_sum_across_independent_scenarios",
+      "net_pnl_delta_sum",
+    ]);
+    const drawdownDelta = evidenceLabMetricValue(row, ["max_drawdown_delta_worst", "max_drawdown_delta"]);
+    const tradeDelta = evidenceLabMetricValue(row, ["trade_count_delta_sum"]) || 0;
+    const damaged = Number(control?.damaged ?? 0);
+    let label = "not_promoted_insufficient_data";
+    if (row?.candidate_evidence === true) {
+      label = "candidate_for_more_evidence";
+    } else if (methodology === "deferred_requires_rejected_signal_replay") {
+      label = "deferred_needs_true_forward_replay";
+    } else if (methodology !== "true_forward_replay") {
+      label = pnl && pnl > 0 ? "promising_diagnostic_only" : "not_promoted_insufficient_data";
+    } else if (taxonomy === "no_op" || pnl === 0) {
+      label = "not_promoted_no_op";
+    } else if (pnl !== null && pnl < 0) {
+      label = "rejected_negative_aggregate";
+    } else if (pnl !== null && pnl >= 20000 && damaged === 0) {
+      label = Math.abs(tradeDelta) >= 1000
+        ? "promising_high_pnl_control_preserved_trade_count_risk"
+        : "promising_high_pnl_control_preserved";
+    } else if (pnl !== null && pnl >= 20000 && family === "extension_filter") {
+      label = "promising_extension_filter_overfit_risk";
+    } else if (pnl !== null && pnl > 0 && family === "chop_filter") {
+      label = "promising_chop_filter_control_risk";
+    } else if (pnl !== null && pnl > 0 && damaged > 0) {
+      label = "mixed_positive_pnl_control_damage";
+    } else if (pnl !== null && pnl > 0 && drawdownDelta !== null && drawdownDelta > 0) {
+      label = pnl < 2500 ? "mixed_small_pnl_drawdown_risk" : "mixed_positive_pnl_drawdown_risk";
+    } else if (taxonomy === "insufficient_data") {
+      label = "not_promoted_insufficient_data";
+    }
+    const status = label === "candidate_for_more_evidence"
+      ? "candidate_for_more_evidence"
+      : label.startsWith("promising_")
+        ? "promising_not_promoted"
+        : label.startsWith("mixed_")
+          ? "mixed_not_promoted"
+          : label.startsWith("rejected_")
+            ? "rejected"
+            : label.startsWith("deferred_")
+              ? "deferred"
+              : "not_promoted";
+    const blockers = [];
+    if (methodology !== "true_forward_replay") blockers.push("not_true_forward_replay");
+    if (drawdownDelta !== null && drawdownDelta > 0) blockers.push("worst_drawdown_worsened");
+    if (damaged > 0) blockers.push("control_pockets_damaged");
+    if (Math.abs(tradeDelta) >= 1000) blockers.push("large_trade_count_change");
+    if (taxonomy === "overfit_risk") blockers.push("overfit_risk");
+    if (taxonomy === "insufficient_data") blockers.push("insufficient_data");
+    if (taxonomy === "no_op") blockers.push("no_op");
+    if (label.startsWith("rejected_")) blockers.push("negative_aggregate_pnl");
+    return {
+      label,
+      status,
+      blockers: blockers.length ? blockers : ["strict_candidate_gate_not_passed"],
+      explanation: SOR_EV3_FOUNDER_LABEL_HELP[label] || "Evidence-only review label; no production approval.",
+    };
   }
 
   function sorVariantRows() {
@@ -5642,14 +6070,7 @@
           <strong>${escapeHtml(state.evidenceLabOverlay.symbol)}-PERP baseline vs variant overlay</strong>
           <span>${escapeHtml(displayTimeframe(state.evidenceLabOverlay.timeframe))} / ${escapeHtml(state.evidenceLabOverlay.fillAssumption)} / canonical SV2.0.2 visualization context</span>
         </div>
-        <div class="chart-price-tape">
-          <span>Historical close</span>
-          <strong>${escapeHtml(priceStats.latest)}</strong>
-        </div>
-      </div>
-      <div class="tradingview-chart-stage">
-        <div class="tradingview-lightweight-chart" role="img" aria-label="Evidence Lab baseline and variant marker overlay chart"></div>
-        <aside class="chart-price-axis-readout" aria-label="Evidence Lab price scale">
+        <aside class="chart-price-axis-readout chart-price-axis-readout-inline" aria-label="Evidence Lab price scale">
           <span>Historical price USDC</span>
           <strong>${escapeHtml(priceStats.latest)}</strong>
           <small>H ${escapeHtml(priceStats.high)}</small>
@@ -5657,6 +6078,9 @@
           <small>O ${escapeHtml(priceStats.open)}</small>
           <small>C ${escapeHtml(priceStats.close)}</small>
         </aside>
+      </div>
+      <div class="tradingview-chart-stage evidence-lab-chart-stage">
+        <div class="tradingview-lightweight-chart" role="img" aria-label="Evidence Lab baseline and variant marker overlay chart"></div>
       </div>
       <div class="historical-overlay-legend">
         <span><b class="legend-dot entry"></b>baseline entry</span>
@@ -5927,14 +6351,16 @@
     const ev3Candidates = Array.isArray(ev3?.candidate_variants) && ev3.candidate_variants.length
       ? ev3.candidate_variants.join(", ")
       : "none";
+    const ev3Promising = Array.isArray(ev3?.promising_variants) && ev3.promising_variants.length
+      ? ev3.promising_variants.join(", ")
+      : "none";
     const cards = [
       ["Baseline", "SV2.0.2", `timestamp ${SV202_CANONICAL_TIMESTAMP}`],
       ["SOR-EV1 bundle", ev1 ? "loaded" : unavailable(), "loss anatomy and completed-trade overlays"],
       ["SOR-EV2 bundle", ev2 ? "loaded" : unavailable(), "true-forward stops and rejected-signal replay"],
-      ["SOR-EV3 bundle", ev3 ? "loaded" : unavailable(), `avoid_sideways_low_volatility candidates: ${ev3Candidates}`],
+      ["SOR-EV3 bundle", ev3 ? "loaded" : unavailable(), `candidates: ${ev3Candidates}; promising: ${ev3Promising}`],
       ["Baseline parity", parity ?? unavailable(), "canonical SV2.0.2 scenarios"],
       ["Variants", variantCount || unavailable(), "evidence-only; none promoted"],
-      ["Production rules", "changed: no", "live/paper approval: no"],
     ];
     elements.evidenceLabSummaryCards.innerHTML = cards.map(([label, value, detail]) => `
       <article class="metric-cell">
@@ -5943,6 +6369,35 @@
         <small>${escapeHtml(detail)}</small>
       </article>
     `).join("");
+  }
+
+  function evidenceLabFounderLabelClass(label) {
+    const value = String(label || "");
+    if (value === "candidate_for_more_evidence") return "candidate";
+    if (value.startsWith("promising_")) return "promising";
+    if (value.startsWith("mixed_")) return "mixed";
+    if (value.startsWith("rejected_")) return "rejected";
+    if (value.startsWith("deferred_")) return "neutral";
+    return "neutral";
+  }
+
+  function evidenceLabFounderLabel(row) {
+    const label = row?.founder_review_label || row?.outcome_taxonomy || unavailable();
+    const help = row?.review_explanation || SOR_EV3_FOUNDER_LABEL_HELP[label] || "";
+    return `<span class="evidence-label-badge ${escapeHtml(evidenceLabFounderLabelClass(label))}" title="${escapeHtml(help)}">${escapeHtml(label)}</span>`;
+  }
+
+  function evidenceLabFounderLabelRank(row) {
+    const label = row?.founder_review_label || row?.outcome_taxonomy || "";
+    if (Object.prototype.hasOwnProperty.call(FOUNDER_LABEL_RANK, label)) {
+      return FOUNDER_LABEL_RANK[label];
+    }
+    if (label.startsWith("promising_")) return 30;
+    if (label.startsWith("mixed_")) return 50;
+    if (label.startsWith("not_promoted_")) return 70;
+    if (label.startsWith("deferred_")) return 80;
+    if (label.startsWith("rejected_")) return 100;
+    return 90;
   }
 
   function renderEvidenceLabFounderCandidate() {
@@ -5957,6 +6412,11 @@
     const parity = ev3.baseline_parity_summary?.status_counts
       ? Object.entries(ev3.baseline_parity_summary.status_counts).map(([key, value]) => `${key}: ${value}`).join("; ")
       : unavailable();
+    const sortedRows = rows.slice().sort((left, right) =>
+      evidenceLabFounderLabelRank(left) - evidenceLabFounderLabelRank(right) ||
+      decimal(right.net_pnl_delta_sum_across_independent_scenarios) - decimal(left.net_pnl_delta_sum_across_independent_scenarios) ||
+      String(left.variant_id || "").localeCompare(String(right.variant_id || "")),
+    );
     elements.evidenceLabFounderCandidate.innerHTML = `
       <div class="metric-grid compact-grid">
         <article class="metric-cell">
@@ -5979,11 +6439,17 @@
           <strong>${escapeHtml(compactNumber(ev3.blocked_entry_summary?.canonical_blocked_entries ?? unavailable(), 0))}</strong>
           <small>blocked entries with baseline PnL attribution</small>
         </article>
+        <article class="metric-cell metric-cell-full-row">
+          <span class="metric-label">Promising labels</span>
+          <strong>${escapeHtml((ev3.promising_variants || []).join(", ") || "none")}</strong>
+          <small>not promoted; needs narrower follow-up</small>
+        </article>
       </div>
       <table>
         <thead>
           <tr>
             <th>Variant</th>
+            <th>Founder Label</th>
             <th>Outcome</th>
             <th>Net PnL Delta</th>
             <th>Drawdown Delta</th>
@@ -5992,16 +6458,20 @@
             <th>Avoided Losers</th>
             <th>Missed Winners</th>
             <th>Control Damage</th>
-            <th>Status</th>
+            <th>Promotion Status</th>
+            <th>Gate Blockers</th>
           </tr>
         </thead>
         <tbody>
-          ${rows.map((row) => {
+          ${sortedRows.map((row) => {
             const control = controlById.get(row.variant_id) || {};
-            const candidate = (ev3.candidate_variants || []).includes(row.variant_id);
+            const blockers = Array.isArray(row.promotion_blockers) && row.promotion_blockers.length
+              ? row.promotion_blockers.join(", ")
+              : "none";
             return `
               <tr>
                 <td>${escapeHtml(row.variant_id)}</td>
+                <td>${evidenceLabFounderLabel(row)}</td>
                 <td>${escapeHtml(row.outcome_taxonomy || unavailable())}</td>
                 <td>${escapeHtml(formatEvidenceMoney(row, "net_pnl_delta_sum_across_independent_scenarios"))}</td>
                 <td>${escapeHtml(formatEvidenceMoney(row, "max_drawdown_delta_worst"))}</td>
@@ -6010,7 +6480,8 @@
                 <td>${escapeHtml(formatEvidenceNumber(row, "avoided_losers", 0))}</td>
                 <td>${escapeHtml(formatEvidenceNumber(row, "missed_winners", 0))}</td>
                 <td>${escapeHtml(control.damaged ?? unavailable())}</td>
-                <td>${escapeHtml(candidate ? "candidate_for_more_evidence" : "rejected_not_promoted")}</td>
+                <td>${escapeHtml(row.promotion_status || "not_promoted")}</td>
+                <td title="${escapeHtml(row.review_explanation || "")}">${escapeHtml(blockers)}</td>
               </tr>
             `;
           }).join("")}
@@ -6027,6 +6498,20 @@
       return;
     }
     const controlById = new Map((state.sorEv2Summary?.control_pocket_impact || []).map((row) => [row.variant_id, row]));
+    const sortedVariants = variants
+      .map(({ id, row }) => {
+        const control = controlById.get(id);
+        const taxonomy = sorOutcomeTaxonomy(row, state.sorEv2Summary);
+        const review = evidenceLabVariantReview(row, control, taxonomy);
+        return { id, row, control, taxonomy, review };
+      })
+      .sort((left, right) =>
+        evidenceLabFounderLabelRank({ founder_review_label: left.review.label }) -
+          evidenceLabFounderLabelRank({ founder_review_label: right.review.label }) ||
+        decimal(right.row?.ending_equity_delta_sum_across_independent_scenarios) -
+          decimal(left.row?.ending_equity_delta_sum_across_independent_scenarios) ||
+        String(left.id || "").localeCompare(String(right.id || "")),
+      );
     elements.evidenceLabVariantMatrix.innerHTML = `
       <table>
         <thead>
@@ -6034,22 +6519,22 @@
             <th>Variant ID</th>
             <th>Variant Family</th>
             <th>Methodology</th>
+            <th>Founder Label</th>
             <th>Outcome Taxonomy</th>
             <th>Tested</th>
             <th>Candidate</th>
-            <th>Rejected</th>
+            <th>Review Status</th>
+            <th>Hard Rejected</th>
             <th>Ending Equity Delta</th>
             <th>Drawdown Delta</th>
             <th>Trade Count Delta</th>
             <th>Largest Loss Delta</th>
             <th>Control Pocket Impact</th>
-            <th>Reason</th>
+            <th>Gate Blockers</th>
           </tr>
         </thead>
         <tbody>
-          ${variants.map(({ id, row }) => {
-            const control = controlById.get(id);
-            const taxonomy = sorOutcomeTaxonomy(row, state.sorEv2Summary);
+          ${sortedVariants.map(({ id, row, control, taxonomy, review }) => {
             const controlSummary = control
               ? `preserved ${control.preserved ?? 0}; improved ${control.improved ?? 0}; damaged ${control.damaged ?? 0}`
               : unavailable();
@@ -6058,16 +6543,18 @@
                 <td>${escapeHtml(id)}</td>
                 <td>${escapeHtml(sorVariantFamily(row))}</td>
                 <td>${escapeHtml(row.methodology || unavailable())}</td>
+                <td>${evidenceLabFounderLabel({ founder_review_label: review.label, review_explanation: review.explanation })}</td>
                 <td>${escapeHtml(taxonomy)}</td>
                 <td>${row ? "yes" : "no"}</td>
                 <td>${row?.candidate_evidence ? "yes" : "no"}</td>
-                <td>${taxonomy === "rejected" || (state.sorEv2Summary?.rejected_variants || []).includes(id) ? "yes" : "no"}</td>
+                <td>${escapeHtml(review.status)}</td>
+                <td>${review.label.startsWith("rejected_") ? "yes" : "no"}</td>
                 <td>${escapeHtml(formatEvidenceMoney(row, "ending_equity_delta_sum_across_independent_scenarios"))}</td>
                 <td>${escapeHtml(formatEvidenceMoney(row, "max_drawdown_delta_worst"))}</td>
                 <td>${escapeHtml(formatEvidenceNumber(row, "trade_count_delta_sum", 0))}</td>
                 <td>${escapeHtml(unavailable())}</td>
                 <td>${escapeHtml(controlSummary)}</td>
-                <td>${escapeHtml(row.outcome || "No variant is approved for production; review SOR-EV2 reason codes.")}</td>
+                <td title="${escapeHtml(review.explanation)}">${escapeHtml(review.blockers.join(", "))}</td>
               </tr>
             `;
           }).join("")}
@@ -6303,8 +6790,9 @@
     renderMetrics(summaries);
     renderFlags();
     renderFilters(summaries);
+    renderEvidenceStrategyFilter();
     renderEvidenceDateControls();
-    renderComponentCards(summaries);
+    renderComponentCards(selected);
     renderDetail(selected);
     renderRunTable(selected);
     renderExperiments();

@@ -69,6 +69,12 @@
 
         <section class="toolbar-band" aria-label="Evidence filters">
           <div class="segment-group" id="component-filter" role="tablist" aria-label="Component filter"></div>
+          <div class="evidence-strategy-group" aria-label="Evidence replay strategy filter">
+            <label>
+              <span>Replay strategy</span>
+              <select id="evidence-replay-strategy-filter"></select>
+            </label>
+          </div>
           <div class="date-filter-group" aria-label="Evidence realized exit date filter">
             <label>
               <span>Start date</span>
@@ -141,7 +147,6 @@
           <div class="evidence-lab-badges" aria-label="Evidence Lab safety labels">
             <span>Canonical baseline: SV2.0.2</span>
             <span>Variant status: evidence-only</span>
-            <span>Production rules changed: no</span>
             <span>Live approval: no</span>
             <span>Orders submitted: no</span>
           </div>
@@ -239,7 +244,7 @@
         <section class="table-panel evidence-lab-panel" aria-labelledby="evidence-lab-variant-matrix-title">
           <div class="section-heading">
             <h2 id="evidence-lab-variant-matrix-title">Variant Summary Matrix</h2>
-            <p>All SOR-EV1/SOR-EV2 variants remain evidence-only; rejected variants stay visible.</p>
+            <p>All SOR-EV1/SOR-EV2 variants remain evidence-only; founder-review labels separate promising, mixed, deferred, and hard-rejected outcomes.</p>
           </div>
           <div id="evidence-lab-variant-matrix" class="data-table-shell"></div>
         </section>
@@ -290,6 +295,13 @@
       </section>
 
       <section id="historical-replay-view" class="dashboard-view historical-replay-workstation" data-view-panel="historical-replay">
+        <div class="historical-truth-banner">
+          Historical replay uses historical candle data. Hyperliquid testnet is used only for sandbox execution plumbing. Testnet prices are not used for strategy validation.
+          <span>No orders are submitted. No private, signed, or order endpoints are used.</span>
+        </div>
+
+        <section id="historical-data-horizon-panel" class="historical-data-horizon-panel" aria-label="Historical data horizon"></section>
+
         <section class="historical-replay-topbar" aria-labelledby="historical-replay-title">
           <div>
             <p class="eyebrow">Historical Strategy Truth</p>
@@ -326,14 +338,8 @@
               <span>Show arrow descriptions</span>
             </label>
           </div>
+          <div id="historical-replay-source-status" class="chart-header-meta"></div>
         </section>
-
-        <div class="historical-truth-banner">
-          Historical replay uses historical candle data. Hyperliquid testnet is used only for sandbox execution plumbing. Testnet prices are not used for strategy validation.
-          <span>No orders are submitted. No private, signed, or order endpoints are used.</span>
-        </div>
-
-        <section id="historical-data-horizon-panel" class="historical-data-horizon-panel" aria-label="Historical data horizon"></section>
 
         <section class="historical-replay-grid" aria-label="Historical replay cockpit">
           <section class="historical-chart-panel" aria-labelledby="historical-chart-title">
@@ -341,7 +347,6 @@
               <div>
                 <h2 id="historical-chart-title">Historical Candles + Money Flow Markers</h2>
               </div>
-              <div id="historical-replay-source-status" class="chart-header-meta"></div>
             </div>
             <div id="historical-replay-chart" class="exchange-chart-shell historical-replay-chart"></div>
             <div id="historical-replay-equity-panel" class="historical-equity-panel"></div>
@@ -796,7 +801,7 @@
                     <td>required</td>
                   </tr>
                   <tr>
-                    <td>1D / sleeve_1d</td>
+                    <td>1D</td>
                     <td>50 bars</td>
                     <td>46-72</td>
                     <td>78</td>

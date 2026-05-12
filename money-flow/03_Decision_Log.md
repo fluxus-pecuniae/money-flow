@@ -2,12 +2,33 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-12T21:09:29Z - Historical Replay - Rolling-Range SOR-EV3 Variants Added
+
+- `decision`: Bring `avoid_low_rolling_range_20` and `avoid_low_rolling_range_50` into Historical Replay as full research-only replay strategies.
+- `scope`: The SV2.0.2 dashboard chart-data generator now appends those two variants across BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX, `15m`/`1h`/`4h`/`1d`, and both `next_candle_open` / `next_candle_close` fill assumptions. Regenerated ignored local chart-data files contain 72 canonical replays, 72 `avoid_low_rolling_range_20` replays, and 72 `avoid_low_rolling_range_50` replays.
+- `why`: The founder does not want to rely on Evidence Lab alone for deeper review and needs the promising rolling-range options inspectable in the same candle/indicator/trade-inspector workflow as canonical Historical Replay.
+- `follow_up_implications`: These replay strategies remain evidence/research-only. They do not approve production Money Flow rule changes, paper runtime, live trading, order submission, or SOR behavior.
+
+## 2026-05-12T20:48:26Z - Evidence Lab - SOR-EV1/SOR-EV2 Matrix Uses Review Labels
+
+- `decision`: Keep SOR-EV1/SOR-EV2 variants evidence-only and not promoted, but replace the founder-facing all-rejected Variant Summary Matrix presentation with more precise review labels.
+- `scope`: The dashboard matrix now separates `promising_*`, `mixed_*`, `deferred_*`, `not_promoted_*`, diagnostic-only, and hard `rejected_*` rows. It also shows review status and gate blockers.
+- `why`: Some SOR-EV1/SOR-EV2 rows had useful positive aggregate PnL or diagnostic signal but failed strict promotion gates because of methodology, drawdown, control-pocket damage, or trade-count risk. Flattening those rows into `rejected` obscured useful review signal.
+- `follow_up_implications`: These labels are UI/review context only. They do not approve production Money Flow rules, paper runtime, live trading, or SOR behavior. Backend evidence status and methodology warnings remain authoritative.
+
 ## 2026-05-12T19:38:08Z - SOR-EV3 - Avoid Sideways / Low-Volatility Variants Remain Evidence-Only
 
 - `decision`: Treat the founder-selected `avoid_sideways_low_volatility` family as tested but not promoted after focused true-forward replay.
 - `scope`: Baseline parity passed for all 72 canonical SV2.0.2 scenarios. ATR percentile, flat SMA20/EMA10 slope, rolling-range compression, MACD-flat chop, and conservative combined blockers were replayed from persisted candle truth with dynamic equity, blocked-entry attribution, loss concentration, and control-pocket impact.
 - `why`: The broad low-volatility/chop definitions did not produce a clean control-preserving candidate. Some variants improved aggregate PnL but damaged control pockets, raised drawdown, or overblocked; blocked open signals are not the same as canonical trade-count reduction.
 - `follow_up_implications`: No production Money Flow rule changed and no variant is approved. Any SOR-EV4 must be narrower, out-of-sample-style, and control-pocket-preserving before rule-change discussion.
+
+## 2026-05-12T20:37:54Z - SOR-EV3 - Founder Review Labels Separate Promising From Rejected
+
+- `decision`: Keep the strict SOR-EV3 candidate gate unchanged, but replace the founder-facing all-rejected presentation with more precise review labels.
+- `scope`: `avoid_low_rolling_range_20` is labeled `promising_control_pocket_risk`, `avoid_low_rolling_range_50` is labeled `promising_high_pnl_control_risk`, and `avoid_low_atr_percentile_30` remains hard rejected as `rejected_negative_aggregate`. Mixed positive-PnL rows remain not-promoted with control-damage labels.
+- `why`: The rolling-range variants improved aggregate PnL materially, but they failed strict promotion because worst-scenario drawdown worsened and control pockets were damaged. Calling them simply rejected obscured useful founder-review signal.
+- `follow_up_implications`: `promising_*` labels are evidence-review context only. They do not approve production rules, paper runtime, live trading, or SOR behavior. Any SOR-EV4 should focus on the promising rolling-range family with sliced validation and control-pocket preservation.
 
 ## 2026-05-12T13:18:15Z - SOR-EV2.2 - Evidence Lab Overlays Are Visualization Only
 

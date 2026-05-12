@@ -1,6 +1,6 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-05-12T19:38:08Z`
+Last reviewed: `2026-05-12T21:09:29Z`
 
 ## Open Items
 
@@ -9,7 +9,7 @@ Last reviewed: `2026-05-12T19:38:08Z`
 - `status`: `resolved`
 - `area`: `SOR-EV3 avoid-sideways / low-volatility evidence`
 - `summary`: `SOR-EV3 completed the founder-selected avoid_sideways_low_volatility drilldown against canonical SV2.0.2 DB-imported evidence. Baseline parity passed for all 72 canonical scenarios. ATR percentile, flat trend, rolling-range compression, MACD-flat chop, and conservative combined blockers were evaluated as true-forward replay with dynamic equity, explicit blocked-entry attribution, loss-concentration analysis, and control-pocket impact. Blocked open signals are reported separately from matched canonical baseline trades with PnL attribution.`
-- `impact`: `No variant was promoted: all tested sideways/low-volatility definitions remain evidence-only and rejected/not promoted for production. This result is not proof that no future narrower chop/volatility idea can work, but it prevents treating the broad founder-selected family as approved. Production Money Flow rules remain unchanged; no orders, private/signed/order endpoints, testnet strategy truth, live trading, dashboard-date-filter canonical evidence, or SOR/fanout/CBBO/cross-venue behavior were added.`
+- `impact`: `No variant was promoted. SOR-EV3 now separates strict candidate promotion from founder-review labels: avoid_low_rolling_range_20 is labeled promising_control_pocket_risk, avoid_low_rolling_range_50 is labeled promising_high_pnl_control_risk, and avoid_low_atr_percentile_30 is the hard rejected_negative_aggregate result. The promising labels are evidence-review signals only, not approval. Historical Replay chart-data regeneration now includes full research-only replay rows for avoid_low_rolling_range_20 and avoid_low_rolling_range_50 across the 9 supported SV2.0.2 symbols, 4 timeframes, and both fill assumptions so the founder can inspect those options outside Evidence Lab. Production Money Flow rules remain unchanged; no orders, private/signed/order endpoints, testnet strategy truth, live trading, dashboard-date-filter canonical evidence, or SOR/fanout/CBBO/cross-venue behavior were added.`
 
 ### K-001
 
@@ -23,7 +23,7 @@ Last reviewed: `2026-05-12T19:38:08Z`
 - `status`: `resolved`
 - `area`: `SV2.0 evidence artifacts`
 - `summary`: `SV2.0.2 resolves the SV2 canonical-evidence artifact blocker. Money Flow v1.2 has a real sleeve_1d, normalized Hyperliquid public-mainnet candles have been imported through the hardened candle importer into the intended migrated money_flow DB, and ignored canonical evidence-pack paths now exist for 15m/1h/4h/1d. The 2026-05-12 regeneration uses fully closed timeframe end-boundaries and 36 per-symbol/per-timeframe configs so each supported pair backtests as far back as its own DB-imported public data allows. Supported canonical evidence symbols are BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, and AVAX; requested SHIB is explicitly represented as kSHIB and deferred from canonical evidence because unit semantics are not clean enough. 4h and 1D public candleSnapshot rows reach the Jan 2025 target, while 15m and 1h remain limited by Hyperliquid public recent-candle availability and carry hyperliquid_public_5000_candle_limit.`
-- `impact`: `SOR-EV1 and SOR-EV2 proceeded from the regenerated SV2.0.2 baseline, and SOR-EV2.1 now makes those evidence bundles visually reviewable through the dashboard Evidence Lab. Compact rows remain noncanonical, but DB-backed canonical evidence packs exist with dynamic_equity_pct, 10000 USDC initial equity per independent scenario, explicit fee/slippage, and force-close-at-dataset-end open-position handling. This is research evidence, not proof of profitability or approval for live trading. No order, private/signed/order endpoint, API key, testnet strategy truth, live trading, SOR/fanout/CBBO, stop-loss/RSI/MACD variant, or parameter optimization was added.`
+- `impact`: `SOR-EV1 and SOR-EV2 proceeded from the regenerated SV2.0.2 baseline, and SOR-EV2.1 now makes those evidence bundles visually reviewable through the dashboard Evidence Lab. The Variant Summary Matrix uses founder-review labels to separate promising, mixed, deferred, no-op, diagnostic-only, and hard-rejected rows instead of flattening every non-candidate into rejected. Compact rows remain noncanonical, but DB-backed canonical evidence packs exist with dynamic_equity_pct, 10000 USDC initial equity per independent scenario, explicit fee/slippage, and force-close-at-dataset-end open-position handling. This is research evidence, not proof of profitability or approval for live trading. No order, private/signed/order endpoint, API key, testnet strategy truth, live trading, SOR/fanout/CBBO, stop-loss/RSI/MACD variant, or parameter optimization was added.`
 
 ### K-015
 

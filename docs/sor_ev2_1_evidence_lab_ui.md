@@ -43,7 +43,7 @@ Chart-data JSON under `reports/strategy_validation/sv2_0_2_dashboard_chart_data/
 Status: implemented
 
 - Evidence Lab header with canonical baseline, evidence-only, no-rule-change, no-live, and no-order badges.
-- Variant Summary Matrix.
+- Variant Summary Matrix with founder-review labels for promising, mixed, deferred, no-op, diagnostic-only, and hard-rejected outcomes.
 - Control Pockets panel.
 - Worst Trades panel.
 - Late Entry Analysis panel.
@@ -55,7 +55,7 @@ Status: implemented
 
 Status: implemented
 
-The matrix shows variant id, family, methodology, outcome taxonomy, tested/candidate/rejected flags, ending-equity delta, drawdown delta, trade-count delta, control-pocket impact, and rejection/candidate reason.
+The matrix shows variant id, family, methodology, founder-review label, outcome taxonomy, tested/candidate flags, review status, hard-rejected status, ending-equity delta, drawdown delta, trade-count delta, control-pocket impact, and gate blockers. The labels are review aids only; no SOR-EV1/SOR-EV2 variant is approved for production.
 
 Missing bundle fields render as `data_not_available_in_sor_ev_bundle` instead of silent zeroes.
 

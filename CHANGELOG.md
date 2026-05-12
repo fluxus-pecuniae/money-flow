@@ -13,6 +13,151 @@ Entry schema:
 
 ---
 
+## v2026.05.12.021
+
+- `recorded_at_utc`: `2026-05-12T21:48:31Z`
+- `scope`: `Evidence Run Ledger same-result label`
+- `intent`: `Native entry. Added a neutral same_result label to the Evidence Run Ledger result classification when generated replay-strategy rows have exactly the same PnL and drawdown as the matching Money Flow v1.2 canonical row. Baseline rows still show baseline_v1_2. Dashboard behavior only; production Money Flow rules are unchanged, no variant is approved, no evidence packs were regenerated, no orders were submitted, no private/signed/order endpoints were called, no Hyperliquid testnet prices were used as strategy truth, and no live/paper runtime or SOR/fanout behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+
+## v2026.05.12.020
+
+- `recorded_at_utc`: `2026-05-12T21:42:50Z`
+- `scope`: `Evidence Run Ledger result classification`
+- `intent`: `Native entry. Added a Result column to the Evidence Run Ledger. Generated replay-strategy rows now compare each selected row's PnL and drawdown against the matching Money Flow v1.2 canonical row for the same symbol, timeframe, and fill assumption. Result labels are improved_pnl_drawdown (green), improved_pnl_not_drawdown (amber), improved_drawdown_not_pnl (amber), no bueno (red), or baseline_v1_2 for canonical rows. Dashboard behavior only; production Money Flow rules are unchanged, no variant is approved, no evidence packs were regenerated, no orders were submitted, no private/signed/order endpoints were called, no Hyperliquid testnet prices were used as strategy truth, and no live/paper runtime or SOR/fanout behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `git diff --check`
+
+## v2026.05.12.019
+
+- `recorded_at_utc`: `2026-05-12T21:26:02Z`
+- `scope`: `Evidence Run Ledger replay-strategy selector`
+- `intent`: `Native entry. Added a Replay strategy dropdown to the Evidence tab so the Run Ledger can switch between canonical evidence-pack batch reports and generated SV2.0.2 Historical Replay strategy rows, including SOR-EV3 avoid_low_rolling_range_20 and avoid_low_rolling_range_50 when the local chart-data JSON is present. The selector changes dashboard review surfaces only; production Money Flow rules are unchanged, no variant is approved, no evidence packs were regenerated, no orders were submitted, no private/signed/order endpoints were called, no Hyperliquid testnet prices were used as strategy truth, and no live/paper runtime or SOR/fanout behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `git diff --check`
+
+## v2026.05.12.018
+
+- `recorded_at_utc`: `2026-05-12T21:09:29Z`
+- `scope`: `Historical Replay SOR-EV3 rolling-range variant regeneration`
+- `intent`: `Native entry. Extended the SV2.0.2 dashboard chart-data generator so Historical Replay now includes research-only full replay rows for avoid_low_rolling_range_20 and avoid_low_rolling_range_50 across all 9 supported SV2.0.2 symbols, 4 timeframes, and both next_candle_open / next_candle_close fill assumptions. Regenerated the ignored local chart-data JSON under reports/strategy_validation/sv2_0_2_dashboard_chart_data/20260512T064916Z/. Production Money Flow rules are unchanged, no variant is approved, no orders were submitted, no private/signed/order endpoints were called, no Hyperliquid testnet prices were used as strategy truth, and no live/paper runtime or SOR/fanout behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `scripts/build_sv202_dashboard_chart_data.py`
+  - `services/strategy_validation/sor_ev3.py`
+  - `tests/test_sor_ev3_avoid_sideways_low_volatility.py`
+- `validation_performed`:
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> .venv/bin/python scripts/build_sv202_dashboard_chart_data.py`
+  - `generated chart-data audit: 36 files; 72 canonical replays; 72 avoid_low_rolling_range_20 replays; 72 avoid_low_rolling_range_50 replays; both fill assumptions present for every strategy`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_sor_ev3_avoid_sideways_low_volatility.py tests/test_dashboard_static_assets.py`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m compileall core services apps tests scripts`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `git diff --check`
+
+## v2026.05.12.017
+
+- `recorded_at_utc`: `2026-05-12T20:48:26Z`
+- `scope`: `Evidence Lab pre-SOR-EV3 variant matrix label taxonomy`
+- `intent`: `Native entry. Applied founder-review labels to the SOR-EV1/SOR-EV2 Variant Summary Matrix so the dashboard no longer flattens every non-candidate into rejected. The matrix now separates promising, mixed, deferred, no-op, diagnostic-only, and hard-rejected outcomes while preserving strict evidence-only boundaries. Production Money Flow rules are unchanged, no variant is approved, no evidence packs were regenerated, no orders were submitted, no private/signed/order endpoints were called, no testnet prices were used as strategy truth, and no live/paper runtime or SOR/fanout/CBBO behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `docs/sor_ev2_1_evidence_lab_ui.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m compileall core services apps tests scripts`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `git diff --check`
+
+## v2026.05.12.016
+
+- `recorded_at_utc`: `2026-05-12T20:37:54Z`
+- `scope`: `SOR-EV3 founder-review label taxonomy follow-up`
+- `intent`: `Native entry. Replaced the blunt SOR-EV3 rejected/not-promoted UI labeling with founder-facing review labels. The regenerated SOR-EV3 summary now keeps strict candidate promotion separate from softer labels: avoid_low_rolling_range_20 is promising_control_pocket_risk and avoid_low_rolling_range_50 is promising_high_pnl_control_risk, while avoid_low_atr_percentile_30 remains a hard rejected_negative_aggregate result. Evidence Lab shows founder labels, promotion status, and gate blockers instead of calling every non-candidate rejected. Production Money Flow rules are unchanged, no variant is approved, no orders were submitted, no private/signed/order endpoints were called, no testnet prices were used as strategy truth, no evidence packs were regenerated, and no live/paper runtime or SOR/fanout/CBBO behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `TODO.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `docs/sor_ev3_avoid_sideways_low_volatility.md`
+  - `docs/sor_ev3_avoid_sideways_low_volatility_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `services/strategy_validation/sor_ev3.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_sor_ev3_avoid_sideways_low_volatility.py`
+- `validation_performed`:
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> .venv/bin/python scripts/build_sor_ev3_avoid_sideways_low_volatility.py`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_sor_ev3_avoid_sideways_low_volatility.py tests/test_dashboard_static_assets.py`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m compileall core services apps tests scripts`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `git diff --check`
+
 ## v2026.05.12.015
 
 - `recorded_at_utc`: `2026-05-12T19:38:08Z`

@@ -107,6 +107,8 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "not true forward replays" not in html
     assert "data-view=\"strategy\"" in html
     assert "Strategy Logic" in html
+    assert "1D / sleeve_1d" not in html
+    assert "<td>1D</td>" in html
     assert "EMA5 > EMA10 > SMA20" in html
     assert "MACD > signal and histogram >= 0" in html
     assert "RSI reaches the sleeve trim threshold" in html
@@ -126,6 +128,34 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "SV202_DASHBOARD_CHART_FILES" in js
     assert "sv2_0_2_dashboard_chart_data" in js
     assert "money_flow_v1_2_canonical" in js
+    assert "evidence-replay-strategy-filter" in html
+    assert "evidenceReplayStrategyId" in js
+    assert "renderEvidenceStrategyFilter" in js
+    assert "evidenceReplayRunLedgerRows" in js
+    assert "timeframeSortRank" in js
+    assert "SV202_CANONICAL_TIMEFRAMES.indexOf(canonicalTimeframe(timeframe))" in js
+    assert "runLedgerSortButton" in js
+    assert "data-run-ledger-sort-key" in js
+    assert "sortRunLedgerRows" in js
+    assert "runLedgerFilterControls" not in js
+    assert "Ending equity min" not in js
+    assert "Net PnL min" not in js
+    assert "Drawdown min" not in js
+    assert "renderComponentCards(selected)" in js
+    assert ".component-card-title" in css
+    assert "font-size: 12px;" in css
+    assert ".run-ledger-sort-button" in css
+    assert ".run-ledger-filters" not in css
+    assert "Canonical evidence packs / batch reports" in js
+    assert "generated Historical Replay scenarios from SV2.0.2 chart-data JSON" in js
+    assert "classifyEvidenceReplayResult" in js
+    assert "improved_pnl_drawdown" in js
+    assert "improved_pnl_not_drawdown" in js
+    assert "improved_drawdown_not_pnl" in js
+    assert "same_result" in js
+    assert "no bueno" in js
+    assert "result-pill" in css
+    assert "result-same" in css
     assert 'id="historical-replay-arrow-descriptions-toggle" type="checkbox">' in html
     assert "dynamic_equity_pct" not in js
     assert "Ending Equity" in js
@@ -137,6 +167,7 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
 
 def test_sor_ev21_evidence_lab_static_ui() -> None:
     html = Path("apps/dashboard/index.html").read_text(encoding="utf-8")
+    css = Path("apps/dashboard/evidence-dashboard.css").read_text(encoding="utf-8")
     js = Path("apps/dashboard/evidence-dashboard.js").read_text(encoding="utf-8")
     report = Path("docs/sor_ev2_2_variant_chart_overlay.md").read_text(encoding="utf-8")
 
@@ -149,7 +180,10 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     assert "SOR-EV1/SOR-EV2/SOR-EV3 research variants" in html
     assert "Canonical baseline: SV2.0.2" in html
     assert "Variant status: evidence-only" in html
-    assert "Production rules changed: no" in html
+    assert ".evidence-lab-badges" in css
+    assert "grid-template-columns: repeat(2, minmax(0, 1fr));" in css
+    assert "Production rules changed: no" not in html
+    assert "Production rules" not in js
     assert "Live approval: no" in html
     assert "Orders submitted: no" in html
     assert "Only true_forward_replay variants can become candidates for deeper evidence" in html
@@ -162,6 +196,7 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     assert "RSI / MACD Rejections" in html
     assert "Variant Chart Overlay" in html
     assert "Founder Candidate: avoid_sideways_low_volatility" in html
+    assert "founder-review labels separate promising, mixed, deferred, and hard-rejected outcomes" in html
     assert "evidence-lab-overlay-symbol" in html
     assert "evidence-lab-overlay-timeframe" in html
     assert "evidence-lab-overlay-fill" in html
@@ -185,6 +220,30 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     assert "renderEvidenceLabFounderCandidate" in js
     assert "blocked_open_signals" in js
     assert "signals, not canonical trade-count reduction" in js
+    assert "Promising labels" in js
+    assert "metric-cell-full-row" in js
+    assert ".metric-cell-full-row" in css
+    assert ".compact-grid" in css
+    assert "FOUNDER_LABEL_RANK" in js
+    assert "evidenceLabFounderLabelRank" in js
+    assert "sortedRows.map((row)" in js
+    assert "sortedVariants.map" in js
+    assert "Founder Label" in js
+    assert "Review Status" in js
+    assert "Hard Rejected" in js
+    assert "promising_high_pnl_control_preserved_trade_count_risk" in js
+    assert "promising_chop_filter_control_risk" in js
+    assert "promising_extension_filter_overfit_risk" in js
+    assert "promising_diagnostic_only" in js
+    assert "mixed_positive_pnl_drawdown_risk" in js
+    assert "not_promoted_no_op" in js
+    assert "deferred_needs_true_forward_replay" in js
+    assert "founder_review_label" in js
+    assert "promotion_status" in js
+    assert "promotion_blockers" in js
+    assert "promising_high_pnl_control_risk" in js
+    assert "promising_control_pocket_risk" in js
+    assert "rejected_not_promoted" not in js
     assert "SV202_CANONICAL_TIMESTAMP" in js
     assert "fixed_stop_loss" in js
     assert "atr_stop" in js
@@ -201,6 +260,9 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     assert "diagnostic_only_not_candidate" in js
     assert "renderEvidenceLabOverlayControls" in js
     assert "renderEvidenceLabOverlayChart" in js
+    assert "evidence-lab-chart-stage" in js
+    assert ".evidence-lab-chart-stage" in css
+    assert "Historical price USDC" in js
     assert "evidenceLabBaselineMarkers" in js
     assert "evidenceLabVariantMarkers" in js
     assert "renderEvidenceLabWorstFocusTable" in js

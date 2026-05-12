@@ -1,6 +1,6 @@
 # SOR-EV3 Avoid Sideways / Low-Volatility Drilldown
 
-Recorded at: `2026-05-12T19:31:31Z`
+Recorded at: `2026-05-12T20:34:17Z`
 
 Status: `avoid_sideways_low_volatility_true_forward_replay_ready_for_founder_review`
 
@@ -12,7 +12,10 @@ SOR-EV3 is evidence-only research for the founder-selected `avoid_sideways_low_v
 - Baseline parity: `{'baseline_parity_passed': 72}`.
 - Variants tested: `avoid_flat_ema10_slope, avoid_flat_sma20_slope, avoid_low_atr_percentile_20, avoid_low_atr_percentile_30, avoid_low_rolling_range_20, avoid_low_rolling_range_50, avoid_macd_flat_chop, avoid_sideways_low_volatility_conservative`.
 - Candidate variants: `none`.
-- Rejected variants: `avoid_flat_ema10_slope, avoid_flat_sma20_slope, avoid_low_atr_percentile_20, avoid_low_atr_percentile_30, avoid_low_rolling_range_20, avoid_low_rolling_range_50, avoid_macd_flat_chop, avoid_sideways_low_volatility_conservative`.
+- Promising but not promoted: `avoid_low_rolling_range_20, avoid_low_rolling_range_50`.
+- Hard rejected variants: `avoid_low_atr_percentile_30`.
+- `promising_*` means directionally interesting for founder review, not approved and not promoted.
+- Historical Replay now has regenerated local chart-data rows for `avoid_low_rolling_range_20` and `avoid_low_rolling_range_50` across all 9 supported SV2.0.2 symbols, all 4 timeframes, and both fill assumptions.
 - Dashboard date filters remain display-only and are not canonical evidence.
 
 ## Founder-Selected Candidate
@@ -53,16 +56,29 @@ SOR-EV3 is evidence-only research for the founder-selected `avoid_sideways_low_v
 
 ## Variant Comparison
 
-| Variant | Outcome | Scenarios | Net PnL Delta | DD Delta Worst | Blocked Signals | Matched Trades | Avoided Losers | Missed Winners | Trade Reduction % |
-|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `avoid_flat_ema10_slope` | `deteriorated_vs_baseline` | 72 | 14679.99888902 | 387.95776834 | 8361 | 4228 | 3144 | 1084 | 15.02719646 |
-| `avoid_flat_sma20_slope` | `deteriorated_vs_baseline` | 72 | 14414.66327302 | 2451.97220482 | 13606 | 3941 | 2936 | 1005 | 23.83147414 |
-| `avoid_low_atr_percentile_20` | `deteriorated_vs_baseline` | 72 | 3352.75625247 | 1473.07030333 | 11164 | 3070 | 2278 | 792 | 21.14870471 |
-| `avoid_low_atr_percentile_30` | `deteriorated_vs_baseline` | 72 | -12481.40606772 | 1234.04290198 | 15772 | 4054 | 2990 | 1064 | 29.87922928 |
-| `avoid_low_rolling_range_20` | `overfit_risk` | 72 | 48845.55526731 | 119.72046323 | 19321 | 4570 | 3480 | 1090 | 37.23610215 |
-| `avoid_low_rolling_range_50` | `higher_return_but_higher_drawdown` | 72 | 55197.69963174 | 410.24876203 | 23647 | 5107 | 3827 | 1280 | 45.14612335 |
-| `avoid_macd_flat_chop` | `deteriorated_vs_baseline` | 72 | 580.18568893 | 29.98203801 | 98 | 81 | 72 | 9 | 0.44251867 |
-| `avoid_sideways_low_volatility_conservative` | `deteriorated_vs_baseline` | 72 | 24268.20619967 | 2451.97220482 | 18640 | 5326 | 3975 | 1351 | 34.08315663 |
+| Variant | Founder Label | Promotion Status | Outcome | Scenarios | Net PnL Delta | DD Delta Worst | Blocked Signals | Matched Trades | Avoided Losers | Missed Winners | Trade Reduction % | Promotion Blockers |
+|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| `avoid_flat_ema10_slope` | `mixed_positive_pnl_control_damage` | `not_promoted` | `deteriorated_vs_baseline` | 72 | 14679.99888902 | 387.95776834 | 8361 | 4228 | 3144 | 1084 | 15.02719646 | `worst_drawdown_worsened, control_pockets_damaged` |
+| `avoid_flat_sma20_slope` | `mixed_positive_pnl_control_damage` | `not_promoted` | `deteriorated_vs_baseline` | 72 | 14414.66327302 | 2451.97220482 | 13606 | 3941 | 2936 | 1005 | 23.83147414 | `worst_drawdown_worsened, control_pockets_damaged` |
+| `avoid_low_atr_percentile_20` | `not_promoted_mixed_result` | `not_promoted` | `deteriorated_vs_baseline` | 72 | 3352.75625247 | 1473.07030333 | 11164 | 3070 | 2278 | 792 | 21.14870471 | `worst_drawdown_worsened, control_pockets_damaged` |
+| `avoid_low_atr_percentile_30` | `rejected_negative_aggregate` | `not_promoted` | `deteriorated_vs_baseline` | 72 | -12481.40606772 | 1234.04290198 | 15772 | 4054 | 2990 | 1064 | 29.87922928 | `aggregate_net_pnl_delta_not_positive, worst_drawdown_worsened, control_pockets_damaged` |
+| `avoid_low_rolling_range_20` | `promising_control_pocket_risk` | `promising_not_promoted` | `overfit_risk` | 72 | 48845.55526731 | 119.72046323 | 19321 | 4570 | 3480 | 1090 | 37.23610215 | `worst_drawdown_worsened, control_pockets_damaged` |
+| `avoid_low_rolling_range_50` | `promising_high_pnl_control_risk` | `promising_not_promoted` | `higher_return_but_higher_drawdown` | 72 | 55197.69963174 | 410.24876203 | 23647 | 5107 | 3827 | 1280 | 45.14612335 | `worst_drawdown_worsened, control_pockets_damaged` |
+| `avoid_macd_flat_chop` | `not_promoted_low_impact` | `not_promoted` | `deteriorated_vs_baseline` | 72 | 580.18568893 | 29.98203801 | 98 | 81 | 72 | 9 | 0.44251867 | `worst_drawdown_worsened` |
+| `avoid_sideways_low_volatility_conservative` | `mixed_positive_pnl_control_damage` | `not_promoted` | `deteriorated_vs_baseline` | 72 | 24268.20619967 | 2451.97220482 | 18640 | 5326 | 3975 | 1351 | 34.08315663 | `worst_drawdown_worsened, control_pockets_damaged` |
+
+## Founder Label Meaning
+
+| Label | Meaning |
+|---|---|
+| `candidate_for_more_evidence` | Passed the strict SOR-EV3 gate; still evidence-only and not production approved. |
+| `promising_high_pnl_control_risk` | Large aggregate PnL improvement, but drawdown/control-pocket preservation failed. |
+| `promising_control_pocket_risk` | Directionally interesting aggregate improvement, but control pockets and/or drawdown failed. |
+| `mixed_positive_pnl_control_damage` | Positive aggregate but too much damage to strong baseline pockets. |
+| `not_promoted_low_impact` | Too little aggregate impact for more evidence. |
+| `rejected_negative_aggregate` | Aggregate PnL was worse than baseline. |
+
+Promotion still requires true-forward methodology, positive aggregate PnL delta, no worst-scenario drawdown worsening, avoided losers at least equal to missed winners, trade reduction at or below 55%, and zero damaged control pockets.
 
 ## Baseline Loss Concentration In Sideways / Low-Vol Regimes
 
@@ -106,10 +122,12 @@ SOR-EV3 is evidence-only research for the founder-selected `avoid_sideways_low_v
 | `avoid_macd_flat_chop` | 15 | 0 | 15 | 0 | 0 | 0 | 0 |
 | `avoid_sideways_low_volatility_conservative` | 15 | 2 | 2 | 11 | 11 | 4 | 0 |
 
-## Candidate / Rejected Variants
+## Candidate / Promising / Not Promoted Variants
 
 - Candidate for more evidence: `none`.
-- Rejected / not promoted: `avoid_flat_ema10_slope, avoid_flat_sma20_slope, avoid_low_atr_percentile_20, avoid_low_atr_percentile_30, avoid_low_rolling_range_20, avoid_low_rolling_range_50, avoid_macd_flat_chop, avoid_sideways_low_volatility_conservative`.
+- Promising but not promoted: `avoid_low_rolling_range_20, avoid_low_rolling_range_50`.
+- Not promoted: `avoid_flat_ema10_slope, avoid_flat_sma20_slope, avoid_low_atr_percentile_20, avoid_low_atr_percentile_30, avoid_low_rolling_range_20, avoid_low_rolling_range_50, avoid_macd_flat_chop, avoid_sideways_low_volatility_conservative`.
+- Hard rejected: `avoid_low_atr_percentile_30`.
 
 ## Limitations
 
@@ -124,7 +142,7 @@ SOR-EV3 is evidence-only research for the founder-selected `avoid_sideways_low_v
 
 ## Recommended Next Phase
 
-If the founder wants to continue, SOR-EV4 should take only a narrow candidate from this report, rerun it with out-of-sample-style date slices, and require control-pocket preservation before any rule-change proposal. If no candidate is clean, reject the sideways/low-volatility idea for now.
+If the founder wants to continue, SOR-EV4 should take only a narrow promising label from this report, rerun it with out-of-sample-style date slices, and require control-pocket preservation before any rule-change proposal. If no candidate is clean, keep the broader sideways/low-volatility idea unpromoted rather than treating it as production-ready.
 
 ## Boundary Confirmation
 

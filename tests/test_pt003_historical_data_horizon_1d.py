@@ -112,13 +112,19 @@ def test_dashboard_supports_1d_selector_and_data_horizon_panel() -> None:
     assert "pt0_0_3_historical_strategy_replay_summary.json" in js
     assert "break;" in js
     assert "Target start:" not in js
-    assert "Target start" in js
+    assert "Target start" not in js
+    assert "Earliest available" not in js
+    assert "Latest available" not in js
+    assert "<span>Component</span>" not in js
+    assert "<span>Range</span>" in js
+    assert "rangeStart" in js
     assert "Historical data horizon" in js
     assert "1D candles aggregated from" in js
     assert "not testnet strategy truth" in js
     assert "renderHistoricalDataHorizonPanel" in js
     assert ".historical-data-horizon-panel" in css
-    assert "grid-template-columns: repeat(6, minmax(0, 1fr));" in css
+    assert "grid-template-columns: repeat(4, minmax(0, 1fr));" in css
+    assert "grid-column: 1 / -1;" in css
 
 
 def test_pt003_preserves_no_order_no_private_endpoint_boundaries() -> None:

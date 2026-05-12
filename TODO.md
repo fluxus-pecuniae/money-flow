@@ -1,14 +1,20 @@
 # TODO
 
-Last reviewed: `2026-05-12T19:38:08Z`
+Last reviewed: `2026-05-12T21:09:29Z`
 
 ## Active Follow-Ups
+
+### T-131
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `Historical Replay now has full research-only replay coverage for the two founder-prioritized SOR-EV3 rolling-range variants. The SV2.0.2 dashboard chart-data generator appends avoid_low_rolling_range_20 and avoid_low_rolling_range_50 replay rows to the ignored local chart JSON for BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX x 15m/1h/4h/1d, with both next_candle_open and next_candle_close fill assumptions. Regeneration wrote 36 chart-data files containing 72 canonical replays, 72 avoid_low_rolling_range_20 replays, and 72 avoid_low_rolling_range_50 replays. These rows are for founder Historical Replay investigation only; production Money Flow rules remain unchanged, no variant is approved, no orders/endpoints were called, no testnet prices are strategy truth, and no live/paper runtime or SOR behavior was added.`
 
 ### T-130
 
 - `priority`: `high`
 - `status`: `done`
-- `summary`: `SOR-EV3 founder-selected avoid_sideways_low_volatility drilldown is complete. Baseline parity passed for all 72 canonical SV2.0.2 scenarios, and the controlled true-forward variant set tested ATR percentile, flat SMA20/EMA10 trend, low rolling range, MACD-flat chop, and a conservative combined sideways/low-volatility blocker. Blocked open signals are separated from matched canonical baseline trades with PnL attribution, avoided losers / missed winners are reported, loss-concentration and control-pocket impact are summarized, and no variant was promoted. Evidence Lab now loads docs/sor_ev3_avoid_sideways_low_volatility_summary.json and shows a focused founder-candidate section. No production Money Flow rules changed, no variant was approved, no orders/private/signed/order endpoints were called, no Hyperliquid testnet prices or dashboard date filters were used as canonical strategy truth, and no SOR/fanout/CBBO/cross-venue routing or live/paper runtime was added.`
+- `summary`: `SOR-EV3 founder-selected avoid_sideways_low_volatility drilldown is complete. Baseline parity passed for all 72 canonical SV2.0.2 scenarios, and the controlled true-forward variant set tested ATR percentile, flat SMA20/EMA10 trend, low rolling range, MACD-flat chop, and a conservative combined sideways/low-volatility blocker. Blocked open signals are separated from matched canonical baseline trades with PnL attribution, avoided losers / missed winners are reported, loss-concentration and control-pocket impact are summarized, and no variant was promoted. Evidence Lab loads docs/sor_ev3_avoid_sideways_low_volatility_summary.json and now shows founder-review labels plus gate blockers instead of flattening every non-candidate into rejected: avoid_low_rolling_range_20 is promising_control_pocket_risk, avoid_low_rolling_range_50 is promising_high_pnl_control_risk, and avoid_low_atr_percentile_30 is rejected_negative_aggregate. No production Money Flow rules changed, no variant was approved, no orders/private/signed/order endpoints were called, no Hyperliquid testnet prices or dashboard date filters were used as canonical strategy truth, and no SOR/fanout/CBBO/cross-venue routing or live/paper runtime was added.`
 
 ### T-129
 
@@ -20,7 +26,7 @@ Last reviewed: `2026-05-12T19:38:08Z`
 
 - `priority`: `medium`
 - `status`: `done`
-- `summary`: `SOR-EV2.1 Evidence Lab UI is complete. The dashboard now exposes a visible Evidence Lab tab that loads the committed SOR-EV1/SOR-EV2 summary bundles, labels canonical SV2.0.2 DB-imported evidence as the baseline, and shows variant matrix, control-pocket impact, worst-trade loss anatomy, late-entry analysis, large adverse-candle context, RSI/MACD rejection visibility, methodology warnings, date-filter noncanonical warnings, and a deferred chart-overlay status. No production Money Flow rules changed, no variant was approved, no orders/private/signed/order endpoints were called, no Hyperliquid testnet prices were used as strategy truth, and no SOR/fanout/CBBO/cross-venue routing behavior was added.`
+- `summary`: `SOR-EV2.1 Evidence Lab UI is complete. The dashboard now exposes a visible Evidence Lab tab that loads the committed SOR-EV1/SOR-EV2 summary bundles, labels canonical SV2.0.2 DB-imported evidence as the baseline, and shows variant matrix, control-pocket impact, worst-trade loss anatomy, late-entry analysis, large adverse-candle context, RSI/MACD rejection visibility, methodology warnings, date-filter noncanonical warnings, and a deferred chart-overlay status. The Variant Summary Matrix now uses founder-review labels to separate promising, mixed, deferred, no-op, diagnostic-only, and hard-rejected rows instead of flattening every non-candidate into rejected. No production Money Flow rules changed, no variant was approved, no orders/private/signed/order endpoints were called, no Hyperliquid testnet prices were used as strategy truth, and no SOR/fanout/CBBO/cross-venue routing behavior was added.`
 
 ### T-127
 

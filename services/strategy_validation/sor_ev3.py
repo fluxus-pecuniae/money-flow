@@ -177,7 +177,10 @@ async def build_sor_ev3_report(
     variant_summary = _variant_summary(variant_rows)
     control = _control_pocket_impact(variant_rows, baseline_rows)
     candidates = _candidate_variants(variant_summary, control, baseline_parity)
-    rejected = sorted(row["variant_id"] for row in variant_summary if row["variant_id"] not in set(candidates))
+    _apply_founder_review_labels(variant_summary, control, baseline_parity)
+    not_promoted = sorted(row["variant_id"] for row in variant_summary if row["variant_id"] not in set(candidates))
+    promising = sorted(row["variant_id"] for row in variant_summary if str(row.get("founder_review_label", "")).startswith("promising_"))
+    rejected = sorted(row["variant_id"] for row in variant_summary if str(row.get("founder_review_label", "")).startswith("rejected_"))
     report = {
         "phase": "SOR-EV3",
         "generated_at": generated_at.replace(microsecond=0).isoformat().replace("+00:00", "Z"),
@@ -214,7 +217,19 @@ async def build_sor_ev3_report(
         "loss_concentration_summary": _loss_concentration_summary(concentration_rows),
         "control_pocket_impact": control,
         "candidate_variants": candidates,
+        "promising_variants": promising,
+        "not_promoted_variants": not_promoted,
         "rejected_variants": rejected,
+        "variant_label_counts": dict(Counter(str(row.get("founder_review_label", "unlabeled")) for row in variant_summary)),
+        "candidate_gate_policy": {
+            "candidate_requires_true_forward_replay": True,
+            "candidate_requires_positive_aggregate_net_pnl_delta": True,
+            "candidate_requires_no_worst_drawdown_worsening": True,
+            "candidate_requires_avoided_losers_at_least_missed_winners": True,
+            "candidate_requires_trade_count_reduction_pct_at_most": "55",
+            "candidate_requires_no_damaged_control_pockets": True,
+            "promising_label_is_not_production_approval": True,
+        },
         "limitations": sorted(limitations | {
             "independent_scenarios_are_not_one_combined_account",
             "dashboard_date_filters_are_display_only_not_canonical_evidence",
@@ -247,6 +262,7 @@ async def _run_variant_replay(
     preloaded_candles: list[Candle],
     preloaded_snapshots: Sequence[Any],
     precomputed_features: Sequence[dict[str, Any]],
+    include_replay_payload: bool = False,
 ) -> dict[str, Any]:
     sleeve = service._requested_sleeves(request.component_keys)[0]
     start_at = _coerce_utc(request.start_at)
@@ -451,7 +467,7 @@ async def _run_variant_replay(
         "production_approved": False,
         "limitations": sorted(limitations),
     }
-    return {
+    result: dict[str, Any] = {
         "row": row,
         "blocked_entries": blocked_entries,
         "loss_concentration": _loss_concentration_row(
@@ -462,6 +478,18 @@ async def _run_variant_replay(
         ),
         "limitations": sorted(limitations),
     }
+    if include_replay_payload:
+        result.update(
+            {
+                "trades": trades,
+                "metrics": metrics,
+                "no_trade_reason_counts": dict(sorted(no_trade.items())),
+                "invalid_reason_counts": dict(sorted(invalid.items())),
+                "closed_trade_equity_points": closed_points,
+                "mark_to_market_equity_points": mtm_points,
+            }
+        )
+    return result
 
 
 def _feature_rows(candles: Sequence[Candle], snapshots: Sequence[Any]) -> list[dict[str, Any]]:
@@ -783,6 +811,91 @@ def _candidate_variants(summary: Sequence[dict[str, Any]], control: Sequence[dic
     return sorted(candidates)
 
 
+def _apply_founder_review_labels(summary: Sequence[dict[str, Any]], control: Sequence[dict[str, Any]], parity: Sequence[dict[str, Any]]) -> None:
+    baseline_failed = any(row["status"] == "baseline_parity_failed" for row in parity)
+    control_by_variant = {row["variant_id"]: row for row in control}
+    for row in summary:
+        controls = control_by_variant.get(row["variant_id"], {})
+        blockers = _promotion_blockers(row, controls, baseline_failed)
+        label = _founder_review_label(row, controls, blockers)
+        row["promotion_blockers"] = blockers
+        row["founder_review_label"] = label
+        row["promotion_status"] = (
+            "candidate_for_more_evidence"
+            if row.get("candidate")
+            else "promising_not_promoted"
+            if label.startswith("promising_")
+            else "not_promoted"
+        )
+        row["rejected"] = label.startswith("rejected_")
+        row["review_explanation"] = _founder_review_explanation(label, row, controls)
+
+
+def _promotion_blockers(row: dict[str, Any], controls: dict[str, Any], baseline_failed: bool) -> list[str]:
+    blockers: list[str] = []
+    if baseline_failed:
+        blockers.append("baseline_parity_failed")
+    if row.get("methodology") != "true_forward_replay":
+        blockers.append("methodology_not_true_forward_replay")
+    if _dec(row["net_pnl_delta_sum_across_independent_scenarios"]) <= 0:
+        blockers.append("aggregate_net_pnl_delta_not_positive")
+    if _dec(row["max_drawdown_delta_worst"]) > 0:
+        blockers.append("worst_drawdown_worsened")
+    if int(row["missed_winners"]) > int(row["avoided_losers"]):
+        blockers.append("missed_winners_exceed_avoided_losers")
+    if Decimal(str(row["trade_count_reduction_pct"])) > Decimal("55"):
+        blockers.append("trade_count_reduction_above_55_pct")
+    if int(controls.get("damaged", 0)) > 0:
+        blockers.append("control_pockets_damaged")
+    return blockers
+
+
+def _founder_review_label(row: dict[str, Any], controls: dict[str, Any], blockers: Sequence[str]) -> str:
+    if row.get("candidate"):
+        return "candidate_for_more_evidence"
+    net_delta = _dec(row["net_pnl_delta_sum_across_independent_scenarios"])
+    dd_delta = _dec(row["max_drawdown_delta_worst"])
+    avoided = int(row["avoided_losers"])
+    missed = int(row["missed_winners"])
+    damaged = int(controls.get("damaged", 0))
+    if net_delta <= 0:
+        return "rejected_negative_aggregate"
+    if Decimal(str(row["trade_count_reduction_pct"])) > Decimal("55"):
+        return "rejected_overblocked_trade_count"
+    if avoided < missed:
+        return "rejected_missed_more_winners_than_losers"
+    if damaged <= 2 and net_delta >= Decimal("50000"):
+        return "promising_high_pnl_control_risk"
+    if damaged <= 2 and net_delta >= Decimal("25000"):
+        return "promising_control_pocket_risk"
+    if damaged > 2 and net_delta >= Decimal("10000"):
+        return "mixed_positive_pnl_control_damage"
+    if dd_delta > 0 and net_delta < Decimal("1000"):
+        return "not_promoted_low_impact"
+    return "not_promoted_mixed_result"
+
+
+def _founder_review_explanation(label: str, row: dict[str, Any], controls: dict[str, Any]) -> str:
+    if label == "candidate_for_more_evidence":
+        return "Passes the strict SOR-EV3 candidate gate; still evidence-only and not production approved."
+    if label == "promising_high_pnl_control_risk":
+        return "Large aggregate PnL improvement and avoided-loser skew, but promotion is blocked because worst-scenario drawdown worsened and control pockets were damaged."
+    if label == "promising_control_pocket_risk":
+        return "Aggregate PnL and avoided-loser counts are directionally promising, but the result is not clean because drawdown worsened in at least one scenario and control pockets were damaged."
+    if label == "mixed_positive_pnl_control_damage":
+        return "Aggregate PnL improved, but too many strong baseline control pockets lost return, so this should not be promoted without a narrower follow-up."
+    if label == "not_promoted_low_impact":
+        return "The aggregate change was too small to justify more evidence despite avoiding more losers than winners."
+    if label == "rejected_negative_aggregate":
+        return "Aggregate PnL fell versus baseline, so this is a hard rejection for this evidence pass."
+    if label == "rejected_overblocked_trade_count":
+        return "The rule removed too many baseline trades to trust the result as a practical candidate."
+    if label == "rejected_missed_more_winners_than_losers":
+        return "The rule missed more winners than losers avoided."
+    damaged = controls.get("damaged", 0)
+    return f"Not promoted after strict evidence review; control pockets damaged: {damaged}."
+
+
 def _blocked_entry_summary(rows: Sequence[dict[str, Any]]) -> dict[str, Any]:
     by_variant: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for row in rows:
@@ -1067,7 +1180,9 @@ def sor_ev3_report_to_markdown(report: dict[str, Any]) -> str:
         f"- Baseline parity: `{report['baseline_parity_summary']['status_counts']}`.",
         f"- Variants tested: `{', '.join(row['variant_id'] for row in report['variant_summary'])}`.",
         f"- Candidate variants: `{', '.join(report['candidate_variants']) if report['candidate_variants'] else 'none'}`.",
-        f"- Rejected variants: `{', '.join(report['rejected_variants'])}`.",
+        f"- Promising but not promoted: `{', '.join(report.get('promising_variants', [])) if report.get('promising_variants') else 'none'}`.",
+        f"- Hard rejected variants: `{', '.join(report.get('rejected_variants', [])) if report.get('rejected_variants') else 'none'}`.",
+        "- `promising_*` means directionally interesting for founder review, not approved and not promoted.",
         "- Dashboard date filters remain display-only and are not canonical evidence.",
         "",
         "## Founder-Selected Candidate",
@@ -1093,11 +1208,27 @@ def sor_ev3_report_to_markdown(report: dict[str, Any]) -> str:
         "",
         "## Variant Comparison",
         "",
-        "| Variant | Outcome | Scenarios | Net PnL Delta | DD Delta Worst | Blocked Signals | Matched Trades | Avoided Losers | Missed Winners | Trade Reduction % |",
-        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| Variant | Founder Label | Promotion Status | Outcome | Scenarios | Net PnL Delta | DD Delta Worst | Blocked Signals | Matched Trades | Avoided Losers | Missed Winners | Trade Reduction % | Promotion Blockers |",
+        "|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---|",
     ])
     for row in report["variant_summary"]:
-        lines.append(f"| `{row['variant_id']}` | `{row['outcome_taxonomy']}` | {row['scenario_count']} | {row['net_pnl_delta_sum_across_independent_scenarios']} | {row['max_drawdown_delta_worst']} | {row['blocked_open_signals']} | {row['blocked_entries']} | {row['avoided_losers']} | {row['missed_winners']} | {row['trade_count_reduction_pct']} |")
+        blockers = ", ".join(row.get("promotion_blockers", [])) or "none"
+        lines.append(f"| `{row['variant_id']}` | `{row.get('founder_review_label', 'unlabeled')}` | `{row.get('promotion_status', 'not_promoted')}` | `{row['outcome_taxonomy']}` | {row['scenario_count']} | {row['net_pnl_delta_sum_across_independent_scenarios']} | {row['max_drawdown_delta_worst']} | {row['blocked_open_signals']} | {row['blocked_entries']} | {row['avoided_losers']} | {row['missed_winners']} | {row['trade_count_reduction_pct']} | `{blockers}` |")
+    lines.extend([
+        "",
+        "## Founder Label Meaning",
+        "",
+        "| Label | Meaning |",
+        "|---|---|",
+        "| `candidate_for_more_evidence` | Passed the strict SOR-EV3 gate; still evidence-only and not production approved. |",
+        "| `promising_high_pnl_control_risk` | Large aggregate PnL improvement, but drawdown/control-pocket preservation failed. |",
+        "| `promising_control_pocket_risk` | Directionally interesting aggregate improvement, but control pockets and/or drawdown failed. |",
+        "| `mixed_positive_pnl_control_damage` | Positive aggregate but too much damage to strong baseline pockets. |",
+        "| `not_promoted_low_impact` | Too little aggregate impact for more evidence. |",
+        "| `rejected_negative_aggregate` | Aggregate PnL was worse than baseline. |",
+        "",
+        "Promotion still requires true-forward methodology, positive aggregate PnL delta, no worst-scenario drawdown worsening, avoided losers at least equal to missed winners, trade reduction at or below 55%, and zero damaged control pockets.",
+    ])
     lines.extend([
         "",
         "## Baseline Loss Concentration In Sideways / Low-Vol Regimes",
@@ -1130,10 +1261,12 @@ def sor_ev3_report_to_markdown(report: dict[str, Any]) -> str:
         lines.append(f"| `{row['variant_id']}` | {row['control_pocket_count']} | {row['improved']} | {row['preserved']} | {row['damaged']} | {row['return_reduced']} | {row['drawdown_reduced']} | {row['trade_count_reduced_too_much']} |")
     lines.extend([
         "",
-        "## Candidate / Rejected Variants",
+        "## Candidate / Promising / Not Promoted Variants",
         "",
         f"- Candidate for more evidence: `{', '.join(report['candidate_variants']) if report['candidate_variants'] else 'none'}`.",
-        f"- Rejected / not promoted: `{', '.join(report['rejected_variants'])}`.",
+        f"- Promising but not promoted: `{', '.join(report.get('promising_variants', [])) if report.get('promising_variants') else 'none'}`.",
+        f"- Not promoted: `{', '.join(report.get('not_promoted_variants', [])) if report.get('not_promoted_variants') else 'none'}`.",
+        f"- Hard rejected: `{', '.join(report.get('rejected_variants', [])) if report.get('rejected_variants') else 'none'}`.",
         "",
         "## Limitations",
         "",
@@ -1143,7 +1276,7 @@ def sor_ev3_report_to_markdown(report: dict[str, Any]) -> str:
         "",
         "## Recommended Next Phase",
         "",
-        "If the founder wants to continue, SOR-EV4 should take only a narrow candidate from this report, rerun it with out-of-sample-style date slices, and require control-pocket preservation before any rule-change proposal. If no candidate is clean, reject the sideways/low-volatility idea for now.",
+        "If the founder wants to continue, SOR-EV4 should take only a narrow promising label from this report, rerun it with out-of-sample-style date slices, and require control-pocket preservation before any rule-change proposal. If no candidate is clean, keep the broader sideways/low-volatility idea unpromoted rather than treating it as production-ready.",
         "",
         "## Boundary Confirmation",
         "",

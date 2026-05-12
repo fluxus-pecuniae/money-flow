@@ -89,6 +89,11 @@ Primary dashboard tabs are:
 - Strategy
 - Historical Replay
 - Evidence
+  - Includes a `Replay strategy` Run Ledger selector.
+  - Default mode reviews canonical evidence-pack batch-report rows.
+  - Generated replay modes review SV2.0.2 chart-data strategy rows such as canonical Money Flow v1.2 and SOR-EV3 rolling-range variants.
+  - Generated replay rows include a `Result` badge comparing PnL and drawdown to the matching Money Flow v1.2 baseline row: green `improved_pnl_drawdown`, amber partial-improvement labels, neutral `same_result`, or red `no bueno`.
+  - The selector is review/navigation only; it does not regenerate evidence or approve variants.
 - Evidence Lab
 
 The invalid legacy `Experiments` surface is not exposed as a primary tab. Evidence Lab is tied to SOR-EV1/SOR-EV2/SOR-EV3 committed summaries and canonical SV2.0.2 baseline context only.
@@ -183,7 +188,7 @@ The design avoids default-looking large report text and favors dense workstation
 - The chart area must be central.
 - PT0 uses TradingView Lightweight Charts for candlesticks, volume histogram, crosshair, price scale, time scale, resize handling, EMA overlays, and markers.
 - PT0.0.2 adds a separate Historical Replay chart lane. It must use historical public candle replay JSON as strategy truth and must not use Hyperliquid testnet public live prices as strategy truth.
-- Historical Replay has a strategy selector. `OG replay / strategy` is the current baseline; `MACD removed` and `Only close on 5/20 cross` are research-only replay variants across BTC/ETH/SOL x 15m/1h/4h/1D and must not be presented as production Money Flow rule changes.
+- Historical Replay has a strategy selector. The default SV2.0.2 lane is `SV2.0.2 canonical Money Flow v1.2`; generated SOR-EV3 research lanes include `SOR-EV3 avoid low rolling range 20` and `SOR-EV3 avoid low rolling range 50` across BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX x 15m/1h/4h/1D and both fill assumptions. `MACD removed` and `Only close on 5/20 cross` remain fallback-only older research variants. No research replay strategy may be presented as a production Money Flow rule change or approval.
 - PT0.0.3 added `1D` to Historical Replay and a data-horizon panel as deterministic aggregation from `4h` historical replay candles. SV2.0 supersedes that prior dashboard-only state by adding `sleeve_1d` as a real Money Flow v1.2 sleeve and by loading direct Hyperliquid public-mainnet 1d readiness/evidence rows.
 - SV2.0.1 canonicalizes internal timeframe values to `1d` while displaying `1D`, surfaces staged-vs-DB-import truth, and must not label compact replay/evidence rows as canonical evidence when `canonical_evidence_status.status` is blocked.
 - Historical Replay selectors may show expanded SV2.0 symbols even when full replay chart candles are not yet present. In that case, show readiness/evidence status and an explicit no-replay-chart state rather than substituting another symbol/timeframe chart.
@@ -235,7 +240,9 @@ Marker tooltips/rows must include:
 ## Evidence Lab Rules
 
 - Evidence Lab reviews SOR-EV1/SOR-EV2/SOR-EV3 research variants against canonical SV2.0.2 DB-imported evidence.
+- The SOR-EV1/SOR-EV2 Variant Summary Matrix must use founder-review labels to distinguish `promising_*`, `mixed_*`, `deferred_*`, no-op, diagnostic-only, and hard-rejected rows instead of flattening every non-candidate into rejected.
 - SOR-EV3 `avoid_sideways_low_volatility` rows must distinguish blocked open signals from matched canonical baseline trades with PnL attribution.
+- SOR-EV3 founder-review labels must distinguish `candidate_for_more_evidence`, `promising_*`, mixed/not-promoted, and hard rejected labels. A `promising_*` label is review context only and must not imply approval.
 - SOR variants are evidence-only and must not be labeled approved for production.
 - Completed-trade overlays and lookahead diagnostics are not production candidates.
 - Only true-forward replay variants can become candidates for deeper canonical evidence.
