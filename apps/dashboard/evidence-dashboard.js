@@ -7125,15 +7125,15 @@
     if (payload?.report === "uat4_2_live_market_dashboard_and_paper_equity_monitor") return "uat42_live_monitor_summary";
     if (payload?.report === "pt0_tradingview_charts_and_top20_paper_sandbox_runtime") return "pt0_runtime_summary";
     if (payload?.report === "sv2_0_money_flow_1d_sleeve_expanded_universe_evidence_rebuild") return "sv20_summary";
+    if (
+      payload?.report === "sv2_0_2_dashboard_historical_replay_chart_data" ||
+      payload?.report === "mf_orig_ev2_dashboard_chart_data"
+    ) return "sv202_dashboard_chart_data";
     if (payload?.phase === "SOR-EV1") return "sor_ev1_summary";
     if (payload?.phase === "SOR-EV2") return "sor_ev2_summary";
     if (payload?.phase === "SOR-EV3") return "sor_ev3_summary";
     if (String(payload?.phase || "").startsWith("MF-ORIG-EV1")) return "mf_orig_summary";
     if (String(payload?.phase || "").startsWith("MF-ORIG-EV2")) return "mf_orig_summary";
-    if (
-      payload?.report === "sv2_0_2_dashboard_historical_replay_chart_data" ||
-      payload?.report === "mf_orig_ev2_dashboard_chart_data"
-    ) return "sv202_dashboard_chart_data";
     if (
       payload?.report === "pt0_0_2_historical_strategy_replay_cockpit" ||
       payload?.report === "pt0_0_3_historical_data_horizon_and_1d_replay"

@@ -236,6 +236,7 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     assert "safeReplayPathSegment" in js
     assert "_sv202_replay.json" in js
     assert "_mf_orig_ev2_replay.json" in js
+    assert js.index('payload?.report === "mf_orig_ev2_dashboard_chart_data"') < js.index('startsWith("MF-ORIG-EV2")')
     assert "selected chart data loads lazily" in js
     assert "for (const path of SV202_DASHBOARD_CHART_FILES)" not in js
     assert "[...SV202_DASHBOARD_CHART_FILES, ...MF_ORIG_EV2_DASHBOARD_CHART_FILES]" not in js

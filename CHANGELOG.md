@@ -13,6 +13,22 @@ Entry schema:
 
 ---
 
+## v2026.05.13.006
+
+- `recorded_at_utc`: `2026-05-13T07:53:38Z`
+- `scope`: `Historical Replay MF-ORIG selected chart-data classifier fix`
+- `intent`: `Native entry. Fixed the MF-ORIG-EV2 selected chart/trade loader console flood. Selected MF-ORIG chart-data JSON includes both phase=MF-ORIG-EV2 and report=mf_orig_ev2_dashboard_chart_data; the dashboard classifier now checks chart-data report payloads before generic MF-ORIG summary payloads, so selected replay JSON is accepted as chart data instead of rejected as unsupported. Playwright was used with local Chrome to verify the MF-ORIG ETH 4h selected Historical Replay renders chart canvases and Historical Replay Trades with exactly one selected replay request and no unsupported-chart-data console errors. Evidence metrics, production Money Flow rules, order behavior, private/signed/order endpoint policy, testnet strategy-truth boundaries, paper runtime, and live trading approval remain unchanged.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `money-flow/05_Agent_Coordination.md`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `Playwright Core one-off browser test using local Chrome: default Historical Replay loaded chart/trades with no console errors`
+  - `Playwright Core one-off browser test using local Chrome: MF-ORIG ETH 4h selected replay loaded 15 chart canvases, 80 trade rows, 1 selected replay request, and no unsupported chart-data console errors`
+
 ## v2026.05.13.005
 
 - `recorded_at_utc`: `2026-05-13T01:26:46Z`
