@@ -4,6 +4,12 @@ Last reviewed: `2026-05-13T00:42:40Z`
 
 ## Active Follow-Ups
 
+### T-135
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `Historical Replay selected-scenario chart/trade loading is fixed. The compact SV2.0.2/MF-ORIG-EV2 rows still seed selectors and comparison widgets immediately, but selected charts/trades now lazy-load deterministic per-scenario JSON files under ignored local reports/strategy_validation/*/selected/ paths instead of relying on giant symbol/timeframe chart bundles. The SV2.0.2 and MF-ORIG-EV2 chart-data builders now write those selected replay files reproducibly. This is UI/artifact-loading only: evidence metrics, production Money Flow v1.2 rules, MF-ORIG hypotheses, orders, private/signed/order endpoints, testnet strategy truth, paper runtime, and live trading approval remain unchanged.`
+
 ### T-134
 
 - `priority`: `high`

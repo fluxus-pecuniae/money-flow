@@ -34,6 +34,12 @@ SOR_EV3_HISTORICAL_REPLAY_LABELS = {
 }
 
 
+def safe_replay_path_segment(value: Any) -> str:
+    return "".join(
+        char.lower() if char.isalnum() else "_" for char in str(value)
+    ).strip("_")
+
+
 def decimal_or_none(value: Any) -> Decimal | None:
     if value is None or value == "":
         return None
@@ -576,6 +582,8 @@ def main() -> int:
 
     output_root = args.output_dir / args.run_timestamp
     output_root.mkdir(parents=True, exist_ok=True)
+    selected_output_root = output_root / "selected"
+    selected_output_root.mkdir(parents=True, exist_ok=True)
 
     candle_payloads_by_key: dict[tuple[str, str], dict[str, Any]] = {}
     indicator_rows_by_key: dict[tuple[str, str], list[dict[str, Any]]] = {}
@@ -604,6 +612,7 @@ def main() -> int:
     )
 
     written = 0
+    selected_written = 0
     for dataset in summary["datasets"]:
         symbol = dataset["symbol"]
         timeframe = dataset["timeframe"]
@@ -651,7 +660,35 @@ def main() -> int:
         out_path = output_root / f"hyperliquid_public_{symbol.lower()}_{timeframe}_chart.json"
         out_path.write_text(json.dumps(payload, separators=(",", ":"), sort_keys=True), encoding="utf-8")
         written += 1
-    print(json.dumps({"output_dir": output_root.as_posix(), "files_written": written}, sort_keys=True))
+        for replay in replays:
+            selected_payload = {
+                **payload,
+                "replays": [replay],
+                "selected_replay": {
+                    "strategy_id": replay.get("strategy_id"),
+                    "fill_assumption": replay.get("fill_assumption"),
+                },
+            }
+            selected_path = selected_output_root / (
+                f"hyperliquid_public_{symbol.lower()}_{timeframe}_"
+                f"{safe_replay_path_segment(replay.get('strategy_id'))}_"
+                f"{safe_replay_path_segment(replay.get('fill_assumption'))}_sv202_replay.json"
+            )
+            selected_path.write_text(
+                json.dumps(selected_payload, separators=(",", ":"), sort_keys=True),
+                encoding="utf-8",
+            )
+            selected_written += 1
+    print(
+        json.dumps(
+            {
+                "output_dir": output_root.as_posix(),
+                "files_written": written,
+                "selected_files_written": selected_written,
+            },
+            sort_keys=True,
+        )
+    )
     return 0
 
 

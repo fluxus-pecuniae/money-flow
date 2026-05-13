@@ -13,6 +13,29 @@ Entry schema:
 
 ---
 
+## v2026.05.13.005
+
+- `recorded_at_utc`: `2026-05-13T01:26:46Z`
+- `scope`: `Historical Replay selected-scenario chart/trade loader hotfix`
+- `intent`: `Native entry. Fixed the Historical Replay symptom where compact MF-ORIG-EV2 rows appeared in selectors/comparison widgets but the selected replay chart, indicators, and Historical Replay Trades remained empty. The dashboard now builds deterministic per-scenario selected chart-data paths for SV2.0.2 baseline / SOR-EV3 rows and MF-ORIG-EV2 hypotheses, then lazy-loads only the exact selected strategy/symbol/timeframe/fill JSON from local ignored artifacts. The SV2.0.2 and MF-ORIG-EV2 dashboard chart-data builders now write reproducible selected/ per-replay JSON files in addition to combined symbol/timeframe bundles, keeping the UI responsive and avoiding the prior giant-bundle dependency. Evidence metrics, generated MF-ORIG-EV2 results, production Money Flow rules, order behavior, private/signed/order endpoint policy, testnet strategy-truth boundaries, paper runtime, and live trading approval remain unchanged.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `scripts/build_mf_orig_ev2_multitimeframe_evidence.py`
+  - `scripts/build_sv202_dashboard_chart_data.py`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m py_compile scripts/build_mf_orig_ev2_multitimeframe_evidence.py scripts/build_sv202_dashboard_chart_data.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_mf_orig_ev2_multitimeframe_evidence.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m compileall apps tests scripts`
+  - `HTTP 200 check for selected MF-ORIG-EV2 ETH 1h replay JSON and dashboard JS from local server`
+
 ## v2026.05.13.004
 
 - `recorded_at_utc`: `2026-05-13T01:13:19Z`

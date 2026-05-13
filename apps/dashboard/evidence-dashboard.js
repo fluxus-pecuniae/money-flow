@@ -3238,29 +3238,30 @@
     return `../../${repoRelativePath}`;
   }
 
-  function mfOrigEv2ChartDataPathByKey() {
-    const files = state.mfOrigSummary?.dashboard_integration_status?.chart_data_files || [];
-    const byKey = new Map();
-    files.forEach((path) => {
-      const match = String(path).match(/hyperliquid_public_([a-z0-9]+)_(15m|1h|4h|1d)_mf_orig_ev2_chart\.json$/i);
-      if (!match) return;
-      byKey.set(`${match[1].toUpperCase()}|${canonicalTimeframe(match[2])}`, chartDataUrl(path));
-    });
-    return byKey;
+  function safeReplayPathSegment(value) {
+    return String(value || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "");
   }
 
-  function sv202ChartDataPathByKey() {
-    const byKey = new Map();
-    SV202_DASHBOARD_CHART_FILES.forEach((path) => {
-      const match = String(path).match(/hyperliquid_public_([a-z0-9]+)_(15m|1h|4h|1d)_chart\.json$/i);
-      if (!match) return;
-      byKey.set(`${match[1].toUpperCase()}|${canonicalTimeframe(match[2])}`, path);
-    });
-    return byKey;
+  function sv202SelectedChartDataPath(symbol, timeframe, strategyId, fillAssumption) {
+    return chartDataUrl(
+      `reports/strategy_validation/sv2_0_2_dashboard_chart_data/${SV202_CANONICAL_TIMESTAMP}/selected/` +
+      `hyperliquid_public_${safeReplayPathSegment(symbol)}_${canonicalTimeframe(timeframe)}_` +
+      `${safeReplayPathSegment(strategyId)}_${safeReplayPathSegment(fillAssumption)}_sv202_replay.json`,
+    );
+  }
+
+  function mfOrigEv2SelectedChartDataPath(symbol, timeframe, strategyId, fillAssumption) {
+    return chartDataUrl(
+      `reports/strategy_validation/mf_orig_ev2_dashboard_chart_data/${MF_ORIG_EV2_TIMESTAMP}/selected/` +
+      `hyperliquid_public_${safeReplayPathSegment(symbol)}_${canonicalTimeframe(timeframe)}_` +
+      `${safeReplayPathSegment(strategyId)}_${safeReplayPathSegment(fillAssumption)}_mf_orig_ev2_replay.json`,
+    );
   }
 
   function sv202SummaryReplaysFromBatches() {
-    const chartDataPaths = sv202ChartDataPathByKey();
     return (state.batches || []).flatMap((batch) =>
       (batch.run_reports || []).flatMap((run) => {
         if (run.status !== "completed") return [];
@@ -3270,7 +3271,12 @@
         const component = request.component_keys?.[0] || Object.keys(metrics.trades_by_component_timeframe || {})[0] || "";
         const timeframe = canonicalTimeframe(component.replace(/^sleeve_/, "") || run.report?.timeframe || "unknown");
         const fillAssumption = request.assumptions?.fill_timing || "unknown";
-        const chartDataPath = chartDataPaths.get(`${symbol}|${timeframe}`) || "";
+        const chartDataPath = sv202SelectedChartDataPath(
+          symbol,
+          timeframe,
+          "money_flow_v1_2_canonical",
+          fillAssumption,
+        );
         return [{
           strategy_id: "money_flow_v1_2_canonical",
           strategy_label: "Money Flow v1.2 canonical",
@@ -3310,10 +3316,14 @@
   function mfOrigEv2SummaryReplays() {
     const summary = state.mfOrigSummary || {};
     if (summary.phase !== "MF-ORIG-EV2") return [];
-    const chartDataPaths = mfOrigEv2ChartDataPathByKey();
     return (summary.replay_results || []).map((row) => {
       const timeframe = canonicalTimeframe(row.timeframe);
-      const chartDataPath = chartDataPaths.get(`${row.symbol}|${timeframe}`) || "";
+      const chartDataPath = mfOrigEv2SelectedChartDataPath(
+        row.symbol,
+        timeframe,
+        row.hypothesis_id,
+        row.fill_timing,
+      );
       return {
         strategy_id: row.hypothesis_id,
         strategy_label: row.display_hypothesis_id || row.hypothesis_id,

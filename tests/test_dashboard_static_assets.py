@@ -231,9 +231,21 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     assert "mfOrigEv2SummaryReplays" in js
     assert "sv202SummaryReplaysFromBatches" in js
     assert "loadHistoricalReplayChartData" in js
+    assert "sv202SelectedChartDataPath" in js
+    assert "mfOrigEv2SelectedChartDataPath" in js
+    assert "safeReplayPathSegment" in js
+    assert "_sv202_replay.json" in js
+    assert "_mf_orig_ev2_replay.json" in js
     assert "selected chart data loads lazily" in js
     assert "for (const path of SV202_DASHBOARD_CHART_FILES)" not in js
     assert "[...SV202_DASHBOARD_CHART_FILES, ...MF_ORIG_EV2_DASHBOARD_CHART_FILES]" not in js
+    sv202_builder = Path("scripts/build_sv202_dashboard_chart_data.py").read_text(encoding="utf-8")
+    mf_orig_builder = Path("scripts/build_mf_orig_ev2_multitimeframe_evidence.py").read_text(encoding="utf-8")
+    assert 'selected_output_root = output_root / "selected"' in sv202_builder
+    assert 'selected_output_root = output_root / "selected"' in mf_orig_builder
+    assert "selected_files_written" in sv202_builder
+    assert "_sv202_replay.json" in sv202_builder
+    assert "_mf_orig_ev2_replay.json" in mf_orig_builder
     assert "renderEvidenceLabFounderCandidate" in js
     assert "renderEvidenceLabMfOrig" in js
     assert "data_not_available_in_mf_orig_bundle" in js

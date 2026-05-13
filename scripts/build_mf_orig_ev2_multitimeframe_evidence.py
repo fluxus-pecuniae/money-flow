@@ -58,6 +58,12 @@ def _pack_slug(hypothesis_id: str, symbol: str, timeframe: str) -> str:
     return f"mf_orig_ev2_{display}_{symbol.lower()}_{timeframe}_canonical_sv202"
 
 
+def _safe_replay_path_segment(value: Any) -> str:
+    return "".join(
+        char.lower() if char.isalnum() else "_" for char in str(value)
+    ).strip("_")
+
+
 def _indicator_snapshot(
     indicator_rows_by_time: dict[str, dict[str, Any]],
     timestamp: Any,
@@ -375,6 +381,8 @@ def _write_chart_data(
 
     output_root = chart_root / run_timestamp
     output_root.mkdir(parents=True, exist_ok=True)
+    selected_output_root = output_root / "selected"
+    selected_output_root.mkdir(parents=True, exist_ok=True)
     written: list[str] = []
     for (symbol, timeframe), rows in sorted(rows_by_dataset.items()):
         raw_path = raw_dir / f"hyperliquid_public_{symbol.lower()}_{timeframe}_sv2_0_2.json"
@@ -423,6 +431,25 @@ def _write_chart_data(
         out_path = output_root / f"hyperliquid_public_{symbol.lower()}_{timeframe}_mf_orig_ev2_chart.json"
         out_path.write_text(json.dumps(payload, separators=(",", ":"), sort_keys=True), encoding="utf-8")
         written.append(out_path.as_posix())
+        for replay in replays:
+            selected_payload = {
+                **payload,
+                "replays": [replay],
+                "selected_replay": {
+                    "strategy_id": replay.get("strategy_id"),
+                    "fill_assumption": replay.get("fill_assumption"),
+                },
+            }
+            selected_path = selected_output_root / (
+                f"hyperliquid_public_{symbol.lower()}_{timeframe}_"
+                f"{_safe_replay_path_segment(replay.get('strategy_id'))}_"
+                f"{_safe_replay_path_segment(replay.get('fill_assumption'))}_mf_orig_ev2_replay.json"
+            )
+            selected_path.write_text(
+                json.dumps(selected_payload, separators=(",", ":"), sort_keys=True),
+                encoding="utf-8",
+            )
+            written.append(selected_path.as_posix())
     return written
 
 
