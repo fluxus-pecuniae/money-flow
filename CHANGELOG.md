@@ -13,6 +13,20 @@ Entry schema:
 
 ---
 
+## v2026.05.13.004
+
+- `recorded_at_utc`: `2026-05-13T01:13:19Z`
+- `scope`: `Historical Replay lazy chart-load stabilization`
+- `intent`: `Native entry. Fixed the Historical Replay chart/dropdown lockup by stopping boot-time bulk fetches of large SV2.0.2 and MF-ORIG-EV2 chart-data JSON files. The dashboard now builds Replay strategy, symbol, timeframe, and fill selectors from compact canonical batch reports and MF-ORIG-EV2 summary rows, then lazily fetches only the selected symbol/timeframe chart-data JSON. Lazy-load completion updates the chart body without re-rendering dropdown controls, so open selects are not force-reset. Evidence metrics, generated MF-ORIG-EV2 outputs, production Money Flow rules, order behavior, private/signed/order endpoint policy, testnet strategy-truth boundaries, paper runtime, and live trading approval remain unchanged.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_mf_orig_ev2_multitimeframe_evidence.py tests/test_operational_docs.py`
+  - `git diff --check`
+
 ## v2026.05.13.003
 
 - `recorded_at_utc`: `2026-05-13T01:04:30Z`

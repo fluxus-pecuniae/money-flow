@@ -3249,6 +3249,64 @@
     return byKey;
   }
 
+  function sv202ChartDataPathByKey() {
+    const byKey = new Map();
+    SV202_DASHBOARD_CHART_FILES.forEach((path) => {
+      const match = String(path).match(/hyperliquid_public_([a-z0-9]+)_(15m|1h|4h|1d)_chart\.json$/i);
+      if (!match) return;
+      byKey.set(`${match[1].toUpperCase()}|${canonicalTimeframe(match[2])}`, path);
+    });
+    return byKey;
+  }
+
+  function sv202SummaryReplaysFromBatches() {
+    const chartDataPaths = sv202ChartDataPathByKey();
+    return (state.batches || []).flatMap((batch) =>
+      (batch.run_reports || []).flatMap((run) => {
+        if (run.status !== "completed") return [];
+        const request = run.request || {};
+        const metrics = run.report?.aggregate_metrics || {};
+        const symbol = request.symbol || run.report?.symbol || "unknown";
+        const component = request.component_keys?.[0] || Object.keys(metrics.trades_by_component_timeframe || {})[0] || "";
+        const timeframe = canonicalTimeframe(component.replace(/^sleeve_/, "") || run.report?.timeframe || "unknown");
+        const fillAssumption = request.assumptions?.fill_timing || "unknown";
+        const chartDataPath = chartDataPaths.get(`${symbol}|${timeframe}`) || "";
+        return [{
+          strategy_id: "money_flow_v1_2_canonical",
+          strategy_label: "Money Flow v1.2 canonical",
+          component: component || `sleeve_${timeframe}`,
+          symbol,
+          timeframe,
+          fill_assumption: fillAssumption,
+          research_only: false,
+          production_approved: false,
+          data_source: "SV2.0.2 canonical batch report; selected chart data loads lazily",
+          strategy_truth_lane: "historical_public_mainnet_candles",
+          chart_data_path: chartDataPath,
+          chart_data_lazy: Boolean(chartDataPath),
+          evidence_pack_path: run.evidence_pack_path,
+          summary: {
+            starting_equity: metrics.starting_equity || request.assumptions?.initial_capital || "10000",
+            ending_equity: metrics.ending_equity,
+            net_pnl: metrics.net_pnl || metrics.net_account_pnl,
+            max_drawdown: metrics.max_drawdown || metrics.mark_to_market_max_drawdown,
+            max_drawdown_pct: metrics.max_drawdown_pct || metrics.mark_to_market_max_drawdown_pct,
+            trade_count: metrics.number_of_trades,
+            win_rate: metrics.win_rate,
+            largest_loss: metrics.worst_trade_net_pnl,
+            largest_win: metrics.best_trade_net_pnl,
+            profit_factor: metrics.profit_factor,
+          },
+          candles: [],
+          indicators: [],
+          markers: [],
+          trades: [],
+          equity_curve: [],
+        }];
+      }),
+    );
+  }
+
   function mfOrigEv2SummaryReplays() {
     const summary = state.mfOrigSummary || {};
     if (summary.phase !== "MF-ORIG-EV2") return [];
@@ -4332,6 +4390,10 @@
 
   function renderHistoricalReplay() {
     renderHistoricalReplayFilters();
+    renderHistoricalReplayBody();
+  }
+
+  function renderHistoricalReplayBody() {
     if (!historicalReplays().length) {
       [
         elements.historicalReplayChart,
@@ -4404,24 +4466,10 @@
   }
 
   async function loadDefaultSv202DashboardChartData() {
-    const loaded = [];
-    for (const path of SV202_DASHBOARD_CHART_FILES) {
-      try {
-        const response = await fetch(path, { cache: "no-store" });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const payload = await response.json();
-        if (classifyJson(payload) === "sv202_dashboard_chart_data") {
-          loaded.push(payload);
-        }
-      } catch (error) {
-        console.warn(`Could not load ${path}`, error);
-      }
-    }
+    const sv202SummaryReplays = sv202SummaryReplaysFromBatches();
     const mfOrigSummaryReplays = mfOrigEv2SummaryReplays();
-    const replays = loaded.flatMap((payload) => payload.replays || []);
-    const allReplays = mergeReplayRows(replays, mfOrigSummaryReplays);
+    const allReplays = mergeReplayRows(sv202SummaryReplays, mfOrigSummaryReplays);
     if (!allReplays.length) return;
-    const dataReadiness = loaded.map((payload) => payload.dataset).filter(Boolean);
     const strategies = Array.from(
       new Map(
         allReplays
@@ -4446,7 +4494,7 @@
         research_only: false,
       })),
       strategies,
-      data_readiness: dataReadiness,
+      data_readiness: [],
       comparison: allReplays.map(sv202ComparisonRow),
       replays: allReplays,
     };
@@ -4487,8 +4535,7 @@
       console.warn(`Could not load selected historical chart data ${path}`, error);
     } finally {
       state.loadingHistoricalChartDataPaths.delete(path);
-      renderHistoricalReplay();
-      renderEvidenceStrategyFilter();
+      renderHistoricalReplayBody();
     }
   }
 
@@ -7104,6 +7151,14 @@
     await loadDefaultSv20Summaries();
     await loadDefaultSorEvSummaries();
     await loadDefaultMfOrigSummaries();
+
+    state.review = null;
+    state.batches = [];
+    loaded.forEach(({ payload }) => {
+      const type = classifyJson(payload);
+      if (type === "review") state.review = payload;
+      if (type === "batch") state.batches.push(payload);
+    });
     await loadDefaultSv202DashboardChartData();
     await loadDefaultPt002HistoricalReplaySummary();
 
@@ -7113,14 +7168,6 @@
       render();
       return;
     }
-
-    state.review = null;
-    state.batches = [];
-    loaded.forEach(({ payload }) => {
-      const type = classifyJson(payload);
-      if (type === "review") state.review = payload;
-      if (type === "batch") state.batches.push(payload);
-    });
     const canonicalPackCount = loaded.filter(({ path }) =>
       path.includes("money_flow_sv2_0_2_hyperliquid_public_") &&
       path.includes(`/${SV202_CANONICAL_TIMESTAMP}/batch_report.json`)

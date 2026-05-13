@@ -229,9 +229,10 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     assert "MF_ORIG_EV2_DASHBOARD_CHART_FILES" in js
     assert "mf_orig_ev2_dashboard_chart_data" in js
     assert "mfOrigEv2SummaryReplays" in js
+    assert "sv202SummaryReplaysFromBatches" in js
     assert "loadHistoricalReplayChartData" in js
     assert "selected chart data loads lazily" in js
-    assert "for (const path of SV202_DASHBOARD_CHART_FILES)" in js
+    assert "for (const path of SV202_DASHBOARD_CHART_FILES)" not in js
     assert "[...SV202_DASHBOARD_CHART_FILES, ...MF_ORIG_EV2_DASHBOARD_CHART_FILES]" not in js
     assert "renderEvidenceLabFounderCandidate" in js
     assert "renderEvidenceLabMfOrig" in js
