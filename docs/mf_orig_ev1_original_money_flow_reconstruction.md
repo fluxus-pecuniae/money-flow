@@ -153,4 +153,4 @@ The PDF file was not present in the repository or common local Downloads/Documen
 
 ## Recommended Next Phase
 
-`MF-ORIG-EV2` should only proceed if the founder wants dashboard overlays and deeper source-rule refinement after reviewing this first reconstruction.
+`MF-ORIG-EV2` has now proceeded as an evidence-only multi-timeframe expansion. See `docs/mf_orig_ev2_multitimeframe_evidence_packs.md` and `docs/mf_orig_ev2_multitimeframe_evidence_summary.json` for the current founder-review surface across 15m/1h/4h/1d and all 9 canonical SV2.0.2 supported symbols.

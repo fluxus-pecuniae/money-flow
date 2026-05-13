@@ -13,6 +13,50 @@ Entry schema:
 
 ---
 
+## v2026.05.13.002
+
+- `recorded_at_utc`: `2026-05-13T00:42:40Z`
+- `scope`: `MF-ORIG-EV2 multi-timeframe evidence packs and Historical Replay UI`
+- `intent`: `Native entry. Generated MF-ORIG-EV2 evidence-only Original Money Flow reconstruction packs across the four MF-ORIG hypotheses, all 9 canonical SV2.0.2 supported symbols, all four timeframes, and both next_candle_open / next_candle_close fill assumptions. The run preserved MF-ORIG-EV1.1 event-ledger accounting, single-counted fees/trims, force-close open-position handling, and peak-to-trough drawdown. It produced 144 ignored evidence-pack directories plus 36 ignored dashboard chart-data files, committed compact founder-readable Markdown/JSON summaries, and wired Historical Replay / Evidence Run Ledger to auto-load the MF-ORIG-EV2 replay strategies from local chart-data JSON. Production Money Flow v1.2 is unchanged; MF-ORIG remains evidence-only; no original hypothesis is approved for production, paper runtime, or live trading; no orders were submitted; no private/signed/order endpoints were called; no Hyperliquid testnet prices or dashboard date-filter recalculations were used as canonical strategy truth.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `docs/strategy.md`
+  - `docs/mf_orig_ev1_original_money_flow_reconstruction.md`
+  - `docs/mf_orig_ev2_multitimeframe_evidence_packs.md`
+  - `docs/mf_orig_ev2_multitimeframe_evidence_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `scripts/build_mf_orig_ev2_multitimeframe_evidence.py`
+  - `services/strategy_validation/mf_orig_ev1.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_mf_orig_ev2_multitimeframe_evidence.py`
+  - `tests/test_operational_docs.py`
+- `validation_performed`:
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python scripts/build_mf_orig_ev2_multitimeframe_evidence.py --run-timestamp 20260513T002746Z`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_mf_orig_ev2_multitimeframe_evidence.py tests/test_mf_orig_ev1_original_money_flow.py tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_sv202_canonical_import_evidence.py tests/test_sv201_canonical_evidence_truth_hotfix.py tests/test_sv20_money_flow_1d_expanded_evidence.py`
+  - `.venv/bin/python -m pytest -q tests/test_sor_ev1_loss_anatomy.py tests/test_sor_ev2_true_forward_replay.py tests/test_sor_ev3_avoid_sideways_low_volatility.py tests/test_pt002_historical_strategy_replay_cockpit.py tests/test_pt003_historical_data_horizon_1d.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-mf-orig-ev2-review.zip`
+  - `Review bundle scan: 487 entries; no forbidden artifact paths found; secret-like hits were limited to committed fixture/example placeholders, not sandbox/testnet secret values.`
+
 ## v2026.05.13.001
 
 - `recorded_at_utc`: `2026-05-13T00:02:20Z`

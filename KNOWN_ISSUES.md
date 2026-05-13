@@ -1,6 +1,6 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-05-12T23:26:20Z`
+Last reviewed: `2026-05-13T00:42:40Z`
 
 ## Open Items
 
@@ -16,7 +16,7 @@ Last reviewed: `2026-05-12T23:26:20Z`
 - `status`: `open`
 - `area`: `MF-ORIG-EV1 source-document availability`
 - `summary`: `MF-ORIG-EV1 could not read the original Money Flow Trading System PDF directly because the PDF was not present in the repository or common local Downloads/Documents search paths during the implementation. The source specification and evidence reconstruction therefore use the prompt-provided source-truth summary and label this explicitly as source_pdf_not_available_to_agent_prompt_summary_used.`
-- `impact`: `The MF-ORIG-EV1 replay is still useful for first-pass source-faithful evidence, but any later MF-ORIG-EV2 source-legalization pass should attach or point to the actual PDF and reconcile subjective source wording before treating the reconstruction as complete source authority. Production Money Flow v1.2 remains unchanged, no original hypothesis is approved, and no paper/live/order behavior follows from MF-ORIG-EV1.`
+- `impact`: `The MF-ORIG-EV1/EV2 replays are useful for source-faithful evidence review, and MF-ORIG-EV2 now extends the corrected reconstruction across all 9 canonical symbols and all four timeframes, but any later MF-ORIG source-legalization pass should attach or point to the actual PDF and reconcile subjective source wording before treating the reconstruction as complete source authority. Production Money Flow v1.2 remains unchanged, no original hypothesis is approved, and no paper/live/order behavior follows from MF-ORIG evidence.`
 
 ### K-017
 

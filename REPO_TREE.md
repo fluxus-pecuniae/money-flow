@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-12T23:26:20Z`
+Last reviewed: `2026-05-13T00:42:40Z`
 
 ## Top-Level Structure
 
@@ -160,6 +160,7 @@ Last reviewed: `2026-05-12T23:26:20Z`
 - SV2.0 updates the dashboard Strategy and Historical Replay surfaces to display Money Flow v1.2, the real `sleeve_1d`, expanded Hyperliquid public-mainnet readiness/evidence rows, and explicit SHIB -> `kSHIB` alias truth from `docs/sv2_0_historical_data_refresh_summary.json`. Expanded symbols without full replay chart payloads are shown as readiness/evidence rows instead of being silently substituted with another chart. The dashboard still has no order controls and does not call private/signed/order/live endpoints.
 - SV2.0.2 updates the Historical Replay data-horizon/status surfaces to show canonical evidence-pack status, DB-import truth, evidence-pack count, compact-replay noncanonical truth, and SHIB/kSHIB deferred status from `docs/sv2_0_historical_data_refresh_summary.json`. The follow-up display fix loads ignored SV2.0.2 chart/trade JSON for BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX across 15m/1h/4h/1d, removes the invalid Experiments tab, keeps arrow descriptions off by default, and keeps the dashboard free of order controls/private/signed/order/live endpoint calls. The SOR-EV3 rolling-range replay follow-up extends the ignored chart-data generator so `avoid_low_rolling_range_20` and `avoid_low_rolling_range_50` are available as research-only Historical Replay strategies across all 9 supported symbols, 4 timeframes, and both fill assumptions.
 - SOR-EV2.1 adds a visible `Evidence Lab` tab that loads committed SOR-EV1/SOR-EV2 summary bundles, labels canonical SV2.0.2 DB-imported evidence as baseline, and renders variant matrix, control-pocket impact, worst trades, late-entry analysis, large adverse-candle context, RSI/MACD rejection visibility, methodology warnings, and date-filter noncanonical warnings. SOR-EV2.2 adds the Evidence Lab baseline-vs-variant chart overlay, overlay controls, baseline SV2.0.2 entry/exit markers, linkable SOR-EV2 variant/context markers, worst-trade focus, control-pocket view, and explicit unavailable states for missing exact overlay data. SOR-EV3 adds a focused founder-candidate section for `avoid_sideways_low_volatility`, loading `docs/sor_ev3_avoid_sideways_low_volatility_summary.json` and displaying baseline parity, blocked signals vs matched baseline trades, avoided losers, missed winners, and control-pocket damage. These are UI/visualization only and do not approve variants, mutate Money Flow rules, submit orders, regenerate evidence packs, or call private/signed/order/live endpoints.
+- MF-ORIG-EV2 extends the Historical Replay and Evidence Run Ledger loaders to auto-load ignored local chart/trade JSON from `reports/strategy_validation/mf_orig_ev2_dashboard_chart_data/20260513T002746Z/` when present. The replay strategies cover four Original Money Flow hypotheses across BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX, 15m/1h/4h/1d, and both fill assumptions. Evidence Lab now prefers `docs/mf_orig_ev2_multitimeframe_evidence_summary.json` after the EV1.1 fallback and labels MF-ORIG evidence as evidence-only with no production approval.
 
 `docs/uat0_safety_security_runtime_hardening.md`
 - Founder/operator UAT0 safety, security, runtime, and operational-readiness audit.
@@ -353,6 +354,14 @@ Last reviewed: `2026-05-12T23:26:20Z`
 - Compact MF-ORIG-EV1.1 report source.
 - Contains source metadata, gap matrix, hypothesis definitions, canonical baseline references, parity rows, replay rows, accounting invariant audit, trade samples, control-pocket results, candidate gate status, limitations, and boundary flags without raw candle payloads.
 
+`docs/mf_orig_ev2_multitimeframe_evidence_packs.md`
+- Founder/operator MF-ORIG-EV2 evidence report.
+- Summarizes the four Original Money Flow hypotheses across 9 canonical symbols, 15m/1h/4h/1d, both fill assumptions, 144 ignored evidence-pack paths, baseline deltas versus Money Flow v1.2, source-primary versus fractal/stress-test timeframe interpretation, candidate-gate outcomes, dashboard integration status, limitations, and no-order/no-live/no-production-rule-change boundaries.
+
+`docs/mf_orig_ev2_multitimeframe_evidence_summary.json`
+- Compact MF-ORIG-EV2 dashboard/report source.
+- Records 288 replay scenario rows, 144 generated evidence-pack paths, per-symbol/timeframe/hypothesis summaries, event-ledger accounting invariant status, peak-to-trough drawdown truth, baseline parity, candidate gates, and boundary flags without raw candle payloads.
+
 `apps/dashboard/vendor/`
 - PT0 vendored third-party charting bundle from the official `lightweight-charts` package.
 - Contains `lightweight-charts.standalone.production.js`, `LICENSE`, and `package.json`; the dashboard uses this local bundle instead of a hosted TradingView widget.
@@ -410,6 +419,11 @@ Last reviewed: `2026-05-12T23:26:20Z`
 - SV2.0.2 dashboard chart/trade export helper.
 - Reads existing `/tmp/money-flow-sv202-candles` public-candle JSON plus existing regenerated canonical batch reports, computes dashboard-only indicator overlays, pairs candles with canonical pack trades, and writes ignored `reports/strategy_validation/sv2_0_2_dashboard_chart_data/<timestamp>/` JSON for Historical Replay display.
 - It does not regenerate evidence packs, import candles, call exchange endpoints, use API keys, submit orders, or change Money Flow strategy rules.
+
+`scripts/build_mf_orig_ev2_multitimeframe_evidence.py`
+- MF-ORIG-EV2 evidence-pack and dashboard chart-data generator.
+- Runs the Strategy Validation-only Original Money Flow reconstruction against canonical SV2.0.2 DB-imported candle truth, writes ignored evidence-pack directories and ignored dashboard chart-data JSON, and writes committed compact Markdown/JSON summaries.
+- It does not import candles, call exchange endpoints, use API keys, submit orders, approve any strategy, or change production Money Flow rules.
 
 `scripts/refresh_pt0_runtime_summary.py`
 - Generates the committed PT0 dashboard/runtime summary from deterministic helpers plus existing UAT3.3/UAT3.4/UAT4.2 summaries.

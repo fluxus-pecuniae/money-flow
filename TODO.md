@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-12T23:26:20Z`
+Last reviewed: `2026-05-13T00:42:40Z`
 
 ## Active Follow-Ups
+
+### T-134
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `MF-ORIG-EV2 multi-timeframe evidence is complete. The corrected Original Money Flow reconstruction now has evidence-only packs across four hypotheses, BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX, 15m/1h/4h/1d, and both next_candle_open and next_candle_close fill assumptions. The run preserved MF-ORIG-EV1.1 event-ledger accounting, single-counted entry fees/trims, force-close open-position handling, and peak-to-trough drawdown; 1d is labeled source-primary, 4h/1h fractal adaptations, and 15m a stress-test adaptation. Local ignored artifacts include 144 evidence-pack directories and 36 dashboard chart-data files; committed docs include docs/mf_orig_ev2_multitimeframe_evidence_packs.md and docs/mf_orig_ev2_multitimeframe_evidence_summary.json. Historical Replay and Evidence Run Ledger now auto-load MF-ORIG-EV2 strategies when local chart-data JSON exists. Production Money Flow v1.2 remains unchanged; no original hypothesis is approved; no orders/private/signed/order endpoints/testnet strategy truth/live trading/paper runtime/SOR behavior were added.`
 
 ### T-133
 

@@ -16,6 +16,13 @@
         `../../reports/strategy_validation/sv2_0_2_dashboard_chart_data/${SV202_CANONICAL_TIMESTAMP}/hyperliquid_public_${symbol.toLowerCase()}_${timeframe}_chart.json`,
     ),
   );
+  const MF_ORIG_EV2_TIMESTAMP = "20260513T002746Z";
+  const MF_ORIG_EV2_DASHBOARD_CHART_FILES = SV202_CANONICAL_TIMEFRAMES.flatMap((timeframe) =>
+    SV202_CANONICAL_SYMBOLS.map(
+      (symbol) =>
+        `../../reports/strategy_validation/mf_orig_ev2_dashboard_chart_data/${MF_ORIG_EV2_TIMESTAMP}/hyperliquid_public_${symbol.toLowerCase()}_${timeframe}_mf_orig_ev2_chart.json`,
+    ),
+  );
 
   const DEFAULT_FILES = [
     ...SV202_CANONICAL_BATCH_FILES,
@@ -59,6 +66,7 @@
 
   const DEFAULT_MF_ORIG_SUMMARY_FILES = [
     "../../docs/mf_orig_ev1_original_money_flow_reconstruction_summary.json",
+    "../../docs/mf_orig_ev2_multitimeframe_evidence_summary.json",
   ];
 
   const HYPERLIQUID_TESTNET_PUBLIC_INFO_URL = "https://api.hyperliquid-testnet.xyz/info";
@@ -1600,7 +1608,7 @@
     const label = selectedEvidenceReplayStrategyLabel();
     if (elements.runTableSubtitle) {
       elements.runTableSubtitle.textContent =
-        `Replay strategy: ${label}. Rows are generated Historical Replay scenarios from SV2.0.2 chart-data JSON; not canonical pack regeneration.`;
+        `Replay strategy: ${label}. Rows are generated Historical Replay scenarios from loaded dashboard chart-data JSON; date filters are display-only, not canonical pack regeneration.`;
     }
     if (!rows.length) {
       setEmpty(elements.runTable, "No generated replay rows loaded for this Evidence replay strategy/component selection.");
@@ -4303,7 +4311,7 @@
 
   async function loadDefaultSv202DashboardChartData() {
     const loaded = [];
-    for (const path of SV202_DASHBOARD_CHART_FILES) {
+    for (const path of [...SV202_DASHBOARD_CHART_FILES, ...MF_ORIG_EV2_DASHBOARD_CHART_FILES]) {
       try {
         const response = await fetch(path, { cache: "no-store" });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -4333,8 +4341,8 @@
       ).values(),
     );
     state.sv202HistoricalReplay = {
-      report: "sv2_0_2_dashboard_historical_replay_combined",
-      source: "SV2.0.2 regenerated canonical DB-imported evidence packs",
+      report: "sv2_0_2_and_mf_orig_ev2_dashboard_historical_replay_combined",
+      source: "SV2.0.2 regenerated canonical DB-imported evidence packs plus MF-ORIG-EV2 evidence-only replay packs",
       symbols: Array.from(new Set(replays.map((row) => row.symbol).filter(Boolean))).sort(),
       timeframes: Array.from(new Set(replays.map((row) => canonicalTimeframe(row.timeframe)).filter(Boolean))),
       fill_assumptions: Array.from(new Set(replays.map((row) => row.fill_assumption).filter(Boolean))).map((id) => ({
@@ -6528,9 +6536,10 @@
     );
     elements.evidenceLabMfOrig.innerHTML = `
       <div class="methodology-warning compact" role="note">
-        MF-ORIG-EV1.1 is a corrected replay/report run loaded from
-        <code>docs/mf_orig_ev1_original_money_flow_reconstruction_summary.json</code>.
-        It is not a new canonical evidence-pack run, no original hypothesis is approved, and production Money Flow v1.2 is unchanged.
+        ${escapeHtml(summary.phase || "MF-ORIG")} is an evidence-only Original Money Flow reconstruction loaded from
+        <code>${escapeHtml(summary.phase === "MF-ORIG-EV2" ? "docs/mf_orig_ev2_multitimeframe_evidence_summary.json" : "docs/mf_orig_ev1_original_money_flow_reconstruction_summary.json")}</code>.
+        ${escapeHtml(summary.phase === "MF-ORIG-EV2" ? "MF-ORIG-EV2 generated multi-timeframe evidence packs and dashboard replay JSON." : "MF-ORIG-EV1.1 is a corrected replay/report run, not a new canonical evidence-pack run.")}
+        No original hypothesis is approved, and production Money Flow v1.2 is unchanged.
       </div>
       <div class="metric-grid compact-grid">
         <article class="metric-cell">
@@ -6933,7 +6942,11 @@
     if (payload?.phase === "SOR-EV2") return "sor_ev2_summary";
     if (payload?.phase === "SOR-EV3") return "sor_ev3_summary";
     if (String(payload?.phase || "").startsWith("MF-ORIG-EV1")) return "mf_orig_summary";
-    if (payload?.report === "sv2_0_2_dashboard_historical_replay_chart_data") return "sv202_dashboard_chart_data";
+    if (String(payload?.phase || "").startsWith("MF-ORIG-EV2")) return "mf_orig_summary";
+    if (
+      payload?.report === "sv2_0_2_dashboard_historical_replay_chart_data" ||
+      payload?.report === "mf_orig_ev2_dashboard_chart_data"
+    ) return "sv202_dashboard_chart_data";
     if (
       payload?.report === "pt0_0_2_historical_strategy_replay_cockpit" ||
       payload?.report === "pt0_0_3_historical_data_horizon_and_1d_replay"

@@ -152,7 +152,7 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert ".run-ledger-sort-button" in css
     assert ".run-ledger-filters" not in css
     assert "Canonical evidence packs / batch reports" in js
-    assert "generated Historical Replay scenarios from SV2.0.2 chart-data JSON" in js
+    assert "generated Historical Replay scenarios from loaded dashboard chart-data JSON" in js
     assert "classifyEvidenceReplayResult" in js
     assert "improved_pnl_drawdown" in js
     assert "improved_pnl_not_drawdown" in js
@@ -202,7 +202,7 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     assert "Variant Chart Overlay" in html
     assert "Founder Candidate: avoid_sideways_low_volatility" in html
     assert "Original Money Flow Reconstruction" in html
-    assert "Latest MF-ORIG-EV1.1 corrected replay run" in html
+    assert "Latest MF-ORIG-EV2 multi-timeframe evidence-pack run" in html
     assert "founder-review labels separate promising, mixed, deferred, and hard-rejected outcomes" in html
     assert "evidence-lab-overlay-symbol" in html
     assert "evidence-lab-overlay-timeframe" in html
@@ -225,11 +225,15 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     assert "sor_ev2_true_forward_stop_and_rejected_signal_replay_summary.json" in js
     assert "sor_ev3_avoid_sideways_low_volatility_summary.json" in js
     assert "mf_orig_ev1_original_money_flow_reconstruction_summary.json" in js
+    assert "mf_orig_ev2_multitimeframe_evidence_summary.json" in js
+    assert "MF_ORIG_EV2_DASHBOARD_CHART_FILES" in js
+    assert "mf_orig_ev2_dashboard_chart_data" in js
     assert "renderEvidenceLabFounderCandidate" in js
     assert "renderEvidenceLabMfOrig" in js
     assert "data_not_available_in_mf_orig_bundle" in js
     assert "MF-ORIG-EV1.1 is a corrected replay/report run" in js
     assert "not a new canonical evidence-pack run" in js
+    assert "MF-ORIG-EV2 generated multi-timeframe evidence packs" in js
     assert "positive 1d pockets" in js
     assert "accounting_invariant_summary" in js
     assert "blocked_open_signals" in js

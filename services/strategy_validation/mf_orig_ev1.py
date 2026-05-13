@@ -68,6 +68,20 @@ PRIMARY_TIMEFRAME_POLICY: dict[str, str] = {
     "15m": "not_source_primary_timeframe",
 }
 
+MF_ORIG_EV2_TIMEFRAME_POLICY: dict[str, str] = {
+    "1d": "source_primary_original_money_flow_timeframe",
+    "4h": "swing_fractal_adaptation",
+    "1h": "intraday_fractal_adaptation",
+    "15m": "stress_test_short_term_fractal_adaptation_not_source_primary",
+}
+
+MF_ORIG_EV2_DISPLAY_LABELS: dict[str, str] = {
+    "mf_orig_1d_stage2_5_20_crossover": "mf_orig_stage2_5_20_crossover",
+    "mf_orig_1d_stage2_breakout_resistance": "mf_orig_stage2_breakout_resistance",
+    "mf_orig_stage2_pullback_reclaim": "mf_orig_stage2_pullback_reclaim",
+    "mf_orig_stage_filter_only": "mf_orig_stage_filter_only",
+}
+
 SOURCE_RULE_EXTRACTION: list[dict[str, str]] = [
     {
         "section": "Four Stages",
@@ -200,12 +214,114 @@ def build_mf_orig_ev1_report_sync(
     )
 
 
+def build_mf_orig_ev2_report_sync(
+    batch_report_paths: Sequence[str | Path] | None = None,
+    *,
+    generated_at: datetime | None = None,
+    max_scenarios: int | None = None,
+    backtest_service: MoneyFlowBacktestService | None = None,
+) -> dict[str, Any]:
+    return asyncio.run(
+        build_mf_orig_ev2_report(
+            batch_report_paths,
+            generated_at=generated_at,
+            max_scenarios=max_scenarios,
+            backtest_service=backtest_service,
+        )
+    )
+
+
+async def build_mf_orig_ev2_report(
+    batch_report_paths: Sequence[str | Path] | None = None,
+    *,
+    generated_at: datetime | None = None,
+    max_scenarios: int | None = None,
+    backtest_service: MoneyFlowBacktestService | None = None,
+) -> dict[str, Any]:
+    report = await build_mf_orig_ev1_report(
+        batch_report_paths,
+        generated_at=generated_at,
+        max_scenarios=max_scenarios,
+        backtest_service=backtest_service,
+        included_timeframes=("15m", "1h", "4h", "1d"),
+        report_phase="MF-ORIG-EV2",
+        report_status="mf_orig_multitimeframe_evidence_ready_for_founder_review",
+        supersedes_phase="MF-ORIG-EV1.1",
+        include_full_trade_results=True,
+        source_timeframe_policy=MF_ORIG_EV2_TIMEFRAME_POLICY,
+    )
+    replay_rows = report.get("replay_results", [])
+    report["ev2_scope"] = {
+        "hypotheses": list(MF_ORIG_HYPOTHESES),
+        "display_labels": MF_ORIG_EV2_DISPLAY_LABELS,
+        "symbols": list(CANONICAL_SYMBOLS),
+        "timeframes": ["15m", "1h", "4h", "1d"],
+        "fill_assumptions": [
+            StrategyValidationFillTiming.NEXT_CANDLE_OPEN.value,
+            StrategyValidationFillTiming.NEXT_CANDLE_CLOSE.value,
+        ],
+        "scenario_count_expected": 4 * len(CANONICAL_SYMBOLS) * 4 * 2,
+        "source_primary_timeframe": "1d",
+        "fractal_adaptation_timeframes": ["4h", "1h"],
+        "stress_test_timeframe": "15m",
+    }
+    report["timeframe_interpretation"] = MF_ORIG_EV2_TIMEFRAME_POLICY
+    report["per_symbol_summary"] = _mf_orig_group_summary(replay_rows, ("symbol",))
+    report["per_timeframe_summary"] = _mf_orig_group_summary(replay_rows, ("timeframe",))
+    report["per_hypothesis_timeframe_summary"] = _mf_orig_group_summary(
+        replay_rows,
+        ("hypothesis_id", "timeframe"),
+    )
+    report["per_hypothesis_symbol_summary"] = _mf_orig_group_summary(
+        replay_rows,
+        ("hypothesis_id", "symbol"),
+    )
+    report["baseline_delta_summary"] = {
+        "comparison_baseline": "Money Flow v1.2 canonical SV2.0.2 evidence",
+        "net_pnl_delta_sum_across_independent_research_scenarios": _fmt(
+            sum((_dec(row.get("net_pnl_delta_vs_v1_2")) for row in replay_rows), Decimal("0"))
+        ),
+        "worst_drawdown_delta_vs_v1_2": _fmt(
+            max((_dec(row.get("drawdown_delta_vs_v1_2")) for row in replay_rows), default=Decimal("0"))
+        ),
+        "aggregate_label": "sum across independent research scenarios",
+        "not_one_account_pnl": True,
+    }
+    report["dashboard_integration_status"] = {
+        "historical_replay": "implemented_pending_generated_chart_data",
+        "evidence_ui": "implemented_pending_generated_chart_data",
+        "date_filter_warning": "display_filtered_not_canonical_pack_regeneration",
+        "chart_data_report": "mf_orig_ev2_dashboard_chart_data",
+    }
+    report["evidence_pack_status"] = {
+        "status": "pending_pack_writer",
+        "evidence_pack_paths": [],
+        "generated_packs_are_review_artifacts": True,
+        "large_pack_directories_committed": False,
+    }
+    report["limitations"] = sorted(
+        set(report.get("limitations", []))
+        | {
+            "mf_orig_ev2_extends_source_reconstruction_across_fractal_timeframes",
+            "15m_is_stress_test_not_source_primary",
+            "independent_scenarios_are_not_one_combined_account",
+        }
+    )
+    return _json_ready(report)
+
+
 async def build_mf_orig_ev1_report(
     batch_report_paths: Sequence[str | Path] | None = None,
     *,
     generated_at: datetime | None = None,
     max_scenarios: int | None = None,
     backtest_service: MoneyFlowBacktestService | None = None,
+    included_timeframes: Sequence[str] | None = None,
+    report_phase: str = "MF-ORIG-EV1.1",
+    report_status: str = "original_money_flow_reconstruction_ready_for_founder_review",
+    supersedes_phase: str = "MF-ORIG-EV1",
+    include_full_trade_results: bool = False,
+    source_timeframe_policy: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     paths = [Path(path) for path in (batch_report_paths or canonical_sv202_batch_report_paths())]
     _assert_canonical_paths(paths)
@@ -214,6 +330,8 @@ async def build_mf_orig_ev1_report(
         scenarios = scenarios[:max_scenarios]
     service = backtest_service or MoneyFlowBacktestService()
     generated_at = generated_at or datetime.now(UTC)
+    allowed_timeframes = set(included_timeframes or ("1d", "4h", "1h"))
+    timeframe_policy = source_timeframe_policy or PRIMARY_TIMEFRAME_POLICY
 
     baseline_parity: list[dict[str, Any]] = []
     replay_rows: list[dict[str, Any]] = []
@@ -229,7 +347,8 @@ async def build_mf_orig_ev1_report(
 
     for scenario in scenarios:
         timeframe = str(scenario["timeframe"])
-        if timeframe == "15m":
+        if timeframe not in allowed_timeframes:
+            reason = "not_source_primary_timeframe" if timeframe == "15m" else "timeframe_not_in_mf_orig_policy"
             skipped_rows.append(
                 {
                     "scenario_key": scenario["scenario_key"],
@@ -237,19 +356,7 @@ async def build_mf_orig_ev1_report(
                     "timeframe": timeframe,
                     "fill_timing": scenario["fill_timing"],
                     "status": "excluded",
-                    "reason_codes": ["not_source_primary_timeframe"],
-                }
-            )
-            continue
-        if timeframe not in {"1d", "4h", "1h"}:
-            skipped_rows.append(
-                {
-                    "scenario_key": scenario["scenario_key"],
-                    "symbol": scenario["symbol"],
-                    "timeframe": timeframe,
-                    "fill_timing": scenario["fill_timing"],
-                    "status": "excluded",
-                    "reason_codes": ["timeframe_not_in_mf_orig_ev1_policy"],
+                    "reason_codes": [reason],
                 }
             )
             continue
@@ -293,6 +400,7 @@ async def build_mf_orig_ev1_report(
                 slippage_bps=request.assumptions.slippage_bps,
                 initial_equity=request.assumptions.initial_capital,
                 baseline_metrics=baseline_metrics,
+                timeframe_policy=timeframe_policy,
             )
             replay_rows.append(result["row"])
             trade_rows.extend(result["trades"])
@@ -309,10 +417,10 @@ async def build_mf_orig_ev1_report(
         row["outcome_label"] = row["candidate_gate_status"]
 
     report = {
-        "phase": "MF-ORIG-EV1.1",
-        "supersedes_phase": "MF-ORIG-EV1",
+        "phase": report_phase,
+        "supersedes_phase": supersedes_phase,
         "generated_at": generated_at.replace(microsecond=0).isoformat().replace("+00:00", "Z"),
-        "status": "original_money_flow_reconstruction_ready_for_founder_review",
+        "status": report_status,
         "hotpatch": {
             "accounting_and_drawdown_hotpatch": "MF-ORIG-EV1.1",
             "pre_hotpatch_pnl_drawdown_conclusions_quarantined": True,
@@ -339,7 +447,7 @@ async def build_mf_orig_ev1_report(
         "source_document": SOURCE_DOCUMENT_METADATA,
         "source_rule_extraction": SOURCE_RULE_EXTRACTION,
         "gap_matrix": GAP_MATRIX,
-        "primary_timeframe_policy": PRIMARY_TIMEFRAME_POLICY,
+        "primary_timeframe_policy": timeframe_policy,
         "hypothesis_definitions": _hypothesis_definitions(),
         "data_sources": {
             "canonical_baseline": "SV2.0.2 DB-imported Money Flow v1.2 evidence packs",
@@ -374,6 +482,8 @@ async def build_mf_orig_ev1_report(
             "adds_sor_fanout_cbbo_or_cross_venue_routing": False,
         },
     }
+    if include_full_trade_results:
+        report["trade_results"] = trade_rows
     return _json_ready(report)
 
 
@@ -398,6 +508,22 @@ def write_mf_orig_ev1_outputs(
     spec_path.write_text(spec, encoding="utf-8")
 
 
+def write_mf_orig_ev2_outputs(
+    report: dict[str, Any],
+    markdown_output: str | Path,
+    json_output: str | Path,
+) -> None:
+    markdown_path = Path(markdown_output)
+    json_path = Path(json_output)
+    markdown_path.parent.mkdir(parents=True, exist_ok=True)
+    json_path.parent.mkdir(parents=True, exist_ok=True)
+    compact = _compact_mf_orig_ev2_report(report)
+    markdown = mf_orig_ev2_report_to_markdown(compact)
+    _assert_safe_report_language(markdown)
+    markdown_path.write_text(markdown, encoding="utf-8")
+    json_path.write_text(json.dumps(compact, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
 def _run_original_hypothesis(
     *,
     scenario: dict[str, Any],
@@ -411,6 +537,7 @@ def _run_original_hypothesis(
     slippage_bps: Decimal,
     initial_equity: Decimal,
     baseline_metrics: dict[str, Any],
+    timeframe_policy: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     trades: list[dict[str, Any]] = []
     limitations: set[str] = set()
@@ -579,9 +706,10 @@ def _run_original_hypothesis(
     row = {
         "scenario_key": scenario["scenario_key"],
         "hypothesis_id": hypothesis_id,
+        "display_hypothesis_id": MF_ORIG_EV2_DISPLAY_LABELS.get(hypothesis_id, hypothesis_id),
         "symbol": scenario["symbol"],
         "timeframe": scenario["timeframe"],
-        "timeframe_role": PRIMARY_TIMEFRAME_POLICY.get(str(scenario["timeframe"]), "unknown"),
+        "timeframe_role": (timeframe_policy or PRIMARY_TIMEFRAME_POLICY).get(str(scenario["timeframe"]), "unknown"),
         "fill_timing": fill_timing.value,
         "methodology": "true_forward_replay",
         "source_strategy": "original_money_flow_reconstruction",
@@ -1429,6 +1557,49 @@ def _fallback_outcome_from_blockers(blockers: Sequence[str]) -> str:
     return "source_faithful_but_underperformed"
 
 
+def _mf_orig_group_summary(
+    rows: Sequence[dict[str, Any]],
+    keys: Sequence[str],
+) -> list[dict[str, Any]]:
+    grouped: dict[tuple[str, ...], list[dict[str, Any]]] = defaultdict(list)
+    for row in rows:
+        grouped[tuple(str(row.get(key, "unknown")) for key in keys)].append(row)
+    output: list[dict[str, Any]] = []
+    for values, selected in sorted(grouped.items()):
+        wins = [row for row in selected if _dec(row.get("net_pnl")) > 0]
+        losses = [row for row in selected if _dec(row.get("net_pnl")) < 0]
+        net_pnl = sum((_dec(row.get("net_pnl")) for row in selected), Decimal("0"))
+        delta = sum((_dec(row.get("net_pnl_delta_vs_v1_2")) for row in selected), Decimal("0"))
+        drawdown = max((_dec(row.get("max_drawdown")) for row in selected), default=Decimal("0"))
+        drawdown_delta = max((_dec(row.get("drawdown_delta_vs_v1_2")) for row in selected), default=Decimal("0"))
+        row_out = {key: value for key, value in zip(keys, values, strict=True)}
+        row_out.update(
+            {
+                "row_count": len(selected),
+                "hypothesis_count": len({row.get("hypothesis_id") for row in selected}),
+                "net_pnl_sum_across_independent_scenarios": _fmt(net_pnl),
+                "net_pnl_delta_vs_v1_2_sum": _fmt(delta),
+                "worst_max_drawdown": _fmt(drawdown),
+                "worst_drawdown_delta_vs_v1_2": _fmt(drawdown_delta),
+                "trade_count_sum": sum(int(row.get("trade_count") or 0) for row in selected),
+                "win_scenario_count": len(wins),
+                "loss_scenario_count": len(losses),
+                "aggregate_label": "sum across independent research scenarios",
+                "not_one_account_pnl": True,
+            }
+        )
+        output.append(row_out)
+    return output
+
+
+def _compact_mf_orig_ev2_report(report: dict[str, Any]) -> dict[str, Any]:
+    compact = dict(report)
+    trade_results = compact.pop("trade_results", [])
+    compact["trade_result_count"] = len(trade_results)
+    compact["trade_samples"] = compact.get("trade_samples", [])[:250]
+    return compact
+
+
 def _hypothesis_definitions() -> list[dict[str, Any]]:
     return [
         {
@@ -1492,6 +1663,126 @@ def mf_orig_ev1_spec_to_markdown(report: dict[str, Any]) -> str:
         "- No paper/live approval follows from MF-ORIG-EV1.",
         "- Testnet execution is separate from strategy evidence.",
         "- Dashboard date filters are display-only and not canonical evidence.",
+    ])
+    return "\n".join(lines) + "\n"
+
+
+def mf_orig_ev2_report_to_markdown(report: dict[str, Any]) -> str:
+    pack_paths = report.get("evidence_pack_status", {}).get("evidence_pack_paths", [])
+    dashboard = report.get("dashboard_integration_status", {})
+    lines = [
+        "# MF-ORIG-EV2 Multi-Timeframe Original Money Flow Evidence Packs",
+        "",
+        "## Executive Summary",
+        "",
+        "MF-ORIG-EV2 extends the corrected MF-ORIG-EV1.1 Original Money Flow reconstruction across all canonical SV2.0.2 supported symbols and all four timeframes for founder review. It is evidence-only. Production Money Flow v1.2 is unchanged. No orders are submitted. No private/signed/order endpoints are called.",
+        "",
+        "## Scope",
+        "",
+        "- Hypotheses: `mf_orig_stage2_5_20_crossover`, `mf_orig_stage2_breakout_resistance`, `mf_orig_stage2_pullback_reclaim`, `mf_orig_stage_filter_only`.",
+        "- Symbols: `BTC`, `ETH`, `SOL`, `XRP`, `DOGE`, `HYPE`, `BNB`, `SUI`, `AVAX`.",
+        "- Timeframes: `15m`, `1h`, `4h`, `1d`.",
+        "- Fill assumptions: `next_candle_open`, `next_candle_close`.",
+        "- Accounting: `event_ledger_accounting` with `peak_to_trough` drawdown.",
+        "- Baseline: canonical SV2.0.2 Money Flow v1.2 DB-imported evidence timestamp `20260512T064916Z`.",
+        "",
+        "## Timeframe Interpretation",
+        "",
+        "| Timeframe | Role |",
+        "| --- | --- |",
+    ]
+    for timeframe in ["1d", "4h", "1h", "15m"]:
+        lines.append(f"| `{timeframe}` | `{report.get('timeframe_interpretation', {}).get(timeframe, 'unknown')}` |")
+    lines.extend([
+        "",
+        "## Evidence Pack Status",
+        "",
+        f"- Status: `{report.get('evidence_pack_status', {}).get('status', 'unknown')}`",
+        f"- Pack count: `{len(pack_paths)}`",
+        "- Generated evidence-pack directories are review artifacts and are not committed as large generated packs.",
+        "",
+        "## Hypothesis Summary",
+        "",
+        "| Hypothesis | Scenarios | 1D Scenarios | PnL Delta vs v1.2 | Worst Drawdown Delta | Trades | Candidate Gate |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | --- |",
+    ])
+    for row in report.get("hypothesis_summary", []):
+        lines.append(
+            f"| `{row['hypothesis_id']}` | {row['scenario_count']} | {row['one_day_scenario_count']} | {row['net_pnl_delta_sum_across_independent_scenarios']} | {row['worst_drawdown_delta_vs_v1_2']} | {row['trade_count_sum']} | `{row.get('outcome_label')}` |"
+        )
+    lines.extend([
+        "",
+        "## Per-Timeframe Results",
+        "",
+        "| Timeframe | Rows | PnL Delta vs v1.2 | Worst Drawdown Delta | Trades |",
+        "| --- | ---: | ---: | ---: | ---: |",
+    ])
+    for row in report.get("per_timeframe_summary", []):
+        lines.append(
+            f"| `{row.get('timeframe')}` | {row['row_count']} | {row['net_pnl_delta_vs_v1_2_sum']} | {row['worst_drawdown_delta_vs_v1_2']} | {row['trade_count_sum']} |"
+        )
+    lines.extend([
+        "",
+        "## Per-Symbol Results",
+        "",
+        "| Symbol | Rows | PnL Delta vs v1.2 | Worst Drawdown Delta | Trades |",
+        "| --- | ---: | ---: | ---: | ---: |",
+    ])
+    for row in report.get("per_symbol_summary", []):
+        lines.append(
+            f"| `{row.get('symbol')}` | {row['row_count']} | {row['net_pnl_delta_vs_v1_2_sum']} | {row['worst_drawdown_delta_vs_v1_2']} | {row['trade_count_sum']} |"
+        )
+    lines.extend([
+        "",
+        "## Candidate Gate",
+        "",
+        "| Hypothesis | Status | Gate Blockers |",
+        "| --- | --- | --- |",
+    ])
+    for row in report.get("candidate_status", []):
+        lines.append(f"| `{row['hypothesis_id']}` | `{row['status']}` | `{', '.join(row.get('gate_blockers', [])) or 'none'}` |")
+    lines.extend([
+        "",
+        "## Dashboard Status",
+        "",
+        f"- Historical Replay: `{dashboard.get('historical_replay', 'unknown')}`",
+        f"- Evidence UI: `{dashboard.get('evidence_ui', 'unknown')}`",
+        f"- Date-filter warning: `{dashboard.get('date_filter_warning', 'display_filtered_not_canonical_pack_regeneration')}`",
+        "",
+        "The dashboard date filters are display-only recalculations from loaded evidence trades. Exact arbitrary-date canonical evidence requires backend Strategy Validation regeneration.",
+        "",
+        "## Control Pockets",
+        "",
+        "| Hypothesis | Pocket | Status | PnL Delta | Drawdown Delta |",
+        "| --- | --- | --- | ---: | ---: |",
+    ])
+    for row in report.get("control_pocket_results", []):
+        lines.append(
+            f"| `{row['hypothesis_id']}` | `{row['control_pocket']}` | `{row['status']}` | {row.get('net_pnl_delta_sum', 'n/a')} | {row.get('worst_drawdown_delta', 'n/a')} |"
+        )
+    lines.extend([
+        "",
+        "## Limitations",
+        "",
+    ])
+    for item in report.get("limitations", []):
+        lines.append(f"- `{item}`")
+    lines.extend([
+        "",
+        "## Boundary Confirmation",
+        "",
+        "- MF-ORIG-EV2 is evidence-only.",
+        "- Production Money Flow v1.2 remains unchanged.",
+        "- No MF-ORIG hypothesis is approved for production.",
+        "- No paper-runtime approval follows from this phase.",
+        "- Live trading is not approved.",
+        "- No orders were submitted.",
+        "- Hyperliquid testnet prices are not strategy truth.",
+        "- Independent scenario sums are not one account PnL.",
+        "",
+        "## Recommended Next Phase",
+        "",
+        "`MF-ORIG-EV3` should only proceed after founder review of the multi-timeframe replay charts and comparison tables.",
     ])
     return "\n".join(lines) + "\n"
 

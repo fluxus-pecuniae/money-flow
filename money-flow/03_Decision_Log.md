@@ -10,6 +10,14 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `result`: Candidate gates were re-run. The strict conclusion did not change: all original hypotheses remain `source_faithful_but_underperformed` because baseline-positive 1d control pockets were not preserved. Production Money Flow v1.2 remains unchanged, no original hypothesis is approved, and no orders/private/signed/order endpoints/testnet strategy truth/live trading/paper runtime/SOR behavior were added.
 - `follow_up_implications`: Use MF-ORIG-EV1.1 reports, not pre-hotpatch MF-ORIG-EV1 PnL/drawdown numbers, for founder review. Any MF-ORIG-EV2 still needs direct-PDF reconciliation and/or dashboard overlays before source-authority claims.
 
+## 2026-05-13T00:42:40Z - MF-ORIG-EV2 - Original Money Flow Multi-Timeframe Evidence Remains Evidence-Only
+
+- `decision`: Generate MF-ORIG-EV2 multi-timeframe evidence packs and dashboard replay data for founder review without changing production Money Flow v1.2 or approving any Original Money Flow hypothesis.
+- `scope`: MF-ORIG-EV2 preserves MF-ORIG-EV1.1 accounting/drawdown truth and runs four hypotheses across BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX, 15m/1h/4h/1d, and next_candle_open / next_candle_close. It writes ignored evidence-pack directories and ignored dashboard chart-data JSON plus committed compact Markdown/JSON summaries. Historical Replay and Evidence Run Ledger can load the MF-ORIG-EV2 strategies when those local chart files exist.
+- `why`: Founder review suggested the broader MF-ORIG runs needed full Historical Replay visualization and comparison against Money Flow v1.2 across the same canonical SV2.0.2 evidence substrate, rather than relying on the earlier 1d-first EV1.1 summary only.
+- `result`: Baseline parity passed for all 72 SV2.0.2 scenarios. The generated run produced 144 evidence-pack directories and 36 dashboard chart-data files. Candidate gates still do not approve an original hypothesis; 1d source-primary control-pocket damage remains a blocker even where aggregate multi-timeframe deltas improve.
+- `follow_up_implications`: Founder can review MF-ORIG-EV2 in Historical Replay and the Evidence Run Ledger. Any MF-ORIG-EV3 must remain separately scoped, and direct-PDF reconciliation is still needed before source-authority claims because the PDF was not present locally.
+
 ## 2026-05-12T22:46:40Z - MF-ORIG-EV1 - Original Money Flow Reconstruction Is Evidence-Only
 
 - `decision`: Reconstruct the original Money Flow Trading System as a separate Strategy Validation research family without changing production Money Flow v1.2.
