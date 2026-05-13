@@ -556,6 +556,8 @@
     pt0Summary: null,
     pt002HistoricalReplay: null,
     sv202HistoricalReplay: null,
+    loadedHistoricalChartDataPaths: new Set(),
+    loadingHistoricalChartDataPaths: new Set(),
     sv20Summary: null,
     sorEv1Summary: null,
     sorEv2Summary: null,
@@ -3204,6 +3206,90 @@
     return [...sv202, ...pt];
   }
 
+  function replayIdentity(row) {
+    return [
+      row?.strategy_id || "money_flow_v1_2_canonical",
+      row?.symbol || "unknown",
+      canonicalTimeframe(row?.timeframe || "unknown"),
+      row?.fill_assumption || "unknown",
+    ].join("|");
+  }
+
+  function mergeReplayRows(existing, incoming) {
+    const merged = new Map();
+    (existing || []).forEach((row) => {
+      merged.set(replayIdentity(row), row);
+    });
+    (incoming || []).forEach((row) => {
+      const key = replayIdentity(row);
+      const previous = merged.get(key) || {};
+      merged.set(key, {
+        ...previous,
+        ...row,
+        chart_data_lazy: row.chart_data_lazy ?? previous.chart_data_lazy,
+      });
+    });
+    return Array.from(merged.values());
+  }
+
+  function chartDataUrl(repoRelativePath) {
+    if (!repoRelativePath) return "";
+    if (repoRelativePath.startsWith("../") || repoRelativePath.startsWith("/")) return repoRelativePath;
+    return `../../${repoRelativePath}`;
+  }
+
+  function mfOrigEv2ChartDataPathByKey() {
+    const files = state.mfOrigSummary?.dashboard_integration_status?.chart_data_files || [];
+    const byKey = new Map();
+    files.forEach((path) => {
+      const match = String(path).match(/hyperliquid_public_([a-z0-9]+)_(15m|1h|4h|1d)_mf_orig_ev2_chart\.json$/i);
+      if (!match) return;
+      byKey.set(`${match[1].toUpperCase()}|${canonicalTimeframe(match[2])}`, chartDataUrl(path));
+    });
+    return byKey;
+  }
+
+  function mfOrigEv2SummaryReplays() {
+    const summary = state.mfOrigSummary || {};
+    if (summary.phase !== "MF-ORIG-EV2") return [];
+    const chartDataPaths = mfOrigEv2ChartDataPathByKey();
+    return (summary.replay_results || []).map((row) => {
+      const timeframe = canonicalTimeframe(row.timeframe);
+      const chartDataPath = chartDataPaths.get(`${row.symbol}|${timeframe}`) || "";
+      return {
+        strategy_id: row.hypothesis_id,
+        strategy_label: row.display_hypothesis_id || row.hypothesis_id,
+        component: `sleeve_${timeframe}`,
+        symbol: row.symbol,
+        timeframe,
+        fill_assumption: row.fill_timing,
+        research_only: true,
+        production_approved: row.production_approved === true,
+        data_source: "MF-ORIG-EV2 compact summary; selected chart data loads lazily",
+        strategy_truth_lane: "historical_public_mainnet_candles",
+        chart_data_path: chartDataPath,
+        chart_data_lazy: Boolean(chartDataPath),
+        summary: {
+          starting_equity: row.initial_equity,
+          ending_equity: row.ending_equity,
+          net_pnl: row.net_pnl,
+          max_drawdown: row.max_drawdown,
+          max_drawdown_pct: row.mark_to_market_max_drawdown_pct,
+          trade_count: row.trade_count,
+          win_rate: row.win_rate,
+          largest_loss: row.largest_loss,
+          largest_win: row.largest_win,
+          profit_factor: row.profit_factor,
+        },
+        candles: [],
+        indicators: [],
+        markers: [],
+        trades: [],
+        equity_curve: [],
+      };
+    });
+  }
+
   function selectedHistoricalReplay() {
     const exact = historicalReplays().find(
       (row) =>
@@ -4268,7 +4354,15 @@
     const replay = filteredHistoricalReplay(baseReplay);
     renderHistoricalReplaySourceStatus(replay);
     renderHistoricalDataHorizonPanel();
-    if (replay) {
+    if (baseReplay && (!baseReplay.candles || !baseReplay.candles.length) && baseReplay.chart_data_path) {
+      setEmpty(
+        elements.historicalReplayChart,
+        state.loadingHistoricalChartDataPaths.has(baseReplay.chart_data_path)
+          ? "Loading selected MF-ORIG-EV2 chart data..."
+          : "MF-ORIG-EV2 summary is loaded. Loading selected chart/trade JSON on demand.",
+      );
+      loadHistoricalReplayChartData(baseReplay.chart_data_path);
+    } else if (replay) {
       renderHistoricalReplayChart(replay);
     } else {
       setEmpty(
@@ -4311,7 +4405,7 @@
 
   async function loadDefaultSv202DashboardChartData() {
     const loaded = [];
-    for (const path of [...SV202_DASHBOARD_CHART_FILES, ...MF_ORIG_EV2_DASHBOARD_CHART_FILES]) {
+    for (const path of SV202_DASHBOARD_CHART_FILES) {
       try {
         const response = await fetch(path, { cache: "no-store" });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -4323,12 +4417,14 @@
         console.warn(`Could not load ${path}`, error);
       }
     }
-    if (!loaded.length) return;
+    const mfOrigSummaryReplays = mfOrigEv2SummaryReplays();
     const replays = loaded.flatMap((payload) => payload.replays || []);
+    const allReplays = mergeReplayRows(replays, mfOrigSummaryReplays);
+    if (!allReplays.length) return;
     const dataReadiness = loaded.map((payload) => payload.dataset).filter(Boolean);
     const strategies = Array.from(
       new Map(
-        replays
+        allReplays
           .map((replay) => [
             replay.strategy_id || "money_flow_v1_2_canonical",
             {
@@ -4342,23 +4438,57 @@
     );
     state.sv202HistoricalReplay = {
       report: "sv2_0_2_and_mf_orig_ev2_dashboard_historical_replay_combined",
-      source: "SV2.0.2 regenerated canonical DB-imported evidence packs plus MF-ORIG-EV2 evidence-only replay packs",
-      symbols: Array.from(new Set(replays.map((row) => row.symbol).filter(Boolean))).sort(),
-      timeframes: Array.from(new Set(replays.map((row) => canonicalTimeframe(row.timeframe)).filter(Boolean))),
-      fill_assumptions: Array.from(new Set(replays.map((row) => row.fill_assumption).filter(Boolean))).map((id) => ({
+      source: "SV2.0.2 regenerated canonical DB-imported evidence packs plus MF-ORIG-EV2 compact summaries with lazy selected-chart loading",
+      symbols: Array.from(new Set(allReplays.map((row) => row.symbol).filter(Boolean))).sort(),
+      timeframes: Array.from(new Set(allReplays.map((row) => canonicalTimeframe(row.timeframe)).filter(Boolean))),
+      fill_assumptions: Array.from(new Set(allReplays.map((row) => row.fill_assumption).filter(Boolean))).map((id) => ({
         id,
         research_only: false,
       })),
       strategies,
       data_readiness: dataReadiness,
-      comparison: replays.map(sv202ComparisonRow),
-      replays,
+      comparison: allReplays.map(sv202ComparisonRow),
+      replays: allReplays,
     };
-    if (!selectedHistoricalReplay() && replays.length) {
-      state.historicalReplay.strategyId = replays[0].strategy_id || "money_flow_v1_2_canonical";
-      state.historicalReplay.symbol = replays[0].symbol || "ETH";
-      state.historicalReplay.timeframe = canonicalTimeframe(replays[0].timeframe || "4h");
-      state.historicalReplay.fillAssumption = replays[0].fill_assumption || "next_candle_open";
+    if (!selectedHistoricalReplay() && allReplays.length) {
+      state.historicalReplay.strategyId = allReplays[0].strategy_id || "money_flow_v1_2_canonical";
+      state.historicalReplay.symbol = allReplays[0].symbol || "ETH";
+      state.historicalReplay.timeframe = canonicalTimeframe(allReplays[0].timeframe || "4h");
+      state.historicalReplay.fillAssumption = allReplays[0].fill_assumption || "next_candle_open";
+    }
+  }
+
+  async function loadHistoricalReplayChartData(path) {
+    if (!path || state.loadedHistoricalChartDataPaths.has(path) || state.loadingHistoricalChartDataPaths.has(path)) return;
+    state.loadingHistoricalChartDataPaths.add(path);
+    try {
+      const response = await fetch(path, { cache: "no-store" });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const payload = await response.json();
+      if (classifyJson(payload) !== "sv202_dashboard_chart_data") {
+        throw new Error("Unsupported chart-data payload");
+      }
+      const existing = state.sv202HistoricalReplay?.replays || [];
+      state.sv202HistoricalReplay = {
+        ...(state.sv202HistoricalReplay || {}),
+        data_readiness: [
+          ...(state.sv202HistoricalReplay?.data_readiness || []),
+          payload.dataset,
+        ].filter(Boolean),
+        comparison: mergeReplayRows(existing, payload.replays || []).map(sv202ComparisonRow),
+        replays: mergeReplayRows(existing, (payload.replays || []).map((row) => ({
+          ...row,
+          chart_data_path: path,
+          chart_data_lazy: false,
+        }))),
+      };
+      state.loadedHistoricalChartDataPaths.add(path);
+    } catch (error) {
+      console.warn(`Could not load selected historical chart data ${path}`, error);
+    } finally {
+      state.loadingHistoricalChartDataPaths.delete(path);
+      renderHistoricalReplay();
+      renderEvidenceStrategyFilter();
     }
   }
 

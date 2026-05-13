@@ -13,6 +13,20 @@ Entry schema:
 
 ---
 
+## v2026.05.13.003
+
+- `recorded_at_utc`: `2026-05-13T01:04:30Z`
+- `scope`: `MF-ORIG-EV2 dashboard visibility hotfix`
+- `intent`: `Native entry. Fixed Historical Replay and Evidence dropdown visibility for MF-ORIG-EV2 by surfacing the four Original Money Flow hypotheses from the compact MF-ORIG-EV2 summary immediately and loading the heavy selected chart/trade JSON lazily only when the founder selects a specific MF-ORIG-EV2 replay chart. This preserves the generated MF-ORIG-EV2 evidence outputs and does not change production Money Flow rules, strategy hypotheses, evidence metrics, order behavior, private/signed/order endpoint policy, testnet strategy-truth boundaries, paper runtime, or live trading approval.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_mf_orig_ev2_multitimeframe_evidence.py`
+  - `git diff --check`
+
 ## v2026.05.13.002
 
 - `recorded_at_utc`: `2026-05-13T00:42:40Z`
