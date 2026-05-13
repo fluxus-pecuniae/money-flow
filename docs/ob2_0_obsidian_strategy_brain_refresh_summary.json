@@ -1,0 +1,86 @@
+{
+  "phase": "OB2.0",
+  "scope": "Obsidian strategy brain and operational governance refresh only",
+  "status": "implemented",
+  "created_notes": [
+    "money-flow/00 Maps/Strategy Family Map.md",
+    "money-flow/00 Maps/Evidence and Backtesting Map.md",
+    "money-flow/00 Maps/Data Source and Market Data Map.md",
+    "money-flow/00 Maps/Dashboard and UI Map.md",
+    "money-flow/00 Maps/Paper Observation Roadmap.md",
+    "money-flow/10 Strategy/Strategy Status Register.md",
+    "money-flow/10 Strategy/Original Money Flow Source Notes.md",
+    "money-flow/20 Evidence/EV-AUDIT1 Summary.md",
+    "money-flow/90 Reference/The Money Flow Trading System - Gerald Peters - 2019 Edition 2.pdf"
+  ],
+  "updated_notes": [
+    "money-flow/00_Money_Flow_Command_Center.md",
+    "money-flow/01_Current_Phase.md",
+    "money-flow/02_Product_North_Star.md",
+    "money-flow/03_Decision_Log.md",
+    "money-flow/05_Agent_Coordination.md",
+    "money-flow/00 Maps/Current State Dashboard.md",
+    "money-flow/00 Maps/Strategy Validation Map.md",
+    "money-flow/00 Maps/UAT Roadmap.md",
+    "money-flow/40 Operations/Future Work Roadmap.md",
+    "money-flow/40 Operations/Phase 8 Focus.md",
+    "money-flow/Project_Memory/money_flow_project_memory.md"
+  ],
+  "pointer_notes": [
+    "money-flow/Money Flow Command Center.md",
+    "money-flow/30 Strategy/Money Flow Strategy Lab.md"
+  ],
+  "stale_phrases_removed": [
+    "PT0.0.3 as active current phase",
+    "SOR-EV1 as next proposed phase",
+    "SV2.0.1 canonical packs blocked as current truth",
+    "UAT3.1 as active next phase",
+    "PDF not present locally as current source availability"
+  ],
+  "strategy_families": [
+    "Money Flow v1.2",
+    "Original Money Flow / MF-ORIG",
+    "SOR repair variants",
+    "STRAT-EV discovery",
+    "EV-AUDIT"
+  ],
+  "evidence_sources": {
+    "canonical_baseline": "SV2.0.2 DB-imported Hyperliquid public-mainnet evidence packs",
+    "canonical_timestamp": "20260512T064916Z",
+    "symbols": ["BTC", "ETH", "SOL", "XRP", "DOGE", "HYPE", "BNB", "SUI", "AVAX"],
+    "timeframes": ["15m", "1h", "4h", "1d"],
+    "display_only": [
+      "dashboard chart/trade JSON",
+      "dashboard date-filter recalculations",
+      "Historical Replay local visualization files"
+    ],
+    "not_strategy_truth": [
+      "Hyperliquid testnet prices",
+      "old compact replay rows",
+      "old SV1.13 reports"
+    ]
+  },
+  "current_next_phase": {
+    "phase": "PT-RT1",
+    "label": "Real-time public market data + paper observation runtime",
+    "status": "recommended_not_approved"
+  },
+  "boundary_flags": {
+    "production_rules_changed": false,
+    "evidence_packs_generated": false,
+    "dashboard_chart_data_regenerated": false,
+    "exchange_endpoints_called": false,
+    "api_keys_used": false,
+    "orders_submitted": false,
+    "paper_runtime_approved": false,
+    "live_trading_approved": false
+  },
+  "tests_run": [
+    "node --check apps/dashboard/evidence-dashboard.js",
+    ".venv/bin/python -m compileall core services apps tests scripts",
+    ".venv/bin/python -m pytest -q tests/test_operational_docs.py",
+    "git diff --check",
+    ".venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-ob2.0-review.zip",
+    "review bundle forbidden-entry scan passed; secret-pattern scan found only existing dummy test fixture keys"
+  ]
+}

@@ -40,12 +40,14 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert 'data-view="historical-replay"' in nav
     assert 'data-view="evidence"' in nav
     assert 'data-view="evidence-lab"' in nav
+    assert 'data-view="audit-review"' in nav
     assert 'data-view="strategy"' in nav
     assert 'data-view="uat-shadow"' not in nav
     assert 'data-view="uat-cockpit"' not in nav
     assert nav.index('data-view="strategy"') < nav.index('data-view="historical-replay"')
     assert nav.index('data-view="historical-replay"') < nav.index('data-view="evidence"')
     assert nav.index('data-view="evidence"') < nav.index('data-view="evidence-lab"')
+    assert nav.index('data-view="evidence-lab"') < nav.index('data-view="audit-review"')
     assert 'data-view="historical-replay" aria-selected="true"' in nav
     assert "Money Flow UAT Workstation" in html
     assert "UAT Chart Cockpit" in html
@@ -107,6 +109,24 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "not true forward replays" not in html
     assert "data-view=\"strategy\"" in html
     assert "Strategy Logic" in html
+    assert "Variant Strategy Ideas" in html
+    assert "avoid_low_rolling_range_20" in html
+    assert "avoid_low_rolling_range_50" in html
+    assert "mf_orig_stage_filter_only_full_equity" in html
+    assert "mf_orig_stage2_pullback_reclaim_full_equity" in html
+    assert "mf_orig_1d_stage2_5_20_crossover_full_equity" in html
+    assert "mf_orig_1d_stage2_breakout_resistance_full_equity" in html
+    assert "MF_ORIG_FULL_EQUITY_STRATEGY_IDS" in js
+    assert "isVisibleDashboardStrategyRow" in js
+    assert "<span>mf_orig_stage2_pullback_reclaim</span>" not in html
+    assert "<span>mf_orig_1d_stage2_5_20_crossover</span>" not in html
+    assert "<span>mf_orig_1d_stage2_breakout_resistance</span>" not in html
+    assert "Stop / Exit Replay Ideas" not in html
+    assert "Entry Timing Ideas" not in html
+    assert "fixed_stop_loss_pct_*" not in html
+    assert "macd_histogram_*" not in html
+    assert "They do not change production Money Flow v1.2" in html
+    assert ".variant-strategy-grid" in css
     assert "1D / sleeve_1d" not in html
     assert "<td>1D</td>" in html
     assert "EMA5 > EMA10 > SMA20" in html
@@ -133,10 +153,40 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "SV202_DASHBOARD_CHART_FILES" in js
     assert "sv2_0_2_dashboard_chart_data" in js
     assert "money_flow_v1_2_canonical" in js
+    assert "Money Flow v1.2" in js
+    assert "Money Flow v1.1" not in js
+    assert "HIDDEN_DASHBOARD_STRATEGY_IDS" in js
     assert "evidence-replay-strategy-filter" in html
+    assert "Strategy Comparison" in html
+    assert "strategy-comparison-left-strategy" in html
+    assert "strategy-comparison-right-strategy" in html
+    assert "strategy-comparison-symbol" in html
+    assert "strategy-comparison-timeframe" in html
+    assert "strategy-comparison-fill" in html
+    assert "strategy-comparison-chart" in html
+    assert "strategyComparison" in js
+    assert "renderStrategyComparison" in js
+    assert "strategyComparisonVerdict" in js
+    assert "${winner} looks better" in js
+    assert "Strategy A has higher net PnL" in js
+    assert "Strategy B has higher net PnL" in js
+    assert ".strategy-comparison-panel" in css
+    assert ".comparison-line" in css
+    assert "comparison-axis-label" in js
+    assert "comparison-endpoint-label" in css
+    assert "strategyComparisonEquitySeries" in js
+    assert "strategyComparisonEndpointMarkup" in js
+    assert "exact selected replay JSON" in js
+    assert "Equity value (USDC)" in js
+    assert ">Time<" in js
     assert "evidenceReplayStrategyId" in js
+    assert "EVIDENCE_ALL_REPLAY_STRATEGIES_ID" in js
+    assert "All replay strategies" in js
     assert "renderEvidenceStrategyFilter" in js
     assert "evidenceReplayRunLedgerRows" in js
+    assert "sorEv3SummaryReplays" in js
+    assert "avoid_low_rolling_range_20" in js
+    assert "avoid_low_rolling_range_50" in js
     assert "timeframeSortRank" in js
     assert "SV202_CANONICAL_TIMEFRAMES.indexOf(canonicalTimeframe(timeframe))" in js
     assert "runLedgerSortButton" in js
@@ -168,6 +218,64 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "calls_exchange_order_endpoints" in js
     assert "Manual review" in js
     assert "paper_trading_auto_approved" not in js
+
+
+def test_ev_audit1_audit_review_dashboard_tab() -> None:
+    html = Path("apps/dashboard/index.html").read_text(encoding="utf-8")
+    css = Path("apps/dashboard/evidence-dashboard.css").read_text(encoding="utf-8")
+    js = Path("apps/dashboard/evidence-dashboard.js").read_text(encoding="utf-8")
+    summary = Path("docs/ev_audit1_full_hypothesis_data_and_paper_readiness_review_summary.json").read_text(encoding="utf-8")
+
+    nav = html[html.index('<nav class="view-tabs"') : html.index("</nav>", html.index('<nav class="view-tabs"'))]
+    assert 'data-view="audit-review"' in nav
+    assert nav.index('data-view="evidence-lab"') < nav.index('data-view="audit-review"')
+    assert 'data-view-panel="audit-review"' in html
+    assert "Audit Review" in html
+    assert "EV-AUDIT1 review" in html
+    assert "Scope: audit-only" in html
+    assert "Canonical baseline: SV2.0.2" in html
+    assert "Production approval: no" in html
+    assert "Paper/live approval: no" in html
+    assert "No strategy is approved for production, paper runtime, or live trading." in html
+    assert "audit-review-verdict-cards" in html
+    assert "audit-review-scorecard" in html
+    assert "audit-review-paper-readiness" in html
+    assert "audit-review-top-hypotheses" in html
+    assert "audit-review-worst-hypotheses" in html
+    assert "audit-review-winning-trades" in html
+    assert "audit-review-losing-trades" in html
+    assert "audit-review-losing-streaks" in html
+    assert "audit-review-issues" in html
+    assert "audit-review-data-integrity" in html
+    assert "audit-review-inventory" in html
+
+    assert "DEFAULT_EV_AUDIT_SUMMARY_FILES" in js
+    assert "ev_audit1_full_hypothesis_data_and_paper_readiness_review_summary.json" in js
+    assert "ev_audit_summary" in js
+    assert "state.evAuditSummary" in js
+    assert "renderAuditReview" in js
+    assert "renderAuditReviewVerdictCards" in js
+    assert "renderAuditReviewScorecard" in js
+    assert "renderAuditReviewPaperReadiness" in js
+    assert "renderAuditReviewHypothesisTable" in js
+    assert "renderAuditReviewTradeTable" in js
+    assert "renderAuditReviewLosingStreaks" in js
+    assert "renderAuditReviewIssues" in js
+    assert "renderAuditReviewDataIntegrity" in js
+    assert "renderAuditReviewInventory" in js
+    assert '"audit-review"' in js
+    assert "data_not_available_in_audit_bundle" in js
+
+    assert ".audit-review-view" in css
+    assert ".audit-review-header" in css
+    assert ".audit-review-verdict" in css
+    assert ".audit-review-two-column" in css
+    assert ".audit-score-bar" in css
+    assert ".audit-score-fill" in css
+
+    assert '"phase": "EV-AUDIT1"' in summary
+    assert "no_strategy_has_clean_production_or_paper_candidate_status" in summary
+    assert "paper_observation_ready_with_conditions" in summary
 
 
 def test_sor_ev21_evidence_lab_static_ui() -> None:

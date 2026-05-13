@@ -4,14 +4,21 @@ Canonical command center: [[00_Money_Flow_Command_Center|00 Money Flow Command C
 
 This compatibility note intentionally points to the canonical command center so duplicate current-truth dashboards do not drift.
 
-Current implemented milestone: `PT0.0.3` Historical Data Horizon + 1D Replay Support complete.
-
-Current focus: Strategy Validation SV1 is closed for now. UAT0-UAT3.4 safety, shadow, sandbox-gate, Hyperliquid ETH `sleeve_1h` sandbox lifecycle, fixed-target routing, routed-ledger, and unified-equity compatibility work is complete. UAT4.0 added the read-only chart cockpit, UAT4.1 rebuilt it as an exchange-style workstation, and UAT4.2 added public-read-only monitor rows, deterministic indicators, paper-observation markers, a 60-second sandbox private-read-only balance polling policy, and an internal 10,000 USDC paper-equity ledger. PT0 is complete: PAPER TRADING IS APPROVED. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED. PT0.0.2 adds a Historical Replay cockpit using historical public candle replay data, not Hyperliquid testnet prices, as strategy truth for BTC/ETH/SOL x 15m/1h/4h. PT0.0.3 adds 1D historical replay support, Jan 2025 target-start readiness truth, and explicit 4h-to-1D aggregation labeling without creating a production Money Flow 1D sleeve. This approval is Hyperliquid testnet/sandbox only, uses an internal 10,000 USDC paper-equity ledger, and keeps live trading, real-capital trading, live endpoint use, production auto-submit, smart routing/SOR/fanout/CBBO, cross-venue routing, and Money Flow rule changes not approved. Live trading is not approved. Live exchange order submission is not approved. UAT/PT remains plumbing and behavior validation plus controlled paper/sandbox runtime foundation, not performance validation.
-
 Repo operational truth still lives in `AGENTS.md`, `CHANGELOG.md`, `REPO_TREE.md`, `KNOWN_ISSUES.md`, `TODO.md`, `README.md`, `docs/architecture.md`, and `docs/strategy.md`.
 
+Current implemented milestone: `OB2.0` Obsidian strategy brain refresh on top of completed `EV-AUDIT1`.
 
-Current canonical command center now records SOR-EV1 as complete; use [[00_Money_Flow_Command_Center]].
+Current strategic truth lives at [[00_Money_Flow_Command_Center]]:
 
+- SV2.0.2 canonical Money Flow v1.2 evidence is the current baseline.
+- EV-AUDIT1 promotes no clean production strategy candidate.
+- PT-RT1 is recommended for future real-time public market-data paper observation, but it is not approved or implemented.
+- UAT0-UAT4.2 and PT0/PT0.0.x remain plumbing and controlled paper/sandbox behavior validation only.
+- SV1.18 closed the first Strategy Validation cycle and remains historical context.
+- Hyperliquid ETH `sleeve_1h` remains the frozen historical UAT observation candidate context, not a production strategy.
+- PAPER TRADING IS APPROVED.
+- BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED.
+- Live trading is not approved.
+- Live exchange order submission is not approved.
 
-Current canonical command center now records SOR-EV2 as complete; use [[00_Money_Flow_Command_Center]].
+Use [[00 Maps/Strategy Family Map]], [[00 Maps/Evidence and Backtesting Map]], [[00 Maps/Data Source and Market Data Map]], [[00 Maps/Dashboard and UI Map]], and [[00 Maps/Paper Observation Roadmap]] for current taxonomy.

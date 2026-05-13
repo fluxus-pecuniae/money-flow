@@ -477,6 +477,69 @@ h3 {
   overflow: hidden;
 }
 
+.audit-review-view {
+  display: grid;
+  gap: var(--spacing-5);
+}
+
+.audit-review-header {
+  background:
+    radial-gradient(circle at top right, rgba(116, 240, 178, 0.16), transparent 34%),
+    linear-gradient(135deg, rgba(243, 186, 47, 0.12), rgba(11, 17, 24, 0.98)),
+    var(--color-panel);
+}
+
+.audit-review-verdict {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.audit-review-two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-5);
+}
+
+.audit-review-panel {
+  overflow: hidden;
+}
+
+.audit-score-list {
+  display: grid;
+  gap: var(--spacing-4);
+  padding: var(--spacing-5);
+}
+
+.audit-score-row {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.audit-score-row > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  color: var(--color-muted);
+  font-size: var(--text-body-sm);
+}
+
+.audit-score-row strong {
+  color: var(--color-text);
+}
+
+.audit-score-bar {
+  height: 11px;
+  overflow: hidden;
+  background: var(--color-panel-3);
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+}
+
+.audit-score-fill {
+  height: 100%;
+  min-width: 2px;
+  background: linear-gradient(90deg, var(--color-amber), var(--color-green));
+}
+
 .evidence-lab-overlay-controls,
 .evidence-lab-overlay-toggles {
   display: grid;
@@ -1833,6 +1896,215 @@ h3 {
   line-height: 1.25;
 }
 
+.strategy-comparison-panel {
+  overflow: hidden;
+}
+
+.strategy-comparison-controls {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(150px, 1fr));
+  gap: var(--spacing-3);
+  margin-block: var(--spacing-4);
+}
+
+.strategy-comparison-controls label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  color: var(--color-muted);
+  font-size: var(--text-caption);
+}
+
+.strategy-comparison-controls select {
+  min-height: 34px;
+  min-width: 0;
+  padding: 0 var(--spacing-3);
+}
+
+.strategy-comparison-verdict {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 180px;
+}
+
+.strategy-comparison-chart {
+  position: relative;
+  min-height: 320px;
+  padding: var(--spacing-4);
+  border: 1px solid var(--color-line-soft);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    rgba(5, 8, 13, 0.42);
+  background-size: 42px 42px;
+}
+
+.strategy-comparison-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: var(--spacing-4);
+  align-items: stretch;
+}
+
+.strategy-comparison-plot {
+  min-width: 0;
+}
+
+.strategy-comparison-chart svg {
+  display: block;
+  width: 100%;
+  height: 340px;
+  overflow: visible;
+}
+
+.strategy-comparison-legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  justify-content: flex-start;
+  min-width: 0;
+  padding: var(--spacing-3);
+  border: 1px solid var(--color-line-soft);
+  border-radius: var(--radius-sm);
+  background: rgba(8, 12, 19, 0.54);
+  color: var(--color-muted);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+}
+
+.strategy-comparison-legend span {
+  overflow-wrap: anywhere;
+}
+
+.line-key {
+  display: inline-block;
+  width: 24px;
+  height: 3px;
+  margin-inline-end: var(--spacing-2);
+  vertical-align: middle;
+  border-radius: 999px;
+}
+
+.line-key.line-a,
+.comparison-line.line-a {
+  stroke: var(--color-green);
+  background: var(--color-green);
+}
+
+.line-key.line-b,
+.comparison-line.line-b {
+  stroke: var(--color-blue);
+  background: var(--color-blue);
+}
+
+.comparison-line {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 7px rgba(25, 167, 206, 0.2));
+}
+
+.comparison-endpoint {
+  stroke: rgba(5, 8, 13, 0.92);
+  stroke-width: 2;
+}
+
+.comparison-endpoint.line-a {
+  fill: var(--color-green);
+}
+
+.comparison-endpoint.line-b {
+  fill: var(--color-blue);
+}
+
+.comparison-endpoint-label {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 800;
+  paint-order: stroke;
+  stroke: rgba(5, 8, 13, 0.88);
+  stroke-width: 3px;
+}
+
+.comparison-endpoint-label.line-a {
+  fill: var(--color-green);
+}
+
+.comparison-endpoint-label.line-b {
+  fill: var(--color-blue);
+}
+
+.strategy-comparison-legend small {
+  display: block;
+  margin-block-start: 2px;
+  color: var(--color-muted-subtle);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.comparison-axis {
+  stroke: rgba(255, 255, 255, 0.2);
+  stroke-width: 1;
+}
+
+.comparison-axis.muted,
+.comparison-grid-line {
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1;
+}
+
+.comparison-grid-line.muted {
+  stroke: rgba(255, 255, 255, 0.045);
+}
+
+.comparison-axis-label,
+.comparison-axis-tick {
+  fill: var(--color-muted);
+  font-family: var(--font-ui);
+}
+
+.comparison-axis-label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.comparison-axis-tick {
+  font-size: 11px;
+}
+
+.strategy-comparison-metrics {
+  margin-block-start: var(--spacing-4);
+}
+
+.comparison-badge {
+  display: inline-flex;
+  margin-inline-start: var(--spacing-2);
+  padding: 1px 7px;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.comparison-badge.good {
+  color: #06140e;
+  background: var(--color-green);
+  border-color: rgba(37, 208, 132, 0.7);
+}
+
+.comparison-badge.same {
+  color: var(--color-muted);
+  background: rgba(148, 163, 184, 0.12);
+}
+
 .pnl-track,
 .bar-track {
   height: 10px;
@@ -2133,6 +2405,67 @@ td {
   padding: var(--spacing-5);
 }
 
+.strategy-variant-panel {
+  margin-block-start: var(--spacing-6);
+}
+
+.variant-strategy-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--spacing-5);
+  padding: var(--spacing-5);
+}
+
+.variant-strategy-card {
+  min-width: 0;
+  padding: var(--spacing-5);
+  border: 1px solid var(--color-line-soft);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(135deg, rgba(37, 208, 132, 0.08), transparent 38%),
+    rgba(8, 12, 19, 0.58);
+}
+
+.variant-strategy-card h3 {
+  margin: 0 0 var(--spacing-3);
+  font-size: 16px;
+}
+
+.variant-strategy-card p {
+  margin: 0 0 var(--spacing-4);
+  color: var(--color-muted);
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-body-sm);
+}
+
+.variant-strategy-card ul {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.variant-strategy-card li {
+  display: grid;
+  gap: 2px;
+  padding-block: var(--spacing-2);
+  border-top: 1px solid var(--color-line-soft);
+}
+
+.variant-strategy-card strong {
+  color: var(--color-muted);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.variant-strategy-card span {
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
 @media (max-width: 1180px) {
   .uat-workstation-grid {
     grid-template-columns: minmax(240px, 0.8fr) minmax(0, 1.5fr);
@@ -2140,9 +2473,11 @@ td {
 
   .historical-replay-grid,
   .historical-replay-bottom,
+  .strategy-comparison-layout,
   .evidence-lab-header,
   .evidence-lab-overlay-layout,
-  .evidence-lab-two-column {
+  .evidence-lab-two-column,
+  .audit-review-two-column {
     grid-template-columns: 1fr;
   }
 
@@ -2167,6 +2502,7 @@ td {
   .detail-grid,
   .strategy-flow,
   .strategy-grid,
+  .variant-strategy-grid,
   .score-stack,
   .uat-filter-grid,
   .boundary-grid,
@@ -2184,6 +2520,7 @@ td {
   .evidence-lab-header,
   .evidence-lab-overlay-layout,
   .evidence-lab-two-column,
+  .audit-review-two-column,
   .uat-right-rail {
     grid-template-columns: 1fr;
   }
@@ -2199,7 +2536,8 @@ td {
 
   .metric-grid,
   .metric-grid-wide,
-  .evidence-lab-summary {
+  .evidence-lab-summary,
+  .audit-review-verdict {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

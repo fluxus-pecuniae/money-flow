@@ -4,112 +4,69 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 ## Today In One Sentence
 
-Money Flow is a controlled trading-system substrate plus Strategy Validation research platform; SV1 is closed for now, SOR-EV1 loss anatomy is complete from canonical SV2.0.2 packs, SV2.0.2 is complete with regenerated fully closed per-pair DB-backed canonical Money Flow v1.2 evidence packs, SV2.0.1 is complete as a canonical evidence-truth hotfix, SV2.0 is complete with Money Flow v1.2 and a real `sleeve_1d`, one Hyperliquid ETH `sleeve_1h` baseline evidence candidate remains the frozen UAT candidate, UAT0 safety / security / runtime audit is complete, UAT0.1 API auth/runtime lockout hardening is complete, UAT0.2 adapter policy/read-only allowlist/redaction hardening is complete, UAT0.3 top-20 universe/drawdown readiness preflight is complete, UAT1 public read-only connectivity is complete, UAT1.1 shadow readiness is complete, UAT2 bounded no-order shadow strategy observation is complete, UAT2.1 dashboard visualization is complete, UAT3.0 sandbox order design is complete, UAT3.0.1 sandbox runtime / approval / risk readiness hardening is complete, UAT3.0.2 sandbox gate integration dry-run / policy hardening is complete, UAT3.0.3 sandbox gate wiring / label-enforcement hardening is complete, UAT3.0.4 sandbox private read-only drawdown readiness is complete, UAT3.0.5 sandbox/testnet private read-only drawdown verification is complete, UAT3.0.6 sandbox submit path dry-run wiring is complete, UAT3.1 first sandbox/testnet lifecycle probe is complete, UAT3.2 fixed-key preflight / second sandbox lifecycle attempt is complete as blocked before order transport, UAT3.3 Hyperliquid account-targeting / precision hardening is complete, UAT3.4 fixed-target sandbox routing pipeline plus routed-order ledger is complete, UAT4.0 read-only dashboard/chart cockpit is complete, UAT4.1 exchange-style dashboard redesign is complete, UAT4.2 live market dashboard and paper-equity monitor is complete, PT0 TradingView charts and top-20 paper/sandbox runtime foundation is complete, PT0.0.1 TradingView chart stability P0 hotfix is complete, PT0.0.2 historical strategy replay cockpit is complete, and PT0.0.3 historical data horizon / 1D replay support is complete.
+Money Flow is a controlled trading-system substrate plus Strategy Validation research platform; OB2.0 refreshes the Obsidian brain after completed EV-AUDIT1, with SV2.0.2 canonical evidence as the current baseline, SOR/MF-ORIG/STRAT tracks separated, no clean production strategy candidate, and PT-RT1 recommended but not approved.
 
-SV1.18 is complete.
+Historical context preserved for drift tests: SV1.18 closed the first evidence cycle; UAT0, UAT0.1, UAT0.2, UAT0.3, UAT1 public read-only connectivity, UAT1.1, UAT2, UAT2.1, UAT3.0, UAT3.0.6, UAT3.1, UAT3.2, UAT3.3, UAT3.4, UAT4.0, UAT4.1, UAT4.2, PT0, PT0.0.1, PT0.0.2, PT0.0.3, SV2.0, SV2.0.1, and SV2.0.2 are represented in the canonical command center and maps. UAT remains plumbing and behavior validation.
 
 ## Current Product State
 
-Money Flow can generate strategy decisions, route through controlled same-target workflow stages, inspect readiness and submitted-order lifecycle truth, and review Strategy Validation evidence. PAPER TRADING IS APPROVED. Paper trading is approved for Hyperliquid testnet/sandbox only. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED. Broader top-20 Hyperliquid-supported paper/sandbox trading is approved under metadata, precision, risk, lease, label, and no-live gates. Live trading is not approved, real-capital trading is not approved, and live exchange order submission is not approved.
+Money Flow can generate strategy decisions, inspect Strategy Validation evidence, visualize Historical Replay/Evidence/Evidence Lab/Audit Review data, and preserve UAT sandbox plumbing boundaries.
 
-## Completed Tracks
+Current strategy evidence uses Hyperliquid public mainnet DB-imported candles. Dashboard chart JSON and browser date filters are display-only. Hyperliquid testnet prices are not strategy truth.
+
+## Completed Current Evidence Tracks
 
 | Track | Status | Meaning |
 | --- | --- | --- |
-| Core strategy logic | built | Money Flow baseline exists with 15m, 1h, and 4h sleeves. |
-| Planning / risk / execution substrate | built | Controlled execution infrastructure exists, but live operational use remains gated. |
-| Routing substrate | built | Non-executing assessment/recommendation/target-choice workflow exists; this is not full SOR. |
-| Approval-gated automation | built | Controlled, lineage-bound action hooks exist for the current same-target chain. |
-| Operator observability | built | Routed workflow inspection exists for operator review. |
-| Strategy Validation SV1 | closed | Current Hyperliquid evidence cycle is complete through SV1.18.1. |
-| UAT0 | audit complete | Safety/security/runtime blockers are documented. |
-| UAT0.1 | hardening complete | Sensitive API routes now require scoped auth and runtime lockout defaults are inspectable. |
-| UAT0.2 | hardening complete | Adapter private/signed/order paths are runtime-policy guarded before transport; Hyperliquid has a future-UAT1 read-only allowlist artifact; representative redaction is tested. |
-| UAT0.3 | preflight complete | Fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlist, and runtime drawdown monitor model exist. |
-| UAT1 | complete | Explicit public-read-only Hyperliquid endpoint verification plus no-key public top-volume source ingestion and top-20 Hyperliquid observation-universe resolution. |
-| UAT1.1 | complete | Model/report-only shadow signal audit, operator-visible shadow drawdown, UAT1 universe snapshot, and representative structured redaction verification exist. |
-| UAT2 | complete | Bounded no-order shadow run evaluated 15 Hyperliquid observation-only symbols across 15m, 1h, and 4h sleeves using public read-only candles and shadow audit records only. |
-| UAT2.1 | complete | Existing static dashboard now visualizes the UAT2 shadow summary with summary cards, filters, would-open/no-trade review, ETH candidate truth, timing assumptions, not-live-account drawdown, boundary flags, and UAT3 blockers. |
-| UAT3.0 | complete | Sandbox-order design/readiness report defines the narrow ETH 1h subset, approval template, runtime/drawdown/lifecycle/artifact/submit-lease/approval/risk requirements, and dashboard design panel. |
-| UAT3.0.1 | complete | Fixture-only sandbox runtime policy, sandbox artifact label validator, actual-submission approval scope validator, sandbox risk gate evaluator, sandbox drawdown feed fixture, and submit-lease duplicate-prevention checks exist. |
-| UAT3.0.2 | complete | Unified fixture-only sandbox gate dry-run preflight exists; runtime blockers propagate into risk/preflight output; invalid sandbox numeric values are rejected. |
-| UAT3.0.3 | complete | Sandbox artifact boundary validators and a dry-run executable gate service wire runtime, boundary labels, approval, risk, drawdown, and submit-lease checks without side effects. |
-| UAT3.0.4 | complete | UAT3.0.4 sandbox private read-only drawdown readiness is complete: private read-only sandbox account policy, credential approval/boundary validation, endpoint category separation, redaction, and sandbox account drawdown feed modeling exist; no credentials were used and no private endpoints were called because explicit approval was absent. |
-| UAT3.0.5 | complete | UAT3.0.5 validates the exact private-read-only approval text and sandbox/testnet credential boundary; one Hyperliquid testnet read-only account-state request returned HTTP 200 and produced `sandbox_drawdown_feed_live_fed_verified`. No API key/private key was sent and no order endpoint was called. |
-| UAT3.0.6 | complete | Dry-run sandbox submit path wiring exists: a non-persistent submission plan and gate chain consume live-fed drawdown status, founder actual-submission approval status, approval scope, risk gates, submit-lease duplicate prevention, endpoint classification, and sandbox label boundaries while creating no order artifacts and calling no exchange. |
-| UAT3.1 | complete | Exact founder/operator approval was verified; one Hyperliquid testnet ETH post-only limit attempt under 10 USDC notional was made, rejected by the venue with a sanitized user/API-wallet-not-found response, required no cancel, and reconciled no open order. |
-| UAT3.2 | complete / blocked before transport | Exact founder/operator approval was verified; fixed-key account/API-wallet readiness blocked before `/exchange` because the testnet user/API wallet was still not recognized/authorized and sandbox equity was insufficient. Order attempt count was `0`, and no order/cancel/amend/retry endpoint was called. |
-| UAT3.3 | complete | Hyperliquid account targeting and tick/lot precision are fixed. Normal master/user mode omits `vaultAddress`; subaccount/vault mode uses only the explicit target; ETH precision formatting is valid. A later approved follow-up proved accepted/open -> cancel lifecycle on Hyperliquid testnet. |
-| UAT3.4 | complete | Fixed-target Hyperliquid testnet ETH sandbox routing pipeline, routed-order ledger, dashboard routed-orders view, and standard/unified equity-source resolver exist. One UAT3.4 ETH post-only testnet order was accepted open, canceled successfully, and reconciled with no open order remaining. |
-| UAT4.0 | complete | Static read-only UAT Chart Cockpit shows watchlist, market-data coverage, chart snapshots, indicator labels, shadow/sandbox markers, active route/equity cards, routed-order ledger filters, and no-order-control safety banners from committed local UAT2/UAT3.4 summaries. |
-| UAT4.1 | complete | Static dashboard cockpit is rebuilt as an exchange-style workstation with compact top bar, left market rail, central chart, right order-book/market/signal/risk rail, bottom blotter tabs, and canonical `apps/dashboard/DESIGN.md`; no order controls or private/signed/order endpoints were added. |
-| UAT4.2 | complete | Dashboard now loads UAT4.2 monitor summary JSON with public-read-only market rows, deterministic indicators, paper-observation markers, 60-second sandbox private-read-only balance polling policy, internal 10,000 USDC paper-equity ledger, and PT0 roadmap capture; no order controls or order endpoints were added. |
-| PT0 | complete | TradingView Lightweight Charts is integrated from a local official bundle; Hyperliquid testnet public candles feed live charting; top-20 paper/sandbox universe eligibility, paper scanner records, internal 10,000 USDC paper-equity ledger, current-equity sizing policy, 60-second sandbox read-only polling policy, and default-disabled risk-gated sandbox routing foundation exist. |
-| PT0.0.1 | complete | TradingView chart stability P0 hotfix bounds chart height, contains parent chart layout, reuses chart/series handles across 15-second refreshes, removes the autosize feedback-loop risk, limits `fitContent()` to new symbol/timeframe initialization, and adds live-polling disable query flags. No orders, order controls, private/signed/order/live endpoints, exchange API keys, Money Flow rule changes, or routing-policy changes were added. |
-| PT0.0.2 | complete | Historical Replay cockpit uses historical public candle replay data, not Hyperliquid testnet prices, as strategy truth for BTC/ETH/SOL x 15m/1h/4h. Dashboard shows TradingView historical candles, entry/exit markers, trade inspector, dynamic 10,000 USDC equity, comparison table, and separate sandbox execution ledger without orders or rule changes. |
-| PT0.0.3 | complete | Historical Replay now supports 1D selection, Jan 2025 target-start data readiness, actual available horizon reporting, and a data-horizon panel. Current local data does not reach Jan 2025; 1D is deterministic aggregation from 4h historical replay candles and not a production Money Flow 1D sleeve. |
-| SV2.0 | complete | Money Flow v1.2 adds real `sleeve_1d`, preserves existing 15m/1h/4h settings, resolves BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX/SHIB through Hyperliquid public mainnet metadata, maps SHIB to `kSHIB`, refreshes public mainnet 15m/1h/4h/1D candle readiness/evidence, and keeps testnet data out of strategy truth. |
-| SV2.0.1 | complete | Evidence-truth hotfix: compact SV2 rows count entry fees at open, force-close dataset-end open positions, normalize Hyperliquid close slots, split staged/imported/canonical-evidence truth, use `1d` internally with `1D` display, set four sleeve allocations to 0.25, and reject missing indicators instead of zero-defaulting. |
-| SV2.0.2 | complete | Hardened DB import and canonical evidence-pack generation: normalized Hyperliquid public mainnet candles are imported into the intended DB, 36 fully closed per-pair canonical packs exist for 15m/1h/4h/1d across BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX, and SHIB/kSHIB is deferred with reason codes. |
-| SOR-EV1 | complete | Evidence-only loss anatomy and variant diagnostics over canonical SV2.0.2 packs. Fixed-stop outputs are completed-trade overlays only; no stop/entry variant is approved and no production rules changed. |
+| SV1 | closed | Historical first evidence cycle and ETH `sleeve_1h` UAT observation candidate freeze. |
+| SV2.0 | complete | Money Flow v1.2 adds real `sleeve_1d` while preserving 15m/1h/4h settings. |
+| SV2.0.1 | complete | Evidence truth hotfix: close slots, open-position accounting, import/staging truth, allocations, missing indicators. |
+| SV2.0.2 | complete | Canonical DB-imported Money Flow v1.2 evidence: 36 packs, 9 supported symbols, 4 timeframes, 72 rows. |
+| SOR-EV1-SOR-EV3 | complete | Evidence-only loss anatomy, variant replay, overlays, and avoid-sideways drilldown; no variant promoted. |
+| MF-ORIG-EV1.1 | complete | Original Money Flow reconstruction accounting/drawdown hotpatch with event-ledger accounting and peak-to-trough drawdown. |
+| MF-ORIG-EV2 | complete | Multi-timeframe MF-ORIG evidence and full-equity comparison rows for founder review; no hypothesis approved. |
+| EV-AUDIT1 | complete | Full hypothesis/data/methodology audit; no clean production candidate; paper observation ready with conditions. |
+| OB2.0 | active | Obsidian strategy brain and evidence architecture refresh. |
 
-## Current Candidate
+## UAT / Runtime Tracks
 
-`money_flow_hyperliquid_eth_1h_baseline_uat_candidate`
+UAT0 safety/security/runtime audit through UAT4.2 read-only dashboard and paper-equity monitor are complete. PT0 TradingView charts and top-20 Hyperliquid-supported paper/sandbox runtime foundation are complete. PT0.0.2 historical replay and PT0.0.3 1D/data-horizon replay are complete.
 
-| Field | Value |
+Hyperliquid ETH `sleeve_1h` remains the frozen UAT observation context. UAT validates plumbing and behavior, not profitability.
+
+PAPER TRADING IS APPROVED. Paper trading is approved for Hyperliquid testnet/sandbox only.
+
+BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED. Broader top-20 Hyperliquid-supported paper/sandbox trading is approved under metadata, precision, risk, lease, label, and no-live gates.
+
+Live trading is not approved. Live exchange order submission is not approved. Strategy paper runtime is not approved by EV-AUDIT1 evidence.
+
+## Current Evidence Verdict
+
+EV-AUDIT1 says:
+
+- evidence is good enough for visual review;
+- evidence is good enough for hypothesis filtering;
+- evidence is not good enough for production-rule change;
+- evidence is not good enough for live or strategy paper-runtime approval;
+- paper observation is ready with conditions;
+- PT-RT1 is the recommended next phase if separately scoped.
+
+## Current Candidate Review
+
+| Item | Status |
 | --- | --- |
-| Venue | Hyperliquid |
-| Product | USDC perpetual |
-| Symbol | ETH |
-| Component | `sleeve_1h` |
-| Rules | Current baseline Money Flow rules |
-| Initial UAT mode | Observation / shadow first |
-
-This is the frozen evidence candidate. Future UAT observation is not ETH-only.
-
-## UAT Observation Universe
-
-Future UAT observation should cover top 20 high-volume crypto assets supported by the selected UAT venue/environment. This validates platform behavior, no-trade reasoning, rejected-signal behavior, symbol mapping, venue support, risk visibility, shadow would-trade behavior, and dashboard/operator explainability. It is not strategy approval.
-
-UAT2 shadow timing compared `next_candle_open` and `next_candle_close`. `same_candle_close_research_only` remains research-only.
-
-## Explicit Non-Approvals
-
-- Paper trading is approved for Hyperliquid testnet/sandbox only. PAPER TRADING IS APPROVED.
-- Broader top-20 Hyperliquid-supported paper/sandbox trading is approved under gates. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED.
-- Live trading is not approved.
-- Live exchange order submission is not approved.
-- Full SOR is not active.
-- Strategy profitability is not proven.
-- Production Money Flow rule changes are not approved.
-
-## Strategy Validation Closeout
-
-SV1.18 states that current evidence does not prove edge. It can justify only tightly scoped UAT behavior observation after UAT0 safety/runtime checks.
-
-Current UAT scope excludes:
-
-- 15m sleeve
-- 4h sleeve
-- BTC 1h
-- SOL 1h
-- lower-RSI variants
-- market-structure variants
-- Aster / Binance / OKX / Coinbase / Kraken
-- cross-venue comparison
-
-## Next Phase
-
-`SOR-EV1 may be scoped next from the regenerated DB-backed SV2.0.2 canonical evidence baseline. PT0.1 supervised top-20 paper/sandbox runtime remains future work and must use trusted market data for strategy truth`.
-
-UAT0.1 closed the P0 API authentication/authorization and central runtime lockout baseline. UAT0.2 closed the adapter-level runtime-policy baseline, added the Hyperliquid future-UAT1 read-only allowlist artifact, and tested representative bearer/API-key/secret/password/DB URL redaction. UAT0.3 added fixture-tested top-20 resolver policy, Hyperliquid public read-only info-type allowlisting, and a runtime drawdown monitor model. UAT1 verified public read-only Hyperliquid endpoint behavior and resolved the public top-20 supported observation universe without API keys, private/signed/order endpoints, order submission, or strategy execution. UAT1.1 added shadow signal audit records, shadow drawdown state, UAT1 universe snapshot loading, and representative structured API-error/log redaction verification. UAT2 evaluated 15 observation-only symbols across `sleeve_15m`, `sleeve_1h`, and `sleeve_4h`, producing 45 shadow audit records with 11 `would_open` and 34 `no_trade`. UAT2.1 dashboard visualization is complete. UAT3.0 through UAT3.0.6 prepared and dry-ran the sandbox gate chain. UAT3.1 used the approved one-shot path and received a safe venue rejection. UAT3.2 blocked before order transport. UAT3.3 fixed Hyperliquid account-targeting and precision behavior, and a later follow-up proved accepted/open -> cancel lifecycle. UAT3.4 operationalized that route as a fixed-target sandbox routing pipeline with a routed-order ledger, dashboard routed-orders visibility, standard perp equity source selection, unified spot-equity fallback support, and one accepted-open-then-canceled ETH testnet lifecycle. UAT4.0 added read-only chart cockpit visibility, UAT4.1 rebuilt it into an exchange-style workstation with market rail, central chart, right context rail, and bottom blotter tabs, and UAT4.2 added public-read-only monitor rows, deterministic indicators, paper-observation markers, sandbox balance-poll policy, and internal 10,000 USDC paper-equity visibility. PT0 integrates TradingView Lightweight Charts, broad top-20 Hyperliquid-supported paper/sandbox universe eligibility, paper scanner records, internal 10,000 USDC paper-equity ledger, current-equity sizing policy, and default-disabled risk-gated sandbox routing foundation. PT0.0.1 fixes the chart stability P0 before supervised runtime. PT0.0.2 adds historical replay visualization from historical public candle data and explicitly keeps Hyperliquid testnet prices out of strategy truth. PT0.0.3 adds 1D/data-horizon replay truth while preserving no-order/no-rule-change boundaries. No production execution artifacts, live behavior, dashboard order controls, live broad top-20 submission, routing expansion, Money Flow rule change, evidence pack, live endpoint use, secret exposure, private order dashboard call, or unapproved repeated order was created. UAT3.5 additional sandbox lifecycle testing is blocked pending complete UAT-universe precision validation and separate approval. PT0.0.4 may be scoped for historical data backfill; PT0.1 supervised runtime remains separately scoped future work using trusted market data.
-
-UAT is plumbing and behavior validation.
+| Money Flow v1.2 | canonical_baseline, not production-proven |
+| `avoid_low_rolling_range_50` | candidate_for_review_only, blocked by drawdown/control-pocket risk |
+| MF-ORIG full-equity review lanes | evidence_only, not source-faithful production approval |
+| STRAT-EV1 regime_gated_trend | plan_only unless implementation/report exists |
+| PT-RT1 | recommended, not_implemented, not approved |
 
 ## Read Next
 
-- [[00 Maps/Strategy Validation Map|Strategy Validation Map]]
-- [[00 Maps/UAT Roadmap|UAT Roadmap]]
-- [[30 Strategy/UAT Candidate Freeze|UAT Candidate Freeze]]
-- [[40 Operations/UAT0 Safety Runtime Hardening|UAT0 Safety Runtime Hardening]]
+- [[00 Maps/Strategy Family Map]]
+- [[00 Maps/Evidence and Backtesting Map]]
+- [[00 Maps/Data Source and Market Data Map]]
+- [[00 Maps/Dashboard and UI Map]]
+- [[00 Maps/Paper Observation Roadmap]]
+- [[10 Strategy/Strategy Status Register]]
+- [[20 Evidence/EV-AUDIT1 Summary]]

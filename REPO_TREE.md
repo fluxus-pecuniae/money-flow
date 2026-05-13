@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-13T15:00:08Z`
+Last reviewed: `2026-05-13T22:03:37Z`
 
 ## Top-Level Structure
 
@@ -163,6 +163,15 @@ Last reviewed: `2026-05-13T15:00:08Z`
 - MF-ORIG-EV2 extends the Historical Replay and Evidence Run Ledger loaders to auto-load ignored local chart/trade JSON from `reports/strategy_validation/mf_orig_ev2_dashboard_chart_data/20260513T002746Z/` when present. The replay strategies now cover four source-faithful 1% risk-sizing Original Money Flow hypotheses plus four full-equity/notional comparison counterparts across BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX, 15m/1h/4h/1d, and both fill assumptions. Evidence Lab now prefers `docs/mf_orig_ev2_multitimeframe_evidence_summary.json` after the EV1.1 fallback and labels MF-ORIG evidence as evidence-only with no production approval.
 - The 2026-05-13 selected-scenario loader hotfix keeps compact Historical Replay rows lightweight while loading candles, indicators, markers, and trades from deterministic per-scenario JSON files under ignored `reports/strategy_validation/*/selected/` paths. The SV2.0.2 and MF-ORIG-EV2 chart-data builders now write those selected replay files in addition to combined symbol/timeframe bundles, so founder-selected charts do not depend on loading large multi-replay JSON bundles.
 - EV-AUDIT1 adds an audit-only founder review report and compact JSON summary for the full current evidence estate. It inventories Money Flow v1.2, SOR-EV1/SOR-EV2/SOR-EV3, MF-ORIG-EV1.1/MF-ORIG-EV2, and pending STRAT-EV1 plan-only status; audits SV2.0.2 data and backtest methodology; ranks biggest winners, losers, and losing streaks; reports regime/control-pocket attribution; and states that no clean strategy candidate is promoted. It does not regenerate evidence packs, change production rules, approve paper/live, submit orders, or call private/signed/order endpoints.
+- OB2.0 refreshes the Obsidian strategic brain around one canonical command center and dedicated current maps/registers: `00 Maps/Strategy Family Map.md`, `00 Maps/Evidence and Backtesting Map.md`, `00 Maps/Data Source and Market Data Map.md`, `00 Maps/Dashboard and UI Map.md`, `00 Maps/Paper Observation Roadmap.md`, `10 Strategy/Strategy Status Register.md`, `10 Strategy/Original Money Flow Source Notes.md`, and `20 Evidence/EV-AUDIT1 Summary.md`. It also stores the Gerald Peters source PDF at `money-flow/90 Reference/The Money Flow Trading System - Gerald Peters - 2019 Edition 2.pdf`. OB2.0 is documentation/governance only; it changes no production strategy code, regenerates no evidence/chart data, calls no exchanges, and approves no paper/live behavior.
+
+`docs/ob2_0_obsidian_strategy_brain_refresh.md`
+- Founder/operator report for the OB2.0 Obsidian strategy brain refresh.
+- Lists notes created/updated/pointered, stale note handling, current strategy/evidence/data/dashboard/UAT/PT taxonomies, PT-RT1 recommendation, and boundary confirmations.
+
+`docs/ob2_0_obsidian_strategy_brain_refresh_summary.json`
+- Compact machine-readable OB2.0 summary.
+- Contains created/updated/pointer note lists, stale phrase handling, strategy families, evidence sources, next recommended phase, boundary flags, and tests-run list.
 
 `docs/uat0_safety_security_runtime_hardening.md`
 - Founder/operator UAT0 safety, security, runtime, and operational-readiness audit.
@@ -346,7 +355,7 @@ Last reviewed: `2026-05-13T15:00:08Z`
 
 `docs/mf_orig_ev1_original_money_flow_spec_and_gap_matrix.md`
 - Founder/operator MF-ORIG-EV1.1 source-specification and gap-matrix report.
-- Extracts the prompt-provided Gerald Peters original Money Flow source hierarchy into formal evidence-only rules, compares it against current Money Flow v1.2 behavior, and labels source assumptions/deferred subjective judgments. MF-ORIG-EV1.1 preserves the source interpretation while warning that pre-hotpatch MF-ORIG-EV1 PnL/drawdown conclusions should not be used. The source PDF was not present locally during this pass.
+- Extracts the prompt-provided Gerald Peters original Money Flow source hierarchy into formal evidence-only rules, compares it against current Money Flow v1.2 behavior, and labels source assumptions/deferred subjective judgments. MF-ORIG-EV1.1 preserves the source interpretation while warning that pre-hotpatch MF-ORIG-EV1 PnL/drawdown conclusions should not be used. The PDF is now stored in `money-flow/90 Reference/` for future source-exact reconciliation.
 
 `docs/mf_orig_ev1_original_money_flow_reconstruction.md`
 - Founder/operator MF-ORIG-EV1.1 evidence report.

@@ -13,6 +13,70 @@ Entry schema:
 
 ---
 
+## v2026.05.13.010
+
+- `recorded_at_utc`: `2026-05-13T22:03:37Z`
+- `scope`: `OB2.0 Obsidian strategy brain and evidence architecture refresh`
+- `intent`: `Native entry. Refreshed the Obsidian strategic brain and operational docs so current Money Flow v1.2, Original Money Flow / MF-ORIG, SOR repair variants, STRAT-EV discovery, canonical SV2.0.2 evidence methodology, dashboard display-only visualization, UAT sandbox plumbing, EV-AUDIT1 conclusions, and future PT-RT1 paper-observation readiness are separated. The Gerald Peters PDF is now stored in the Obsidian reference folder. This is documentation/governance only: no production strategy rules changed, no evidence packs or dashboard chart data were regenerated, no exchange endpoints were called, no API keys were used, no orders were submitted, and no paper/live approval was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `docs/strategy.md`
+  - `docs/ob2_0_obsidian_strategy_brain_refresh.md`
+  - `docs/ob2_0_obsidian_strategy_brain_refresh_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/02_Product_North_Star.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Strategy Family Map.md`
+  - `money-flow/00 Maps/Evidence and Backtesting Map.md`
+  - `money-flow/00 Maps/Data Source and Market Data Map.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/10 Strategy/Strategy Status Register.md`
+  - `money-flow/10 Strategy/Original Money Flow Source Notes.md`
+  - `money-flow/20 Evidence/EV-AUDIT1 Summary.md`
+  - `money-flow/30 Strategy/Money Flow Strategy Lab.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/Phase 8 Focus.md`
+  - `money-flow/90 Reference/The Money Flow Trading System - Gerald Peters - 2019 Edition 2.pdf`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `tests/test_operational_docs.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-ob2.0-review.zip`
+  - `Review bundle scan: no forbidden archive entries; secret-pattern hits were limited to existing dummy test fixture keys.`
+
+## v2026.05.13.009
+
+- `recorded_at_utc`: `2026-05-13T20:29:46Z`
+- `scope`: `Dashboard EV-AUDIT1 Audit Review tab`
+- `intent`: `Native entry. Added a founder-facing Audit Review dashboard tab that loads the committed EV-AUDIT1 audit summary JSON and visualizes the audit verdict, methodology scorecard, paper-observation readiness, top/worst hypotheses, biggest winning/losing trades, losing streaks, P0/P1/P2/P3 audit issues, data-integrity rows, and evidence inventory. The tab is audit/display-only: it does not regenerate canonical evidence packs, approve strategies, approve paper/live trading, add order controls, or change production Money Flow rules.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m compileall apps tests`
+  - `git diff --check`
+
 ## v2026.05.13.008
 
 - `recorded_at_utc`: `2026-05-13T15:00:08Z`

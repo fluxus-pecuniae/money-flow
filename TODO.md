@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-13T15:00:08Z`
+Last reviewed: `2026-05-13T22:03:37Z`
 
 ## Active Follow-Ups
+
+### T-139
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `OB2.0 Obsidian Strategy Brain + Evidence Architecture Refresh is complete. The Obsidian vault now has one canonical command center plus refreshed strategy-family, evidence/backtesting, data-source, dashboard/UI, paper-observation, strategy status, Original Money Flow source, and EV-AUDIT1 summary notes. It documents Money Flow v1.2 as the current derivative/canonical SV2.0.2 baseline, Original Money Flow as a separate source-faithful MF-ORIG track, SOR repair variants as evidence-only, STRAT-EV as plan-only unless implemented, dashboard chart/date-filter data as display-only, UAT sandbox plumbing as separate from evidence, and PT-RT1 as recommended but not approved. The Gerald Peters PDF is stored in money-flow/90 Reference/. No production strategy code, evidence packs, dashboard chart data, exchange endpoints, API keys, paper approval, live approval, or strategy results changed.`
 
 ### T-137
 
@@ -44,7 +50,7 @@ Last reviewed: `2026-05-13T15:00:08Z`
 
 - `priority`: `high`
 - `status`: `done`
-- `summary`: `MF-ORIG-EV1 original Money Flow reconstruction is complete as evidence-only research. It adds a formal source-specification and gap matrix, a Strategy Validation-only original Money Flow replay module, and generated Markdown/JSON reports comparing source-faithful 1d-first hypotheses against canonical SV2.0.2 Money Flow v1.2 DB-imported evidence. The reconstruction models Stage 1-4, 5 EMA / 20 SMA triggers, MACD-as-TSI substitute confirmation/warnings, RSI profit-warning trims, prior support/pivot stop proxies, and 1% risk-budget sizing. The source PDF was not present locally, so extraction is explicitly limited to the prompt-provided source summary. Production Money Flow rules remain unchanged; no original hypothesis is production-approved; no orders/private/signed/order endpoints/live behavior/testnet strategy truth/SOR behavior were added.`
+- `summary`: `MF-ORIG-EV1 original Money Flow reconstruction is complete as evidence-only research. It adds a formal source-specification and gap matrix, a Strategy Validation-only original Money Flow replay module, and generated Markdown/JSON reports comparing source-faithful 1d-first hypotheses against canonical SV2.0.2 Money Flow v1.2 DB-imported evidence. The reconstruction models Stage 1-4, 5 EMA / 20 SMA triggers, MACD-as-TSI substitute confirmation/warnings, RSI profit-warning trims, prior support/pivot stop proxies, and 1% risk-budget sizing. The source PDF is now present under money-flow/90 Reference/ for future source-exact reconciliation; OB2.0 did not regenerate or change MF-ORIG evidence numbers. Production Money Flow rules remain unchanged; no original hypothesis is production-approved; no orders/private/signed/order endpoints/live behavior/testnet strategy truth/SOR behavior were added.`
 
 ### T-131
 

@@ -108,9 +108,27 @@ REQUIRED_FILES = [
     "docs/sor_ev2_true_forward_stop_and_rejected_signal_replay.md",
     "docs/sor_ev2_true_forward_stop_and_rejected_signal_replay_summary.json",
     "docs/sor_ev2_1_evidence_lab_ui.md",
+    "docs/sor_ev2_2_variant_chart_overlay.md",
+    "docs/sor_ev3_avoid_sideways_low_volatility.md",
+    "docs/sor_ev3_avoid_sideways_low_volatility_summary.json",
     "docs/mf_orig_ev1_original_money_flow_spec_and_gap_matrix.md",
     "docs/mf_orig_ev1_original_money_flow_reconstruction.md",
     "docs/mf_orig_ev1_original_money_flow_reconstruction_summary.json",
+    "docs/mf_orig_ev2_multitimeframe_evidence_packs.md",
+    "docs/mf_orig_ev2_multitimeframe_evidence_summary.json",
+    "docs/ev_audit1_full_hypothesis_data_and_paper_readiness_review.md",
+    "docs/ev_audit1_full_hypothesis_data_and_paper_readiness_review_summary.json",
+    "docs/ob2_0_obsidian_strategy_brain_refresh.md",
+    "docs/ob2_0_obsidian_strategy_brain_refresh_summary.json",
+    "money-flow/00 Maps/Strategy Family Map.md",
+    "money-flow/00 Maps/Evidence and Backtesting Map.md",
+    "money-flow/00 Maps/Data Source and Market Data Map.md",
+    "money-flow/00 Maps/Dashboard and UI Map.md",
+    "money-flow/00 Maps/Paper Observation Roadmap.md",
+    "money-flow/10 Strategy/Strategy Status Register.md",
+    "money-flow/10 Strategy/Original Money Flow Source Notes.md",
+    "money-flow/20 Evidence/EV-AUDIT1 Summary.md",
+    "money-flow/90 Reference/The Money Flow Trading System - Gerald Peters - 2019 Edition 2.pdf",
 ]
 
 
@@ -159,11 +177,13 @@ def test_obsidian_brain_workflow_exists() -> None:
     root_pointer = Path("money_flow_project_memory.md").read_text()
 
     assert "canonical Obsidian command center" in command_center
-    assert "`SOR-EV2.2` Variant Chart Overlay + Founder Review Workflow is complete" in current_phase
+    assert "`OB2.0` Obsidian Strategy Brain + Evidence Architecture Refresh" in current_phase
+    assert "EV-AUDIT1" in current_phase
+    assert "PT-RT1" in current_phase
     assert "`MF-ORIG-EV2` Original Money Flow multi-timeframe evidence packs and Historical Replay UI are complete" in current_phase
-    assert "MF-ORIG-EV1.1 event-ledger accounting" in current_phase
-    assert "`SOR-EV2` True-Forward Stop/Exit + Rejected-Signal Replay is complete" in current_phase
-    assert "Baseline parity passed for all `72` canonical SV2.0.2 scenarios" in current_phase
+    assert "MF-ORIG-EV1.1" in current_phase
+    assert "SOR-EV2" in current_phase
+    assert "72 scenario rows" in current_phase
     assert "SV1.18" in command_center
     assert "UAT0" in command_center
     assert "UAT1 public read-only connectivity is complete" in command_center
@@ -188,6 +208,10 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "SOR-EV2.1 is complete" in command_center
     assert "SOR-EV2.2 is complete" in command_center
     assert "MF-ORIG-EV2 is complete as an evidence-only multi-timeframe expansion" in command_center
+    assert "Original source" in command_center
+    assert "Gerald Peters PDF is now present" in command_center
+    assert "PT-RT1" in command_center
+    assert "Evidence and Backtesting Map" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
     assert "Strategy Validation" in moved_memory
@@ -215,6 +239,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "MF-ORIG-EV1.1 accounting/drawdown evidence hotpatch" in moved_memory
     assert "MF-ORIG-EV2 multi-timeframe Original Money Flow evidence packs plus full-equity comparison Historical Replay UI" in moved_memory
     assert "EV-AUDIT1 full evidence/data/paper-readiness audit" in moved_memory
+    assert "OB2.0 Obsidian strategy brain refresh" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
 
@@ -228,27 +253,17 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert (
-        "Current implemented milestone | `EV-AUDIT1` full hypothesis, data integrity, and paper-readiness audit complete"
-        in command_center
-    )
+    assert "Current implemented milestone | `OB2.0` Obsidian strategy brain refresh" in command_center
     assert "Canonical command center" in compatibility_command_center
-    assert "SV1 is closed for now" in current_dashboard
-    assert "UAT1 public read-only connectivity is complete" in current_dashboard
-    assert "UAT2 bounded no-order shadow strategy observation is complete" in current_dashboard
-    assert "UAT2.1 dashboard visualization is complete" in current_dashboard
-    assert "UAT3.0.6 sandbox submit path dry-run wiring is complete" in current_dashboard
-    assert "UAT3.1 first sandbox/testnet lifecycle probe is complete" in current_dashboard
-    assert "UAT3.2 fixed-key preflight" in current_dashboard
+    assert "OB2.0 refreshes the Obsidian brain" in current_dashboard
+    assert "SV2.0.2 canonical evidence" in current_dashboard
+    assert "EV-AUDIT1" in current_dashboard
+    assert "PT-RT1" in current_dashboard
     assert "UAT3.3" in command_center
-    assert "UAT3.4" in current_dashboard
-    assert "UAT4.0 read-only dashboard/chart cockpit is complete" in current_dashboard
-    assert "UAT4.1 exchange-style dashboard redesign is complete" in current_dashboard
-    assert "UAT4.2 live market dashboard and paper-equity monitor is complete" in current_dashboard
-    assert "PT0 TradingView charts and top-20 paper/sandbox runtime foundation is complete" in current_dashboard
-    assert "PT0.0.1 TradingView chart stability P0 hotfix is complete" in current_dashboard
-    assert "PT0.0.2 historical strategy replay cockpit is complete" in current_dashboard
-    assert "PT0.0.3 historical data horizon / 1D replay support is complete" in current_dashboard
+    assert "UAT0 safety" in current_dashboard
+    assert "UAT4.2" in current_dashboard
+    assert "PT0" in current_dashboard
+    assert "PT0.0.3" in current_dashboard
     assert "SV2.0" in current_dashboard
     assert "SV2.0.1" in current_dashboard
     assert "SV2.0.2" in current_dashboard
@@ -266,6 +281,14 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     assert "Strategy Validation is now its own major track" in Path("money-flow/00 Maps/Phase Timeline.md").read_text()
     assert "What Strategy Validation Did" in sv_map
     assert "What Strategy Validation Did Not Prove" in sv_map
+    assert "Original Money Flow" in Path("money-flow/00 Maps/Strategy Family Map.md").read_text()
+    assert "canonical_evidence" in Path("money-flow/00 Maps/Evidence and Backtesting Map.md").read_text()
+    assert "Dashboard date filters are display-only recalculations" in Path("money-flow/00 Maps/Data Source and Market Data Map.md").read_text()
+    assert "Historical Replay" in Path("money-flow/00 Maps/Dashboard and UI Map.md").read_text()
+    assert "PT-RT1" in Path("money-flow/00 Maps/Paper Observation Roadmap.md").read_text()
+    assert "Money Flow v1.2" in Path("money-flow/10 Strategy/Strategy Status Register.md").read_text()
+    assert "Gerald Peters" in Path("money-flow/10 Strategy/Original Money Flow Source Notes.md").read_text()
+    assert "paper_observation_ready_with_conditions" in Path("money-flow/20 Evidence/EV-AUDIT1 Summary.md").read_text()
     assert "UAT0 - Safety / Security / Runtime Hardening" in uat_roadmap
     assert "UAT1 - Top-20 Universe + Read-Only Venue/Market Metadata" in uat_roadmap
     assert "UAT validates plumbing and behavior" in uat_roadmap
@@ -372,6 +395,52 @@ def test_obsidian_current_state_notes_do_not_have_stale_current_truth() -> None:
         assert "UAT0" in contents, f"{path} does not point to UAT0"
         for phrase in stale_current_truth_phrases:
             assert phrase not in contents, f"{path} still contains stale current truth: {phrase}"
+
+
+def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
+    command_center = Path("money-flow/00_Money_Flow_Command_Center.md").read_text()
+    current_phase = Path("money-flow/01_Current_Phase.md").read_text()
+    project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
+    strategy_family_map = Path("money-flow/00 Maps/Strategy Family Map.md").read_text()
+    evidence_map = Path("money-flow/00 Maps/Evidence and Backtesting Map.md").read_text()
+    data_map = Path("money-flow/00 Maps/Data Source and Market Data Map.md").read_text()
+    dashboard_map = Path("money-flow/00 Maps/Dashboard and UI Map.md").read_text()
+    paper_roadmap = Path("money-flow/00 Maps/Paper Observation Roadmap.md").read_text()
+    strategy_register = Path("money-flow/10 Strategy/Strategy Status Register.md").read_text()
+    original_source_note = Path("money-flow/10 Strategy/Original Money Flow Source Notes.md").read_text()
+    audit_summary = Path("money-flow/20 Evidence/EV-AUDIT1 Summary.md").read_text()
+    ob_report = Path("docs/ob2_0_obsidian_strategy_brain_refresh.md").read_text()
+
+    assert "OB2.0" in command_center
+    assert "not production-ready" in strategy_register
+    assert "no clean strategy candidate" in strategy_register
+    assert "No strategy is production-ready" in current_phase or "no clean strategy candidate is promoted" in current_phase
+    assert "PT-RT1" in current_phase
+    assert "recommended" in current_phase
+    assert "SV2.0.2" in project_memory
+    assert "MF-ORIG" in project_memory
+    assert "EV-AUDIT1" in project_memory
+    assert "OB2.0" in project_memory
+    assert "Money Flow v1.2" in strategy_family_map
+    assert "Original Money Flow" in strategy_family_map
+    assert "SOR Repair Variants" in strategy_family_map
+    assert "STRAT-EV" in strategy_family_map
+    assert "canonical_evidence" in evidence_map
+    assert "dashboard_display_only" in evidence_map
+    assert "display-only recalculations" in evidence_map
+    assert "Hyperliquid testnet data is not strategy truth" in data_map
+    assert "Private/signed/order endpoints are not required for historical evidence" in data_map
+    assert "Date filters are display-only" in dashboard_map
+    assert "old `Experiments` tab" in dashboard_map
+    assert "public mainnet market data" in paper_roadmap
+    assert "no exchange orders" in paper_roadmap
+    assert "Gerald Peters" in original_source_note
+    assert "source-faithful reconstruction" in original_source_note
+    assert "paper_observation_ready_with_conditions" in audit_summary
+    assert "promotes no clean strategy candidate" in audit_summary
+    assert "OB2.0 refreshes the Obsidian strategy brain" in ob_report
+    assert "Production Money Flow rules changed: `false`" in ob_report
+    assert "Live trading approved: `false`" in ob_report
 
 
 def test_uat0_operational_truth_is_current() -> None:

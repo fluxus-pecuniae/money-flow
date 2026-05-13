@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Money Flow UAT Workstation</title>
-    <link rel="stylesheet" href="./evidence-dashboard.css?v=pt0" />
+    <link rel="stylesheet" href="./evidence-dashboard.css?v=ev-audit1-tab-20260513" />
   </head>
   <body>
     <header class="top-strip">
@@ -37,6 +37,7 @@
         <button class="view-tab" type="button" data-view="historical-replay" aria-selected="true">Historical Replay</button>
         <button class="view-tab" type="button" data-view="evidence" aria-selected="false">Evidence</button>
         <button class="view-tab" type="button" data-view="evidence-lab" aria-selected="false">Evidence Lab</button>
+        <button class="view-tab" type="button" data-view="audit-review" aria-selected="false">Audit Review</button>
       </nav>
 
       <section id="evidence-view" class="dashboard-view" data-view-panel="evidence" hidden>
@@ -91,6 +92,40 @@
             <p id="run-table-subtitle">Scenario results from loaded batch reports; dynamic equity is per scenario and not one combined account.</p>
           </div>
           <div id="run-table" class="data-table-shell"></div>
+        </section>
+
+        <section class="table-panel strategy-comparison-panel" aria-labelledby="strategy-comparison-title">
+          <div class="section-heading">
+            <div>
+              <h2 id="strategy-comparison-title">Strategy Comparison</h2>
+              <p>Side-by-side visual comparison from loaded replay evidence. Date filters are display-only and do not regenerate canonical evidence packs.</p>
+            </div>
+            <div id="strategy-comparison-verdict" class="strategy-comparison-verdict" aria-live="polite"></div>
+          </div>
+          <div class="strategy-comparison-controls" aria-label="Strategy comparison controls">
+            <label>
+              <span>Strategy A</span>
+              <select id="strategy-comparison-left-strategy"></select>
+            </label>
+            <label>
+              <span>Strategy B</span>
+              <select id="strategy-comparison-right-strategy"></select>
+            </label>
+            <label>
+              <span>Currency</span>
+              <select id="strategy-comparison-symbol"></select>
+            </label>
+            <label>
+              <span>Timeframe</span>
+              <select id="strategy-comparison-timeframe"></select>
+            </label>
+            <label>
+              <span>Fill assumption</span>
+              <select id="strategy-comparison-fill"></select>
+            </label>
+          </div>
+          <div id="strategy-comparison-chart" class="strategy-comparison-chart" aria-label="Strategy equity line comparison"></div>
+          <div id="strategy-comparison-metrics" class="strategy-comparison-metrics"></div>
         </section>
 
         <section class="split-layout">
@@ -296,6 +331,122 @@
               <p>Shows rejection counts, variant admissions, bad-trade admissions, good-trade admissions, and deferred/no-data states when available.</p>
             </div>
             <div id="evidence-lab-rsi-macd" class="data-table-shell"></div>
+          </article>
+        </section>
+      </section>
+
+      <section id="audit-review-view" class="dashboard-view audit-review-view" data-view-panel="audit-review" hidden>
+        <section class="evidence-lab-header audit-review-header" aria-labelledby="audit-review-title">
+          <div>
+            <p class="eyebrow">EV-AUDIT1 review</p>
+            <h2 id="audit-review-title">Audit Review</h2>
+            <p>
+              Founder-facing visual review of strategy hypothesis evidence, data integrity, methodology risk, biggest winners/losers,
+              losing streaks, and paper-observation readiness.
+            </p>
+          </div>
+          <div class="evidence-lab-badges" aria-label="Audit Review safety labels">
+            <span>Scope: audit-only</span>
+            <span>Canonical baseline: SV2.0.2</span>
+            <span>Production approval: no</span>
+            <span>Paper/live approval: no</span>
+          </div>
+        </section>
+
+        <div class="methodology-warning" role="note">
+          Audit Review visualizes committed EV-AUDIT1 summary data. Dashboard date filters and visual tables are display-only and do not regenerate canonical evidence packs.
+          No strategy is approved for production, paper runtime, or live trading.
+        </div>
+
+        <section id="audit-review-verdict-cards" class="metric-grid audit-review-verdict" aria-label="Audit verdict summary"></section>
+
+        <section class="evidence-lab-two-column audit-review-two-column" aria-label="Audit score and readiness">
+          <article class="table-panel audit-review-panel" aria-labelledby="audit-review-scorecard-title">
+            <div class="section-heading">
+              <h2 id="audit-review-scorecard-title">Methodology Scorecard</h2>
+              <p>Confidence scores are audit judgments, not production approval.</p>
+            </div>
+            <div id="audit-review-scorecard" class="audit-scorecard"></div>
+          </article>
+
+          <article class="table-panel audit-review-panel" aria-labelledby="audit-review-paper-title">
+            <div class="section-heading">
+              <h2 id="audit-review-paper-title">Paper Observation Readiness</h2>
+              <p>Readiness for a future separately scoped real-time paper-observation phase.</p>
+            </div>
+            <div id="audit-review-paper-readiness" class="data-table-shell"></div>
+          </article>
+        </section>
+
+        <section class="evidence-lab-two-column audit-review-two-column" aria-label="Audit hypothesis comparison">
+          <article class="table-panel audit-review-panel" aria-labelledby="audit-review-top-hypotheses-title">
+            <div class="section-heading">
+              <h2 id="audit-review-top-hypotheses-title">Top Hypotheses By Aggregate Delta</h2>
+              <p>Displayed as sums across independent research scenarios, not one combined account.</p>
+            </div>
+            <div id="audit-review-top-hypotheses" class="data-table-shell"></div>
+          </article>
+
+          <article class="table-panel audit-review-panel" aria-labelledby="audit-review-worst-hypotheses-title">
+            <div class="section-heading">
+              <h2 id="audit-review-worst-hypotheses-title">Worst Hypotheses By Aggregate Delta</h2>
+              <p>Highlights fragile or damaging hypotheses from the audit matrix.</p>
+            </div>
+            <div id="audit-review-worst-hypotheses" class="data-table-shell"></div>
+          </article>
+        </section>
+
+        <section class="evidence-lab-two-column audit-review-two-column" aria-label="Audit trade analysis">
+          <article class="table-panel audit-review-panel" aria-labelledby="audit-review-winning-trades-title">
+            <div class="section-heading">
+              <h2 id="audit-review-winning-trades-title">Biggest Winning Trades</h2>
+              <p>Top winners by net PnL with strategy, market, timing, and reason context.</p>
+            </div>
+            <div id="audit-review-winning-trades" class="data-table-shell"></div>
+          </article>
+
+          <article class="table-panel audit-review-panel" aria-labelledby="audit-review-losing-trades-title">
+            <div class="section-heading">
+              <h2 id="audit-review-losing-trades-title">Biggest Losing Trades</h2>
+              <p>Worst losses by net PnL with entry/exit and regime context where available.</p>
+            </div>
+            <div id="audit-review-losing-trades" class="data-table-shell"></div>
+          </article>
+        </section>
+
+        <section class="evidence-lab-two-column audit-review-two-column" aria-label="Audit risk diagnostics">
+          <article class="table-panel audit-review-panel" aria-labelledby="audit-review-streaks-title">
+            <div class="section-heading">
+              <h2 id="audit-review-streaks-title">Worst Consecutive-Loss Streaks</h2>
+              <p>Shows where repeated losses concentrated by hypothesis, symbol, timeframe, and fill assumption.</p>
+            </div>
+            <div id="audit-review-losing-streaks" class="data-table-shell"></div>
+          </article>
+
+          <article class="table-panel audit-review-panel" aria-labelledby="audit-review-issues-title">
+            <div class="section-heading">
+              <h2 id="audit-review-issues-title">Audit Issues</h2>
+              <p>P0/P1/P2/P3 findings that affect founder decision readiness.</p>
+            </div>
+            <div id="audit-review-issues" class="data-table-shell"></div>
+          </article>
+        </section>
+
+        <section class="evidence-lab-two-column audit-review-two-column" aria-label="Audit data and inventory">
+          <article class="table-panel audit-review-panel" aria-labelledby="audit-review-data-title">
+            <div class="section-heading">
+              <h2 id="audit-review-data-title">Data Integrity Snapshot</h2>
+              <p>Canonical SV2.0.2 data coverage and known limitations by symbol/timeframe.</p>
+            </div>
+            <div id="audit-review-data-integrity" class="data-table-shell"></div>
+          </article>
+
+          <article class="table-panel audit-review-panel" aria-labelledby="audit-review-inventory-title">
+            <div class="section-heading">
+              <h2 id="audit-review-inventory-title">Evidence Inventory</h2>
+              <p>Classifies each evidence source as canonical, compact/provisional, dashboard-only, plan-only, or not implemented.</p>
+            </div>
+            <div id="audit-review-inventory" class="data-table-shell"></div>
           </article>
         </section>
       </section>
@@ -838,10 +989,77 @@
             <p class="strategy-note">SV1.14 market-structure fields such as recent swing high/low, nearby resistance, and support proximity are descriptive diagnostics only. They are not currently used by Money Flow entries, exits, sizing, routing, or any paper/live authorization path.</p>
           </article>
         </section>
+
+        <section class="strategy-panel strategy-variant-panel" aria-labelledby="strategy-variant-title">
+          <div class="section-heading">
+            <div>
+              <h2 id="strategy-variant-title">Variant Strategy Ideas</h2>
+              <p>Evidence-only strategy hypotheses from SOR/MF-ORIG research. These are founder review aids, not production Money Flow rules.</p>
+            </div>
+            <span class="pill warn">No paper/live approval</span>
+          </div>
+          <div class="variant-strategy-grid">
+            <article class="variant-strategy-card">
+              <h3>Low Rolling-Range Avoidance 20</h3>
+              <p>Blocks new entries when recent rolling range is too compressed over the 20-candle lookback. Intended to avoid chop/sideways regimes before Money Flow enters.</p>
+              <ul>
+                <li><strong>Strategy ID</strong><span>avoid_low_rolling_range_20</span></li>
+                <li><strong>Evidence lane</strong><span>SOR-EV3 true-forward replay research</span></li>
+                <li><strong>Current use</strong><span>Evidence comparison only</span></li>
+              </ul>
+            </article>
+            <article class="variant-strategy-card">
+              <h3>Low Rolling-Range Avoidance 50</h3>
+              <p>Uses the same chop-avoidance idea over a wider 50-candle lookback. More restrictive, so founder review should watch trade-count loss and missed winners.</p>
+              <ul>
+                <li><strong>Strategy ID</strong><span>avoid_low_rolling_range_50</span></li>
+                <li><strong>Evidence lane</strong><span>SOR-EV3 true-forward replay research</span></li>
+                <li><strong>Current use</strong><span>Evidence comparison only</span></li>
+              </ul>
+            </article>
+            <article class="variant-strategy-card">
+              <h3>Original Stage Filter Only</h3>
+              <p>MF-ORIG reconstruction idea that filters entries using the original Money Flow stage concept without promoting the full original-system rule set.</p>
+              <ul>
+                <li><strong>Strategy ID</strong><span>mf_orig_stage_filter_only_full_equity</span></li>
+                <li><strong>Evidence lane</strong><span>MF-ORIG-EV2 historical replay research</span></li>
+                <li><strong>Current use</strong><span>Evidence comparison only</span></li>
+              </ul>
+            </article>
+            <article class="variant-strategy-card">
+              <h3>Original Stage 2 Pullback Reclaim Full Equity</h3>
+              <p>MF-ORIG full-equity reconstruction idea that looks for Stage 2 pullbacks reclaiming EMA5/EMA10 with MACD not strongly bearish.</p>
+              <ul>
+                <li><strong>Strategy ID</strong><span>mf_orig_stage2_pullback_reclaim_full_equity</span></li>
+                <li><strong>Evidence lane</strong><span>MF-ORIG-EV2 historical replay research</span></li>
+                <li><strong>Current use</strong><span>Evidence comparison only</span></li>
+              </ul>
+            </article>
+            <article class="variant-strategy-card">
+              <h3>Original 1D Stage 2 5/20 Crossover Full Equity</h3>
+              <p>MF-ORIG full-equity reconstruction idea using the source-style 1D Stage 2 trend transition around the 5/20 moving-average crossover.</p>
+              <ul>
+                <li><strong>Strategy ID</strong><span>mf_orig_1d_stage2_5_20_crossover_full_equity</span></li>
+                <li><strong>Evidence lane</strong><span>MF-ORIG-EV2 historical replay research</span></li>
+                <li><strong>Current use</strong><span>Evidence comparison only</span></li>
+              </ul>
+            </article>
+            <article class="variant-strategy-card">
+              <h3>Original 1D Stage 2 Breakout Resistance Full Equity</h3>
+              <p>MF-ORIG full-equity reconstruction idea that focuses on 1D Stage 2 breakout behavior around resistance instead of the current Money Flow v1.2 entry gate.</p>
+              <ul>
+                <li><strong>Strategy ID</strong><span>mf_orig_1d_stage2_breakout_resistance_full_equity</span></li>
+                <li><strong>Evidence lane</strong><span>MF-ORIG-EV2 historical replay research</span></li>
+                <li><strong>Current use</strong><span>Evidence comparison only</span></li>
+              </ul>
+            </article>
+          </div>
+          <p class="strategy-note">Variant strategy ideas are evidence-only. They do not change production Money Flow v1.2, do not approve paper trading, do not approve live trading, and do not create order controls.</p>
+        </section>
       </section>
     </main>
 
     <script src="./vendor/lightweight-charts.standalone.production.js?v=5.2.0"></script>
-    <script src="./evidence-dashboard.js?v=sv202-20260512-display-fixes"></script>
+    <script src="./evidence-dashboard.js?v=ev-audit1-tab-20260513"></script>
   </body>
 </html>

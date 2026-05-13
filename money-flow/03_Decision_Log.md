@@ -2,6 +2,15 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-13T22:03:37Z - OB2.0 - Obsidian Strategy Brain Uses SV2.0.2 / EV-AUDIT1 As Current Truth
+
+- `decision`: Refresh the Obsidian brain around one canonical command center and dedicated strategy/evidence/data/dashboard/paper-observation maps.
+- `scope`: Current Money Flow v1.2 is documented as the production-derived derivative baseline, while Original Money Flow / MF-ORIG is documented as a separate source-faithful evidence track. SOR repair variants, MF-ORIG hypotheses, STRAT-EV plan-only discovery, EV-AUDIT1, Historical Replay, Evidence Lab, UAT sandbox plumbing, and future PT-RT1 paper observation are separated.
+- `source_truth`: The Gerald Peters Money Flow Trading System PDF is now a primary source stored in `money-flow/90 Reference/`. Current Money Flow v1.2 is not exact original-source implementation.
+- `evidence_truth`: SV2.0.2 canonical DB-imported Hyperliquid public-mainnet evidence packs remain the current canonical baseline. Dashboard chart JSON and date-filter recalculations are display-only and are not canonical evidence regeneration.
+- `approval_truth`: EV-AUDIT1 promotes no clean strategy candidate. No strategy is production-ready. PT-RT1 is recommended but not approved or implemented. No paper-runtime approval, live trading approval, production order automation, or live exchange order submission follows from OB2.0.
+- `follow_up_implications`: Future agents should start from `money-flow/00_Money_Flow_Command_Center.md`, then use the new maps/registers to avoid mixing current v1.2, MF-ORIG, SOR, dashboard display data, UAT plumbing, and future paper-observation scope.
+
 ## 2026-05-13T08:27:33Z - MF-ORIG-EV2 - Full-Equity Comparison Rows Added Without Replacing Source 1% Risk Rows
 
 - `decision`: Keep the four source-faithful 1% risk-sizing MF-ORIG-EV2 hypotheses and add four founder-requested full-equity/notional counterparts for direct comparison.

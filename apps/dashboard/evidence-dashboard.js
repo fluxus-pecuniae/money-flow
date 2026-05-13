@@ -17,6 +17,15 @@
     ),
   );
   const MF_ORIG_EV2_TIMESTAMP = "20260513T002746Z";
+  const MF_ORIG_FULL_EQUITY_STRATEGY_IDS = new Set([
+    "mf_orig_stage_filter_only_full_equity",
+    "mf_orig_stage2_pullback_reclaim_full_equity",
+    "mf_orig_1d_stage2_5_20_crossover_full_equity",
+    "mf_orig_1d_stage2_breakout_resistance_full_equity",
+  ]);
+  const HIDDEN_DASHBOARD_STRATEGY_IDS = new Set([
+    "baseline_current_money_flow_rules",
+  ]);
   const MF_ORIG_EV2_DASHBOARD_CHART_FILES = SV202_CANONICAL_TIMEFRAMES.flatMap((timeframe) =>
     SV202_CANONICAL_SYMBOLS.map(
       (symbol) =>
@@ -28,6 +37,11 @@
     ...SV202_CANONICAL_BATCH_FILES,
   ];
   const EVIDENCE_BATCH_REPORTS_STRATEGY_ID = "canonical_batch_reports";
+  const EVIDENCE_ALL_REPLAY_STRATEGIES_ID = "all_replay_strategies";
+  const EVIDENCE_PRIORITY_REPLAY_STRATEGY_IDS = new Set([
+    "avoid_low_rolling_range_20",
+    "avoid_low_rolling_range_50",
+  ]);
 
   const DEFAULT_EXPERIMENT_SUMMARY_FILES = [
     "../../docs/strategy_validation_sv1_17_true_replay_experiments_summary.json",
@@ -67,6 +81,10 @@
   const DEFAULT_MF_ORIG_SUMMARY_FILES = [
     "../../docs/mf_orig_ev1_original_money_flow_reconstruction_summary.json",
     "../../docs/mf_orig_ev2_multitimeframe_evidence_summary.json",
+  ];
+
+  const DEFAULT_EV_AUDIT_SUMMARY_FILES = [
+    "../../docs/ev_audit1_full_hypothesis_data_and_paper_readiness_review_summary.json",
   ];
 
   const HYPERLIQUID_TESTNET_PUBLIC_INFO_URL = "https://api.hyperliquid-testnet.xyz/info";
@@ -539,10 +557,17 @@
   const state = {
     review: null,
     batches: [],
-    selectedComponent: "all",
+    selectedComponent: "sleeve_1d",
     evidenceReplayStrategyId: EVIDENCE_BATCH_REPORTS_STRATEGY_ID,
     evidenceDateStart: "",
     evidenceDateEnd: "",
+    strategyComparison: {
+      leftStrategyId: "money_flow_v1_2_canonical",
+      rightStrategyId: "",
+      symbol: "ETH",
+      timeframe: "1h",
+      fillAssumption: "next_candle_open",
+    },
     runLedgerSort: {
       key: "",
       direction: "desc",
@@ -563,6 +588,7 @@
     sorEv2Summary: null,
     sorEv3Summary: null,
     mfOrigSummary: null,
+    evAuditSummary: null,
     tradingViewChart: {
       chart: null,
       mount: null,
@@ -680,6 +706,14 @@
     evidenceDateStart: document.querySelector("#evidence-date-start"),
     evidenceDateEnd: document.querySelector("#evidence-date-end"),
     evidenceDateClear: document.querySelector("#evidence-date-clear"),
+    strategyComparisonLeftStrategy: document.querySelector("#strategy-comparison-left-strategy"),
+    strategyComparisonRightStrategy: document.querySelector("#strategy-comparison-right-strategy"),
+    strategyComparisonSymbol: document.querySelector("#strategy-comparison-symbol"),
+    strategyComparisonTimeframe: document.querySelector("#strategy-comparison-timeframe"),
+    strategyComparisonFill: document.querySelector("#strategy-comparison-fill"),
+    strategyComparisonVerdict: document.querySelector("#strategy-comparison-verdict"),
+    strategyComparisonChart: document.querySelector("#strategy-comparison-chart"),
+    strategyComparisonMetrics: document.querySelector("#strategy-comparison-metrics"),
     boundaryFlags: document.querySelector("#boundary-flags"),
     componentCards: document.querySelector("#component-cards"),
     detailSubtitle: document.querySelector("#detail-subtitle"),
@@ -716,6 +750,17 @@
     evidenceLabWorstFocusTable: document.querySelector("#evidence-lab-worst-focus-table"),
     evidenceLabControlPocketView: document.querySelector("#evidence-lab-control-pocket-view"),
     evidenceLabOverlayUnavailable: document.querySelector("#evidence-lab-overlay-unavailable"),
+    auditReviewVerdictCards: document.querySelector("#audit-review-verdict-cards"),
+    auditReviewScorecard: document.querySelector("#audit-review-scorecard"),
+    auditReviewPaperReadiness: document.querySelector("#audit-review-paper-readiness"),
+    auditReviewTopHypotheses: document.querySelector("#audit-review-top-hypotheses"),
+    auditReviewWorstHypotheses: document.querySelector("#audit-review-worst-hypotheses"),
+    auditReviewWinningTrades: document.querySelector("#audit-review-winning-trades"),
+    auditReviewLosingTrades: document.querySelector("#audit-review-losing-trades"),
+    auditReviewLosingStreaks: document.querySelector("#audit-review-losing-streaks"),
+    auditReviewIssues: document.querySelector("#audit-review-issues"),
+    auditReviewDataIntegrity: document.querySelector("#audit-review-data-integrity"),
+    auditReviewInventory: document.querySelector("#audit-review-inventory"),
     experimentVariantCards: document.querySelector("#experiment-variant-cards"),
     experimentReplayFilter: document.querySelector("#experiment-replay-filter"),
     experimentsTitle: document.querySelector("#experiments-title"),
@@ -1159,6 +1204,27 @@
     return index >= 0 ? index : SV202_CANONICAL_TIMEFRAMES.length;
   }
 
+  function isMfOrigStrategyId(strategyId) {
+    return String(strategyId || "").startsWith("mf_orig_");
+  }
+
+  function isVisibleMfOrigStrategyId(strategyId) {
+    return !isMfOrigStrategyId(strategyId) || MF_ORIG_FULL_EQUITY_STRATEGY_IDS.has(String(strategyId));
+  }
+
+  function isVisibleDashboardStrategyRow(row) {
+    const strategyId = row?.strategy_id || row?.hypothesis_id || row?.id;
+    return !HIDDEN_DASHBOARD_STRATEGY_IDS.has(String(strategyId || "")) && isVisibleMfOrigStrategyId(strategyId);
+  }
+
+  function dashboardStrategyLabel(label, strategyId = "") {
+    const rawLabel = String(label || "").trim();
+    const rawId = String(strategyId || "").trim();
+    if (rawLabel === "OG replay / strategy" || rawId === "baseline_current_money_flow_rules") return "Legacy replay";
+    if (rawLabel === "Money Flow v1.2 canonical" || rawLabel === "SV2.0.2 canonical Money Flow v1.2") return "Money Flow v1.2";
+    return rawLabel || rawId || "Money Flow strategy";
+  }
+
   function sv202ReplayStrategies() {
     const replays = Array.isArray(state.sv202HistoricalReplay?.replays)
       ? state.sv202HistoricalReplay.replays
@@ -1170,12 +1236,18 @@
             replay.strategy_id || "money_flow_v1_2_canonical",
             {
               value: replay.strategy_id || "money_flow_v1_2_canonical",
-              label: replay.strategy_label || replay.strategy_id || "SV2.0.2 replay strategy",
+              label: dashboardStrategyLabel(replay.strategy_label, replay.strategy_id || "money_flow_v1_2_canonical"),
             },
           ])
-          .filter(([value]) => value),
+          .filter(([value]) => value && !HIDDEN_DASHBOARD_STRATEGY_IDS.has(String(value))),
       ).values(),
-    );
+    ).sort((left, right) => {
+      if (left.value === "money_flow_v1_2_canonical") return -1;
+      if (right.value === "money_flow_v1_2_canonical") return 1;
+      const leftPriority = EVIDENCE_PRIORITY_REPLAY_STRATEGY_IDS.has(left.value) ? 0 : 1;
+      const rightPriority = EVIDENCE_PRIORITY_REPLAY_STRATEGY_IDS.has(right.value) ? 0 : 1;
+      return leftPriority - rightPriority || left.label.localeCompare(right.label);
+    });
   }
 
   function evidenceReplayStrategyOptions() {
@@ -1183,6 +1255,10 @@
       {
         value: EVIDENCE_BATCH_REPORTS_STRATEGY_ID,
         label: "Canonical evidence packs / batch reports",
+      },
+      {
+        value: EVIDENCE_ALL_REPLAY_STRATEGIES_ID,
+        label: "All replay strategies",
       },
       ...sv202ReplayStrategies(),
     ];
@@ -1201,12 +1277,18 @@
     return summaries.filter((summary) => summary.component === state.selectedComponent);
   }
 
+  function defaultEvidenceComponent(summaries) {
+    const components = Array.from(new Set((summaries || []).map((summary) => summary.component).filter(Boolean)));
+    if (components.includes("sleeve_1d")) return "sleeve_1d";
+    return components[0] || "all";
+  }
+
   function setEmpty(target, message) {
     target.innerHTML = `<div class="empty-state">${escapeHtml(message)}</div>`;
   }
 
   function setActiveView(view) {
-    state.activeView = ["evidence", "evidence-lab", "historical-replay", "uat-cockpit", "uat-shadow", "strategy"].includes(view)
+    state.activeView = ["evidence", "evidence-lab", "audit-review", "historical-replay", "uat-cockpit", "uat-shadow", "strategy"].includes(view)
       ? view
       : "evidence";
     elements.viewTabs.forEach((tab) => {
@@ -1276,6 +1358,9 @@
           .map((summary) => summary.component),
       )),
     ];
+    if (!components.includes(state.selectedComponent)) {
+      state.selectedComponent = defaultEvidenceComponent(summaries);
+    }
     elements.componentFilter.innerHTML = components
       .map((component) => {
         const label = component === "all" ? "All" : cleanComponentName(component);
@@ -1328,6 +1413,413 @@
         render();
       };
     }
+  }
+
+  function strategyComparisonReplays() {
+    return (Array.isArray(state.sv202HistoricalReplay?.replays)
+      ? state.sv202HistoricalReplay.replays
+      : []).filter(isVisibleDashboardStrategyRow);
+  }
+
+  function strategyComparisonStrategyOptions() {
+    return Array.from(
+      new Map(
+        strategyComparisonReplays()
+          .map((replay) => [
+            replay.strategy_id || "money_flow_v1_2_canonical",
+            {
+              value: replay.strategy_id || "money_flow_v1_2_canonical",
+              label: dashboardStrategyLabel(replay.strategy_label, replay.strategy_id || "money_flow_v1_2_canonical"),
+            },
+          ])
+          .filter(([value]) => value && !HIDDEN_DASHBOARD_STRATEGY_IDS.has(String(value))),
+      ).values(),
+    ).sort((left, right) => {
+      if (left.value === "money_flow_v1_2_canonical") return -1;
+      if (right.value === "money_flow_v1_2_canonical") return 1;
+      const leftPriority = EVIDENCE_PRIORITY_REPLAY_STRATEGY_IDS.has(left.value) ? 0 : 1;
+      const rightPriority = EVIDENCE_PRIORITY_REPLAY_STRATEGY_IDS.has(right.value) ? 0 : 1;
+      return leftPriority - rightPriority || left.label.localeCompare(right.label);
+    });
+  }
+
+  function syncStrategyComparisonSelection() {
+    const options = strategyComparisonStrategyOptions();
+    const ids = options.map((option) => option.value);
+    if (!ids.length) return;
+    if (!ids.includes(state.strategyComparison.leftStrategyId)) {
+      state.strategyComparison.leftStrategyId = ids.includes("money_flow_v1_2_canonical") ? "money_flow_v1_2_canonical" : ids[0];
+    }
+    if (!ids.includes(state.strategyComparison.rightStrategyId) || state.strategyComparison.rightStrategyId === state.strategyComparison.leftStrategyId) {
+      state.strategyComparison.rightStrategyId = ids.find((id) => id !== state.strategyComparison.leftStrategyId) || state.strategyComparison.leftStrategyId;
+    }
+    const replays = strategyComparisonReplays();
+    const symbols = uniqueSorted(replays.map((replay) => replay.symbol));
+    const timeframes = uniqueSorted(replays.map((replay) => canonicalTimeframe(replay.timeframe)))
+      .sort((left, right) => timeframeSortRank(left) - timeframeSortRank(right));
+    const fills = uniqueSorted(replays.map(replayFillAssumption));
+    if (!symbols.includes(state.strategyComparison.symbol)) state.strategyComparison.symbol = symbols.includes("ETH") ? "ETH" : symbols[0] || "ETH";
+    if (!timeframes.includes(canonicalTimeframe(state.strategyComparison.timeframe))) state.strategyComparison.timeframe = timeframes.includes("1h") ? "1h" : timeframes[0] || "1h";
+    if (!fills.includes(state.strategyComparison.fillAssumption)) state.strategyComparison.fillAssumption = fills.includes("next_candle_open") ? "next_candle_open" : fills[0] || "next_candle_open";
+  }
+
+  function strategyComparisonReplay(strategyId) {
+    return strategyComparisonReplays().find(
+      (replay) =>
+        (replay.strategy_id || "money_flow_v1_2_canonical") === strategyId &&
+        replay.symbol === state.strategyComparison.symbol &&
+        sameTimeframe(replay.timeframe, state.strategyComparison.timeframe) &&
+        replayFillAssumption(replay) === state.strategyComparison.fillAssumption,
+    ) || null;
+  }
+
+  function strategyComparisonScopedReplay(replay) {
+    return replay ? filteredReplayByRange(replay, evidenceDateRange()) : null;
+  }
+
+  function strategyComparisonMetric(replay, key, fallback = 0) {
+    return decimal(strategyComparisonScopedReplay(replay)?.summary?.[key] ?? replay?.summary?.[key], fallback);
+  }
+
+  function strategyComparisonEquitySeries(replay) {
+    const scoped = strategyComparisonScopedReplay(replay) || replay || {};
+    const rawCurve = Array.isArray(scoped.equity_curve) && scoped.equity_curve.length
+      ? scoped.equity_curve
+      : replay?.equity_curve || [];
+    const trades = Array.isArray(scoped.trades) && scoped.trades.length ? scoped.trades : replay?.trades || [];
+    const series = rawCurve
+      .map((point, index) => {
+        if (typeof point === "object" && point !== null) {
+          const value = decimal(point.equity ?? point.equity_after_trade ?? point.equity_after_exit, NaN);
+          const time = Date.parse(point.timestamp_utc || point.timestamp || point.time || point.date || point.exit_time || point.entry_time);
+          return {
+            value,
+            time: Number.isFinite(time) ? time : null,
+          };
+        }
+        const value = decimal(point, NaN);
+        const trade = index === 0 ? trades[0] : trades[index - 1];
+        const time = Date.parse(index === 0 ? tradeEntryTimestamp(trade) : tradeExitTimestamp(trade));
+        return {
+          value,
+          time: Number.isFinite(time) ? time : null,
+        };
+      })
+      .filter((point) => Number.isFinite(point.value));
+    if (series.length >= 2) return series;
+    const summary = scoped.summary || replay?.summary || {};
+    const bounds = strategyComparisonReplayTimeBoundsFromTrades(trades);
+    return [
+      {
+        value: decimal(summary.starting_equity, 10000),
+        time: bounds.start,
+      },
+      {
+        value: decimal(summary.ending_equity, summary.starting_equity ?? 10000),
+        time: bounds.end,
+      },
+    ];
+  }
+
+  function comparisonWinner(left, right, mode = "higher") {
+    if (!Number.isFinite(left) || !Number.isFinite(right)) return "none";
+    if (left === right) return "tie";
+    if (mode === "lower") return left < right ? "left" : "right";
+    return left > right ? "left" : "right";
+  }
+
+  function strategyComparisonVerdict(leftReplay, rightReplay) {
+    if (!leftReplay || !rightReplay) {
+      return { label: "comparison unavailable", className: "unknown", details: "Select two strategies with matching currency, timeframe, and fill assumption." };
+    }
+    const leftNet = strategyComparisonMetric(leftReplay, "net_pnl");
+    const rightNet = strategyComparisonMetric(rightReplay, "net_pnl");
+    const leftDrawdown = strategyComparisonMetric(leftReplay, "max_drawdown");
+    const rightDrawdown = strategyComparisonMetric(rightReplay, "max_drawdown");
+    const pnlWinner = comparisonWinner(leftNet, rightNet, "higher");
+    const drawdownWinner = comparisonWinner(leftDrawdown, rightDrawdown, "lower");
+    if (pnlWinner === "tie" && drawdownWinner === "tie") {
+      return { label: "same headline result", className: "same", details: "Net PnL and drawdown match for this selection." };
+    }
+    if (pnlWinner === drawdownWinner && ["left", "right"].includes(pnlWinner)) {
+      const winner = pnlWinner === "left" ? "Strategy A" : "Strategy B";
+      return { label: `${winner} looks better`, className: "good", details: "Higher net PnL and lower drawdown on this loaded replay row." };
+    }
+    const pnlText = pnlWinner === "left" ? "Strategy A has higher net PnL" : pnlWinner === "right" ? "Strategy B has higher net PnL" : "Net PnL is tied";
+    const drawdownText = drawdownWinner === "left" ? "Strategy A has lower drawdown" : drawdownWinner === "right" ? "Strategy B has lower drawdown" : "Drawdown is tied";
+    return { label: "mixed comparison", className: "warn", details: `${pnlText}; ${drawdownText}.` };
+  }
+
+  function strategyComparisonBadge(side, winner, text) {
+    if (winner === side) return `<span class="comparison-badge good">${escapeHtml(text)}</span>`;
+    if (winner === "tie") return `<span class="comparison-badge same">tie</span>`;
+    return "";
+  }
+
+  function renderStrategyComparisonControls(options, symbols, timeframes, fills) {
+    renderSelectWithoutAll(elements.strategyComparisonLeftStrategy, options, state.strategyComparison.leftStrategyId);
+    renderSelectWithoutAll(elements.strategyComparisonRightStrategy, options, state.strategyComparison.rightStrategyId);
+    renderSelectWithoutAll(elements.strategyComparisonSymbol, symbols.map((symbol) => ({ value: symbol, label: symbol })), state.strategyComparison.symbol);
+    renderSelectWithoutAll(elements.strategyComparisonTimeframe, timeframes.map((timeframe) => ({ value: timeframe, label: displayTimeframe(timeframe) })), canonicalTimeframe(state.strategyComparison.timeframe));
+    renderSelectWithoutAll(elements.strategyComparisonFill, fills.map((fill) => ({ value: fill, label: fill })), state.strategyComparison.fillAssumption);
+    if (elements.strategyComparisonLeftStrategy) {
+      elements.strategyComparisonLeftStrategy.onchange = () => {
+        state.strategyComparison.leftStrategyId = elements.strategyComparisonLeftStrategy.value;
+        if (state.strategyComparison.rightStrategyId === state.strategyComparison.leftStrategyId) {
+          state.strategyComparison.rightStrategyId = options.map((option) => option.value).find((id) => id !== state.strategyComparison.leftStrategyId) || state.strategyComparison.leftStrategyId;
+        }
+        render();
+      };
+    }
+    if (elements.strategyComparisonRightStrategy) {
+      elements.strategyComparisonRightStrategy.onchange = () => {
+        state.strategyComparison.rightStrategyId = elements.strategyComparisonRightStrategy.value;
+        if (state.strategyComparison.rightStrategyId === state.strategyComparison.leftStrategyId) {
+          state.strategyComparison.leftStrategyId = options.map((option) => option.value).find((id) => id !== state.strategyComparison.rightStrategyId) || state.strategyComparison.rightStrategyId;
+        }
+        render();
+      };
+    }
+    if (elements.strategyComparisonSymbol) {
+      elements.strategyComparisonSymbol.onchange = () => {
+        state.strategyComparison.symbol = elements.strategyComparisonSymbol.value;
+        render();
+      };
+    }
+    if (elements.strategyComparisonTimeframe) {
+      elements.strategyComparisonTimeframe.onchange = () => {
+        state.strategyComparison.timeframe = elements.strategyComparisonTimeframe.value;
+        render();
+      };
+    }
+    if (elements.strategyComparisonFill) {
+      elements.strategyComparisonFill.onchange = () => {
+        state.strategyComparison.fillAssumption = elements.strategyComparisonFill.value;
+        render();
+      };
+    }
+  }
+
+  function strategyComparisonPointX(point, index, length, timeBounds, plotWidth, margin) {
+    if (Number.isFinite(point.time) && Number.isFinite(timeBounds.start) && Number.isFinite(timeBounds.end) && timeBounds.end > timeBounds.start) {
+      return margin.left + ((point.time - timeBounds.start) / (timeBounds.end - timeBounds.start)) * plotWidth;
+    }
+    return margin.left + (length === 1 ? plotWidth : (index / (length - 1)) * plotWidth);
+  }
+
+  function strategyComparisonPolyline(series, minValue, maxValue, timeBounds, plotWidth, plotHeight, margin) {
+    const span = Math.max(maxValue - minValue, 1);
+    return series.map((point, index) => {
+      const x = strategyComparisonPointX(point, index, series.length, timeBounds, plotWidth, margin);
+      const y = margin.top + plotHeight - ((point.value - minValue) / span) * plotHeight;
+      return `${x.toFixed(2)},${y.toFixed(2)}`;
+    }).join(" ");
+  }
+
+  function strategyComparisonReplayTimeBoundsFromTrades(trades) {
+    const times = (trades || [])
+      .flatMap((trade) => [tradeEntryTimestamp(trade), tradeExitTimestamp(trade)])
+      .map((value) => Date.parse(value))
+      .filter((value) => Number.isFinite(value));
+    if (!times.length) return { start: null, end: null };
+    return { start: Math.min(...times), end: Math.max(...times) };
+  }
+
+  function strategyComparisonSeriesTimeBounds(series) {
+    const times = (series || []).map((point) => point.time).filter((value) => Number.isFinite(value));
+    if (!times.length) return { start: null, end: null };
+    return { start: Math.min(...times), end: Math.max(...times) };
+  }
+
+  function strategyComparisonCombinedTimeBounds(leftSeries, rightSeries) {
+    const bounds = [strategyComparisonSeriesTimeBounds(leftSeries), strategyComparisonSeriesTimeBounds(rightSeries)];
+    const starts = bounds.map((bound) => bound.start).filter((value) => Number.isFinite(value));
+    const ends = bounds.map((bound) => bound.end).filter((value) => Number.isFinite(value));
+    if (!starts.length || !ends.length) return { start: null, end: null };
+    return { start: Math.min(...starts), end: Math.max(...ends) };
+  }
+
+  function strategyComparisonTimeTicks(leftSeries, rightSeries) {
+    const timeBounds = strategyComparisonCombinedTimeBounds(leftSeries, rightSeries);
+    const bounds = [timeBounds];
+    const starts = bounds.map((bound) => bound.start).filter((value) => Number.isFinite(value));
+    const ends = bounds.map((bound) => bound.end).filter((value) => Number.isFinite(value));
+    if (!starts.length || !ends.length) {
+      return [
+        { ratio: 0, label: "Start" },
+        { ratio: 0.5, label: "Mid" },
+        { ratio: 1, label: "End" },
+      ];
+    }
+    const start = Math.min(...starts);
+    const end = Math.max(...ends);
+    return [
+      { ratio: 0, label: strategyComparisonAxisDate(start) },
+      { ratio: 0.5, label: strategyComparisonAxisDate(start + ((end - start) / 2)) },
+      { ratio: 1, label: strategyComparisonAxisDate(end) },
+    ];
+  }
+
+  function strategyComparisonAxisDate(value) {
+    if (!Number.isFinite(value)) return "n/a";
+    return new Date(value).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "2-digit",
+      timeZone: "UTC",
+    });
+  }
+
+  function strategyComparisonYAxisTicks(minValue, maxValue) {
+    const midpoint = minValue + ((maxValue - minValue) / 2);
+    return [maxValue, midpoint, minValue];
+  }
+
+  function strategyComparisonEndpointMarkup(point, series, minValue, maxValue, timeBounds, plotWidth, plotHeight, margin, className, label) {
+    if (!point || !Number.isFinite(point.value)) return "";
+    const x = strategyComparisonPointX(point, Math.max(series.length - 1, 0), series.length, timeBounds, plotWidth, margin);
+    const y = margin.top + plotHeight - ((point.value - minValue) / Math.max(maxValue - minValue, 1)) * plotHeight;
+    const labelX = Math.min(x + 10, margin.left + plotWidth - 78);
+    const labelY = Math.max(y - 8, margin.top + 12);
+    return `
+      <circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="4" class="comparison-endpoint ${escapeHtml(className)}"></circle>
+      <text x="${labelX.toFixed(2)}" y="${labelY.toFixed(2)}" class="comparison-endpoint-label ${escapeHtml(className)}">${escapeHtml(label)} ${escapeHtml(money(point.value))}</text>
+    `;
+  }
+
+  function renderStrategyComparisonChart(leftReplay, rightReplay) {
+    if (!elements.strategyComparisonChart) return;
+    if (!leftReplay || !rightReplay) {
+      setEmpty(elements.strategyComparisonChart, "No matching strategy pair found for this currency/timeframe/fill selection.");
+      return;
+    }
+    [leftReplay, rightReplay].forEach((replay) => {
+      if (replay?.chart_data_lazy && replay.chart_data_path) {
+        loadHistoricalReplayChartData(replay.chart_data_path);
+      }
+    });
+    const leftSeries = strategyComparisonEquitySeries(leftReplay);
+    const rightSeries = strategyComparisonEquitySeries(rightReplay);
+    const all = [...leftSeries, ...rightSeries].map((point) => point.value).filter((value) => Number.isFinite(value));
+    const minValue = Math.min(...all);
+    const maxValue = Math.max(...all);
+    const width = 980;
+    const height = 340;
+    const margin = { top: 18, right: 28, bottom: 64, left: 92 };
+    const plotWidth = width - margin.left - margin.right;
+    const plotHeight = height - margin.top - margin.bottom;
+    const timeBounds = strategyComparisonCombinedTimeBounds(leftSeries, rightSeries);
+    const leftLine = strategyComparisonPolyline(leftSeries, minValue, maxValue, timeBounds, plotWidth, plotHeight, margin);
+    const rightLine = strategyComparisonPolyline(rightSeries, minValue, maxValue, timeBounds, plotWidth, plotHeight, margin);
+    const yTicks = strategyComparisonYAxisTicks(minValue, maxValue);
+    const xTicks = strategyComparisonTimeTicks(leftSeries, rightSeries);
+    const leftLast = leftSeries.at(-1);
+    const rightLast = rightSeries.at(-1);
+    const leftLabel = dashboardStrategyLabel(leftReplay.strategy_label, leftReplay.strategy_id || "Strategy A");
+    const rightLabel = dashboardStrategyLabel(rightReplay.strategy_label, rightReplay.strategy_id || "Strategy B");
+    const loading = [leftReplay, rightReplay].some((replay) => replay?.chart_data_lazy && replay.chart_data_path && !state.loadedHistoricalChartDataPaths.has(replay.chart_data_path));
+    elements.strategyComparisonChart.innerHTML = `
+      <div class="strategy-comparison-layout">
+        <div class="strategy-comparison-legend" aria-label="Strategy comparison legend">
+          <span><i class="line-key line-a"></i> Strategy A: ${escapeHtml(leftLabel)} <small>${escapeHtml(leftSeries.length)} equity points</small></span>
+          <span><i class="line-key line-b"></i> Strategy B: ${escapeHtml(rightLabel)} <small>${escapeHtml(rightSeries.length)} equity points</small></span>
+          ${loading ? "<span>Loading exact selected replay JSON; summary endpoints shown until loaded.</span>" : ""}
+        </div>
+        <div class="strategy-comparison-plot">
+          <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Strategy equity comparison over time">
+            ${yTicks.map((value) => {
+              const y = margin.top + plotHeight - ((value - minValue) / Math.max(maxValue - minValue, 1)) * plotHeight;
+              return `
+                <line x1="${margin.left}" y1="${y.toFixed(2)}" x2="${margin.left + plotWidth}" y2="${y.toFixed(2)}" class="comparison-grid-line"></line>
+                <text x="${margin.left - 12}" y="${(y + 4).toFixed(2)}" text-anchor="end" class="comparison-axis-tick">${escapeHtml(money(value))}</text>
+              `;
+            }).join("")}
+            ${xTicks.map((tick) => {
+              const x = margin.left + tick.ratio * plotWidth;
+              return `
+                <line x1="${x.toFixed(2)}" y1="${margin.top}" x2="${x.toFixed(2)}" y2="${margin.top + plotHeight}" class="comparison-grid-line muted"></line>
+                <text x="${x.toFixed(2)}" y="${margin.top + plotHeight + 24}" text-anchor="middle" class="comparison-axis-tick">${escapeHtml(tick.label)}</text>
+              `;
+            }).join("")}
+            <line x1="${margin.left}" y1="${margin.top + plotHeight}" x2="${margin.left + plotWidth}" y2="${margin.top + plotHeight}" class="comparison-axis"></line>
+            <line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + plotHeight}" class="comparison-axis"></line>
+            <text x="${margin.left + (plotWidth / 2)}" y="${height - 14}" text-anchor="middle" class="comparison-axis-label">Time</text>
+            <text x="18" y="${margin.top + (plotHeight / 2)}" text-anchor="middle" transform="rotate(-90 18 ${margin.top + (plotHeight / 2)})" class="comparison-axis-label">Equity value (USDC)</text>
+            <polyline class="comparison-line line-a" points="${escapeHtml(leftLine)}"></polyline>
+            <polyline class="comparison-line line-b" points="${escapeHtml(rightLine)}"></polyline>
+            ${strategyComparisonEndpointMarkup(leftLast, leftSeries, minValue, maxValue, timeBounds, plotWidth, plotHeight, margin, "line-a", "A")}
+            ${strategyComparisonEndpointMarkup(rightLast, rightSeries, minValue, maxValue, timeBounds, plotWidth, plotHeight, margin, "line-b", "B")}
+          </svg>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderStrategyComparisonMetrics(leftReplay, rightReplay) {
+    if (!elements.strategyComparisonMetrics || !elements.strategyComparisonVerdict) return;
+    const verdict = strategyComparisonVerdict(leftReplay, rightReplay);
+    elements.strategyComparisonVerdict.innerHTML = `<span class="result-pill result-${escapeHtml(verdict.className)}" title="${escapeHtml(verdict.details)}">${escapeHtml(verdict.label)}</span>`;
+    if (!leftReplay || !rightReplay) {
+      setEmpty(elements.strategyComparisonMetrics, "Choose two strategies with available replay rows.");
+      return;
+    }
+    const left = strategyComparisonScopedReplay(leftReplay) || leftReplay;
+    const right = strategyComparisonScopedReplay(rightReplay) || rightReplay;
+    const metricRows = [
+      ["Ending equity", "ending_equity", "higher", money],
+      ["Net PnL", "net_pnl", "higher", money],
+      ["Max drawdown", "max_drawdown", "lower", money],
+      ["Win rate", "win_rate", "higher", pct],
+      ["Trades", "trade_count", "higher", (value) => compactNumber(value, 0)],
+      ["Profit factor", "profit_factor", "higher", (value) => compactNumber(value, 2)],
+    ];
+    elements.strategyComparisonMetrics.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Strategy A</th>
+            <th>Strategy B</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${metricRows.map(([label, key, mode, formatter]) => {
+            const leftValue = decimal(left.summary?.[key], NaN);
+            const rightValue = decimal(right.summary?.[key], NaN);
+            const winner = comparisonWinner(leftValue, rightValue, mode);
+            return `
+              <tr>
+                <td>${escapeHtml(label)}</td>
+                <td>${escapeHtml(Number.isFinite(leftValue) ? formatter(leftValue) : "n/a")} ${strategyComparisonBadge("left", winner, mode === "lower" ? "lower" : "better")}</td>
+                <td>${escapeHtml(Number.isFinite(rightValue) ? formatter(rightValue) : "n/a")} ${strategyComparisonBadge("right", winner, mode === "lower" ? "lower" : "better")}</td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderStrategyComparison() {
+    if (!elements.strategyComparisonChart) return;
+    syncStrategyComparisonSelection();
+    const options = strategyComparisonStrategyOptions();
+    const replays = strategyComparisonReplays();
+    const symbols = uniqueSorted(replays.map((replay) => replay.symbol));
+    const timeframes = uniqueSorted(replays.map((replay) => canonicalTimeframe(replay.timeframe)))
+      .sort((left, right) => timeframeSortRank(left) - timeframeSortRank(right));
+    const fills = uniqueSorted(replays.map(replayFillAssumption));
+    renderStrategyComparisonControls(options, symbols, timeframes, fills);
+    if (!options.length) {
+      setEmpty(elements.strategyComparisonChart, "No replay strategy data loaded yet.");
+      setEmpty(elements.strategyComparisonMetrics, "Load SV2.0.2 / MF-ORIG replay JSON to compare strategies.");
+      elements.strategyComparisonVerdict.innerHTML = "";
+      return;
+    }
+    const leftReplay = strategyComparisonReplay(state.strategyComparison.leftStrategyId);
+    const rightReplay = strategyComparisonReplay(state.strategyComparison.rightStrategyId);
+    renderStrategyComparisonChart(leftReplay, rightReplay);
+    renderStrategyComparisonMetrics(leftReplay, rightReplay);
   }
 
   function renderComponentCards(summaries) {
@@ -1479,7 +1971,12 @@
         });
       });
     return replays
-      .filter((replay) => (replay.strategy_id || "money_flow_v1_2_canonical") === state.evidenceReplayStrategyId)
+      .filter((replay) => {
+        const strategyId = replay.strategy_id || "money_flow_v1_2_canonical";
+        if (HIDDEN_DASHBOARD_STRATEGY_IDS.has(String(strategyId))) return false;
+        if (state.evidenceReplayStrategyId === EVIDENCE_ALL_REPLAY_STRATEGIES_ID) return true;
+        return strategyId === state.evidenceReplayStrategyId;
+      })
       .filter((replay) => {
         const component = replay.component || `sleeve_${canonicalTimeframe(replay.timeframe)}`;
         return state.selectedComponent === "all" || component === state.selectedComponent;
@@ -1496,7 +1993,7 @@
         }, baseline);
         return {
           strategy_id: strategyId,
-          strategy_label: replay.strategy_label || replay.strategy_id || "SV2.0.2 replay strategy",
+          strategy_label: dashboardStrategyLabel(replay.strategy_label, replay.strategy_id || "money_flow_v1_2_canonical"),
           component: replay.component || `sleeve_${canonicalTimeframe(replay.timeframe)}`,
           symbol: replay.symbol || "unknown",
           timeframe: canonicalTimeframe(replay.timeframe),
@@ -1517,6 +2014,7 @@
         };
       })
       .sort((left, right) =>
+        left.strategy_label.localeCompare(right.strategy_label) ||
         left.symbol.localeCompare(right.symbol) ||
         SV202_CANONICAL_TIMEFRAMES.indexOf(left.timeframe) - SV202_CANONICAL_TIMEFRAMES.indexOf(right.timeframe) ||
         left.fill_timing.localeCompare(right.fill_timing),
@@ -3203,7 +3701,9 @@
     const pt = Array.isArray(state.pt002HistoricalReplay?.replays)
       ? state.pt002HistoricalReplay.replays
       : [];
-    return [...sv202, ...pt];
+    return [...sv202, ...pt]
+      .filter(isVisibleDashboardStrategyRow)
+      .filter((row) => isHistoricalReplayStrategyVisible(row.strategy_id || "money_flow_v1_2_canonical"));
   }
 
   function replayIdentity(row) {
@@ -3217,10 +3717,10 @@
 
   function mergeReplayRows(existing, incoming) {
     const merged = new Map();
-    (existing || []).forEach((row) => {
+    (existing || []).filter(isVisibleDashboardStrategyRow).forEach((row) => {
       merged.set(replayIdentity(row), row);
     });
-    (incoming || []).forEach((row) => {
+    (incoming || []).filter(isVisibleDashboardStrategyRow).forEach((row) => {
       const key = replayIdentity(row);
       const previous = merged.get(key) || {};
       merged.set(key, {
@@ -3279,7 +3779,7 @@
         );
         return [{
           strategy_id: "money_flow_v1_2_canonical",
-          strategy_label: "Money Flow v1.2 canonical",
+          strategy_label: "Money Flow v1.2",
           component: component || `sleeve_${timeframe}`,
           symbol,
           timeframe,
@@ -3316,7 +3816,9 @@
   function mfOrigEv2SummaryReplays() {
     const summary = state.mfOrigSummary || {};
     if (summary.phase !== "MF-ORIG-EV2") return [];
-    return (summary.replay_results || []).map((row) => {
+    return (summary.replay_results || [])
+      .filter((row) => isVisibleMfOrigStrategyId(row.hypothesis_id))
+      .map((row) => {
       const timeframe = canonicalTimeframe(row.timeframe);
       const chartDataPath = mfOrigEv2SelectedChartDataPath(
         row.symbol,
@@ -3346,6 +3848,56 @@
           trade_count: row.trade_count,
           win_rate: row.win_rate,
           largest_loss: row.largest_loss,
+          largest_win: row.largest_win,
+          profit_factor: row.profit_factor,
+        },
+        candles: [],
+        indicators: [],
+        markers: [],
+        trades: [],
+        equity_curve: [],
+      };
+    });
+  }
+
+  function sorEv3SummaryReplays() {
+    const summary = state.sorEv3Summary || {};
+    if (summary.phase !== "SOR-EV3") return [];
+    return (summary.variant_results || [])
+      .filter((row) => EVIDENCE_PRIORITY_REPLAY_STRATEGY_IDS.has(row.variant_id))
+      .map((row) => {
+      const timeframe = canonicalTimeframe(row.timeframe);
+      const strategyId = row.variant_id || "unknown_sor_ev3_variant";
+      const fillAssumption = row.fill_timing || row.fill_assumption || "unknown";
+      const chartDataPath = sv202SelectedChartDataPath(
+        row.symbol,
+        timeframe,
+        strategyId,
+        fillAssumption,
+      );
+      return {
+        strategy_id: strategyId,
+        strategy_label: `SOR-EV3 ${strategyId}`,
+        component: row.component_key || `sleeve_${timeframe}`,
+        symbol: row.symbol,
+        timeframe,
+        fill_assumption: fillAssumption,
+        research_only: true,
+        production_approved: row.production_approved === true,
+        data_source: "SOR-EV3 compact summary; selected chart data loads lazily",
+        strategy_truth_lane: "historical_public_mainnet_candles",
+        chart_data_path: chartDataPath,
+        chart_data_lazy: Boolean(chartDataPath),
+        summary: {
+          starting_equity: row.baseline_ending_equity !== undefined && row.baseline_net_pnl !== undefined
+            ? decimal(row.baseline_ending_equity) - decimal(row.baseline_net_pnl)
+            : "10000",
+          ending_equity: row.variant_ending_equity,
+          net_pnl: row.variant_net_pnl,
+          max_drawdown: row.variant_max_drawdown || row.max_drawdown,
+          trade_count: row.trade_count,
+          win_rate: row.win_rate,
+          largest_loss: row.variant_largest_loss || row.largest_loss,
           largest_win: row.largest_win,
           profit_factor: row.profit_factor,
         },
@@ -3388,12 +3940,13 @@
   const HISTORICAL_PRICE_PANE = 1;
   const HISTORICAL_MACD_PANE = 2;
   const HIDDEN_HISTORICAL_REPLAY_STRATEGY_IDS = new Set([
+    "baseline_current_money_flow_rules",
     "macd_removed_research_only",
     "only_close_on_5_20_cross_research_only",
   ]);
 
   function isHistoricalReplayStrategyVisible(strategyId) {
-    return !HIDDEN_HISTORICAL_REPLAY_STRATEGY_IDS.has(strategyId);
+    return !HIDDEN_HISTORICAL_REPLAY_STRATEGY_IDS.has(String(strategyId || ""));
   }
 
   function filteredReplayByRange(replay, range) {
@@ -3954,11 +4507,11 @@
             row.strategy_id || "baseline_current_money_flow_rules",
             {
               value: row.strategy_id || "baseline_current_money_flow_rules",
-              label: row.strategy_label || row.strategy_id || "OG replay / strategy",
+              label: dashboardStrategyLabel(row.strategy_label, row.strategy_id || "baseline_current_money_flow_rules"),
             },
           ]),
           ...(Array.isArray(summary.strategies)
-            ? summary.strategies.map((row) => [row.id, { value: row.id, label: row.label || row.id }])
+            ? summary.strategies.map((row) => [row.id, { value: row.id, label: dashboardStrategyLabel(row.label || row.id, row.id) }])
             : []),
         ].filter(([value]) => value),
       ).values(),
@@ -4006,7 +4559,7 @@
     if (elements.historicalReplayStrategyFilter) {
       elements.historicalReplayStrategyFilter.onchange = () => {
         state.historicalReplay.strategyId = elements.historicalReplayStrategyFilter.value === "all"
-          ? "baseline_current_money_flow_rules"
+          ? "money_flow_v1_2_canonical"
           : elements.historicalReplayStrategyFilter.value;
         state.historicalReplay.selectedTradeId = null;
         renderHistoricalReplay();
@@ -4049,7 +4602,7 @@
     const dataset = historicalReadinessForSelection();
     const warnings = dataset?.reason_codes || [];
     elements.historicalReplaySourceStatus.innerHTML = `
-      <span>Replay strategy: ${escapeHtml(replay?.strategy_label || state.historicalReplay.strategyId)}</span>
+      <span>Replay strategy: ${escapeHtml(dashboardStrategyLabel(replay?.strategy_label, state.historicalReplay.strategyId))}</span>
       <span>Money Flow version: ${escapeHtml(state.sv20Summary?.money_flow_version || "money_flow_v1_1 replay source")}</span>
       <span>Canonical evidence: ${escapeHtml(canonicalEvidence.status || "not_loaded")}</span>
       <span>Evidence packs: ${escapeHtml((canonicalEvidence.evidence_pack_paths || []).length)}</span>
@@ -4346,7 +4899,7 @@
             <tr>
               <td>${escapeHtml(row.symbol)}</td>
               <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
-              <td>${escapeHtml(row.strategy_label || row.strategy_id || "OG replay / strategy")}</td>
+              <td>${escapeHtml(dashboardStrategyLabel(row.strategy_label, row.strategy_id || "baseline_current_money_flow_rules"))}</td>
               <td>${escapeHtml(row.status)}</td>
               <td>${escapeHtml(money(row.ending_equity))}</td>
               <td class="${decimal(row.net_pnl) >= 0 ? "positive" : "negative"}">${escapeHtml(money(row.net_pnl))}</td>
@@ -4419,7 +4972,7 @@
     }
     const baseReplay = selectedHistoricalReplay();
     if (baseReplay && (!state.historicalReplay.strategyId || !state.historicalReplay.symbol || !state.historicalReplay.timeframe)) {
-      state.historicalReplay.strategyId = baseReplay.strategy_id || "baseline_current_money_flow_rules";
+      state.historicalReplay.strategyId = baseReplay.strategy_id || "money_flow_v1_2_canonical";
       state.historicalReplay.symbol = baseReplay.symbol || "ETH";
       state.historicalReplay.timeframe = canonicalTimeframe(baseReplay.timeframe || "1h");
     }
@@ -4464,7 +5017,7 @@
       symbol: replay.symbol,
       timeframe: replay.timeframe,
       strategy_id: replay.strategy_id,
-      strategy_label: replay.strategy_label,
+      strategy_label: dashboardStrategyLabel(replay.strategy_label, replay.strategy_id),
       status: "canonical_evidence_ready",
       ending_equity: replay.summary?.ending_equity,
       net_pnl: replay.summary?.net_pnl,
@@ -4478,7 +5031,8 @@
   async function loadDefaultSv202DashboardChartData() {
     const sv202SummaryReplays = sv202SummaryReplaysFromBatches();
     const mfOrigSummaryReplays = mfOrigEv2SummaryReplays();
-    const allReplays = mergeReplayRows(sv202SummaryReplays, mfOrigSummaryReplays);
+    const sorEv3Replays = sorEv3SummaryReplays();
+    const allReplays = mergeReplayRows(mergeReplayRows(sv202SummaryReplays, mfOrigSummaryReplays), sorEv3Replays);
     if (!allReplays.length) return;
     const strategies = Array.from(
       new Map(
@@ -4487,7 +5041,7 @@
             replay.strategy_id || "money_flow_v1_2_canonical",
             {
               id: replay.strategy_id || "money_flow_v1_2_canonical",
-              label: replay.strategy_label || replay.strategy_id || "SV2.0.2 replay strategy",
+              label: dashboardStrategyLabel(replay.strategy_label, replay.strategy_id || "money_flow_v1_2_canonical"),
               research_only: replay.research_only !== false,
             },
           ])
@@ -4545,7 +5099,11 @@
       console.warn(`Could not load selected historical chart data ${path}`, error);
     } finally {
       state.loadingHistoricalChartDataPaths.delete(path);
-      renderHistoricalReplayBody();
+      if (state.activeView === "evidence") {
+        render();
+      } else {
+        renderHistoricalReplayBody();
+      }
     }
   }
 
@@ -6698,7 +7256,9 @@
   function renderEvidenceLabMfOrig() {
     if (!elements.evidenceLabMfOrig) return;
     const summary = state.mfOrigSummary;
-    const rows = Array.isArray(summary?.hypothesis_summary) ? summary.hypothesis_summary : [];
+    const rows = Array.isArray(summary?.hypothesis_summary)
+      ? summary.hypothesis_summary.filter((row) => isVisibleMfOrigStrategyId(row.hypothesis_id))
+      : [];
     if (!summary || !rows.length) {
       setEmpty(elements.evidenceLabMfOrig, "data_not_available_in_mf_orig_bundle");
       return;
@@ -7096,6 +7656,425 @@
     renderEvidenceLabChartOverlay();
   }
 
+  function auditReviewSummary() {
+    return state.evAuditSummary || null;
+  }
+
+  function auditReviewRows(rows) {
+    return Array.isArray(rows) ? rows : [];
+  }
+
+  function auditReviewText(value, fallback = "data_not_available_in_audit_bundle") {
+    if (value === null || value === undefined || value === "") return fallback;
+    if (Array.isArray(value)) return value.length ? value.join(", ") : fallback;
+    return String(value);
+  }
+
+  function auditReviewPillClass(value) {
+    const raw = String(value || "").toLowerCase();
+    if (
+      raw.includes("p0") ||
+      raw.includes("p1") ||
+      raw.includes("blocked") ||
+      raw.includes("failed") ||
+      raw.includes("damaged") ||
+      raw.includes("rejected") ||
+      raw.includes("no_strategy") ||
+      raw.includes("none_cleanly") ||
+      raw.includes("not_good_enough") ||
+      raw.includes("not_production")
+    ) return "result-bad";
+    if (
+      raw.includes("p2") ||
+      raw.includes("p3") ||
+      raw.includes("warning") ||
+      raw.includes("condition") ||
+      raw.includes("underperformed") ||
+      raw.includes("candidate") ||
+      raw.includes("needs_")
+    ) return "result-warn";
+    if (
+      raw.includes("canonical") ||
+      raw.includes("implemented") ||
+      raw.includes("ready") ||
+      raw.includes("good_enough") ||
+      raw.includes("true_forward")
+    ) return "result-good";
+    return "result-unknown";
+  }
+
+  function auditReviewPill(value) {
+    return `<span class="result-pill ${auditReviewPillClass(value)}">${escapeHtml(auditReviewText(value, "n/a"))}</span>`;
+  }
+
+  function auditReviewMetricCard(label, value, detail, className = "") {
+    return `
+      <article class="metric-cell ${escapeHtml(className)}">
+        <span class="metric-label">${escapeHtml(label)}</span>
+        <strong>${escapeHtml(auditReviewText(value, "n/a"))}</strong>
+        <small>${escapeHtml(auditReviewText(detail, ""))}</small>
+      </article>
+    `;
+  }
+
+  function renderAuditReviewVerdictCards() {
+    if (!elements.auditReviewVerdictCards) return;
+    const summary = auditReviewSummary();
+    if (!summary) {
+      setEmpty(elements.auditReviewVerdictCards, "EV-AUDIT1 summary JSON not loaded.");
+      return;
+    }
+    const verdict = summary.executive_verdict || {};
+    const issues = summary.issue_counts || {};
+    const backtest = summary.backtest_adequacy_decision || {};
+    const paper = summary.paper_observation_readiness || {};
+    const issueText = `P0 ${issues.P0 ?? 0} / P1 ${issues.P1 ?? 0} / P2 ${issues.P2 ?? 0} / P3 ${issues.P3 ?? 0}`;
+    elements.auditReviewVerdictCards.innerHTML = [
+      auditReviewMetricCard("Credible candidate", verdict.credible_evidence_candidate, "audit verdict"),
+      auditReviewMetricCard("Best review candidate", verdict.best_review_candidate, verdict.best_review_candidate_reason),
+      auditReviewMetricCard("Best full-equity review", verdict.best_full_equity_review_candidate, "not production approval"),
+      auditReviewMetricCard("Backtest adequacy", backtest.decision, "visual review / hypothesis filtering only"),
+      auditReviewMetricCard("Issue count", issueText, "open audit findings"),
+      auditReviewMetricCard("Paper readiness", paper.decision, paper.required_next_phase),
+    ].join("");
+  }
+
+  function renderAuditReviewScorecard() {
+    if (!elements.auditReviewScorecard) return;
+    const summary = auditReviewSummary();
+    if (!summary) {
+      setEmpty(elements.auditReviewScorecard, "EV-AUDIT1 methodology scorecard not loaded.");
+      return;
+    }
+    const methodology = summary.methodology_audit || {};
+    const scores = methodology.overall_scores || {};
+    const rows = [
+      ["Methodology", scores.methodology_confidence_0_to_5],
+      ["Data", scores.data_confidence_0_to_5],
+      ["Candidate", scores.candidate_confidence_0_to_5],
+      ["Founder readiness", scores.founder_decision_readiness_0_to_5],
+    ];
+    elements.auditReviewScorecard.innerHTML = `
+      <div class="audit-score-list">
+        ${rows
+          .map(([label, value]) => {
+            const parsed = decimal(value, 0);
+            const width = Math.max(0, Math.min(100, (parsed / 5) * 100));
+            return `
+              <div class="audit-score-row">
+                <div>
+                  <strong>${escapeHtml(label)}</strong>
+                  <span>${escapeHtml(compactNumber(parsed, 1))} / 5</span>
+                </div>
+                <div class="audit-score-bar" aria-label="${escapeHtml(label)} confidence score">
+                  <div class="audit-score-fill" style="width:${width}%"></div>
+                </div>
+              </div>
+            `;
+          })
+          .join("")}
+      </div>
+      <p class="card-note">${escapeHtml(auditReviewText(methodology.score_explanation, "No score explanation available."))}</p>
+    `;
+  }
+
+  function renderAuditReviewPaperReadiness() {
+    if (!elements.auditReviewPaperReadiness) return;
+    const summary = auditReviewSummary();
+    const readiness = summary?.paper_observation_readiness;
+    if (!readiness) {
+      setEmpty(elements.auditReviewPaperReadiness, "Paper-observation readiness audit data not loaded.");
+      return;
+    }
+    elements.auditReviewPaperReadiness.innerHTML = `
+      <table>
+        <tbody>
+          <tr><th>Decision</th><td>${auditReviewPill(readiness.decision)}</td></tr>
+          <tr><th>Approval</th><td>${escapeHtml(readiness.not_approval ? "not an approval" : "n/a")}</td></tr>
+          <tr><th>Required next phase</th><td>${escapeHtml(auditReviewText(readiness.required_next_phase, "n/a"))}</td></tr>
+          <tr><th>Conditions</th><td>${escapeHtml(auditReviewText(readiness.conditions, "n/a"))}</td></tr>
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderAuditReviewHypothesisTable(target, rows, emptyMessage) {
+    if (!target) return;
+    const visibleRows = auditReviewRows(rows).filter(isVisibleDashboardStrategyRow).slice(0, 10);
+    if (!visibleRows.length) {
+      setEmpty(target, emptyMessage);
+      return;
+    }
+    target.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Family</th>
+            <th>Hypothesis</th>
+            <th>Methodology</th>
+            <th>PnL Delta</th>
+            <th>Drawdown Delta</th>
+            <th>Trades</th>
+            <th>Status</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${visibleRows
+            .map(
+              (row) => `
+                <tr>
+                  <td>${escapeHtml(auditReviewText(row.strategy_family, "n/a"))}</td>
+                  <td>${escapeHtml(auditReviewText(row.hypothesis_id, "n/a"))}</td>
+                  <td>${auditReviewPill(row.methodology_label)}</td>
+                  <td>${escapeHtml(money(row.net_pnl_delta_vs_baseline))}</td>
+                  <td>${escapeHtml(money(row.max_drawdown_delta))}</td>
+                  <td>${escapeHtml(compactNumber(row.trade_count, 0))}</td>
+                  <td>${auditReviewPill(row.candidate_status)}</td>
+                  <td>${escapeHtml(auditReviewText(row.rejection_reason, "n/a"))}</td>
+                </tr>
+              `,
+            )
+            .join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderAuditReviewTradeTable(target, rows, emptyMessage) {
+    if (!target) return;
+    const visibleRows = auditReviewRows(rows).filter(isVisibleDashboardStrategyRow).slice(0, 10);
+    if (!visibleRows.length) {
+      setEmpty(target, emptyMessage);
+      return;
+    }
+    target.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Strategy</th>
+            <th>Market</th>
+            <th>Fill</th>
+            <th>Entry</th>
+            <th>Exit</th>
+            <th>Net PnL</th>
+            <th>Context</th>
+            <th>Exit reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${visibleRows
+            .map(
+              (row) => `
+                <tr>
+                  <td>${escapeHtml(auditReviewText(row.hypothesis_id, "n/a"))}</td>
+                  <td>${escapeHtml(`${auditReviewText(row.symbol, "n/a")} ${displayTimeframe(row.timeframe)}`)}</td>
+                  <td>${escapeHtml(auditReviewText(row.fill_assumption, "n/a"))}</td>
+                  <td>${escapeHtml(auditReviewText(row.entry_time, "n/a"))}</td>
+                  <td>${escapeHtml(auditReviewText(row.exit_time, "n/a"))}</td>
+                  <td>${escapeHtml(money(row.net_pnl))}</td>
+                  <td>${escapeHtml(auditReviewText(row.entry_classification || row.entry_volatility_regime, "unknown"))}</td>
+                  <td>${escapeHtml(auditReviewText(row.exit_reason, "n/a"))}</td>
+                </tr>
+              `,
+            )
+            .join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderAuditReviewLosingStreaks() {
+    if (!elements.auditReviewLosingStreaks) return;
+    const rows = auditReviewRows(auditReviewSummary()?.losing_streaks).filter(isVisibleDashboardStrategyRow).slice(0, 10);
+    if (!rows.length) {
+      setEmpty(elements.auditReviewLosingStreaks, "Losing-streak audit data not loaded.");
+      return;
+    }
+    elements.auditReviewLosingStreaks.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Losses</th>
+            <th>Hypothesis</th>
+            <th>Market</th>
+            <th>Fill</th>
+            <th>Streak PnL</th>
+            <th>Window</th>
+            <th>Primary exit</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows
+            .map(
+              (row) => `
+                <tr>
+                  <td>${escapeHtml(compactNumber(row.consecutive_losses, 0))}</td>
+                  <td>${escapeHtml(auditReviewText(row.hypothesis_id, "n/a"))}</td>
+                  <td>${escapeHtml(`${auditReviewText(row.symbol, "n/a")} ${displayTimeframe(row.timeframe)}`)}</td>
+                  <td>${escapeHtml(auditReviewText(row.fill_assumption, "n/a"))}</td>
+                  <td>${escapeHtml(money(row.streak_pnl))}</td>
+                  <td>${escapeHtml(`${auditReviewText(row.start_time, "n/a")} -> ${auditReviewText(row.end_time, "n/a")}`)}</td>
+                  <td>${escapeHtml(auditReviewText(row.primary_exit_reason, "n/a"))}</td>
+                </tr>
+              `,
+            )
+            .join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderAuditReviewIssues() {
+    if (!elements.auditReviewIssues) return;
+    const rows = auditReviewRows(auditReviewSummary()?.issue_list);
+    if (!rows.length) {
+      setEmpty(elements.auditReviewIssues, "Audit issue list not loaded.");
+      return;
+    }
+    elements.auditReviewIssues.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Severity</th>
+            <th>Issue</th>
+            <th>Why it matters</th>
+            <th>Required fix</th>
+            <th>Decision impact</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows
+            .map(
+              (row) => `
+                <tr>
+                  <td>${auditReviewPill(row.severity)}</td>
+                  <td>${escapeHtml(auditReviewText(row.issue, "n/a"))}</td>
+                  <td>${escapeHtml(auditReviewText(row.why_it_matters, "n/a"))}</td>
+                  <td>${escapeHtml(auditReviewText(row.required_fix, "n/a"))}</td>
+                  <td>${escapeHtml(auditReviewText(row.blocks_founder_decisions, "n/a"))}</td>
+                </tr>
+              `,
+            )
+            .join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderAuditReviewDataIntegrity() {
+    if (!elements.auditReviewDataIntegrity) return;
+    const summary = auditReviewSummary();
+    const rows = auditReviewRows(summary?.data_integrity?.data_rows);
+    if (!rows.length) {
+      setEmpty(elements.auditReviewDataIntegrity, "Data-integrity audit rows not loaded.");
+      return;
+    }
+    elements.auditReviewDataIntegrity.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Timeframe</th>
+            <th>Status</th>
+            <th>Earliest</th>
+            <th>Latest</th>
+            <th>Candles</th>
+            <th>Coverage</th>
+            <th>Limitations</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows
+            .map(
+              (row) => `
+                <tr>
+                  <td>${escapeHtml(auditReviewText(row.symbol, "n/a"))}</td>
+                  <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
+                  <td>${auditReviewPill(row.data_status)}</td>
+                  <td>${escapeHtml(auditReviewText(row.earliest, "n/a"))}</td>
+                  <td>${escapeHtml(auditReviewText(row.latest, "n/a"))}</td>
+                  <td>${escapeHtml(compactNumber(row.candle_count, 0))}</td>
+                  <td>${escapeHtml(pct(row.coverage_percent))}</td>
+                  <td>${escapeHtml(auditReviewText(row.known_limitations, "n/a"))}</td>
+                </tr>
+              `,
+            )
+            .join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderAuditReviewInventory() {
+    if (!elements.auditReviewInventory) return;
+    const rows = auditReviewRows(auditReviewSummary()?.evidence_inventory).filter(isVisibleDashboardStrategyRow);
+    if (!rows.length) {
+      setEmpty(elements.auditReviewInventory, "Evidence inventory audit rows not loaded.");
+      return;
+    }
+    elements.auditReviewInventory.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Family</th>
+            <th>Hypothesis</th>
+            <th>Evidence class</th>
+            <th>Methodology</th>
+            <th>Coverage</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows
+            .map(
+              (row) => `
+                <tr>
+                  <td>${escapeHtml(auditReviewText(row.strategy_family, "n/a"))}</td>
+                  <td>${escapeHtml(auditReviewText(row.hypothesis_id, "n/a"))}</td>
+                  <td>${auditReviewPill(row.evidence_classification)}</td>
+                  <td>${auditReviewPill(row.methodology_label)}</td>
+                  <td>${escapeHtml(`${auditReviewRows(row.symbols_covered).length || "n/a"} symbols / ${auditReviewRows(row.timeframes_covered).map(displayTimeframe).join(", ") || "n/a"}`)}</td>
+                  <td>${auditReviewPill(row.candidate_status)}</td>
+                </tr>
+              `,
+            )
+            .join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderAuditReview() {
+    renderAuditReviewVerdictCards();
+    renderAuditReviewScorecard();
+    renderAuditReviewPaperReadiness();
+    renderAuditReviewHypothesisTable(
+      elements.auditReviewTopHypotheses,
+      auditReviewSummary()?.top_hypotheses_by_aggregate_delta,
+      "Top hypothesis audit rows not loaded.",
+    );
+    renderAuditReviewHypothesisTable(
+      elements.auditReviewWorstHypotheses,
+      auditReviewSummary()?.worst_hypotheses_by_aggregate_delta,
+      "Worst hypothesis audit rows not loaded.",
+    );
+    renderAuditReviewTradeTable(
+      elements.auditReviewWinningTrades,
+      auditReviewSummary()?.top_winning_trades,
+      "Top winning trade audit rows not loaded.",
+    );
+    renderAuditReviewTradeTable(
+      elements.auditReviewLosingTrades,
+      auditReviewSummary()?.top_losing_trades,
+      "Top losing trade audit rows not loaded.",
+    );
+    renderAuditReviewLosingStreaks();
+    renderAuditReviewIssues();
+    renderAuditReviewDataIntegrity();
+    renderAuditReviewInventory();
+  }
+
   function render() {
     const summaries = allSummaries();
     const selected = activeSummaries();
@@ -7104,11 +8083,13 @@
     renderFilters(summaries);
     renderEvidenceStrategyFilter();
     renderEvidenceDateControls();
+    renderStrategyComparison();
     renderComponentCards(selected);
     renderDetail(selected);
     renderRunTable(selected);
     renderExperiments();
     renderEvidenceLab();
+    renderAuditReview();
     renderHistoricalReplay();
     renderUatCockpit();
     renderUatDashboard();
@@ -7134,6 +8115,9 @@
     if (payload?.phase === "SOR-EV3") return "sor_ev3_summary";
     if (String(payload?.phase || "").startsWith("MF-ORIG-EV1")) return "mf_orig_summary";
     if (String(payload?.phase || "").startsWith("MF-ORIG-EV2")) return "mf_orig_summary";
+    if (payload?.phase === "EV-AUDIT1" || payload?.audit_verdict === "no_strategy_has_clean_production_or_paper_candidate_status") {
+      return "ev_audit_summary";
+    }
     if (
       payload?.report === "pt0_0_2_historical_strategy_replay_cockpit" ||
       payload?.report === "pt0_0_3_historical_data_horizon_and_1d_replay"
@@ -7161,6 +8145,7 @@
     await loadDefaultSv20Summaries();
     await loadDefaultSorEvSummaries();
     await loadDefaultMfOrigSummaries();
+    await loadDefaultEvAuditSummaries();
 
     state.review = null;
     state.batches = [];
@@ -7230,9 +8215,10 @@
         if (type === "sor_ev2_summary") state.sorEv2Summary = payload;
         if (type === "sor_ev3_summary") state.sorEv3Summary = payload;
         if (type === "mf_orig_summary") state.mfOrigSummary = payload;
+        if (type === "ev_audit_summary") state.evAuditSummary = payload;
         if (type === "pt002_historical_replay_summary") state.pt002HistoricalReplay = payload;
       });
-      state.selectedComponent = "all";
+      state.selectedComponent = defaultEvidenceComponent(allSummaries());
       elements.sourceLabel.textContent = "Manual JSON loaded";
       elements.sourceDetail.textContent = `${valid.length} local files selected.`;
       render();
@@ -7353,6 +8339,21 @@
         const payload = await response.json();
         if (classifyJson(payload) === "mf_orig_summary") {
           state.mfOrigSummary = payload;
+        }
+      } catch (error) {
+        console.warn(`Could not load ${path}`, error);
+      }
+    }
+  }
+
+  async function loadDefaultEvAuditSummaries() {
+    for (const path of DEFAULT_EV_AUDIT_SUMMARY_FILES) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        if (classifyJson(payload) === "ev_audit_summary") {
+          state.evAuditSummary = payload;
         }
       } catch (error) {
         console.warn(`Could not load ${path}`, error);

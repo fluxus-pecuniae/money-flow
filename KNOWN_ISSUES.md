@@ -1,6 +1,6 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-05-13T15:00:08Z`
+Last reviewed: `2026-05-13T22:03:37Z`
 
 ## Open Items
 
@@ -8,7 +8,7 @@ Last reviewed: `2026-05-13T15:00:08Z`
 
 - `status`: `open`
 - `area`: `EV-AUDIT1 evidence and paper-observation readiness`
-- `summary`: `EV-AUDIT1 found no P0 safety issue and no clean strategy candidate. The current evidence estate is good enough for founder visual review and hypothesis filtering, but not enough for a production rule change, strategy paper-runtime authorization, or live trading. Key remaining evidence risks are 15m/1h Hyperliquid 5000-candle horizon truncation, missing real-time paper observation, no order-book/funding/partial-fill/live-reject modeling, control-pocket damage in promising variants, and unresolved direct source-PDF verification for MF-ORIG.`
+- `summary`: `EV-AUDIT1 found no P0 safety issue and no clean strategy candidate. The current evidence estate is good enough for founder visual review and hypothesis filtering, but not enough for a production rule change, strategy paper-runtime authorization, or live trading. Key remaining evidence risks are 15m/1h Hyperliquid 5000-candle horizon truncation, missing real-time paper observation, no order-book/funding/partial-fill/live-reject modeling, control-pocket damage in promising variants, and incomplete source-exact MF-ORIG reconciliation against the now-present PDF.`
 - `impact`: `PT-RT1 can be scoped as real-time public market data plus paper observation with conditions, but that is a future observation phase rather than strategy approval. Before any rule promotion, the team still needs real-time paper observation logs, stricter control-pocket gates, clearer out-of-sample-style slices, funding/order-book/partial-fill limitations called out, and explicit separation between dashboard display filters and canonical evidence. No orders, private/signed/order endpoints, testnet strategy truth, production rule changes, or live trading follow from EV-AUDIT1.`
 
 ### K-019
@@ -20,10 +20,10 @@ Last reviewed: `2026-05-13T15:00:08Z`
 
 ### K-018
 
-- `status`: `open`
+- `status`: `resolved`
 - `area`: `MF-ORIG-EV1 source-document availability`
-- `summary`: `MF-ORIG-EV1 could not read the original Money Flow Trading System PDF directly because the PDF was not present in the repository or common local Downloads/Documents search paths during the implementation. The source specification and evidence reconstruction therefore use the prompt-provided source-truth summary and label this explicitly as source_pdf_not_available_to_agent_prompt_summary_used.`
-- `impact`: `The MF-ORIG-EV1/EV2 replays are useful for source-faithful evidence review, and MF-ORIG-EV2 now extends the corrected reconstruction across all 9 canonical symbols and all four timeframes, but any later MF-ORIG source-legalization pass should attach or point to the actual PDF and reconcile subjective source wording before treating the reconstruction as complete source authority. Production Money Flow v1.2 remains unchanged, no original hypothesis is approved, and no paper/live/order behavior follows from MF-ORIG evidence.`
+- `summary`: `OB2.0 resolves the source-document availability gap by moving the original Money Flow Trading System PDF into the Obsidian vault at money-flow/90 Reference/The Money Flow Trading System - Gerald Peters - 2019 Edition 2.pdf. MF-ORIG-EV1/EV2 evidence numbers were not regenerated or changed by OB2.0.`
+- `impact`: `Future MF-ORIG work can reconcile exact PDF text before making source-authority claims. Existing MF-ORIG-EV1.1/EV2 outputs remain evidence-only, production Money Flow v1.2 remains unchanged, no original hypothesis is approved, and no paper/live/order behavior follows from MF-ORIG evidence.`
 
 ### K-017
 

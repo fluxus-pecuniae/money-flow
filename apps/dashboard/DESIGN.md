@@ -95,8 +95,11 @@ Primary dashboard tabs are:
   - Generated replay rows include a `Result` badge comparing PnL and drawdown to the matching Money Flow v1.2 baseline row: green `improved_pnl_drawdown`, amber partial-improvement labels, neutral `same_result`, or red `no bueno`.
   - The selector is review/navigation only; it does not regenerate evidence or approve variants.
 - Evidence Lab
+- Audit Review
 
 The invalid legacy `Experiments` surface is not exposed as a primary tab. Evidence Lab is tied to SOR-EV1/SOR-EV2/SOR-EV3 committed summaries and canonical SV2.0.2 baseline context only.
+
+Audit Review is tied to EV-AUDIT1 committed summary JSON only. It visualizes the audit verdict, methodology scorecard, paper-observation readiness, top/worst hypotheses, biggest winning/losing trades, losing streaks, audit issues, data-integrity rows, and evidence inventory. It is display-only and must not imply canonical evidence regeneration, strategy approval, paper approval, live approval, or order capability.
 
 `UAT Chart Cockpit` and `UAT2 Shadow Run` remain hidden legacy panels for regression coverage and historical context, but they are no longer top-level navigation tabs.
 
@@ -135,6 +138,17 @@ The UAT Chart Cockpit has its own bottom blotter tabs:
 - `evidence-lab-overlay-inspector`
 - `evidence-lab-worst-focus-table`
 - `evidence-lab-control-pocket-view`
+- `audit-review-verdict-cards`
+- `audit-review-scorecard`
+- `audit-review-paper-readiness`
+- `audit-review-top-hypotheses`
+- `audit-review-worst-hypotheses`
+- `audit-review-winning-trades`
+- `audit-review-losing-trades`
+- `audit-review-losing-streaks`
+- `audit-review-issues`
+- `audit-review-data-integrity`
+- `audit-review-inventory`
 
 ## Color System
 
