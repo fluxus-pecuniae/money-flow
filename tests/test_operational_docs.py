@@ -213,7 +213,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "SV2.0.1 canonical evidence truth hotfix" in moved_memory
     assert "SV2.0.2 hardened DB import and canonical evidence-pack generation is complete" in moved_memory
     assert "MF-ORIG-EV1.1 accounting/drawdown evidence hotpatch" in moved_memory
-    assert "MF-ORIG-EV2 multi-timeframe Original Money Flow evidence packs plus Historical Replay UI" in moved_memory
+    assert "MF-ORIG-EV2 multi-timeframe Original Money Flow evidence packs plus full-equity comparison Historical Replay UI" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
 
@@ -228,7 +228,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
     assert (
-        "Current implemented milestone | `MF-ORIG-EV2` Original Money Flow multi-timeframe evidence packs + Historical Replay UI complete"
+        "Current implemented milestone | `MF-ORIG-EV2` Original Money Flow multi-timeframe evidence packs + full-equity comparison replay complete"
         in command_center
     )
     assert "Canonical command center" in compatibility_command_center

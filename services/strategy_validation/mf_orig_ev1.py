@@ -80,7 +80,30 @@ MF_ORIG_EV2_DISPLAY_LABELS: dict[str, str] = {
     "mf_orig_1d_stage2_breakout_resistance": "mf_orig_stage2_breakout_resistance",
     "mf_orig_stage2_pullback_reclaim": "mf_orig_stage2_pullback_reclaim",
     "mf_orig_stage_filter_only": "mf_orig_stage_filter_only",
+    "mf_orig_1d_stage2_5_20_crossover_full_equity": "mf_orig_stage2_5_20_crossover_full_equity",
+    "mf_orig_1d_stage2_breakout_resistance_full_equity": "mf_orig_stage2_breakout_resistance_full_equity",
+    "mf_orig_stage2_pullback_reclaim_full_equity": "mf_orig_stage2_pullback_reclaim_full_equity",
+    "mf_orig_stage_filter_only_full_equity": "mf_orig_stage_filter_only_full_equity",
 }
+
+MF_ORIG_EV2_HYPOTHESIS_CONFIGS: tuple[dict[str, str], ...] = tuple(
+    [
+        {
+            "hypothesis_id": hypothesis_id,
+            "base_hypothesis_id": hypothesis_id,
+            "sizing_mode": "source_1pct_risk",
+        }
+        for hypothesis_id in MF_ORIG_HYPOTHESES
+    ]
+    + [
+        {
+            "hypothesis_id": f"{hypothesis_id}_full_equity",
+            "base_hypothesis_id": hypothesis_id,
+            "sizing_mode": "full_equity_notional",
+        }
+        for hypothesis_id in MF_ORIG_HYPOTHESES
+    ]
+)
 
 SOURCE_RULE_EXTRACTION: list[dict[str, str]] = [
     {
@@ -185,6 +208,7 @@ class _OpenOriginalPosition:
     entry_fee: Decimal
     risk_budget: Decimal
     notional: Decimal
+    sizing_mode: str
     entry_reason_codes: tuple[str, ...]
     stage_at_entry: str
     min_equity_seen: Decimal
@@ -249,10 +273,17 @@ async def build_mf_orig_ev2_report(
         supersedes_phase="MF-ORIG-EV1.1",
         include_full_trade_results=True,
         source_timeframe_policy=MF_ORIG_EV2_TIMEFRAME_POLICY,
+        hypothesis_configs=MF_ORIG_EV2_HYPOTHESIS_CONFIGS,
     )
     replay_rows = report.get("replay_results", [])
     report["ev2_scope"] = {
-        "hypotheses": list(MF_ORIG_HYPOTHESES),
+        "hypotheses": [config["hypothesis_id"] for config in MF_ORIG_EV2_HYPOTHESIS_CONFIGS],
+        "source_1pct_risk_hypotheses": list(MF_ORIG_HYPOTHESES),
+        "full_equity_notional_hypotheses": [
+            config["hypothesis_id"]
+            for config in MF_ORIG_EV2_HYPOTHESIS_CONFIGS
+            if config["sizing_mode"] == "full_equity_notional"
+        ],
         "display_labels": MF_ORIG_EV2_DISPLAY_LABELS,
         "symbols": list(CANONICAL_SYMBOLS),
         "timeframes": ["15m", "1h", "4h", "1d"],
@@ -260,10 +291,11 @@ async def build_mf_orig_ev2_report(
             StrategyValidationFillTiming.NEXT_CANDLE_OPEN.value,
             StrategyValidationFillTiming.NEXT_CANDLE_CLOSE.value,
         ],
-        "scenario_count_expected": 4 * len(CANONICAL_SYMBOLS) * 4 * 2,
+        "scenario_count_expected": len(MF_ORIG_EV2_HYPOTHESIS_CONFIGS) * len(CANONICAL_SYMBOLS) * 4 * 2,
         "source_primary_timeframe": "1d",
         "fractal_adaptation_timeframes": ["4h", "1h"],
         "stress_test_timeframe": "15m",
+        "sizing_modes": ["source_1pct_risk", "full_equity_notional"],
     }
     report["timeframe_interpretation"] = MF_ORIG_EV2_TIMEFRAME_POLICY
     report["per_symbol_summary"] = _mf_orig_group_summary(replay_rows, ("symbol",))
@@ -322,6 +354,7 @@ async def build_mf_orig_ev1_report(
     supersedes_phase: str = "MF-ORIG-EV1",
     include_full_trade_results: bool = False,
     source_timeframe_policy: dict[str, str] | None = None,
+    hypothesis_configs: Sequence[dict[str, str]] | None = None,
 ) -> dict[str, Any]:
     paths = [Path(path) for path in (batch_report_paths or canonical_sv202_batch_report_paths())]
     _assert_canonical_paths(paths)
@@ -332,6 +365,18 @@ async def build_mf_orig_ev1_report(
     generated_at = generated_at or datetime.now(UTC)
     allowed_timeframes = set(included_timeframes or ("1d", "4h", "1h"))
     timeframe_policy = source_timeframe_policy or PRIMARY_TIMEFRAME_POLICY
+    include_full_equity_definitions = hypothesis_configs is not None
+    selected_hypothesis_configs = list(
+        hypothesis_configs
+        or (
+            {
+                "hypothesis_id": hypothesis_id,
+                "base_hypothesis_id": hypothesis_id,
+                "sizing_mode": "source_1pct_risk",
+            }
+            for hypothesis_id in MF_ORIG_HYPOTHESES
+        )
+    )
 
     baseline_parity: list[dict[str, Any]] = []
     replay_rows: list[dict[str, Any]] = []
@@ -387,10 +432,13 @@ async def build_mf_orig_ev1_report(
         snapshots = service._indicator_service._compute_snapshots(candles)
         context = _build_original_context(candles, snapshots)
         baseline_metrics = scenario["metrics"]
-        for hypothesis_id in MF_ORIG_HYPOTHESES:
+        for hypothesis_config in selected_hypothesis_configs:
+            hypothesis_id = hypothesis_config["hypothesis_id"]
             result = _run_original_hypothesis(
                 scenario=scenario,
                 hypothesis_id=hypothesis_id,
+                base_hypothesis_id=hypothesis_config.get("base_hypothesis_id", hypothesis_id),
+                sizing_mode=hypothesis_config.get("sizing_mode", "source_1pct_risk"),
                 candles=candles,
                 context=context,
                 start_at=_coerce_utc(request.start_at),
@@ -448,7 +496,9 @@ async def build_mf_orig_ev1_report(
         "source_rule_extraction": SOURCE_RULE_EXTRACTION,
         "gap_matrix": GAP_MATRIX,
         "primary_timeframe_policy": timeframe_policy,
-        "hypothesis_definitions": _hypothesis_definitions(),
+        "hypothesis_definitions": _hypothesis_definitions(
+            include_full_equity=include_full_equity_definitions
+        ),
         "data_sources": {
             "canonical_baseline": "SV2.0.2 DB-imported Money Flow v1.2 evidence packs",
             "canonical_timestamp": CANONICAL_SV202_TIMESTAMP,
@@ -528,6 +578,8 @@ def _run_original_hypothesis(
     *,
     scenario: dict[str, Any],
     hypothesis_id: str,
+    base_hypothesis_id: str | None = None,
+    sizing_mode: str = "source_1pct_risk",
     candles: Sequence[Candle],
     context: Sequence[dict[str, Any]],
     start_at: datetime,
@@ -628,7 +680,7 @@ def _run_original_hypothesis(
 
         if open_position is not None:
             continue
-        signal = _entry_signal(hypothesis_id, idx, candle, candles, context)
+        signal = _entry_signal(base_hypothesis_id or hypothesis_id, idx, candle, candles, context)
         if not signal["entry_allowed"]:
             for reason in signal["reason_codes"]:
                 if reason.startswith("missing_") or reason == "insufficient_history":
@@ -657,6 +709,7 @@ def _run_original_hypothesis(
             fee_bps=fee_bps,
             reason_codes=tuple(signal["reason_codes"]),
             stage=str(signal.get("stage") or row.get("stage") or "unknown"),
+            sizing_mode=sizing_mode,
         )
         if open_position is None:
             no_trade_reasons["no_trade_invalid_stop_distance"] += 1
@@ -713,6 +766,8 @@ def _run_original_hypothesis(
         "fill_timing": fill_timing.value,
         "methodology": "true_forward_replay",
         "source_strategy": "original_money_flow_reconstruction",
+        "base_hypothesis_id": base_hypothesis_id or hypothesis_id,
+        "sizing_mode": sizing_mode,
         "current_baseline": "money_flow_v1_2",
         "initial_equity": _fmt(initial_equity),
         "ending_equity": _fmt(metrics["ending_equity"]),
@@ -911,17 +966,23 @@ def _open_original_position(
     fee_bps: Decimal,
     reason_codes: tuple[str, ...],
     stage: str,
+    sizing_mode: str = "source_1pct_risk",
 ) -> _OpenOriginalPosition | None:
     stop_distance = entry_price - stop_price
     if stop_distance <= 0 or not stop_distance.is_finite():
         return None
-    risk_budget = equity * Decimal("0.01")
-    quantity = risk_budget / stop_distance
-    notional = quantity * entry_price
-    max_notional = equity
-    if notional > max_notional:
-        quantity = max_notional / entry_price
-        notional = max_notional
+    if sizing_mode == "full_equity_notional":
+        notional = equity
+        quantity = notional / entry_price
+        risk_budget = stop_distance * quantity
+    else:
+        risk_budget = equity * Decimal("0.01")
+        quantity = risk_budget / stop_distance
+        notional = quantity * entry_price
+        max_notional = equity
+        if notional > max_notional:
+            quantity = max_notional / entry_price
+            notional = max_notional
     if quantity <= 0 or notional <= 0:
         return None
     entry_fee = _money(notional * fee_bps / Decimal("10000"))
@@ -957,6 +1018,7 @@ def _open_original_position(
         entry_fee=entry_fee,
         risk_budget=_money(risk_budget),
         notional=_money(notional),
+        sizing_mode=sizing_mode,
         entry_reason_codes=reason_codes,
         stage_at_entry=stage,
         min_equity_seen=entry_equity_after,
@@ -1019,6 +1081,7 @@ def _close_original_position(
         "quantity": _fmt(open_position.quantity),
         "notional": _fmt(open_position.notional),
         "risk_budget": _fmt(open_position.risk_budget),
+        "sizing_mode": open_position.sizing_mode,
         "entry_reason_codes": list(open_position.entry_reason_codes),
         "exit_reason": exit_reason,
         "entry_stage": open_position.stage_at_entry,
@@ -1271,7 +1334,7 @@ def _control_pocket_impact(rows: Sequence[dict[str, Any]]) -> list[dict[str, Any
         ("*", "1d", "all_1d_pockets", "all", False),
     ]
     output: list[dict[str, Any]] = []
-    for hypothesis_id in MF_ORIG_HYPOTHESES:
+    for hypothesis_id in sorted({row["hypothesis_id"] for row in rows}):
         selected = [row for row in rows if row["hypothesis_id"] == hypothesis_id]
         for symbol, timeframe, label, filter_mode, gating_control in pockets:
             pocket_rows = [
@@ -1600,8 +1663,8 @@ def _compact_mf_orig_ev2_report(report: dict[str, Any]) -> dict[str, Any]:
     return compact
 
 
-def _hypothesis_definitions() -> list[dict[str, Any]]:
-    return [
+def _hypothesis_definitions(*, include_full_equity: bool = False) -> list[dict[str, Any]]:
+    base_definitions = [
         {
             "hypothesis_id": "mf_orig_1d_stage2_5_20_crossover",
             "timeframe_policy": "1d primary; 4h/1h comparative only",
@@ -1609,20 +1672,38 @@ def _hypothesis_definitions() -> list[dict[str, Any]]:
             "exit": ["EMA5 crosses below SMA20", "price closes below SMA20", "structure stop hit"],
             "profit_management": ["RSI > 70 is warning", "MACD bearish crossover while profitable trims 25%"],
             "sizing": "risk_budget=current_realized_equity*1%; size=risk_budget/(entry-stop); notional capped at current equity",
+            "sizing_mode": "source_1pct_risk",
         },
         {
             "hypothesis_id": "mf_orig_1d_stage2_breakout_resistance",
             "entry": ["price breaks above prior 20-candle resistance", "price above SMA20", "EMA5 above/crossing SMA20", "MACD confirmation or improving"],
+            "sizing_mode": "source_1pct_risk",
         },
         {
             "hypothesis_id": "mf_orig_stage2_pullback_reclaim",
             "entry": ["Stage 2 already active", "pullback near EMA10/SMA20", "price reclaims EMA5/EMA10", "MACD not strongly bearish or improving"],
+            "sizing_mode": "source_1pct_risk",
         },
         {
             "hypothesis_id": "mf_orig_stage_filter_only",
             "entry": ["diagnostic current-v1.2-like EMA/RSI/MACD entry", "blocked unless original Stage 2 is active"],
+            "sizing_mode": "source_1pct_risk",
         },
     ]
+    if not include_full_equity:
+        return base_definitions
+    full_equity_definitions = [
+        {
+            **definition,
+            "hypothesis_id": f"{definition['hypothesis_id']}_full_equity",
+            "base_hypothesis_id": definition["hypothesis_id"],
+            "sizing": "notional=current_realized_equity; quantity=notional/entry_price; structure-stop risk is reported but does not cap size at 1%",
+            "sizing_mode": "full_equity_notional",
+            "source_faithfulness_note": "Full-equity sizing is founder-requested comparison mode, not the source-faithful 1% risk-sizing interpretation.",
+        }
+        for definition in base_definitions
+    ]
+    return [*base_definitions, *full_equity_definitions]
 
 
 def mf_orig_ev1_spec_to_markdown(report: dict[str, Any]) -> str:
@@ -1679,7 +1760,8 @@ def mf_orig_ev2_report_to_markdown(report: dict[str, Any]) -> str:
         "",
         "## Scope",
         "",
-        "- Hypotheses: `mf_orig_stage2_5_20_crossover`, `mf_orig_stage2_breakout_resistance`, `mf_orig_stage2_pullback_reclaim`, `mf_orig_stage_filter_only`.",
+        "- Hypotheses: the four source 1% risk-size MF-ORIG hypotheses plus four founder-requested `_full_equity` counterparts.",
+        "- Sizing modes: `source_1pct_risk` keeps the source-faithful 1% risk-budget sizing; `full_equity_notional` sizes each entry from current realized equity for direct comparison with full-equity replay expectations.",
         "- Symbols: `BTC`, `ETH`, `SOL`, `XRP`, `DOGE`, `HYPE`, `BNB`, `SUI`, `AVAX`.",
         "- Timeframes: `15m`, `1h`, `4h`, `1d`.",
         "- Fill assumptions: `next_candle_open`, `next_candle_close`.",

@@ -66,6 +66,7 @@ def _sample_open_position(*, quantity: str = "1", entry_fee: str = "1") -> _Open
         entry_fee=fee,
         risk_budget=Decimal("100"),
         notional=Decimal("100") * quantity_dec,
+        sizing_mode="source_1pct_risk",
         entry_reason_codes=("stage2_price_above_sma20",),
         stage_at_entry="stage_2_markup",
         min_equity_seen=equity_before - fee,

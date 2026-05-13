@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-13T00:42:40Z`
+Last reviewed: `2026-05-13T08:27:33Z`
 
 ## Active Follow-Ups
 
@@ -10,11 +10,17 @@ Last reviewed: `2026-05-13T00:42:40Z`
 - `status`: `done`
 - `summary`: `Historical Replay selected-scenario chart/trade loading is fixed. The compact SV2.0.2/MF-ORIG-EV2 rows still seed selectors and comparison widgets immediately, but selected charts/trades now lazy-load deterministic per-scenario JSON files under ignored local reports/strategy_validation/*/selected/ paths instead of relying on giant symbol/timeframe chart bundles. The SV2.0.2 and MF-ORIG-EV2 chart-data builders now write those selected replay files reproducibly. This is UI/artifact-loading only: evidence metrics, production Money Flow v1.2 rules, MF-ORIG hypotheses, orders, private/signed/order endpoints, testnet strategy truth, paper runtime, and live trading approval remain unchanged.`
 
+### T-136
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `MF-ORIG-EV2 full-equity comparison regeneration is complete. The four original source-faithful 1% risk-sizing hypotheses remain present, and four founder-requested full-equity/notional counterparts were added for direct full-equity replay comparison. The regenerated compact summary now contains 8 replay strategies, 576 scenario rows, 288 ignored evidence-pack directories, and 612 ignored dashboard chart-data files including 576 selected per-scenario replay JSON files. This remains evidence-only: production Money Flow v1.2 is unchanged, no hypothesis is approved, no orders/private/signed/order endpoints/testnet strategy truth/live trading/paper runtime/SOR behavior were added.`
+
 ### T-134
 
 - `priority`: `high`
 - `status`: `done`
-- `summary`: `MF-ORIG-EV2 multi-timeframe evidence is complete. The corrected Original Money Flow reconstruction now has evidence-only packs across four hypotheses, BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX, 15m/1h/4h/1d, and both next_candle_open and next_candle_close fill assumptions. The run preserved MF-ORIG-EV1.1 event-ledger accounting, single-counted entry fees/trims, force-close open-position handling, and peak-to-trough drawdown; 1d is labeled source-primary, 4h/1h fractal adaptations, and 15m a stress-test adaptation. Local ignored artifacts include 144 evidence-pack directories and 36 dashboard chart-data files; committed docs include docs/mf_orig_ev2_multitimeframe_evidence_packs.md and docs/mf_orig_ev2_multitimeframe_evidence_summary.json. Historical Replay and Evidence Run Ledger now auto-load MF-ORIG-EV2 strategies when local chart-data JSON exists. Production Money Flow v1.2 remains unchanged; no original hypothesis is approved; no orders/private/signed/order endpoints/testnet strategy truth/live trading/paper runtime/SOR behavior were added.`
+- `summary`: `MF-ORIG-EV2 multi-timeframe evidence is complete. The corrected Original Money Flow reconstruction now has evidence-only packs across the four source-faithful 1% risk-sizing hypotheses plus four full-equity/notional comparison counterparts, BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX, 15m/1h/4h/1d, and both next_candle_open and next_candle_close fill assumptions. The run preserved MF-ORIG-EV1.1 event-ledger accounting, single-counted entry fees/trims, force-close open-position handling, and peak-to-trough drawdown; 1d is labeled source-primary, 4h/1h fractal adaptations, and 15m a stress-test adaptation. Local ignored artifacts include 288 evidence-pack directories and 612 dashboard chart-data files; committed docs include docs/mf_orig_ev2_multitimeframe_evidence_packs.md and docs/mf_orig_ev2_multitimeframe_evidence_summary.json. Historical Replay and Evidence Run Ledger now auto-load all eight MF-ORIG-EV2 strategies when local chart-data JSON exists. Production Money Flow v1.2 remains unchanged; no original hypothesis is approved; no orders/private/signed/order endpoints/testnet strategy truth/live trading/paper runtime/SOR behavior were added.`
 
 ### T-133
 

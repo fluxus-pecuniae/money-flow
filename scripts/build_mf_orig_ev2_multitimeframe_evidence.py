@@ -92,6 +92,7 @@ def _normalize_mf_orig_trade(
         **trade,
         "strategy_id": trade.get("hypothesis_id"),
         "strategy_label": _strategy_label(str(trade.get("hypothesis_id"))),
+        "sizing_mode": trade.get("sizing_mode", "source_1pct_risk"),
         "entry_fill_time": _iso(trade.get("entry_time") or trade.get("entry_signal_time")),
         "exit_fill_time": _iso(trade.get("exit_time") or trade.get("exit_signal_time")),
         "entry_time": _iso(trade.get("entry_time")),
@@ -200,9 +201,10 @@ def _replay_from_row(
         "strategy_id": row["hypothesis_id"],
         "strategy_label": _strategy_label(row["hypothesis_id"]),
         "strategy_description": (
-            "MF-ORIG-EV2 source-faithful Original Money Flow reconstruction. "
+            "MF-ORIG-EV2 Original Money Flow reconstruction. "
             "Evidence-only, not a production Money Flow rule change."
         ),
+        "sizing_mode": row.get("sizing_mode", "source_1pct_risk"),
         "strategy_truth_lane": "hyperliquid_public_mainnet_canonical_db_imported",
         "research_only": True,
         "changes_production_rules": False,
@@ -236,12 +238,15 @@ def _replay_from_row(
             "stop_exits": row.get("stop_exits"),
             "trim_events": row.get("trim_events"),
             "drawdown_method": row.get("drawdown_method"),
+            "sizing_mode": row.get("sizing_mode", "source_1pct_risk"),
         },
         "reason_counts": _reason_counts(row, trades),
         "variant_metadata": {
             "phase": "MF-ORIG-EV2",
             "hypothesis_id": row["hypothesis_id"],
             "display_hypothesis_id": row.get("display_hypothesis_id"),
+            "base_hypothesis_id": row.get("base_hypothesis_id"),
+            "sizing_mode": row.get("sizing_mode", "source_1pct_risk"),
             "methodology": "true_forward_replay",
             "timeframe_role": row.get("timeframe_role"),
             "source": "canonical_sv2_0_2_db_imported_pack_paths",
@@ -300,6 +305,7 @@ def _write_evidence_packs(
                                 "fill_timing": row["fill_timing"],
                                 "initial_equity": "10000",
                                 "capital_sizing_mode": "dynamic_equity_pct",
+                                "mf_orig_sizing_mode": row.get("sizing_mode", "source_1pct_risk"),
                             },
                             "report": {
                                 "metrics": row,
@@ -318,6 +324,7 @@ def _write_evidence_packs(
                     "symbol": symbol,
                     "timeframe": timeframe,
                     "fill_assumptions": [row["fill_timing"] for row in selected_rows],
+                    "sizing_mode": selected_rows[0].get("sizing_mode", "source_1pct_risk"),
                     "methodology": "true_forward_replay",
                     "accounting": "event_ledger_accounting",
                     "drawdown_method": "peak_to_trough",

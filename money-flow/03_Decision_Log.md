@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-13T08:27:33Z - MF-ORIG-EV2 - Full-Equity Comparison Rows Added Without Replacing Source 1% Risk Rows
+
+- `decision`: Keep the four source-faithful 1% risk-sizing MF-ORIG-EV2 hypotheses and add four founder-requested full-equity/notional counterparts for direct comparison.
+- `scope`: The regenerated MF-ORIG-EV2 run uses the same canonical SV2.0.2 DB-imported candle substrate, the same 9 supported symbols, 4 timeframes, and 2 fill assumptions. It writes ignored evidence/chart artifacts and compact committed summaries only.
+- `result`: The regenerated summary now has 8 replay strategies, 576 scenario rows, 288 ignored evidence-pack directories, and 612 ignored dashboard chart-data files including 576 selected per-scenario replay JSON files.
+- `follow_up_implications`: The full-equity rows are evidence-only comparison lanes, not source-faithful risk sizing and not production/paper/live approval. Production Money Flow v1.2 remains unchanged.
+
 ## 2026-05-12T23:26:20Z - MF-ORIG-EV1.1 - Accounting / Drawdown Conclusions Supersede MF-ORIG-EV1
 
 - `decision`: Quarantine pre-hotpatch MF-ORIG-EV1 PnL/drawdown conclusions and treat regenerated MF-ORIG-EV1.1 reports as the current founder-review source.

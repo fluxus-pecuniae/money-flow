@@ -13,6 +13,44 @@ Entry schema:
 
 ---
 
+## v2026.05.13.007
+
+- `recorded_at_utc`: `2026-05-13T08:27:33Z`
+- `scope`: `MF-ORIG-EV2 full-equity comparison pack regeneration`
+- `intent`: `Native entry. Regenerated MF-ORIG-EV2 as an evidence-only comparison expansion that keeps the four source-faithful 1% risk-sizing Original Money Flow hypotheses and adds four founder-requested full-equity/notional counterparts. The regenerated compact summary now contains 8 replay strategies, 576 scenario rows, 288 ignored evidence-pack directories, and 612 ignored dashboard chart-data files including 576 selected per-scenario replay JSON files for Historical Replay. Full-equity rows size entries from current realized equity for direct comparison with full-equity replay expectations; they do not replace source-faithful 1% risk rows and do not change production Money Flow v1.2. No hypothesis is production-approved, paper-approved, or live-approved; no orders were submitted; no private/signed/order endpoints were called; no Hyperliquid testnet prices or dashboard date-filter recalculations were used as canonical strategy truth.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `docs/strategy.md`
+  - `docs/mf_orig_ev2_multitimeframe_evidence_packs.md`
+  - `docs/mf_orig_ev2_multitimeframe_evidence_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `scripts/build_mf_orig_ev2_multitimeframe_evidence.py`
+  - `services/strategy_validation/mf_orig_ev1.py`
+  - `tests/test_mf_orig_ev1_original_money_flow.py`
+  - `tests/test_mf_orig_ev2_multitimeframe_evidence.py`
+- `validation_performed`:
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python scripts/build_mf_orig_ev2_multitimeframe_evidence.py --run-timestamp 20260513T002746Z`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_mf_orig_ev2_multitimeframe_evidence.py`
+  - `.venv/bin/python -m pytest -q tests/test_mf_orig_ev2_multitimeframe_evidence.py tests/test_mf_orig_ev1_original_money_flow.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_sv202_canonical_import_evidence.py tests/test_sv201_canonical_evidence_truth_hotfix.py tests/test_sv20_money_flow_1d_expanded_evidence.py`
+  - `.venv/bin/python -m pytest -q tests/test_sor_ev3_avoid_sideways_low_volatility.py tests/test_sor_ev2_true_forward_replay.py tests/test_sor_ev1_loss_anatomy.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `HTTP 200 and payload-shape check for selected MF-ORIG-EV2 ETH 4h full-equity replay JSON`
+  - `git diff --check`
+
 ## v2026.05.13.006
 
 - `recorded_at_utc`: `2026-05-13T07:53:38Z`
