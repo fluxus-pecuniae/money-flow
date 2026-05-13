@@ -13,6 +13,27 @@ Entry schema:
 
 ---
 
+## v2026.05.13.001
+
+- `recorded_at_utc`: `2026-05-13T00:02:20Z`
+- `scope`: `Evidence Lab MF-ORIG-EV1.1 visualization upload`
+- `intent`: `Native entry. Added the latest MF-ORIG-EV1.1 corrected Original Money Flow reconstruction summary JSON to the dashboard Evidence Lab default loader and rendered a dedicated Original Money Flow Reconstruction section. The section shows corrected replay/report status, accounting invariant status, peak-to-trough drawdown method, canonical SV2.0.2 baseline parity, positive-1d control-pocket damage, hypothesis outcomes, PnL/drawdown deltas, trims/stops/forced closes, and no-production-approval boundary flags. This is visualization only and not a new canonical evidence-pack run. Production Money Flow rules are unchanged; no original hypothesis is approved; no orders were submitted; no private/signed/order endpoints were called; no testnet prices or dashboard date-filter recalculations were used as canonical strategy truth; live trading remains not approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `money-flow/05_Agent_Coordination.md`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m compileall apps tests`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `git diff --check`
+
 ## v2026.05.12.023
 
 - `recorded_at_utc`: `2026-05-12T23:26:20Z`

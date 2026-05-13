@@ -239,11 +239,12 @@ Marker tooltips/rows must include:
 
 ## Evidence Lab Rules
 
-- Evidence Lab reviews SOR-EV1/SOR-EV2/SOR-EV3 research variants against canonical SV2.0.2 DB-imported evidence.
+- Evidence Lab reviews SOR-EV1/SOR-EV2/SOR-EV3 research variants and the latest MF-ORIG-EV1.1 corrected replay/report JSON against canonical SV2.0.2 DB-imported baseline context.
+- The MF-ORIG-EV1.1 section must label the run as corrected replay/report visualization, not a new canonical evidence-pack run.
 - The SOR-EV1/SOR-EV2 Variant Summary Matrix must use founder-review labels to distinguish `promising_*`, `mixed_*`, `deferred_*`, no-op, diagnostic-only, and hard-rejected rows instead of flattening every non-candidate into rejected.
 - SOR-EV3 `avoid_sideways_low_volatility` rows must distinguish blocked open signals from matched canonical baseline trades with PnL attribution.
 - SOR-EV3 founder-review labels must distinguish `candidate_for_more_evidence`, `promising_*`, mixed/not-promoted, and hard rejected labels. A `promising_*` label is review context only and must not imply approval.
-- SOR variants are evidence-only and must not be labeled approved for production.
+- SOR variants and MF-ORIG hypotheses are evidence-only and must not be labeled approved for production.
 - Completed-trade overlays and lookahead diagnostics are not production candidates.
 - Only true-forward replay variants can become candidates for deeper canonical evidence.
 - Missing bundle fields must render as `data_not_available_in_sor_ev_bundle`, not as zero.

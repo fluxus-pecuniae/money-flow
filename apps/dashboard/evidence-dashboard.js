@@ -57,6 +57,10 @@
     "../../docs/sor_ev3_avoid_sideways_low_volatility_summary.json",
   ];
 
+  const DEFAULT_MF_ORIG_SUMMARY_FILES = [
+    "../../docs/mf_orig_ev1_original_money_flow_reconstruction_summary.json",
+  ];
+
   const HYPERLIQUID_TESTNET_PUBLIC_INFO_URL = "https://api.hyperliquid-testnet.xyz/info";
   const TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION = "5.2.0";
   const CHART_BACKGROUND_COLOR = "#10171b";
@@ -548,6 +552,7 @@
     sorEv1Summary: null,
     sorEv2Summary: null,
     sorEv3Summary: null,
+    mfOrigSummary: null,
     tradingViewChart: {
       chart: null,
       mount: null,
@@ -676,6 +681,7 @@
     runTableSubtitle: document.querySelector("#run-table-subtitle"),
     evidenceLabSummaryCards: document.querySelector("#evidence-lab-summary-cards"),
     evidenceLabFounderCandidate: document.querySelector("#evidence-lab-founder-candidate"),
+    evidenceLabMfOrig: document.querySelector("#evidence-lab-mf-orig"),
     evidenceLabVariantMatrix: document.querySelector("#evidence-lab-variant-matrix"),
     evidenceLabControlPockets: document.querySelector("#evidence-lab-control-pockets"),
     evidenceLabWorstTrades: document.querySelector("#evidence-lab-worst-trades"),
@@ -6348,6 +6354,7 @@
     const ev1 = state.sorEv1Summary;
     const ev2 = state.sorEv2Summary;
     const ev3 = state.sorEv3Summary;
+    const mfOrig = state.mfOrigSummary;
     const variantCount = sorVariantRows().length;
     const parity = ev2?.baseline_parity_summary?.status_counts?.baseline_parity_passed ?? ev2?.baseline_parity_summary?.scenario_count;
     const ev3Candidates = Array.isArray(ev3?.candidate_variants) && ev3.candidate_variants.length
@@ -6361,6 +6368,7 @@
       ["SOR-EV1 bundle", ev1 ? "loaded" : unavailable(), "loss anatomy and completed-trade overlays"],
       ["SOR-EV2 bundle", ev2 ? "loaded" : unavailable(), "true-forward stops and rejected-signal replay"],
       ["SOR-EV3 bundle", ev3 ? "loaded" : unavailable(), `candidates: ${ev3Candidates}; promising: ${ev3Promising}`],
+      ["MF-ORIG latest run", mfOrig ? "loaded" : unavailable(), mfOrig?.phase || "corrected original Money Flow replay JSON"],
       ["Baseline parity", parity ?? unavailable(), "canonical SV2.0.2 scenarios"],
       ["Variants", variantCount || unavailable(), "evidence-only; none promoted"],
     ];
@@ -6487,6 +6495,111 @@
               </tr>
             `;
           }).join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderEvidenceLabMfOrig() {
+    if (!elements.evidenceLabMfOrig) return;
+    const summary = state.mfOrigSummary;
+    const rows = Array.isArray(summary?.hypothesis_summary) ? summary.hypothesis_summary : [];
+    if (!summary || !rows.length) {
+      setEmpty(elements.evidenceLabMfOrig, "data_not_available_in_mf_orig_bundle");
+      return;
+    }
+    const accounting = summary.accounting_invariant_summary || {};
+    const parity = summary.baseline_parity_summary?.status_counts
+      ? Object.entries(summary.baseline_parity_summary.status_counts).map(([key, value]) => `${key}: ${value}`).join("; ")
+      : unavailable();
+    const controls = Array.isArray(summary.control_pocket_results) ? summary.control_pocket_results : [];
+    const damagedPositiveOneDay = controls.filter(
+      (row) => row.control_pocket === "positive 1d pockets" && row.status === "damaged",
+    ).length;
+    const boundary = summary.boundary_flags || {};
+    const allEvidenceOnly = boundary.evidence_only === true &&
+      boundary.changes_production_money_flow_rules === false &&
+      boundary.submits_orders === false &&
+      boundary.approves_live_trading === false;
+    const sortedRows = rows.slice().sort((left, right) =>
+      decimal(right.net_pnl_delta_sum_across_independent_scenarios) -
+        decimal(left.net_pnl_delta_sum_across_independent_scenarios) ||
+      String(left.hypothesis_id || "").localeCompare(String(right.hypothesis_id || "")),
+    );
+    elements.evidenceLabMfOrig.innerHTML = `
+      <div class="methodology-warning compact" role="note">
+        MF-ORIG-EV1.1 is a corrected replay/report run loaded from
+        <code>docs/mf_orig_ev1_original_money_flow_reconstruction_summary.json</code>.
+        It is not a new canonical evidence-pack run, no original hypothesis is approved, and production Money Flow v1.2 is unchanged.
+      </div>
+      <div class="metric-grid compact-grid">
+        <article class="metric-cell">
+          <span class="metric-label">Run phase</span>
+          <strong>${escapeHtml(summary.phase || unavailable())}</strong>
+          <small>${escapeHtml(summary.supersedes_phase ? `supersedes ${summary.supersedes_phase}` : "latest MF-ORIG run")}</small>
+        </article>
+        <article class="metric-cell">
+          <span class="metric-label">Accounting audit</span>
+          <strong>${escapeHtml(accounting.status || unavailable())}</strong>
+          <small>${escapeHtml(`${accounting.trade_count_checked ?? unavailable()} trades checked`)}</small>
+        </article>
+        <article class="metric-cell">
+          <span class="metric-label">Drawdown method</span>
+          <strong>${escapeHtml(summary.accounting_convention?.drawdown_method || unavailable())}</strong>
+          <small>realized and mark-to-market curves</small>
+        </article>
+        <article class="metric-cell">
+          <span class="metric-label">Baseline parity</span>
+          <strong>${escapeHtml(parity)}</strong>
+          <small>canonical SV2.0.2 comparison baseline</small>
+        </article>
+        <article class="metric-cell">
+          <span class="metric-label">Positive 1D control damage</span>
+          <strong>${escapeHtml(damagedPositiveOneDay)}</strong>
+          <small>candidate gate blocker</small>
+        </article>
+        <article class="metric-cell">
+          <span class="metric-label">Boundary</span>
+          <strong>${escapeHtml(allEvidenceOnly ? "evidence_only" : "review_required")}</strong>
+          <small>no orders / no live / no production approval</small>
+        </article>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Hypothesis</th>
+            <th>Outcome</th>
+            <th>Performance Label</th>
+            <th>Methodology</th>
+            <th>Net PnL Delta</th>
+            <th>Worst DD Delta</th>
+            <th>1D Net PnL</th>
+            <th>Trades</th>
+            <th>Trims</th>
+            <th>Stops</th>
+            <th>Forced Closes</th>
+            <th>Gate Blockers</th>
+            <th>Production Approved</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${sortedRows.map((row) => `
+            <tr>
+              <td>${escapeHtml(row.hypothesis_id)}</td>
+              <td>${evidenceLabFounderLabel({ founder_review_label: row.outcome_label, review_explanation: "MF-ORIG candidate gate status; evidence-only." })}</td>
+              <td>${escapeHtml(row.performance_label || unavailable())}</td>
+              <td>${escapeHtml(row.methodology || unavailable())}</td>
+              <td>${escapeHtml(formatEvidenceMoney(row, "net_pnl_delta_sum_across_independent_scenarios"))}</td>
+              <td>${escapeHtml(formatEvidenceMoney(row, "worst_drawdown_delta_vs_v1_2"))}</td>
+              <td>${escapeHtml(formatEvidenceMoney(row, "one_day_net_pnl_sum"))}</td>
+              <td>${escapeHtml(formatEvidenceNumber(row, "trade_count_sum", 0))}</td>
+              <td>${escapeHtml(formatEvidenceNumber(row, "trim_event_count_sum", 0))}</td>
+              <td>${escapeHtml(formatEvidenceNumber(row, "stop_exit_count_sum", 0))}</td>
+              <td>${escapeHtml(formatEvidenceNumber(row, "forced_close_count_sum", 0))}</td>
+              <td>${escapeHtml((row.gate_blockers || []).join(", ") || "none")}</td>
+              <td>${row.production_approved === true ? "yes" : "no"}</td>
+            </tr>
+          `).join("")}
         </tbody>
       </table>
     `;
@@ -6777,6 +6890,7 @@
   function renderEvidenceLab() {
     renderEvidenceLabSummary();
     renderEvidenceLabFounderCandidate();
+    renderEvidenceLabMfOrig();
     renderEvidenceLabVariantMatrix();
     renderEvidenceLabControlPockets();
     renderEvidenceLabWorstTrades();
@@ -6818,6 +6932,7 @@
     if (payload?.phase === "SOR-EV1") return "sor_ev1_summary";
     if (payload?.phase === "SOR-EV2") return "sor_ev2_summary";
     if (payload?.phase === "SOR-EV3") return "sor_ev3_summary";
+    if (String(payload?.phase || "").startsWith("MF-ORIG-EV1")) return "mf_orig_summary";
     if (payload?.report === "sv2_0_2_dashboard_historical_replay_chart_data") return "sv202_dashboard_chart_data";
     if (
       payload?.report === "pt0_0_2_historical_strategy_replay_cockpit" ||
@@ -6845,6 +6960,7 @@
     await loadDefaultPt0Summaries();
     await loadDefaultSv20Summaries();
     await loadDefaultSorEvSummaries();
+    await loadDefaultMfOrigSummaries();
     await loadDefaultSv202DashboardChartData();
     await loadDefaultPt002HistoricalReplaySummary();
 
@@ -6913,6 +7029,7 @@
         if (type === "sor_ev1_summary") state.sorEv1Summary = payload;
         if (type === "sor_ev2_summary") state.sorEv2Summary = payload;
         if (type === "sor_ev3_summary") state.sorEv3Summary = payload;
+        if (type === "mf_orig_summary") state.mfOrigSummary = payload;
         if (type === "pt002_historical_replay_summary") state.pt002HistoricalReplay = payload;
       });
       state.selectedComponent = "all";
@@ -7022,6 +7139,21 @@
         if (type === "sor_ev1_summary") state.sorEv1Summary = payload;
         if (type === "sor_ev2_summary") state.sorEv2Summary = payload;
         if (type === "sor_ev3_summary") state.sorEv3Summary = payload;
+      } catch (error) {
+        console.warn(`Could not load ${path}`, error);
+      }
+    }
+  }
+
+  async function loadDefaultMfOrigSummaries() {
+    for (const path of DEFAULT_MF_ORIG_SUMMARY_FILES) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        if (classifyJson(payload) === "mf_orig_summary") {
+          state.mfOrigSummary = payload;
+        }
       } catch (error) {
         console.warn(`Could not load ${path}`, error);
       }
