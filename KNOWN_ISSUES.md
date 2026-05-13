@@ -1,8 +1,15 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-05-13T00:42:40Z`
+Last reviewed: `2026-05-13T15:00:08Z`
 
 ## Open Items
+
+### K-020
+
+- `status`: `open`
+- `area`: `EV-AUDIT1 evidence and paper-observation readiness`
+- `summary`: `EV-AUDIT1 found no P0 safety issue and no clean strategy candidate. The current evidence estate is good enough for founder visual review and hypothesis filtering, but not enough for a production rule change, strategy paper-runtime authorization, or live trading. Key remaining evidence risks are 15m/1h Hyperliquid 5000-candle horizon truncation, missing real-time paper observation, no order-book/funding/partial-fill/live-reject modeling, control-pocket damage in promising variants, and unresolved direct source-PDF verification for MF-ORIG.`
+- `impact`: `PT-RT1 can be scoped as real-time public market data plus paper observation with conditions, but that is a future observation phase rather than strategy approval. Before any rule promotion, the team still needs real-time paper observation logs, stricter control-pocket gates, clearer out-of-sample-style slices, funding/order-book/partial-fill limitations called out, and explicit separation between dashboard display filters and canonical evidence. No orders, private/signed/order endpoints, testnet strategy truth, production rule changes, or live trading follow from EV-AUDIT1.`
 
 ### K-019
 

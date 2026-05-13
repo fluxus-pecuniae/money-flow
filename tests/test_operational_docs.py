@@ -214,6 +214,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "SV2.0.2 hardened DB import and canonical evidence-pack generation is complete" in moved_memory
     assert "MF-ORIG-EV1.1 accounting/drawdown evidence hotpatch" in moved_memory
     assert "MF-ORIG-EV2 multi-timeframe Original Money Flow evidence packs plus full-equity comparison Historical Replay UI" in moved_memory
+    assert "EV-AUDIT1 full evidence/data/paper-readiness audit" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
 
@@ -228,7 +229,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
     assert (
-        "Current implemented milestone | `MF-ORIG-EV2` Original Money Flow multi-timeframe evidence packs + full-equity comparison replay complete"
+        "Current implemented milestone | `EV-AUDIT1` full hypothesis, data integrity, and paper-readiness audit complete"
         in command_center
     )
     assert "Canonical command center" in compatibility_command_center
@@ -257,7 +258,11 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     assert "SOR-EV2.2" in command_center
     assert "SOR-EV3" in command_center
     assert "SOR-EV3" in sv_map
+    assert "EV-AUDIT1" in command_center
+    assert "EV-AUDIT1" in sv_map
+    assert "no clean strategy candidate" in command_center
     assert "SOR-EV1-SOR-EV3" in project_memory
+    assert "EV-AUDIT1" in project_memory
     assert "Strategy Validation is now its own major track" in Path("money-flow/00 Maps/Phase Timeline.md").read_text()
     assert "What Strategy Validation Did" in sv_map
     assert "What Strategy Validation Did Not Prove" in sv_map

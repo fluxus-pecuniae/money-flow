@@ -13,6 +13,41 @@ Entry schema:
 
 ---
 
+## v2026.05.13.008
+
+- `recorded_at_utc`: `2026-05-13T15:00:08Z`
+- `scope`: `EV-AUDIT1 full hypothesis, data integrity, and paper-readiness audit`
+- `intent`: `Native entry. Added the EV-AUDIT1 audit-only review over current Money Flow v1.2, SOR-EV1/SOR-EV2/SOR-EV3, MF-ORIG-EV1.1/MF-ORIG-EV2, and pending STRAT-EV1 plan-only status. The audit inventories canonical/provisional/dashboard-only evidence, checks SV2.0.2 data integrity, scores backtest methodology, ranks biggest winners/losers, audits losing streaks, summarizes regime/control-pocket attribution, lists P0/P1/P2/P3 issues, and states that current evidence is good enough for visual review and hypothesis filtering only. No clean strategy candidate is promoted; paper observation is only a future separately scoped PT-RT1 condition, not approval. Production Money Flow rules are unchanged; no orders were submitted; no private/signed/order endpoints were called; no Hyperliquid testnet prices or dashboard date-filter recalculations were used as canonical strategy truth; no evidence packs were regenerated.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `docs/strategy.md`
+  - `docs/ev_audit1_full_hypothesis_data_and_paper_readiness_review.md`
+  - `docs/ev_audit1_full_hypothesis_data_and_paper_readiness_review_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `scripts/build_ev_audit1_full_review.py`
+  - `tests/test_ev_audit1_full_review.py`
+- `validation_performed`:
+  - `.venv/bin/python scripts/build_ev_audit1_full_review.py`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_ev_audit1_full_review.py`
+  - `.venv/bin/python -m pytest -q tests/test_sv202_canonical_import_evidence.py tests/test_sor_ev1_loss_anatomy.py tests/test_sor_ev2_true_forward_replay.py tests/test_sor_ev3_avoid_sideways_low_volatility.py tests/test_mf_orig_ev1_original_money_flow.py tests/test_mf_orig_ev2_multitimeframe_evidence.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-ev-audit1-review.zip`
+  - `Review bundle scan: no forbidden artifact paths or sandbox/testnet secret values found`
+
 ## v2026.05.13.007
 
 - `recorded_at_utc`: `2026-05-13T08:27:33Z`

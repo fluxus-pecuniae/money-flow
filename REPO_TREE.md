@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-13T00:42:40Z`
+Last reviewed: `2026-05-13T15:00:08Z`
 
 ## Top-Level Structure
 
@@ -162,6 +162,7 @@ Last reviewed: `2026-05-13T00:42:40Z`
 - SOR-EV2.1 adds a visible `Evidence Lab` tab that loads committed SOR-EV1/SOR-EV2 summary bundles, labels canonical SV2.0.2 DB-imported evidence as baseline, and renders variant matrix, control-pocket impact, worst trades, late-entry analysis, large adverse-candle context, RSI/MACD rejection visibility, methodology warnings, and date-filter noncanonical warnings. SOR-EV2.2 adds the Evidence Lab baseline-vs-variant chart overlay, overlay controls, baseline SV2.0.2 entry/exit markers, linkable SOR-EV2 variant/context markers, worst-trade focus, control-pocket view, and explicit unavailable states for missing exact overlay data. SOR-EV3 adds a focused founder-candidate section for `avoid_sideways_low_volatility`, loading `docs/sor_ev3_avoid_sideways_low_volatility_summary.json` and displaying baseline parity, blocked signals vs matched baseline trades, avoided losers, missed winners, and control-pocket damage. These are UI/visualization only and do not approve variants, mutate Money Flow rules, submit orders, regenerate evidence packs, or call private/signed/order/live endpoints.
 - MF-ORIG-EV2 extends the Historical Replay and Evidence Run Ledger loaders to auto-load ignored local chart/trade JSON from `reports/strategy_validation/mf_orig_ev2_dashboard_chart_data/20260513T002746Z/` when present. The replay strategies now cover four source-faithful 1% risk-sizing Original Money Flow hypotheses plus four full-equity/notional comparison counterparts across BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX, 15m/1h/4h/1d, and both fill assumptions. Evidence Lab now prefers `docs/mf_orig_ev2_multitimeframe_evidence_summary.json` after the EV1.1 fallback and labels MF-ORIG evidence as evidence-only with no production approval.
 - The 2026-05-13 selected-scenario loader hotfix keeps compact Historical Replay rows lightweight while loading candles, indicators, markers, and trades from deterministic per-scenario JSON files under ignored `reports/strategy_validation/*/selected/` paths. The SV2.0.2 and MF-ORIG-EV2 chart-data builders now write those selected replay files in addition to combined symbol/timeframe bundles, so founder-selected charts do not depend on loading large multi-replay JSON bundles.
+- EV-AUDIT1 adds an audit-only founder review report and compact JSON summary for the full current evidence estate. It inventories Money Flow v1.2, SOR-EV1/SOR-EV2/SOR-EV3, MF-ORIG-EV1.1/MF-ORIG-EV2, and pending STRAT-EV1 plan-only status; audits SV2.0.2 data and backtest methodology; ranks biggest winners, losers, and losing streaks; reports regime/control-pocket attribution; and states that no clean strategy candidate is promoted. It does not regenerate evidence packs, change production rules, approve paper/live, submit orders, or call private/signed/order endpoints.
 
 `docs/uat0_safety_security_runtime_hardening.md`
 - Founder/operator UAT0 safety, security, runtime, and operational-readiness audit.
@@ -363,6 +364,14 @@ Last reviewed: `2026-05-13T00:42:40Z`
 - Compact MF-ORIG-EV2 dashboard/report source.
 - Records 576 replay scenario rows, 288 generated evidence-pack paths, per-symbol/timeframe/hypothesis summaries, event-ledger accounting invariant status, peak-to-trough drawdown truth, baseline parity, candidate gates, dashboard chart-data paths, and boundary flags without raw candle payloads.
 
+`docs/ev_audit1_full_hypothesis_data_and_paper_readiness_review.md`
+- Founder/operator EV-AUDIT1 audit report.
+- Reviews every current evidence family without adding another strategy variant: Money Flow v1.2 canonical SV2.0.2, SOR-EV1/SOR-EV2/SOR-EV3, MF-ORIG-EV1.1/MF-ORIG-EV2, and pending STRAT-EV1 plan-only status. It includes evidence inventory, data integrity, methodology scorecard, full hypothesis comparison, top winners/losers, losing streaks, regime/control-pocket attribution, issue list, backtest adequacy decision, and real-time paper observation readiness.
+
+`docs/ev_audit1_full_hypothesis_data_and_paper_readiness_review_summary.json`
+- Compact EV-AUDIT1 report source.
+- Contains the audit inventory, data integrity rows, methodology scores, comparison matrix, top winner/loser/streak extracts, issue counts, backtest adequacy decision, paper-observation readiness decision, boundary flags, and recommended next phase without raw candle payloads or secrets.
+
 `apps/dashboard/vendor/`
 - PT0 vendored third-party charting bundle from the official `lightweight-charts` package.
 - Contains `lightweight-charts.standalone.production.js`, `LICENSE`, and `package.json`; the dashboard uses this local bundle instead of a hosted TradingView widget.
@@ -425,6 +434,11 @@ Last reviewed: `2026-05-13T00:42:40Z`
 - MF-ORIG-EV2 evidence-pack and dashboard chart-data generator.
 - Runs the Strategy Validation-only Original Money Flow reconstruction against canonical SV2.0.2 DB-imported candle truth, writes ignored evidence-pack directories and ignored dashboard chart-data JSON, and writes committed compact Markdown/JSON summaries.
 - It does not import candles, call exchange endpoints, use API keys, submit orders, approve any strategy, or change production Money Flow rules.
+
+`scripts/build_ev_audit1_full_review.py`
+- EV-AUDIT1 audit report builder.
+- Reads existing committed summaries and ignored local canonical/dashboard evidence artifacts where available, then writes the EV-AUDIT1 Markdown/JSON audit report. It performs evidence inventory, data/methodology scoring, biggest winner/loser/streak extraction, regime/control-pocket attribution, issue classification, and paper-readiness assessment.
+- It does not regenerate evidence packs, import/refetch candles, call exchange endpoints, use API keys, submit orders, approve any strategy, or change production Money Flow rules.
 
 `scripts/refresh_pt0_runtime_summary.py`
 - Generates the committed PT0 dashboard/runtime summary from deterministic helpers plus existing UAT3.3/UAT3.4/UAT4.2 summaries.
@@ -1011,3 +1025,6 @@ Last reviewed: `2026-05-13T00:42:40Z`
 
 `tests/test_sor_ev3_avoid_sideways_low_volatility.py`
 - SOR-EV3 founder-selected low-volatility/chop drilldown checks: verifies canonical SV2.0.2 pack usage, baseline parity, controlled variant list, past/current-candle-only feature definitions, blocked-entry attribution, avoided-loser/missed-winner fields, control-pocket reporting, founder-review label fields, no production Money Flow rule mutation, and no forbidden proof/live-approval language.
+
+`tests/test_ev_audit1_full_review.py`
+- EV-AUDIT1 audit report checks: verifies the Markdown/JSON audit exists, inventories Money Flow v1.2 / SOR / MF-ORIG / pending STRAT-EV1 status, includes data integrity, methodology scorecard, comparison matrix, biggest winners/losers, losing streaks, regime/control-pocket sections, issue list, backtest adequacy, paper-observation readiness, boundary flags, no dashboard-date-filter canonical evidence, and no production-rule mutation.

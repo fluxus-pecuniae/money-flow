@@ -1,8 +1,20 @@
 # TODO
 
-Last reviewed: `2026-05-13T08:27:33Z`
+Last reviewed: `2026-05-13T15:00:08Z`
 
 ## Active Follow-Ups
+
+### T-137
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `EV-AUDIT1 full hypothesis, data-integrity, and paper-readiness audit is complete. The audit inventories Money Flow v1.2 canonical SV2.0.2 evidence, SOR-EV1/SOR-EV2/SOR-EV3, MF-ORIG-EV1.1/MF-ORIG-EV2, and pending STRAT-EV1 plan-only status; scores methodology/data/candidate confidence; explains biggest winners, biggest losers, losing streaks, regime attribution, and control-pocket damage; and lists P0/P1/P2/P3 issues. No clean strategy candidate is promoted. Current evidence is good enough for visual review and hypothesis filtering only, not for production-rule changes, strategy paper-runtime authorization, or live trading. PT-RT1 real-time public market data plus paper observation is the recommended future phase under separate scope and gates. No evidence packs were regenerated, no production Money Flow rules changed, no orders/private/signed/order endpoints/testnet strategy truth/live trading/SOR behavior were added.`
+
+### T-138
+
+- `priority`: `high`
+- `status`: `future`
+- `summary`: `PT-RT1 real-time public market data plus paper observation runtime is the recommended next phase from EV-AUDIT1 if the founder wants real-time observation. It should use trusted public mainnet candle data for strategy truth, maintain a 10,000 USDC internal paper ledger, compute real-time indicators/signals, show entry/exit arrows and audit logs, separate sandbox execution plumbing from strategy evidence, and preserve no-live/no-real-capital/no-production-rule-change boundaries until a later explicit phase.`
 
 ### T-135
 
