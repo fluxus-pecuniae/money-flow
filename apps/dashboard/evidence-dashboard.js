@@ -37,6 +37,8 @@
     ...SV202_CANONICAL_BATCH_FILES,
   ];
   const EVIDENCE_BATCH_REPORTS_STRATEGY_ID = "canonical_batch_reports";
+  const DASHBOARD_THEME_STORAGE_KEY = "money-flow-dashboard-theme";
+  const DASHBOARD_THEMES = new Set(["dark", "light", "red-zone"]);
   const EVIDENCE_ALL_REPLAY_STRATEGIES_ID = "all_replay_strategies";
   const EVIDENCE_PRIORITY_REPLAY_STRATEGY_IDS = new Set([
     "avoid_low_rolling_range_20",
@@ -561,6 +563,7 @@
     evidenceReplayStrategyId: EVIDENCE_BATCH_REPORTS_STRATEGY_ID,
     evidenceDateStart: "",
     evidenceDateEnd: "",
+    theme: initialDashboardTheme(),
     strategyComparison: {
       leftStrategyId: "money_flow_v1_2_canonical",
       rightStrategyId: "",
@@ -695,6 +698,7 @@
     sourceLabel: document.querySelector("#data-source-label"),
     sourceDetail: document.querySelector("#data-source-detail"),
     fileInput: document.querySelector("#json-file-input"),
+    themeSelector: document.querySelector("#dashboard-theme-selector"),
     metricPacks: document.querySelector("#metric-packs"),
     metricPacksDetail: document.querySelector("#metric-packs-detail"),
     metricRuns: document.querySelector("#metric-runs"),
@@ -1202,6 +1206,27 @@
   function timeframeSortRank(timeframe) {
     const index = SV202_CANONICAL_TIMEFRAMES.indexOf(canonicalTimeframe(timeframe));
     return index >= 0 ? index : SV202_CANONICAL_TIMEFRAMES.length;
+  }
+
+  function initialDashboardTheme() {
+    try {
+      const stored = window.localStorage?.getItem(DASHBOARD_THEME_STORAGE_KEY);
+      return DASHBOARD_THEMES.has(stored) ? stored : "dark";
+    } catch (_error) {
+      return "dark";
+    }
+  }
+
+  function applyDashboardTheme(theme) {
+    const safeTheme = DASHBOARD_THEMES.has(theme) ? theme : "dark";
+    state.theme = safeTheme;
+    document.documentElement.dataset.theme = safeTheme;
+    if (elements.themeSelector) elements.themeSelector.value = safeTheme;
+    try {
+      window.localStorage?.setItem(DASHBOARD_THEME_STORAGE_KEY, safeTheme);
+    } catch (_error) {
+      // Theme persistence is optional; the visual switch should still work.
+    }
   }
 
   function isMfOrigStrategyId(strategyId) {
@@ -8403,12 +8428,19 @@
     handleFiles(event.target.files || []);
   });
 
+  if (elements.themeSelector) {
+    elements.themeSelector.addEventListener("change", () => {
+      applyDashboardTheme(elements.themeSelector.value);
+    });
+  }
+
   elements.viewTabs.forEach((tab) => {
     tab.addEventListener("click", () => {
       setActiveView(tab.dataset.view || "evidence");
     });
   });
 
+  applyDashboardTheme(state.theme);
   setActiveView(state.activeView);
   render();
   loadDefaultFiles();

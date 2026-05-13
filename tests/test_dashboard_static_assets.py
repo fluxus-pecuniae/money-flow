@@ -156,6 +156,17 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "Money Flow v1.2" in js
     assert "Money Flow v1.1" not in js
     assert "HIDDEN_DASHBOARD_STRATEGY_IDS" in js
+    assert 'selectedComponent: "sleeve_1d"' in js
+    assert "defaultEvidenceComponent" in js
+    assert "dashboard-theme-selector" in html
+    assert "Dark" in html
+    assert "Light" in html
+    assert "Red Zone" in html
+    assert "DASHBOARD_THEME_STORAGE_KEY" in js
+    assert "applyDashboardTheme" in js
+    assert 'html[data-theme="light"]' in css
+    assert 'html[data-theme="red-zone"]' in css
+    assert ".theme-control" in css
     assert "evidence-replay-strategy-filter" in html
     assert "Strategy Comparison" in html
     assert "strategy-comparison-left-strategy" in html
