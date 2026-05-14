@@ -1255,6 +1255,24 @@
     }
   }
 
+  function dashboardCssVar(name, fallback) {
+    const value = window.getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return value || fallback;
+  }
+
+  function dashboardChartColors() {
+    return {
+      background: dashboardCssVar("--color-chart-surface", CHART_BACKGROUND_COLOR),
+      text: dashboardCssVar("--color-chart-text", CHART_TEXT_COLOR),
+      grid: dashboardCssVar("--color-chart-grid", "rgba(133, 156, 171, 0.08)"),
+      border: dashboardCssVar("--color-chart-border", "rgba(133, 156, 171, 0.18)"),
+      candleUp: dashboardCssVar("--color-chart-candle-up", CANDLE_UP_COLOR),
+      candleDown: dashboardCssVar("--color-chart-candle-down", CANDLE_DOWN_COLOR),
+      candleBorder: dashboardCssVar("--color-chart-candle-border", CANDLE_BORDER_COLOR),
+      candleWick: dashboardCssVar("--color-chart-candle-wick", CANDLE_WICK_COLOR),
+    };
+  }
+
   function isMfOrigStrategyId(strategyId) {
     return String(strategyId || "").startsWith("mf_orig_");
   }
@@ -3677,17 +3695,18 @@
 
     const mount = elements.uatPriceChart.querySelector(".tradingview-lightweight-chart");
     const { width, height } = chartDimensions(mount);
+    const chartColors = dashboardChartColors();
     const chart = tv.createChart(mount, {
       width,
       height,
       layout: {
-        background: { type: tv.ColorType.Solid, color: CHART_BACKGROUND_COLOR },
-        textColor: CHART_TEXT_COLOR,
+        background: { type: tv.ColorType.Solid, color: chartColors.background },
+        textColor: chartColors.text,
         attributionLogo: false,
       },
       grid: {
-        vertLines: { color: "rgba(133, 156, 171, 0.08)" },
-        horzLines: { color: "rgba(133, 156, 171, 0.08)" },
+        vertLines: { color: chartColors.grid },
+        horzLines: { color: chartColors.grid },
       },
       crosshair: {
         mode: tv.CrosshairMode.Normal,
@@ -3695,24 +3714,24 @@
       rightPriceScale: {
         visible: true,
         borderVisible: true,
-        borderColor: "rgba(133, 156, 171, 0.18)",
+        borderColor: chartColors.border,
         entireTextOnly: false,
         scaleMargins: { top: 0.06, bottom: 0.22 },
       },
       timeScale: {
-        borderColor: "rgba(133, 156, 171, 0.18)",
+        borderColor: chartColors.border,
         timeVisible: true,
         secondsVisible: false,
       },
     });
     const candleSeries = chart.addSeries(tv.CandlestickSeries, {
-      upColor: CANDLE_UP_COLOR,
-      downColor: CANDLE_DOWN_COLOR,
+      upColor: chartColors.candleUp,
+      downColor: chartColors.candleDown,
       borderVisible: true,
-      borderUpColor: CANDLE_BORDER_COLOR,
-      borderDownColor: CANDLE_BORDER_COLOR,
-      wickUpColor: CANDLE_WICK_COLOR,
-      wickDownColor: CANDLE_WICK_COLOR,
+      borderUpColor: chartColors.candleBorder,
+      borderDownColor: chartColors.candleBorder,
+      wickUpColor: chartColors.candleWick,
+      wickDownColor: chartColors.candleWick,
       priceFormat: chartPriceFormat(candles),
       priceLineVisible: true,
       lastValueVisible: true,
@@ -4314,11 +4333,12 @@
 
   function applyHistoricalReplayPaneScale(chart, paneIndex) {
     if (!chart || typeof chart.priceScale !== "function") return;
+    const chartColors = dashboardChartColors();
     try {
       chart.priceScale("right", paneIndex).applyOptions({
         visible: true,
         borderVisible: true,
-        borderColor: "rgba(133, 156, 171, 0.18)",
+        borderColor: chartColors.border,
       });
     } catch (_error) {
       // Lightweight Charts creates pane scales lazily; missing pane scales are non-fatal.
@@ -4413,27 +4433,28 @@
     `;
     const mount = elements.historicalReplayChart.querySelector(".tradingview-lightweight-chart");
     const { width, height } = chartDimensions(mount);
+    const chartColors = dashboardChartColors();
     const chart = tv.createChart(mount, {
       width,
       height,
       layout: {
-        background: { type: tv.ColorType.Solid, color: CHART_BACKGROUND_COLOR },
-        textColor: CHART_TEXT_COLOR,
+        background: { type: tv.ColorType.Solid, color: chartColors.background },
+        textColor: chartColors.text,
         attributionLogo: false,
       },
       grid: {
-        vertLines: { color: "rgba(133, 156, 171, 0.08)" },
-        horzLines: { color: "rgba(133, 156, 171, 0.08)" },
+        vertLines: { color: chartColors.grid },
+        horzLines: { color: chartColors.grid },
       },
       crosshair: { mode: tv.CrosshairMode.Normal },
       rightPriceScale: {
         visible: true,
         borderVisible: true,
-        borderColor: "rgba(133, 156, 171, 0.18)",
+        borderColor: chartColors.border,
         scaleMargins: { top: 0.05, bottom: 0.08 },
       },
       timeScale: {
-        borderColor: "rgba(133, 156, 171, 0.18)",
+        borderColor: chartColors.border,
         timeVisible: true,
         secondsVisible: false,
       },
@@ -4477,13 +4498,13 @@
     lineSeries.RSI_floor = rsiFloor;
     lineSeries.RSI_ceiling = rsiCeiling;
     const candleSeries = chart.addSeries(tv.CandlestickSeries, {
-      upColor: CANDLE_UP_COLOR,
-      downColor: CANDLE_DOWN_COLOR,
+      upColor: chartColors.candleUp,
+      downColor: chartColors.candleDown,
       borderVisible: true,
-      borderUpColor: CANDLE_BORDER_COLOR,
-      borderDownColor: CANDLE_BORDER_COLOR,
-      wickUpColor: CANDLE_WICK_COLOR,
-      wickDownColor: CANDLE_WICK_COLOR,
+      borderUpColor: chartColors.candleBorder,
+      borderDownColor: chartColors.candleBorder,
+      wickUpColor: chartColors.candleWick,
+      wickDownColor: chartColors.candleWick,
       priceFormat: chartPriceFormat(candles),
       priceLineVisible: true,
       lastValueVisible: true,
@@ -4763,31 +4784,45 @@
         : "Candles loaded from historical replay source.";
     const rangeStart = selected.actual_earliest_available || selected.start_time || selected.earliest_candle || "missing";
     const rangeEnd = selected.actual_latest_available || selected.end_time || selected.latest_candle || "missing";
+    const warnings = selected.reason_codes || [];
+    const coverage = selected.target_coverage_percent ? pct(selected.target_coverage_percent) : selected.coverage_percent || "n/a";
+    const source = selected.source_kind || selected.selected_data_source || selected.source || "historical source";
     elements.historicalReplayDataHorizonPanel.innerHTML = `
-      <article>
-        <span>Range</span>
-        <strong>${escapeHtml(`${rangeStart} -> ${rangeEnd}`)}</strong>
-        <small>${escapeHtml(selected.replay_ready ? "replay_ready" : "data_missing")}</small>
-      </article>
-      <article>
-        <span>Coverage</span>
-        <strong>${escapeHtml(selected.target_coverage_percent ? pct(selected.target_coverage_percent) : selected.coverage_percent || "n/a")}</strong>
-        <small>${escapeHtml(selected.candle_count ?? 0)} candles / target window</small>
-      </article>
-      <article class="${selected.aggregation_used ? "warning" : ""}">
-        <span>Source</span>
-        <strong>${escapeHtml(selected.source_kind || selected.selected_data_source || selected.source || "historical source")}</strong>
-        <small>${escapeHtml(aggregationCopy)}</small>
-      </article>
-      <article>
-        <span>Canonical evidence</span>
-        <strong>${escapeHtml(canonicalEvidence.status || "not_loaded")}</strong>
-        <small>${escapeHtml(selected.db_imported ? "DB imported through hardened candle importer" : "not DB imported")}</small>
-      </article>
-      <article class="wide">
-        <span>Warnings</span>
-        <strong>${escapeHtml((selected.reason_codes || []).join(", ") || "none")}</strong>
-        <small>Missing data is reported as data readiness, not strategy failure.</small>
+      <article class="historical-data-summary-card${warnings.length || selected.aggregation_used ? " warning" : ""}">
+        <div class="historical-data-summary-heading">
+          <div>
+            <span>Historical data readiness</span>
+            <strong>${escapeHtml(state.historicalReplay.symbol || "Symbol")} ${escapeHtml(displayTimeframe(state.historicalReplay.timeframe || "timeframe"))}</strong>
+          </div>
+          <small>${escapeHtml(selected.replay_ready ? "replay_ready" : "data_missing")}</small>
+        </div>
+        <dl class="historical-data-summary-grid">
+          <div>
+            <dt>Range</dt>
+            <dd>${escapeHtml(`${rangeStart} -> ${rangeEnd}`)}</dd>
+            <small>${escapeHtml(selected.component || "selected replay window")}</small>
+          </div>
+          <div>
+            <dt>Coverage</dt>
+            <dd>${escapeHtml(coverage)}</dd>
+            <small>${escapeHtml(selected.candle_count ?? 0)} candles / target window</small>
+          </div>
+          <div>
+            <dt>Source</dt>
+            <dd>${escapeHtml(source)}</dd>
+            <small>${escapeHtml(aggregationCopy)}</small>
+          </div>
+          <div>
+            <dt>Canonical evidence</dt>
+            <dd>${escapeHtml(canonicalEvidence.status || "not_loaded")}</dd>
+            <small>${escapeHtml(selected.db_imported ? "DB imported through hardened candle importer" : "not DB imported")}</small>
+          </div>
+          <div class="historical-data-summary-warning-row">
+            <dt>Warnings</dt>
+            <dd>${escapeHtml(warnings.join(", ") || "none")}</dd>
+            <small>Missing data is reported as data readiness, not strategy failure.</small>
+          </div>
+        </dl>
       </article>
     `;
   }
@@ -6957,39 +6992,40 @@
     `;
     const mount = elements.evidenceLabChartOverlay.querySelector(".tradingview-lightweight-chart");
     const { width, height } = chartDimensions(mount);
+    const chartColors = dashboardChartColors();
     const chart = tv.createChart(mount, {
       width,
       height,
       layout: {
-        background: { type: tv.ColorType.Solid, color: CHART_BACKGROUND_COLOR },
-        textColor: CHART_TEXT_COLOR,
+        background: { type: tv.ColorType.Solid, color: chartColors.background },
+        textColor: chartColors.text,
         attributionLogo: false,
       },
       grid: {
-        vertLines: { color: "rgba(133, 156, 171, 0.08)" },
-        horzLines: { color: "rgba(133, 156, 171, 0.08)" },
+        vertLines: { color: chartColors.grid },
+        horzLines: { color: chartColors.grid },
       },
       crosshair: { mode: tv.CrosshairMode.Normal },
       rightPriceScale: {
         visible: true,
         borderVisible: true,
-        borderColor: "rgba(133, 156, 171, 0.18)",
+        borderColor: chartColors.border,
         scaleMargins: { top: 0.05, bottom: 0.12 },
       },
       timeScale: {
-        borderColor: "rgba(133, 156, 171, 0.18)",
+        borderColor: chartColors.border,
         timeVisible: true,
         secondsVisible: false,
       },
     });
     const candleSeries = chart.addSeries(tv.CandlestickSeries, {
-      upColor: CANDLE_UP_COLOR,
-      downColor: CANDLE_DOWN_COLOR,
+      upColor: chartColors.candleUp,
+      downColor: chartColors.candleDown,
       borderVisible: true,
-      borderUpColor: CANDLE_BORDER_COLOR,
-      borderDownColor: CANDLE_BORDER_COLOR,
-      wickUpColor: CANDLE_WICK_COLOR,
-      wickDownColor: CANDLE_WICK_COLOR,
+      borderUpColor: chartColors.candleBorder,
+      borderDownColor: chartColors.candleBorder,
+      wickUpColor: chartColors.candleWick,
+      wickDownColor: chartColors.candleWick,
       priceFormat: chartPriceFormat(candles),
       priceLineVisible: true,
       lastValueVisible: true,
@@ -8806,6 +8842,10 @@
   if (elements.themeSelector) {
     elements.themeSelector.addEventListener("change", () => {
       applyDashboardTheme(elements.themeSelector.value);
+      destroyTradingViewChart();
+      destroyHistoricalReplayChart();
+      destroyEvidenceLabOverlayChart();
+      render();
     });
   }
 

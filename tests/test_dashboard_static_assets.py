@@ -168,8 +168,21 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert 'stored : "red-zone"' in js
     assert 'safeTheme = DASHBOARD_THEMES.has(theme) ? theme : "red-zone"' in js
     assert "applyDashboardTheme" in js
+    assert "dashboardChartColors" in js
+    assert "--color-chart-surface" in css
+    assert "--color-chart-surface: #d7dce2" in css
+    assert "--color-chart-grid" in css
+    assert "--color-chart-candle-up" in css
+    assert "--color-chart-candle-up: #f5f7f2" in css
+    assert "--color-chart-candle-down: #050607" in css
+    assert "--color-surface-glass" in css
     assert 'html[data-theme="light"]' in css
     assert 'html[data-theme="red-zone"]' in css
+    assert "#17202a" in css
+    assert "var(--color-chart-panel)" in css
+    assert "var(--color-chart-grid-muted)" in css
+    assert "chartColors.background" in js
+    assert "chartColors.candleUp" in js
     assert ".theme-control" in css
     assert "evidence-replay-strategy-filter" in html
     assert "Strategy Comparison" in html
@@ -234,6 +247,9 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "result-pill" in css
     assert "result-same" in css
     assert 'id="historical-replay-arrow-descriptions-toggle" type="checkbox">' in html
+    assert "historical-data-summary-card" in js
+    assert "historical-data-summary-grid" in css
+    assert "historical-data-summary-warning-row" in js
     assert "dynamic_equity_pct" not in js
     assert "Ending Equity" in js
     assert "calls_private_exchange_endpoints" in js
