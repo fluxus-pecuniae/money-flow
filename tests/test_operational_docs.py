@@ -145,6 +145,8 @@ REQUIRED_FILES = [
     "docs/pt_rt1_60_day_forward_observation_plan.md",
     "docs/pt_rt1_1_24h_probes_disabled_dry_run.md",
     "docs/pt_rt1_1_24h_probes_disabled_dry_run_summary.json",
+    "docs/pt_rt1_1a_expanded_universe_and_strategy_lanes.md",
+    "docs/pt_rt1_1a_expanded_universe_and_strategy_lanes_summary.json",
     "money-flow/00 Maps/Strategy Family Map.md",
     "money-flow/00 Maps/Evidence and Backtesting Map.md",
     "money-flow/00 Maps/Data Source and Market Data Map.md",
@@ -206,6 +208,8 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "EV-AUDIT1" in current_phase
     assert "PT-RT1" in current_phase
     assert "PT-RT1.1" in current_phase
+    assert "PT-RT1.1A" in current_phase
+    assert "PT-RT1.1B" in current_phase
     assert "PT-RT1.2 cannot proceed" in current_phase
     assert "`MF-ORIG-EV2` Original Money Flow multi-timeframe evidence packs and Historical Replay UI are complete" in current_phase
     assert "MF-ORIG-EV1.1" in current_phase
@@ -239,7 +243,9 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "Gerald Peters PDF is now present" in command_center
     assert "PT-RT1" in command_center
     assert "PT-RT1.1" in command_center
-    assert "PT-RT1.2 is blocked" in command_center
+    assert "PT-RT1.1A" in command_center
+    assert "PT-RT1.1B" in command_center
+    assert "PT-RT1.2 remains blocked" in command_center
     assert "Evidence and Backtesting Map" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
@@ -271,6 +277,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "OB2.0 Obsidian strategy brain refresh" in moved_memory
     assert "PT-RT1 real-time public-market paper-observation substrate" in moved_memory
     assert "PT-RT1.1" in moved_memory
+    assert "PT-RT1.1A" in moved_memory
     assert "blocked because the expected ignored runtime artifact directory" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
@@ -285,7 +292,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert "Current implemented milestone | `PT-RT1` real-time public-market paper observation" in command_center
+    assert "Current implemented milestone | `PT-RT1.1A` expanded paper-observation lab readiness" in command_center
     assert "Canonical command center" in compatibility_command_center
     assert "PT-RT1 now implements the public-mainnet paper-observation substrate" in current_dashboard
     assert "SV2.0.2 canonical evidence" in current_dashboard
@@ -448,8 +455,9 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "no clean strategy candidate" in strategy_register
     assert "No strategy is production-ready" in current_phase or "no clean strategy candidate is promoted" in current_phase
     assert "PT-RT1" in current_phase
-    assert "Run the PT-RT1 24-hour probes-disabled dry run first" in current_phase
+    assert "Run `PT-RT1.1B` 24-hour probes-disabled dry run first" in current_phase
     assert "PT-RT1.1 currently records this as blocked" in current_phase
+    assert "PT-RT1.1A completed the required expanded-lab readiness" in current_phase
     assert "SV2.0.2" in project_memory
     assert "MF-ORIG" in project_memory
     assert "EV-AUDIT1" in project_memory
@@ -491,26 +499,46 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     observation_plan = Path("docs/pt_rt1_60_day_forward_observation_plan.md").read_text()
     dry_run_report = Path("docs/pt_rt1_1_24h_probes_disabled_dry_run.md").read_text()
     dry_run_summary = Path("docs/pt_rt1_1_24h_probes_disabled_dry_run_summary.json").read_text()
+    expanded_report = Path("docs/pt_rt1_1a_expanded_universe_and_strategy_lanes.md").read_text()
+    expanded_summary = Path("docs/pt_rt1_1a_expanded_universe_and_strategy_lanes_summary.json").read_text()
 
-    for contents in (command_center, current_phase, project_memory, paper_roadmap, report):
+    for contents in (command_center, current_phase, project_memory, paper_roadmap, report, expanded_report):
         assert "PT-RT1" in contents
         assert "public mainnet" in contents or "Public mainnet" in contents
         assert "testnet" in contents
         assert "Live trading is not approved" in contents or "live trading" in contents
 
     assert "strategy-truth lane is Hyperliquid public mainnet market data only" in command_center
+    assert "PT-RT1.1A" in command_center
+    assert "PT-RT1.1B may start" in command_center
     assert "not production approval" in report
     assert "live approval" in report
     assert "paper-runtime approval" in report
+    assert "exactly 10 lanes" in report
+    assert "wildcard_btc_regime_guard" in report
+    assert "TRON" in report
+    assert "kPEPE" in report
     assert "PT_RT1_TESTNET_PROBES_ENABLED=false" in paper_roadmap
     assert "testnet fills never update strategy paper PnL" in paper_roadmap
+    assert "PT-RT1.1A status: `implemented_expanded_readiness`" in paper_roadmap
     assert "PT-RT1.2 blocked" in dry_run_report
     assert "not_verified_runtime_absent" in dry_run_summary
     assert "PT_RT1_TESTNET_DAILY_PROBE_CAP" in dry_run_summary
+    assert "PT-RT1.1A" in expanded_report
+    assert "PT-RT1.1B may start 24-hour probes-disabled runtime collection" in expanded_report
+    assert "wildcard_volatility_expansion_breakout" in expanded_summary
+    assert "pepe_kpepe_unit_semantics_deferred" in expanded_summary
+    assert "okb_support_not_confirmed" in expanded_summary
     assert "money_flow_v1_2_baseline" in summary
     assert "avoid_low_rolling_range_50" in summary
     assert "avoid_low_rolling_range_20" in summary
+    assert "mf_orig_stage_filter_only_full_equity" in summary
+    assert "mf_orig_stage2_pullback_reclaim_full_equity" in summary
+    assert "mf_orig_1d_stage2_5_20_crossover_full_equity" in summary
     assert "mf_orig_1d_stage2_breakout_resistance_full_equity" in summary
+    assert "wildcard_multi_timeframe_alignment" in summary
+    assert "TRX" in summary
+    assert "kPEPE" in summary
     assert "no testnet order endpoint calls" in dry_run.lower()
     assert "approval captured" in probe_run.lower()
     assert "60-day" in observation_plan.lower()

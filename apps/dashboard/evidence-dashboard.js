@@ -688,6 +688,7 @@
     paperObservation: {
       symbol: "ETH",
       timeframe: "1h",
+      laneId: "money_flow_v1_2_baseline",
       dateStart: "",
       dateEnd: "",
     },
@@ -780,12 +781,15 @@
     paperObservationSummaryCards: document.querySelector("#paper-observation-summary-cards"),
     paperObservationSymbolFilter: document.querySelector("#paper-observation-symbol-filter"),
     paperObservationTimeframeFilter: document.querySelector("#paper-observation-timeframe-filter"),
+    paperObservationLaneFilter: document.querySelector("#paper-observation-lane-filter"),
     paperObservationDateStart: document.querySelector("#paper-observation-date-start"),
     paperObservationDateEnd: document.querySelector("#paper-observation-date-end"),
     paperObservationDateClear: document.querySelector("#paper-observation-date-clear"),
     paperObservationScannerTable: document.querySelector("#paper-observation-scanner-table"),
     paperObservationHealthTable: document.querySelector("#paper-observation-health-table"),
     paperObservationLaneTable: document.querySelector("#paper-observation-lane-table"),
+    paperObservationLaneDetail: document.querySelector("#paper-observation-lane-detail"),
+    paperObservationWildcardDiagnostics: document.querySelector("#paper-observation-wildcard-diagnostics"),
     paperObservationLiveChart: document.querySelector("#paper-observation-live-chart"),
     paperObservationProbeStatus: document.querySelector("#paper-observation-probe-status"),
     paperObservationOpenPositions: document.querySelector("#paper-observation-open-positions"),
@@ -8232,8 +8236,10 @@
     const summary = paperObservationSummary();
     const symbols = paperObservationRows(summary?.symbols);
     const timeframes = paperObservationRows(summary?.timeframes);
+    const laneIds = paperObservationRows(summary?.strategy_lanes).map((lane) => lane.strategy_id || lane.lane_id).filter(Boolean);
     renderSelect(elements.paperObservationSymbolFilter, symbols, state.paperObservation.symbol, "All symbols");
     renderSelect(elements.paperObservationTimeframeFilter, timeframes, state.paperObservation.timeframe, "All timeframes");
+    renderSelect(elements.paperObservationLaneFilter, laneIds, state.paperObservation.laneId, "All lanes");
     if (elements.paperObservationSymbolFilter) {
       elements.paperObservationSymbolFilter.onchange = () => {
         state.paperObservation.symbol = elements.paperObservationSymbolFilter.value === "all" ? "all" : elements.paperObservationSymbolFilter.value;
@@ -8244,6 +8250,13 @@
       elements.paperObservationTimeframeFilter.onchange = () => {
         state.paperObservation.timeframe =
           elements.paperObservationTimeframeFilter.value === "all" ? "all" : elements.paperObservationTimeframeFilter.value;
+        renderPaperObservation();
+      };
+    }
+    if (elements.paperObservationLaneFilter) {
+      elements.paperObservationLaneFilter.onchange = () => {
+        state.paperObservation.laneId =
+          elements.paperObservationLaneFilter.value === "all" ? "all" : elements.paperObservationLaneFilter.value;
         renderPaperObservation();
       };
     }
@@ -8283,6 +8296,7 @@
     const cards = [
       ["Strategy truth", truth.source || "public mainnet", "no private/signed/order endpoints"],
       ["Lanes", String(lanes.length), "independent 10,000 USDC ledgers"],
+      ["Scanner symbols", String(paperObservationRows(summary.scanner_universe).length), "requested/resolved/block reasons visible"],
       ["Probe default", probe.PT_RT1_TESTNET_PROBES_ENABLED === false ? "disabled" : "review", "kill switch true by default"],
       ["Runtime state", "ignored local files", "reports/paper_runtime/"],
     ];
@@ -8313,7 +8327,11 @@
           <tr>
             <th>Requested</th>
             <th>Venue symbol</th>
+            <th>Sources</th>
             <th>Supported</th>
+            <th>Blocked</th>
+            <th>Precision</th>
+            <th>Public mid</th>
             <th>Data health</th>
             <th>Eligible</th>
             <th>Reason codes</th>
@@ -8326,7 +8344,11 @@
                 <tr>
                   <td>${escapeHtml(paperObservationText(row.requested_symbol, "n/a"))}</td>
                   <td>${escapeHtml(paperObservationText(row.resolved_venue_symbol, "n/a"))}</td>
+                  <td>${escapeHtml(paperObservationText(row.sources || row.source, "n/a"))}</td>
                   <td>${auditReviewPill(row.supported_by_venue ? "yes" : "no")}</td>
+                  <td>${auditReviewPill(row.blocked ? "yes" : "no")}</td>
+                  <td>${escapeHtml(paperObservationText(row.precision_status || (row.precision_ready ? "precision_ready" : ""), "n/a"))}</td>
+                  <td>${escapeHtml(paperObservationText(row.public_mid, "pending_runtime_refresh"))}</td>
                   <td>${auditReviewPill(row.data_health)}</td>
                   <td>${auditReviewPill(row.scanner_eligible ? "yes" : "no")}</td>
                   <td>${escapeHtml(paperObservationText(row.reason_codes, "n/a"))}</td>
@@ -8346,7 +8368,7 @@
     const selectedTimeframe = state.paperObservation.timeframe;
     const rows = paperObservationRows(summary?.market_data_health).filter(
       (row) =>
-        (selectedSymbol === "all" || row.symbol === selectedSymbol) &&
+        (selectedSymbol === "all" || row.symbol === selectedSymbol || row.requested_symbol === selectedSymbol || row.resolved_venue_symbol === selectedSymbol) &&
         (selectedTimeframe === "all" || sameTimeframe(row.timeframe, selectedTimeframe)),
     );
     if (!rows.length) {
@@ -8390,7 +8412,10 @@
 
   function renderPaperObservationLanes() {
     if (!elements.paperObservationLaneTable) return;
-    const rows = paperObservationRows(paperObservationSummary()?.strategy_lanes);
+    const selectedLane = state.paperObservation.laneId;
+    const rows = paperObservationRows(paperObservationSummary()?.strategy_lanes).filter(
+      (row) => selectedLane === "all" || row.strategy_id === selectedLane || row.lane_id === selectedLane,
+    );
     if (!rows.length) {
       setEmpty(elements.paperObservationLaneTable, "Strategy lane config not loaded.");
       return;
@@ -8401,12 +8426,14 @@
           <tr>
             <th>Lane</th>
             <th>Role</th>
+            <th>Family</th>
             <th>Starting equity</th>
             <th>Realized equity</th>
             <th>Unrealized PnL</th>
             <th>Total equity</th>
             <th>Max drawdown</th>
             <th>Open / closed</th>
+            <th>Losing streak</th>
             <th>Status</th>
           </tr>
         </thead>
@@ -8415,15 +8442,81 @@
             .map(
               (row) => `
                 <tr>
-                  <td>${escapeHtml(row.strategy_id)}</td>
+                  <td>${escapeHtml(row.display_name || row.strategy_id)}</td>
                   <td>${auditReviewPill(row.role)}</td>
+                  <td>${escapeHtml(paperObservationText(row.strategy_family, "n/a"))}</td>
                   <td>${escapeHtml(row.initial_equity || "10000")}</td>
                   <td>${escapeHtml(row.realized_equity || row.initial_equity || "10000")}</td>
                   <td>${escapeHtml(row.unrealized_pnl || "0")}</td>
                   <td>${escapeHtml(row.total_equity || row.initial_equity || "10000")}</td>
                   <td>${escapeHtml(row.max_drawdown || "0")}</td>
                   <td>${escapeHtml(`${row.open_positions || 0} / ${row.closed_trades || 0}`)}</td>
-                  <td>${auditReviewPill(row.production_approved ? "review_required" : "not_production_approved")}</td>
+                  <td>${escapeHtml(`${row.current_losing_streak || 0} / ${row.max_losing_streak || 0}`)}</td>
+                  <td>${auditReviewPill(row.production_approved || row.live_approved ? "review_required" : "not_production_approved")}</td>
+                </tr>
+              `,
+            )
+            .join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderPaperObservationLaneDetail() {
+    if (!elements.paperObservationLaneDetail) return;
+    const lanes = paperObservationRows(paperObservationSummary()?.strategy_lanes);
+    const selectedLane = state.paperObservation.laneId === "all" ? lanes[0] : lanes.find(
+      (lane) => lane.strategy_id === state.paperObservation.laneId || lane.lane_id === state.paperObservation.laneId,
+    );
+    if (!selectedLane) {
+      setEmpty(elements.paperObservationLaneDetail, "Lane detail data_not_available_in_pt_rt1_bundle.");
+      return;
+    }
+    elements.paperObservationLaneDetail.innerHTML = `
+      <div class="market-micro-grid">
+        <div><span>Lane</span><strong>${escapeHtml(selectedLane.strategy_id || selectedLane.lane_id)}</strong></div>
+        <div><span>Family</span><strong>${escapeHtml(paperObservationText(selectedLane.strategy_family, "n/a"))}</strong></div>
+        <div><span>Paper only</span><strong>${escapeHtml(String(selectedLane.paper_only !== false))}</strong></div>
+        <div><span>Production approved</span><strong>${escapeHtml(String(Boolean(selectedLane.production_approved)))}</strong></div>
+        <div><span>Live approved</span><strong>${escapeHtml(String(Boolean(selectedLane.live_approved || selectedLane.live_trading_approved)))}</strong></div>
+        <div><span>Ledger</span><strong>${escapeHtml(paperObservationText(selectedLane.ledger_label, "independent synthetic paper ledger"))}</strong></div>
+        <div><span>Latest decisions</span><strong>${escapeHtml(paperObservationText(selectedLane.last_decision_time, "data_not_available_in_pt_rt1_bundle"))}</strong></div>
+        <div><span>Equity curve</span><strong>runtime_state_pending</strong></div>
+      </div>
+      <div class="methodology-warning secondary" role="note">
+        ${escapeHtml(paperObservationText(selectedLane.rule_summary, "data_not_available_in_pt_rt1_bundle"))}
+        Reason codes: ${escapeHtml(paperObservationText(selectedLane.reason_codes, "data_not_available_in_pt_rt1_bundle"))}
+      </div>
+    `;
+  }
+
+  function renderPaperObservationWildcardDiagnostics() {
+    if (!elements.paperObservationWildcardDiagnostics) return;
+    const definitions = paperObservationSummary()?.wildcard_definitions || {};
+    const rows = Object.entries(definitions);
+    if (!rows.length) {
+      setEmpty(elements.paperObservationWildcardDiagnostics, "Wildcard diagnostics data_not_available_in_pt_rt1_bundle.");
+      return;
+    }
+    elements.paperObservationWildcardDiagnostics.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Wildcard lane</th>
+            <th>Purpose</th>
+            <th>Methodology</th>
+            <th>Reason codes</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows
+            .map(
+              ([strategyId, definition]) => `
+                <tr>
+                  <td>${escapeHtml(strategyId)}</td>
+                  <td>${escapeHtml(paperObservationText(definition.purpose, "n/a"))}</td>
+                  <td>${auditReviewPill(definition.methodology || "forward_public_mainnet_paper_observation")}</td>
+                  <td>${escapeHtml(paperObservationText(definition.reason_codes, "n/a"))}</td>
                 </tr>
               `,
             )
@@ -8485,6 +8578,8 @@
     renderPaperObservationScanner();
     renderPaperObservationHealth();
     renderPaperObservationLanes();
+    renderPaperObservationLaneDetail();
+    renderPaperObservationWildcardDiagnostics();
     renderPaperObservationChart();
     renderPaperObservationProbeStatus();
     renderPaperObservationRuntimeTables();

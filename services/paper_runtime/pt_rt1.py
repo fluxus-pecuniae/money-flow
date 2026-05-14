@@ -52,7 +52,91 @@ RUNTIME_STATE_PATHS = {
     "testnet_probe_audit": "reports/paper_runtime/pt_rt1_testnet_probe_audit.jsonl",
 }
 SUPPORTED_CANONICAL_SYMBOLS = ("BTC", "ETH", "SOL", "XRP", "DOGE", "HYPE", "BNB", "SUI", "AVAX")
+FOUNDER_REQUESTED_SYMBOLS = (
+    "TRON",
+    "ADA",
+    "ZEC",
+    "LINK",
+    "XMR",
+    "TON",
+    "LTC",
+    "UNI",
+    "DOT",
+    "ASTER",
+    "AAVE",
+    "POL",
+    "FIL",
+    "TRUMP",
+    "PEPE",
+    "OKB",
+)
+SYMBOL_ALIASES = {
+    "TRON": "TRX",
+    "PEPE": "kPEPE",
+    "SHIB": "kSHIB",
+    "KSHIB": "kSHIB",
+}
 STABLECOIN_SYMBOLS = {"USDT", "USDC", "DAI", "FDUSD", "TUSD", "USDE", "USDS"}
+DEFAULT_SCANNER_SOURCES = {
+    **{symbol: ("canonical_sv2_supported",) for symbol in SUPPORTED_CANONICAL_SYMBOLS},
+    **{symbol: ("founder_requested",) for symbol in FOUNDER_REQUESTED_SYMBOLS},
+}
+PT_RT1_1A_STRATEGY_LANE_IDS = (
+    "money_flow_v1_2_baseline",
+    "avoid_low_rolling_range_20",
+    "avoid_low_rolling_range_50",
+    "mf_orig_stage_filter_only_full_equity",
+    "mf_orig_stage2_pullback_reclaim_full_equity",
+    "mf_orig_1d_stage2_5_20_crossover_full_equity",
+    "mf_orig_1d_stage2_breakout_resistance_full_equity",
+    "wildcard_btc_regime_guard",
+    "wildcard_multi_timeframe_alignment",
+    "wildcard_volatility_expansion_breakout",
+)
+PT_RT1_REQUESTED_SCANNER_SYMBOLS = tuple(dict.fromkeys((*SUPPORTED_CANONICAL_SYMBOLS, *FOUNDER_REQUESTED_SYMBOLS)))
+WILDCARD_STRATEGY_DEFINITIONS = {
+    "wildcard_btc_regime_guard": {
+        "purpose": "Stop alt entries when BTC 4h/1d market regime is hostile.",
+        "methodology": "forward_public_mainnet_paper_observation",
+        "rule_summary": (
+            "Non-BTC entries require constructive BTC 4h and 1d context; BTC entries use BTC's own 4h/1d context."
+        ),
+        "reason_codes": (
+            "btc_regime_guard_passed",
+            "btc_regime_guard_blocked_bearish",
+            "btc_regime_context_unavailable",
+            "btc_regime_clear_bearish_alignment",
+            "btc_regime_macd_histogram_not_constructive",
+        ),
+    },
+    "wildcard_multi_timeframe_alignment": {
+        "purpose": "Avoid isolated lower-timeframe entries against higher-timeframe structure.",
+        "methodology": "forward_public_mainnet_paper_observation",
+        "rule_summary": "15m requires 1h alignment, 1h requires 4h, 4h requires 1d, and 1d uses its own baseline rules.",
+        "reason_codes": (
+            "multi_timeframe_alignment_passed",
+            "multi_timeframe_alignment_blocked",
+            "higher_timeframe_context_unavailable",
+            "higher_timeframe_bearish_alignment",
+            "higher_timeframe_macd_not_constructive",
+        ),
+    },
+    "wildcard_volatility_expansion_breakout": {
+        "purpose": "Avoid dead sideways zones but allow re-entry when compression resolves upward.",
+        "methodology": "forward_public_mainnet_paper_observation",
+        "rule_summary": (
+            "Block low rolling range entries unless range expansion and a close above the recent 20-candle high occur "
+            "while baseline Money Flow trend alignment remains valid."
+        ),
+        "reason_codes": (
+            "volatility_expansion_breakout_passed",
+            "volatility_expansion_blocked_low_range",
+            "volatility_expansion_missing_compression_context",
+            "volatility_expansion_no_recent_high_breakout",
+            "volatility_expansion_baseline_alignment_failed",
+        ),
+    },
+}
 
 
 class DataHealth(StrEnum):
@@ -66,6 +150,7 @@ class LaneRole(StrEnum):
     CONTROL = "control_lane"
     CANDIDATE = "evidence_only_candidate_lane"
     REFERENCE = "mf_orig_evidence_only_reference_lane"
+    WILDCARD = "wildcard_expert_observation_lane"
 
 
 @dataclass(frozen=True)
@@ -74,10 +159,15 @@ class StrategyLaneConfig:
     strategy_id: str
     role: LaneRole
     label: str
+    display_name: str
+    strategy_family: str
+    rule_summary: str
     initial_equity: Decimal = Decimal("10000")
     allocation_pct: Decimal = Decimal("1")
     fill_model: str = "next_candle_open"
+    paper_only: bool = True
     production_approved: bool = False
+    live_approved: bool = False
     paper_runtime_approved_as_production: bool = False
     live_trading_approved: bool = False
     reason_codes: tuple[str, ...] = ()
@@ -85,32 +175,104 @@ class StrategyLaneConfig:
 
 PT_RT1_STRATEGY_LANES: tuple[StrategyLaneConfig, ...] = (
     StrategyLaneConfig(
-        lane_id="lane_control_money_flow_v1_2_baseline",
+        lane_id="money_flow_v1_2_baseline",
         strategy_id="money_flow_v1_2_baseline",
         role=LaneRole.CONTROL,
         label="Money Flow v1.2 baseline observation lane",
-        reason_codes=("production_derived_rules_unchanged", "not_production_approval"),
+        display_name="Money Flow v1.2 baseline",
+        strategy_family="current_money_flow_v1_2",
+        rule_summary="Current production-derived Money Flow v1.2 rules unchanged; control lane only.",
+        reason_codes=("production_derived_rules_unchanged", "not_production_approval", "independent_synthetic_paper_ledger"),
     ),
     StrategyLaneConfig(
-        lane_id="lane_candidate_avoid_low_rolling_range_50",
-        strategy_id="avoid_low_rolling_range_50",
-        role=LaneRole.CANDIDATE,
-        label="avoid_low_rolling_range_50 evidence-only candidate lane",
-        reason_codes=("evidence_only_candidate_lane", "not_production_approved"),
-    ),
-    StrategyLaneConfig(
-        lane_id="lane_candidate_avoid_low_rolling_range_20",
+        lane_id="avoid_low_rolling_range_20",
         strategy_id="avoid_low_rolling_range_20",
         role=LaneRole.CANDIDATE,
         label="avoid_low_rolling_range_20 evidence-only candidate lane",
-        reason_codes=("evidence_only_candidate_lane", "not_production_approved"),
+        display_name="Avoid low rolling range 20",
+        strategy_family="sor_ev3_avoid_sideways_low_volatility",
+        rule_summary="Paper-only candidate that blocks entries when the 20-candle rolling range is too compressed.",
+        reason_codes=("evidence_only_candidate_lane", "not_production_approved", "independent_synthetic_paper_ledger"),
     ),
     StrategyLaneConfig(
-        lane_id="lane_reference_mf_orig_breakout_resistance_full_equity",
+        lane_id="avoid_low_rolling_range_50",
+        strategy_id="avoid_low_rolling_range_50",
+        role=LaneRole.CANDIDATE,
+        label="avoid_low_rolling_range_50 evidence-only candidate lane",
+        display_name="Avoid low rolling range 50",
+        strategy_family="sor_ev3_avoid_sideways_low_volatility",
+        rule_summary="Paper-only candidate that blocks entries when the 50-candle rolling range is too compressed.",
+        reason_codes=("evidence_only_candidate_lane", "not_production_approved", "independent_synthetic_paper_ledger"),
+    ),
+    StrategyLaneConfig(
+        lane_id="mf_orig_stage_filter_only_full_equity",
+        strategy_id="mf_orig_stage_filter_only_full_equity",
+        role=LaneRole.REFERENCE,
+        label="MF-ORIG stage filter full-equity evidence-only reference lane",
+        display_name="MF-ORIG stage filter only full equity",
+        strategy_family="mf_orig_evidence_only_reference",
+        rule_summary="Current Money Flow-like entries with original-style Stage 2 filter, full-equity comparison sizing.",
+        reason_codes=("mf_orig_reference_lane", "full_equity_reference", "not_production_approved", "independent_synthetic_paper_ledger"),
+    ),
+    StrategyLaneConfig(
+        lane_id="mf_orig_stage2_pullback_reclaim_full_equity",
+        strategy_id="mf_orig_stage2_pullback_reclaim_full_equity",
+        role=LaneRole.REFERENCE,
+        label="MF-ORIG Stage 2 pullback reclaim full-equity evidence-only reference lane",
+        display_name="MF-ORIG Stage 2 pullback reclaim full equity",
+        strategy_family="mf_orig_evidence_only_reference",
+        rule_summary="Original Money Flow pullback/reclaim hypothesis, full-equity comparison sizing.",
+        reason_codes=("mf_orig_reference_lane", "full_equity_reference", "not_production_approved", "independent_synthetic_paper_ledger"),
+    ),
+    StrategyLaneConfig(
+        lane_id="mf_orig_1d_stage2_5_20_crossover_full_equity",
+        strategy_id="mf_orig_1d_stage2_5_20_crossover_full_equity",
+        role=LaneRole.REFERENCE,
+        label="MF-ORIG 1d Stage 2 5/20 crossover full-equity evidence-only reference lane",
+        display_name="MF-ORIG 1D Stage 2 5/20 crossover full equity",
+        strategy_family="mf_orig_evidence_only_reference",
+        rule_summary="Original Money Flow 5 EMA / 20 SMA Stage 2 crossover hypothesis, full-equity comparison sizing.",
+        reason_codes=("mf_orig_reference_lane", "mf_orig_reference_lane_1d_primary", "full_equity_reference", "not_production_approved", "independent_synthetic_paper_ledger"),
+    ),
+    StrategyLaneConfig(
+        lane_id="mf_orig_1d_stage2_breakout_resistance_full_equity",
         strategy_id="mf_orig_1d_stage2_breakout_resistance_full_equity",
         role=LaneRole.REFERENCE,
-        label="MF-ORIG evidence-only reference lane",
-        reason_codes=("mf_orig_reference_lane", "mf_orig_reference_lane_1d_primary", "not_production_approved"),
+        label="MF-ORIG Stage 2 breakout resistance full-equity evidence-only reference lane",
+        display_name="MF-ORIG 1D Stage 2 breakout resistance full equity",
+        strategy_family="mf_orig_evidence_only_reference",
+        rule_summary="Original Money Flow resistance-breakout hypothesis, full-equity comparison sizing.",
+        reason_codes=("mf_orig_reference_lane", "mf_orig_reference_lane_1d_primary", "full_equity_reference", "not_production_approved", "independent_synthetic_paper_ledger"),
+    ),
+    StrategyLaneConfig(
+        lane_id="wildcard_btc_regime_guard",
+        strategy_id="wildcard_btc_regime_guard",
+        role=LaneRole.WILDCARD,
+        label="Wildcard BTC regime guard observation lane",
+        display_name="Wildcard BTC regime guard",
+        strategy_family="wildcard_expert_hypothesis",
+        rule_summary=WILDCARD_STRATEGY_DEFINITIONS["wildcard_btc_regime_guard"]["rule_summary"],
+        reason_codes=(*WILDCARD_STRATEGY_DEFINITIONS["wildcard_btc_regime_guard"]["reason_codes"], "wildcard_observation_only", "not_production_approved", "independent_synthetic_paper_ledger"),
+    ),
+    StrategyLaneConfig(
+        lane_id="wildcard_multi_timeframe_alignment",
+        strategy_id="wildcard_multi_timeframe_alignment",
+        role=LaneRole.WILDCARD,
+        label="Wildcard multi-timeframe alignment observation lane",
+        display_name="Wildcard multi-timeframe alignment",
+        strategy_family="wildcard_expert_hypothesis",
+        rule_summary=WILDCARD_STRATEGY_DEFINITIONS["wildcard_multi_timeframe_alignment"]["rule_summary"],
+        reason_codes=(*WILDCARD_STRATEGY_DEFINITIONS["wildcard_multi_timeframe_alignment"]["reason_codes"], "wildcard_observation_only", "not_production_approved", "independent_synthetic_paper_ledger"),
+    ),
+    StrategyLaneConfig(
+        lane_id="wildcard_volatility_expansion_breakout",
+        strategy_id="wildcard_volatility_expansion_breakout",
+        role=LaneRole.WILDCARD,
+        label="Wildcard volatility expansion breakout observation lane",
+        display_name="Wildcard volatility expansion breakout",
+        strategy_family="wildcard_expert_hypothesis",
+        rule_summary=WILDCARD_STRATEGY_DEFINITIONS["wildcard_volatility_expansion_breakout"]["rule_summary"],
+        reason_codes=(*WILDCARD_STRATEGY_DEFINITIONS["wildcard_volatility_expansion_breakout"]["reason_codes"], "wildcard_observation_only", "not_production_approved", "independent_synthetic_paper_ledger"),
     ),
 )
 
@@ -393,12 +555,19 @@ def validate_strategy_truth_payload(*, endpoint: str, payload: Mapping[str, Any]
 class ScannerUniverseRow:
     requested_symbol: str
     resolved_venue_symbol: str | None
+    canonical_symbol: str | None
     asset_id: int | None
     szDecimals: int | None
+    isDelisted: bool | None
+    public_mid: str | None
+    sources: tuple[str, ...]
+    source: str
     precision_status: str
+    precision_ready: bool
     supported_by_venue: bool
     data_health: DataHealth
     scanner_eligible: bool
+    blocked: bool
     reason_codes: tuple[str, ...]
 
 
@@ -407,60 +576,93 @@ def resolve_top20_universe(
     *,
     hyperliquid_meta: Sequence[Mapping[str, Any]],
     mids: Mapping[str, Any] | None = None,
+    symbol_sources: Mapping[str, Sequence[str]] | None = None,
 ) -> tuple[ScannerUniverseRow, ...]:
     meta_by_symbol = {str(asset.get("name", "")).upper(): (index, asset) for index, asset in enumerate(hyperliquid_meta)}
     mids = {str(key).upper(): value for key, value in (mids or {}).items()}
-    rows: list[ScannerUniverseRow] = []
+    symbol_sources = {str(key).upper(): tuple(value) for key, value in (symbol_sources or {}).items()}
+    merged_symbols: list[str] = []
+    merged_sources: dict[str, set[str]] = {}
     for requested in requested_symbols:
         symbol = requested.upper()
+        if symbol not in merged_sources:
+            merged_symbols.append(symbol)
+            merged_sources[symbol] = set()
+        merged_sources[symbol].update(symbol_sources.get(symbol, ("top20_volume",)))
+    rows: list[ScannerUniverseRow] = []
+    for symbol in merged_symbols:
         reasons: list[str] = []
         if symbol in STABLECOIN_SYMBOLS:
             reasons.append("stablecoin_excluded")
-        if symbol == "SHIB" or symbol == "KSHIB":
-            venue_symbol = "kSHIB"
-            reasons.append("venue_symbol_unit_semantics_deferred")
-        else:
-            venue_symbol = symbol
+        venue_symbol = SYMBOL_ALIASES.get(symbol, symbol)
+        canonical_symbol = "TRX" if symbol == "TRON" else venue_symbol
+        if symbol in {"SHIB", "KSHIB"}:
+            reasons.extend(["unit_semantics_deferred", "venue_symbol_unit_semantics_deferred"])
+        if symbol in {"PEPE", "KPEPE"}:
+            reasons.extend(["unit_semantics_deferred", "pepe_kpepe_unit_semantics_deferred"])
         asset_tuple = meta_by_symbol.get(str(venue_symbol).upper())
         asset_id: int | None = None
         sz_decimals: int | None = None
+        is_delisted: bool | None = None
         if asset_tuple is None:
-            reasons.append("unsupported_by_hyperliquid")
+            if symbol == "OKB":
+                reasons.append("okb_support_not_confirmed")
+            elif symbol == "POL" and (
+                (matic_tuple := meta_by_symbol.get("MATIC")) is not None
+                and bool(matic_tuple[1].get("isDelisted"))
+            ):
+                reasons.append("pol_matic_delisted_mapping_blocked")
+            else:
+                reasons.append("unsupported_by_hyperliquid")
         else:
             asset_id, asset = asset_tuple
+            is_delisted = bool(asset.get("isDelisted", False))
+            if is_delisted:
+                reasons.append("delisted_symbol")
             try:
                 sz_decimals = int(asset["szDecimals"])
             except (KeyError, TypeError, ValueError):
                 reasons.append("precision_missing")
         mid_value = mids.get(str(venue_symbol).upper())
         if mid_value is None:
-            reasons.append("market_data_unavailable")
+            reasons.extend(["market_data_unavailable", "public_mid_missing_or_nonpositive"])
         else:
             try:
                 if _dec(mid_value, field_name="mid_price") <= 0:
-                    reasons.append("market_data_unavailable")
+                    reasons.extend(["market_data_unavailable", "public_mid_missing_or_nonpositive"])
             except ValueError:
-                reasons.append("market_data_unavailable")
-        if asset_tuple is not None and "unsupported_by_hyperliquid" not in reasons:
-            reasons.append("supported_by_hyperliquid")
+                reasons.extend(["market_data_unavailable", "public_mid_missing_or_nonpositive"])
+        if asset_tuple is not None and "delisted_symbol" not in reasons:
+            reasons.append("symbol_supported")
         eligible = (
             asset_tuple is not None
             and sz_decimals is not None
+            and not is_delisted
             and mid_value is not None
             and "stablecoin_excluded" not in reasons
-            and "venue_symbol_unit_semantics_deferred" not in reasons
+            and "unit_semantics_deferred" not in reasons
             and "market_data_unavailable" not in reasons
+            and "symbol_identity_ambiguous" not in reasons
         )
+        precision_ready = sz_decimals is not None
+        blocked = not eligible
         rows.append(
             ScannerUniverseRow(
                 requested_symbol=symbol,
-                resolved_venue_symbol=venue_symbol if asset_tuple is not None else None,
+                resolved_venue_symbol=venue_symbol,
+                canonical_symbol=canonical_symbol,
                 asset_id=asset_id,
                 szDecimals=sz_decimals,
+                isDelisted=is_delisted,
+                public_mid=str(mid_value) if mid_value is not None else None,
+                sources=tuple(sorted(merged_sources[symbol])),
+                source=tuple(sorted(merged_sources[symbol]))[0],
                 precision_status="precision_ready" if sz_decimals is not None else "precision_missing",
-                supported_by_venue=asset_tuple is not None,
+                precision_ready=precision_ready,
+                supported_by_venue=asset_tuple is not None and not bool(is_delisted),
                 data_health=DataHealth.HEALTHY if mid_value is not None and eligible else DataHealth.UNAVAILABLE,
                 scanner_eligible=eligible,
+                blocked=blocked,
                 reason_codes=tuple(dict.fromkeys(reasons)),
             )
         )
@@ -740,6 +942,9 @@ class TestnetProbeCandidate:
     submit_lease_acquired: bool = True
     artifact_label: str = "pt_rt1_testnet_only"
     unknown_or_open_probe_state: bool = False
+    scanner_symbol_blocked: bool = False
+    unit_semantics_deferred: bool = False
+    precision_ready: bool = True
 
 
 @dataclass(frozen=True)
@@ -775,6 +980,12 @@ class TestnetProbePolicy:
             reasons.append("vault_address_forbidden_for_main_user")
         if candidate.asset_id is None or candidate.sz_decimals is None:
             reasons.append("symbol_or_precision_missing")
+        if candidate.scanner_symbol_blocked:
+            reasons.append("testnet_probe_symbol_blocked")
+        if candidate.unit_semantics_deferred:
+            reasons.append("testnet_probe_unit_semantics_deferred")
+        if not candidate.precision_ready:
+            reasons.append("testnet_probe_precision_missing")
         if not candidate.scanner_signal_eligible:
             reasons.append("scanner_signal_not_eligible")
         if candidate.daily_probe_count >= candidate.daily_cap:
@@ -837,6 +1048,73 @@ class TestnetProbePolicy:
         return payload
 
 
+def _configured_scanner_universe_rows() -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for requested in PT_RT1_REQUESTED_SCANNER_SYMBOLS:
+        resolved = SYMBOL_ALIASES.get(requested, requested)
+        sources = list(DEFAULT_SCANNER_SOURCES.get(requested, ("founder_requested",)))
+        reason_codes: list[str] = ["runtime_market_data_health_pending"]
+        blocked = False
+        supported_by_venue = requested in SUPPORTED_CANONICAL_SYMBOLS
+        if requested in SUPPORTED_CANONICAL_SYMBOLS:
+            reason_codes.append("canonical_sv2_supported")
+        else:
+            reason_codes.append("runtime_meta_confirmation_required")
+        if requested == "TRON":
+            reason_codes.append("alias_tron_resolves_to_trx")
+        if requested == "PEPE":
+            blocked = True
+            supported_by_venue = False
+            reason_codes.extend(["pepe_kpepe_unit_semantics_deferred", "unit_semantics_deferred"])
+        if requested == "OKB":
+            blocked = True
+            supported_by_venue = False
+            reason_codes.append("okb_support_not_confirmed")
+        if requested == "POL":
+            reason_codes.append("pol_must_resolve_to_active_pol_not_delisted_matic")
+        rows.append(
+            {
+                "requested_symbol": requested,
+                "resolved_venue_symbol": resolved,
+                "canonical_symbol": "TRX" if requested == "TRON" else resolved,
+                "asset_id": None,
+                "szDecimals": None,
+                "isDelisted": None,
+                "public_mid": None,
+                "sources": sources,
+                "source": sources[0],
+                "supported_by_venue": supported_by_venue,
+                "precision_status": "pending_runtime_meta",
+                "precision_ready": False,
+                "data_health": "pending_runtime_refresh",
+                "scanner_eligible": False,
+                "blocked": blocked,
+                "reason_codes": tuple(dict.fromkeys(reason_codes)),
+            }
+        )
+    rows.append(
+        {
+            "requested_symbol": "SHIB",
+            "resolved_venue_symbol": "kSHIB",
+            "canonical_symbol": "kSHIB",
+            "asset_id": None,
+            "szDecimals": None,
+            "isDelisted": None,
+            "public_mid": None,
+            "sources": ["deferred_legacy_request"],
+            "source": "deferred_legacy_request",
+            "supported_by_venue": False,
+            "precision_status": "unit_semantics_deferred",
+            "precision_ready": False,
+            "data_health": "unavailable",
+            "scanner_eligible": False,
+            "blocked": True,
+            "reason_codes": ("unit_semantics_deferred", "venue_symbol_unit_semantics_deferred"),
+        }
+    )
+    return rows
+
+
 def build_pt_rt1_summary() -> dict[str, Any]:
     lanes = [
         {
@@ -844,13 +1122,32 @@ def build_pt_rt1_summary() -> dict[str, Any]:
             "initial_equity": str(lane.initial_equity),
             "allocation_pct": str(lane.allocation_pct),
             "role": str(lane.role),
+            "starting_equity": str(lane.initial_equity),
+            "realized_equity": str(lane.initial_equity),
+            "unrealized_pnl": "0",
+            "total_equity": str(lane.initial_equity),
+            "open_positions": 0,
+            "closed_trades": 0,
+            "drawdown": "0",
+            "max_drawdown": "0",
+            "current_losing_streak": 0,
+            "max_losing_streak": 0,
+            "data_health": "pending_runtime_refresh",
+            "last_decision_time": None,
+            "paper_only": lane.paper_only,
+            "production_approved": False,
+            "live_approved": False,
+            "ledger_label": "independent synthetic paper ledger",
+            "accounting_label": "not one combined account",
         }
         for lane in PT_RT1_STRATEGY_LANES
     ]
+    scanner_rows = _configured_scanner_universe_rows()
     return {
-        "phase": "PT-RT1",
+        "phase": "PT-RT1.1A",
         "report": "pt_rt1_real_time_paper_observation_and_testnet_plumbing",
-        "status": "implemented",
+        "status": "implemented_readiness_expansion",
+        "revision": "PT-RT1.1A",
         "strategy_truth_lane": {
             "source": "Hyperliquid public mainnet info endpoint",
             "endpoint": PT_RT1_MAINNET_INFO_URL,
@@ -868,32 +1165,32 @@ def build_pt_rt1_summary() -> dict[str, Any]:
             "approval_text_required": PT_RT1_EXACT_TESTNET_PROBE_APPROVAL,
             "cancel_reconcile_required": True,
         },
-        "symbols": list(SUPPORTED_CANONICAL_SYMBOLS),
+        "symbols": list(PT_RT1_REQUESTED_SCANNER_SYMBOLS),
+        "requested_symbols": list(PT_RT1_REQUESTED_SCANNER_SYMBOLS),
+        "alias_mappings": SYMBOL_ALIASES,
+        "blocked_symbol_policy": {
+            "PEPE": "PEPE resolves to kPEPE and is blocked by default pending unit-semantics review.",
+            "OKB": "OKB is blocked unless Hyperliquid public mainnet metadata confirms active support.",
+            "SHIB": "SHIB/kSHIB remains deferred pending unit-semantics acceptance.",
+            "POL": "POL must resolve to active POL; delisted MATIC mapping is blocked.",
+        },
         "timeframes": list(TIMEFRAME_DURATIONS),
-        "scanner_universe": [
-            {
-                "requested_symbol": symbol,
-                "resolved_venue_symbol": symbol,
-                "supported_by_venue": True,
-                "data_health": "pending_runtime_refresh",
-                "scanner_eligible": True,
-                "reason_codes": ["supported_by_hyperliquid", "runtime_market_data_health_pending"],
-            }
-            for symbol in SUPPORTED_CANONICAL_SYMBOLS
-        ]
-        + [
-            {
-                "requested_symbol": "SHIB",
-                "resolved_venue_symbol": "kSHIB",
-                "supported_by_venue": False,
-                "data_health": "unavailable",
-                "scanner_eligible": False,
-                "reason_codes": ["venue_symbol_unit_semantics_deferred"],
-            }
+        "scanner_universe": scanner_rows,
+        "scanner_eligibility_rules": [
+            "exists_in_current_hyperliquid_public_meta",
+            "isDelisted_is_not_true",
+            "szDecimals_present",
+            "allMids_positive_public_market_data",
+            "symbol_identity_not_ambiguous",
+            "unit_semantics_accepted",
+            "precision_formatting_available",
+            "data_health_healthy",
         ],
         "market_data_health": [
             {
-                "symbol": symbol,
+                "symbol": row["canonical_symbol"],
+                "requested_symbol": row["requested_symbol"],
+                "resolved_venue_symbol": row["resolved_venue_symbol"],
                 "timeframe": timeframe,
                 "source": "Hyperliquid public mainnet",
                 "status": "pending_runtime_refresh",
@@ -901,10 +1198,12 @@ def build_pt_rt1_summary() -> dict[str, Any]:
                 "last_update_utc": None,
                 "reason_codes": ["runtime_not_started"],
             }
-            for symbol in SUPPORTED_CANONICAL_SYMBOLS
+            for row in scanner_rows
+            if not row["blocked"]
             for timeframe in TIMEFRAME_DURATIONS
         ],
         "strategy_lanes": lanes,
+        "wildcard_definitions": WILDCARD_STRATEGY_DEFINITIONS,
         "paper_equity_policy": {
             "starting_equity_usdc_per_lane": "10000",
             "sizing_basis": "current_realized_synthetic_equity",
@@ -942,7 +1241,20 @@ def build_pt_rt1_summary() -> dict[str, Any]:
         "dashboard_status": {
             "view": "Paper Observation",
             "status": "implemented",
+            "strategy_lanes_visible": len(lanes),
+            "expanded_scanner_universe_visible": True,
+            "blocked_symbols_visible": True,
+            "wildcard_diagnostics_visible": True,
             "date_filters": "display-only filter; not canonical evidence; not backend replay",
+        },
+        "next_phase": {
+            "decision": "PT-RT1.1B may start 24-hour probes-disabled runtime collection",
+            "conditions": [
+                "testnet_probes_remain_disabled_by_default",
+                "public_mainnet_strategy_truth_only",
+                "expanded_scanner_rows_remain_reason_coded",
+                "no_production_rule_changes",
+            ],
         },
         "runbooks": {
             "dry_run_24h_probes_disabled": "docs/pt_rt1_24h_dry_run_probes_disabled.md",
@@ -956,6 +1268,7 @@ def build_pt_rt1_summary() -> dict[str, Any]:
             "live_exchange_orders_submitted": False,
             "historical_evidence_packs_regenerated": False,
             "sor_fanout_cbbo_added": False,
+            "testnet_probes_enabled_by_default": False,
         },
     }
 

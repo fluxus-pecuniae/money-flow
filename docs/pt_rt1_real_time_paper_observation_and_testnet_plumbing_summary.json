@@ -1,16 +1,33 @@
 {
+  "alias_mappings": {
+    "KSHIB": "kSHIB",
+    "PEPE": "kPEPE",
+    "SHIB": "kSHIB",
+    "TRON": "TRX"
+  },
+  "blocked_symbol_policy": {
+    "OKB": "OKB is blocked unless Hyperliquid public mainnet metadata confirms active support.",
+    "PEPE": "PEPE resolves to kPEPE and is blocked by default pending unit-semantics review.",
+    "POL": "POL must resolve to active POL; delisted MATIC mapping is blocked.",
+    "SHIB": "SHIB/kSHIB remains deferred pending unit-semantics acceptance."
+  },
   "boundaries": {
     "historical_evidence_packs_regenerated": false,
     "live_exchange_orders_submitted": false,
     "live_trading_approved": false,
     "paper_runtime_approved_as_production": false,
     "production_money_flow_rules_changed": false,
-    "sor_fanout_cbbo_added": false
+    "sor_fanout_cbbo_added": false,
+    "testnet_probes_enabled_by_default": false
   },
   "dashboard_status": {
+    "blocked_symbols_visible": true,
     "date_filters": "display-only filter; not canonical evidence; not backend replay",
+    "expanded_scanner_universe_visible": true,
     "status": "implemented",
-    "view": "Paper Observation"
+    "strategy_lanes_visible": 10,
+    "view": "Paper Observation",
+    "wildcard_diagnostics_visible": true
   },
   "data_health_policy": {
     "blocks_new_entries_when_not_healthy": true,
@@ -44,6 +61,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "BTC",
+      "resolved_venue_symbol": "BTC",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "BTC",
@@ -55,6 +74,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "BTC",
+      "resolved_venue_symbol": "BTC",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "BTC",
@@ -66,6 +87,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "BTC",
+      "resolved_venue_symbol": "BTC",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "BTC",
@@ -77,6 +100,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "BTC",
+      "resolved_venue_symbol": "BTC",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "BTC",
@@ -88,6 +113,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "ETH",
+      "resolved_venue_symbol": "ETH",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "ETH",
@@ -99,6 +126,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "ETH",
+      "resolved_venue_symbol": "ETH",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "ETH",
@@ -110,6 +139,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "ETH",
+      "resolved_venue_symbol": "ETH",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "ETH",
@@ -121,6 +152,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "ETH",
+      "resolved_venue_symbol": "ETH",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "ETH",
@@ -132,6 +165,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "SOL",
+      "resolved_venue_symbol": "SOL",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "SOL",
@@ -143,6 +178,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "SOL",
+      "resolved_venue_symbol": "SOL",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "SOL",
@@ -154,6 +191,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "SOL",
+      "resolved_venue_symbol": "SOL",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "SOL",
@@ -165,6 +204,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "SOL",
+      "resolved_venue_symbol": "SOL",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "SOL",
@@ -176,6 +217,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "XRP",
+      "resolved_venue_symbol": "XRP",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "XRP",
@@ -187,6 +230,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "XRP",
+      "resolved_venue_symbol": "XRP",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "XRP",
@@ -198,6 +243,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "XRP",
+      "resolved_venue_symbol": "XRP",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "XRP",
@@ -209,6 +256,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "XRP",
+      "resolved_venue_symbol": "XRP",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "XRP",
@@ -220,6 +269,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "DOGE",
+      "resolved_venue_symbol": "DOGE",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "DOGE",
@@ -231,6 +282,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "DOGE",
+      "resolved_venue_symbol": "DOGE",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "DOGE",
@@ -242,6 +295,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "DOGE",
+      "resolved_venue_symbol": "DOGE",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "DOGE",
@@ -253,6 +308,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "DOGE",
+      "resolved_venue_symbol": "DOGE",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "DOGE",
@@ -264,6 +321,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "HYPE",
+      "resolved_venue_symbol": "HYPE",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "HYPE",
@@ -275,6 +334,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "HYPE",
+      "resolved_venue_symbol": "HYPE",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "HYPE",
@@ -286,6 +347,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "HYPE",
+      "resolved_venue_symbol": "HYPE",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "HYPE",
@@ -297,6 +360,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "HYPE",
+      "resolved_venue_symbol": "HYPE",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "HYPE",
@@ -308,6 +373,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "BNB",
+      "resolved_venue_symbol": "BNB",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "BNB",
@@ -319,6 +386,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "BNB",
+      "resolved_venue_symbol": "BNB",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "BNB",
@@ -330,6 +399,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "BNB",
+      "resolved_venue_symbol": "BNB",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "BNB",
@@ -341,6 +412,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "BNB",
+      "resolved_venue_symbol": "BNB",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "BNB",
@@ -352,6 +425,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "SUI",
+      "resolved_venue_symbol": "SUI",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "SUI",
@@ -363,6 +438,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "SUI",
+      "resolved_venue_symbol": "SUI",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "SUI",
@@ -374,6 +451,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "SUI",
+      "resolved_venue_symbol": "SUI",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "SUI",
@@ -385,6 +464,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "SUI",
+      "resolved_venue_symbol": "SUI",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "SUI",
@@ -396,6 +477,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "AVAX",
+      "resolved_venue_symbol": "AVAX",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "AVAX",
@@ -407,6 +490,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "AVAX",
+      "resolved_venue_symbol": "AVAX",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "AVAX",
@@ -418,6 +503,8 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "AVAX",
+      "resolved_venue_symbol": "AVAX",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "AVAX",
@@ -429,12 +516,751 @@
       "reason_codes": [
         "runtime_not_started"
       ],
+      "requested_symbol": "AVAX",
+      "resolved_venue_symbol": "AVAX",
       "source": "Hyperliquid public mainnet",
       "status": "pending_runtime_refresh",
       "symbol": "AVAX",
+      "timeframe": "1d"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "TRON",
+      "resolved_venue_symbol": "TRX",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "TRX",
+      "timeframe": "15m"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "TRON",
+      "resolved_venue_symbol": "TRX",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "TRX",
+      "timeframe": "1h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "TRON",
+      "resolved_venue_symbol": "TRX",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "TRX",
+      "timeframe": "4h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "TRON",
+      "resolved_venue_symbol": "TRX",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "TRX",
+      "timeframe": "1d"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "ADA",
+      "resolved_venue_symbol": "ADA",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "ADA",
+      "timeframe": "15m"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "ADA",
+      "resolved_venue_symbol": "ADA",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "ADA",
+      "timeframe": "1h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "ADA",
+      "resolved_venue_symbol": "ADA",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "ADA",
+      "timeframe": "4h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "ADA",
+      "resolved_venue_symbol": "ADA",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "ADA",
+      "timeframe": "1d"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "ZEC",
+      "resolved_venue_symbol": "ZEC",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "ZEC",
+      "timeframe": "15m"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "ZEC",
+      "resolved_venue_symbol": "ZEC",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "ZEC",
+      "timeframe": "1h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "ZEC",
+      "resolved_venue_symbol": "ZEC",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "ZEC",
+      "timeframe": "4h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "ZEC",
+      "resolved_venue_symbol": "ZEC",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "ZEC",
+      "timeframe": "1d"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "LINK",
+      "resolved_venue_symbol": "LINK",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "LINK",
+      "timeframe": "15m"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "LINK",
+      "resolved_venue_symbol": "LINK",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "LINK",
+      "timeframe": "1h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "LINK",
+      "resolved_venue_symbol": "LINK",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "LINK",
+      "timeframe": "4h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "LINK",
+      "resolved_venue_symbol": "LINK",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "LINK",
+      "timeframe": "1d"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "XMR",
+      "resolved_venue_symbol": "XMR",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "XMR",
+      "timeframe": "15m"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "XMR",
+      "resolved_venue_symbol": "XMR",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "XMR",
+      "timeframe": "1h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "XMR",
+      "resolved_venue_symbol": "XMR",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "XMR",
+      "timeframe": "4h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "XMR",
+      "resolved_venue_symbol": "XMR",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "XMR",
+      "timeframe": "1d"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "TON",
+      "resolved_venue_symbol": "TON",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "TON",
+      "timeframe": "15m"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "TON",
+      "resolved_venue_symbol": "TON",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "TON",
+      "timeframe": "1h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "TON",
+      "resolved_venue_symbol": "TON",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "TON",
+      "timeframe": "4h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "TON",
+      "resolved_venue_symbol": "TON",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "TON",
+      "timeframe": "1d"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "LTC",
+      "resolved_venue_symbol": "LTC",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "LTC",
+      "timeframe": "15m"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "LTC",
+      "resolved_venue_symbol": "LTC",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "LTC",
+      "timeframe": "1h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "LTC",
+      "resolved_venue_symbol": "LTC",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "LTC",
+      "timeframe": "4h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "LTC",
+      "resolved_venue_symbol": "LTC",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "LTC",
+      "timeframe": "1d"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "UNI",
+      "resolved_venue_symbol": "UNI",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "UNI",
+      "timeframe": "15m"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "UNI",
+      "resolved_venue_symbol": "UNI",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "UNI",
+      "timeframe": "1h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "UNI",
+      "resolved_venue_symbol": "UNI",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "UNI",
+      "timeframe": "4h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "UNI",
+      "resolved_venue_symbol": "UNI",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "UNI",
+      "timeframe": "1d"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "DOT",
+      "resolved_venue_symbol": "DOT",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "DOT",
+      "timeframe": "15m"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "DOT",
+      "resolved_venue_symbol": "DOT",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "DOT",
+      "timeframe": "1h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "DOT",
+      "resolved_venue_symbol": "DOT",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "DOT",
+      "timeframe": "4h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "DOT",
+      "resolved_venue_symbol": "DOT",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "DOT",
+      "timeframe": "1d"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "ASTER",
+      "resolved_venue_symbol": "ASTER",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "ASTER",
+      "timeframe": "15m"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "ASTER",
+      "resolved_venue_symbol": "ASTER",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "ASTER",
+      "timeframe": "1h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "ASTER",
+      "resolved_venue_symbol": "ASTER",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "ASTER",
+      "timeframe": "4h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "ASTER",
+      "resolved_venue_symbol": "ASTER",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "ASTER",
+      "timeframe": "1d"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "AAVE",
+      "resolved_venue_symbol": "AAVE",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "AAVE",
+      "timeframe": "15m"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "AAVE",
+      "resolved_venue_symbol": "AAVE",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "AAVE",
+      "timeframe": "1h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "AAVE",
+      "resolved_venue_symbol": "AAVE",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "AAVE",
+      "timeframe": "4h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "AAVE",
+      "resolved_venue_symbol": "AAVE",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "AAVE",
+      "timeframe": "1d"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "POL",
+      "resolved_venue_symbol": "POL",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "POL",
+      "timeframe": "15m"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "POL",
+      "resolved_venue_symbol": "POL",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "POL",
+      "timeframe": "1h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "POL",
+      "resolved_venue_symbol": "POL",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "POL",
+      "timeframe": "4h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "POL",
+      "resolved_venue_symbol": "POL",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "POL",
+      "timeframe": "1d"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "FIL",
+      "resolved_venue_symbol": "FIL",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "FIL",
+      "timeframe": "15m"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "FIL",
+      "resolved_venue_symbol": "FIL",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "FIL",
+      "timeframe": "1h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "FIL",
+      "resolved_venue_symbol": "FIL",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "FIL",
+      "timeframe": "4h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "FIL",
+      "resolved_venue_symbol": "FIL",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "FIL",
+      "timeframe": "1d"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "TRUMP",
+      "resolved_venue_symbol": "TRUMP",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "TRUMP",
+      "timeframe": "15m"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "TRUMP",
+      "resolved_venue_symbol": "TRUMP",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "TRUMP",
+      "timeframe": "1h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "TRUMP",
+      "resolved_venue_symbol": "TRUMP",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "TRUMP",
+      "timeframe": "4h"
+    },
+    {
+      "fully_closed_candle_status": "pending_runtime_refresh",
+      "last_update_utc": null,
+      "reason_codes": [
+        "runtime_not_started"
+      ],
+      "requested_symbol": "TRUMP",
+      "resolved_venue_symbol": "TRUMP",
+      "source": "Hyperliquid public mainnet",
+      "status": "pending_runtime_refresh",
+      "symbol": "TRUMP",
       "timeframe": "1d"
     }
   ],
+  "next_phase": {
+    "conditions": [
+      "testnet_probes_remain_disabled_by_default",
+      "public_mainnet_strategy_truth_only",
+      "expanded_scanner_rows_remain_reason_coded",
+      "no_production_rule_changes"
+    ],
+    "decision": "PT-RT1.1B may start 24-hour probes-disabled runtime collection"
+  },
   "paper_equity_policy": {
     "compounds_wins_and_losses": true,
     "does_not_reset_after_losses": true,
@@ -449,7 +1275,7 @@
     "sizing_basis": "current_realized_synthetic_equity",
     "starting_equity_usdc_per_lane": "10000"
   },
-  "phase": "PT-RT1",
+  "phase": "PT-RT1.1A",
   "plumbing_lane": {
     "approval_text_required": "I APPROVE PT-RT1 TESTNET PLUMBING PROBES ONLY. HYPERLIQUID TESTNET ONLY. POST-ONLY UNDER 10 USDC DEFAULT NOTIONAL. CANCEL/RECONCILE REQUIRED. TESTNET FILLS MUST NOT UPDATE STRATEGY PAPER PNL. LIVE TRADING IS NOT APPROVED.",
     "cancel_reconcile_required": true,
@@ -458,188 +1284,1036 @@
     "testnet_fills_update_strategy_pnl": false
   },
   "report": "pt_rt1_real_time_paper_observation_and_testnet_plumbing",
+  "requested_symbols": [
+    "BTC",
+    "ETH",
+    "SOL",
+    "XRP",
+    "DOGE",
+    "HYPE",
+    "BNB",
+    "SUI",
+    "AVAX",
+    "TRON",
+    "ADA",
+    "ZEC",
+    "LINK",
+    "XMR",
+    "TON",
+    "LTC",
+    "UNI",
+    "DOT",
+    "ASTER",
+    "AAVE",
+    "POL",
+    "FIL",
+    "TRUMP",
+    "PEPE",
+    "OKB"
+  ],
+  "revision": "PT-RT1.1A",
   "runbooks": {
     "dry_run_24h_probes_disabled": "docs/pt_rt1_24h_dry_run_probes_disabled.md",
     "forward_observation_60_day_plan": "docs/pt_rt1_60_day_forward_observation_plan.md",
     "testnet_plumbing_24h_probe_run": "docs/pt_rt1_24h_testnet_plumbing_probe_run.md"
   },
+  "scanner_eligibility_rules": [
+    "exists_in_current_hyperliquid_public_meta",
+    "isDelisted_is_not_true",
+    "szDecimals_present",
+    "allMids_positive_public_market_data",
+    "symbol_identity_not_ambiguous",
+    "unit_semantics_accepted",
+    "precision_formatting_available",
+    "data_health_healthy"
+  ],
   "scanner_universe": [
     {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "BTC",
       "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
       "reason_codes": [
-        "supported_by_hyperliquid",
-        "runtime_market_data_health_pending"
+        "runtime_market_data_health_pending",
+        "canonical_sv2_supported"
       ],
       "requested_symbol": "BTC",
       "resolved_venue_symbol": "BTC",
-      "scanner_eligible": true,
-      "supported_by_venue": true
+      "scanner_eligible": false,
+      "source": "canonical_sv2_supported",
+      "sources": [
+        "canonical_sv2_supported"
+      ],
+      "supported_by_venue": true,
+      "szDecimals": null
     },
     {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "ETH",
       "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
       "reason_codes": [
-        "supported_by_hyperliquid",
-        "runtime_market_data_health_pending"
+        "runtime_market_data_health_pending",
+        "canonical_sv2_supported"
       ],
       "requested_symbol": "ETH",
       "resolved_venue_symbol": "ETH",
-      "scanner_eligible": true,
-      "supported_by_venue": true
+      "scanner_eligible": false,
+      "source": "canonical_sv2_supported",
+      "sources": [
+        "canonical_sv2_supported"
+      ],
+      "supported_by_venue": true,
+      "szDecimals": null
     },
     {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "SOL",
       "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
       "reason_codes": [
-        "supported_by_hyperliquid",
-        "runtime_market_data_health_pending"
+        "runtime_market_data_health_pending",
+        "canonical_sv2_supported"
       ],
       "requested_symbol": "SOL",
       "resolved_venue_symbol": "SOL",
-      "scanner_eligible": true,
-      "supported_by_venue": true
+      "scanner_eligible": false,
+      "source": "canonical_sv2_supported",
+      "sources": [
+        "canonical_sv2_supported"
+      ],
+      "supported_by_venue": true,
+      "szDecimals": null
     },
     {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "XRP",
       "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
       "reason_codes": [
-        "supported_by_hyperliquid",
-        "runtime_market_data_health_pending"
+        "runtime_market_data_health_pending",
+        "canonical_sv2_supported"
       ],
       "requested_symbol": "XRP",
       "resolved_venue_symbol": "XRP",
-      "scanner_eligible": true,
-      "supported_by_venue": true
+      "scanner_eligible": false,
+      "source": "canonical_sv2_supported",
+      "sources": [
+        "canonical_sv2_supported"
+      ],
+      "supported_by_venue": true,
+      "szDecimals": null
     },
     {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "DOGE",
       "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
       "reason_codes": [
-        "supported_by_hyperliquid",
-        "runtime_market_data_health_pending"
+        "runtime_market_data_health_pending",
+        "canonical_sv2_supported"
       ],
       "requested_symbol": "DOGE",
       "resolved_venue_symbol": "DOGE",
-      "scanner_eligible": true,
-      "supported_by_venue": true
+      "scanner_eligible": false,
+      "source": "canonical_sv2_supported",
+      "sources": [
+        "canonical_sv2_supported"
+      ],
+      "supported_by_venue": true,
+      "szDecimals": null
     },
     {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "HYPE",
       "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
       "reason_codes": [
-        "supported_by_hyperliquid",
-        "runtime_market_data_health_pending"
+        "runtime_market_data_health_pending",
+        "canonical_sv2_supported"
       ],
       "requested_symbol": "HYPE",
       "resolved_venue_symbol": "HYPE",
-      "scanner_eligible": true,
-      "supported_by_venue": true
+      "scanner_eligible": false,
+      "source": "canonical_sv2_supported",
+      "sources": [
+        "canonical_sv2_supported"
+      ],
+      "supported_by_venue": true,
+      "szDecimals": null
     },
     {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "BNB",
       "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
       "reason_codes": [
-        "supported_by_hyperliquid",
-        "runtime_market_data_health_pending"
+        "runtime_market_data_health_pending",
+        "canonical_sv2_supported"
       ],
       "requested_symbol": "BNB",
       "resolved_venue_symbol": "BNB",
-      "scanner_eligible": true,
-      "supported_by_venue": true
+      "scanner_eligible": false,
+      "source": "canonical_sv2_supported",
+      "sources": [
+        "canonical_sv2_supported"
+      ],
+      "supported_by_venue": true,
+      "szDecimals": null
     },
     {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "SUI",
       "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
       "reason_codes": [
-        "supported_by_hyperliquid",
-        "runtime_market_data_health_pending"
+        "runtime_market_data_health_pending",
+        "canonical_sv2_supported"
       ],
       "requested_symbol": "SUI",
       "resolved_venue_symbol": "SUI",
-      "scanner_eligible": true,
-      "supported_by_venue": true
+      "scanner_eligible": false,
+      "source": "canonical_sv2_supported",
+      "sources": [
+        "canonical_sv2_supported"
+      ],
+      "supported_by_venue": true,
+      "szDecimals": null
     },
     {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "AVAX",
       "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
       "reason_codes": [
-        "supported_by_hyperliquid",
-        "runtime_market_data_health_pending"
+        "runtime_market_data_health_pending",
+        "canonical_sv2_supported"
       ],
       "requested_symbol": "AVAX",
       "resolved_venue_symbol": "AVAX",
-      "scanner_eligible": true,
-      "supported_by_venue": true
+      "scanner_eligible": false,
+      "source": "canonical_sv2_supported",
+      "sources": [
+        "canonical_sv2_supported"
+      ],
+      "supported_by_venue": true,
+      "szDecimals": null
     },
     {
-      "data_health": "unavailable",
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "TRX",
+      "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
       "reason_codes": [
+        "runtime_market_data_health_pending",
+        "runtime_meta_confirmation_required",
+        "alias_tron_resolves_to_trx"
+      ],
+      "requested_symbol": "TRON",
+      "resolved_venue_symbol": "TRX",
+      "scanner_eligible": false,
+      "source": "founder_requested",
+      "sources": [
+        "founder_requested"
+      ],
+      "supported_by_venue": false,
+      "szDecimals": null
+    },
+    {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "ADA",
+      "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
+      "reason_codes": [
+        "runtime_market_data_health_pending",
+        "runtime_meta_confirmation_required"
+      ],
+      "requested_symbol": "ADA",
+      "resolved_venue_symbol": "ADA",
+      "scanner_eligible": false,
+      "source": "founder_requested",
+      "sources": [
+        "founder_requested"
+      ],
+      "supported_by_venue": false,
+      "szDecimals": null
+    },
+    {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "ZEC",
+      "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
+      "reason_codes": [
+        "runtime_market_data_health_pending",
+        "runtime_meta_confirmation_required"
+      ],
+      "requested_symbol": "ZEC",
+      "resolved_venue_symbol": "ZEC",
+      "scanner_eligible": false,
+      "source": "founder_requested",
+      "sources": [
+        "founder_requested"
+      ],
+      "supported_by_venue": false,
+      "szDecimals": null
+    },
+    {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "LINK",
+      "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
+      "reason_codes": [
+        "runtime_market_data_health_pending",
+        "runtime_meta_confirmation_required"
+      ],
+      "requested_symbol": "LINK",
+      "resolved_venue_symbol": "LINK",
+      "scanner_eligible": false,
+      "source": "founder_requested",
+      "sources": [
+        "founder_requested"
+      ],
+      "supported_by_venue": false,
+      "szDecimals": null
+    },
+    {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "XMR",
+      "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
+      "reason_codes": [
+        "runtime_market_data_health_pending",
+        "runtime_meta_confirmation_required"
+      ],
+      "requested_symbol": "XMR",
+      "resolved_venue_symbol": "XMR",
+      "scanner_eligible": false,
+      "source": "founder_requested",
+      "sources": [
+        "founder_requested"
+      ],
+      "supported_by_venue": false,
+      "szDecimals": null
+    },
+    {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "TON",
+      "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
+      "reason_codes": [
+        "runtime_market_data_health_pending",
+        "runtime_meta_confirmation_required"
+      ],
+      "requested_symbol": "TON",
+      "resolved_venue_symbol": "TON",
+      "scanner_eligible": false,
+      "source": "founder_requested",
+      "sources": [
+        "founder_requested"
+      ],
+      "supported_by_venue": false,
+      "szDecimals": null
+    },
+    {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "LTC",
+      "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
+      "reason_codes": [
+        "runtime_market_data_health_pending",
+        "runtime_meta_confirmation_required"
+      ],
+      "requested_symbol": "LTC",
+      "resolved_venue_symbol": "LTC",
+      "scanner_eligible": false,
+      "source": "founder_requested",
+      "sources": [
+        "founder_requested"
+      ],
+      "supported_by_venue": false,
+      "szDecimals": null
+    },
+    {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "UNI",
+      "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
+      "reason_codes": [
+        "runtime_market_data_health_pending",
+        "runtime_meta_confirmation_required"
+      ],
+      "requested_symbol": "UNI",
+      "resolved_venue_symbol": "UNI",
+      "scanner_eligible": false,
+      "source": "founder_requested",
+      "sources": [
+        "founder_requested"
+      ],
+      "supported_by_venue": false,
+      "szDecimals": null
+    },
+    {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "DOT",
+      "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
+      "reason_codes": [
+        "runtime_market_data_health_pending",
+        "runtime_meta_confirmation_required"
+      ],
+      "requested_symbol": "DOT",
+      "resolved_venue_symbol": "DOT",
+      "scanner_eligible": false,
+      "source": "founder_requested",
+      "sources": [
+        "founder_requested"
+      ],
+      "supported_by_venue": false,
+      "szDecimals": null
+    },
+    {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "ASTER",
+      "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
+      "reason_codes": [
+        "runtime_market_data_health_pending",
+        "runtime_meta_confirmation_required"
+      ],
+      "requested_symbol": "ASTER",
+      "resolved_venue_symbol": "ASTER",
+      "scanner_eligible": false,
+      "source": "founder_requested",
+      "sources": [
+        "founder_requested"
+      ],
+      "supported_by_venue": false,
+      "szDecimals": null
+    },
+    {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "AAVE",
+      "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
+      "reason_codes": [
+        "runtime_market_data_health_pending",
+        "runtime_meta_confirmation_required"
+      ],
+      "requested_symbol": "AAVE",
+      "resolved_venue_symbol": "AAVE",
+      "scanner_eligible": false,
+      "source": "founder_requested",
+      "sources": [
+        "founder_requested"
+      ],
+      "supported_by_venue": false,
+      "szDecimals": null
+    },
+    {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "POL",
+      "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
+      "reason_codes": [
+        "runtime_market_data_health_pending",
+        "runtime_meta_confirmation_required",
+        "pol_must_resolve_to_active_pol_not_delisted_matic"
+      ],
+      "requested_symbol": "POL",
+      "resolved_venue_symbol": "POL",
+      "scanner_eligible": false,
+      "source": "founder_requested",
+      "sources": [
+        "founder_requested"
+      ],
+      "supported_by_venue": false,
+      "szDecimals": null
+    },
+    {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "FIL",
+      "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
+      "reason_codes": [
+        "runtime_market_data_health_pending",
+        "runtime_meta_confirmation_required"
+      ],
+      "requested_symbol": "FIL",
+      "resolved_venue_symbol": "FIL",
+      "scanner_eligible": false,
+      "source": "founder_requested",
+      "sources": [
+        "founder_requested"
+      ],
+      "supported_by_venue": false,
+      "szDecimals": null
+    },
+    {
+      "asset_id": null,
+      "blocked": false,
+      "canonical_symbol": "TRUMP",
+      "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
+      "reason_codes": [
+        "runtime_market_data_health_pending",
+        "runtime_meta_confirmation_required"
+      ],
+      "requested_symbol": "TRUMP",
+      "resolved_venue_symbol": "TRUMP",
+      "scanner_eligible": false,
+      "source": "founder_requested",
+      "sources": [
+        "founder_requested"
+      ],
+      "supported_by_venue": false,
+      "szDecimals": null
+    },
+    {
+      "asset_id": null,
+      "blocked": true,
+      "canonical_symbol": "kPEPE",
+      "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
+      "reason_codes": [
+        "runtime_market_data_health_pending",
+        "runtime_meta_confirmation_required",
+        "pepe_kpepe_unit_semantics_deferred",
+        "unit_semantics_deferred"
+      ],
+      "requested_symbol": "PEPE",
+      "resolved_venue_symbol": "kPEPE",
+      "scanner_eligible": false,
+      "source": "founder_requested",
+      "sources": [
+        "founder_requested"
+      ],
+      "supported_by_venue": false,
+      "szDecimals": null
+    },
+    {
+      "asset_id": null,
+      "blocked": true,
+      "canonical_symbol": "OKB",
+      "data_health": "pending_runtime_refresh",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "pending_runtime_meta",
+      "public_mid": null,
+      "reason_codes": [
+        "runtime_market_data_health_pending",
+        "runtime_meta_confirmation_required",
+        "okb_support_not_confirmed"
+      ],
+      "requested_symbol": "OKB",
+      "resolved_venue_symbol": "OKB",
+      "scanner_eligible": false,
+      "source": "founder_requested",
+      "sources": [
+        "founder_requested"
+      ],
+      "supported_by_venue": false,
+      "szDecimals": null
+    },
+    {
+      "asset_id": null,
+      "blocked": true,
+      "canonical_symbol": "kSHIB",
+      "data_health": "unavailable",
+      "isDelisted": null,
+      "precision_ready": false,
+      "precision_status": "unit_semantics_deferred",
+      "public_mid": null,
+      "reason_codes": [
+        "unit_semantics_deferred",
         "venue_symbol_unit_semantics_deferred"
       ],
       "requested_symbol": "SHIB",
       "resolved_venue_symbol": "kSHIB",
       "scanner_eligible": false,
-      "supported_by_venue": false
+      "source": "deferred_legacy_request",
+      "sources": [
+        "deferred_legacy_request"
+      ],
+      "supported_by_venue": false,
+      "szDecimals": null
     }
   ],
-  "status": "implemented",
+  "status": "implemented_readiness_expansion",
   "strategy_lanes": [
     {
+      "accounting_label": "not one combined account",
       "allocation_pct": "1",
+      "closed_trades": 0,
+      "current_losing_streak": 0,
+      "data_health": "pending_runtime_refresh",
+      "display_name": "Money Flow v1.2 baseline",
+      "drawdown": "0",
       "fill_model": "next_candle_open",
       "initial_equity": "10000",
       "label": "Money Flow v1.2 baseline observation lane",
-      "lane_id": "lane_control_money_flow_v1_2_baseline",
+      "lane_id": "money_flow_v1_2_baseline",
+      "last_decision_time": null,
+      "ledger_label": "independent synthetic paper ledger",
+      "live_approved": false,
       "live_trading_approved": false,
+      "max_drawdown": "0",
+      "max_losing_streak": 0,
+      "open_positions": 0,
+      "paper_only": true,
       "paper_runtime_approved_as_production": false,
       "production_approved": false,
+      "realized_equity": "10000",
       "reason_codes": [
         "production_derived_rules_unchanged",
-        "not_production_approval"
+        "not_production_approval",
+        "independent_synthetic_paper_ledger"
       ],
       "role": "control_lane",
-      "strategy_id": "money_flow_v1_2_baseline"
+      "rule_summary": "Current production-derived Money Flow v1.2 rules unchanged; control lane only.",
+      "starting_equity": "10000",
+      "strategy_family": "current_money_flow_v1_2",
+      "strategy_id": "money_flow_v1_2_baseline",
+      "total_equity": "10000",
+      "unrealized_pnl": "0"
     },
     {
+      "accounting_label": "not one combined account",
       "allocation_pct": "1",
-      "fill_model": "next_candle_open",
-      "initial_equity": "10000",
-      "label": "avoid_low_rolling_range_50 evidence-only candidate lane",
-      "lane_id": "lane_candidate_avoid_low_rolling_range_50",
-      "live_trading_approved": false,
-      "paper_runtime_approved_as_production": false,
-      "production_approved": false,
-      "reason_codes": [
-        "evidence_only_candidate_lane",
-        "not_production_approved"
-      ],
-      "role": "evidence_only_candidate_lane",
-      "strategy_id": "avoid_low_rolling_range_50"
-    },
-    {
-      "allocation_pct": "1",
+      "closed_trades": 0,
+      "current_losing_streak": 0,
+      "data_health": "pending_runtime_refresh",
+      "display_name": "Avoid low rolling range 20",
+      "drawdown": "0",
       "fill_model": "next_candle_open",
       "initial_equity": "10000",
       "label": "avoid_low_rolling_range_20 evidence-only candidate lane",
-      "lane_id": "lane_candidate_avoid_low_rolling_range_20",
+      "lane_id": "avoid_low_rolling_range_20",
+      "last_decision_time": null,
+      "ledger_label": "independent synthetic paper ledger",
+      "live_approved": false,
       "live_trading_approved": false,
+      "max_drawdown": "0",
+      "max_losing_streak": 0,
+      "open_positions": 0,
+      "paper_only": true,
       "paper_runtime_approved_as_production": false,
       "production_approved": false,
+      "realized_equity": "10000",
       "reason_codes": [
         "evidence_only_candidate_lane",
-        "not_production_approved"
+        "not_production_approved",
+        "independent_synthetic_paper_ledger"
       ],
       "role": "evidence_only_candidate_lane",
-      "strategy_id": "avoid_low_rolling_range_20"
+      "rule_summary": "Paper-only candidate that blocks entries when the 20-candle rolling range is too compressed.",
+      "starting_equity": "10000",
+      "strategy_family": "sor_ev3_avoid_sideways_low_volatility",
+      "strategy_id": "avoid_low_rolling_range_20",
+      "total_equity": "10000",
+      "unrealized_pnl": "0"
     },
     {
+      "accounting_label": "not one combined account",
       "allocation_pct": "1",
+      "closed_trades": 0,
+      "current_losing_streak": 0,
+      "data_health": "pending_runtime_refresh",
+      "display_name": "Avoid low rolling range 50",
+      "drawdown": "0",
       "fill_model": "next_candle_open",
       "initial_equity": "10000",
-      "label": "MF-ORIG evidence-only reference lane",
-      "lane_id": "lane_reference_mf_orig_breakout_resistance_full_equity",
+      "label": "avoid_low_rolling_range_50 evidence-only candidate lane",
+      "lane_id": "avoid_low_rolling_range_50",
+      "last_decision_time": null,
+      "ledger_label": "independent synthetic paper ledger",
+      "live_approved": false,
       "live_trading_approved": false,
+      "max_drawdown": "0",
+      "max_losing_streak": 0,
+      "open_positions": 0,
+      "paper_only": true,
       "paper_runtime_approved_as_production": false,
       "production_approved": false,
+      "realized_equity": "10000",
+      "reason_codes": [
+        "evidence_only_candidate_lane",
+        "not_production_approved",
+        "independent_synthetic_paper_ledger"
+      ],
+      "role": "evidence_only_candidate_lane",
+      "rule_summary": "Paper-only candidate that blocks entries when the 50-candle rolling range is too compressed.",
+      "starting_equity": "10000",
+      "strategy_family": "sor_ev3_avoid_sideways_low_volatility",
+      "strategy_id": "avoid_low_rolling_range_50",
+      "total_equity": "10000",
+      "unrealized_pnl": "0"
+    },
+    {
+      "accounting_label": "not one combined account",
+      "allocation_pct": "1",
+      "closed_trades": 0,
+      "current_losing_streak": 0,
+      "data_health": "pending_runtime_refresh",
+      "display_name": "MF-ORIG stage filter only full equity",
+      "drawdown": "0",
+      "fill_model": "next_candle_open",
+      "initial_equity": "10000",
+      "label": "MF-ORIG stage filter full-equity evidence-only reference lane",
+      "lane_id": "mf_orig_stage_filter_only_full_equity",
+      "last_decision_time": null,
+      "ledger_label": "independent synthetic paper ledger",
+      "live_approved": false,
+      "live_trading_approved": false,
+      "max_drawdown": "0",
+      "max_losing_streak": 0,
+      "open_positions": 0,
+      "paper_only": true,
+      "paper_runtime_approved_as_production": false,
+      "production_approved": false,
+      "realized_equity": "10000",
+      "reason_codes": [
+        "mf_orig_reference_lane",
+        "full_equity_reference",
+        "not_production_approved",
+        "independent_synthetic_paper_ledger"
+      ],
+      "role": "mf_orig_evidence_only_reference_lane",
+      "rule_summary": "Current Money Flow-like entries with original-style Stage 2 filter, full-equity comparison sizing.",
+      "starting_equity": "10000",
+      "strategy_family": "mf_orig_evidence_only_reference",
+      "strategy_id": "mf_orig_stage_filter_only_full_equity",
+      "total_equity": "10000",
+      "unrealized_pnl": "0"
+    },
+    {
+      "accounting_label": "not one combined account",
+      "allocation_pct": "1",
+      "closed_trades": 0,
+      "current_losing_streak": 0,
+      "data_health": "pending_runtime_refresh",
+      "display_name": "MF-ORIG Stage 2 pullback reclaim full equity",
+      "drawdown": "0",
+      "fill_model": "next_candle_open",
+      "initial_equity": "10000",
+      "label": "MF-ORIG Stage 2 pullback reclaim full-equity evidence-only reference lane",
+      "lane_id": "mf_orig_stage2_pullback_reclaim_full_equity",
+      "last_decision_time": null,
+      "ledger_label": "independent synthetic paper ledger",
+      "live_approved": false,
+      "live_trading_approved": false,
+      "max_drawdown": "0",
+      "max_losing_streak": 0,
+      "open_positions": 0,
+      "paper_only": true,
+      "paper_runtime_approved_as_production": false,
+      "production_approved": false,
+      "realized_equity": "10000",
+      "reason_codes": [
+        "mf_orig_reference_lane",
+        "full_equity_reference",
+        "not_production_approved",
+        "independent_synthetic_paper_ledger"
+      ],
+      "role": "mf_orig_evidence_only_reference_lane",
+      "rule_summary": "Original Money Flow pullback/reclaim hypothesis, full-equity comparison sizing.",
+      "starting_equity": "10000",
+      "strategy_family": "mf_orig_evidence_only_reference",
+      "strategy_id": "mf_orig_stage2_pullback_reclaim_full_equity",
+      "total_equity": "10000",
+      "unrealized_pnl": "0"
+    },
+    {
+      "accounting_label": "not one combined account",
+      "allocation_pct": "1",
+      "closed_trades": 0,
+      "current_losing_streak": 0,
+      "data_health": "pending_runtime_refresh",
+      "display_name": "MF-ORIG 1D Stage 2 5/20 crossover full equity",
+      "drawdown": "0",
+      "fill_model": "next_candle_open",
+      "initial_equity": "10000",
+      "label": "MF-ORIG 1d Stage 2 5/20 crossover full-equity evidence-only reference lane",
+      "lane_id": "mf_orig_1d_stage2_5_20_crossover_full_equity",
+      "last_decision_time": null,
+      "ledger_label": "independent synthetic paper ledger",
+      "live_approved": false,
+      "live_trading_approved": false,
+      "max_drawdown": "0",
+      "max_losing_streak": 0,
+      "open_positions": 0,
+      "paper_only": true,
+      "paper_runtime_approved_as_production": false,
+      "production_approved": false,
+      "realized_equity": "10000",
       "reason_codes": [
         "mf_orig_reference_lane",
         "mf_orig_reference_lane_1d_primary",
-        "not_production_approved"
+        "full_equity_reference",
+        "not_production_approved",
+        "independent_synthetic_paper_ledger"
       ],
       "role": "mf_orig_evidence_only_reference_lane",
-      "strategy_id": "mf_orig_1d_stage2_breakout_resistance_full_equity"
+      "rule_summary": "Original Money Flow 5 EMA / 20 SMA Stage 2 crossover hypothesis, full-equity comparison sizing.",
+      "starting_equity": "10000",
+      "strategy_family": "mf_orig_evidence_only_reference",
+      "strategy_id": "mf_orig_1d_stage2_5_20_crossover_full_equity",
+      "total_equity": "10000",
+      "unrealized_pnl": "0"
+    },
+    {
+      "accounting_label": "not one combined account",
+      "allocation_pct": "1",
+      "closed_trades": 0,
+      "current_losing_streak": 0,
+      "data_health": "pending_runtime_refresh",
+      "display_name": "MF-ORIG 1D Stage 2 breakout resistance full equity",
+      "drawdown": "0",
+      "fill_model": "next_candle_open",
+      "initial_equity": "10000",
+      "label": "MF-ORIG Stage 2 breakout resistance full-equity evidence-only reference lane",
+      "lane_id": "mf_orig_1d_stage2_breakout_resistance_full_equity",
+      "last_decision_time": null,
+      "ledger_label": "independent synthetic paper ledger",
+      "live_approved": false,
+      "live_trading_approved": false,
+      "max_drawdown": "0",
+      "max_losing_streak": 0,
+      "open_positions": 0,
+      "paper_only": true,
+      "paper_runtime_approved_as_production": false,
+      "production_approved": false,
+      "realized_equity": "10000",
+      "reason_codes": [
+        "mf_orig_reference_lane",
+        "mf_orig_reference_lane_1d_primary",
+        "full_equity_reference",
+        "not_production_approved",
+        "independent_synthetic_paper_ledger"
+      ],
+      "role": "mf_orig_evidence_only_reference_lane",
+      "rule_summary": "Original Money Flow resistance-breakout hypothesis, full-equity comparison sizing.",
+      "starting_equity": "10000",
+      "strategy_family": "mf_orig_evidence_only_reference",
+      "strategy_id": "mf_orig_1d_stage2_breakout_resistance_full_equity",
+      "total_equity": "10000",
+      "unrealized_pnl": "0"
+    },
+    {
+      "accounting_label": "not one combined account",
+      "allocation_pct": "1",
+      "closed_trades": 0,
+      "current_losing_streak": 0,
+      "data_health": "pending_runtime_refresh",
+      "display_name": "Wildcard BTC regime guard",
+      "drawdown": "0",
+      "fill_model": "next_candle_open",
+      "initial_equity": "10000",
+      "label": "Wildcard BTC regime guard observation lane",
+      "lane_id": "wildcard_btc_regime_guard",
+      "last_decision_time": null,
+      "ledger_label": "independent synthetic paper ledger",
+      "live_approved": false,
+      "live_trading_approved": false,
+      "max_drawdown": "0",
+      "max_losing_streak": 0,
+      "open_positions": 0,
+      "paper_only": true,
+      "paper_runtime_approved_as_production": false,
+      "production_approved": false,
+      "realized_equity": "10000",
+      "reason_codes": [
+        "btc_regime_guard_passed",
+        "btc_regime_guard_blocked_bearish",
+        "btc_regime_context_unavailable",
+        "btc_regime_clear_bearish_alignment",
+        "btc_regime_macd_histogram_not_constructive",
+        "wildcard_observation_only",
+        "not_production_approved",
+        "independent_synthetic_paper_ledger"
+      ],
+      "role": "wildcard_expert_observation_lane",
+      "rule_summary": "Non-BTC entries require constructive BTC 4h and 1d context; BTC entries use BTC's own 4h/1d context.",
+      "starting_equity": "10000",
+      "strategy_family": "wildcard_expert_hypothesis",
+      "strategy_id": "wildcard_btc_regime_guard",
+      "total_equity": "10000",
+      "unrealized_pnl": "0"
+    },
+    {
+      "accounting_label": "not one combined account",
+      "allocation_pct": "1",
+      "closed_trades": 0,
+      "current_losing_streak": 0,
+      "data_health": "pending_runtime_refresh",
+      "display_name": "Wildcard multi-timeframe alignment",
+      "drawdown": "0",
+      "fill_model": "next_candle_open",
+      "initial_equity": "10000",
+      "label": "Wildcard multi-timeframe alignment observation lane",
+      "lane_id": "wildcard_multi_timeframe_alignment",
+      "last_decision_time": null,
+      "ledger_label": "independent synthetic paper ledger",
+      "live_approved": false,
+      "live_trading_approved": false,
+      "max_drawdown": "0",
+      "max_losing_streak": 0,
+      "open_positions": 0,
+      "paper_only": true,
+      "paper_runtime_approved_as_production": false,
+      "production_approved": false,
+      "realized_equity": "10000",
+      "reason_codes": [
+        "multi_timeframe_alignment_passed",
+        "multi_timeframe_alignment_blocked",
+        "higher_timeframe_context_unavailable",
+        "higher_timeframe_bearish_alignment",
+        "higher_timeframe_macd_not_constructive",
+        "wildcard_observation_only",
+        "not_production_approved",
+        "independent_synthetic_paper_ledger"
+      ],
+      "role": "wildcard_expert_observation_lane",
+      "rule_summary": "15m requires 1h alignment, 1h requires 4h, 4h requires 1d, and 1d uses its own baseline rules.",
+      "starting_equity": "10000",
+      "strategy_family": "wildcard_expert_hypothesis",
+      "strategy_id": "wildcard_multi_timeframe_alignment",
+      "total_equity": "10000",
+      "unrealized_pnl": "0"
+    },
+    {
+      "accounting_label": "not one combined account",
+      "allocation_pct": "1",
+      "closed_trades": 0,
+      "current_losing_streak": 0,
+      "data_health": "pending_runtime_refresh",
+      "display_name": "Wildcard volatility expansion breakout",
+      "drawdown": "0",
+      "fill_model": "next_candle_open",
+      "initial_equity": "10000",
+      "label": "Wildcard volatility expansion breakout observation lane",
+      "lane_id": "wildcard_volatility_expansion_breakout",
+      "last_decision_time": null,
+      "ledger_label": "independent synthetic paper ledger",
+      "live_approved": false,
+      "live_trading_approved": false,
+      "max_drawdown": "0",
+      "max_losing_streak": 0,
+      "open_positions": 0,
+      "paper_only": true,
+      "paper_runtime_approved_as_production": false,
+      "production_approved": false,
+      "realized_equity": "10000",
+      "reason_codes": [
+        "volatility_expansion_breakout_passed",
+        "volatility_expansion_blocked_low_range",
+        "volatility_expansion_missing_compression_context",
+        "volatility_expansion_no_recent_high_breakout",
+        "volatility_expansion_baseline_alignment_failed",
+        "wildcard_observation_only",
+        "not_production_approved",
+        "independent_synthetic_paper_ledger"
+      ],
+      "role": "wildcard_expert_observation_lane",
+      "rule_summary": "Block low rolling range entries unless range expansion and a close above the recent 20-candle high occur while baseline Money Flow trend alignment remains valid.",
+      "starting_equity": "10000",
+      "strategy_family": "wildcard_expert_hypothesis",
+      "strategy_id": "wildcard_volatility_expansion_breakout",
+      "total_equity": "10000",
+      "unrealized_pnl": "0"
     }
   ],
   "strategy_truth_lane": {
@@ -674,7 +2348,23 @@
     "HYPE",
     "BNB",
     "SUI",
-    "AVAX"
+    "AVAX",
+    "TRON",
+    "ADA",
+    "ZEC",
+    "LINK",
+    "XMR",
+    "TON",
+    "LTC",
+    "UNI",
+    "DOT",
+    "ASTER",
+    "AAVE",
+    "POL",
+    "FIL",
+    "TRUMP",
+    "PEPE",
+    "OKB"
   ],
   "testnet_probe_policy": {
     "PT_RT1_TESTNET_DAILY_PROBE_CAP": 1,
@@ -690,5 +2380,43 @@
     "1h",
     "4h",
     "1d"
-  ]
+  ],
+  "wildcard_definitions": {
+    "wildcard_btc_regime_guard": {
+      "methodology": "forward_public_mainnet_paper_observation",
+      "purpose": "Stop alt entries when BTC 4h/1d market regime is hostile.",
+      "reason_codes": [
+        "btc_regime_guard_passed",
+        "btc_regime_guard_blocked_bearish",
+        "btc_regime_context_unavailable",
+        "btc_regime_clear_bearish_alignment",
+        "btc_regime_macd_histogram_not_constructive"
+      ],
+      "rule_summary": "Non-BTC entries require constructive BTC 4h and 1d context; BTC entries use BTC's own 4h/1d context."
+    },
+    "wildcard_multi_timeframe_alignment": {
+      "methodology": "forward_public_mainnet_paper_observation",
+      "purpose": "Avoid isolated lower-timeframe entries against higher-timeframe structure.",
+      "reason_codes": [
+        "multi_timeframe_alignment_passed",
+        "multi_timeframe_alignment_blocked",
+        "higher_timeframe_context_unavailable",
+        "higher_timeframe_bearish_alignment",
+        "higher_timeframe_macd_not_constructive"
+      ],
+      "rule_summary": "15m requires 1h alignment, 1h requires 4h, 4h requires 1d, and 1d uses its own baseline rules."
+    },
+    "wildcard_volatility_expansion_breakout": {
+      "methodology": "forward_public_mainnet_paper_observation",
+      "purpose": "Avoid dead sideways zones but allow re-entry when compression resolves upward.",
+      "reason_codes": [
+        "volatility_expansion_breakout_passed",
+        "volatility_expansion_blocked_low_range",
+        "volatility_expansion_missing_compression_context",
+        "volatility_expansion_no_recent_high_breakout",
+        "volatility_expansion_baseline_alignment_failed"
+      ],
+      "rule_summary": "Block low rolling range entries unless range expansion and a close above the recent 20-candle high occur while baseline Money Flow trend alignment remains valid."
+    }
+  }
 }

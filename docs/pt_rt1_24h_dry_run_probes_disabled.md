@@ -9,6 +9,7 @@ This is paper observation only. It does not approve production trading, paper-ru
 ## Required Starting State
 
 - Public mainnet market-data configuration is present.
+- PT-RT1.1A expanded readiness is present: 10 independent synthetic strategy lanes, expanded requested scanner universe, blocked-symbol reason codes, and wildcard diagnostics.
 - `PT_RT1_TESTNET_PROBES_ENABLED=false`.
 - `PT_RT1_TESTNET_KILL_SWITCH=true`.
 - No API keys are required for the strategy-truth lane.
@@ -23,7 +24,7 @@ This is paper observation only. It does not approve production trading, paper-ru
 4. Confirm only fully closed candles trigger evaluations.
 5. Confirm indicators are computed without defaulting missing values to zero.
 6. Confirm duplicate signal prevention blocks repeated loop evaluations.
-7. Confirm each lane keeps its own 10,000 USDC synthetic ledger.
+7. Confirm each of the 10 lanes keeps its own 10,000 USDC synthetic ledger.
 8. Confirm realized equity compounds after wins and losses.
 9. Confirm open positions update unrealized PnL from public mainnet mids/closes.
 10. Confirm no testnet order endpoint call occurs.
@@ -39,6 +40,8 @@ This is paper observation only. It does not approve production trading, paper-ru
 - Fully closed candle detection works.
 - Synthetic paper decisions record.
 - Synthetic ledgers update.
+- All 10 PT-RT1.1A strategy lanes remain visible and independent.
+- Expanded requested/resolved symbols and blocked-symbol reason codes remain visible.
 - Duplicate prevention works.
 - Dashboard remains readable.
 - Testnet probe path remains disabled.

@@ -1,0 +1,124 @@
+{
+  "phase": "PT-RT1.1A",
+  "status": "implemented",
+  "objective": "Expand PT-RT1 readiness before the 24-hour probes-disabled run.",
+  "strategy_lanes": [
+    "money_flow_v1_2_baseline",
+    "avoid_low_rolling_range_20",
+    "avoid_low_rolling_range_50",
+    "mf_orig_stage_filter_only_full_equity",
+    "mf_orig_stage2_pullback_reclaim_full_equity",
+    "mf_orig_1d_stage2_5_20_crossover_full_equity",
+    "mf_orig_1d_stage2_breakout_resistance_full_equity",
+    "wildcard_btc_regime_guard",
+    "wildcard_multi_timeframe_alignment",
+    "wildcard_volatility_expansion_breakout"
+  ],
+  "wildcard_definitions": {
+    "wildcard_btc_regime_guard": {
+      "methodology": "forward_public_mainnet_paper_observation",
+      "reason_codes": [
+        "btc_regime_guard_passed",
+        "btc_regime_guard_blocked_bearish",
+        "btc_regime_context_unavailable",
+        "btc_regime_clear_bearish_alignment",
+        "btc_regime_macd_histogram_not_constructive"
+      ]
+    },
+    "wildcard_multi_timeframe_alignment": {
+      "methodology": "forward_public_mainnet_paper_observation",
+      "reason_codes": [
+        "multi_timeframe_alignment_passed",
+        "multi_timeframe_alignment_blocked",
+        "higher_timeframe_context_unavailable",
+        "higher_timeframe_bearish_alignment",
+        "higher_timeframe_macd_not_constructive"
+      ]
+    },
+    "wildcard_volatility_expansion_breakout": {
+      "methodology": "forward_public_mainnet_paper_observation",
+      "reason_codes": [
+        "volatility_expansion_breakout_passed",
+        "volatility_expansion_blocked_low_range",
+        "volatility_expansion_missing_compression_context",
+        "volatility_expansion_no_recent_high_breakout",
+        "volatility_expansion_baseline_alignment_failed"
+      ]
+    }
+  },
+  "requested_symbols": [
+    "BTC",
+    "ETH",
+    "SOL",
+    "XRP",
+    "DOGE",
+    "HYPE",
+    "BNB",
+    "SUI",
+    "AVAX",
+    "TRON",
+    "ADA",
+    "ZEC",
+    "LINK",
+    "XMR",
+    "TON",
+    "LTC",
+    "UNI",
+    "DOT",
+    "ASTER",
+    "AAVE",
+    "POL",
+    "FIL",
+    "TRUMP",
+    "PEPE",
+    "OKB"
+  ],
+  "alias_mappings": {
+    "TRON": "TRX",
+    "PEPE": "kPEPE",
+    "SHIB": "kSHIB"
+  },
+  "blocked_symbol_policy": {
+    "PEPE": "blocked_by_default_pepe_kpepe_unit_semantics_deferred",
+    "OKB": "blocked_unless_hyperliquid_public_meta_confirms_active_support_okb_support_not_confirmed",
+    "POL": "must_use_active_POL_not_delisted_MATIC",
+    "SHIB": "deferred_venue_symbol_unit_semantics_deferred"
+  },
+  "scanner_eligibility_rules": [
+    "exists_in_current_hyperliquid_public_meta",
+    "isDelisted_is_not_true",
+    "szDecimals_present",
+    "allMids_positive_public_market_data",
+    "symbol_identity_not_ambiguous",
+    "unit_semantics_accepted",
+    "precision_formatting_available",
+    "data_health_healthy"
+  ],
+  "dashboard_status": {
+    "paper_observation_view": "implemented",
+    "strategy_lanes_visible": 10,
+    "expanded_scanner_universe_visible": true,
+    "blocked_symbols_visible": true,
+    "wildcard_diagnostics_visible": true,
+    "testnet_probe_separation_visible": true
+  },
+  "testnet_probe_policy": {
+    "enabled_by_default": false,
+    "kill_switch_default": true,
+    "blocked_symbols_rejected": true,
+    "testnet_fills_update_strategy_pnl": false
+  },
+  "boundaries": {
+    "runtime_collection_started": false,
+    "production_money_flow_rules_changed": false,
+    "canonical_evidence_packs_regenerated": false,
+    "testnet_probes_enabled": false,
+    "orders_submitted": false,
+    "private_signed_order_endpoints_called_from_strategy_truth": false,
+    "api_keys_used_for_strategy_truth": false,
+    "live_trading_approved": false,
+    "paper_runtime_approved_as_production": false,
+    "sor_fanout_cbbo_added": false
+  },
+  "next_phase": "PT-RT1.1B may start 24-hour probes-disabled runtime collection"
+}

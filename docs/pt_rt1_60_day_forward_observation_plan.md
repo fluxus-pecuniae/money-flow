@@ -15,6 +15,7 @@ It is not:
 ## Start Criteria
 
 - 24-hour dry run with probes disabled passes.
+- PT-RT1.1A expanded readiness is in place: 10 synthetic lanes, expanded requested/resolved scanner universe, blocked-symbol reason codes, and wildcard diagnostics.
 - Public mainnet market data health is stable.
 - Fully closed candle gating is verified.
 - Indicator missing values do not default to zero.
@@ -28,9 +29,15 @@ It is not:
 | Lane | Purpose |
 |---|---|
 | `money_flow_v1_2_baseline` | control lane |
-| `avoid_low_rolling_range_50` | evidence-only candidate lane |
 | `avoid_low_rolling_range_20` | evidence-only candidate lane |
+| `avoid_low_rolling_range_50` | evidence-only candidate lane |
+| `mf_orig_stage_filter_only_full_equity` | MF-ORIG evidence-only reference lane |
+| `mf_orig_stage2_pullback_reclaim_full_equity` | MF-ORIG evidence-only reference lane |
+| `mf_orig_1d_stage2_5_20_crossover_full_equity` | MF-ORIG evidence-only reference lane |
 | `mf_orig_1d_stage2_breakout_resistance_full_equity` | MF-ORIG evidence-only reference lane |
+| `wildcard_btc_regime_guard` | wildcard expert hypothesis lane |
+| `wildcard_multi_timeframe_alignment` | wildcard expert hypothesis lane |
+| `wildcard_volatility_expansion_breakout` | wildcard expert hypothesis lane |
 
 ## Daily Review Checklist
 
@@ -45,6 +52,8 @@ It is not:
 - Duplicate signal blocks.
 - Data-health blocks.
 - Candidate differences vs baseline.
+- Wildcard reason-code behavior.
+- Blocked requested symbols and updated public mainnet eligibility.
 - Dashboard filter usage remains display-only.
 
 ## Weekly Review Checklist

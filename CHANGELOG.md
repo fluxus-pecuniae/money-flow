@@ -13,6 +13,55 @@ Entry schema:
 
 ---
 
+## v2026.05.14.004
+
+- `recorded_at_utc`: `2026-05-14T20:20:36Z`
+- `scope`: `PT-RT1.1A expanded paper observation universe and 10 strategy lanes`
+- `intent`: `Native entry. Expanded the PT-RT1 paper-observation lab before the 24-hour run. The committed config now exposes exactly 10 independent synthetic 10000 USDC strategy lanes, adds three wildcard expert observation hypotheses, expands requested scanner symbols with TRON->TRX and PEPE->kPEPE alias truth, keeps PEPE/kPEPE and SHIB/kSHIB unit semantics blocked by default, blocks OKB unless active Hyperliquid support is confirmed, keeps POL separate from delisted MATIC, and preserves requested/resolved/blocked reason-code visibility. The Paper Observation dashboard now shows all 10 lanes, expanded scanner rows, lane detail, wildcard diagnostics, blocked symbols/reasons, and separate testnet plumbing status. This is implementation/readiness only before PT-RT1.1B; it does not start runtime collection, enable testnet probes, submit orders, call private/signed/order endpoints from strategy truth, use API keys, use testnet prices/fills as strategy PnL, regenerate canonical evidence packs, change production Money Flow rules, approve paper/live, or add SOR/fanout/CBBO.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/strategy.md`
+  - `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing.md`
+  - `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json`
+  - `docs/pt_rt1_24h_dry_run_probes_disabled.md`
+  - `docs/pt_rt1_24h_testnet_plumbing_probe_run.md`
+  - `docs/pt_rt1_60_day_forward_observation_plan.md`
+  - `docs/pt_rt1_1a_expanded_universe_and_strategy_lanes.md`
+  - `docs/pt_rt1_1a_expanded_universe_and_strategy_lanes_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `services/paper_runtime/pt_rt1.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_pt_rt1_paper_observation.py`
+  - `tests/test_pt_rt1_1a_expanded_universe.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_paper_observation.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_1a_expanded_universe.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat34_sandbox_routing_pipeline.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1.1a-review.zip`
+
 ## v2026.05.14.003
 
 - `recorded_at_utc`: `2026-05-14T19:20:14Z`

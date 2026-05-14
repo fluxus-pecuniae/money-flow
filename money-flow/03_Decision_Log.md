@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-14T20:20:36Z - PT-RT1.1A - Expand Paper Observation Lab Before Runtime Collection
+
+- `decision`: Expand PT-RT1 before the 24-hour probes-disabled run to exactly 10 independent synthetic strategy lanes plus an expanded founder-requested scanner universe with requested/resolved/block reason-code visibility.
+- `scope`: Added the Money Flow baseline lane, two SOR rolling-range lanes, four MF-ORIG full-equity reference lanes, and three wildcard expert observation lanes. Scanner truth now includes canonical symbols plus founder-requested TRON, ADA, ZEC, LINK, XMR, TON, LTC, UNI, DOT, ASTER, AAVE, POL, FIL, TRUMP, PEPE, and OKB, with TRON->TRX, PEPE->kPEPE, PEPE/kPEPE unit-semantics blocking, OKB support-confirmation blocking, and POL/MATIC delisting protection.
+- `why`: The founder wanted the forward-observation lab expanded before collecting the first 24-hour runtime artifact set, so the run can observe broader symbols and strategy hypotheses from the start rather than retrofitting the dashboard after partial runtime logs exist.
+- `result`: `PT-RT1.1B may start 24-hour probes-disabled runtime collection` after readiness review. PT-RT1.2 testnet probes remain blocked until a real probes-disabled run passes.
+- `follow_up_implications`: PT-RT1.1A is readiness only. It does not start runtime collection, enable testnet probes, submit testnet/live orders, call private/signed/order endpoints from strategy truth, use API keys, use testnet prices/fills as strategy PnL, regenerate canonical evidence packs, change production Money Flow rules, approve paper/live, or add SOR/fanout/CBBO.
+
 ## 2026-05-13T22:03:37Z - OB2.0 - Obsidian Strategy Brain Uses SV2.0.2 / EV-AUDIT1 As Current Truth
 
 - `decision`: Refresh the Obsidian brain around one canonical command center and dedicated strategy/evidence/data/dashboard/paper-observation maps.

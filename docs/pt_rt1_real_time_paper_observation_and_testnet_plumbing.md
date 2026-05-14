@@ -4,6 +4,8 @@
 
 Status: implemented
 
+PT-RT1.1A expands the lab before the 24-hour dry run: the Paper Observation runtime now exposes 10 independent synthetic strategy lanes, an expanded requested scanner universe, requested/resolved symbol handling, blocked-symbol reason codes, and wildcard expert hypothesis diagnostics. The expansion is readiness-only and did not start runtime collection.
+
 PT-RT1 adds the foundation for a 60-day forward-observation system. It is not a backtest and it does not approve any strategy for production, paper-runtime promotion, live trading, or real-capital execution.
 
 The implementation has two separate lanes:
@@ -80,16 +82,38 @@ SHIB/kSHIB remains excluded unless unit semantics are explicitly resolved:
 
 Status: implemented
 
-Each lane starts with synthetic 10,000 USDC and compounds realized PnL forward.
+Each lane starts with synthetic 10,000 USDC and compounds realized PnL forward. PT-RT1.1A expands the lane set to exactly 10 lanes with independent ledgers. These are not one combined account.
 
 | Lane | Role | Status |
 |---|---|---|
 | `money_flow_v1_2_baseline` | control lane | production-derived rules unchanged; not approval |
-| `avoid_low_rolling_range_50` | evidence-only candidate lane | not production-approved |
 | `avoid_low_rolling_range_20` | evidence-only candidate lane | not production-approved |
+| `avoid_low_rolling_range_50` | evidence-only candidate lane | not production-approved |
+| `mf_orig_stage_filter_only_full_equity` | MF-ORIG evidence-only reference lane | not production-approved |
+| `mf_orig_stage2_pullback_reclaim_full_equity` | MF-ORIG evidence-only reference lane | not production-approved |
+| `mf_orig_1d_stage2_5_20_crossover_full_equity` | MF-ORIG evidence-only reference lane | not production-approved |
 | `mf_orig_1d_stage2_breakout_resistance_full_equity` | MF-ORIG evidence-only reference lane | not production-approved |
+| `wildcard_btc_regime_guard` | wildcard expert hypothesis lane | not production-approved |
+| `wildcard_multi_timeframe_alignment` | wildcard expert hypothesis lane | not production-approved |
+| `wildcard_volatility_expansion_breakout` | wildcard expert hypothesis lane | not production-approved |
 
-The MF-ORIG lane remains a reference observation lane. The source-primary interpretation is 1D; any lower-timeframe use must remain labeled as fractal/adaptation evidence, not original-source approval.
+The MF-ORIG lanes remain reference observation lanes. Wildcard lanes are expert hypotheses for forward observation only. None are production rules.
+
+## PT-RT1.1A Expanded Scanner Universe
+
+Status: implemented
+
+PT-RT1.1A represents canonical SV2.0.2 symbols plus founder-requested additions before runtime collection:
+
+`BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, AVAX, TRON, ADA, ZEC, LINK, XMR, TON, LTC, UNI, DOT, ASTER, AAVE, POL, FIL, TRUMP, PEPE, OKB`
+
+Alias and blocked-symbol policy:
+
+- `TRON -> TRX`.
+- `PEPE -> kPEPE`, blocked by default with `pepe_kpepe_unit_semantics_deferred`.
+- `OKB` is blocked unless public Hyperliquid metadata confirms active support.
+- `POL` must resolve to active `POL`; delisted `MATIC` mapping is blocked.
+- `SHIB/kSHIB` remains deferred.
 
 ## Paper-Equity Model
 

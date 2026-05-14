@@ -1,20 +1,20 @@
 # TODO
 
-Last reviewed: `2026-05-14T19:20:14Z`
+Last reviewed: `2026-05-14T20:20:36Z`
 
 ## Active Follow-Ups
 
 ### T-141
 
 - `priority`: `high`
-- `status`: `blocked`
-- `summary`: `PT-RT1.1 24-hour probes-disabled dry-run validation is blocked because no ignored runtime artifact directory exists at reports/paper_runtime/pt_rt1_1_24h_dry_run/. The committed PT-RT1.1 report and summary JSON record probes disabled, kill switch active, daily probe cap zero, no-order/no-live boundary flags, and a PT-RT1.2 blocked decision. Public mainnet refresh stability, closed-candle gating, paper-ledger updates, duplicate-signal behavior, data-health gating, and dashboard runtime readability remain not verified until the actual 24-hour dry run is executed and summarized.`
+- `status`: `ready_for_pt_rt1_1b`
+- `summary`: `PT-RT1.1 24-hour probes-disabled dry-run validation is blocked because no ignored runtime artifact directory exists at reports/paper_runtime/pt_rt1_1_24h_dry_run/. PT-RT1.1A expands readiness before the run: exactly 10 independent synthetic 10000 USDC strategy lanes are configured, founder-requested scanner symbols are represented with requested/resolved/block reason truth, TRON maps to TRX, PEPE maps to kPEPE and is blocked by unit semantics by default, OKB is blocked unless active Hyperliquid support is confirmed, POL remains distinct from delisted MATIC, and the Paper Observation dashboard shows lane detail, wildcard diagnostics, blocked symbols, and separate testnet probe status. Next step: PT-RT1.1B may start the 24-hour probes-disabled runtime collection and retain ignored artifacts. Public mainnet refresh stability, closed-candle gating, paper-ledger updates, duplicate-signal behavior, data-health gating, and dashboard runtime readability remain not verified until that actual run is executed and summarized.`
 
 ### T-140
 
 - `priority`: `high`
 - `status`: `done`
-- `summary`: `PT-RT1 real-time public market data paper observation and testnet plumbing probes are implemented as a forward-observation substrate. The strategy-truth lane is restricted to Hyperliquid public mainnet info payloads, fully closed candle gating, real-time indicator computation, duplicate signal prevention, and independent synthetic 10,000 USDC paper ledgers for money_flow_v1_2_baseline, avoid_low_rolling_range_50, avoid_low_rolling_range_20, and mf_orig_1d_stage2_breakout_resistance_full_equity. The separate Hyperliquid testnet plumbing lane is disabled/kill-switched by default, requires exact approval, enforces cap/notional/account-targeting/precision/post-only gates, and never updates strategy paper PnL. The dashboard now has a Paper Observation view, and PT-RT1 report/runbooks are committed. Production Money Flow rules remain unchanged; no evidence packs were regenerated; no live trading, strategy paper-production approval, live orders, private/signed/order endpoints from strategy truth, API keys, SOR/fanout/CBBO, or testnet strategy truth were added.`
+- `summary`: `PT-RT1 real-time public market data paper observation and testnet plumbing probes are implemented as a forward-observation substrate. PT-RT1.1A expands the strategy-truth lane to 10 independent synthetic 10,000 USDC paper ledgers: Money Flow v1.2 baseline, two SOR rolling-range candidate lanes, four MF-ORIG full-equity reference lanes, and three wildcard expert observation hypotheses. The separate Hyperliquid testnet plumbing lane is disabled/kill-switched by default, requires exact approval, enforces cap/notional/account-targeting/precision/post-only gates, and never updates strategy paper PnL. The dashboard now has a Paper Observation view with expanded scanner universe, lane detail, wildcard diagnostics, blocked-symbol reason codes, and testnet separation. Production Money Flow rules remain unchanged; no evidence packs were regenerated; no live trading, strategy paper-production approval, live orders, private/signed/order endpoints from strategy truth, API keys, SOR/fanout/CBBO, or testnet strategy truth were added.`
 
 ### T-139
 

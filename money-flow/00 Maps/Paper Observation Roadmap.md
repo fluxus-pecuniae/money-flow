@@ -21,16 +21,30 @@ PT-RT1 is implemented as a forward-observation substrate:
 - data outage handling
 - founder review workflow
 
-Required observation lanes:
+Required observation lanes after PT-RT1.1A:
 
 - `money_flow_v1_2_baseline`
-- `avoid_low_rolling_range_50`
 - `avoid_low_rolling_range_20`
+- `avoid_low_rolling_range_50`
+- `mf_orig_stage_filter_only_full_equity`
+- `mf_orig_stage2_pullback_reclaim_full_equity`
+- `mf_orig_1d_stage2_5_20_crossover_full_equity`
 - `mf_orig_1d_stage2_breakout_resistance_full_equity`
+- `wildcard_btc_regime_guard`
+- `wildcard_multi_timeframe_alignment`
+- `wildcard_volatility_expansion_breakout`
+
+PT-RT1.1A scanner expansion:
+
+- canonical symbols: BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, AVAX
+- founder-requested symbols: TRON, ADA, ZEC, LINK, XMR, TON, LTC, UNI, DOT, ASTER, AAVE, POL, FIL, TRUMP, PEPE, OKB
+- aliases: TRON resolves to TRX; PEPE resolves to kPEPE
+- blocked by default: PEPE/kPEPE unit semantics, SHIB/kSHIB unit semantics, OKB unless active Hyperliquid support is confirmed, delisted MATIC when POL is requested
+- blocked symbols remain visible with reason codes
 
 Current next operational step:
 
-1. Run the 24-hour dry run with testnet probes disabled.
+1. Run `PT-RT1.1B` 24-hour dry run with testnet probes disabled.
 2. Retain ignored artifacts under `reports/paper_runtime/pt_rt1_1_24h_dry_run/`.
 3. Regenerate the PT-RT1.1 report from those artifacts.
 4. If stable, start the 60-day public-mainnet forward-observation window.
@@ -75,4 +89,8 @@ Current PT-RT1 status: `implemented_substrate_observation_not_started`.
 
 Current PT-RT1.1 status: `blocked_missing_24h_runtime_artifacts`.
 
-This means the repo now has code, dashboard, summary JSON, tests, and runbooks to start controlled forward observation, but the first 24-hour probes-disabled run has not produced runtime artifacts yet and no 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading. PT-RT1.2 testnet plumbing probes remain blocked until the probes-disabled dry run passes.
+Current PT-RT1.1A status: `implemented_expanded_readiness`.
+
+Current PT-RT1.1B status: `may_start_24h_probes_disabled_collection`.
+
+This means the repo now has code, dashboard, summary JSON, tests, and runbooks to start controlled forward observation across the expanded 10-lane lab, but the first 24-hour probes-disabled run has not produced runtime artifacts yet and no 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading. PT-RT1.2 testnet plumbing probes remain blocked until the probes-disabled dry run passes.

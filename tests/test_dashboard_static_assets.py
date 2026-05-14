@@ -269,6 +269,7 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert 'data-view-panel="paper-observation"' in html
     assert "Paper Observation" in html
     assert "PT-RT1 forward observation" in html
+    assert "10 isolated 10,000 USDC synthetic paper ledgers" in html
     assert "Paper observation only" in html
     assert "No real capital" in html
     assert "No live trading" in html
@@ -279,9 +280,12 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "not canonical evidence" in html
     assert "not backend replay" in html
     assert "paper-observation-summary-cards" in html
+    assert "paper-observation-lane-filter" in html
     assert "paper-observation-scanner-table" in html
     assert "paper-observation-health-table" in html
     assert "paper-observation-lane-table" in html
+    assert "paper-observation-lane-detail" in html
+    assert "paper-observation-wildcard-diagnostics" in html
     assert "paper-observation-live-chart" in html
     assert "paper-observation-open-positions" in html
     assert "paper-observation-closed-trades" in html
@@ -292,12 +296,26 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "DEFAULT_PT_RT1_SUMMARY_FILES" in js
     assert "pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json" in js
     assert "renderPaperObservation" in js
+    assert "renderPaperObservationLaneDetail" in js
+    assert "renderPaperObservationWildcardDiagnostics" in js
     assert "https://api.hyperliquid.xyz/info" not in js
     assert "Hyperliquid public mainnet info endpoint" in summary
     assert "money_flow_v1_2_baseline" in summary
     assert "avoid_low_rolling_range_50" in summary
     assert "avoid_low_rolling_range_20" in summary
+    assert "mf_orig_stage_filter_only_full_equity" in summary
+    assert "mf_orig_stage2_pullback_reclaim_full_equity" in summary
+    assert "mf_orig_1d_stage2_5_20_crossover_full_equity" in summary
     assert "mf_orig_1d_stage2_breakout_resistance_full_equity" in summary
+    assert "wildcard_btc_regime_guard" in summary
+    assert "wildcard_multi_timeframe_alignment" in summary
+    assert "wildcard_volatility_expansion_breakout" in summary
+    assert "TRON" in summary
+    assert "TRX" in summary
+    assert "PEPE" in summary
+    assert "kPEPE" in summary
+    assert "pepe_kpepe_unit_semantics_deferred" in summary
+    assert "okb_support_not_confirmed" in summary
     assert "PT_RT1_TESTNET_PROBES_ENABLED" in summary
     assert "TESTNET FILLS MUST NOT UPDATE STRATEGY PAPER PNL" in summary
     assert "order-button" not in html

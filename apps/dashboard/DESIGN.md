@@ -284,7 +284,9 @@ Shadow and paper-observation markers are not actual trades. Sandbox lifecycle pr
 - Testnet probes must be displayed in a separate plumbing-only panel.
 - Testnet fills must never be displayed as strategy PnL.
 - Each lane must show an independent synthetic 10,000 USDC ledger.
-- Required lanes are `money_flow_v1_2_baseline`, `avoid_low_rolling_range_50`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
+- PT-RT1.1A requires exactly 10 visible lanes: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, `avoid_low_rolling_range_50`, `mf_orig_stage_filter_only_full_equity`, `mf_orig_stage2_pullback_reclaim_full_equity`, `mf_orig_1d_stage2_5_20_crossover_full_equity`, `mf_orig_1d_stage2_breakout_resistance_full_equity`, `wildcard_btc_regime_guard`, `wildcard_multi_timeframe_alignment`, and `wildcard_volatility_expansion_breakout`.
+- Scanner rows must show requested symbol, resolved venue symbol, source list, supported/blocked state, precision, public mid, data health, scanner eligibility, and reason codes.
+- Wildcard lanes must expose pass/block reason-code summaries and remain observation-only expert hypotheses.
 - Candidate and MF-ORIG lanes must be labeled evidence-only / not production-approved.
 - Date filters must say `display-only filter`, `not canonical evidence`, and `not backend replay`.
 - Missing runtime state must render as explicit empty state; do not show fake zero trades as evidence.

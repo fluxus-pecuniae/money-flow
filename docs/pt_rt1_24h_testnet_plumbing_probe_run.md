@@ -26,6 +26,7 @@ I APPROVE PT-RT1 TESTNET PLUMBING PROBES ONLY. HYPERLIQUID TESTNET ONLY. POST-ON
 
 ## Required Starting State
 
+- PT-RT1.1A expanded scanner policy is present.
 - `PT_RT1_TESTNET_PROBES_ENABLED=true`.
 - `PT_RT1_TESTNET_KILL_SWITCH=false`.
 - Daily cap is set to `1` unless explicitly changed in a later approved phase.
@@ -37,6 +38,7 @@ I APPROVE PT-RT1 TESTNET PLUMBING PROBES ONLY. HYPERLIQUID TESTNET ONLY. POST-ON
 - Subaccount/vault mode uses `vaultAddress` only when explicit.
 - Symbol precision is validated from testnet metadata.
 - No unknown/open prior probe state exists.
+- The selected probe symbol is not blocked by scanner policy, unit-semantics deferral, missing precision, delisting, or missing public metadata.
 
 ## Steps
 
@@ -46,13 +48,14 @@ I APPROVE PT-RT1 TESTNET PLUMBING PROBES ONLY. HYPERLIQUID TESTNET ONLY. POST-ON
 4. Confirm kill switch is off.
 5. Confirm daily cap remaining count is positive.
 6. Confirm scanner signal is eligible.
-7. Confirm notional is under cap.
-8. Build post-only `Alo` order shape.
-9. Submit only if every gate passes.
-10. If accepted/open, cancel immediately.
-11. Reconcile open orders.
-12. Write a testnet-only lifecycle audit row.
-13. Confirm testnet fill status does not update strategy paper PnL.
+7. Confirm blocked symbols such as `PEPE -> kPEPE`, deferred `SHIB/kSHIB`, unsupported `OKB`, and delisted `MATIC` mappings are rejected before any testnet order path.
+8. Confirm notional is under cap.
+9. Build post-only `Alo` order shape.
+10. Submit only if every gate passes.
+11. If accepted/open, cancel immediately.
+12. Reconcile open orders.
+13. Write a testnet-only lifecycle audit row.
+14. Confirm testnet fill status does not update strategy paper PnL.
 
 ## Success Criteria
 
@@ -61,6 +64,7 @@ I APPROVE PT-RT1 TESTNET PLUMBING PROBES ONLY. HYPERLIQUID TESTNET ONLY. POST-ON
 - Cap is enforced.
 - Kill switch blocks when enabled.
 - Testnet post-only order is attempted only when eligible.
+- Blocked symbols are rejected before probe submission.
 - Cancel/reconcile is required.
 - No unknown open state remains.
 - Testnet lifecycle audit is written.

@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-14T19:20:14Z`
+Last reviewed: `2026-05-14T20:20:36Z`
 
 ## Top-Level Structure
 
@@ -164,7 +164,7 @@ Last reviewed: `2026-05-14T19:20:14Z`
 - The 2026-05-13 selected-scenario loader hotfix keeps compact Historical Replay rows lightweight while loading candles, indicators, markers, and trades from deterministic per-scenario JSON files under ignored `reports/strategy_validation/*/selected/` paths. The SV2.0.2 and MF-ORIG-EV2 chart-data builders now write those selected replay files in addition to combined symbol/timeframe bundles, so founder-selected charts do not depend on loading large multi-replay JSON bundles.
 - EV-AUDIT1 adds an audit-only founder review report and compact JSON summary for the full current evidence estate. It inventories Money Flow v1.2, SOR-EV1/SOR-EV2/SOR-EV3, MF-ORIG-EV1.1/MF-ORIG-EV2, and pending STRAT-EV1 plan-only status; audits SV2.0.2 data and backtest methodology; ranks biggest winners, losers, and losing streaks; reports regime/control-pocket attribution; and states that no clean strategy candidate is promoted. It does not regenerate evidence packs, change production rules, approve paper/live, submit orders, or call private/signed/order endpoints.
 - OB2.0 refreshes the Obsidian strategic brain around one canonical command center and dedicated current maps/registers: `00 Maps/Strategy Family Map.md`, `00 Maps/Evidence and Backtesting Map.md`, `00 Maps/Data Source and Market Data Map.md`, `00 Maps/Dashboard and UI Map.md`, `00 Maps/Paper Observation Roadmap.md`, `10 Strategy/Strategy Status Register.md`, `10 Strategy/Original Money Flow Source Notes.md`, and `20 Evidence/EV-AUDIT1 Summary.md`. It also stores the Gerald Peters source PDF at `money-flow/90 Reference/The Money Flow Trading System - Gerald Peters - 2019 Edition 2.pdf`. OB2.0 is documentation/governance only; it changes no production strategy code, regenerates no evidence/chart data, calls no exchanges, and approves no paper/live behavior.
-- PT-RT1 adds a visible `Paper Observation` dashboard view backed by `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json`. The view separates public-mainnet strategy truth from Hyperliquid testnet plumbing probes, shows scanner/data-health/lane/probe/runtime-empty-state panels, and keeps date filters display-only. It adds no order controls, no production strategy changes, no live trading approval, and no testnet strategy-PnL truth.
+- PT-RT1 adds a visible `Paper Observation` dashboard view backed by `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json`. PT-RT1.1A expands that view before the 24-hour run to show exactly 10 independent synthetic strategy lanes, founder-requested requested/resolved scanner symbols, blocked symbol reason codes, lane detail, wildcard diagnostics, and separate testnet plumbing status. The view separates public-mainnet strategy truth from Hyperliquid testnet plumbing probes, keeps date filters display-only, and adds no order controls, no production strategy changes, no live trading approval, and no testnet strategy-PnL truth.
 - The 2026-05-14 dashboard styling checkpoint adds the small local `chillguy-logo.jpeg` brand asset plus theme-aware chart color variables and Historical Replay data-horizon card styling. It is UI styling only and changes no strategy, evidence, endpoint, paper/live, or order behavior.
 
 `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing.md`
@@ -191,6 +191,14 @@ Last reviewed: `2026-05-14T19:20:14Z`
 `docs/pt_rt1_1_24h_probes_disabled_dry_run_summary.json`
 - Compact machine-readable PT-RT1.1 dry-run summary.
 - Records probes-disabled config, missing runtime artifacts, data-health/ledger/duplicate-signal not-verified states, no-order/no-live boundary flags, and the `PT-RT1.2 blocked` decision.
+
+`docs/pt_rt1_1a_expanded_universe_and_strategy_lanes.md`
+- Founder/operator PT-RT1.1A readiness report.
+- Documents the 10 synthetic paper strategy lanes, three wildcard observation hypotheses, expanded requested symbol universe, alias/blocking policy, scanner eligibility rules, dashboard update status, testnet probe separation, and the `PT-RT1.1B may start 24-hour probes-disabled runtime collection` handoff.
+
+`docs/pt_rt1_1a_expanded_universe_and_strategy_lanes_summary.json`
+- Compact machine-readable PT-RT1.1A readiness summary.
+- Contains lane definitions, wildcard reason codes, requested symbols, alias mappings, blocked-symbol policy, scanner eligibility rules, dashboard status, testnet probe policy, boundaries, and next-phase decision without runtime logs.
 
 `docs/ob2_0_obsidian_strategy_brain_refresh.md`
 - Founder/operator report for the OB2.0 Obsidian strategy brain refresh.
@@ -1056,10 +1064,13 @@ Last reviewed: `2026-05-14T19:20:14Z`
 - PT0.0.3 historical horizon checks: verifies Jan 2025 target-start truth, BTC/ETH/SOL x 15m/1h/4h/1D readiness rows, actual earliest-after-target reporting, labeled 1D aggregation from 4h, dynamic equity preservation, 1D replay export contents, dashboard data-horizon panel, no-testnet-strategy-truth boundary, and no-order/no-private-endpoint dashboard boundaries.
 
 `tests/test_pt_rt1_paper_observation.py`
-- PT-RT1 paper-observation checks: verifies public-mainnet strategy-truth payload policy, testnet/private/API-key rejection for strategy truth, scanner blocking for unsupported/precision/stablecoin/SHIB-unit cases, fully closed candle gating, missing indicators not defaulting to zero, independent 10,000 USDC paper-ledger compounding/drawdown/losing-streak behavior, duplicate signal prevention, evidence-only lane labels, disabled-by-default testnet probe gates, exact approval/cap/kill-switch/unknown-state enforcement, account-targeting vaultAddress semantics, post-only `Alo` order shape generation for testnet-only plumbing, reports, and no production execution artifact construction from the strategy lane.
+- PT-RT1 paper-observation checks: verifies public-mainnet strategy-truth payload policy, testnet/private/API-key rejection for strategy truth, expanded requested/resolved scanner blocking for unsupported/precision/stablecoin/unit-semantics cases, the exact 10 PT-RT1.1A lane list, wildcard reason codes, fully closed candle gating, missing indicators not defaulting to zero, independent 10,000 USDC paper-ledger compounding/drawdown/losing-streak behavior, duplicate signal prevention, evidence-only lane labels, disabled-by-default testnet probe gates, exact approval/cap/kill-switch/unknown-state enforcement, account-targeting vaultAddress semantics, post-only `Alo` order shape generation for testnet-only plumbing, reports, and no production execution artifact construction from the strategy lane.
 
 `tests/test_pt_rt1_1_24h_dry_run.py`
 - PT-RT1.1 dry-run validation checks: verifies the dry-run report and summary exist, probes-disabled config is enforced with kill switch active and daily cap zero, public-mainnet strategy truth and no private/signed/order/API-key boundaries are reported, missing 24-hour artifacts block PT-RT1.2, duplicate-signal/data-health/ledger sections do not silently pass without runtime evidence, dashboard no-order labels remain expected, and the report builder can mark a complete synthetic artifact set as verified.
+
+`tests/test_pt_rt1_1a_expanded_universe.py`
+- PT-RT1.1A readiness checks: verifies the report and summary exist, all 10 lanes and three wildcard lanes are present, alias/blocking policies are documented, the PT-RT1 summary exposes expanded scanner rows, dashboard readiness flags, disabled-by-default testnet probe policy, no-order/no-live boundaries, and the PT-RT1.1B handoff decision.
 
 `tests/test_sv20_money_flow_1d_expanded_evidence.py`
 - SV2.0/SV2.0.1 Money Flow 1D and expanded-universe checks: verifies Money Flow v1.2 includes `sleeve_1d`, existing 15m/1h/4h settings remain unchanged, internal SV2 timeframe is `1d` with display label `1D`, Hyperliquid public mainnet candle payloads stay public/read-only, SHIB alias resolution is explicit, readiness rows split staged data from DB-imported/canonical evidence truth, and dashboard/docs expose the expanded universe without order behavior.

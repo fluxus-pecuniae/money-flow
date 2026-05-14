@@ -468,7 +468,7 @@
             <p class="eyebrow">PT-RT1 forward observation</p>
             <h2 id="paper-observation-title">Paper Observation</h2>
             <p>
-              Real-time paper observation uses public Hyperliquid mainnet market data for strategy truth and isolated 10,000 USDC synthetic paper ledgers.
+              Real-time paper observation uses public Hyperliquid mainnet market data for strategy truth and 10 isolated 10,000 USDC synthetic paper ledgers.
               Hyperliquid testnet probes are plumbing-only and never update strategy paper PnL.
             </p>
           </div>
@@ -500,6 +500,10 @@
             <select id="paper-observation-timeframe-filter"></select>
           </label>
           <label>
+            <span>Strategy lane</span>
+            <select id="paper-observation-lane-filter"></select>
+          </label>
+          <label>
             <span>Start date</span>
             <input id="paper-observation-date-start" type="date" />
           </label>
@@ -515,8 +519,8 @@
         <section class="evidence-lab-two-column audit-review-two-column" aria-label="Paper observation scanner and data health">
           <article class="table-panel audit-review-panel" aria-labelledby="paper-observation-scanner-title">
             <div class="section-heading">
-              <h2 id="paper-observation-scanner-title">Top-20 Scanner State</h2>
-              <p>Filters public top-20 symbols to Hyperliquid-supported, precision-ready public-mainnet perpetuals.</p>
+              <h2 id="paper-observation-scanner-title">Expanded Scanner Universe</h2>
+              <p>Shows requested vs resolved symbols, source tags, blocked symbols, precision status, public-mid status, and reason codes.</p>
             </div>
             <div id="paper-observation-scanner-table" class="data-table-shell"></div>
           </article>
@@ -536,6 +540,24 @@
             <p>Each lane has an independent synthetic 10,000 USDC ledger and compounds realized PnL forward.</p>
           </div>
           <div id="paper-observation-lane-table" class="data-table-shell"></div>
+        </section>
+
+        <section class="evidence-lab-two-column audit-review-two-column" aria-label="Paper observation lane details and wildcard diagnostics">
+          <article class="table-panel audit-review-panel" aria-labelledby="paper-observation-lane-detail-title">
+            <div class="section-heading">
+              <h2 id="paper-observation-lane-detail-title">Lane Detail</h2>
+              <p>Selected lane rule summary, latest decisions, reason-code status, synthetic positions/trades, and equity-curve availability.</p>
+            </div>
+            <div id="paper-observation-lane-detail" class="data-table-shell"></div>
+          </article>
+
+          <article class="table-panel audit-review-panel" aria-labelledby="paper-observation-wildcard-title">
+            <div class="section-heading">
+              <h2 id="paper-observation-wildcard-title">Wildcard Diagnostics</h2>
+              <p>Expert hypotheses are observation-only and non-production. Reason codes are surfaced even before runtime rows exist.</p>
+            </div>
+            <div id="paper-observation-wildcard-diagnostics" class="data-table-shell"></div>
+          </article>
         </section>
 
         <section class="historical-replay-grid paper-observation-grid" aria-label="Paper observation live chart and blotter">

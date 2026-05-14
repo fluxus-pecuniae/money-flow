@@ -7,8 +7,10 @@ from pathlib import Path
 from services.paper_runtime.pt_rt1 import (
     PT_RT1_EXACT_TESTNET_PROBE_APPROVAL,
     PT_RT1_MAINNET_INFO_URL,
+    PT_RT1_1A_STRATEGY_LANE_IDS,
     PT_RT1_STRATEGY_LANES,
     PT_RT1_TESTNET_INFO_URL,
+    WILDCARD_STRATEGY_DEFINITIONS,
     Candle,
     PaperLedger,
     PaperSignalKey,
@@ -74,7 +76,8 @@ def test_top20_scanner_blocks_unsupported_precision_failed_stablecoin_and_shib_u
     assert by_symbol["USDT"].scanner_eligible is False
     assert "stablecoin_excluded" in by_symbol["USDT"].reason_codes
     assert by_symbol["SHIB"].scanner_eligible is False
-    assert "venue_symbol_unit_semantics_deferred" in by_symbol["SHIB"].reason_codes
+    assert by_symbol["SHIB"].resolved_venue_symbol == "kSHIB"
+    assert "unit_semantics_deferred" in by_symbol["SHIB"].reason_codes
     assert by_symbol["TON"].scanner_eligible is False
     assert "unsupported_by_hyperliquid" in by_symbol["TON"].reason_codes
     assert by_symbol["DOGE"].scanner_eligible is False
@@ -199,16 +202,82 @@ def test_paper_ledger_close_trade_compounds_without_resetting_after_loss() -> No
 def test_strategy_lanes_are_independent_and_evidence_only_where_required() -> None:
     by_strategy = {lane.strategy_id: lane for lane in PT_RT1_STRATEGY_LANES}
 
-    assert set(by_strategy) == {
-        "money_flow_v1_2_baseline",
-        "avoid_low_rolling_range_50",
-        "avoid_low_rolling_range_20",
-        "mf_orig_1d_stage2_breakout_resistance_full_equity",
-    }
+    assert tuple(by_strategy) == PT_RT1_1A_STRATEGY_LANE_IDS
+    assert len(PT_RT1_STRATEGY_LANES) == 10
     assert by_strategy["avoid_low_rolling_range_50"].production_approved is False
     assert "evidence_only_candidate_lane" in by_strategy["avoid_low_rolling_range_50"].reason_codes
     assert "mf_orig_reference_lane" in by_strategy["mf_orig_1d_stage2_breakout_resistance_full_equity"].reason_codes
     assert by_strategy["mf_orig_1d_stage2_breakout_resistance_full_equity"].live_trading_approved is False
+    assert by_strategy["wildcard_btc_regime_guard"].paper_only is True
+    assert by_strategy["wildcard_btc_regime_guard"].live_approved is False
+    assert by_strategy["wildcard_multi_timeframe_alignment"].initial_equity == Decimal("10000")
+    assert by_strategy["wildcard_volatility_expansion_breakout"].strategy_family == "wildcard_expert_hypothesis"
+
+
+def test_pt_rt1_1a_expanded_lanes_and_wildcard_reason_codes_exist() -> None:
+    by_strategy = {lane.strategy_id: lane for lane in PT_RT1_STRATEGY_LANES}
+    mf_orig_full_equity = [strategy_id for strategy_id in by_strategy if strategy_id.startswith("mf_orig_")]
+    wildcard_lanes = [strategy_id for strategy_id in by_strategy if strategy_id.startswith("wildcard_")]
+
+    assert mf_orig_full_equity == [
+        "mf_orig_stage_filter_only_full_equity",
+        "mf_orig_stage2_pullback_reclaim_full_equity",
+        "mf_orig_1d_stage2_5_20_crossover_full_equity",
+        "mf_orig_1d_stage2_breakout_resistance_full_equity",
+    ]
+    assert wildcard_lanes == [
+        "wildcard_btc_regime_guard",
+        "wildcard_multi_timeframe_alignment",
+        "wildcard_volatility_expansion_breakout",
+    ]
+    assert "btc_regime_guard_passed" in WILDCARD_STRATEGY_DEFINITIONS["wildcard_btc_regime_guard"]["reason_codes"]
+    assert "btc_regime_guard_blocked_bearish" in WILDCARD_STRATEGY_DEFINITIONS["wildcard_btc_regime_guard"]["reason_codes"]
+    assert "multi_timeframe_alignment_passed" in WILDCARD_STRATEGY_DEFINITIONS["wildcard_multi_timeframe_alignment"]["reason_codes"]
+    assert "multi_timeframe_alignment_blocked" in WILDCARD_STRATEGY_DEFINITIONS["wildcard_multi_timeframe_alignment"]["reason_codes"]
+    assert "volatility_expansion_breakout_passed" in WILDCARD_STRATEGY_DEFINITIONS["wildcard_volatility_expansion_breakout"]["reason_codes"]
+    assert "volatility_expansion_blocked_low_range" in WILDCARD_STRATEGY_DEFINITIONS["wildcard_volatility_expansion_breakout"]["reason_codes"]
+
+
+def test_expanded_symbol_aliases_blocks_and_source_merging() -> None:
+    rows = resolve_top20_universe(
+        ["BTC", "BTC", "TRON", "PEPE", "OKB", "POL", "MATIC", "BAD", "UNI"],
+        hyperliquid_meta=[
+            {"name": "BTC", "szDecimals": 5},
+            {"name": "TRX", "szDecimals": 1},
+            {"name": "POL", "szDecimals": 1},
+            {"name": "MATIC", "szDecimals": 1, "isDelisted": True},
+            {"name": "UNI", "szDecimals": 2},
+        ],
+        mids={"BTC": "65000", "TRX": "0.12", "POL": "0.5", "MATIC": "1", "UNI": "0"},
+        symbol_sources={
+            "BTC": ("canonical_sv2_supported", "top20_volume"),
+            "TRON": ("founder_requested",),
+            "PEPE": ("founder_requested",),
+            "OKB": ("founder_requested",),
+            "POL": ("founder_requested",),
+            "MATIC": ("top20_volume",),
+            "UNI": ("founder_requested", "top20_volume"),
+        },
+    )
+    by_symbol = {row.requested_symbol: row for row in rows}
+
+    assert len([row for row in rows if row.requested_symbol == "BTC"]) == 1
+    assert set(by_symbol["BTC"].sources) == {"canonical_sv2_supported", "top20_volume"}
+    assert by_symbol["TRON"].resolved_venue_symbol == "TRX"
+    assert by_symbol["TRON"].scanner_eligible is True
+    assert by_symbol["PEPE"].resolved_venue_symbol == "kPEPE"
+    assert by_symbol["PEPE"].blocked is True
+    assert "pepe_kpepe_unit_semantics_deferred" in by_symbol["PEPE"].reason_codes
+    assert by_symbol["OKB"].blocked is True
+    assert "okb_support_not_confirmed" in by_symbol["OKB"].reason_codes
+    assert by_symbol["POL"].resolved_venue_symbol == "POL"
+    assert by_symbol["POL"].scanner_eligible is True
+    assert by_symbol["MATIC"].blocked is True
+    assert "delisted_symbol" in by_symbol["MATIC"].reason_codes
+    assert by_symbol["UNI"].blocked is True
+    assert "public_mid_missing_or_nonpositive" in by_symbol["UNI"].reason_codes
+    assert by_symbol["BAD"].blocked is True
+    assert "unsupported_by_hyperliquid" in by_symbol["BAD"].reason_codes
 
 
 def test_testnet_probe_path_is_disabled_by_default_and_requires_exact_approval() -> None:
@@ -255,6 +324,30 @@ def test_testnet_probe_caps_unknown_state_and_post_only_shape() -> None:
     assert "unknown_probe_state_blocks_future_probes" in unknown.reason_codes
 
 
+def test_testnet_probe_rejects_blocked_symbols_unit_semantics_and_precision_failures() -> None:
+    policy = PTRT1ProbePolicy()
+    approved = PTRT1ProbeCandidate(
+        approval_text=PT_RT1_EXACT_TESTNET_PROBE_APPROVAL,
+        probes_enabled=True,
+        kill_switch=False,
+        account_address="0xabc",
+        symbol="kPEPE",
+        asset_id=1,
+        sz_decimals=0,
+        notional=Decimal("5"),
+        scanner_symbol_blocked=True,
+        unit_semantics_deferred=True,
+        precision_ready=False,
+    )
+
+    result = policy.evaluate(approved)
+
+    assert result.eligible is False
+    assert "testnet_probe_symbol_blocked" in result.reason_codes
+    assert "testnet_probe_unit_semantics_deferred" in result.reason_codes
+    assert "testnet_probe_precision_missing" in result.reason_codes
+
+
 def test_probe_account_targeting_main_omits_vault_and_subaccount_requires_explicit_vault() -> None:
     policy = PTRT1ProbePolicy()
     base = PTRT1ProbeCandidate(
@@ -290,6 +383,13 @@ def test_summary_and_report_files_exist_and_expose_boundaries() -> None:
     assert summary["testnet_probe_policy"]["PT_RT1_TESTNET_PROBES_ENABLED"] is False
     assert summary["boundaries"]["live_exchange_orders_submitted"] is False
     assert summary["paper_equity_policy"]["starting_equity_usdc_per_lane"] == "10000"
+    assert summary["revision"] == "PT-RT1.1A"
+    assert len(summary["strategy_lanes"]) == 10
+    assert "TRON" in summary["requested_symbols"]
+    assert summary["alias_mappings"]["TRON"] == "TRX"
+    assert summary["alias_mappings"]["PEPE"] == "kPEPE"
+    assert summary["dashboard_status"]["strategy_lanes_visible"] == 10
+    assert summary["next_phase"]["decision"] == "PT-RT1.1B may start 24-hour probes-disabled runtime collection"
 
 
 def test_pt_rt1_strategy_lane_does_not_construct_production_execution_artifacts() -> None:
