@@ -41,6 +41,7 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert 'data-view="evidence"' in nav
     assert 'data-view="evidence-lab"' in nav
     assert 'data-view="audit-review"' in nav
+    assert 'data-view="paper-observation"' in nav
     assert 'data-view="strategy"' in nav
     assert 'data-view="uat-shadow"' not in nav
     assert 'data-view="uat-cockpit"' not in nav
@@ -48,6 +49,7 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert nav.index('data-view="historical-replay"') < nav.index('data-view="evidence"')
     assert nav.index('data-view="evidence"') < nav.index('data-view="evidence-lab"')
     assert nav.index('data-view="evidence-lab"') < nav.index('data-view="audit-review"')
+    assert nav.index('data-view="audit-review"') < nav.index('data-view="paper-observation"')
     assert 'data-view="historical-replay" aria-selected="true"' in nav
     assert "Money Flow UAT Workstation" in html
     assert "UAT Chart Cockpit" in html
@@ -238,6 +240,52 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "calls_exchange_order_endpoints" in js
     assert "Manual review" in js
     assert "paper_trading_auto_approved" not in js
+
+
+def test_pt_rt1_paper_observation_dashboard_tab() -> None:
+    html = Path("apps/dashboard/index.html").read_text(encoding="utf-8")
+    css = Path("apps/dashboard/evidence-dashboard.css").read_text(encoding="utf-8")
+    js = Path("apps/dashboard/evidence-dashboard.js").read_text(encoding="utf-8")
+    summary = Path("docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json").read_text(encoding="utf-8")
+
+    nav = html[html.index('<nav class="view-tabs"') : html.index("</nav>", html.index('<nav class="view-tabs"'))]
+    assert 'data-view="paper-observation"' in nav
+    assert 'data-view-panel="paper-observation"' in html
+    assert "Paper Observation" in html
+    assert "PT-RT1 forward observation" in html
+    assert "Paper observation only" in html
+    assert "No real capital" in html
+    assert "No live trading" in html
+    assert "No exchange orders from strategy lane" in html
+    assert "Public mainnet data is strategy truth" in html
+    assert "Testnet probes are plumbing only" in html
+    assert "display-only filters" in html
+    assert "not canonical evidence" in html
+    assert "not backend replay" in html
+    assert "paper-observation-summary-cards" in html
+    assert "paper-observation-scanner-table" in html
+    assert "paper-observation-health-table" in html
+    assert "paper-observation-lane-table" in html
+    assert "paper-observation-live-chart" in html
+    assert "paper-observation-open-positions" in html
+    assert "paper-observation-closed-trades" in html
+    assert "paper-observation-risk-table" in html
+    assert "paper-observation-probe-status" in html
+    assert ".paper-observation-view" in css
+    assert ".paper-observation-controls" in css
+    assert "DEFAULT_PT_RT1_SUMMARY_FILES" in js
+    assert "pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json" in js
+    assert "renderPaperObservation" in js
+    assert "https://api.hyperliquid.xyz/info" not in js
+    assert "Hyperliquid public mainnet info endpoint" in summary
+    assert "money_flow_v1_2_baseline" in summary
+    assert "avoid_low_rolling_range_50" in summary
+    assert "avoid_low_rolling_range_20" in summary
+    assert "mf_orig_1d_stage2_breakout_resistance_full_equity" in summary
+    assert "PT_RT1_TESTNET_PROBES_ENABLED" in summary
+    assert "TESTNET FILLS MUST NOT UPDATE STRATEGY PAPER PNL" in summary
+    assert "order-button" not in html
+    assert "live trading approved: yes" not in html.lower()
 
 
 def test_ev_audit1_audit_review_dashboard_tab() -> None:

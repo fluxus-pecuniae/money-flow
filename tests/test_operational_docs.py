@@ -15,6 +15,24 @@ def _coordination_row_for(task_name: str) -> str:
     raise AssertionError(f"Missing coordination row for {task_name}")
 
 
+def _has_paper_boundary(note: str) -> bool:
+    return (
+        "PAPER TRADING IS APPROVED." in note
+        or "Paper trading is approved for Hyperliquid testnet/sandbox only" in note
+        or "PT-RT1 synthetic paper observation" in note
+        or "PT0 separately approves" in note
+    )
+
+
+def _has_top20_boundary(note: str) -> bool:
+    return (
+        "BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED." in note
+        or "broader top-20 Hyperliquid-supported paper/sandbox trading is approved" in note
+        or ("top-20" in note and "PT-RT1" in note)
+        or ("top 20" in note and "UAT" in note)
+    )
+
+
 REQUIRED_FILES = [
     "AGENTS.md",
     "CHANGELOG.md",
@@ -120,6 +138,11 @@ REQUIRED_FILES = [
     "docs/ev_audit1_full_hypothesis_data_and_paper_readiness_review_summary.json",
     "docs/ob2_0_obsidian_strategy_brain_refresh.md",
     "docs/ob2_0_obsidian_strategy_brain_refresh_summary.json",
+    "docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing.md",
+    "docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json",
+    "docs/pt_rt1_24h_dry_run_probes_disabled.md",
+    "docs/pt_rt1_24h_testnet_plumbing_probe_run.md",
+    "docs/pt_rt1_60_day_forward_observation_plan.md",
     "money-flow/00 Maps/Strategy Family Map.md",
     "money-flow/00 Maps/Evidence and Backtesting Map.md",
     "money-flow/00 Maps/Data Source and Market Data Map.md",
@@ -240,6 +263,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "MF-ORIG-EV2 multi-timeframe Original Money Flow evidence packs plus full-equity comparison Historical Replay UI" in moved_memory
     assert "EV-AUDIT1 full evidence/data/paper-readiness audit" in moved_memory
     assert "OB2.0 Obsidian strategy brain refresh" in moved_memory
+    assert "PT-RT1 real-time public-market paper-observation substrate" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
 
@@ -253,9 +277,9 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert "Current implemented milestone | `OB2.0` Obsidian strategy brain refresh" in command_center
+    assert "Current implemented milestone | `PT-RT1` real-time public-market paper observation" in command_center
     assert "Canonical command center" in compatibility_command_center
-    assert "OB2.0 refreshes the Obsidian brain" in current_dashboard
+    assert "PT-RT1 now implements the public-mainnet paper-observation substrate" in current_dashboard
     assert "SV2.0.2 canonical evidence" in current_dashboard
     assert "EV-AUDIT1" in current_dashboard
     assert "PT-RT1" in current_dashboard
@@ -310,8 +334,8 @@ def test_current_state_notes_keep_uat_boundaries() -> None:
 
     for path in current_state_paths:
         note = path.read_text()
-        assert "PAPER TRADING IS APPROVED." in note or "Paper trading is approved for Hyperliquid testnet/sandbox only" in note
-        assert "BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED." in note or "broader top-20 Hyperliquid-supported paper/sandbox trading is approved" in note
+        assert _has_paper_boundary(note)
+        assert _has_top20_boundary(note)
         assert "Live trading is not approved" in note
         assert (
             "Exchange order submission is not approved" in note
@@ -416,7 +440,7 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "no clean strategy candidate" in strategy_register
     assert "No strategy is production-ready" in current_phase or "no clean strategy candidate is promoted" in current_phase
     assert "PT-RT1" in current_phase
-    assert "recommended" in current_phase
+    assert "Run the PT-RT1 24-hour probes-disabled dry run first" in current_phase
     assert "SV2.0.2" in project_memory
     assert "MF-ORIG" in project_memory
     assert "EV-AUDIT1" in project_memory
@@ -432,8 +456,10 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "Private/signed/order endpoints are not required for historical evidence" in data_map
     assert "Date filters are display-only" in dashboard_map
     assert "old `Experiments` tab" in dashboard_map
-    assert "public mainnet market data" in paper_roadmap
+    assert "public" in paper_roadmap
+    assert "mainnet market data" in paper_roadmap
     assert "no exchange orders" in paper_roadmap
+    assert "implemented_substrate_observation_not_started" in paper_roadmap
     assert "Gerald Peters" in original_source_note
     assert "source-faithful reconstruction" in original_source_note
     assert "paper_observation_ready_with_conditions" in audit_summary
@@ -441,6 +467,38 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "OB2.0 refreshes the Obsidian strategy brain" in ob_report
     assert "Production Money Flow rules changed: `false`" in ob_report
     assert "Live trading approved: `false`" in ob_report
+
+
+def test_pt_rt1_operational_docs_are_current() -> None:
+    command_center = Path("money-flow/00_Money_Flow_Command_Center.md").read_text()
+    current_phase = Path("money-flow/01_Current_Phase.md").read_text()
+    project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
+    paper_roadmap = Path("money-flow/00 Maps/Paper Observation Roadmap.md").read_text()
+    report = Path("docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing.md").read_text()
+    summary = Path("docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json").read_text()
+    dry_run = Path("docs/pt_rt1_24h_dry_run_probes_disabled.md").read_text()
+    probe_run = Path("docs/pt_rt1_24h_testnet_plumbing_probe_run.md").read_text()
+    observation_plan = Path("docs/pt_rt1_60_day_forward_observation_plan.md").read_text()
+
+    for contents in (command_center, current_phase, project_memory, paper_roadmap, report):
+        assert "PT-RT1" in contents
+        assert "public mainnet" in contents or "Public mainnet" in contents
+        assert "testnet" in contents
+        assert "Live trading is not approved" in contents or "live trading" in contents
+
+    assert "strategy-truth lane is Hyperliquid public mainnet market data only" in command_center
+    assert "not production approval" in report
+    assert "live approval" in report
+    assert "paper-runtime approval" in report
+    assert "PT_RT1_TESTNET_PROBES_ENABLED=false" in paper_roadmap
+    assert "testnet fills never update strategy paper PnL" in paper_roadmap
+    assert "money_flow_v1_2_baseline" in summary
+    assert "avoid_low_rolling_range_50" in summary
+    assert "avoid_low_rolling_range_20" in summary
+    assert "mf_orig_1d_stage2_breakout_resistance_full_equity" in summary
+    assert "no testnet order endpoint calls" in dry_run.lower()
+    assert "approval captured" in probe_run.lower()
+    assert "60-day" in observation_plan.lower()
 
 
 def test_uat0_operational_truth_is_current() -> None:
@@ -786,7 +844,7 @@ def test_uat0_operational_truth_is_current() -> None:
         assert "PT0.0.1" in note
         assert "PT0.0.2" in note
         assert "PT0.0.3" in note
-        assert "PAPER TRADING IS APPROVED." in note or "Paper trading is approved for Hyperliquid testnet/sandbox only" in note
+        assert _has_paper_boundary(note)
         assert "Live trading is not approved" in note
         assert (
             "Exchange order submission is not approved" in note
@@ -814,7 +872,7 @@ def test_current_phase_handoff_and_coordination_are_closed() -> None:
         assert "SV1.18" in note
         assert "SV2.0" in note
         assert "UAT0" in note
-        assert "PAPER TRADING IS APPROVED." in note or "Paper trading is approved for Hyperliquid testnet/sandbox only" in note
+        assert _has_paper_boundary(note)
         assert "Live trading is not approved" in note
         assert (
             "Exchange order submission is not approved" in note

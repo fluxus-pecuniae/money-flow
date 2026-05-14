@@ -1,6 +1,6 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-05-13T22:03:37Z`
+Last reviewed: `2026-05-14T01:22:49Z`
 
 ## Open Items
 
@@ -8,8 +8,8 @@ Last reviewed: `2026-05-13T22:03:37Z`
 
 - `status`: `open`
 - `area`: `EV-AUDIT1 evidence and paper-observation readiness`
-- `summary`: `EV-AUDIT1 found no P0 safety issue and no clean strategy candidate. The current evidence estate is good enough for founder visual review and hypothesis filtering, but not enough for a production rule change, strategy paper-runtime authorization, or live trading. Key remaining evidence risks are 15m/1h Hyperliquid 5000-candle horizon truncation, missing real-time paper observation, no order-book/funding/partial-fill/live-reject modeling, control-pocket damage in promising variants, and incomplete source-exact MF-ORIG reconciliation against the now-present PDF.`
-- `impact`: `PT-RT1 can be scoped as real-time public market data plus paper observation with conditions, but that is a future observation phase rather than strategy approval. Before any rule promotion, the team still needs real-time paper observation logs, stricter control-pocket gates, clearer out-of-sample-style slices, funding/order-book/partial-fill limitations called out, and explicit separation between dashboard display filters and canonical evidence. No orders, private/signed/order endpoints, testnet strategy truth, production rule changes, or live trading follow from EV-AUDIT1.`
+- `summary`: `EV-AUDIT1 found no P0 safety issue and no clean strategy candidate. PT-RT1 now implements the real-time paper-observation substrate, but the 60-day forward-observation window has not started. The current historical evidence estate remains good enough for founder visual review and hypothesis filtering, but not enough for a production rule change, strategy paper-runtime authorization, or live trading. Key remaining evidence risks are 15m/1h Hyperliquid 5000-candle horizon truncation, no completed forward-observation logs yet, no order-book/funding/partial-fill/live-reject modeling, control-pocket damage in promising variants, and incomplete source-exact MF-ORIG reconciliation against the now-present PDF.`
+- `impact`: `PT-RT1 should be run first as a 24-hour probes-disabled dry run, then a 60-day public-mainnet forward observation if stable. Before any rule promotion, the team still needs real-time paper observation logs, stricter control-pocket gates, clearer out-of-sample-style slices, funding/order-book/partial-fill limitations called out, and explicit separation between dashboard display filters and canonical evidence. No orders, private/signed/order endpoints from strategy truth, testnet strategy truth, production rule changes, or live trading follow from PT-RT1.`
 
 ### K-019
 
@@ -49,9 +49,9 @@ Last reviewed: `2026-05-13T22:03:37Z`
 ### K-015
 
 - `status`: `open`
-- `area`: `PT0 paper/sandbox runtime supervision`
-- `summary`: `PT0 approves and implements the Hyperliquid testnet/sandbox paper-runtime foundation with TradingView Lightweight Charts, top-20 paper eligibility, internal 10,000 USDC paper equity, 60-second sandbox private-read-only balance polling policy, and risk-gated route-candidate modeling. PT0.0.1 resolves the P0 TradingView chart vertical-growth/page-scroll hotfix by stabilizing chart sizing and refresh lifecycle. PT0.0.2 adds a historical replay cockpit because Hyperliquid testnet prices are not strategy truth; it uses historical public candle replay data for BTC/ETH/SOL x 15m/1h/4h visual validation and now exposes research-only MACD-removed and Only-close-on-5/20-cross replays beside the OG baseline. PT0.0.3 adds 1D replay selection and Jan 2025 target-start readiness truth. SV2.0 supersedes the dashboard-only 1D state by adding sleeve_1d as a real Money Flow v1.2 sleeve and refreshing expanded public-mainnet readiness/evidence. Continuous supervised runtime operation is not yet implemented.`
-- `impact`: `PT0.1 must still scope continuous scanner execution using trusted market data, real-time paper-equity/PnL updates, supervised top-20 paper/sandbox route-candidate handling, operational no-live smoke checks, and runtime monitoring before the founder can leave the system running throughout the week. Full playback/market-structure inspection and any deeper SV2.x evidence-pack generation remain future work. Live trading, real capital, live keys, production auto-submit, SOR/fanout/CBBO/target reselection, cross-venue routing, and Money Flow parameter optimization remain not approved.`
+- `area`: `PT-RT1 paper-observation runtime supervision`
+- `summary`: `PT-RT1 implements the public-mainnet strategy-truth lane and separate Hyperliquid testnet plumbing-probe gate, but no supervised 24-hour dry run or 60-day observation window has completed yet. Runtime state is intentionally local/ignored under reports/paper_runtime/.`
+- `impact`: `Founder decisions should not use PT-RT1 as completed forward evidence until the probes-disabled dry run and then the 60-day observation plan produce runtime logs. Live trading, real capital, live keys, production auto-submit, strategy paper-production approval, SOR/fanout/CBBO/target reselection, cross-venue routing, and Money Flow parameter optimization remain not approved.`
 
 ### K-014
 

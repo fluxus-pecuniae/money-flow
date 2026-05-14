@@ -272,6 +272,20 @@ Marker tooltips/rows must include:
 
 Shadow and paper-observation markers are not actual trades. Sandbox lifecycle probes are not strategy performance trades.
 
+## Paper Observation Rules
+
+- Paper Observation is PT-RT1 forward-observation UI, not canonical evidence regeneration and not historical replay.
+- Strategy truth must be labeled as Hyperliquid public mainnet market data.
+- Testnet probes must be displayed in a separate plumbing-only panel.
+- Testnet fills must never be displayed as strategy PnL.
+- Each lane must show an independent synthetic 10,000 USDC ledger.
+- Required lanes are `money_flow_v1_2_baseline`, `avoid_low_rolling_range_50`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
+- Candidate and MF-ORIG lanes must be labeled evidence-only / not production-approved.
+- Date filters must say `display-only filter`, `not canonical evidence`, and `not backend replay`.
+- Missing runtime state must render as explicit empty state; do not show fake zero trades as evidence.
+- The testnet probe panel must show disabled/enabled state, kill switch, daily cap, remaining count, last lifecycle, unknown-state block, and testnet-only labels.
+- No order, cancel, retry, amend, approval, live, route, SOR, fanout, CBBO, or target-reselection controls may be added.
+
 ## Routed Order Display Rules
 
 Routed Orders must show:

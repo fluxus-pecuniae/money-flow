@@ -619,6 +619,38 @@ The strategy layer should assume:
 - no cross-binding retry or failover exists
 - no mandate-scoped open execution exists without assessment, target choice, conversion, readiness, and explicit gated submission
 
+## PT-RT1 Paper Observation
+
+PT-RT1 adds a forward-observation substrate, not a new production strategy and not another historical backtest.
+
+Strategy-truth lane:
+
+- uses Hyperliquid public mainnet market data only
+- evaluates only fully closed candles
+- computes real-time indicators without defaulting missing values to zero
+- maintains independent synthetic 10,000 USDC ledgers per observation lane
+- compounds realized wins and losses forward
+- prevents duplicate synthetic signals by lane, strategy, symbol, timeframe, signal candle, and action
+- creates no `OrderIntent`, `PreparedVenueOrder`, `SubmittedOrder`, route, approval, or execution artifact
+
+Observation lanes:
+
+- `money_flow_v1_2_baseline`
+- `avoid_low_rolling_range_50`
+- `avoid_low_rolling_range_20`
+- `mf_orig_1d_stage2_breakout_resistance_full_equity`
+
+Testnet plumbing lane:
+
+- is Hyperliquid testnet only
+- is disabled and kill-switched by default
+- requires exact explicit approval before a tiny post-only probe can be attempted
+- requires cancel/reconcile for accepted/open probes
+- never updates strategy paper PnL
+- is separate from public-mainnet strategy truth
+
+PT-RT1 does not approve production Money Flow rule changes, strategy paper-runtime promotion, live trading, live orders, API-key use from the strategy lane, SOR/fanout/CBBO behavior, or testnet data as strategy truth.
+
 ## Still Deferred At Head
 
 Still deferred:

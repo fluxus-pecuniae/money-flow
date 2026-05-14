@@ -13,6 +13,54 @@ Entry schema:
 
 ---
 
+## v2026.05.14.001
+
+- `recorded_at_utc`: `2026-05-14T01:22:49Z`
+- `scope`: `PT-RT1 real-time public-market paper observation and testnet plumbing probes`
+- `intent`: `Native entry. Added the PT-RT1 paper-observation substrate with a strictly separated public-mainnet strategy-truth lane and Hyperliquid testnet plumbing-probe lane. The new paper-runtime primitives validate public mainnet info payloads, resolve scanner eligibility, gate fully closed candles, compute indicators without zero defaults, maintain independent synthetic 10000 USDC paper ledgers, prevent duplicate synthetic signals, and enforce disabled-by-default testnet probe approval/cap/kill-switch/account-targeting/precision gates. The dashboard now has a Paper Observation view and committed PT-RT1 report/runbooks. Production Money Flow rules are unchanged; no historical evidence packs were regenerated; no live trading, paper-production approval, SOR/fanout/CBBO, live orders, private/signed/order endpoints from strategy truth, API keys, or testnet strategy-PnL truth were added.`
+- `affected_files`:
+  - `.archiveignore`
+  - `.gitignore`
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/strategy.md`
+  - `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing.md`
+  - `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json`
+  - `docs/pt_rt1_24h_dry_run_probes_disabled.md`
+  - `docs/pt_rt1_24h_testnet_plumbing_probe_run.md`
+  - `docs/pt_rt1_60_day_forward_observation_plan.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `scripts/build_pt_rt1_summary.py`
+  - `services/paper_runtime/__init__.py`
+  - `services/paper_runtime/pt_rt1.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_pt_rt1_paper_observation.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_paper_observation.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1-review.zip`
+
 ## v2026.05.13.010
 
 - `recorded_at_utc`: `2026-05-13T22:03:37Z`

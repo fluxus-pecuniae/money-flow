@@ -46,6 +46,7 @@
         <button class="view-tab" type="button" data-view="evidence" aria-selected="false">Evidence</button>
         <button class="view-tab" type="button" data-view="evidence-lab" aria-selected="false">Evidence Lab</button>
         <button class="view-tab" type="button" data-view="audit-review" aria-selected="false">Audit Review</button>
+        <button class="view-tab" type="button" data-view="paper-observation" aria-selected="false">Paper Observation</button>
       </nav>
 
       <section id="evidence-view" class="dashboard-view" data-view-panel="evidence" hidden>
@@ -456,6 +457,134 @@
             </div>
             <div id="audit-review-inventory" class="data-table-shell"></div>
           </article>
+        </section>
+      </section>
+
+      <section id="paper-observation-view" class="dashboard-view paper-observation-view" data-view-panel="paper-observation" hidden>
+        <section class="evidence-lab-header paper-observation-header" aria-labelledby="paper-observation-title">
+          <div>
+            <p class="eyebrow">PT-RT1 forward observation</p>
+            <h2 id="paper-observation-title">Paper Observation</h2>
+            <p>
+              Real-time paper observation uses public Hyperliquid mainnet market data for strategy truth and isolated 10,000 USDC synthetic paper ledgers.
+              Hyperliquid testnet probes are plumbing-only and never update strategy paper PnL.
+            </p>
+          </div>
+          <div class="evidence-lab-badges" aria-label="Paper Observation safety labels">
+            <span>Paper observation only</span>
+            <span>No real capital</span>
+            <span>No live trading</span>
+            <span>No exchange orders from strategy lane</span>
+            <span>Public mainnet data is strategy truth</span>
+            <span>Testnet probes are plumbing only</span>
+          </div>
+        </section>
+
+        <div class="methodology-warning" role="note">
+          PT-RT1 is a 60-day forward-observation substrate, not a historical evidence pack and not production approval.
+          Strategy truth lane uses no API keys, no private/signed endpoints, and no order endpoints.
+        </div>
+        <div class="methodology-warning secondary" role="note">
+          Dashboard paper-observation date filters are display-only filters. They are not canonical evidence, not backend replay, and do not mutate runtime ledgers.
+        </div>
+
+        <section class="paper-observation-controls" aria-label="Paper observation display filters">
+          <label>
+            <span>Symbol</span>
+            <select id="paper-observation-symbol-filter"></select>
+          </label>
+          <label>
+            <span>Timeframe</span>
+            <select id="paper-observation-timeframe-filter"></select>
+          </label>
+          <label>
+            <span>Start date</span>
+            <input id="paper-observation-date-start" type="date" />
+          </label>
+          <label>
+            <span>End date</span>
+            <input id="paper-observation-date-end" type="date" />
+          </label>
+          <button id="paper-observation-date-clear" class="segment-button" type="button">Clear dates</button>
+        </section>
+
+        <section id="paper-observation-summary-cards" class="metric-grid audit-review-verdict" aria-label="Paper observation summary"></section>
+
+        <section class="evidence-lab-two-column audit-review-two-column" aria-label="Paper observation scanner and data health">
+          <article class="table-panel audit-review-panel" aria-labelledby="paper-observation-scanner-title">
+            <div class="section-heading">
+              <h2 id="paper-observation-scanner-title">Top-20 Scanner State</h2>
+              <p>Filters public top-20 symbols to Hyperliquid-supported, precision-ready public-mainnet perpetuals.</p>
+            </div>
+            <div id="paper-observation-scanner-table" class="data-table-shell"></div>
+          </article>
+
+          <article class="table-panel audit-review-panel" aria-labelledby="paper-observation-health-title">
+            <div class="section-heading">
+              <h2 id="paper-observation-health-title">Market Data Health</h2>
+              <p>Public mainnet source health, fully closed candle status, stale/degraded/unavailable status, and last update.</p>
+            </div>
+            <div id="paper-observation-health-table" class="data-table-shell"></div>
+          </article>
+        </section>
+
+        <section class="table-panel audit-review-panel" aria-labelledby="paper-observation-lanes-title">
+          <div class="section-heading">
+            <h2 id="paper-observation-lanes-title">Strategy Lane Comparison</h2>
+            <p>Each lane has an independent synthetic 10,000 USDC ledger and compounds realized PnL forward.</p>
+          </div>
+          <div id="paper-observation-lane-table" class="data-table-shell"></div>
+        </section>
+
+        <section class="historical-replay-grid paper-observation-grid" aria-label="Paper observation live chart and blotter">
+          <section class="historical-chart-panel" aria-labelledby="paper-observation-chart-title">
+            <div class="chart-header">
+              <div>
+                <p class="eyebrow">Public mainnet display</p>
+                <h2 id="paper-observation-chart-title">Live Public Candles + Paper Markers</h2>
+              </div>
+              <div class="chart-header-meta">
+                <span>TradingView Lightweight Charts</span>
+                <span>Display-only filter</span>
+                <span>No backend replay</span>
+              </div>
+            </div>
+            <div id="paper-observation-live-chart" class="exchange-chart-shell paper-observation-chart"></div>
+          </section>
+
+          <aside class="historical-inspector-panel" aria-labelledby="paper-observation-probe-title">
+            <div class="rail-heading">
+              <h2 id="paper-observation-probe-title">Testnet Plumbing Probe Status</h2>
+              <p>Separate testnet-only panel. Probes are disabled and kill-switched by default.</p>
+            </div>
+            <div id="paper-observation-probe-status" class="market-micro-panel"></div>
+          </aside>
+        </section>
+
+        <section class="evidence-lab-two-column audit-review-two-column" aria-label="Paper observation positions and trades">
+          <article class="table-panel audit-review-panel" aria-labelledby="paper-observation-open-title">
+            <div class="section-heading">
+              <h2 id="paper-observation-open-title">Open Synthetic Positions</h2>
+              <p>Runtime state is local and ignored; testnet fills never appear as strategy PnL.</p>
+            </div>
+            <div id="paper-observation-open-positions" class="data-table-shell"></div>
+          </article>
+
+          <article class="table-panel audit-review-panel" aria-labelledby="paper-observation-closed-title">
+            <div class="section-heading">
+              <h2 id="paper-observation-closed-title">Closed Synthetic Trades</h2>
+              <p>Synthetic paper trades only; no exchange order artifacts are created from the strategy lane.</p>
+            </div>
+            <div id="paper-observation-closed-trades" class="data-table-shell"></div>
+          </article>
+        </section>
+
+        <section class="table-panel audit-review-panel" aria-labelledby="paper-observation-risk-title">
+          <div class="section-heading">
+            <h2 id="paper-observation-risk-title">Drawdown / Losing Streaks</h2>
+            <p>Tracks max drawdown, current drawdown, consecutive losses, worst losing streak PnL, and control-pocket damage alerts per lane.</p>
+          </div>
+          <div id="paper-observation-risk-table" class="data-table-shell"></div>
         </section>
       </section>
 

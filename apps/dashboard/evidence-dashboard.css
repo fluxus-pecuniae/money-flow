@@ -561,11 +561,27 @@ h3 {
   gap: var(--spacing-5);
 }
 
+.paper-observation-view {
+  display: grid;
+  gap: var(--spacing-5);
+}
+
 .audit-review-header {
   background:
     radial-gradient(circle at top right, rgba(116, 240, 178, 0.16), transparent 34%),
     linear-gradient(135deg, rgba(243, 186, 47, 0.12), rgba(11, 17, 24, 0.98)),
     var(--color-panel);
+}
+
+.paper-observation-header {
+  background:
+    radial-gradient(circle at top right, rgba(82, 188, 255, 0.18), transparent 34%),
+    linear-gradient(135deg, rgba(116, 240, 178, 0.10), rgba(11, 17, 24, 0.98)),
+    var(--color-panel);
+}
+
+.paper-observation-header .evidence-lab-badges {
+  max-width: 560px;
 }
 
 .audit-review-verdict {
@@ -580,6 +596,32 @@ h3 {
 
 .audit-review-panel {
   overflow: hidden;
+}
+
+.paper-observation-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+  align-items: end;
+  padding: var(--spacing-5);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-xl);
+  background: color-mix(in srgb, var(--color-panel) 88%, transparent);
+}
+
+.paper-observation-controls label {
+  display: grid;
+  gap: var(--spacing-2);
+  min-width: 140px;
+}
+
+.paper-observation-grid {
+  align-items: stretch;
+}
+
+.paper-observation-chart .tradingview-lightweight-chart,
+.paper-observation-chart-stage {
+  min-height: 320px;
 }
 
 .audit-score-list {

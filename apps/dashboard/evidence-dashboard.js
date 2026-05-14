@@ -90,6 +90,10 @@
     "../../docs/ev_audit1_full_hypothesis_data_and_paper_readiness_review_summary.json",
   ];
 
+  const DEFAULT_PT_RT1_SUMMARY_FILES = [
+    "../../docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json",
+  ];
+
   const HYPERLIQUID_TESTNET_PUBLIC_INFO_URL = "https://api.hyperliquid-testnet.xyz/info";
   const TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION = "5.2.0";
   const CHART_BACKGROUND_COLOR = "#10171b";
@@ -593,6 +597,7 @@
     sorEv3Summary: null,
     mfOrigSummary: null,
     evAuditSummary: null,
+    ptRt1Summary: null,
     tradingViewChart: {
       chart: null,
       mount: null,
@@ -680,6 +685,12 @@
       routedEnvironment: "all",
       routedLabel: "all",
     },
+    paperObservation: {
+      symbol: "ETH",
+      timeframe: "1h",
+      dateStart: "",
+      dateEnd: "",
+    },
     historicalReplay: {
       strategyId: "money_flow_v1_2_canonical",
       symbol: "ETH",
@@ -766,6 +777,20 @@
     auditReviewIssues: document.querySelector("#audit-review-issues"),
     auditReviewDataIntegrity: document.querySelector("#audit-review-data-integrity"),
     auditReviewInventory: document.querySelector("#audit-review-inventory"),
+    paperObservationSummaryCards: document.querySelector("#paper-observation-summary-cards"),
+    paperObservationSymbolFilter: document.querySelector("#paper-observation-symbol-filter"),
+    paperObservationTimeframeFilter: document.querySelector("#paper-observation-timeframe-filter"),
+    paperObservationDateStart: document.querySelector("#paper-observation-date-start"),
+    paperObservationDateEnd: document.querySelector("#paper-observation-date-end"),
+    paperObservationDateClear: document.querySelector("#paper-observation-date-clear"),
+    paperObservationScannerTable: document.querySelector("#paper-observation-scanner-table"),
+    paperObservationHealthTable: document.querySelector("#paper-observation-health-table"),
+    paperObservationLaneTable: document.querySelector("#paper-observation-lane-table"),
+    paperObservationLiveChart: document.querySelector("#paper-observation-live-chart"),
+    paperObservationProbeStatus: document.querySelector("#paper-observation-probe-status"),
+    paperObservationOpenPositions: document.querySelector("#paper-observation-open-positions"),
+    paperObservationClosedTrades: document.querySelector("#paper-observation-closed-trades"),
+    paperObservationRiskTable: document.querySelector("#paper-observation-risk-table"),
     experimentVariantCards: document.querySelector("#experiment-variant-cards"),
     experimentReplayFilter: document.querySelector("#experiment-replay-filter"),
     experimentsTitle: document.querySelector("#experiments-title"),
@@ -1314,7 +1339,7 @@
   }
 
   function setActiveView(view) {
-    state.activeView = ["evidence", "evidence-lab", "audit-review", "historical-replay", "uat-cockpit", "uat-shadow", "strategy"].includes(view)
+    state.activeView = ["evidence", "evidence-lab", "audit-review", "paper-observation", "historical-replay", "uat-cockpit", "uat-shadow", "strategy"].includes(view)
       ? view
       : "evidence";
     elements.viewTabs.forEach((tab) => {
@@ -8153,6 +8178,282 @@
     renderAuditReviewInventory();
   }
 
+  function paperObservationSummary() {
+    return state.ptRt1Summary || null;
+  }
+
+  function paperObservationRows(rows) {
+    return Array.isArray(rows) ? rows : [];
+  }
+
+  function paperObservationText(value, fallback = "data_not_available_in_pt_rt1_bundle") {
+    if (Array.isArray(value)) return value.join(", ") || fallback;
+    if (value === null || value === undefined || value === "") return fallback;
+    return String(value);
+  }
+
+  function renderPaperObservationControls() {
+    const summary = paperObservationSummary();
+    const symbols = paperObservationRows(summary?.symbols);
+    const timeframes = paperObservationRows(summary?.timeframes);
+    renderSelect(elements.paperObservationSymbolFilter, symbols, state.paperObservation.symbol, "All symbols");
+    renderSelect(elements.paperObservationTimeframeFilter, timeframes, state.paperObservation.timeframe, "All timeframes");
+    if (elements.paperObservationSymbolFilter) {
+      elements.paperObservationSymbolFilter.onchange = () => {
+        state.paperObservation.symbol = elements.paperObservationSymbolFilter.value === "all" ? "all" : elements.paperObservationSymbolFilter.value;
+        renderPaperObservation();
+      };
+    }
+    if (elements.paperObservationTimeframeFilter) {
+      elements.paperObservationTimeframeFilter.onchange = () => {
+        state.paperObservation.timeframe =
+          elements.paperObservationTimeframeFilter.value === "all" ? "all" : elements.paperObservationTimeframeFilter.value;
+        renderPaperObservation();
+      };
+    }
+    if (elements.paperObservationDateStart) {
+      elements.paperObservationDateStart.value = state.paperObservation.dateStart;
+      elements.paperObservationDateStart.onchange = () => {
+        state.paperObservation.dateStart = elements.paperObservationDateStart.value;
+        renderPaperObservation();
+      };
+    }
+    if (elements.paperObservationDateEnd) {
+      elements.paperObservationDateEnd.value = state.paperObservation.dateEnd;
+      elements.paperObservationDateEnd.onchange = () => {
+        state.paperObservation.dateEnd = elements.paperObservationDateEnd.value;
+        renderPaperObservation();
+      };
+    }
+    if (elements.paperObservationDateClear) {
+      elements.paperObservationDateClear.onclick = () => {
+        state.paperObservation.dateStart = "";
+        state.paperObservation.dateEnd = "";
+        renderPaperObservation();
+      };
+    }
+  }
+
+  function renderPaperObservationSummaryCards() {
+    if (!elements.paperObservationSummaryCards) return;
+    const summary = paperObservationSummary();
+    if (!summary) {
+      setEmpty(elements.paperObservationSummaryCards, "PT-RT1 summary JSON not loaded.");
+      return;
+    }
+    const probe = summary.testnet_probe_policy || {};
+    const truth = summary.strategy_truth_lane || {};
+    const lanes = paperObservationRows(summary.strategy_lanes);
+    const cards = [
+      ["Strategy truth", truth.source || "public mainnet", "no private/signed/order endpoints"],
+      ["Lanes", String(lanes.length), "independent 10,000 USDC ledgers"],
+      ["Probe default", probe.PT_RT1_TESTNET_PROBES_ENABLED === false ? "disabled" : "review", "kill switch true by default"],
+      ["Runtime state", "ignored local files", "reports/paper_runtime/"],
+    ];
+    elements.paperObservationSummaryCards.innerHTML = cards
+      .map(
+        ([label, value, detail]) => `
+          <article class="metric-cell">
+            <span class="metric-label">${escapeHtml(label)}</span>
+            <strong>${escapeHtml(value)}</strong>
+            <small>${escapeHtml(detail)}</small>
+          </article>
+        `,
+      )
+      .join("");
+  }
+
+  function renderPaperObservationScanner() {
+    if (!elements.paperObservationScannerTable) return;
+    const summary = paperObservationSummary();
+    const rows = paperObservationRows(summary?.scanner_universe);
+    if (!rows.length) {
+      setEmpty(elements.paperObservationScannerTable, "Top-20 scanner runtime rows not loaded.");
+      return;
+    }
+    elements.paperObservationScannerTable.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Requested</th>
+            <th>Venue symbol</th>
+            <th>Supported</th>
+            <th>Data health</th>
+            <th>Eligible</th>
+            <th>Reason codes</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows
+            .map(
+              (row) => `
+                <tr>
+                  <td>${escapeHtml(paperObservationText(row.requested_symbol, "n/a"))}</td>
+                  <td>${escapeHtml(paperObservationText(row.resolved_venue_symbol, "n/a"))}</td>
+                  <td>${auditReviewPill(row.supported_by_venue ? "yes" : "no")}</td>
+                  <td>${auditReviewPill(row.data_health)}</td>
+                  <td>${auditReviewPill(row.scanner_eligible ? "yes" : "no")}</td>
+                  <td>${escapeHtml(paperObservationText(row.reason_codes, "n/a"))}</td>
+                </tr>
+              `,
+            )
+            .join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderPaperObservationHealth() {
+    if (!elements.paperObservationHealthTable) return;
+    const summary = paperObservationSummary();
+    const selectedSymbol = state.paperObservation.symbol;
+    const selectedTimeframe = state.paperObservation.timeframe;
+    const rows = paperObservationRows(summary?.market_data_health).filter(
+      (row) =>
+        (selectedSymbol === "all" || row.symbol === selectedSymbol) &&
+        (selectedTimeframe === "all" || sameTimeframe(row.timeframe, selectedTimeframe)),
+    );
+    if (!rows.length) {
+      setEmpty(elements.paperObservationHealthTable, "Market-data health runtime rows not loaded.");
+      return;
+    }
+    elements.paperObservationHealthTable.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Timeframe</th>
+            <th>Source</th>
+            <th>Status</th>
+            <th>Closed candle</th>
+            <th>Last update</th>
+            <th>Reason codes</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows
+            .slice(0, 18)
+            .map(
+              (row) => `
+                <tr>
+                  <td>${escapeHtml(paperObservationText(row.symbol, "n/a"))}</td>
+                  <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
+                  <td>${escapeHtml(paperObservationText(row.source, "n/a"))}</td>
+                  <td>${auditReviewPill(row.status)}</td>
+                  <td>${auditReviewPill(row.fully_closed_candle_status)}</td>
+                  <td>${escapeHtml(paperObservationText(row.last_update_utc, "pending_runtime_refresh"))}</td>
+                  <td>${escapeHtml(paperObservationText(row.reason_codes, "n/a"))}</td>
+                </tr>
+              `,
+            )
+            .join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderPaperObservationLanes() {
+    if (!elements.paperObservationLaneTable) return;
+    const rows = paperObservationRows(paperObservationSummary()?.strategy_lanes);
+    if (!rows.length) {
+      setEmpty(elements.paperObservationLaneTable, "Strategy lane config not loaded.");
+      return;
+    }
+    elements.paperObservationLaneTable.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Lane</th>
+            <th>Role</th>
+            <th>Starting equity</th>
+            <th>Realized equity</th>
+            <th>Unrealized PnL</th>
+            <th>Total equity</th>
+            <th>Max drawdown</th>
+            <th>Open / closed</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows
+            .map(
+              (row) => `
+                <tr>
+                  <td>${escapeHtml(row.strategy_id)}</td>
+                  <td>${auditReviewPill(row.role)}</td>
+                  <td>${escapeHtml(row.initial_equity || "10000")}</td>
+                  <td>${escapeHtml(row.realized_equity || row.initial_equity || "10000")}</td>
+                  <td>${escapeHtml(row.unrealized_pnl || "0")}</td>
+                  <td>${escapeHtml(row.total_equity || row.initial_equity || "10000")}</td>
+                  <td>${escapeHtml(row.max_drawdown || "0")}</td>
+                  <td>${escapeHtml(`${row.open_positions || 0} / ${row.closed_trades || 0}`)}</td>
+                  <td>${auditReviewPill(row.production_approved ? "review_required" : "not_production_approved")}</td>
+                </tr>
+              `,
+            )
+            .join("")}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderPaperObservationChart() {
+    if (!elements.paperObservationLiveChart) return;
+    elements.paperObservationLiveChart.innerHTML = `
+      <div class="tradingview-chart-topline">
+        <strong>${escapeHtml(state.paperObservation.symbol === "all" ? "All symbols" : `${state.paperObservation.symbol}-PERP`)}</strong>
+        <span>${escapeHtml(displayTimeframe(state.paperObservation.timeframe))} public-mainnet paper observation</span>
+      </div>
+      <div class="tradingview-chart-stage paper-observation-chart-stage">
+        <div class="tradingview-lightweight-chart" role="img" aria-label="Paper Observation public-mainnet candle chart placeholder">
+          <div class="empty-state">Live public mainnet candles and paper markers load from ignored PT-RT1 runtime state during an observation run.</div>
+        </div>
+      </div>
+      <div class="tradingview-attribution">Charts: TradingView Lightweight Charts v${TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION}. Display-only filter; not canonical evidence; not backend replay.</div>
+    `;
+  }
+
+  function renderPaperObservationProbeStatus() {
+    if (!elements.paperObservationProbeStatus) return;
+    const summary = paperObservationSummary();
+    const policy = summary?.testnet_probe_policy || {};
+    const plumbing = summary?.plumbing_lane || {};
+    elements.paperObservationProbeStatus.innerHTML = `
+      <div class="market-micro-grid">
+        <div><span>Lane</span><strong>testnet plumbing only</strong></div>
+        <div><span>Probes enabled</span><strong>${escapeHtml(String(policy.PT_RT1_TESTNET_PROBES_ENABLED ?? false))}</strong></div>
+        <div><span>Kill switch</span><strong>${escapeHtml(String(policy.PT_RT1_TESTNET_KILL_SWITCH ?? true))}</strong></div>
+        <div><span>Daily cap</span><strong>${escapeHtml(String(policy.PT_RT1_TESTNET_DAILY_PROBE_CAP ?? 1))}</strong></div>
+        <div><span>Remaining probes</span><strong>${escapeHtml(String(policy.PT_RT1_TESTNET_DAILY_PROBE_CAP ?? 1))}</strong></div>
+        <div><span>Notional cap</span><strong>${escapeHtml(String(policy.PT_RT1_TESTNET_PROBE_NOTIONAL_CAP ?? "10"))} USDC</strong></div>
+        <div><span>Last lifecycle</span><strong>runtime_not_started</strong></div>
+        <div><span>Open after reconcile</span><strong>none</strong></div>
+        <div><span>Unknown state</span><strong>blocked_if_present</strong></div>
+        <div><span>Strategy PnL update</span><strong>${escapeHtml(String(plumbing.testnet_fills_update_strategy_pnl ?? false))}</strong></div>
+      </div>
+    `;
+  }
+
+  function renderPaperObservationRuntimeTables() {
+    const openMessage = "No open synthetic positions loaded from ignored PT-RT1 runtime state.";
+    const closedMessage = "No closed synthetic trades loaded from ignored PT-RT1 runtime state.";
+    const riskMessage = "No runtime drawdown or losing-streak rows loaded yet.";
+    if (elements.paperObservationOpenPositions) setEmpty(elements.paperObservationOpenPositions, openMessage);
+    if (elements.paperObservationClosedTrades) setEmpty(elements.paperObservationClosedTrades, closedMessage);
+    if (elements.paperObservationRiskTable) setEmpty(elements.paperObservationRiskTable, riskMessage);
+  }
+
+  function renderPaperObservation() {
+    renderPaperObservationControls();
+    renderPaperObservationSummaryCards();
+    renderPaperObservationScanner();
+    renderPaperObservationHealth();
+    renderPaperObservationLanes();
+    renderPaperObservationChart();
+    renderPaperObservationProbeStatus();
+    renderPaperObservationRuntimeTables();
+  }
+
   function render() {
     const summaries = allSummaries();
     const selected = activeSummaries();
@@ -8168,6 +8469,7 @@
     renderExperiments();
     renderEvidenceLab();
     renderAuditReview();
+    renderPaperObservation();
     renderHistoricalReplay();
     renderUatCockpit();
     renderUatDashboard();
@@ -8195,6 +8497,9 @@
     if (String(payload?.phase || "").startsWith("MF-ORIG-EV2")) return "mf_orig_summary";
     if (payload?.phase === "EV-AUDIT1" || payload?.audit_verdict === "no_strategy_has_clean_production_or_paper_candidate_status") {
       return "ev_audit_summary";
+    }
+    if (payload?.phase === "PT-RT1" || payload?.report === "pt_rt1_real_time_paper_observation_and_testnet_plumbing") {
+      return "pt_rt1_summary";
     }
     if (
       payload?.report === "pt0_0_2_historical_strategy_replay_cockpit" ||
@@ -8224,6 +8529,7 @@
     await loadDefaultSorEvSummaries();
     await loadDefaultMfOrigSummaries();
     await loadDefaultEvAuditSummaries();
+    await loadDefaultPtRt1Summaries();
 
     state.review = null;
     state.batches = [];
@@ -8294,6 +8600,7 @@
         if (type === "sor_ev3_summary") state.sorEv3Summary = payload;
         if (type === "mf_orig_summary") state.mfOrigSummary = payload;
         if (type === "ev_audit_summary") state.evAuditSummary = payload;
+        if (type === "pt_rt1_summary") state.ptRt1Summary = payload;
         if (type === "pt002_historical_replay_summary") state.pt002HistoricalReplay = payload;
       });
       state.selectedComponent = defaultEvidenceComponent(allSummaries());
@@ -8432,6 +8739,21 @@
         const payload = await response.json();
         if (classifyJson(payload) === "ev_audit_summary") {
           state.evAuditSummary = payload;
+        }
+      } catch (error) {
+        console.warn(`Could not load ${path}`, error);
+      }
+    }
+  }
+
+  async function loadDefaultPtRt1Summaries() {
+    for (const path of DEFAULT_PT_RT1_SUMMARY_FILES) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        if (classifyJson(payload) === "pt_rt1_summary") {
+          state.ptRt1Summary = payload;
         }
       } catch (error) {
         console.warn(`Could not load ${path}`, error);

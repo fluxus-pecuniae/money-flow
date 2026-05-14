@@ -4,15 +4,17 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 ## Today In One Sentence
 
-Money Flow is a controlled trading-system substrate plus Strategy Validation research platform; OB2.0 refreshes the Obsidian brain after completed EV-AUDIT1, with SV2.0.2 canonical evidence as the current baseline, SOR/MF-ORIG/STRAT tracks separated, no clean production strategy candidate, and PT-RT1 recommended but not approved.
+Money Flow is a controlled trading-system substrate plus Strategy Validation research platform; PT-RT1 now implements the public-mainnet paper-observation substrate after completed OB2.0 and EV-AUDIT1, with SV2.0.2 canonical evidence as the historical baseline, SOR/MF-ORIG/STRAT tracks separated, no clean production strategy candidate, and no paper/live approval.
 
 Historical context preserved for drift tests: SV1.18 closed the first evidence cycle; UAT0, UAT0.1, UAT0.2, UAT0.3, UAT1 public read-only connectivity, UAT1.1, UAT2, UAT2.1, UAT3.0, UAT3.0.6, UAT3.1, UAT3.2, UAT3.3, UAT3.4, UAT4.0, UAT4.1, UAT4.2, PT0, PT0.0.1, PT0.0.2, PT0.0.3, SV2.0, SV2.0.1, and SV2.0.2 are represented in the canonical command center and maps. UAT remains plumbing and behavior validation.
 
 ## Current Product State
 
-Money Flow can generate strategy decisions, inspect Strategy Validation evidence, visualize Historical Replay/Evidence/Evidence Lab/Audit Review data, and preserve UAT sandbox plumbing boundaries.
+Money Flow can generate strategy decisions, inspect Strategy Validation evidence, visualize Historical Replay/Evidence/Evidence Lab/Audit Review/Paper Observation data, and preserve UAT sandbox plumbing boundaries.
 
 Current strategy evidence uses Hyperliquid public mainnet DB-imported candles. Dashboard chart JSON and browser date filters are display-only. Hyperliquid testnet prices are not strategy truth.
+
+SV2.0.2 canonical evidence remains the current baseline for historical comparison. PT-RT1 forward observation will create new runtime observations only after the dry run and 60-day window are operated.
 
 ## Completed Current Evidence Tracks
 
@@ -26,7 +28,8 @@ Current strategy evidence uses Hyperliquid public mainnet DB-imported candles. D
 | MF-ORIG-EV1.1 | complete | Original Money Flow reconstruction accounting/drawdown hotpatch with event-ledger accounting and peak-to-trough drawdown. |
 | MF-ORIG-EV2 | complete | Multi-timeframe MF-ORIG evidence and full-equity comparison rows for founder review; no hypothesis approved. |
 | EV-AUDIT1 | complete | Full hypothesis/data/methodology audit; no clean production candidate; paper observation ready with conditions. |
-| OB2.0 | active | Obsidian strategy brain and evidence architecture refresh. |
+| OB2.0 | complete | Obsidian strategy brain and evidence architecture refresh. |
+| PT-RT1 | implemented_substrate_observation_not_started | Public-mainnet paper-observation substrate, synthetic ledgers, and separate disabled/gated testnet plumbing probe lane are implemented; 24-hour dry run and 60-day observation have not started. |
 
 ## UAT / Runtime Tracks
 
@@ -59,7 +62,7 @@ EV-AUDIT1 says:
 | `avoid_low_rolling_range_50` | candidate_for_review_only, blocked by drawdown/control-pocket risk |
 | MF-ORIG full-equity review lanes | evidence_only, not source-faithful production approval |
 | STRAT-EV1 regime_gated_trend | plan_only unless implementation/report exists |
-| PT-RT1 | recommended, not_implemented, not approved |
+| PT-RT1 | implemented substrate, observation not started, not approved for production/paper-runtime/live |
 
 ## Read Next
 

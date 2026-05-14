@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-13T22:03:37Z`
+Last reviewed: `2026-05-14T01:22:49Z`
 
 ## Active Follow-Ups
+
+### T-140
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `PT-RT1 real-time public market data paper observation and testnet plumbing probes are implemented as a forward-observation substrate. The strategy-truth lane is restricted to Hyperliquid public mainnet info payloads, fully closed candle gating, real-time indicator computation, duplicate signal prevention, and independent synthetic 10,000 USDC paper ledgers for money_flow_v1_2_baseline, avoid_low_rolling_range_50, avoid_low_rolling_range_20, and mf_orig_1d_stage2_breakout_resistance_full_equity. The separate Hyperliquid testnet plumbing lane is disabled/kill-switched by default, requires exact approval, enforces cap/notional/account-targeting/precision/post-only gates, and never updates strategy paper PnL. The dashboard now has a Paper Observation view, and PT-RT1 report/runbooks are committed. Production Money Flow rules remain unchanged; no evidence packs were regenerated; no live trading, strategy paper-production approval, live orders, private/signed/order endpoints from strategy truth, API keys, SOR/fanout/CBBO, or testnet strategy truth were added.`
 
 ### T-139
 
@@ -19,8 +25,8 @@ Last reviewed: `2026-05-13T22:03:37Z`
 ### T-138
 
 - `priority`: `high`
-- `status`: `future`
-- `summary`: `PT-RT1 real-time public market data plus paper observation runtime is the recommended next phase from EV-AUDIT1 if the founder wants real-time observation. It should use trusted public mainnet candle data for strategy truth, maintain a 10,000 USDC internal paper ledger, compute real-time indicators/signals, show entry/exit arrows and audit logs, separate sandbox execution plumbing from strategy evidence, and preserve no-live/no-real-capital/no-production-rule-change boundaries until a later explicit phase.`
+- `status`: `done`
+- `summary`: `PT-RT1 has been implemented as the first real-time public-market paper-observation substrate plus separate testnet plumbing-probe gate. The 60-day observation run itself has not started; use the PT-RT1 dry-run and 60-day runbooks before relying on forward-observation rows.`
 
 ### T-135
 

@@ -23,6 +23,8 @@ reports/strategy_validation_reviews
 reports/strategy_validation_reviews/**
 reports/strategy_validation_imports
 reports/strategy_validation_imports/**
+reports/paper_runtime
+reports/paper_runtime/**
 data/strategy_validation/imports
 data/strategy_validation/imports/**
 data/strategy_validation/candles

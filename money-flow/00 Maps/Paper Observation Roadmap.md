@@ -2,17 +2,17 @@
 
 Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
-This is the roadmap for a future PT-RT1 phase. It is not an approval.
+This is the roadmap and current status note for PT-RT1. It is not production approval, strategy paper-runtime approval, or live-trading approval.
 
-## PT-RT1 Recommended Scope
+## PT-RT1 Implemented Scope
 
-EV-AUDIT1 recommends PT-RT1 as the next practical phase if the founder wants real-time observation:
+PT-RT1 is implemented as a forward-observation substrate:
 
-- public mainnet market data
+- public Hyperliquid mainnet market data as strategy truth
 - fully closed candle detection
 - real-time indicator computation
 - paper-only strategy decisions
-- internal 10,000 USDC paper ledger
+- independent internal 10,000 USDC paper ledgers per lane
 - realized and unrealized PnL
 - drawdown tracking
 - entry/exit arrows on UI charts
@@ -20,6 +20,19 @@ EV-AUDIT1 recommends PT-RT1 as the next practical phase if the founder wants rea
 - duplicate signal prevention
 - data outage handling
 - founder review workflow
+
+Required observation lanes:
+
+- `money_flow_v1_2_baseline`
+- `avoid_low_rolling_range_50`
+- `avoid_low_rolling_range_20`
+- `mf_orig_1d_stage2_breakout_resistance_full_equity`
+
+Current next operational step:
+
+1. Run the 24-hour dry run with testnet probes disabled.
+2. If stable, start the 60-day public-mainnet forward-observation window.
+3. Run testnet plumbing probes only after exact approval and with strategy PnL separation.
 
 ## Required Boundaries
 
@@ -40,8 +53,22 @@ EV-AUDIT1 recommends PT-RT1 as the next practical phase if the founder wants rea
 
 PT-RT1 should keep these lanes separate.
 
+## Testnet Plumbing Probe Policy
+
+Testnet probes are implemented but blocked by default:
+
+- `PT_RT1_TESTNET_PROBES_ENABLED=false`
+- `PT_RT1_TESTNET_KILL_SWITCH=true`
+- daily cap defaults to `1`
+- notional cap defaults to under `10 USDC`
+- exact approval text is required
+- post-only `Alo` shape only
+- cancel/reconcile required
+- unknown/open probe state blocks future probes
+- testnet fills never update strategy paper PnL
+
 ## Readiness Decision
 
-Current EV-AUDIT1 status: `paper_observation_ready_with_conditions`.
+Current PT-RT1 status: `implemented_substrate_observation_not_started`.
 
-This means the repo has enough evidence and UI substrate to scope observation, but not enough to approve production rules, paper runtime strategy authority, or live trading without a separately defined PT-RT1 phase.
+This means the repo now has code, dashboard, summary JSON, tests, and runbooks to start controlled forward observation, but no 60-day observation result exists yet. It is not enough to approve production rules, paper runtime strategy authority, or live trading.
