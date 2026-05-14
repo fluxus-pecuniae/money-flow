@@ -13,6 +13,21 @@ Entry schema:
 
 ---
 
+## v2026.05.14.013
+
+- `recorded_at_utc`: `2026-05-14T23:27:23Z`
+- `scope`: `Evidence tab period filter`
+- `intent`: `Native entry. Added a Period dropdown to the Evidence toolbar so SV2.1 broad 1D period sets can be filtered by 2024, 2025, YTD, ALL, or all periods. The filter applies to generated replay Run Ledger rows and batch-report Run Ledger rows, includes Period as an explicit ledger column, and makes top Evidence metrics reflect the currently selected component/period set. This is dashboard filtering only; it does not regenerate evidence packs, change strategy rules, approve variants, or add orders/private/signed/order endpoints/API keys/testnet strategy truth/paper-live approval/SOR behavior.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+
 ## v2026.05.14.012
 
 - `recorded_at_utc`: `2026-05-14T23:22:41Z`

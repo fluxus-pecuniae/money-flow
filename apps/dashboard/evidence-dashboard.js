@@ -587,6 +587,7 @@
     selectedComponent: "sleeve_1d",
     evidenceReplayStrategyId: EVIDENCE_BATCH_REPORTS_STRATEGY_ID,
     evidenceReplayFillAssumption: "next_candle_open",
+    evidencePeriod: "all_periods",
     evidenceDateStart: "",
     evidenceDateEnd: "",
     theme: initialDashboardTheme(),
@@ -778,6 +779,7 @@
     componentFilter: document.querySelector("#component-filter"),
     evidenceReplayStrategyFilter: document.querySelector("#evidence-replay-strategy-filter"),
     evidenceReplayFillFilter: document.querySelector("#evidence-replay-fill-filter"),
+    evidencePeriodFilter: document.querySelector("#evidence-period-filter"),
     evidenceDateStart: document.querySelector("#evidence-date-start"),
     evidenceDateEnd: document.querySelector("#evidence-date-end"),
     evidenceDateClear: document.querySelector("#evidence-date-clear"),
@@ -1253,7 +1255,7 @@
       run_id: run.run_id || report.report_id || "unknown_run",
       status: run.status || "completed",
       strategy_id: run.strategy_id || report.strategy_id || batch.manifest?.strategy_id || "money_flow_v1_2_canonical",
-      period: run.period || report.period || batch.manifest?.period,
+      period: run.period || report.period || batch.manifest?.period || batch.assumptions_matrix?.periods?.[0],
       symbol: run.symbol || report.symbol || request.symbol || batch.assumptions_matrix?.symbols?.[0] || "unknown",
       component,
       timeframe,
@@ -1285,6 +1287,7 @@
     const firstRun = completedRuns[0]?.report;
     const firstCoverage = coverage[0];
     const symbol = batch.assumptions_matrix?.symbols?.[0] || firstRun?.symbol || "unknown";
+    const period = batch.manifest?.period || batch.assumptions_matrix?.periods?.[0] || completedRuns[0]?.period || firstRun?.period || "";
     const runSummaries = (comparison.run_summaries || []).length
       ? comparison.run_summaries
       : completedRuns.map((run) => compactRunSummaryFromRun(run, batch));
@@ -1300,6 +1303,7 @@
     const summary = {
       batch,
       component,
+      period,
       symbol,
       label: `${symbol} ${cleanComponentName(component)}`,
       timeframe:
@@ -1451,8 +1455,10 @@
 
   function activeSummaries() {
     const summaries = allSummaries();
-    if (state.selectedComponent === "all") return summaries;
-    return summaries.filter((summary) => summary.component === state.selectedComponent);
+    return summaries.filter((summary) =>
+      (state.selectedComponent === "all" || summary.component === state.selectedComponent) &&
+      evidencePeriodMatches(summary.period),
+    );
   }
 
   function defaultEvidenceComponent(summaries) {
@@ -1561,6 +1567,45 @@
         .filter(Boolean),
     );
     return fills.length ? fills : ["next_candle_open", "next_candle_close"];
+  }
+
+  function evidencePeriodMatches(period) {
+    const selected = String(state.evidencePeriod || "all").toUpperCase();
+    if (selected === "ALL_PERIODS") return true;
+    return String(period || "").toUpperCase() === selected;
+  }
+
+  function evidencePeriodOptions(summaries = allSummaries()) {
+    const periods = new Set([
+      ...summaries.map((summary) => summary.period).filter(Boolean).map((period) => String(period).toUpperCase()),
+      ...(state.sv202HistoricalReplay?.replays || []).map((replay) => replay.period).filter(Boolean).map((period) => String(period).toUpperCase()),
+      ...SV21_BROAD_PERIODS,
+    ]);
+    return [
+      { value: "all_periods", label: "All periods" },
+      ...Array.from(periods).sort((left, right) => {
+        const order = ["2024", "2025", "YTD", "ALL"];
+        const leftIndex = order.indexOf(left);
+        const rightIndex = order.indexOf(right);
+        if (leftIndex !== -1 || rightIndex !== -1) {
+          return (leftIndex === -1 ? order.length : leftIndex) - (rightIndex === -1 ? order.length : rightIndex);
+        }
+        return left.localeCompare(right);
+      }).map((period) => ({ value: period, label: period })),
+    ];
+  }
+
+  function renderEvidencePeriodFilter(summaries) {
+    if (!elements.evidencePeriodFilter) return;
+    const options = evidencePeriodOptions(summaries);
+    if (!options.some((option) => option.value === state.evidencePeriod)) {
+      state.evidencePeriod = "all_periods";
+    }
+    renderSelectWithoutAll(elements.evidencePeriodFilter, options, state.evidencePeriod);
+    elements.evidencePeriodFilter.onchange = () => {
+      state.evidencePeriod = elements.evidencePeriodFilter.value || "all_periods";
+      render();
+    };
   }
 
   function renderEvidenceStrategyFilter() {
@@ -2236,6 +2281,7 @@
         const component = replay.component || `sleeve_${canonicalTimeframe(replay.timeframe)}`;
         return state.selectedComponent === "all" || component === state.selectedComponent;
       })
+      .filter((replay) => evidencePeriodMatches(replay.period))
       .filter((replay) =>
         state.evidenceReplayFillAssumption === "all" || replayFillAssumption(replay) === state.evidenceReplayFillAssumption,
       )
@@ -2463,9 +2509,10 @@
     }
     renderRunLedgerTotals([]);
     const rawRows = summaries
-      .flatMap((summary) => summary.runSummaries.map((row) => ({
+      .flatMap((summary) => summary.runSummaries.filter((row) => evidencePeriodMatches(row.period || summary.period)).map((row) => ({
         ...row,
         component: summary.label,
+        period: row.period || summary.period || "n/a",
         endingEquity: row.metrics?.ending_equity ?? row.metrics?.net_pnl,
         netPnl: row.metrics?.net_pnl,
         drawdown: row.metrics?.mark_to_market_max_drawdown,
@@ -2492,6 +2539,7 @@
           <tr>
             <th>Component</th>
             <th>Symbol</th>
+            <th>Period</th>
             <th>Fill</th>
             <th>Fee</th>
             <th>Slip</th>
@@ -2511,6 +2559,7 @@
                 <tr>
                   <td>${escapeHtml(row.component)}</td>
                   <td>${escapeHtml(row.symbol)}</td>
+                  <td>${escapeHtml(row.period || "n/a")}</td>
                   <td>${escapeHtml(row.fill_timing)}</td>
                   <td>${escapeHtml(row.fee_bps)}</td>
                   <td>${escapeHtml(row.slippage_bps)}</td>
@@ -9417,11 +9466,12 @@
   function render() {
     const summaries = allSummaries();
     const selected = activeSummaries();
-    renderMetrics(summaries);
+    renderMetrics(selected);
     renderFlags();
     renderFilters(summaries);
     renderEvidenceStrategyFilter();
     renderEvidenceReplayFillFilter();
+    renderEvidencePeriodFilter(summaries);
     renderEvidenceDateControls();
     renderStrategyComparison();
     renderComponentCards(selected);

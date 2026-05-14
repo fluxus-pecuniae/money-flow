@@ -186,6 +186,7 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert ".theme-control" in css
     assert "evidence-replay-strategy-filter" in html
     assert "evidence-replay-fill-filter" in html
+    assert "evidence-period-filter" in html
     assert "run-ledger-totals" in html
     assert "Strategy Comparison" in html
     assert "strategy-comparison-left-strategy" in html
@@ -224,6 +225,11 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert 'canonicalTimeframe(defaultReplay.timeframe || "1d")' in js
     assert "renderEvidenceStrategyFilter" in js
     assert "renderEvidenceReplayFillFilter" in js
+    assert "renderEvidencePeriodFilter" in js
+    assert "evidencePeriodOptions" in js
+    assert "evidencePeriodMatches" in js
+    assert 'evidencePeriod: "all_periods"' in js
+    assert "All periods" in js
     assert "evidenceReplayFillAssumption" in js
     assert "evidenceReplayRunLedgerRows" in js
     assert "sorEv3SummaryReplays" in js
