@@ -44,7 +44,7 @@
   "phase": "PT-RT1.1B",
   "report": "pt_rt1_real_time_paper_observation_and_testnet_plumbing",
   "runtime_command": {
-    "duration_hours_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1b_24h_dry_run --disable-testnet-probes --public-mainnet-only",
+    "duration_hours_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1c_24h_dry_run --disable-testnet-probes --public-mainnet-only",
     "output_dir_policy": "must_be_under_ignored_reports_paper_runtime",
     "smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 1 --output-dir reports/paper_runtime/pt_rt1_1b_smoke --disable-testnet-probes --public-mainnet-only"
   },

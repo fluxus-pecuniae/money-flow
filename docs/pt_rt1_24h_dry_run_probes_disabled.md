@@ -14,7 +14,7 @@ This is paper observation only. It does not approve production trading, paper-ru
 - `PT_RT1_TESTNET_PROBES_ENABLED=false`.
 - `PT_RT1_TESTNET_KILL_SWITCH=true`.
 - No API keys are required for the strategy-truth lane.
-- Runtime output path is local and ignored: `reports/paper_runtime/pt_rt1_1b_24h_dry_run/`.
+- Runtime output path is local and ignored: `reports/paper_runtime/pt_rt1_1c_24h_dry_run/`.
 - Dashboard Paper Observation view is available.
 
 ## Steps
@@ -24,7 +24,7 @@ This is paper observation only. It does not approve production trading, paper-ru
 ```bash
 .venv/bin/python scripts/run_pt_rt1_paper_observation.py \
   --duration-hours 24 \
-  --output-dir reports/paper_runtime/pt_rt1_1b_24h_dry_run \
+  --output-dir reports/paper_runtime/pt_rt1_1c_24h_dry_run \
   --disable-testnet-probes \
   --public-mainnet-only
 ```
@@ -41,7 +41,7 @@ This is paper observation only. It does not approve production trading, paper-ru
 11. Confirm no private/signed endpoint call occurs.
 12. Confirm no API key is loaded by the strategy-truth lane.
 13. Review dashboard readability and data-health warnings.
-14. Retain ignored runtime artifacts under `reports/paper_runtime/pt_rt1_1b_24h_dry_run/`.
+14. Retain ignored runtime artifacts under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/`.
 15. Regenerate `docs/pt_rt1_1_24h_probes_disabled_dry_run.md` and `docs/pt_rt1_1_24h_probes_disabled_dry_run_summary.json` from the artifacts.
 
 ## Success Criteria

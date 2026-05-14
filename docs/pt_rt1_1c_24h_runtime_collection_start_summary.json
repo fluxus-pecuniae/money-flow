@@ -1,0 +1,107 @@
+{
+  "phase": "PT-RT1.1C",
+  "status": "runtime_collection_started",
+  "runtime_command": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1c_24h_dry_run --disable-testnet-probes --public-mainnet-only",
+  "runtime_environment": {
+    "PT_RT1_TESTNET_PROBES_ENABLED": false,
+    "PT_RT1_TESTNET_KILL_SWITCH": true,
+    "PT_RT1_TESTNET_DAILY_PROBE_CAP": 0,
+    "public_mainnet_only": true
+  },
+  "process": {
+    "process_id": 11158,
+    "managed_tool_session_id": 13630,
+    "start_time_utc": "2026-05-14T21:57:58Z",
+    "expected_end_time_utc": "2026-05-15T21:57:58Z"
+  },
+  "output_directory": "reports/paper_runtime/pt_rt1_1c_24h_dry_run",
+  "runtime_artifacts_ignored": true,
+  "dashboard_url": "http://127.0.0.1:8765/apps/dashboard/index.html",
+  "strategy_lanes": [
+    "money_flow_v1_2_baseline",
+    "avoid_low_rolling_range_20",
+    "avoid_low_rolling_range_50",
+    "mf_orig_stage_filter_only_full_equity",
+    "mf_orig_stage2_pullback_reclaim_full_equity",
+    "mf_orig_1d_stage2_5_20_crossover_full_equity",
+    "mf_orig_1d_stage2_breakout_resistance_full_equity",
+    "wildcard_btc_regime_guard",
+    "wildcard_multi_timeframe_alignment",
+    "wildcard_volatility_expansion_breakout"
+  ],
+  "requested_universe": [
+    "BTC",
+    "ETH",
+    "SOL",
+    "XRP",
+    "DOGE",
+    "HYPE",
+    "BNB",
+    "SUI",
+    "AVAX",
+    "TRON",
+    "ADA",
+    "ZEC",
+    "LINK",
+    "XMR",
+    "TON",
+    "LTC",
+    "UNI",
+    "DOT",
+    "ASTER",
+    "AAVE",
+    "POL",
+    "FIL",
+    "TRUMP",
+    "PEPE",
+    "OKB"
+  ],
+  "watchlist_first_cycle": {
+    "resolved_rows": 25,
+    "eligible_rows": 23,
+    "blocked_rows": 2,
+    "blocked_symbols": [
+      {
+        "requested_symbol": "PEPE",
+        "resolved_venue_symbol": "kPEPE",
+        "reason_codes": [
+          "unit_semantics_deferred",
+          "pepe_kpepe_unit_semantics_deferred",
+          "symbol_supported"
+        ]
+      },
+      {
+        "requested_symbol": "OKB",
+        "resolved_venue_symbol": "OKB",
+        "reason_codes": [
+          "okb_support_not_confirmed",
+          "market_data_unavailable",
+          "public_mid_missing_or_nonpositive"
+        ]
+      }
+    ]
+  },
+  "first_cycle_artifacts": {
+    "summary_written": true,
+    "state_written": true,
+    "decisions_jsonl_rows": 920,
+    "trades_jsonl_rows": 0,
+    "market_data_health_rows": 92,
+    "next_phase_decision_in_runtime_summary": "PT-RT1.1D may evaluate 24-hour runtime artifacts after completion"
+  },
+  "boundaries": {
+    "testnet_probes_enabled": false,
+    "testnet_kill_switch_active": true,
+    "daily_probe_cap_zero": true,
+    "orders_submitted": false,
+    "private_signed_order_endpoints_called_from_strategy_truth": false,
+    "api_keys_used_for_strategy_truth": false,
+    "testnet_prices_are_strategy_truth": false,
+    "testnet_fills_update_strategy_pnl": false,
+    "production_money_flow_rules_changed": false,
+    "canonical_historical_evidence_packs_regenerated": false,
+    "live_trading_approved": false
+  },
+  "next_phase_decision": "PT-RT1.1D may evaluate 24-hour runtime artifacts after completion",
+  "completion_summary": "evaluation_deferred_to_pt_rt1_1d"
+}

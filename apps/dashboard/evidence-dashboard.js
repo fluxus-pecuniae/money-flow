@@ -91,11 +91,12 @@
   ];
 
   const DEFAULT_PT_RT1_SUMMARY_FILES = [
+    "../../reports/paper_runtime/pt_rt1_1c_24h_dry_run/summary.json",
     "../../reports/paper_runtime/pt_rt1_1b_smoke/summary.json",
-    "../../reports/paper_runtime/pt_rt1_1b_24h_dry_run/summary.json",
     "../../docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json",
     "../../docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json",
   ];
+  const RUN_LEDGER_DISPLAY_FILTER_BOUNDARY = "date filters are display-only, not canonical pack regeneration";
 
   const HYPERLIQUID_TESTNET_PUBLIC_INFO_URL = "https://api.hyperliquid-testnet.xyz/info";
   const TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION = "5.2.0";

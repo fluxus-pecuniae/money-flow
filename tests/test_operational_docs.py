@@ -149,6 +149,8 @@ REQUIRED_FILES = [
     "docs/pt_rt1_1a_expanded_universe_and_strategy_lanes_summary.json",
     "docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness.md",
     "docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json",
+    "docs/pt_rt1_1c_24h_runtime_collection_start.md",
+    "docs/pt_rt1_1c_24h_runtime_collection_start_summary.json",
     "money-flow/00 Maps/Strategy Family Map.md",
     "money-flow/00 Maps/Evidence and Backtesting Map.md",
     "money-flow/00 Maps/Data Source and Market Data Map.md",
@@ -212,6 +214,8 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "PT-RT1.1" in current_phase
     assert "PT-RT1.1A" in current_phase
     assert "PT-RT1.1B" in current_phase
+    assert "PT-RT1.1C" in current_phase
+    assert "PT-RT1.1D evaluates artifacts after completion" in current_phase
     assert "PT-RT1.2 cannot proceed" in current_phase
     assert "`MF-ORIG-EV2` Original Money Flow multi-timeframe evidence packs and Historical Replay UI are complete" in current_phase
     assert "MF-ORIG-EV1.1" in current_phase
@@ -247,6 +251,8 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "PT-RT1.1" in command_center
     assert "PT-RT1.1A" in command_center
     assert "PT-RT1.1B" in command_center
+    assert "PT-RT1.1C" in command_center
+    assert "PT-RT1.1D evaluates" in command_center
     assert "PT-RT1.2 remains blocked" in command_center
     assert "Evidence and Backtesting Map" in command_center
     assert "Active Work" in coordination
@@ -294,7 +300,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert "Current implemented milestone | `PT-RT1.1B` Hyperliquid public mainnet data connection" in command_center
+    assert "Current implemented milestone | `PT-RT1.1C` 24-hour probes-disabled runtime collection start" in command_center
     assert "Canonical command center" in compatibility_command_center
     assert "PT-RT1 now implements the public-mainnet paper-observation substrate" in current_dashboard
     assert "SV2.0.2 canonical evidence" in current_dashboard
@@ -457,8 +463,8 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "no clean strategy candidate" in strategy_register
     assert "No strategy is production-ready" in current_phase or "no clean strategy candidate is promoted" in current_phase
     assert "PT-RT1" in current_phase
-    assert "Run `PT-RT1.1C` 24-hour probes-disabled dry run first" in current_phase
-    assert "PT-RT1.1 currently records" in current_phase
+    assert "Let `PT-RT1.1C` finish the 24-hour probes-disabled dry run" in current_phase
+    assert "PT-RT1.1D should evaluate" in current_phase
     assert "PT-RT1.1A completed the expanded-lab readiness" in current_phase
     assert "PT-RT1.1B completed public-mainnet connector/runtime readiness" in current_phase
     assert "SV2.0.2" in project_memory
@@ -479,8 +485,8 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "public" in paper_roadmap
     assert "mainnet market data" in paper_roadmap
     assert "no exchange orders" in paper_roadmap
-    assert "implemented_substrate_observation_not_started" in paper_roadmap
-    assert "blocked_missing_24h_runtime_artifacts" in paper_roadmap
+    assert "runtime_collection_started" in paper_roadmap
+    assert "reports/paper_runtime/pt_rt1_1c_24h_dry_run/" in paper_roadmap
     assert "Gerald Peters" in original_source_note
     assert "source-faithful reconstruction" in original_source_note
     assert "paper_observation_ready_with_conditions" in audit_summary
@@ -506,8 +512,10 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     expanded_summary = Path("docs/pt_rt1_1a_expanded_universe_and_strategy_lanes_summary.json").read_text()
     runtime_report = Path("docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness.md").read_text()
     runtime_summary = Path("docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json").read_text()
+    start_report = Path("docs/pt_rt1_1c_24h_runtime_collection_start.md").read_text()
+    start_summary = Path("docs/pt_rt1_1c_24h_runtime_collection_start_summary.json").read_text()
 
-    for contents in (command_center, current_phase, project_memory, paper_roadmap, report, expanded_report, runtime_report):
+    for contents in (command_center, current_phase, project_memory, paper_roadmap, report, expanded_report, runtime_report, start_report):
         assert "PT-RT1" in contents
         assert "public mainnet" in contents or "Public mainnet" in contents
         assert "testnet" in contents
@@ -516,7 +524,8 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     assert "strategy-truth lane is Hyperliquid public mainnet market data only" in command_center
     assert "PT-RT1.1A" in command_center
     assert "PT-RT1.1B" in command_center
-    assert "PT-RT1.1C may start" in command_center
+    assert "PT-RT1.1C starts" in command_center
+    assert "PT-RT1.1D evaluates" in command_center
     assert "not production approval" in report
     assert "live approval" in report
     assert "paper-runtime approval" in report
@@ -527,6 +536,8 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     assert "kPEPE" in report
     assert "PT_RT1_TESTNET_PROBES_ENABLED=false" in paper_roadmap
     assert "testnet fills never update strategy paper PnL" in paper_roadmap
+    assert "runtime_collection_started" in start_summary
+    assert "PT-RT1.1D may evaluate 24-hour runtime artifacts after completion" in start_report
     assert "PT-RT1.1A status: `implemented_expanded_readiness`" in paper_roadmap
     assert "PT-RT1.2 blocked" in dry_run_report
     assert "not_verified_runtime_absent" in dry_run_summary

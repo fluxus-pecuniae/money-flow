@@ -4,7 +4,9 @@
 
 Status: implemented
 
-PT-RT1.1B connects the expanded lab to Hyperliquid public mainnet market data for readiness smoke validation. The public-read-only `/info` connector uses only `https://api.hyperliquid.xyz/info` public-read payloads, the runtime command writes ignored artifacts under `reports/paper_runtime/`, and the dashboard now prefers PT-RT1.1B/runtime summaries when present. PT-RT1.1B is readiness-only and does not start the 24-hour collection.
+PT-RT1.1C starts the 24-hour probes-disabled runtime collection after PT-RT1.1B public-mainnet readiness. The active collection uses the public-read-only `/info` connector, writes ignored artifacts under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/`, keeps testnet probes disabled and kill-switched, and defers evaluation to PT-RT1.1D after completion.
+
+PT-RT1.1B connected the expanded lab to Hyperliquid public mainnet market data for readiness smoke validation. The public-read-only `/info` connector uses only `https://api.hyperliquid.xyz/info` public-read payloads, the runtime command writes ignored artifacts under `reports/paper_runtime/`, and the dashboard now prefers PT-RT1.1C/PT-RT1.1B runtime summaries when present.
 
 PT-RT1.1A expanded the lab before the 24-hour dry run: the Paper Observation runtime now exposes 10 independent synthetic strategy lanes, an expanded requested scanner universe, requested/resolved symbol handling, blocked-symbol reason codes, and wildcard expert hypothesis diagnostics.
 
@@ -58,7 +60,7 @@ Forbidden for strategy truth:
 
 If public mainnet data is stale, degraded, or unavailable, the strategy-truth lane blocks new synthetic paper entries and records reason codes.
 
-PT-RT1.1B adds `services/paper_runtime/hyperliquid_public_market_data.py` and `scripts/run_pt_rt1_paper_observation.py`. A bounded smoke run connected to public mainnet `meta` and `allMids`, resolved the expanded watchlist, loaded public `candleSnapshot` rows for a bounded sample, and recorded paper decision events without enabling probes or submitting orders.
+PT-RT1.1B adds `services/paper_runtime/hyperliquid_public_market_data.py` and `scripts/run_pt_rt1_paper_observation.py`. A bounded smoke run connected to public mainnet `meta` and `allMids`, resolved the expanded watchlist, loaded public `candleSnapshot` rows for a bounded sample, and recorded paper decision events without enabling probes or submitting orders. PT-RT1.1C then starts the 24-hour probes-disabled collection using the same public-mainnet-only runtime path.
 
 ## Top-20 Scanner
 
@@ -263,7 +265,7 @@ The dashboard adds a visible Paper Observation view with:
 - drawdown / losing streaks
 - separate testnet plumbing probe status
 
-The dashboard loads ignored runtime summaries from `reports/paper_runtime/pt_rt1_1b_smoke/summary.json` or `reports/paper_runtime/pt_rt1_1b_24h_dry_run/summary.json` when present, then falls back to committed PT-RT1.1B and base PT-RT1 summaries.
+The dashboard loads ignored runtime summaries from `reports/paper_runtime/pt_rt1_1c_24h_dry_run/summary.json` or `reports/paper_runtime/pt_rt1_1b_smoke/summary.json` when present, then falls back to committed PT-RT1.1B and base PT-RT1 summaries.
 
 Dashboard filters are display-only:
 

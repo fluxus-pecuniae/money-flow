@@ -1,14 +1,20 @@
 # TODO
 
-Last reviewed: `2026-05-14T20:20:36Z`
+Last reviewed: `2026-05-14T22:20:00Z`
 
 ## Active Follow-Ups
+
+### T-142
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `SV2.1 broad Hyperliquid 1D period evidence regeneration is complete. The new public-data run used Hyperliquid public mainnet meta/candleSnapshot only, targeted 183 active public metadata symbols, imported available timezone-explicit 1D candles into the intended local money_flow DB, and generated ignored Strategy Validation evidence packs for 2024, 2025, YTD, and ALL where each symbol had available candles. The run wrote 646 generated campaign configs under /tmp/money-flow-sv21-broad-1d/campaign_configs and 646 ignored evidence-pack directories under reports/strategy_validation; period counts were 2024=130, 2025=172, YTD=172, and ALL=172. Blocked rows are symbols with no candles in that period, not fabricated data. Production Money Flow rules remain unchanged; no variant is approved; no orders/private/signed/order endpoints/API keys/testnet strategy truth/live trading/paper approval/SOR behavior were added.`
 
 ### T-141
 
 - `priority`: `high`
-- `status`: `ready_for_pt_rt1_1c`
-- `summary`: `PT-RT1.1 24-hour probes-disabled dry-run validation is blocked because no full ignored 24-hour runtime artifact directory exists yet. PT-RT1.1A expands readiness before the run: exactly 10 independent synthetic 10000 USDC strategy lanes are configured, founder-requested scanner symbols are represented with requested/resolved/block reason truth, TRON maps to TRX, PEPE maps to kPEPE and is blocked by unit semantics by default, OKB is blocked unless active Hyperliquid support is confirmed, POL remains distinct from delisted MATIC, and the Paper Observation dashboard shows lane detail, wildcard diagnostics, blocked symbols, and separate testnet probe status. PT-RT1.1B adds the Hyperliquid public-mainnet connector/runtime command and smoke-verifies public `meta`/`allMids`, watchlist resolution, bounded candle loading, and bounded paper decisions under ignored `reports/paper_runtime/pt_rt1_1b_smoke/`. Next step: PT-RT1.1C may start the 24-hour probes-disabled runtime collection under `reports/paper_runtime/pt_rt1_1b_24h_dry_run/` and retain ignored artifacts. Public mainnet refresh stability over 24 hours, closed-candle gating over time, paper-ledger updates, duplicate-signal behavior, data-health gating, and dashboard runtime readability remain not verified until that actual run is executed and summarized.`
+- `status`: `runtime_collection_started`
+- `summary`: `PT-RT1.1 24-hour probes-disabled dry-run validation was blocked because no full ignored 24-hour runtime artifact directory existed. PT-RT1.1A expanded readiness before the run: exactly 10 independent synthetic 10000 USDC strategy lanes are configured, founder-requested scanner symbols are represented with requested/resolved/block reason truth, TRON maps to TRX, PEPE maps to kPEPE and is blocked by unit semantics by default, OKB is blocked unless active Hyperliquid support is confirmed, POL remains distinct from delisted MATIC, and the Paper Observation dashboard shows lane detail, wildcard diagnostics, blocked symbols, and separate testnet probe status. PT-RT1.1B added the Hyperliquid public-mainnet connector/runtime command and smoke-verified public `meta`/`allMids`, watchlist resolution, bounded candle loading, and bounded paper decisions under ignored `reports/paper_runtime/pt_rt1_1b_smoke/`. PT-RT1.1C has started the 24-hour probes-disabled runtime collection under ignored `reports/paper_runtime/pt_rt1_1c_24h_dry_run/`; first cycle artifacts were written with 25 resolved rows, 23 eligible rows, 2 blocked rows, and 920 decision rows. Public mainnet refresh stability over the full 24 hours, closed-candle gating over time, paper-ledger updates, duplicate-signal behavior, data-health gating, and dashboard runtime readability still require PT-RT1.1D evaluation after completion.`
 
 ### T-140
 

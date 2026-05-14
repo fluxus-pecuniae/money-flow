@@ -47,6 +47,6 @@ def test_pt_rt1_1a_existing_summary_is_dashboard_ready() -> None:
     assert any(row["requested_symbol"] == "PEPE" and row["blocked"] for row in summary["scanner_universe"])
     assert any(row["requested_symbol"] == "OKB" and row["blocked"] for row in summary["scanner_universe"])
     assert any(row["requested_symbol"] == "TRON" and row["resolved_venue_symbol"] == "TRX" for row in summary["scanner_universe"])
-    assert summary["latest_readiness_phase"] == "PT-RT1.1B"
+    assert summary["latest_readiness_phase"] == "PT-RT1.1C"
     assert summary["dashboard_status"]["public_mainnet_connection_status_visible"] is True
-    assert summary["next_phase"]["decision"] == "PT-RT1.1C may start 24-hour probes-disabled runtime collection"
+    assert summary["next_phase"]["decision"] == "PT-RT1.1D may evaluate 24-hour runtime artifacts after completion"

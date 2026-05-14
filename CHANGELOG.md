@@ -13,6 +13,105 @@ Entry schema:
 
 ---
 
+## v2026.05.14.008
+
+- `recorded_at_utc`: `2026-05-14T22:11:19Z`
+- `scope`: `SV2.1 broad Hyperliquid 1D period evidence regeneration`
+- `intent`: `Native entry. Added and ran the SV2.1 broad active-Hyperliquid-metadata 1D Strategy Validation evidence path. The run used public Hyperliquid mainnet info/meta and candleSnapshot only, seeded research-only non-trading/non-strategy-eligible market identity rows, imported normalized timezone-explicit 1D candles into the intended local money_flow DB, and generated period evidence packs for 2024, 2025, YTD, and ALL where each symbol had available 1D public candles. The full run targeted 183 active public metadata symbols, wrote 646 generated campaign configs under /tmp/money-flow-sv21-broad-1d/campaign_configs, and generated 646 ignored evidence-pack directories under reports/strategy_validation. Period config counts were 2024=130, 2025=172, YTD=172, and ALL=172; blocked period rows reflect symbols with no candles in that period rather than fabricated data. This is research evidence only and does not change Money Flow rules, optimize parameters, approve variants, approve paper/live, submit orders, call private/signed/order endpoints, use API keys, use testnet prices as strategy truth, or add SOR/fanout/CBBO.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `docs/strategy.md`
+  - `docs/sv2_1_broad_hyperliquid_1d_period_evidence.md`
+  - `docs/sv2_1_broad_hyperliquid_1d_period_evidence_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `scripts/run_sv21_broad_1d_period_evidence.py`
+  - `tests/test_sv21_broad_1d_period_evidence.py`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_sv21_broad_1d_period_evidence.py`
+  - `.venv/bin/python -m compileall scripts/run_sv21_broad_1d_period_evidence.py tests/test_sv21_broad_1d_period_evidence.py`
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python scripts/run_sv21_broad_1d_period_evidence.py --fetch-public-data --generate-evidence-packs --symbol BTC --symbol ETH --symbol SOL --work-dir /tmp/money-flow-sv21-smoke --output /tmp/money-flow-sv21-smoke/summary.json --report-output /tmp/money-flow-sv21-smoke/report.md --run-timestamp 2026-05-14T22:00:00Z --end-at 2026-05-14T21:57:00Z`
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python scripts/run_sv21_broad_1d_period_evidence.py --fetch-public-data --generate-evidence-packs --work-dir /tmp/money-flow-sv21-broad-1d --output docs/sv2_1_broad_hyperliquid_1d_period_evidence_summary.json --report-output docs/sv2_1_broad_hyperliquid_1d_period_evidence.md --run-timestamp 2026-05-14T220500Z --end-at 2026-05-14T21:57:00Z`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m compileall core services apps tests scripts`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv2.1-broad-1d-review.zip`
+  - `bundle scan: zip path scan found no .env/.venv/.git/reports/raw candle/db/nested archive paths; zipgrep secret scan found no live secret patterns`
+
+## v2026.05.14.007
+
+- `recorded_at_utc`: `2026-05-14T22:08:00Z`
+- `scope`: `PT-RT1.1C 24-hour probes-disabled runtime collection start`
+- `intent`: `Native entry. Started the PT-RT1.1C 24-hour public-mainnet paper-observation runtime collection with testnet probes disabled, kill switch active, daily probe cap zero, and public-mainnet-only strategy truth. The active managed runtime is PID 11158, expected to end 2026-05-15T21:57:58Z, writing ignored artifacts under reports/paper_runtime/pt_rt1_1c_24h_dry_run/. A foreground diagnostic verified the PT-RT1.1C runtime label path before start, and the first full runtime cycle wrote the expected ignored artifact set with 25 resolved watchlist rows, 23 eligible rows, 2 blocked rows, 92 market-data health rows, and 920 decision rows. The dashboard now prefers the PT-RT1.1C runtime summary when local ignored artifacts exist. PT-RT1.1C is runtime collection only; evaluation is deferred to PT-RT1.1D. It does not enable testnet probes, submit live or testnet orders, call private/signed/order endpoints from strategy truth, use API keys for strategy truth, use testnet prices/fills as strategy PnL, regenerate canonical evidence packs, change production Money Flow rules, approve paper/live, or add SOR/fanout/CBBO.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/strategy.md`
+  - `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing.md`
+  - `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json`
+  - `docs/pt_rt1_24h_dry_run_probes_disabled.md`
+  - `docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness.md`
+  - `docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json`
+  - `docs/pt_rt1_1c_24h_runtime_collection_start.md`
+  - `docs/pt_rt1_1c_24h_runtime_collection_start_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `scripts/run_pt_rt1_paper_observation.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_pt_rt1_1a_expanded_universe.py`
+  - `tests/test_pt_rt1_1c_runtime_start.py`
+- `validation_performed`:
+  - `.venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 1 --output-dir reports/paper_runtime/pt_rt1_1c_start_diagnostic --disable-testnet-probes --public-mainnet-only --max-cycles 1 --max-candle-symbols 1`
+  - `.venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1c_24h_dry_run --disable-testnet-probes --public-mainnet-only`
+  - `first-cycle artifact check: summary/state/data_health/equity_curves/runtime_audit/decisions/trades files present under ignored reports/paper_runtime/pt_rt1_1c_24h_dry_run/`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_paper_observation.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_1a_expanded_universe.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_1b_public_market_data.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_1c_runtime_start.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1.1c-review.zip`
+
+## v2026.05.14.006
+
+- `recorded_at_utc`: `2026-05-14T21:48:00Z`
+- `scope`: `Dashboard Evidence Run Ledger cleanup checkpoint`
+- `intent`: `Native follow-up entry for the dashboard cleanup committed immediately before PT-RT1.1C started from a clean tree. The existing dirty dashboard changes removed noisy Run Ledger subtitle text, adjusted the Run Ledger totals divider, and updated the static dashboard assertion. This is UI cleanup only: no strategy rules, evidence numbers, runtime behavior, endpoint policy, orders, private/signed/order endpoints, API keys, testnet strategy truth, paper/live approval, or SOR/fanout/CBBO changed.`
+- `affected_files`:
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+
 ## v2026.05.14.005
 
 - `recorded_at_utc`: `2026-05-14T21:20:20Z`

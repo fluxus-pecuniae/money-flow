@@ -2,6 +2,22 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-14T22:05:00Z - SV2.1 - Generate Broad Hyperliquid 1D Period Evidence
+
+- `decision`: Regenerate research-only 1D Money Flow v1.2 evidence for the broad active Hyperliquid public metadata universe, sliced into 2024, 2025, YTD, and ALL period sets.
+- `scope`: Used Hyperliquid public mainnet `meta` and `candleSnapshot` only; targeted 183 active public metadata symbols; imported available timezone-explicit 1D candles into the intended local `money_flow` Strategy Validation DB; generated 646 ignored evidence packs and 646 generated campaign configs. Generated raw candles and configs remain local under `/tmp/money-flow-sv21-broad-1d/`; generated evidence packs remain ignored under `reports/strategy_validation/`.
+- `why`: The founder requested a larger-symbol evidence refresh and a deeper 1D history back to January 2024 where public data allows, with period sets for 2024, 2025, YTD, and ALL.
+- `result`: `SV2.1 broad 1D evidence generated`. Period config counts: 2024=130, 2025=172, YTD=172, ALL=172. Blocked period rows represent no available public 1D candles in that period, not missing fabrication.
+- `follow_up_implications`: SV2.1 is 1D founder-review research evidence only. It does not change Money Flow production rules, optimize parameters, approve a variant, approve strategy paper runtime, approve live trading, submit orders, call private/signed/order endpoints, use API keys, use testnet data as strategy truth, or add SOR/fanout/CBBO.
+
+## 2026-05-14T21:57:58Z - PT-RT1.1C - Start 24-Hour Probes-Disabled Runtime Collection
+
+- `decision`: Start the 24-hour PT-RT1 probes-disabled public-mainnet runtime collection under ignored local runtime storage.
+- `scope`: Started `scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1c_24h_dry_run --disable-testnet-probes --public-mainnet-only` as PID `11158`, with testnet probes disabled, kill switch active, and daily probe cap zero. The first verified cycle wrote the expected ignored artifact set, resolved 25 watchlist rows, kept 23 scanner-eligible rows, blocked PEPE/kPEPE and OKB with reason codes, and wrote 920 decision rows.
+- `why`: PT-RT1.1B proved connector/runtime readiness but did not produce the required full 24-hour probes-disabled artifact set. PT-RT1.1C starts the real forward-observation collection so PT-RT1.1D can evaluate data health, candle gating, duplicate prevention, paper ledgers, dashboard runtime readability, and no-order/no-live boundaries after completion.
+- `result`: `PT-RT1.1D may evaluate 24-hour runtime artifacts after completion`. PT-RT1.2 testnet plumbing probes remain blocked until the probes-disabled run passes.
+- `follow_up_implications`: PT-RT1.1C is runtime collection only. It does not approve production strategy changes, strategy paper-runtime promotion, live trading, live/testnet orders, private/signed/order endpoints from strategy truth, API-key use, canonical evidence regeneration, SOR/fanout/CBBO, or testnet strategy truth.
+
 ## 2026-05-14T20:20:36Z - PT-RT1.1A - Expand Paper Observation Lab Before Runtime Collection
 
 - `decision`: Expand PT-RT1 before the 24-hour probes-disabled run to exactly 10 independent synthetic strategy lanes plus an expanded founder-requested scanner universe with requested/resolved/block reason-code visibility.

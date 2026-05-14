@@ -139,7 +139,7 @@ Status: implemented
 ```bash
 .venv/bin/python scripts/run_pt_rt1_paper_observation.py \
   --duration-hours 24 \
-  --output-dir reports/paper_runtime/pt_rt1_1b_24h_dry_run \
+  --output-dir reports/paper_runtime/pt_rt1_1c_24h_dry_run \
   --disable-testnet-probes \
   --public-mainnet-only
 ```
@@ -198,7 +198,7 @@ Status: verified
 
 Decision: `PT-RT1.1C may start 24-hour probes-disabled runtime collection`.
 
-PT-RT1.1C remains probes-disabled paper observation only. PT-RT1.2 testnet probes remain blocked until a real probes-disabled run passes.
+PT-RT1.1C has since started the probes-disabled paper-observation collection under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/`. PT-RT1.1D evaluates artifacts after completion. PT-RT1.2 testnet probes remain blocked until a real probes-disabled run passes.
 
 ## No-Order / No-Live Confirmation
 

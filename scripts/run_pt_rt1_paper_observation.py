@@ -111,6 +111,7 @@ def run_cycle(
     symbols: Sequence[str] | None,
     timeframes: Sequence[str],
     max_candle_symbols: int | None,
+    run_label: str = "PT-RT1.1B",
 ) -> dict[str, Any]:
     now = _utc_now()
     meta_result = connector.fetch_meta()
@@ -188,11 +189,18 @@ def run_cycle(
     runtime_status = "verified" if meta_result.ok and mids_result.ok and market_health else "blocked"
     if not meta_result.ok or not mids_result.ok:
         runtime_status = "blocked_public_mainnet_network_unavailable"
+    is_pt_rt1_1c = run_label == "PT-RT1.1C"
     summary = {
         **base_summary,
-        "phase": "PT-RT1.1B",
-        "revision": "PT-RT1.1B",
-        "status": "runtime_readiness_smoke" if runtime_status == "verified" else runtime_status,
+        "phase": run_label,
+        "revision": run_label,
+        "status": (
+            "runtime_collection_cycle_verified"
+            if is_pt_rt1_1c and runtime_status == "verified"
+            else "runtime_readiness_smoke"
+            if runtime_status == "verified"
+            else runtime_status
+        ),
         "market_data_endpoint_policy": {
             "strategy_truth_endpoint": PT_RT1_MAINNET_INFO_URL,
             "endpoint_category": "public_read_only",
@@ -243,7 +251,7 @@ def run_cycle(
             ],
         },
         "runtime_command": {
-            "duration_hours_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1b_24h_dry_run --disable-testnet-probes --public-mainnet-only",
+            "duration_hours_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1c_24h_dry_run --disable-testnet-probes --public-mainnet-only",
             "smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 1 --output-dir reports/paper_runtime/pt_rt1_1b_smoke --disable-testnet-probes --public-mainnet-only",
             "output_dir": str(output_dir),
         },
@@ -257,6 +265,11 @@ def run_cycle(
             "private_signed_order_endpoints_called": False,
         },
         "next_phase_decision": (
+            "PT-RT1.1D may evaluate 24-hour runtime artifacts after completion"
+            if is_pt_rt1_1c and runtime_status == "verified"
+            else "PT-RT1.1D blocked"
+            if is_pt_rt1_1c
+            else
             "PT-RT1.1C may start 24-hour probes-disabled runtime collection"
             if runtime_status == "verified"
             else "PT-RT1.1C blocked"
@@ -303,6 +316,7 @@ def main() -> int:
         raise SystemExit("positive_duration_required")
     connector = HyperliquidPublicMarketDataConnector()
     end_time = _utc_now() + duration
+    run_label = "PT-RT1.1C" if "pt_rt1_1c" in str(args.output_dir) else "PT-RT1.1B"
     cycle = 0
     last_summary: dict[str, Any] = {}
     while True:
@@ -313,6 +327,7 @@ def main() -> int:
             symbols=args.symbols,
             timeframes=args.timeframes or tuple(TIMEFRAME_DURATIONS),
             max_candle_symbols=args.max_candle_symbols,
+            run_label=run_label,
         )
         if args.max_cycles is not None and cycle >= args.max_cycles:
             break

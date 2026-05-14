@@ -26,8 +26,8 @@
     "expanded_scanner_universe_visible": true,
     "public_mainnet_connection_status_visible": true,
     "runtime_summary_preferred_paths": [
+      "reports/paper_runtime/pt_rt1_1c_24h_dry_run/summary.json",
       "reports/paper_runtime/pt_rt1_1b_smoke/summary.json",
-      "reports/paper_runtime/pt_rt1_1b_24h_dry_run/summary.json",
       "docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json"
     ],
     "status": "implemented_with_pt_rt1_1b_connection_status",
@@ -60,9 +60,9 @@
     "default": "next_candle_open",
     "same_candle_optimistic_fills": false
   },
-  "latest_readiness_phase": "PT-RT1.1B",
-  "latest_readiness_report": "docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness.md",
-  "latest_readiness_summary": "docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json",
+  "latest_readiness_phase": "PT-RT1.1C",
+  "latest_readiness_report": "docs/pt_rt1_1c_24h_runtime_collection_start.md",
+  "latest_readiness_summary": "docs/pt_rt1_1c_24h_runtime_collection_start_summary.json",
   "market_data_health": [
     {
       "fully_closed_candle_status": "pending_runtime_refresh",
@@ -1269,7 +1269,7 @@
       "pt_rt1_1b_public_mainnet_connector_ready",
       "no_production_rule_changes"
     ],
-    "decision": "PT-RT1.1C may start 24-hour probes-disabled runtime collection"
+    "decision": "PT-RT1.1D may evaluate 24-hour runtime artifacts after completion"
   },
   "paper_equity_policy": {
     "compounds_wins_and_losses": true,
@@ -1328,7 +1328,7 @@
     "testnet_plumbing_24h_probe_run": "docs/pt_rt1_24h_testnet_plumbing_probe_run.md"
   },
   "runtime_command": {
-    "duration_hours_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1b_24h_dry_run --disable-testnet-probes --public-mainnet-only",
+    "duration_hours_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1c_24h_dry_run --disable-testnet-probes --public-mainnet-only",
     "smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 1 --output-dir reports/paper_runtime/pt_rt1_1b_smoke --disable-testnet-probes --public-mainnet-only"
   },
   "scanner_eligibility_rules": [
