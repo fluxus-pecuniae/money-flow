@@ -50,6 +50,15 @@ PT-RT1.1B public-mainnet readiness:
 - Smoke connected to public mainnet `meta` and `allMids`, resolved the requested watchlist, loaded bounded candle data, and recorded bounded paper decisions.
 - Testnet probes stayed disabled and kill-switched.
 
+Paper Observation dashboard live display:
+
+- Browser-side watchlist polling calls Hyperliquid public mainnet `allMids` every 1 second.
+- The visible watchlist is intentionally compact: `Symbol`, `Mid price`, and `Health`.
+- Watchlist health is `unhealthy` when the latest market-data tick is missing or stale for more than 2 minutes.
+- The selected pair/timeframe chart uses public mainnet `candleSnapshot`.
+- The adjacent Signal Generation panel lists recorded synthetic `paper_opened` intended-entry decisions from the PT-RT1 decision stream.
+- This browser display path remains public-read-only and adds no order controls, private/signed/order/account payloads, API keys, testnet strategy truth, or paper/live approval.
+
 Current next operational step:
 
 1. Let the active `PT-RT1.1C` 24-hour dry run finish with testnet probes disabled.
@@ -103,4 +112,4 @@ Current PT-RT1.1B status: `implemented_public_mainnet_runtime_readiness_smoke_ve
 
 Current PT-RT1.1C status: `runtime_collection_started`.
 
-This means the repo now has code, dashboard, public-mainnet connector, runtime command, summary JSON, tests, and runbooks for controlled forward observation across the expanded 10-lane lab. The first 24-hour probes-disabled run is active as PID `11158`, expected to end `2026-05-15T21:57:58Z`, and is writing ignored artifacts under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/`. The Paper Observation dashboard also browser-polls Hyperliquid public mainnet `allMids` for a ticking watchlist and selected-pair `candleSnapshot` for a live TradingView chart. No 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading. PT-RT1.2 testnet plumbing probes remain blocked until the probes-disabled dry run passes.
+This means the repo now has code, dashboard, public-mainnet connector, runtime command, summary JSON, tests, and runbooks for controlled forward observation across the expanded 10-lane lab. The first 24-hour probes-disabled run is active as PID `11158`, expected to end `2026-05-15T21:57:58Z`, and is writing ignored artifacts under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/`. The Paper Observation dashboard also browser-polls Hyperliquid public mainnet `allMids` for a ticking symbol/mid/health watchlist and selected-pair `candleSnapshot` for a live TradingView chart, with Signal Generation showing recorded `paper_opened` intended-entry decisions. No 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading. PT-RT1.2 testnet plumbing probes remain blocked until the probes-disabled dry run passes.

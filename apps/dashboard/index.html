@@ -535,17 +535,17 @@
           <article class="table-panel audit-review-panel" aria-labelledby="paper-observation-scanner-title">
             <div class="section-heading">
               <h2 id="paper-observation-scanner-title">Expanded Scanner Universe</h2>
-              <p>Shows requested vs resolved symbols, source tags, blocked symbols, precision status, public-mid status, and reason codes.</p>
+              <p>Compact live watchlist: symbol, latest public-mainnet mid price, and health. Market data is unhealthy if the latest tick is stale for more than 2 minutes.</p>
             </div>
             <div id="paper-observation-scanner-table" class="data-table-shell"></div>
           </article>
 
-          <article class="table-panel audit-review-panel" aria-labelledby="paper-observation-health-title">
+          <article class="table-panel audit-review-panel" aria-labelledby="paper-observation-signal-title">
             <div class="section-heading">
-              <h2 id="paper-observation-health-title">Market Data Health</h2>
-              <p>Public mainnet source health, fully closed candle status, stale/degraded/unavailable status, and last update.</p>
+              <h2 id="paper-observation-signal-title">Signal Generation</h2>
+              <p>Latest synthetic intended-entry records from the paper decision stream. Every `paper_opened` decision is an observation-only entry signal, not an exchange order.</p>
             </div>
-            <div id="paper-observation-health-table" class="data-table-shell"></div>
+            <div id="paper-observation-signal-table" class="data-table-shell"></div>
           </article>
         </section>
 
@@ -652,6 +652,10 @@
             <label>
               <span>Timeframe</span>
               <select id="historical-replay-timeframe-filter"></select>
+            </label>
+            <label>
+              <span>Period</span>
+              <select id="historical-replay-period-filter"></select>
             </label>
             <label>
               <span>Fill assumption</span>

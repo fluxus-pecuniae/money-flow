@@ -111,3 +111,22 @@ def test_summary_and_report_expose_sv21_counts() -> None:
     assert summary["evidence_pack_count"] == 1
     assert "SV2.1 Broad Hyperliquid 1D Period Evidence" in report
     assert "Private/signed/order endpoints called: `False`" in report
+
+
+def test_sv21_broad_historical_replay_builder_is_period_and_candidate_aware() -> None:
+    source = Path("scripts/build_sv21_broad_1d_historical_replay.py").read_text(encoding="utf-8")
+
+    assert "SV21_BASELINE_STRATEGY_ID = \"money_flow_v1_2_canonical\"" in source
+    assert "\"avoid_low_rolling_range_50\"" in source
+    assert "\"avoid_low_rolling_range_20\"" in source
+    assert "\"mf_orig_1d_stage2_breakout_resistance_full_equity\"" in source
+    assert "money_flow_sv2_1_hyperliquid_broad_1d_" in source
+    assert "_selected_chart_path" in source
+    assert "_sv21_replay.json" in source
+    assert "sv2_1_broad_1d_dashboard_chart_data" in source
+    assert "candidate_evidence_status" in source
+    assert "mf_orig_candidate_skipped_symbols" in source
+    assert "\"production_approved\": False" in source
+    assert "\"submits_orders\": False" in source
+    assert "\"uses_private_signed_or_order_endpoints\": False" in source
+    assert "\"uses_testnet_prices_as_strategy_truth\": False" in source

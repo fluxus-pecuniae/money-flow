@@ -245,3 +245,12 @@ SV2.1 regenerates 1D Money Flow v1.2 evidence across the broad active Hyperliqui
 - Private/signed/order endpoints called: `False`
 - API keys used: `False`
 - Testnet data used as strategy truth: `False`
+
+## Historical Replay Addendum
+
+- Chart-data root: `reports/strategy_validation/sv2_1_broad_1d_dashboard_chart_data/20260514T220500Z`
+- Selected chart-data files: `5116`
+- Candidate evidence packs: `1912`
+- Candidate strategies: `avoid_low_rolling_range_50, avoid_low_rolling_range_20, mf_orig_1d_stage2_breakout_resistance_full_equity`
+- MF-ORIG candidate skipped where indicator context was incomplete: `7` symbols (`AIXBT`, `ALT`, `FARTCOIN`, `INIT`, `ONDO`, `SPX`, `USUAL`); baseline and rolling-range candidates were still generated where source packs existed.
+- Status: evidence-only; no production rule change, no paper/live approval, no orders.

@@ -13,6 +13,67 @@ Entry schema:
 
 ---
 
+## v2026.05.14.011
+
+- `recorded_at_utc`: `2026-05-14T23:09:49Z`
+- `scope`: `SV2.1 broad 1D Historical Replay and evidence-only candidate packs`
+- `intent`: `Native entry. Added a local SV2.1 Historical Replay builder for the broad Hyperliquid public-mainnet 1D period evidence estate. The builder writes ignored selected chart/trade JSON for the SV2.1 baseline plus three conservative evidence-only candidates across 2024, 2025, YTD, and ALL where source period packs exist; it also writes ignored candidate evidence-only pack directories for avoid_low_rolling_range_50, avoid_low_rolling_range_20, and mf_orig_1d_stage2_breakout_resistance_full_equity. The dashboard Historical Replay tab now has a Period selector and loads SV2.1 broad 1D replay rows lazily, while Evidence still loads the SV2.1 broad packs for ledger review. MF-ORIG candidate rows are skipped only where indicator context is incomplete. Production Money Flow rules remain unchanged; no variant is approved; no orders, private/signed/order endpoints, API keys, testnet strategy truth, paper/live approval, or SOR/fanout/CBBO behavior were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/sv2_1_broad_hyperliquid_1d_period_evidence.md`
+  - `docs/sv2_1_broad_hyperliquid_1d_period_evidence_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `scripts/build_sv21_broad_1d_historical_replay.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_sv21_broad_1d_period_evidence.py`
+- `validation_performed`:
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python scripts/build_sv21_broad_1d_historical_replay.py --progress-every 100`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_sv21_broad_1d_period_evidence.py`
+
+## v2026.05.14.010
+
+- `recorded_at_utc`: `2026-05-14T23:05:55Z`
+- `scope`: `Paper Observation compact watchlist health and signal-generation panel`
+- `intent`: `Native entry. Tightened the Paper Observation live watchlist to the founder-requested compact display: symbol, mid price, and health only. The browser ticker remains Hyperliquid public mainnet allMids at a 1-second cadence, with health marked unhealthy when the latest market-data tick is missing or stale for more than 2 minutes. Replaced the visible Market Data Health panel with Signal Generation, which lists recorded synthetic paper_opened intended-entry decisions from the PT-RT1 paper decision stream. This is dashboard/runtime observation only and does not add bid/ask polling, order controls, submit orders, private/signed/order/account payloads, API keys, testnet data as strategy truth, production Money Flow rule changes, canonical evidence regeneration, paper/live approval, or SOR/fanout/CBBO.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `scripts/run_pt_rt1_paper_observation.py`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `git diff --check`
+
 ## v2026.05.14.009
 
 - `recorded_at_utc`: `2026-05-14T22:41:02Z`

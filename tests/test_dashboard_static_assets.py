@@ -295,7 +295,9 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper-observation-connection-status" in html
     assert "paper-observation-lane-filter" in html
     assert "paper-observation-scanner-table" in html
-    assert "paper-observation-health-table" in html
+    assert "paper-observation-signal-table" in html
+    assert "Signal Generation" in html
+    assert "Market Data Health" not in html
     assert "paper-observation-lane-table" in html
     assert "paper-observation-lane-detail" in html
     assert "paper-observation-wildcard-diagnostics" in html
@@ -308,8 +310,18 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert ".paper-observation-controls" in css
     assert "DEFAULT_PT_RT1_SUMMARY_FILES" in js
     assert "DEFAULT_SV21_BROAD_SUMMARY_FILES" in js
+    assert "SV21_BROAD_HISTORICAL_REPLAY_TIMESTAMP" in js
+    assert "SV21_BROAD_PERIODS" in js
+    assert "SV21_BROAD_CANDIDATE_STRATEGY_IDS" in js
     assert "sv2_1_broad_hyperliquid_1d_period_evidence_summary.json" in js
     assert "loadDefaultSv21BroadEvidenceBatches" in js
+    assert "sv21BroadSummaryReplays" in js
+    assert "sv21BroadSelectedChartDataPath" in js
+    assert "historical-replay-period-filter" in html
+    assert "_sv21_replay.json" in js
+    assert "sv2_1_broad_1d_dashboard_chart_data" in js
+    assert "historicalReplayPeriodMatches" in js
+    assert "period: \"ALL\"" in js
     assert "evidence_pack_paths" in js
     assert "SV2.0.2 + SV2.1 evidence packs loaded" in js
     assert "SV2.1 broad 1D period pack JSON files loaded" in js
@@ -321,12 +333,29 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "renderPaperObservationWildcardDiagnostics" in js
     assert "https://api.hyperliquid.xyz/info" in js
     assert "HYPERLIQUID_MAINNET_PUBLIC_INFO_URL" in js
-    assert "PAPER_OBSERVATION_MARKET_REFRESH_MS = 10000" in js
+    assert "PAPER_OBSERVATION_MARKET_REFRESH_MS = 1000" in js
+    assert "PAPER_OBSERVATION_MARKET_STALE_MS = 120000" in js
     assert "startPaperObservationMarketPolling" in js
     assert "hyperliquid_mainnet_candleSnapshot_browser_poll" in js
+    assert "liveBookPayload" not in js
+    assert "fetchPaperObservationBooks" not in js
     assert "paper_observation_public_mainnet_connected" in js
     assert "data-paper-observation-symbol" in js
+    assert "paper-observation-watchlist-table" in js
+    assert "<th>Symbol</th>" in js
+    assert "<th>Bid</th>" not in js
+    assert "<th>Ask</th>" not in js
+    assert "<th>Mid price</th>" in js
+    assert "<th>Health</th>" in js
+    assert "paperObservationMdHealth" in js
+    assert "renderPaperObservationSignalGeneration" in js
+    assert "intended_entry_signals" in js
+    assert "entry_recorded" in js
+    watchlist_renderer = js[js.index("function renderPaperObservationScanner") : js.index("function renderPaperObservationSignalGeneration")]
+    assert "<th>Venue symbol</th>" not in watchlist_renderer
+    assert "<th>Reason codes</th>" not in watchlist_renderer
     assert ".paper-observation-tick" in css
+    assert ".paper-observation-watchlist-table" in css
     assert "dashboard_live_chart_public_info_endpoint_not_allowlisted" in js
     assert "private_or_order_payload_forbidden" in js
     assert "Hyperliquid public mainnet info endpoint" in summary

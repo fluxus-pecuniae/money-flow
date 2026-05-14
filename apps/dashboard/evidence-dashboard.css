@@ -762,6 +762,18 @@ h3 {
   color: var(--color-muted);
 }
 
+.paper-observation-watchlist-table th:nth-child(2),
+.paper-observation-watchlist-table td:nth-child(2),
+.paper-observation-watchlist-table th:nth-child(3),
+.paper-observation-watchlist-table td:nth-child(3) {
+  text-align: right;
+}
+
+.paper-observation-symbol-button {
+  font-family: var(--font-mono);
+  letter-spacing: 0.01em;
+}
+
 .audit-score-list {
   display: grid;
   gap: var(--spacing-4);

@@ -77,6 +77,13 @@
   const DEFAULT_SV21_BROAD_SUMMARY_FILES = [
     "../../docs/sv2_1_broad_hyperliquid_1d_period_evidence_summary.json",
   ];
+  const SV21_BROAD_HISTORICAL_REPLAY_TIMESTAMP = "20260514T220500Z";
+  const SV21_BROAD_PERIODS = ["2024", "2025", "YTD", "ALL"];
+  const SV21_BROAD_CANDIDATE_STRATEGY_IDS = [
+    "avoid_low_rolling_range_50",
+    "avoid_low_rolling_range_20",
+    "mf_orig_1d_stage2_breakout_resistance_full_equity",
+  ];
   const SV21_BROAD_BATCH_LOAD_CONCURRENCY = 32;
   const SV21_BROAD_BATCH_LOAD_LIMIT = 700;
 
@@ -150,7 +157,8 @@
     rejected_negative_aggregate: 100,
   };
   const LIVE_MARKET_REFRESH_MS = 15000;
-  const PAPER_OBSERVATION_MARKET_REFRESH_MS = 10000;
+  const PAPER_OBSERVATION_MARKET_REFRESH_MS = 1000;
+  const PAPER_OBSERVATION_MARKET_STALE_MS = 120000;
   const LIVE_CHART_CANDLE_COUNT = 96;
   const LIVE_TIMEFRAME_MINUTES = {
     "15m": 15,
@@ -744,6 +752,7 @@
       strategyId: "money_flow_v1_2_canonical",
       symbol: "ETH",
       timeframe: "1d",
+      period: "ALL",
       fillAssumption: "next_candle_open",
       selectedTradeId: null,
       showArrowDescriptions: false,
@@ -837,7 +846,7 @@
     paperObservationDateClear: document.querySelector("#paper-observation-date-clear"),
     paperObservationConnectionStatus: document.querySelector("#paper-observation-connection-status"),
     paperObservationScannerTable: document.querySelector("#paper-observation-scanner-table"),
-    paperObservationHealthTable: document.querySelector("#paper-observation-health-table"),
+    paperObservationSignalTable: document.querySelector("#paper-observation-signal-table"),
     paperObservationLaneTable: document.querySelector("#paper-observation-lane-table"),
     paperObservationLaneDetail: document.querySelector("#paper-observation-lane-detail"),
     paperObservationWildcardDiagnostics: document.querySelector("#paper-observation-wildcard-diagnostics"),
@@ -869,6 +878,7 @@
     experimentTable: document.querySelector("#experiment-table"),
     historicalReplaySymbolFilter: document.querySelector("#historical-replay-symbol-filter"),
     historicalReplayTimeframeFilter: document.querySelector("#historical-replay-timeframe-filter"),
+    historicalReplayPeriodFilter: document.querySelector("#historical-replay-period-filter"),
     historicalReplayFillFilter: document.querySelector("#historical-replay-fill-filter"),
     historicalReplayStrategyFilter: document.querySelector("#historical-replay-strategy-filter"),
     historicalReplayDateStart: document.querySelector("#historical-replay-date-start"),
@@ -3944,6 +3954,7 @@
       row?.strategy_id || "money_flow_v1_2_canonical",
       row?.symbol || "unknown",
       canonicalTimeframe(row?.timeframe || "unknown"),
+      row?.period || "SV2.0.2",
       row?.fill_assumption || "unknown",
     ].join("|");
   }
@@ -3994,9 +4005,23 @@
     );
   }
 
+  function sv21BroadChartDataRoot() {
+    return state.sv21BroadSummary?.historical_replay_status?.chart_data_root ||
+      `reports/strategy_validation/sv2_1_broad_1d_dashboard_chart_data/${SV21_BROAD_HISTORICAL_REPLAY_TIMESTAMP}`;
+  }
+
+  function sv21BroadSelectedChartDataPath(symbol, strategyId, fillAssumption, period) {
+    return chartDataUrl(
+      `${sv21BroadChartDataRoot()}/selected/` +
+      `hyperliquid_public_${safeReplayPathSegment(symbol)}_1d_${safeReplayPathSegment(period)}_` +
+      `${safeReplayPathSegment(strategyId)}_${safeReplayPathSegment(fillAssumption)}_sv21_replay.json`,
+    );
+  }
+
   function sv202SummaryReplaysFromBatches() {
     return (state.batches || []).flatMap((batch) =>
       (batch.run_reports || []).flatMap((run) => {
+        if (String(batch.__source_path || "").includes("money_flow_sv2_1_hyperliquid_broad_1d_")) return [];
         if (run.status !== "completed") return [];
         const request = run.request || {};
         const metrics = run.report?.aggregate_metrics || {};
@@ -4044,6 +4069,68 @@
         }];
       }),
     );
+  }
+
+  function sv21BroadStrategyLabel(strategyId) {
+    if (strategyId === "money_flow_v1_2_canonical") return "Money Flow v1.2";
+    if (strategyId === "mf_orig_1d_stage2_breakout_resistance_full_equity") return "MF-ORIG 1D breakout resistance";
+    if (strategyId === "avoid_low_rolling_range_50") return "SOR-EV3 avoid low range 50";
+    if (strategyId === "avoid_low_rolling_range_20") return "SOR-EV3 avoid low range 20";
+    return strategyId;
+  }
+
+  function sv21BroadSummaryReplays() {
+    const summary = state.sv21BroadSummary || {};
+    if (summary.phase !== "SV2.1") return [];
+    const candidatePackSlugs = new Set(
+      (summary.candidate_evidence_status?.evidence_pack_paths || []).map((path) =>
+        String(path || "").split("/").find((segment) => segment.startsWith("money_flow_sv2_1_hyperliquid_broad_1d_")) || "",
+      ),
+    );
+    const strategyIds = [
+      "money_flow_v1_2_canonical",
+      ...(
+        summary.candidate_evidence_status?.candidate_strategy_ids ||
+        summary.historical_replay_status?.candidate_strategy_ids ||
+        SV21_BROAD_CANDIDATE_STRATEGY_IDS
+      ),
+    ];
+    const fillAssumptions = ["next_candle_open", "next_candle_close"];
+    return (summary.period_results || [])
+      .filter((row) => row && !row.blocked && row.evidence_pack_path)
+      .flatMap((row) => {
+        const period = String(row.period || "ALL").toUpperCase();
+        const symbol = row.symbol;
+        return strategyIds.flatMap((strategyId) =>
+          strategyId !== "money_flow_v1_2_canonical" &&
+          !candidatePackSlugs.has(
+            `money_flow_sv2_1_hyperliquid_broad_1d_${safeReplayPathSegment(strategyId)}_${safeReplayPathSegment(period)}_${safeReplayPathSegment(symbol)}_evidence_only`,
+          )
+            ? []
+            : fillAssumptions.map((fillAssumption) => ({
+            strategy_id: strategyId,
+            strategy_label: sv21BroadStrategyLabel(strategyId),
+            component: "sleeve_1d",
+            symbol,
+            timeframe: "1d",
+            period,
+            fill_assumption: fillAssumption,
+            research_only: true,
+            production_approved: false,
+            data_source: "SV2.1 broad Hyperliquid public-mainnet 1D period evidence; selected chart data loads lazily",
+            strategy_truth_lane: "hyperliquid_public_mainnet_sv2_1_broad_1d",
+            chart_data_path: sv21BroadSelectedChartDataPath(symbol, strategyId, fillAssumption, period),
+            chart_data_lazy: true,
+            evidence_pack_path: row.evidence_pack_path,
+            summary: {},
+            candles: [],
+            indicators: [],
+            markers: [],
+            trades: [],
+            equity_curve: [],
+          })),
+        );
+      });
   }
 
   function mfOrigEv2SummaryReplays() {
@@ -4144,7 +4231,18 @@
   }
 
   function selectedHistoricalReplay() {
-    const exact = historicalReplays().find(
+    const periodMatches = (row) => historicalReplayPeriodMatches(row);
+    const rows = historicalReplays().filter(periodMatches);
+    const exactWithExplicitPeriod = rows.find(
+      (row) =>
+        row.period &&
+        (row.strategy_id || "baseline_current_money_flow_rules") === state.historicalReplay.strategyId &&
+        row.symbol === state.historicalReplay.symbol &&
+        sameTimeframe(row.timeframe, state.historicalReplay.timeframe) &&
+        (!row.fill_assumption || row.fill_assumption === state.historicalReplay.fillAssumption),
+    );
+    if (exactWithExplicitPeriod) return exactWithExplicitPeriod;
+    const exact = rows.find(
       (row) =>
         (row.strategy_id || "baseline_current_money_flow_rules") === state.historicalReplay.strategyId &&
         row.symbol === state.historicalReplay.symbol &&
@@ -4154,19 +4252,30 @@
     if (exact) return exact;
     const sameSelection = historicalReplays().find(
       (row) =>
+        periodMatches(row) &&
         row.symbol === state.historicalReplay.symbol &&
         sameTimeframe(row.timeframe, state.historicalReplay.timeframe) &&
         (!row.fill_assumption || row.fill_assumption === state.historicalReplay.fillAssumption),
     );
     if (sameSelection) return sameSelection;
     if (!state.historicalReplay.symbol && !state.historicalReplay.timeframe) {
-      return historicalReplays()[0] || null;
+      return historicalReplays().find(periodMatches) || historicalReplays()[0] || null;
     }
     return null;
   }
 
   function historicalReplayKey() {
-    return `${state.historicalReplay.strategyId}|${state.historicalReplay.symbol}|${canonicalTimeframe(state.historicalReplay.timeframe)}|${state.historicalReplay.fillAssumption}|${state.historicalReplay.dateStart}|${state.historicalReplay.dateEnd}`;
+    return `${state.historicalReplay.strategyId}|${state.historicalReplay.symbol}|${canonicalTimeframe(state.historicalReplay.timeframe)}|${state.historicalReplay.period}|${state.historicalReplay.fillAssumption}|${state.historicalReplay.dateStart}|${state.historicalReplay.dateEnd}`;
+  }
+
+  function historicalReplayPeriod(row) {
+    return String(row?.period || "SV2.0.2").toUpperCase();
+  }
+
+  function historicalReplayPeriodMatches(row) {
+    const selected = String(state.historicalReplay.period || "ALL").toUpperCase();
+    if (row?.period) return historicalReplayPeriod(row) === selected;
+    return selected === "ALL";
   }
 
   const HISTORICAL_RSI_PANE = 0;
@@ -4731,6 +4840,10 @@
       ...replays.map((row) => row.fill_assumption).filter(Boolean),
       ...(Array.isArray(summary.fill_assumptions) ? summary.fill_assumptions.map((row) => row.id || row) : []),
     ]));
+    const periods = Array.from(new Set([
+      ...SV21_BROAD_PERIODS,
+      ...replays.map((row) => row.period).filter(Boolean).map((period) => String(period).toUpperCase()),
+    ]));
     if (!isHistoricalReplayStrategyVisible(state.historicalReplay.strategyId)) {
       state.historicalReplay.strategyId = "money_flow_v1_2_canonical";
       state.historicalReplay.selectedTradeId = null;
@@ -4759,6 +4872,7 @@
     );
     renderSelect(elements.historicalReplaySymbolFilter, symbols, state.historicalReplay.symbol, "Select symbol");
     renderSelect(elements.historicalReplayTimeframeFilter, timeframes, state.historicalReplay.timeframe, "Select timeframe");
+    renderSelect(elements.historicalReplayPeriodFilter, periods, state.historicalReplay.period, "Select period");
     renderSelect(elements.historicalReplayFillFilter, fills, state.historicalReplay.fillAssumption, "Select fill");
     if (elements.historicalReplayDateStart) {
       elements.historicalReplayDateStart.value = state.historicalReplay.dateStart || "";
@@ -4818,6 +4932,15 @@
         renderHistoricalReplay();
       };
     }
+    if (elements.historicalReplayPeriodFilter) {
+      elements.historicalReplayPeriodFilter.onchange = () => {
+        state.historicalReplay.period = elements.historicalReplayPeriodFilter.value === "all"
+          ? "ALL"
+          : String(elements.historicalReplayPeriodFilter.value || "ALL").toUpperCase();
+        state.historicalReplay.selectedTradeId = null;
+        renderHistoricalReplay();
+      };
+    }
     if (elements.historicalReplayFillFilter) {
       elements.historicalReplayFillFilter.onchange = () => {
         state.historicalReplay.fillAssumption = elements.historicalReplayFillFilter.value === "all"
@@ -4838,6 +4961,7 @@
     const warnings = dataset?.reason_codes || [];
     elements.historicalReplaySourceStatus.innerHTML = `
       <span>Replay strategy: ${escapeHtml(dashboardStrategyLabel(replay?.strategy_label, state.historicalReplay.strategyId))}</span>
+      <span>Period: ${escapeHtml(state.historicalReplay.period || replay?.period || "ALL")}</span>
       <span>Money Flow version: ${escapeHtml(state.sv20Summary?.money_flow_version || "money_flow_v1_1 replay source")}</span>
       <span>Canonical evidence: ${escapeHtml(canonicalEvidence.status || "not_loaded")}</span>
       <span>Evidence packs: ${escapeHtml((canonicalEvidence.evidence_pack_paths || []).length)}</span>
@@ -4876,7 +5000,8 @@
     return historicalReadinessRows().find(
       (row) =>
         (row.symbol || row.requested_symbol) === state.historicalReplay.symbol &&
-        sameTimeframe(row.timeframe, state.historicalReplay.timeframe),
+        sameTimeframe(row.timeframe, state.historicalReplay.timeframe) &&
+        historicalReplayPeriodMatches(row),
     );
   }
 
@@ -5122,6 +5247,7 @@
     if (!elements.historicalComparisonTable) return;
     const rows = historicalReplays()
       .filter((row) => (row.strategy_id || "baseline_current_money_flow_rules") === state.historicalReplay.strategyId)
+      .filter(historicalReplayPeriodMatches)
       .map((row) => sv202ComparisonRow(filteredHistoricalReplay(row)));
     if (!rows.length) {
       setEmpty(elements.historicalComparisonTable, "Historical comparison rows are not loaded.");
@@ -5224,6 +5350,7 @@
       state.historicalReplay.strategyId = baseReplay.strategy_id || "money_flow_v1_2_canonical";
       state.historicalReplay.symbol = baseReplay.symbol || "ETH";
       state.historicalReplay.timeframe = canonicalTimeframe(baseReplay.timeframe || "1d");
+      state.historicalReplay.period = baseReplay.period || state.historicalReplay.period || "ALL";
     }
     const replay = filteredHistoricalReplay(baseReplay);
     renderHistoricalReplaySourceStatus(replay);
@@ -5232,8 +5359,8 @@
       setEmpty(
         elements.historicalReplayChart,
         state.loadingHistoricalChartDataPaths.has(baseReplay.chart_data_path)
-          ? "Loading selected MF-ORIG-EV2 chart data..."
-          : "MF-ORIG-EV2 summary is loaded. Loading selected chart/trade JSON on demand.",
+          ? "Loading selected historical replay chart data..."
+          : "Summary is loaded. Loading selected chart/trade JSON on demand.",
       );
       loadHistoricalReplayChartData(baseReplay.chart_data_path);
     } else if (replay) {
@@ -5241,7 +5368,7 @@
     } else {
       setEmpty(
         elements.historicalReplayChart,
-        "No replay chart is loaded for this SV2.0 symbol/timeframe yet. Check the data horizon panel for support, import, and evidence readiness.",
+        "No replay chart is loaded for this symbol/timeframe/period yet. Check the data horizon panel for support, import, and evidence readiness.",
       );
     }
     renderHistoricalTradeInspector(replay);
@@ -5281,7 +5408,11 @@
     const sv202SummaryReplays = sv202SummaryReplaysFromBatches();
     const mfOrigSummaryReplays = mfOrigEv2SummaryReplays();
     const sorEv3Replays = sorEv3SummaryReplays();
-    const allReplays = mergeReplayRows(mergeReplayRows(sv202SummaryReplays, mfOrigSummaryReplays), sorEv3Replays);
+    const sv21BroadReplays = sv21BroadSummaryReplays();
+    const allReplays = mergeReplayRows(
+      mergeReplayRows(mergeReplayRows(sv202SummaryReplays, mfOrigSummaryReplays), sorEv3Replays),
+      sv21BroadReplays,
+    );
     if (!allReplays.length) return;
     const strategies = Array.from(
       new Map(
@@ -5298,8 +5429,8 @@
       ).values(),
     );
     state.sv202HistoricalReplay = {
-      report: "sv2_0_2_and_mf_orig_ev2_dashboard_historical_replay_combined",
-      source: "SV2.0.2 regenerated canonical DB-imported evidence packs plus MF-ORIG-EV2 compact summaries with lazy selected-chart loading",
+      report: "sv2_0_2_sv2_1_and_mf_orig_ev2_dashboard_historical_replay_combined",
+      source: "SV2.0.2 canonical packs, SV2.1 broad 1D period packs, and MF-ORIG-EV2 compact summaries with lazy selected-chart loading",
       symbols: Array.from(new Set(allReplays.map((row) => row.symbol).filter(Boolean))).sort(),
       timeframes: Array.from(new Set(allReplays.map((row) => canonicalTimeframe(row.timeframe)).filter(Boolean))),
       fill_assumptions: Array.from(new Set(allReplays.map((row) => row.fill_assumption).filter(Boolean))).map((id) => ({
@@ -5315,11 +5446,13 @@
       const defaultReplay = allReplays.find((row) =>
         (row.strategy_id || "money_flow_v1_2_canonical") === "money_flow_v1_2_canonical" &&
         row.symbol === "ETH" &&
-        canonicalTimeframe(row.timeframe) === "1d",
+        canonicalTimeframe(row.timeframe) === "1d" &&
+        historicalReplayPeriod(row) === String(state.historicalReplay.period || "ALL").toUpperCase(),
       ) || allReplays.find((row) => canonicalTimeframe(row.timeframe) === "1d") || allReplays[0];
       state.historicalReplay.strategyId = defaultReplay.strategy_id || "money_flow_v1_2_canonical";
       state.historicalReplay.symbol = defaultReplay.symbol || "ETH";
       state.historicalReplay.timeframe = canonicalTimeframe(defaultReplay.timeframe || "1d");
+      state.historicalReplay.period = defaultReplay.period || "ALL";
       state.historicalReplay.fillAssumption = defaultReplay.fill_assumption || "next_candle_open";
     }
   }
@@ -6383,7 +6516,7 @@
         !sameTimeframe(live.selectedTimeframe, selectedTimeframe) ||
         !Array.isArray(live.candles) ||
         !live.candles.length;
-      const shouldLoadCandles = force || staleSelection || !live.lastUpdatedUtc;
+      const shouldLoadCandles = force || staleSelection || live.refreshMs <= 1000 || !live.lastUpdatedUtc;
       const midsPromise = postHyperliquidPublicInfo(HYPERLIQUID_MAINNET_PUBLIC_INFO_URL, { type: "allMids" });
       const candlePromise = blocked || !shouldLoadCandles
         ? Promise.resolve(null)
@@ -8475,6 +8608,13 @@
     return current > previous ? "tick-up" : "tick-down";
   }
 
+  function paperObservationMdHealth(row) {
+    const lastTick = Date.parse(row.last_live_tick_utc || "");
+    const mid = decimal(row.public_mid, NaN);
+    if (!Number.isFinite(mid) || !Number.isFinite(lastTick)) return "unhealthy";
+    return Date.now() - lastTick > PAPER_OBSERVATION_MARKET_STALE_MS ? "unhealthy" : "healthy";
+  }
+
   function paperObservationScannerRows() {
     const live = state.paperObservationMarketData || {};
     return paperObservationBaseScannerRows().map((row) => ({
@@ -8666,38 +8806,29 @@
       return;
     }
     elements.paperObservationScannerTable.innerHTML = `
-      <table>
+      <table class="paper-observation-watchlist-table">
         <thead>
           <tr>
-            <th>Requested</th>
-            <th>Venue symbol</th>
-            <th>Sources</th>
-            <th>Supported</th>
-            <th>Blocked</th>
-            <th>Precision</th>
-            <th>Public mid</th>
-            <th>Live tick</th>
-            <th>Data health</th>
-            <th>Eligible</th>
-            <th>Reason codes</th>
+            <th>Symbol</th>
+            <th>Mid price</th>
+            <th>Health</th>
           </tr>
         </thead>
         <tbody>
           ${rows
             .map(
               (row) => `
-                <tr class="${row.requested_symbol === state.paperObservation.symbol || row.resolved_venue_symbol === selectedPaperObservationVenueSymbol() ? "selected-row" : ""}">
-                  <td><button class="link-button" type="button" data-paper-observation-symbol="${escapeHtml(row.requested_symbol || row.resolved_venue_symbol || "")}">${escapeHtml(paperObservationText(row.requested_symbol, "n/a"))}</button></td>
-                  <td>${escapeHtml(paperObservationText(row.resolved_venue_symbol, "n/a"))}</td>
-                  <td>${escapeHtml(paperObservationText(row.sources || row.source, "n/a"))}</td>
-                  <td>${auditReviewPill(row.supported_by_venue ? "yes" : "no")}</td>
-                  <td>${auditReviewPill(row.blocked ? "yes" : "no")}</td>
-                  <td>${escapeHtml(paperObservationText(row.precision_status || (row.precision_ready ? "precision_ready" : ""), "n/a"))}</td>
-                  <td><span class="paper-observation-tick ${paperObservationTickClass(row)}">${escapeHtml(paperObservationText(row.public_mid, "pending_runtime_refresh"))}</span></td>
-                  <td>${escapeHtml(paperObservationText(row.last_live_tick_utc, "waiting"))}</td>
-                  <td>${auditReviewPill(row.data_health)}</td>
-                  <td>${auditReviewPill(row.scanner_eligible ? "yes" : "no")}</td>
-                  <td>${escapeHtml(paperObservationText(row.reason_codes, "n/a"))}</td>
+                <tr
+                  class="${row.requested_symbol === state.paperObservation.symbol || row.resolved_venue_symbol === selectedPaperObservationVenueSymbol() ? "selected-row" : ""}"
+                  title="${escapeHtml(paperObservationText(row.reason_codes, "n/a"))}"
+                >
+                  <td>
+                    <button class="link-button paper-observation-symbol-button" type="button" data-paper-observation-symbol="${escapeHtml(row.requested_symbol || row.resolved_venue_symbol || "")}">
+                      ${escapeHtml(paperObservationText(row.resolved_venue_symbol || row.requested_symbol, "n/a"))}
+                    </button>
+                  </td>
+                  <td><span class="paper-observation-tick ${paperObservationTickClass(row)}">${escapeHtml(paperObservationText(row.public_mid, row.blocked ? "blocked" : "pending"))}</span></td>
+                  <td>${auditReviewPill(paperObservationMdHealth(row))}</td>
                 </tr>
               `,
             )
@@ -8714,30 +8845,33 @@
     });
   }
 
-  function renderPaperObservationHealth() {
-    if (!elements.paperObservationHealthTable) return;
+  function renderPaperObservationSignalGeneration() {
+    if (!elements.paperObservationSignalTable) return;
     const summary = paperObservationSummary();
     const selectedSymbol = state.paperObservation.symbol;
     const selectedTimeframe = state.paperObservation.timeframe;
-    const rows = paperObservationRows(summary?.market_data_health).filter(
+    const sourceRows = paperObservationRows(summary?.intended_entry_signals).length
+      ? paperObservationRows(summary?.intended_entry_signals)
+      : paperObservationRows(summary?.latest_decisions).filter((row) => row.action === "paper_opened");
+    const rows = sourceRows.filter(
       (row) =>
         (selectedSymbol === "all" || row.symbol === selectedSymbol || row.requested_symbol === selectedSymbol || row.resolved_venue_symbol === selectedSymbol) &&
         (selectedTimeframe === "all" || sameTimeframe(row.timeframe, selectedTimeframe)),
     );
     if (!rows.length) {
-      setEmpty(elements.paperObservationHealthTable, "Market-data health runtime rows not loaded.");
+      setEmpty(elements.paperObservationSignalTable, "No intended entry signals recorded yet. Paper-open decisions are recorded in the ignored PT-RT1 decisions stream and appear here when present.");
       return;
     }
-    elements.paperObservationHealthTable.innerHTML = `
+    elements.paperObservationSignalTable.innerHTML = `
       <table>
         <thead>
           <tr>
+            <th>Lane</th>
             <th>Symbol</th>
             <th>Timeframe</th>
-            <th>Source</th>
-            <th>Status</th>
-            <th>Closed candle</th>
-            <th>Last update</th>
+            <th>Signal candle</th>
+            <th>Action</th>
+            <th>Entry recorded</th>
             <th>Reason codes</th>
           </tr>
         </thead>
@@ -8747,12 +8881,12 @@
             .map(
               (row) => `
                 <tr>
+                  <td>${escapeHtml(paperObservationText(row.strategy_id || row.lane_id, "n/a"))}</td>
                   <td>${escapeHtml(paperObservationText(row.symbol, "n/a"))}</td>
                   <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
-                  <td>${escapeHtml(paperObservationText(row.source, "n/a"))}</td>
-                  <td>${auditReviewPill(row.status)}</td>
-                  <td>${auditReviewPill(row.fully_closed_candle_status)}</td>
-                  <td>${escapeHtml(paperObservationText(row.last_update_utc, "pending_runtime_refresh"))}</td>
+                  <td>${escapeHtml(paperObservationText(row.signal_candle_close_time || row.signal_candle_open_time, "pending_runtime_refresh"))}</td>
+                  <td>${auditReviewPill(row.action || "paper_opened")}</td>
+                  <td>${auditReviewPill(row.action === "paper_opened" ? "entry_recorded" : "review")}</td>
                   <td>${escapeHtml(paperObservationText(row.reason_codes, "n/a"))}</td>
                 </tr>
               `,
@@ -9171,7 +9305,7 @@
     renderPaperObservationSummaryCards();
     renderPaperObservationConnectionStatus();
     renderPaperObservationScanner();
-    renderPaperObservationHealth();
+    renderPaperObservationSignalGeneration();
     renderPaperObservationLanes();
     renderPaperObservationLaneDetail();
     renderPaperObservationWildcardDiagnostics();
@@ -9216,7 +9350,8 @@
     if (payload?.phase === "SV2.1" && Array.isArray(payload?.evidence_pack_paths)) return "sv21_broad_summary";
     if (
       payload?.report === "sv2_0_2_dashboard_historical_replay_chart_data" ||
-      payload?.report === "mf_orig_ev2_dashboard_chart_data"
+      payload?.report === "mf_orig_ev2_dashboard_chart_data" ||
+      payload?.report === "sv2_1_broad_1d_dashboard_chart_data"
     ) return "sv202_dashboard_chart_data";
     if (payload?.phase === "SOR-EV1") return "sor_ev1_summary";
     if (payload?.phase === "SOR-EV2") return "sor_ev2_summary";
@@ -9262,10 +9397,10 @@
 
     state.review = null;
     state.batches = [];
-    loaded.forEach(({ payload }) => {
+    loaded.forEach(({ path, payload }) => {
       const type = classifyJson(payload);
       if (type === "review") state.review = payload;
-      if (type === "batch") state.batches.push(payload);
+      if (type === "batch") state.batches.push({ ...payload, __source_path: path });
     });
     await loadDefaultSv202DashboardChartData();
     await loadDefaultPt002HistoricalReplaySummary();
@@ -9322,10 +9457,10 @@
       if (!valid.length) return;
       state.review = null;
       state.batches = [];
-      valid.forEach(({ payload }) => {
+      valid.forEach(({ name, payload }) => {
         const type = classifyJson(payload);
         if (type === "review") state.review = payload;
-        if (type === "batch") state.batches.push(payload);
+        if (type === "batch") state.batches.push({ ...payload, __source_path: name });
         if (type === "experiment_summary") state.sv117FullSuiteRows = normalizeReplayRows(payload.summary_rows);
         if (type === "uat2_shadow_summary") state.uat2Summary = payload;
         if (type === "uat34_routed_orders_summary") state.uat34Summary = payload;

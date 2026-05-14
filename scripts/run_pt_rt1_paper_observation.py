@@ -186,6 +186,7 @@ def run_cycle(
     scanner_payload = [asdict(row) for row in scanner_rows] if scanner_rows else base_summary["scanner_universe"]
     lane_payload = base_summary["strategy_lanes"]
     decision_rows = [event.as_json_dict() for event in decisions]
+    intended_entry_signals = [row for row in decision_rows if row.get("action") == "paper_opened"]
     runtime_status = "verified" if meta_result.ok and mids_result.ok and market_health else "blocked"
     if not meta_result.ok or not mids_result.ok:
         runtime_status = "blocked_public_mainnet_network_unavailable"
@@ -227,6 +228,7 @@ def run_cycle(
         },
         "market_data_health": market_health or base_summary["market_data_health"],
         "strategy_lanes": lane_payload,
+        "intended_entry_signals": intended_entry_signals[:200],
         "latest_decisions": decision_rows[:200],
         "live_chart": latest_chart or {
             "status": "data_not_available_in_pt_rt1_runtime",

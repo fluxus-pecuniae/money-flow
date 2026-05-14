@@ -2,6 +2,22 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-14T23:05:55Z - Paper Observation - Compact Watchlist and Signal Generation
+
+- `decision`: Keep the founder-facing Paper Observation watchlist compact and replace the Market Data Health panel with Signal Generation.
+- `scope`: The watchlist now displays only symbol, mid price, and health. It polls Hyperliquid public mainnet `allMids` every 1 second; health is `unhealthy` when the latest market-data tick is missing or stale for more than 2 minutes. Signal Generation lists recorded synthetic `paper_opened` intended-entry decisions from the PT-RT1 paper decision stream.
+- `why`: The founder asked to remove extra watchlist columns, keep a health column, and use the adjacent panel to show intended trade entries whenever strategies generate them.
+- `result`: `implemented_compact_symbol_mid_health_watchlist_and_signal_generation_panel`.
+- `follow_up_implications`: This remains dashboard display/runtime observation only. It adds no bid/ask polling, order controls, submitted orders, private/signed/order/account payloads, API keys, testnet strategy truth, production Money Flow changes, canonical evidence regeneration, paper/live approval, or SOR/fanout/CBBO.
+
+## 2026-05-14T23:09:49Z - SV2.1 - Historical Replay and Conservative Candidate Packs
+
+- `decision`: Add Historical Replay visibility and evidence-only conservative candidate packs for the already-generated SV2.1 broad Hyperliquid 1D period evidence.
+- `scope`: Generated ignored selected chart/trade JSON under `reports/strategy_validation/sv2_1_broad_1d_dashboard_chart_data/20260514T220500Z` and ignored candidate evidence-only packs under `reports/strategy_validation/` for `avoid_low_rolling_range_50`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`. The dashboard Historical Replay tab now has a Period selector for 2024 / 2025 / YTD / ALL and lazy-loads SV2.1 1D rows by period, symbol, strategy, and fill.
+- `why`: The founder asked to add the larger-symbol evidence refresh to Historical Replay and include the best three conservative candidates for visual review, without changing strategy rules or rerunning unrelated evidence.
+- `result`: `SV2.1 historical replay artifacts generated`. Counts: 5116 selected chart/trade JSON files and 1912 candidate evidence-only pack directories. MF-ORIG candidate rows were skipped for 7 symbols with incomplete indicator context; baseline and rolling-range rows remain available where source period packs exist.
+- `follow_up_implications`: SV2.1 remains 1D founder-review evidence only. It does not supersede canonical SV2.0.2 multi-timeframe evidence, approve variants, change Money Flow production rules, approve paper/live, submit orders, call private/signed/order endpoints, use API keys, use testnet data as strategy truth, or add SOR/fanout/CBBO.
+
 ## 2026-05-14T22:36:41Z - Paper Observation - Live Watchlist Ticker and Selected-Pair Chart
 
 - `decision`: Add browser-side Paper Observation display polling for latest public mainnet market data and render a selected-pair live TradingView chart.
