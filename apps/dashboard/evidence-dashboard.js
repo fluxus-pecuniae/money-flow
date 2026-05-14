@@ -37,6 +37,7 @@
     ...SV202_CANONICAL_BATCH_FILES,
   ];
   const EVIDENCE_BATCH_REPORTS_STRATEGY_ID = "canonical_batch_reports";
+  const STRATEGY_COMPARISON_ALL_STRATEGIES_ID = "all_strategy_comparison_strategies";
   const DASHBOARD_THEME_STORAGE_KEY = "money-flow-dashboard-theme";
   const DASHBOARD_THEMES = new Set(["dark", "light", "red-zone"]);
   const EVIDENCE_ALL_REPLAY_STRATEGIES_ID = "all_replay_strategies";
@@ -1211,14 +1212,14 @@
   function initialDashboardTheme() {
     try {
       const stored = window.localStorage?.getItem(DASHBOARD_THEME_STORAGE_KEY);
-      return DASHBOARD_THEMES.has(stored) ? stored : "dark";
+      return DASHBOARD_THEMES.has(stored) ? stored : "red-zone";
     } catch (_error) {
-      return "dark";
+      return "red-zone";
     }
   }
 
   function applyDashboardTheme(theme) {
-    const safeTheme = DASHBOARD_THEMES.has(theme) ? theme : "dark";
+    const safeTheme = DASHBOARD_THEMES.has(theme) ? theme : "red-zone";
     state.theme = safeTheme;
     document.documentElement.dataset.theme = safeTheme;
     if (elements.themeSelector) elements.themeSelector.value = safeTheme;
@@ -1446,8 +1447,8 @@
       : []).filter(isVisibleDashboardStrategyRow);
   }
 
-  function strategyComparisonStrategyOptions() {
-    return Array.from(
+  function strategyComparisonStrategyOptions(includeAll = false) {
+    const options = Array.from(
       new Map(
         strategyComparisonReplays()
           .map((replay) => [
@@ -1466,17 +1467,25 @@
       const rightPriority = EVIDENCE_PRIORITY_REPLAY_STRATEGY_IDS.has(right.value) ? 0 : 1;
       return leftPriority - rightPriority || left.label.localeCompare(right.label);
     });
+    return includeAll
+      ? [{ value: STRATEGY_COMPARISON_ALL_STRATEGIES_ID, label: "All strategies" }, ...options]
+      : options;
   }
 
   function syncStrategyComparisonSelection() {
     const options = strategyComparisonStrategyOptions();
     const ids = options.map((option) => option.value);
+    const selectableIds = [STRATEGY_COMPARISON_ALL_STRATEGIES_ID, ...ids];
     if (!ids.length) return;
-    if (!ids.includes(state.strategyComparison.leftStrategyId)) {
+    if (!selectableIds.includes(state.strategyComparison.leftStrategyId)) {
       state.strategyComparison.leftStrategyId = ids.includes("money_flow_v1_2_canonical") ? "money_flow_v1_2_canonical" : ids[0];
     }
-    if (!ids.includes(state.strategyComparison.rightStrategyId) || state.strategyComparison.rightStrategyId === state.strategyComparison.leftStrategyId) {
-      state.strategyComparison.rightStrategyId = ids.find((id) => id !== state.strategyComparison.leftStrategyId) || state.strategyComparison.leftStrategyId;
+    if (
+      !selectableIds.includes(state.strategyComparison.rightStrategyId) ||
+      (state.strategyComparison.rightStrategyId === state.strategyComparison.leftStrategyId &&
+        state.strategyComparison.leftStrategyId !== STRATEGY_COMPARISON_ALL_STRATEGIES_ID)
+    ) {
+      state.strategyComparison.rightStrategyId = ids.find((id) => id !== state.strategyComparison.leftStrategyId) || ids[0];
     }
     const replays = strategyComparisonReplays();
     const symbols = uniqueSorted(replays.map((replay) => replay.symbol));
@@ -1496,6 +1505,23 @@
         sameTimeframe(replay.timeframe, state.strategyComparison.timeframe) &&
         replayFillAssumption(replay) === state.strategyComparison.fillAssumption,
     ) || null;
+  }
+
+  function strategyComparisonSideReplays(strategyId) {
+    const scoped = strategyComparisonReplays().filter((replay) =>
+      replay.symbol === state.strategyComparison.symbol &&
+      sameTimeframe(replay.timeframe, state.strategyComparison.timeframe) &&
+      replayFillAssumption(replay) === state.strategyComparison.fillAssumption,
+    );
+    if (strategyId === STRATEGY_COMPARISON_ALL_STRATEGIES_ID) {
+      const optionOrder = new Map(strategyComparisonStrategyOptions().map((option, index) => [option.value, index]));
+      return scoped.slice().sort((left, right) =>
+        (optionOrder.get(left.strategy_id || "money_flow_v1_2_canonical") ?? 999) -
+        (optionOrder.get(right.strategy_id || "money_flow_v1_2_canonical") ?? 999),
+      );
+    }
+    const replay = scoped.find((row) => (row.strategy_id || "money_flow_v1_2_canonical") === strategyId);
+    return replay ? [replay] : [];
   }
 
   function strategyComparisonScopedReplay(replay) {
@@ -1590,7 +1616,10 @@
     if (elements.strategyComparisonLeftStrategy) {
       elements.strategyComparisonLeftStrategy.onchange = () => {
         state.strategyComparison.leftStrategyId = elements.strategyComparisonLeftStrategy.value;
-        if (state.strategyComparison.rightStrategyId === state.strategyComparison.leftStrategyId) {
+        if (
+          state.strategyComparison.rightStrategyId === state.strategyComparison.leftStrategyId &&
+          state.strategyComparison.leftStrategyId !== STRATEGY_COMPARISON_ALL_STRATEGIES_ID
+        ) {
           state.strategyComparison.rightStrategyId = options.map((option) => option.value).find((id) => id !== state.strategyComparison.leftStrategyId) || state.strategyComparison.leftStrategyId;
         }
         render();
@@ -1599,7 +1628,10 @@
     if (elements.strategyComparisonRightStrategy) {
       elements.strategyComparisonRightStrategy.onchange = () => {
         state.strategyComparison.rightStrategyId = elements.strategyComparisonRightStrategy.value;
-        if (state.strategyComparison.rightStrategyId === state.strategyComparison.leftStrategyId) {
+        if (
+          state.strategyComparison.rightStrategyId === state.strategyComparison.leftStrategyId &&
+          state.strategyComparison.rightStrategyId !== STRATEGY_COMPARISON_ALL_STRATEGIES_ID
+        ) {
           state.strategyComparison.leftStrategyId = options.map((option) => option.value).find((id) => id !== state.strategyComparison.rightStrategyId) || state.strategyComparison.rightStrategyId;
         }
         render();
@@ -1656,16 +1688,16 @@
     return { start: Math.min(...times), end: Math.max(...times) };
   }
 
-  function strategyComparisonCombinedTimeBounds(leftSeries, rightSeries) {
-    const bounds = [strategyComparisonSeriesTimeBounds(leftSeries), strategyComparisonSeriesTimeBounds(rightSeries)];
+  function strategyComparisonCombinedTimeBounds(...seriesList) {
+    const bounds = seriesList.map(strategyComparisonSeriesTimeBounds);
     const starts = bounds.map((bound) => bound.start).filter((value) => Number.isFinite(value));
     const ends = bounds.map((bound) => bound.end).filter((value) => Number.isFinite(value));
     if (!starts.length || !ends.length) return { start: null, end: null };
     return { start: Math.min(...starts), end: Math.max(...ends) };
   }
 
-  function strategyComparisonTimeTicks(leftSeries, rightSeries) {
-    const timeBounds = strategyComparisonCombinedTimeBounds(leftSeries, rightSeries);
+  function strategyComparisonTimeTicks(...seriesList) {
+    const timeBounds = strategyComparisonCombinedTimeBounds(...seriesList);
     const bounds = [timeBounds];
     const starts = bounds.map((bound) => bound.start).filter((value) => Number.isFinite(value));
     const ends = bounds.map((bound) => bound.end).filter((value) => Number.isFinite(value));
@@ -1712,20 +1744,38 @@
     `;
   }
 
-  function renderStrategyComparisonChart(leftReplay, rightReplay) {
-    if (!elements.strategyComparisonChart) return;
-    if (!leftReplay || !rightReplay) {
-      setEmpty(elements.strategyComparisonChart, "No matching strategy pair found for this currency/timeframe/fill selection.");
-      return;
-    }
-    [leftReplay, rightReplay].forEach((replay) => {
+  function strategyComparisonLineClass(side, index) {
+    return `line-${side}${index === 0 ? "" : ` line-alt-${((index - 1) % 6) + 1}`}`;
+  }
+
+  function strategyComparisonLinesForSide(replays, side) {
+    return (replays || []).map((replay, index) => {
       if (replay?.chart_data_lazy && replay.chart_data_path) {
         loadHistoricalReplayChartData(replay.chart_data_path);
       }
-    });
-    const leftSeries = strategyComparisonEquitySeries(leftReplay);
-    const rightSeries = strategyComparisonEquitySeries(rightReplay);
-    const all = [...leftSeries, ...rightSeries].map((point) => point.value).filter((value) => Number.isFinite(value));
+      const series = strategyComparisonEquitySeries(replay);
+      return {
+        side,
+        replay,
+        series,
+        className: strategyComparisonLineClass(side, index),
+        label: dashboardStrategyLabel(replay.strategy_label, replay.strategy_id || `Strategy ${side.toUpperCase()}`),
+      };
+    }).filter((line) => line.series.length);
+  }
+
+  function renderStrategyComparisonChart(leftReplays, rightReplays) {
+    if (!elements.strategyComparisonChart) return;
+    const lines = [
+      ...strategyComparisonLinesForSide(leftReplays, "a"),
+      ...strategyComparisonLinesForSide(rightReplays, "b"),
+    ];
+    if (!lines.length) {
+      setEmpty(elements.strategyComparisonChart, "No matching strategy rows found for this currency/timeframe/fill selection.");
+      return;
+    }
+    const allSeries = lines.flatMap((line) => line.series);
+    const all = allSeries.map((point) => point.value).filter((value) => Number.isFinite(value));
     const minValue = Math.min(...all);
     const maxValue = Math.max(...all);
     const width = 980;
@@ -1733,21 +1783,18 @@
     const margin = { top: 18, right: 28, bottom: 64, left: 92 };
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
-    const timeBounds = strategyComparisonCombinedTimeBounds(leftSeries, rightSeries);
-    const leftLine = strategyComparisonPolyline(leftSeries, minValue, maxValue, timeBounds, plotWidth, plotHeight, margin);
-    const rightLine = strategyComparisonPolyline(rightSeries, minValue, maxValue, timeBounds, plotWidth, plotHeight, margin);
+    const timeBounds = strategyComparisonCombinedTimeBounds(...lines.map((line) => line.series));
     const yTicks = strategyComparisonYAxisTicks(minValue, maxValue);
-    const xTicks = strategyComparisonTimeTicks(leftSeries, rightSeries);
-    const leftLast = leftSeries.at(-1);
-    const rightLast = rightSeries.at(-1);
-    const leftLabel = dashboardStrategyLabel(leftReplay.strategy_label, leftReplay.strategy_id || "Strategy A");
-    const rightLabel = dashboardStrategyLabel(rightReplay.strategy_label, rightReplay.strategy_id || "Strategy B");
-    const loading = [leftReplay, rightReplay].some((replay) => replay?.chart_data_lazy && replay.chart_data_path && !state.loadedHistoricalChartDataPaths.has(replay.chart_data_path));
+    const xTicks = strategyComparisonTimeTicks(...lines.map((line) => line.series));
+    const loading = [...(leftReplays || []), ...(rightReplays || [])].some((replay) =>
+      replay?.chart_data_lazy && replay.chart_data_path && !state.loadedHistoricalChartDataPaths.has(replay.chart_data_path),
+    );
     elements.strategyComparisonChart.innerHTML = `
       <div class="strategy-comparison-layout">
         <div class="strategy-comparison-legend" aria-label="Strategy comparison legend">
-          <span><i class="line-key line-a"></i> Strategy A: ${escapeHtml(leftLabel)} <small>${escapeHtml(leftSeries.length)} equity points</small></span>
-          <span><i class="line-key line-b"></i> Strategy B: ${escapeHtml(rightLabel)} <small>${escapeHtml(rightSeries.length)} equity points</small></span>
+          ${lines.map((line) => `
+            <span><i class="line-key ${escapeHtml(line.className)}"></i> ${escapeHtml(line.side === "a" ? "Strategy A" : "Strategy B")}: ${escapeHtml(line.label)} <small>${escapeHtml(line.series.length)} equity points</small></span>
+          `).join("")}
           ${loading ? "<span>Loading exact selected replay JSON; summary endpoints shown until loaded.</span>" : ""}
         </div>
         <div class="strategy-comparison-plot">
@@ -1770,10 +1817,14 @@
             <line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + plotHeight}" class="comparison-axis"></line>
             <text x="${margin.left + (plotWidth / 2)}" y="${height - 14}" text-anchor="middle" class="comparison-axis-label">Time</text>
             <text x="18" y="${margin.top + (plotHeight / 2)}" text-anchor="middle" transform="rotate(-90 18 ${margin.top + (plotHeight / 2)})" class="comparison-axis-label">Equity value (USDC)</text>
-            <polyline class="comparison-line line-a" points="${escapeHtml(leftLine)}"></polyline>
-            <polyline class="comparison-line line-b" points="${escapeHtml(rightLine)}"></polyline>
-            ${strategyComparisonEndpointMarkup(leftLast, leftSeries, minValue, maxValue, timeBounds, plotWidth, plotHeight, margin, "line-a", "A")}
-            ${strategyComparisonEndpointMarkup(rightLast, rightSeries, minValue, maxValue, timeBounds, plotWidth, plotHeight, margin, "line-b", "B")}
+            ${lines.map((line, index) => {
+              const points = strategyComparisonPolyline(line.series, minValue, maxValue, timeBounds, plotWidth, plotHeight, margin);
+              const endpoint = strategyComparisonEndpointMarkup(line.series.at(-1), line.series, minValue, maxValue, timeBounds, plotWidth, plotHeight, margin, line.className, line.side.toUpperCase());
+              return `
+                <polyline class="comparison-line ${escapeHtml(line.className)}" points="${escapeHtml(points)}" style="--line-index: ${index}"></polyline>
+                ${endpoint}
+              `;
+            }).join("")}
           </svg>
         </div>
       </div>
@@ -1828,7 +1879,7 @@
   function renderStrategyComparison() {
     if (!elements.strategyComparisonChart) return;
     syncStrategyComparisonSelection();
-    const options = strategyComparisonStrategyOptions();
+    const options = strategyComparisonStrategyOptions(true);
     const replays = strategyComparisonReplays();
     const symbols = uniqueSorted(replays.map((replay) => replay.symbol));
     const timeframes = uniqueSorted(replays.map((replay) => canonicalTimeframe(replay.timeframe)))
@@ -1841,10 +1892,12 @@
       elements.strategyComparisonVerdict.innerHTML = "";
       return;
     }
-    const leftReplay = strategyComparisonReplay(state.strategyComparison.leftStrategyId);
-    const rightReplay = strategyComparisonReplay(state.strategyComparison.rightStrategyId);
-    renderStrategyComparisonChart(leftReplay, rightReplay);
-    renderStrategyComparisonMetrics(leftReplay, rightReplay);
+    const leftReplays = strategyComparisonSideReplays(state.strategyComparison.leftStrategyId);
+    const rightReplays = state.strategyComparison.leftStrategyId === STRATEGY_COMPARISON_ALL_STRATEGIES_ID
+      ? []
+      : strategyComparisonSideReplays(state.strategyComparison.rightStrategyId);
+    renderStrategyComparisonChart(leftReplays, rightReplays);
+    renderStrategyComparisonMetrics(leftReplays.length === 1 ? leftReplays[0] : null, rightReplays.length === 1 ? rightReplays[0] : null);
   }
 
   function renderComponentCards(summaries) {

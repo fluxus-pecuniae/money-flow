@@ -2078,11 +2078,84 @@ h3 {
   background: var(--color-blue);
 }
 
+.line-key.line-a.line-alt-1,
+.comparison-line.line-a.line-alt-1 {
+  stroke: var(--color-teal);
+  background: var(--color-teal);
+}
+
+.line-key.line-a.line-alt-2,
+.comparison-line.line-a.line-alt-2 {
+  stroke: #8be56d;
+  background: #8be56d;
+}
+
+.line-key.line-a.line-alt-3,
+.comparison-line.line-a.line-alt-3 {
+  stroke: #65d6ff;
+  background: #65d6ff;
+}
+
+.line-key.line-a.line-alt-4,
+.comparison-line.line-a.line-alt-4 {
+  stroke: #d6f76f;
+  background: #d6f76f;
+}
+
+.line-key.line-a.line-alt-5,
+.comparison-line.line-a.line-alt-5 {
+  stroke: #7ee7c7;
+  background: #7ee7c7;
+}
+
+.line-key.line-a.line-alt-6,
+.comparison-line.line-a.line-alt-6 {
+  stroke: #a3e635;
+  background: #a3e635;
+}
+
+.line-key.line-b.line-alt-1,
+.comparison-line.line-b.line-alt-1 {
+  stroke: var(--color-amber);
+  background: var(--color-amber);
+}
+
+.line-key.line-b.line-alt-2,
+.comparison-line.line-b.line-alt-2 {
+  stroke: #ff8bd1;
+  background: #ff8bd1;
+}
+
+.line-key.line-b.line-alt-3,
+.comparison-line.line-b.line-alt-3 {
+  stroke: #f97316;
+  background: #f97316;
+}
+
+.line-key.line-b.line-alt-4,
+.comparison-line.line-b.line-alt-4 {
+  stroke: #c084fc;
+  background: #c084fc;
+}
+
+.line-key.line-b.line-alt-5,
+.comparison-line.line-b.line-alt-5 {
+  stroke: #facc15;
+  background: #facc15;
+}
+
+.line-key.line-b.line-alt-6,
+.comparison-line.line-b.line-alt-6 {
+  stroke: #fb7185;
+  background: #fb7185;
+}
+
 .comparison-line {
   fill: none;
-  stroke-width: 3;
+  stroke-width: 2.4;
   stroke-linecap: round;
   stroke-linejoin: round;
+  opacity: 0.9;
   filter: drop-shadow(0 0 7px rgba(25, 167, 206, 0.2));
 }
 

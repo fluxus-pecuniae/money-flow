@@ -163,6 +163,8 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "Light" in html
     assert "Red Zone" in html
     assert "DASHBOARD_THEME_STORAGE_KEY" in js
+    assert 'stored : "red-zone"' in js
+    assert 'safeTheme = DASHBOARD_THEMES.has(theme) ? theme : "red-zone"' in js
     assert "applyDashboardTheme" in js
     assert 'html[data-theme="light"]' in css
     assert 'html[data-theme="red-zone"]' in css
@@ -178,6 +180,13 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "strategyComparison" in js
     assert "renderStrategyComparison" in js
     assert "strategyComparisonVerdict" in js
+    assert "STRATEGY_COMPARISON_ALL_STRATEGIES_ID" in js
+    assert "All strategies" in js
+    assert "strategyComparisonSideReplays" in js
+    assert "selectableIds = [STRATEGY_COMPARISON_ALL_STRATEGIES_ID, ...ids]" in js
+    assert "leftStrategyId === STRATEGY_COMPARISON_ALL_STRATEGIES_ID" in js
+    assert "strategyComparisonLineClass" in js
+    assert "line-alt-1" in css
     assert "${winner} looks better" in js
     assert "Strategy A has higher net PnL" in js
     assert "Strategy B has higher net PnL" in js
