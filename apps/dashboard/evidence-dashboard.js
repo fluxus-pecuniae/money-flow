@@ -699,7 +699,7 @@
     historicalReplay: {
       strategyId: "money_flow_v1_2_canonical",
       symbol: "ETH",
-      timeframe: "4h",
+      timeframe: "1d",
       fillAssumption: "next_candle_open",
       selectedTradeId: null,
       showArrowDescriptions: false,
@@ -1417,7 +1417,6 @@
 
   function renderFlags() {
     const flags = [
-      ["No live artifacts", state.review?.creates_live_artifacts === false],
       ["No exchange adapters", state.review?.calls_exchange_adapters === false],
       ["No private endpoints", state.review?.calls_private_exchange_endpoints === false],
       ["No order endpoints", state.review?.calls_exchange_order_endpoints === false],
@@ -2296,9 +2295,7 @@
   function renderEvidenceReplayRunLedger(rows) {
     const label = selectedEvidenceReplayStrategyLabel();
     if (elements.runTableSubtitle) {
-      const fillLabel = state.evidenceReplayFillAssumption === "all" ? "all fill assumptions" : state.evidenceReplayFillAssumption;
-      elements.runTableSubtitle.textContent =
-        `Replay strategy: ${label}. Fill assumption: ${fillLabel}. Rows are generated Historical Replay scenarios from loaded dashboard chart-data JSON; date filters are display-only, not canonical pack regeneration.`;
+      elements.runTableSubtitle.textContent = "";
     }
     renderRunLedgerTotals(rows);
     if (!rows.length) {
@@ -2361,8 +2358,7 @@
       return;
     }
     if (elements.runTableSubtitle) {
-      elements.runTableSubtitle.textContent =
-        "Scenario results from loaded batch reports; dynamic equity is per scenario and not one combined account.";
+      elements.runTableSubtitle.textContent = "";
     }
     renderRunLedgerTotals([]);
     const rawRows = summaries
@@ -5183,7 +5179,7 @@
     if (baseReplay && (!state.historicalReplay.strategyId || !state.historicalReplay.symbol || !state.historicalReplay.timeframe)) {
       state.historicalReplay.strategyId = baseReplay.strategy_id || "money_flow_v1_2_canonical";
       state.historicalReplay.symbol = baseReplay.symbol || "ETH";
-      state.historicalReplay.timeframe = canonicalTimeframe(baseReplay.timeframe || "1h");
+      state.historicalReplay.timeframe = canonicalTimeframe(baseReplay.timeframe || "1d");
     }
     const replay = filteredHistoricalReplay(baseReplay);
     renderHistoricalReplaySourceStatus(replay);
@@ -5272,10 +5268,15 @@
       replays: allReplays,
     };
     if (!selectedHistoricalReplay() && allReplays.length) {
-      state.historicalReplay.strategyId = allReplays[0].strategy_id || "money_flow_v1_2_canonical";
-      state.historicalReplay.symbol = allReplays[0].symbol || "ETH";
-      state.historicalReplay.timeframe = canonicalTimeframe(allReplays[0].timeframe || "4h");
-      state.historicalReplay.fillAssumption = allReplays[0].fill_assumption || "next_candle_open";
+      const defaultReplay = allReplays.find((row) =>
+        (row.strategy_id || "money_flow_v1_2_canonical") === "money_flow_v1_2_canonical" &&
+        row.symbol === "ETH" &&
+        canonicalTimeframe(row.timeframe) === "1d",
+      ) || allReplays.find((row) => canonicalTimeframe(row.timeframe) === "1d") || allReplays[0];
+      state.historicalReplay.strategyId = defaultReplay.strategy_id || "money_flow_v1_2_canonical";
+      state.historicalReplay.symbol = defaultReplay.symbol || "ETH";
+      state.historicalReplay.timeframe = canonicalTimeframe(defaultReplay.timeframe || "1d");
+      state.historicalReplay.fillAssumption = defaultReplay.fill_assumption || "next_candle_open";
     }
   }
 

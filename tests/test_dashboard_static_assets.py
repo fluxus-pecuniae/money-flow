@@ -219,6 +219,8 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "evidenceReplayStrategyId" in js
     assert "EVIDENCE_ALL_REPLAY_STRATEGIES_ID" in js
     assert "All replay strategies" in js
+    assert 'timeframe: "1d"' in js
+    assert 'canonicalTimeframe(defaultReplay.timeframe || "1d")' in js
     assert "renderEvidenceStrategyFilter" in js
     assert "renderEvidenceReplayFillFilter" in js
     assert "evidenceReplayFillAssumption" in js
@@ -246,7 +248,6 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert ".run-ledger-totals" in css
     assert ".run-ledger-filters" not in css
     assert "Canonical evidence packs / batch reports" in js
-    assert "generated Historical Replay scenarios from loaded dashboard chart-data JSON" in js
     assert "classifyEvidenceReplayResult" in js
     assert "improved_pnl_drawdown" in js
     assert "improved_pnl_not_drawdown" in js
@@ -256,6 +257,7 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "result-pill" in css
     assert "result-same" in css
     assert 'id="historical-replay-arrow-descriptions-toggle" type="checkbox">' in html
+    assert html.index('id="historical-replay-equity-panel"') < html.index('id="historical-replay-chart"')
     assert "historical-data-summary-card" in js
     assert "historical-data-summary-grid" in css
     assert "historical-data-summary-warning-row" in js
