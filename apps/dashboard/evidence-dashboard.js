@@ -85,7 +85,7 @@
     "mf_orig_1d_stage2_breakout_resistance_full_equity",
   ];
   const SV21_BROAD_BATCH_LOAD_CONCURRENCY = 32;
-  const SV21_BROAD_BATCH_LOAD_LIMIT = 700;
+  const SV21_BROAD_BATCH_LOAD_LIMIT = 3000;
 
   const DEFAULT_SOR_EV_SUMMARY_FILES = [
     "../../docs/sor_ev1_money_flow_trade_loss_anatomy_and_variants_summary.json",
@@ -1237,6 +1237,44 @@
     };
   }
 
+  function firstDefined(...values) {
+    return values.find((value) => value !== undefined && value !== null && value !== "");
+  }
+
+  function compactRunSummaryFromRun(run, batch = {}) {
+    const report = run.report || {};
+    const componentReport = report.component_reports?.[0] || {};
+    const metrics = report.aggregate_metrics || componentReport.metrics || {};
+    const request = run.request || {};
+    const assumptions = report.assumptions || request.assumptions || {};
+    const component = componentReport.component_key || request.component_keys?.[0] || batch.assumptions_matrix?.components?.[0] || "sleeve_1d";
+    const timeframe = canonicalTimeframe(componentReport.timeframe || report.timeframe || String(component).replace(/^sleeve_/, "") || "1d");
+    return {
+      run_id: run.run_id || report.report_id || "unknown_run",
+      status: run.status || "completed",
+      strategy_id: run.strategy_id || report.strategy_id || batch.manifest?.strategy_id || "money_flow_v1_2_canonical",
+      period: run.period || report.period || batch.manifest?.period,
+      symbol: run.symbol || report.symbol || request.symbol || batch.assumptions_matrix?.symbols?.[0] || "unknown",
+      component,
+      timeframe,
+      fill_timing: firstDefined(run.fill_timing, assumptions.fill_timing, batch.assumptions_matrix?.fill_timings?.[0], "unknown"),
+      fee_bps: firstDefined(assumptions.fee_bps, "n/a"),
+      slippage_bps: firstDefined(assumptions.slippage_bps, "n/a"),
+      capital_sizing_mode: firstDefined(metrics.capital_sizing_mode, assumptions.capital_sizing_mode, "dynamic equity pct"),
+      start_at: request.start_at || report.start_at,
+      end_at: request.end_at || report.end_at,
+      metrics: {
+        ...metrics,
+        capital_sizing_mode: firstDefined(metrics.capital_sizing_mode, assumptions.capital_sizing_mode, "dynamic equity pct"),
+        ending_equity: firstDefined(metrics.ending_equity, metrics.net_pnl),
+        net_pnl: firstDefined(metrics.net_pnl, metrics.net_account_pnl),
+        win_rate: metrics.win_rate,
+        number_of_trades: firstDefined(metrics.number_of_trades, metrics.trade_count, 0),
+        mark_to_market_max_drawdown: firstDefined(metrics.mark_to_market_max_drawdown, metrics.max_drawdown),
+      },
+    };
+  }
+
   function batchSummary(batch) {
     const comparison = batch.comparison_summary || {};
     const componentComparison = comparison.component_comparison?.[0] || {};
@@ -1247,11 +1285,17 @@
     const firstRun = completedRuns[0]?.report;
     const firstCoverage = coverage[0];
     const symbol = batch.assumptions_matrix?.symbols?.[0] || firstRun?.symbol || "unknown";
+    const runSummaries = (comparison.run_summaries || []).length
+      ? comparison.run_summaries
+      : completedRuns.map((run) => compactRunSummaryFromRun(run, batch));
     const totalExpected = coverage.reduce(
       (sum, row) => sum + decimal(row.total_expected_candle_count),
       0,
     );
     const totalActual = coverage.reduce((sum, row) => sum + decimal(row.total_actual_candle_count), 0);
+    const totalNetPnl = runSummaries.reduce((sum, row) => sum + decimal(row.metrics?.net_pnl), 0);
+    const totalTrades = runSummaries.reduce((sum, row) => sum + decimal(row.metrics?.number_of_trades), 0);
+    const largestDrawdown = Math.max(...runSummaries.map((row) => decimal(row.metrics?.mark_to_market_max_drawdown)), 0);
 
     const summary = {
       batch,
@@ -1267,19 +1311,19 @@
         `${firstRun?.start_at || "unknown"} -> ${firstRun?.end_at || "unknown"}`,
       completedRunCount: decimal(componentComparison.completed_run_count, completedRuns.length),
       blockedRunCount: decimal(componentComparison.blocked_run_count),
-      totalNetPnl: decimal(componentComparison.total_net_pnl),
-      averageNetPnl: decimal(componentComparison.average_net_pnl),
-      totalTrades: decimal(componentComparison.total_trades),
+      totalNetPnl: decimal(componentComparison.total_net_pnl, totalNetPnl),
+      averageNetPnl: decimal(componentComparison.average_net_pnl, runSummaries.length ? totalNetPnl / runSummaries.length : 0),
+      totalTrades: decimal(componentComparison.total_trades, totalTrades),
       totalFees: decimal(componentComparison.total_fees),
       totalSlippage: decimal(componentComparison.total_slippage_cost),
-      largestDrawdown: decimal(componentComparison.largest_mark_to_market_drawdown),
+      largestDrawdown: decimal(componentComparison.largest_mark_to_market_drawdown, largestDrawdown),
       coveragePercent: totalExpected > 0 ? totalActual / totalExpected : 0,
       expectedCandles: totalExpected,
       actualCandles: totalActual,
       fillTiming: comparison.fill_timing_comparison || [],
       symbols: comparison.symbol_comparison || [],
       regimes: comparison.regime_comparison || [],
-      runSummaries: comparison.run_summaries || [],
+      runSummaries,
       bestNetPnl: comparison.highest_observed_net_pnl_run || null,
       worstNetPnl: comparison.lowest_observed_net_pnl_run || null,
       bestWinRate: comparison.highest_observed_win_rate_run || null,
@@ -2169,7 +2213,7 @@
       : [];
     const range = evidenceDateRange();
     const replayKey = (replay) =>
-      `${replay.symbol || "unknown"}|${canonicalTimeframe(replay.timeframe)}|${replay.fill_assumption || "unknown"}`;
+      `${replay.symbol || "unknown"}|${canonicalTimeframe(replay.timeframe)}|${replay.period || "SV2.0.2"}|${replay.fill_assumption || "unknown"}`;
     const baselineByKey = new Map();
     replays
       .filter((replay) => (replay.strategy_id || "money_flow_v1_2_canonical") === "money_flow_v1_2_canonical")
@@ -2211,6 +2255,7 @@
           component: replay.component || `sleeve_${canonicalTimeframe(replay.timeframe)}`,
           symbol: replay.symbol || "unknown",
           timeframe: canonicalTimeframe(replay.timeframe),
+          period: replay.period || "SV2.0.2",
           fill_timing: replay.fill_assumption || "unknown",
           ending_equity: summary.ending_equity,
           net_pnl: summary.net_pnl,
@@ -2372,6 +2417,7 @@
             <th>Component</th>
             <th>Symbol</th>
             <th>Timeframe</th>
+            <th>Period</th>
             <th>Fill</th>
             <th>${runLedgerSortButton("endingEquity", "Ending Equity")}</th>
             <th>${runLedgerSortButton("netPnl", "Scenario Net PnL")}</th>
@@ -2389,6 +2435,7 @@
               <td>${escapeHtml(cleanComponentName(row.component))}</td>
               <td>${escapeHtml(row.symbol)}</td>
               <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
+              <td>${escapeHtml(row.period)}</td>
               <td>${escapeHtml(row.fill_timing)}</td>
               <td>${escapeHtml(money(row.ending_equity))}</td>
               <td class="${decimal(row.net_pnl) >= 0 ? "positive" : "negative"}">${escapeHtml(money(row.net_pnl))}</td>
@@ -4079,14 +4126,66 @@
     return strategyId;
   }
 
+  function sv21BroadPackSlug(strategyId, period, symbol) {
+    return `money_flow_sv2_1_hyperliquid_broad_1d_${safeReplayPathSegment(strategyId)}_${safeReplayPathSegment(period)}_${safeReplayPathSegment(symbol)}_evidence_only`;
+  }
+
+  function normalizedPackPathFromBatchSource(sourcePath) {
+    return String(sourcePath || "")
+      .replace(/^\.\.\//, "")
+      .replace(/^\.\.\//, "")
+      .replace(/\/batch_report\.json$/, "");
+  }
+
+  function sv21RunSummaryKey(packPath, strategyId, fillAssumption) {
+    return `${normalizedPackPathFromBatchSource(packPath)}|${strategyId || "money_flow_v1_2_canonical"}|${fillAssumption || "unknown"}`;
+  }
+
+  function replaySummaryFromCompactRun(row) {
+    const metrics = row.metrics || {};
+    return {
+      starting_equity: metrics.starting_equity,
+      ending_equity: metrics.ending_equity,
+      net_pnl: metrics.net_pnl,
+      max_drawdown: metrics.mark_to_market_max_drawdown,
+      max_drawdown_pct: metrics.mark_to_market_max_drawdown_pct,
+      trade_count: metrics.number_of_trades,
+      win_rate: metrics.win_rate,
+      largest_loss: metrics.worst_trade_net_pnl || metrics.worst_trade,
+      largest_win: metrics.best_trade_net_pnl || metrics.best_trade,
+      profit_factor: metrics.profit_factor,
+    };
+  }
+
+  function sv21RunSummaryByKey() {
+    const rows = new Map();
+    (state.batches || [])
+      .filter((batch) => String(batch.__source_path || "").includes("money_flow_sv2_1_hyperliquid_broad_1d_"))
+      .forEach((batch) => {
+        const packPath = normalizedPackPathFromBatchSource(batch.__source_path);
+        (batch.run_reports || [])
+          .filter((run) => run.status === "completed")
+          .forEach((run) => {
+            const compact = compactRunSummaryFromRun(run, batch);
+            rows.set(
+              sv21RunSummaryKey(packPath, compact.strategy_id, compact.fill_timing),
+              replaySummaryFromCompactRun(compact),
+            );
+          });
+      });
+    return rows;
+  }
+
   function sv21BroadSummaryReplays() {
     const summary = state.sv21BroadSummary || {};
     if (summary.phase !== "SV2.1") return [];
-    const candidatePackSlugs = new Set(
-      (summary.candidate_evidence_status?.evidence_pack_paths || []).map((path) =>
+    const candidatePackPaths = new Map(
+      (summary.candidate_evidence_status?.evidence_pack_paths || []).map((path) => [
         String(path || "").split("/").find((segment) => segment.startsWith("money_flow_sv2_1_hyperliquid_broad_1d_")) || "",
-      ),
+        String(path || ""),
+      ]),
     );
+    const runSummaryByKey = sv21RunSummaryByKey();
     const strategyIds = [
       "money_flow_v1_2_canonical",
       ...(
@@ -4102,12 +4201,12 @@
         const period = String(row.period || "ALL").toUpperCase();
         const symbol = row.symbol;
         return strategyIds.flatMap((strategyId) =>
-          strategyId !== "money_flow_v1_2_canonical" &&
-          !candidatePackSlugs.has(
-            `money_flow_sv2_1_hyperliquid_broad_1d_${safeReplayPathSegment(strategyId)}_${safeReplayPathSegment(period)}_${safeReplayPathSegment(symbol)}_evidence_only`,
-          )
-            ? []
-            : fillAssumptions.map((fillAssumption) => ({
+          {
+            const packPath = strategyId === "money_flow_v1_2_canonical"
+              ? row.evidence_pack_path
+              : candidatePackPaths.get(sv21BroadPackSlug(strategyId, period, symbol));
+            if (!packPath) return [];
+            return fillAssumptions.map((fillAssumption) => ({
             strategy_id: strategyId,
             strategy_label: sv21BroadStrategyLabel(strategyId),
             component: "sleeve_1d",
@@ -4121,14 +4220,15 @@
             strategy_truth_lane: "hyperliquid_public_mainnet_sv2_1_broad_1d",
             chart_data_path: sv21BroadSelectedChartDataPath(symbol, strategyId, fillAssumption, period),
             chart_data_lazy: true,
-            evidence_pack_path: row.evidence_pack_path,
-            summary: {},
+            evidence_pack_path: packPath,
+            summary: runSummaryByKey.get(sv21RunSummaryKey(packPath, strategyId, fillAssumption)) || {},
             candles: [],
             indicators: [],
             markers: [],
             trades: [],
             equity_curve: [],
-          })),
+          }));
+          },
         );
       });
   }
@@ -9590,7 +9690,10 @@
         const summary = await response.json();
         if (classifyJson(summary) !== "sv21_broad_summary") continue;
         state.sv21BroadSummary = summary;
-        const batchPaths = (summary.evidence_pack_paths || [])
+        const batchPaths = Array.from(new Set([
+          ...(summary.evidence_pack_paths || []),
+          ...(summary.candidate_evidence_status?.evidence_pack_paths || []),
+        ]))
           .slice(0, SV21_BROAD_BATCH_LOAD_LIMIT)
           .map(sv21BroadBatchReportPath)
           .filter(Boolean);

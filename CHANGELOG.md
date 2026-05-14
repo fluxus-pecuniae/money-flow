@@ -13,6 +13,21 @@ Entry schema:
 
 ---
 
+## v2026.05.14.012
+
+- `recorded_at_utc`: `2026-05-14T23:22:41Z`
+- `scope`: `SV2.1 broad evidence UI metric visibility hotfix`
+- `intent`: `Native entry. Fixed the dashboard path that made new SV2.1 broad candidate evidence packs appear without Ending Equity / Scenario Net PnL / Drawdown values. The default SV2.1 loader now includes both baseline period packs and candidate evidence-only packs from candidate_evidence_status, batch summaries fall back to run_report aggregate metrics when comparison_summary/run_summaries are absent, Historical Replay compact rows seed their summary metrics from loaded SV2.1 batch reports, Evidence replay comparison keys include period, and the generated replay ledger shows period explicitly. No evidence was regenerated, no production rules changed, no variant was approved, and no orders/private/signed/order endpoints/API keys/testnet strategy truth/paper-live approval/SOR behavior were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `money-flow/05_Agent_Coordination.md`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+
 ## v2026.05.14.011
 
 - `recorded_at_utc`: `2026-05-14T23:09:49Z`

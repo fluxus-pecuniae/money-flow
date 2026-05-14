@@ -317,11 +317,20 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "loadDefaultSv21BroadEvidenceBatches" in js
     assert "sv21BroadSummaryReplays" in js
     assert "sv21BroadSelectedChartDataPath" in js
+    assert "summary.candidate_evidence_status?.evidence_pack_paths" in js
+    assert "SV21_BROAD_BATCH_LOAD_LIMIT = 3000" in js
+    assert "compactRunSummaryFromRun" in js
+    assert "sv21RunSummaryByKey" in js
+    assert "replaySummaryFromCompactRun" in js
+    assert "sv21BroadPackSlug" in js
+    assert "row.evidence_pack_path" in js
+    assert "summary: runSummaryByKey.get" in js
     assert "historical-replay-period-filter" in html
     assert "_sv21_replay.json" in js
     assert "sv2_1_broad_1d_dashboard_chart_data" in js
     assert "historicalReplayPeriodMatches" in js
     assert "period: \"ALL\"" in js
+    assert "<th>Period</th>" in js
     assert "evidence_pack_paths" in js
     assert "SV2.0.2 + SV2.1 evidence packs loaded" in js
     assert "SV2.1 broad 1D period pack JSON files loaded" in js
