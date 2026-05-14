@@ -313,7 +313,10 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "renderPaperObservation" in js
     assert "renderPaperObservationLaneDetail" in js
     assert "renderPaperObservationWildcardDiagnostics" in js
-    assert "https://api.hyperliquid.xyz/info" not in js
+    assert "https://api.hyperliquid.xyz/info" in js
+    assert "HYPERLIQUID_MAINNET_PUBLIC_INFO_URL" in js
+    assert "dashboard_live_chart_public_info_endpoint_not_allowlisted" in js
+    assert "private_or_order_payload_forbidden" in js
     assert "Hyperliquid public mainnet info endpoint" in summary
     assert "money_flow_v1_2_baseline" in summary
     assert "avoid_low_rolling_range_50" in summary

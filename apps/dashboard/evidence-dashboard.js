@@ -98,6 +98,7 @@
   ];
   const RUN_LEDGER_DISPLAY_FILTER_BOUNDARY = "date filters are display-only, not canonical pack regeneration";
 
+  const HYPERLIQUID_MAINNET_PUBLIC_INFO_URL = "https://api.hyperliquid.xyz/info";
   const HYPERLIQUID_TESTNET_PUBLIC_INFO_URL = "https://api.hyperliquid-testnet.xyz/info";
   const TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION = "5.2.0";
   const CHART_BACKGROUND_COLOR = "#10171b";
@@ -144,11 +145,13 @@
     rejected_negative_aggregate: 100,
   };
   const LIVE_MARKET_REFRESH_MS = 15000;
+  const PAPER_OBSERVATION_MARKET_REFRESH_MS = 10000;
   const LIVE_CHART_CANDLE_COUNT = 96;
   const LIVE_TIMEFRAME_MINUTES = {
     "15m": 15,
     "1h": 60,
     "4h": 240,
+    "1d": 1440,
   };
   const LIVE_PUBLIC_INFO_TYPES = new Set([
     "allMids",
@@ -673,6 +676,40 @@
       liveEndpointCalled: false,
       timer: null,
       inFlight: false,
+    },
+    paperObservationMarketData: {
+      enabled: !livePollingDisabledByQuery(),
+      status: livePollingDisabledByQuery() ? "paper_observation_public_mainnet_polling_disabled" : "not_started",
+      disabledReason: livePollingDisabledByQuery() ? "query_flag" : null,
+      endpoint: HYPERLIQUID_MAINNET_PUBLIC_INFO_URL,
+      refreshMs: PAPER_OBSERVATION_MARKET_REFRESH_MS,
+      lastUpdatedUtc: null,
+      error: null,
+      mids: {},
+      previousMids: {},
+      candles: [],
+      indicatorSnapshot: null,
+      selectedSymbol: "ETH",
+      selectedTimeframe: "1h",
+      privateSignedOrderEndpointsCalled: false,
+      orderEndpointsCalled: false,
+      liveEndpointCalled: false,
+      timer: null,
+      inFlight: false,
+    },
+    paperObservationChart: {
+      chart: null,
+      mount: null,
+      candleSeries: null,
+      volumeSeries: null,
+      indicatorSeries: {},
+      markerHandle: null,
+      key: null,
+      ready: false,
+      pendingResizeFrame: null,
+      resizeObserver: null,
+      lastVisibleRange: null,
+      fitContentApplied: false,
     },
     uatFilters: {
       symbol: "all",
@@ -6120,7 +6157,10 @@
     return "TradingView Lightweight Charts public polling is starting. Dashboard falls back to committed PT0/UAT4.2 local summary JSON until the first public-read-only update arrives. No API keys, private order endpoints, signed order endpoints, order endpoints, or live endpoints are used.";
   }
 
-  async function postHyperliquidPublicInfo(payload) {
+  async function postHyperliquidPublicInfo(endpoint, payload) {
+    if (![HYPERLIQUID_MAINNET_PUBLIC_INFO_URL, HYPERLIQUID_TESTNET_PUBLIC_INFO_URL].includes(endpoint)) {
+      throw new Error("dashboard_live_chart_public_info_endpoint_not_allowlisted");
+    }
     if (!payload || !LIVE_PUBLIC_INFO_TYPES.has(payload.type)) {
       throw new Error("dashboard_live_chart_public_info_type_not_allowlisted");
     }
@@ -6128,7 +6168,7 @@
     if (/\"user\"|\"action\"|\"signature\"|\"vaultAddress\"/i.test(body)) {
       throw new Error("dashboard_live_chart_private_or_order_payload_forbidden");
     }
-    const response = await fetch(HYPERLIQUID_TESTNET_PUBLIC_INFO_URL, {
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body,
@@ -6297,8 +6337,8 @@
       const symbol = state.uatCockpit.symbol || "ETH";
       const timeframe = state.uatCockpit.timeframe || "1h";
       const [mids, candlePayload] = await Promise.all([
-        postHyperliquidPublicInfo({ type: "allMids" }),
-        postHyperliquidPublicInfo(liveCandlePayload(symbol, timeframe)),
+        postHyperliquidPublicInfo(HYPERLIQUID_TESTNET_PUBLIC_INFO_URL, { type: "allMids" }),
+        postHyperliquidPublicInfo(HYPERLIQUID_TESTNET_PUBLIC_INFO_URL, liveCandlePayload(symbol, timeframe)),
       ]);
       const candles = normalizeLiveCandles(candlePayload);
       state.liveMarketData.market_data = buildLiveMarketRows(mids, symbol, timeframe, candles);
@@ -6319,6 +6359,62 @@
     if (!state.liveMarketData.enabled || state.liveMarketData.timer || typeof fetch !== "function") return;
     refreshLiveMarketData();
     state.liveMarketData.timer = window.setInterval(refreshLiveMarketData, LIVE_MARKET_REFRESH_MS);
+  }
+
+  async function refreshPaperObservationMarketData({ force = false } = {}) {
+    const live = state.paperObservationMarketData;
+    if (!live.enabled || live.inFlight || typeof fetch !== "function") return;
+    live.inFlight = true;
+    live.status = "paper_observation_public_mainnet_refreshing";
+    renderPaperObservationConnectionStatus();
+    try {
+      const selectedRow = paperObservationSelectedRow();
+      const selectedSymbol = selectedRow.resolved_venue_symbol || selectedRow.requested_symbol || "ETH";
+      const selectedTimeframe = selectedPaperObservationTimeframe();
+      const blocked = selectedRow.blocked || selectedRow.scanner_eligible === false;
+      const staleSelection =
+        live.selectedSymbol !== selectedSymbol ||
+        !sameTimeframe(live.selectedTimeframe, selectedTimeframe) ||
+        !Array.isArray(live.candles) ||
+        !live.candles.length;
+      const shouldLoadCandles = force || staleSelection || !live.lastUpdatedUtc;
+      const midsPromise = postHyperliquidPublicInfo(HYPERLIQUID_MAINNET_PUBLIC_INFO_URL, { type: "allMids" });
+      const candlePromise = blocked || !shouldLoadCandles
+        ? Promise.resolve(null)
+        : postHyperliquidPublicInfo(HYPERLIQUID_MAINNET_PUBLIC_INFO_URL, liveCandlePayload(selectedSymbol, selectedTimeframe));
+      const [mids, candlePayload] = await Promise.all([midsPromise, candlePromise]);
+      live.previousMids = live.mids || {};
+      live.mids = mids || {};
+      if (candlePayload) {
+        live.candles = normalizeLiveCandles(candlePayload);
+        live.indicatorSnapshot = live.candles.length
+          ? computeDashboardIndicators(live.candles, selectedSymbol, selectedTimeframe)
+          : null;
+      }
+      live.selectedSymbol = selectedSymbol;
+      live.selectedTimeframe = selectedTimeframe;
+      live.status = blocked ? "paper_observation_selected_symbol_blocked" : "paper_observation_public_mainnet_connected";
+      live.lastUpdatedUtc = new Date().toISOString();
+      live.error = blocked
+        ? paperObservationText(selectedRow.reason_codes, "selected_symbol_blocked")
+        : null;
+      live.privateSignedOrderEndpointsCalled = false;
+      live.orderEndpointsCalled = false;
+      live.liveEndpointCalled = false;
+    } catch (error) {
+      live.status = "paper_observation_public_mainnet_unavailable";
+      live.error = sanitizeLiveChartError(error);
+    } finally {
+      live.inFlight = false;
+      renderPaperObservation();
+    }
+  }
+
+  function startPaperObservationMarketPolling() {
+    const live = state.paperObservationMarketData;
+    if (!live.enabled || live.timer || typeof fetch !== "function") return;
+    refreshPaperObservationMarketData({ force: true });
+    live.timer = window.setInterval(refreshPaperObservationMarketData, PAPER_OBSERVATION_MARKET_REFRESH_MS);
   }
 
   function renderUatCockpit() {
@@ -8301,10 +8397,154 @@
     return String(value);
   }
 
+  function paperObservationBaseScannerRows() {
+    const summary = paperObservationSummary();
+    const rows = paperObservationRows(summary?.scanner_universe);
+    if (rows.length) return rows;
+    return paperObservationRows(summary?.symbols).map((symbol) => ({
+      requested_symbol: symbol,
+      resolved_venue_symbol: symbol,
+      canonical_symbol: symbol,
+      sources: ["runtime_summary_symbol_list"],
+      supported_by_venue: true,
+      precision_ready: true,
+      data_health: "pending_runtime_refresh",
+      scanner_eligible: true,
+      blocked: false,
+      reason_codes: ["runtime_summary_symbol_list_only"],
+    }));
+  }
+
+  function paperObservationSelectedRow() {
+    const rows = paperObservationBaseScannerRows();
+    const selected = state.paperObservation.symbol;
+    if (selected && selected !== "all") {
+      const match = rows.find((row) =>
+        row.requested_symbol === selected ||
+        row.resolved_venue_symbol === selected ||
+        row.canonical_symbol === selected,
+      );
+      if (match) return match;
+    }
+    return rows.find((row) => row.scanner_eligible && !row.blocked && row.resolved_venue_symbol === "ETH") ||
+      rows.find((row) => row.scanner_eligible && !row.blocked) ||
+      rows[0] ||
+      { requested_symbol: "ETH", resolved_venue_symbol: "ETH", scanner_eligible: true, blocked: false, reason_codes: [] };
+  }
+
+  function selectedPaperObservationVenueSymbol() {
+    return paperObservationSelectedRow().resolved_venue_symbol || paperObservationSelectedRow().requested_symbol || "ETH";
+  }
+
+  function selectedPaperObservationTimeframe() {
+    return state.paperObservation.timeframe === "all" ? "1h" : state.paperObservation.timeframe || "1h";
+  }
+
+  function paperObservationSymbolOptions() {
+    const rows = paperObservationBaseScannerRows();
+    const options = rows.map((row) => {
+      const requested = row.requested_symbol || row.resolved_venue_symbol || row.canonical_symbol;
+      const resolved = row.resolved_venue_symbol && row.resolved_venue_symbol !== requested ? ` -> ${row.resolved_venue_symbol}` : "";
+      const blocked = row.blocked ? " blocked" : "";
+      return {
+        value: requested,
+        label: `${requested}${resolved}${blocked}`,
+      };
+    });
+    return options.length ? options : [{ value: "ETH", label: "ETH" }];
+  }
+
+  function paperObservationLiveMid(row) {
+    const venueSymbol = row.resolved_venue_symbol || row.requested_symbol;
+    const mids = state.paperObservationMarketData.mids || {};
+    const liveMid = Object.prototype.hasOwnProperty.call(mids, venueSymbol) ? mids[venueSymbol] : null;
+    return liveMid ?? row.public_mid ?? null;
+  }
+
+  function paperObservationTickClass(row) {
+    const venueSymbol = row.resolved_venue_symbol || row.requested_symbol;
+    const current = decimal((state.paperObservationMarketData.mids || {})[venueSymbol], NaN);
+    const previous = decimal((state.paperObservationMarketData.previousMids || {})[venueSymbol], NaN);
+    if (!Number.isFinite(current) || !Number.isFinite(previous) || current === previous) return "tick-flat";
+    return current > previous ? "tick-up" : "tick-down";
+  }
+
+  function paperObservationScannerRows() {
+    const live = state.paperObservationMarketData || {};
+    return paperObservationBaseScannerRows().map((row) => ({
+      ...row,
+      public_mid: paperObservationLiveMid(row),
+      live_tick_status: live.status || "not_started",
+      last_live_tick_utc: live.lastUpdatedUtc,
+      endpoint_category: "public_read_only",
+    }));
+  }
+
+  function paperObservationChartSource() {
+    const live = state.paperObservationMarketData || {};
+    const selectedSymbol = selectedPaperObservationVenueSymbol();
+    const selectedTimeframe = selectedPaperObservationTimeframe();
+    if (
+      Array.isArray(live.candles) &&
+      live.candles.length &&
+      live.selectedSymbol === selectedSymbol &&
+      sameTimeframe(live.selectedTimeframe, selectedTimeframe)
+    ) {
+      return {
+        symbol: selectedSymbol,
+        timeframe: selectedTimeframe,
+        candles: live.candles,
+        paper_markers: [],
+        source: "hyperliquid_mainnet_candleSnapshot_browser_poll",
+        status: live.status,
+        lastUpdatedUtc: live.lastUpdatedUtc,
+        error: live.error,
+      };
+    }
+    const chart = paperObservationSummary()?.live_chart || {};
+    return {
+      symbol: chart.symbol || selectedSymbol,
+      timeframe: chart.timeframe || selectedTimeframe,
+      candles: paperObservationRows(chart.candles).map((row) => ({
+        timestamp_utc: row.timestamp_utc || row.time,
+        open: row.open,
+        high: row.high,
+        low: row.low,
+        close: row.close,
+        volume: row.volume || "0",
+      })),
+      paper_markers: paperObservationRows(chart.paper_markers),
+      source: "pt_rt1_runtime_summary_fallback",
+      status: live.status || "runtime_summary_fallback",
+      lastUpdatedUtc: live.lastUpdatedUtc || paperObservationSummary()?.connection_status?.last_update_utc,
+      error: live.error,
+    };
+  }
+
+  function paperObservationChartCandles(candles) {
+    return paperObservationRows(candles)
+      .map((candle) => ({
+        time: chartTime(candle.timestamp_utc || candle.time),
+        open: decimal(candle.open, NaN),
+        high: decimal(candle.high, NaN),
+        low: decimal(candle.low, NaN),
+        close: decimal(candle.close, NaN),
+        volume: decimal(candle.volume, 0),
+      }))
+      .filter((candle) =>
+        Number.isFinite(candle.time) &&
+        Number.isFinite(candle.open) &&
+        Number.isFinite(candle.high) &&
+        Number.isFinite(candle.low) &&
+        Number.isFinite(candle.close),
+      )
+      .sort((left, right) => left.time - right.time);
+  }
+
   function renderPaperObservationControls() {
     const summary = paperObservationSummary();
-    const symbols = paperObservationRows(summary?.symbols);
-    const timeframes = paperObservationRows(summary?.timeframes);
+    const symbols = paperObservationSymbolOptions();
+    const timeframes = paperObservationRows(summary?.timeframes).length ? paperObservationRows(summary?.timeframes) : ["15m", "1h", "4h", "1d"];
     const laneIds = paperObservationRows(summary?.strategy_lanes).map((lane) => lane.strategy_id || lane.lane_id).filter(Boolean);
     renderSelect(elements.paperObservationSymbolFilter, symbols, state.paperObservation.symbol, "All symbols");
     renderSelect(elements.paperObservationTimeframeFilter, timeframes, state.paperObservation.timeframe, "All timeframes");
@@ -8312,6 +8552,7 @@
     if (elements.paperObservationSymbolFilter) {
       elements.paperObservationSymbolFilter.onchange = () => {
         state.paperObservation.symbol = elements.paperObservationSymbolFilter.value === "all" ? "all" : elements.paperObservationSymbolFilter.value;
+        refreshPaperObservationMarketData({ force: true });
         renderPaperObservation();
       };
     }
@@ -8319,6 +8560,7 @@
       elements.paperObservationTimeframeFilter.onchange = () => {
         state.paperObservation.timeframe =
           elements.paperObservationTimeframeFilter.value === "all" ? "all" : elements.paperObservationTimeframeFilter.value;
+        refreshPaperObservationMarketData({ force: true });
         renderPaperObservation();
       };
     }
@@ -8387,27 +8629,32 @@
     const summary = paperObservationSummary();
     const status = summary?.connection_status || {};
     const endpointPolicy = summary?.market_data_endpoint_policy || summary?.strategy_truth_lane || {};
+    const live = state.paperObservationMarketData || {};
     elements.paperObservationConnectionStatus.innerHTML = `
       <div class="market-micro-grid">
         <div><span>Mainnet connection</span><strong>${escapeHtml(paperObservationText(status.hyperliquid_public_mainnet, "pending_runtime_refresh"))}</strong></div>
         <div><span>Endpoint category</span><strong>${escapeHtml(paperObservationText(status.endpoint_category || endpointPolicy.endpoint_category, "public_read_only"))}</strong></div>
         <div><span>Strategy endpoint</span><strong>${escapeHtml(paperObservationText(endpointPolicy.strategy_truth_endpoint || endpointPolicy.endpoint, "public_read_only_mainnet_info"))}</strong></div>
         <div><span>Last update</span><strong>${escapeHtml(paperObservationText(status.last_update_utc, "pending_runtime_refresh"))}</strong></div>
+        <div><span>Browser MD tick</span><strong>${escapeHtml(paperObservationText(live.status, "not_started"))}</strong></div>
+        <div><span>Latest MD tick</span><strong>${escapeHtml(paperObservationText(live.lastUpdatedUtc, "waiting"))}</strong></div>
+        <div><span>Selected chart</span><strong>${escapeHtml(`${selectedPaperObservationVenueSymbol()} ${displayTimeframe(selectedPaperObservationTimeframe())}`)}</strong></div>
         <div><span>No private/signed/order endpoints</span><strong>${escapeHtml(String(status.no_private_signed_order_endpoints ?? true))}</strong></div>
         <div><span>No API keys</span><strong>${escapeHtml(String(status.no_api_keys ?? true))}</strong></div>
       </div>
       <div class="methodology-warning secondary" role="note">
         Public mainnet data is strategy truth. Synthetic paper results are forward observation only.
         Testnet probes are plumbing only; testnet fills do not update strategy PnL.
+        Browser ticker uses Hyperliquid public mainnet allMids/candleSnapshot only.
         Reason codes: ${escapeHtml(paperObservationText([...(status.meta_reason_codes || []), ...(status.mids_reason_codes || [])], "pending_runtime_refresh"))}
+        ${live.error ? ` Live polling status: ${escapeHtml(live.error)}.` : ""}
       </div>
     `;
   }
 
   function renderPaperObservationScanner() {
     if (!elements.paperObservationScannerTable) return;
-    const summary = paperObservationSummary();
-    const rows = paperObservationRows(summary?.scanner_universe);
+    const rows = paperObservationScannerRows();
     if (!rows.length) {
       setEmpty(elements.paperObservationScannerTable, "Top-20 scanner runtime rows not loaded.");
       return;
@@ -8423,6 +8670,7 @@
             <th>Blocked</th>
             <th>Precision</th>
             <th>Public mid</th>
+            <th>Live tick</th>
             <th>Data health</th>
             <th>Eligible</th>
             <th>Reason codes</th>
@@ -8432,14 +8680,15 @@
           ${rows
             .map(
               (row) => `
-                <tr>
-                  <td>${escapeHtml(paperObservationText(row.requested_symbol, "n/a"))}</td>
+                <tr class="${row.requested_symbol === state.paperObservation.symbol || row.resolved_venue_symbol === selectedPaperObservationVenueSymbol() ? "selected-row" : ""}">
+                  <td><button class="link-button" type="button" data-paper-observation-symbol="${escapeHtml(row.requested_symbol || row.resolved_venue_symbol || "")}">${escapeHtml(paperObservationText(row.requested_symbol, "n/a"))}</button></td>
                   <td>${escapeHtml(paperObservationText(row.resolved_venue_symbol, "n/a"))}</td>
                   <td>${escapeHtml(paperObservationText(row.sources || row.source, "n/a"))}</td>
                   <td>${auditReviewPill(row.supported_by_venue ? "yes" : "no")}</td>
                   <td>${auditReviewPill(row.blocked ? "yes" : "no")}</td>
                   <td>${escapeHtml(paperObservationText(row.precision_status || (row.precision_ready ? "precision_ready" : ""), "n/a"))}</td>
-                  <td>${escapeHtml(paperObservationText(row.public_mid, "pending_runtime_refresh"))}</td>
+                  <td><span class="paper-observation-tick ${paperObservationTickClass(row)}">${escapeHtml(paperObservationText(row.public_mid, "pending_runtime_refresh"))}</span></td>
+                  <td>${escapeHtml(paperObservationText(row.last_live_tick_utc, "waiting"))}</td>
                   <td>${auditReviewPill(row.data_health)}</td>
                   <td>${auditReviewPill(row.scanner_eligible ? "yes" : "no")}</td>
                   <td>${escapeHtml(paperObservationText(row.reason_codes, "n/a"))}</td>
@@ -8450,6 +8699,13 @@
         </tbody>
       </table>
     `;
+    elements.paperObservationScannerTable.querySelectorAll("[data-paper-observation-symbol]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.paperObservation.symbol = button.dataset.paperObservationSymbol || "all";
+        refreshPaperObservationMarketData({ force: true });
+        renderPaperObservation();
+      });
+    });
   }
 
   function renderPaperObservationHealth() {
@@ -9055,4 +9311,5 @@
   render();
   loadDefaultFiles();
   startLiveMarketPolling();
+  startPaperObservationMarketPolling();
 })();
