@@ -169,10 +169,15 @@ The dashboard uses an exchange-like dark theme.
 | Sandbox status | `--color-blue` | `#19a7ce` |
 | Sandbox accent | `--color-teal` | `#28d7c5` |
 | Chart background | `CHART_BACKGROUND_COLOR` | `#10171b` |
+| Theme chart surface | `--color-chart-surface` | theme-specific |
+| Theme chart grid | `--color-chart-grid` | theme-specific |
+| Theme chart text | `--color-chart-text` | theme-specific |
 | Up candle body | `CANDLE_UP_COLOR` | `#f5f7f2` |
 | Down candle body | `CANDLE_DOWN_COLOR` | `#050607` |
 
-TradingView candlesticks use a black/white palette so candle direction does not compete with green/red entry/exit markers, RSI/MACD colors, or EMA overlays. Down candles keep light borders and wicks so they remain visible on the muted chart background.
+TradingView candlesticks use a black/white palette so candle direction does not compete with green/red entry/exit markers, RSI/MACD colors, or EMA overlays. The dashboard resolves chart colors through CSS variables so dark, light, and red-zone themes stay readable; theme changes rebuild chart instances to apply the updated palette. Down candles keep light borders and wicks so they remain visible on the muted chart background.
+
+The brand mark uses the small local `chillguy-logo.jpeg` asset. It is decorative and does not change dashboard evidence, runtime, or endpoint behavior.
 
 ## Typography System
 

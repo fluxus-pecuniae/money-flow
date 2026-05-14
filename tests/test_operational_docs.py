@@ -143,6 +143,8 @@ REQUIRED_FILES = [
     "docs/pt_rt1_24h_dry_run_probes_disabled.md",
     "docs/pt_rt1_24h_testnet_plumbing_probe_run.md",
     "docs/pt_rt1_60_day_forward_observation_plan.md",
+    "docs/pt_rt1_1_24h_probes_disabled_dry_run.md",
+    "docs/pt_rt1_1_24h_probes_disabled_dry_run_summary.json",
     "money-flow/00 Maps/Strategy Family Map.md",
     "money-flow/00 Maps/Evidence and Backtesting Map.md",
     "money-flow/00 Maps/Data Source and Market Data Map.md",
@@ -203,6 +205,8 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "`OB2.0` Obsidian Strategy Brain + Evidence Architecture Refresh" in current_phase
     assert "EV-AUDIT1" in current_phase
     assert "PT-RT1" in current_phase
+    assert "PT-RT1.1" in current_phase
+    assert "PT-RT1.2 cannot proceed" in current_phase
     assert "`MF-ORIG-EV2` Original Money Flow multi-timeframe evidence packs and Historical Replay UI are complete" in current_phase
     assert "MF-ORIG-EV1.1" in current_phase
     assert "SOR-EV2" in current_phase
@@ -234,6 +238,8 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "Original source" in command_center
     assert "Gerald Peters PDF is now present" in command_center
     assert "PT-RT1" in command_center
+    assert "PT-RT1.1" in command_center
+    assert "PT-RT1.2 is blocked" in command_center
     assert "Evidence and Backtesting Map" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
@@ -264,6 +270,8 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "EV-AUDIT1 full evidence/data/paper-readiness audit" in moved_memory
     assert "OB2.0 Obsidian strategy brain refresh" in moved_memory
     assert "PT-RT1 real-time public-market paper-observation substrate" in moved_memory
+    assert "PT-RT1.1" in moved_memory
+    assert "blocked because the expected ignored runtime artifact directory" in moved_memory
     assert "canonical strategic project memory has moved" in root_pointer
     assert "The original starting point" not in root_pointer
 
@@ -441,6 +449,7 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "No strategy is production-ready" in current_phase or "no clean strategy candidate is promoted" in current_phase
     assert "PT-RT1" in current_phase
     assert "Run the PT-RT1 24-hour probes-disabled dry run first" in current_phase
+    assert "PT-RT1.1 currently records this as blocked" in current_phase
     assert "SV2.0.2" in project_memory
     assert "MF-ORIG" in project_memory
     assert "EV-AUDIT1" in project_memory
@@ -460,6 +469,7 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "mainnet market data" in paper_roadmap
     assert "no exchange orders" in paper_roadmap
     assert "implemented_substrate_observation_not_started" in paper_roadmap
+    assert "blocked_missing_24h_runtime_artifacts" in paper_roadmap
     assert "Gerald Peters" in original_source_note
     assert "source-faithful reconstruction" in original_source_note
     assert "paper_observation_ready_with_conditions" in audit_summary
@@ -479,6 +489,8 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     dry_run = Path("docs/pt_rt1_24h_dry_run_probes_disabled.md").read_text()
     probe_run = Path("docs/pt_rt1_24h_testnet_plumbing_probe_run.md").read_text()
     observation_plan = Path("docs/pt_rt1_60_day_forward_observation_plan.md").read_text()
+    dry_run_report = Path("docs/pt_rt1_1_24h_probes_disabled_dry_run.md").read_text()
+    dry_run_summary = Path("docs/pt_rt1_1_24h_probes_disabled_dry_run_summary.json").read_text()
 
     for contents in (command_center, current_phase, project_memory, paper_roadmap, report):
         assert "PT-RT1" in contents
@@ -492,6 +504,9 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     assert "paper-runtime approval" in report
     assert "PT_RT1_TESTNET_PROBES_ENABLED=false" in paper_roadmap
     assert "testnet fills never update strategy paper PnL" in paper_roadmap
+    assert "PT-RT1.2 blocked" in dry_run_report
+    assert "not_verified_runtime_absent" in dry_run_summary
+    assert "PT_RT1_TESTNET_DAILY_PROBE_CAP" in dry_run_summary
     assert "money_flow_v1_2_baseline" in summary
     assert "avoid_low_rolling_range_50" in summary
     assert "avoid_low_rolling_range_20" in summary

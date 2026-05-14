@@ -11,6 +11,14 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `approval_truth`: EV-AUDIT1 promotes no clean strategy candidate. No strategy is production-ready. PT-RT1 is recommended but not approved or implemented. No paper-runtime approval, live trading approval, production order automation, or live exchange order submission follows from OB2.0.
 - `follow_up_implications`: Future agents should start from `money-flow/00_Money_Flow_Command_Center.md`, then use the new maps/registers to avoid mixing current v1.2, MF-ORIG, SOR, dashboard display data, UAT plumbing, and future paper-observation scope.
 
+## 2026-05-14T19:20:14Z - PT-RT1.1 - 24-Hour Dry Run Cannot Pass Without Runtime Artifacts
+
+- `decision`: Mark PT-RT1.1 blocked because the expected probes-disabled 24-hour runtime artifact directory `reports/paper_runtime/pt_rt1_1_24h_dry_run/` is absent.
+- `scope`: The committed report/summary record the required dry-run config with testnet probes disabled, kill switch active, daily probe cap zero, public mainnet strategy truth only, no API keys, no private/signed/order endpoints, and no orders. They do not claim public data refresh, closed-candle gating, ledgers, duplicate-signal prevention, data-health gating, or dashboard runtime readability passed.
+- `why`: PT-RT1.1 is an observation-validation phase. Without real runtime artifacts, passing the phase would fabricate forward-observation evidence.
+- `result`: `PT-RT1.2 blocked`. Testnet plumbing probes and the 60-day observation should wait until the probes-disabled 24-hour run is actually executed and summarized.
+- `follow_up_implications`: Preserve ignored runtime artifacts under `reports/paper_runtime/pt_rt1_1_24h_dry_run/` for the next PT-RT1.1 regeneration. Production Money Flow rules, paper-production approval, live trading, live orders, private/signed/order endpoints, API keys, historical evidence packs, and SOR/fanout/CBBO remain unchanged/not approved.
+
 ## 2026-05-13T08:27:33Z - MF-ORIG-EV2 - Full-Equity Comparison Rows Added Without Replacing Source 1% Risk Rows
 
 - `decision`: Keep the four source-faithful 1% risk-sizing MF-ORIG-EV2 hypotheses and add four founder-requested full-equity/notional counterparts for direct comparison.

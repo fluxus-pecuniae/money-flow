@@ -1,0 +1,128 @@
+{
+  "boundaries": {
+    "historical_evidence_packs_regenerated": false,
+    "live_trading_approved": false,
+    "paper_trading_approved_as_production": false,
+    "production_money_flow_rules_changed": false,
+    "sor_fanout_cbbo_added": false,
+    "testnet_probes_enabled": false
+  },
+  "dashboard_verification": {
+    "labels_required": [
+      "paper observation only",
+      "public mainnet data is strategy truth",
+      "testnet probes disabled",
+      "not real capital",
+      "no live trading"
+    ],
+    "no_order_controls_expected": true,
+    "paper_observation_view_exists": true,
+    "requires_manual_browser_review_after_runtime": true,
+    "verdict": "not_verified_runtime_absent"
+  },
+  "data_health_results": {
+    "data_unavailable_decisions": null,
+    "incomplete_candle_skips": null,
+    "indicator_unavailable_counts": {},
+    "missing_candle_gaps": null,
+    "out_of_order_candles": null,
+    "public_fetch_failure_count": null,
+    "public_fetch_success_count": null,
+    "stale_symbols": [],
+    "verdict": "not_verified_runtime_absent"
+  },
+  "decision": "PT-RT1.2 blocked",
+  "decision_reason_codes": [
+    "pt_rt1_1_24h_runtime_artifacts_missing"
+  ],
+  "dry_run": {
+    "duration_hours_observed": 0,
+    "end_time_utc": null,
+    "required_duration_hours": 24,
+    "runtime_summary_present": false,
+    "start_time_utc": null
+  },
+  "duplicate_signal_summary": {
+    "duplicate_ignored_count": null,
+    "reported": false,
+    "verdict": "not_verified_runtime_absent"
+  },
+  "issues_found": [
+    {
+      "blocks_pt_rt1_2": true,
+      "impact": "Cannot validate market-data refresh, closed-candle gating, ledgers, duplicate prevention, or dashboard runtime behavior.",
+      "issue": "pt_rt1_1_24h_runtime_artifacts_missing",
+      "required_fix": "Run the PT-RT1 24-hour probes-disabled dry-run and retain ignored artifacts under reports/paper_runtime/pt_rt1_1_24h_dry_run/.",
+      "severity": "P1"
+    }
+  ],
+  "ledger_summary": {
+    "invariants_required": [
+      "equity_does_not_reset_after_trades",
+      "closed_trade_pnl_changes_realized_equity",
+      "open_trade_pnl_changes_unrealized_pnl",
+      "total_equity_equals_realized_equity_plus_unrealized_pnl"
+    ],
+    "lanes": {},
+    "required_starting_equity_usdc_per_lane": "10000",
+    "verdict": "not_verified_runtime_absent"
+  },
+  "missing_runtime_files": [
+    "state.json",
+    "decisions.jsonl",
+    "trades.jsonl",
+    "equity_curves.json",
+    "data_health.json",
+    "runtime_audit.jsonl",
+    "summary.json"
+  ],
+  "no_order_boundary_verification": {
+    "api_keys_used": false,
+    "basis": "static_PT_RT1_policy_and_no_PT_RT1_1_runtime_artifacts",
+    "daily_probe_cap_zero": true,
+    "kill_switch_active": true,
+    "live_endpoint_used": false,
+    "order_intent_created": false,
+    "orders_submitted": false,
+    "prepared_venue_order_created": false,
+    "private_signed_order_endpoints_called": false,
+    "production_execution_artifact_created": false,
+    "submitted_order_created": false,
+    "testnet_probes_disabled": true
+  },
+  "phase": "PT-RT1.1",
+  "recorded_at_utc": "2026-05-14T19:20:14Z",
+  "report": "pt_rt1_1_24h_probes_disabled_dry_run",
+  "required_runtime_files": [
+    "state.json",
+    "decisions.jsonl",
+    "trades.jsonl",
+    "equity_curves.json",
+    "data_health.json",
+    "runtime_audit.jsonl",
+    "summary.json"
+  ],
+  "runtime_artifact_dir": "reports/paper_runtime/pt_rt1_1_24h_dry_run",
+  "runtime_artifact_dir_exists": false,
+  "runtime_config": {
+    "PT_RT1_TESTNET_DAILY_PROBE_CAP": 0,
+    "PT_RT1_TESTNET_KILL_SWITCH": true,
+    "PT_RT1_TESTNET_PROBES_ENABLED": false,
+    "forbidden": [
+      "testnet_prices_as_strategy_truth",
+      "private_signed_endpoints",
+      "order_endpoints",
+      "api_keys",
+      "account_balances",
+      "sandbox_testnet_fills_as_strategy_pnl"
+    ],
+    "strategy_truth": "Hyperliquid public mainnet data only"
+  },
+  "status": "blocked",
+  "strategy_lanes_observed": [
+    "money_flow_v1_2_baseline",
+    "avoid_low_rolling_range_50",
+    "avoid_low_rolling_range_20",
+    "mf_orig_1d_stage2_breakout_resistance_full_equity"
+  ]
+}

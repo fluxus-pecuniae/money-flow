@@ -1,6 +1,6 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-05-14T01:22:49Z`
+Last reviewed: `2026-05-14T19:20:14Z`
 
 ## Open Items
 
@@ -8,8 +8,8 @@ Last reviewed: `2026-05-14T01:22:49Z`
 
 - `status`: `open`
 - `area`: `EV-AUDIT1 evidence and paper-observation readiness`
-- `summary`: `EV-AUDIT1 found no P0 safety issue and no clean strategy candidate. PT-RT1 now implements the real-time paper-observation substrate, but the 60-day forward-observation window has not started. The current historical evidence estate remains good enough for founder visual review and hypothesis filtering, but not enough for a production rule change, strategy paper-runtime authorization, or live trading. Key remaining evidence risks are 15m/1h Hyperliquid 5000-candle horizon truncation, no completed forward-observation logs yet, no order-book/funding/partial-fill/live-reject modeling, control-pocket damage in promising variants, and incomplete source-exact MF-ORIG reconciliation against the now-present PDF.`
-- `impact`: `PT-RT1 should be run first as a 24-hour probes-disabled dry run, then a 60-day public-mainnet forward observation if stable. Before any rule promotion, the team still needs real-time paper observation logs, stricter control-pocket gates, clearer out-of-sample-style slices, funding/order-book/partial-fill limitations called out, and explicit separation between dashboard display filters and canonical evidence. No orders, private/signed/order endpoints from strategy truth, testnet strategy truth, production rule changes, or live trading follow from PT-RT1.`
+- `summary`: `EV-AUDIT1 found no P0 safety issue and no clean strategy candidate. PT-RT1 now implements the real-time paper-observation substrate, and PT-RT1.1 checked for the first 24-hour probes-disabled dry-run artifacts. No reports/paper_runtime/pt_rt1_1_24h_dry_run/ artifact directory exists, so PT-RT1.1 is blocked and PT-RT1.2 cannot proceed yet. The current historical evidence estate remains good enough for founder visual review and hypothesis filtering, but not enough for a production rule change, strategy paper-runtime authorization, or live trading. Key remaining evidence risks are 15m/1h Hyperliquid 5000-candle horizon truncation, no completed forward-observation logs yet, no order-book/funding/partial-fill/live-reject modeling, control-pocket damage in promising variants, and incomplete source-exact MF-ORIG reconciliation against the now-present PDF.`
+- `impact`: `Run the PT-RT1 24-hour probes-disabled dry run and retain ignored runtime artifacts before attempting PT-RT1.2 testnet plumbing probes or the 60-day public-mainnet forward observation. Before any rule promotion, the team still needs real-time paper observation logs, stricter control-pocket gates, clearer out-of-sample-style slices, funding/order-book/partial-fill limitations called out, and explicit separation between dashboard display filters and canonical evidence. No orders, private/signed/order endpoints from strategy truth, testnet strategy truth, production rule changes, or live trading follow from PT-RT1/PT-RT1.1.`
 
 ### K-019
 
@@ -50,8 +50,8 @@ Last reviewed: `2026-05-14T01:22:49Z`
 
 - `status`: `open`
 - `area`: `PT-RT1 paper-observation runtime supervision`
-- `summary`: `PT-RT1 implements the public-mainnet strategy-truth lane and separate Hyperliquid testnet plumbing-probe gate, but no supervised 24-hour dry run or 60-day observation window has completed yet. Runtime state is intentionally local/ignored under reports/paper_runtime/.`
-- `impact`: `Founder decisions should not use PT-RT1 as completed forward evidence until the probes-disabled dry run and then the 60-day observation plan produce runtime logs. Live trading, real capital, live keys, production auto-submit, strategy paper-production approval, SOR/fanout/CBBO/target reselection, cross-venue routing, and Money Flow parameter optimization remain not approved.`
+- `summary`: `PT-RT1 implements the public-mainnet strategy-truth lane and separate Hyperliquid testnet plumbing-probe gate. PT-RT1.1 now explicitly records that the first 24-hour probes-disabled dry run is blocked because no ignored runtime artifacts exist under reports/paper_runtime/pt_rt1_1_24h_dry_run/. Runtime state remains intentionally local/ignored under reports/paper_runtime/.`
+- `impact`: `Founder decisions should not use PT-RT1 as completed forward evidence until the probes-disabled dry run and then the 60-day observation plan produce runtime logs. PT-RT1.2 testnet plumbing probes are blocked until the 24-hour probes-disabled criteria pass. Live trading, real capital, live keys, production auto-submit, strategy paper-production approval, SOR/fanout/CBBO/target reselection, cross-venue routing, and Money Flow parameter optimization remain not approved.`
 
 ### K-014
 

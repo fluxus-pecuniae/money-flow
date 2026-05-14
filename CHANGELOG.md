@@ -13,6 +13,61 @@ Entry schema:
 
 ---
 
+## v2026.05.14.003
+
+- `recorded_at_utc`: `2026-05-14T19:20:14Z`
+- `scope`: `PT-RT1.1 24-hour probes-disabled dry-run validation`
+- `intent`: `Native entry. Added the PT-RT1.1 probes-disabled dry-run report builder, founder report, compact summary JSON, and tests. The ignored runtime artifact directory reports/paper_runtime/pt_rt1_1_24h_dry_run/ was absent, so PT-RT1.1 is truthfully marked blocked rather than passed: public mainnet data refresh, fully closed candle gating, synthetic ledgers, duplicate-signal behavior, data-health runtime behavior, and dashboard runtime behavior were not verified. The required dry-run configuration is documented as probes disabled, kill switch active, and daily probe cap zero. PT-RT1.2 remains blocked until a real 24-hour probes-disabled run creates the ignored runtime artifacts. No production Money Flow rules changed; no historical evidence packs were regenerated; no testnet probes were enabled; no orders were submitted; no private/signed/order endpoints were called; no API keys were used; no live trading, paper-production approval, SOR/fanout/CBBO, or testnet strategy truth was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `docs/strategy.md`
+  - `docs/pt_rt1_24h_dry_run_probes_disabled.md`
+  - `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing.md`
+  - `docs/pt_rt1_1_24h_probes_disabled_dry_run.md`
+  - `docs/pt_rt1_1_24h_probes_disabled_dry_run_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `scripts/build_pt_rt1_1_dry_run_report.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_pt003_historical_data_horizon_1d.py`
+  - `tests/test_pt0_tradingview_paper_sandbox_runtime.py`
+  - `tests/test_pt_rt1_1_24h_dry_run.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_paper_observation.py tests/test_pt_rt1_1_24h_dry_run.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1.1-review.zip`
+
+## v2026.05.14.002
+
+- `recorded_at_utc`: `2026-05-14T19:16:30Z`
+- `scope`: `Dashboard chart styling and logo checkpoint`
+- `intent`: `Native entry. Committed the pre-existing dashboard visual refresh before PT-RT1.1 started from a clean baseline. The change adds the small local Chill Guy logo asset, theme-aware chart color variables, theme-change chart rebuild hooks, refreshed Historical Replay data-horizon styling, and dashboard static assertions. This is dashboard styling only: no strategy rules, evidence metrics, paper/runtime behavior, endpoint policy, orders, private/signed/order endpoints, API keys, live trading approval, or testnet strategy truth changed.`
+- `affected_files`:
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `chillguy-logo.jpeg`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+
 ## v2026.05.14.001
 
 - `recorded_at_utc`: `2026-05-14T01:22:49Z`

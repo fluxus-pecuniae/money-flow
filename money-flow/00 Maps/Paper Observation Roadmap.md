@@ -31,8 +31,10 @@ Required observation lanes:
 Current next operational step:
 
 1. Run the 24-hour dry run with testnet probes disabled.
-2. If stable, start the 60-day public-mainnet forward-observation window.
-3. Run testnet plumbing probes only after exact approval and with strategy PnL separation.
+2. Retain ignored artifacts under `reports/paper_runtime/pt_rt1_1_24h_dry_run/`.
+3. Regenerate the PT-RT1.1 report from those artifacts.
+4. If stable, start the 60-day public-mainnet forward-observation window.
+5. Run testnet plumbing probes only after PT-RT1.1 passes, exact approval is captured, and strategy PnL separation remains intact.
 
 ## Required Boundaries
 
@@ -71,4 +73,6 @@ Testnet probes are implemented but blocked by default:
 
 Current PT-RT1 status: `implemented_substrate_observation_not_started`.
 
-This means the repo now has code, dashboard, summary JSON, tests, and runbooks to start controlled forward observation, but no 60-day observation result exists yet. It is not enough to approve production rules, paper runtime strategy authority, or live trading.
+Current PT-RT1.1 status: `blocked_missing_24h_runtime_artifacts`.
+
+This means the repo now has code, dashboard, summary JSON, tests, and runbooks to start controlled forward observation, but the first 24-hour probes-disabled run has not produced runtime artifacts yet and no 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading. PT-RT1.2 testnet plumbing probes remain blocked until the probes-disabled dry run passes.

@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-14T01:22:49Z`
+Last reviewed: `2026-05-14T19:20:14Z`
 
 ## Active Follow-Ups
+
+### T-141
+
+- `priority`: `high`
+- `status`: `blocked`
+- `summary`: `PT-RT1.1 24-hour probes-disabled dry-run validation is blocked because no ignored runtime artifact directory exists at reports/paper_runtime/pt_rt1_1_24h_dry_run/. The committed PT-RT1.1 report and summary JSON record probes disabled, kill switch active, daily probe cap zero, no-order/no-live boundary flags, and a PT-RT1.2 blocked decision. Public mainnet refresh stability, closed-candle gating, paper-ledger updates, duplicate-signal behavior, data-health gating, and dashboard runtime readability remain not verified until the actual 24-hour dry run is executed and summarized.`
 
 ### T-140
 

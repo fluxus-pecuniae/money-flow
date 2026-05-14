@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-14T01:22:49Z`
+Last reviewed: `2026-05-14T19:20:14Z`
 
 ## Top-Level Structure
 
@@ -165,6 +165,7 @@ Last reviewed: `2026-05-14T01:22:49Z`
 - EV-AUDIT1 adds an audit-only founder review report and compact JSON summary for the full current evidence estate. It inventories Money Flow v1.2, SOR-EV1/SOR-EV2/SOR-EV3, MF-ORIG-EV1.1/MF-ORIG-EV2, and pending STRAT-EV1 plan-only status; audits SV2.0.2 data and backtest methodology; ranks biggest winners, losers, and losing streaks; reports regime/control-pocket attribution; and states that no clean strategy candidate is promoted. It does not regenerate evidence packs, change production rules, approve paper/live, submit orders, or call private/signed/order endpoints.
 - OB2.0 refreshes the Obsidian strategic brain around one canonical command center and dedicated current maps/registers: `00 Maps/Strategy Family Map.md`, `00 Maps/Evidence and Backtesting Map.md`, `00 Maps/Data Source and Market Data Map.md`, `00 Maps/Dashboard and UI Map.md`, `00 Maps/Paper Observation Roadmap.md`, `10 Strategy/Strategy Status Register.md`, `10 Strategy/Original Money Flow Source Notes.md`, and `20 Evidence/EV-AUDIT1 Summary.md`. It also stores the Gerald Peters source PDF at `money-flow/90 Reference/The Money Flow Trading System - Gerald Peters - 2019 Edition 2.pdf`. OB2.0 is documentation/governance only; it changes no production strategy code, regenerates no evidence/chart data, calls no exchanges, and approves no paper/live behavior.
 - PT-RT1 adds a visible `Paper Observation` dashboard view backed by `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json`. The view separates public-mainnet strategy truth from Hyperliquid testnet plumbing probes, shows scanner/data-health/lane/probe/runtime-empty-state panels, and keeps date filters display-only. It adds no order controls, no production strategy changes, no live trading approval, and no testnet strategy-PnL truth.
+- The 2026-05-14 dashboard styling checkpoint adds the small local `chillguy-logo.jpeg` brand asset plus theme-aware chart color variables and Historical Replay data-horizon card styling. It is UI styling only and changes no strategy, evidence, endpoint, paper/live, or order behavior.
 
 `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing.md`
 - Founder/operator report for PT-RT1 real-time public-mainnet paper observation and testnet plumbing probes.
@@ -182,6 +183,14 @@ Last reviewed: `2026-05-14T01:22:49Z`
 
 `docs/pt_rt1_60_day_forward_observation_plan.md`
 - Founder/operator plan for the 60-day forward observation window, daily/weekly reviews, disqualification criteria, and future evidence-phase promotion criteria.
+
+`docs/pt_rt1_1_24h_probes_disabled_dry_run.md`
+- Founder/operator PT-RT1.1 dry-run validation report.
+- Current status is `blocked` because no ignored 24-hour runtime artifacts exist under `reports/paper_runtime/pt_rt1_1_24h_dry_run/`; PT-RT1.2 remains blocked until a real probes-disabled dry run is executed and summarized.
+
+`docs/pt_rt1_1_24h_probes_disabled_dry_run_summary.json`
+- Compact machine-readable PT-RT1.1 dry-run summary.
+- Records probes-disabled config, missing runtime artifacts, data-health/ledger/duplicate-signal not-verified states, no-order/no-live boundary flags, and the `PT-RT1.2 blocked` decision.
 
 `docs/ob2_0_obsidian_strategy_brain_refresh.md`
 - Founder/operator report for the OB2.0 Obsidian strategy brain refresh.
@@ -776,6 +785,7 @@ Last reviewed: `2026-05-14T01:22:49Z`
 - Includes `scripts/build_sor_ev3_avoid_sideways_low_volatility.py` for SOR-EV3 founder-selected low-volatility/chop drilldown. It writes `docs/sor_ev3_avoid_sideways_low_volatility.md` and the companion JSON summary from canonical SV2.0.2 pack references plus persisted candle truth, including founder-review labels such as `promising_control_pocket_risk` and `promising_high_pnl_control_risk` that are separate from strict candidate promotion. It does not alter Money Flow rules or create order/execution artifacts.
 - Includes `scripts/build_mf_orig_ev1_original_money_flow.py` for MF-ORIG-EV1.1 original Money Flow reconstruction regeneration. It writes the source-specification/gap-matrix report, founder-readable reconstruction report, and compact JSON summary from canonical SV2.0.2 pack references plus persisted candle truth. The regenerated outputs use event-ledger accounting and peak-to-trough drawdown. It is evidence-only and does not alter production Money Flow rules, call exchanges, submit orders, or approve paper/live behavior.
 - Includes `scripts/build_pt_rt1_summary.py` for PT-RT1 committed dashboard/config summary generation. It writes configuration-only JSON and performs no market-data fetches, exchange calls, credential reads, order submissions, or runtime-state writes.
+- Includes `scripts/build_pt_rt1_1_dry_run_report.py` for PT-RT1.1 dry-run validation reporting. It reads the ignored `reports/paper_runtime/pt_rt1_1_24h_dry_run/` artifact directory when present and writes committed report/summary docs; if the 24-hour artifacts are absent or incomplete, it marks PT-RT1.2 blocked instead of fabricating runtime success.
 - Includes `scripts/run_uat1_public_read_only.py` for UAT1 public-read-only connectivity and top-20 universe resolution. It requires both `--uat1-public-read-only` and `--allow-public-read-only-network` before network calls, uses no API keys, calls only allowlisted public read-only endpoints/source URLs, writes the UAT1 Markdown/JSON reports, and creates no strategy decisions, order intents, submitted orders, paper/live artifacts, routing artifacts, evidence packs, or Money Flow rule changes.
 - Includes `scripts/run_uat31_first_sandbox_order.py` for the one approved UAT3.1 Hyperliquid testnet lifecycle probe. It refuses to run without `--execute-approved-uat31`, validates exact founder/operator approval before credential use, reads sandbox/testnet credentials only from local environment or `.env`, writes sanitized UAT3.1 Markdown/JSON reports, and prevents repeat execution after a summary records an order attempt.
 - Includes `scripts/run_uat32_second_sandbox_order.py` for the separately approved UAT3.2 fixed-key preflight / second sandbox lifecycle attempt. It refuses to run without `--execute-approved-uat32`, validates exact UAT3.2 founder/operator approval before credential use, reads sandbox/testnet credentials only from local environment or `.env`, writes sanitized UAT3.2 Markdown/JSON reports, captures the UAT4.0 dashboard roadmap request, and blocks before order transport when account/API-wallet readiness fails.
@@ -1047,6 +1057,9 @@ Last reviewed: `2026-05-14T01:22:49Z`
 
 `tests/test_pt_rt1_paper_observation.py`
 - PT-RT1 paper-observation checks: verifies public-mainnet strategy-truth payload policy, testnet/private/API-key rejection for strategy truth, scanner blocking for unsupported/precision/stablecoin/SHIB-unit cases, fully closed candle gating, missing indicators not defaulting to zero, independent 10,000 USDC paper-ledger compounding/drawdown/losing-streak behavior, duplicate signal prevention, evidence-only lane labels, disabled-by-default testnet probe gates, exact approval/cap/kill-switch/unknown-state enforcement, account-targeting vaultAddress semantics, post-only `Alo` order shape generation for testnet-only plumbing, reports, and no production execution artifact construction from the strategy lane.
+
+`tests/test_pt_rt1_1_24h_dry_run.py`
+- PT-RT1.1 dry-run validation checks: verifies the dry-run report and summary exist, probes-disabled config is enforced with kill switch active and daily cap zero, public-mainnet strategy truth and no private/signed/order/API-key boundaries are reported, missing 24-hour artifacts block PT-RT1.2, duplicate-signal/data-health/ledger sections do not silently pass without runtime evidence, dashboard no-order labels remain expected, and the report builder can mark a complete synthetic artifact set as verified.
 
 `tests/test_sv20_money_flow_1d_expanded_evidence.py`
 - SV2.0/SV2.0.1 Money Flow 1D and expanded-universe checks: verifies Money Flow v1.2 includes `sleeve_1d`, existing 15m/1h/4h settings remain unchanged, internal SV2 timeframe is `1d` with display label `1D`, Hyperliquid public mainnet candle payloads stay public/read-only, SHIB alias resolution is explicit, readiness rows split staged data from DB-imported/canonical evidence truth, and dashboard/docs expose the expanded universe without order behavior.

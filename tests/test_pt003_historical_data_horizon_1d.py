@@ -116,7 +116,7 @@ def test_dashboard_supports_1d_selector_and_data_horizon_panel() -> None:
     assert "Earliest available" not in js
     assert "Latest available" not in js
     assert "<span>Component</span>" not in js
-    assert "<span>Range</span>" in js
+    assert "<span>Range:" in js
     assert "rangeStart" in js
     assert "Historical data horizon" in js
     assert "1D candles aggregated from" in js

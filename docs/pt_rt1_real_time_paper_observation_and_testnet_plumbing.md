@@ -251,11 +251,27 @@ Created:
 - `docs/pt_rt1_24h_testnet_plumbing_probe_run.md`
 - `docs/pt_rt1_60_day_forward_observation_plan.md`
 
+## PT-RT1.1 Dry-Run Validation
+
+Status: blocked
+
+PT-RT1.1 checked for the first 24-hour probes-disabled runtime artifact set at:
+
+`reports/paper_runtime/pt_rt1_1_24h_dry_run/`
+
+That artifact directory does not exist, so the committed PT-RT1.1 report does not claim that public mainnet refresh, fully closed candle gating, synthetic paper ledgers, duplicate prevention, data-health gating, or dashboard runtime behavior passed.
+
+Current decision:
+
+`PT-RT1.2 blocked`
+
+PT-RT1.2 may proceed only after the actual 24-hour probes-disabled dry run creates ignored runtime artifacts and the PT-RT1.1 report/summary are regenerated from those artifacts.
+
 ## Limitations
 
 Status: needs_followup
 
-- PT-RT1 implements the runtime substrate and dashboard surface; the 60-day observation has not started.
+- PT-RT1 implements the runtime substrate and dashboard surface; the 24-hour probes-disabled dry run and 60-day observation have not completed.
 - The strategy-truth lane must be run in a supervised environment before founder review relies on live forward-observation rows.
 - Testnet probes remain blocked until the exact approval text is captured and the kill switch is explicitly disabled.
 - Paper observation is not production approval, paper-runtime approval, live approval, or real-capital readiness.
