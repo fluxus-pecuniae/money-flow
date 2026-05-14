@@ -185,6 +185,8 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "chartColors.candleUp" in js
     assert ".theme-control" in css
     assert "evidence-replay-strategy-filter" in html
+    assert "evidence-replay-fill-filter" in html
+    assert "run-ledger-totals" in html
     assert "Strategy Comparison" in html
     assert "strategy-comparison-left-strategy" in html
     assert "strategy-comparison-right-strategy" in html
@@ -218,6 +220,8 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "EVIDENCE_ALL_REPLAY_STRATEGIES_ID" in js
     assert "All replay strategies" in js
     assert "renderEvidenceStrategyFilter" in js
+    assert "renderEvidenceReplayFillFilter" in js
+    assert "evidenceReplayFillAssumption" in js
     assert "evidenceReplayRunLedgerRows" in js
     assert "sorEv3SummaryReplays" in js
     assert "avoid_low_rolling_range_20" in js
@@ -227,6 +231,10 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "runLedgerSortButton" in js
     assert "data-run-ledger-sort-key" in js
     assert "sortRunLedgerRows" in js
+    assert "runLedgerTotals" in js
+    assert "Total Ending Equity" in js
+    assert "Total PnL" in js
+    assert "Avg Win Rate" in js
     assert "runLedgerFilterControls" not in js
     assert "Ending equity min" not in js
     assert "Net PnL min" not in js
@@ -235,6 +243,7 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert ".component-card-title" in css
     assert "font-size: 12px;" in css
     assert ".run-ledger-sort-button" in css
+    assert ".run-ledger-totals" in css
     assert ".run-ledger-filters" not in css
     assert "Canonical evidence packs / batch reports" in js
     assert "generated Historical Replay scenarios from loaded dashboard chart-data JSON" in js
@@ -280,6 +289,7 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "not canonical evidence" in html
     assert "not backend replay" in html
     assert "paper-observation-summary-cards" in html
+    assert "paper-observation-connection-status" in html
     assert "paper-observation-lane-filter" in html
     assert "paper-observation-scanner-table" in html
     assert "paper-observation-health-table" in html
@@ -294,6 +304,8 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert ".paper-observation-view" in css
     assert ".paper-observation-controls" in css
     assert "DEFAULT_PT_RT1_SUMMARY_FILES" in js
+    assert "pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json" in js
+    assert "renderPaperObservationConnectionStatus" in js
     assert "pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json" in js
     assert "renderPaperObservation" in js
     assert "renderPaperObservationLaneDetail" in js

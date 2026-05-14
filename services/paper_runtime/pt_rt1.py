@@ -93,7 +93,10 @@ PT_RT1_1A_STRATEGY_LANE_IDS = (
     "wildcard_multi_timeframe_alignment",
     "wildcard_volatility_expansion_breakout",
 )
+PT_RT1_1B_RUNTIME_OUTPUT_PREFIX = "reports/paper_runtime/"
 PT_RT1_REQUESTED_SCANNER_SYMBOLS = tuple(dict.fromkeys((*SUPPORTED_CANONICAL_SYMBOLS, *FOUNDER_REQUESTED_SYMBOLS)))
+ROLLING_RANGE_20_MIN_PCT = Decimal("0.025")
+ROLLING_RANGE_50_MIN_PCT = Decimal("0.040")
 WILDCARD_STRATEGY_DEFINITIONS = {
     "wildcard_btc_regime_guard": {
         "purpose": "Stop alt entries when BTC 4h/1d market regime is hostile.",
@@ -357,6 +360,48 @@ class CandleGateResult:
     reason_codes: tuple[str, ...]
 
 
+@dataclass(frozen=True)
+class PaperDecisionEvent:
+    lane_id: str
+    strategy_id: str
+    symbol: str
+    timeframe: str
+    signal_candle_open_time: str | None
+    signal_candle_close_time: str | None
+    decision_time: str
+    candle_closed: bool
+    candle_status_reason: str
+    action: str
+    reason_codes: tuple[str, ...]
+    indicator_snapshot: Mapping[str, Any]
+    position_before: str
+    position_after: str
+    equity_before: Decimal
+    equity_after: Decimal
+    production_artifact_created: bool = False
+
+    def as_json_dict(self) -> dict[str, Any]:
+        return {
+            "lane_id": self.lane_id,
+            "strategy_id": self.strategy_id,
+            "symbol": self.symbol,
+            "timeframe": self.timeframe,
+            "signal_candle_open_time": self.signal_candle_open_time,
+            "signal_candle_close_time": self.signal_candle_close_time,
+            "decision_time": self.decision_time,
+            "candle_closed": self.candle_closed,
+            "candle_status_reason": self.candle_status_reason,
+            "action": self.action,
+            "reason_codes": list(self.reason_codes),
+            "indicator_snapshot": dict(self.indicator_snapshot),
+            "position_before": self.position_before,
+            "position_after": self.position_after,
+            "equity_before": str(self.equity_before),
+            "equity_after": str(self.equity_after),
+            "production_artifact_created": self.production_artifact_created,
+        }
+
+
 def evaluate_closed_candle_gate(
     candle: Candle,
     *,
@@ -522,6 +567,251 @@ def indicator_missing_reason_codes(snapshot: IndicatorSnapshot) -> tuple[str, ..
         if any(reason.startswith("missing_") for reason in reasons):
             reasons.append("insufficient_history")
     return tuple(dict.fromkeys(reasons))
+
+
+def _indicator_snapshot_json(snapshot: IndicatorSnapshot) -> dict[str, Any]:
+    payload: dict[str, Any] = {}
+    for field_name, value in asdict(snapshot).items():
+        if isinstance(value, Decimal):
+            payload[field_name] = str(value)
+        elif isinstance(value, tuple):
+            payload[field_name] = list(value)
+        else:
+            payload[field_name] = value
+    return payload
+
+
+def _baseline_alignment_reasons(candle: Candle, snapshot: IndicatorSnapshot) -> tuple[bool, tuple[str, ...]]:
+    reasons: list[str] = []
+    if snapshot.ema5 is None or snapshot.ema10 is None or snapshot.sma20 is None:
+        reasons.append("baseline_alignment_indicator_unavailable")
+        return False, tuple(reasons)
+    if not (snapshot.ema5 > snapshot.ema10 > snapshot.sma20):
+        reasons.append("baseline_alignment_failed")
+    if candle.close < snapshot.sma20:
+        reasons.append("price_below_sma20")
+    if snapshot.macd_histogram is None:
+        reasons.append("missing_macd_histogram")
+    elif snapshot.macd_histogram < 0:
+        reasons.append("macd_histogram_not_constructive")
+    if snapshot.rsi14 is None:
+        reasons.append("missing_rsi")
+    elif snapshot.rsi14 >= Decimal("80"):
+        reasons.append("rsi_overbought_for_paper_entry")
+    return not reasons, tuple(reasons)
+
+
+def evaluate_paper_decision(
+    *,
+    lane: StrategyLaneConfig,
+    symbol: str,
+    timeframe: str,
+    candles: Sequence[Candle],
+    now: datetime,
+    data_health: DataHealth = DataHealth.HEALTHY,
+    last_processed_close: datetime | None = None,
+    position_open: bool = False,
+    equity_before: Decimal | None = None,
+    btc_regime_constructive: bool | None = None,
+    higher_timeframe_constructive: bool | None = None,
+) -> PaperDecisionEvent:
+    decision_time = _iso(parse_utc_timestamp(now))
+    equity = equity_before or lane.initial_equity
+    position_before = "open" if position_open else "flat"
+    if data_health != DataHealth.HEALTHY:
+        return PaperDecisionEvent(
+            lane_id=lane.lane_id,
+            strategy_id=lane.strategy_id,
+            symbol=symbol.upper(),
+            timeframe=timeframe,
+            signal_candle_open_time=None,
+            signal_candle_close_time=None,
+            decision_time=decision_time,
+            candle_closed=False,
+            candle_status_reason="public_market_data_unavailable",
+            action="data_unavailable",
+            reason_codes=("public_market_data_unavailable", f"data_health_{data_health.value}"),
+            indicator_snapshot={},
+            position_before=position_before,
+            position_after=position_before,
+            equity_before=equity,
+            equity_after=equity,
+        )
+    if not candles:
+        return PaperDecisionEvent(
+            lane_id=lane.lane_id,
+            strategy_id=lane.strategy_id,
+            symbol=symbol.upper(),
+            timeframe=timeframe,
+            signal_candle_open_time=None,
+            signal_candle_close_time=None,
+            decision_time=decision_time,
+            candle_closed=False,
+            candle_status_reason="public_mainnet_candles_unavailable",
+            action="data_unavailable",
+            reason_codes=("public_mainnet_candles_unavailable", "insufficient_history"),
+            indicator_snapshot={},
+            position_before=position_before,
+            position_after=position_before,
+            equity_before=equity,
+            equity_after=equity,
+        )
+
+    candle = candles[-1]
+    gate = evaluate_closed_candle_gate(candle, now=now, last_processed_close=last_processed_close)
+    if not gate.accepted:
+        return PaperDecisionEvent(
+            lane_id=lane.lane_id,
+            strategy_id=lane.strategy_id,
+            symbol=symbol.upper(),
+            timeframe=timeframe,
+            signal_candle_open_time=_iso(candle.open_time),
+            signal_candle_close_time=gate.canonical_close_time,
+            decision_time=decision_time,
+            candle_closed=False,
+            candle_status_reason=gate.reason_codes[0] if gate.reason_codes else "candle_not_closed",
+            action="data_unavailable" if "candle_not_closed" not in gate.reason_codes else "no_trade",
+            reason_codes=gate.reason_codes,
+            indicator_snapshot={},
+            position_before=position_before,
+            position_after=position_before,
+            equity_before=equity,
+            equity_after=equity,
+        )
+
+    snapshot = compute_indicator_snapshot(candles)
+    indicator_payload = _indicator_snapshot_json(snapshot)
+    if snapshot.reason_codes:
+        return PaperDecisionEvent(
+            lane_id=lane.lane_id,
+            strategy_id=lane.strategy_id,
+            symbol=symbol.upper(),
+            timeframe=timeframe,
+            signal_candle_open_time=_iso(candle.open_time),
+            signal_candle_close_time=gate.canonical_close_time,
+            decision_time=decision_time,
+            candle_closed=True,
+            candle_status_reason="closed_candle_ready",
+            action="data_unavailable",
+            reason_codes=tuple(snapshot.reason_codes),
+            indicator_snapshot=indicator_payload,
+            position_before=position_before,
+            position_after=position_before,
+            equity_before=equity,
+            equity_after=equity,
+        )
+
+    baseline_ok, baseline_reasons = _baseline_alignment_reasons(candle, snapshot)
+    action = "paper_opened" if baseline_ok and not position_open else "paper_hold"
+    position_after = "open" if position_open or action == "paper_opened" else "flat"
+    reasons: list[str] = ["public_mainnet_data_connected", "closed_candle_ready"]
+
+    if position_open and not baseline_ok:
+        action = "paper_closed"
+        position_after = "flat"
+        reasons.extend(("baseline_exit_alignment_failed", *baseline_reasons))
+    elif not baseline_ok:
+        action = "no_trade"
+        reasons.extend(baseline_reasons)
+    else:
+        reasons.append("baseline_alignment_passed")
+
+    if lane.strategy_id == "avoid_low_rolling_range_20":
+        if snapshot.rolling_range_20 is None:
+            action = "data_unavailable"
+            position_after = position_before
+            reasons.append("volatility_expansion_missing_compression_context")
+        elif snapshot.rolling_range_20 < ROLLING_RANGE_20_MIN_PCT and action == "paper_opened":
+            action = "blocked_by_candidate_filter"
+            position_after = "flat"
+            reasons.extend(("blocked_low_rolling_range", "avoid_low_rolling_range_20"))
+    elif lane.strategy_id == "avoid_low_rolling_range_50":
+        if snapshot.rolling_range_50 is None:
+            action = "data_unavailable"
+            position_after = position_before
+            reasons.append("volatility_expansion_missing_compression_context")
+        elif snapshot.rolling_range_50 < ROLLING_RANGE_50_MIN_PCT and action == "paper_opened":
+            action = "blocked_by_candidate_filter"
+            position_after = "flat"
+            reasons.extend(("blocked_low_rolling_range", "avoid_low_rolling_range_50"))
+    elif lane.strategy_id.startswith("mf_orig_"):
+        if snapshot.ema5 is not None and snapshot.sma20 is not None and candle.close > snapshot.sma20 and snapshot.ema5 > snapshot.sma20:
+            reasons.append("mf_orig_stage2_context_observed")
+        else:
+            action = "no_trade"
+            position_after = position_before
+            reasons.append("mf_orig_stage2_context_not_confirmed")
+    elif lane.strategy_id == "wildcard_btc_regime_guard":
+        if btc_regime_constructive is None:
+            action = "blocked_by_candidate_filter"
+            position_after = position_before
+            reasons.append("btc_regime_context_unavailable")
+        elif btc_regime_constructive:
+            reasons.append("btc_regime_guard_passed")
+        else:
+            action = "blocked_by_candidate_filter"
+            position_after = position_before
+            reasons.extend(("btc_regime_guard_blocked_bearish", "btc_regime_clear_bearish_alignment"))
+    elif lane.strategy_id == "wildcard_multi_timeframe_alignment":
+        if higher_timeframe_constructive is None:
+            action = "blocked_by_candidate_filter"
+            position_after = position_before
+            reasons.append("higher_timeframe_context_unavailable")
+        elif higher_timeframe_constructive:
+            reasons.append("multi_timeframe_alignment_passed")
+        else:
+            action = "blocked_by_candidate_filter"
+            position_after = position_before
+            reasons.extend(("multi_timeframe_alignment_blocked", "higher_timeframe_bearish_alignment"))
+    elif lane.strategy_id == "wildcard_volatility_expansion_breakout":
+        recent_high: Decimal | None = None
+        if snapshot.rolling_range_20 is None:
+            action = "data_unavailable"
+            position_after = position_before
+            reasons.append("volatility_expansion_missing_compression_context")
+        elif snapshot.rolling_range_20 < ROLLING_RANGE_20_MIN_PCT:
+            action = "blocked_by_candidate_filter"
+            position_after = position_before
+            reasons.append("volatility_expansion_blocked_low_range")
+        else:
+            prior_window = candles[-21:-1] if len(candles) >= 21 else candles[:-1]
+            if not prior_window:
+                action = "data_unavailable"
+                position_after = position_before
+                reasons.append("volatility_expansion_missing_compression_context")
+                recent_high = None
+            else:
+                recent_high = max(c.high for c in prior_window)
+        if recent_high is not None:
+            if candle.close <= recent_high:
+                action = "blocked_by_candidate_filter"
+                position_after = position_before
+                reasons.append("volatility_expansion_no_recent_high_breakout")
+            elif not baseline_ok:
+                action = "blocked_by_candidate_filter"
+                position_after = position_before
+                reasons.append("volatility_expansion_baseline_alignment_failed")
+            else:
+                reasons.append("volatility_expansion_breakout_passed")
+
+    return PaperDecisionEvent(
+        lane_id=lane.lane_id,
+        strategy_id=lane.strategy_id,
+        symbol=symbol.upper(),
+        timeframe=timeframe,
+        signal_candle_open_time=_iso(candle.open_time),
+        signal_candle_close_time=gate.canonical_close_time,
+        decision_time=decision_time,
+        candle_closed=True,
+        candle_status_reason="closed_candle_ready",
+        action=action,
+        reason_codes=tuple(dict.fromkeys(reasons)),
+        indicator_snapshot=indicator_payload,
+        position_before=position_before,
+        position_after=position_after,
+        equity_before=equity,
+        equity_after=equity,
+    )
 
 
 @dataclass(frozen=True)
@@ -1148,6 +1438,9 @@ def build_pt_rt1_summary() -> dict[str, Any]:
         "report": "pt_rt1_real_time_paper_observation_and_testnet_plumbing",
         "status": "implemented_readiness_expansion",
         "revision": "PT-RT1.1A",
+        "latest_readiness_phase": "PT-RT1.1B",
+        "latest_readiness_report": "docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness.md",
+        "latest_readiness_summary": "docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json",
         "strategy_truth_lane": {
             "source": "Hyperliquid public mainnet info endpoint",
             "endpoint": PT_RT1_MAINNET_INFO_URL,
@@ -1240,19 +1533,30 @@ def build_pt_rt1_summary() -> dict[str, Any]:
         },
         "dashboard_status": {
             "view": "Paper Observation",
-            "status": "implemented",
+            "status": "implemented_with_pt_rt1_1b_connection_status",
             "strategy_lanes_visible": len(lanes),
             "expanded_scanner_universe_visible": True,
             "blocked_symbols_visible": True,
             "wildcard_diagnostics_visible": True,
+            "public_mainnet_connection_status_visible": True,
+            "runtime_summary_preferred_paths": [
+                "reports/paper_runtime/pt_rt1_1b_smoke/summary.json",
+                "reports/paper_runtime/pt_rt1_1b_24h_dry_run/summary.json",
+                "docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json",
+            ],
             "date_filters": "display-only filter; not canonical evidence; not backend replay",
         },
+        "runtime_command": {
+            "smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 1 --output-dir reports/paper_runtime/pt_rt1_1b_smoke --disable-testnet-probes --public-mainnet-only",
+            "duration_hours_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1b_24h_dry_run --disable-testnet-probes --public-mainnet-only",
+        },
         "next_phase": {
-            "decision": "PT-RT1.1B may start 24-hour probes-disabled runtime collection",
+            "decision": "PT-RT1.1C may start 24-hour probes-disabled runtime collection",
             "conditions": [
                 "testnet_probes_remain_disabled_by_default",
                 "public_mainnet_strategy_truth_only",
                 "expanded_scanner_rows_remain_reason_coded",
+                "pt_rt1_1b_public_mainnet_connector_ready",
                 "no_production_rule_changes",
             ],
         },

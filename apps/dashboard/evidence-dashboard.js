@@ -91,6 +91,9 @@
   ];
 
   const DEFAULT_PT_RT1_SUMMARY_FILES = [
+    "../../reports/paper_runtime/pt_rt1_1b_smoke/summary.json",
+    "../../reports/paper_runtime/pt_rt1_1b_24h_dry_run/summary.json",
+    "../../docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json",
     "../../docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json",
   ];
 
@@ -566,6 +569,7 @@
     batches: [],
     selectedComponent: "sleeve_1d",
     evidenceReplayStrategyId: EVIDENCE_BATCH_REPORTS_STRATEGY_ID,
+    evidenceReplayFillAssumption: "next_candle_open",
     evidenceDateStart: "",
     evidenceDateEnd: "",
     theme: initialDashboardTheme(),
@@ -720,6 +724,7 @@
     metricBoundary: document.querySelector("#metric-boundary"),
     componentFilter: document.querySelector("#component-filter"),
     evidenceReplayStrategyFilter: document.querySelector("#evidence-replay-strategy-filter"),
+    evidenceReplayFillFilter: document.querySelector("#evidence-replay-fill-filter"),
     evidenceDateStart: document.querySelector("#evidence-date-start"),
     evidenceDateEnd: document.querySelector("#evidence-date-end"),
     evidenceDateClear: document.querySelector("#evidence-date-clear"),
@@ -740,6 +745,7 @@
     checklist: document.querySelector("#review-checklist"),
     runTable: document.querySelector("#run-table"),
     runTableSubtitle: document.querySelector("#run-table-subtitle"),
+    runLedgerTotals: document.querySelector("#run-ledger-totals"),
     evidenceLabSummaryCards: document.querySelector("#evidence-lab-summary-cards"),
     evidenceLabFounderCandidate: document.querySelector("#evidence-lab-founder-candidate"),
     evidenceLabMfOrig: document.querySelector("#evidence-lab-mf-orig"),
@@ -785,6 +791,7 @@
     paperObservationDateStart: document.querySelector("#paper-observation-date-start"),
     paperObservationDateEnd: document.querySelector("#paper-observation-date-end"),
     paperObservationDateClear: document.querySelector("#paper-observation-date-clear"),
+    paperObservationConnectionStatus: document.querySelector("#paper-observation-connection-status"),
     paperObservationScannerTable: document.querySelector("#paper-observation-scanner-table"),
     paperObservationHealthTable: document.querySelector("#paper-observation-health-table"),
     paperObservationLaneTable: document.querySelector("#paper-observation-lane-table"),
@@ -1450,6 +1457,15 @@
     });
   }
 
+  function evidenceReplayFillOptions() {
+    const fills = uniqueSorted(
+      (state.sv202HistoricalReplay?.replays || [])
+        .map(replayFillAssumption)
+        .filter(Boolean),
+    );
+    return fills.length ? fills : ["next_candle_open", "next_candle_close"];
+  }
+
   function renderEvidenceStrategyFilter() {
     if (!elements.evidenceReplayStrategyFilter) return;
     const options = evidenceReplayStrategyOptions();
@@ -1460,6 +1476,23 @@
     elements.evidenceReplayStrategyFilter.onchange = () => {
       state.evidenceReplayStrategyId =
         elements.evidenceReplayStrategyFilter.value || EVIDENCE_BATCH_REPORTS_STRATEGY_ID;
+      render();
+    };
+  }
+
+  function renderEvidenceReplayFillFilter() {
+    if (!elements.evidenceReplayFillFilter) return;
+    const fills = evidenceReplayFillOptions();
+    const options = [
+      { value: "all", label: "All fill assumptions" },
+      ...fills.map((fill) => ({ value: fill, label: fill })),
+    ];
+    if (state.evidenceReplayFillAssumption !== "all" && !fills.includes(state.evidenceReplayFillAssumption)) {
+      state.evidenceReplayFillAssumption = fills.includes("next_candle_open") ? "next_candle_open" : fills[0] || "all";
+    }
+    renderSelectWithoutAll(elements.evidenceReplayFillFilter, options, state.evidenceReplayFillAssumption);
+    elements.evidenceReplayFillFilter.onchange = () => {
+      state.evidenceReplayFillAssumption = elements.evidenceReplayFillFilter.value || "all";
       render();
     };
   }
@@ -2106,6 +2139,9 @@
         const component = replay.component || `sleeve_${canonicalTimeframe(replay.timeframe)}`;
         return state.selectedComponent === "all" || component === state.selectedComponent;
       })
+      .filter((replay) =>
+        state.evidenceReplayFillAssumption === "all" || replayFillAssumption(replay) === state.evidenceReplayFillAssumption,
+      )
       .map((replay) => {
         const scopedReplay = filteredReplayByRange(replay, range);
         const summary = scopedReplay?.summary || {};
@@ -2229,14 +2265,44 @@
     });
   }
 
+  function runLedgerTotals(rows) {
+    if (!rows.length) return null;
+    const endingEquity = rows.reduce((total, row) => total + decimal(row.ending_equity), 0);
+    const netPnl = rows.reduce((total, row) => total + decimal(row.net_pnl), 0);
+    const winRates = rows
+      .map((row) => runLedgerSortNumber(row.win_rate))
+      .filter((value) => value !== null);
+    const avgWinRate = winRates.length
+      ? winRates.reduce((total, value) => total + value, 0) / winRates.length
+      : null;
+    return { endingEquity, netPnl, avgWinRate, scenarioCount: rows.length };
+  }
+
+  function renderRunLedgerTotals(rows) {
+    if (!elements.runLedgerTotals) return;
+    const totals = runLedgerTotals(rows);
+    if (!totals) {
+      elements.runLedgerTotals.innerHTML = "";
+      return;
+    }
+    elements.runLedgerTotals.innerHTML = `
+      <span><small>Scenarios</small><strong>${escapeHtml(totals.scenarioCount)}</strong></span>
+      <span><small>Total Ending Equity</small><strong>${escapeHtml(money(totals.endingEquity))}</strong></span>
+      <span><small>Total PnL</small><strong class="${totals.netPnl >= 0 ? "positive" : "negative"}">${escapeHtml(money(totals.netPnl))}</strong></span>
+      <span><small>Avg Win Rate</small><strong>${escapeHtml(totals.avgWinRate === null ? "n/a" : pct(totals.avgWinRate))}</strong></span>
+    `;
+  }
+
   function renderEvidenceReplayRunLedger(rows) {
     const label = selectedEvidenceReplayStrategyLabel();
     if (elements.runTableSubtitle) {
+      const fillLabel = state.evidenceReplayFillAssumption === "all" ? "all fill assumptions" : state.evidenceReplayFillAssumption;
       elements.runTableSubtitle.textContent =
-        `Replay strategy: ${label}. Rows are generated Historical Replay scenarios from loaded dashboard chart-data JSON; date filters are display-only, not canonical pack regeneration.`;
+        `Replay strategy: ${label}. Fill assumption: ${fillLabel}. Rows are generated Historical Replay scenarios from loaded dashboard chart-data JSON; date filters are display-only, not canonical pack regeneration.`;
     }
+    renderRunLedgerTotals(rows);
     if (!rows.length) {
-      setEmpty(elements.runTable, "No generated replay rows loaded for this Evidence replay strategy/component selection.");
+      setEmpty(elements.runTable, "No generated replay rows loaded for this Evidence replay strategy/component/fill selection.");
       return;
     }
     const ledgerRows = rows
@@ -2298,6 +2364,7 @@
       elements.runTableSubtitle.textContent =
         "Scenario results from loaded batch reports; dynamic equity is per scenario and not one combined account.";
     }
+    renderRunLedgerTotals([]);
     const rawRows = summaries
       .flatMap((summary) => summary.runSummaries.map((row) => ({
         ...row,
@@ -8313,6 +8380,28 @@
       .join("");
   }
 
+  function renderPaperObservationConnectionStatus() {
+    if (!elements.paperObservationConnectionStatus) return;
+    const summary = paperObservationSummary();
+    const status = summary?.connection_status || {};
+    const endpointPolicy = summary?.market_data_endpoint_policy || summary?.strategy_truth_lane || {};
+    elements.paperObservationConnectionStatus.innerHTML = `
+      <div class="market-micro-grid">
+        <div><span>Mainnet connection</span><strong>${escapeHtml(paperObservationText(status.hyperliquid_public_mainnet, "pending_runtime_refresh"))}</strong></div>
+        <div><span>Endpoint category</span><strong>${escapeHtml(paperObservationText(status.endpoint_category || endpointPolicy.endpoint_category, "public_read_only"))}</strong></div>
+        <div><span>Strategy endpoint</span><strong>${escapeHtml(paperObservationText(endpointPolicy.strategy_truth_endpoint || endpointPolicy.endpoint, "public_read_only_mainnet_info"))}</strong></div>
+        <div><span>Last update</span><strong>${escapeHtml(paperObservationText(status.last_update_utc, "pending_runtime_refresh"))}</strong></div>
+        <div><span>No private/signed/order endpoints</span><strong>${escapeHtml(String(status.no_private_signed_order_endpoints ?? true))}</strong></div>
+        <div><span>No API keys</span><strong>${escapeHtml(String(status.no_api_keys ?? true))}</strong></div>
+      </div>
+      <div class="methodology-warning secondary" role="note">
+        Public mainnet data is strategy truth. Synthetic paper results are forward observation only.
+        Testnet probes are plumbing only; testnet fills do not update strategy PnL.
+        Reason codes: ${escapeHtml(paperObservationText([...(status.meta_reason_codes || []), ...(status.mids_reason_codes || [])], "pending_runtime_refresh"))}
+      </div>
+    `;
+  }
+
   function renderPaperObservationScanner() {
     if (!elements.paperObservationScannerTable) return;
     const summary = paperObservationSummary();
@@ -8528,14 +8617,20 @@
 
   function renderPaperObservationChart() {
     if (!elements.paperObservationLiveChart) return;
+    const chart = paperObservationSummary()?.live_chart || {};
+    const candles = paperObservationRows(chart.candles);
+    const latest = candles.length ? candles[candles.length - 1] : null;
+    const markerCount = paperObservationRows(chart.paper_markers).length;
     elements.paperObservationLiveChart.innerHTML = `
       <div class="tradingview-chart-topline">
-        <strong>${escapeHtml(state.paperObservation.symbol === "all" ? "All symbols" : `${state.paperObservation.symbol}-PERP`)}</strong>
-        <span>${escapeHtml(displayTimeframe(state.paperObservation.timeframe))} public-mainnet paper observation</span>
+        <strong>${escapeHtml(chart.symbol || (state.paperObservation.symbol === "all" ? "All symbols" : `${state.paperObservation.symbol}-PERP`))}</strong>
+        <span>${escapeHtml(displayTimeframe(chart.timeframe || state.paperObservation.timeframe))} public-mainnet paper observation</span>
       </div>
       <div class="tradingview-chart-stage paper-observation-chart-stage">
         <div class="tradingview-lightweight-chart" role="img" aria-label="Paper Observation public-mainnet candle chart placeholder">
-          <div class="empty-state">Live public mainnet candles and paper markers load from ignored PT-RT1 runtime state during an observation run.</div>
+          <div class="empty-state">
+            ${escapeHtml(candles.length ? `${candles.length} public-mainnet candles loaded. Latest close ${latest?.close || "n/a"} at ${latest?.time || "n/a"}. Paper markers: ${markerCount}.` : "Live public mainnet candles and paper markers load from ignored PT-RT1 runtime state during an observation run.")}
+          </div>
         </div>
       </div>
       <div class="tradingview-attribution">Charts: TradingView Lightweight Charts v${TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION}. Display-only filter; not canonical evidence; not backend replay.</div>
@@ -8575,6 +8670,7 @@
   function renderPaperObservation() {
     renderPaperObservationControls();
     renderPaperObservationSummaryCards();
+    renderPaperObservationConnectionStatus();
     renderPaperObservationScanner();
     renderPaperObservationHealth();
     renderPaperObservationLanes();
@@ -8592,6 +8688,7 @@
     renderFlags();
     renderFilters(summaries);
     renderEvidenceStrategyFilter();
+    renderEvidenceReplayFillFilter();
     renderEvidenceDateControls();
     renderStrategyComparison();
     renderComponentCards(selected);
@@ -8885,6 +8982,7 @@
         const payload = await response.json();
         if (classifyJson(payload) === "pt_rt1_summary") {
           state.ptRt1Summary = payload;
+          break;
         }
       } catch (error) {
         console.warn(`Could not load ${path}`, error);

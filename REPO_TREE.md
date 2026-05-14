@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-14T20:20:36Z`
+Last reviewed: `2026-05-14T21:20:00Z`
 
 ## Top-Level Structure
 
@@ -164,7 +164,7 @@ Last reviewed: `2026-05-14T20:20:36Z`
 - The 2026-05-13 selected-scenario loader hotfix keeps compact Historical Replay rows lightweight while loading candles, indicators, markers, and trades from deterministic per-scenario JSON files under ignored `reports/strategy_validation/*/selected/` paths. The SV2.0.2 and MF-ORIG-EV2 chart-data builders now write those selected replay files in addition to combined symbol/timeframe bundles, so founder-selected charts do not depend on loading large multi-replay JSON bundles.
 - EV-AUDIT1 adds an audit-only founder review report and compact JSON summary for the full current evidence estate. It inventories Money Flow v1.2, SOR-EV1/SOR-EV2/SOR-EV3, MF-ORIG-EV1.1/MF-ORIG-EV2, and pending STRAT-EV1 plan-only status; audits SV2.0.2 data and backtest methodology; ranks biggest winners, losers, and losing streaks; reports regime/control-pocket attribution; and states that no clean strategy candidate is promoted. It does not regenerate evidence packs, change production rules, approve paper/live, submit orders, or call private/signed/order endpoints.
 - OB2.0 refreshes the Obsidian strategic brain around one canonical command center and dedicated current maps/registers: `00 Maps/Strategy Family Map.md`, `00 Maps/Evidence and Backtesting Map.md`, `00 Maps/Data Source and Market Data Map.md`, `00 Maps/Dashboard and UI Map.md`, `00 Maps/Paper Observation Roadmap.md`, `10 Strategy/Strategy Status Register.md`, `10 Strategy/Original Money Flow Source Notes.md`, and `20 Evidence/EV-AUDIT1 Summary.md`. It also stores the Gerald Peters source PDF at `money-flow/90 Reference/The Money Flow Trading System - Gerald Peters - 2019 Edition 2.pdf`. OB2.0 is documentation/governance only; it changes no production strategy code, regenerates no evidence/chart data, calls no exchanges, and approves no paper/live behavior.
-- PT-RT1 adds a visible `Paper Observation` dashboard view backed by `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json`. PT-RT1.1A expands that view before the 24-hour run to show exactly 10 independent synthetic strategy lanes, founder-requested requested/resolved scanner symbols, blocked symbol reason codes, lane detail, wildcard diagnostics, and separate testnet plumbing status. The view separates public-mainnet strategy truth from Hyperliquid testnet plumbing probes, keeps date filters display-only, and adds no order controls, no production strategy changes, no live trading approval, and no testnet strategy-PnL truth.
+- PT-RT1 adds a visible `Paper Observation` dashboard view backed by `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json`. PT-RT1.1A expands that view before the 24-hour run to show exactly 10 independent synthetic strategy lanes, founder-requested requested/resolved scanner symbols, blocked symbol reason codes, lane detail, wildcard diagnostics, and separate testnet plumbing status. PT-RT1.1B adds public-mainnet connection status and lets the dashboard prefer ignored runtime summaries from `reports/paper_runtime/pt_rt1_1b_smoke/` or `reports/paper_runtime/pt_rt1_1b_24h_dry_run/` before falling back to committed readiness summaries. The view separates public-mainnet strategy truth from Hyperliquid testnet plumbing probes, keeps date filters display-only, and adds no order controls, no production strategy changes, no live trading approval, and no testnet strategy-PnL truth.
 - The 2026-05-14 dashboard styling checkpoint adds the small local `chillguy-logo.jpeg` brand asset plus theme-aware chart color variables and Historical Replay data-horizon card styling. It is UI styling only and changes no strategy, evidence, endpoint, paper/live, or order behavior.
 
 `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing.md`
@@ -194,11 +194,19 @@ Last reviewed: `2026-05-14T20:20:36Z`
 
 `docs/pt_rt1_1a_expanded_universe_and_strategy_lanes.md`
 - Founder/operator PT-RT1.1A readiness report.
-- Documents the 10 synthetic paper strategy lanes, three wildcard observation hypotheses, expanded requested symbol universe, alias/blocking policy, scanner eligibility rules, dashboard update status, testnet probe separation, and the `PT-RT1.1B may start 24-hour probes-disabled runtime collection` handoff.
+- Documents the 10 synthetic paper strategy lanes, three wildcard observation hypotheses, expanded requested symbol universe, alias/blocking policy, scanner eligibility rules, dashboard update status, testnet probe separation, and the handoff to PT-RT1.1B public-mainnet connection/runtime readiness.
 
 `docs/pt_rt1_1a_expanded_universe_and_strategy_lanes_summary.json`
 - Compact machine-readable PT-RT1.1A readiness summary.
 - Contains lane definitions, wildcard reason codes, requested symbols, alias mappings, blocked-symbol policy, scanner eligibility rules, dashboard status, testnet probe policy, boundaries, and next-phase decision without runtime logs.
+
+`docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness.md`
+- Founder/operator PT-RT1.1B readiness report.
+- Documents the Hyperliquid public-mainnet `/info` connector, expanded watchlist resolution, 10 strategy lane readiness, wildcard lane readiness, paper-ledger policy, dashboard connection status, disabled testnet-plumbing readiness, runtime command, smoke-run result, and `PT-RT1.1C` 24-hour probes-disabled collection handoff.
+
+`docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json`
+- Compact machine-readable PT-RT1.1B readiness summary.
+- Records public-mainnet endpoint policy, connected smoke status, watchlist status, strategy lane count, scanner eligibility counts, dashboard status, disabled testnet-plumbing status, runtime commands, and no-order/no-live boundaries without runtime logs or secrets.
 
 `docs/ob2_0_obsidian_strategy_brain_refresh.md`
 - Founder/operator report for the OB2.0 Obsidian strategy brain refresh.
@@ -708,7 +716,8 @@ Last reviewed: `2026-05-14T20:20:36Z`
 
 `services/paper_runtime/`
 - PT-RT1 public-mainnet paper-observation primitives.
-- `services/paper_runtime/pt_rt1.py` validates Hyperliquid public mainnet strategy-truth payloads, resolves top-20 scanner eligibility, enforces fully closed candle gating, computes paper-observation indicators without defaulting missing fields to zero, models independent 10,000 USDC synthetic paper ledgers, prevents duplicate synthetic signals, defines the required Money Flow/SOR/MF-ORIG observation lanes, and evaluates disabled-by-default Hyperliquid testnet plumbing-probe gates. It does not import production Money Flow rule changes, call private/signed/order endpoints, use API keys, create production execution artifacts, or let testnet fills update paper PnL.
+- `services/paper_runtime/pt_rt1.py` validates Hyperliquid public mainnet strategy-truth payloads, resolves top-20 scanner eligibility, enforces fully closed candle gating, computes paper-observation indicators without defaulting missing fields to zero, models independent 10,000 USDC synthetic paper ledgers, prevents duplicate synthetic signals, defines the required Money Flow/SOR/MF-ORIG/wildcard observation lanes, evaluates synthetic paper decisions, and evaluates disabled-by-default Hyperliquid testnet plumbing-probe gates. It does not import production Money Flow rule changes, call private/signed/order endpoints, use API keys, create production execution artifacts, or let testnet fills update paper PnL.
+- `services/paper_runtime/hyperliquid_public_market_data.py` is the PT-RT1.1B public-read-only Hyperliquid mainnet connector. It calls only allowlisted `/info` payloads, normalizes `meta`, `allMids`, and `candleSnapshot`, resolves requested vs venue watchlist rows with reason codes, validates OHLC/timestamp truth, and exposes data-health status without credentials, private/signed/order endpoints, testnet prices as strategy truth, or order artifacts.
 
 `services/market_data/`
 - Candle bootstrap, persistence, checkpoint semantics, and freshness handling.
@@ -794,6 +803,7 @@ Last reviewed: `2026-05-14T20:20:36Z`
 - Includes `scripts/build_mf_orig_ev1_original_money_flow.py` for MF-ORIG-EV1.1 original Money Flow reconstruction regeneration. It writes the source-specification/gap-matrix report, founder-readable reconstruction report, and compact JSON summary from canonical SV2.0.2 pack references plus persisted candle truth. The regenerated outputs use event-ledger accounting and peak-to-trough drawdown. It is evidence-only and does not alter production Money Flow rules, call exchanges, submit orders, or approve paper/live behavior.
 - Includes `scripts/build_pt_rt1_summary.py` for PT-RT1 committed dashboard/config summary generation. It writes configuration-only JSON and performs no market-data fetches, exchange calls, credential reads, order submissions, or runtime-state writes.
 - Includes `scripts/build_pt_rt1_1_dry_run_report.py` for PT-RT1.1 dry-run validation reporting. It reads the ignored `reports/paper_runtime/pt_rt1_1_24h_dry_run/` artifact directory when present and writes committed report/summary docs; if the 24-hour artifacts are absent or incomplete, it marks PT-RT1.2 blocked instead of fabricating runtime success.
+- Includes `scripts/run_pt_rt1_paper_observation.py` for PT-RT1.1B public-mainnet paper-observation runtime readiness. It requires `--disable-testnet-probes` and `--public-mainnet-only`, writes ignored runtime artifacts only under `reports/paper_runtime/`, uses no API keys, calls no private/signed/order endpoints, submits no probes/orders, and supports bounded smoke or 24-hour probes-disabled collection runs.
 - Includes `scripts/run_uat1_public_read_only.py` for UAT1 public-read-only connectivity and top-20 universe resolution. It requires both `--uat1-public-read-only` and `--allow-public-read-only-network` before network calls, uses no API keys, calls only allowlisted public read-only endpoints/source URLs, writes the UAT1 Markdown/JSON reports, and creates no strategy decisions, order intents, submitted orders, paper/live artifacts, routing artifacts, evidence packs, or Money Flow rule changes.
 - Includes `scripts/run_uat31_first_sandbox_order.py` for the one approved UAT3.1 Hyperliquid testnet lifecycle probe. It refuses to run without `--execute-approved-uat31`, validates exact founder/operator approval before credential use, reads sandbox/testnet credentials only from local environment or `.env`, writes sanitized UAT3.1 Markdown/JSON reports, and prevents repeat execution after a summary records an order attempt.
 - Includes `scripts/run_uat32_second_sandbox_order.py` for the separately approved UAT3.2 fixed-key preflight / second sandbox lifecycle attempt. It refuses to run without `--execute-approved-uat32`, validates exact UAT3.2 founder/operator approval before credential use, reads sandbox/testnet credentials only from local environment or `.env`, writes sanitized UAT3.2 Markdown/JSON reports, captures the UAT4.0 dashboard roadmap request, and blocks before order transport when account/API-wallet readiness fails.
@@ -1070,7 +1080,10 @@ Last reviewed: `2026-05-14T20:20:36Z`
 - PT-RT1.1 dry-run validation checks: verifies the dry-run report and summary exist, probes-disabled config is enforced with kill switch active and daily cap zero, public-mainnet strategy truth and no private/signed/order/API-key boundaries are reported, missing 24-hour artifacts block PT-RT1.2, duplicate-signal/data-health/ledger sections do not silently pass without runtime evidence, dashboard no-order labels remain expected, and the report builder can mark a complete synthetic artifact set as verified.
 
 `tests/test_pt_rt1_1a_expanded_universe.py`
-- PT-RT1.1A readiness checks: verifies the report and summary exist, all 10 lanes and three wildcard lanes are present, alias/blocking policies are documented, the PT-RT1 summary exposes expanded scanner rows, dashboard readiness flags, disabled-by-default testnet probe policy, no-order/no-live boundaries, and the PT-RT1.1B handoff decision.
+- PT-RT1.1A readiness checks: verifies the report and summary exist, all 10 lanes and three wildcard lanes are present, alias/blocking policies are documented, the PT-RT1 summary exposes expanded scanner rows, dashboard readiness flags, disabled-by-default testnet probe policy, no-order/no-live boundaries, PT-RT1.1B readiness metadata, and the PT-RT1.1C handoff decision.
+
+`tests/test_pt_rt1_1b_public_market_data.py`
+- PT-RT1.1B public-mainnet readiness checks: verifies the Hyperliquid public-mainnet connector policy, testnet/private/account/API-key rejection, requested/resolved watchlist rows, TRON/TRX and PEPE/kPEPE handling, OKB/POL blocking policies, candle normalization, fully closed candle decision wiring, missing-indicator no-zero behavior, runtime command presence, and PT-RT1.1B report/summary existence.
 
 `tests/test_sv20_money_flow_1d_expanded_evidence.py`
 - SV2.0/SV2.0.1 Money Flow 1D and expanded-universe checks: verifies Money Flow v1.2 includes `sleeve_1d`, existing 15m/1h/4h settings remain unchanged, internal SV2 timeframe is `1d` with display label `1D`, Hyperliquid public mainnet candle payloads stay public/read-only, SHIB alias resolution is explicit, readiness rows split staged data from DB-imported/canonical evidence truth, and dashboard/docs expose the expanded universe without order behavior.

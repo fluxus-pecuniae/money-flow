@@ -108,13 +108,13 @@ Dashboard filters remain display-only and do not mutate ledgers.
 
 Status: needs_followup
 
-PT-RT1.1B should start the 24-hour probes-disabled runtime collection only after this PT-RT1.1A readiness expansion is accepted. The run must still verify public mainnet refresh, fully closed candle gating, indicator availability, ledger updates, duplicate-signal blocking, data-health gating, dashboard runtime readability, probes disabled, and no private/signed/order/API-key use.
+PT-RT1.1B now follows this readiness expansion by connecting the runtime to Hyperliquid public mainnet data and running a bounded smoke cycle. The full 24-hour probes-disabled collection is still a separate PT-RT1.1C step and must verify public mainnet refresh stability, fully closed candle gating over time, indicator availability, ledger updates, duplicate-signal blocking, data-health gating, dashboard runtime readability, probes disabled, and no private/signed/order/API-key use.
 
 ## Decision
 
-**PT-RT1.1B may start 24-hour probes-disabled runtime collection**
+**PT-RT1.1B may connect public mainnet data and prepare PT-RT1.1C**
 
-This is not approval for PT-RT1.2 testnet probes. PT-RT1.2 remains blocked until PT-RT1.1B produces a real 24-hour artifact set and passes the dry-run criteria.
+PT-RT1.1B is still not approval for PT-RT1.2 testnet probes. PT-RT1.2 remains blocked until a real probes-disabled runtime collection passes the dry-run criteria.
 
 ## No-Order / No-Live Confirmation
 

@@ -42,13 +42,21 @@ PT-RT1.1A scanner expansion:
 - blocked by default: PEPE/kPEPE unit semantics, SHIB/kSHIB unit semantics, OKB unless active Hyperliquid support is confirmed, delisted MATIC when POL is requested
 - blocked symbols remain visible with reason codes
 
+PT-RT1.1B public-mainnet readiness:
+
+- Public connector exists at `services/paper_runtime/hyperliquid_public_market_data.py`.
+- Runtime command exists at `scripts/run_pt_rt1_paper_observation.py`.
+- Smoke output is ignored under `reports/paper_runtime/pt_rt1_1b_smoke/`.
+- Smoke connected to public mainnet `meta` and `allMids`, resolved the requested watchlist, loaded bounded candle data, and recorded bounded paper decisions.
+- Testnet probes stayed disabled and kill-switched.
+
 Current next operational step:
 
-1. Run `PT-RT1.1B` 24-hour dry run with testnet probes disabled.
-2. Retain ignored artifacts under `reports/paper_runtime/pt_rt1_1_24h_dry_run/`.
+1. Run `PT-RT1.1C` 24-hour dry run with testnet probes disabled.
+2. Retain ignored artifacts under `reports/paper_runtime/pt_rt1_1b_24h_dry_run/`.
 3. Regenerate the PT-RT1.1 report from those artifacts.
 4. If stable, start the 60-day public-mainnet forward-observation window.
-5. Run testnet plumbing probes only after PT-RT1.1 passes, exact approval is captured, and strategy PnL separation remains intact.
+5. Run testnet plumbing probes only after PT-RT1.1C passes, exact approval is captured, and strategy PnL separation remains intact.
 
 ## Required Boundaries
 
@@ -91,6 +99,8 @@ Current PT-RT1.1 status: `blocked_missing_24h_runtime_artifacts`.
 
 Current PT-RT1.1A status: `implemented_expanded_readiness`.
 
-Current PT-RT1.1B status: `may_start_24h_probes_disabled_collection`.
+Current PT-RT1.1B status: `implemented_public_mainnet_runtime_readiness_smoke_verified`.
 
-This means the repo now has code, dashboard, summary JSON, tests, and runbooks to start controlled forward observation across the expanded 10-lane lab, but the first 24-hour probes-disabled run has not produced runtime artifacts yet and no 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading. PT-RT1.2 testnet plumbing probes remain blocked until the probes-disabled dry run passes.
+Current PT-RT1.1C status: `may_start_24h_probes_disabled_collection`.
+
+This means the repo now has code, dashboard, public-mainnet connector, runtime command, summary JSON, tests, and runbooks to start controlled forward observation across the expanded 10-lane lab. The first 24-hour probes-disabled run has not produced runtime artifacts yet and no 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading. PT-RT1.2 testnet plumbing probes remain blocked until the probes-disabled dry run passes.

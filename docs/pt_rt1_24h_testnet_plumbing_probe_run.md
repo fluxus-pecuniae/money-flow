@@ -27,6 +27,7 @@ I APPROVE PT-RT1 TESTNET PLUMBING PROBES ONLY. HYPERLIQUID TESTNET ONLY. POST-ON
 ## Required Starting State
 
 - PT-RT1.1A expanded scanner policy is present.
+- PT-RT1.1B public-mainnet runtime readiness has passed and PT-RT1.1C probes-disabled runtime collection has been reviewed.
 - `PT_RT1_TESTNET_PROBES_ENABLED=true`.
 - `PT_RT1_TESTNET_KILL_SWITCH=false`.
 - Daily cap is set to `1` unless explicitly changed in a later approved phase.

@@ -384,12 +384,14 @@ def test_summary_and_report_files_exist_and_expose_boundaries() -> None:
     assert summary["boundaries"]["live_exchange_orders_submitted"] is False
     assert summary["paper_equity_policy"]["starting_equity_usdc_per_lane"] == "10000"
     assert summary["revision"] == "PT-RT1.1A"
+    assert summary["latest_readiness_phase"] == "PT-RT1.1B"
     assert len(summary["strategy_lanes"]) == 10
     assert "TRON" in summary["requested_symbols"]
     assert summary["alias_mappings"]["TRON"] == "TRX"
     assert summary["alias_mappings"]["PEPE"] == "kPEPE"
     assert summary["dashboard_status"]["strategy_lanes_visible"] == 10
-    assert summary["next_phase"]["decision"] == "PT-RT1.1B may start 24-hour probes-disabled runtime collection"
+    assert summary["dashboard_status"]["public_mainnet_connection_status_visible"] is True
+    assert summary["next_phase"]["decision"] == "PT-RT1.1C may start 24-hour probes-disabled runtime collection"
 
 
 def test_pt_rt1_strategy_lane_does_not_construct_production_execution_artifacts() -> None:

@@ -7,8 +7,16 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `decision`: Expand PT-RT1 before the 24-hour probes-disabled run to exactly 10 independent synthetic strategy lanes plus an expanded founder-requested scanner universe with requested/resolved/block reason-code visibility.
 - `scope`: Added the Money Flow baseline lane, two SOR rolling-range lanes, four MF-ORIG full-equity reference lanes, and three wildcard expert observation lanes. Scanner truth now includes canonical symbols plus founder-requested TRON, ADA, ZEC, LINK, XMR, TON, LTC, UNI, DOT, ASTER, AAVE, POL, FIL, TRUMP, PEPE, and OKB, with TRON->TRX, PEPE->kPEPE, PEPE/kPEPE unit-semantics blocking, OKB support-confirmation blocking, and POL/MATIC delisting protection.
 - `why`: The founder wanted the forward-observation lab expanded before collecting the first 24-hour runtime artifact set, so the run can observe broader symbols and strategy hypotheses from the start rather than retrofitting the dashboard after partial runtime logs exist.
-- `result`: `PT-RT1.1B may start 24-hour probes-disabled runtime collection` after readiness review. PT-RT1.2 testnet probes remain blocked until a real probes-disabled run passes.
+- `result`: `PT-RT1.1B` was the public-mainnet connector/runtime-readiness follow-up before the 24-hour probes-disabled runtime collection. PT-RT1.2 testnet probes remain blocked until a real probes-disabled run passes.
 - `follow_up_implications`: PT-RT1.1A is readiness only. It does not start runtime collection, enable testnet probes, submit testnet/live orders, call private/signed/order endpoints from strategy truth, use API keys, use testnet prices/fills as strategy PnL, regenerate canonical evidence packs, change production Money Flow rules, approve paper/live, or add SOR/fanout/CBBO.
+
+## 2026-05-14T21:06:00Z - PT-RT1.1B - Connect Public Mainnet Data Before 24-Hour Collection
+
+- `decision`: Add the Hyperliquid public mainnet data connector and runtime command before starting the full probes-disabled 24-hour run.
+- `scope`: Added a public-read-only `/info` connector for `meta`, `metaAndAssetCtxs`, `allMids`, `candleSnapshot`, `fundingHistory`, and display-only `l2Book`; added the ignored runtime artifact writer/runner; updated the Paper Observation dashboard with connection status and PT-RT1.1B/runtime summary loading; and produced PT-RT1.1B founder report/summary.
+- `why`: PT-RT1.1A expanded the lab configuration, but the repo still needed live public-mainnet connectivity and a concrete operator command before collecting 24-hour artifacts.
+- `result`: A bounded smoke cycle connected to public mainnet `meta` and `allMids`, resolved 25 requested watchlist rows with 23 eligible and 2 blocked, loaded bounded public candle data, recorded 80 bounded paper decision events, and wrote ignored runtime artifacts under `reports/paper_runtime/pt_rt1_1b_smoke/`.
+- `follow_up_implications`: `PT-RT1.1C may start 24-hour probes-disabled runtime collection`. This does not approve PT-RT1.2 testnet probes, production strategy changes, strategy paper-runtime promotion, live trading, live/testnet orders, private/signed/order endpoints from strategy truth, API-key use, canonical evidence regeneration, SOR/fanout/CBBO, or testnet strategy truth.
 
 ## 2026-05-13T22:03:37Z - OB2.0 - Obsidian Strategy Brain Uses SV2.0.2 / EV-AUDIT1 As Current Truth
 

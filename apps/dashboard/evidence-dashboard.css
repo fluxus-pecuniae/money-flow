@@ -922,8 +922,12 @@ h3 {
   font-size: var(--text-caption);
 }
 
-.evidence-strategy-group label {
+.evidence-strategy-group label:first-child {
   min-width: min(360px, 72vw);
+}
+
+.evidence-strategy-group label:not(:first-child) {
+  min-width: 180px;
 }
 
 .date-filter-group input,
@@ -2583,6 +2587,50 @@ th {
   color: var(--color-blue);
   font-size: 9px;
   line-height: 1;
+}
+
+.run-ledger-heading {
+  align-items: flex-start;
+}
+
+.run-ledger-heading > div:first-child {
+  min-width: 260px;
+}
+
+.run-ledger-totals {
+  display: flex;
+  flex: 1 1 560px;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  justify-content: flex-end;
+}
+
+.run-ledger-totals:empty {
+  display: none;
+}
+
+.run-ledger-totals span {
+  display: grid;
+  gap: 2px;
+  min-width: 132px;
+  padding: var(--spacing-3);
+  border: 1px solid var(--color-line-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-card-overlay);
+}
+
+.run-ledger-totals small {
+  color: var(--color-muted);
+  font-size: 9px;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.run-ledger-totals strong {
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.2;
 }
 
 td {

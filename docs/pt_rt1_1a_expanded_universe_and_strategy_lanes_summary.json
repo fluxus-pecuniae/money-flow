@@ -120,5 +120,5 @@
     "paper_runtime_approved_as_production": false,
     "sor_fanout_cbbo_added": false
   },
-  "next_phase": "PT-RT1.1B may start 24-hour probes-disabled runtime collection"
+  "next_phase": "PT-RT1.1B connects public mainnet data and prepares PT-RT1.1C 24-hour probes-disabled runtime collection"
 }

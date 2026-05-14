@@ -15,6 +15,7 @@ It is not:
 ## Start Criteria
 
 - 24-hour dry run with probes disabled passes.
+- PT-RT1.1B public-mainnet connector and runtime command are present and smoke-verified.
 - PT-RT1.1A expanded readiness is in place: 10 synthetic lanes, expanded requested/resolved scanner universe, blocked-symbol reason codes, and wildcard diagnostics.
 - Public mainnet market data health is stable.
 - Fully closed candle gating is verified.

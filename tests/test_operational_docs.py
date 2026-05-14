@@ -147,6 +147,8 @@ REQUIRED_FILES = [
     "docs/pt_rt1_1_24h_probes_disabled_dry_run_summary.json",
     "docs/pt_rt1_1a_expanded_universe_and_strategy_lanes.md",
     "docs/pt_rt1_1a_expanded_universe_and_strategy_lanes_summary.json",
+    "docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness.md",
+    "docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json",
     "money-flow/00 Maps/Strategy Family Map.md",
     "money-flow/00 Maps/Evidence and Backtesting Map.md",
     "money-flow/00 Maps/Data Source and Market Data Map.md",
@@ -292,7 +294,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert "Current implemented milestone | `PT-RT1.1A` expanded paper-observation lab readiness" in command_center
+    assert "Current implemented milestone | `PT-RT1.1B` Hyperliquid public mainnet data connection" in command_center
     assert "Canonical command center" in compatibility_command_center
     assert "PT-RT1 now implements the public-mainnet paper-observation substrate" in current_dashboard
     assert "SV2.0.2 canonical evidence" in current_dashboard
@@ -455,9 +457,10 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "no clean strategy candidate" in strategy_register
     assert "No strategy is production-ready" in current_phase or "no clean strategy candidate is promoted" in current_phase
     assert "PT-RT1" in current_phase
-    assert "Run `PT-RT1.1B` 24-hour probes-disabled dry run first" in current_phase
-    assert "PT-RT1.1 currently records this as blocked" in current_phase
-    assert "PT-RT1.1A completed the required expanded-lab readiness" in current_phase
+    assert "Run `PT-RT1.1C` 24-hour probes-disabled dry run first" in current_phase
+    assert "PT-RT1.1 currently records" in current_phase
+    assert "PT-RT1.1A completed the expanded-lab readiness" in current_phase
+    assert "PT-RT1.1B completed public-mainnet connector/runtime readiness" in current_phase
     assert "SV2.0.2" in project_memory
     assert "MF-ORIG" in project_memory
     assert "EV-AUDIT1" in project_memory
@@ -501,8 +504,10 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     dry_run_summary = Path("docs/pt_rt1_1_24h_probes_disabled_dry_run_summary.json").read_text()
     expanded_report = Path("docs/pt_rt1_1a_expanded_universe_and_strategy_lanes.md").read_text()
     expanded_summary = Path("docs/pt_rt1_1a_expanded_universe_and_strategy_lanes_summary.json").read_text()
+    runtime_report = Path("docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness.md").read_text()
+    runtime_summary = Path("docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json").read_text()
 
-    for contents in (command_center, current_phase, project_memory, paper_roadmap, report, expanded_report):
+    for contents in (command_center, current_phase, project_memory, paper_roadmap, report, expanded_report, runtime_report):
         assert "PT-RT1" in contents
         assert "public mainnet" in contents or "Public mainnet" in contents
         assert "testnet" in contents
@@ -510,10 +515,12 @@ def test_pt_rt1_operational_docs_are_current() -> None:
 
     assert "strategy-truth lane is Hyperliquid public mainnet market data only" in command_center
     assert "PT-RT1.1A" in command_center
-    assert "PT-RT1.1B may start" in command_center
+    assert "PT-RT1.1B" in command_center
+    assert "PT-RT1.1C may start" in command_center
     assert "not production approval" in report
     assert "live approval" in report
     assert "paper-runtime approval" in report
+    assert "public-read-only `/info` connector" in report
     assert "exactly 10 lanes" in report
     assert "wildcard_btc_regime_guard" in report
     assert "TRON" in report
@@ -525,7 +532,11 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     assert "not_verified_runtime_absent" in dry_run_summary
     assert "PT_RT1_TESTNET_DAILY_PROBE_CAP" in dry_run_summary
     assert "PT-RT1.1A" in expanded_report
-    assert "PT-RT1.1B may start 24-hour probes-disabled runtime collection" in expanded_report
+    assert "PT-RT1.1B may connect public mainnet data and prepare PT-RT1.1C" in expanded_report
+    assert "PT-RT1.1B Hyperliquid Live Market Data And Runtime Readiness" in runtime_report
+    assert "PT-RT1.1C may start 24-hour probes-disabled runtime collection" in runtime_report
+    assert "\"public_mainnet_status\": \"connected\"" in runtime_summary
+    assert "\"next_phase_decision\": \"PT-RT1.1C may start 24-hour probes-disabled runtime collection\"" in runtime_summary
     assert "wildcard_volatility_expansion_breakout" in expanded_summary
     assert "pepe_kpepe_unit_semantics_deferred" in expanded_summary
     assert "okb_support_not_confirmed" in expanded_summary

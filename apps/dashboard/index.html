@@ -77,10 +77,14 @@
 
         <section class="toolbar-band" aria-label="Evidence filters">
           <div class="segment-group" id="component-filter" role="tablist" aria-label="Component filter"></div>
-          <div class="evidence-strategy-group" aria-label="Evidence replay strategy filter">
+          <div class="evidence-strategy-group" aria-label="Evidence replay strategy filters">
             <label>
               <span>Replay strategy</span>
               <select id="evidence-replay-strategy-filter"></select>
+            </label>
+            <label>
+              <span>Fill assumption</span>
+              <select id="evidence-replay-fill-filter"></select>
             </label>
           </div>
           <div class="date-filter-group" aria-label="Evidence realized exit date filter">
@@ -98,9 +102,12 @@
         </section>
 
         <section class="table-panel" aria-labelledby="run-table-title">
-          <div class="section-heading">
-            <h2 id="run-table-title">Run Ledger</h2>
-            <p id="run-table-subtitle">Scenario results from loaded batch reports; dynamic equity is per scenario and not one combined account.</p>
+          <div class="section-heading run-ledger-heading">
+            <div>
+              <h2 id="run-table-title">Run Ledger</h2>
+              <p id="run-table-subtitle">Scenario results from loaded batch reports; dynamic equity is per scenario and not one combined account.</p>
+            </div>
+            <div id="run-ledger-totals" class="run-ledger-totals" aria-label="Run Ledger totals"></div>
           </div>
           <div id="run-table" class="data-table-shell"></div>
         </section>
@@ -515,6 +522,14 @@
         </section>
 
         <section id="paper-observation-summary-cards" class="metric-grid audit-review-verdict" aria-label="Paper observation summary"></section>
+
+        <section class="table-panel audit-review-panel" aria-labelledby="paper-observation-connection-title">
+          <div class="section-heading">
+            <h2 id="paper-observation-connection-title">Connection Status</h2>
+            <p>Hyperliquid public mainnet connection status, endpoint category, last update, and no private/signed/order/API-key boundary.</p>
+          </div>
+          <div id="paper-observation-connection-status" class="market-micro-panel"></div>
+        </section>
 
         <section class="evidence-lab-two-column audit-review-two-column" aria-label="Paper observation scanner and data health">
           <article class="table-panel audit-review-panel" aria-labelledby="paper-observation-scanner-title">

@@ -1,0 +1,162 @@
+{
+  "boundaries": {
+    "canonical_historical_evidence_packs_regenerated": false,
+    "live_orders_submitted": false,
+    "live_trading_approved": false,
+    "private_signed_order_endpoints_called_from_strategy_truth": false,
+    "production_money_flow_rules_changed": false,
+    "sor_fanout_cbbo_added": false,
+    "testnet_fills_update_strategy_pnl": false,
+    "testnet_orders_submitted": false,
+    "testnet_prices_are_strategy_truth": false,
+    "testnet_probes_enabled": false
+  },
+  "dashboard_status": {
+    "connection_status_panel": "implemented",
+    "expanded_watchlist_visible": true,
+    "live_chart_status": "runtime_candle_summary_visible_when_ignored_runtime_summary_exists",
+    "paper_observation_view": "implemented",
+    "strategy_lanes_visible": 10,
+    "testnet_plumbing_separated": true
+  },
+  "market_data_endpoint_policy": {
+    "allowed_public_info_types": [
+      "allMids",
+      "candleSnapshot",
+      "fundingHistory",
+      "l2Book",
+      "meta",
+      "metaAndAssetCtxs"
+    ],
+    "api_keys_required": false,
+    "endpoint_category": "public_read_only",
+    "forbidden_payloads_rejected": true,
+    "strategy_truth_endpoint": "https://api.hyperliquid.xyz/info",
+    "testnet_url_is_strategy_truth": false
+  },
+  "next_phase_decision": "PT-RT1.1C may start 24-hour probes-disabled runtime collection",
+  "paper_ledger_policy": {
+    "compounds_realized_pnl_forward": true,
+    "independent_lane_ledgers": true,
+    "starting_equity_usdc_per_lane": "10000",
+    "total_equity_formula": "realized_equity + unrealized_pnl"
+  },
+  "phase": "PT-RT1.1B",
+  "report": "pt_rt1_real_time_paper_observation_and_testnet_plumbing",
+  "runtime_command": {
+    "duration_hours_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1b_24h_dry_run --disable-testnet-probes --public-mainnet-only",
+    "output_dir_policy": "must_be_under_ignored_reports_paper_runtime",
+    "smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 1 --output-dir reports/paper_runtime/pt_rt1_1b_smoke --disable-testnet-probes --public-mainnet-only"
+  },
+  "scanner_eligibility": {
+    "blocked_symbol_policy": {
+      "OKB": "blocked_unless_active_hyperliquid_public_support_confirmed",
+      "PEPE": "maps_to_kPEPE_and_blocked_by_default_unit_semantics_deferred",
+      "POL": "active_POL_required_delisted_MATIC_mapping_blocked",
+      "SHIB": "kSHIB_unit_semantics_deferred"
+    },
+    "rules": [
+      "exists_in_current_hyperliquid_public_meta",
+      "isDelisted_is_not_true",
+      "szDecimals_present",
+      "allMids_positive_public_market_data",
+      "symbol_identity_not_ambiguous",
+      "unit_semantics_accepted",
+      "data_health_healthy"
+    ]
+  },
+  "smoke_run_status": {
+    "decisions_recorded": 80,
+    "latest_chart_sample": {
+      "closed_candles": 120,
+      "symbol": "BTC",
+      "timeframe": "15m"
+    },
+    "orders_submitted": false,
+    "private_signed_order_endpoints_called": false,
+    "public_mainnet_fetch_attempted": true,
+    "public_mainnet_status": "connected",
+    "status": "verified",
+    "testnet_probes_enabled": false,
+    "watchlist_resolved": true
+  },
+  "status": "implemented",
+  "strategy_lanes": [
+    "money_flow_v1_2_baseline",
+    "avoid_low_rolling_range_20",
+    "avoid_low_rolling_range_50",
+    "mf_orig_stage_filter_only_full_equity",
+    "mf_orig_stage2_pullback_reclaim_full_equity",
+    "mf_orig_1d_stage2_5_20_crossover_full_equity",
+    "mf_orig_1d_stage2_breakout_resistance_full_equity",
+    "wildcard_btc_regime_guard",
+    "wildcard_multi_timeframe_alignment",
+    "wildcard_volatility_expansion_breakout"
+  ],
+  "testnet_plumbing_status": {
+    "approval_required": true,
+    "cancel_reconcile_required": true,
+    "daily_cap_configured": true,
+    "disabled_by_default": true,
+    "kill_switch_active": true,
+    "notional_cap_configured": true,
+    "post_only_required": true,
+    "status": "ready_but_disabled",
+    "testnet_fills_do_not_update_strategy_pnl": true
+  },
+  "watchlist_status": {
+    "blocked_rows": 2,
+    "eligible_rows": 23,
+    "requested_symbols": [
+      "BTC",
+      "ETH",
+      "SOL",
+      "XRP",
+      "DOGE",
+      "HYPE",
+      "BNB",
+      "SUI",
+      "AVAX",
+      "TRON",
+      "ADA",
+      "ZEC",
+      "LINK",
+      "XMR",
+      "TON",
+      "LTC",
+      "UNI",
+      "DOT",
+      "ASTER",
+      "AAVE",
+      "POL",
+      "FIL",
+      "TRUMP",
+      "PEPE",
+      "OKB"
+    ],
+    "resolved_rows": 25
+  },
+  "wildcard_lane_readiness": {
+    "wildcard_btc_regime_guard": [
+      "btc_regime_guard_passed",
+      "btc_regime_guard_blocked_bearish",
+      "btc_regime_context_unavailable",
+      "btc_regime_clear_bearish_alignment",
+      "btc_regime_macd_histogram_not_constructive"
+    ],
+    "wildcard_multi_timeframe_alignment": [
+      "multi_timeframe_alignment_passed",
+      "multi_timeframe_alignment_blocked",
+      "higher_timeframe_context_unavailable",
+      "higher_timeframe_bearish_alignment",
+      "higher_timeframe_macd_not_constructive"
+    ],
+    "wildcard_volatility_expansion_breakout": [
+      "volatility_expansion_breakout_passed",
+      "volatility_expansion_blocked_low_range",
+      "volatility_expansion_missing_compression_context",
+      "volatility_expansion_no_recent_high_breakout",
+      "volatility_expansion_baseline_alignment_failed"
+    ]
+  }
+}

@@ -13,6 +13,62 @@ Entry schema:
 
 ---
 
+## v2026.05.14.005
+
+- `recorded_at_utc`: `2026-05-14T21:20:20Z`
+- `scope`: `PT-RT1.1B Hyperliquid public mainnet data connection and expanded paper runtime readiness`
+- `intent`: `Native entry. Added the PT-RT1.1B public-read-only Hyperliquid mainnet connector and probes-disabled runtime command for the expanded PT-RT1 paper-observation lab. The connector allowlists public /info payloads only, rejects testnet/private/account/order/API-key strategy-truth paths, resolves requested vs venue watchlist rows with blocked-symbol reason codes, normalizes public candle snapshots, and feeds synthetic PaperDecisionEvent rows for the 10 independent strategy lanes. The dashboard now prefers ignored PT-RT1 runtime summaries, shows public-mainnet connection status, and keeps testnet plumbing separated. A bounded smoke run connected to public meta/allMids, resolved 25 watchlist rows, loaded bounded candle data, recorded bounded paper decisions, and wrote ignored runtime artifacts under reports/paper_runtime/pt_rt1_1b_smoke/. PT-RT1.1B is readiness-only; it does not start the 24-hour run, enable testnet probes, submit orders, call private/signed/order endpoints from strategy truth, use API keys, use testnet prices/fills as strategy PnL, regenerate canonical evidence packs, change production Money Flow rules, approve paper/live, or add SOR/fanout/CBBO.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/strategy.md`
+  - `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing.md`
+  - `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json`
+  - `docs/pt_rt1_24h_dry_run_probes_disabled.md`
+  - `docs/pt_rt1_24h_testnet_plumbing_probe_run.md`
+  - `docs/pt_rt1_60_day_forward_observation_plan.md`
+  - `docs/pt_rt1_1a_expanded_universe_and_strategy_lanes.md`
+  - `docs/pt_rt1_1a_expanded_universe_and_strategy_lanes_summary.json`
+  - `docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness.md`
+  - `docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `scripts/run_pt_rt1_paper_observation.py`
+  - `services/paper_runtime/__init__.py`
+  - `services/paper_runtime/hyperliquid_public_market_data.py`
+  - `services/paper_runtime/pt_rt1.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_pt_rt1_paper_observation.py`
+  - `tests/test_pt_rt1_1a_expanded_universe.py`
+  - `tests/test_pt_rt1_1b_public_market_data.py`
+- `validation_performed`:
+  - `.venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 1 --output-dir reports/paper_runtime/pt_rt1_1b_smoke --disable-testnet-probes --public-mainnet-only --max-cycles 1 --max-candle-symbols 2`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_paper_observation.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_1a_expanded_universe.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_1b_public_market_data.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat34_sandbox_routing_pipeline.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1.1b-review.zip`
+
 ## v2026.05.14.004
 
 - `recorded_at_utc`: `2026-05-14T20:20:36Z`

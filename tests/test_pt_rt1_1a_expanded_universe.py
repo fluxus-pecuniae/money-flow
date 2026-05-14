@@ -10,7 +10,7 @@ def test_pt_rt1_1a_report_and_summary_exist() -> None:
 
     assert report.exists()
     assert summary.exists()
-    assert "PT-RT1.1B may start 24-hour probes-disabled runtime collection" in report.read_text(encoding="utf-8")
+    assert "PT-RT1.1B may connect public mainnet data and prepare PT-RT1.1C" in report.read_text(encoding="utf-8")
     assert json.loads(summary.read_text(encoding="utf-8"))["phase"] == "PT-RT1.1A"
 
 
@@ -33,7 +33,7 @@ def test_pt_rt1_1a_summary_declares_boundaries_and_expansion() -> None:
     assert summary["boundaries"]["production_money_flow_rules_changed"] is False
     assert summary["boundaries"]["orders_submitted"] is False
     assert summary["boundaries"]["live_trading_approved"] is False
-    assert summary["next_phase"] == "PT-RT1.1B may start 24-hour probes-disabled runtime collection"
+    assert summary["next_phase"] == "PT-RT1.1B connects public mainnet data and prepares PT-RT1.1C 24-hour probes-disabled runtime collection"
 
 
 def test_pt_rt1_1a_existing_summary_is_dashboard_ready() -> None:
@@ -47,4 +47,6 @@ def test_pt_rt1_1a_existing_summary_is_dashboard_ready() -> None:
     assert any(row["requested_symbol"] == "PEPE" and row["blocked"] for row in summary["scanner_universe"])
     assert any(row["requested_symbol"] == "OKB" and row["blocked"] for row in summary["scanner_universe"])
     assert any(row["requested_symbol"] == "TRON" and row["resolved_venue_symbol"] == "TRX" for row in summary["scanner_universe"])
-    assert summary["next_phase"]["decision"] == "PT-RT1.1B may start 24-hour probes-disabled runtime collection"
+    assert summary["latest_readiness_phase"] == "PT-RT1.1B"
+    assert summary["dashboard_status"]["public_mainnet_connection_status_visible"] is True
+    assert summary["next_phase"]["decision"] == "PT-RT1.1C may start 24-hour probes-disabled runtime collection"

@@ -96,6 +96,10 @@ Primary dashboard tabs are:
   - The selector is review/navigation only; it does not regenerate evidence or approve variants.
 - Evidence Lab
 - Audit Review
+- Paper Observation
+  - Shows PT-RT1 forward-observation state, not historical evidence regeneration.
+  - PT-RT1.1B adds public-mainnet connection status, expanded watchlist readiness, all 10 synthetic lanes, runtime candle/marker status when local ignored summaries exist, and separate disabled testnet-plumbing status.
+  - The view must keep public mainnet strategy truth, synthetic paper PnL, testnet plumbing probes, historical evidence, and display-only filters visually separated.
 
 The invalid legacy `Experiments` surface is not exposed as a primary tab. Evidence Lab is tied to SOR-EV1/SOR-EV2/SOR-EV3 committed summaries and canonical SV2.0.2 baseline context only.
 
@@ -281,6 +285,7 @@ Shadow and paper-observation markers are not actual trades. Sandbox lifecycle pr
 
 - Paper Observation is PT-RT1 forward-observation UI, not canonical evidence regeneration and not historical replay.
 - Strategy truth must be labeled as Hyperliquid public mainnet market data.
+- PT-RT1.1B public-mainnet connection status should be visible before founder starts the 24-hour probes-disabled run.
 - Testnet probes must be displayed in a separate plumbing-only panel.
 - Testnet fills must never be displayed as strategy PnL.
 - Each lane must show an independent synthetic 10,000 USDC ledger.
@@ -289,6 +294,7 @@ Shadow and paper-observation markers are not actual trades. Sandbox lifecycle pr
 - Wildcard lanes must expose pass/block reason-code summaries and remain observation-only expert hypotheses.
 - Candidate and MF-ORIG lanes must be labeled evidence-only / not production-approved.
 - Date filters must say `display-only filter`, `not canonical evidence`, and `not backend replay`.
+- Runtime summary files under `reports/paper_runtime/` are ignored local state; committed summaries are readiness/configuration fallbacks.
 - Missing runtime state must render as explicit empty state; do not show fake zero trades as evidence.
 - The testnet probe panel must show disabled/enabled state, kill switch, daily cap, remaining count, last lifecycle, unknown-state block, and testnet-only labels.
 - No order, cancel, retry, amend, approval, live, route, SOR, fanout, CBBO, or target-reselection controls may be added.
