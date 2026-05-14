@@ -675,6 +675,8 @@ The bounded PT-RT1.1B smoke run connected to public mainnet, resolved the expand
 
 PT-RT1.1C starts the 24-hour probes-disabled collection under ignored `reports/paper_runtime/pt_rt1_1c_24h_dry_run/`. The first cycle wrote the expected ignored artifact set with 25 resolved watchlist rows, 23 eligible rows, 2 blocked rows, 92 market-data health rows, and 920 decision rows. PT-RT1.1D evaluates the completed artifacts.
 
+The Paper Observation dashboard browser also polls Hyperliquid public mainnet `allMids` every 10 seconds for the expanded watchlist and selected-pair `candleSnapshot` for a live TradingView Lightweight chart. This is display/runtime observation only; it does not use testnet prices as strategy truth, private/signed/order/account payloads, API keys, or order controls.
+
 PT-RT1 does not approve production Money Flow rule changes, strategy paper-runtime promotion, live trading, live orders, API-key use from the strategy lane, SOR/fanout/CBBO behavior, or testnet data as strategy truth. PT-RT1.2 testnet plumbing probes may not proceed until the probes-disabled dry run passes.
 
 ## Still Deferred At Head

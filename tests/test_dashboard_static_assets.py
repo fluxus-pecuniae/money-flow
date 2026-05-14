@@ -307,6 +307,12 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert ".paper-observation-view" in css
     assert ".paper-observation-controls" in css
     assert "DEFAULT_PT_RT1_SUMMARY_FILES" in js
+    assert "DEFAULT_SV21_BROAD_SUMMARY_FILES" in js
+    assert "sv2_1_broad_hyperliquid_1d_period_evidence_summary.json" in js
+    assert "loadDefaultSv21BroadEvidenceBatches" in js
+    assert "evidence_pack_paths" in js
+    assert "SV2.0.2 + SV2.1 evidence packs loaded" in js
+    assert "SV2.1 broad 1D period pack JSON files loaded" in js
     assert "pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json" in js
     assert "renderPaperObservationConnectionStatus" in js
     assert "pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json" in js
@@ -315,6 +321,12 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "renderPaperObservationWildcardDiagnostics" in js
     assert "https://api.hyperliquid.xyz/info" in js
     assert "HYPERLIQUID_MAINNET_PUBLIC_INFO_URL" in js
+    assert "PAPER_OBSERVATION_MARKET_REFRESH_MS = 10000" in js
+    assert "startPaperObservationMarketPolling" in js
+    assert "hyperliquid_mainnet_candleSnapshot_browser_poll" in js
+    assert "paper_observation_public_mainnet_connected" in js
+    assert "data-paper-observation-symbol" in js
+    assert ".paper-observation-tick" in css
     assert "dashboard_live_chart_public_info_endpoint_not_allowlisted" in js
     assert "private_or_order_payload_forbidden" in js
     assert "Hyperliquid public mainnet info endpoint" in summary

@@ -135,7 +135,9 @@ def test_pt003_preserves_no_order_no_private_endpoint_boundaries() -> None:
     assert summary["source"]["private_or_signed_endpoints_used"] is False
     assert summary["source"]["order_endpoints_used"] is False
     assert summary["source"]["testnet_prices_used_as_strategy_truth"] is False
-    assert "https://api.hyperliquid.xyz/info" not in js
+    assert "Paper Observation" in html
+    assert "HYPERLIQUID_MAINNET_PUBLIC_INFO_URL" in js
+    assert "renderHistoricalReplay" in js
     for phrase in (
         "submit order button",
         "cancel order button",

@@ -75,8 +75,9 @@ def test_autosize_feedback_loop_and_refresh_fitcontent_are_removed() -> None:
     assert "new ResizeObserver(scheduleTradingViewResize)" in js
     assert "chart.resize(width, height)" in js
     # fitContent remains limited to initial chart creations: live UAT/PT chart,
-    # historical replay chart, and SOR-EV2.2 Evidence Lab overlay chart.
-    assert js.count(".fitContent()") == 3
+    # Paper Observation selected-pair chart, historical replay chart, and
+    # SOR-EV2.2 Evidence Lab overlay chart.
+    assert js.count(".fitContent()") == 4
     assert "chartState.fitContentApplied = true;" in js
     assert "renderHistoricalReplayChart" in js
     assert "renderEvidenceLabOverlayChart" in js
@@ -99,7 +100,9 @@ def test_public_read_only_boundaries_and_no_order_controls_remain() -> None:
     dashboard = f"{html}\n{js}".lower()
 
     assert "https://api.hyperliquid-testnet.xyz/info" in js
-    assert "https://api.hyperliquid.xyz/info" not in js
+    assert "https://api.hyperliquid.xyz/info" in js
+    assert "postHyperliquidPublicInfo(HYPERLIQUID_TESTNET_PUBLIC_INFO_URL" in js
+    assert "postHyperliquidPublicInfo(HYPERLIQUID_MAINNET_PUBLIC_INFO_URL" in js
     assert "allMids" in js
     assert "candleSnapshot" in js
     assert "dashboard_live_chart_private_or_order_payload_forbidden" in js

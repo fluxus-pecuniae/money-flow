@@ -130,6 +130,7 @@ The Paper Observation dashboard now prefers `reports/paper_runtime/pt_rt1_1c_24h
 
 - public mainnet connection status
 - expanded watchlist
+- latest public-mainnet MD ticks from browser-side `allMids` polling
 - requested/resolved symbols
 - blocked symbols and reason codes
 - all 10 strategy lanes
@@ -137,6 +138,7 @@ The Paper Observation dashboard now prefers `reports/paper_runtime/pt_rt1_1c_24h
 - open synthetic positions
 - closed synthetic trades
 - data health
+- selected-pair public-mainnet TradingView chart from `candleSnapshot`
 - drawdown / losing streak state
 - testnet plumbing disabled
 - kill switch active

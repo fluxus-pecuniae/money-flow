@@ -13,6 +13,47 @@ Entry schema:
 
 ---
 
+## v2026.05.14.009
+
+- `recorded_at_utc`: `2026-05-14T22:41:02Z`
+- `scope`: `Paper Observation live watchlist ticker and selected-pair chart`
+- `intent`: `Native entry. Added a display-only Paper Observation browser market-data poller that calls Hyperliquid public mainnet /info with allowlisted allMids for the expanded watchlist and selected-pair candleSnapshot for a TradingView Lightweight chart. Scanner rows now keep requested/resolved/block reason visibility while showing live mid ticks and letting the founder select the chart pair. The selected chart renders public-mainnet candles with EMA5/EMA10/SMA20 overlays when Lightweight Charts is available, otherwise falls back to explicit runtime-summary/empty states. This is dashboard/runtime observation only and does not add order controls, submit orders, call private/signed/order/account payloads, use API keys, use testnet data as strategy truth, change production Money Flow rules, regenerate canonical evidence packs, approve paper/live behavior, or add SOR/fanout/CBBO.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `docs/pt_rt1_1c_24h_runtime_collection_start.md`
+  - `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing.md`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_pt001_tradingview_chart_stability.py`
+  - `tests/test_pt002_historical_strategy_replay_cockpit.py`
+  - `tests/test_pt003_historical_data_horizon_1d.py`
+  - `tests/test_uat42_live_market_dashboard_paper_equity.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_pt001_tradingview_chart_stability.py tests/test_uat42_live_market_dashboard_paper_equity.py tests/test_pt002_historical_strategy_replay_cockpit.py tests/test_pt003_historical_data_horizon_1d.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_paper_observation.py tests/test_pt_rt1_1a_expanded_universe.py tests/test_pt_rt1_1b_public_market_data.py tests/test_pt_rt1_1c_runtime_start.py tests/test_phase3_strategy.py`
+  - `curl -sS https://api.hyperliquid.xyz/info -H 'content-type: application/json' --data '{"type":"allMids"}' | head -c 240`
+  - `curl -sS https://api.hyperliquid.xyz/info -H 'content-type: application/json' --data '{"type":"candleSnapshot","req":{"coin":"ETH","interval":"1h","startTime":1778740000000,"endTime":1778790000000}}' | head -c 240`
+  - `curl -sSI https://api.hyperliquid.xyz/info | rg -i 'access-control|allow|content-type'`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-paper-observation-live-md-review.zip`
+  - `bundle scan: no .venv/.git directory, reports/paper_runtime, reports/strategy_validation, DB/sqlite, nested zip, or secret/API-key pattern matches; .env.example/.gitignore and design-system tokens.json are expected repo files`
+
 ## v2026.05.14.008
 
 - `recorded_at_utc`: `2026-05-14T22:11:19Z`

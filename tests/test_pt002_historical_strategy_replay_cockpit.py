@@ -330,7 +330,9 @@ def test_dashboard_separates_historical_replay_from_sandbox_execution_and_has_no
     assert "historical replay data only" in dashboard
     assert "sandbox execution ledger remains separate" not in dashboard
     assert "sandbox execution plumbing" in dashboard
-    assert "https://api.hyperliquid.xyz/info" not in js
+    assert "Paper Observation" in html
+    assert "HYPERLIQUID_MAINNET_PUBLIC_INFO_URL" in js
+    assert "renderHistoricalReplay" in js
     assert "historical replay" in dashboard
     for phrase in (
         "submit order button",

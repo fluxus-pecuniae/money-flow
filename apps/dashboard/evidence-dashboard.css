@@ -719,6 +719,49 @@ h3 {
   min-height: 320px;
 }
 
+.paper-observation-view .selected-row {
+  background: rgba(40, 215, 197, 0.1);
+}
+
+.link-button {
+  padding: 0;
+  border: 0;
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 800;
+  text-align: left;
+  background: transparent;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  color: var(--color-teal);
+}
+
+.paper-observation-tick {
+  display: inline-flex;
+  min-width: 72px;
+  justify-content: flex-end;
+  padding: 2px 7px;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+}
+
+.paper-observation-tick.tick-up {
+  border-color: rgba(37, 208, 132, 0.48);
+  color: var(--color-green);
+}
+
+.paper-observation-tick.tick-down {
+  border-color: rgba(255, 90, 102, 0.48);
+  color: var(--color-red);
+}
+
+.paper-observation-tick.tick-flat {
+  color: var(--color-muted);
+}
+
 .audit-score-list {
   display: grid;
   gap: var(--spacing-4);

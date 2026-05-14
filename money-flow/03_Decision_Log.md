@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-14T22:36:41Z - Paper Observation - Live Watchlist Ticker and Selected-Pair Chart
+
+- `decision`: Add browser-side Paper Observation display polling for latest public mainnet market data and render a selected-pair live TradingView chart.
+- `scope`: The dashboard now calls Hyperliquid public mainnet `/info` with allowlisted `allMids` for watchlist ticks and selected-pair `candleSnapshot` for live candles. The expanded scanner table keeps requested/resolved/block reason visibility and lets the founder select the pair for the chart.
+- `why`: The founder wanted the Paper Observation watchlist ticking with latest market data and a live chart for the selected pair while the PT-RT1.1C probes-disabled runtime collection continues.
+- `result`: `implemented_display_only_public_mainnet_ticker_and_selected_pair_chart`.
+- `follow_up_implications`: This is dashboard display/runtime observation only. It does not add order controls, submit orders, call private/signed/order/account payloads, use API keys, use testnet prices as strategy truth, change production Money Flow rules, regenerate canonical evidence packs, approve paper/live behavior, or add SOR/fanout/CBBO.
+
 ## 2026-05-14T22:05:00Z - SV2.1 - Generate Broad Hyperliquid 1D Period Evidence
 
 - `decision`: Regenerate research-only 1D Money Flow v1.2 evidence for the broad active Hyperliquid public metadata universe, sliced into 2024, 2025, YTD, and ALL period sets.

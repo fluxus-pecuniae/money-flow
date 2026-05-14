@@ -250,7 +250,7 @@ This preserves the prior Hyperliquid UAT lesson that sending a main account as `
 
 ## Dashboard Status
 
-Status: implemented and updated in PT-RT1.1B
+Status: implemented and updated through the Paper Observation live-display follow-up
 
 The dashboard adds a visible Paper Observation view with:
 
@@ -259,7 +259,8 @@ The dashboard adds a visible Paper Observation view with:
 - top-20 scanner state
 - market data health
 - strategy lane comparison
-- live chart placeholder for public-mainnet candles and paper markers
+- ticking public-mainnet watchlist mids from browser-side `allMids`
+- selected-pair TradingView chart from public-mainnet `candleSnapshot`
 - open synthetic positions
 - closed synthetic trades
 - drawdown / losing streaks

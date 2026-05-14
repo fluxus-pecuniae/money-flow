@@ -74,6 +74,11 @@
   const DEFAULT_SV20_SUMMARY_FILES = [
     "../../docs/sv2_0_historical_data_refresh_summary.json",
   ];
+  const DEFAULT_SV21_BROAD_SUMMARY_FILES = [
+    "../../docs/sv2_1_broad_hyperliquid_1d_period_evidence_summary.json",
+  ];
+  const SV21_BROAD_BATCH_LOAD_CONCURRENCY = 32;
+  const SV21_BROAD_BATCH_LOAD_LIMIT = 700;
 
   const DEFAULT_SOR_EV_SUMMARY_FILES = [
     "../../docs/sor_ev1_money_flow_trade_loss_anatomy_and_variants_summary.json",
@@ -600,6 +605,7 @@
     loadedHistoricalChartDataPaths: new Set(),
     loadingHistoricalChartDataPaths: new Set(),
     sv20Summary: null,
+    sv21BroadSummary: null,
     sorEv1Summary: null,
     sorEv2Summary: null,
     sorEv3Summary: null,
@@ -8873,25 +8879,260 @@
     `;
   }
 
-  function renderPaperObservationChart() {
-    if (!elements.paperObservationLiveChart) return;
-    const chart = paperObservationSummary()?.live_chart || {};
-    const candles = paperObservationRows(chart.candles);
-    const latest = candles.length ? candles[candles.length - 1] : null;
-    const markerCount = paperObservationRows(chart.paper_markers).length;
+  function destroyPaperObservationChart() {
+    const chartState = state.paperObservationChart;
+    if (chartState.pendingResizeFrame) {
+      if (typeof window.cancelAnimationFrame === "function") {
+        window.cancelAnimationFrame(chartState.pendingResizeFrame);
+      } else {
+        window.clearTimeout(chartState.pendingResizeFrame);
+      }
+      chartState.pendingResizeFrame = null;
+    }
+    if (chartState.resizeObserver) {
+      chartState.resizeObserver.disconnect();
+      chartState.resizeObserver = null;
+    }
+    if (chartState.chart) {
+      chartState.chart.remove();
+      chartState.chart = null;
+    }
+    chartState.mount = null;
+    chartState.candleSeries = null;
+    chartState.volumeSeries = null;
+    chartState.indicatorSeries = {};
+    chartState.markerHandle = null;
+    chartState.key = null;
+    chartState.ready = false;
+    chartState.fitContentApplied = false;
+    chartState.lastVisibleRange = null;
+  }
+
+  function resizePaperObservationChart() {
+    const chartState = state.paperObservationChart;
+    if (!chartState.chart || !chartState.mount) return;
+    const { width, height } = chartDimensions(chartState.mount);
+    chartState.chart.resize(width, height);
+  }
+
+  function schedulePaperObservationResize() {
+    const chartState = state.paperObservationChart;
+    if (!chartState.chart || !chartState.mount) return;
+    if (chartState.pendingResizeFrame) return;
+    const raf = typeof window.requestAnimationFrame === "function"
+      ? window.requestAnimationFrame
+      : (callback) => window.setTimeout(callback, 16);
+    chartState.pendingResizeFrame = raf(() => {
+      chartState.pendingResizeFrame = null;
+      resizePaperObservationChart();
+    });
+  }
+
+  function paperObservationChartMarkers(candles, rawMarkers) {
+    if (!candles.length) return [];
+    const firstTime = candles[0].time;
+    const lastTime = candles.at(-1).time;
+    const markers = paperObservationRows(rawMarkers).slice(-20);
+    return markers.map((marker, index) => {
+      const parsed = chartTime(marker.time || marker.timestamp || marker.entry_time || marker.exit_time);
+      const time = parsed >= firstTime && parsed <= lastTime
+        ? parsed
+        : candles[Math.min(candles.length - 1, Math.max(0, candles.length - markers.length + index))].time;
+      const action = String(marker.action || marker.type || marker.marker_type || "").toLowerCase();
+      const isExit = action.includes("exit") || action.includes("close") || action.includes("sell");
+      return {
+        time,
+        position: isExit ? "aboveBar" : "belowBar",
+        color: isExit ? "#ff5a66" : "#25d084",
+        shape: isExit ? "arrowDown" : "arrowUp",
+        text: String(marker.label || marker.text || marker.action || "paper marker"),
+      };
+    });
+  }
+
+  function updatePaperObservationChartData(candles, rawMarkers) {
+    const chartState = state.paperObservationChart;
+    if (!chartState.candleSeries || !chartState.volumeSeries) return;
+    const timeScale = chartState.chart?.timeScale?.();
+    chartState.lastVisibleRange = timeScale?.getVisibleLogicalRange?.() || null;
+    chartState.candleSeries.setData(chartPriceRows(candles));
+    chartState.volumeSeries.setData(chartVolumeRows(candles));
+    [
+      ["EMA5", 5],
+      ["EMA10", 10],
+      ["SMA20", 20],
+    ].forEach(([label, period]) => {
+      chartState.indicatorSeries[label]?.setData(indicatorSeries(candles, label, period));
+    });
+    const markers = paperObservationChartMarkers(candles, rawMarkers);
+    if (chartState.markerHandle && typeof chartState.markerHandle.setMarkers === "function") {
+      chartState.markerHandle.setMarkers(markers);
+    } else if (typeof chartState.candleSeries.setMarkers === "function") {
+      chartState.candleSeries.setMarkers(markers);
+    }
+    const updatedTimeScale = chartState.chart?.timeScale?.();
+    if (chartState.lastVisibleRange && typeof updatedTimeScale?.setVisibleLogicalRange === "function") {
+      updatedTimeScale.setVisibleLogicalRange(chartState.lastVisibleRange);
+    }
+    schedulePaperObservationResize();
+  }
+
+  function renderPaperObservationLightweightChart(chartPayload, candles) {
+    const tv = lightweightCharts();
+    if (!elements.paperObservationLiveChart || !tv || !candles.length) return false;
+    const chartState = state.paperObservationChart;
+    const chartKey = `${chartPayload.symbol}|${canonicalTimeframe(chartPayload.timeframe)}`;
+    const priceStats = chartPriceStats(candles);
+    if (chartState.ready && chartState.key === chartKey && chartState.chart && chartState.candleSeries && chartState.volumeSeries) {
+      const latestTarget = elements.paperObservationLiveChart.querySelector("[data-paper-chart-latest]");
+      const candleTarget = elements.paperObservationLiveChart.querySelector("[data-paper-chart-candle]");
+      const statusTarget = elements.paperObservationLiveChart.querySelector("[data-paper-chart-status]");
+      if (latestTarget) latestTarget.textContent = priceStats.latest;
+      if (candleTarget) candleTarget.textContent = `${displayTimeframe(chartPayload.timeframe)} latest candle ${candles.at(-1)?.time ? new Date(candles.at(-1).time * 1000).toISOString() : "n/a"}`;
+      if (statusTarget) statusTarget.textContent = `${chartPayload.status || "connected"}; ${chartPayload.lastUpdatedUtc || "waiting"}`;
+      updatePaperObservationChartData(candles, chartPayload.paper_markers);
+      return true;
+    }
+
+    destroyPaperObservationChart();
     elements.paperObservationLiveChart.innerHTML = `
       <div class="tradingview-chart-topline">
-        <strong>${escapeHtml(chart.symbol || (state.paperObservation.symbol === "all" ? "All symbols" : `${state.paperObservation.symbol}-PERP`))}</strong>
-        <span>${escapeHtml(displayTimeframe(chart.timeframe || state.paperObservation.timeframe))} public-mainnet paper observation</span>
+        <div>
+          <strong>${escapeHtml(chartPayload.symbol)}-PERP</strong>
+          <span data-paper-chart-candle>${escapeHtml(displayTimeframe(chartPayload.timeframe))} latest candle ${escapeHtml(candles.at(-1)?.time ? new Date(candles.at(-1).time * 1000).toISOString() : "n/a")}</span>
+        </div>
+        <div class="chart-price-tape">
+          <span>Latest</span>
+          <strong data-paper-chart-latest>${escapeHtml(priceStats.latest)}</strong>
+        </div>
+      </div>
+      <div class="tradingview-chart-stage paper-observation-chart-stage">
+        <div class="tradingview-lightweight-chart" role="img" aria-label="Paper Observation TradingView Lightweight Charts public-mainnet candlestick chart"></div>
+        <aside class="chart-price-axis-readout" aria-label="Selected paper observation price scale">
+          <span>Price USDC</span>
+          <strong>${escapeHtml(priceStats.latest)}</strong>
+          <small>H ${escapeHtml(priceStats.high)}</small>
+          <small>L ${escapeHtml(priceStats.low)}</small>
+          <small>O ${escapeHtml(priceStats.open)}</small>
+          <small>C ${escapeHtml(priceStats.close)}</small>
+        </aside>
+      </div>
+      <div class="tradingview-attribution">
+        Charts: TradingView Lightweight Charts v${TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION}. Public mainnet allMids/candleSnapshot only; no API keys, private endpoints, signed endpoints, order endpoints, testnet strategy truth, or live trading.
+        <span data-paper-chart-status>${escapeHtml(chartPayload.status || "connected")}; ${escapeHtml(chartPayload.lastUpdatedUtc || "waiting")}</span>
+      </div>
+    `;
+    const mount = elements.paperObservationLiveChart.querySelector(".tradingview-lightweight-chart");
+    const { width, height } = chartDimensions(mount);
+    const chartColors = dashboardChartColors();
+    const chart = tv.createChart(mount, {
+      width,
+      height,
+      layout: {
+        background: { type: tv.ColorType.Solid, color: chartColors.background },
+        textColor: chartColors.text,
+        attributionLogo: false,
+      },
+      grid: {
+        vertLines: { color: chartColors.grid },
+        horzLines: { color: chartColors.grid },
+      },
+      crosshair: {
+        mode: tv.CrosshairMode.Normal,
+      },
+      rightPriceScale: {
+        visible: true,
+        borderVisible: true,
+        borderColor: chartColors.border,
+        entireTextOnly: false,
+        scaleMargins: { top: 0.06, bottom: 0.22 },
+      },
+      timeScale: {
+        borderColor: chartColors.border,
+        timeVisible: true,
+        secondsVisible: false,
+      },
+    });
+    const candleSeries = chart.addSeries(tv.CandlestickSeries, {
+      upColor: chartColors.candleUp,
+      downColor: chartColors.candleDown,
+      borderVisible: true,
+      borderUpColor: chartColors.candleBorder,
+      borderDownColor: chartColors.candleBorder,
+      wickUpColor: chartColors.candleWick,
+      wickDownColor: chartColors.candleWick,
+      priceFormat: chartPriceFormat(candles),
+      priceLineVisible: true,
+      lastValueVisible: true,
+    });
+    candleSeries.setData(chartPriceRows(candles));
+    const volumeSeries = chart.addSeries(tv.HistogramSeries, {
+      priceFormat: { type: "volume" },
+      priceScaleId: "volume",
+      color: "rgba(107, 132, 145, 0.35)",
+    });
+    chart.priceScale("volume").applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
+    volumeSeries.setData(chartVolumeRows(candles));
+    const lineSeries = {};
+    [
+      ["EMA5", 5, "#26c6da"],
+      ["EMA10", 10, "#f8c15c"],
+      ["SMA20", 20, "#b68cff"],
+    ].forEach(([label, period, color]) => {
+      const line = chart.addSeries(tv.LineSeries, {
+        color,
+        lineWidth: 2,
+        priceFormat: chartPriceFormat(candles),
+        priceLineVisible: false,
+        lastValueVisible: true,
+        title: label,
+      });
+      line.setData(indicatorSeries(candles, label, period));
+      lineSeries[label] = line;
+    });
+    const markers = paperObservationChartMarkers(candles, chartPayload.paper_markers);
+    if (typeof tv.createSeriesMarkers === "function") {
+      chartState.markerHandle = tv.createSeriesMarkers(candleSeries, markers);
+    } else if (typeof candleSeries.setMarkers === "function") {
+      candleSeries.setMarkers(markers);
+    }
+    chart.timeScale().fitContent();
+    chartState.chart = chart;
+    chartState.mount = mount;
+    chartState.candleSeries = candleSeries;
+    chartState.volumeSeries = volumeSeries;
+    chartState.indicatorSeries = lineSeries;
+    chartState.key = chartKey;
+    chartState.ready = true;
+    chartState.fitContentApplied = true;
+    if (typeof ResizeObserver !== "undefined") {
+      const observer = new ResizeObserver(schedulePaperObservationResize);
+      observer.observe(mount);
+      chartState.resizeObserver = observer;
+    }
+    return true;
+  }
+
+  function renderPaperObservationChart() {
+    if (!elements.paperObservationLiveChart) return;
+    const chart = paperObservationChartSource();
+    const candles = paperObservationChartCandles(chart.candles);
+    const latest = candles.length ? candles[candles.length - 1] : null;
+    const markerCount = paperObservationRows(chart.paper_markers).length;
+    if (renderPaperObservationLightweightChart(chart, candles)) return;
+    elements.paperObservationLiveChart.innerHTML = `
+      <div class="tradingview-chart-topline">
+        <strong>${escapeHtml(chart.symbol || selectedPaperObservationVenueSymbol())}-PERP</strong>
+        <span>${escapeHtml(displayTimeframe(chart.timeframe || selectedPaperObservationTimeframe()))} public-mainnet paper observation</span>
       </div>
       <div class="tradingview-chart-stage paper-observation-chart-stage">
         <div class="tradingview-lightweight-chart" role="img" aria-label="Paper Observation public-mainnet candle chart placeholder">
           <div class="empty-state">
-            ${escapeHtml(candles.length ? `${candles.length} public-mainnet candles loaded. Latest close ${latest?.close || "n/a"} at ${latest?.time || "n/a"}. Paper markers: ${markerCount}.` : "Live public mainnet candles and paper markers load from ignored PT-RT1 runtime state during an observation run.")}
+            ${escapeHtml(candles.length ? `${candles.length} public-mainnet candles loaded. Latest close ${latest?.close || "n/a"} at ${latest?.time ? new Date(latest.time * 1000).toISOString() : "n/a"}. Paper markers: ${markerCount}.` : "Live public mainnet candles load from browser allMids/candleSnapshot polling or ignored PT-RT1 runtime state during an observation run.")}
           </div>
         </div>
       </div>
-      <div class="tradingview-attribution">Charts: TradingView Lightweight Charts v${TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION}. Display-only filter; not canonical evidence; not backend replay.</div>
+      <div class="tradingview-attribution">Charts: TradingView Lightweight Charts v${TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION}. Display-only filter; not canonical evidence; not backend replay; ${escapeHtml(chart.status || "waiting")} ${escapeHtml(chart.error || "")}</div>
     `;
   }
 
@@ -8972,6 +9213,7 @@
     if (payload?.report === "uat4_2_live_market_dashboard_and_paper_equity_monitor") return "uat42_live_monitor_summary";
     if (payload?.report === "pt0_tradingview_charts_and_top20_paper_sandbox_runtime") return "pt0_runtime_summary";
     if (payload?.report === "sv2_0_money_flow_1d_sleeve_expanded_universe_evidence_rebuild") return "sv20_summary";
+    if (payload?.phase === "SV2.1" && Array.isArray(payload?.evidence_pack_paths)) return "sv21_broad_summary";
     if (
       payload?.report === "sv2_0_2_dashboard_historical_replay_chart_data" ||
       payload?.report === "mf_orig_ev2_dashboard_chart_data"
@@ -9012,6 +9254,7 @@
     await loadDefaultUat42Summaries();
     await loadDefaultPt0Summaries();
     await loadDefaultSv20Summaries();
+    await loadDefaultSv21BroadEvidenceBatches(loaded);
     await loadDefaultSorEvSummaries();
     await loadDefaultMfOrigSummaries();
     await loadDefaultEvAuditSummaries();
@@ -9037,12 +9280,20 @@
       path.includes("money_flow_sv2_0_2_hyperliquid_public_") &&
       path.includes(`/${SV202_CANONICAL_TIMESTAMP}/batch_report.json`)
     ).length;
-    const fallbackCount = loaded.length - canonicalPackCount;
-    if (canonicalPackCount > 0) {
-      elements.sourceLabel.textContent = "SV2.0.2 canonical packs loaded";
-      elements.sourceDetail.textContent =
-        `${canonicalPackCount} regenerated canonical pack JSON files loaded` +
-        (fallbackCount > 0 ? `; ${fallbackCount} noncanonical local files also loaded.` : ".");
+    const sv21BroadPackCount = loaded.filter(({ path }) =>
+      path.includes("money_flow_sv2_1_hyperliquid_broad_1d_") &&
+      path.endsWith("/batch_report.json")
+    ).length;
+    const fallbackCount = loaded.length - canonicalPackCount - sv21BroadPackCount;
+    if (canonicalPackCount > 0 || sv21BroadPackCount > 0) {
+      elements.sourceLabel.textContent = sv21BroadPackCount > 0
+        ? "SV2.0.2 + SV2.1 evidence packs loaded"
+        : "SV2.0.2 canonical packs loaded";
+      const details = [];
+      if (canonicalPackCount > 0) details.push(`${canonicalPackCount} regenerated canonical pack JSON files loaded`);
+      if (sv21BroadPackCount > 0) details.push(`${sv21BroadPackCount} SV2.1 broad 1D period pack JSON files loaded`);
+      if (fallbackCount > 0) details.push(`${fallbackCount} noncanonical local files also loaded`);
+      elements.sourceDetail.textContent = `${details.join("; ")}.`;
     } else {
       elements.sourceLabel.textContent = "Local JSON reports loaded";
       elements.sourceDetail.textContent = `${loaded.length} local JSON files loaded.`;
@@ -9081,6 +9332,7 @@
         if (type === "uat42_live_monitor_summary") state.uat42Summary = payload;
         if (type === "pt0_runtime_summary") state.pt0Summary = payload;
         if (type === "sv20_summary") state.sv20Summary = payload;
+        if (type === "sv21_broad_summary") state.sv21BroadSummary = payload;
         if (type === "sor_ev1_summary") state.sorEv1Summary = payload;
         if (type === "sor_ev2_summary") state.sorEv2Summary = payload;
         if (type === "sor_ev3_summary") state.sorEv3Summary = payload;
@@ -9182,6 +9434,48 @@
         }
       } catch (error) {
         console.warn(`Could not load ${path}`, error);
+      }
+    }
+  }
+
+  function sv21BroadBatchReportPath(evidencePackPath) {
+    const normalized = String(evidencePackPath || "").replace(/\/+$/, "");
+    if (!normalized) return "";
+    if (normalized.startsWith("../") || normalized.startsWith("/")) {
+      return `${normalized}/batch_report.json`;
+    }
+    return `../../${normalized}/batch_report.json`;
+  }
+
+  async function loadDefaultSv21BroadEvidenceBatches(loaded) {
+    for (const summaryPath of DEFAULT_SV21_BROAD_SUMMARY_FILES) {
+      try {
+        const response = await fetch(summaryPath, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const summary = await response.json();
+        if (classifyJson(summary) !== "sv21_broad_summary") continue;
+        state.sv21BroadSummary = summary;
+        const batchPaths = (summary.evidence_pack_paths || [])
+          .slice(0, SV21_BROAD_BATCH_LOAD_LIMIT)
+          .map(sv21BroadBatchReportPath)
+          .filter(Boolean);
+        for (let index = 0; index < batchPaths.length; index += SV21_BROAD_BATCH_LOAD_CONCURRENCY) {
+          const chunk = batchPaths.slice(index, index + SV21_BROAD_BATCH_LOAD_CONCURRENCY);
+          const results = await Promise.all(chunk.map(async (batchPath) => {
+            try {
+              const batchResponse = await fetch(batchPath, { cache: "no-store" });
+              if (!batchResponse.ok) throw new Error(`HTTP ${batchResponse.status}`);
+              const payload = await batchResponse.json();
+              return classifyJson(payload) === "batch" ? { path: batchPath, payload } : null;
+            } catch (error) {
+              console.warn(`Could not load ${batchPath}`, error);
+              return null;
+            }
+          }));
+          results.filter(Boolean).forEach((item) => loaded.push(item));
+        }
+      } catch (error) {
+        console.warn(`Could not load ${summaryPath}`, error);
       }
     }
   }
@@ -9294,6 +9588,7 @@
     elements.themeSelector.addEventListener("change", () => {
       applyDashboardTheme(elements.themeSelector.value);
       destroyTradingViewChart();
+      destroyPaperObservationChart();
       destroyHistoricalReplayChart();
       destroyEvidenceLabOverlayChart();
       render();

@@ -286,6 +286,9 @@ Shadow and paper-observation markers are not actual trades. Sandbox lifecycle pr
 - Paper Observation is PT-RT1 forward-observation UI, not canonical evidence regeneration and not historical replay.
 - Strategy truth must be labeled as Hyperliquid public mainnet market data.
 - PT-RT1.1B public-mainnet connection status should be visible before founder starts the 24-hour probes-disabled run.
+- Browser-side Paper Observation market-data polling may call Hyperliquid public mainnet `allMids` and selected-pair `candleSnapshot` only; it must not call testnet prices, private/signed/order/account payloads, or require API keys.
+- The expanded scanner watchlist should visibly tick latest public mids and keep blocked/deferred symbols visible with their reason codes.
+- The selected pair/timeframe should render a live TradingView Lightweight chart from public mainnet candles when available and fall back to ignored PT-RT1 runtime summary candles without guessing missing timestamps.
 - Testnet probes must be displayed in a separate plumbing-only panel.
 - Testnet fills must never be displayed as strategy PnL.
 - Each lane must show an independent synthetic 10,000 USDC ledger.

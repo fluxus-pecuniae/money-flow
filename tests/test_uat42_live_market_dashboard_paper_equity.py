@@ -159,7 +159,9 @@ def test_dashboard_live_charting_polls_public_testnet_only() -> None:
     assert "hyperliquid_testnet_public_read_only_browser_poll" in js
     assert "dashboard_live_chart_private_or_order_payload_forbidden" in js
     assert "No API keys, private order endpoints, signed order endpoints, order endpoints, or live endpoints are used" in js
-    assert "https://api.hyperliquid.xyz/info" not in js
+    assert "postHyperliquidPublicInfo(HYPERLIQUID_TESTNET_PUBLIC_INFO_URL" in js
+    assert "https://api.hyperliquid.xyz/info" in js
+    assert "Paper Observation" in html
 
 
 def test_dashboard_watchlist_indicators_markers_and_no_order_controls() -> None:
