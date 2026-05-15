@@ -207,7 +207,10 @@ def test_no_order_controls_or_live_endpoint_are_added() -> None:
     for phrase in forbidden:
         assert phrase not in dashboard
 
-    assert "https://api.hyperliquid.xyz" not in dashboard
+    assert "https://api.hyperliquid.xyz/exchange" not in dashboard
+    assert "https://api.hyperliquid.xyz/order" not in dashboard
+    assert "https://api.hyperliquid.xyz/sign" not in dashboard
+    assert "https://api.hyperliquid.xyz/info" in dashboard
     assert summary["side_effect_flags"]["live_endpoint_called"] is False
     assert summary["side_effect_flags"]["sandbox_orders_submitted_by_pt0"] is False
     assert summary["side_effect_flags"]["order_controls_added"] is False

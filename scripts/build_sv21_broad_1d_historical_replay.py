@@ -158,7 +158,7 @@ def _candidate_pack_manifest(
 ) -> dict[str, Any]:
     return {
         "phase": "SV2.1",
-        "artifact": "broad_1d_candidate_evidence_pack",
+        "artifact": "founder_approved_1d_candidate_evidence_pack",
         "run_timestamp": run_timestamp,
         "strategy_id": strategy_id,
         "period": period,
@@ -217,7 +217,7 @@ def _write_candidate_pack(
     (pack_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (pack_dir / "batch_report.json").write_text(json.dumps(_json_ready(payload), indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (pack_dir / "README.md").write_text(
-        "# SV2.1 Broad 1D Candidate Evidence Pack\n\n"
+        "# SV2.1 Founder-Approved 1D Candidate Evidence Pack\n\n"
         "Evidence-only research replay. Production Money Flow rules are unchanged. "
         "No orders were submitted and no private/signed/order endpoints were called.\n",
         encoding="utf-8",
@@ -295,8 +295,8 @@ async def _sor_ev3_replay(
     return {
         "strategy_id": strategy_id,
         "strategy_label": f"SOR-EV3 {strategy_id}",
-        "strategy_description": "SV2.1 broad 1D true-forward rolling-range filter replay. Evidence-only and not approved.",
-        "strategy_truth_lane": "hyperliquid_public_mainnet_sv2_1_broad_1d",
+        "strategy_description": "SV2.1 founder-approved 1D true-forward rolling-range filter replay. Evidence-only and not approved.",
+        "strategy_truth_lane": "hyperliquid_public_mainnet_sv2_1_founder_approved_1d",
         "research_only": True,
         "changes_production_rules": False,
         "production_approved": False,
@@ -306,7 +306,7 @@ async def _sor_ev3_replay(
         "component": "sleeve_1d",
         "period": scenario["period"],
         "fill_assumption": scenario["fill_timing"],
-        "data_source": "SV2.1 Hyperliquid public-mainnet broad 1D candles",
+        "data_source": "SV2.1 Hyperliquid public-mainnet founder-approved 1D candles",
         "evidence_pack_path": "",
         "candles": [],
         "indicators": [],
@@ -373,8 +373,8 @@ def _mf_orig_replay(
     replay.update(
         {
             "period": scenario["period"],
-            "strategy_truth_lane": "hyperliquid_public_mainnet_sv2_1_broad_1d",
-            "data_source": "SV2.1 Hyperliquid public-mainnet broad 1D candles",
+            "strategy_truth_lane": "hyperliquid_public_mainnet_sv2_1_founder_approved_1d",
+            "data_source": "SV2.1 Hyperliquid public-mainnet founder-approved 1D candles",
         }
     )
     replay["boundary_flags"] = {
@@ -446,7 +446,7 @@ async def build_sv21_broad_historical_replay(args: argparse.Namespace) -> dict[s
                     "symbol": symbol,
                     "timeframe": "1d",
                     "component": "sleeve_1d",
-                    "source": "SV2.1 Hyperliquid public-mainnet broad 1D evidence pack",
+                    "source": "SV2.1 Hyperliquid public-mainnet founder-approved 1D evidence pack",
                 },
                 candles=cached["chart_candles"],
                 indicator_rows=cached["indicator_rows"],
@@ -458,8 +458,8 @@ async def build_sv21_broad_historical_replay(args: argparse.Namespace) -> dict[s
                     "strategy_id": SV21_BASELINE_STRATEGY_ID,
                     "strategy_label": "Money Flow v1.2",
                     "period": period,
-                    "strategy_truth_lane": "hyperliquid_public_mainnet_sv2_1_broad_1d",
-                    "data_source": "SV2.1 Hyperliquid public-mainnet broad 1D evidence pack",
+                    "strategy_truth_lane": "hyperliquid_public_mainnet_sv2_1_founder_approved_1d",
+                    "data_source": "SV2.1 Hyperliquid public-mainnet founder-approved 1D evidence pack",
                     "production_approved": False,
                 }
             )
@@ -509,7 +509,7 @@ async def build_sv21_broad_historical_replay(args: argparse.Namespace) -> dict[s
                         "symbol": symbol,
                         "timeframe": "1d",
                         "period": period,
-                        "source": "SV2.1 Hyperliquid public-mainnet broad 1D candles",
+                        "source": "SV2.1 Hyperliquid public-mainnet founder-approved 1D candles",
                         "canonical_evidence_ready": True,
                         "sv21_broad_replay_ready": True,
                     },
@@ -631,7 +631,9 @@ def update_sv21_summary(summary_path: Path, report_path: Path, manifest: dict[st
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Build SV2.1 broad 1D Historical Replay chart data and conservative candidate packs.")
+    parser = argparse.ArgumentParser(
+        description="Build SV2.1 founder-approved 1D Historical Replay chart data and conservative candidate packs."
+    )
     parser.add_argument("--summary", type=Path, default=DEFAULT_SUMMARY)
     parser.add_argument("--report", type=Path, default=DEFAULT_REPORT)
     parser.add_argument("--chart-root", type=Path, default=DEFAULT_CHART_ROOT)

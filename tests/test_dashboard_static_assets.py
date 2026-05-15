@@ -120,6 +120,10 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "mf_orig_1d_stage2_breakout_resistance_full_equity" in html
     assert "MF_ORIG_FULL_EQUITY_STRATEGY_IDS" in js
     assert "isVisibleDashboardStrategyRow" in js
+    assert "HIDDEN_DASHBOARD_SYMBOLS" in js
+    assert "isVisibleDashboardSymbol" in js
+    assert '"SHIB"' in js
+    assert '"OKB"' in js
     assert "<span>mf_orig_stage2_pullback_reclaim</span>" not in html
     assert "<span>mf_orig_1d_stage2_5_20_crossover</span>" not in html
     assert "<span>mf_orig_1d_stage2_breakout_resistance</span>" not in html
@@ -339,7 +343,7 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "<th>Period</th>" in js
     assert "evidence_pack_paths" in js
     assert "SV2.0.2 + SV2.1 evidence packs loaded" in js
-    assert "SV2.1 broad 1D period pack JSON files loaded" in js
+    assert "SV2.1 founder-approved 1D period pack JSON files loaded" in js
     assert "pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json" in js
     assert "renderPaperObservationConnectionStatus" in js
     assert "pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json" in js

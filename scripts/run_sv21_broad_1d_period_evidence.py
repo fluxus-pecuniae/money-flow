@@ -14,7 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 from collections import Counter
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, is_dataclass
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
@@ -75,6 +75,48 @@ NO_ORDER_FLAGS = {
     "changes_production_money_flow_rules": False,
     "approves_paper_or_live": False,
 }
+SV21_FOUNDER_APPROVED_REQUESTED_SYMBOLS = (
+    "BTC",
+    "ETH",
+    "SOL",
+    "XRP",
+    "DOGE",
+    "HYPE",
+    "BNB",
+    "SUI",
+    "AVAX",
+    "TRON",
+    "ADA",
+    "ZEC",
+    "LINK",
+    "XMR",
+    "TON",
+    "LTC",
+    "UNI",
+    "DOT",
+    "ASTER",
+    "AAVE",
+    "POL",
+    "FIL",
+    "TRUMP",
+    "PEPE",
+    "OKB",
+)
+SV21_FOUNDER_APPROVED_SYMBOL_ALIASES = {
+    "TRON": "TRX",
+    "PEPE": "kPEPE",
+}
+SV21_FOUNDER_APPROVED_EXCLUDED_SYMBOLS = {
+    "PEPE": "pepe_kpepe_unit_semantics_deferred",
+    "OKB": "okb_support_not_confirmed_or_public_mid_unavailable",
+}
+SV21_FOUNDER_APPROVED_RESOLVED_SYMBOLS = tuple(
+    dict.fromkeys(
+        SV21_FOUNDER_APPROVED_SYMBOL_ALIASES.get(symbol, symbol).upper()
+        for symbol in SV21_FOUNDER_APPROVED_REQUESTED_SYMBOLS
+        if symbol not in SV21_FOUNDER_APPROVED_EXCLUDED_SYMBOLS
+    )
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -122,6 +164,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--report-output", type=Path, default=DEFAULT_REPORT_OUTPUT)
     parser.add_argument("--fetch-public-data", action="store_true")
     parser.add_argument("--generate-evidence-packs", action="store_true")
+    parser.add_argument(
+        "--universe-policy",
+        choices=("founder_approved", "all_active_public_meta"),
+        default="founder_approved",
+        help=(
+            "Universe to prepare. Defaults to the founder-approved PT-RT1 requested/resolved "
+            "list instead of every active Hyperliquid public metadata symbol."
+        ),
+    )
     parser.add_argument("--symbol", action="append", default=[])
     parser.add_argument("--end-at", default=None)
     parser.add_argument("--timeout-seconds", type=float, default=30.0)
@@ -160,6 +211,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             timeout_seconds=args.timeout_seconds,
         )
         identities = active_hyperliquid_identities_from_meta(meta)
+        if args.universe_policy == "founder_approved":
+            identities = filter_founder_approved_identities(identities)
         if args.symbol:
             wanted = {item.upper() for item in args.symbol}
             identities = [item for item in identities if item.canonical_symbol in wanted]
@@ -202,8 +255,18 @@ def main(argv: Sequence[str] | None = None) -> int:
                         reason_codes=tuple(db_blockers),
                     )
                 )
+        if args.universe_policy == "founder_approved":
+            datasets.extend(founder_approved_missing_identity_datasets(identities))
     else:
-        datasets = scan_existing_raw_datasets(args.work_dir)
+        datasets = scan_existing_raw_datasets(
+            args.work_dir,
+            allowed_symbols=SV21_FOUNDER_APPROVED_RESOLVED_SYMBOLS
+            if args.universe_policy == "founder_approved"
+            else None,
+        )
+        if args.symbol:
+            wanted = {item.upper() for item in args.symbol}
+            datasets = [item for item in datasets if item.symbol in wanted]
 
     period_results, config_paths = write_period_campaign_configs(
         datasets=datasets,
@@ -238,6 +301,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         period_results=period_results,
         evidence_pack_paths=evidence_pack_paths,
         db_blockers=db_blockers,
+        universe_policy=args.universe_policy,
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -279,6 +343,29 @@ def active_hyperliquid_identities_from_meta(meta: Any) -> list[SV21Identity]:
             )
         )
     return identities
+
+
+def filter_founder_approved_identities(identities: Sequence[SV21Identity]) -> list[SV21Identity]:
+    allowed = set(SV21_FOUNDER_APPROVED_RESOLVED_SYMBOLS)
+    return [identity for identity in identities if identity.canonical_symbol.upper() in allowed]
+
+
+def founder_approved_missing_identity_datasets(identities: Sequence[SV21Identity]) -> list[SV21Dataset]:
+    seen = {identity.canonical_symbol.upper() for identity in identities}
+    return [
+        SV21Dataset(
+            symbol=symbol,
+            venue_symbol=symbol,
+            rows=0,
+            earliest_close=None,
+            latest_close=None,
+            imported=False,
+            raw_path=None,
+            reason_codes=("founder_approved_symbol_not_in_active_public_meta",),
+        )
+        for symbol in SV21_FOUNDER_APPROVED_RESOLVED_SYMBOLS
+        if symbol not in seen
+    ]
 
 
 def build_market_identity_manifest(
@@ -400,7 +487,7 @@ def fetch_import_1d_dataset(
         raw_path,
         environment=Environment.BACKTEST,
         venue="hyperliquid",
-        timeframe=Timeframe.ONE_DAY,
+        timeframe=Timeframe.D1,
         source_label=SOURCE_LABEL,
         file_format="json",
         assume_naive_utc=False,
@@ -427,12 +514,19 @@ def fetch_import_1d_dataset(
     )
 
 
-def scan_existing_raw_datasets(work_dir: Path) -> list[SV21Dataset]:
+def scan_existing_raw_datasets(
+    work_dir: Path,
+    *,
+    allowed_symbols: Sequence[str] | None = None,
+) -> list[SV21Dataset]:
+    allowed = {symbol.upper() for symbol in allowed_symbols or ()}
     rows: list[SV21Dataset] = []
     for path in sorted((work_dir / "raw_candles").glob("hyperliquid_public_*_1d_sv2_1.json")):
         payload = json.loads(path.read_text(encoding="utf-8"))
         candles = payload.get("candles") or []
         symbol = str(payload.get("symbol") or payload.get("requested_symbol") or "").upper()
+        if allowed and symbol not in allowed:
+            continue
         venue_symbol = str(payload.get("venue_symbol") or payload.get("resolved_venue_symbol") or symbol)
         rows.append(
             SV21Dataset(
@@ -448,6 +542,8 @@ def scan_existing_raw_datasets(work_dir: Path) -> list[SV21Dataset]:
         )
     seen = {row.symbol for row in rows}
     for symbol in SV21_KNOWN_NO_PUBLIC_1D_SYMBOLS:
+        if allowed and symbol not in allowed:
+            continue
         if symbol not in seen:
             rows.append(
                 SV21Dataset(
@@ -529,9 +625,14 @@ def write_period_campaign_configs(
             )
             config = {
                 "campaign_name": campaign_name,
+                "description": (
+                    "SV2.1 founder-approved Hyperliquid public-mainnet 1D period evidence "
+                    f"for {dataset.symbol} {label}; research-only generated evidence, no "
+                    "production rule changes, no orders, no private endpoints."
+                ),
                 "campaign_status": "sv2_1_broad_1d_period_evidence",
                 "money_flow_version": SV20_MONEY_FLOW_VERSION,
-                "window_convention": f"{WINDOW_CONVENTION} candle-close convention",
+                "window_convention": "candle_close_time_start_exclusive_end_inclusive",
                 "venue": "hyperliquid",
                 "environment": "backtest",
                 "data_source": SOURCE_LABEL,
@@ -620,10 +721,17 @@ def scan_existing_sv21_evidence_pack_paths() -> list[str]:
 
 
 def db_blocking_reason_codes(status: Any) -> list[str]:
-    payload = status.to_dict() if hasattr(status, "to_dict") else asdict(status)
-    if payload.get("intended_strategy_validation_db") is not True:
+    if isinstance(status, dict):
+        payload = status
+    elif hasattr(status, "to_dict"):
+        payload = status.to_dict()
+    elif is_dataclass(status):
+        payload = asdict(status)
+    else:
+        payload = dict(status)
+    if payload.get("intended_strategy_validation_database") is not True:
         return ["intended_strategy_validation_db_required"]
-    if payload.get("migrated_schema_ready") is not True:
+    if payload.get("schema_ready_for_evidence_generation") is not True:
         return ["migrated_schema_ready_required"]
     return []
 
@@ -639,6 +747,7 @@ def build_summary(
     period_results: Sequence[SV21PeriodResult],
     evidence_pack_paths: Sequence[str],
     db_blockers: Sequence[str],
+    universe_policy: str = "founder_approved",
 ) -> dict[str, Any]:
     period_counts = {
         period: {
@@ -657,7 +766,16 @@ def build_summary(
         "generated_at_utc": iso_utc(generated_at),
         "source_endpoint": f"POST {HYPERLIQUID_MAINNET_PUBLIC_INFO_URL}",
         "source_payloads": ["meta", "candleSnapshot"],
-        "universe_policy": "all_active_hyperliquid_public_meta_symbols",
+        "universe_policy": universe_policy,
+        "requested_symbols": list(SV21_FOUNDER_APPROVED_REQUESTED_SYMBOLS)
+        if universe_policy == "founder_approved"
+        else [],
+        "resolved_symbols": list(SV21_FOUNDER_APPROVED_RESOLVED_SYMBOLS)
+        if universe_policy == "founder_approved"
+        else [],
+        "excluded_symbols": dict(SV21_FOUNDER_APPROVED_EXCLUDED_SYMBOLS)
+        if universe_policy == "founder_approved"
+        else {},
         "timeframe": "1d",
         "component": "sleeve_1d",
         "requested_start_at_utc": iso_utc(SV21_START_AT),
@@ -680,12 +798,26 @@ def build_summary(
 
 
 def render_report(summary: dict[str, Any]) -> str:
+    founder_approved = summary.get("universe_policy") == "founder_approved"
+    title = (
+        "SV2.1 Founder-Approved Hyperliquid 1D Period Evidence"
+        if founder_approved
+        else "SV2.1 Broad Hyperliquid 1D Period Evidence"
+    )
+    scope_sentence = (
+        "SV2.1 regenerates 1D Money Flow v1.2 evidence across the founder-approved "
+        "PT-RT1 requested/resolved Hyperliquid public-mainnet universe. PEPE/kPEPE "
+        "and OKB remain excluded by resolver policy."
+        if founder_approved
+        else "SV2.1 regenerates 1D Money Flow v1.2 evidence across the broad active "
+        "Hyperliquid public-mainnet metadata universe."
+    )
     lines = [
-        "# SV2.1 Broad Hyperliquid 1D Period Evidence",
+        f"# {title}",
         "",
         f"Status: `{summary['status']}`",
         "",
-        "SV2.1 regenerates 1D Money Flow v1.2 evidence across the broad active Hyperliquid public-mainnet metadata universe. It is research-only: no orders, no private/signed/order endpoints, no API keys, no testnet strategy truth, no production rule changes, and no paper/live approval.",
+        f"{scope_sentence} It is research-only: no orders, no private/signed/order endpoints, no API keys, no testnet strategy truth, no production rule changes, and no paper/live approval.",
         "",
         "## Summary",
         "",
@@ -699,17 +831,32 @@ def render_report(summary: dict[str, Any]) -> str:
         f"- Campaign configs written: `{summary['campaign_config_count']}`",
         f"- Evidence packs generated: `{summary['evidence_pack_count']}`",
         f"- DB blockers: `{summary['db_blockers']}`",
-        "",
-        "## Period Sets",
-        "",
-        "| period | configs | blocked rows |",
-        "| --- | ---: | ---: |",
     ]
-    for period, counts in summary["period_counts"].items():
+    if founder_approved:
+        lines.extend(
+            [
+                f"- Requested founder symbols: `{', '.join(summary.get('requested_symbols') or [])}`",
+                f"- Resolved evidence symbols: `{', '.join(summary.get('resolved_symbols') or [])}`",
+                f"- Excluded resolver symbols: `{summary.get('excluded_symbols')}`",
+            ]
+        )
+    lines.extend(
+        [
+            "",
+            "## Period Sets",
+            "",
+            "| period | configs | blocked rows |",
+            "| --- | ---: | ---: |",
+        ]
+    )
+    for period in ("2024", "2025", "YTD", "ALL"):
+        counts = summary["period_counts"].get(period, {"config_written": 0, "blocked": 0})
         lines.append(f"| `{period}` | {counts['config_written']} | {counts['blocked']} |")
     lines.extend(["", "## Data Gaps", ""])
-    for period, symbols in summary["blocked_symbols_by_period"].items():
-        lines.append(f"- `{period}` blocked symbols: `{len(symbols)}`")
+    for period in ("2024", "2025", "YTD", "ALL"):
+        symbols = summary["blocked_symbols_by_period"].get(period, [])
+        detail = ", ".join(symbols) if symbols else "none"
+        lines.append(f"- `{period}` blocked symbols: `{len(symbols)}` - `{detail}`")
     lines.extend(["", "## Generated Evidence Pack Paths", ""])
     if summary["evidence_pack_paths"]:
         lines.extend(f"- `{path}`" for path in summary["evidence_pack_paths"][:200])

@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-05-14T22:20:00Z`
+Last reviewed: `2026-05-15T01:05:00Z`
 
 ## Active Follow-Ups
 
@@ -8,7 +8,7 @@ Last reviewed: `2026-05-14T22:20:00Z`
 
 - `priority`: `high`
 - `status`: `done`
-- `summary`: `SV2.1 broad Hyperliquid 1D period evidence regeneration is complete and now has Historical Replay/dashboard artifacts. The new public-data run used Hyperliquid public mainnet meta/candleSnapshot only, targeted 183 active public metadata symbols, imported available timezone-explicit 1D candles into the intended local money_flow DB, and generated ignored Strategy Validation evidence packs for 2024, 2025, YTD, and ALL where each symbol had available candles. The run wrote 646 generated campaign configs under /tmp/money-flow-sv21-broad-1d/campaign_configs and 646 ignored baseline evidence-pack directories under reports/strategy_validation; period counts were 2024=130, 2025=172, YTD=172, and ALL=172. The follow-up Historical Replay builder wrote 5116 ignored selected chart/trade JSON files under reports/strategy_validation/sv2_1_broad_1d_dashboard_chart_data/20260514T220500Z and 1912 ignored evidence-only candidate pack directories for avoid_low_rolling_range_50, avoid_low_rolling_range_20, and mf_orig_1d_stage2_breakout_resistance_full_equity. MF-ORIG candidate rows were skipped for 7 symbols with incomplete indicator context; baseline and rolling-range rows remain available where period packs exist. Blocked rows are symbols with no candles in that period, not fabricated data. Production Money Flow rules remain unchanged; no variant is approved; no orders/private/signed/order endpoints/API keys/testnet strategy truth/live trading/paper approval/SOR behavior were added.`
+- `summary`: `SV2.1 founder-approved Hyperliquid 1D period evidence regeneration is complete and now has Historical Replay/dashboard artifacts. The previous broad active-metadata evidence run was rejected for founder review and removed from local generated outputs. The current public-data run used Hyperliquid public mainnet meta/candleSnapshot only, targeted the founder-approved PT-RT1 requested/resolved list, mapped TRON to TRX, excluded PEPE/kPEPE and OKB by resolver policy, imported available timezone-explicit 1D candles into the intended local money_flow DB, and generated ignored Strategy Validation evidence packs for 2024, 2025, YTD, and ALL where each symbol had available candles. The run wrote 90 generated campaign configs under /tmp/money-flow-sv21-broad-1d/campaign_configs and 90 ignored baseline evidence-pack directories under reports/strategy_validation; period counts were 2024=21, 2025=23, YTD=23, and ALL=23. The follow-up Historical Replay builder wrote 720 ignored selected chart/trade JSON files under reports/strategy_validation/sv2_1_broad_1d_dashboard_chart_data/20260515T004500Z and 270 ignored evidence-only candidate pack directories for avoid_low_rolling_range_50, avoid_low_rolling_range_20, and mf_orig_1d_stage2_breakout_resistance_full_equity. ASTER and TRUMP lack 2024 packs because public candles do not cover that period; no candles were fabricated. Production Money Flow rules remain unchanged; no variant is approved; no orders/private/signed/order endpoints/API keys/testnet strategy truth/live trading/paper approval/SOR behavior were added.`
 
 ### T-141
 

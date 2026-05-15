@@ -6,10 +6,14 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from scripts.run_sv21_broad_1d_period_evidence import (
+    SV21_FOUNDER_APPROVED_RESOLVED_SYMBOLS,
     SV21Dataset,
     active_hyperliquid_identities_from_meta,
     build_market_identity_manifest,
     build_summary,
+    db_blocking_reason_codes,
+    filter_founder_approved_identities,
+    founder_approved_missing_identity_datasets,
     latest_closed_1d,
     render_report,
     write_period_campaign_configs,
@@ -38,6 +42,33 @@ def test_active_meta_universe_preserves_venue_symbols_and_research_only_identity
     assert all(row["is_trading_eligible"] is False for row in symbol_rows)
     assert all(row["is_strategy_eligible"] is False for row in symbol_rows)
     assert symbol_rows[1]["exchange_symbol"] == "kPEPE"
+
+
+def test_founder_approved_universe_excludes_deferred_symbols_and_maps_tron() -> None:
+    meta = {
+        "universe": [
+            {"name": "BTC", "szDecimals": 5, "maxLeverage": 40},
+            {"name": "TRX", "szDecimals": 1, "maxLeverage": 10},
+            {"name": "kPEPE", "szDecimals": 0, "maxLeverage": 3},
+            {"name": "OKB", "szDecimals": 2, "maxLeverage": 10},
+            {"name": "ASTER", "szDecimals": 0, "maxLeverage": 10},
+        ]
+    }
+
+    identities = filter_founder_approved_identities(active_hyperliquid_identities_from_meta(meta))
+
+    assert "TRX" in SV21_FOUNDER_APPROVED_RESOLVED_SYMBOLS
+    assert [item.canonical_symbol for item in identities] == ["BTC", "TRX", "ASTER"]
+
+
+def test_founder_approved_missing_meta_symbols_are_reported_as_gaps() -> None:
+    meta = {"universe": [{"name": "BTC", "szDecimals": 5, "maxLeverage": 40}]}
+    identities = filter_founder_approved_identities(active_hyperliquid_identities_from_meta(meta))
+    missing = founder_approved_missing_identity_datasets(identities)
+
+    assert any(row.symbol == "XMR" for row in missing)
+    assert all(row.imported is False and row.rows == 0 for row in missing)
+    assert all(row.reason_codes == ("founder_approved_symbol_not_in_active_public_meta",) for row in missing)
 
 
 def test_period_configs_clip_to_available_data_and_do_not_fabricate(tmp_path) -> None:
@@ -73,7 +104,9 @@ def test_period_configs_clip_to_available_data_and_do_not_fabricate(tmp_path) ->
     btc_2024 = next(row for row in results if row.period == "2024" and row.symbol == "BTC")
     assert btc_2024.start_at == "2024-01-01T00:00:00Z"
     config = json.loads(paths[0].read_text(encoding="utf-8"))
+    assert "SV2.1 founder-approved Hyperliquid public-mainnet 1D period evidence" in config["description"]
     assert config["components"] == ["sleeve_1d"]
+    assert config["window_convention"] == "candle_close_time_start_exclusive_end_inclusive"
     assert config["research_boundaries"]["submits_orders"] is False
 
 
@@ -109,8 +142,28 @@ def test_summary_and_report_expose_sv21_counts() -> None:
 
     assert summary["phase"] == "SV2.1"
     assert summary["evidence_pack_count"] == 1
-    assert "SV2.1 Broad Hyperliquid 1D Period Evidence" in report
+    assert summary["universe_policy"] == "founder_approved"
+    assert "SV2.1 Founder-Approved Hyperliquid 1D Period Evidence" in report
     assert "Private/signed/order endpoints called: `False`" in report
+
+
+def test_db_blocker_gate_uses_current_database_status_fields() -> None:
+    ready = {
+        "intended_strategy_validation_database": True,
+        "schema_ready_for_evidence_generation": True,
+    }
+    maintenance = {
+        "intended_strategy_validation_database": False,
+        "schema_ready_for_evidence_generation": True,
+    }
+    stale_schema = {
+        "intended_strategy_validation_database": True,
+        "schema_ready_for_evidence_generation": False,
+    }
+
+    assert db_blocking_reason_codes(ready) == []
+    assert db_blocking_reason_codes(maintenance) == ["intended_strategy_validation_db_required"]
+    assert db_blocking_reason_codes(stale_schema) == ["migrated_schema_ready_required"]
 
 
 def test_sv21_broad_historical_replay_builder_is_period_and_candidate_aware() -> None:

@@ -26,6 +26,13 @@
   const HIDDEN_DASHBOARD_STRATEGY_IDS = new Set([
     "baseline_current_money_flow_rules",
   ]);
+  const HIDDEN_DASHBOARD_SYMBOLS = new Set([
+    "SHIB",
+    "KSHIB",
+    "PEPE",
+    "KPEPE",
+    "OKB",
+  ]);
   const MF_ORIG_EV2_DASHBOARD_CHART_FILES = SV202_CANONICAL_TIMEFRAMES.flatMap((timeframe) =>
     SV202_CANONICAL_SYMBOLS.map(
       (symbol) =>
@@ -77,7 +84,7 @@
   const DEFAULT_SV21_BROAD_SUMMARY_FILES = [
     "../../docs/sv2_1_broad_hyperliquid_1d_period_evidence_summary.json",
   ];
-  const SV21_BROAD_HISTORICAL_REPLAY_TIMESTAMP = "20260514T220500Z";
+  const SV21_BROAD_HISTORICAL_REPLAY_TIMESTAMP = "20260515T004500Z";
   const SV21_BROAD_PERIODS = ["2024", "2025", "YTD", "ALL"];
   const SV21_BROAD_CANDIDATE_STRATEGY_IDS = [
     "avoid_low_rolling_range_50",
@@ -1396,7 +1403,16 @@
 
   function isVisibleDashboardStrategyRow(row) {
     const strategyId = row?.strategy_id || row?.hypothesis_id || row?.id;
-    return !HIDDEN_DASHBOARD_STRATEGY_IDS.has(String(strategyId || "")) && isVisibleMfOrigStrategyId(strategyId);
+    const symbol = String(row?.symbol || row?.currency || row?.asset || "").toUpperCase();
+    return (
+      !HIDDEN_DASHBOARD_SYMBOLS.has(symbol) &&
+      !HIDDEN_DASHBOARD_STRATEGY_IDS.has(String(strategyId || "")) &&
+      isVisibleMfOrigStrategyId(strategyId)
+    );
+  }
+
+  function isVisibleDashboardSymbol(symbol) {
+    return !HIDDEN_DASHBOARD_SYMBOLS.has(String(symbol || "").toUpperCase());
   }
 
   function dashboardStrategyLabel(label, strategyId = "") {
@@ -4265,8 +4281,8 @@
             fill_assumption: fillAssumption,
             research_only: true,
             production_approved: false,
-            data_source: "SV2.1 broad Hyperliquid public-mainnet 1D period evidence; selected chart data loads lazily",
-            strategy_truth_lane: "hyperliquid_public_mainnet_sv2_1_broad_1d",
+            data_source: "SV2.1 founder-approved Hyperliquid public-mainnet 1D period evidence; selected chart data loads lazily",
+            strategy_truth_lane: "hyperliquid_public_mainnet_sv2_1_founder_approved_1d",
             chart_data_path: sv21BroadSelectedChartDataPath(symbol, strategyId, fillAssumption, period),
             chart_data_lazy: true,
             evidence_pack_path: packPath,
@@ -4979,7 +4995,7 @@
       ...replays.map((row) => row.symbol).filter(Boolean),
       ...(Array.isArray(summary.symbols) ? summary.symbols : []),
       ...(Array.isArray(sv20.symbols) ? sv20.symbols : []),
-    ]));
+    ].filter(isVisibleDashboardSymbol)));
     const timeframes = Array.from(new Set([
       ...replays.map((row) => row.timeframe).filter(Boolean),
       ...(Array.isArray(summary.timeframes) ? summary.timeframes : []),
@@ -4995,6 +5011,10 @@
     ]));
     if (!isHistoricalReplayStrategyVisible(state.historicalReplay.strategyId)) {
       state.historicalReplay.strategyId = "money_flow_v1_2_canonical";
+      state.historicalReplay.selectedTradeId = null;
+    }
+    if (!isVisibleDashboardSymbol(state.historicalReplay.symbol)) {
+      state.historicalReplay.symbol = symbols[0] || "";
       state.historicalReplay.selectedTradeId = null;
     }
     const strategies = Array.from(
@@ -5579,7 +5599,7 @@
     );
     state.sv202HistoricalReplay = {
       report: "sv2_0_2_sv2_1_and_mf_orig_ev2_dashboard_historical_replay_combined",
-      source: "SV2.0.2 canonical packs, SV2.1 broad 1D period packs, and MF-ORIG-EV2 compact summaries with lazy selected-chart loading",
+      source: "SV2.0.2 canonical packs, SV2.1 founder-approved 1D period packs, and MF-ORIG-EV2 compact summaries with lazy selected-chart loading",
       symbols: Array.from(new Set(allReplays.map((row) => row.symbol).filter(Boolean))).sort(),
       timeframes: Array.from(new Set(allReplays.map((row) => canonicalTimeframe(row.timeframe)).filter(Boolean))),
       fill_assumptions: Array.from(new Set(allReplays.map((row) => row.fill_assumption).filter(Boolean))).map((id) => ({
@@ -9576,7 +9596,7 @@
         : "SV2.0.2 canonical packs loaded";
       const details = [];
       if (canonicalPackCount > 0) details.push(`${canonicalPackCount} regenerated canonical pack JSON files loaded`);
-      if (sv21BroadPackCount > 0) details.push(`${sv21BroadPackCount} SV2.1 broad 1D period pack JSON files loaded`);
+      if (sv21BroadPackCount > 0) details.push(`${sv21BroadPackCount} SV2.1 founder-approved 1D period pack JSON files loaded`);
       if (fallbackCount > 0) details.push(`${fallbackCount} noncanonical local files also loaded`);
       elements.sourceDetail.textContent = `${details.join("; ")}.`;
     } else {

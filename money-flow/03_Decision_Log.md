@@ -10,6 +10,14 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `result`: `implemented_compact_symbol_mid_health_watchlist_and_signal_generation_panel`.
 - `follow_up_implications`: This remains dashboard display/runtime observation only. It adds no bid/ask polling, order controls, submitted orders, private/signed/order/account payloads, API keys, testnet strategy truth, production Money Flow changes, canonical evidence regeneration, paper/live approval, or SOR/fanout/CBBO.
 
+## 2026-05-15T01:05:00Z - SV2.1 - Replace Broad Evidence With Founder-Approved Universe
+
+- `decision`: Reject the broad active-metadata SV2.1 evidence estate for founder review and rebuild the SV2.1 1D period packs only for the founder-approved requested/resolved universe.
+- `scope`: The current SV2.1 run targets BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, AVAX, TRX, ADA, ZEC, LINK, XMR, TON, LTC, UNI, DOT, ASTER, AAVE, POL, FIL, and TRUMP. TRON maps to TRX; PEPE/kPEPE and OKB are excluded by resolver policy. Generated baseline/candidate packs and selected chart JSON remain ignored under `reports/strategy_validation/`; raw/config working files remain under `/tmp/money-flow-sv21-broad-1d/`.
+- `why`: The founder rejected the broad evidence packs as not useful and asked to rerun the same evidence shape only for the chosen pairs while verifying the dashboard personally with Playwright.
+- `result`: `SV2.1 founder-approved 1D evidence generated`. Counts: 90 baseline packs, 270 evidence-only candidate packs, and 720 selected Historical Replay chart/trade JSON files at timestamp `20260515T004500Z`. ASTER and TRUMP have no 2024 pack because public 1D candles do not cover that period.
+- `follow_up_implications`: SV2.1 remains 1D founder-review research evidence only. It does not change Money Flow production rules, optimize parameters, approve a variant, approve strategy paper runtime, approve live trading, submit orders, call private/signed/order endpoints, use API keys, use testnet data as strategy truth, or add SOR/fanout/CBBO.
+
 ## 2026-05-14T23:09:49Z - SV2.1 - Historical Replay and Conservative Candidate Packs
 
 - `decision`: Add Historical Replay visibility and evidence-only conservative candidate packs for the already-generated SV2.1 broad Hyperliquid 1D period evidence.

@@ -13,6 +13,48 @@ Entry schema:
 
 ---
 
+## v2026.05.15.001
+
+- `recorded_at_utc`: `2026-05-15T01:05:00Z`
+- `scope`: `SV2.1 founder-approved 1D evidence rebuild`
+- `intent`: `Native entry. Replaced the rejected broad active-Hyperliquid-metadata SV2.1 evidence estate with a founder-approved public-mainnet 1D period evidence rebuild. The default SV2.1 generator now uses the PT-RT1 founder-requested/resolved universe, maps TRON to TRX, excludes PEPE/kPEPE and OKB by resolver policy, reports missing metadata/data gaps instead of silently dropping symbols, fixes the current DB-readiness field names, and writes valid campaign configs with the canonical window convention. The run used Hyperliquid public info/meta and candleSnapshot only, regenerated 90 ignored baseline period packs and 270 ignored evidence-only candidate packs for 2024, 2025, YTD, and ALL at timestamp 20260515T004500Z, and rebuilt 720 selected Historical Replay chart/trade JSON files. The dashboard now labels the SV2.1 load as founder-approved, hides deferred unit-semantics symbols from Evidence/Historical Replay controls, and Playwright verified Evidence PnL/equity/drawdown plus Historical Replay chart/trades for a new founder-approved symbol. Production Money Flow rules remain unchanged; no variant is approved; no orders/private/signed/order endpoints/API keys/testnet strategy truth/live trading/paper approval/SOR behavior were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `docs/strategy.md`
+  - `docs/sv2_1_broad_hyperliquid_1d_period_evidence.md`
+  - `docs/sv2_1_broad_hyperliquid_1d_period_evidence_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `scripts/build_sv21_broad_1d_historical_replay.py`
+  - `scripts/run_sv21_broad_1d_period_evidence.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_pt0_tradingview_paper_sandbox_runtime.py`
+  - `tests/test_sv21_broad_1d_period_evidence.py`
+- `validation_performed`:
+  - `find reports/strategy_validation -maxdepth 1 -type d -name 'money_flow_sv2_1_hyperliquid_broad_1d_*' -exec rm -rf {} +`
+  - `rm -rf reports/strategy_validation/sv2_1_broad_1d_dashboard_chart_data /tmp/money-flow-sv21-broad-1d`
+  - `env DB_HOST=127.0.0.1 DB_PORT=5432 DB_NAME=money_flow DB_USER=money_flow DB_PASSWORD=<redacted> SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python scripts/run_sv21_broad_1d_period_evidence.py --fetch-public-data --generate-evidence-packs --universe-policy founder_approved --work-dir /tmp/money-flow-sv21-broad-1d --output docs/sv2_1_broad_hyperliquid_1d_period_evidence_summary.json --report-output docs/sv2_1_broad_hyperliquid_1d_period_evidence.md --run-timestamp 2026-05-15T00:45:00Z --end-at 2026-05-14T21:57:00Z`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python scripts/build_sv21_broad_1d_historical_replay.py --summary docs/sv2_1_broad_hyperliquid_1d_period_evidence_summary.json --report docs/sv2_1_broad_hyperliquid_1d_period_evidence.md --run-timestamp 20260515T004500Z --progress-every 25`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_sv21_broad_1d_period_evidence.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python -m playwright install chromium`
+  - `Playwright smoke: local static dashboard loaded 360 SV2.1 founder-approved pack JSON files, Evidence showed PnL/equity/drawdown, Historical Replay loaded TRX 1D ALL chart/trades, deferred PEPE/kPEPE/OKB/SHIB symbols were absent from controls, and no page/console errors were observed.`
+
 ## v2026.05.14.013
 
 - `recorded_at_utc`: `2026-05-14T23:27:23Z`
