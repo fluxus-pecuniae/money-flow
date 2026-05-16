@@ -773,7 +773,7 @@
       updatedAtUtc: null,
       outputDir: null,
       logPath: null,
-      safeFlags: ["--disable-testnet-probes", "--public-mainnet-only"],
+      safeFlags: ["--enable-testnet-probes", "--testnet-probe-notional-usdc", "20", "--public-mainnet-only"],
       message: "checking_local_control_server",
       inFlight: false,
       timer: null,
@@ -8757,7 +8757,7 @@
   function normalizePaperRuntimeControlStatus(payload, available = true) {
     const safeFlags = Array.isArray(payload?.safe_flags) && payload.safe_flags.length
       ? payload.safe_flags
-      : ["--disable-testnet-probes", "--public-mainnet-only"];
+      : ["--enable-testnet-probes", "--testnet-probe-notional-usdc", "20", "--public-mainnet-only"];
     state.paperRuntimeControl = {
       ...state.paperRuntimeControl,
       available,
@@ -8803,7 +8803,7 @@
           running: false,
           status: "unavailable",
           message: "Start/stop requires launching the local control server.",
-          safe_flags: ["--disable-testnet-probes", "--public-mainnet-only"],
+          safe_flags: ["--enable-testnet-probes", "--testnet-probe-notional-usdc", "20", "--public-mainnet-only"],
         },
         false,
       );
@@ -9644,18 +9644,19 @@
     const summary = paperObservationSummary();
     const policy = summary?.testnet_probe_policy || {};
     const plumbing = summary?.plumbing_lane || {};
+    const runtime = summary?.testnet_plumbing_status || {};
     elements.paperObservationProbeStatus.innerHTML = `
       <div class="market-micro-grid">
         <div><span>Lane</span><strong>testnet plumbing only</strong></div>
-        <div><span>Probes enabled</span><strong>${escapeHtml(String(policy.PT_RT1_TESTNET_PROBES_ENABLED ?? false))}</strong></div>
-        <div><span>Kill switch</span><strong>${escapeHtml(String(policy.PT_RT1_TESTNET_KILL_SWITCH ?? true))}</strong></div>
-        <div><span>Daily cap</span><strong>${escapeHtml(String(policy.PT_RT1_TESTNET_DAILY_PROBE_CAP ?? 1))}</strong></div>
-        <div><span>Remaining probes</span><strong>${escapeHtml(String(policy.PT_RT1_TESTNET_DAILY_PROBE_CAP ?? 1))}</strong></div>
-        <div><span>Notional cap</span><strong>${escapeHtml(String(policy.PT_RT1_TESTNET_PROBE_NOTIONAL_CAP ?? "10"))} USDC</strong></div>
-        <div><span>Last lifecycle</span><strong>runtime_not_started</strong></div>
+        <div><span>Probes enabled</span><strong>${escapeHtml(String(runtime.status === "enabled_audit_only" || policy.PT_RT1_TESTNET_PROBES_ENABLED || false))}</strong></div>
+        <div><span>Kill switch</span><strong>${escapeHtml(String(runtime.kill_switch_active ?? policy.PT_RT1_TESTNET_KILL_SWITCH ?? true))}</strong></div>
+        <div><span>Daily cap</span><strong>${escapeHtml(String(runtime.daily_cap ?? policy.PT_RT1_TESTNET_DAILY_PROBE_CAP ?? 200))}</strong></div>
+        <div><span>Eligible shapes</span><strong>${escapeHtml(String(runtime.eligible_probe_shapes_this_cycle ?? "runtime_not_started"))}</strong></div>
+        <div><span>Notional cap</span><strong>${escapeHtml(String(runtime.probe_notional_cap_usdc ?? policy.PT_RT1_TESTNET_PROBE_NOTIONAL_CAP ?? "20"))} USDC</strong></div>
+        <div><span>Last lifecycle</span><strong>${escapeHtml(runtime.transport_status || "runtime_not_started")}</strong></div>
         <div><span>Open after reconcile</span><strong>none</strong></div>
         <div><span>Unknown state</span><strong>blocked_if_present</strong></div>
-        <div><span>Strategy PnL update</span><strong>${escapeHtml(String(plumbing.testnet_fills_update_strategy_pnl ?? false))}</strong></div>
+        <div><span>Strategy PnL update</span><strong>${escapeHtml(String(runtime.testnet_fills_do_not_update_strategy_pnl === true ? false : plumbing.testnet_fills_update_strategy_pnl ?? false))}</strong></div>
       </div>
     `;
   }

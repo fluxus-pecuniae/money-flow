@@ -13,6 +13,48 @@ Entry schema:
 
 ---
 
+## v2026.05.16.005
+
+- `recorded_at_utc`: `2026-05-16T11:30:00Z`
+- `scope`: `PT-RT1 20 USDC testnet probe audit mode`
+- `intent`: `Native entry. Updated PT-RT1 so dashboard-started paper-observation runs enable Hyperliquid testnet probe audit/order-shape rows at exactly 20 USDC per synthetic paper_opened signal while preserving public-mainnet strategy truth and independent synthetic paper PnL. The runner requires explicit --enable-testnet-probes plus --founder-approved-testnet-probes-20usdc and --testnet-probe-notional-usdc 20, writes testnet_probe_audit.jsonl rows, and records order_endpoint_called=false / signed_order_endpoint_called=false. The dashboard control server now starts compact public-mainnet runtime sessions with those 20 USDC probe flags. This does not submit signed testnet transport, does not use private/signed/order endpoints or API keys, does not let testnet fills/prices update paper PnL, does not approve paper/live/production behavior, does not change Money Flow rules, and does not add SOR/fanout/CBBO.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `scripts/run_dashboard_control_server.py`
+  - `scripts/run_pt_rt1_paper_observation.py`
+  - `services/paper_runtime/pt_rt1.py`
+  - `tests/test_dashboard_control_server.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_pt_rt1_1b_public_market_data.py`
+  - `tests/test_pt_rt1_paper_observation.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m py_compile scripts/run_pt_rt1_paper_observation.py scripts/run_dashboard_control_server.py services/paper_runtime/pt_rt1.py tests/test_pt_rt1_1b_public_market_data.py tests/test_pt_rt1_paper_observation.py tests/test_dashboard_control_server.py tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_paper_observation.py tests/test_pt_rt1_1b_public_market_data.py tests/test_dashboard_control_server.py tests/test_dashboard_static_assets.py::test_pt_rt1_paper_observation_dashboard_tab`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py tests/test_dashboard_static_assets.py tests/test_dashboard_control_server.py tests/test_pt_rt1_paper_observation.py tests/test_pt_rt1_1b_public_market_data.py tests/test_pt_rt1_1c_runtime_start.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1-testnet-probe-20usdc-review.zip`
+  - `review bundle excluded-path scan: 534 entries, 0 excluded path hits`
+  - `review bundle secret-pattern scan: broad hits limited to existing placeholders/labels/config/test references; no sandbox secret values found`
+
 ## v2026.05.16.004
 
 - `recorded_at_utc`: `2026-05-16T11:00:18Z`

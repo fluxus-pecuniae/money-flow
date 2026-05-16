@@ -668,7 +668,9 @@ PT-RT1.1B adds the Hyperliquid public-mainnet connector and runtime command:
   --duration-hours 24 \
   --output-dir reports/paper_runtime/pt_rt1_1c_24h_dry_run \
   --decision-log-mode compact \
-  --disable-testnet-probes \
+  --enable-testnet-probes \
+  --founder-approved-testnet-probes-20usdc \
+  --testnet-probe-notional-usdc 20 \
   --public-mainnet-only
 ```
 
@@ -678,7 +680,7 @@ The dashboard has a local-only PT-RT1 runtime control helper:
 .venv/bin/python scripts/run_dashboard_control_server.py --host 127.0.0.1 --port 8767
 ```
 
-When the dashboard is opened from that server at `http://127.0.0.1:8767/apps/dashboard/index.html`, the Paper Observation `Start Run` button can launch allowlisted 5-minute, 1-hour, 6-hour, or 24-hour runs through Mac `caffeinate`. The helper always starts `scripts/run_pt_rt1_paper_observation.py` with `--disable-testnet-probes`, `--public-mainnet-only`, and `--decision-log-mode compact`, writes control state/logs under ignored `reports/paper_runtime/dashboard_control/`, and exposes no arbitrary command, no testnet-probe enablement, no private/signed/order endpoint use, no API-key use, and no order controls. Static dashboard serving still works for review, but Start/Stop is unavailable without the local control API.
+When the dashboard is opened from that server at `http://127.0.0.1:8767/apps/dashboard/index.html`, the Paper Observation `Start Run` button can launch allowlisted 5-minute, 1-hour, 6-hour, or 24-hour runs through Mac `caffeinate`. The helper always starts `scripts/run_pt_rt1_paper_observation.py` with `--enable-testnet-probes`, `--founder-approved-testnet-probes-20usdc`, `--testnet-probe-notional-usdc 20`, `--public-mainnet-only`, and `--decision-log-mode compact`, writes control state/logs under ignored `reports/paper_runtime/dashboard_control/`, and exposes no arbitrary command, no private/signed/order endpoint use, no API-key use, and no order controls. The enabled testnet-probe lane creates audit/order-shape rows only; PT-RT1 records `order_endpoint_called=false` and `signed_order_endpoint_called=false`, and testnet fills/prices never update strategy paper PnL. Static dashboard serving still works for review, but Start/Stop is unavailable without the local control API.
 
 Decision logging defaults to compact mode for long-running observation: actionable `paper_opened`/`paper_closed` rows and `data_unavailable` rows are always appended, first-seen non-actionable rows are retained for audit context, and repeated identical non-actionable rows are suppressed across cycles. `summary.json` records mode, written/suppressed counts, and `decisions.jsonl` size so the dashboard can warn before local logs become operationally large. `--decision-log-mode full_audit` remains available for short diagnostics, and `--decision-log-mode signals_only` keeps only actionable open/close rows. Existing ignored large logs are not rewritten automatically.
 
@@ -688,7 +690,7 @@ PT-RT1.1C starts the 24-hour probes-disabled collection under ignored `reports/p
 
 The Paper Observation dashboard browser also polls Hyperliquid public mainnet `allMids` every 1 second for a compact symbol / mid price / health watchlist; health is `unhealthy` when the latest market-data tick is missing or stale for more than 2 minutes. The selected pair uses public `candleSnapshot` for a live TradingView Lightweight chart, and the Signal Generation panel lists recorded synthetic `paper_opened` intended-entry decisions. This is display/runtime observation only; it does not use testnet prices as strategy truth, private/signed/order/account payloads, API keys, or order controls.
 
-PT-RT1 does not approve production Money Flow rule changes, strategy paper-runtime promotion, live trading, live orders, API-key use from the strategy lane, SOR/fanout/CBBO behavior, or testnet data as strategy truth. PT-RT1.2 testnet plumbing probes may not proceed until the probes-disabled dry run passes.
+PT-RT1 does not approve production Money Flow rule changes, strategy paper-runtime promotion, live trading, live orders, API-key use from the strategy lane, SOR/fanout/CBBO behavior, or testnet data as strategy truth. The current dashboard-started testnet probe mode is 20 USDC audit/order-shape generation only, not signed submission.
 
 ## Still Deferred At Head
 

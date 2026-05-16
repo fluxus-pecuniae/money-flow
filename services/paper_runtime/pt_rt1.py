@@ -25,9 +25,11 @@ from services.exchange.hyperliquid.precision import HyperliquidPrecisionFormatte
 
 PT_RT1_MAINNET_INFO_URL = "https://api.hyperliquid.xyz/info"
 PT_RT1_TESTNET_INFO_URL = "https://api.hyperliquid-testnet.xyz/info"
+PT_RT1_TESTNET_PROBE_NOTIONAL_USDC = Decimal("20")
+PT_RT1_TESTNET_PROBE_NOTIONAL_CAP_USDC = Decimal("20")
 PT_RT1_EXACT_TESTNET_PROBE_APPROVAL = (
     "I APPROVE PT-RT1 TESTNET PLUMBING PROBES ONLY. HYPERLIQUID TESTNET ONLY. "
-    "POST-ONLY UNDER 10 USDC DEFAULT NOTIONAL. CANCEL/RECONCILE REQUIRED. "
+    "POST-ONLY 20 USDC DEFAULT NOTIONAL. CANCEL/RECONCILE REQUIRED. "
     "TESTNET FILLS MUST NOT UPDATE STRATEGY PAPER PNL. LIVE TRADING IS NOT APPROVED."
 )
 
@@ -1221,12 +1223,12 @@ class TestnetProbeCandidate:
     asset_id: int | None = 0
     sz_decimals: int | None = 4
     price: Decimal = Decimal("1000")
-    quantity: Decimal = Decimal("0.001")
-    notional: Decimal = Decimal("1")
+    quantity: Decimal = Decimal("0.02")
+    notional: Decimal = PT_RT1_TESTNET_PROBE_NOTIONAL_USDC
     scanner_signal_eligible: bool = True
     daily_probe_count: int = 0
     daily_cap: int = 1
-    notional_cap: Decimal = Decimal("10")
+    notional_cap: Decimal = PT_RT1_TESTNET_PROBE_NOTIONAL_CAP_USDC
     post_only: bool = True
     tif: str = "Alo"
     submit_lease_acquired: bool = True
@@ -1249,7 +1251,7 @@ class ProbeEligibilityResult:
 class TestnetProbePolicy:
     probes_enabled_default: bool = False
     daily_probe_cap_default: int = 1
-    notional_cap_default: Decimal = Decimal("10")
+    notional_cap_default: Decimal = PT_RT1_TESTNET_PROBE_NOTIONAL_CAP_USDC
     kill_switch_default: bool = True
 
     def evaluate(self, candidate: TestnetProbeCandidate) -> ProbeEligibilityResult:
@@ -1280,7 +1282,7 @@ class TestnetProbePolicy:
             reasons.append("scanner_signal_not_eligible")
         if candidate.daily_probe_count >= candidate.daily_cap:
             reasons.append("testnet_daily_probe_cap_exceeded")
-        if candidate.notional >= candidate.notional_cap:
+        if candidate.notional > candidate.notional_cap:
             reasons.append("testnet_probe_notional_cap_exceeded")
         if not candidate.post_only or candidate.tif != "Alo":
             reasons.append("post_only_alo_required")
@@ -1302,9 +1304,13 @@ class TestnetProbePolicy:
                 "reason_codes": reasons,
                 "post_only": candidate.post_only,
                 "tif": candidate.tif,
+                "notional_usdc": str(candidate.notional),
+                "notional_cap_usdc": str(candidate.notional_cap),
                 "cancel_reconcile_required": True,
                 "testnet_fills_update_strategy_pnl": False,
                 "strategy_pnl_updated": False,
+                "signed_order_endpoint_called": False,
+                "order_endpoint_called": False,
             },
         )
 
@@ -1525,7 +1531,8 @@ def build_pt_rt1_summary() -> dict[str, Any]:
         "testnet_probe_policy": {
             "PT_RT1_TESTNET_PROBES_ENABLED": False,
             "PT_RT1_TESTNET_DAILY_PROBE_CAP": 1,
-            "PT_RT1_TESTNET_PROBE_NOTIONAL_CAP": "10",
+            "PT_RT1_TESTNET_PROBE_NOTIONAL_USDC": str(PT_RT1_TESTNET_PROBE_NOTIONAL_USDC),
+            "PT_RT1_TESTNET_PROBE_NOTIONAL_CAP": str(PT_RT1_TESTNET_PROBE_NOTIONAL_CAP_USDC),
             "PT_RT1_TESTNET_KILL_SWITCH": True,
             "default_blocks_probes": True,
             "order_type": "post_only_limit",
@@ -1548,12 +1555,12 @@ def build_pt_rt1_summary() -> dict[str, Any]:
         },
         "runtime_command": {
             "smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 1 --output-dir reports/paper_runtime/pt_rt1_1b_smoke --disable-testnet-probes --public-mainnet-only",
-            "duration_hours_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1b_24h_dry_run --disable-testnet-probes --public-mainnet-only",
+            "duration_hours_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1c_24h_dry_run --enable-testnet-probes --founder-approved-testnet-probes-20usdc --testnet-probe-notional-usdc 20 --public-mainnet-only",
         },
         "next_phase": {
-            "decision": "PT-RT1.1C may start 24-hour probes-disabled runtime collection",
+            "decision": "PT-RT1.1D may evaluate public-mainnet runtime collection and 20 USDC probe audit rows",
             "conditions": [
-                "testnet_probes_remain_disabled_by_default",
+                "testnet_probe_transport_not_submitted_by_pt_rt1_runtime",
                 "public_mainnet_strategy_truth_only",
                 "expanded_scanner_rows_remain_reason_coded",
                 "pt_rt1_1b_public_mainnet_connector_ready",
@@ -1572,7 +1579,7 @@ def build_pt_rt1_summary() -> dict[str, Any]:
             "live_exchange_orders_submitted": False,
             "historical_evidence_packs_regenerated": False,
             "sor_fanout_cbbo_added": False,
-            "testnet_probes_enabled_by_default": False,
+            "testnet_probes_submit_signed_transport": False,
         },
     }
 

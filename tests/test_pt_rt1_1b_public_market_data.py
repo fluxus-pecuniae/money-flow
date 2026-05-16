@@ -10,15 +10,17 @@ from services.paper_runtime.hyperliquid_public_market_data import (
     resolve_watchlist_from_public_data,
 )
 from services.paper_runtime.pt_rt1 import (
+    PT_RT1_EXACT_TESTNET_PROBE_APPROVAL,
     PT_RT1_MAINNET_INFO_URL,
     PT_RT1_STRATEGY_LANES,
     PT_RT1_TESTNET_INFO_URL,
+    PT_RT1_TESTNET_PROBE_NOTIONAL_USDC,
     Candle,
     DataHealth,
     evaluate_paper_decision,
     validate_strategy_truth_payload,
 )
-from scripts.run_pt_rt1_paper_observation import _select_decision_log_rows
+from scripts.run_pt_rt1_paper_observation import _build_testnet_probe_audit_rows, _select_decision_log_rows
 
 
 def _transport(_endpoint: str, payload: dict, _timeout: float):
@@ -134,10 +136,61 @@ def test_runtime_command_and_founder_outputs_exist() -> None:
     assert script.exists()
     text = script.read_text(encoding="utf-8")
     assert "--disable-testnet-probes" in text
+    assert "--enable-testnet-probes" in text
+    assert "--founder-approved-testnet-probes-20usdc" in text
+    assert "--testnet-probe-notional-usdc" in text
     assert "--public-mainnet-only" in text
     assert "reports/paper_runtime/" in text
     assert report.exists()
     assert summary.exists()
+
+
+def test_testnet_probe_audit_rows_are_20usdc_and_do_not_update_paper_pnl() -> None:
+    connector = HyperliquidPublicMarketDataConnector(transport=_transport)
+    rows = resolve_watchlist_from_public_data(meta_payload=connector.fetch_meta().payload, mids_payload=connector.fetch_all_mids().payload)
+    eth_row = next(row for row in rows if row.canonical_symbol == "ETH")
+    candle = Candle(
+        symbol="ETH",
+        timeframe="1h",
+        open_time=datetime(2026, 5, 14, tzinfo=UTC),
+        open=Decimal("100"),
+        high=Decimal("110"),
+        low=Decimal("95"),
+        close=Decimal("105"),
+        volume=Decimal("10"),
+    )
+
+    audit_rows, stats = _build_testnet_probe_audit_rows(
+        decision_rows=[
+            {
+                "action": "paper_opened",
+                "symbol": "ETH",
+                "timeframe": "1h",
+                "strategy_id": "money_flow_v1_2_baseline",
+                "lane_id": "money_flow_v1_2_baseline",
+                "signal_candle_close_time": "2026-05-14T01:00:00Z",
+            }
+        ],
+        scanner_rows=[eth_row],
+        latest_closed_by_key={("ETH", "1h"): candle},
+        enabled=True,
+        approval_text=PT_RT1_EXACT_TESTNET_PROBE_APPROVAL,
+        notional_usdc=PT_RT1_TESTNET_PROBE_NOTIONAL_USDC,
+        daily_cap=200,
+    )
+
+    assert stats["enabled"] is True
+    assert stats["notional_usdc"] == "20"
+    assert stats["eligible_probe_shapes_this_cycle"] == 1
+    assert stats["signed_order_endpoint_called"] is False
+    assert stats["order_endpoint_called"] is False
+    assert stats["testnet_fills_update_strategy_pnl"] is False
+    assert audit_rows[0]["eligible"] is True
+    assert audit_rows[0]["notional_usdc"] == "20"
+    assert audit_rows[0]["strategy_pnl_updated"] is False
+    assert audit_rows[0]["signed_order_endpoint_called"] is False
+    assert audit_rows[0]["order_endpoint_called"] is False
+    assert audit_rows[0]["order_shape"]["environment"] == "hyperliquid_testnet_only"
 
 
 def test_compact_decision_log_suppresses_repeated_non_actionable_rows() -> None:

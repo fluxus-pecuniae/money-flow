@@ -48,7 +48,7 @@ PT-RT1.1B public-mainnet readiness:
 - Runtime command exists at `scripts/run_pt_rt1_paper_observation.py`.
 - Smoke output is ignored under `reports/paper_runtime/pt_rt1_1b_smoke/`.
 - Smoke connected to public mainnet `meta` and `allMids`, resolved the requested watchlist, loaded bounded candle data, and recorded bounded paper decisions.
-- Testnet probes stayed disabled and kill-switched.
+- Testnet probes now have a dashboard-started 20 USDC audit/order-shape mode. This mode does not submit signed orders and does not update paper PnL from testnet fills.
 
 Paper Observation dashboard live display:
 
@@ -57,19 +57,19 @@ Paper Observation dashboard live display:
 - Watchlist health is `unhealthy` when the latest market-data tick is missing or stale for more than 2 minutes.
 - The selected pair/timeframe chart uses public mainnet `candleSnapshot`.
 - The adjacent Signal Generation panel lists recorded synthetic `paper_opened` intended-entry decisions from the PT-RT1 decision stream.
-- The local Start Run / Stop Run panel is available only when the dashboard is served by `scripts/run_dashboard_control_server.py`; it launches allowlisted probes-disabled public-mainnet sessions through Mac `caffeinate` and always forces `--disable-testnet-probes` plus `--public-mainnet-only`.
+- The local Start Run / Stop Run panel is available only when the dashboard is served by `scripts/run_dashboard_control_server.py`; it launches allowlisted public-mainnet sessions through Mac `caffeinate` and always forces `--enable-testnet-probes`, `--founder-approved-testnet-probes-20usdc`, `--testnet-probe-notional-usdc 20`, and `--public-mainnet-only`.
 - Runtime decision logging now defaults to compact mode. It writes actionable `paper_opened`/`paper_closed` decisions, data-unavailable rows, and first-seen non-actionable audit rows while suppressing repeated identical non-actionable rows across cycles; `full_audit` remains an explicit short-diagnostic CLI mode.
 - The dashboard displays decision-log mode, log size, rows written this cycle, and repeated rows suppressed this cycle from runtime summaries.
 - Static `http.server` dashboard review still works, but runtime Start/Stop controls intentionally show unavailable there.
-- This browser display path remains public-read-only and adds no order controls, private/signed/order/account payloads, API keys, testnet strategy truth, or paper/live approval.
+- This browser display path remains public-read-only for strategy truth and adds no order controls, private/signed/order/account payloads, API keys, testnet strategy truth, or paper/live approval.
 
 Current next operational step:
 
-1. Let the active `PT-RT1.1C` 24-hour dry run finish with testnet probes disabled.
+1. Evaluate the active `PT-RT1.1C` 24-hour runtime artifacts and any later 20 USDC probe audit/order-shape rows.
 2. Retain ignored artifacts under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/`.
 3. Evaluate those artifacts in `PT-RT1.1D`.
 4. If stable, start the 60-day public-mainnet forward-observation window.
-5. Run testnet plumbing probes only after PT-RT1.1C/PT-RT1.1D pass, exact approval is captured, and strategy PnL separation remains intact.
+5. Scope real signed testnet transport submission separately if needed; PT-RT1 currently creates probe audit/order-shape rows only.
 
 ## Required Boundaries
 
@@ -92,15 +92,16 @@ PT-RT1 should keep these lanes separate.
 
 ## Testnet Plumbing Probe Policy
 
-Testnet probes are implemented but blocked by default:
+Testnet probes remain separate from strategy truth:
 
-- `PT_RT1_TESTNET_PROBES_ENABLED=false`
-- `PT_RT1_TESTNET_KILL_SWITCH=true`
+- dashboard-started PT-RT1 runtime uses `--enable-testnet-probes`
+- exact founder approval flag is required
 - daily cap defaults to `1`
-- notional cap defaults to under `10 USDC`
+- dashboard control uses daily cap `200`
+- notional cap is `20 USDC`
 - exact approval text is required
 - post-only `Alo` shape only
-- cancel/reconcile required
+- PT-RT1 runtime writes audit/order-shape rows only and does not submit signed transport
 - unknown/open probe state blocks future probes
 - testnet fills never update strategy paper PnL
 

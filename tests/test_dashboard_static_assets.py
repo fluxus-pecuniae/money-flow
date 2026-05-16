@@ -309,10 +309,12 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper-runtime-stop" in html
     assert "paper-runtime-control-status" in html
     assert "Mac caffeinate" in html
-    assert "--disable-testnet-probes" in html
+    assert "--enable-testnet-probes" in html
+    assert "--testnet-probe-notional-usdc 20" in html
     assert "--public-mainnet-only" in html
-    assert "This creates synthetic paper decisions only" in html
-    assert "No exchange orders are created" in html
+    assert "20 USDC testnet probe audit rows" in html
+    assert "This creates synthetic paper decisions and testnet-plumbing audit/order-shape rows only" in html
+    assert "No signed/order endpoint is called by this runtime" in html
     assert "paper-observation-connection-status" in html
     assert "paper-observation-lane-filter" in html
     assert "paper-observation-scanner-table" in html
@@ -346,7 +348,8 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paperObservationBytes" in js
     assert "Start/stop requires launching the local control server." in js
     assert "Static dashboard servers can still display data" in js
-    assert "enable-testnet-probes" not in js
+    assert "enable-testnet-probes" in js
+    assert "testnet-probe-notional-usdc" in js
     assert "DEFAULT_SV21_BROAD_SUMMARY_FILES" in js
     assert "SV21_BROAD_HISTORICAL_REPLAY_TIMESTAMP" in js
     assert "20260516T091500Z" in js

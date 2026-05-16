@@ -216,7 +216,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "PT-RT1.1B" in current_phase
     assert "PT-RT1.1C" in current_phase
     assert "pending PT-RT1.1D evaluation" in current_phase
-    assert "PT-RT1.2 cannot proceed" in current_phase
+    assert "signed testnet transport submission remains separately scoped" in current_phase
     assert "`MF-ORIG-EV2` Original Money Flow multi-timeframe evidence packs and Historical Replay UI are complete" in current_phase
     assert "MF-ORIG-EV1.1" in current_phase
     assert "SOR-EV2" in current_phase
@@ -253,7 +253,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "PT-RT1.1B" in command_center
     assert "PT-RT1.1C" in command_center
     assert "PT-RT1.1D evaluates" in command_center
-    assert "PT-RT1.2 remains blocked" in command_center
+    assert "signed testnet transport remains separately scoped" in command_center
     assert "Evidence and Backtesting Map" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
@@ -300,7 +300,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert "Current implemented milestone | `PT-RT1.1C` 24-hour probes-disabled runtime collection artifacts plus compact decision logging default" in command_center
+    assert "Current implemented milestone | `PT-RT1.1C` runtime collection artifacts plus compact decision logging and 20 USDC testnet-probe audit/order-shape mode" in command_center
     assert "Canonical command center" in compatibility_command_center
     assert "PT-RT1 now implements the public-mainnet paper-observation substrate" in current_dashboard
     assert "SV2.0.2 canonical evidence" in current_dashboard
@@ -535,7 +535,8 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     assert "wildcard_btc_regime_guard" in report
     assert "TRON" in report
     assert "kPEPE" in report
-    assert "PT_RT1_TESTNET_PROBES_ENABLED=false" in paper_roadmap
+    assert "notional cap is `20 USDC`" in paper_roadmap
+    assert "does not submit signed transport" in paper_roadmap
     assert "testnet fills never update strategy paper PnL" in paper_roadmap
     assert "runtime_collection_started" in start_summary
     assert "PT-RT1.1D may evaluate 24-hour runtime artifacts after completion" in start_report

@@ -25,10 +25,15 @@ def test_dashboard_control_runtime_command_is_allowlisted() -> None:
     assert "reports/paper_runtime/pt_rt1_1c_24h_dry_run" in command
     assert "--decision-log-mode" in command
     assert "compact" in command
-    assert "--disable-testnet-probes" in command
+    assert "--enable-testnet-probes" in command
+    assert "--founder-approved-testnet-probes-20usdc" in command
+    assert "--testnet-probe-notional-usdc" in command
+    assert "20" in command
+    assert "--testnet-probe-daily-cap" in command
+    assert "200" in command
     assert "--public-mainnet-only" in command
-    assert "--enable-testnet-probes" not in command
-    assert "order" not in " ".join(command).lower()
+    assert "--disable-testnet-probes" not in command
+    assert "exchange" not in " ".join(command).lower()
 
 
 def test_dashboard_control_rejects_unapproved_duration_and_output() -> None:
@@ -57,6 +62,14 @@ def test_dashboard_control_server_is_localhost_only() -> None:
 
 
 def test_dashboard_control_status_contract_exposes_safety_flags() -> None:
-    assert control.SAFE_FLAGS == ["--disable-testnet-probes", "--public-mainnet-only"]
+    assert control.SAFE_FLAGS == [
+        "--enable-testnet-probes",
+        "--founder-approved-testnet-probes-20usdc",
+        "--testnet-probe-notional-usdc",
+        "20",
+        "--testnet-probe-daily-cap",
+        "200",
+        "--public-mainnet-only",
+    ]
     assert sorted(control.DURATION_OPTIONS) == ["1h", "24h", "5m", "6h"]
     assert sorted(control.OUTPUT_OPTIONS) == ["pt_rt1_1b_smoke", "pt_rt1_1c_24h_dry_run"]

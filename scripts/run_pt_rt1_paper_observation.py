@@ -2,7 +2,8 @@
 
 The runner writes ignored runtime artifacts under ``reports/paper_runtime/``.
 It uses only Hyperliquid public mainnet ``/info`` payloads for strategy truth
-and fails closed if testnet probes are not explicitly disabled.
+and keeps testnet probes as plumbing-only audit/order-shape rows unless a
+later separately approved transport phase submits them.
 """
 
 from __future__ import annotations
@@ -25,12 +26,17 @@ from services.paper_runtime.hyperliquid_public_market_data import (
 )
 from services.paper_runtime.pt_rt1 import (
     PT_RT1_1B_RUNTIME_OUTPUT_PREFIX,
+    PT_RT1_EXACT_TESTNET_PROBE_APPROVAL,
     PT_RT1_MAINNET_INFO_URL,
     PT_RT1_REQUESTED_SCANNER_SYMBOLS,
     PT_RT1_STRATEGY_LANES,
+    PT_RT1_TESTNET_PROBE_NOTIONAL_CAP_USDC,
+    PT_RT1_TESTNET_PROBE_NOTIONAL_USDC,
     TIMEFRAME_DURATIONS,
     DataHealth,
     PaperDecisionEvent,
+    TestnetProbeCandidate,
+    TestnetProbePolicy,
     build_pt_rt1_summary,
     canonical_candle_close,
     evaluate_paper_decision,
@@ -42,6 +48,7 @@ DECISION_LOG_MODES = ("compact", "full_audit", "signals_only")
 ACTIONABLE_DECISION_ACTIONS = frozenset({"paper_opened", "paper_closed"})
 COMPACT_ALWAYS_WRITE_ACTIONS = frozenset({"paper_opened", "paper_closed", "data_unavailable"})
 DECISION_LOG_SIZE_WARNING_BYTES = 500 * 1024 * 1024
+TESTNET_PROBE_AUDIT_LIMIT = 200
 
 
 def _utc_now() -> datetime:
@@ -177,6 +184,107 @@ def _closed_prefix(candles: Sequence[Any], now: datetime) -> list[Any]:
     return closed
 
 
+def _testnet_probe_price(candle: Any) -> Decimal:
+    # Buy-side post-only plumbing probes are kept below the latest public close so
+    # they validate shape/precision without trying to become marketable.
+    return (candle.close * Decimal("0.95")).quantize(Decimal("0.00000001"))
+
+
+def _build_testnet_probe_audit_rows(
+    *,
+    decision_rows: Sequence[dict[str, Any]],
+    scanner_rows: Sequence[Any],
+    latest_closed_by_key: dict[tuple[str, str], Any],
+    enabled: bool,
+    approval_text: str,
+    notional_usdc: Decimal,
+    daily_cap: int,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    row_by_symbol = {
+        str(row.canonical_symbol or row.requested_symbol).upper(): row
+        for row in scanner_rows
+        if row.scanner_eligible and not row.blocked
+    }
+    policy = TestnetProbePolicy()
+    audit_rows: list[dict[str, Any]] = []
+    actionable = [row for row in decision_rows if row.get("action") == "paper_opened"]
+    for index, decision in enumerate(actionable[:TESTNET_PROBE_AUDIT_LIMIT]):
+        symbol = str(decision.get("symbol") or "").upper()
+        timeframe = str(decision.get("timeframe") or "")
+        scanner_row = row_by_symbol.get(symbol)
+        candle = latest_closed_by_key.get((symbol, timeframe))
+        if scanner_row is None or candle is None:
+            audit_rows.append(
+                {
+                    "lane": "testnet_plumbing_probe",
+                    "environment": "hyperliquid_testnet_only",
+                    "eligible": False,
+                    "symbol": symbol,
+                    "timeframe": timeframe,
+                    "strategy_id": decision.get("strategy_id"),
+                    "signal_candle_close_time": decision.get("signal_candle_close_time"),
+                    "notional_usdc": str(notional_usdc),
+                    "reason_codes": ["testnet_probe_context_unavailable"],
+                    "testnet_fills_update_strategy_pnl": False,
+                    "strategy_pnl_updated": False,
+                    "signed_order_endpoint_called": False,
+                    "order_endpoint_called": False,
+                    "order_shape": None,
+                }
+            )
+            continue
+        price = _testnet_probe_price(candle)
+        quantity = notional_usdc / price
+        result = policy.evaluate(
+            TestnetProbeCandidate(
+                approval_text=approval_text,
+                probes_enabled=enabled,
+                kill_switch=not enabled,
+                symbol=str(scanner_row.resolved_venue_symbol or symbol),
+                asset_id=scanner_row.asset_id,
+                sz_decimals=scanner_row.szDecimals,
+                price=price,
+                quantity=quantity,
+                notional=notional_usdc,
+                scanner_signal_eligible=True,
+                daily_probe_count=index,
+                daily_cap=daily_cap,
+                notional_cap=PT_RT1_TESTNET_PROBE_NOTIONAL_CAP_USDC,
+                precision_ready=bool(scanner_row.precision_ready),
+                scanner_symbol_blocked=bool(scanner_row.blocked),
+                unit_semantics_deferred=any("unit_semantics" in reason for reason in scanner_row.reason_codes),
+            )
+        )
+        audit_rows.append(
+            {
+                **result.audit_row,
+                "symbol": symbol,
+                "venue_symbol": scanner_row.resolved_venue_symbol,
+                "timeframe": timeframe,
+                "strategy_id": decision.get("strategy_id"),
+                "lane_id": decision.get("lane_id"),
+                "signal_candle_close_time": decision.get("signal_candle_close_time"),
+                "probe_price": str(price),
+                "probe_quantity": str(quantity),
+                "order_shape": result.order_shape,
+            }
+        )
+    stats = {
+        "enabled": enabled,
+        "notional_usdc": str(notional_usdc),
+        "notional_cap_usdc": str(PT_RT1_TESTNET_PROBE_NOTIONAL_CAP_USDC),
+        "daily_cap": daily_cap,
+        "signals_seen_this_cycle": len(actionable),
+        "audit_rows_this_cycle": len(audit_rows),
+        "eligible_probe_shapes_this_cycle": sum(1 for row in audit_rows if row.get("eligible") is True),
+        "signed_order_endpoint_called": False,
+        "order_endpoint_called": False,
+        "testnet_fills_update_strategy_pnl": False,
+        "transport_status": "not_submitted_by_pt_rt1_runtime",
+    }
+    return audit_rows, stats
+
+
 def run_cycle(
     *,
     connector: HyperliquidPublicMarketDataConnector,
@@ -186,6 +294,10 @@ def run_cycle(
     max_candle_symbols: int | None,
     run_label: str = "PT-RT1.1B",
     decision_log_mode: str = "compact",
+    testnet_probes_enabled: bool = False,
+    testnet_probe_approval_text: str = "",
+    testnet_probe_notional_usdc: Decimal = PT_RT1_TESTNET_PROBE_NOTIONAL_USDC,
+    testnet_probe_daily_cap: int = TESTNET_PROBE_AUDIT_LIMIT,
 ) -> dict[str, Any]:
     now = _utc_now()
     meta_result = connector.fetch_meta()
@@ -199,6 +311,7 @@ def run_cycle(
     market_health: list[dict[str, Any]] = []
     decisions: list[PaperDecisionEvent] = []
     latest_chart: dict[str, Any] | None = None
+    latest_closed_by_key: dict[tuple[str, str], Any] = {}
 
     for row in selected_rows:
         for timeframe in timeframes:
@@ -210,6 +323,8 @@ def run_cycle(
                 end_time=end_time,
             )
             closed_candles = _closed_prefix(candle_result.candles, now)
+            if closed_candles:
+                latest_closed_by_key[(str(row.canonical_symbol or row.requested_symbol).upper(), timeframe)] = closed_candles[-1]
             closed_status = "closed_candle_ready" if closed_candles else "candle_not_closed_or_unavailable"
             market_health.append(
                 {
@@ -268,6 +383,15 @@ def run_cycle(
         seen_keys=prior_seen_keys,
     )
     intended_entry_signals = [row for row in decision_rows if row.get("action") == "paper_opened"]
+    testnet_probe_rows, testnet_probe_stats = _build_testnet_probe_audit_rows(
+        decision_rows=decision_rows,
+        scanner_rows=selected_rows,
+        latest_closed_by_key=latest_closed_by_key,
+        enabled=testnet_probes_enabled,
+        approval_text=testnet_probe_approval_text,
+        notional_usdc=testnet_probe_notional_usdc,
+        daily_cap=testnet_probe_daily_cap,
+    )
     runtime_status = "verified" if meta_result.ok and mids_result.ok and market_health else "blocked"
     if not meta_result.ok or not mids_result.ok:
         runtime_status = "blocked_public_mainnet_network_unavailable"
@@ -317,24 +441,39 @@ def run_cycle(
             "paper_markers": [],
         },
         "testnet_plumbing_status": {
-            "status": "ready_but_disabled",
-            "disabled_by_default": True,
-            "kill_switch_active": True,
+            "status": "enabled_audit_only" if testnet_probes_enabled else "ready_but_disabled",
+            "disabled_by_default": False if testnet_probes_enabled else True,
+            "kill_switch_active": False if testnet_probes_enabled else True,
             "approval_required": True,
+            "approval_captured": testnet_probe_approval_text == PT_RT1_EXACT_TESTNET_PROBE_APPROVAL,
             "daily_cap_configured": True,
+            "daily_cap": testnet_probe_daily_cap,
             "notional_cap_configured": True,
+            "probe_notional_usdc": str(testnet_probe_notional_usdc),
+            "probe_notional_cap_usdc": str(PT_RT1_TESTNET_PROBE_NOTIONAL_CAP_USDC),
+            "probe_audit_rows_this_cycle": testnet_probe_stats["audit_rows_this_cycle"],
+            "eligible_probe_shapes_this_cycle": testnet_probe_stats["eligible_probe_shapes_this_cycle"],
             "post_only_required": True,
             "cancel_reconcile_required": True,
             "testnet_fills_do_not_update_strategy_pnl": True,
+            "signed_order_endpoint_called": False,
+            "order_endpoint_called": False,
+            "transport_status": "not_submitted_by_pt_rt1_runtime",
             "reason_codes": [
-                "testnet_probe_not_enabled",
-                "testnet_probe_kill_switch_active",
-                "testnet_probe_approval_missing",
-                "testnet_probe_ready_but_disabled",
+                *(
+                    ["testnet_probe_order_shapes_created_audit_only", "testnet_probe_20usdc_per_signal"]
+                    if testnet_probes_enabled
+                    else [
+                        "testnet_probe_not_enabled",
+                        "testnet_probe_kill_switch_active",
+                        "testnet_probe_approval_missing",
+                        "testnet_probe_ready_but_disabled",
+                    ]
+                )
             ],
         },
         "runtime_command": {
-            "duration_hours_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1c_24h_dry_run --disable-testnet-probes --public-mainnet-only",
+            "duration_hours_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1c_24h_dry_run --enable-testnet-probes --founder-approved-testnet-probes-20usdc --testnet-probe-notional-usdc 20 --public-mainnet-only",
             "smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 1 --output-dir reports/paper_runtime/pt_rt1_1b_smoke --disable-testnet-probes --public-mainnet-only",
             "output_dir": str(output_dir),
         },
@@ -346,8 +485,10 @@ def run_cycle(
             "decisions_written": len(decision_log_rows),
             "decision_log_mode": decision_log_mode,
             "orders_submitted": False,
-            "testnet_probes_enabled": False,
+            "testnet_probes_enabled": testnet_probes_enabled,
+            "testnet_probe_notional_usdc": str(testnet_probe_notional_usdc),
             "private_signed_order_endpoints_called": False,
+            "testnet_order_endpoints_called": False,
         },
         "next_phase_decision": (
             "PT-RT1.1D may evaluate 24-hour runtime artifacts after completion"
@@ -381,6 +522,7 @@ def run_cycle(
     _write_json(output_dir / "data_health.json", {"generated_at_utc": _iso(now), "rows": market_health})
     _write_json(output_dir / "equity_curves.json", {"generated_at_utc": _iso(now), "lanes": lane_payload})
     _append_jsonl(output_dir / "runtime_audit.jsonl", [summary["connection_status"], summary["testnet_plumbing_status"]])
+    _append_jsonl(output_dir / "testnet_probe_audit.jsonl", testnet_probe_rows)
     _append_jsonl(output_dir / "trades.jsonl", [])
     return summary
 
@@ -391,7 +533,12 @@ def parse_args() -> argparse.Namespace:
     duration.add_argument("--duration-hours", type=Decimal)
     duration.add_argument("--duration-minutes", type=Decimal)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
-    parser.add_argument("--disable-testnet-probes", action="store_true")
+    probe_mode = parser.add_mutually_exclusive_group(required=True)
+    probe_mode.add_argument("--disable-testnet-probes", action="store_true")
+    probe_mode.add_argument("--enable-testnet-probes", action="store_true")
+    parser.add_argument("--founder-approved-testnet-probes-20usdc", action="store_true")
+    parser.add_argument("--testnet-probe-notional-usdc", type=Decimal, default=PT_RT1_TESTNET_PROBE_NOTIONAL_USDC)
+    parser.add_argument("--testnet-probe-daily-cap", type=int, default=TESTNET_PROBE_AUDIT_LIMIT)
     parser.add_argument("--public-mainnet-only", action="store_true")
     parser.add_argument("--poll-seconds", type=Decimal, default=Decimal("60"))
     parser.add_argument("--symbol", action="append", dest="symbols")
@@ -404,10 +551,14 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
-    if not args.disable_testnet_probes:
-        raise SystemExit("testnet_probes_must_be_disabled_for_pt_rt1_1b")
     if not args.public_mainnet_only:
         raise SystemExit("public_mainnet_only_required_for_strategy_truth")
+    if args.enable_testnet_probes and not args.founder_approved_testnet_probes_20usdc:
+        raise SystemExit("founder_approved_testnet_probes_20usdc_required")
+    if args.testnet_probe_notional_usdc != PT_RT1_TESTNET_PROBE_NOTIONAL_USDC:
+        raise SystemExit("testnet_probe_notional_must_be_20usdc")
+    if args.testnet_probe_daily_cap <= 0:
+        raise SystemExit("positive_testnet_probe_daily_cap_required")
     _ensure_ignored_output_dir(args.output_dir)
     duration = timedelta(
         hours=float(args.duration_hours or Decimal("0")),
@@ -430,6 +581,12 @@ def main() -> int:
             max_candle_symbols=args.max_candle_symbols,
             run_label=run_label,
             decision_log_mode=args.decision_log_mode,
+            testnet_probes_enabled=args.enable_testnet_probes,
+            testnet_probe_approval_text=(
+                PT_RT1_EXACT_TESTNET_PROBE_APPROVAL if args.founder_approved_testnet_probes_20usdc else ""
+            ),
+            testnet_probe_notional_usdc=args.testnet_probe_notional_usdc,
+            testnet_probe_daily_cap=args.testnet_probe_daily_cap,
         )
         if args.max_cycles is not None and cycle >= args.max_cycles:
             break

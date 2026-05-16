@@ -34,7 +34,7 @@ The old `Experiments` tab must not be promoted as current truth. Legacy UAT surf
 - Historical Replay chart JSON is visualization-only.
 - Evidence Lab overlays are visualization-only.
 - Date filters are display-only. Dashboard date filters are display-only recalculations.
-- The Paper Observation Start Run helper is local runtime ergonomics only; it always forces `--disable-testnet-probes`, `--public-mainnet-only`, and compact decision logging, and it does not enable testnet probes.
+- The Paper Observation Start Run helper is local runtime ergonomics only; it always forces `--enable-testnet-probes`, `--founder-approved-testnet-probes-20usdc`, `--testnet-probe-notional-usdc 20`, `--public-mainnet-only`, and compact decision logging. The probe lane creates audit/order-shape rows only; it does not call signed/order endpoints and does not update strategy paper PnL from testnet fills.
 - Paper Observation decision-log stats are operational health signals only. Compact logging suppresses repeated non-actionable rows, but dashboard log-size warnings are not strategy evidence.
 - Dashboard output does not submit orders, call private/signed/order endpoints, import candles, or regenerate evidence packs.
 

@@ -2,8 +2,9 @@
 """Local-only dashboard control server for PT-RT1 paper observation.
 
 The server intentionally exposes only a tiny localhost API. It can start or
-stop the probes-disabled PT-RT1 paper-observation runtime through `caffeinate`
-so a Mac stays awake while synthetic paper observation runs.
+stop the PT-RT1 paper-observation runtime through `caffeinate` so a Mac stays
+awake while synthetic paper observation runs. Testnet probes are plumbing-only
+audit/order-shape rows capped at 20 USDC per signal and do not update paper PnL.
 """
 
 from __future__ import annotations
@@ -27,7 +28,15 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 CONTROL_DIR = REPO_ROOT / "reports" / "paper_runtime" / "dashboard_control"
 STATE_PATH = CONTROL_DIR / "state.json"
 LOCAL_HOSTS = {"127.0.0.1", "localhost"}
-SAFE_FLAGS = ["--disable-testnet-probes", "--public-mainnet-only"]
+SAFE_FLAGS = [
+    "--enable-testnet-probes",
+    "--founder-approved-testnet-probes-20usdc",
+    "--testnet-probe-notional-usdc",
+    "20",
+    "--testnet-probe-daily-cap",
+    "200",
+    "--public-mainnet-only",
+]
 DURATION_OPTIONS = {
     "5m": ("--duration-minutes", "5", "5 minutes"),
     "1h": ("--duration-hours", "1", "1 hour"),
@@ -315,7 +324,10 @@ def main(argv: list[str] | None = None) -> int:
 
     server = ThreadingHTTPServer((host, args.port), DashboardControlHandler)
     print(f"Serving Money Flow dashboard with local controls at http://{host}:{args.port}/apps/dashboard/index.html")
-    print("Paper runtime start always uses caffeinate, --disable-testnet-probes, and --public-mainnet-only.")
+    print(
+        "Paper runtime start always uses caffeinate, --enable-testnet-probes, "
+        "--testnet-probe-notional-usdc 20, and --public-mainnet-only."
+    )
     try:
         server.serve_forever()
     except KeyboardInterrupt:

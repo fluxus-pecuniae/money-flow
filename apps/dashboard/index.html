@@ -508,7 +508,7 @@
               <h2 id="paper-runtime-control-title">Start Run</h2>
             </div>
             <p>
-              Starts the local PT-RT1 paper-observation runtime with Mac caffeinate, public-mainnet strategy truth, testnet probes disabled, and no order controls.
+              Starts the local PT-RT1 paper-observation runtime with Mac caffeinate, public-mainnet strategy truth, 20 USDC testnet probe audit rows, and no live/order controls.
               Available only when the dashboard is served by `scripts/run_dashboard_control_server.py`.
             </p>
           </div>
@@ -535,8 +535,8 @@
             </div>
           </div>
           <div class="methodology-warning compact" role="note">
-            Runtime command is allowlisted and always forces `--disable-testnet-probes` and `--public-mainnet-only`.
-            This creates synthetic paper decisions only. No exchange orders are created, no private/signed endpoints or API keys are used, and live trading is not approved.
+            Runtime command is allowlisted and always forces `--enable-testnet-probes`, `--testnet-probe-notional-usdc 20`, and `--public-mainnet-only`.
+            This creates synthetic paper decisions and testnet-plumbing audit/order-shape rows only. No signed/order endpoint is called by this runtime, no private API keys are used here, and live trading is not approved.
           </div>
           <div id="paper-runtime-control-status" class="market-micro-panel"></div>
         </section>
@@ -638,7 +638,7 @@
           <aside class="historical-inspector-panel" aria-labelledby="paper-observation-probe-title">
             <div class="rail-heading">
               <h2 id="paper-observation-probe-title">Testnet Plumbing Probe Status</h2>
-              <p>Separate testnet-only panel. Probes are disabled and kill-switched by default.</p>
+              <p>Separate testnet-only panel. Probes are audit-only order shapes capped at 20 USDC per signal.</p>
             </div>
             <div id="paper-observation-probe-status" class="market-micro-panel"></div>
           </aside>

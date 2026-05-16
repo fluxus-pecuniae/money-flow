@@ -308,10 +308,10 @@ def test_testnet_probe_caps_unknown_state_and_post_only_shape() -> None:
         sz_decimals=4,
         price=Decimal("3000.123456"),
         quantity=Decimal("0.0023456"),
-        notional=Decimal("7"),
+        notional=Decimal("20"),
     )
     result = policy.evaluate(approved)
-    capped = policy.evaluate(approved.__class__(**{**approved.__dict__, "notional": Decimal("10")}))
+    capped = policy.evaluate(approved.__class__(**{**approved.__dict__, "notional": Decimal("20.01")}))
     unknown = policy.evaluate(approved.__class__(**{**approved.__dict__, "unknown_or_open_probe_state": True}))
 
     assert result.eligible is True
@@ -381,6 +381,8 @@ def test_summary_and_report_files_exist_and_expose_boundaries() -> None:
     assert summary["strategy_truth_lane"]["endpoint"] == PT_RT1_MAINNET_INFO_URL
     assert summary["strategy_truth_lane"]["uses_api_keys"] is False
     assert summary["testnet_probe_policy"]["PT_RT1_TESTNET_PROBES_ENABLED"] is False
+    assert summary["testnet_probe_policy"]["PT_RT1_TESTNET_PROBE_NOTIONAL_USDC"] == "20"
+    assert summary["testnet_probe_policy"]["PT_RT1_TESTNET_PROBE_NOTIONAL_CAP"] == "20"
     assert summary["boundaries"]["live_exchange_orders_submitted"] is False
     assert summary["paper_equity_policy"]["starting_equity_usdc_per_lane"] == "10000"
     assert summary["revision"] == "PT-RT1.1A"
@@ -391,7 +393,9 @@ def test_summary_and_report_files_exist_and_expose_boundaries() -> None:
     assert summary["alias_mappings"]["PEPE"] == "kPEPE"
     assert summary["dashboard_status"]["strategy_lanes_visible"] == 10
     assert summary["dashboard_status"]["public_mainnet_connection_status_visible"] is True
-    assert summary["next_phase"]["decision"] == "PT-RT1.1C may start 24-hour probes-disabled runtime collection"
+    assert summary["next_phase"]["decision"] == "PT-RT1.1D may evaluate public-mainnet runtime collection and 20 USDC probe audit rows"
+    assert "testnet_probe_transport_not_submitted_by_pt_rt1_runtime" in summary["next_phase"]["conditions"]
+    assert summary["boundaries"]["testnet_probes_submit_signed_transport"] is False
 
 
 def test_pt_rt1_strategy_lane_does_not_construct_production_execution_artifacts() -> None:
