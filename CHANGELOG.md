@@ -13,6 +13,20 @@ Entry schema:
 
 ---
 
+## v2026.05.16.007
+
+- `recorded_at_utc`: `2026-05-16T12:38:00Z`
+- `scope`: `Dashboard control server runtime log clarity`
+- `intent`: `Native entry. Added a clear "Starting money-flow" line to each dashboard-started PT-RT1 paper-observation runtime log and suppressed noisy static GET access-log lines for SV2.1/SV2.0.2 evidence report paths under /reports/strategy_validation/money_flow_sv2_1* and /reports/strategy_validation/money_flow_sv2_0_2*. API/status request logs remain visible. This is logging ergonomics only: no production Money Flow rules changed, no order/private/signed endpoints were added, no live trading was approved, and no testnet strategy truth was introduced.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `scripts/run_dashboard_control_server.py`
+  - `tests/test_dashboard_control_server.py`
+- `validation_performed`:
+  - `python -m py_compile scripts/run_dashboard_control_server.py tests/test_dashboard_control_server.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_control_server.py`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+
 ## v2026.05.16.006
 
 - `recorded_at_utc`: `2026-05-16T12:15:10Z`

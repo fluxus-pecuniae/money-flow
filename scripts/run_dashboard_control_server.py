@@ -47,6 +47,11 @@ OUTPUT_OPTIONS = {
     "pt_rt1_1c_24h_dry_run": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_1c_24h_dry_run",
     "pt_rt1_1b_smoke": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_1b_smoke",
 }
+SUPPRESSED_STATIC_LOG_PREFIXES = (
+    "/reports/strategy_validation/money_flow_sv2_1",
+    "/reports/strategy_validation/money_flow_sv2_0_2",
+)
+STARTING_LOG_LINE = "Starting money-flow"
 
 
 def utc_now() -> str:
@@ -55,6 +60,13 @@ def utc_now() -> str:
 
 def run_id() -> str:
     return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+def should_suppress_access_log(method: str, request_path: str) -> bool:
+    if method.upper() != "GET":
+        return False
+    parsed = urlparse(request_path)
+    return any(parsed.path.startswith(prefix) for prefix in SUPPRESSED_STATIC_LOG_PREFIXES)
 
 
 def read_state() -> dict[str, Any]:
@@ -189,6 +201,7 @@ def start_runtime(payload: dict[str, Any]) -> tuple[int, dict[str, Any]]:
     command = build_runtime_command(duration=duration, output=output)
     log_path = CONTROL_DIR / f"{run_id()}_{duration}_{output}.log"
     log_handle = log_path.open("a", encoding="utf-8")
+    log_handle.write(f"{utc_now()} {STARTING_LOG_LINE}\n")
     log_handle.write(f"{utc_now()} starting {' '.join(command)}\n")
     log_handle.flush()
     try:
@@ -281,6 +294,11 @@ class DashboardControlHandler(SimpleHTTPRequestHandler):
         if not isinstance(payload, dict):
             raise ValueError("json_body_must_be_object")
         return payload
+
+    def log_message(self, format: str, *args: Any) -> None:
+        if should_suppress_access_log(self.command, self.path):
+            return
+        super().log_message(format, *args)
 
     def do_GET(self) -> None:  # noqa: N802 - stdlib handler method name.
         parsed = urlparse(self.path)

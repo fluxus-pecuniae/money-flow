@@ -73,3 +73,48 @@ def test_dashboard_control_status_contract_exposes_safety_flags() -> None:
     ]
     assert sorted(control.DURATION_OPTIONS) == ["1h", "24h", "5m", "6h"]
     assert sorted(control.OUTPUT_OPTIONS) == ["pt_rt1_1b_smoke", "pt_rt1_1c_24h_dry_run"]
+
+
+def test_dashboard_control_runtime_log_announces_money_flow_start(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+    reports_root = tmp_path / "reports" / "paper_runtime"
+    control_dir = reports_root / "dashboard_control"
+    output_dir = reports_root / "test_output"
+
+    class FakeProcess:
+        pid = 999999
+
+    def fake_popen(*args, **kwargs):  # noqa: ANN001, ANN202 - subprocess test double.
+        return FakeProcess()
+
+    monkeypatch.setattr(control, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(control, "CONTROL_DIR", control_dir)
+    monkeypatch.setattr(control, "STATE_PATH", control_dir / "state.json")
+    monkeypatch.setattr(control, "OUTPUT_OPTIONS", {"test_output": output_dir})
+    monkeypatch.setattr(control, "find_caffeinate", lambda: "/usr/bin/caffeinate")
+    monkeypatch.setattr(control.subprocess, "Popen", fake_popen)
+    monkeypatch.setattr(control, "process_is_running", lambda pid: False)
+
+    status_code, _payload = control.start_runtime({"duration": "5m", "output": "test_output"})
+
+    assert status_code == 200
+    log_files = list(control_dir.glob("*.log"))
+    assert len(log_files) == 1
+    log_text = log_files[0].read_text(encoding="utf-8")
+    assert "Starting money-flow" in log_text
+    assert "scripts/run_pt_rt1_paper_observation.py" in log_text
+
+
+def test_dashboard_control_suppresses_noisy_static_evidence_get_logs() -> None:
+    assert control.should_suppress_access_log(
+        "GET",
+        "/reports/strategy_validation/money_flow_sv2_1_example/summary.json",
+    )
+    assert control.should_suppress_access_log(
+        "GET",
+        "/reports/strategy_validation/money_flow_sv2_0_2_example/summary.json?cache=1",
+    )
+    assert not control.should_suppress_access_log("GET", "/api/paper-runtime/status")
+    assert not control.should_suppress_access_log(
+        "POST",
+        "/reports/strategy_validation/money_flow_sv2_1_example/summary.json",
+    )
