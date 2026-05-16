@@ -13,6 +13,21 @@ Entry schema:
 
 ---
 
+## v2026.05.16.003
+
+- `recorded_at_utc`: `2026-05-16T10:34:12Z`
+- `scope`: `Paper Observation Start Run clickability`
+- `intent`: `Native entry. Changed the Paper Observation Start Run button so it remains clickable even when the dashboard is served by a static server without the local control API. A click now attempts the API path and surfaces the existing local-control-server-required status instead of leaving the button disabled. Actual runtime start remains restricted to scripts/run_dashboard_control_server.py and the allowlisted probes-disabled public-mainnet command path; no production Money Flow rules changed, no evidence packs were regenerated, no orders/private/signed/order endpoints/API keys/testnet strategy truth/live trading/SOR behavior were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py::test_pt_rt1_paper_observation_dashboard_tab`
+  - `.venv/bin/python Playwright smoke against static http://127.0.0.1:8765/apps/dashboard/index.html verified Start Run is clickable and reports the local control server requirement without starting a runtime run`
+
 ## v2026.05.16.002
 
 - `recorded_at_utc`: `2026-05-16T10:15:00Z`

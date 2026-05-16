@@ -26,7 +26,7 @@ Then open:
 http://127.0.0.1:8767/apps/dashboard/index.html
 ```
 
-The control server is localhost-only. It starts the PT-RT1 runtime through Mac `caffeinate` and always forces `--disable-testnet-probes` plus `--public-mainnet-only`. Static `http.server` remains valid for review, but Start/Stop controls intentionally show unavailable because no local control API exists there.
+The control server is localhost-only. It starts the PT-RT1 runtime through Mac `caffeinate` and always forces `--disable-testnet-probes` plus `--public-mainnet-only`. Static `http.server` remains valid for review; the Start Run button remains clickable there, but it reports that the local control server is required instead of starting a runtime process.
 
 The dashboard tries to load the regenerated SV2.0.2 Hyperliquid canonical DB-imported evidence packs, the SV2.1 founder-approved Hyperliquid 1D period evidence packs listed by `docs/sv2_1_broad_hyperliquid_1d_period_evidence_summary.json`, and matching Historical Replay chart/trade JSON from `reports/strategy_validation*`. Those generated files stay ignored by Git and review bundles. If the files are not present, use the file picker in the dashboard to load `money_flow_evidence_review.json`, one or more `batch_report.json` files, or dashboard chart-data JSON files manually.
 

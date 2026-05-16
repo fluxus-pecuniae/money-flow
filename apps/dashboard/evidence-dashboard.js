@@ -8865,7 +8865,7 @@
       };
     }
     if (elements.paperRuntimeStart) {
-      elements.paperRuntimeStart.disabled = !control.available || control.running || control.inFlight;
+      elements.paperRuntimeStart.disabled = control.running || control.inFlight;
       elements.paperRuntimeStart.onclick = startPaperRuntime;
     }
     if (elements.paperRuntimeStop) {

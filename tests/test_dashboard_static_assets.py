@@ -336,6 +336,7 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "/api/paper-runtime/stop" in js
     assert "startPaperRuntime" in js
     assert "stopPaperRuntime" in js
+    assert "elements.paperRuntimeStart.disabled = control.running || control.inFlight" in js
     assert "Start/stop requires launching the local control server." in js
     assert "Static dashboard servers can still display data" in js
     assert "enable-testnet-probes" not in js
