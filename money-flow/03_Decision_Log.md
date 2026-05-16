@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-16T09:40:00Z - SV2.1 - Expand Founder-Approved Evidence To 10 PT-RT1 Lanes
+
+- `decision`: Rebuild the SV2.1 founder-approved 1D Historical Replay/evidence layer so all 10 PT-RT1 paper-observation lanes are visible for founder comparison.
+- `scope`: Keep the same founder-approved 1D symbol universe and period sets (`2024`, `2025`, `YTD`, `ALL`). Preserve the 90 baseline Money Flow v1.2 packs and generate evidence-only candidate/reference/wildcard packs for the nine non-baseline lanes: two SOR rolling-range lanes, four MF-ORIG full-equity lanes, and three wildcard observation lanes.
+- `why`: The founder said the data was hard to compare and the latest evidence pack had lost the other paper-observation strategies, leaving only four visible strategies.
+- `result`: `SV2.1 10-lane 1D evidence generated`. Counts: 90 baseline packs, 810 evidence-only candidate/reference/wildcard packs, and 1800 selected Historical Replay chart/trade JSON files at timestamp `20260516T091500Z`.
+- `follow_up_implications`: This remains 1D founder-review research evidence only. It does not change production Money Flow rules, approve a variant, approve strategy paper runtime, approve live trading, submit orders, call private/signed/order endpoints, use API keys, use testnet data as strategy truth, or add SOR/fanout/CBBO.
+
 ## 2026-05-14T23:05:55Z - Paper Observation - Compact Watchlist and Signal Generation
 
 - `decision`: Keep the founder-facing Paper Observation watchlist compact and replace the Market Data Health panel with Signal Generation.

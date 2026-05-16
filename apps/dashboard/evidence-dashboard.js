@@ -84,12 +84,18 @@
   const DEFAULT_SV21_BROAD_SUMMARY_FILES = [
     "../../docs/sv2_1_broad_hyperliquid_1d_period_evidence_summary.json",
   ];
-  const SV21_BROAD_HISTORICAL_REPLAY_TIMESTAMP = "20260515T004500Z";
+  const SV21_BROAD_HISTORICAL_REPLAY_TIMESTAMP = "20260516T091500Z";
   const SV21_BROAD_PERIODS = ["2024", "2025", "YTD", "ALL"];
   const SV21_BROAD_CANDIDATE_STRATEGY_IDS = [
     "avoid_low_rolling_range_50",
     "avoid_low_rolling_range_20",
+    "mf_orig_stage_filter_only_full_equity",
+    "mf_orig_stage2_pullback_reclaim_full_equity",
+    "mf_orig_1d_stage2_5_20_crossover_full_equity",
     "mf_orig_1d_stage2_breakout_resistance_full_equity",
+    "wildcard_btc_regime_guard",
+    "wildcard_multi_timeframe_alignment",
+    "wildcard_volatility_expansion_breakout",
   ];
   const SV21_BROAD_BATCH_LOAD_CONCURRENCY = 32;
   const SV21_BROAD_BATCH_LOAD_LIMIT = 3000;
@@ -5126,16 +5132,29 @@
     const summary = state.pt002HistoricalReplay || {};
     const sv20Source = state.sv20Summary?.source || {};
     const canonicalEvidence = state.sv20Summary?.canonical_evidence_status || {};
+    const replayEvidencePath = String(replay?.evidence_pack_path || "");
+    const replayDataSource = String(replay?.data_source || "");
+    const isSv21Replay =
+      replayEvidencePath.includes("money_flow_sv2_1_hyperliquid_broad_1d_") ||
+      replayDataSource.includes("SV2.1 founder-approved");
+    const sv21PackCount =
+      (state.sv21BroadSummary?.evidence_pack_paths || []).length +
+      (state.sv21BroadSummary?.candidate_evidence_status?.evidence_pack_paths || []).length;
+    const evidencePackCount = isSv21Replay ? sv21PackCount : (canonicalEvidence.evidence_pack_paths || []).length;
+    const canonicalEvidenceStatus = isSv21Replay
+      ? "sv2_1_founder_review_1d_period_evidence"
+      : canonicalEvidence.status || "not_loaded";
+    const sourceLabel = replay?.data_source || sv20Source.historical_strategy_truth || summary.source?.source_kind || "historical source not loaded";
     const dataset = historicalReadinessForSelection();
     const warnings = dataset?.reason_codes || [];
     elements.historicalReplaySourceStatus.innerHTML = `
       <span>Replay strategy: ${escapeHtml(dashboardStrategyLabel(replay?.strategy_label, state.historicalReplay.strategyId))}</span>
       <span>Period: ${escapeHtml(state.historicalReplay.period || replay?.period || "ALL")}</span>
       <span>Money Flow version: ${escapeHtml(state.sv20Summary?.money_flow_version || "money_flow_v1_1 replay source")}</span>
-      <span>Canonical evidence: ${escapeHtml(canonicalEvidence.status || "not_loaded")}</span>
-      <span>Evidence packs: ${escapeHtml((canonicalEvidence.evidence_pack_paths || []).length)}</span>
+      <span>Canonical evidence: ${escapeHtml(canonicalEvidenceStatus)}</span>
+      <span>Evidence packs: ${escapeHtml(evidencePackCount)}</span>
       <span>Compact replay canonical: ${escapeHtml(canonicalEvidence.compact_replay_rows_are_canonical_evidence === false ? "false" : "unknown")}</span>
-      <span>Source: ${escapeHtml(sv20Source.historical_strategy_truth || dataset?.source || summary.source?.source_kind || "historical source not loaded")}</span>
+      <span>Source: ${escapeHtml(sourceLabel)}</span>
       <span>Range: ${escapeHtml(dataset?.start_time || dataset?.earliest_candle || "n/a")} -> ${escapeHtml(dataset?.end_time || dataset?.latest_candle || "n/a")}</span>
       <span>Coverage: ${escapeHtml(dataset?.target_coverage_percent ? pct(dataset.target_coverage_percent) : dataset?.coverage_percent || "n/a")}</span>
       <span>Candles: ${escapeHtml(dataset?.candle_count ?? replay?.candles?.length ?? 0)}</span>

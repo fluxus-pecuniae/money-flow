@@ -140,8 +140,9 @@ SV2.1 regenerates 1D Money Flow v1.2 evidence across the founder-approved PT-RT1
 
 ## Historical Replay Addendum
 
-- Chart-data root: `reports/strategy_validation/sv2_1_broad_1d_dashboard_chart_data/20260515T004500Z`
-- Selected chart-data files: `720`
-- Candidate evidence packs: `270`
-- Candidate strategies: `avoid_low_rolling_range_50, avoid_low_rolling_range_20, mf_orig_1d_stage2_breakout_resistance_full_equity`
+- Chart-data root: `reports/strategy_validation/sv2_1_broad_1d_dashboard_chart_data/20260516T091500Z`
+- Selected chart-data files: `1800`
+- Candidate evidence packs: `810`
+- PT-RT1 paper-observation lanes covered: `10`
+- Candidate strategies: `avoid_low_rolling_range_50, avoid_low_rolling_range_20, mf_orig_stage_filter_only_full_equity, mf_orig_stage2_pullback_reclaim_full_equity, mf_orig_1d_stage2_5_20_crossover_full_equity, mf_orig_1d_stage2_breakout_resistance_full_equity, wildcard_btc_regime_guard, wildcard_multi_timeframe_alignment, wildcard_volatility_expansion_breakout`
 - Status: evidence-only; no production rule change, no paper/live approval, no orders.

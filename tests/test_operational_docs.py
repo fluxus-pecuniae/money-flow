@@ -215,7 +215,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "PT-RT1.1A" in current_phase
     assert "PT-RT1.1B" in current_phase
     assert "PT-RT1.1C" in current_phase
-    assert "PT-RT1.1D evaluates artifacts after completion" in current_phase
+    assert "pending PT-RT1.1D evaluation" in current_phase
     assert "PT-RT1.2 cannot proceed" in current_phase
     assert "`MF-ORIG-EV2` Original Money Flow multi-timeframe evidence packs and Historical Replay UI are complete" in current_phase
     assert "MF-ORIG-EV1.1" in current_phase
@@ -485,7 +485,7 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "public" in paper_roadmap
     assert "mainnet market data" in paper_roadmap
     assert "no exchange orders" in paper_roadmap
-    assert "runtime_collection_started" in paper_roadmap
+    assert "runtime_artifacts_present_pending_evaluation" in paper_roadmap
     assert "reports/paper_runtime/pt_rt1_1c_24h_dry_run/" in paper_roadmap
     assert "Gerald Peters" in original_source_note
     assert "source-faithful reconstruction" in original_source_note
@@ -524,7 +524,7 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     assert "strategy-truth lane is Hyperliquid public mainnet market data only" in command_center
     assert "PT-RT1.1A" in command_center
     assert "PT-RT1.1B" in command_center
-    assert "PT-RT1.1C starts" in command_center
+    assert "PT-RT1.1C produced ignored artifacts" in command_center
     assert "PT-RT1.1D evaluates" in command_center
     assert "not production approval" in report
     assert "live approval" in report

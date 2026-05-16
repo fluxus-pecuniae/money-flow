@@ -321,8 +321,12 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "DEFAULT_PT_RT1_SUMMARY_FILES" in js
     assert "DEFAULT_SV21_BROAD_SUMMARY_FILES" in js
     assert "SV21_BROAD_HISTORICAL_REPLAY_TIMESTAMP" in js
+    assert "20260516T091500Z" in js
     assert "SV21_BROAD_PERIODS" in js
     assert "SV21_BROAD_CANDIDATE_STRATEGY_IDS" in js
+    assert "mf_orig_stage_filter_only_full_equity" in js
+    assert "mf_orig_stage2_pullback_reclaim_full_equity" in js
+    assert "wildcard_volatility_expansion_breakout" in js
     assert "sv2_1_broad_hyperliquid_1d_period_evidence_summary.json" in js
     assert "loadDefaultSv21BroadEvidenceBatches" in js
     assert "sv21BroadSummaryReplays" in js

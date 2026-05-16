@@ -13,6 +13,47 @@ Entry schema:
 
 ---
 
+## v2026.05.16.001
+
+- `recorded_at_utc`: `2026-05-16T09:40:00Z`
+- `scope`: `SV2.1 10-lane 1D evidence rebuild`
+- `intent`: `Native entry. Expanded the founder-approved SV2.1 1D evidence/dashboard layer from the prior four visible lanes to all 10 PT-RT1 paper-observation lanes while keeping the same founder-approved symbol universe and 2024/2025/YTD/ALL period sets. The rebuild preserves 90 ignored Money Flow v1.2 baseline period packs and generates 810 ignored evidence-only candidate/reference/wildcard pack directories plus 1800 ignored selected Historical Replay chart/trade JSON files at timestamp 20260516T091500Z. The new evidence-only lanes cover the two SOR rolling-range candidates, four MF-ORIG full-equity reference lanes, and three wildcard observation hypotheses. Dashboard defaults now point at the new SV2.1 10-lane artifacts, and docs clarify that PT-RT1 signal generation is not always-on: it requires a manual runtime process and an awake/networked machine. Production Money Flow rules remain unchanged; no variant is approved; no orders/private/signed/order endpoints/API keys/testnet strategy truth/live trading/paper approval/SOR behavior were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `docs/strategy.md`
+  - `docs/sv2_1_broad_hyperliquid_1d_period_evidence.md`
+  - `docs/sv2_1_broad_hyperliquid_1d_period_evidence_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `scripts/build_sv21_broad_1d_historical_replay.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_sv21_broad_1d_period_evidence.py`
+- `validation_performed`:
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python scripts/build_sv21_broad_1d_historical_replay.py --summary docs/sv2_1_broad_hyperliquid_1d_period_evidence_summary.json --report docs/sv2_1_broad_hyperliquid_1d_period_evidence.md --run-timestamp 20260516T091500Z_smoke --max-packs 1 --no-summary-update --progress-every 1`
+  - `env SLEEVE_15M_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_4H_CAPITAL_ALLOCATION_PCT=0.25 SLEEVE_1D_CAPITAL_ALLOCATION_PCT=0.25 .venv/bin/python scripts/build_sv21_broad_1d_historical_replay.py --summary docs/sv2_1_broad_hyperliquid_1d_period_evidence_summary.json --report docs/sv2_1_broad_hyperliquid_1d_period_evidence.md --run-timestamp 20260516T091500Z --progress-every 10`
+  - `find reports/strategy_validation/sv2_1_broad_1d_dashboard_chart_data/20260516T091500Z/selected -type f -name '*_sv21_replay.json' | wc -l`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py tests/test_dashboard_static_assets.py tests/test_sv21_broad_1d_period_evidence.py tests/test_pt_rt1_paper_observation.py tests/test_pt_rt1_1c_runtime_start.py tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `Playwright smoke: local static dashboard loaded 900 SV2.1 founder-approved 1D period pack JSON files plus canonical packs, Evidence exposed all 10 strategy lane options and period filters with money metrics, and Historical Replay loaded TRX 1D ALL with SV2.1 900-pack source status. Screenshot: /tmp/money-flow-sv21-10-lane-dashboard.png`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-sv2.1-10-lane-review.zip`
+  - `review bundle excluded-path scan: 532 entries, 0 excluded path hits`
+  - `review bundle secret-pattern scan: no hits`
+
 ## v2026.05.15.001
 
 - `recorded_at_utc`: `2026-05-15T01:05:00Z`

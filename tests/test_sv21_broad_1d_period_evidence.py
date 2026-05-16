@@ -172,7 +172,15 @@ def test_sv21_broad_historical_replay_builder_is_period_and_candidate_aware() ->
     assert "SV21_BASELINE_STRATEGY_ID = \"money_flow_v1_2_canonical\"" in source
     assert "\"avoid_low_rolling_range_50\"" in source
     assert "\"avoid_low_rolling_range_20\"" in source
+    assert "\"mf_orig_stage_filter_only_full_equity\"" in source
+    assert "\"mf_orig_stage2_pullback_reclaim_full_equity\"" in source
+    assert "\"mf_orig_1d_stage2_5_20_crossover_full_equity\"" in source
     assert "\"mf_orig_1d_stage2_breakout_resistance_full_equity\"" in source
+    assert "\"wildcard_btc_regime_guard\"" in source
+    assert "\"wildcard_multi_timeframe_alignment\"" in source
+    assert "\"wildcard_volatility_expansion_breakout\"" in source
+    assert "SV21_PT_RT1_STRATEGY_IDS" in source
+    assert "pt_rt1_strategy_ids" in source
     assert "money_flow_sv2_1_hyperliquid_broad_1d_" in source
     assert "_selected_chart_path" in source
     assert "_sv21_replay.json" in source

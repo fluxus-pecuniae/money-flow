@@ -11,6 +11,7 @@ import re
 from typing import Any
 
 from core.domain.enums import StrategyValidationFillTiming, Timeframe
+from core.domain.enums import DecisionAction, StrategyDecisionStatus
 from core.domain.models import Candle
 from scripts.build_mf_orig_ev2_multitimeframe_evidence import (
     _normalize_mf_orig_trade,
@@ -34,8 +35,24 @@ from services.strategy_validation.mf_orig_ev1 import (
     _run_original_hypothesis,
 )
 from services.strategy_validation.service import MoneyFlowBacktestService
+from services.strategy_validation.service import (
+    _CandleRegime,
+    _ResolvedFill,
+    _build_metrics,
+    _coerce_utc,
+    _close_trade,
+    _data_coverage,
+    _dynamic_equity_is_depleted,
+    _label_candle_regimes,
+    _last_candle_in_window,
+    _money,
+    _open_trade,
+    _position_from_open_position,
+    _resolve_fill,
+)
 from services.strategy_validation.sor_ev2 import _request_from_payload
 from services.strategy_validation.sor_ev3 import _feature_rows, _run_variant_replay
+from services.paper_runtime.pt_rt1 import PT_RT1_STRATEGY_LANES
 
 
 DEFAULT_SUMMARY = Path("docs/sv2_1_broad_hyperliquid_1d_period_evidence_summary.json")
@@ -48,9 +65,39 @@ SV21_BASELINE_STRATEGY_ID = "money_flow_v1_2_canonical"
 SV21_CANDIDATE_STRATEGY_IDS = (
     "avoid_low_rolling_range_50",
     "avoid_low_rolling_range_20",
+    "mf_orig_stage_filter_only_full_equity",
+    "mf_orig_stage2_pullback_reclaim_full_equity",
+    "mf_orig_1d_stage2_5_20_crossover_full_equity",
     "mf_orig_1d_stage2_breakout_resistance_full_equity",
+    "wildcard_btc_regime_guard",
+    "wildcard_multi_timeframe_alignment",
+    "wildcard_volatility_expansion_breakout",
 )
 SV21_PERIODS = ("2024", "2025", "YTD", "ALL")
+SV21_PT_RT1_STRATEGY_IDS = (
+    "money_flow_v1_2_baseline",
+    "avoid_low_rolling_range_20",
+    "avoid_low_rolling_range_50",
+    "mf_orig_stage_filter_only_full_equity",
+    "mf_orig_stage2_pullback_reclaim_full_equity",
+    "mf_orig_1d_stage2_5_20_crossover_full_equity",
+    "mf_orig_1d_stage2_breakout_resistance_full_equity",
+    "wildcard_btc_regime_guard",
+    "wildcard_multi_timeframe_alignment",
+    "wildcard_volatility_expansion_breakout",
+)
+SV21_MF_ORIG_FULL_EQUITY_LANES = {
+    "mf_orig_stage_filter_only_full_equity": "mf_orig_stage_filter_only",
+    "mf_orig_stage2_pullback_reclaim_full_equity": "mf_orig_stage2_pullback_reclaim",
+    "mf_orig_1d_stage2_5_20_crossover_full_equity": "mf_orig_1d_stage2_5_20_crossover",
+    "mf_orig_1d_stage2_breakout_resistance_full_equity": "mf_orig_1d_stage2_breakout_resistance",
+}
+SV21_WILDCARD_STRATEGY_IDS = (
+    "wildcard_btc_regime_guard",
+    "wildcard_multi_timeframe_alignment",
+    "wildcard_volatility_expansion_breakout",
+)
+SV21_LANE_LABELS = {lane.strategy_id: lane.display_name for lane in PT_RT1_STRATEGY_LANES}
 SV21_PACK_RE = re.compile(
     r"money_flow_sv2_1_hyperliquid_broad_1d_(?P<period>2024|2025|ytd|all)_(?P<symbol>.+?)_canonical_db_imported$"
 )
@@ -332,9 +379,286 @@ async def _sor_ev3_replay(
     }
 
 
+def _timestamp_key(value: Any) -> str:
+    if isinstance(value, datetime):
+        return value.astimezone(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    return str(value).replace("+00:00", "Z")
+
+
+def _indicator_row_constructive(row: dict[str, Any] | None) -> bool | None:
+    if not row:
+        return None
+    try:
+        ema5 = Decimal(str(row["EMA5"]))
+        ema10 = Decimal(str(row["EMA10"]))
+        sma20 = Decimal(str(row["SMA20"]))
+        macd_histogram = Decimal(str(row["MACD_histogram"]))
+    except (InvalidOperation, KeyError, TypeError, ValueError):
+        return None
+    return ema5 > ema10 > sma20 and macd_histogram >= Decimal("0")
+
+
+def _wildcard_block_reasons(
+    *,
+    strategy_id: str,
+    symbol: str,
+    signal_index: int,
+    candle: Candle,
+    candles: list[Candle],
+    features: dict[str, Any],
+    btc_indicator_rows_by_time: dict[str, dict[str, Any]] | None,
+) -> list[str]:
+    if strategy_id == "wildcard_multi_timeframe_alignment":
+        return []
+    if strategy_id == "wildcard_btc_regime_guard":
+        if symbol.upper() == "BTC":
+            return []
+        btc_context = _indicator_row_constructive(
+            (btc_indicator_rows_by_time or {}).get(_timestamp_key(candle.close_time))
+        )
+        if btc_context is None:
+            return ["btc_regime_context_unavailable"]
+        if not btc_context:
+            return ["btc_regime_guard_blocked_bearish", "btc_regime_clear_bearish_alignment"]
+        return []
+    if strategy_id == "wildcard_volatility_expansion_breakout":
+        rolling_range = features.get("rolling_range_pct_20")
+        if not isinstance(rolling_range, Decimal):
+            return ["volatility_expansion_missing_compression_context"]
+        if rolling_range < Decimal("0.025"):
+            return ["volatility_expansion_blocked_low_range"]
+        prior_window = candles[max(0, signal_index - 20):signal_index]
+        if not prior_window:
+            return ["volatility_expansion_missing_compression_context"]
+        recent_high = max(item.high for item in prior_window)
+        if candle.close <= recent_high:
+            return ["volatility_expansion_no_recent_high_breakout"]
+        return []
+    return []
+
+
+async def _wildcard_replay(
+    *,
+    service: MoneyFlowBacktestService,
+    scenario: dict[str, Any],
+    strategy_id: str,
+    candles: list[Candle],
+    snapshots: list[Any],
+    feature_rows: list[dict[str, Any]],
+    indicator_rows: list[dict[str, Any]],
+    btc_indicator_rows_by_time: dict[str, dict[str, Any]] | None,
+    first_candle_time: str | None,
+) -> dict[str, Any]:
+    request = _request_from_payload(scenario["request"])
+    sleeve = service._requested_sleeves(request.component_keys)[0]
+    start_at = _coerce_utc(request.start_at)
+    end_at = _coerce_utc(request.end_at)
+    data_coverage = _data_coverage(candles, timeframe=sleeve.timeframe, start_at=start_at, end_at=end_at)
+    regime_by_close_time = _label_candle_regimes(candles)
+    trades = []
+    no_trade: defaultdict[str, int] = defaultdict(int)
+    invalid: defaultdict[str, int] = defaultdict(int)
+    limitations = set(data_coverage.warning_reason_codes)
+    open_position: Any | None = None
+    realized_equity = request.assumptions.initial_capital
+    closed_points = [request.assumptions.initial_capital]
+    mtm_points = [request.assumptions.initial_capital]
+    trades_skipped_due_to_insufficient_equity = 0
+
+    for signal_index, (candle, snapshot) in enumerate(zip(candles, snapshots, strict=False)):
+        close_time = _coerce_utc(candle.close_time)
+        if close_time <= start_at or close_time > end_at:
+            continue
+        regime = regime_by_close_time.get(close_time, _CandleRegime.unknown(close_time))
+        position_active = open_position is not None and close_time > open_position.entry_time
+        current_position = _position_from_open_position(open_position, request=request, candle=candle) if position_active else None
+        evaluation_input = service._evaluation_input(
+            request=request,
+            sleeve=sleeve,
+            candle=candle,
+            snapshot=snapshot,
+            history_bars=signal_index + 1,
+            current_position=current_position,
+            position_state_fingerprint=open_position.position_state_fingerprint if position_active else None,
+        )
+        decision = (await service._strategy_family.evaluate(evaluation_input)).decision
+
+        if open_position is not None:
+            if close_time > open_position.entry_time:
+                open_position.record_excursion(candle)
+                mtm_points.append(open_position.mark_to_market_equity(realized_equity, candle.low))
+            if close_time <= open_position.entry_time:
+                continue
+            if decision.action in {DecisionAction.CLOSE, DecisionAction.REDUCE}:
+                if decision.action == DecisionAction.REDUCE:
+                    limitations.add("reduce_actions_are_simulated_as_full_exits_for_sv2_1_wildcard")
+                fill = _resolve_fill(candles=candles, signal_index=signal_index, fill_timing=request.assumptions.fill_timing)
+                if fill is None:
+                    limitations.add(f"exit_signal_skipped_no_fill_candle_for_{request.assumptions.fill_timing.value}")
+                    continue
+                if request.assumptions.fill_timing == StrategyValidationFillTiming.NEXT_CANDLE_CLOSE:
+                    open_position.record_excursion(fill.candle)
+                    mtm_points.append(open_position.mark_to_market_equity(realized_equity, fill.candle.low))
+                trade = _close_trade(
+                    request=request,
+                    open_position=open_position,
+                    fill=fill,
+                    exit_signal_time=close_time,
+                    exit_reason=decision.reason_code or decision.action.value,
+                    exit_evaluation_key=(decision.evaluation_key or "sv21") + f":{strategy_id}:production_exit",
+                    exit_market_regime=regime.trend_label,
+                    exit_volatility_regime=regime.volatility_label,
+                    forced_exit=False,
+                )
+                trades.append(trade)
+                realized_equity = _money(realized_equity + trade.net_pnl)
+                closed_points.append(realized_equity)
+                mtm_points.append(realized_equity)
+                open_position = None
+            continue
+
+        if decision.status == StrategyDecisionStatus.INVALID:
+            invalid[decision.reason_code or "invalid_without_reason"] += 1
+            continue
+        if decision.status == StrategyDecisionStatus.NO_TRADE:
+            no_trade[decision.reason_code or "no_trade_without_reason"] += 1
+            continue
+
+        features = feature_rows[signal_index] if signal_index < len(feature_rows) else {}
+        block_reasons = _wildcard_block_reasons(
+            strategy_id=strategy_id,
+            symbol=scenario["symbol"],
+            signal_index=signal_index,
+            candle=candle,
+            candles=candles,
+            features=features,
+            btc_indicator_rows_by_time=btc_indicator_rows_by_time,
+        )
+        if decision.action == DecisionAction.OPEN and block_reasons:
+            for reason in block_reasons:
+                no_trade[f"{strategy_id}_{reason}"] += 1
+            continue
+
+        if decision.action == DecisionAction.OPEN:
+            if _dynamic_equity_is_depleted(request.assumptions, realized_equity):
+                invalid["dynamic_equity_depleted"] += 1
+                trades_skipped_due_to_insufficient_equity += 1
+                limitations.add("dynamic_equity_depleted_no_new_trades_opened")
+                continue
+            fill = _resolve_fill(candles=candles, signal_index=signal_index, fill_timing=request.assumptions.fill_timing)
+            if fill is None:
+                limitations.add(f"open_signal_skipped_no_fill_candle_for_{request.assumptions.fill_timing.value}")
+                continue
+            open_position = _open_trade(
+                request=request,
+                sleeve=sleeve,
+                fill=fill,
+                entry_signal_time=close_time,
+                entry_reason=decision.reason_code,
+                entry_evaluation_key=(decision.evaluation_key or "sv21") + f":{strategy_id}",
+                entry_market_regime=regime.trend_label,
+                entry_volatility_regime=regime.volatility_label,
+                current_realized_equity=realized_equity,
+            )
+            if _coerce_utc(fill.candle.close_time) > open_position.entry_time:
+                open_position.record_excursion(fill.candle)
+                mtm_points.append(open_position.mark_to_market_equity(realized_equity, fill.candle.low))
+
+    if open_position is not None and request.assumptions.force_close_open_trade_at_end:
+        last_candle = _last_candle_in_window(candles, start_at=start_at, end_at=end_at)
+        if last_candle is not None:
+            open_position.record_excursion(last_candle)
+            mtm_points.append(open_position.mark_to_market_equity(realized_equity, last_candle.low))
+            fill = _ResolvedFill(
+                candle=last_candle,
+                raw_price=last_candle.close,
+                time=_coerce_utc(last_candle.close_time),
+                source="end_of_window_close",
+            )
+            close_time = _coerce_utc(last_candle.close_time)
+            trade = _close_trade(
+                request=request,
+                open_position=open_position,
+                fill=fill,
+                exit_signal_time=close_time,
+                exit_reason="end_of_window_forced_close",
+                exit_evaluation_key=f"{open_position.entry_evaluation_key}:forced_exit",
+                exit_market_regime=regime_by_close_time.get(close_time, _CandleRegime.unknown(close_time)).trend_label,
+                exit_volatility_regime=regime_by_close_time.get(close_time, _CandleRegime.unknown(close_time)).volatility_label,
+                forced_exit=True,
+            )
+            trades.append(trade)
+            realized_equity = _money(realized_equity + trade.net_pnl)
+            closed_points.append(realized_equity)
+            mtm_points.append(realized_equity)
+            limitations.add("open_positions_are_force_closed_at_window_end_for_sv2_1_wildcard")
+
+    metrics = _build_metrics(
+        trades=trades,
+        initial_capital=request.assumptions.initial_capital,
+        no_trade_reason_counts=dict(sorted(no_trade.items())),
+        invalid_reason_counts=dict(sorted(invalid.items())),
+        closed_trade_equity_points=closed_points,
+        mark_to_market_equity_points=mtm_points,
+        capital_sizing_mode=request.assumptions.capital_sizing_mode,
+        position_notional_pct=request.assumptions.position_notional_pct,
+        trades_skipped_due_to_insufficient_equity=trades_skipped_due_to_insufficient_equity,
+    )
+    normalized_trades = normalize_strategy_validation_trades(
+        trades,
+        variant_id=strategy_id,
+        indicator_rows=indicator_rows,
+    )
+    result = {
+        "no_trade_reason_counts": dict(sorted(no_trade.items())),
+        "invalid_reason_counts": dict(sorted(invalid.items())),
+    }
+    return {
+        "strategy_id": strategy_id,
+        "strategy_label": SV21_LANE_LABELS.get(strategy_id, strategy_id),
+        "strategy_description": "PT-RT1 wildcard observation lane replayed against SV2.1 founder-approved 1D candles. Evidence-only and not approved.",
+        "strategy_truth_lane": "hyperliquid_public_mainnet_sv2_1_founder_approved_1d",
+        "research_only": True,
+        "changes_production_rules": False,
+        "production_approved": False,
+        "testnet_prices_used_as_strategy_truth": False,
+        "symbol": scenario["symbol"],
+        "timeframe": "1d",
+        "component": "sleeve_1d",
+        "period": scenario["period"],
+        "fill_assumption": scenario["fill_timing"],
+        "data_source": "SV2.1 Hyperliquid public-mainnet founder-approved 1D candles",
+        "evidence_pack_path": "",
+        "candles": [],
+        "indicators": [],
+        "trades": normalized_trades,
+        "markers": markers_for_trades(normalized_trades),
+        "equity_curve": variant_equity_curve(normalized_trades, first_candle_time),
+        "summary": variant_summary(metrics, normalized_trades),
+        "reason_counts": variant_reason_counts(result, normalized_trades),
+        "variant_metadata": {
+            "phase": "SV2.1",
+            "source_phase": "PT-RT1",
+            "variant_id": strategy_id,
+            "methodology": "true_forward_replay",
+            "evidence_only": True,
+            "limitations": sorted(limitations),
+        },
+        "boundary_flags": {
+            "evidence_only": True,
+            "no_orders": True,
+            "no_private_signed_or_order_endpoints": True,
+            "testnet_prices_used_as_strategy_truth": False,
+            "production_rule_change": False,
+        },
+    }
+
+
 def _mf_orig_replay(
     *,
     scenario: dict[str, Any],
+    strategy_id: str,
+    base_hypothesis_id: str,
     candles: list[Candle],
     context: list[dict[str, Any]],
     indicator_rows_by_time: dict[str, dict[str, Any]],
@@ -344,8 +668,8 @@ def _mf_orig_replay(
     request = _request_from_payload(scenario["request"])
     result = _run_original_hypothesis(
         scenario=scenario,
-        hypothesis_id="mf_orig_1d_stage2_breakout_resistance_full_equity",
-        base_hypothesis_id="mf_orig_1d_stage2_breakout_resistance",
+        hypothesis_id=strategy_id,
+        base_hypothesis_id=base_hypothesis_id,
         sizing_mode="full_equity_notional",
         candles=candles,
         context=context,
@@ -400,6 +724,38 @@ async def build_sv21_broad_historical_replay(args: argparse.Namespace) -> dict[s
     selected_paths: list[str] = []
     mf_orig_skipped: dict[str, str] = {}
 
+    def load_symbol_cache(symbol: str) -> dict[str, Any] | None:
+        dataset = dataset_by_symbol.get(symbol)
+        if not dataset or not dataset.get("raw_path"):
+            return None
+        if symbol in raw_cache:
+            return raw_cache[symbol]
+        raw = json.loads(Path(dataset["raw_path"]).read_text(encoding="utf-8"))
+        raw_candles = raw["candles"]
+        domain_candles = [_candle_from_raw(row) for row in raw_candles]
+        chart_candles = normalize_candles(raw_candles)
+        indicator_rows = indicators(raw_candles)
+        snapshots = service._indicator_service._compute_snapshots(domain_candles)
+        mf_orig_context = None
+        mf_orig_context_error = None
+        try:
+            mf_orig_context = _build_original_context(domain_candles, snapshots)
+        except Exception as exc:  # noqa: BLE001 - evidence builder records per-symbol data gaps.
+            mf_orig_context_error = f"{type(exc).__name__}: {exc}"
+            mf_orig_skipped[symbol] = mf_orig_context_error
+        raw_cache[symbol] = {
+            "raw": raw,
+            "domain_candles": domain_candles,
+            "chart_candles": chart_candles,
+            "indicator_rows": indicator_rows,
+            "indicator_rows_by_time": indicator_lookup(indicator_rows),
+            "snapshots": snapshots,
+            "features": _feature_rows(domain_candles, snapshots),
+            "mf_orig_context": mf_orig_context,
+            "mf_orig_context_error": mf_orig_context_error,
+        }
+        return raw_cache[symbol]
+
     pack_paths = list(summary.get("evidence_pack_paths", []))
     if args.max_packs:
         pack_paths = pack_paths[: args.max_packs]
@@ -409,32 +765,9 @@ async def build_sv21_broad_historical_replay(args: argparse.Namespace) -> dict[s
         dataset = dataset_by_symbol.get(symbol)
         if not dataset or not dataset.get("raw_path"):
             continue
-        if symbol not in raw_cache:
-            raw = json.loads(Path(dataset["raw_path"]).read_text(encoding="utf-8"))
-            raw_candles = raw["candles"]
-            domain_candles = [_candle_from_raw(row) for row in raw_candles]
-            chart_candles = normalize_candles(raw_candles)
-            indicator_rows = indicators(raw_candles)
-            snapshots = service._indicator_service._compute_snapshots(domain_candles)
-            mf_orig_context = None
-            mf_orig_context_error = None
-            try:
-                mf_orig_context = _build_original_context(domain_candles, snapshots)
-            except Exception as exc:  # noqa: BLE001 - evidence builder records per-symbol data gaps.
-                mf_orig_context_error = f"{type(exc).__name__}: {exc}"
-                mf_orig_skipped[symbol] = mf_orig_context_error
-            raw_cache[symbol] = {
-                "raw": raw,
-                "domain_candles": domain_candles,
-                "chart_candles": chart_candles,
-                "indicator_rows": indicator_rows,
-                "indicator_rows_by_time": indicator_lookup(indicator_rows),
-                "snapshots": snapshots,
-                "features": _feature_rows(domain_candles, snapshots),
-                "mf_orig_context": mf_orig_context,
-                "mf_orig_context_error": mf_orig_context_error,
-            }
-        cached = raw_cache[symbol]
+        cached = load_symbol_cache(symbol)
+        if cached is None:
+            continue
         batch = json.loads((Path(pack_path) / "batch_report.json").read_text(encoding="utf-8"))
         for run in batch.get("run_reports", []):
             if run.get("status") != "completed" or not run.get("report"):
@@ -478,18 +811,41 @@ async def build_sv21_broad_historical_replay(args: argparse.Namespace) -> dict[s
                     )
                 )
             if cached["mf_orig_context"] is not None:
-                replays.append(
-                    _mf_orig_replay(
-                        scenario=scenario,
-                        candles=cached["domain_candles"],
-                        context=cached["mf_orig_context"],
-                        indicator_rows_by_time=cached["indicator_rows_by_time"],
-                        chart_candles=cached["chart_candles"],
-                        indicator_rows=cached["indicator_rows"],
+                for strategy_id, base_hypothesis_id in SV21_MF_ORIG_FULL_EQUITY_LANES.items():
+                    replays.append(
+                        _mf_orig_replay(
+                            scenario=scenario,
+                            strategy_id=strategy_id,
+                            base_hypothesis_id=base_hypothesis_id,
+                            candles=cached["domain_candles"],
+                            context=cached["mf_orig_context"],
+                            indicator_rows_by_time=cached["indicator_rows_by_time"],
+                            chart_candles=cached["chart_candles"],
+                            indicator_rows=cached["indicator_rows"],
+                        )
                     )
-                )
             else:
                 scenario.setdefault("reason_codes", []).append("mf_orig_candidate_skipped_missing_indicator_context")
+            btc_cache = load_symbol_cache("BTC")
+            btc_indicator_rows_by_time = (
+                btc_cache["indicator_rows_by_time"]
+                if btc_cache is not None
+                else None
+            )
+            for strategy_id in SV21_WILDCARD_STRATEGY_IDS:
+                replays.append(
+                    await _wildcard_replay(
+                        service=service,
+                        scenario=scenario,
+                        strategy_id=strategy_id,
+                        candles=cached["domain_candles"],
+                        snapshots=cached["snapshots"],
+                        feature_rows=cached["features"],
+                        indicator_rows=cached["indicator_rows"],
+                        btc_indicator_rows_by_time=btc_indicator_rows_by_time,
+                        first_candle_time=cached["chart_candles"][0]["timestamp_utc"] if cached["chart_candles"] else None,
+                    )
+                )
 
             for replay in replays:
                 replay["candles"] = cached["chart_candles"]
@@ -571,6 +927,7 @@ async def build_sv21_broad_historical_replay(args: argparse.Namespace) -> dict[s
         "generated_at_utc": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         "run_timestamp": args.run_timestamp,
         "baseline_strategy_id": SV21_BASELINE_STRATEGY_ID,
+        "pt_rt1_strategy_ids": list(SV21_PT_RT1_STRATEGY_IDS),
         "candidate_strategy_ids": list(SV21_CANDIDATE_STRATEGY_IDS),
         "periods": list(SV21_PERIODS),
         "symbol_count": len(parsed_pack_symbols),
@@ -603,6 +960,7 @@ def update_sv21_summary(summary_path: Path, report_path: Path, manifest: dict[st
         "period_filter_required": True,
         "periods": manifest["periods"],
         "baseline_strategy_id": manifest["baseline_strategy_id"],
+        "pt_rt1_strategy_ids": manifest["pt_rt1_strategy_ids"],
         "candidate_strategy_ids": manifest["candidate_strategy_ids"],
     }
     summary["candidate_evidence_status"] = {
@@ -623,6 +981,7 @@ def update_sv21_summary(summary_path: Path, report_path: Path, manifest: dict[st
             + f"- Chart-data root: `{manifest['chart_data_root']}`\n"
             + f"- Selected chart-data files: `{manifest['selected_chart_data_count']}`\n"
             + f"- Candidate evidence packs: `{manifest['candidate_evidence_pack_count']}`\n"
+            + f"- PT-RT1 paper-observation lanes covered: `{len(manifest['pt_rt1_strategy_ids'])}`\n"
             + f"- Candidate strategies: `{', '.join(manifest['candidate_strategy_ids'])}`\n"
             + "- Status: evidence-only; no production rule change, no paper/live approval, no orders.\n"
         )
