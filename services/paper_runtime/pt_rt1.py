@@ -68,10 +68,12 @@ FOUNDER_REQUESTED_SYMBOLS = (
     "AAVE",
     "POL",
     "FIL",
-    "TRUMP",
     "PEPE",
     "OKB",
 )
+PT_RT1_DEFERRED_RUNTIME_SYMBOLS = {
+    "TRUMP": "runtime_noise_deferred_by_founder",
+}
 SYMBOL_ALIASES = {
     "TRON": "TRX",
     "PEPE": "kPEPE",
@@ -1490,11 +1492,13 @@ def build_pt_rt1_summary() -> dict[str, Any]:
         "symbols": list(PT_RT1_REQUESTED_SCANNER_SYMBOLS),
         "requested_symbols": list(PT_RT1_REQUESTED_SCANNER_SYMBOLS),
         "alias_mappings": SYMBOL_ALIASES,
+        "deferred_runtime_symbols": PT_RT1_DEFERRED_RUNTIME_SYMBOLS,
         "blocked_symbol_policy": {
             "PEPE": "PEPE resolves to kPEPE and is blocked by default pending unit-semantics review.",
             "OKB": "OKB is blocked unless Hyperliquid public mainnet metadata confirms active support.",
             "SHIB": "SHIB/kSHIB remains deferred pending unit-semantics acceptance.",
             "POL": "POL must resolve to active POL; delisted MATIC mapping is blocked.",
+            "TRUMP": "TRUMP is deferred from fresh PT-RT paper-observation scanner runs because it created excessive runtime noise.",
         },
         "timeframes": list(TIMEFRAME_DURATIONS),
         "scanner_universe": scanner_rows,

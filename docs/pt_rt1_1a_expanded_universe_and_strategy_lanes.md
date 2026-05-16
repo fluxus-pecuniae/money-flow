@@ -51,7 +51,9 @@ Canonical SV2.0.2 symbols remain:
 
 Founder-requested additions are represented:
 
-`TRON, ADA, ZEC, LINK, XMR, TON, LTC, UNI, DOT, ASTER, AAVE, POL, FIL, TRUMP, PEPE, OKB`
+`TRON, ADA, ZEC, LINK, XMR, TON, LTC, UNI, DOT, ASTER, AAVE, POL, FIL, PEPE, OKB`
+
+Post-PT-RT1.3 runtime note: `TRUMP` is deferred from fresh paper-observation scanner runs because it created excessive runtime noise. Historical SV2.1 evidence records that already include TRUMP remain historical evidence truth.
 
 The runtime resolver preserves requested symbols, resolved venue symbols, sources, precision status, public-mid status, scanner eligibility, blocked status, and reason codes.
 

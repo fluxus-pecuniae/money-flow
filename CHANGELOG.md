@@ -13,6 +13,38 @@ Entry schema:
 
 ---
 
+## v2026.05.16.009
+
+- `recorded_at_utc`: `2026-05-16T13:30:10Z`
+- `scope`: `PT-RT1.3 TRUMP runtime scanner deferral`
+- `intent`: `Native entry. Deferred TRUMP from fresh PT-RT paper-observation scanner runs after founder review because it created excessive runtime noise. The PT-RT summary now records TRUMP under deferred_runtime_symbols with reason runtime_noise_deferred_by_founder, the requested scanner symbol list excludes TRUMP for new runs, and PT-RT docs/Obsidian notes clarify that existing SV2.1 historical evidence artifacts containing TRUMP remain historical truth rather than being rewritten. This is runtime scanner-scope only: no production Money Flow rules changed, no evidence packs were regenerated, no paper/live approval was added, no orders/private/signed endpoints/API keys were used, no testnet strategy truth was introduced, and no SOR/fanout/CBBO behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `docs/pt_rt1_1a_expanded_universe_and_strategy_lanes.md`
+  - `docs/pt_rt1_1a_expanded_universe_and_strategy_lanes_summary.json`
+  - `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing.md`
+  - `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json`
+  - `docs/strategy.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `services/paper_runtime/pt_rt1.py`
+  - `tests/test_pt_rt1_1a_expanded_universe.py`
+  - `tests/test_pt_rt1_paper_observation.py`
+- `validation_performed`:
+  - `python -m py_compile services/paper_runtime/pt_rt1.py tests/test_pt_rt1_paper_observation.py tests/test_pt_rt1_1a_expanded_universe.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_paper_observation.py tests/test_pt_rt1_1a_expanded_universe.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py::test_pt_rt1_paper_observation_dashboard_tab`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1.3-trump-deferral-review.zip`
+  - `review bundle excluded-path scan: 537 entries, 0 excluded path hits`
+
 ## v2026.05.16.008
 
 - `recorded_at_utc`: `2026-05-16T12:58:09Z`

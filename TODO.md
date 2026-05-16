@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-16T12:58:09Z`
+Last reviewed: `2026-05-16T13:30:10Z`
 
 ## Active Follow-Ups
+
+### T-145
+
+- `priority`: `medium`
+- `status`: `done`
+- `summary`: `TRUMP is deferred from fresh PT-RT paper-observation scanner runs after founder review because it created excessive runtime noise. New PT-RT requested scanner symbols exclude TRUMP, summaries expose deferred_runtime_symbols.TRUMP=runtime_noise_deferred_by_founder, and docs/Obsidian notes state that prior SV2.1 historical evidence artifacts containing TRUMP remain historical truth. Existing generated evidence packs were not rewritten or regenerated. No production Money Flow rules changed; no paper/live approval, order/private/signed endpoint call, API-key use, testnet strategy truth, or SOR/fanout/CBBO was added.`
 
 ### T-144
 

@@ -69,7 +69,6 @@
     "AAVE",
     "POL",
     "FIL",
-    "TRUMP",
     "PEPE",
     "OKB"
   ],
@@ -82,7 +81,11 @@
     "PEPE": "blocked_by_default_pepe_kpepe_unit_semantics_deferred",
     "OKB": "blocked_unless_hyperliquid_public_meta_confirms_active_support_okb_support_not_confirmed",
     "POL": "must_use_active_POL_not_delisted_MATIC",
+    "TRUMP": "runtime_noise_deferred_by_founder",
     "SHIB": "deferred_venue_symbol_unit_semantics_deferred"
+  },
+  "deferred_runtime_symbols": {
+    "TRUMP": "runtime_noise_deferred_by_founder"
   },
   "scanner_eligibility_rules": [
     "exists_in_current_hyperliquid_public_meta",

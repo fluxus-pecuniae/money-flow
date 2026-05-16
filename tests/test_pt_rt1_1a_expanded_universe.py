@@ -23,6 +23,8 @@ def test_pt_rt1_1a_summary_declares_boundaries_and_expansion() -> None:
     assert "wildcard_volatility_expansion_breakout" in summary["strategy_lanes"]
     assert summary["alias_mappings"]["TRON"] == "TRX"
     assert summary["alias_mappings"]["PEPE"] == "kPEPE"
+    assert "TRUMP" not in summary["requested_symbols"]
+    assert summary["deferred_runtime_symbols"]["TRUMP"] == "runtime_noise_deferred_by_founder"
     assert summary["blocked_symbol_policy"]["PEPE"] == "blocked_by_default_pepe_kpepe_unit_semantics_deferred"
     assert "OKB" in summary["blocked_symbol_policy"]
     assert "POL" in summary["blocked_symbol_policy"]

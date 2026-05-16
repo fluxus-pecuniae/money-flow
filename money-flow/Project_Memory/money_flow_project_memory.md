@@ -414,3 +414,7 @@ PT-RT1.2 fixes the runtime-correctness issue found in local review: repeated sam
 2026-05-16 - PT-RT1.3 Candle-Truth Data Health
 
 PT-RT1.3 fixes false-positive `data_unavailable` rows caused by stale/thin/missing Hyperliquid public mids. Fresh runs now treat public `allMids` issues as warning-only when clean fully closed public-mainnet `candleSnapshot` rows are available. Scanner eligibility depends on supported venue identity and precision; candle validity, candle availability, and indicator readiness remain the blocking strategy-data gates. Dashboard Paper Observation separates blocking candle rows from non-blocking mid warning rows. No production Money Flow rule changed, no paper/live approval was added, no private/signed/order endpoint or API-key path was added, testnet data remains non-strategy truth, and no SOR/fanout/CBBO behavior was added.
+
+2026-05-16 - PT-RT1.3 TRUMP Runtime Scanner Deferral
+
+TRUMP is deferred from fresh PT-RT paper-observation scanner runs after founder review because it created excessive runtime noise. New PT-RT requested scanner symbols exclude TRUMP and summary metadata records `deferred_runtime_symbols.TRUMP=runtime_noise_deferred_by_founder`. Existing SV2.1 historical evidence artifacts that already include TRUMP remain historical truth and were not regenerated or rewritten. No production Money Flow rule changed, no paper/live approval was added, no order/private/signed endpoint/API-key/testnet-strategy-truth path was added, and no SOR/fanout/CBBO behavior was added.

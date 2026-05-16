@@ -648,7 +648,7 @@ Observation lanes:
 - `wildcard_multi_timeframe_alignment`
 - `wildcard_volatility_expansion_breakout`
 
-PT-RT1.1A expands the scanner universe before the first 24-hour run. Canonical symbols remain BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, and AVAX. Founder-requested additions are TRON, ADA, ZEC, LINK, XMR, TON, LTC, UNI, DOT, ASTER, AAVE, POL, FIL, TRUMP, PEPE, and OKB. TRON resolves to TRX, PEPE resolves to kPEPE but is blocked by unit-semantics review by default, OKB is blocked unless active Hyperliquid support is confirmed, SHIB/kSHIB remains deferred, and POL must be active POL rather than delisted MATIC. Blocked symbols remain visible with reason codes instead of being silently dropped.
+PT-RT1.1A expands the scanner universe before the first 24-hour run. Canonical symbols remain BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, and AVAX. Founder-requested additions are TRON, ADA, ZEC, LINK, XMR, TON, LTC, UNI, DOT, ASTER, AAVE, POL, FIL, PEPE, and OKB. TRON resolves to TRX, PEPE resolves to kPEPE but is blocked by unit-semantics review by default, OKB is blocked unless active Hyperliquid support is confirmed, SHIB/kSHIB remains deferred, and POL must be active POL rather than delisted MATIC. `TRUMP` is deferred from fresh PT-RT paper-observation scanner runs after founder review because it created excessive runtime noise. Blocked/deferred symbols remain visible with reason codes instead of being silently dropped.
 
 Testnet plumbing lane:
 

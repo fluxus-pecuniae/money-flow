@@ -37,7 +37,8 @@ Required observation lanes after PT-RT1.1A:
 PT-RT1.1A scanner expansion:
 
 - canonical symbols: BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, AVAX
-- founder-requested symbols: TRON, ADA, ZEC, LINK, XMR, TON, LTC, UNI, DOT, ASTER, AAVE, POL, FIL, TRUMP, PEPE, OKB
+- founder-requested symbols: TRON, ADA, ZEC, LINK, XMR, TON, LTC, UNI, DOT, ASTER, AAVE, POL, FIL, PEPE, OKB
+- deferred from fresh PT-RT runtime scanner: TRUMP (`runtime_noise_deferred_by_founder`)
 - aliases: TRON resolves to TRX; PEPE resolves to kPEPE
 - blocked by default: PEPE/kPEPE unit semantics, SHIB/kSHIB unit semantics, OKB unless active Hyperliquid support is confirmed, delisted MATIC when POL is requested
 - blocked symbols remain visible with reason codes

@@ -111,7 +111,9 @@ Status: implemented
 
 PT-RT1.1A represents canonical SV2.0.2 symbols plus founder-requested additions before runtime collection:
 
-`BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, AVAX, TRON, ADA, ZEC, LINK, XMR, TON, LTC, UNI, DOT, ASTER, AAVE, POL, FIL, TRUMP, PEPE, OKB`
+`BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, AVAX, TRON, ADA, ZEC, LINK, XMR, TON, LTC, UNI, DOT, ASTER, AAVE, POL, FIL, PEPE, OKB`
+
+Post-PT-RT1.3 runtime note: `TRUMP` is deferred from fresh paper-observation scanner runs because it created excessive runtime noise. This does not rewrite historical SV2.1 evidence artifacts that already included TRUMP.
 
 Alias and blocked-symbol policy:
 

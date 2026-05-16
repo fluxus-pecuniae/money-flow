@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-16T13:30:10Z - PT-RT1.3 - Defer TRUMP From Fresh Runtime Scanner
+
+- `decision`: Remove TRUMP from fresh PT-RT paper-observation scanner runs and record it as a deferred runtime symbol.
+- `scope`: `services/paper_runtime/pt_rt1.py` excludes TRUMP from `FOUNDER_REQUESTED_SYMBOLS` / `PT_RT1_REQUESTED_SCANNER_SYMBOLS` and exposes `deferred_runtime_symbols.TRUMP=runtime_noise_deferred_by_founder` in the PT-RT summary. PT-RT docs and Obsidian notes clarify that historical SV2.1 evidence artifacts already containing TRUMP remain historical evidence truth.
+- `why`: Founder review found TRUMP generated too much runtime noise for the current paper-observation scanner.
+- `result`: `implemented_runtime_scanner_deferral`. Fresh PT-RT runs should not scan TRUMP after the runtime is restarted.
+- `follow_up_implications`: Restart any already-running PT-RT process to pick up the new scanner list. This does not change Money Flow production rules, approve paper/live trading, regenerate evidence packs, submit orders, call private/signed/order endpoints, use API keys, use testnet strategy truth, or add SOR/fanout/CBBO.
+
 ## 2026-05-16T11:00:18Z - PT-RT1 - Compact Decision Logging Default
 
 - `decision`: Make PT-RT1 runtime decision logging compact by default and keep full-audit logging as an explicit mode.

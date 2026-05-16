@@ -394,6 +394,8 @@ def test_summary_and_report_files_exist_and_expose_boundaries() -> None:
     assert summary["latest_readiness_phase"] == "PT-RT1.1B"
     assert len(summary["strategy_lanes"]) == 10
     assert "TRON" in summary["requested_symbols"]
+    assert "TRUMP" not in summary["requested_symbols"]
+    assert summary["deferred_runtime_symbols"]["TRUMP"] == "runtime_noise_deferred_by_founder"
     assert summary["alias_mappings"]["TRON"] == "TRX"
     assert summary["alias_mappings"]["PEPE"] == "kPEPE"
     assert summary["dashboard_status"]["strategy_lanes_visible"] == 10
