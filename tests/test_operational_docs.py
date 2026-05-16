@@ -212,11 +212,9 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "EV-AUDIT1" in current_phase
     assert "PT-RT1" in current_phase
     assert "PT-RT1.1" in current_phase
-    assert "PT-RT1.1A" in current_phase
-    assert "PT-RT1.1B" in current_phase
-    assert "PT-RT1.1C" in current_phase
-    assert "pending PT-RT1.1D evaluation" in current_phase
-    assert "signed testnet transport submission remains separately scoped" in current_phase
+    assert "PT-RT1.2" in current_phase
+    assert "repeated same-candle" in current_phase
+    assert "Signed testnet transport is present only as an explicit gated path" in current_phase
     assert "`MF-ORIG-EV2` Original Money Flow multi-timeframe evidence packs and Historical Replay UI are complete" in current_phase
     assert "MF-ORIG-EV1.1" in current_phase
     assert "SOR-EV2" in current_phase
@@ -249,11 +247,9 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "Gerald Peters PDF is now present" in command_center
     assert "PT-RT1" in command_center
     assert "PT-RT1.1" in command_center
-    assert "PT-RT1.1A" in command_center
-    assert "PT-RT1.1B" in command_center
-    assert "PT-RT1.1C" in command_center
-    assert "PT-RT1.1D evaluates" in command_center
-    assert "signed testnet transport remains separately scoped" in command_center
+    assert "PT-RT1.2" in command_center
+    assert "repeated same-candle" in command_center
+    assert "signed testnet transport is now an explicit PT-RT1.2 gated path" in command_center
     assert "Evidence and Backtesting Map" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
@@ -300,7 +296,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert "Current implemented milestone | `PT-RT1.1C` runtime collection artifacts plus compact decision logging and 20 USDC testnet-probe audit/order-shape mode" in command_center
+    assert "Current implemented milestone | `PT-RT1.2` runtime correctness plus 20 USDC testnet transport gates" in command_center
     assert "Canonical command center" in compatibility_command_center
     assert "PT-RT1 now implements the public-mainnet paper-observation substrate" in current_dashboard
     assert "SV2.0.2 canonical evidence" in current_dashboard
@@ -463,11 +459,11 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "no clean strategy candidate" in strategy_register
     assert "No strategy is production-ready" in current_phase or "no clean strategy candidate is promoted" in current_phase
     assert "PT-RT1" in current_phase
-    assert "Run `PT-RT1.1D` against the ignored artifacts" in current_phase
+    assert "Run a fresh `PT-RT1.2` observation session" in current_phase
     assert "compact-log suppression/size stats" in current_phase
-    assert "PT-RT1.1D should evaluate" in current_phase
-    assert "PT-RT1.1A completed the expanded-lab readiness" in current_phase
-    assert "PT-RT1.1B completed public-mainnet connector/runtime readiness" in current_phase
+    assert "duplicate same-candle open blocking" in current_phase
+    assert "data-unavailable market-row versus lane-decision rollups" in current_phase
+    assert "Signed testnet transport should remain off" in current_phase
     assert "SV2.0.2" in project_memory
     assert "MF-ORIG" in project_memory
     assert "EV-AUDIT1" in project_memory
@@ -486,7 +482,7 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "public" in paper_roadmap
     assert "mainnet market data" in paper_roadmap
     assert "no exchange orders" in paper_roadmap
-    assert "runtime_artifacts_present_pending_evaluation" in paper_roadmap
+    assert "implemented_runtime_state_and_transport_gates" in paper_roadmap
     assert "reports/paper_runtime/pt_rt1_1c_24h_dry_run/" in paper_roadmap
     assert "Gerald Peters" in original_source_note
     assert "source-faithful reconstruction" in original_source_note
@@ -523,10 +519,9 @@ def test_pt_rt1_operational_docs_are_current() -> None:
         assert "Live trading is not approved" in contents or "live trading" in contents
 
     assert "strategy-truth lane is Hyperliquid public mainnet market data only" in command_center
-    assert "PT-RT1.1A" in command_center
-    assert "PT-RT1.1B" in command_center
-    assert "PT-RT1.1C produced ignored artifacts" in command_center
-    assert "PT-RT1.1D evaluates" in command_center
+    assert "PT-RT1.2 is the current runtime-correctness layer" in command_center
+    assert "state persists processed signal keys" in command_center
+    assert "normal dashboard path remains audit/order-shape only" in command_center
     assert "not production approval" in report
     assert "live approval" in report
     assert "paper-runtime approval" in report
@@ -536,7 +531,8 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     assert "TRON" in report
     assert "kPEPE" in report
     assert "notional cap is `20 USDC`" in paper_roadmap
-    assert "does not submit signed transport" in paper_roadmap
+    assert "dashboard-started PT-RT1.2 currently creates probe audit/order-shape rows only" in paper_roadmap
+    assert "signed transport requires the explicit PT-RT1.2" in paper_roadmap
     assert "testnet fills never update strategy paper PnL" in paper_roadmap
     assert "runtime_collection_started" in start_summary
     assert "PT-RT1.1D may evaluate 24-hour runtime artifacts after completion" in start_report

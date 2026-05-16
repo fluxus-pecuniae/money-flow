@@ -17,7 +17,7 @@ from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from enum import Enum
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Any, Iterable, Protocol, Sequence
 
 from services.paper_runtime.hyperliquid_public_market_data import (
     HyperliquidPublicMarketDataConnector,
@@ -49,6 +49,21 @@ ACTIONABLE_DECISION_ACTIONS = frozenset({"paper_opened", "paper_closed"})
 COMPACT_ALWAYS_WRITE_ACTIONS = frozenset({"paper_opened", "paper_closed", "data_unavailable"})
 DECISION_LOG_SIZE_WARNING_BYTES = 500 * 1024 * 1024
 TESTNET_PROBE_AUDIT_LIMIT = 200
+PT_RT1_2_EXACT_TRANSPORT_APPROVAL = (
+    "I APPROVE PT-RT1.2 HYPERLIQUID TESTNET TRANSPORT PROBES ONLY. "
+    "20 USDC MAX NOTIONAL. POST-ONLY ALO. SUBMIT CANCEL RECONCILE. "
+    "TESTNET FILLS MUST NOT UPDATE STRATEGY PAPER PNL. LIVE TRADING IS NOT APPROVED."
+)
+
+
+class TestnetProbeTransport(Protocol):
+    def __call__(self, order_shape: dict[str, Any], audit_row: dict[str, Any]) -> dict[str, Any]:
+        """Submit/cancel/reconcile one testnet plumbing probe.
+
+        Production runtime supplies no default signed transport here. Tests may
+        inject a fake transport to verify lifecycle accounting without touching
+        private/signed/order endpoints.
+        """
 
 
 def _utc_now() -> datetime:
@@ -104,6 +119,194 @@ def _read_state(path: Path) -> dict[str, Any]:
     except json.JSONDecodeError:
         return {"state_status": "invalid_json"}
     return payload if isinstance(payload, dict) else {"state_status": "invalid_shape"}
+
+
+def _lane_key(lane_id: str, symbol: str, timeframe: str) -> str:
+    return f"{lane_id}|{symbol.upper()}|{timeframe}"
+
+
+def _paper_signal_key(row: dict[str, Any]) -> str:
+    return "|".join(
+        [
+            str(row.get("lane_id") or ""),
+            str(row.get("strategy_id") or ""),
+            str(row.get("symbol") or "").upper(),
+            str(row.get("timeframe") or ""),
+            str(row.get("signal_candle_close_time") or ""),
+            "entry",
+        ]
+    )
+
+
+def _dec(value: Any, default: Decimal = Decimal("0")) -> Decimal:
+    try:
+        return Decimal(str(value))
+    except Exception:
+        return default
+
+
+def _load_paper_runtime_state(prior_state: dict[str, Any]) -> dict[str, Any]:
+    runtime = prior_state.get("paper_runtime") if isinstance(prior_state, dict) else None
+    if not isinstance(runtime, dict):
+        runtime = {}
+    processed = runtime.get("processed_signal_keys")
+    if not isinstance(processed, list):
+        processed = []
+    open_positions = runtime.get("open_positions_by_key")
+    if not isinstance(open_positions, dict):
+        open_positions = {}
+    realized = runtime.get("realized_equity_by_lane")
+    if not isinstance(realized, dict):
+        realized = {}
+    return {
+        "processed_signal_keys": set(str(item) for item in processed),
+        "open_positions_by_key": {
+            str(key): value for key, value in open_positions.items() if isinstance(value, dict)
+        },
+        "realized_equity_by_lane": {
+            str(key): str(value) for key, value in realized.items()
+        },
+        "paper_opens_total": int(runtime.get("paper_opens_total") or 0),
+        "paper_closes_total": int(runtime.get("paper_closes_total") or 0),
+        "duplicate_signal_blocks_total": int(runtime.get("duplicate_signal_blocks_total") or 0),
+        "last_processed_close_by_key": dict(runtime.get("last_processed_close_by_key") or {}),
+    }
+
+
+def _paper_runtime_state_payload(
+    *,
+    processed_signal_keys: set[str],
+    open_positions_by_key: dict[str, dict[str, Any]],
+    realized_equity_by_lane: dict[str, str],
+    last_processed_close_by_key: dict[str, str],
+    paper_opens_total: int,
+    paper_closes_total: int,
+    duplicate_signal_blocks_total: int,
+) -> dict[str, Any]:
+    return {
+        "processed_signal_keys": sorted(processed_signal_keys),
+        "open_positions_by_key": open_positions_by_key,
+        "realized_equity_by_lane": realized_equity_by_lane,
+        "last_processed_close_by_key": last_processed_close_by_key,
+        "paper_opens_total": paper_opens_total,
+        "paper_closes_total": paper_closes_total,
+        "duplicate_signal_blocks_total": duplicate_signal_blocks_total,
+        "open_positions_count": len(open_positions_by_key),
+    }
+
+
+def _blocked_duplicate_row(row: dict[str, Any]) -> dict[str, Any]:
+    reasons = list(row.get("reason_codes") or [])
+    reasons.extend(["duplicate_signal_ignored", "existing_same_candle_signal_blocked"])
+    return {
+        **row,
+        "action": "paper_hold",
+        "position_after": row.get("position_before") or "flat",
+        "reason_codes": list(dict.fromkeys(str(reason) for reason in reasons)),
+        "paper_state_transition": "duplicate_open_blocked",
+    }
+
+
+def _open_position_from_decision(
+    *,
+    row: dict[str, Any],
+    candle: Any,
+    equity_before: Decimal,
+) -> dict[str, Any]:
+    fill_price = candle.close
+    fee = equity_before * Decimal("5") / Decimal("10000")
+    quantity = (equity_before - fee) / fill_price if fill_price > 0 else Decimal("0")
+    return {
+        "lane_id": row.get("lane_id"),
+        "strategy_id": row.get("strategy_id"),
+        "symbol": str(row.get("symbol") or "").upper(),
+        "timeframe": row.get("timeframe"),
+        "side": "long",
+        "entry_signal_time": row.get("signal_candle_close_time"),
+        "entry_fill_time": row.get("signal_candle_close_time"),
+        "entry_price": str(fill_price),
+        "quantity": str(quantity),
+        "notional": str(equity_before),
+        "fees": str(fee),
+        "slippage": "0",
+        "equity_before": str(equity_before),
+        "open_reason_codes": list(row.get("reason_codes") or []),
+        "status": "open",
+        "current_unrealized_pnl": "0",
+    }
+
+
+def _close_position_from_decision(
+    *,
+    row: dict[str, Any],
+    position: dict[str, Any],
+    candle: Any,
+) -> tuple[dict[str, Any], Decimal]:
+    entry_price = _dec(position.get("entry_price"))
+    quantity = _dec(position.get("quantity"))
+    equity_before = _dec(position.get("equity_before"), Decimal("10000"))
+    entry_fees = _dec(position.get("fees"))
+    exit_price = candle.close
+    gross = (exit_price - entry_price) * quantity
+    exit_fee = (exit_price * quantity) * Decimal("5") / Decimal("10000")
+    net_pnl = gross - entry_fees - exit_fee
+    equity_after = equity_before + net_pnl
+    trade = {
+        "paper_trade_id": f"pt_rt1_trade_{row.get('lane_id')}_{row.get('symbol')}_{row.get('timeframe')}_{row.get('signal_candle_close_time')}",
+        "lane_id": row.get("lane_id"),
+        "strategy_id": row.get("strategy_id"),
+        "symbol": str(row.get("symbol") or "").upper(),
+        "timeframe": row.get("timeframe"),
+        "entry_time": position.get("entry_fill_time"),
+        "exit_time": row.get("signal_candle_close_time"),
+        "entry_price": str(entry_price),
+        "exit_price": str(exit_price),
+        "quantity": str(quantity),
+        "gross_pnl": str(gross),
+        "fees": str(entry_fees + exit_fee),
+        "slippage": "0",
+        "net_pnl": str(net_pnl),
+        "equity_before": str(equity_before),
+        "equity_after": str(equity_after),
+        "entry_reason_codes": list(position.get("open_reason_codes") or []),
+        "exit_reason_codes": list(row.get("reason_codes") or []),
+        "paper_pnl_source": "synthetic_public_mainnet_paper_ledger",
+        "testnet_fills_update_strategy_pnl": False,
+    }
+    return trade, equity_after
+
+
+def _summarize_data_unavailable(
+    *,
+    market_health: Sequence[dict[str, Any]],
+    decision_rows: Sequence[dict[str, Any]],
+) -> dict[str, Any]:
+    market_rows = [row for row in market_health if row.get("status") != DataHealth.HEALTHY.value]
+    decision_unavailable = [row for row in decision_rows if row.get("action") == "data_unavailable"]
+
+    def rollup(rows: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+        buckets: dict[tuple[str, str, str], int] = {}
+        for row in rows:
+            symbol = str(row.get("symbol") or row.get("requested_symbol") or "").upper()
+            timeframe = str(row.get("timeframe") or "")
+            reasons = row.get("reason_codes") or ["unknown"]
+            primary_reason = str(reasons[0] if isinstance(reasons, list) and reasons else "unknown")
+            buckets[(symbol, timeframe, primary_reason)] = buckets.get((symbol, timeframe, primary_reason), 0) + 1
+        return [
+            {"symbol": symbol, "timeframe": timeframe, "reason": reason, "count": count}
+            for (symbol, timeframe, reason), count in sorted(buckets.items())
+        ]
+
+    return {
+        "market_rows_checked": len(market_health),
+        "market_rows_unavailable": len(market_rows),
+        "lane_expanded_data_unavailable_decisions": len(decision_unavailable),
+        "lane_expansion_note": (
+            "One unavailable public market-data row can expand into one data_unavailable decision per strategy lane."
+        ),
+        "market_unavailable_rollup": rollup(market_rows),
+        "lane_decision_unavailable_rollup": rollup(decision_unavailable),
+    }
 
 
 def _decision_log_key(row: dict[str, Any]) -> str:
@@ -285,6 +488,115 @@ def _build_testnet_probe_audit_rows(
     return audit_rows, stats
 
 
+def _apply_testnet_probe_transport(
+    *,
+    audit_rows: Sequence[dict[str, Any]],
+    submit_enabled: bool,
+    transport_approval_text: str,
+    notional_usdc: Decimal,
+    transport: TestnetProbeTransport | None = None,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    lifecycle_rows: list[dict[str, Any]] = []
+    eligible_rows = [row for row in audit_rows if row.get("eligible") is True and row.get("order_shape")]
+    if not submit_enabled:
+        return lifecycle_rows, {
+            "transport_mode": "audit_only",
+            "transport_status": "audit_only_not_submitted",
+            "submitted_this_cycle": 0,
+            "cancel_attempted_this_cycle": 0,
+            "reconciled_this_cycle": 0,
+            "order_endpoint_called": False,
+            "signed_order_endpoint_called": False,
+            "testnet_fills_update_strategy_pnl": False,
+            "strategy_pnl_updated": False,
+            "reason_codes": ["testnet_probe_transport_not_requested"],
+        }
+    if transport_approval_text != PT_RT1_2_EXACT_TRANSPORT_APPROVAL:
+        return lifecycle_rows, {
+            "transport_mode": "submit_requested",
+            "transport_status": "blocked_transport_approval_missing",
+            "submitted_this_cycle": 0,
+            "cancel_attempted_this_cycle": 0,
+            "reconciled_this_cycle": 0,
+            "order_endpoint_called": False,
+            "signed_order_endpoint_called": False,
+            "testnet_fills_update_strategy_pnl": False,
+            "strategy_pnl_updated": False,
+            "reason_codes": ["pt_rt1_2_exact_transport_approval_required"],
+        }
+    if notional_usdc != PT_RT1_TESTNET_PROBE_NOTIONAL_USDC:
+        return lifecycle_rows, {
+            "transport_mode": "submit_requested",
+            "transport_status": "blocked_notional_not_20usdc",
+            "submitted_this_cycle": 0,
+            "cancel_attempted_this_cycle": 0,
+            "reconciled_this_cycle": 0,
+            "order_endpoint_called": False,
+            "signed_order_endpoint_called": False,
+            "testnet_fills_update_strategy_pnl": False,
+            "strategy_pnl_updated": False,
+            "reason_codes": ["testnet_probe_notional_must_be_20usdc"],
+        }
+    if transport is None:
+        return lifecycle_rows, {
+            "transport_mode": "submit_requested",
+            "transport_status": "blocked_transport_not_configured",
+            "submitted_this_cycle": 0,
+            "cancel_attempted_this_cycle": 0,
+            "reconciled_this_cycle": 0,
+            "order_endpoint_called": False,
+            "signed_order_endpoint_called": False,
+            "testnet_fills_update_strategy_pnl": False,
+            "strategy_pnl_updated": False,
+            "reason_codes": ["signed_testnet_transport_client_not_configured"],
+        }
+
+    submitted = 0
+    cancel_attempted = 0
+    reconciled = 0
+    for row in eligible_rows:
+        order_shape = row.get("order_shape")
+        if not isinstance(order_shape, dict):
+            continue
+        result = transport(order_shape, row)
+        lifecycle = {
+            "lane": "testnet_plumbing_probe",
+            "environment": "hyperliquid_testnet_only",
+            "symbol": row.get("symbol"),
+            "timeframe": row.get("timeframe"),
+            "strategy_id": row.get("strategy_id"),
+            "lane_id": row.get("lane_id"),
+            "notional_usdc": row.get("notional_usdc"),
+            "submit_attempted": True,
+            "cancel_attempted": bool(result.get("cancel_attempted")),
+            "reconcile_attempted": bool(result.get("reconcile_attempted")),
+            "transport_status": result.get("transport_status", "submitted_cancel_reconciled"),
+            "venue_order_id": result.get("venue_order_id"),
+            "sanitized_response": result.get("sanitized_response"),
+            "order_endpoint_called": bool(result.get("order_endpoint_called", True)),
+            "signed_order_endpoint_called": bool(result.get("signed_order_endpoint_called", True)),
+            "testnet_fills_update_strategy_pnl": False,
+            "strategy_pnl_updated": False,
+        }
+        lifecycle_rows.append(lifecycle)
+        submitted += 1
+        cancel_attempted += 1 if lifecycle["cancel_attempted"] else 0
+        reconciled += 1 if lifecycle["reconcile_attempted"] else 0
+
+    return lifecycle_rows, {
+        "transport_mode": "submit_requested",
+        "transport_status": "submitted_cancel_reconciled" if lifecycle_rows else "no_eligible_probe_shapes",
+        "submitted_this_cycle": submitted,
+        "cancel_attempted_this_cycle": cancel_attempted,
+        "reconciled_this_cycle": reconciled,
+        "order_endpoint_called": bool(lifecycle_rows),
+        "signed_order_endpoint_called": bool(lifecycle_rows),
+        "testnet_fills_update_strategy_pnl": False,
+        "strategy_pnl_updated": False,
+        "reason_codes": ["pt_rt1_2_transport_lifecycle_recorded"],
+    }
+
+
 def run_cycle(
     *,
     connector: HyperliquidPublicMarketDataConnector,
@@ -298,6 +610,9 @@ def run_cycle(
     testnet_probe_approval_text: str = "",
     testnet_probe_notional_usdc: Decimal = PT_RT1_TESTNET_PROBE_NOTIONAL_USDC,
     testnet_probe_daily_cap: int = TESTNET_PROBE_AUDIT_LIMIT,
+    submit_testnet_probes: bool = False,
+    testnet_probe_transport_approval_text: str = "",
+    testnet_probe_transport: TestnetProbeTransport | None = None,
 ) -> dict[str, Any]:
     now = _utc_now()
     meta_result = connector.fetch_meta()
@@ -312,6 +627,12 @@ def run_cycle(
     decisions: list[PaperDecisionEvent] = []
     latest_chart: dict[str, Any] | None = None
     latest_closed_by_key: dict[tuple[str, str], Any] = {}
+    prior_state = _read_state(output_dir / "state.json")
+    paper_state = _load_paper_runtime_state(prior_state)
+    processed_signal_keys: set[str] = paper_state["processed_signal_keys"]
+    open_positions_by_key: dict[str, dict[str, Any]] = paper_state["open_positions_by_key"]
+    realized_equity_by_lane: dict[str, str] = paper_state["realized_equity_by_lane"]
+    last_processed_close_by_key: dict[str, str] = paper_state["last_processed_close_by_key"]
 
     for row in selected_rows:
         for timeframe in timeframes:
@@ -360,22 +681,94 @@ def run_cycle(
                     "reason_code_toggle": True,
                 }
             for lane in PT_RT1_STRATEGY_LANES:
+                symbol = str(row.canonical_symbol or row.requested_symbol).upper()
+                lane_position_key = _lane_key(lane.lane_id, symbol, timeframe)
+                equity_before = _dec(realized_equity_by_lane.get(lane.lane_id), lane.initial_equity)
                 decisions.append(
                     evaluate_paper_decision(
                         lane=lane,
-                        symbol=str(row.canonical_symbol or row.requested_symbol),
+                        symbol=symbol,
                         timeframe=timeframe,
                         candles=closed_candles,
                         now=now,
                         data_health=candle_result.data_health if closed_candles else DataHealth.UNAVAILABLE,
+                        position_open=lane_position_key in open_positions_by_key,
+                        equity_before=equity_before,
                     )
                 )
 
     base_summary = build_pt_rt1_summary()
     scanner_payload = [asdict(row) for row in scanner_rows] if scanner_rows else base_summary["scanner_universe"]
     lane_payload = base_summary["strategy_lanes"]
-    decision_rows = [event.as_json_dict() for event in decisions]
-    prior_state = _read_state(output_dir / "state.json")
+    raw_decision_rows = [event.as_json_dict() for event in decisions]
+    decision_rows: list[dict[str, Any]] = []
+    trade_rows: list[dict[str, Any]] = []
+    duplicate_signal_blocks_this_cycle = 0
+    paper_opens_this_cycle = 0
+    paper_closes_this_cycle = 0
+    for row in raw_decision_rows:
+        symbol = str(row.get("symbol") or "").upper()
+        timeframe = str(row.get("timeframe") or "")
+        lane_id = str(row.get("lane_id") or "")
+        lane_position_key = _lane_key(lane_id, symbol, timeframe)
+        candle = latest_closed_by_key.get((symbol, timeframe))
+        if row.get("signal_candle_close_time"):
+            last_processed_close_by_key[lane_position_key] = str(row["signal_candle_close_time"])
+        if row.get("action") == "paper_opened":
+            signal_key = _paper_signal_key(row)
+            if signal_key in processed_signal_keys or lane_position_key in open_positions_by_key:
+                duplicate_signal_blocks_this_cycle += 1
+                decision_rows.append(_blocked_duplicate_row(row))
+                continue
+            processed_signal_keys.add(signal_key)
+            equity_before = _dec(realized_equity_by_lane.get(lane_id), Decimal("10000"))
+            if candle is not None:
+                position = _open_position_from_decision(row=row, candle=candle, equity_before=equity_before)
+                open_positions_by_key[lane_position_key] = position
+                realized_equity_by_lane[lane_id] = str(equity_before - _dec(position.get("fees")))
+                paper_opens_this_cycle += 1
+                row = {
+                    **row,
+                    "paper_state_transition": "opened_synthetic_position",
+                    "paper_position_key": lane_position_key,
+                    "paper_pnl_source": "synthetic_public_mainnet_paper_ledger",
+                    "testnet_fills_update_strategy_pnl": False,
+                }
+            else:
+                row = {
+                    **row,
+                    "action": "data_unavailable",
+                    "reason_codes": list(row.get("reason_codes") or []) + ["paper_open_context_candle_missing"],
+                    "paper_state_transition": "open_blocked_context_missing",
+                }
+        elif row.get("action") == "paper_closed":
+            position = open_positions_by_key.get(lane_position_key)
+            if position is None or candle is None:
+                row = {
+                    **row,
+                    "action": "paper_hold",
+                    "reason_codes": list(row.get("reason_codes") or []) + ["paper_position_missing"],
+                    "paper_state_transition": "close_blocked_position_missing",
+                }
+            else:
+                trade, equity_after = _close_position_from_decision(row=row, position=position, candle=candle)
+                trade_rows.append(trade)
+                realized_equity_by_lane[lane_id] = str(equity_after)
+                open_positions_by_key.pop(lane_position_key, None)
+                paper_closes_this_cycle += 1
+                row = {
+                    **row,
+                    "paper_state_transition": "closed_synthetic_position",
+                    "paper_position_key": lane_position_key,
+                    "paper_pnl_source": "synthetic_public_mainnet_paper_ledger",
+                    "testnet_fills_update_strategy_pnl": False,
+                    "trade_net_pnl": trade["net_pnl"],
+                    "equity_after": trade["equity_after"],
+                }
+        elif row.get("action") == "data_unavailable":
+            pass
+        decision_rows.append(row)
+
     prior_seen_keys = set(prior_state.get("decision_log_seen_keys") or [])
     decision_log_rows, decision_log_seen_keys, decision_log_stats = _select_decision_log_rows(
         decision_rows,
@@ -392,15 +785,32 @@ def run_cycle(
         notional_usdc=testnet_probe_notional_usdc,
         daily_cap=testnet_probe_daily_cap,
     )
+    testnet_transport_rows, testnet_transport_stats = _apply_testnet_probe_transport(
+        audit_rows=testnet_probe_rows,
+        submit_enabled=submit_testnet_probes,
+        transport_approval_text=testnet_probe_transport_approval_text,
+        notional_usdc=testnet_probe_notional_usdc,
+        transport=testnet_probe_transport,
+    )
+    data_unavailable_summary = _summarize_data_unavailable(
+        market_health=market_health,
+        decision_rows=decision_rows,
+    )
     runtime_status = "verified" if meta_result.ok and mids_result.ok and market_health else "blocked"
     if not meta_result.ok or not mids_result.ok:
         runtime_status = "blocked_public_mainnet_network_unavailable"
     is_pt_rt1_1c = run_label == "PT-RT1.1C"
+    is_pt_rt1_2 = run_label == "PT-RT1.2"
     summary = {
         **base_summary,
         "phase": run_label,
         "revision": run_label,
         "status": (
+            "runtime_correctness_cycle_verified"
+            if is_pt_rt1_2 and runtime_status == "verified"
+            else "runtime_correctness_cycle_blocked"
+            if is_pt_rt1_2
+            else
             "runtime_collection_cycle_verified"
             if is_pt_rt1_1c and runtime_status == "verified"
             else "runtime_readiness_smoke"
@@ -432,8 +842,10 @@ def run_cycle(
             "blocked_rows": sum(1 for row in scanner_payload if row.get("blocked") is True),
         },
         "market_data_health": market_health or base_summary["market_data_health"],
+        "data_unavailable_summary": data_unavailable_summary,
         "strategy_lanes": lane_payload,
         "intended_entry_signals": intended_entry_signals[:200],
+        "closed_trades": trade_rows[:200],
         "latest_decisions": decision_rows[:200],
         "live_chart": latest_chart or {
             "status": "data_not_available_in_pt_rt1_runtime",
@@ -453,12 +865,17 @@ def run_cycle(
             "probe_notional_cap_usdc": str(PT_RT1_TESTNET_PROBE_NOTIONAL_CAP_USDC),
             "probe_audit_rows_this_cycle": testnet_probe_stats["audit_rows_this_cycle"],
             "eligible_probe_shapes_this_cycle": testnet_probe_stats["eligible_probe_shapes_this_cycle"],
+            "transport_mode": testnet_transport_stats["transport_mode"],
+            "transport_rows_this_cycle": len(testnet_transport_rows),
+            "transport_submitted_this_cycle": testnet_transport_stats["submitted_this_cycle"],
+            "transport_cancel_attempted_this_cycle": testnet_transport_stats["cancel_attempted_this_cycle"],
+            "transport_reconciled_this_cycle": testnet_transport_stats["reconciled_this_cycle"],
             "post_only_required": True,
             "cancel_reconcile_required": True,
             "testnet_fills_do_not_update_strategy_pnl": True,
-            "signed_order_endpoint_called": False,
-            "order_endpoint_called": False,
-            "transport_status": "not_submitted_by_pt_rt1_runtime",
+            "signed_order_endpoint_called": testnet_transport_stats["signed_order_endpoint_called"],
+            "order_endpoint_called": testnet_transport_stats["order_endpoint_called"],
+            "transport_status": testnet_transport_stats["transport_status"],
             "reason_codes": [
                 *(
                     ["testnet_probe_order_shapes_created_audit_only", "testnet_probe_20usdc_per_signal"]
@@ -469,7 +886,8 @@ def run_cycle(
                         "testnet_probe_approval_missing",
                         "testnet_probe_ready_but_disabled",
                     ]
-                )
+                ),
+                *testnet_transport_stats.get("reason_codes", []),
             ],
         },
         "runtime_command": {
@@ -484,13 +902,32 @@ def run_cycle(
             "decisions_recorded": len(decision_rows),
             "decisions_written": len(decision_log_rows),
             "decision_log_mode": decision_log_mode,
-            "orders_submitted": False,
+            "orders_submitted": testnet_transport_stats["submitted_this_cycle"] > 0,
             "testnet_probes_enabled": testnet_probes_enabled,
             "testnet_probe_notional_usdc": str(testnet_probe_notional_usdc),
-            "private_signed_order_endpoints_called": False,
-            "testnet_order_endpoints_called": False,
+            "private_signed_order_endpoints_called": testnet_transport_stats["signed_order_endpoint_called"],
+            "testnet_order_endpoints_called": testnet_transport_stats["order_endpoint_called"],
+        },
+        "paper_runtime_state": {
+            "open_positions_count": len(open_positions_by_key),
+            "processed_signal_keys_total": len(processed_signal_keys),
+            "paper_opens_this_cycle": paper_opens_this_cycle,
+            "paper_closes_this_cycle": paper_closes_this_cycle,
+            "duplicate_signal_blocks_this_cycle": duplicate_signal_blocks_this_cycle,
+            "paper_opens_total": paper_state["paper_opens_total"] + paper_opens_this_cycle,
+            "paper_closes_total": paper_state["paper_closes_total"] + paper_closes_this_cycle,
+            "duplicate_signal_blocks_total": paper_state["duplicate_signal_blocks_total"] + duplicate_signal_blocks_this_cycle,
+            "open_positions_by_key": open_positions_by_key,
+            "realized_equity_by_lane": realized_equity_by_lane,
+            "paper_pnl_source": "synthetic_public_mainnet_paper_ledger",
+            "testnet_fills_update_strategy_pnl": False,
         },
         "next_phase_decision": (
+            "PT-RT1.2 may continue paper observation; signed testnet transport remains blocked unless exact transport approval and a configured client are present"
+            if is_pt_rt1_2 and runtime_status == "verified"
+            else "PT-RT1.2 blocked"
+            if is_pt_rt1_2
+            else
             "PT-RT1.1D may evaluate 24-hour runtime artifacts after completion"
             if is_pt_rt1_1c and runtime_status == "verified"
             else "PT-RT1.1D blocked"
@@ -517,13 +954,24 @@ def run_cycle(
             "strategy_lanes": lane_payload,
             "decision_log_mode": decision_log_mode,
             "decision_log_seen_keys": sorted(decision_log_seen_keys),
+            "paper_runtime": _paper_runtime_state_payload(
+                processed_signal_keys=processed_signal_keys,
+                open_positions_by_key=open_positions_by_key,
+                realized_equity_by_lane=realized_equity_by_lane,
+                last_processed_close_by_key=last_processed_close_by_key,
+                paper_opens_total=paper_state["paper_opens_total"] + paper_opens_this_cycle,
+                paper_closes_total=paper_state["paper_closes_total"] + paper_closes_this_cycle,
+                duplicate_signal_blocks_total=paper_state["duplicate_signal_blocks_total"]
+                + duplicate_signal_blocks_this_cycle,
+            ),
         },
     )
     _write_json(output_dir / "data_health.json", {"generated_at_utc": _iso(now), "rows": market_health})
     _write_json(output_dir / "equity_curves.json", {"generated_at_utc": _iso(now), "lanes": lane_payload})
     _append_jsonl(output_dir / "runtime_audit.jsonl", [summary["connection_status"], summary["testnet_plumbing_status"]])
     _append_jsonl(output_dir / "testnet_probe_audit.jsonl", testnet_probe_rows)
-    _append_jsonl(output_dir / "trades.jsonl", [])
+    _append_jsonl(output_dir / "testnet_probe_transport.jsonl", testnet_transport_rows)
+    _append_jsonl(output_dir / "trades.jsonl", trade_rows)
     return summary
 
 
@@ -537,6 +985,8 @@ def parse_args() -> argparse.Namespace:
     probe_mode.add_argument("--disable-testnet-probes", action="store_true")
     probe_mode.add_argument("--enable-testnet-probes", action="store_true")
     parser.add_argument("--founder-approved-testnet-probes-20usdc", action="store_true")
+    parser.add_argument("--submit-testnet-probes", action="store_true")
+    parser.add_argument("--founder-approved-pt-rt1-2-testnet-transport-20usdc", action="store_true")
     parser.add_argument("--testnet-probe-notional-usdc", type=Decimal, default=PT_RT1_TESTNET_PROBE_NOTIONAL_USDC)
     parser.add_argument("--testnet-probe-daily-cap", type=int, default=TESTNET_PROBE_AUDIT_LIMIT)
     parser.add_argument("--public-mainnet-only", action="store_true")
@@ -555,6 +1005,10 @@ def main() -> int:
         raise SystemExit("public_mainnet_only_required_for_strategy_truth")
     if args.enable_testnet_probes and not args.founder_approved_testnet_probes_20usdc:
         raise SystemExit("founder_approved_testnet_probes_20usdc_required")
+    if args.submit_testnet_probes and not args.enable_testnet_probes:
+        raise SystemExit("submit_testnet_probes_requires_enable_testnet_probes")
+    if args.submit_testnet_probes and not args.founder_approved_pt_rt1_2_testnet_transport_20usdc:
+        raise SystemExit("founder_approved_pt_rt1_2_testnet_transport_20usdc_required")
     if args.testnet_probe_notional_usdc != PT_RT1_TESTNET_PROBE_NOTIONAL_USDC:
         raise SystemExit("testnet_probe_notional_must_be_20usdc")
     if args.testnet_probe_daily_cap <= 0:
@@ -568,7 +1022,7 @@ def main() -> int:
         raise SystemExit("positive_duration_required")
     connector = HyperliquidPublicMarketDataConnector()
     end_time = _utc_now() + duration
-    run_label = "PT-RT1.1C" if "pt_rt1_1c" in str(args.output_dir) else "PT-RT1.1B"
+    run_label = "PT-RT1.2" if args.enable_testnet_probes else "PT-RT1.1C" if "pt_rt1_1c" in str(args.output_dir) else "PT-RT1.1B"
     cycle = 0
     last_summary: dict[str, Any] = {}
     while True:
@@ -587,6 +1041,12 @@ def main() -> int:
             ),
             testnet_probe_notional_usdc=args.testnet_probe_notional_usdc,
             testnet_probe_daily_cap=args.testnet_probe_daily_cap,
+            submit_testnet_probes=args.submit_testnet_probes,
+            testnet_probe_transport_approval_text=(
+                PT_RT1_2_EXACT_TRANSPORT_APPROVAL
+                if args.founder_approved_pt_rt1_2_testnet_transport_20usdc
+                else ""
+            ),
         )
         if args.max_cycles is not None and cycle >= args.max_cycles:
             break

@@ -10,6 +10,14 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `result`: Future dashboard-started PT-RT1 runs use compact logging. Existing ignored large local logs are not rewritten or deleted by this decision.
 - `follow_up_implications`: PT-RT1.1D should evaluate compact-log health alongside market-data, candle-gating, duplicate-prevention, and no-order/no-live runtime checks. This decision does not change Money Flow rules, approve paper/live trading, submit orders, call private/signed/order endpoints, enable testnet probes, use API keys, use testnet data as strategy truth, regenerate evidence packs, or add SOR/fanout/CBBO.
 
+## 2026-05-16T12:15:10Z - PT-RT1.2 - Persist Runtime State Before Signed Testnet Transport
+
+- `decision`: Treat PT-RT1.2 as a runtime-correctness phase before any signed Hyperliquid testnet transport. Persist signal/position state, block repeated same-candle opens, and make data-unavailable expansion visible before allowing a future transport client.
+- `scope`: `scripts/run_pt_rt1_paper_observation.py` now persists processed signal keys, open synthetic positions, realized equity by lane, and last processed close state in `state.json`; converts duplicate same-candle `paper_opened` attempts into held/blocked decisions; writes synthetic closed trades to `trades.jsonl`; summarizes unavailable market-data rows separately from lane-expanded `data_unavailable` decisions; and exposes an explicit fakeable transport gate behind `--submit-testnet-probes`, exact PT-RT1.2 transport approval, 20 USDC notional, and a configured client.
+- `why`: The latest local run showed many repeated `paper_opened` rows because the runtime was effectively stateless across cycles. It also showed many `data_unavailable` rows because one unavailable symbol/timeframe market row expands across all 10 lanes. The founder also wanted 20 USDC testnet probes, but paper PnL must stay independent of testnet fills/prices.
+- `result`: `implemented_runtime_state_and_transport_gates`. Dashboard-started runs remain audit/order-shape mode; no signed/order endpoint is called unless a future operator explicitly supplies the transport path and approval.
+- `follow_up_implications`: A fresh PT-RT1.2 run should be reviewed for duplicate-open blocking, open/flat state, synthetic closes, compact-log size, and data-health rollups before any signed testnet transport. This does not change Money Flow production rules, approve strategy paper runtime as production behavior, approve live trading, call live endpoints, use API keys, or add SOR/fanout/CBBO.
+
 ## 2026-05-16T10:15:00Z - PT-RT1 - Local Caffeinated Dashboard Start Run Control
 
 - `decision`: Add a localhost-only dashboard control server so the founder can start and stop PT-RT1 paper-observation runs from the Paper Observation tab while keeping a Mac awake.

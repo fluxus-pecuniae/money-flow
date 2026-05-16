@@ -224,6 +224,10 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "evidenceReplayStrategyId" in js
     assert "EVIDENCE_ALL_REPLAY_STRATEGIES_ID" in js
     assert "pt_rt1_1c_24h_dry_run/summary.json" in js
+    assert 'String(payload?.phase || "").startsWith("PT-RT1")' in js
+    assert "Duplicate opens blocked" in js
+    assert "lane-expanded decisions" in js
+    assert "Transport mode" in js
     assert "All replay strategies" in js
     assert 'timeframe: "1d"' in js
     assert 'canonicalTimeframe(defaultReplay.timeframe || "1d")' in js

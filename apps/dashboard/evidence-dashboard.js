@@ -9119,12 +9119,16 @@
     const probe = summary.testnet_probe_policy || {};
     const truth = summary.strategy_truth_lane || {};
     const lanes = paperObservationRows(summary.strategy_lanes);
+    const runtimeState = summary.paper_runtime_state || {};
+    const unavailable = summary.data_unavailable_summary || {};
     const cards = [
       ["Strategy truth", truth.source || "public mainnet", "no private/signed/order endpoints"],
       ["Lanes", String(lanes.length), "independent 10,000 USDC ledgers"],
       ["Scanner symbols", String(paperObservationRows(summary.scanner_universe).length), "requested/resolved/block reasons visible"],
       ["Probe default", probe.PT_RT1_TESTNET_PROBES_ENABLED === false ? "disabled" : "review", "kill switch true by default"],
-      ["Runtime state", "ignored local files", "reports/paper_runtime/"],
+      ["Runtime state", `${runtimeState.open_positions_count ?? 0} open`, "persisted local paper state"],
+      ["Duplicate opens blocked", String(runtimeState.duplicate_signal_blocks_this_cycle ?? 0), "same-candle signals become held/blocked"],
+      ["Data unavailable", `${unavailable.market_rows_unavailable ?? 0} market rows`, `${unavailable.lane_expanded_data_unavailable_decisions ?? 0} lane decisions`],
     ];
     elements.paperObservationSummaryCards.innerHTML = cards
       .map(
@@ -9156,11 +9160,14 @@
         <div><span>Selected chart</span><strong>${escapeHtml(`${selectedPaperObservationVenueSymbol()} ${displayTimeframe(selectedPaperObservationTimeframe())}`)}</strong></div>
         <div><span>No private/signed/order endpoints</span><strong>${escapeHtml(String(status.no_private_signed_order_endpoints ?? true))}</strong></div>
         <div><span>No API keys</span><strong>${escapeHtml(String(status.no_api_keys ?? true))}</strong></div>
+        <div><span>Unavailable market rows</span><strong>${escapeHtml(String(summary?.data_unavailable_summary?.market_rows_unavailable ?? "n/a"))}</strong></div>
+        <div><span>Lane-expanded unavailable</span><strong>${escapeHtml(String(summary?.data_unavailable_summary?.lane_expanded_data_unavailable_decisions ?? "n/a"))}</strong></div>
       </div>
       <div class="methodology-warning secondary" role="note">
         Public mainnet data is strategy truth. Synthetic paper results are forward observation only.
         Testnet probes are plumbing only; testnet fills do not update strategy PnL.
         Browser ticker uses Hyperliquid public mainnet allMids/candleSnapshot only.
+        Data unavailable is summarized two ways: public market-data rows first, then lane-expanded decisions across strategy lanes.
         Reason codes: ${escapeHtml(paperObservationText([...(status.meta_reason_codes || []), ...(status.mids_reason_codes || [])], "pending_runtime_refresh"))}
         ${live.error ? ` Live polling status: ${escapeHtml(live.error)}.` : ""}
       </div>
@@ -9652,6 +9659,9 @@
         <div><span>Kill switch</span><strong>${escapeHtml(String(runtime.kill_switch_active ?? policy.PT_RT1_TESTNET_KILL_SWITCH ?? true))}</strong></div>
         <div><span>Daily cap</span><strong>${escapeHtml(String(runtime.daily_cap ?? policy.PT_RT1_TESTNET_DAILY_PROBE_CAP ?? 200))}</strong></div>
         <div><span>Eligible shapes</span><strong>${escapeHtml(String(runtime.eligible_probe_shapes_this_cycle ?? "runtime_not_started"))}</strong></div>
+        <div><span>Transport mode</span><strong>${escapeHtml(runtime.transport_mode || "audit_only")}</strong></div>
+        <div><span>Submitted</span><strong>${escapeHtml(String(runtime.transport_submitted_this_cycle ?? 0))}</strong></div>
+        <div><span>Cancel / reconcile</span><strong>${escapeHtml(`${runtime.transport_cancel_attempted_this_cycle ?? 0} / ${runtime.transport_reconciled_this_cycle ?? 0}`)}</strong></div>
         <div><span>Notional cap</span><strong>${escapeHtml(String(runtime.probe_notional_cap_usdc ?? policy.PT_RT1_TESTNET_PROBE_NOTIONAL_CAP ?? "20"))} USDC</strong></div>
         <div><span>Last lifecycle</span><strong>${escapeHtml(runtime.transport_status || "runtime_not_started")}</strong></div>
         <div><span>Open after reconcile</span><strong>none</strong></div>
@@ -9662,12 +9672,71 @@
   }
 
   function renderPaperObservationRuntimeTables() {
-    const openMessage = "No open synthetic positions loaded from ignored PT-RT1 runtime state.";
+    const summary = paperObservationSummary();
+    const runtimeState = summary?.paper_runtime_state || {};
+    const openRows = Object.entries(runtimeState.open_positions_by_key || {}).map(([key, position]) => ({ key, ...position }));
+    const closedRows = paperObservationRows(summary?.closed_trades || summary?.latest_trades);
+    if (elements.paperObservationOpenPositions && openRows.length) {
+      elements.paperObservationOpenPositions.innerHTML = `
+        <table>
+          <thead><tr><th>Position</th><th>Lane</th><th>Symbol</th><th>Timeframe</th><th>Entry time</th><th>Entry price</th><th>Qty</th><th>Equity before</th></tr></thead>
+          <tbody>
+            ${openRows.slice(0, 25).map((row) => `
+              <tr>
+                <td>${escapeHtml(row.key)}</td>
+                <td>${escapeHtml(row.strategy_id || row.lane_id || "n/a")}</td>
+                <td>${escapeHtml(row.symbol || "n/a")}</td>
+                <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
+                <td>${escapeHtml(row.entry_signal_time || "n/a")}</td>
+                <td>${escapeHtml(row.entry_price || "n/a")}</td>
+                <td>${escapeHtml(row.quantity || "n/a")}</td>
+                <td>${escapeHtml(row.equity_before || "10000")}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    } else {
+      const openMessage = "No open synthetic positions loaded from ignored PT-RT1 runtime state.";
+      if (elements.paperObservationOpenPositions) setEmpty(elements.paperObservationOpenPositions, openMessage);
+    }
     const closedMessage = "No closed synthetic trades loaded from ignored PT-RT1 runtime state.";
     const riskMessage = "No runtime drawdown or losing-streak rows loaded yet.";
-    if (elements.paperObservationOpenPositions) setEmpty(elements.paperObservationOpenPositions, openMessage);
-    if (elements.paperObservationClosedTrades) setEmpty(elements.paperObservationClosedTrades, closedMessage);
-    if (elements.paperObservationRiskTable) setEmpty(elements.paperObservationRiskTable, riskMessage);
+    if (elements.paperObservationClosedTrades && closedRows.length) {
+      elements.paperObservationClosedTrades.innerHTML = `
+        <table>
+          <thead><tr><th>Lane</th><th>Symbol</th><th>Timeframe</th><th>Entry</th><th>Exit</th><th>Net PnL</th><th>Equity after</th></tr></thead>
+          <tbody>
+            ${closedRows.slice(0, 25).map((row) => `
+              <tr>
+                <td>${escapeHtml(row.strategy_id || row.lane_id || "n/a")}</td>
+                <td>${escapeHtml(row.symbol || "n/a")}</td>
+                <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
+                <td>${escapeHtml(row.entry_time || "n/a")}</td>
+                <td>${escapeHtml(row.exit_time || "n/a")}</td>
+                <td>${escapeHtml(row.net_pnl || "0")}</td>
+                <td>${escapeHtml(row.equity_after || "n/a")}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    } else if (elements.paperObservationClosedTrades) {
+      setEmpty(elements.paperObservationClosedTrades, closedMessage);
+    }
+    if (elements.paperObservationRiskTable) {
+      elements.paperObservationRiskTable.innerHTML = `
+        <div class="market-micro-grid">
+          <div><span>Processed signal keys</span><strong>${escapeHtml(String(runtimeState.processed_signal_keys_total ?? "n/a"))}</strong></div>
+          <div><span>Opens this cycle</span><strong>${escapeHtml(String(runtimeState.paper_opens_this_cycle ?? "n/a"))}</strong></div>
+          <div><span>Closes this cycle</span><strong>${escapeHtml(String(runtimeState.paper_closes_this_cycle ?? "n/a"))}</strong></div>
+          <div><span>Duplicate blocks</span><strong>${escapeHtml(String(runtimeState.duplicate_signal_blocks_this_cycle ?? "n/a"))}</strong></div>
+          <div><span>Paper PnL source</span><strong>${escapeHtml(runtimeState.paper_pnl_source || "synthetic_public_mainnet_paper_ledger")}</strong></div>
+          <div><span>Testnet fills update PnL</span><strong>${escapeHtml(String(runtimeState.testnet_fills_update_strategy_pnl === true))}</strong></div>
+        </div>
+        ${closedRows.length ? "" : `<p class="muted-inline">${escapeHtml(riskMessage)}</p>`}
+      `;
+    }
   }
 
   function renderPaperObservation() {
@@ -9733,7 +9802,7 @@
     if (payload?.phase === "EV-AUDIT1" || payload?.audit_verdict === "no_strategy_has_clean_production_or_paper_candidate_status") {
       return "ev_audit_summary";
     }
-    if (payload?.phase === "PT-RT1" || payload?.report === "pt_rt1_real_time_paper_observation_and_testnet_plumbing") {
+    if (String(payload?.phase || "").startsWith("PT-RT1") || payload?.report === "pt_rt1_real_time_paper_observation_and_testnet_plumbing") {
       return "pt_rt1_summary";
     }
     if (

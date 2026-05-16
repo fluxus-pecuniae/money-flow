@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-16T11:30:00Z`
+Last reviewed: `2026-05-16T12:15:10Z`
 
 ## Active Follow-Ups
+
+### T-143
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `PT-RT1.2 runtime correctness and 20 USDC testnet transport gates are implemented. The paper-observation runner now persists processed signal keys, open synthetic positions, realized equity by lane, and last processed close state in each ignored output directory's state.json. Repeated same-candle open attempts are converted into held/blocked decisions instead of new paper_opened rows, closed synthetic positions write trades.jsonl rows, and summary.json separates public market-data unavailable rows from lane-expanded data_unavailable decisions. Dashboard Paper Observation now surfaces open positions, duplicate-open blocks, unavailable market rows versus lane decisions, transport mode, submitted/cancel/reconcile counts, and the synthetic public-mainnet paper PnL source. Signed testnet transport remains disabled unless a future operator uses --submit-testnet-probes with exact PT-RT1.2 transport approval and a configured client. No production Money Flow rules changed; no live trading, live endpoint, private/signed/order endpoint call during tests, API-key use, testnet strategy truth, or SOR/fanout/CBBO was added.`
 
 ### T-142
 

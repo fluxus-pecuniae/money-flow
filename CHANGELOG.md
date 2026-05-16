@@ -13,6 +13,45 @@ Entry schema:
 
 ---
 
+## v2026.05.16.006
+
+- `recorded_at_utc`: `2026-05-16T12:15:10Z`
+- `scope`: `PT-RT1.2 runtime state and testnet probe transport gates`
+- `intent`: `Native entry. Implemented PT-RT1.2 runtime correctness after the latest local paper-observation run showed repeated same-candle paper_opened rows, lane-expanded data_unavailable rows, and audit-only testnet probe shapes. The runner now persists processed signal keys, open synthetic positions, realized equity by lane, and last processed close state in state.json; repeated same-candle opens become held/blocked decisions instead of new paper_opened actions; closed synthetic positions write trades.jsonl; and summary.json separates public market-data unavailable rows from lane-expanded data_unavailable decisions. Added an explicit fakeable 20 USDC Hyperliquid testnet transport gate behind --submit-testnet-probes plus --founder-approved-pt-rt1-2-testnet-transport-20usdc while keeping dashboard-started runs audit/order-shape only. Testnet fills/prices still never update paper PnL. No production Money Flow rules changed, no live trading was approved, no live endpoint was used, no private/signed/order endpoint was called during tests, no API keys were used, and no SOR/fanout/CBBO behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `docs/pt_rt1_2_runtime_state_and_testnet_probe_transport.md`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `scripts/run_pt_rt1_paper_observation.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_pt_rt1_2_runtime_state_and_transport.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m py_compile scripts/run_pt_rt1_paper_observation.py tests/test_pt_rt1_2_runtime_state_and_transport.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_2_runtime_state_and_transport.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_paper_observation.py tests/test_pt_rt1_1b_public_market_data.py tests/test_pt_rt1_2_runtime_state_and_transport.py tests/test_dashboard_control_server.py tests/test_dashboard_static_assets.py::test_pt_rt1_paper_observation_dashboard_tab`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_paper_observation.py tests/test_pt_rt1_1b_public_market_data.py tests/test_pt_rt1_2_runtime_state_and_transport.py tests/test_dashboard_control_server.py tests/test_dashboard_static_assets.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1.2-review.zip`
+  - `review bundle excluded-path scan: 536 entries, 0 excluded path hits`
+  - `review bundle secret-pattern scan: broad hits limited to .env.example placeholders and existing config/code/test references; no sandbox secret values found`
+
 ## v2026.05.16.005
 
 - `recorded_at_utc`: `2026-05-16T11:30:00Z`

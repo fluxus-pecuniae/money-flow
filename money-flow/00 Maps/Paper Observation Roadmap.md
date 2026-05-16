@@ -50,6 +50,14 @@ PT-RT1.1B public-mainnet readiness:
 - Smoke connected to public mainnet `meta` and `allMids`, resolved the requested watchlist, loaded bounded candle data, and recorded bounded paper decisions.
 - Testnet probes now have a dashboard-started 20 USDC audit/order-shape mode. This mode does not submit signed orders and does not update paper PnL from testnet fills.
 
+PT-RT1.2 runtime correctness:
+
+- `state.json` now persists processed signal keys, open synthetic positions, realized equity by lane, and last processed close by lane/symbol/timeframe.
+- Repeated same-candle `paper_opened` attempts are held/blocked instead of written as new opens.
+- Synthetic closes append to `trades.jsonl` when an open position exists and exit conditions occur.
+- `summary.json` separates unavailable public market-data rows from lane-expanded `data_unavailable` decisions.
+- The dashboard surfaces open positions, duplicate-open blocks, market-row unavailable counts, lane-expanded unavailable counts, transport mode, submit/cancel/reconcile counts, and the synthetic public-mainnet paper PnL source.
+
 Paper Observation dashboard live display:
 
 - Browser-side watchlist polling calls Hyperliquid public mainnet `allMids` every 1 second.
@@ -69,7 +77,7 @@ Current next operational step:
 2. Retain ignored artifacts under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/`.
 3. Evaluate those artifacts in `PT-RT1.1D`.
 4. If stable, start the 60-day public-mainnet forward-observation window.
-5. Scope real signed testnet transport submission separately if needed; PT-RT1 currently creates probe audit/order-shape rows only.
+5. Scope real signed testnet transport submission separately if needed; dashboard-started PT-RT1.2 currently creates probe audit/order-shape rows only.
 
 ## Required Boundaries
 
@@ -102,6 +110,7 @@ Testnet probes remain separate from strategy truth:
 - exact approval text is required
 - post-only `Alo` shape only
 - PT-RT1 runtime writes audit/order-shape rows only and does not submit signed transport
+- signed transport requires the explicit PT-RT1.2 `--submit-testnet-probes` path, exact transport approval, 20 USDC notional, and a configured client
 - unknown/open probe state blocks future probes
 - testnet fills never update strategy paper PnL
 
@@ -117,4 +126,6 @@ Current PT-RT1.1B status: `implemented_public_mainnet_runtime_readiness_smoke_ve
 
 Current PT-RT1.1C status: `runtime_artifacts_present_pending_evaluation`.
 
-This means the repo now has code, dashboard, public-mainnet connector, runtime command, summary JSON, tests, and runbooks for controlled forward observation across the expanded 10-lane lab. The local PT-RT1.1C artifact set under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` currently contains about 479k paper decision rows, 0 trade rows, and latest summary timestamp `2026-05-15T22:22:12Z`. It is not an always-on hosted service: new signal generation requires manually starting `scripts/run_pt_rt1_paper_observation.py` and keeping that process and machine awake/networked for the chosen session. The Paper Observation dashboard also browser-polls Hyperliquid public mainnet `allMids` for a ticking symbol/mid/health watchlist and selected-pair `candleSnapshot` for a live TradingView chart, with Signal Generation showing recorded `paper_opened` intended-entry decisions. No 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading. PT-RT1.2 testnet plumbing probes remain blocked until the probes-disabled dry run passes.
+Current PT-RT1.2 status: `implemented_runtime_state_and_transport_gates`.
+
+This means the repo now has code, dashboard, public-mainnet connector, runtime command, summary JSON, tests, and runbooks for controlled forward observation across the expanded 10-lane lab. The local PT-RT1.1C artifact set under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` currently contains about 479k paper decision rows, 0 trade rows, and latest summary timestamp `2026-05-15T22:22:12Z`; PT-RT1.2 fixes the stateless repeated-open issue for fresh runs but does not rewrite old ignored logs. It is not an always-on hosted service: new signal generation requires manually starting `scripts/run_pt_rt1_paper_observation.py` and keeping that process and machine awake/networked for the chosen session. No 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading.
