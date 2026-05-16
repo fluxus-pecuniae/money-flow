@@ -916,24 +916,47 @@ def resolve_top20_universe(
             except (KeyError, TypeError, ValueError):
                 reasons.append("precision_missing")
         mid_value = mids.get(str(venue_symbol).upper())
+        mid_warning = False
         if mid_value is None:
-            reasons.extend(["market_data_unavailable", "public_mid_missing_or_nonpositive"])
+            mid_warning = True
+            reasons.extend(
+                [
+                    "mid_missing_or_nonpositive",
+                    "public_mid_missing_or_nonpositive",
+                    "mid_stale_or_thin_tick",
+                    "mid_health_warning_non_blocking",
+                ]
+            )
         else:
             try:
                 if _dec(mid_value, field_name="mid_price") <= 0:
-                    reasons.extend(["market_data_unavailable", "public_mid_missing_or_nonpositive"])
+                    mid_warning = True
+                    reasons.extend(
+                        [
+                            "mid_missing_or_nonpositive",
+                            "public_mid_missing_or_nonpositive",
+                            "mid_stale_or_thin_tick",
+                            "mid_health_warning_non_blocking",
+                        ]
+                    )
             except ValueError:
-                reasons.extend(["market_data_unavailable", "public_mid_missing_or_nonpositive"])
+                mid_warning = True
+                reasons.extend(
+                    [
+                        "mid_missing_or_nonpositive",
+                        "public_mid_missing_or_nonpositive",
+                        "mid_stale_or_thin_tick",
+                        "mid_health_warning_non_blocking",
+                    ]
+                )
         if asset_tuple is not None and "delisted_symbol" not in reasons:
             reasons.append("symbol_supported")
         eligible = (
             asset_tuple is not None
             and sz_decimals is not None
             and not is_delisted
-            and mid_value is not None
             and "stablecoin_excluded" not in reasons
             and "unit_semantics_deferred" not in reasons
-            and "market_data_unavailable" not in reasons
             and "symbol_identity_ambiguous" not in reasons
         )
         precision_ready = sz_decimals is not None
@@ -952,7 +975,7 @@ def resolve_top20_universe(
                 precision_status="precision_ready" if sz_decimals is not None else "precision_missing",
                 precision_ready=precision_ready,
                 supported_by_venue=asset_tuple is not None and not bool(is_delisted),
-                data_health=DataHealth.HEALTHY if mid_value is not None and eligible else DataHealth.UNAVAILABLE,
+                data_health=DataHealth.STALE if eligible and mid_warning else DataHealth.HEALTHY if eligible else DataHealth.UNAVAILABLE,
                 scanner_eligible=eligible,
                 blocked=blocked,
                 reason_codes=tuple(dict.fromkeys(reasons)),

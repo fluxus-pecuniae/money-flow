@@ -139,9 +139,88 @@ def test_pt_rt1_2_data_unavailable_summary_separates_market_rows_from_lane_decis
     unavailable = summary["data_unavailable_summary"]
     assert unavailable["market_rows_checked"] == 1
     assert unavailable["market_rows_unavailable"] == 1
+    assert unavailable["candle_unavailable_blocking"] == 1
     assert unavailable["lane_expanded_data_unavailable_decisions"] == len(PT_RT1_STRATEGY_LANES)
-    assert "One unavailable public market-data row can expand" in unavailable["lane_expansion_note"]
+    assert "One blocking candle or indicator row can expand" in unavailable["lane_expansion_note"]
     assert unavailable["market_unavailable_rollup"][0]["reason"] == "public_mainnet_candleSnapshot_unavailable"
+
+
+def test_pt_rt1_3_missing_mids_are_warning_only_when_candles_are_available(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def thin_mid_transport(_endpoint: str, payload: dict, _timeout: float):
+        if payload["type"] == "meta":
+            return {"universe": [{"name": "ETH", "szDecimals": 4}]}
+        if payload["type"] == "allMids":
+            raise TimeoutError("thin mids")
+        if payload["type"] == "candleSnapshot":
+            return _transport(_endpoint, payload, _timeout)
+        raise AssertionError(payload)
+
+    monkeypatch.setattr(runner, "evaluate_paper_decision", _open_event)
+    output_dir = tmp_path / "reports" / "paper_runtime" / "pt_rt1_3_thin_mids"
+    output_dir.mkdir(parents=True)
+    summary = runner.run_cycle(
+        connector=HyperliquidPublicMarketDataConnector(transport=thin_mid_transport),
+        output_dir=output_dir,
+        symbols=["ETH"],
+        timeframes=["1h"],
+        max_candle_symbols=1,
+        run_label="PT-RT1.3",
+    )
+
+    unavailable = summary["data_unavailable_summary"]
+    assert summary["phase"] == "PT-RT1.3"
+    assert summary["mid_health_blocks_strategy"] is False
+    assert summary["candle_health_blocks_strategy"] is True
+    assert summary["connection_status"]["hyperliquid_public_mainnet"] == "connected_degraded_mids_unavailable"
+    assert unavailable["market_rows_checked"] == 1
+    assert unavailable["mid_warning_non_blocking"] == 1
+    assert unavailable["candle_unavailable_blocking"] == 0
+    assert unavailable["market_rows_unavailable"] == 0
+    assert unavailable["lane_expanded_data_unavailable_decisions"] == 0
+    assert summary["market_data_health"][0]["mid_health_status"] == "mid_unavailable_but_candles_available"
+    assert summary["market_data_health"][0]["strategy_data_status"] == "candle_ready"
+
+
+def test_pt_rt1_3_degraded_candles_still_block_strategy_decisions(tmp_path: Path) -> None:
+    def degraded_candle_transport(_endpoint: str, payload: dict, _timeout: float):
+        if payload["type"] == "meta":
+            return {"universe": [{"name": "ETH", "szDecimals": 4}]}
+        if payload["type"] == "allMids":
+            return {"ETH": "4000"}
+        if payload["type"] == "candleSnapshot":
+            start = int(payload["req"]["startTime"])
+            return [
+                {
+                    "t": start + i * 3600000,
+                    "T": start + (i + 1) * 3600000,
+                    "o": "100",
+                    "h": "99",
+                    "l": "98",
+                    "c": "101",
+                    "v": "10",
+                }
+                for i in range(40)
+            ]
+        raise AssertionError(payload)
+
+    output_dir = tmp_path / "reports" / "paper_runtime" / "pt_rt1_3_degraded_candles"
+    output_dir.mkdir(parents=True)
+    summary = runner.run_cycle(
+        connector=HyperliquidPublicMarketDataConnector(transport=degraded_candle_transport),
+        output_dir=output_dir,
+        symbols=["ETH"],
+        timeframes=["1h"],
+        max_candle_symbols=1,
+        run_label="PT-RT1.3",
+    )
+
+    assert summary["market_data_health"][0]["strategy_data_status"] == "candle_unavailable_blocking"
+    assert summary["data_unavailable_summary"]["candle_unavailable_blocking"] == 1
+    assert summary["data_unavailable_summary"]["lane_expanded_data_unavailable_decisions"] == len(PT_RT1_STRATEGY_LANES)
+    assert not [row for row in summary["latest_decisions"] if row["action"] == "paper_opened"]
 
 
 def test_pt_rt1_2_testnet_transport_is_audit_only_without_submit_request() -> None:

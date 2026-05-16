@@ -8978,10 +8978,13 @@
   }
 
   function paperObservationMdHealth(row) {
+    if (row.mid_health_status === "mid_unavailable_but_candles_available") return "mid_unavailable_but_candles_available";
+    if (row.mid_health_status === "mid_warning_non_blocking") return "mid_stale_or_thin_tick";
+    if (row.candle_strategy_ready === true || row.strategy_data_status === "candle_ready") return "healthy";
     const lastTick = Date.parse(row.last_live_tick_utc || "");
     const mid = decimal(row.public_mid, NaN);
-    if (!Number.isFinite(mid) || !Number.isFinite(lastTick)) return "unhealthy";
-    return Date.now() - lastTick > PAPER_OBSERVATION_MARKET_STALE_MS ? "unhealthy" : "healthy";
+    if (!Number.isFinite(mid) || !Number.isFinite(lastTick)) return "mid_stale_or_thin_tick";
+    return Date.now() - lastTick > PAPER_OBSERVATION_MARKET_STALE_MS ? "mid_stale_or_thin_tick" : "healthy";
   }
 
   function paperObservationScannerRows() {
@@ -8992,6 +8995,7 @@
       live_tick_status: live.status || "not_started",
       last_live_tick_utc: live.lastUpdatedUtc,
       endpoint_category: "public_read_only",
+      mid_health_status: row.data_health === "stale" ? "mid_warning_non_blocking" : row.mid_health_status,
     }));
   }
 
@@ -9128,7 +9132,8 @@
       ["Probe default", probe.PT_RT1_TESTNET_PROBES_ENABLED === false ? "disabled" : "review", "kill switch true by default"],
       ["Runtime state", `${runtimeState.open_positions_count ?? 0} open`, "persisted local paper state"],
       ["Duplicate opens blocked", String(runtimeState.duplicate_signal_blocks_this_cycle ?? 0), "same-candle signals become held/blocked"],
-      ["Data unavailable", `${unavailable.market_rows_unavailable ?? 0} market rows`, `${unavailable.lane_expanded_data_unavailable_decisions ?? 0} lane decisions`],
+      ["Candle unavailable", `${unavailable.candle_unavailable_blocking ?? unavailable.market_rows_unavailable ?? 0} blocking rows`, `${unavailable.lane_expanded_data_unavailable_decisions ?? 0} lane decisions`],
+      ["Mid warnings", `${unavailable.mid_warning_non_blocking ?? 0} warning rows`, "thin/stale mids do not block candle scans"],
     ];
     elements.paperObservationSummaryCards.innerHTML = cards
       .map(
@@ -9160,14 +9165,17 @@
         <div><span>Selected chart</span><strong>${escapeHtml(`${selectedPaperObservationVenueSymbol()} ${displayTimeframe(selectedPaperObservationTimeframe())}`)}</strong></div>
         <div><span>No private/signed/order endpoints</span><strong>${escapeHtml(String(status.no_private_signed_order_endpoints ?? true))}</strong></div>
         <div><span>No API keys</span><strong>${escapeHtml(String(status.no_api_keys ?? true))}</strong></div>
-        <div><span>Unavailable market rows</span><strong>${escapeHtml(String(summary?.data_unavailable_summary?.market_rows_unavailable ?? "n/a"))}</strong></div>
+        <div><span>Blocking candle rows</span><strong>${escapeHtml(String(summary?.data_unavailable_summary?.candle_unavailable_blocking ?? summary?.data_unavailable_summary?.market_rows_unavailable ?? "n/a"))}</strong></div>
+        <div><span>Mid warning rows</span><strong>${escapeHtml(String(summary?.data_unavailable_summary?.mid_warning_non_blocking ?? "n/a"))}</strong></div>
         <div><span>Lane-expanded unavailable</span><strong>${escapeHtml(String(summary?.data_unavailable_summary?.lane_expanded_data_unavailable_decisions ?? "n/a"))}</strong></div>
+        <div><span>Mid blocks strategy</span><strong>${escapeHtml(String(summary?.mid_health_blocks_strategy ?? endpointPolicy.mid_health_blocks_strategy ?? false))}</strong></div>
+        <div><span>Candles block strategy</span><strong>${escapeHtml(String(summary?.candle_health_blocks_strategy ?? endpointPolicy.candle_health_blocks_strategy ?? true))}</strong></div>
       </div>
       <div class="methodology-warning secondary" role="note">
         Public mainnet data is strategy truth. Synthetic paper results are forward observation only.
         Testnet probes are plumbing only; testnet fills do not update strategy PnL.
         Browser ticker uses Hyperliquid public mainnet allMids/candleSnapshot only.
-        Data unavailable is summarized two ways: public market-data rows first, then lane-expanded decisions across strategy lanes.
+        Data unavailable is candle-truth based: closed candle/indicator blockers can create lane-expanded decisions, while stale or missing mids are warning-only when candles are available.
         Reason codes: ${escapeHtml(paperObservationText([...(status.meta_reason_codes || []), ...(status.mids_reason_codes || [])], "pending_runtime_refresh"))}
         ${live.error ? ` Live polling status: ${escapeHtml(live.error)}.` : ""}
       </div>

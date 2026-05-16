@@ -406,6 +406,11 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "<th>Mid price</th>" in js
     assert "<th>Health</th>" in js
     assert "paperObservationMdHealth" in js
+    assert "mid_stale_or_thin_tick" in js
+    assert "mid_unavailable_but_candles_available" in js
+    assert "candle_unavailable_blocking" in js
+    assert "mid_health_blocks_strategy" in js
+    assert "stale or missing mids are warning-only when candles are available" in js
     assert "renderPaperObservationSignalGeneration" in js
     assert "intended_entry_signals" in js
     assert "entry_recorded" in js

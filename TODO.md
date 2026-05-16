@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-16T12:15:10Z`
+Last reviewed: `2026-05-16T12:58:09Z`
 
 ## Active Follow-Ups
+
+### T-144
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `PT-RT1.3 candle-truth data-health semantics are implemented. Supported/precision-ready Hyperliquid symbols no longer require a fresh public allMids value to enter the scanner; stale/thin/missing/nonpositive mids are warning-only when clean fully closed public-mainnet candleSnapshot rows are available. Runtime summary/data_health output now exposes data_health_semantics=candle_strategy_truth, mid_health_blocks_strategy=false, candle_health_blocks_strategy=true, mid warning counts, candle blocking counts, indicator blocking counts, and lane-expanded data_unavailable decisions. Dashboard Paper Observation separates blocking candle rows from mid warning rows so quiet Hyperliquid pairs do not look broken solely because public mids are stale. No production Money Flow rules changed; no paper/live approval, private/signed/order endpoint call, API-key use, testnet strategy truth, or SOR/fanout/CBBO was added.`
 
 ### T-143
 

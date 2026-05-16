@@ -12,6 +12,7 @@ from services.paper_runtime.pt_rt1 import (
     PT_RT1_TESTNET_INFO_URL,
     WILDCARD_STRATEGY_DEFINITIONS,
     Candle,
+    DataHealth,
     PaperLedger,
     PaperSignalKey,
     StrategyTruthPayloadValidation,
@@ -274,7 +275,11 @@ def test_expanded_symbol_aliases_blocks_and_source_merging() -> None:
     assert by_symbol["POL"].scanner_eligible is True
     assert by_symbol["MATIC"].blocked is True
     assert "delisted_symbol" in by_symbol["MATIC"].reason_codes
-    assert by_symbol["UNI"].blocked is True
+    assert by_symbol["UNI"].blocked is False
+    assert by_symbol["UNI"].scanner_eligible is True
+    assert by_symbol["UNI"].data_health == DataHealth.STALE
+    assert "mid_stale_or_thin_tick" in by_symbol["UNI"].reason_codes
+    assert "mid_health_warning_non_blocking" in by_symbol["UNI"].reason_codes
     assert "public_mid_missing_or_nonpositive" in by_symbol["UNI"].reason_codes
     assert by_symbol["BAD"].blocked is True
     assert "unsupported_by_hyperliquid" in by_symbol["BAD"].reason_codes

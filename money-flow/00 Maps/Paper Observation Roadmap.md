@@ -58,11 +58,18 @@ PT-RT1.2 runtime correctness:
 - `summary.json` separates unavailable public market-data rows from lane-expanded `data_unavailable` decisions.
 - The dashboard surfaces open positions, duplicate-open blocks, market-row unavailable counts, lane-expanded unavailable counts, transport mode, submit/cancel/reconcile counts, and the synthetic public-mainnet paper PnL source.
 
+PT-RT1.3 candle-truth data health:
+
+- Hyperliquid `meta` and precision determine scanner eligibility; missing or stale `allMids` no longer blocks supported pairs by itself.
+- Clean fully closed public-mainnet `candleSnapshot` rows are the strategy-readiness gate.
+- Stale/thin/missing/nonpositive mids are visible as warning-only labels such as `mid_stale_or_thin_tick` and `mid_unavailable_but_candles_available`.
+- Missing, malformed, or degraded candles and insufficient indicators remain blocking `data_unavailable` conditions.
+
 Paper Observation dashboard live display:
 
 - Browser-side watchlist polling calls Hyperliquid public mainnet `allMids` every 1 second.
 - The visible watchlist is intentionally compact: `Symbol`, `Mid price`, and `Health`.
-- Watchlist health is `unhealthy` when the latest market-data tick is missing or stale for more than 2 minutes.
+- Watchlist health can show stale/thin mid warnings, but those warnings do not imply strategy data failure when clean closed candles are available.
 - The selected pair/timeframe chart uses public mainnet `candleSnapshot`.
 - The adjacent Signal Generation panel lists recorded synthetic `paper_opened` intended-entry decisions from the PT-RT1 decision stream.
 - The local Start Run / Stop Run panel is available only when the dashboard is served by `scripts/run_dashboard_control_server.py`; it launches allowlisted public-mainnet sessions through Mac `caffeinate` and always forces `--enable-testnet-probes`, `--founder-approved-testnet-probes-20usdc`, `--testnet-probe-notional-usdc 20`, and `--public-mainnet-only`.
@@ -73,11 +80,11 @@ Paper Observation dashboard live display:
 
 Current next operational step:
 
-1. Evaluate the active `PT-RT1.1C` 24-hour runtime artifacts and any later 20 USDC probe audit/order-shape rows.
+1. Run and evaluate a fresh `PT-RT1.3` session so candle-truth data-health semantics are reflected in ignored runtime artifacts.
 2. Retain ignored artifacts under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/`.
 3. Evaluate those artifacts in `PT-RT1.1D`.
 4. If stable, start the 60-day public-mainnet forward-observation window.
-5. Scope real signed testnet transport submission separately if needed; dashboard-started PT-RT1.2 currently creates probe audit/order-shape rows only.
+5. Scope real signed testnet transport submission separately if needed; dashboard-started PT-RT1.3 currently creates probe audit/order-shape rows only.
 
 ## Required Boundaries
 
@@ -128,4 +135,6 @@ Current PT-RT1.1C status: `runtime_artifacts_present_pending_evaluation`.
 
 Current PT-RT1.2 status: `implemented_runtime_state_and_transport_gates`.
 
-This means the repo now has code, dashboard, public-mainnet connector, runtime command, summary JSON, tests, and runbooks for controlled forward observation across the expanded 10-lane lab. The local PT-RT1.1C artifact set under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` currently contains about 479k paper decision rows, 0 trade rows, and latest summary timestamp `2026-05-15T22:22:12Z`; PT-RT1.2 fixes the stateless repeated-open issue for fresh runs but does not rewrite old ignored logs. It is not an always-on hosted service: new signal generation requires manually starting `scripts/run_pt_rt1_paper_observation.py` and keeping that process and machine awake/networked for the chosen session. No 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading.
+Current PT-RT1.3 status: `implemented_candle_truth_data_health`.
+
+This means the repo now has code, dashboard, public-mainnet connector, runtime command, summary JSON, tests, and runbooks for controlled forward observation across the expanded 10-lane lab. The local PT-RT1.1C artifact set under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` currently contains about 479k paper decision rows, 0 trade rows, and latest summary timestamp `2026-05-15T22:22:12Z`; PT-RT1.2 fixes the stateless repeated-open issue for fresh runs and PT-RT1.3 fixes false-positive mid-driven `data_unavailable` rows for fresh runs, but neither phase rewrites old ignored logs. It is not an always-on hosted service: new signal generation requires manually starting `scripts/run_pt_rt1_paper_observation.py` and keeping that process and machine awake/networked for the chosen session. No 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading.

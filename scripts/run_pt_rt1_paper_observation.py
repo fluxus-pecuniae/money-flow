@@ -280,9 +280,26 @@ def _summarize_data_unavailable(
     *,
     market_health: Sequence[dict[str, Any]],
     decision_rows: Sequence[dict[str, Any]],
+    scanner_rows: Sequence[Any] = (),
 ) -> dict[str, Any]:
-    market_rows = [row for row in market_health if row.get("status") != DataHealth.HEALTHY.value]
+    market_rows = [
+        row
+        for row in market_health
+        if row.get("strategy_data_status") == "candle_unavailable_blocking"
+        or row.get("fully_closed_candle_status") != "closed_candle_ready"
+    ]
+    mid_warning_rows = [
+        row
+        for row in market_health
+        if row.get("mid_health_status") in {"mid_warning_non_blocking", "mid_unavailable_but_candles_available"}
+    ]
     decision_unavailable = [row for row in decision_rows if row.get("action") == "data_unavailable"]
+    indicator_unavailable = [
+        row
+        for row in decision_unavailable
+        if {"missing_indicator_field", "insufficient_history"} & set(str(reason) for reason in row.get("reason_codes") or [])
+    ]
+    scanner_blocked = [row for row in scanner_rows if getattr(row, "blocked", False)]
 
     def rollup(rows: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
         buckets: dict[tuple[str, str, str], int] = {}
@@ -300,11 +317,18 @@ def _summarize_data_unavailable(
     return {
         "market_rows_checked": len(market_health),
         "market_rows_unavailable": len(market_rows),
+        "scanner_identity_blocked": len(scanner_blocked),
+        "mid_warning_non_blocking": len(mid_warning_rows),
+        "market_rows_with_mid_warnings": len(mid_warning_rows),
+        "candle_unavailable_blocking": len(market_rows),
+        "indicator_unavailable_blocking": len(indicator_unavailable),
         "lane_expanded_data_unavailable_decisions": len(decision_unavailable),
         "lane_expansion_note": (
-            "One unavailable public market-data row can expand into one data_unavailable decision per strategy lane."
+            "One blocking candle or indicator row can expand into one data_unavailable decision per strategy lane. "
+            "Missing or stale mids are warning-only when closed candles are available."
         ),
         "market_unavailable_rollup": rollup(market_rows),
+        "mid_warning_rollup": rollup(mid_warning_rows),
         "lane_decision_unavailable_rollup": rollup(decision_unavailable),
     }
 
@@ -617,8 +641,11 @@ def run_cycle(
     now = _utc_now()
     meta_result = connector.fetch_meta()
     mids_result = connector.fetch_all_mids()
-    if meta_result.ok and mids_result.ok:
-        scanner_rows = resolve_watchlist_from_public_data(meta_payload=meta_result.payload, mids_payload=mids_result.payload)
+    if meta_result.ok:
+        scanner_rows = resolve_watchlist_from_public_data(
+            meta_payload=meta_result.payload,
+            mids_payload=mids_result.payload if mids_result.ok else {},
+        )
     else:
         scanner_rows = ()
 
@@ -647,6 +674,13 @@ def run_cycle(
             if closed_candles:
                 latest_closed_by_key[(str(row.canonical_symbol or row.requested_symbol).upper(), timeframe)] = closed_candles[-1]
             closed_status = "closed_candle_ready" if closed_candles else "candle_not_closed_or_unavailable"
+            mid_warning = row.data_health == DataHealth.STALE
+            candle_strategy_ready = bool(closed_candles) and candle_result.data_health == DataHealth.HEALTHY
+            market_reason_codes = (
+                [*row.reason_codes, *candle_result.reason_codes]
+                if candle_strategy_ready
+                else [*candle_result.reason_codes, *row.reason_codes]
+            )
             market_health.append(
                 {
                     "symbol": row.canonical_symbol,
@@ -656,10 +690,21 @@ def run_cycle(
                     "source": "Hyperliquid public mainnet",
                     "endpoint_category": connector.endpoint_category,
                     "status": candle_result.data_health.value,
+                    "strategy_data_status": "candle_ready" if candle_strategy_ready else "candle_unavailable_blocking",
+                    "candle_strategy_ready": candle_strategy_ready,
+                    "mid_health_status": (
+                        "mid_unavailable_but_candles_available"
+                        if mid_warning and candle_strategy_ready
+                        else "mid_warning_non_blocking"
+                        if mid_warning
+                        else "mid_healthy"
+                    ),
+                    "mid_health_blocks_strategy": False,
+                    "candle_health_blocks_strategy": True,
                     "fully_closed_candle_status": closed_status,
                     "latest_candle_update": candle_result.latest_candle_update,
                     "last_update_utc": _iso(now),
-                    "reason_codes": list(candle_result.reason_codes),
+                    "reason_codes": list(dict.fromkeys(market_reason_codes)),
                 }
             )
             if closed_candles and latest_chart is None:
@@ -691,7 +736,7 @@ def run_cycle(
                         timeframe=timeframe,
                         candles=closed_candles,
                         now=now,
-                        data_health=candle_result.data_health if closed_candles else DataHealth.UNAVAILABLE,
+                        data_health=DataHealth.HEALTHY if candle_strategy_ready else DataHealth.UNAVAILABLE,
                         position_open=lane_position_key in open_positions_by_key,
                         equity_before=equity_before,
                     )
@@ -795,18 +840,24 @@ def run_cycle(
     data_unavailable_summary = _summarize_data_unavailable(
         market_health=market_health,
         decision_rows=decision_rows,
+        scanner_rows=scanner_rows,
     )
-    runtime_status = "verified" if meta_result.ok and mids_result.ok and market_health else "blocked"
-    if not meta_result.ok or not mids_result.ok:
+    runtime_status = "verified" if meta_result.ok and market_health else "blocked"
+    if not meta_result.ok:
         runtime_status = "blocked_public_mainnet_network_unavailable"
     is_pt_rt1_1c = run_label == "PT-RT1.1C"
     is_pt_rt1_2 = run_label == "PT-RT1.2"
+    is_pt_rt1_3 = run_label == "PT-RT1.3"
     summary = {
         **base_summary,
         "phase": run_label,
         "revision": run_label,
         "status": (
-            "runtime_correctness_cycle_verified"
+            "candle_truth_data_health_cycle_verified"
+            if is_pt_rt1_3 and runtime_status == "verified"
+            else "candle_truth_data_health_cycle_blocked"
+            if is_pt_rt1_3
+            else "runtime_correctness_cycle_verified"
             if is_pt_rt1_2 and runtime_status == "verified"
             else "runtime_correctness_cycle_blocked"
             if is_pt_rt1_2
@@ -824,9 +875,18 @@ def run_cycle(
             "forbidden_payloads_rejected": True,
             "testnet_url_is_strategy_truth": False,
             "api_keys_required": False,
+            "data_health_semantics": "candle_strategy_truth",
+            "mid_health_blocks_strategy": False,
+            "candle_health_blocks_strategy": True,
         },
         "connection_status": {
-            "hyperliquid_public_mainnet": "connected" if meta_result.ok and mids_result.ok else "disconnected",
+            "hyperliquid_public_mainnet": (
+                "connected"
+                if meta_result.ok and mids_result.ok
+                else "connected_degraded_mids_unavailable"
+                if meta_result.ok
+                else "disconnected"
+            ),
             "endpoint_category": "public_read_only",
             "last_update_utc": _iso(now),
             "meta_reason_codes": list(meta_result.reason_codes),
@@ -834,6 +894,9 @@ def run_cycle(
             "no_private_signed_order_endpoints": True,
             "no_api_keys": True,
         },
+        "data_health_semantics": "candle_strategy_truth",
+        "mid_health_blocks_strategy": False,
+        "candle_health_blocks_strategy": True,
         "scanner_universe": scanner_payload,
         "watchlist_status": {
             "requested_symbols": list(PT_RT1_REQUESTED_SCANNER_SYMBOLS),
@@ -923,7 +986,11 @@ def run_cycle(
             "testnet_fills_update_strategy_pnl": False,
         },
         "next_phase_decision": (
-            "PT-RT1.2 may continue paper observation; signed testnet transport remains blocked unless exact transport approval and a configured client are present"
+            "PT-RT1.3 may continue paper observation; missing/stale mids are warning-only when closed candles are available"
+            if is_pt_rt1_3 and runtime_status == "verified"
+            else "PT-RT1.3 blocked"
+            if is_pt_rt1_3
+            else "PT-RT1.2 may continue paper observation; signed testnet transport remains blocked unless exact transport approval and a configured client are present"
             if is_pt_rt1_2 and runtime_status == "verified"
             else "PT-RT1.2 blocked"
             if is_pt_rt1_2
@@ -1022,7 +1089,7 @@ def main() -> int:
         raise SystemExit("positive_duration_required")
     connector = HyperliquidPublicMarketDataConnector()
     end_time = _utc_now() + duration
-    run_label = "PT-RT1.2" if args.enable_testnet_probes else "PT-RT1.1C" if "pt_rt1_1c" in str(args.output_dir) else "PT-RT1.1B"
+    run_label = "PT-RT1.3" if args.enable_testnet_probes else "PT-RT1.1C" if "pt_rt1_1c" in str(args.output_dir) else "PT-RT1.1B"
     cycle = 0
     last_summary: dict[str, Any] = {}
     while True:

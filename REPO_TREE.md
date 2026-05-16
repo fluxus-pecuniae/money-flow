@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-16T12:15:10Z`
+Last reviewed: `2026-05-16T12:58:09Z`
 
 ## Top-Level Structure
 
@@ -169,9 +169,13 @@ Last reviewed: `2026-05-16T12:15:10Z`
 - `scripts/run_dashboard_control_server.py` serves the dashboard from localhost with a tiny Paper Observation control API. Its Start Run path launches `scripts/run_pt_rt1_paper_observation.py` through Mac `caffeinate` using only allowlisted durations/output directories and always forces `--enable-testnet-probes`, `--founder-approved-testnet-probes-20usdc`, `--testnet-probe-notional-usdc 20`, `--public-mainnet-only`, and `--decision-log-mode compact`; static dashboard servers leave Start/Stop unavailable. It adds no order controls, no arbitrary command execution, no private/signed/order endpoint use, no API-key use, and no live/paper approval. The probe lane records 20 USDC audit/order-shape rows only and does not call signed/order endpoints.
 - `scripts/run_pt_rt1_paper_observation.py` defaults to compact decision logging for ignored runtime `decisions.jsonl`: actionable open/close rows and data-unavailable rows are written, first-seen non-actionable audit context is retained, repeated identical non-actionable rows are suppressed across cycles, and summary/state files record suppression/size stats. `--decision-log-mode full_audit` and `--decision-log-mode signals_only` remain explicit operator modes.
 - PT-RT1.2 extends `scripts/run_pt_rt1_paper_observation.py` with persisted runtime paper state in each ignored output directory's `state.json`: processed signal keys, open synthetic positions, realized equity by lane, last processed close by lane/symbol/timeframe, duplicate-open counters, and open/close totals. Repeated same-candle open attempts become held/blocked decisions rather than new `paper_opened` rows, closed synthetic positions append to `trades.jsonl`, and `summary.json` separates public market-data unavailable rows from lane-expanded `data_unavailable` decisions. The script also exposes an explicit fakeable 20 USDC Hyperliquid testnet transport gate behind `--submit-testnet-probes` plus exact PT-RT1.2 transport approval while keeping dashboard-started runs audit/order-shape only.
+- PT-RT1.3 changes runtime data-health semantics so Hyperliquid `allMids` gaps are warning-only when fully closed public-mainnet `candleSnapshot` rows are available. Scanner eligibility now relies on supported venue identity and precision rather than mid presence; `summary.json` and `data_health.json` expose `data_health_semantics=candle_strategy_truth`, `mid_health_blocks_strategy=false`, mid-warning counts, and candle/indicator blocking counts.
 
 `docs/pt_rt1_2_runtime_state_and_testnet_probe_transport.md`
 - Founder/operator report for PT-RT1.2 runtime state and testnet transport gates.
+
+`docs/pt_rt1_3_candle_truth_data_health.md`
+- Founder/operator report for PT-RT1.3 candle-truth data-health semantics and thin/stale-mid false-positive handling.
 - Documents the repeated-open fix, persisted state shape, `data_unavailable` rollups, dashboard visibility, 20 USDC transport approval gate, audit-only dashboard default, and no-order/no-live/no-testnet-PnL boundaries.
 - The 2026-05-14 dashboard styling checkpoint adds the small local `chillguy-logo.jpeg` brand asset plus theme-aware chart color variables and Historical Replay data-horizon card styling. It is UI styling only and changes no strategy, evidence, endpoint, paper/live, or order behavior.
 
@@ -733,7 +737,7 @@ Last reviewed: `2026-05-16T12:15:10Z`
 `services/paper_runtime/`
 - PT-RT1 public-mainnet paper-observation primitives.
 - `services/paper_runtime/pt_rt1.py` validates Hyperliquid public mainnet strategy-truth payloads, resolves top-20 scanner eligibility, enforces fully closed candle gating, computes paper-observation indicators without defaulting missing fields to zero, models independent 10,000 USDC synthetic paper ledgers, prevents duplicate synthetic signals, defines the required Money Flow/SOR/MF-ORIG/wildcard observation lanes, evaluates synthetic paper decisions, and evaluates disabled-by-default Hyperliquid testnet plumbing-probe gates. It does not import production Money Flow rule changes, call private/signed/order endpoints, use API keys, create production execution artifacts, or let testnet fills update paper PnL.
-- `services/paper_runtime/hyperliquid_public_market_data.py` is the PT-RT1.1B public-read-only Hyperliquid mainnet connector. It calls only allowlisted `/info` payloads, normalizes `meta`, `allMids`, and `candleSnapshot`, resolves requested vs venue watchlist rows with reason codes, validates OHLC/timestamp truth, and exposes data-health status without credentials, private/signed/order endpoints, testnet prices as strategy truth, or order artifacts.
+- `services/paper_runtime/hyperliquid_public_market_data.py` is the PT-RT1 public-read-only Hyperliquid mainnet connector. It calls only allowlisted `/info` payloads, normalizes `meta`, `allMids`, and `candleSnapshot`, resolves requested vs venue watchlist rows with reason codes, validates OHLC/timestamp truth, and exposes data-health status without credentials, private/signed/order endpoints, testnet prices as strategy truth, or order artifacts. Under PT-RT1.3, missing or stale mids are warning-only when clean fully closed candles are available.
 
 `services/market_data/`
 - Candle bootstrap, persistence, checkpoint semantics, and freshness handling.

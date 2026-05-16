@@ -13,6 +13,47 @@ Entry schema:
 
 ---
 
+## v2026.05.16.008
+
+- `recorded_at_utc`: `2026-05-16T12:58:09Z`
+- `scope`: `PT-RT1.3 candle-truth data-health semantics`
+- `intent`: `Native entry. Implemented PT-RT1.3 so thin, stale, missing, or nonpositive Hyperliquid public mids are warning-only when clean fully closed public-mainnet candleSnapshot candles are available. Scanner eligibility now depends on supported venue identity and precision rather than allMids presence; runtime summary/data_health rows expose candle_strategy_truth semantics, mid_health_blocks_strategy=false, candle_health_blocks_strategy=true, mid warning rollups, and candle/indicator blocking counts. Dashboard Paper Observation now separates blocking candle rows from non-blocking mid warning rows so quiet Hyperliquid pairs do not create false-positive data_unavailable decisions. This is runtime data-health semantics only: no production Money Flow rules changed, no paper/live approval was added, no private/signed/order endpoints or API keys were used, no testnet strategy truth was introduced, and no SOR/fanout/CBBO behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `docs/pt_rt1_3_candle_truth_data_health.md`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `scripts/run_pt_rt1_paper_observation.py`
+  - `services/paper_runtime/pt_rt1.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_pt_rt1_paper_observation.py`
+  - `tests/test_pt_rt1_2_runtime_state_and_transport.py`
+- `validation_performed`:
+  - `python -m py_compile services/paper_runtime/pt_rt1.py scripts/run_pt_rt1_paper_observation.py tests/test_pt_rt1_paper_observation.py tests/test_pt_rt1_2_runtime_state_and_transport.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_paper_observation.py tests/test_pt_rt1_1b_public_market_data.py tests/test_pt_rt1_2_runtime_state_and_transport.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py::test_pt_rt1_paper_observation_dashboard_tab`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_dashboard_control_server.py`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1.3-review.zip`
+  - `review bundle excluded-path scan: 537 entries, 0 excluded path hits`
+  - `review bundle secret-pattern scan: broad hits limited to .env.example placeholders and existing config/code/test references; no sandbox secret values found`
+
 ## v2026.05.16.007
 
 - `recorded_at_utc`: `2026-05-16T12:38:00Z`

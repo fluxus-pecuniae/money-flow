@@ -213,7 +213,8 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "PT-RT1" in current_phase
     assert "PT-RT1.1" in current_phase
     assert "PT-RT1.2" in current_phase
-    assert "repeated same-candle" in current_phase
+    assert "PT-RT1.3" in current_phase
+    assert "stale/thin/missing/nonpositive Hyperliquid public mids are warning-only" in current_phase
     assert "Signed testnet transport is present only as an explicit gated path" in current_phase
     assert "`MF-ORIG-EV2` Original Money Flow multi-timeframe evidence packs and Historical Replay UI are complete" in current_phase
     assert "MF-ORIG-EV1.1" in current_phase
@@ -249,7 +250,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "PT-RT1.1" in command_center
     assert "PT-RT1.2" in command_center
     assert "repeated same-candle" in command_center
-    assert "signed testnet transport is now an explicit PT-RT1.2 gated path" in command_center
+    assert "signed testnet transport is an explicit PT-RT1.2 gated path" in command_center
     assert "Evidence and Backtesting Map" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
@@ -296,7 +297,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert "Current implemented milestone | `PT-RT1.2` runtime correctness plus 20 USDC testnet transport gates" in command_center
+    assert "Current implemented milestone | `PT-RT1.3` candle-truth data-health semantics" in command_center
     assert "Canonical command center" in compatibility_command_center
     assert "PT-RT1 now implements the public-mainnet paper-observation substrate" in current_dashboard
     assert "SV2.0.2 canonical evidence" in current_dashboard
@@ -459,10 +460,10 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "no clean strategy candidate" in strategy_register
     assert "No strategy is production-ready" in current_phase or "no clean strategy candidate is promoted" in current_phase
     assert "PT-RT1" in current_phase
-    assert "Run a fresh `PT-RT1.2` observation session" in current_phase
+    assert "Run a fresh `PT-RT1.3` observation session" in current_phase
     assert "compact-log suppression/size stats" in current_phase
     assert "duplicate same-candle open blocking" in current_phase
-    assert "data-unavailable market-row versus lane-decision rollups" in current_phase
+    assert "mid-warning rollups" in current_phase
     assert "Signed testnet transport should remain off" in current_phase
     assert "SV2.0.2" in project_memory
     assert "MF-ORIG" in project_memory
@@ -519,7 +520,7 @@ def test_pt_rt1_operational_docs_are_current() -> None:
         assert "Live trading is not approved" in contents or "live trading" in contents
 
     assert "strategy-truth lane is Hyperliquid public mainnet market data only" in command_center
-    assert "PT-RT1.2 is the current runtime-correctness layer" in command_center
+    assert "PT-RT1.3 is the current runtime data-health layer" in command_center
     assert "state persists processed signal keys" in command_center
     assert "normal dashboard path remains audit/order-shape only" in command_center
     assert "not production approval" in report
@@ -531,7 +532,7 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     assert "TRON" in report
     assert "kPEPE" in report
     assert "notional cap is `20 USDC`" in paper_roadmap
-    assert "dashboard-started PT-RT1.2 currently creates probe audit/order-shape rows only" in paper_roadmap
+    assert "dashboard-started PT-RT1.3 currently creates probe audit/order-shape rows only" in paper_roadmap
     assert "signed transport requires the explicit PT-RT1.2" in paper_roadmap
     assert "testnet fills never update strategy paper PnL" in paper_roadmap
     assert "runtime_collection_started" in start_summary
