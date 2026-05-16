@@ -418,3 +418,7 @@ PT-RT1.3 fixes false-positive `data_unavailable` rows caused by stale/thin/missi
 2026-05-16 - PT-RT1.3 TRUMP Runtime Scanner Deferral
 
 TRUMP is deferred from fresh PT-RT paper-observation scanner runs after founder review because it created excessive runtime noise. New PT-RT requested scanner symbols exclude TRUMP and summary metadata records `deferred_runtime_symbols.TRUMP=runtime_noise_deferred_by_founder`. Existing SV2.1 historical evidence artifacts that already include TRUMP remain historical truth and were not regenerated or rewritten. No production Money Flow rule changed, no paper/live approval was added, no order/private/signed endpoint/API-key/testnet-strategy-truth path was added, and no SOR/fanout/CBBO behavior was added.
+
+2026-05-16 - PT-RT1.3 Paper Observation Signal Visibility
+
+The Paper Observation dashboard now loads recent ignored PT-RT `decisions.jsonl` rows for Signal Generation so durable synthetic `paper_opened` signals remain visible even when the latest `summary.json` cycle has no new opens. The testnet probe panel now separates local 20 USDC audit/order-shape rows from signed testnet orders and labels `audit_only` as no signed Hyperliquid testnet submission. Signed transport still requires a separate explicit PT-RT1.2 gate, exact approval, and a configured client. No production Money Flow rule changed, no paper/live approval was added, no order/private/signed endpoint/API-key/testnet-strategy-truth path was added, and no SOR/fanout/CBBO behavior was added.

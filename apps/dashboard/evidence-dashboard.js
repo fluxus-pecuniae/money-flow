@@ -121,6 +121,11 @@
     "../../docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json",
     "../../docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json",
   ];
+  const DEFAULT_PT_RT1_DECISION_LOG_FILES = [
+    "../../reports/paper_runtime/pt_rt1_1c_24h_dry_run/decisions.jsonl",
+    "../../reports/paper_runtime/pt_rt1_1b_smoke/decisions.jsonl",
+  ];
+  const PAPER_OBSERVATION_DECISION_LOG_LIMIT = 10000;
   const RUN_LEDGER_DISPLAY_FILTER_BOUNDARY = "date filters are display-only, not canonical pack regeneration";
 
   const HYPERLIQUID_MAINNET_PUBLIC_INFO_URL = "https://api.hyperliquid.xyz/info";
@@ -634,6 +639,8 @@
     mfOrigSummary: null,
     evAuditSummary: null,
     ptRt1Summary: null,
+    ptRt1DecisionRows: [],
+    ptRt1DecisionSource: "",
     tradingViewChart: {
       chart: null,
       mount: null,
@@ -756,9 +763,9 @@
       routedLabel: "all",
     },
     paperObservation: {
-      symbol: "ETH",
-      timeframe: "1h",
-      laneId: "money_flow_v1_2_baseline",
+      symbol: "all",
+      timeframe: "all",
+      laneId: "all",
       dateStart: "",
       dateEnd: "",
     },
@@ -8739,6 +8746,50 @@
     return Array.isArray(rows) ? rows : [];
   }
 
+  function paperObservationDecisionTime(row) {
+    return row?.decision_time || row?.signal_candle_close_time || row?.signal_candle_open_time || row?.entry_time || "";
+  }
+
+  function paperObservationSignalKey(row) {
+    return [
+      row?.action || "paper_opened",
+      row?.strategy_id || row?.lane_id || "",
+      row?.symbol || row?.requested_symbol || row?.resolved_venue_symbol || "",
+      canonicalTimeframe(row?.timeframe || ""),
+      row?.signal_candle_close_time || row?.signal_candle_open_time || row?.decision_time || "",
+    ].join("|");
+  }
+
+  function paperObservationRecentSignalRows(summary) {
+    const seen = new Set();
+    const rows = [
+      ...paperObservationRows(summary?.intended_entry_signals),
+      ...paperObservationRows(state.ptRt1DecisionRows).filter((row) => row.action === "paper_opened"),
+      ...paperObservationRows(summary?.latest_decisions).filter((row) => row.action === "paper_opened"),
+    ]
+      .filter((row) => row && (row.action === "paper_opened" || !row.action))
+      .filter((row) => {
+        const key = paperObservationSignalKey(row);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .sort((left, right) => String(paperObservationDecisionTime(right)).localeCompare(String(paperObservationDecisionTime(left))));
+    return rows;
+  }
+
+  function paperObservationDateFilterMatches(row) {
+    const start = state.paperObservation.dateStart;
+    const end = state.paperObservation.dateEnd;
+    if (!start && !end) return true;
+    const timestamp = paperObservationDecisionTime(row);
+    if (!timestamp) return false;
+    const day = String(timestamp).slice(0, 10);
+    if (start && day < start) return false;
+    if (end && day > end) return false;
+    return true;
+  }
+
   function paperObservationText(value, fallback = "data_not_available_in_pt_rt1_bundle") {
     if (Array.isArray(value)) return value.join(", ") || fallback;
     if (value === null || value === undefined || value === "") return fallback;
@@ -9234,19 +9285,26 @@
     const summary = paperObservationSummary();
     const selectedSymbol = state.paperObservation.symbol;
     const selectedTimeframe = state.paperObservation.timeframe;
-    const sourceRows = paperObservationRows(summary?.intended_entry_signals).length
-      ? paperObservationRows(summary?.intended_entry_signals)
-      : paperObservationRows(summary?.latest_decisions).filter((row) => row.action === "paper_opened");
+    const selectedLane = state.paperObservation.laneId;
+    const sourceRows = paperObservationRecentSignalRows(summary);
     const rows = sourceRows.filter(
       (row) =>
         (selectedSymbol === "all" || row.symbol === selectedSymbol || row.requested_symbol === selectedSymbol || row.resolved_venue_symbol === selectedSymbol) &&
-        (selectedTimeframe === "all" || sameTimeframe(row.timeframe, selectedTimeframe)),
+        (selectedTimeframe === "all" || sameTimeframe(row.timeframe, selectedTimeframe)) &&
+        (selectedLane === "all" || row.strategy_id === selectedLane || row.lane_id === selectedLane) &&
+        paperObservationDateFilterMatches(row),
     );
     if (!rows.length) {
-      setEmpty(elements.paperObservationSignalTable, "No intended entry signals recorded yet. Paper-open decisions are recorded in the ignored PT-RT1 decisions stream and appear here when present.");
+      const sourceMessage = sourceRows.length
+        ? "No intended entry signals match the selected filters. Set Symbol, Timeframe, and Lane to All to inspect recent paper-open rows."
+        : "No intended entry signals recorded yet. Paper-open decisions are recorded in the ignored PT-RT1 decisions stream and appear here when present.";
+      setEmpty(elements.paperObservationSignalTable, sourceMessage);
       return;
     }
     elements.paperObservationSignalTable.innerHTML = `
+      <div class="methodology-warning compact">
+        Showing latest synthetic <code>paper_opened</code> rows from ${escapeHtml(state.ptRt1DecisionSource || "runtime summary / decisions stream")}. These are paper-observation signals, not exchange orders.
+      </div>
       <table>
         <thead>
           <tr>
@@ -9660,6 +9718,8 @@
     const policy = summary?.testnet_probe_policy || {};
     const plumbing = summary?.plumbing_lane || {};
     const runtime = summary?.testnet_plumbing_status || {};
+    const submittedCount = runtime.transport_submitted_this_cycle ?? 0;
+    const signedCalled = Boolean(runtime.signed_order_endpoint_called || runtime.order_endpoint_called);
     elements.paperObservationProbeStatus.innerHTML = `
       <div class="market-micro-grid">
         <div><span>Lane</span><strong>testnet plumbing only</strong></div>
@@ -9668,13 +9728,17 @@
         <div><span>Daily cap</span><strong>${escapeHtml(String(runtime.daily_cap ?? policy.PT_RT1_TESTNET_DAILY_PROBE_CAP ?? 200))}</strong></div>
         <div><span>Eligible shapes</span><strong>${escapeHtml(String(runtime.eligible_probe_shapes_this_cycle ?? "runtime_not_started"))}</strong></div>
         <div><span>Transport mode</span><strong>${escapeHtml(runtime.transport_mode || "audit_only")}</strong></div>
-        <div><span>Submitted</span><strong>${escapeHtml(String(runtime.transport_submitted_this_cycle ?? 0))}</strong></div>
+        <div><span>Audit/order-shape rows</span><strong>${escapeHtml(String(runtime.probe_audit_rows_this_cycle ?? 0))}</strong></div>
+        <div><span>Signed testnet orders</span><strong>${escapeHtml(String(signedCalled ? submittedCount : 0))}</strong></div>
         <div><span>Cancel / reconcile</span><strong>${escapeHtml(`${runtime.transport_cancel_attempted_this_cycle ?? 0} / ${runtime.transport_reconciled_this_cycle ?? 0}`)}</strong></div>
         <div><span>Notional cap</span><strong>${escapeHtml(String(runtime.probe_notional_cap_usdc ?? policy.PT_RT1_TESTNET_PROBE_NOTIONAL_CAP ?? "20"))} USDC</strong></div>
         <div><span>Last lifecycle</span><strong>${escapeHtml(runtime.transport_status || "runtime_not_started")}</strong></div>
         <div><span>Open after reconcile</span><strong>none</strong></div>
         <div><span>Unknown state</span><strong>blocked_if_present</strong></div>
         <div><span>Strategy PnL update</span><strong>${escapeHtml(String(runtime.testnet_fills_do_not_update_strategy_pnl === true ? false : plumbing.testnet_fills_update_strategy_pnl ?? false))}</strong></div>
+      </div>
+      <div class="methodology-warning compact">
+        <code>audit_only</code> means the runtime writes 20 USDC testnet probe shapes but does not call signed Hyperliquid testnet order endpoints. Actual signed testnet transport requires the separate PT-RT1.2 transport gate, exact approval, and a configured client.
       </div>
     `;
   }
@@ -9843,6 +9907,7 @@
     await loadDefaultMfOrigSummaries();
     await loadDefaultEvAuditSummaries();
     await loadDefaultPtRt1Summaries();
+    await loadDefaultPtRt1DecisionRows();
 
     state.review = null;
     state.batches = [];
@@ -10121,6 +10186,40 @@
         const payload = await response.json();
         if (classifyJson(payload) === "pt_rt1_summary") {
           state.ptRt1Summary = payload;
+          break;
+        }
+      } catch (error) {
+        console.warn(`Could not load ${path}`, error);
+      }
+    }
+  }
+
+  function parsePaperObservationDecisionLog(text, sourcePath) {
+    return String(text || "")
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .slice(-PAPER_OBSERVATION_DECISION_LOG_LIMIT)
+      .map((line) => {
+        try {
+          const row = JSON.parse(line);
+          return row && typeof row === "object" ? { ...row, __source_path: sourcePath } : null;
+        } catch (error) {
+          return null;
+        }
+      })
+      .filter(Boolean);
+  }
+
+  async function loadDefaultPtRt1DecisionRows() {
+    for (const path of DEFAULT_PT_RT1_DECISION_LOG_FILES) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const text = await response.text();
+        const rows = parsePaperObservationDecisionLog(text, path);
+        if (rows.length) {
+          state.ptRt1DecisionRows = rows;
+          state.ptRt1DecisionSource = path;
           break;
         }
       } catch (error) {

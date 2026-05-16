@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-16T19:45:03Z - PT-RT1.3 - Surface Durable Paper Signals And Keep Testnet Probe Transport Explicit
+
+- `decision`: The Paper Observation dashboard should read recent ignored PT-RT `decisions.jsonl` rows for Signal Generation, not only the current-cycle `summary.json` signal field, and should label audit/order-shape rows separately from signed testnet orders.
+- `scope`: `apps/dashboard/evidence-dashboard.js` now loads recent `decisions.jsonl` rows from PT-RT runtime directories, defaults Paper Observation filters to All, renders durable synthetic `paper_opened` rows, and labels `audit_only` as local 20 USDC testnet probe shape generation without signed Hyperliquid testnet submission.
+- `why`: Founder saw signals in runtime artifacts but not in the UI because the latest summary cycle had no new `paper_opened` rows. Founder also expected visible testnet submissions, but the current dashboard path intentionally writes audit/order-shape rows only.
+- `result`: `implemented_dashboard_runtime_truth_visibility`. Existing local runtime artifacts can populate Signal Generation without restarting the run. Signed testnet transport remains off unless a future operator uses the separate PT-RT1.2 transport gate with exact approval and a configured client.
+- `follow_up_implications`: A future signed-testnet-transport phase must be explicitly scoped and approved before any real Hyperliquid testnet order endpoint calls. This decision does not change Money Flow production rules, approve paper/live trading, regenerate evidence packs, use API keys, use testnet strategy truth, or add SOR/fanout/CBBO.
+
 ## 2026-05-16T13:30:10Z - PT-RT1.3 - Defer TRUMP From Fresh Runtime Scanner
 
 - `decision`: Remove TRUMP from fresh PT-RT paper-observation scanner runs and record it as a deferred runtime symbol.

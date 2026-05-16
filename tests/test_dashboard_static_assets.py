@@ -337,6 +337,11 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert ".paper-observation-controls" in css
     assert ".paper-runtime-control" in css
     assert "DEFAULT_PT_RT1_SUMMARY_FILES" in js
+    assert "DEFAULT_PT_RT1_DECISION_LOG_FILES" in js
+    assert "pt_rt1_1c_24h_dry_run/decisions.jsonl" in js
+    assert "parsePaperObservationDecisionLog" in js
+    assert "paperObservationRecentSignalRows" in js
+    assert "No intended entry signals match the selected filters" in js
     assert "/api/paper-runtime/status" in js
     assert "/api/paper-runtime/start" in js
     assert "/api/paper-runtime/stop" in js
@@ -413,7 +418,11 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "stale or missing mids are warning-only when candles are available" in js
     assert "renderPaperObservationSignalGeneration" in js
     assert "intended_entry_signals" in js
+    assert "state.ptRt1DecisionRows" in js
     assert "entry_recorded" in js
+    assert "Audit/order-shape rows" in js
+    assert "Signed testnet orders" in js
+    assert "means the runtime writes 20 USDC testnet probe shapes" in js
     watchlist_renderer = js[js.index("function renderPaperObservationScanner") : js.index("function renderPaperObservationSignalGeneration")]
     assert "<th>Venue symbol</th>" not in watchlist_renderer
     assert "<th>Reason codes</th>" not in watchlist_renderer

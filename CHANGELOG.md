@@ -13,6 +13,32 @@ Entry schema:
 
 ---
 
+## v2026.05.16.010
+
+- `recorded_at_utc`: `2026-05-16T19:45:03Z`
+- `scope`: `PT-RT1.3 Paper Observation signal visibility`
+- `intent`: `Native entry. Fixed Paper Observation Signal Generation visibility by loading recent ignored PT-RT decisions.jsonl rows in addition to summary.json, defaulting Paper Observation filters to All, and rendering durable synthetic paper_opened rows even when the latest runtime summary cycle has no new opens. The Paper Observation testnet panel now distinguishes local 20 USDC audit/order-shape rows from signed Hyperliquid testnet orders and explicitly labels audit_only as no signed testnet submission. This is dashboard/runtime-truth visibility only: no production Money Flow rules changed, no evidence packs were regenerated, no paper/live approval was added, no signed/private/order endpoint calls or API keys were used, no testnet strategy truth was introduced, and no SOR/fanout/CBBO behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py::test_pt_rt1_paper_observation_dashboard_tab`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1.3-paper-signal-ui-review.zip`
+  - `review bundle excluded-path scan: 537 entries, 0 excluded path hits`
+
 ## v2026.05.16.009
 
 - `recorded_at_utc`: `2026-05-16T13:30:10Z`

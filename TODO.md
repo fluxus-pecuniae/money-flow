@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-16T13:30:10Z`
+Last reviewed: `2026-05-16T19:45:03Z`
 
 ## Active Follow-Ups
+
+### T-146
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `Paper Observation Signal Generation dashboard visibility is fixed. The tab now loads recent ignored PT-RT decisions.jsonl rows in addition to summary.json, defaults Paper Observation filters to All, and renders durable synthetic paper_opened rows even when the latest runtime summary cycle contains no new opens. The testnet probe panel now separates audit/order-shape rows from signed testnet orders and explicitly labels audit_only as local 20 USDC shape generation without signed Hyperliquid testnet submission. This is UI/runtime-truth visibility only: no production Money Flow rules changed, no paper/live approval, signed/private/order endpoint call, API-key use, testnet strategy truth, or SOR/fanout/CBBO was added.`
 
 ### T-145
 
