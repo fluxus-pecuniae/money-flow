@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-16T11:00:18Z - PT-RT1 - Compact Decision Logging Default
+
+- `decision`: Make PT-RT1 runtime decision logging compact by default and keep full-audit logging as an explicit mode.
+- `scope`: `scripts/run_pt_rt1_paper_observation.py` now supports `--decision-log-mode compact|full_audit|signals_only`, defaults to compact, preserves actionable open/close and data-unavailable rows, suppresses repeated identical non-actionable rows across cycles, and writes log-size/suppression stats into `summary.json`. `scripts/run_dashboard_control_server.py` starts local runtime sessions with compact logging, and the Paper Observation dashboard displays log mode/size/written/suppressed stats.
+- `why`: A local runtime run showed `decisions.jsonl` can become operationally large when repeated no-trade/non-actionable decisions are appended forever. Founder review needs manageable runtime artifacts without losing synthetic trade signals.
+- `result`: Future dashboard-started PT-RT1 runs use compact logging. Existing ignored large local logs are not rewritten or deleted by this decision.
+- `follow_up_implications`: PT-RT1.1D should evaluate compact-log health alongside market-data, candle-gating, duplicate-prevention, and no-order/no-live runtime checks. This decision does not change Money Flow rules, approve paper/live trading, submit orders, call private/signed/order endpoints, enable testnet probes, use API keys, use testnet data as strategy truth, regenerate evidence packs, or add SOR/fanout/CBBO.
+
 ## 2026-05-16T10:15:00Z - PT-RT1 - Local Caffeinated Dashboard Start Run Control
 
 - `decision`: Add a localhost-only dashboard control server so the founder can start and stop PT-RT1 paper-observation runs from the Paper Observation tab while keeping a Mac awake.

@@ -300,7 +300,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert "Current implemented milestone | `PT-RT1.1C` 24-hour probes-disabled runtime collection start" in command_center
+    assert "Current implemented milestone | `PT-RT1.1C` 24-hour probes-disabled runtime collection artifacts plus compact decision logging default" in command_center
     assert "Canonical command center" in compatibility_command_center
     assert "PT-RT1 now implements the public-mainnet paper-observation substrate" in current_dashboard
     assert "SV2.0.2 canonical evidence" in current_dashboard
@@ -463,7 +463,8 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "no clean strategy candidate" in strategy_register
     assert "No strategy is production-ready" in current_phase or "no clean strategy candidate is promoted" in current_phase
     assert "PT-RT1" in current_phase
-    assert "Let `PT-RT1.1C` finish the 24-hour probes-disabled dry run" in current_phase
+    assert "Run `PT-RT1.1D` against the ignored artifacts" in current_phase
+    assert "compact-log suppression/size stats" in current_phase
     assert "PT-RT1.1D should evaluate" in current_phase
     assert "PT-RT1.1A completed the expanded-lab readiness" in current_phase
     assert "PT-RT1.1B completed public-mainnet connector/runtime readiness" in current_phase

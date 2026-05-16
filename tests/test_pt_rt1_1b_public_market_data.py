@@ -18,6 +18,7 @@ from services.paper_runtime.pt_rt1 import (
     evaluate_paper_decision,
     validate_strategy_truth_payload,
 )
+from scripts.run_pt_rt1_paper_observation import _select_decision_log_rows
 
 
 def _transport(_endpoint: str, payload: dict, _timeout: float):
@@ -137,3 +138,59 @@ def test_runtime_command_and_founder_outputs_exist() -> None:
     assert "reports/paper_runtime/" in text
     assert report.exists()
     assert summary.exists()
+
+
+def test_compact_decision_log_suppresses_repeated_non_actionable_rows() -> None:
+    no_trade = {
+        "lane_id": "money_flow_v1_2_baseline",
+        "strategy_id": "money_flow_v1_2_baseline",
+        "symbol": "ETH",
+        "timeframe": "1h",
+        "signal_candle_close_time": "2026-05-16T10:00:00Z",
+        "action": "no_trade",
+        "reason_codes": ["macd_not_constructive"],
+    }
+    paper_opened = {
+        **no_trade,
+        "signal_candle_close_time": "2026-05-16T11:00:00Z",
+        "action": "paper_opened",
+        "reason_codes": ["baseline_alignment_passed"],
+    }
+    unavailable = {
+        **no_trade,
+        "signal_candle_close_time": None,
+        "action": "data_unavailable",
+        "reason_codes": ["public_market_data_unavailable"],
+    }
+
+    first_rows, seen, first_stats = _select_decision_log_rows(
+        [no_trade, paper_opened, unavailable],
+        mode="compact",
+        seen_keys=set(),
+    )
+    second_rows, _seen, second_stats = _select_decision_log_rows(
+        [no_trade, paper_opened, unavailable],
+        mode="compact",
+        seen_keys=seen,
+    )
+
+    assert [row["action"] for row in first_rows] == ["no_trade", "paper_opened", "data_unavailable"]
+    assert [row["action"] for row in second_rows] == ["paper_opened", "data_unavailable"]
+    assert first_stats["suppressed_decisions_this_cycle"] == 0
+    assert second_stats["suppressed_decisions_this_cycle"] == 1
+
+
+def test_decision_log_modes_keep_full_audit_and_signals_only_available() -> None:
+    rows = [
+        {"lane_id": "a", "symbol": "ETH", "timeframe": "1h", "action": "no_trade", "reason_codes": []},
+        {"lane_id": "a", "symbol": "ETH", "timeframe": "1h", "action": "paper_opened", "reason_codes": []},
+        {"lane_id": "a", "symbol": "ETH", "timeframe": "1h", "action": "data_unavailable", "reason_codes": []},
+    ]
+
+    full_rows, _seen, full_stats = _select_decision_log_rows(rows, mode="full_audit")
+    signal_rows, _seen, signal_stats = _select_decision_log_rows(rows, mode="signals_only")
+
+    assert full_rows == rows
+    assert full_stats["suppressed_decisions_this_cycle"] == 0
+    assert [row["action"] for row in signal_rows] == ["paper_opened"]
+    assert signal_stats["suppressed_decisions_this_cycle"] == 2

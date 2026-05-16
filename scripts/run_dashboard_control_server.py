@@ -115,6 +115,8 @@ def build_runtime_command(
         duration_value,
         "--output-dir",
         str(output_dir.relative_to(REPO_ROOT)),
+        "--decision-log-mode",
+        "compact",
         *SAFE_FLAGS,
     ]
 

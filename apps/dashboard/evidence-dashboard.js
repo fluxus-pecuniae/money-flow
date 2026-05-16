@@ -8745,6 +8745,15 @@
     return String(value);
   }
 
+  function paperObservationBytes(value) {
+    const bytes = decimal(value, NaN);
+    if (!Number.isFinite(bytes)) return "n/a";
+    if (bytes >= 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+    if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+    if (bytes >= 1024) return `${(bytes / 1024).toFixed(2)} KB`;
+    return `${bytes} bytes`;
+  }
+
   function normalizePaperRuntimeControlStatus(payload, available = true) {
     const safeFlags = Array.isArray(payload?.safe_flags) && payload.safe_flags.length
       ? payload.safe_flags
@@ -8874,6 +8883,7 @@
     }
     if (!elements.paperRuntimeControlStatus) return;
     const statusLabel = control.available ? (control.running ? "running" : control.status || "idle") : "unavailable";
+    const logStats = paperObservationSummary()?.decision_log_stats || {};
     elements.paperRuntimeControlStatus.innerHTML = `
       <div class="micro-grid">
         <div><span>Control server</span><strong>${escapeHtml(control.available ? "available" : "unavailable")}</strong></div>
@@ -8884,7 +8894,12 @@
         <div><span>Started</span><strong>${escapeHtml(control.startedAtUtc || "not_running")}</strong></div>
         <div><span>Log</span><strong>${escapeHtml(control.logPath || "not_started")}</strong></div>
         <div><span>Safety flags</span><strong>${escapeHtml(control.safeFlags.join(" "))}</strong></div>
+        <div><span>Decision log mode</span><strong>${escapeHtml(logStats.mode || "compact")}</strong></div>
+        <div><span>Decision log size</span><strong>${escapeHtml(paperObservationBytes(logStats.decisions_jsonl_size_bytes))}</strong></div>
+        <div><span>Written this cycle</span><strong>${escapeHtml(logStats.written_decisions_this_cycle ?? "n/a")}</strong></div>
+        <div><span>Suppressed this cycle</span><strong>${escapeHtml(logStats.suppressed_decisions_this_cycle ?? "n/a")}</strong></div>
       </div>
+      ${logStats.decisions_jsonl_warning ? '<div class="methodology-warning compact">Decision log size is above the review threshold. Stop the run or keep compact logging enabled before another long run.</div>' : ""}
       <p class="muted-inline">${escapeHtml(control.message || "local_control_server_ready")}</p>
       <p class="muted-inline">Static dashboard servers can still display data, but Start/Stop requires the local control server.</p>
     `;

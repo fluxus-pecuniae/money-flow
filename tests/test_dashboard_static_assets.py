@@ -334,9 +334,16 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "/api/paper-runtime/status" in js
     assert "/api/paper-runtime/start" in js
     assert "/api/paper-runtime/stop" in js
+    assert "--decision-log-mode" in Path("scripts/run_dashboard_control_server.py").read_text(encoding="utf-8")
     assert "startPaperRuntime" in js
     assert "stopPaperRuntime" in js
     assert "elements.paperRuntimeStart.disabled = control.running || control.inFlight" in js
+    assert "Decision log mode" in js
+    assert "Decision log size" in js
+    assert "Written this cycle" in js
+    assert "Suppressed this cycle" in js
+    assert "decision_log_stats" in js
+    assert "paperObservationBytes" in js
     assert "Start/stop requires launching the local control server." in js
     assert "Static dashboard servers can still display data" in js
     assert "enable-testnet-probes" not in js

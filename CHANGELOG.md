@@ -13,6 +13,45 @@ Entry schema:
 
 ---
 
+## v2026.05.16.004
+
+- `recorded_at_utc`: `2026-05-16T11:00:18Z`
+- `scope`: `PT-RT1 compact decision logging default`
+- `intent`: `Native entry. Changed the PT-RT1 paper-observation runtime so decisions.jsonl defaults to compact logging instead of writing every repeated non-actionable decision row forever. Compact mode keeps actionable paper_opened/paper_closed rows and data_unavailable rows, writes first-seen non-actionable decisions for audit context, suppresses repeated identical non-actionable rows across cycles, records suppression/size stats in summary.json, and surfaces those stats in the Paper Observation dashboard. Full audit logging and signals-only logging remain explicit CLI modes through --decision-log-mode. The dashboard control server now starts probes-disabled public-mainnet runtime sessions with --decision-log-mode compact. Existing ignored large local runtime logs are not rewritten or deleted by this change. No production Money Flow rules changed, no evidence packs were regenerated, no orders/private/signed/order endpoints/API keys/testnet strategy truth/live trading/SOR behavior were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `scripts/run_dashboard_control_server.py`
+  - `scripts/run_pt_rt1_paper_observation.py`
+  - `tests/test_dashboard_control_server.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_pt_rt1_1b_public_market_data.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m py_compile scripts/run_pt_rt1_paper_observation.py scripts/run_dashboard_control_server.py tests/test_pt_rt1_1b_public_market_data.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_1b_public_market_data.py tests/test_dashboard_control_server.py tests/test_dashboard_static_assets.py::test_pt_rt1_paper_observation_dashboard_tab`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py tests/test_dashboard_static_assets.py tests/test_dashboard_control_server.py tests/test_pt_rt1_paper_observation.py tests/test_pt_rt1_1b_public_market_data.py tests/test_pt_rt1_1c_runtime_start.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1-compact-logging-review.zip`
+  - `review bundle excluded-path scan: 534 entries, 0 excluded path hits`
+  - `review bundle secret-pattern scan: hits limited to .env.example placeholders and deterministic test fixtures`
+
 ## v2026.05.16.003
 
 - `recorded_at_utc`: `2026-05-16T10:34:12Z`

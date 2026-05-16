@@ -38,6 +38,10 @@ from services.paper_runtime.pt_rt1 import (
 
 
 DEFAULT_OUTPUT_DIR = Path("reports/paper_runtime/pt_rt1_1b_smoke")
+DECISION_LOG_MODES = ("compact", "full_audit", "signals_only")
+ACTIONABLE_DECISION_ACTIONS = frozenset({"paper_opened", "paper_closed"})
+COMPACT_ALWAYS_WRITE_ACTIONS = frozenset({"paper_opened", "paper_closed", "data_unavailable"})
+DECISION_LOG_SIZE_WARNING_BYTES = 500 * 1024 * 1024
 
 
 def _utc_now() -> datetime:
@@ -85,6 +89,75 @@ def _append_jsonl(path: Path, rows: Iterable[dict[str, Any]]) -> None:
             handle.write(json.dumps(_json_safe(row), sort_keys=True) + "\n")
 
 
+def _read_state(path: Path) -> dict[str, Any]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {}
+    except json.JSONDecodeError:
+        return {"state_status": "invalid_json"}
+    return payload if isinstance(payload, dict) else {"state_status": "invalid_shape"}
+
+
+def _decision_log_key(row: dict[str, Any]) -> str:
+    reasons = ",".join(str(item) for item in row.get("reason_codes") or ())
+    return "|".join(
+        str(row.get(field) or "")
+        for field in (
+            "lane_id",
+            "symbol",
+            "timeframe",
+            "signal_candle_close_time",
+            "action",
+        )
+    ) + f"|{reasons}"
+
+
+def _select_decision_log_rows(
+    decision_rows: Sequence[dict[str, Any]],
+    *,
+    mode: str,
+    seen_keys: set[str] | None = None,
+) -> tuple[list[dict[str, Any]], set[str], dict[str, Any]]:
+    if mode not in DECISION_LOG_MODES:
+        raise ValueError(f"unsupported_decision_log_mode:{mode}")
+    seen = set(seen_keys or set())
+    selected: list[dict[str, Any]] = []
+
+    for row in decision_rows:
+        action = str(row.get("action") or "")
+        if mode == "full_audit":
+            selected.append(row)
+            continue
+        if mode == "signals_only":
+            if action in ACTIONABLE_DECISION_ACTIONS:
+                selected.append(row)
+            continue
+        if action in COMPACT_ALWAYS_WRITE_ACTIONS:
+            selected.append(row)
+            continue
+        key = _decision_log_key(row)
+        if key not in seen:
+            selected.append(row)
+            seen.add(key)
+
+    suppressed = max(len(decision_rows) - len(selected), 0)
+    stats = {
+        "mode": mode,
+        "evaluated_decisions_this_cycle": len(decision_rows),
+        "written_decisions_this_cycle": len(selected),
+        "suppressed_decisions_this_cycle": suppressed,
+        "suppression_reason": (
+            "none_full_audit"
+            if mode == "full_audit"
+            else "only_actionable_signals_written"
+            if mode == "signals_only"
+            else "repeated_non_actionable_decisions_suppressed"
+        ),
+    }
+    return selected, seen, stats
+
+
 def _filter_scanner_rows(rows: Sequence[Any], symbols: Sequence[str] | None, max_candle_symbols: int | None) -> list[Any]:
     selected = []
     requested = {item.upper() for item in symbols or ()}
@@ -112,6 +185,7 @@ def run_cycle(
     timeframes: Sequence[str],
     max_candle_symbols: int | None,
     run_label: str = "PT-RT1.1B",
+    decision_log_mode: str = "compact",
 ) -> dict[str, Any]:
     now = _utc_now()
     meta_result = connector.fetch_meta()
@@ -186,6 +260,13 @@ def run_cycle(
     scanner_payload = [asdict(row) for row in scanner_rows] if scanner_rows else base_summary["scanner_universe"]
     lane_payload = base_summary["strategy_lanes"]
     decision_rows = [event.as_json_dict() for event in decisions]
+    prior_state = _read_state(output_dir / "state.json")
+    prior_seen_keys = set(prior_state.get("decision_log_seen_keys") or [])
+    decision_log_rows, decision_log_seen_keys, decision_log_stats = _select_decision_log_rows(
+        decision_rows,
+        mode=decision_log_mode,
+        seen_keys=prior_seen_keys,
+    )
     intended_entry_signals = [row for row in decision_rows if row.get("action") == "paper_opened"]
     runtime_status = "verified" if meta_result.ok and mids_result.ok and market_health else "blocked"
     if not meta_result.ok or not mids_result.ok:
@@ -262,6 +343,8 @@ def run_cycle(
             "public_mainnet_fetch_attempted": True,
             "watchlist_resolved": bool(scanner_rows),
             "decisions_recorded": len(decision_rows),
+            "decisions_written": len(decision_log_rows),
+            "decision_log_mode": decision_log_mode,
             "orders_submitted": False,
             "testnet_probes_enabled": False,
             "private_signed_order_endpoints_called": False,
@@ -277,12 +360,27 @@ def run_cycle(
             else "PT-RT1.1C blocked"
         ),
     }
+    _append_jsonl(output_dir / "decisions.jsonl", decision_log_rows)
+    decisions_size = (output_dir / "decisions.jsonl").stat().st_size if (output_dir / "decisions.jsonl").exists() else 0
+    summary["decision_log_stats"] = {
+        **decision_log_stats,
+        "decisions_jsonl_size_bytes": decisions_size,
+        "decisions_jsonl_warning_threshold_bytes": DECISION_LOG_SIZE_WARNING_BYTES,
+        "decisions_jsonl_warning": decisions_size >= DECISION_LOG_SIZE_WARNING_BYTES,
+    }
     _write_json(output_dir / "summary.json", summary)
-    _write_json(output_dir / "state.json", {"generated_at_utc": _iso(now), "strategy_lanes": lane_payload})
+    _write_json(
+        output_dir / "state.json",
+        {
+            "generated_at_utc": _iso(now),
+            "strategy_lanes": lane_payload,
+            "decision_log_mode": decision_log_mode,
+            "decision_log_seen_keys": sorted(decision_log_seen_keys),
+        },
+    )
     _write_json(output_dir / "data_health.json", {"generated_at_utc": _iso(now), "rows": market_health})
     _write_json(output_dir / "equity_curves.json", {"generated_at_utc": _iso(now), "lanes": lane_payload})
     _append_jsonl(output_dir / "runtime_audit.jsonl", [summary["connection_status"], summary["testnet_plumbing_status"]])
-    _append_jsonl(output_dir / "decisions.jsonl", decision_rows)
     _append_jsonl(output_dir / "trades.jsonl", [])
     return summary
 
@@ -300,6 +398,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--timeframe", action="append", choices=tuple(TIMEFRAME_DURATIONS), dest="timeframes")
     parser.add_argument("--max-cycles", type=int)
     parser.add_argument("--max-candle-symbols", type=int)
+    parser.add_argument("--decision-log-mode", choices=DECISION_LOG_MODES, default="compact")
     return parser.parse_args()
 
 
@@ -330,6 +429,7 @@ def main() -> int:
             timeframes=args.timeframes or tuple(TIMEFRAME_DURATIONS),
             max_candle_symbols=args.max_candle_symbols,
             run_label=run_label,
+            decision_log_mode=args.decision_log_mode,
         )
         if args.max_cycles is not None and cycle >= args.max_cycles:
             break

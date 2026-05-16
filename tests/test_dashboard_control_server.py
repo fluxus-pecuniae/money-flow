@@ -23,6 +23,8 @@ def test_dashboard_control_runtime_command_is_allowlisted() -> None:
     assert "5" in command
     assert "--output-dir" in command
     assert "reports/paper_runtime/pt_rt1_1c_24h_dry_run" in command
+    assert "--decision-log-mode" in command
+    assert "compact" in command
     assert "--disable-testnet-probes" in command
     assert "--public-mainnet-only" in command
     assert "--enable-testnet-probes" not in command
