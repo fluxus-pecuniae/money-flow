@@ -671,6 +671,14 @@ PT-RT1.1B adds the Hyperliquid public-mainnet connector and runtime command:
   --public-mainnet-only
 ```
 
+The dashboard has a local-only PT-RT1 runtime control helper:
+
+```bash
+.venv/bin/python scripts/run_dashboard_control_server.py --host 127.0.0.1 --port 8767
+```
+
+When the dashboard is opened from that server at `http://127.0.0.1:8767/apps/dashboard/index.html`, the Paper Observation `Start Run` button can launch allowlisted 5-minute, 1-hour, 6-hour, or 24-hour runs through Mac `caffeinate`. The helper always starts `scripts/run_pt_rt1_paper_observation.py` with `--disable-testnet-probes` and `--public-mainnet-only`, writes control state/logs under ignored `reports/paper_runtime/dashboard_control/`, and exposes no arbitrary command, no testnet-probe enablement, no private/signed/order endpoint use, no API-key use, and no order controls. Static dashboard serving still works for review, but Start/Stop is unavailable without the local control API.
+
 The bounded PT-RT1.1B smoke run connected to public mainnet, resolved the expanded watchlist, loaded bounded candle data, and recorded bounded paper decisions under ignored local runtime state. It is not the 24-hour observation result.
 
 PT-RT1.1C starts the 24-hour probes-disabled collection under ignored `reports/paper_runtime/pt_rt1_1c_24h_dry_run/`. The first cycle wrote the expected ignored artifact set with 25 resolved watchlist rows, 23 eligible rows, 2 blocked rows, 92 market-data health rows, and 920 decision rows. PT-RT1.1D evaluates the completed artifacts.

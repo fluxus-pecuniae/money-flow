@@ -501,6 +501,46 @@
           Dashboard paper-observation date filters are display-only filters. They are not canonical evidence, not backend replay, and do not mutate runtime ledgers.
         </div>
 
+        <section class="paper-runtime-control table-panel audit-review-panel" aria-labelledby="paper-runtime-control-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Local Mac runtime control</p>
+              <h2 id="paper-runtime-control-title">Start Run</h2>
+            </div>
+            <p>
+              Starts the local PT-RT1 paper-observation runtime with Mac caffeinate, public-mainnet strategy truth, testnet probes disabled, and no order controls.
+              Available only when the dashboard is served by `scripts/run_dashboard_control_server.py`.
+            </p>
+          </div>
+          <div class="paper-runtime-control-grid">
+            <label>
+              <span>Duration</span>
+              <select id="paper-runtime-duration">
+                <option value="5m">5 minutes</option>
+                <option value="1h">1 hour</option>
+                <option value="6h">6 hours</option>
+                <option value="24h" selected>24 hours</option>
+              </select>
+            </label>
+            <label>
+              <span>Output</span>
+              <select id="paper-runtime-output">
+                <option value="pt_rt1_1c_24h_dry_run" selected>PT-RT1.1C 24h dry run</option>
+                <option value="pt_rt1_1b_smoke">PT-RT1.1B smoke</option>
+              </select>
+            </label>
+            <div class="paper-runtime-actions" aria-label="Paper runtime actions">
+              <button id="paper-runtime-start" class="primary-button" type="button">Start Run</button>
+              <button id="paper-runtime-stop" class="segment-button" type="button">Stop Run</button>
+            </div>
+          </div>
+          <div class="methodology-warning compact" role="note">
+            Runtime command is allowlisted and always forces `--disable-testnet-probes` and `--public-mainnet-only`.
+            This creates synthetic paper decisions only. No exchange orders are created, no private/signed endpoints or API keys are used, and live trading is not approved.
+          </div>
+          <div id="paper-runtime-control-status" class="market-micro-panel"></div>
+        </section>
+
         <section class="paper-observation-controls" aria-label="Paper observation display filters">
           <label>
             <span>Symbol</span>

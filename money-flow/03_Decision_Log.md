@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-16T10:15:00Z - PT-RT1 - Local Caffeinated Dashboard Start Run Control
+
+- `decision`: Add a localhost-only dashboard control server so the founder can start and stop PT-RT1 paper-observation runs from the Paper Observation tab while keeping a Mac awake.
+- `scope`: `scripts/run_dashboard_control_server.py` serves the static dashboard and exposes only `/api/paper-runtime/status`, `/api/paper-runtime/start`, and `/api/paper-runtime/stop`. Start Run is allowlisted to durations `5m`, `1h`, `6h`, and `24h`, output directories `reports/paper_runtime/pt_rt1_1c_24h_dry_run` and `reports/paper_runtime/pt_rt1_1b_smoke`, and always runs `scripts/run_pt_rt1_paper_observation.py` through `caffeinate` with `--disable-testnet-probes` and `--public-mainnet-only`.
+- `why`: The founder asked for a Start Run button and Mac caffeination so paper observation can run without manually managing a terminal command and sleep settings.
+- `result`: `implemented_local_only_caffeinated_runtime_control`. Static `http.server` review still works, but the Start/Stop panel intentionally shows unavailable without the local control API.
+- `follow_up_implications`: This is runtime ergonomics for synthetic paper observation only. It does not approve production strategy changes, strategy paper-runtime promotion, live trading, live/testnet orders, private/signed/order endpoints from strategy truth, API-key use, canonical evidence regeneration, SOR/fanout/CBBO, or testnet strategy truth.
+
 ## 2026-05-16T09:40:00Z - SV2.1 - Expand Founder-Approved Evidence To 10 PT-RT1 Lanes
 
 - `decision`: Rebuild the SV2.1 founder-approved 1D Historical Replay/evidence layer so all 10 PT-RT1 paper-observation lanes are visible for founder comparison.

@@ -13,6 +13,41 @@ Entry schema:
 
 ---
 
+## v2026.05.16.002
+
+- `recorded_at_utc`: `2026-05-16T10:15:00Z`
+- `scope`: `PT-RT1 local paper-observation runtime control`
+- `intent`: `Native entry. Added a localhost-only dashboard control server and Paper Observation Start Run / Stop Run panel so the founder can launch allowlisted PT-RT1 probes-disabled public-mainnet paper-observation runs from the dashboard while keeping a Mac awake with caffeinate. The server only binds to localhost, exposes /api/paper-runtime/status|start|stop, restricts duration to 5m/1h/6h/24h, restricts outputs to the existing PT-RT1.1C and PT-RT1.1B paper-runtime directories, and always starts scripts/run_pt_rt1_paper_observation.py with --disable-testnet-probes and --public-mainnet-only. Static http.server dashboard review still works, but Start/Stop shows unavailable because no local control API is present. This is runtime ergonomics for synthetic paper observation only: no production Money Flow rules changed, no evidence packs were regenerated, no strategy or variant was approved, no orders/private/signed/order endpoints/API keys/testnet strategy truth/live trading/SOR behavior were added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/strategy.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `scripts/run_dashboard_control_server.py`
+  - `tests/test_dashboard_control_server.py`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m py_compile scripts/run_dashboard_control_server.py tests/test_dashboard_control_server.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_control_server.py tests/test_dashboard_static_assets.py::test_pt_rt1_paper_observation_dashboard_tab`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py tests/test_dashboard_static_assets.py tests/test_dashboard_control_server.py tests/test_pt_rt1_paper_observation.py tests/test_pt_rt1_1b_public_market_data.py tests/test_pt_rt1_1c_runtime_start.py`
+  - `.venv/bin/python Playwright smoke against http://127.0.0.1:8767/apps/dashboard/index.html verified the Paper Observation control server status API, Start Run controls, safety flags, and no order-control text without starting a runtime run`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-paper-runtime-control-review.zip`
+
 ## v2026.05.16.001
 
 - `recorded_at_utc`: `2026-05-16T09:40:00Z`

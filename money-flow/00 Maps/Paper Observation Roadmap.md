@@ -57,6 +57,8 @@ Paper Observation dashboard live display:
 - Watchlist health is `unhealthy` when the latest market-data tick is missing or stale for more than 2 minutes.
 - The selected pair/timeframe chart uses public mainnet `candleSnapshot`.
 - The adjacent Signal Generation panel lists recorded synthetic `paper_opened` intended-entry decisions from the PT-RT1 decision stream.
+- The local Start Run / Stop Run panel is available only when the dashboard is served by `scripts/run_dashboard_control_server.py`; it launches allowlisted probes-disabled public-mainnet sessions through Mac `caffeinate` and always forces `--disable-testnet-probes` plus `--public-mainnet-only`.
+- Static `http.server` dashboard review still works, but runtime Start/Stop controls intentionally show unavailable there.
 - This browser display path remains public-read-only and adds no order controls, private/signed/order/account payloads, API keys, testnet strategy truth, or paper/live approval.
 
 Current next operational step:

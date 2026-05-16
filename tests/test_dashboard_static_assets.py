@@ -302,6 +302,17 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "not canonical evidence" in html
     assert "not backend replay" in html
     assert "paper-observation-summary-cards" in html
+    assert "paper-runtime-control-title" in html
+    assert "paper-runtime-duration" in html
+    assert "paper-runtime-output" in html
+    assert "paper-runtime-start" in html
+    assert "paper-runtime-stop" in html
+    assert "paper-runtime-control-status" in html
+    assert "Mac caffeinate" in html
+    assert "--disable-testnet-probes" in html
+    assert "--public-mainnet-only" in html
+    assert "This creates synthetic paper decisions only" in html
+    assert "No exchange orders are created" in html
     assert "paper-observation-connection-status" in html
     assert "paper-observation-lane-filter" in html
     assert "paper-observation-scanner-table" in html
@@ -318,7 +329,16 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper-observation-probe-status" in html
     assert ".paper-observation-view" in css
     assert ".paper-observation-controls" in css
+    assert ".paper-runtime-control" in css
     assert "DEFAULT_PT_RT1_SUMMARY_FILES" in js
+    assert "/api/paper-runtime/status" in js
+    assert "/api/paper-runtime/start" in js
+    assert "/api/paper-runtime/stop" in js
+    assert "startPaperRuntime" in js
+    assert "stopPaperRuntime" in js
+    assert "Start/stop requires launching the local control server." in js
+    assert "Static dashboard servers can still display data" in js
+    assert "enable-testnet-probes" not in js
     assert "DEFAULT_SV21_BROAD_SUMMARY_FILES" in js
     assert "SV21_BROAD_HISTORICAL_REPLAY_TIMESTAMP" in js
     assert "20260516T091500Z" in js

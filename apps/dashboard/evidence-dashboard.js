@@ -762,6 +762,22 @@
       dateStart: "",
       dateEnd: "",
     },
+    paperRuntimeControl: {
+      available: false,
+      running: false,
+      status: "checking",
+      duration: "24h",
+      output: "pt_rt1_1c_24h_dry_run",
+      pid: null,
+      startedAtUtc: null,
+      updatedAtUtc: null,
+      outputDir: null,
+      logPath: null,
+      safeFlags: ["--disable-testnet-probes", "--public-mainnet-only"],
+      message: "checking_local_control_server",
+      inFlight: false,
+      timer: null,
+    },
     historicalReplay: {
       strategyId: "money_flow_v1_2_canonical",
       symbol: "ETH",
@@ -859,6 +875,11 @@
     paperObservationDateStart: document.querySelector("#paper-observation-date-start"),
     paperObservationDateEnd: document.querySelector("#paper-observation-date-end"),
     paperObservationDateClear: document.querySelector("#paper-observation-date-clear"),
+    paperRuntimeDuration: document.querySelector("#paper-runtime-duration"),
+    paperRuntimeOutput: document.querySelector("#paper-runtime-output"),
+    paperRuntimeStart: document.querySelector("#paper-runtime-start"),
+    paperRuntimeStop: document.querySelector("#paper-runtime-stop"),
+    paperRuntimeControlStatus: document.querySelector("#paper-runtime-control-status"),
     paperObservationConnectionStatus: document.querySelector("#paper-observation-connection-status"),
     paperObservationScannerTable: document.querySelector("#paper-observation-scanner-table"),
     paperObservationSignalTable: document.querySelector("#paper-observation-signal-table"),
@@ -8724,6 +8745,151 @@
     return String(value);
   }
 
+  function normalizePaperRuntimeControlStatus(payload, available = true) {
+    const safeFlags = Array.isArray(payload?.safe_flags) && payload.safe_flags.length
+      ? payload.safe_flags
+      : ["--disable-testnet-probes", "--public-mainnet-only"];
+    state.paperRuntimeControl = {
+      ...state.paperRuntimeControl,
+      available,
+      running: Boolean(payload?.running),
+      status: payload?.status || (available ? "idle" : "unavailable"),
+      pid: payload?.pid || null,
+      startedAtUtc: payload?.started_at_utc || null,
+      updatedAtUtc: payload?.updated_at_utc || null,
+      outputDir: payload?.output_dir || null,
+      logPath: payload?.log_path || null,
+      safeFlags,
+      message: payload?.message || (available ? "local_control_server_ready" : "local_control_server_unavailable"),
+      inFlight: false,
+    };
+  }
+
+  async function paperRuntimeControlRequest(path, options = {}) {
+    const response = await fetch(path, {
+      cache: "no-store",
+      headers: { "Content-Type": "application/json" },
+      ...options,
+    });
+    if (!response.ok) {
+      let message = `HTTP ${response.status}`;
+      try {
+        const payload = await response.json();
+        message = payload?.message || message;
+      } catch (_error) {
+        // Static file servers return HTML/404 here; render the explicit unavailable state.
+      }
+      throw new Error(message);
+    }
+    return response.json();
+  }
+
+  async function refreshPaperRuntimeControlStatus() {
+    try {
+      const payload = await paperRuntimeControlRequest("/api/paper-runtime/status");
+      normalizePaperRuntimeControlStatus(payload, true);
+    } catch (error) {
+      normalizePaperRuntimeControlStatus(
+        {
+          running: false,
+          status: "unavailable",
+          message: "Start/stop requires launching the local control server.",
+          safe_flags: ["--disable-testnet-probes", "--public-mainnet-only"],
+        },
+        false,
+      );
+      console.warn("Paper runtime control unavailable", error);
+    }
+    renderPaperRuntimeControl();
+  }
+
+  async function startPaperRuntime() {
+    if (state.paperRuntimeControl.inFlight) return;
+    state.paperRuntimeControl.inFlight = true;
+    renderPaperRuntimeControl();
+    try {
+      const payload = await paperRuntimeControlRequest("/api/paper-runtime/start", {
+        method: "POST",
+        body: JSON.stringify({
+          duration: state.paperRuntimeControl.duration,
+          output: state.paperRuntimeControl.output,
+        }),
+      });
+      normalizePaperRuntimeControlStatus(payload, true);
+    } catch (error) {
+      state.paperRuntimeControl = {
+        ...state.paperRuntimeControl,
+        inFlight: false,
+        message: error?.message || "paper_runtime_start_failed",
+      };
+    }
+    renderPaperRuntimeControl();
+  }
+
+  async function stopPaperRuntime() {
+    if (state.paperRuntimeControl.inFlight) return;
+    state.paperRuntimeControl.inFlight = true;
+    renderPaperRuntimeControl();
+    try {
+      const payload = await paperRuntimeControlRequest("/api/paper-runtime/stop", {
+        method: "POST",
+        body: JSON.stringify({}),
+      });
+      normalizePaperRuntimeControlStatus(payload, true);
+    } catch (error) {
+      state.paperRuntimeControl = {
+        ...state.paperRuntimeControl,
+        inFlight: false,
+        message: error?.message || "paper_runtime_stop_failed",
+      };
+    }
+    renderPaperRuntimeControl();
+  }
+
+  function renderPaperRuntimeControl() {
+    const control = state.paperRuntimeControl;
+    if (elements.paperRuntimeDuration) {
+      elements.paperRuntimeDuration.value = control.duration;
+      elements.paperRuntimeDuration.disabled = control.running || control.inFlight;
+      elements.paperRuntimeDuration.onchange = () => {
+        state.paperRuntimeControl.duration = elements.paperRuntimeDuration.value;
+        renderPaperRuntimeControl();
+      };
+    }
+    if (elements.paperRuntimeOutput) {
+      elements.paperRuntimeOutput.value = control.output;
+      elements.paperRuntimeOutput.disabled = control.running || control.inFlight;
+      elements.paperRuntimeOutput.onchange = () => {
+        state.paperRuntimeControl.output = elements.paperRuntimeOutput.value;
+        renderPaperRuntimeControl();
+      };
+    }
+    if (elements.paperRuntimeStart) {
+      elements.paperRuntimeStart.disabled = !control.available || control.running || control.inFlight;
+      elements.paperRuntimeStart.onclick = startPaperRuntime;
+    }
+    if (elements.paperRuntimeStop) {
+      elements.paperRuntimeStop.disabled = !control.available || !control.running || control.inFlight;
+      elements.paperRuntimeStop.onclick = stopPaperRuntime;
+    }
+    if (!elements.paperRuntimeControlStatus) return;
+    const statusLabel = control.available ? (control.running ? "running" : control.status || "idle") : "unavailable";
+    elements.paperRuntimeControlStatus.innerHTML = `
+      <div class="micro-grid">
+        <div><span>Control server</span><strong>${escapeHtml(control.available ? "available" : "unavailable")}</strong></div>
+        <div><span>Runtime status</span><strong>${escapeHtml(statusLabel)}</strong></div>
+        <div><span>Duration</span><strong>${escapeHtml(control.duration)}</strong></div>
+        <div><span>Output</span><strong>${escapeHtml(control.outputDir || control.output)}</strong></div>
+        <div><span>PID</span><strong>${escapeHtml(control.pid || "n/a")}</strong></div>
+        <div><span>Started</span><strong>${escapeHtml(control.startedAtUtc || "not_running")}</strong></div>
+        <div><span>Log</span><strong>${escapeHtml(control.logPath || "not_started")}</strong></div>
+        <div><span>Safety flags</span><strong>${escapeHtml(control.safeFlags.join(" "))}</strong></div>
+      </div>
+      <p class="muted-inline">${escapeHtml(control.message || "local_control_server_ready")}</p>
+      <p class="muted-inline">Static dashboard servers can still display data, but Start/Stop requires the local control server.</p>
+    `;
+  }
+
   function paperObservationBaseScannerRows() {
     const summary = paperObservationSummary();
     const rows = paperObservationRows(summary?.scanner_universe);
@@ -9490,6 +9656,7 @@
 
   function renderPaperObservation() {
     renderPaperObservationControls();
+    renderPaperRuntimeControl();
     renderPaperObservationSummaryCards();
     renderPaperObservationConnectionStatus();
     renderPaperObservationScanner();
@@ -9931,6 +10098,8 @@
   applyDashboardTheme(state.theme);
   setActiveView(state.activeView);
   render();
+  refreshPaperRuntimeControlStatus();
+  state.paperRuntimeControl.timer = window.setInterval(refreshPaperRuntimeControlStatus, 10000);
   loadDefaultFiles();
   startLiveMarketPolling();
   startPaperObservationMarketPolling();
