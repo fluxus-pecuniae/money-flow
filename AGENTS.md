@@ -68,7 +68,7 @@ Minimum confirmation means:
 For substantial work, agents must:
 
 1. Add or update their own row in [`money-flow/05_Agent_Coordination.md`](money-flow/05_Agent_Coordination.md) before changing overlapping files.
-2. List the phase/task, expected files, status, timestamps, warnings, and handoff summary.
+2. Add new in-progress rows under `Active Work`; list the phase/task, expected files, status, timestamps, warnings, and handoff summary.
 3. Avoid overwriting another agent/subagent row except for an agreed handoff.
 4. Record conflicts or suspected overlap instead of silently resolving them.
 5. Keep repo operational docs and Obsidian notes consistent without treating Obsidian as a substitute for the changelog.
@@ -91,7 +91,7 @@ Before finishing, agents must:
 7. Re-read the touched sections of affected Obsidian notes.
 8. Explicitly validate that repo docs and Obsidian context still match repo state.
 9. After each completed phase, create a clean handoff ZIP in `/Users/tercirafael/` using [`scripts/create_review_bundle.py`](scripts/create_review_bundle.py). Use `.archiveignore` as the exclusion source so `.env`, local virtualenvs, caches, generated archives, database/socket data, Obsidian app workspace state, and other non-review artifacts are not included. Do not hand-build archives that may include keys or unnecessary local files.
-10. Mark your coordination row `done` or `blocked`; do not leave completed work marked active.
+10. Mark your coordination row complete by moving/updating it under `Finished Work` with status `done` or `blocked`; do not leave completed work marked active.
 
 Minimum validation means:
 

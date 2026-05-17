@@ -8,6 +8,10 @@ from services.paper_runtime.pt_rt1 import (
     PT_RT1_EXACT_TESTNET_PROBE_APPROVAL,
     PT_RT1_MAINNET_INFO_URL,
     PT_RT1_1A_STRATEGY_LANE_IDS,
+    PT_RT1_4_ACTIVE_TIMEFRAMES,
+    PT_RT1_4_DISABLED_TIMEFRAME_STATUS,
+    PT_RT1_4_DISABLED_TIMEFRAMES,
+    PT_RT1_4_TIMEFRAME_REASON_CODES,
     PT_RT1_STRATEGY_LANES,
     PT_RT1_TESTNET_INFO_URL,
     WILDCARD_STRATEGY_DEFINITIONS,
@@ -391,7 +395,7 @@ def test_summary_and_report_files_exist_and_expose_boundaries() -> None:
     assert summary["boundaries"]["live_exchange_orders_submitted"] is False
     assert summary["paper_equity_policy"]["starting_equity_usdc_per_lane"] == "10000"
     assert summary["revision"] == "PT-RT1.1A"
-    assert summary["latest_readiness_phase"] == "PT-RT1.1B"
+    assert summary["latest_readiness_phase"] == "PT-RT1.4"
     assert len(summary["strategy_lanes"]) == 10
     assert "TRON" in summary["requested_symbols"]
     assert "TRUMP" not in summary["requested_symbols"]
@@ -400,9 +404,28 @@ def test_summary_and_report_files_exist_and_expose_boundaries() -> None:
     assert summary["alias_mappings"]["PEPE"] == "kPEPE"
     assert summary["dashboard_status"]["strategy_lanes_visible"] == 10
     assert summary["dashboard_status"]["public_mainnet_connection_status_visible"] is True
-    assert summary["next_phase"]["decision"] == "PT-RT1.1D may evaluate public-mainnet runtime collection and 20 USDC probe audit rows"
+    assert summary["next_phase"]["decision"] == "Run fresh PT-RT active-week paper observation on 1h/4h/1d with 15m paused"
     assert "testnet_probe_transport_not_submitted_by_pt_rt1_runtime" in summary["next_phase"]["conditions"]
     assert summary["boundaries"]["testnet_probes_submit_signed_transport"] is False
+
+
+def test_pt_rt1_4_active_timeframe_cutover_policy_excludes_15m_active_scoring() -> None:
+    summary = build_pt_rt1_summary()
+    runner = Path("scripts/run_pt_rt1_paper_observation.py").read_text(encoding="utf-8")
+
+    assert PT_RT1_4_ACTIVE_TIMEFRAMES == ("1h", "4h", "1d")
+    assert PT_RT1_4_DISABLED_TIMEFRAMES == ("15m",)
+    assert PT_RT1_4_DISABLED_TIMEFRAME_STATUS == "disabled_for_week1_noise_reduction"
+    assert "timeframe_disabled_by_founder_for_week1" in PT_RT1_4_TIMEFRAME_REASON_CODES
+    assert "no_new_15m_entries" in PT_RT1_4_TIMEFRAME_REASON_CODES
+    assert summary["active_timeframes"] == ["1h", "4h", "1d"]
+    assert summary["disabled_timeframes"] == ["15m"]
+    assert summary["active_timeframe_policy"]["default_selected_timeframe"] == "1h"
+    assert summary["active_timeframe_policy"]["default_lane_comparison_scope"] == "selected_timeframe_only"
+    assert summary["active_timeframe_policy"]["legacy_15m_policy"].startswith("existing 15m records remain visible")
+    assert "timeframes=args.timeframes or PT_RT1_4_ACTIVE_TIMEFRAMES" in runner
+    assert "PT_RT1_4_TIMEFRAME_REASON_CODES" in runner
+    assert "PT_RT1_4_DISABLED_TIMEFRAME_STATUS" in runner
 
 
 def test_pt_rt1_strategy_lane_does_not_construct_production_execution_artifacts() -> None:

@@ -2,7 +2,7 @@
 
 Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
-This note separates strategy evidence data, dashboard display data, sandbox execution plumbing, and future real-time paper-observation data.
+This note separates strategy evidence data, dashboard display data, sandbox execution plumbing, and current real-time Paper Trading observation data.
 
 ## Historical Public Mainnet Evidence Data
 
@@ -35,9 +35,9 @@ Hyperliquid testnet/sandbox is used for plumbing tests:
 
 Hyperliquid testnet data is not strategy truth. Testnet prices are not strategy evidence truth.
 
-## Real-Time Paper Observation Future Data
+## Real-Time Paper Trading Observation Data
 
-PT-RT1, if scoped, should use trusted public mainnet market data for strategy truth:
+PT-RT1 uses trusted public mainnet market data for strategy truth:
 
 - fully closed candle detection
 - real-time indicators
@@ -46,7 +46,7 @@ PT-RT1, if scoped, should use trusted public mainnet market data for strategy tr
 - realized/unrealized PnL
 - drawdown and data-health alarms
 
-PT-RT1 is not approved or implemented by OB2.0.
+The founder-facing dashboard tab is Paper Trading. PT-RT remains a forward-observation substrate and does not approve production rules, live trading, order submission, or canonical historical evidence regeneration.
 
 ## Private / Signed Endpoints
 

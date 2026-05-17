@@ -31,9 +31,10 @@ Before substantial work, read the repo memory and Obsidian brain. Before editing
 
 ## Current Important Memory Facts
 
-- Current implemented milestone: `PT0` TradingView charts and top-20 paper/sandbox runtime foundation complete.
-- Strategy Validation SV1 is closed for now.
-- Next proposed phase: `PT0.1` supervised top-20 paper/sandbox runtime week may be scoped separately; `UAT3.5` additional sandbox routing lifecycle tests remain blocked by incomplete UAT-universe precision validation and separate approval.
+- Current implemented milestone: `PT-RT1.2.1` Paper Trading dashboard polish on top of `PT-RT1.3` candle-truth data health.
+- Current active project center: Paper Trading / PT-RT forward observation, SV2.x evidence, SOR/MF-ORIG research review, and founder dashboard usability.
+- Historical context: UAT0 through UAT4.2, PT0 through PT0.0.3, and Strategy Validation SV1 are preserved as plumbing/evidence history, not the active center.
+- Next proposed phase: run and review a fresh PT-RT observation session before treating runtime artifacts as forward-observation evidence; `UAT3.5` additional sandbox routing lifecycle tests remain blocked by incomplete UAT-universe precision validation and separate approval.
 - UAT1 public read-only connectivity is complete under strict no-private/no-signed/no-order/no-API-key constraints.
 - UAT1 verified allowed public Hyperliquid info types, fetched a no-key public top-volume source, and resolved observation-only Hyperliquid supported assets.
 - UAT1.1 adds operator-visible shadow drawdown state, shadow signal audit surfaces, and representative structured redaction verification.

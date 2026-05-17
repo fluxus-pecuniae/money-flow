@@ -26,6 +26,10 @@ from services.paper_runtime.hyperliquid_public_market_data import (
 )
 from services.paper_runtime.pt_rt1 import (
     PT_RT1_1B_RUNTIME_OUTPUT_PREFIX,
+    PT_RT1_4_ACTIVE_TIMEFRAMES,
+    PT_RT1_4_DISABLED_TIMEFRAME_STATUS,
+    PT_RT1_4_DISABLED_TIMEFRAMES,
+    PT_RT1_4_TIMEFRAME_REASON_CODES,
     PT_RT1_EXACT_TESTNET_PROBE_APPROVAL,
     PT_RT1_MAINNET_INFO_URL,
     PT_RT1_REQUESTED_SCANNER_SYMBOLS,
@@ -663,6 +667,55 @@ def run_cycle(
 
     for row in selected_rows:
         for timeframe in timeframes:
+            if timeframe in PT_RT1_4_DISABLED_TIMEFRAMES:
+                disabled_reasons = list(PT_RT1_4_TIMEFRAME_REASON_CODES)
+                market_health.append(
+                    {
+                        "symbol": row.canonical_symbol,
+                        "requested_symbol": row.requested_symbol,
+                        "resolved_venue_symbol": row.resolved_venue_symbol,
+                        "timeframe": timeframe,
+                        "source": "Hyperliquid public mainnet",
+                        "endpoint_category": connector.endpoint_category,
+                        "status": PT_RT1_4_DISABLED_TIMEFRAME_STATUS,
+                        "strategy_data_status": "timeframe_excluded_from_active_scoreboard",
+                        "candle_strategy_ready": False,
+                        "mid_health_status": "not_evaluated_timeframe_paused",
+                        "mid_health_blocks_strategy": False,
+                        "candle_health_blocks_strategy": True,
+                        "fully_closed_candle_status": "paused_legacy_timeframe",
+                        "latest_candle_update": None,
+                        "last_update_utc": _iso(now),
+                        "reason_codes": disabled_reasons,
+                    }
+                )
+                for lane in PT_RT1_STRATEGY_LANES:
+                    symbol = str(row.canonical_symbol or row.requested_symbol).upper()
+                    equity_before = _dec(realized_equity_by_lane.get(lane.lane_id), lane.initial_equity)
+                    decisions.append(
+                        PaperDecisionEvent(
+                            lane_id=lane.lane_id,
+                            strategy_id=lane.strategy_id,
+                            symbol=symbol,
+                            timeframe=timeframe,
+                            signal_candle_open_time=None,
+                            signal_candle_close_time=None,
+                            decision_time=_iso(now),
+                            candle_closed=False,
+                            candle_status_reason=PT_RT1_4_DISABLED_TIMEFRAME_STATUS,
+                            action="no_trade",
+                            reason_codes=tuple(disabled_reasons),
+                            indicator_snapshot={
+                                "timeframe_status": PT_RT1_4_DISABLED_TIMEFRAME_STATUS,
+                                "active_timeframes": list(PT_RT1_4_ACTIVE_TIMEFRAMES),
+                            },
+                            position_before="not_evaluated_timeframe_paused",
+                            position_after="not_evaluated_timeframe_paused",
+                            equity_before=equity_before,
+                            equity_after=equity_before,
+                        )
+                    )
+                continue
             start_time, end_time = candle_request_window(timeframe=timeframe, now=now, bars=260)
             candle_result = connector.fetch_candle_snapshot(
                 symbol=str(row.resolved_venue_symbol or row.requested_symbol),
@@ -1098,7 +1151,7 @@ def main() -> int:
             connector=connector,
             output_dir=args.output_dir,
             symbols=args.symbols,
-            timeframes=args.timeframes or tuple(TIMEFRAME_DURATIONS),
+            timeframes=args.timeframes or PT_RT1_4_ACTIVE_TIMEFRAMES,
             max_candle_symbols=args.max_candle_symbols,
             run_label=run_label,
             decision_log_mode=args.decision_log_mode,

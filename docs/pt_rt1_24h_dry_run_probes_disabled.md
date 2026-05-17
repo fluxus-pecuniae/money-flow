@@ -15,7 +15,8 @@ This is paper observation only. It does not approve production trading, paper-ru
 - `PT_RT1_TESTNET_KILL_SWITCH=true`.
 - No API keys are required for the strategy-truth lane.
 - Runtime output path is local and ignored: `reports/paper_runtime/pt_rt1_1c_24h_dry_run/`.
-- Dashboard Paper Observation view is available.
+- Dashboard Paper Trading view is available.
+- PT-RT1.4 active Week 1 timeframes are `1h`, `4h`, and `1d`; `15m` is paused/legacy and excluded from active scoring/new entries.
 
 ## Steps
 
@@ -43,6 +44,7 @@ This is paper observation only. It does not approve production trading, paper-ru
 13. Review dashboard readability and data-health warnings.
 14. Retain ignored runtime artifacts under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/`.
 15. Regenerate `docs/pt_rt1_1_24h_probes_disabled_dry_run.md` and `docs/pt_rt1_1_24h_probes_disabled_dry_run_summary.json` from the artifacts.
+16. Confirm the Paper Trading Weekly Scoreboard excludes `15m` unless the paused/legacy filter is explicitly selected.
 
 ## Success Criteria
 
@@ -54,6 +56,7 @@ This is paper observation only. It does not approve production trading, paper-ru
 - Expanded requested/resolved symbols and blocked-symbol reason codes remain visible.
 - Duplicate prevention works.
 - Dashboard remains readable.
+- Active scoring uses `1h`, `4h`, and `1d`; `15m` remains paused/legacy.
 - Testnet probe path remains disabled.
 - No testnet order endpoint calls occur.
 - No private/signed/order endpoints are called from strategy truth.

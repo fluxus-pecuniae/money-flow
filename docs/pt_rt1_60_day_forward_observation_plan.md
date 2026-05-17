@@ -24,6 +24,7 @@ It is not:
 - Each strategy lane has an independent 10,000 USDC synthetic ledger.
 - Dashboard Paper Observation view is readable.
 - Testnet probes remain disabled unless separately approved.
+- PT-RT1.4 active Week 1 review scope is respected: `1h`, `4h`, and `1d` are active; `15m` remains paused/legacy unless a later founder-approved phase re-enables it.
 
 ## Strategy Lanes
 
@@ -44,6 +45,7 @@ It is not:
 
 - Public mainnet data health by symbol/timeframe.
 - Last fully closed candle per symbol/timeframe.
+- Active timeframe scope: confirm `1h`/`4h`/`1d` are scored and `15m` remains excluded from active weekly totals.
 - New synthetic entries/exits/skips.
 - Open synthetic positions and unrealized PnL.
 - Closed synthetic trades and realized PnL.

@@ -4,13 +4,13 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 ## Immediate Future
 
-Current implemented documentation/governance milestone: `OB2.0` Obsidian Strategy Brain + Evidence Architecture Refresh, on top of completed `EV-AUDIT1`.
+Current implemented runtime/governance milestone: `PT-RT1.2.1` Paper Trading dashboard polish on top of `PT-RT1.3` candle-truth data health and the `OB2.0` Obsidian Strategy Brain + Evidence Architecture Refresh.
 
 Historical context: SV1.18 closed the first Strategy Validation cycle, and UAT0 through UAT4.2 are completed plumbing/observability milestones. They remain context, not the active next phase.
 
-Recommended next phase: `PT-RT1` real-time public market data + paper observation runtime.
+Recommended next phase: run and review a fresh `PT-RT1.3` Paper Trading observation session.
 
-PT-RT1 is not approved or implemented by OB2.0. It must be separately scoped as paper observation only:
+PT-RT1 is implemented as paper observation only:
 
 - public mainnet market data as strategy truth;
 - fully closed candle detection;
@@ -63,7 +63,7 @@ Hyperliquid ETH `sleeve_1h` remains the frozen UAT observation context, not a pr
 
 ## Deferred Work
 
-- PT-RT1 real-time paper observation, separately scoped.
+- PT-RT forward-observation evaluation after fresh runtime artifacts.
 - MF-ORIG source-exact reconciliation against the now-present PDF if the founder wants a second source-faithful evidence pass.
 - SOR-EV4 only if founder wants narrower control-pocket-preserving rolling-range follow-up.
 - UAT3.5 additional sandbox lifecycle tests only after explicit approval and precision validation.

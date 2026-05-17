@@ -214,8 +214,15 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "PT-RT1.1" in current_phase
     assert "PT-RT1.2" in current_phase
     assert "PT-RT1.3" in current_phase
-    assert "stale/thin/missing/nonpositive Hyperliquid public mids are warning-only" in current_phase
-    assert "Signed testnet transport is present only as an explicit gated path" in current_phase
+    assert (
+        "stale/thin/missing/nonpositive Hyperliquid public mids are warning-only" in current_phase
+        or "stale/thin/missing public mids as warning-only" in current_phase
+    )
+    assert (
+        "Signed testnet transport is present only as an explicit gated path" in current_phase
+        or "Signed testnet transport remains only an explicit gated path" in current_phase
+        or "Signed testnet transport remains only as an explicit gated path" in current_phase
+    )
     assert "`MF-ORIG-EV2` Original Money Flow multi-timeframe evidence packs and Historical Replay UI are complete" in current_phase
     assert "MF-ORIG-EV1.1" in current_phase
     assert "SOR-EV2" in current_phase
@@ -297,9 +304,9 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert "Current implemented milestone | `PT-RT1.3` candle-truth data-health semantics" in command_center
+    assert "Current implemented milestone | `PT-RT1.4` Paper Trading command-center cleanup" in command_center
     assert "Canonical command center" in compatibility_command_center
-    assert "PT-RT1 now implements the public-mainnet paper-observation substrate" in current_dashboard
+    assert "PT-RT1 now implements the public-mainnet Paper Trading observation substrate" in current_dashboard
     assert "SV2.0.2 canonical evidence" in current_dashboard
     assert "EV-AUDIT1" in current_dashboard
     assert "PT-RT1" in current_dashboard
@@ -322,7 +329,10 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     assert "no clean strategy candidate" in command_center
     assert "SOR-EV1-SOR-EV3" in project_memory
     assert "EV-AUDIT1" in project_memory
-    assert "Strategy Validation is now its own major track" in Path("money-flow/00 Maps/Phase Timeline.md").read_text()
+    phase_timeline = Path("money-flow/00 Maps/Phase Timeline.md").read_text()
+    assert "Current Tracks" in phase_timeline
+    assert "Historical Plumbing Archive" in phase_timeline
+    assert "Paper Trading / PT-RT" in phase_timeline
     assert "What Strategy Validation Did" in sv_map
     assert "What Strategy Validation Did Not Prove" in sv_map
     assert "Original Money Flow" in Path("money-flow/00 Maps/Strategy Family Map.md").read_text()
@@ -343,7 +353,6 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
 def test_current_state_notes_keep_uat_boundaries() -> None:
     current_state_paths = [
         Path("money-flow/00_Money_Flow_Command_Center.md"),
-        Path("money-flow/Money Flow Command Center.md"),
         Path("money-flow/01_Current_Phase.md"),
         Path("money-flow/00 Maps/Current State Dashboard.md"),
         Path("money-flow/00 Maps/Strategy Validation Map.md"),
@@ -367,11 +376,14 @@ def test_current_state_notes_keep_uat_boundaries() -> None:
         assert "ETH" in note
         assert "sleeve_1h" in note
 
+    compatibility_command_center = Path("money-flow/Money Flow Command Center.md").read_text()
+    assert "Canonical command center" in compatibility_command_center
+    assert "Do not add current status" in compatibility_command_center
+
 
 def test_obsidian_current_state_notes_do_not_have_stale_current_truth() -> None:
     current_state_paths = [
         Path("money-flow/00_Money_Flow_Command_Center.md"),
-        Path("money-flow/Money Flow Command Center.md"),
         Path("money-flow/01_Current_Phase.md"),
         Path("money-flow/00 Maps/Current State Dashboard.md"),
         Path("money-flow/00 Maps/Phase Timeline.md"),
@@ -435,8 +447,7 @@ def test_obsidian_current_state_notes_do_not_have_stale_current_truth() -> None:
 
     for path in current_state_paths:
         contents = path.read_text()
-        assert "SV1.18" in contents or "UAT0" in contents, f"{path} does not reflect current UAT0/SV1.18 work"
-        assert "UAT0" in contents, f"{path} does not point to UAT0"
+        assert "PT-RT" in contents or "Paper Trading" in contents, f"{path} does not reflect current PT-RT/Paper Trading work"
         for phrase in stale_current_truth_phrases:
             assert phrase not in contents, f"{path} still contains stale current truth: {phrase}"
 
@@ -460,7 +471,7 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "no clean strategy candidate" in strategy_register
     assert "No strategy is production-ready" in current_phase or "no clean strategy candidate is promoted" in current_phase
     assert "PT-RT1" in current_phase
-    assert "Run a fresh `PT-RT1.3` observation session" in current_phase
+    assert "Run a fresh PT-RT active-week observation session" in current_phase
     assert "compact-log suppression/size stats" in current_phase
     assert "duplicate same-candle open blocking" in current_phase
     assert "mid-warning rollups" in current_phase
@@ -483,7 +494,7 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "public" in paper_roadmap
     assert "mainnet market data" in paper_roadmap
     assert "no exchange orders" in paper_roadmap
-    assert "implemented_runtime_state_and_transport_gates" in paper_roadmap
+    assert "implemented_paper_trading_command_center_and_active_timeframe_cutover" in paper_roadmap
     assert "reports/paper_runtime/pt_rt1_1c_24h_dry_run/" in paper_roadmap
     assert "Gerald Peters" in original_source_note
     assert "source-faithful reconstruction" in original_source_note
@@ -522,7 +533,7 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     assert "strategy-truth lane is Hyperliquid public mainnet market data only" in command_center
     assert "PT-RT1.3 is the current runtime data-health layer" in command_center
     assert "state persists processed signal keys" in command_center
-    assert "normal dashboard path remains audit/order-shape only" in command_center
+    assert "normal dashboard-started runs remain audit/order-shape only" in command_center
     assert "not production approval" in report
     assert "live approval" in report
     assert "paper-runtime approval" in report
@@ -532,7 +543,7 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     assert "TRON" in report
     assert "kPEPE" in report
     assert "notional cap is `20 USDC`" in paper_roadmap
-    assert "dashboard-started PT-RT1.3 currently creates probe audit/order-shape rows only" in paper_roadmap
+    assert "dashboard-started PT-RT runs can create probe audit/order-shape rows only" in paper_roadmap
     assert "signed transport requires the explicit PT-RT1.2" in paper_roadmap
     assert "testnet fills never update strategy paper PnL" in paper_roadmap
     assert "runtime_collection_started" in start_summary

@@ -2,9 +2,9 @@
 
 Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
-UAT validates plumbing and behavior. It does not prove profitability.
+UAT validates plumbing and behavior. It does not prove profitability. This page is now a historical plumbing archive; current active work is tracked through Paper Trading / PT-RT, Strategy Validation SV2.x, SOR/MF-ORIG research, and dashboard founder-review notes.
 
-Current status: UAT0 through UAT4.2, PT0 through PT0.0.3, SV2.0 through SV2.0.2, SOR-EV1 through SOR-EV3, MF-ORIG-EV1.1/MF-ORIG-EV2, EV-AUDIT1, and OB2.0 documentation refresh are complete or current as recorded in the canonical command center. UAT validates plumbing and behavior; it does not prove profitability. SV2.0.2 canonical evidence packs are generated and current. EV-AUDIT1 promotes no clean strategy candidate and recommends PT-RT1 real-time public market-data paper observation as a separately scoped future phase. PAPER TRADING IS APPROVED. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED. Live trading and real-capital trading remain not approved.
+Current status: UAT0 through UAT4.2 and PT0 through PT0.0.3 are complete historical plumbing/context tracks as recorded in the canonical command center. SV2.0.2 canonical evidence packs are generated and current. PT-RT1.x now implements the Paper Trading forward-observation substrate, but no completed fresh observation result promotes a strategy. PAPER TRADING IS APPROVED for Hyperliquid testnet/sandbox scope under historical gates only. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED under metadata, precision, risk, lease, label, and no-live gates. Live trading and real-capital trading remain not approved.
 
 UAT1 public read-only connectivity remains complete historical plumbing context; it is not strategy evidence approval.
 

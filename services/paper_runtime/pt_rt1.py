@@ -45,6 +45,16 @@ TIMEFRAME_DURATIONS = {
     "4h": timedelta(hours=4),
     "1d": timedelta(days=1),
 }
+PT_RT1_4_ACTIVE_REVIEW_START_UTC = "2026-05-17T09:47:55Z"
+PT_RT1_4_ACTIVE_TIMEFRAMES = ("1h", "4h", "1d")
+PT_RT1_4_DISABLED_TIMEFRAMES = ("15m",)
+PT_RT1_4_DISABLED_TIMEFRAME_STATUS = "disabled_for_week1_noise_reduction"
+PT_RT1_4_TIMEFRAME_REASON_CODES = (
+    "timeframe_disabled_by_founder_for_week1",
+    "timeframe_excluded_from_active_scoreboard",
+    "legacy_15m_position_visible",
+    "no_new_15m_entries",
+)
 RUNTIME_STATE_PATHS = {
     "state": "reports/paper_runtime/pt_rt1_state.json",
     "decisions": "reports/paper_runtime/pt_rt1_decisions.jsonl",
@@ -1469,9 +1479,9 @@ def build_pt_rt1_summary() -> dict[str, Any]:
         "report": "pt_rt1_real_time_paper_observation_and_testnet_plumbing",
         "status": "implemented_readiness_expansion",
         "revision": "PT-RT1.1A",
-        "latest_readiness_phase": "PT-RT1.1B",
-        "latest_readiness_report": "docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness.md",
-        "latest_readiness_summary": "docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json",
+        "latest_readiness_phase": "PT-RT1.4",
+        "latest_readiness_report": "docs/pt_rt1_4_paper_trading_command_center_cleanup.md",
+        "latest_readiness_summary": "docs/pt_rt1_4_paper_trading_command_center_cleanup_summary.json",
         "strategy_truth_lane": {
             "source": "Hyperliquid public mainnet info endpoint",
             "endpoint": PT_RT1_MAINNET_INFO_URL,
@@ -1501,6 +1511,27 @@ def build_pt_rt1_summary() -> dict[str, Any]:
             "TRUMP": "TRUMP is deferred from fresh PT-RT paper-observation scanner runs because it created excessive runtime noise.",
         },
         "timeframes": list(TIMEFRAME_DURATIONS),
+        "active_timeframes": list(PT_RT1_4_ACTIVE_TIMEFRAMES),
+        "disabled_timeframes": list(PT_RT1_4_DISABLED_TIMEFRAMES),
+        "active_review_start_utc": PT_RT1_4_ACTIVE_REVIEW_START_UTC,
+        "active_timeframe_policy": {
+            "status": "pt_rt1_4_week1_cutover",
+            "active_timeframes": list(PT_RT1_4_ACTIVE_TIMEFRAMES),
+            "disabled_timeframes": [
+                {
+                    "timeframe": timeframe,
+                    "status": PT_RT1_4_DISABLED_TIMEFRAME_STATUS,
+                    "reason_codes": list(PT_RT1_4_TIMEFRAME_REASON_CODES),
+                }
+                for timeframe in PT_RT1_4_DISABLED_TIMEFRAMES
+            ],
+            "default_lane_comparison_scope": "selected_timeframe_only",
+            "default_selected_timeframe": "1h",
+            "all_active_timeframes_label": "sum across active paper timeframes only: 1h + 4h + 1d",
+            "not_one_combined_account": True,
+            "pre_cutover_label": "weekend_burn_in_or_pre_cutover",
+            "legacy_15m_policy": "existing 15m records remain visible under paused/legacy filters; no new 15m entries after cutover",
+        },
         "scanner_universe": scanner_rows,
         "scanner_eligibility_rules": [
             "exists_in_current_hyperliquid_public_meta",
@@ -1519,10 +1550,22 @@ def build_pt_rt1_summary() -> dict[str, Any]:
                 "resolved_venue_symbol": row["resolved_venue_symbol"],
                 "timeframe": timeframe,
                 "source": "Hyperliquid public mainnet",
-                "status": "pending_runtime_refresh",
-                "fully_closed_candle_status": "pending_runtime_refresh",
+                "status": (
+                    PT_RT1_4_DISABLED_TIMEFRAME_STATUS
+                    if timeframe in PT_RT1_4_DISABLED_TIMEFRAMES
+                    else "pending_runtime_refresh"
+                ),
+                "fully_closed_candle_status": (
+                    "paused_legacy_timeframe"
+                    if timeframe in PT_RT1_4_DISABLED_TIMEFRAMES
+                    else "pending_runtime_refresh"
+                ),
                 "last_update_utc": None,
-                "reason_codes": ["runtime_not_started"],
+                "reason_codes": (
+                    list(PT_RT1_4_TIMEFRAME_REASON_CODES)
+                    if timeframe in PT_RT1_4_DISABLED_TIMEFRAMES
+                    else ["runtime_not_started"]
+                ),
             }
             for row in scanner_rows
             if not row["blocked"]
@@ -1585,12 +1628,13 @@ def build_pt_rt1_summary() -> dict[str, Any]:
             "duration_hours_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1c_24h_dry_run --enable-testnet-probes --founder-approved-testnet-probes-20usdc --testnet-probe-notional-usdc 20 --public-mainnet-only",
         },
         "next_phase": {
-            "decision": "PT-RT1.1D may evaluate public-mainnet runtime collection and 20 USDC probe audit rows",
+            "decision": "Run fresh PT-RT active-week paper observation on 1h/4h/1d with 15m paused",
             "conditions": [
                 "testnet_probe_transport_not_submitted_by_pt_rt1_runtime",
                 "public_mainnet_strategy_truth_only",
                 "expanded_scanner_rows_remain_reason_coded",
-                "pt_rt1_1b_public_mainnet_connector_ready",
+                "pt_rt1_4_active_timeframe_cutover_enabled",
+                "fifteen_minute_timeframe_paused_for_week1",
                 "no_production_rule_changes",
             ],
         },

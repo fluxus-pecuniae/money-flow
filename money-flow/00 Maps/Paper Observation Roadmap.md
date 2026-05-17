@@ -1,8 +1,8 @@
-# Paper Observation Roadmap
+# Paper Trading / PT-RT Roadmap
 
 Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
-This is the roadmap and current status note for PT-RT1. It is not production approval, strategy paper-runtime approval, or live-trading approval.
+This is the roadmap and current status note for PT-RT1. The founder-facing dashboard tab is `Paper Trading`; the underlying runtime and code may still use Paper Observation / `paper-observation` names. This is not production approval, strategy paper-runtime approval, or live-trading approval.
 
 ## PT-RT1 Implemented Scope
 
@@ -66,13 +66,31 @@ PT-RT1.3 candle-truth data health:
 - Stale/thin/missing/nonpositive mids are visible as warning-only labels such as `mid_stale_or_thin_tick` and `mid_unavailable_but_candles_available`.
 - Missing, malformed, or degraded candles and insufficient indicators remain blocking `data_unavailable` conditions.
 
-Paper Observation dashboard live display:
+PT-RT1.4 active weekly command-center cutover:
 
-- Browser-side watchlist polling calls Hyperliquid public mainnet `allMids` every 1 second.
-- The visible watchlist is intentionally compact: `Symbol`, `Mid price`, and `Health`.
-- Watchlist health can show stale/thin mid warnings, but those warnings do not imply strategy data failure when clean closed candles are available.
-- The selected pair/timeframe chart uses public mainnet `candleSnapshot`.
-- The adjacent Signal Generation panel lists recorded synthetic `paper_opened` intended-entry decisions from the PT-RT1 decision stream.
+- Active Week 1 paper timeframes are `1h`, `4h`, and `1d`.
+- `15m` is `disabled_for_week1_noise_reduction`.
+- New 15m synthetic entries are blocked after the cutover.
+- Existing 15m records are not deleted; they remain visible under paused/legacy review and are excluded from active weekly scoring.
+- Strategy Lane Comparison defaults to selected timeframe only (`1h`).
+- All-active mode is explicitly `1h + 4h + 1d`, excludes 15m, and is not one combined account.
+- Signal Generator is now a categorized paper-decision stream.
+- Testnet status separates audit-only shape generation from actual signed testnet order transport.
+
+Paper Trading dashboard live display:
+
+- Browser-side health polling can still call Hyperliquid public mainnet `allMids`, but the visible Expanded Scanner Universe/watchlist is removed from the founder Paper Trading page as of PT-RT1.2.1.
+- The founder page now uses a weekly command-center layout: top health banner, timeframe-scoped Weekly Scoreboard, Timeframe Breakdown, selected-pair public-mainnet chart, Open Synthetic Positions, Closed Synthetic Trades, Signal / Decision Stream, and lower-priority data-health/testnet reference panels.
+- The selected pair/timeframe chart uses public mainnet `candleSnapshot`; default chart timeframe follows the selected active timeframe rather than 15m.
+- Opened and closed synthetic paper trades render as chart markers from runtime decisions/state/trades.
+- Symbol, Timeframe, and Strategy lane controls apply to the chart context, chart markers, Signal Generator, Open Synthetic Positions, and Closed Synthetic Trades. If Symbol or Timeframe is `All`, the chart chooses the newest matching paper signal/open context and otherwise preserves the prior chart target.
+- Open Synthetic Positions and Closed Synthetic Trades are cleaned up with active/legacy status, PnL, reason, and fee/slippage context.
+- Strategy Lane Comparison is the Weekly Scoreboard and sits near the top so lane review is scoped before the chart and trade tables.
+- Closed Synthetic Trades loads ignored `trades.jsonl` rows for complete entry/exit/price/quantity/PnL/equity fields; `summary.json.closed_trades` may be empty even when the synthetic trade ledger has closed trades, and sparse `paper_closed` decision rows are filtered out instead of being shown as n/a trade rows.
+- Strategy Lane Comparison overlays `paper_runtime_state.realized_equity_by_lane`, open-position counts, closed-trade counts, and derived net PnL onto static lane definitions so active runtime ledgers do not remain displayed at starting equity.
+- Signal / Decision Stream, Open Synthetic Positions, and Closed Synthetic Trades are paginated; open-position default page size is 25 rows.
+- Wildcard Diagnostics moved to the Strategy tab and remains observation-only/non-production.
+- The adjacent Signal Generator panel lists recorded synthetic `paper_opened` intended-entry decisions from the PT-RT1 decision stream.
 - The local Start Run / Stop Run panel is available only when the dashboard is served by `scripts/run_dashboard_control_server.py`; it launches allowlisted public-mainnet sessions through Mac `caffeinate` and always forces `--enable-testnet-probes`, `--founder-approved-testnet-probes-20usdc`, `--testnet-probe-notional-usdc 20`, and `--public-mainnet-only`.
 - Runtime decision logging now defaults to compact mode. It writes actionable `paper_opened`/`paper_closed` decisions, data-unavailable rows, and first-seen non-actionable audit rows while suppressing repeated identical non-actionable rows across cycles; `full_audit` remains an explicit short-diagnostic CLI mode.
 - The dashboard displays decision-log mode, log size, rows written this cycle, and repeated rows suppressed this cycle from runtime summaries.
@@ -81,11 +99,11 @@ Paper Observation dashboard live display:
 
 Current next operational step:
 
-1. Run and evaluate a fresh `PT-RT1.3` session so candle-truth data-health semantics are reflected in ignored runtime artifacts.
+1. Run and evaluate a fresh PT-RT active-week session scoped to `1h`, `4h`, and `1d`.
 2. Retain ignored artifacts under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/`.
 3. Evaluate those artifacts in `PT-RT1.1D`.
 4. If stable, start the 60-day public-mainnet forward-observation window.
-5. Scope real signed testnet transport submission separately if needed; dashboard-started PT-RT1.3 currently creates probe audit/order-shape rows only.
+5. Scope real signed testnet transport submission separately if needed; dashboard-started PT-RT runs can create probe audit/order-shape rows only.
 
 ## Required Boundaries
 
@@ -124,9 +142,9 @@ Testnet probes remain separate from strategy truth:
 
 ## Readiness Decision
 
-Current PT-RT1 status: `implemented_substrate_observation_not_started`.
+Current PT-RT1 status: `implemented_forward_observation_substrate`.
 
-Current PT-RT1.1 status: `blocked_missing_24h_runtime_artifacts`.
+Current PT-RT1.1 status: `historical_artifact_gate_superseded_by_runtime_followups`.
 
 Current PT-RT1.1A status: `implemented_expanded_readiness`.
 
@@ -137,5 +155,7 @@ Current PT-RT1.1C status: `runtime_artifacts_present_pending_evaluation`.
 Current PT-RT1.2 status: `implemented_runtime_state_and_transport_gates`.
 
 Current PT-RT1.3 status: `implemented_candle_truth_data_health`.
+
+Current PT-RT1.4 status: `implemented_paper_trading_command_center_and_active_timeframe_cutover`.
 
 This means the repo now has code, dashboard, public-mainnet connector, runtime command, summary JSON, tests, and runbooks for controlled forward observation across the expanded 10-lane lab. The local PT-RT1.1C artifact set under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` currently contains about 479k paper decision rows, 0 trade rows, and latest summary timestamp `2026-05-15T22:22:12Z`; PT-RT1.2 fixes the stateless repeated-open issue for fresh runs and PT-RT1.3 fixes false-positive mid-driven `data_unavailable` rows for fresh runs, but neither phase rewrites old ignored logs. It is not an always-on hosted service: new signal generation requires manually starting `scripts/run_pt_rt1_paper_observation.py` and keeping that process and machine awake/networked for the chosen session. No 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading.

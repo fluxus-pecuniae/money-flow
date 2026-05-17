@@ -2,6 +2,30 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-17T08:45:23Z - OB-CLEANUP - Current-First Obsidian Brain And Coordination Split
+
+- `decision`: The Obsidian brain should be current-first: Paper Trading / PT-RT, SV2.x evidence, SOR/MF-ORIG research, and founder dashboard review are the active path; UAT and older platform phases remain preserved as historical plumbing context.
+- `scope`: `money-flow/00 Maps/Phase Timeline.md` is rewritten around current tracks with UAT moved to a historical archive pointer. `money-flow/05_Agent_Coordination.md` now has separate Active Work and Finished Work sections. Duplicate command-center and phase-timeline entrypoints stay as pointer notes only. Current-truth notes use Paper Trading as founder-facing language and remove stale founder-chrome references to manual report loading/evidence-loaded status text.
+- `why`: Founder review found the Phase Timeline too UAT-heavy and several Obsidian pages outdated or confusing for handoff.
+- `result`: `implemented_current_first_obsidian_cleanup`.
+- `follow_up_implications`: Future agents should add themselves under Active Work before substantial edits and move/update the row under Finished Work when done. Historical decision entries remain append-only even if their old UI wording is no longer current. This cleanup changes no code behavior, evidence packs, strategy rules, order endpoints, API-key use, live approval, or SOR/fanout/CBBO behavior.
+
+## 2026-05-17T03:08:07Z - PT-RT1.2.1 - Use Runtime Trade Ledger For Closed Trades And Runtime Equity For Lane Comparison
+
+- `decision`: The Paper Observation dashboard must use ignored PT-RT `trades.jsonl` as the display source for Closed Synthetic Trades and `paper_runtime_state.realized_equity_by_lane` as the display source for current Strategy Lane Comparison equity.
+- `scope`: `apps/dashboard/evidence-dashboard.js` now loads `trades.jsonl`, renders closed synthetic trade entry/exit/price/quantity/PnL/equity fields from those rows, and overlays runtime realized equity/open count/closed count/derived net PnL onto static lane definitions.
+- `why`: Founder observed Closed Synthetic Trades missing entry/exit/PnL fields and Strategy Lane Comparison still showing starting equity after recent trades. Root cause: `summary.json.closed_trades` can be empty while the complete synthetic trade ledger lives in ignored `trades.jsonl`, and `strategy_lanes` is static lane config rather than current ledger state.
+- `result`: `implemented_dashboard_runtime_ledger_display_truth`. The dashboard display now follows the synthetic public-mainnet paper ledger artifacts without changing runtime behavior.
+- `follow_up_implications`: Future PT-RT dashboard changes should distinguish static config fields from runtime ledger state. This decision does not change Money Flow production rules, approve paper/live trading, regenerate evidence packs, submit orders, call private/signed/order endpoints, use API keys, use testnet strategy truth, or add SOR/fanout/CBBO.
+
+## 2026-05-17T03:19:49Z - PT-RT1.2.1 - Keep Dashboard Chrome Compact And Hide Sparse Closed-Trade Rows
+
+- `decision`: The founder dashboard should keep the primary title, logo, tabs, and Load JSON control in one sticky top bar, and Closed Synthetic Trades should display only ledger-complete closed-trade rows.
+- `scope`: `apps/dashboard/index.html` and `apps/dashboard/evidence-dashboard.css` move the title/logo/tabs/data controls into compact top chrome and make the Local Mac runtime control a two-column card. `apps/dashboard/evidence-dashboard.js` removes the visible combined SV2.0.2+SV2.1 loaded label and filters sparse `paper_closed` decision rows out of the closed-trade table when entry/exit/price/quantity/PnL/equity fields are missing.
+- `why`: Founder review found the old hero/header consumed vertical space, the combined evidence-loaded phrase added noise, and sparse decision rows still appeared as n/a closed trades even after the full `trades.jsonl` ledger loader was added.
+- `result`: `implemented_compact_chrome_and_closed_trade_complete_row_filter`. Strategy Lane Comparison now sits directly below Open/Closed Synthetic Trades so lane equity follows the trade ledger in founder review.
+- `follow_up_implications`: Sparse `paper_closed` decisions remain audit context, but the Closed Synthetic Trades table should continue to represent synthetic trade-ledger truth. This decision does not change Money Flow production rules, approve paper/live trading, regenerate evidence packs, submit orders, call private/signed/order endpoints, use API keys, use testnet strategy truth, or add SOR/fanout/CBBO.
+
 ## 2026-05-16T19:45:03Z - PT-RT1.3 - Surface Durable Paper Signals And Keep Testnet Probe Transport Explicit
 
 - `decision`: The Paper Observation dashboard should read recent ignored PT-RT `decisions.jsonl` rows for Signal Generation, not only the current-cycle `summary.json` signal field, and should label audit/order-shape rows separately from signed testnet orders.
@@ -9,6 +33,14 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `why`: Founder saw signals in runtime artifacts but not in the UI because the latest summary cycle had no new `paper_opened` rows. Founder also expected visible testnet submissions, but the current dashboard path intentionally writes audit/order-shape rows only.
 - `result`: `implemented_dashboard_runtime_truth_visibility`. Existing local runtime artifacts can populate Signal Generation without restarting the run. Signed testnet transport remains off unless a future operator uses the separate PT-RT1.2 transport gate with exact approval and a configured client.
 - `follow_up_implications`: A future signed-testnet-transport phase must be explicitly scoped and approved before any real Hyperliquid testnet order endpoint calls. This decision does not change Money Flow production rules, approve paper/live trading, regenerate evidence packs, use API keys, use testnet strategy truth, or add SOR/fanout/CBBO.
+
+## 2026-05-16T20:11:48Z - PT-RT1.2.1 - Make Paper Observation Chart-First And Marker-Aware
+
+- `decision`: Treat PT-RT1.2.1 as a dashboard/UI-only phase that makes Paper Observation easier for founder review without changing runtime strategy behavior.
+- `scope`: The visible Expanded Scanner Universe/watchlist is removed, Live Public Candles + Paper Markers moves above Signal Generator, Signal Generator/Open Synthetic Positions/Closed Synthetic Trades paginate at 10 rows, Wildcard Diagnostics moves to Strategy, global Symbol/Timeframe/Strategy filters apply across relevant Paper Observation widgets, and opened/closed synthetic paper rows render as chart markers.
+- `why`: Founder review found the Paper Observation page hard to use and wanted the chart, signal rows, and synthetic paper ledger rows to be filter-consistent and visually connected.
+- `result`: `implemented_chart_first_paper_observation_ui`. All Symbol/Timeframe selections use explicit choices when present; when set to All, the chart chooses the newest matching paper signal/open context or preserves the prior chart target.
+- `follow_up_implications`: This is display/runtime visibility only. It does not change Money Flow production rules, approve paper/live trading, regenerate evidence packs, submit orders, call private/signed/order endpoints, use API keys, use testnet strategy truth, or add SOR/fanout/CBBO.
 
 ## 2026-05-16T13:30:10Z - PT-RT1.3 - Defer TRUMP From Fresh Runtime Scanner
 
@@ -881,3 +913,10 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `why`: The latest local runtime review showed false-positive `data_unavailable` rows for quiet Hyperliquid pairs whose mids did not tick frequently. Strategy truth is candle-based, so mid freshness should not block paper-decision evaluation when candles and indicators are available.
 - `rejected_alternatives`: Keeping mid freshness as the scanner eligibility gate; hiding mid issues entirely; treating degraded/malformed candles as usable; changing strategy rules to compensate for data-health labels.
 - `follow_up_implications`: Fresh PT-RT1.3 runs should show mid warnings separately from blocking candle/indicator unavailable rows. Founder review should inspect `summary.json`, `data_health.json`, and `decisions.jsonl` before treating any forward observation run as usable evidence. No production rules, paper/live approval, private/signed/order endpoints, API keys, testnet strategy truth, or SOR behavior were added.
+
+## 2026-05-17T09:47:55Z - PT-RT1.4 - Paper Trading Weekly Review Uses 1h / 4h / 1d
+
+- `decision`: Pause `15m` from active Week 1 paper trading and make Paper Trading the founder weekly command center scoped by selected timeframe. Active timeframes are `1h`, `4h`, and `1d`; `15m` is `disabled_for_week1_noise_reduction`, preserved as paused/legacy data, and excluded from active scoring and new synthetic entries.
+- `why`: Founder review found the prior Paper Trading page confusing because lane comparison blended timeframes, 15m created too much runtime noise, open/closed tables were hard to read, and testnet audit-shape labels could look like enabled order transport.
+- `rejected_alternatives`: Deleting existing 15m runtime records; silently hiding legacy 15m open positions; aggregating all timeframes without labels; calling audit-only testnet shapes "probes enabled" without transport context; enabling signed testnet transport; changing production Money Flow rules.
+- `follow_up_implications`: Fresh active-week review should focus on 1h/4h/1d. All-active mode must mean only `1h + 4h + 1d` and not one combined account. Testnet order transport remains disabled; audit-only shapes remain separate from strategy PnL. No live trading, production strategy approval, private/signed/order endpoints from strategy truth, or SOR/fanout/CBBO behavior follows from this cleanup.

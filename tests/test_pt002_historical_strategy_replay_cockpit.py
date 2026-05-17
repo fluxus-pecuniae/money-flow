@@ -232,6 +232,7 @@ def test_builder_marks_missing_dataset_with_clear_reason_code() -> None:
 def test_dashboard_has_historical_replay_tab_and_stable_chart_container() -> None:
     html, js, css = _dashboard_assets()
 
+    assert 'data-view-panel="historical-replay"' in html
     assert 'data-view="historical-replay"' in html
     assert "Historical Replay" in html
     assert "historical-replay-strategy-filter" in html
@@ -240,11 +241,15 @@ def test_dashboard_has_historical_replay_tab_and_stable_chart_container() -> Non
     assert "historical-replay-date-start" in html
     assert "historical-replay-date-end" in html
     assert "historical-replay-date-clear" in html
+    assert html.index("historical-replay-chart") < html.index("historical-data-horizon-panel")
     assert "Show arrow descriptions" in html
     assert "historical-replay-chart" in html
     assert "Trade Inspector" in html
     assert "Click a chart arrow or trade row" in html
-    assert "BTC / ETH / SOL Comparison" in html
+    assert "Pair Comparison" in html
+    assert "BTC / ETH / SOL Comparison" not in html
+    assert "HISTORICAL_COMPARISON_PAGE_SIZE = 25" in js
+    assert "historical-comparison-pagination" in js
     assert "Sandbox Execution Plumbing" in html
     assert "pt0_0_2_historical_strategy_replay_summary.json" in js
     assert "baseline_current_money_flow_rules" in js

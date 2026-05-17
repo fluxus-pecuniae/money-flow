@@ -1,0 +1,113 @@
+{
+  "phase": "PT-RT1.4",
+  "status": "implemented",
+  "active_review_start_utc": "2026-05-17T09:47:55Z",
+  "active_timeframes": [
+    "1h",
+    "4h",
+    "1d"
+  ],
+  "disabled_timeframes": [
+    {
+      "timeframe": "15m",
+      "status": "disabled_for_week1_noise_reduction",
+      "reason_codes": [
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
+      ],
+      "active_scoreboard_included": false,
+      "new_synthetic_entries_allowed": false,
+      "historical_records_deleted": false
+    }
+  ],
+  "lane_comparison_scope": {
+    "default": "selected_timeframe_only",
+    "default_selected_timeframe": "1h",
+    "available_modes": [
+      "1h",
+      "4h",
+      "1d",
+      "all_active_timeframes",
+      "15m_paused_legacy"
+    ],
+    "all_active_label": "sum across active paper timeframes only: 1h + 4h + 1d",
+    "not_one_combined_account": true
+  },
+  "position_table_status": {
+    "status": "implemented",
+    "default_filters": [
+      "active_timeframes_only",
+      "selected_lane_all",
+      "selected_symbol_all"
+    ],
+    "default_page_size": 25,
+    "legacy_15m_visible": true
+  },
+  "closed_trade_table_status": {
+    "status": "implemented",
+    "summary_cards": [
+      "closed_trade_count",
+      "winning_trades",
+      "losing_trades",
+      "largest_win",
+      "largest_loss",
+      "average_win",
+      "average_loss",
+      "total_net_pnl"
+    ]
+  },
+  "signal_generator_status": {
+    "status": "implemented",
+    "categories": [
+      "actual_opens_plus_intended_entries",
+      "intended_entries",
+      "actual_synthetic_opens",
+      "no_trade_blocked",
+      "exits",
+      "duplicate_ignored",
+      "data_unavailable"
+    ],
+    "labels": [
+      "paper decision",
+      "synthetic entry",
+      "not exchange order"
+    ]
+  },
+  "testnet_probe_label_status": {
+    "status": "implemented",
+    "audit_shape_generation_label": "Audit-only shapes",
+    "order_transport_label": "Testnet order transport",
+    "testnet_order_transport_enabled": false,
+    "signed_testnet_orders": 0,
+    "strategy_pnl_update_from_testnet": false,
+    "reason_code": "audit_only_not_submitted"
+  },
+  "dashboard_sections": [
+    "top_health_banner",
+    "weekly_scoreboard",
+    "timeframe_breakdown",
+    "live_public_candles_and_paper_markers",
+    "compact_watchlist_symbol_mid_health",
+    "open_synthetic_positions",
+    "closed_synthetic_trades",
+    "signal_decision_stream",
+    "data_health_and_testnet_plumbing_reference"
+  ],
+  "boundaries": {
+    "production_money_flow_rules_changed": false,
+    "strategy_production_approved": false,
+    "live_trading_approved": false,
+    "live_orders_submitted": false,
+    "testnet_orders_submitted": false,
+    "testnet_order_transport_enabled": false,
+    "private_signed_order_endpoints_called_from_strategy_truth": false,
+    "api_keys_used_for_strategy_truth": false,
+    "historical_evidence_packs_regenerated": false
+  },
+  "next_phase": {
+    "recommendation": "Use Paper Trading as the weekly command center and evaluate active 1h/4h/1d runtime behavior after the next review window.",
+    "frozen_boundary": "15m remains paused for Week 1 unless the founder explicitly re-enables it in a later phase."
+  }
+}

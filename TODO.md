@@ -1,8 +1,26 @@
 # TODO
 
-Last reviewed: `2026-05-16T19:45:03Z`
+Last reviewed: `2026-05-17T09:47:55Z`
 
 ## Active Follow-Ups
+
+### T-149
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `PT-RT1.4 Paper Trading command-center cleanup is implemented. Active Week 1 paper observation now defaults to 1h, 4h, and 1d; 15m is disabled for week-one noise reduction, excluded from active weekly scoring, and preserved only as paused/legacy data. Strategy Lane Comparison is timeframe-scoped by default, all-active mode explicitly means 1h + 4h + 1d and not one combined account, Open Synthetic Positions and Closed Synthetic Trades are cleaned up for founder review, Signal Generator is now a categorized paper-decision stream, and testnet plumbing status separates audit-only shapes from disabled order transport. No production Money Flow rules changed; no evidence packs were regenerated; no paper/live approval, live/testnet order submission, private/signed/order endpoint call, API-key use for strategy truth, testnet strategy truth, or SOR/fanout/CBBO was added.`
+
+### T-148
+
+- `priority`: `medium`
+- `status`: `done`
+- `summary`: `Obsidian current-truth cleanup is complete. Phase Timeline now leads with Paper Trading / PT-RT, SV2.x evidence, SOR/MF-ORIG research, dashboard founder review, and governance; UAT/platform phases are preserved as historical plumbing context rather than the active center. Agent Coordination now has separate Active Work and Finished Work sections. Duplicate command-center and phase-timeline entrypoints remain pointer-only. Current-truth notes use Paper Trading as the founder-facing dashboard language and remove stale manual-report-loading/evidence-loaded top-chrome wording. This is docs/governance only: no code behavior, evidence packs, production Money Flow rules, paper/live approval, endpoint use, API keys, testnet strategy truth, or SOR/fanout/CBBO changed.`
+
+### T-147
+
+- `priority`: `medium`
+- `status`: `done`
+- `summary`: `PT-RT1.2.1 Paper Observation dashboard layout, marker visibility, visual polish, and runtime-ledger display truth are implemented. The dashboard top chrome now carries the logo, Money Flow Evidence Dashboard title, Load JSON control, theme control, and six primary tabs in one sticky top bar, and the visible SV2.0.2 + SV2.1 evidence-packs-loaded phrase is removed. The visible Expanded Scanner Universe/watchlist was removed, the live public candle chart now sits above Signal Generator, Open Synthetic Positions and Closed Synthetic Trades sit directly below Signal Generator, Strategy Lane Comparison sits directly below the trades section, Signal Generator / Open Synthetic Positions / Closed Synthetic Trades paginate at 10 rows, Wildcard Diagnostics moved to the Strategy tab, and the global Symbol / Timeframe / Strategy lane controls now drive chart context, signal rows, open rows, closed rows, and opened/closed synthetic chart markers. Closed Synthetic Trades now loads ignored PT-RT trades.jsonl rows for entry/exit/price/quantity/PnL fields and filters out sparse paper_closed decision rows that would display as n/a trade rows, and Strategy Lane Comparison overlays paper_runtime_state.realized_equity_by_lane plus open/closed counts so lanes do not remain at starting equity after closed trades. When Symbol or Timeframe is All, the chart uses the newest matching paper signal/open context and otherwise keeps the prior chart target. The page now has a cleaner cockpit hierarchy: compact safety notices, a two-column Local Mac runtime control card, a clearer global filter toolbar, a larger primary chart, and normalized panel spacing/radii. No production Money Flow rules changed; no evidence packs were regenerated; no paper/live approval, signed/private/order endpoint call, API-key use, testnet strategy truth, or SOR/fanout/CBBO was added.`
 
 ### T-146
 

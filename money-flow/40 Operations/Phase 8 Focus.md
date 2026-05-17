@@ -8,7 +8,7 @@ This is historical/operator-control context.
 
 Phase 8.0 implemented read-only operator workflow observability and manual-resolution inspection. Phase 8.0.1 cleaned the Obsidian memory / working-tree baseline. Phase 8.0.2 fixed active submit-lease operator-summary truth.
 
-Current implemented documentation/governance milestone is `OB2.0` on top of completed `EV-AUDIT1`. The recommended next path is `PT-RT1` real-time public market-data paper observation, but it is not approved or implemented. Phase 8 is historical operator-control context, not the active next phase.
+Current implemented runtime/governance milestone is `PT-RT1.2.1` Paper Trading dashboard polish on top of `PT-RT1.3` candle-truth data health and the completed `OB2.0` / `EV-AUDIT1` documentation and audit baseline. Phase 8 is historical operator-control context, not the active next phase.
 
 ## Phase 8.0 Purpose
 

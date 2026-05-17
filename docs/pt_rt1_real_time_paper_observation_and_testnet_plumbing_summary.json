@@ -1,4 +1,36 @@
 {
+  "active_review_start_utc": "2026-05-17T09:47:55Z",
+  "active_timeframe_policy": {
+    "active_timeframes": [
+      "1h",
+      "4h",
+      "1d"
+    ],
+    "all_active_timeframes_label": "sum across active paper timeframes only: 1h + 4h + 1d",
+    "default_lane_comparison_scope": "selected_timeframe_only",
+    "default_selected_timeframe": "1h",
+    "disabled_timeframes": [
+      {
+        "reason_codes": [
+          "timeframe_disabled_by_founder_for_week1",
+          "timeframe_excluded_from_active_scoreboard",
+          "legacy_15m_position_visible",
+          "no_new_15m_entries"
+        ],
+        "status": "disabled_for_week1_noise_reduction",
+        "timeframe": "15m"
+      }
+    ],
+    "legacy_15m_policy": "existing 15m records remain visible under paused/legacy filters; no new 15m entries after cutover",
+    "not_one_combined_account": true,
+    "pre_cutover_label": "weekend_burn_in_or_pre_cutover",
+    "status": "pt_rt1_4_week1_cutover"
+  },
+  "active_timeframes": [
+    "1h",
+    "4h",
+    "1d"
+  ],
   "alias_mappings": {
     "KSHIB": "kSHIB",
     "PEPE": "kPEPE",
@@ -27,8 +59,8 @@
     "expanded_scanner_universe_visible": true,
     "public_mainnet_connection_status_visible": true,
     "runtime_summary_preferred_paths": [
-      "reports/paper_runtime/pt_rt1_1c_24h_dry_run/summary.json",
       "reports/paper_runtime/pt_rt1_1b_smoke/summary.json",
+      "reports/paper_runtime/pt_rt1_1b_24h_dry_run/summary.json",
       "docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json"
     ],
     "status": "implemented_with_pt_rt1_1b_connection_status",
@@ -57,6 +89,9 @@
   "deferred_runtime_symbols": {
     "TRUMP": "runtime_noise_deferred_by_founder"
   },
+  "disabled_timeframes": [
+    "15m"
+  ],
   "fill_model": {
     "comparison_metadata": [
       "next_candle_close"
@@ -64,20 +99,23 @@
     "default": "next_candle_open",
     "same_candle_optimistic_fills": false
   },
-  "latest_readiness_phase": "PT-RT1.1C",
-  "latest_readiness_report": "docs/pt_rt1_1c_24h_runtime_collection_start.md",
-  "latest_readiness_summary": "docs/pt_rt1_1c_24h_runtime_collection_start_summary.json",
+  "latest_readiness_phase": "PT-RT1.4",
+  "latest_readiness_report": "docs/pt_rt1_4_paper_trading_command_center_cleanup.md",
+  "latest_readiness_summary": "docs/pt_rt1_4_paper_trading_command_center_cleanup_summary.json",
   "market_data_health": [
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "BTC",
       "resolved_venue_symbol": "BTC",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "BTC",
       "timeframe": "15m"
     },
@@ -121,15 +159,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "ETH",
       "resolved_venue_symbol": "ETH",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "ETH",
       "timeframe": "15m"
     },
@@ -173,15 +214,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "SOL",
       "resolved_venue_symbol": "SOL",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "SOL",
       "timeframe": "15m"
     },
@@ -225,15 +269,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "XRP",
       "resolved_venue_symbol": "XRP",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "XRP",
       "timeframe": "15m"
     },
@@ -277,15 +324,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "DOGE",
       "resolved_venue_symbol": "DOGE",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "DOGE",
       "timeframe": "15m"
     },
@@ -329,15 +379,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "HYPE",
       "resolved_venue_symbol": "HYPE",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "HYPE",
       "timeframe": "15m"
     },
@@ -381,15 +434,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "BNB",
       "resolved_venue_symbol": "BNB",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "BNB",
       "timeframe": "15m"
     },
@@ -433,15 +489,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "SUI",
       "resolved_venue_symbol": "SUI",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "SUI",
       "timeframe": "15m"
     },
@@ -485,15 +544,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "AVAX",
       "resolved_venue_symbol": "AVAX",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "AVAX",
       "timeframe": "15m"
     },
@@ -537,15 +599,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "TRON",
       "resolved_venue_symbol": "TRX",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "TRX",
       "timeframe": "15m"
     },
@@ -589,15 +654,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "ADA",
       "resolved_venue_symbol": "ADA",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "ADA",
       "timeframe": "15m"
     },
@@ -641,15 +709,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "ZEC",
       "resolved_venue_symbol": "ZEC",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "ZEC",
       "timeframe": "15m"
     },
@@ -693,15 +764,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "LINK",
       "resolved_venue_symbol": "LINK",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "LINK",
       "timeframe": "15m"
     },
@@ -745,15 +819,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "XMR",
       "resolved_venue_symbol": "XMR",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "XMR",
       "timeframe": "15m"
     },
@@ -797,15 +874,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "TON",
       "resolved_venue_symbol": "TON",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "TON",
       "timeframe": "15m"
     },
@@ -849,15 +929,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "LTC",
       "resolved_venue_symbol": "LTC",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "LTC",
       "timeframe": "15m"
     },
@@ -901,15 +984,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "UNI",
       "resolved_venue_symbol": "UNI",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "UNI",
       "timeframe": "15m"
     },
@@ -953,15 +1039,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "DOT",
       "resolved_venue_symbol": "DOT",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "DOT",
       "timeframe": "15m"
     },
@@ -1005,15 +1094,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "ASTER",
       "resolved_venue_symbol": "ASTER",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "ASTER",
       "timeframe": "15m"
     },
@@ -1057,15 +1149,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "AAVE",
       "resolved_venue_symbol": "AAVE",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "AAVE",
       "timeframe": "15m"
     },
@@ -1109,15 +1204,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "POL",
       "resolved_venue_symbol": "POL",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "POL",
       "timeframe": "15m"
     },
@@ -1161,15 +1259,18 @@
       "timeframe": "1d"
     },
     {
-      "fully_closed_candle_status": "pending_runtime_refresh",
+      "fully_closed_candle_status": "paused_legacy_timeframe",
       "last_update_utc": null,
       "reason_codes": [
-        "runtime_not_started"
+        "timeframe_disabled_by_founder_for_week1",
+        "timeframe_excluded_from_active_scoreboard",
+        "legacy_15m_position_visible",
+        "no_new_15m_entries"
       ],
       "requested_symbol": "FIL",
       "resolved_venue_symbol": "FIL",
       "source": "Hyperliquid public mainnet",
-      "status": "pending_runtime_refresh",
+      "status": "disabled_for_week1_noise_reduction",
       "symbol": "FIL",
       "timeframe": "15m"
     },
@@ -1218,10 +1319,11 @@
       "testnet_probe_transport_not_submitted_by_pt_rt1_runtime",
       "public_mainnet_strategy_truth_only",
       "expanded_scanner_rows_remain_reason_coded",
-      "pt_rt1_1b_public_mainnet_connector_ready",
+      "pt_rt1_4_active_timeframe_cutover_enabled",
+      "fifteen_minute_timeframe_paused_for_week1",
       "no_production_rule_changes"
     ],
-    "decision": "PT-RT1.1D may evaluate 24-hour runtime artifacts after completion"
+    "decision": "Run fresh PT-RT active-week paper observation on 1h/4h/1d with 15m paused"
   },
   "paper_equity_policy": {
     "compounds_wins_and_losses": true,

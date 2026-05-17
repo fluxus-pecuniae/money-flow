@@ -28,7 +28,6 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert ".uat-right-rail" in css
     assert ".uat-bottom-blotter" in css
     assert "Evidence Dashboard" in html
-    assert "Trying to load regenerated SV2.0.2 canonical evidence packs." in html
     assert "evidence-date-start" in html
     assert "evidence-date-end" in html
     assert "evidence-date-clear" in html
@@ -38,6 +37,8 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert 'data-view="experiments"' not in nav
     assert 'data-view-panel="experiments"' not in html
     assert 'data-view="historical-replay"' in nav
+    assert 'data-view-panel="historical-replay"' in html
+    assert "Historical Replay" in nav
     assert 'data-view="evidence"' in nav
     assert 'data-view="evidence-lab"' in nav
     assert 'data-view="audit-review"' in nav
@@ -45,13 +46,15 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert 'data-view="strategy"' in nav
     assert 'data-view="uat-shadow"' not in nav
     assert 'data-view="uat-cockpit"' not in nav
-    assert nav.index('data-view="strategy"') < nav.index('data-view="historical-replay"')
+    assert nav.index('data-view="paper-observation"') < nav.index('data-view="historical-replay"')
     assert nav.index('data-view="historical-replay"') < nav.index('data-view="evidence"')
     assert nav.index('data-view="evidence"') < nav.index('data-view="evidence-lab"')
     assert nav.index('data-view="evidence-lab"') < nav.index('data-view="audit-review"')
-    assert nav.index('data-view="audit-review"') < nav.index('data-view="paper-observation"')
-    assert 'data-view="historical-replay" aria-selected="true"' in nav
-    assert "Money Flow UAT Workstation" in html
+    assert nav.index('data-view="audit-review"') < nav.index('data-view="strategy"')
+    assert 'data-view="paper-observation" aria-selected="true"' in nav
+    assert "The Lab" in nav
+    assert "Audit Review" not in nav
+    assert "Money Flow Evidence Dashboard" in html
     assert "UAT Chart Cockpit" in html
     assert "Markets" in html
     assert "Order Book" in html
@@ -138,12 +141,12 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "EMA5 > EMA10 > SMA20" in html
     assert "MACD > signal and histogram >= 0" in html
     assert "RSI reaches the sleeve trim threshold" in html
-    assert "Load JSON" in html
-    assert "hero-load-copy" in html
+    assert "Load JSON" not in html
+    assert "top-load-copy" not in html
+    assert "json-file-input" not in html
     assert "review-status" not in html
     assert "local review" not in js
-    assert html.index("SV2.0.2 canonical evidence packs") < html.index('<nav class="view-tabs"')
-    assert html.index("Load JSON") < html.index('<nav class="view-tabs"')
+    assert html.index("Money Flow Evidence Dashboard") < html.index('<nav class="view-tabs')
     assert "setActiveView" in js
     assert "SV115_VARIANTS" in js
     assert "sideways_regime_avoidance_15m" in js
@@ -258,6 +261,8 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "Drawdown min" not in js
     assert "renderComponentCards(selected)" in js
     assert ".component-card-title" in css
+    assert "COMPONENT_RESULTS_PAGE_SIZE = 10" in js
+    assert "component-results-pagination" in js
     assert "font-size: 12px;" in css
     assert ".run-ledger-sort-button" in css
     assert ".run-ledger-totals" in css
@@ -292,8 +297,11 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
 
     nav = html[html.index('<nav class="view-tabs"') : html.index("</nav>", html.index('<nav class="view-tabs"'))]
     assert 'data-view="paper-observation"' in nav
+    assert "Paper Trading" in nav
+    assert "Paper Observation" not in nav
     assert 'data-view-panel="paper-observation"' in html
     assert "Paper Observation" in html
+    assert 'activeView: "paper-observation"' in js
     assert "PT-RT1 forward observation" in html
     assert "10 isolated 10,000 USDC synthetic paper ledgers" in html
     assert "Paper observation only" in html
@@ -316,32 +324,58 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "--enable-testnet-probes" in html
     assert "--testnet-probe-notional-usdc 20" in html
     assert "--public-mainnet-only" in html
-    assert "20 USDC testnet probe audit rows" in html
-    assert "This creates synthetic paper decisions and testnet-plumbing audit/order-shape rows only" in html
-    assert "No signed/order endpoint is called by this runtime" in html
+    assert "audit-only testnet probe shapes can be recorded" in html
+    assert "testnet order transport remains disabled" in html
+    assert "no signed/order endpoint is called by this runtime" in html
     assert "paper-observation-connection-status" in html
     assert "paper-observation-lane-filter" in html
     assert "paper-observation-scanner-table" in html
+    assert "Watchlist" in html
+    assert "Expanded Scanner Universe" not in html
+    assert "paper-observation-health-banner" in html
+    assert "paper-observation-timeframe-breakdown" in html
     assert "paper-observation-signal-table" in html
-    assert "Signal Generation" in html
+    assert "Signal / Decision Stream" in html
     assert "Market Data Health" not in html
+    assert html.index("paper-observation-health-banner") < html.index("paper-observation-lane-table")
+    assert html.index("paper-observation-lane-table") < html.index("paper-observation-timeframe-breakdown")
+    assert html.index("paper-observation-timeframe-breakdown") < html.index("paper-observation-live-chart")
+    assert html.index("paper-observation-live-chart") < html.index("paper-observation-signal-table")
+    assert html.index("paper-observation-open-positions") < html.index("paper-observation-closed-trades")
+    assert html.index("paper-observation-closed-trades") < html.index("paper-observation-signal-table")
     assert "paper-observation-lane-table" in html
     assert "paper-observation-lane-detail" in html
-    assert "paper-observation-wildcard-diagnostics" in html
+    paper_view = html[html.index('data-view-panel="paper-observation"') : html.index('data-view-panel="historical-replay"')]
+    assert "paper-observation-wildcard-diagnostics" not in paper_view
+    assert "strategy-wildcard-diagnostics" in html
+    assert "Wildcard Diagnostics" in html
     assert "paper-observation-live-chart" in html
     assert "paper-observation-open-positions" in html
     assert "paper-observation-closed-trades" in html
     assert "paper-observation-risk-table" in html
     assert "paper-observation-probe-status" in html
     assert ".paper-observation-view" in css
+    assert "paper-observation-safety-strip" in html
+    assert "paper-runtime-control-compact" in html
+    assert "paper-observation-primary-grid" in html
+    assert ".paper-observation-safety-strip" in css
+    assert ".paper-runtime-control-compact" in css
+    assert ".paper-observation-primary-grid" in css
     assert ".paper-observation-controls" in css
     assert ".paper-runtime-control" in css
     assert "DEFAULT_PT_RT1_SUMMARY_FILES" in js
     assert "DEFAULT_PT_RT1_DECISION_LOG_FILES" in js
+    assert "DEFAULT_PT_RT1_TRADE_LOG_FILES" in js
     assert "pt_rt1_1c_24h_dry_run/decisions.jsonl" in js
+    assert "pt_rt1_1c_24h_dry_run/trades.jsonl" in js
     assert "parsePaperObservationDecisionLog" in js
+    assert "parsePaperObservationTradeLog" in js
+    assert "loadDefaultPtRt1TradeRows" in js
+    assert "paperObservationClosedRowComplete" in js
     assert "paperObservationRecentSignalRows" in js
-    assert "No intended entry signals match the selected filters" in js
+    assert "paperObservationLaneRuntimeRollup" in js
+    assert "realizedEquity" in js
+    assert "No paper decisions match the selected signal category" in js
     assert "/api/paper-runtime/status" in js
     assert "/api/paper-runtime/start" in js
     assert "/api/paper-runtime/stop" in js
@@ -386,14 +420,30 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "period: \"ALL\"" in js
     assert "<th>Period</th>" in js
     assert "evidence_pack_paths" in js
-    assert "SV2.0.2 + SV2.1 evidence packs loaded" in js
+    assert "SV2.0.2 + SV2.1 evidence packs loaded" not in js
+    assert "Evidence packs loaded" not in js
+    assert "Local reports loaded" in js
     assert "SV2.1 founder-approved 1D period pack JSON files loaded" in js
     assert "pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json" in js
     assert "renderPaperObservationConnectionStatus" in js
     assert "pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json" in js
     assert "renderPaperObservation" in js
     assert "renderPaperObservationLaneDetail" in js
-    assert "renderPaperObservationWildcardDiagnostics" in js
+    assert "renderStrategyWildcardDiagnostics" in js
+    assert "paperObservationPaginationControls" in js
+    assert "PAPER_OBSERVATION_PAGE_SIZE = 25" in js
+    assert "openPositions" in js
+    assert "closedTrades" in js
+    assert "Entry price" in js
+    assert "Exit price" in js
+    assert "state.ptRt1TradeRows" in js
+    assert "state.ptRt1TradeSource" in js
+    assert "synthetic public-mainnet paper PnL, not exchange fills" in js
+    assert "paperObservationChartTarget" in js
+    assert "paperObservationRuntimeMarkers" in js
+    assert "paper_opened" in js
+    assert "paper_closed" in js
+    assert "Opened and closed synthetic markers" in html
     assert "https://api.hyperliquid.xyz/info" in js
     assert "HYPERLIQUID_MAINNET_PUBLIC_INFO_URL" in js
     assert "PAPER_OBSERVATION_MARKET_REFRESH_MS = 1000" in js
@@ -405,7 +455,6 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper_observation_public_mainnet_connected" in js
     assert "data-paper-observation-symbol" in js
     assert "paper-observation-watchlist-table" in js
-    assert "<th>Symbol</th>" in js
     assert "<th>Bid</th>" not in js
     assert "<th>Ask</th>" not in js
     assert "<th>Mid price</th>" in js
@@ -419,15 +468,15 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "renderPaperObservationSignalGeneration" in js
     assert "intended_entry_signals" in js
     assert "state.ptRt1DecisionRows" in js
-    assert "entry_recorded" in js
+    assert "synthetic_entry" in js
     assert "Audit/order-shape rows" in js
     assert "Signed testnet orders" in js
-    assert "means the runtime writes 20 USDC testnet probe shapes" in js
-    watchlist_renderer = js[js.index("function renderPaperObservationScanner") : js.index("function renderPaperObservationSignalGeneration")]
-    assert "<th>Venue symbol</th>" not in watchlist_renderer
-    assert "<th>Reason codes</th>" not in watchlist_renderer
+    assert "Audit-shape generation can build/check simulated testnet probe shapes" in js
+    assert "renderPaperObservationScanner();" in js
     assert ".paper-observation-tick" in css
     assert ".paper-observation-watchlist-table" in css
+    assert ".paper-observation-pagination" in css
+    assert ".strategy-wildcard-panel" in css
     assert "dashboard_live_chart_public_info_endpoint_not_allowlisted" in js
     assert "private_or_order_payload_forbidden" in js
     assert "Hyperliquid public mainnet info endpoint" in summary
@@ -463,6 +512,7 @@ def test_ev_audit1_audit_review_dashboard_tab() -> None:
     assert 'data-view="audit-review"' in nav
     assert nav.index('data-view="evidence-lab"') < nav.index('data-view="audit-review"')
     assert 'data-view-panel="audit-review"' in html
+    assert "Audit</button>" in nav
     assert "Audit Review" in html
     assert "EV-AUDIT1 review" in html
     assert "Scope: audit-only" in html
@@ -518,7 +568,8 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     report = Path("docs/sor_ev2_2_variant_chart_overlay.md").read_text(encoding="utf-8")
 
     nav = html[html.index('<nav class="view-tabs"') : html.index("</nav>", html.index('<nav class="view-tabs"'))]
-    assert "Evidence Lab" in nav
+    assert "The Lab" in nav
+    assert "Evidence Lab" not in nav
     assert 'data-view="evidence-lab"' in nav
     assert 'data-view="experiments"' not in nav
     assert "SV1.15 Hypothesis Experiments" not in html
@@ -694,3 +745,37 @@ def test_uat_cockpit_summary_header_only_shows_environment_card() -> None:
         '["Live / capital"',
     ):
         assert removed_label not in summary_renderer
+
+
+def test_pt_rt1_4_paper_trading_command_center_active_timeframe_ui() -> None:
+    html = Path("apps/dashboard/index.html").read_text(encoding="utf-8")
+    js = Path("apps/dashboard/evidence-dashboard.js").read_text(encoding="utf-8")
+
+    assert "paper-observation-health-banner" in html
+    assert "Weekly Scoreboard" in html
+    assert "Timeframe Breakdown" in html
+    assert "Watchlist" in html
+    assert "Signal / Decision Stream" in html
+    assert "paper-observation-review-window-filter" in html
+    assert "paper-observation-signal-category-filter" in html
+    assert html.index("paper-observation-health-banner") < html.index("paper-observation-lane-table")
+    assert html.index("paper-observation-lane-table") < html.index("paper-observation-live-chart")
+    assert html.index("paper-observation-open-positions") < html.index("paper-observation-closed-trades")
+    assert html.index("paper-observation-closed-trades") < html.index("paper-observation-signal-table")
+    assert 'timeframe: "1h"' in js
+    assert 'PAPER_OBSERVATION_ACTIVE_TIMEFRAMES = ["1h", "4h", "1d"]' in js
+    assert 'PAPER_OBSERVATION_DISABLED_TIMEFRAMES = ["15m"]' in js
+    assert "disabled_for_week1_noise_reduction" in js
+    assert "sum across active paper timeframes only: 1h + 4h + 1d" in js
+    assert "15m paused / legacy" in js
+    assert "<th>Mid price</th>" in js
+    assert "<th>Health</th>" in js
+    assert "no_activity_for_selected_timeframe" in js
+    assert "Actual opens + intended entries" in js
+    assert "No-trade / blocked" in js
+    assert "Data unavailable" in js
+    assert "Testnet order transport" in js
+    assert "Audit-only shapes" in js
+    assert "audit_only_not_submitted" in js
+    assert "order buttons" not in html.lower()
+    assert "manual trade" not in html.lower()

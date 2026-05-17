@@ -125,7 +125,19 @@
     "../../reports/paper_runtime/pt_rt1_1c_24h_dry_run/decisions.jsonl",
     "../../reports/paper_runtime/pt_rt1_1b_smoke/decisions.jsonl",
   ];
+  const DEFAULT_PT_RT1_TRADE_LOG_FILES = [
+    "../../reports/paper_runtime/pt_rt1_1c_24h_dry_run/trades.jsonl",
+    "../../reports/paper_runtime/pt_rt1_1b_smoke/trades.jsonl",
+  ];
   const PAPER_OBSERVATION_DECISION_LOG_LIMIT = 10000;
+  const PAPER_OBSERVATION_TRADE_LOG_LIMIT = 10000;
+  const COMPONENT_RESULTS_PAGE_SIZE = 10;
+  const HISTORICAL_COMPARISON_PAGE_SIZE = 25;
+  const PAPER_OBSERVATION_PAGE_SIZE = 25;
+  const PAPER_OBSERVATION_ACTIVE_TIMEFRAMES = ["1h", "4h", "1d"];
+  const PAPER_OBSERVATION_DISABLED_TIMEFRAMES = ["15m"];
+  const PAPER_OBSERVATION_ACTIVE_REVIEW_START_UTC = "2026-05-17T09:47:55Z";
+  const PAPER_OBSERVATION_15M_STATUS = "disabled_for_week1_noise_reduction";
   const RUN_LEDGER_DISPLAY_FILTER_BOUNDARY = "date filters are display-only, not canonical pack regeneration";
 
   const HYPERLIQUID_MAINNET_PUBLIC_INFO_URL = "https://api.hyperliquid.xyz/info";
@@ -608,6 +620,7 @@
     evidencePeriod: "all_periods",
     evidenceDateStart: "",
     evidenceDateEnd: "",
+    evidenceComponentPage: 1,
     theme: initialDashboardTheme(),
     strategyComparison: {
       leftStrategyId: "money_flow_v1_2_canonical",
@@ -620,7 +633,7 @@
       key: "",
       direction: "desc",
     },
-    activeView: "historical-replay",
+    activeView: "paper-observation",
     experimentMode: "sv115_overlays",
     sv117FullSuiteRows: null,
     uat2Summary: null,
@@ -641,6 +654,8 @@
     ptRt1Summary: null,
     ptRt1DecisionRows: [],
     ptRt1DecisionSource: "",
+    ptRt1TradeRows: [],
+    ptRt1TradeSource: "",
     tradingViewChart: {
       chart: null,
       mount: null,
@@ -764,10 +779,18 @@
     },
     paperObservation: {
       symbol: "all",
-      timeframe: "all",
+      timeframe: "1h",
       laneId: "all",
+      reviewWindow: "active_week",
+      signalCategory: "entry_activity",
       dateStart: "",
       dateEnd: "",
+      chartTarget: { symbol: "ETH", timeframe: "1h" },
+      pagination: {
+        signals: 1,
+        openPositions: 1,
+        closedTrades: 1,
+      },
     },
     paperRuntimeControl: {
       available: false,
@@ -795,6 +818,7 @@
       showArrowDescriptions: false,
       dateStart: "",
       dateEnd: "",
+      comparisonPage: 1,
     },
   };
 
@@ -879,6 +903,8 @@
     paperObservationSymbolFilter: document.querySelector("#paper-observation-symbol-filter"),
     paperObservationTimeframeFilter: document.querySelector("#paper-observation-timeframe-filter"),
     paperObservationLaneFilter: document.querySelector("#paper-observation-lane-filter"),
+    paperObservationReviewWindowFilter: document.querySelector("#paper-observation-review-window-filter"),
+    paperObservationSignalCategoryFilter: document.querySelector("#paper-observation-signal-category-filter"),
     paperObservationDateStart: document.querySelector("#paper-observation-date-start"),
     paperObservationDateEnd: document.querySelector("#paper-observation-date-end"),
     paperObservationDateClear: document.querySelector("#paper-observation-date-clear"),
@@ -887,17 +913,19 @@
     paperRuntimeStart: document.querySelector("#paper-runtime-start"),
     paperRuntimeStop: document.querySelector("#paper-runtime-stop"),
     paperRuntimeControlStatus: document.querySelector("#paper-runtime-control-status"),
+    paperObservationHealthBanner: document.querySelector("#paper-observation-health-banner"),
+    paperObservationTimeframeBreakdown: document.querySelector("#paper-observation-timeframe-breakdown"),
     paperObservationConnectionStatus: document.querySelector("#paper-observation-connection-status"),
     paperObservationScannerTable: document.querySelector("#paper-observation-scanner-table"),
     paperObservationSignalTable: document.querySelector("#paper-observation-signal-table"),
     paperObservationLaneTable: document.querySelector("#paper-observation-lane-table"),
     paperObservationLaneDetail: document.querySelector("#paper-observation-lane-detail"),
-    paperObservationWildcardDiagnostics: document.querySelector("#paper-observation-wildcard-diagnostics"),
     paperObservationLiveChart: document.querySelector("#paper-observation-live-chart"),
     paperObservationProbeStatus: document.querySelector("#paper-observation-probe-status"),
     paperObservationOpenPositions: document.querySelector("#paper-observation-open-positions"),
     paperObservationClosedTrades: document.querySelector("#paper-observation-closed-trades"),
     paperObservationRiskTable: document.querySelector("#paper-observation-risk-table"),
+    strategyWildcardDiagnostics: document.querySelector("#strategy-wildcard-diagnostics"),
     experimentVariantCards: document.querySelector("#experiment-variant-cards"),
     experimentReplayFilter: document.querySelector("#experiment-replay-filter"),
     experimentsTitle: document.querySelector("#experiments-title"),
@@ -1524,7 +1552,7 @@
   function setActiveView(view) {
     state.activeView = ["evidence", "evidence-lab", "audit-review", "paper-observation", "historical-replay", "uat-cockpit", "uat-shadow", "strategy"].includes(view)
       ? view
-      : "evidence";
+      : "paper-observation";
     elements.viewTabs.forEach((tab) => {
       tab.setAttribute("aria-selected", String(tab.dataset.view === state.activeView));
     });
@@ -1605,9 +1633,14 @@
     elements.componentFilter.querySelectorAll("button").forEach((button) => {
       button.addEventListener("click", () => {
         state.selectedComponent = button.dataset.component || "all";
+        resetComponentResultsPage();
         render();
       });
     });
+  }
+
+  function resetComponentResultsPage() {
+    state.evidenceComponentPage = 1;
   }
 
   function evidenceReplayFillOptions() {
@@ -1654,6 +1687,7 @@
     renderSelectWithoutAll(elements.evidencePeriodFilter, options, state.evidencePeriod);
     elements.evidencePeriodFilter.onchange = () => {
       state.evidencePeriod = elements.evidencePeriodFilter.value || "all_periods";
+      resetComponentResultsPage();
       render();
     };
   }
@@ -1668,6 +1702,7 @@
     elements.evidenceReplayStrategyFilter.onchange = () => {
       state.evidenceReplayStrategyId =
         elements.evidenceReplayStrategyFilter.value || EVIDENCE_BATCH_REPORTS_STRATEGY_ID;
+      resetComponentResultsPage();
       render();
     };
   }
@@ -1685,6 +1720,7 @@
     renderSelectWithoutAll(elements.evidenceReplayFillFilter, options, state.evidenceReplayFillAssumption);
     elements.evidenceReplayFillFilter.onchange = () => {
       state.evidenceReplayFillAssumption = elements.evidenceReplayFillFilter.value || "all";
+      resetComponentResultsPage();
       render();
     };
   }
@@ -1694,6 +1730,7 @@
       elements.evidenceDateStart.value = state.evidenceDateStart || "";
       elements.evidenceDateStart.onchange = () => {
         state.evidenceDateStart = elements.evidenceDateStart.value;
+        resetComponentResultsPage();
         render();
       };
     }
@@ -1701,6 +1738,7 @@
       elements.evidenceDateEnd.value = state.evidenceDateEnd || "";
       elements.evidenceDateEnd.onchange = () => {
         state.evidenceDateEnd = elements.evidenceDateEnd.value;
+        resetComponentResultsPage();
         render();
       };
     }
@@ -1708,6 +1746,7 @@
       elements.evidenceDateClear.onclick = () => {
         state.evidenceDateStart = "";
         state.evidenceDateEnd = "";
+        resetComponentResultsPage();
         render();
       };
     }
@@ -2173,11 +2212,33 @@
   }
 
   function renderComponentCards(summaries) {
-    const maxMagnitude = Math.max(...summaries.map((summary) => Math.abs(summary.totalNetPnl)), 1);
-    elements.componentCards.innerHTML = summaries
+    if (!elements.componentCards) return;
+    const sortedSummaries = summaries
       .slice()
-      .sort((a, b) => timeframeSortRank(a.timeframe) - timeframeSortRank(b.timeframe) || a.component.localeCompare(b.component))
-      .map((summary) => {
+      .sort((a, b) => timeframeSortRank(a.timeframe) - timeframeSortRank(b.timeframe) || a.component.localeCompare(b.component));
+    if (!sortedSummaries.length) {
+      setEmpty(elements.componentCards, "No component results match the current filters.");
+      return;
+    }
+    const totalPages = Math.max(1, Math.ceil(sortedSummaries.length / COMPONENT_RESULTS_PAGE_SIZE));
+    const currentPage = Math.min(Math.max(1, state.evidenceComponentPage || 1), totalPages);
+    state.evidenceComponentPage = currentPage;
+    const start = (currentPage - 1) * COMPONENT_RESULTS_PAGE_SIZE;
+    const pageRows = sortedSummaries.slice(start, start + COMPONENT_RESULTS_PAGE_SIZE);
+    const maxMagnitude = Math.max(...sortedSummaries.map((summary) => Math.abs(summary.totalNetPnl)), 1);
+    const pagination = `
+      <div class="paper-observation-pagination component-results-pagination" data-component-results-pagination>
+        <button class="segment-button" type="button" data-component-results-prev ${currentPage <= 1 ? "disabled" : ""}>Previous</button>
+        <span>Page ${escapeHtml(String(currentPage))} / ${escapeHtml(String(totalPages))}</span>
+        <span>${escapeHtml(String(sortedSummaries.length))} rows</span>
+        <span>10 per page</span>
+        <button class="segment-button" type="button" data-component-results-next ${currentPage >= totalPages ? "disabled" : ""}>Next</button>
+      </div>
+    `;
+    elements.componentCards.innerHTML = `
+      ${pagination}
+      ${pageRows
+        .map((summary) => {
         const width = Math.max(3, Math.round((Math.abs(summary.totalNetPnl) / maxMagnitude) * 100));
         const isSelected =
           state.selectedComponent === "all" || state.selectedComponent === summary.component;
@@ -2200,11 +2261,27 @@
           </button>
         `;
       })
-      .join("");
+      .join("")}
+      ${pagination}
+    `;
     elements.componentCards.querySelectorAll("button").forEach((button) => {
       button.addEventListener("click", () => {
+        if (!button.dataset.component) return;
         state.selectedComponent = button.dataset.component || "all";
+        resetComponentResultsPage();
         render();
+      });
+    });
+    elements.componentCards.querySelectorAll("[data-component-results-prev]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.evidenceComponentPage = Math.max(1, (state.evidenceComponentPage || 1) - 1);
+        renderComponentCards(summaries);
+      });
+    });
+    elements.componentCards.querySelectorAll("[data-component-results-next]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.evidenceComponentPage = (state.evidenceComponentPage || 1) + 1;
+        renderComponentCards(summaries);
       });
     });
   }
@@ -4725,6 +4802,10 @@
     renderHistoricalTradesTable(replay);
   }
 
+  function resetHistoricalComparisonPage() {
+    state.historicalReplay.comparisonPage = 1;
+  }
+
   function resizeHistoricalReplayChart() {
     const chartState = state.historicalReplayChart;
     if (!chartState.chart || !chartState.mount) return;
@@ -5082,6 +5163,7 @@
       elements.historicalReplayDateStart.onchange = () => {
         state.historicalReplay.dateStart = elements.historicalReplayDateStart.value;
         state.historicalReplay.selectedTradeId = null;
+        resetHistoricalComparisonPage();
         renderHistoricalReplay();
       };
     }
@@ -5090,6 +5172,7 @@
       elements.historicalReplayDateEnd.onchange = () => {
         state.historicalReplay.dateEnd = elements.historicalReplayDateEnd.value;
         state.historicalReplay.selectedTradeId = null;
+        resetHistoricalComparisonPage();
         renderHistoricalReplay();
       };
     }
@@ -5098,6 +5181,7 @@
         state.historicalReplay.dateStart = "";
         state.historicalReplay.dateEnd = "";
         state.historicalReplay.selectedTradeId = null;
+        resetHistoricalComparisonPage();
         renderHistoricalReplay();
       };
     }
@@ -5114,6 +5198,7 @@
           ? "money_flow_v1_2_canonical"
           : elements.historicalReplayStrategyFilter.value;
         state.historicalReplay.selectedTradeId = null;
+        resetHistoricalComparisonPage();
         renderHistoricalReplay();
       };
     }
@@ -5123,6 +5208,7 @@
           ? "ETH"
           : elements.historicalReplaySymbolFilter.value;
         state.historicalReplay.selectedTradeId = null;
+        resetHistoricalComparisonPage();
         renderHistoricalReplay();
       };
     }
@@ -5132,6 +5218,7 @@
           ? "1h"
           : canonicalTimeframe(elements.historicalReplayTimeframeFilter.value);
         state.historicalReplay.selectedTradeId = null;
+        resetHistoricalComparisonPage();
         renderHistoricalReplay();
       };
     }
@@ -5141,6 +5228,7 @@
           ? "ALL"
           : String(elements.historicalReplayPeriodFilter.value || "ALL").toUpperCase();
         state.historicalReplay.selectedTradeId = null;
+        resetHistoricalComparisonPage();
         renderHistoricalReplay();
       };
     }
@@ -5150,6 +5238,7 @@
           ? "next_candle_open"
           : elements.historicalReplayFillFilter.value;
         state.historicalReplay.selectedTradeId = null;
+        resetHistoricalComparisonPage();
         renderHistoricalReplay();
       };
     }
@@ -5469,7 +5558,22 @@
       setEmpty(elements.historicalComparisonTable, "Historical comparison rows are not loaded.");
       return;
     }
+    const totalPages = Math.max(1, Math.ceil(rows.length / HISTORICAL_COMPARISON_PAGE_SIZE));
+    const currentPage = Math.min(Math.max(1, state.historicalReplay.comparisonPage || 1), totalPages);
+    state.historicalReplay.comparisonPage = currentPage;
+    const start = (currentPage - 1) * HISTORICAL_COMPARISON_PAGE_SIZE;
+    const pageRows = rows.slice(start, start + HISTORICAL_COMPARISON_PAGE_SIZE);
+    const pagination = `
+      <div class="paper-observation-pagination historical-comparison-pagination" data-historical-comparison-pagination>
+        <button class="segment-button" type="button" data-historical-comparison-prev ${currentPage <= 1 ? "disabled" : ""}>Previous</button>
+        <span>Page ${escapeHtml(String(currentPage))} / ${escapeHtml(String(totalPages))}</span>
+        <span>${escapeHtml(String(rows.length))} rows</span>
+        <span>25 per page</span>
+        <button class="segment-button" type="button" data-historical-comparison-next ${currentPage >= totalPages ? "disabled" : ""}>Next</button>
+      </div>
+    `;
     elements.historicalComparisonTable.innerHTML = `
+      ${pagination}
       <table>
         <thead>
           <tr>
@@ -5486,7 +5590,7 @@
           </tr>
         </thead>
         <tbody>
-          ${rows.map((row) => `
+          ${pageRows.map((row) => `
             <tr>
               <td>${escapeHtml(row.symbol)}</td>
               <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
@@ -5502,7 +5606,20 @@
           `).join("")}
         </tbody>
       </table>
+      ${pagination}
     `;
+    elements.historicalComparisonTable.querySelectorAll("[data-historical-comparison-prev]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.historicalReplay.comparisonPage = Math.max(1, (state.historicalReplay.comparisonPage || 1) - 1);
+        renderHistoricalComparisonTable();
+      });
+    });
+    elements.historicalComparisonTable.querySelectorAll("[data-historical-comparison-next]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.historicalReplay.comparisonPage = (state.historicalReplay.comparisonPage || 1) + 1;
+        renderHistoricalComparisonTable();
+      });
+    });
   }
 
   function renderHistoricalSandboxLedger() {
@@ -8746,8 +8863,46 @@
     return Array.isArray(rows) ? rows : [];
   }
 
+  function paperObservationActiveTimeframes(summary = paperObservationSummary()) {
+    const active = paperObservationRows(summary?.active_timeframes);
+    return active.length ? active.map(canonicalTimeframe) : PAPER_OBSERVATION_ACTIVE_TIMEFRAMES;
+  }
+
+  function paperObservationDisabledTimeframes(summary = paperObservationSummary()) {
+    const disabled = paperObservationRows(summary?.disabled_timeframes);
+    return disabled.length ? disabled.map(canonicalTimeframe) : PAPER_OBSERVATION_DISABLED_TIMEFRAMES;
+  }
+
+  function paperObservationActiveReviewStart(summary = paperObservationSummary()) {
+    return summary?.active_review_start_utc || PAPER_OBSERVATION_ACTIVE_REVIEW_START_UTC;
+  }
+
+  function paperObservationIsActiveTimeframe(timeframe, summary = paperObservationSummary()) {
+    const canonical = canonicalTimeframe(timeframe);
+    return paperObservationActiveTimeframes(summary).includes(canonical);
+  }
+
+  function paperObservationIsDisabledTimeframe(timeframe, summary = paperObservationSummary()) {
+    const canonical = canonicalTimeframe(timeframe);
+    return paperObservationDisabledTimeframes(summary).includes(canonical);
+  }
+
+  function paperObservationTimeframeScopeLabel(value = state.paperObservation.timeframe) {
+    if (value === "all_active") return "sum across active paper timeframes only: 1h + 4h + 1d";
+    if (value === "15m_legacy") return "15m paused / legacy";
+    return `${displayTimeframe(value)} selected timeframe only`;
+  }
+
+  function paperObservationPrice(value) {
+    return compactNumber(value, 8);
+  }
+
+  function paperObservationUsdc(value) {
+    return compactNumber(value, 2);
+  }
+
   function paperObservationDecisionTime(row) {
-    return row?.decision_time || row?.signal_candle_close_time || row?.signal_candle_open_time || row?.entry_time || "";
+    return row?.decision_time || row?.signal_candle_close_time || row?.signal_candle_open_time || row?.exit_time || row?.entry_time || row?.entry_signal_time || "";
   }
 
   function paperObservationSignalKey(row) {
@@ -8778,16 +8933,195 @@
     return rows;
   }
 
+  function paperObservationDecisionRows(summary) {
+    const seen = new Set();
+    return [
+      ...paperObservationRows(summary?.intended_entry_signals),
+      ...paperObservationRows(state.ptRt1DecisionRows),
+      ...paperObservationRows(summary?.latest_decisions),
+    ]
+      .filter(Boolean)
+      .filter((row) => {
+        const key = paperObservationSignalKey(row);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .sort((left, right) => String(paperObservationDecisionTime(right)).localeCompare(String(paperObservationDecisionTime(left))));
+  }
+
+  function paperObservationDecisionCategoryMatches(row) {
+    const action = String(row?.action || "paper_opened");
+    const reasons = paperObservationRows(row?.reason_codes).map(String);
+    const category = state.paperObservation.signalCategory || "entry_activity";
+    if (category === "entry_activity") return action === "paper_opened" || reasons.includes("intended_entry");
+    if (category === "intended_entries") return action === "paper_opened" || reasons.includes("intended_entry");
+    if (category === "actual_opens") return action === "paper_opened";
+    if (category === "blocked") {
+      return action === "no_trade" || action === "blocked_by_candidate_filter" || reasons.some((reason) => reason.includes("blocked"));
+    }
+    if (category === "exits") return action === "paper_closed" || action === "paper_trim";
+    if (category === "duplicates") return action === "duplicate_ignored" || reasons.includes("duplicate_ignored") || reasons.includes("duplicate_signal_ignored");
+    if (category === "data_unavailable") return action === "data_unavailable" || reasons.some((reason) => reason.includes("unavailable"));
+    return true;
+  }
+
   function paperObservationDateFilterMatches(row) {
     const start = state.paperObservation.dateStart;
     const end = state.paperObservation.dateEnd;
-    if (!start && !end) return true;
     const timestamp = paperObservationDecisionTime(row);
+    const reviewWindow = state.paperObservation.reviewWindow || "active_week";
+    const activeStart = paperObservationActiveReviewStart();
+    if (reviewWindow !== "all_runtime") {
+      if (!timestamp) return false;
+      if (reviewWindow === "pre_cutover" && String(timestamp) >= activeStart) return false;
+      if (reviewWindow === "active_week" && String(timestamp) < activeStart) return false;
+    }
+    if (!start && !end) return true;
     if (!timestamp) return false;
     const day = String(timestamp).slice(0, 10);
     if (start && day < start) return false;
     if (end && day > end) return false;
     return true;
+  }
+
+  function paperObservationRowSymbol(row) {
+    return row?.symbol || row?.resolved_venue_symbol || row?.requested_symbol || row?.canonical_symbol || "";
+  }
+
+  function paperObservationRowTimeframe(row) {
+    return canonicalTimeframe(row?.timeframe || row?.component_timeframe || "");
+  }
+
+  function paperObservationRowLane(row) {
+    return row?.strategy_id || row?.lane_id || row?.strategy || "";
+  }
+
+  function paperObservationSymbolMatchesSelection(row, selectedSymbol) {
+    if (!selectedSymbol || selectedSymbol === "all") return true;
+    const rowSymbol = paperObservationRowSymbol(row);
+    if (rowSymbol === selectedSymbol || row?.requested_symbol === selectedSymbol || row?.resolved_venue_symbol === selectedSymbol) return true;
+    const selectedRow = paperObservationBaseScannerRows().find((candidate) =>
+      candidate.requested_symbol === selectedSymbol ||
+      candidate.resolved_venue_symbol === selectedSymbol ||
+      candidate.canonical_symbol === selectedSymbol,
+    );
+    return Boolean(selectedRow && (
+      rowSymbol === selectedRow.requested_symbol ||
+      rowSymbol === selectedRow.resolved_venue_symbol ||
+      row?.requested_symbol === selectedRow.requested_symbol ||
+      row?.resolved_venue_symbol === selectedRow.resolved_venue_symbol
+    ));
+  }
+
+  function paperObservationFiltersMatch(row, { includeDate = true, ignoreSymbol = false, ignoreTimeframe = false } = {}) {
+    const selectedSymbol = state.paperObservation.symbol;
+    const selectedTimeframe = state.paperObservation.timeframe;
+    const selectedLane = state.paperObservation.laneId;
+    const rowTimeframe = paperObservationRowTimeframe(row);
+    const rowLane = paperObservationRowLane(row);
+    const activeTimeframes = paperObservationActiveTimeframes();
+    const timeframeMatches =
+      ignoreTimeframe ||
+      (selectedTimeframe === "all" && activeTimeframes.includes(rowTimeframe)) ||
+      (selectedTimeframe === "all_active" && activeTimeframes.includes(rowTimeframe)) ||
+      (selectedTimeframe === "15m_legacy" && paperObservationIsDisabledTimeframe(rowTimeframe)) ||
+      sameTimeframe(rowTimeframe, selectedTimeframe);
+    return (
+      (ignoreSymbol || paperObservationSymbolMatchesSelection(row, selectedSymbol)) &&
+      timeframeMatches &&
+      (selectedLane === "all" || rowLane === selectedLane) &&
+      (!includeDate || paperObservationDateFilterMatches(row))
+    );
+  }
+
+  function resetPaperObservationPagination() {
+    state.paperObservation.pagination = {
+      signals: 1,
+      openPositions: 1,
+      closedTrades: 1,
+    };
+  }
+
+  function paperObservationPageRows(rows, pageKey) {
+    const totalPages = Math.max(1, Math.ceil(rows.length / PAPER_OBSERVATION_PAGE_SIZE));
+    const currentPage = Math.min(Math.max(1, state.paperObservation.pagination?.[pageKey] || 1), totalPages);
+    state.paperObservation.pagination[pageKey] = currentPage;
+    const start = (currentPage - 1) * PAPER_OBSERVATION_PAGE_SIZE;
+    return {
+      currentPage,
+      totalPages,
+      totalRows: rows.length,
+      rows: rows.slice(start, start + PAPER_OBSERVATION_PAGE_SIZE),
+    };
+  }
+
+  function paperObservationPaginationControls(pageKey, page) {
+    return `
+      <div class="paper-observation-pagination" data-paper-pagination="${escapeHtml(pageKey)}">
+        <button class="segment-button" type="button" data-paper-page-prev="${escapeHtml(pageKey)}" ${page.currentPage <= 1 ? "disabled" : ""}>Previous</button>
+        <span>Page ${escapeHtml(String(page.currentPage))} / ${escapeHtml(String(page.totalPages))}</span>
+        <span>${escapeHtml(String(page.totalRows))} rows</span>
+        <button class="segment-button" type="button" data-paper-page-next="${escapeHtml(pageKey)}" ${page.currentPage >= page.totalPages ? "disabled" : ""}>Next</button>
+      </div>
+    `;
+  }
+
+  function attachPaperObservationPagination(target, pageKey) {
+    if (!target) return;
+    target.querySelectorAll(`[data-paper-page-prev="${pageKey}"]`).forEach((button) => {
+      button.addEventListener("click", () => {
+        state.paperObservation.pagination[pageKey] = Math.max(1, (state.paperObservation.pagination[pageKey] || 1) - 1);
+        renderPaperObservation();
+      });
+    });
+    target.querySelectorAll(`[data-paper-page-next="${pageKey}"]`).forEach((button) => {
+      button.addEventListener("click", () => {
+        state.paperObservation.pagination[pageKey] = (state.paperObservation.pagination[pageKey] || 1) + 1;
+        renderPaperObservation();
+      });
+    });
+  }
+
+  function paperObservationClosedRowComplete(row) {
+    if (!row) return false;
+    const entryTime = row.entry_time || row.entry_fill_time || row.entry_signal_time;
+    const exitTime = row.exit_time || row.exit_fill_time || row.exit_signal_time;
+    return Boolean(
+      entryTime &&
+      exitTime &&
+      Number.isFinite(decimal(row.entry_price, NaN)) &&
+      Number.isFinite(decimal(row.exit_price, NaN)) &&
+      Number.isFinite(decimal(row.quantity, NaN)) &&
+      Number.isFinite(decimal(row.net_pnl, NaN)) &&
+      Number.isFinite(decimal(row.equity_after, NaN)),
+    );
+  }
+
+  function paperObservationClosedRows(summary) {
+    const seen = new Set();
+    return [
+      ...paperObservationRows(summary?.closed_trades || summary?.latest_trades),
+      ...paperObservationRows(state.ptRt1TradeRows),
+      ...paperObservationRows(state.ptRt1DecisionRows).filter((row) => row.action === "paper_closed" && paperObservationClosedRowComplete(row)),
+      ...paperObservationRows(summary?.latest_decisions).filter((row) => row.action === "paper_closed" && paperObservationClosedRowComplete(row)),
+    ]
+      .filter(Boolean)
+      .filter(paperObservationClosedRowComplete)
+      .filter((row) => {
+        const key = [
+          row.paper_trade_id || row.trade_id || "",
+          "paper_closed",
+          paperObservationRowLane(row),
+          paperObservationRowSymbol(row),
+          paperObservationRowTimeframe(row),
+          row.exit_time || row.exit_fill_time || row.decision_time || row.signal_candle_close_time || "",
+        ].join("|");
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .sort((left, right) => String(left.exit_time || left.exit_fill_time || left.decision_time || "").localeCompare(String(right.exit_time || right.exit_fill_time || right.decision_time || "")) * -1);
   }
 
   function paperObservationText(value, fallback = "data_not_available_in_pt_rt1_bundle") {
@@ -8944,7 +9278,8 @@
         <div><span>PID</span><strong>${escapeHtml(control.pid || "n/a")}</strong></div>
         <div><span>Started</span><strong>${escapeHtml(control.startedAtUtc || "not_running")}</strong></div>
         <div><span>Log</span><strong>${escapeHtml(control.logPath || "not_started")}</strong></div>
-        <div><span>Safety flags</span><strong>${escapeHtml(control.safeFlags.join(" "))}</strong></div>
+        <div><span>Caffeinate</span><strong>${escapeHtml(control.running ? "paper_runtime_started_with_caffeinate" : "waiting_for_start")}</strong></div>
+        <div><span>Safety flags</span><strong>${escapeHtml((control.safeFlags || []).join(" "))}</strong></div>
         <div><span>Decision log mode</span><strong>${escapeHtml(logStats.mode || "compact")}</strong></div>
         <div><span>Decision log size</span><strong>${escapeHtml(paperObservationBytes(logStats.decisions_jsonl_size_bytes))}</strong></div>
         <div><span>Written this cycle</span><strong>${escapeHtml(logStats.written_decisions_this_cycle ?? "n/a")}</strong></div>
@@ -8976,7 +9311,7 @@
 
   function paperObservationSelectedRow() {
     const rows = paperObservationBaseScannerRows();
-    const selected = state.paperObservation.symbol;
+    const selected = paperObservationChartTarget().symbol || state.paperObservation.symbol;
     if (selected && selected !== "all") {
       const match = rows.find((row) =>
         row.requested_symbol === selected ||
@@ -8991,12 +9326,53 @@
       { requested_symbol: "ETH", resolved_venue_symbol: "ETH", scanner_eligible: true, blocked: false, reason_codes: [] };
   }
 
+  function paperObservationChartCandidates() {
+    const summary = paperObservationSummary();
+    const openRows = Object.values(summary?.paper_runtime_state?.open_positions_by_key || {});
+    return [
+      ...paperObservationRecentSignalRows(summary),
+      ...openRows,
+      ...paperObservationClosedRows(summary),
+    ]
+      .filter((row) => paperObservationRowSymbol(row) && paperObservationRowTimeframe(row))
+      .filter((row) =>
+        paperObservationFiltersMatch(row, {
+          ignoreSymbol: state.paperObservation.symbol === "all",
+          ignoreTimeframe: state.paperObservation.timeframe === "all",
+        }),
+      )
+      .sort((left, right) => String(paperObservationDecisionTime(right) || right.exit_time || right.entry_time || "").localeCompare(String(paperObservationDecisionTime(left) || left.exit_time || left.entry_time || "")));
+  }
+
+  function paperObservationChartTarget() {
+    const explicitSymbol = state.paperObservation.symbol !== "all" ? state.paperObservation.symbol : "";
+    const selectedScope = state.paperObservation.timeframe;
+    const explicitTimeframe =
+      selectedScope === "15m_legacy"
+        ? "15m"
+        : selectedScope === "all_active" || selectedScope === "all"
+        ? "1h"
+        : selectedScope || "";
+    const previous = state.paperObservation.chartTarget || {};
+    const latest = paperObservationChartCandidates()[0] || {};
+    const symbol = explicitSymbol || paperObservationRowSymbol(latest) || previous.symbol || "ETH";
+    const timeframe = explicitTimeframe || paperObservationRowTimeframe(latest) || previous.timeframe || "1h";
+    state.paperObservation.chartTarget = { symbol, timeframe };
+    return state.paperObservation.chartTarget;
+  }
+
   function selectedPaperObservationVenueSymbol() {
-    return paperObservationSelectedRow().resolved_venue_symbol || paperObservationSelectedRow().requested_symbol || "ETH";
+    const target = paperObservationChartTarget();
+    const row = paperObservationBaseScannerRows().find((candidate) =>
+      candidate.requested_symbol === target.symbol ||
+      candidate.resolved_venue_symbol === target.symbol ||
+      candidate.canonical_symbol === target.symbol,
+    );
+    return row?.resolved_venue_symbol || target.symbol || "ETH";
   }
 
   function selectedPaperObservationTimeframe() {
-    return state.paperObservation.timeframe === "all" ? "1h" : state.paperObservation.timeframe || "1h";
+    return paperObservationChartTarget().timeframe || "1h";
   }
 
   function paperObservationSymbolOptions() {
@@ -9050,10 +9426,82 @@
     }));
   }
 
+  function paperObservationRuntimeMarkers() {
+    const summary = paperObservationSummary();
+    const target = paperObservationChartTarget();
+    const chartSymbolMatches = (row) => {
+      const rowSymbol = paperObservationRowSymbol(row);
+      if (rowSymbol === target.symbol || row?.requested_symbol === target.symbol || row?.resolved_venue_symbol === target.symbol) return true;
+      const targetRow = paperObservationBaseScannerRows().find((candidate) =>
+        candidate.requested_symbol === target.symbol ||
+        candidate.resolved_venue_symbol === target.symbol ||
+        candidate.canonical_symbol === target.symbol,
+      );
+      return Boolean(targetRow && (
+        rowSymbol === targetRow.resolved_venue_symbol ||
+        rowSymbol === targetRow.requested_symbol ||
+        row?.requested_symbol === targetRow.requested_symbol ||
+        row?.resolved_venue_symbol === targetRow.resolved_venue_symbol
+      ));
+    };
+    const openSignals = paperObservationRecentSignalRows(summary)
+      .filter((row) => paperObservationFiltersMatch(row, { includeDate: true }))
+      .filter((row) => chartSymbolMatches(row) && sameTimeframe(paperObservationRowTimeframe(row), target.timeframe))
+      .map((row) => ({
+        ...row,
+        marker_type: "paper_opened",
+        time: row.signal_candle_close_time || row.entry_time || row.decision_time,
+        label: `${paperObservationRowLane(row) || "paper"} opened`,
+      }));
+    const openPositions = Object.values(summary?.paper_runtime_state?.open_positions_by_key || {})
+      .filter((row) => paperObservationFiltersMatch(row, { includeDate: true }))
+      .filter((row) => chartSymbolMatches(row) && sameTimeframe(paperObservationRowTimeframe(row), target.timeframe))
+      .map((row) => ({
+        ...row,
+        marker_type: "paper_opened",
+        time: row.entry_signal_time || row.entry_time || row.decision_time,
+        label: `${paperObservationRowLane(row) || "paper"} opened`,
+      }));
+    const closedTrades = paperObservationClosedRows(summary)
+      .filter((row) => paperObservationFiltersMatch(row, { includeDate: true }))
+      .filter((row) => chartSymbolMatches(row) && sameTimeframe(paperObservationRowTimeframe(row), target.timeframe))
+      .flatMap((row) => [
+        {
+          ...row,
+          marker_type: "paper_opened",
+          time: row.entry_time || row.entry_signal_time,
+          label: `${paperObservationRowLane(row) || "paper"} opened`,
+        },
+        {
+          ...row,
+          marker_type: "paper_closed",
+          time: row.exit_time || row.decision_time,
+          label: `${paperObservationRowLane(row) || "paper"} closed`,
+        },
+      ]);
+    const seen = new Set();
+    return [...openSignals, ...openPositions, ...closedTrades]
+      .filter((marker) => marker.time)
+      .filter((marker) => {
+        const key = [
+          marker.marker_type,
+          paperObservationRowLane(marker),
+          paperObservationRowSymbol(marker),
+          paperObservationRowTimeframe(marker),
+          marker.time,
+        ].join("|");
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .sort((left, right) => String(left.time).localeCompare(String(right.time)));
+  }
+
   function paperObservationChartSource() {
     const live = state.paperObservationMarketData || {};
     const selectedSymbol = selectedPaperObservationVenueSymbol();
     const selectedTimeframe = selectedPaperObservationTimeframe();
+    const runtimeMarkers = paperObservationRuntimeMarkers();
     if (
       Array.isArray(live.candles) &&
       live.candles.length &&
@@ -9064,7 +9512,7 @@
         symbol: selectedSymbol,
         timeframe: selectedTimeframe,
         candles: live.candles,
-        paper_markers: [],
+        paper_markers: runtimeMarkers,
         source: "hyperliquid_mainnet_candleSnapshot_browser_poll",
         status: live.status,
         lastUpdatedUtc: live.lastUpdatedUtc,
@@ -9083,7 +9531,7 @@
         close: row.close,
         volume: row.volume || "0",
       })),
-      paper_markers: paperObservationRows(chart.paper_markers),
+      paper_markers: [...paperObservationRows(chart.paper_markers), ...runtimeMarkers],
       source: "pt_rt1_runtime_summary_fallback",
       status: live.status || "runtime_summary_fallback",
       lastUpdatedUtc: live.lastUpdatedUtc || paperObservationSummary()?.connection_status?.last_update_utc,
@@ -9114,23 +9562,59 @@
   function renderPaperObservationControls() {
     const summary = paperObservationSummary();
     const symbols = paperObservationSymbolOptions();
-    const timeframes = paperObservationRows(summary?.timeframes).length ? paperObservationRows(summary?.timeframes) : ["15m", "1h", "4h", "1d"];
+    const activeTimeframes = paperObservationActiveTimeframes(summary);
+    const timeframeOptions = [
+      ...activeTimeframes.map((timeframe) => ({ value: timeframe, label: `${displayTimeframe(timeframe)} selected timeframe only` })),
+      { value: "all_active", label: "All active timeframes: 1h + 4h + 1d" },
+      { value: "15m_legacy", label: "15m paused / legacy" },
+    ];
+    const reviewWindowOptions = [
+      { value: "active_week", label: "Active week only" },
+      { value: "all_runtime", label: "All runtime data" },
+      { value: "pre_cutover", label: "Weekend/pre-cutover only" },
+    ];
+    const signalCategoryOptions = [
+      { value: "entry_activity", label: "Actual opens + intended entries" },
+      { value: "intended_entries", label: "Intended entries" },
+      { value: "actual_opens", label: "Actual synthetic opens" },
+      { value: "blocked", label: "No-trade / blocked" },
+      { value: "exits", label: "Exits" },
+      { value: "duplicates", label: "Duplicate ignored" },
+      { value: "data_unavailable", label: "Data unavailable" },
+    ];
     const laneIds = paperObservationRows(summary?.strategy_lanes).map((lane) => lane.strategy_id || lane.lane_id).filter(Boolean);
     renderSelect(elements.paperObservationSymbolFilter, symbols, state.paperObservation.symbol, "All symbols");
-    renderSelect(elements.paperObservationTimeframeFilter, timeframes, state.paperObservation.timeframe, "All timeframes");
+    renderSelectWithoutAll(elements.paperObservationTimeframeFilter, timeframeOptions, state.paperObservation.timeframe);
     renderSelect(elements.paperObservationLaneFilter, laneIds, state.paperObservation.laneId, "All lanes");
+    renderSelectWithoutAll(elements.paperObservationReviewWindowFilter, reviewWindowOptions, state.paperObservation.reviewWindow);
+    renderSelectWithoutAll(elements.paperObservationSignalCategoryFilter, signalCategoryOptions, state.paperObservation.signalCategory);
     if (elements.paperObservationSymbolFilter) {
       elements.paperObservationSymbolFilter.onchange = () => {
         state.paperObservation.symbol = elements.paperObservationSymbolFilter.value === "all" ? "all" : elements.paperObservationSymbolFilter.value;
+        resetPaperObservationPagination();
         refreshPaperObservationMarketData({ force: true });
         renderPaperObservation();
       };
     }
     if (elements.paperObservationTimeframeFilter) {
       elements.paperObservationTimeframeFilter.onchange = () => {
-        state.paperObservation.timeframe =
-          elements.paperObservationTimeframeFilter.value === "all" ? "all" : elements.paperObservationTimeframeFilter.value;
+        state.paperObservation.timeframe = elements.paperObservationTimeframeFilter.value || "1h";
+        resetPaperObservationPagination();
         refreshPaperObservationMarketData({ force: true });
+        renderPaperObservation();
+      };
+    }
+    if (elements.paperObservationReviewWindowFilter) {
+      elements.paperObservationReviewWindowFilter.onchange = () => {
+        state.paperObservation.reviewWindow = elements.paperObservationReviewWindowFilter.value || "active_week";
+        resetPaperObservationPagination();
+        renderPaperObservation();
+      };
+    }
+    if (elements.paperObservationSignalCategoryFilter) {
+      elements.paperObservationSignalCategoryFilter.onchange = () => {
+        state.paperObservation.signalCategory = elements.paperObservationSignalCategoryFilter.value || "entry_activity";
+        resetPaperObservationPagination();
         renderPaperObservation();
       };
     }
@@ -9138,6 +9622,8 @@
       elements.paperObservationLaneFilter.onchange = () => {
         state.paperObservation.laneId =
           elements.paperObservationLaneFilter.value === "all" ? "all" : elements.paperObservationLaneFilter.value;
+        resetPaperObservationPagination();
+        refreshPaperObservationMarketData({ force: true });
         renderPaperObservation();
       };
     }
@@ -9145,6 +9631,7 @@
       elements.paperObservationDateStart.value = state.paperObservation.dateStart;
       elements.paperObservationDateStart.onchange = () => {
         state.paperObservation.dateStart = elements.paperObservationDateStart.value;
+        resetPaperObservationPagination();
         renderPaperObservation();
       };
     }
@@ -9152,6 +9639,7 @@
       elements.paperObservationDateEnd.value = state.paperObservation.dateEnd;
       elements.paperObservationDateEnd.onchange = () => {
         state.paperObservation.dateEnd = elements.paperObservationDateEnd.value;
+        resetPaperObservationPagination();
         renderPaperObservation();
       };
     }
@@ -9159,6 +9647,7 @@
       elements.paperObservationDateClear.onclick = () => {
         state.paperObservation.dateStart = "";
         state.paperObservation.dateEnd = "";
+        resetPaperObservationPagination();
         renderPaperObservation();
       };
     }
@@ -9197,6 +9686,86 @@
         `,
       )
       .join("");
+  }
+
+  function renderPaperObservationHealthBanner() {
+    if (!elements.paperObservationHealthBanner) return;
+    const summary = paperObservationSummary();
+    const status = summary?.connection_status || {};
+    const activeStart = paperObservationActiveReviewStart(summary);
+    const disabled = paperObservationDisabledTimeframes(summary);
+    elements.paperObservationHealthBanner.innerHTML = `
+      <div class="paper-observation-command-banner">
+        <div><span>Public mainnet data</span><strong>${escapeHtml(paperObservationText(status.hyperliquid_public_mainnet, "pending_runtime_refresh"))}</strong></div>
+        <div><span>Runtime state</span><strong>active paper observation</strong></div>
+        <div><span>Active review window</span><strong>${escapeHtml(activeStart)} to now</strong></div>
+        <div><span>Active timeframes</span><strong>1h / 4h / 1D</strong></div>
+        <div><span>15m</span><strong>${escapeHtml(PAPER_OBSERVATION_15M_STATUS)}</strong></div>
+        <div><span>Testnet order transport</span><strong>disabled</strong></div>
+        <div><span>Live trading</span><strong>not approved</strong></div>
+      </div>
+      <div class="methodology-warning compact">
+        Paper Trading is this week's runtime review surface. Historical Replay, Evidence, The Lab, Audit, and Strategy remain reference surfaces.
+        Disabled timeframes: ${escapeHtml(disabled.join(", ") || "none")}. Existing 15m records remain visible only under the paused/legacy filter.
+      </div>
+    `;
+  }
+
+  function renderPaperObservationTimeframeBreakdown() {
+    if (!elements.paperObservationTimeframeBreakdown) return;
+    const summary = paperObservationSummary();
+    const frames = ["1h", "4h", "1d", "15m"];
+    const decisions = paperObservationDecisionRows(summary).filter((row) => paperObservationDateFilterMatches(row));
+    const openPositions = Object.values(summary?.paper_runtime_state?.open_positions_by_key || {});
+    const closedTrades = paperObservationClosedRows(summary).filter((row) => paperObservationDateFilterMatches(row));
+    const rows = frames.map((timeframe) => {
+      const isPaused = paperObservationIsDisabledTimeframe(timeframe, summary);
+      const rowDecisions = decisions.filter((row) => sameTimeframe(paperObservationRowTimeframe(row), timeframe));
+      const rowOpens = rowDecisions.filter((row) => row.action === "paper_opened");
+      const rowCloses = rowDecisions.filter((row) => row.action === "paper_closed");
+      const rowOpenPositions = openPositions.filter((row) => sameTimeframe(paperObservationRowTimeframe(row), timeframe));
+      const rowClosedTrades = closedTrades.filter((row) => sameTimeframe(paperObservationRowTimeframe(row), timeframe));
+      const netPnl = rowClosedTrades.reduce((total, row) => total + decimal(row.net_pnl, 0), 0);
+      const dataBlocks = rowDecisions.filter((row) => {
+        const reasons = paperObservationRows(row.reason_codes).map(String);
+        return row.action === "data_unavailable" || reasons.some((reason) => reason.includes("unavailable"));
+      }).length;
+      return {
+        timeframe,
+        decisions: rowDecisions.length,
+        opens: rowOpens.length,
+        closes: rowCloses.length,
+        openPositions: rowOpenPositions.length,
+        closedTrades: rowClosedTrades.length,
+        netPnl,
+        maxDrawdown: "n/a",
+        dataBlocks,
+        status: isPaused ? "15m_paused_legacy" : "active_week_timeframe",
+      };
+    });
+    elements.paperObservationTimeframeBreakdown.innerHTML = `
+      <table>
+        <thead>
+          <tr><th>Timeframe</th><th>Decisions</th><th>Opens</th><th>Closes</th><th>Open positions</th><th>Closed trades</th><th>Net PnL</th><th>Max drawdown</th><th>Data blocks</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          ${rows.map((row) => `
+            <tr>
+              <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
+              <td>${escapeHtml(String(row.decisions))}</td>
+              <td>${escapeHtml(String(row.opens))}</td>
+              <td>${escapeHtml(String(row.closes))}</td>
+              <td>${escapeHtml(String(row.openPositions))}</td>
+              <td>${escapeHtml(String(row.closedTrades))}</td>
+              <td class="${row.netPnl >= 0 ? "positive" : "negative"}">${escapeHtml(paperObservationUsdc(row.netPnl))}</td>
+              <td>${escapeHtml(row.maxDrawdown)}</td>
+              <td>${escapeHtml(String(row.dataBlocks))}</td>
+              <td>${auditReviewPill(row.status)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
   }
 
   function renderPaperObservationConnectionStatus() {
@@ -9283,52 +9852,48 @@
   function renderPaperObservationSignalGeneration() {
     if (!elements.paperObservationSignalTable) return;
     const summary = paperObservationSummary();
-    const selectedSymbol = state.paperObservation.symbol;
-    const selectedTimeframe = state.paperObservation.timeframe;
-    const selectedLane = state.paperObservation.laneId;
-    const sourceRows = paperObservationRecentSignalRows(summary);
-    const rows = sourceRows.filter(
-      (row) =>
-        (selectedSymbol === "all" || row.symbol === selectedSymbol || row.requested_symbol === selectedSymbol || row.resolved_venue_symbol === selectedSymbol) &&
-        (selectedTimeframe === "all" || sameTimeframe(row.timeframe, selectedTimeframe)) &&
-        (selectedLane === "all" || row.strategy_id === selectedLane || row.lane_id === selectedLane) &&
-        paperObservationDateFilterMatches(row),
-    );
+    const sourceRows = paperObservationDecisionRows(summary);
+    const rows = sourceRows
+      .filter((row) => paperObservationDecisionCategoryMatches(row))
+      .filter((row) => paperObservationFiltersMatch(row, { includeDate: true }));
     if (!rows.length) {
       const sourceMessage = sourceRows.length
-        ? "No intended entry signals match the selected filters. Set Symbol, Timeframe, and Lane to All to inspect recent paper-open rows."
-        : "No intended entry signals recorded yet. Paper-open decisions are recorded in the ignored PT-RT1 decisions stream and appear here when present.";
+        ? "No paper decisions match the selected signal category, active review window, timeframe, symbol, and lane filters."
+        : "No paper decisions recorded yet. Decisions are recorded in the ignored PT-RT1 decisions stream and appear here when present.";
       setEmpty(elements.paperObservationSignalTable, sourceMessage);
       return;
     }
+    const page = paperObservationPageRows(rows, "signals");
     elements.paperObservationSignalTable.innerHTML = `
       <div class="methodology-warning compact">
-        Showing latest synthetic <code>paper_opened</code> rows from ${escapeHtml(state.ptRt1DecisionSource || "runtime summary / decisions stream")}. These are paper-observation signals, not exchange orders.
+        Showing paper decisions from ${escapeHtml(state.ptRt1DecisionSource || "runtime summary / decisions stream")}. Labels: paper decision, synthetic entry, not exchange order.
       </div>
+      ${paperObservationPaginationControls("signals", page)}
       <table>
         <thead>
           <tr>
+            <th>Time</th>
             <th>Lane</th>
             <th>Symbol</th>
             <th>Timeframe</th>
-            <th>Signal candle</th>
             <th>Action</th>
-            <th>Entry recorded</th>
+            <th>Paper state</th>
+            <th>Indicator snapshot</th>
             <th>Reason codes</th>
           </tr>
         </thead>
         <tbody>
-          ${rows
-            .slice(0, 18)
+          ${page.rows
             .map(
               (row) => `
                 <tr>
+                  <td>${escapeHtml(paperObservationText(paperObservationDecisionTime(row), "pending_runtime_refresh"))}</td>
                   <td>${escapeHtml(paperObservationText(row.strategy_id || row.lane_id, "n/a"))}</td>
                   <td>${escapeHtml(paperObservationText(row.symbol, "n/a"))}</td>
                   <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
-                  <td>${escapeHtml(paperObservationText(row.signal_candle_close_time || row.signal_candle_open_time, "pending_runtime_refresh"))}</td>
                   <td>${auditReviewPill(row.action || "paper_opened")}</td>
-                  <td>${auditReviewPill(row.action === "paper_opened" ? "entry_recorded" : "review")}</td>
+                  <td>${auditReviewPill(row.action === "paper_opened" ? "synthetic_entry" : row.position_after || row.paper_state_transition || "paper_decision")}</td>
+                  <td>${escapeHtml(paperObservationText(row.indicator_snapshot?.timeframe_status || row.indicator_snapshot?.trend_alignment || row.candle_status_reason, "snapshot_available_if_recorded"))}</td>
                   <td>${escapeHtml(paperObservationText(row.reason_codes, "n/a"))}</td>
                 </tr>
               `,
@@ -9336,55 +9901,181 @@
             .join("")}
         </tbody>
       </table>
+      ${paperObservationPaginationControls("signals", page)}
     `;
+    attachPaperObservationPagination(elements.paperObservationSignalTable, "signals");
+  }
+
+  function paperObservationLaneRuntimeRollup(summary) {
+    const runtimeState = summary?.paper_runtime_state || {};
+    const rollup = new Map();
+    const ensure = (laneId) => {
+      const key = laneId || "unknown_lane";
+      if (!rollup.has(key)) {
+        rollup.set(key, {
+          laneId: key,
+          realizedEquity: undefined,
+          unrealizedPnl: 0,
+          openPositions: 0,
+          closedTrades: 0,
+          decisions: 0,
+          opens: 0,
+          closes: 0,
+          wins: 0,
+          losses: 0,
+          netPnl: 0,
+          largestWin: null,
+          largestLoss: null,
+          averageWin: null,
+          averageLoss: null,
+          duplicateBlocks: 0,
+          dataHealthBlocks: 0,
+          latestTrade: null,
+          latestDecisionTime: "",
+        });
+      }
+      return rollup.get(key);
+    };
+    Object.values(runtimeState.open_positions_by_key || {}).forEach((position) => {
+      if (!paperObservationFiltersMatch(position, { includeDate: true })) return;
+      const lane = ensure(paperObservationRowLane(position));
+      lane.openPositions += 1;
+      lane.unrealizedPnl += decimal(position.current_unrealized_pnl, 0);
+    });
+    paperObservationClosedRows(summary)
+      .filter((trade) => paperObservationFiltersMatch(trade, { includeDate: true }))
+      .forEach((trade) => {
+      const lane = ensure(paperObservationRowLane(trade));
+      lane.closedTrades += 1;
+      lane.closes += 1;
+      const netPnl = decimal(trade.net_pnl, 0);
+      lane.netPnl += netPnl;
+      if (netPnl > 0) {
+        lane.wins += 1;
+        lane.largestWin = lane.largestWin === null ? netPnl : Math.max(lane.largestWin, netPnl);
+      }
+      if (netPnl < 0) {
+        lane.losses += 1;
+        lane.largestLoss = lane.largestLoss === null ? netPnl : Math.min(lane.largestLoss, netPnl);
+      }
+      const isLatestTrade = !lane.latestTrade ||
+        String(trade.exit_time || trade.decision_time || "").localeCompare(String(lane.latestTrade.exit_time || lane.latestTrade.decision_time || "")) > 0;
+      if (isLatestTrade) {
+        lane.latestTrade = trade;
+      }
+    });
+    paperObservationDecisionRows(summary)
+      .filter((row) => paperObservationFiltersMatch(row, { includeDate: true }))
+      .forEach((row) => {
+        const lane = ensure(paperObservationRowLane(row));
+        const action = row.action || "";
+        const reasons = paperObservationRows(row.reason_codes).map(String);
+        lane.decisions += 1;
+        if (action === "paper_opened") lane.opens += 1;
+        if (action === "paper_closed") lane.closes += 1;
+        if (reasons.some((reason) => reason.includes("duplicate"))) lane.duplicateBlocks += 1;
+        if (action === "data_unavailable" || reasons.some((reason) => reason.includes("unavailable"))) lane.dataHealthBlocks += 1;
+        if (String(paperObservationDecisionTime(row)).localeCompare(String(lane.latestDecisionTime || "")) > 0) {
+          lane.latestDecisionTime = paperObservationDecisionTime(row);
+        }
+      });
+    rollup.forEach((lane) => {
+      const winTotal = paperObservationClosedRows(summary)
+        .filter((trade) => paperObservationFiltersMatch(trade, { includeDate: true }))
+        .filter((trade) => paperObservationRowLane(trade) === lane.laneId)
+        .map((trade) => decimal(trade.net_pnl, 0))
+        .filter((net) => net > 0)
+        .reduce((total, net) => total + net, 0);
+      const lossTotal = paperObservationClosedRows(summary)
+        .filter((trade) => paperObservationFiltersMatch(trade, { includeDate: true }))
+        .filter((trade) => paperObservationRowLane(trade) === lane.laneId)
+        .map((trade) => decimal(trade.net_pnl, 0))
+        .filter((net) => net < 0)
+        .reduce((total, net) => total + net, 0);
+      lane.averageWin = lane.wins ? winTotal / lane.wins : null;
+      lane.averageLoss = lane.losses ? lossTotal / lane.losses : null;
+    });
+    return rollup;
   }
 
   function renderPaperObservationLanes() {
     if (!elements.paperObservationLaneTable) return;
+    const summary = paperObservationSummary();
     const selectedLane = state.paperObservation.laneId;
-    const rows = paperObservationRows(paperObservationSummary()?.strategy_lanes).filter(
+    const rows = paperObservationRows(summary?.strategy_lanes).filter(
       (row) => selectedLane === "all" || row.strategy_id === selectedLane || row.lane_id === selectedLane,
     );
     if (!rows.length) {
       setEmpty(elements.paperObservationLaneTable, "Strategy lane config not loaded.");
       return;
     }
+    const runtimeRollup = paperObservationLaneRuntimeRollup(summary);
+    const scopeLabel = paperObservationTimeframeScopeLabel();
     elements.paperObservationLaneTable.innerHTML = `
+      <div class="methodology-warning compact">
+        Timeframe scope: <strong>${escapeHtml(scopeLabel)}</strong>. 15m is paused for Week 1 and excluded from active weekly scoring.
+        All-active mode is ${escapeHtml("sum across active paper timeframes only: 1h + 4h + 1d")} and is not one combined account.
+      </div>
       <table>
         <thead>
           <tr>
             <th>Lane</th>
-            <th>Role</th>
-            <th>Family</th>
+            <th>Timeframe scope</th>
             <th>Starting equity</th>
             <th>Realized equity</th>
+            <th>Net PnL</th>
             <th>Unrealized PnL</th>
             <th>Total equity</th>
             <th>Max drawdown</th>
-            <th>Open / closed</th>
-            <th>Losing streak</th>
+            <th>Open</th>
+            <th>Closed</th>
+            <th>Win rate</th>
+            <th>Avg win</th>
+            <th>Avg loss</th>
+            <th>Largest win</th>
+            <th>Largest loss</th>
+            <th>Data / duplicate blocks</th>
+            <th>Latest decision</th>
             <th>Status</th>
           </tr>
         </thead>
         <tbody>
           ${rows
-            .map(
-              (row) => `
+            .map((row) => {
+              const laneId = row.strategy_id || row.lane_id;
+              const runtime = runtimeRollup.get(laneId) || {};
+              const startingEquity = decimal(row.initial_equity || row.starting_equity, 10000);
+              const netPnl = decimal(runtime.netPnl, 0);
+              const realizedEquity = startingEquity + netPnl;
+              const unrealizedPnl = decimal(runtime.unrealizedPnl ?? row.unrealized_pnl, 0);
+              const totalEquity = realizedEquity + unrealizedPnl;
+              const openPositions = runtime.openPositions ?? row.open_positions ?? 0;
+              const closedTrades = runtime.closedTrades ?? row.closed_trades ?? 0;
+              const activity = (runtime.decisions || 0) + openPositions + closedTrades;
+              const winRate = closedTrades ? `${((runtime.wins || 0) / closedTrades * 100).toFixed(1)}%` : "n/a";
+              return `
                 <tr>
                   <td>${escapeHtml(row.display_name || row.strategy_id)}</td>
-                  <td>${auditReviewPill(row.role)}</td>
-                  <td>${escapeHtml(paperObservationText(row.strategy_family, "n/a"))}</td>
-                  <td>${escapeHtml(row.initial_equity || "10000")}</td>
-                  <td>${escapeHtml(row.realized_equity || row.initial_equity || "10000")}</td>
-                  <td>${escapeHtml(row.unrealized_pnl || "0")}</td>
-                  <td>${escapeHtml(row.total_equity || row.initial_equity || "10000")}</td>
-                  <td>${escapeHtml(row.max_drawdown || "0")}</td>
-                  <td>${escapeHtml(`${row.open_positions || 0} / ${row.closed_trades || 0}`)}</td>
-                  <td>${escapeHtml(`${row.current_losing_streak || 0} / ${row.max_losing_streak || 0}`)}</td>
-                  <td>${auditReviewPill(row.production_approved || row.live_approved ? "review_required" : "not_production_approved")}</td>
+                  <td>${auditReviewPill(scopeLabel)}</td>
+                  <td>${escapeHtml(paperObservationUsdc(startingEquity))}</td>
+                  <td>${escapeHtml(paperObservationUsdc(realizedEquity))}</td>
+                  <td class="${netPnl >= 0 ? "positive" : "negative"}">${escapeHtml(paperObservationUsdc(netPnl))}</td>
+                  <td>${escapeHtml(paperObservationUsdc(unrealizedPnl))}</td>
+                  <td>${escapeHtml(paperObservationUsdc(totalEquity))}</td>
+                  <td>${escapeHtml(paperObservationUsdc(row.max_drawdown || row.drawdown || "0"))}</td>
+                  <td>${escapeHtml(String(openPositions))}</td>
+                  <td>${escapeHtml(String(closedTrades))}</td>
+                  <td>${escapeHtml(winRate)}</td>
+                  <td>${escapeHtml(runtime.averageWin === null || runtime.averageWin === undefined ? "n/a" : paperObservationUsdc(runtime.averageWin))}</td>
+                  <td>${escapeHtml(runtime.averageLoss === null || runtime.averageLoss === undefined ? "n/a" : paperObservationUsdc(runtime.averageLoss))}</td>
+                  <td>${escapeHtml(runtime.largestWin === null || runtime.largestWin === undefined ? "n/a" : paperObservationUsdc(runtime.largestWin))}</td>
+                  <td>${escapeHtml(runtime.largestLoss === null || runtime.largestLoss === undefined ? "n/a" : paperObservationUsdc(runtime.largestLoss))}</td>
+                  <td>${escapeHtml(`${runtime.dataHealthBlocks || 0} / ${runtime.duplicateBlocks || 0}`)}</td>
+                  <td>${escapeHtml(paperObservationText(runtime.latestDecisionTime, "n/a"))}</td>
+                  <td>${auditReviewPill(activity ? "active_scope" : "no_activity_for_selected_timeframe")}</td>
                 </tr>
-              `,
-            )
+              `;
+            })
             .join("")}
         </tbody>
       </table>
@@ -9419,15 +10110,18 @@
     `;
   }
 
-  function renderPaperObservationWildcardDiagnostics() {
-    if (!elements.paperObservationWildcardDiagnostics) return;
+  function renderStrategyWildcardDiagnostics() {
+    if (!elements.strategyWildcardDiagnostics) return;
     const definitions = paperObservationSummary()?.wildcard_definitions || {};
     const rows = Object.entries(definitions);
     if (!rows.length) {
-      setEmpty(elements.paperObservationWildcardDiagnostics, "Wildcard diagnostics data_not_available_in_pt_rt1_bundle.");
+      setEmpty(elements.strategyWildcardDiagnostics, "Wildcard diagnostics data_not_available_in_pt_rt1_bundle.");
       return;
     }
-    elements.paperObservationWildcardDiagnostics.innerHTML = `
+    elements.strategyWildcardDiagnostics.innerHTML = `
+      <div class="methodology-warning compact">
+        Wildcard diagnostics are PT-RT1 forward-observation hypotheses only. They do not change Money Flow production rules, approve paper runtime, approve live trading, or create order controls.
+      </div>
       <table>
         <thead>
           <tr>
@@ -9508,14 +10202,20 @@
     if (!candles.length) return [];
     const firstTime = candles[0].time;
     const lastTime = candles.at(-1).time;
-    const markers = paperObservationRows(rawMarkers).slice(-20);
-    return markers.map((marker, index) => {
+    const markers = paperObservationRows(rawMarkers).slice(-80);
+    return markers.map((marker) => {
       const parsed = chartTime(marker.time || marker.timestamp || marker.entry_time || marker.exit_time);
-      const time = parsed >= firstTime && parsed <= lastTime
-        ? parsed
-        : candles[Math.min(candles.length - 1, Math.max(0, candles.length - markers.length + index))].time;
+      let time = parsed;
+      if (!Number.isFinite(time)) return null;
+      if (time < firstTime || time > lastTime) return null;
+      const exact = candles.find((candle) => candle.time === time);
+      if (!exact) {
+        time = candles.reduce((nearest, candle) =>
+          Math.abs(candle.time - parsed) < Math.abs(nearest.time - parsed) ? candle : nearest,
+        candles[0]).time;
+      }
       const action = String(marker.action || marker.type || marker.marker_type || "").toLowerCase();
-      const isExit = action.includes("exit") || action.includes("close") || action.includes("sell");
+      const isExit = action.includes("exit") || action.includes("close") || action.includes("sell") || action.includes("paper_closed");
       return {
         time,
         position: isExit ? "aboveBar" : "belowBar",
@@ -9523,7 +10223,7 @@
         shape: isExit ? "arrowDown" : "arrowUp",
         text: String(marker.label || marker.text || marker.action || "paper marker"),
       };
-    });
+    }).filter(Boolean);
   }
 
   function updatePaperObservationChartData(candles, rawMarkers) {
@@ -9720,10 +10420,13 @@
     const runtime = summary?.testnet_plumbing_status || {};
     const submittedCount = runtime.transport_submitted_this_cycle ?? 0;
     const signedCalled = Boolean(runtime.signed_order_endpoint_called || runtime.order_endpoint_called);
+    const auditShapeEnabled = runtime.status === "enabled_audit_only" || Number(runtime.probe_audit_rows_this_cycle || 0) > 0;
+    const orderTransportEnabled = Boolean(runtime.transport_mode && runtime.transport_mode !== "audit_only" && signedCalled);
     elements.paperObservationProbeStatus.innerHTML = `
       <div class="market-micro-grid">
         <div><span>Lane</span><strong>testnet plumbing only</strong></div>
-        <div><span>Probes enabled</span><strong>${escapeHtml(String(runtime.status === "enabled_audit_only" || policy.PT_RT1_TESTNET_PROBES_ENABLED || false))}</strong></div>
+        <div><span>Testnet order transport</span><strong>${escapeHtml(String(orderTransportEnabled))}</strong></div>
+        <div><span>Audit-only shapes</span><strong>${escapeHtml(String(auditShapeEnabled || policy.PT_RT1_TESTNET_PROBES_ENABLED || false))}</strong></div>
         <div><span>Kill switch</span><strong>${escapeHtml(String(runtime.kill_switch_active ?? policy.PT_RT1_TESTNET_KILL_SWITCH ?? true))}</strong></div>
         <div><span>Daily cap</span><strong>${escapeHtml(String(runtime.daily_cap ?? policy.PT_RT1_TESTNET_DAILY_PROBE_CAP ?? 200))}</strong></div>
         <div><span>Eligible shapes</span><strong>${escapeHtml(String(runtime.eligible_probe_shapes_this_cycle ?? "runtime_not_started"))}</strong></div>
@@ -9736,9 +10439,10 @@
         <div><span>Open after reconcile</span><strong>none</strong></div>
         <div><span>Unknown state</span><strong>blocked_if_present</strong></div>
         <div><span>Strategy PnL update</span><strong>${escapeHtml(String(runtime.testnet_fills_do_not_update_strategy_pnl === true ? false : plumbing.testnet_fills_update_strategy_pnl ?? false))}</strong></div>
+        <div><span>Reason</span><strong>audit_only_not_submitted</strong></div>
       </div>
       <div class="methodology-warning compact">
-        <code>audit_only</code> means the runtime writes 20 USDC testnet probe shapes but does not call signed Hyperliquid testnet order endpoints. Actual signed testnet transport requires the separate PT-RT1.2 transport gate, exact approval, and a configured client.
+        Audit-shape generation can build/check simulated testnet probe shapes. Testnet order transport is disabled in PT-RT1.4: no signed testnet order is submitted, no exchange transport is used, and testnet fills do not update strategy PnL.
       </div>
     `;
   }
@@ -9746,28 +10450,53 @@
   function renderPaperObservationRuntimeTables() {
     const summary = paperObservationSummary();
     const runtimeState = summary?.paper_runtime_state || {};
-    const openRows = Object.entries(runtimeState.open_positions_by_key || {}).map(([key, position]) => ({ key, ...position }));
-    const closedRows = paperObservationRows(summary?.closed_trades || summary?.latest_trades);
+    const openRows = Object.entries(runtimeState.open_positions_by_key || {})
+      .map(([key, position]) => ({ key, ...position }))
+      .filter((row) => paperObservationFiltersMatch(row, { includeDate: false }))
+      .sort((left, right) => decimal(left.current_unrealized_pnl, 0) - decimal(right.current_unrealized_pnl, 0) || String(paperObservationDecisionTime(right)).localeCompare(String(paperObservationDecisionTime(left))));
+    const closedRows = paperObservationClosedRows(summary)
+      .filter((row) => paperObservationFiltersMatch(row, { includeDate: true }));
     if (elements.paperObservationOpenPositions && openRows.length) {
+      const page = paperObservationPageRows(openRows, "openPositions");
       elements.paperObservationOpenPositions.innerHTML = `
+        <div class="methodology-warning compact">Default view shows active timeframes only. Quick filters: All active, Losing only, Winning only, Legacy 15m, By lane, By symbol, By timeframe.</div>
+        ${paperObservationPaginationControls("openPositions", page)}
         <table>
-          <thead><tr><th>Position</th><th>Lane</th><th>Symbol</th><th>Timeframe</th><th>Entry time</th><th>Entry price</th><th>Qty</th><th>Equity before</th></tr></thead>
+          <thead><tr><th>Lane</th><th>Symbol</th><th>Timeframe</th><th>Entry time</th><th>Age</th><th>Entry price</th><th>Current price</th><th>Quantity</th><th>Notional</th><th>Unrealized PnL</th><th>Unrealized PnL %</th><th>Entry reason</th><th>Data health</th><th>Status</th></tr></thead>
           <tbody>
-            ${openRows.slice(0, 25).map((row) => `
-              <tr>
-                <td>${escapeHtml(row.key)}</td>
-                <td>${escapeHtml(row.strategy_id || row.lane_id || "n/a")}</td>
-                <td>${escapeHtml(row.symbol || "n/a")}</td>
-                <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
-                <td>${escapeHtml(row.entry_signal_time || "n/a")}</td>
-                <td>${escapeHtml(row.entry_price || "n/a")}</td>
-                <td>${escapeHtml(row.quantity || "n/a")}</td>
-                <td>${escapeHtml(row.equity_before || "10000")}</td>
-              </tr>
-            `).join("")}
+            ${page.rows.map((row) => {
+              const entryTime = row.entry_fill_time || row.entry_signal_time || "";
+              const entryMs = Date.parse(entryTime);
+              const age = Number.isFinite(entryMs) ? `${Math.max(0, Math.floor((Date.now() - entryMs) / 3600000))}h` : "n/a";
+              const unrealized = decimal(row.current_unrealized_pnl, 0);
+              const notional = decimal(row.notional || row.equity_before, 0);
+              const unrealizedPct = notional ? `${(unrealized / notional * 100).toFixed(2)}%` : "n/a";
+              const timeframe = paperObservationRowTimeframe(row);
+              const roleBadge = paperObservationIsDisabledTimeframe(timeframe) ? "legacy_15m" : "active";
+              return `
+                <tr>
+                  <td>${escapeHtml(row.strategy_id || row.lane_id || "n/a")}</td>
+                  <td>${escapeHtml(row.symbol || "n/a")}</td>
+                  <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
+                  <td>${escapeHtml(entryTime || "n/a")}</td>
+                  <td>${escapeHtml(age)}</td>
+                  <td>${escapeHtml(paperObservationPrice(row.entry_price))}</td>
+                  <td>${escapeHtml(paperObservationPrice(row.current_price || row.mark_price || row.entry_price))}</td>
+                  <td>${escapeHtml(paperObservationPrice(row.quantity))}</td>
+                  <td>${escapeHtml(paperObservationUsdc(notional))}</td>
+                  <td class="${unrealized >= 0 ? "positive" : "negative"}">${escapeHtml(paperObservationUsdc(unrealized))}</td>
+                  <td>${escapeHtml(unrealizedPct)}</td>
+                  <td>${escapeHtml(paperObservationText(row.open_reason_codes, "n/a"))}</td>
+                  <td>${auditReviewPill(row.data_health || "healthy_or_pending")}</td>
+                  <td>${auditReviewPill(`${roleBadge} ${row.status || "open"}`)}</td>
+                </tr>
+              `;
+            }).join("")}
           </tbody>
         </table>
+        ${paperObservationPaginationControls("openPositions", page)}
       `;
+      attachPaperObservationPagination(elements.paperObservationOpenPositions, "openPositions");
     } else {
       const openMessage = "No open synthetic positions loaded from ignored PT-RT1 runtime state.";
       if (elements.paperObservationOpenPositions) setEmpty(elements.paperObservationOpenPositions, openMessage);
@@ -9775,24 +10504,65 @@
     const closedMessage = "No closed synthetic trades loaded from ignored PT-RT1 runtime state.";
     const riskMessage = "No runtime drawdown or losing-streak rows loaded yet.";
     if (elements.paperObservationClosedTrades && closedRows.length) {
+      const page = paperObservationPageRows(closedRows, "closedTrades");
+      const wins = closedRows.filter((row) => decimal(row.net_pnl, 0) > 0);
+      const losses = closedRows.filter((row) => decimal(row.net_pnl, 0) < 0);
+      const largestWin = wins.length ? Math.max(...wins.map((row) => decimal(row.net_pnl, 0))) : 0;
+      const largestLoss = losses.length ? Math.min(...losses.map((row) => decimal(row.net_pnl, 0))) : 0;
+      const avgWin = wins.length ? wins.reduce((total, row) => total + decimal(row.net_pnl, 0), 0) / wins.length : 0;
+      const avgLoss = losses.length ? losses.reduce((total, row) => total + decimal(row.net_pnl, 0), 0) / losses.length : 0;
+      const totalNet = closedRows.reduce((total, row) => total + decimal(row.net_pnl, 0), 0);
       elements.paperObservationClosedTrades.innerHTML = `
+        <div class="methodology-warning compact">
+          Showing closed synthetic trades from ${escapeHtml(state.ptRt1TradeSource || "runtime summary / trades stream")}. These rows are synthetic public-mainnet paper PnL, not exchange fills.
+        </div>
+        <div class="paper-observation-trade-summary-cards">
+          <span>Closed ${escapeHtml(String(closedRows.length))}</span>
+          <span>Winning ${escapeHtml(String(wins.length))}</span>
+          <span>Losing ${escapeHtml(String(losses.length))}</span>
+          <span>Largest win ${escapeHtml(paperObservationUsdc(largestWin))}</span>
+          <span>Largest loss ${escapeHtml(paperObservationUsdc(largestLoss))}</span>
+          <span>Average win ${escapeHtml(paperObservationUsdc(avgWin))}</span>
+          <span>Average loss ${escapeHtml(paperObservationUsdc(avgLoss))}</span>
+          <span>Total net PnL ${escapeHtml(paperObservationUsdc(totalNet))}</span>
+        </div>
+        <div class="methodology-warning compact">Quick filters: Recent closes, Winners, Losers, Largest losses, Largest wins, Legacy 15m.</div>
+        ${paperObservationPaginationControls("closedTrades", page)}
         <table>
-          <thead><tr><th>Lane</th><th>Symbol</th><th>Timeframe</th><th>Entry</th><th>Exit</th><th>Net PnL</th><th>Equity after</th></tr></thead>
+          <thead><tr><th>Lane</th><th>Symbol</th><th>Timeframe</th><th>Entry time</th><th>Exit time</th><th>Duration</th><th>Entry price</th><th>Exit price</th><th>Quantity</th><th>Net PnL</th><th>Net PnL %</th><th>Equity after</th><th>Exit reason</th><th>Fees/slippage</th></tr></thead>
           <tbody>
-            ${closedRows.slice(0, 25).map((row) => `
-              <tr>
-                <td>${escapeHtml(row.strategy_id || row.lane_id || "n/a")}</td>
-                <td>${escapeHtml(row.symbol || "n/a")}</td>
-                <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
-                <td>${escapeHtml(row.entry_time || "n/a")}</td>
-                <td>${escapeHtml(row.exit_time || "n/a")}</td>
-                <td>${escapeHtml(row.net_pnl || "0")}</td>
-                <td>${escapeHtml(row.equity_after || "n/a")}</td>
-              </tr>
-            `).join("")}
+            ${page.rows.map((row) => {
+              const entryTime = row.entry_time || row.entry_fill_time || row.entry_signal_time || "";
+              const exitTime = row.exit_time || row.exit_fill_time || row.exit_signal_time || "";
+              const durationMs = Date.parse(exitTime) - Date.parse(entryTime);
+              const duration = Number.isFinite(durationMs) ? `${Math.max(0, Math.round(durationMs / 3600000))}h` : "n/a";
+              const netPnl = decimal(row.net_pnl, 0);
+              const equityBefore = decimal(row.equity_before, 0);
+              const netPct = equityBefore ? `${(netPnl / equityBefore * 100).toFixed(2)}%` : "n/a";
+              return `
+                <tr>
+                  <td>${escapeHtml(row.strategy_id || row.lane_id || "n/a")}</td>
+                  <td>${escapeHtml(row.symbol || "n/a")}</td>
+                  <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
+                  <td>${escapeHtml(entryTime || "n/a")}</td>
+                  <td>${escapeHtml(exitTime || "n/a")}</td>
+                  <td>${escapeHtml(duration)}</td>
+                  <td>${escapeHtml(paperObservationPrice(row.entry_price))}</td>
+                  <td>${escapeHtml(paperObservationPrice(row.exit_price))}</td>
+                  <td>${escapeHtml(paperObservationPrice(row.quantity))}</td>
+                  <td class="${netPnl >= 0 ? "positive" : "negative"}">${escapeHtml(paperObservationUsdc(netPnl))}</td>
+                  <td>${escapeHtml(netPct)}</td>
+                  <td>${escapeHtml(paperObservationUsdc(row.equity_after))}</td>
+                  <td>${escapeHtml(paperObservationText(row.exit_reason_codes || row.reason_codes, "n/a"))}</td>
+                  <td>${escapeHtml(`${paperObservationUsdc(row.fees || 0)} / ${paperObservationUsdc(row.slippage || 0)}`)}</td>
+                </tr>
+              `;
+            }).join("")}
           </tbody>
         </table>
+        ${paperObservationPaginationControls("closedTrades", page)}
       `;
+      attachPaperObservationPagination(elements.paperObservationClosedTrades, "closedTrades");
     } else if (elements.paperObservationClosedTrades) {
       setEmpty(elements.paperObservationClosedTrades, closedMessage);
     }
@@ -9814,16 +10584,18 @@
   function renderPaperObservation() {
     renderPaperObservationControls();
     renderPaperRuntimeControl();
-    renderPaperObservationSummaryCards();
+    renderPaperObservationHealthBanner();
     renderPaperObservationConnectionStatus();
-    renderPaperObservationScanner();
-    renderPaperObservationSignalGeneration();
+    renderPaperObservationSummaryCards();
     renderPaperObservationLanes();
+    renderPaperObservationTimeframeBreakdown();
     renderPaperObservationLaneDetail();
-    renderPaperObservationWildcardDiagnostics();
     renderPaperObservationChart();
-    renderPaperObservationProbeStatus();
+    renderPaperObservationScanner();
     renderPaperObservationRuntimeTables();
+    renderPaperObservationSignalGeneration();
+    renderPaperObservationProbeStatus();
+    renderStrategyWildcardDiagnostics();
   }
 
   function render() {
@@ -9908,6 +10680,7 @@
     await loadDefaultEvAuditSummaries();
     await loadDefaultPtRt1Summaries();
     await loadDefaultPtRt1DecisionRows();
+    await loadDefaultPtRt1TradeRows();
 
     state.review = null;
     state.batches = [];
@@ -9920,8 +10693,8 @@
     await loadDefaultPt002HistoricalReplaySummary();
 
     if (!loaded.length) {
-      elements.sourceLabel.textContent = "Manual load";
-      elements.sourceDetail.textContent = "Use the JSON loader to select local evidence files.";
+      if (elements.sourceLabel) elements.sourceLabel.textContent = "Local reports";
+      if (elements.sourceDetail) elements.sourceDetail.textContent = "Default local report loading is managed from the repo.";
       render();
       return;
     }
@@ -9935,17 +10708,17 @@
     ).length;
     const fallbackCount = loaded.length - canonicalPackCount - sv21BroadPackCount;
     if (canonicalPackCount > 0 || sv21BroadPackCount > 0) {
-      elements.sourceLabel.textContent = sv21BroadPackCount > 0
-        ? "SV2.0.2 + SV2.1 evidence packs loaded"
+      if (elements.sourceLabel) elements.sourceLabel.textContent = sv21BroadPackCount > 0
+        ? "Local reports loaded"
         : "SV2.0.2 canonical packs loaded";
       const details = [];
       if (canonicalPackCount > 0) details.push(`${canonicalPackCount} regenerated canonical pack JSON files loaded`);
       if (sv21BroadPackCount > 0) details.push(`${sv21BroadPackCount} SV2.1 founder-approved 1D period pack JSON files loaded`);
       if (fallbackCount > 0) details.push(`${fallbackCount} noncanonical local files also loaded`);
-      elements.sourceDetail.textContent = `${details.join("; ")}.`;
+      if (elements.sourceDetail) elements.sourceDetail.textContent = `${details.join("; ")}.`;
     } else {
-      elements.sourceLabel.textContent = "Local JSON reports loaded";
-      elements.sourceDetail.textContent = `${loaded.length} local JSON files loaded.`;
+      if (elements.sourceLabel) elements.sourceLabel.textContent = "Local JSON reports loaded";
+      if (elements.sourceDetail) elements.sourceDetail.textContent = `${loaded.length} local JSON files loaded.`;
     }
     render();
   }
@@ -9991,8 +10764,8 @@
         if (type === "pt002_historical_replay_summary") state.pt002HistoricalReplay = payload;
       });
       state.selectedComponent = defaultEvidenceComponent(allSummaries());
-      elements.sourceLabel.textContent = "Manual JSON loaded";
-      elements.sourceDetail.textContent = `${valid.length} local files selected.`;
+      if (elements.sourceLabel) elements.sourceLabel.textContent = "Manual JSON loaded";
+      if (elements.sourceDetail) elements.sourceDetail.textContent = `${valid.length} local files selected.`;
       render();
     });
   }
@@ -10210,6 +10983,22 @@
       .filter(Boolean);
   }
 
+  function parsePaperObservationTradeLog(text, sourcePath) {
+    return String(text || "")
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .slice(-PAPER_OBSERVATION_TRADE_LOG_LIMIT)
+      .map((line) => {
+        try {
+          const row = JSON.parse(line);
+          return row && typeof row === "object" ? { ...row, __source_path: sourcePath } : null;
+        } catch (error) {
+          return null;
+        }
+      })
+      .filter(Boolean);
+  }
+
   async function loadDefaultPtRt1DecisionRows() {
     for (const path of DEFAULT_PT_RT1_DECISION_LOG_FILES) {
       try {
@@ -10220,6 +11009,24 @@
         if (rows.length) {
           state.ptRt1DecisionRows = rows;
           state.ptRt1DecisionSource = path;
+          break;
+        }
+      } catch (error) {
+        console.warn(`Could not load ${path}`, error);
+      }
+    }
+  }
+
+  async function loadDefaultPtRt1TradeRows() {
+    for (const path of DEFAULT_PT_RT1_TRADE_LOG_FILES) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const text = await response.text();
+        const rows = parsePaperObservationTradeLog(text, path);
+        if (rows.length) {
+          state.ptRt1TradeRows = rows;
+          state.ptRt1TradeSource = path;
           break;
         }
       } catch (error) {
@@ -10266,9 +11073,11 @@
     }));
   }
 
-  elements.fileInput.addEventListener("change", (event) => {
-    handleFiles(event.target.files || []);
-  });
+  if (elements.fileInput) {
+    elements.fileInput.addEventListener("change", (event) => {
+      handleFiles(event.target.files || []);
+    });
+  }
 
   if (elements.themeSelector) {
     elements.themeSelector.addEventListener("change", () => {

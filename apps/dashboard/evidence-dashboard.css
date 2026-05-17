@@ -57,23 +57,23 @@
   --font-display: "IBM Plex Sans Condensed", "Avenir Next Condensed", "DIN Condensed", sans-serif;
   --font-ui: "IBM Plex Sans", "Avenir Next", "DIN Alternate", sans-serif;
   --font-mono: "IBM Plex Mono", "SFMono-Regular", "Menlo", monospace;
-  --text-caption: 11px;
-  --text-body-sm: 12px;
-  --text-body: 14px;
-  --text-body-lg: 20px;
+  --text-caption: 10px;
+  --text-body-sm: 11px;
+  --text-body: 13px;
+  --text-body-lg: 18px;
   --leading-caption: 1.35;
   --leading-body-sm: 1.4;
   --leading-body: 1.45;
   --spacing-1: 4px;
-  --spacing-2: 6px;
-  --spacing-3: 8px;
-  --spacing-4: 10px;
-  --spacing-5: 12px;
-  --spacing-6: 14px;
-  --spacing-7: 16px;
-  --spacing-8: 20px;
-  --spacing-9: 24px;
-  --spacing-10: 28px;
+  --spacing-2: 5px;
+  --spacing-3: 7px;
+  --spacing-4: 9px;
+  --spacing-5: 10px;
+  --spacing-6: 12px;
+  --spacing-7: 14px;
+  --spacing-8: 18px;
+  --spacing-9: 22px;
+  --spacing-10: 25px;
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
@@ -204,6 +204,7 @@ html {
 }
 
 body {
+  font-size: var(--text-body);
   min-height: 100vh;
   margin: 0;
   background:
@@ -234,30 +235,76 @@ button {
   position: sticky;
   top: 0;
   z-index: 20;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(260px, auto) minmax(360px, 1fr) auto;
+  gap: var(--spacing-4);
   align-items: center;
-  justify-content: space-between;
-  min-height: 42px;
-  padding: 0 var(--spacing-7);
+  min-height: 54px;
+  padding: var(--spacing-2) var(--spacing-5);
   color: var(--color-muted);
   background: var(--color-top-strip);
   border-bottom: 1px solid var(--color-line);
   backdrop-filter: blur(12px);
 }
 
+.top-brand {
+  display: inline-flex;
+  gap: var(--spacing-3);
+  align-items: center;
+  min-width: 0;
+}
+
+.top-brand-mark {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  background: var(--color-panel-2);
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+}
+
+.top-brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.top-brand h1 {
+  max-width: none;
+  overflow: hidden;
+  font-size: 16px;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.top-brand .eyebrow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.top-actions {
+  display: inline-flex;
+  gap: var(--spacing-3);
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
 .top-strip p {
   margin: 0;
   font-family: var(--font-display);
   font-size: 13px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
 }
 
 .theme-control {
   display: inline-flex;
   gap: var(--spacing-3);
   align-items: center;
-  margin-left: auto;
   color: var(--color-muted);
   font-size: var(--text-caption);
   letter-spacing: 0.08em;
@@ -290,12 +337,11 @@ button {
 }
 
 .dashboard-shell {
-  width: min(1760px, 100%);
+  width: min(2048px, 100%);
   margin: 0 auto;
-  padding: var(--spacing-5);
+  padding: var(--spacing-4);
 }
 
-.hero-band,
 .load-band,
 .view-tabs,
 .toolbar-band,
@@ -435,12 +481,28 @@ h3 {
 
 .view-tabs {
   display: flex;
-  gap: 4px;
+  gap: 5px;
   overflow-x: auto;
   padding: 4px;
   border: 1px solid var(--color-line);
   border-radius: var(--radius-md);
   background: var(--color-panel);
+}
+
+.top-strip > .view-tabs {
+  justify-self: center;
+  width: min(100%, 940px);
+  margin-block-end: 0;
+  background: color-mix(in srgb, var(--color-panel) 74%, transparent);
+}
+
+.top-strip > .view-tabs .view-tab {
+  flex: 1 1 0;
+  min-width: max-content;
+}
+
+.top-file-control {
+  min-height: 28px;
 }
 
 .view-tab,
@@ -658,7 +720,7 @@ h3 {
 
 .paper-observation-view {
   display: grid;
-  gap: var(--spacing-5);
+  gap: var(--spacing-4);
 }
 
 .audit-review-header {
@@ -669,14 +731,42 @@ h3 {
 }
 
 .paper-observation-header {
+  align-items: center;
+  padding: var(--spacing-7);
   background:
     radial-gradient(circle at top right, rgba(82, 188, 255, 0.18), transparent 34%),
     linear-gradient(135deg, rgba(116, 240, 178, 0.10), var(--color-surface-strong)),
     var(--color-panel);
 }
 
+.paper-observation-header h2 {
+  margin-block: 0 var(--spacing-3);
+  font-size: clamp(32px, 4vw, 50px);
+}
+
+.paper-observation-header p {
+  max-width: 720px;
+}
+
 .paper-observation-header .evidence-lab-badges {
-  max-width: 560px;
+  max-width: 520px;
+  gap: var(--spacing-2);
+}
+
+.paper-observation-header .evidence-lab-badges span {
+  min-height: 30px;
+  padding: 6px var(--spacing-3);
+}
+
+.paper-observation-safety-strip {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: var(--spacing-3);
+}
+
+.paper-observation-safety-strip .methodology-warning {
+  margin: 0;
+  min-height: 0;
 }
 
 .audit-review-verdict {
@@ -694,41 +784,178 @@ h3 {
 }
 
 .paper-observation-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-4);
+  display: grid;
+  grid-template-columns: minmax(190px, 0.9fr) repeat(5, minmax(128px, 1fr)) auto;
+  gap: var(--spacing-3);
   align-items: end;
-  padding: var(--spacing-5);
+  padding: var(--spacing-4);
   border: 1px solid var(--color-line);
-  border-radius: var(--radius-xl);
-  background: color-mix(in srgb, var(--color-panel) 88%, transparent);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-panel-2) 72%, transparent), var(--color-panel)),
+    var(--color-panel);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.paper-observation-controls-title {
+  display: grid;
+  gap: 2px;
+  align-self: center;
+}
+
+.paper-observation-controls-title strong {
+  color: var(--color-text);
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-body-sm);
 }
 
 .paper-observation-controls label {
   display: grid;
+  gap: 4px;
+  min-width: 0;
+  color: var(--color-muted);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+}
+
+.paper-observation-controls select,
+.paper-observation-controls input {
+  width: 100%;
+  min-width: 0;
+}
+
+.paper-observation-controls .segment-button {
+  align-self: end;
+}
+
+.paper-observation-health-banner,
+.paper-observation-weekly-scoreboard {
+  border-color: color-mix(in srgb, var(--color-teal) 24%, var(--color-line));
+}
+
+.paper-observation-command-banner {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(120px, 1fr));
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--color-teal) 12%, transparent), transparent 58%),
+    var(--color-panel);
+}
+
+.paper-observation-command-banner div,
+.paper-observation-trade-summary-cards span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.paper-observation-command-banner span {
+  color: var(--color-muted);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+}
+
+.paper-observation-command-banner strong {
+  overflow-wrap: anywhere;
+  color: var(--color-text);
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-body-sm);
+}
+
+.paper-observation-trade-summary-cards {
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--spacing-2);
-  min-width: 140px;
+  margin-block: var(--spacing-3);
+}
+
+.paper-observation-trade-summary-cards span {
+  min-height: 30px;
+  padding: 6px var(--spacing-3);
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-panel-2) 76%, transparent);
+  color: var(--color-text);
+  font-size: var(--text-caption);
+  font-weight: 800;
 }
 
 .paper-runtime-control {
   display: grid;
-  gap: var(--spacing-4);
+  gap: var(--spacing-3);
+}
+
+.paper-runtime-control-compact {
+  grid-template-columns: minmax(360px, 0.95fr) minmax(360px, 1.05fr);
+  align-items: stretch;
+  padding: var(--spacing-5);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--color-blue) 11%, transparent), transparent 46%),
+    var(--color-panel);
+}
+
+.paper-runtime-control-main,
+.paper-runtime-control-details {
+  display: grid;
+  gap: var(--spacing-3);
+  min-width: 0;
+}
+
+.paper-runtime-control-details {
+  align-content: start;
+  padding-left: var(--spacing-4);
+  border-left: 1px solid var(--color-line);
+}
+
+.paper-runtime-control-compact .section-heading {
+  align-items: center;
+  margin-block-end: 0;
+  padding: 0;
+}
+
+.paper-runtime-control-copy,
+.paper-runtime-control-compact .section-heading p {
+  margin: 0;
+  max-width: 640px;
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-body-sm);
+}
+
+.paper-runtime-caffeinate-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 var(--spacing-3);
+  border: 1px solid color-mix(in srgb, var(--color-teal) 42%, var(--color-line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-teal) 14%, var(--color-panel-2));
+  color: var(--color-text);
+  font-size: var(--text-caption);
+  font-weight: 800;
 }
 
 .paper-runtime-control-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-4);
+  display: grid;
+  grid-template-columns: minmax(120px, 0.6fr) minmax(190px, 1fr);
+  gap: var(--spacing-3);
   align-items: end;
 }
 
 .paper-runtime-control-grid label {
   display: grid;
-  gap: var(--spacing-2);
-  min-width: 190px;
+  gap: 4px;
+  min-width: 0;
+  color: var(--color-muted);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
 }
 
 .paper-runtime-actions {
+  grid-column: 1 / -1;
   display: inline-flex;
   flex-wrap: wrap;
   gap: var(--spacing-3);
@@ -738,9 +965,9 @@ h3 {
 .primary-button {
   min-height: 34px;
   padding: 0 var(--spacing-5);
-  border-color: color-mix(in srgb, var(--color-accent) 62%, var(--color-line));
+  border-color: color-mix(in srgb, var(--color-teal) 62%, var(--color-line));
   border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--color-accent) 22%, var(--color-panel-2));
+  background: color-mix(in srgb, var(--color-teal) 22%, var(--color-panel-2));
   color: var(--color-text);
   font-weight: 800;
 }
@@ -755,9 +982,52 @@ h3 {
   align-items: stretch;
 }
 
+.paper-observation-primary-grid {
+  grid-template-columns: minmax(0, 1.85fr) minmax(300px, 0.75fr);
+  gap: var(--spacing-4);
+}
+
+.paper-observation-chart-first {
+  margin-block-start: 0;
+}
+
 .paper-observation-chart .tradingview-lightweight-chart,
 .paper-observation-chart-stage {
-  min-height: 320px;
+  min-height: 460px;
+}
+
+.paper-observation-view .table-panel,
+.paper-observation-view .historical-chart-panel,
+.paper-observation-view .historical-inspector-panel {
+  border-radius: var(--radius-md);
+}
+
+.paper-observation-view .section-heading,
+.paper-observation-view .chart-header,
+.paper-observation-view .rail-heading {
+  padding: var(--spacing-4) var(--spacing-5);
+}
+
+.paper-observation-view .section-heading p,
+.paper-observation-view .chart-header p,
+.paper-observation-view .rail-heading p {
+  max-width: 760px;
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-body-sm);
+}
+
+.paper-observation-view .audit-review-verdict {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--spacing-3);
+}
+
+.paper-observation-view .metric-cell {
+  min-height: 104px;
+  padding: var(--spacing-4);
+}
+
+.paper-observation-signal-panel {
+  border-color: color-mix(in srgb, var(--color-teal) 22%, var(--color-line));
 }
 
 .paper-observation-view .selected-row {
@@ -803,6 +1073,12 @@ h3 {
   color: var(--color-muted);
 }
 
+.paper-observation-watchlist-panel {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-line);
+}
+
 .paper-observation-watchlist-table th:nth-child(2),
 .paper-observation-watchlist-table td:nth-child(2),
 .paper-observation-watchlist-table th:nth-child(3),
@@ -813,6 +1089,26 @@ h3 {
 .paper-observation-symbol-button {
   font-family: var(--font-mono);
   letter-spacing: 0.01em;
+}
+
+.paper-observation-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+  margin-block: var(--spacing-3);
+  color: var(--color-muted);
+  font-size: var(--text-body-sm);
+}
+
+.paper-observation-pagination .segment-button {
+  min-height: 32px;
+  padding-block: 6px;
+}
+
+.strategy-wildcard-panel {
+  margin-block-start: var(--spacing-6);
 }
 
 .audit-score-list {
@@ -2952,8 +3248,46 @@ td {
   .evidence-lab-header,
   .evidence-lab-overlay-layout,
   .evidence-lab-two-column,
+  .paper-observation-primary-grid,
+  .paper-observation-safety-strip,
   .audit-review-two-column {
     grid-template-columns: 1fr;
+  }
+
+  .paper-observation-controls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .paper-observation-command-banner {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .paper-observation-controls-title {
+    grid-column: 1 / -1;
+  }
+
+  .paper-runtime-control-grid {
+    grid-template-columns: minmax(160px, 0.7fr) minmax(220px, 1fr);
+  }
+
+  .paper-runtime-actions {
+    grid-column: 1 / -1;
+  }
+
+  .top-strip,
+  .paper-runtime-control-compact {
+    grid-template-columns: 1fr;
+  }
+
+  .top-actions {
+    justify-content: flex-start;
+  }
+
+  .paper-runtime-control-details {
+    padding-left: 0;
+    padding-top: var(--spacing-3);
+    border-top: 1px solid var(--color-line);
+    border-left: 0;
   }
 
   .historical-data-horizon-panel {
@@ -2995,9 +3329,18 @@ td {
   .evidence-lab-header,
   .evidence-lab-overlay-layout,
   .evidence-lab-two-column,
+  .paper-observation-command-banner,
+  .paper-observation-controls,
+  .top-strip,
+  .paper-runtime-control-grid,
+  .paper-runtime-control-compact,
   .audit-review-two-column,
   .uat-right-rail {
     grid-template-columns: 1fr;
+  }
+
+  .top-actions {
+    flex-wrap: wrap;
   }
 
   .review-status,
@@ -3007,6 +3350,15 @@ td {
 
   .evidence-lab-badges {
     grid-template-columns: 1fr;
+  }
+
+  .paper-observation-header {
+    padding: var(--spacing-5);
+  }
+
+  .paper-observation-chart .tradingview-lightweight-chart,
+  .paper-observation-chart-stage {
+    min-height: 360px;
   }
 
   .metric-grid,
@@ -3071,7 +3423,8 @@ td {
 
   .metric-grid,
   .metric-grid-wide,
-  .evidence-lab-summary {
+  .evidence-lab-summary,
+  .paper-observation-view .audit-review-verdict {
     grid-template-columns: 1fr;
   }
 

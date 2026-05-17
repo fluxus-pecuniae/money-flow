@@ -13,6 +13,298 @@ Entry schema:
 
 ---
 
+## v2026.05.17.009
+
+- `recorded_at_utc`: `2026-05-17T09:47:55Z`
+- `scope`: `PT-RT1.4 Paper Trading command center cleanup and active timeframe cutover`
+- `intent`: `Native entry. Reworked the Paper Trading dashboard into the weekly founder command center and cut active Week 1 paper observation to 1h, 4h, and 1d. The 15m timeframe is now disabled for Week 1 noise reduction, excluded from active lane comparisons and all-active totals, and preserved only as paused/legacy data. Strategy Lane Comparison is timeframe-scoped by default, Open Synthetic Positions and Closed Synthetic Trades are founder-readable, Signal Generator is now a categorized paper decision stream, and testnet plumbing labels separate audit-only shapes from disabled testnet order transport. This is dashboard/runtime policy cleanup only: production Money Flow rules are unchanged, no strategy is production-approved, live trading is not approved, no live/testnet orders were submitted, no private/signed/order endpoints or API keys were used for strategy truth, no historical evidence packs were regenerated, and no SOR/fanout/CBBO behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/pt_rt1_4_paper_trading_command_center_cleanup.md`
+  - `docs/pt_rt1_4_paper_trading_command_center_cleanup_summary.json`
+  - `docs/pt_rt1_24h_dry_run_probes_disabled.md`
+  - `docs/pt_rt1_60_day_forward_observation_plan.md`
+  - `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing.md`
+  - `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `services/paper_runtime/pt_rt1.py`
+  - `scripts/run_pt_rt1_paper_observation.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_pt_rt1_1a_expanded_universe.py`
+  - `tests/test_pt_rt1_paper_observation.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_paper_observation.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_1a_expanded_universe.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1.4-review.zip`
+
+## v2026.05.17.008
+
+- `recorded_at_utc`: `2026-05-17T08:45:23Z`
+- `scope`: `Obsidian current-truth cleanup and coordination split`
+- `intent`: `Native entry. Reworked the Obsidian brain to make Paper Trading / PT-RT, SV2.x evidence, SOR/MF-ORIG research, and founder dashboard review the current path while preserving UAT and older platform phases as historical plumbing context. The Phase Timeline is now current-first, Agent Coordination has separate Active Work and Finished Work sections, duplicate command-center and phase-timeline entrypoints remain pointer-only, and current-truth notes use Paper Trading founder-facing language without stale manual-report-loading/evidence-loaded chrome references. This is documentation/governance cleanup only: no code behavior changed, no evidence packs were regenerated, no production Money Flow rules changed, no paper/live approval was added, no signed/private/order endpoint calls or API keys were used, no testnet strategy truth was introduced, and no SOR/fanout/CBBO behavior was added.`
+- `affected_files`:
+  - `AGENTS.md`
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/02_Product_North_Star.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `money-flow/00 Maps/Data Source and Market Data Map.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/00 Maps/Platform Architecture Map.md`
+  - `money-flow/00 Maps/Strategy Family Map.md`
+  - `money-flow/00 Maps/Strategy Validation Map.md`
+  - `money-flow/00 Maps/UAT Roadmap.md`
+  - `money-flow/10 Strategy/Strategy Status Register.md`
+  - `money-flow/20 Evidence/EV-AUDIT1 Summary.md`
+  - `money-flow/40 Operations/Future Work Roadmap.md`
+  - `money-flow/40 Operations/Operational Memory.md`
+  - `money-flow/40 Operations/Phase 8 Focus.md`
+  - `money-flow/Money Flow Command Center.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `rg -n 'PT-RT1 is not approved or implemented|Current implemented milestone.*PT0|Load JSON|SV2\\.0\\.2 \\+ SV2\\.1|Paper Observation tab|implemented_substrate_observation_not_started|blocked_missing_24h_runtime_artifacts' current Obsidian truth paths`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-obsidian-brain-cleanup-review.zip`
+
+## v2026.05.17.007
+
+- `recorded_at_utc`: `2026-05-17T08:29:18Z`
+- `scope`: `Paper Trading top-nav label`
+- `intent`: `Native entry. Renamed the visible top-bar \`Paper Observation\` tab to \`Paper Trading\` while keeping the underlying \`paper-observation\` view id and runtime panel unchanged. This is a founder-facing label change only: no evidence packs were regenerated, no runtime behavior changed, no production Money Flow rules changed, no paper/live approval was added, no signed/private/order endpoint calls or API keys were used, no testnet strategy truth was introduced, and no SOR/fanout/CBBO behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/index.html`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+
+## v2026.05.17.006
+
+- `recorded_at_utc`: `2026-05-17T08:25:20Z`
+- `scope`: `Restore Historical Replay top navigation`
+- `intent`: `Native entry. Restored \`Historical Replay\` as a visible top-bar tab after founder review found it missing. The tab points back to the existing Historical Replay panel and keeps its original label. Paper Observation remains the default view, and the top-bar JSON loader/status text remains removed. This is dashboard navigation only: no evidence packs were regenerated, no runtime behavior changed, no production Money Flow rules changed, no paper/live approval was added, no signed/private/order endpoint calls or API keys were used, no testnet strategy truth was introduced, and no SOR/fanout/CBBO behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/index.html`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_pt002_historical_strategy_replay_cockpit.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_pt002_historical_strategy_replay_cockpit.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `git diff --check`
+
+## v2026.05.17.005
+
+- `recorded_at_utc`: `2026-05-17T08:21:46Z`
+- `scope`: `Founder dashboard top-nav density and pagination cleanup`
+- `intent`: `Native entry. Reordered the visible top navigation to Paper Observation, Evidence, The Lab, Audit, and Strategy; removed the visible JSON loader and evidence-loaded status chip from the top chrome because Codex/repo artifacts manage local report loading; made Paper Observation the default visible view; reduced dashboard UI scale and widened the shell so 100% browser zoom feels closer to the founder's preferred 80-90% zoom while still using the full screen; moved Historical data readiness to the bottom of Historical Replay; and paginated Component Results at 10 rows per page. This is dashboard display only: no evidence packs were regenerated, no runtime behavior changed, no production Money Flow rules changed, no paper/live approval was added, no signed/private/order endpoint calls or API keys were used, no testnet strategy truth was introduced, and no SOR/fanout/CBBO behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_pt002_historical_strategy_replay_cockpit.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_pt002_historical_strategy_replay_cockpit.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1.2.1-dashboard-polish-review.zip`
+  - `review bundle excluded-path scan: 537 entries, 0 excluded path hits beyond allowed .env.example sample`
+
+## v2026.05.17.004
+
+- `recorded_at_utc`: `2026-05-17T08:15:50Z`
+- `scope`: `Historical Replay Pair Comparison label and pagination`
+- `intent`: `Native entry. Renamed the Historical Replay \`BTC / ETH / SOL Comparison\` panel to \`Pair Comparison\` so the label fits the expanded symbol universe, and added 25-row pagination to the comparison table. This is dashboard display only: no evidence packs were regenerated, no runtime behavior changed, no production Money Flow rules changed, no paper/live approval was added, no signed/private/order endpoint calls or API keys were used, no testnet strategy truth was introduced, and no SOR/fanout/CBBO behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `tests/test_pt002_historical_strategy_replay_cockpit.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_pt002_historical_strategy_replay_cockpit.py tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1.2.1-dashboard-polish-review.zip`
+  - `review bundle excluded-path scan: 537 entries, 0 excluded path hits beyond allowed .env.example sample`
+
+## v2026.05.17.003
+
+- `recorded_at_utc`: `2026-05-17T03:19:49Z`
+- `scope`: `PT-RT1.2.1 dashboard top chrome, runtime-control, and trade-table cleanup`
+- `intent`: `Native entry. Compact the dashboard chrome by moving the logo, Money Flow Evidence Dashboard title, Load JSON control, theme control, and six primary tabs into the sticky top bar; remove the visible SV2.0.2 + SV2.1 evidence packs loaded phrase; make the Paper Observation Local Mac runtime control a cleaner two-column card with duration/output/start/stop/caffeinate status on the left and runtime details on the right; filter Closed Synthetic Trades to ledger-complete rows so sparse paper_closed decision rows do not appear as n/a trade rows; and place Strategy Lane Comparison directly below the Open/Closed Synthetic Trades section. This is dashboard display/layout only: no runtime behavior changed, no production Money Flow rules changed, no evidence packs were regenerated, no paper/live approval was added, no signed/private/order endpoint calls or API keys were used, no testnet strategy truth was introduced, and no SOR/fanout/CBBO behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1.2.1-dashboard-polish-review.zip`
+  - `review bundle excluded-path scan: 537 entries, 0 excluded path hits beyond allowed .env.example sample`
+
+## v2026.05.17.002
+
+- `recorded_at_utc`: `2026-05-17T03:08:07Z`
+- `scope`: `PT-RT1.2.1 Paper Observation closed-trade and lane-equity display truth`
+- `intent`: `Native entry. Fixed Paper Observation dashboard display truth for active runtime artifacts: Closed Synthetic Trades now loads ignored PT-RT `trades.jsonl` rows so entry time, exit time, entry price, exit price, quantity, net PnL, and equity-after fields render from the synthetic trade ledger instead of mostly-empty decision rows; Strategy Lane Comparison now overlays `paper_runtime_state.realized_equity_by_lane`, open-position counts, closed-trade counts, and derived net PnL onto static lane config so lanes no longer appear stuck at starting equity after trades close. This is dashboard/runtime-artifact display only: no runtime behavior changed, no production Money Flow rules changed, no evidence packs were regenerated, no paper/live approval was added, no signed/private/order endpoint calls or API keys were used, no testnet strategy truth was introduced, and no SOR/fanout/CBBO behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py::test_pt_rt1_paper_observation_dashboard_tab`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1.2.1-dashboard-polish-review.zip`
+  - `review bundle excluded-path scan: 537 entries, 0 excluded path hits beyond allowed .env.example sample`
+
+## v2026.05.17.001
+
+- `recorded_at_utc`: `2026-05-17T03:00:10Z`
+- `scope`: `PT-RT1.2.1 Paper Observation position-table ordering`
+- `intent`: `Native entry. Moved Open Synthetic Positions and Closed Synthetic Trades directly below Signal Generator in the Paper Observation tab so the founder review flow reads signal, open position state, closed trade history, then summary/status panels. This is layout ordering only: no runtime behavior changed, no production Money Flow rules changed, no evidence packs were regenerated, no paper/live approval was added, no signed/private/order endpoint calls or API keys were used, no testnet strategy truth was introduced, and no SOR/fanout/CBBO behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/index.html`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py::test_pt_rt1_paper_observation_dashboard_tab`
+
+## v2026.05.16.012
+
+- `recorded_at_utc`: `2026-05-16T20:28:47Z`
+- `scope`: `PT-RT1.2.1 Paper Observation visual polish`
+- `intent`: `Native entry. Cleaned up the Paper Observation dashboard as a UI-only polish pass on top of the chart-first PT-RT1.2.1 layout: compacted the header and safety notices, made Start Run a tighter command card, converted global filters into a clearer cockpit toolbar, made the live candle chart visually primary, normalized Paper Observation panel spacing/radii/summary cards, and kept Signal Generator/Open Synthetic Positions/Closed Synthetic Trades pagination and opened/closed markers intact. This changes presentation only: no runtime behavior changed, no production Money Flow rules changed, no evidence packs were regenerated, no paper/live approval was added, no signed/private/order endpoint calls or API keys were used, no testnet strategy truth was introduced, and no SOR/fanout/CBBO behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/index.html`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py::test_pt_rt1_paper_observation_dashboard_tab`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1.2.1-dashboard-polish-review.zip`
+  - `review bundle excluded-path scan: 537 entries, 0 excluded path hits beyond allowed .env.example sample`
+
+## v2026.05.16.011
+
+- `recorded_at_utc`: `2026-05-16T20:11:48Z`
+- `scope`: `PT-RT1.2.1 Paper Observation dashboard layout and marker visibility`
+- `intent`: `Native entry. Reworked the Paper Observation dashboard into a chart-first founder view: removed the visible Expanded Scanner Universe/watchlist, moved Live Public Candles + Paper Markers above Signal Generator, paginated Signal Generator/Open Synthetic Positions/Closed Synthetic Trades at 10 rows, moved Wildcard Diagnostics into the Strategy tab, made Symbol/Timeframe/Strategy filters apply to the chart context, signal rows, open rows, closed rows, and chart markers, and built opened/closed synthetic trade markers from runtime decisions/state/trades. When Symbol or Timeframe is All, the chart chooses the newest matching paper signal/open context and otherwise preserves the prior chart target. This is UI/runtime visibility only: no production Money Flow rules changed, no evidence packs were regenerated, no paper/live approval was added, no signed/private/order endpoint calls or API keys were used, no testnet strategy truth was introduced, and no SOR/fanout/CBBO behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py::test_pt_rt1_paper_observation_dashboard_tab`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_operational_docs.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1.2.1-dashboard-ui-review.zip`
+  - `review bundle excluded-path scan: 537 entries, 0 excluded path hits beyond allowed .env.example sample`
+
 ## v2026.05.16.010
 
 - `recorded_at_utc`: `2026-05-16T19:45:03Z`

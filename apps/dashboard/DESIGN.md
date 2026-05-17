@@ -96,9 +96,10 @@ Primary dashboard tabs are:
   - The selector is review/navigation only; it does not regenerate evidence or approve variants.
 - Evidence Lab
 - Audit Review
-- Paper Observation
+- Paper Trading
   - Shows PT-RT1 forward-observation state, not historical evidence regeneration.
   - PT-RT1.1B adds public-mainnet connection status, expanded watchlist readiness, all 10 synthetic lanes, runtime candle/marker status when local ignored summaries exist, and separate disabled testnet-plumbing status.
+  - PT-RT1.4 makes this the weekly command center: active timeframes are `1h`, `4h`, and `1d`; `15m` is paused/legacy for Week 1 and excluded from active scoring.
   - The view must keep public mainnet strategy truth, synthetic paper PnL, testnet plumbing probes, historical evidence, and display-only filters visually separated.
 
 The invalid legacy `Experiments` surface is not exposed as a primary tab. Evidence Lab is tied to SOR-EV1/SOR-EV2/SOR-EV3 committed summaries and canonical SV2.0.2 baseline context only.
@@ -281,10 +282,12 @@ Marker tooltips/rows must include:
 
 Shadow and paper-observation markers are not actual trades. Sandbox lifecycle probes are not strategy performance trades.
 
-## Paper Observation Rules
+## Paper Trading Rules
 
-- Paper Observation is PT-RT1 forward-observation UI, not canonical evidence regeneration and not historical replay.
+- Paper Trading is PT-RT1 forward-observation UI, not canonical evidence regeneration and not historical replay.
 - Strategy truth must be labeled as Hyperliquid public mainnet market data.
+- The weekly command-center default must use `1h` selected-timeframe scope. `All active` must mean only `1h + 4h + 1d`, must exclude `15m`, and must state that it is not one combined account.
+- `15m` must stay visible only as paused/legacy data with `disabled_for_week1_noise_reduction`; it must not create new active Week 1 entries.
 - PT-RT1.1B public-mainnet connection status should be visible before founder starts the 24-hour probes-disabled run.
 - Browser-side Paper Observation market-data polling may call Hyperliquid public mainnet `allMids` and selected-pair `candleSnapshot` only; it must not call testnet prices, private/signed/order/account payloads, or require API keys.
 - The expanded scanner watchlist should visibly tick latest public market data and keep the visible table compact: symbol, mid price, and health. Market-data health is `unhealthy` when the latest tick is missing or stale for more than 2 minutes.
@@ -294,7 +297,8 @@ Shadow and paper-observation markers are not actual trades. Sandbox lifecycle pr
 - Each lane must show an independent synthetic 10,000 USDC ledger.
 - PT-RT1.1A requires exactly 10 visible lanes: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, `avoid_low_rolling_range_50`, `mf_orig_stage_filter_only_full_equity`, `mf_orig_stage2_pullback_reclaim_full_equity`, `mf_orig_1d_stage2_5_20_crossover_full_equity`, `mf_orig_1d_stage2_breakout_resistance_full_equity`, `wildcard_btc_regime_guard`, `wildcard_multi_timeframe_alignment`, and `wildcard_volatility_expansion_breakout`.
 - Scanner metadata must keep requested/resolved symbol, source list, supported/blocked state, precision, data health, scanner eligibility, and reason codes available to runtime/detail surfaces; the visible founder watchlist stays compact with symbol, mid price, and health.
-- The adjacent Signal Generation panel replaces the old Market Data Health panel and should list recorded synthetic `paper_opened` intended-entry decisions from the PT-RT1 decision stream.
+- The Signal / Decision Stream replaces the old Market Data Health panel and should categorize intended entries, actual synthetic opens, no-trade/blocked rows, exits, duplicate ignored rows, and data-unavailable rows from the PT-RT1 decision stream.
+- Testnet plumbing status must distinguish audit-only shape generation from actual testnet order transport. In the normal Paper Trading view, testnet order transport is disabled and signed testnet orders are zero.
 - Wildcard lanes must expose pass/block reason-code summaries and remain observation-only expert hypotheses.
 - Candidate and MF-ORIG lanes must be labeled evidence-only / not production-approved.
 - Date filters must say `display-only filter`, `not canonical evidence`, and `not backend replay`.

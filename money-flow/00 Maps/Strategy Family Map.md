@@ -60,7 +60,7 @@ MF-ORIG-EV2 includes four source-faithful 1% risk-sizing hypotheses plus four fo
 | latest phase | EV-AUDIT1 |
 | verdict | No clean strategy candidate is production-ready or paper-runtime-approved |
 | best review candidate | `avoid_low_rolling_range_50`, still blocked by drawdown/control-pocket risk |
-| paper observation | `paper_observation_ready_with_conditions` for future PT-RT1, not approval |
+| paper observation | EV-AUDIT1 supported a conditional PT-RT1 scope; PT-RT1 is now implemented as observation substrate only, not strategy approval |
 
 ## Status Labels
 
@@ -74,4 +74,3 @@ MF-ORIG-EV2 includes four source-faithful 1% risk-sizing hypotheses plus four fo
 | `rejected` | Hard rejected under current evidence gate. |
 | `candidate_for_review_only` | Worth founder review; not approved. |
 | `blocked` | Cannot proceed without explicit blocker resolution. |
-

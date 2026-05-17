@@ -24,7 +24,7 @@ EV-AUDIT1 is audit-only. It promotes no clean strategy candidate.
 - Founder visual review.
 - Hypothesis filtering.
 - Identifying fragile candidates and control-pocket damage.
-- Scoping PT-RT1 as a future paper-observation phase.
+- Understanding why PT-RT1 was later scoped as a Paper Trading forward-observation substrate.
 
 ## What The Audit Does Not Support
 
@@ -38,4 +38,3 @@ EV-AUDIT1 is audit-only. It promotes no clean strategy candidate.
 
 - `docs/ev_audit1_full_hypothesis_data_and_paper_readiness_review.md`
 - `docs/ev_audit1_full_hypothesis_data_and_paper_readiness_review_summary.json`
-
