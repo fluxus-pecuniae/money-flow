@@ -125,6 +125,42 @@ PT-RT1.4 changes the active review surface and runtime timeframe defaults. It do
 
 Existing pre-cutover 15m records can still be reviewed, but they should not be included in Week 1 active scoring.
 
+## PT-RT1.4.1 Runtime Verification Follow-Up
+
+PT-RT1.4.1 verified that the active timeframe cutover had to be applied to the running process, not only to dashboard code.
+
+Runtime finding:
+
+```text
+retired_runtime_cutover_not_applied = true
+retired_runtime_new_15m_entries_after_cutover = 79
+retired_runtime_label = pre_pt_rt1_4_weekend_burn_in
+```
+
+The old `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` process was stopped and excluded from active Week 1 scoring because it continued producing 15m synthetic opens after the PT-RT1.4 cutover.
+
+The restarted active runtime writes ignored artifacts under:
+
+```text
+reports/paper_runtime/pt_rt1_4_1_active_week/
+```
+
+Its first artifact cycle reported:
+
+```text
+active_timeframes = 1h, 4h, 1d
+disabled_timeframes = 15m
+active_runtime_new_15m_entries_after_restart = 0
+active_runtime_15m_rows_after_restart = 0
+```
+
+The current daily founder review source is:
+
+```text
+docs/pt_rt_week1_day_summary.md
+docs/pt_rt_week1_day_summary.json
+```
+
 ## Review Cadence
 
 Recommended founder weekly review:

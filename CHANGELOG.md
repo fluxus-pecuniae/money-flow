@@ -13,6 +13,41 @@ Entry schema:
 
 ---
 
+## v2026.05.17.010
+
+- `recorded_at_utc`: `2026-05-17T11:51:26Z`
+- `scope`: `PT-RT1.4.1 active-week runtime cutover verification and daily founder review pack`
+- `intent`: `Native entry. Verified the PT-RT1.4 active-timeframe cutover against ignored runtime artifacts, not only dashboard code. The retired pre-cutover runtime continued creating 15m synthetic opens after the PT-RT1.4 cutover, so it is labeled pre_pt_rt1_4_weekend_burn_in and excluded from active Week 1 scoring. A fresh active-week runtime was started under ignored reports/paper_runtime/pt_rt1_4_1_active_week/; its first artifact cycle reported active_timeframes = 1h/4h/1d, disabled_timeframes = 15m, 0 new 15m opens, and 0 15m rows. Added the PT-RT Week 1 daily founder review pack with runtime health, lane metrics, timeframe review, open/closed synthetic trade summaries, decision/reason-code review, dashboard QA, and testnet transport audit. Week 1 paper observation may continue from the restarted active runtime. This is runtime verification/reporting only: production Money Flow rules are unchanged, no new strategies or threshold tuning were added, no strategy is production-approved, live trading is not approved, no live/testnet orders were submitted, no private/signed/order endpoints or API keys were used for strategy truth, no testnet prices/fills are strategy truth, no historical evidence packs were regenerated, and no SOR/fanout/CBBO behavior was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `docs/pt_rt1_4_paper_trading_command_center_cleanup.md`
+  - `docs/pt_rt_week1_day_summary.md`
+  - `docs/pt_rt_week1_day_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `scripts/build_pt_rt_week1_day_summary.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_pt_rt1_4_1_daily_review.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_paper_observation.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_4_1_daily_review.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1.4.1-review.zip`
+
 ## v2026.05.17.009
 
 - `recorded_at_utc`: `2026-05-17T09:47:55Z`

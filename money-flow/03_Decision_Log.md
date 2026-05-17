@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-17T11:51:26Z - PT-RT1.4.1 - Verify Active-Week Runtime Cutover Before Daily Review
+
+- `decision`: Treat the old `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` artifact set as pre-PT-RT1.4 burn-in for active Week 1 scoring because it continued producing 15m synthetic opens after the PT-RT1.4 cutover.
+- `scope`: PT-RT1.4.1 reads ignored runtime artifacts, stops/retires the old running process, starts a fresh active-week runtime under `reports/paper_runtime/pt_rt1_4_1_active_week/`, and commits only the daily founder review pack at `docs/pt_rt_week1_day_summary.md` plus compact JSON. Runtime artifacts remain ignored and uncommitted.
+- `why`: Founder review required proof that 15m was actually paused in the runtime, not only in dashboard code. Artifact inspection found 79 retired-runtime 15m `paper_opened` rows after the cutover timestamp.
+- `result`: `active_runtime_cutover_verified_after_restart`. The restarted active runtime reported active timeframes `1h`, `4h`, `1d`, disabled timeframe `15m`, 0 active 15m rows, and 0 active 15m opens in its first artifact cycle. The daily review decision is `Week 1 paper observation may continue`.
+- `follow_up_implications`: Daily Week 1 reviews should use `docs/pt_rt_week1_day_summary.*` and `reports/paper_runtime/pt_rt1_4_1_active_week/`. The older `pt_rt1_1c_24h_dry_run` directory remains available as legacy burn-in context only. This decision does not change Money Flow production rules, add or tune strategies, approve paper/live/production, submit live/testnet orders, enable testnet order transport, call private/signed/order endpoints from strategy truth, use API keys, use testnet data as strategy truth, regenerate historical evidence packs, or add SOR/fanout/CBBO.
+
 ## 2026-05-17T08:45:23Z - OB-CLEANUP - Current-First Obsidian Brain And Coordination Split
 
 - `decision`: The Obsidian brain should be current-first: Paper Trading / PT-RT, SV2.x evidence, SOR/MF-ORIG research, and founder dashboard review are the active path; UAT and older platform phases remain preserved as historical plumbing context.

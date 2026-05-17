@@ -151,6 +151,10 @@ REQUIRED_FILES = [
     "docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json",
     "docs/pt_rt1_1c_24h_runtime_collection_start.md",
     "docs/pt_rt1_1c_24h_runtime_collection_start_summary.json",
+    "docs/pt_rt1_4_paper_trading_command_center_cleanup.md",
+    "docs/pt_rt1_4_paper_trading_command_center_cleanup_summary.json",
+    "docs/pt_rt_week1_day_summary.md",
+    "docs/pt_rt_week1_day_summary.json",
     "money-flow/00 Maps/Strategy Family Map.md",
     "money-flow/00 Maps/Evidence and Backtesting Map.md",
     "money-flow/00 Maps/Data Source and Market Data Map.md",
@@ -304,7 +308,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert "Current implemented milestone | `PT-RT1.4` Paper Trading command-center cleanup" in command_center
+    assert "Current implemented milestone | `PT-RT1.4.1` active-week runtime cutover verification" in command_center
     assert "Canonical command center" in compatibility_command_center
     assert "PT-RT1 now implements the public-mainnet Paper Trading observation substrate" in current_dashboard
     assert "SV2.0.2 canonical evidence" in current_dashboard
@@ -471,7 +475,10 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "no clean strategy candidate" in strategy_register
     assert "No strategy is production-ready" in current_phase or "no clean strategy candidate is promoted" in current_phase
     assert "PT-RT1" in current_phase
-    assert "Run a fresh PT-RT active-week observation session" in current_phase
+    assert (
+        "Run a fresh PT-RT active-week observation session" in current_phase
+        or "Continue the restarted PT-RT active-week observation session" in current_phase
+    )
     assert "compact-log suppression/size stats" in current_phase
     assert "duplicate same-candle open blocking" in current_phase
     assert "mid-warning rollups" in current_phase
@@ -532,6 +539,9 @@ def test_pt_rt1_operational_docs_are_current() -> None:
 
     assert "strategy-truth lane is Hyperliquid public mainnet market data only" in command_center
     assert "PT-RT1.3 is the current runtime data-health layer" in command_center
+    assert "PT-RT1.4.1 verifies the active-week runtime cutover" in command_center
+    assert "PT-RT Week 1 Daily Summary" in current_phase
+    assert "active_runtime_cutover_verified_after_restart" in current_phase
     assert "state persists processed signal keys" in command_center
     assert "normal dashboard-started runs remain audit/order-shape only" in command_center
     assert "not production approval" in report
@@ -548,6 +558,9 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     assert "testnet fills never update strategy paper PnL" in paper_roadmap
     assert "runtime_collection_started" in start_summary
     assert "PT-RT1.1D may evaluate 24-hour runtime artifacts after completion" in start_report
+    assert "PT-RT1.4.1" in paper_roadmap
+    assert "pt_rt1_4_1_active_week" in paper_roadmap
+    assert "Week 1 paper observation may continue" in paper_roadmap
     assert "PT-RT1.1A status: `implemented_expanded_readiness`" in paper_roadmap
     assert "PT-RT1.2 blocked" in dry_run_report
     assert "not_verified_runtime_absent" in dry_run_summary

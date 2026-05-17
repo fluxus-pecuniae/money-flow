@@ -77,6 +77,16 @@ PT-RT1.4 active weekly command-center cutover:
 - Signal Generator is now a categorized paper-decision stream.
 - Testnet status separates audit-only shape generation from actual signed testnet order transport.
 
+PT-RT1.4.1 active-week runtime verification:
+
+- Cutover timestamp: `2026-05-17T09:47:55Z`.
+- The older `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` runtime kept producing 15m opens after cutover and is now labeled `pre_pt_rt1_4_weekend_burn_in`.
+- The old runtime is excluded from active Week 1 scoring.
+- A restarted active runtime writes ignored artifacts under `reports/paper_runtime/pt_rt1_4_1_active_week/`.
+- First active runtime artifact cycle: active `1h`/`4h`/`1d`, disabled `15m`, 0 15m rows, 0 15m opens.
+- Daily founder review pack: `docs/pt_rt_week1_day_summary.md` and `docs/pt_rt_week1_day_summary.json`.
+- Current decision: `Week 1 paper observation may continue`.
+
 Paper Trading dashboard live display:
 
 - Browser-side health polling can still call Hyperliquid public mainnet `allMids`, but the visible Expanded Scanner Universe/watchlist is removed from the founder Paper Trading page as of PT-RT1.2.1.
@@ -99,9 +109,9 @@ Paper Trading dashboard live display:
 
 Current next operational step:
 
-1. Run and evaluate a fresh PT-RT active-week session scoped to `1h`, `4h`, and `1d`.
-2. Retain ignored artifacts under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/`.
-3. Evaluate those artifacts in `PT-RT1.1D`.
+1. Continue the restarted PT-RT active-week session scoped to `1h`, `4h`, and `1d`.
+2. Retain ignored active artifacts under `reports/paper_runtime/pt_rt1_4_1_active_week/`.
+3. Use `docs/pt_rt_week1_day_summary.*` for daily founder review.
 4. If stable, start the 60-day public-mainnet forward-observation window.
 5. Scope real signed testnet transport submission separately if needed; dashboard-started PT-RT runs can create probe audit/order-shape rows only.
 
@@ -158,4 +168,6 @@ Current PT-RT1.3 status: `implemented_candle_truth_data_health`.
 
 Current PT-RT1.4 status: `implemented_paper_trading_command_center_and_active_timeframe_cutover`.
 
-This means the repo now has code, dashboard, public-mainnet connector, runtime command, summary JSON, tests, and runbooks for controlled forward observation across the expanded 10-lane lab. The local PT-RT1.1C artifact set under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` currently contains about 479k paper decision rows, 0 trade rows, and latest summary timestamp `2026-05-15T22:22:12Z`; PT-RT1.2 fixes the stateless repeated-open issue for fresh runs and PT-RT1.3 fixes false-positive mid-driven `data_unavailable` rows for fresh runs, but neither phase rewrites old ignored logs. It is not an always-on hosted service: new signal generation requires manually starting `scripts/run_pt_rt1_paper_observation.py` and keeping that process and machine awake/networked for the chosen session. No 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading.
+Current PT-RT1.4.1 status: `active_runtime_cutover_verified_after_restart`.
+
+This means the repo now has code, dashboard, public-mainnet connector, runtime command, summary JSON, tests, runbooks, and a daily founder review pack for controlled forward observation across the expanded 10-lane lab. The old local PT-RT1.1C artifact set under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` is pre-cutover burn-in for active Week 1 because it kept generating 15m opens after cutover. The current active Week 1 artifact directory is `reports/paper_runtime/pt_rt1_4_1_active_week/`, and the first active cycle had 0 15m rows. It is not an always-on hosted service: new signal generation requires manually starting `scripts/run_pt_rt1_paper_observation.py` and keeping that process and machine awake/networked for the chosen session. No 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading.

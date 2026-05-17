@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-17T09:47:55Z`
+Last reviewed: `2026-05-17T11:51:26Z`
 
 ## Active Follow-Ups
+
+### T-150
+
+- `priority`: `high`
+- `status`: `done`
+- `summary`: `PT-RT1.4.1 active-week runtime cutover verification is complete. The retired pre-PT-RT1.4 runtime continued producing 15m synthetic opens after the cutover and is now labeled pre_pt_rt1_4_weekend_burn_in, excluded from active Week 1 scoring, and preserved only as legacy context. A fresh active-week runtime was started under ignored reports/paper_runtime/pt_rt1_4_1_active_week/; the first artifact cycle reported active timeframes 1h/4h/1d, disabled timeframe 15m, 0 new 15m opens, and 0 15m rows. The daily founder review pack now exists at docs/pt_rt_week1_day_summary.md and docs/pt_rt_week1_day_summary.json with runtime health, lane/timeframe metrics, open/closed trade review, decision/reason-code review, dashboard QA, and testnet transport audit. Week 1 paper observation may continue from the restarted runtime. No production Money Flow rules changed; no new strategies or threshold tuning were added; no evidence packs were regenerated; no paper/live production approval, live/testnet order submission, private/signed/order endpoint call, API-key use for strategy truth, testnet strategy truth, or SOR/fanout/CBBO was added.`
 
 ### T-149
 

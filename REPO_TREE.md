@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-17T09:47:55Z`
+Last reviewed: `2026-05-17T11:51:26Z`
 
 ## Top-Level Structure
 
@@ -173,6 +173,7 @@ Last reviewed: `2026-05-17T09:47:55Z`
 - PT-RT1.3 changes runtime data-health semantics so Hyperliquid `allMids` gaps are warning-only when fully closed public-mainnet `candleSnapshot` rows are available. Scanner eligibility now relies on supported venue identity and precision rather than mid presence; `summary.json` and `data_health.json` expose `data_health_semantics=candle_strategy_truth`, `mid_health_blocks_strategy=false`, mid-warning counts, and candle/indicator blocking counts.
 - PT-RT1.2.1 reorganizes the Paper Observation dashboard as a chart-first founder review surface: the visible Expanded Scanner Universe/watchlist is removed, Signal Generator and synthetic position tables are paginated, Open Synthetic Positions and Closed Synthetic Trades sit directly below Signal Generator, Symbol/Timeframe/Strategy filters apply across chart context, signals, open positions, closed trades, and chart markers, opened/closed synthetic trades render as chart markers, Closed Synthetic Trades loads ignored `trades.jsonl` for full entry/exit/price/quantity/PnL/equity fields, Strategy Lane Comparison overlays `paper_runtime_state.realized_equity_by_lane`, and Wildcard Diagnostics moves to the Strategy tab. It is UI/runtime visibility only and adds no trading behavior.
 - PT-RT1.4 makes Paper Trading the weekly command center and cuts active Week 1 scoring to `1h`, `4h`, and `1d`. `15m` is `disabled_for_week1_noise_reduction`, preserved as paused/legacy data, and excluded from default lane comparison, all-active totals, and new synthetic entries after the cutover. Strategy Lane Comparison is selected-timeframe scoped by default, All active is explicitly 1h + 4h + 1d and not one combined account, Open/Closed Synthetic Trade tables are founder-readable, Signal Generator is a categorized paper-decision stream, and the testnet panel separates audit-only shapes from disabled order transport.
+- PT-RT1.4.1 verifies the active-week cutover against ignored runtime artifacts and writes the committed daily founder review pack at `docs/pt_rt_week1_day_summary.md` and `docs/pt_rt_week1_day_summary.json`. The older `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` runtime is labeled pre-cutover burn-in because it continued producing 15m opens after cutover; the restarted active runtime writes ignored artifacts under `reports/paper_runtime/pt_rt1_4_1_active_week/` and produced 0 15m rows in its first artifact cycle.
 
 `docs/pt_rt1_2_runtime_state_and_testnet_probe_transport.md`
 - Founder/operator report for PT-RT1.2 runtime state and testnet transport gates.
@@ -189,6 +190,14 @@ Last reviewed: `2026-05-17T09:47:55Z`
 `docs/pt_rt1_4_paper_trading_command_center_cleanup_summary.json`
 - Compact machine-readable PT-RT1.4 summary.
 - Contains active/disabled timeframe policy, active review start, lane comparison scope, table/status cleanup flags, testnet label policy, dashboard section order, boundary flags, and next review guidance without runtime logs.
+
+`docs/pt_rt_week1_day_summary.md`
+- Founder-readable PT-RT1.4.1 daily active-week review pack.
+- Summarizes runtime cutover verification, lane/timeframe metrics, open/closed synthetic positions/trades, decision/reason-code review, testnet transport audit, dashboard QA, and go/no-go.
+
+`docs/pt_rt_week1_day_summary.json`
+- Compact machine-readable PT-RT1.4.1 daily review summary.
+- Contains active runtime scope, pre-cutover burn-in labeling, lane/timeframe rollups, boundary flags, and daily go/no-go without embedding raw runtime logs.
 
 `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing.md`
 - Founder/operator report for PT-RT1 real-time public-mainnet paper observation and testnet plumbing probes.
@@ -834,6 +843,7 @@ Last reviewed: `2026-05-17T09:47:55Z`
 - Includes `scripts/build_mf_orig_ev1_original_money_flow.py` for MF-ORIG-EV1.1 original Money Flow reconstruction regeneration. It writes the source-specification/gap-matrix report, founder-readable reconstruction report, and compact JSON summary from canonical SV2.0.2 pack references plus persisted candle truth. The regenerated outputs use event-ledger accounting and peak-to-trough drawdown. It is evidence-only and does not alter production Money Flow rules, call exchanges, submit orders, or approve paper/live behavior.
 - Includes `scripts/build_pt_rt1_summary.py` for PT-RT1 committed dashboard/config summary generation. It writes configuration-only JSON and performs no market-data fetches, exchange calls, credential reads, order submissions, or runtime-state writes.
 - Includes `scripts/build_pt_rt1_1_dry_run_report.py` for PT-RT1.1 dry-run validation reporting. It reads the ignored `reports/paper_runtime/pt_rt1_1_24h_dry_run/` artifact directory when present and writes committed report/summary docs; if the 24-hour artifacts are absent or incomplete, it marks PT-RT1.2 blocked instead of fabricating runtime success.
+- Includes `scripts/build_pt_rt_week1_day_summary.py` for PT-RT1.4.1 daily founder review reporting. It reads ignored PT-RT runtime artifacts, labels pre-cutover burn-in separately from active-week runtime truth, and writes compact Markdown/JSON under `docs/` without calling exchanges, mutating runtime state, regenerating evidence packs, approving strategies, or submitting orders.
 - Includes `scripts/run_pt_rt1_paper_observation.py` for PT-RT1.1B public-mainnet paper-observation runtime readiness and PT-RT1.1C collection. It requires an explicit probe mode plus `--public-mainnet-only`, writes ignored runtime artifacts only under `reports/paper_runtime/`, uses no API keys, calls no private/signed/order endpoints, submits no orders, labels PT-RT1.1C output directories as runtime collection cycles, supports bounded smoke or 24-hour collection runs, defaults PT-RT1.4 fresh runtime cycles to active `1h`/`4h`/`1d`, blocks explicit `15m` evaluation with no-new-entry reason codes, and can generate exact-approval-gated 20 USDC Hyperliquid testnet probe audit/order-shape rows that never update paper PnL.
 - Includes `scripts/run_uat1_public_read_only.py` for UAT1 public-read-only connectivity and top-20 universe resolution. It requires both `--uat1-public-read-only` and `--allow-public-read-only-network` before network calls, uses no API keys, calls only allowlisted public read-only endpoints/source URLs, writes the UAT1 Markdown/JSON reports, and creates no strategy decisions, order intents, submitted orders, paper/live artifacts, routing artifacts, evidence packs, or Money Flow rule changes.
 - Includes `scripts/run_uat31_first_sandbox_order.py` for the one approved UAT3.1 Hyperliquid testnet lifecycle probe. It refuses to run without `--execute-approved-uat31`, validates exact founder/operator approval before credential use, reads sandbox/testnet credentials only from local environment or `.env`, writes sanitized UAT3.1 Markdown/JSON reports, and prevents repeat execution after a summary records an order attempt.

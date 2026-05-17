@@ -1,0 +1,1737 @@
+{
+  "boundaries": {
+    "historical_evidence_packs_regenerated": false,
+    "live_orders_submitted": false,
+    "live_trading_approved": false,
+    "new_strategies_added": false,
+    "private_signed_order_endpoints_called_from_strategy_truth": false,
+    "production_money_flow_rules_changed": false,
+    "sor_fanout_cbbo_added": false,
+    "strategy_production_approved": false,
+    "strategy_thresholds_tuned": false,
+    "testnet_fills_update_strategy_pnl": false,
+    "testnet_order_transport_enabled": false,
+    "testnet_orders_submitted": false,
+    "testnet_prices_used_as_strategy_truth": false
+  },
+  "closed_trade_review": {
+    "recent_closed_trades": [],
+    "summary_cards": {
+      "average_loss": "no_closed_loser",
+      "average_win": "no_closed_winner",
+      "closed_trade_count": 0,
+      "largest_loss": "no_closed_loser",
+      "largest_win": "no_closed_winner",
+      "losing_trades": 0,
+      "total_net_pnl": "0",
+      "winning_trades": 0
+    }
+  },
+  "cutover_verification": {
+    "active_runtime_15m_rows_after_restart": 0,
+    "active_runtime_new_15m_entries_after_restart": 0,
+    "active_timeframes": [
+      "1h",
+      "4h",
+      "1d"
+    ],
+    "all_active_scoreboard_excludes_15m": true,
+    "cutover_timestamp_utc": "2026-05-17T09:47:55Z",
+    "disabled_timeframes": [
+      {
+        "active_scoreboard_included": false,
+        "new_synthetic_entries_allowed": false,
+        "status": "disabled_for_week1_noise_reduction",
+        "timeframe": "15m"
+      }
+    ],
+    "legacy_15m_rows_excluded_from_active_score": true,
+    "legacy_15m_rows_visible": true,
+    "new_15m_entries_after_cutover": 0,
+    "retired_runtime_cutover_not_applied": true,
+    "retired_runtime_new_15m_entries_after_cutover": 79,
+    "verification_status": "active_runtime_cutover_verified_after_restart"
+  },
+  "daily_observation_summary": {
+    "closed_trade_count": 0,
+    "data_health_blocks": 0,
+    "duplicate_blocks": 0,
+    "largest_closed_loser": "no_closed_loser",
+    "largest_closed_winner": "no_closed_winner",
+    "largest_open_unrealized_loser": {
+      "age": "46m",
+      "current_price": "91.086",
+      "data_health": "not_reported",
+      "entry_price": "91.086",
+      "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed",
+      "entry_time": "2026-05-17T11:00:00Z",
+      "lane": "avoid_low_rolling_range_20",
+      "notional": "9945.137293956105697161725194",
+      "quantity": "109.1294460763358545145592553",
+      "status": "open",
+      "symbol": "AAVE",
+      "timeframe": "1h",
+      "unrealized_pnl": "0",
+      "unrealized_pnl_pct": "0E+24"
+    },
+    "largest_open_unrealized_winner": {
+      "age": "46m",
+      "current_price": "91.086",
+      "data_health": "not_reported",
+      "entry_price": "91.086",
+      "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed",
+      "entry_time": "2026-05-17T11:00:00Z",
+      "lane": "avoid_low_rolling_range_20",
+      "notional": "9945.137293956105697161725194",
+      "quantity": "109.1294460763358545145592553",
+      "status": "open",
+      "symbol": "AAVE",
+      "timeframe": "1h",
+      "unrealized_pnl": "0",
+      "unrealized_pnl_pct": "0E+24"
+    },
+    "legacy_15m_open_position_count": 82,
+    "observation_language": "24h / daily observation only; not evidence of edge; not production approval; synthetic paper only",
+    "open_position_count": 154,
+    "testnet_transport_status": "disabled",
+    "top_lane_by_total_synthetic_equity": {
+      "closed_trades": 0,
+      "current_drawdown": "0",
+      "current_losing_streak": 0,
+      "data_health_blocks": 0,
+      "decision_count": 66,
+      "duplicate_blocks": 0,
+      "lane_id": "wildcard_btc_regime_guard",
+      "largest_loss": "no_closed_loser",
+      "largest_win": "no_closed_winner",
+      "latest_decision_time": "2026-05-17T11:43:28Z",
+      "max_drawdown": "0",
+      "max_losing_streak": 0,
+      "net_pnl": "0",
+      "open_positions": 0,
+      "realized_equity": "10000",
+      "starting_equity": "10000",
+      "status": "active_timeframe_observed",
+      "top_reason_codes": [
+        {
+          "count": 66,
+          "value": "public_mainnet_data_connected"
+        },
+        {
+          "count": 66,
+          "value": "closed_candle_ready"
+        },
+        {
+          "count": 66,
+          "value": "btc_regime_context_unavailable"
+        },
+        {
+          "count": 38,
+          "value": "baseline_alignment_failed"
+        },
+        {
+          "count": 38,
+          "value": "price_below_sma20"
+        }
+      ],
+      "total_equity": "10000",
+      "unrealized_pnl": "0",
+      "win_rate": "no_closed_trades"
+    },
+    "top_no_trade_reasons": [
+      {
+        "count": 506,
+        "value": "public_mainnet_data_connected"
+      },
+      {
+        "count": 506,
+        "value": "closed_candle_ready"
+      },
+      {
+        "count": 380,
+        "value": "baseline_alignment_failed"
+      },
+      {
+        "count": 380,
+        "value": "price_below_sma20"
+      },
+      {
+        "count": 330,
+        "value": "macd_histogram_not_constructive"
+      },
+      {
+        "count": 160,
+        "value": "mf_orig_stage2_context_not_confirmed"
+      },
+      {
+        "count": 76,
+        "value": "baseline_alignment_passed"
+      },
+      {
+        "count": 66,
+        "value": "btc_regime_context_unavailable"
+      },
+      {
+        "count": 66,
+        "value": "higher_timeframe_context_unavailable"
+      },
+      {
+        "count": 49,
+        "value": "volatility_expansion_no_recent_high_breakout"
+      }
+    ],
+    "top_symbols_by_activity": [
+      {
+        "count": 44,
+        "value": "SUI"
+      },
+      {
+        "count": 40,
+        "value": "TRX"
+      },
+      {
+        "count": 38,
+        "value": "DOGE"
+      },
+      {
+        "count": 38,
+        "value": "HYPE"
+      },
+      {
+        "count": 38,
+        "value": "AVAX"
+      },
+      {
+        "count": 38,
+        "value": "TON"
+      },
+      {
+        "count": 38,
+        "value": "UNI"
+      },
+      {
+        "count": 37,
+        "value": "BNB"
+      },
+      {
+        "count": 37,
+        "value": "ZEC"
+      },
+      {
+        "count": 37,
+        "value": "XMR"
+      }
+    ],
+    "worst_lane_by_total_synthetic_equity": {
+      "closed_trades": 0,
+      "current_drawdown": "114.369708226124558665003684",
+      "current_losing_streak": 0,
+      "data_health_blocks": 0,
+      "decision_count": 89,
+      "duplicate_blocks": 0,
+      "lane_id": "money_flow_v1_2_baseline",
+      "largest_loss": "no_closed_loser",
+      "largest_win": "no_closed_winner",
+      "latest_decision_time": "2026-05-17T11:46:43Z",
+      "max_drawdown": "114.369708226124558665003684",
+      "max_losing_streak": 0,
+      "net_pnl": "-114.369708226124558665003684",
+      "open_positions": 23,
+      "realized_equity": "9885.630291773875441334996316",
+      "starting_equity": "10000",
+      "status": "active_timeframe_observed",
+      "top_reason_codes": [
+        {
+          "count": 89,
+          "value": "public_mainnet_data_connected"
+        },
+        {
+          "count": 89,
+          "value": "closed_candle_ready"
+        },
+        {
+          "count": 46,
+          "value": "baseline_alignment_passed"
+        },
+        {
+          "count": 38,
+          "value": "baseline_alignment_failed"
+        },
+        {
+          "count": 38,
+          "value": "price_below_sma20"
+        }
+      ],
+      "total_equity": "9885.630291773875441334996316",
+      "unrealized_pnl": "0",
+      "win_rate": "no_closed_trades"
+    }
+  },
+  "dashboard_qa": {
+    "no_order_controls": true,
+    "paper_trading_order": [
+      "Top health banner",
+      "Weekly scoreboard",
+      "Live chart + watchlist",
+      "Open positions",
+      "Closed trades",
+      "Signal / decision stream",
+      "Data health + testnet plumbing"
+    ],
+    "reference_tabs": {
+      "Audit": "audit findings",
+      "Evidence": "canonical backtest summaries",
+      "Historical Replay": "historical visual reference",
+      "Strategy": "rules/source notes",
+      "The Lab": "research variants"
+    }
+  },
+  "decision_review": {
+    "action_counts": {
+      "blocked_by_candidate_filter": 205,
+      "no_trade": 301,
+      "paper_hold": 154,
+      "paper_opened": 154
+    },
+    "labels": [
+      "paper decision",
+      "synthetic entry",
+      "synthetic close",
+      "not exchange order"
+    ],
+    "top_reason_codes": [
+      {
+        "count": 814,
+        "value": "public_mainnet_data_connected"
+      },
+      {
+        "count": 814,
+        "value": "closed_candle_ready"
+      },
+      {
+        "count": 384,
+        "value": "baseline_alignment_passed"
+      },
+      {
+        "count": 380,
+        "value": "baseline_alignment_failed"
+      },
+      {
+        "count": 380,
+        "value": "price_below_sma20"
+      },
+      {
+        "count": 330,
+        "value": "macd_histogram_not_constructive"
+      },
+      {
+        "count": 196,
+        "value": "mf_orig_stage2_context_observed"
+      },
+      {
+        "count": 160,
+        "value": "mf_orig_stage2_context_not_confirmed"
+      },
+      {
+        "count": 66,
+        "value": "btc_regime_context_unavailable"
+      },
+      {
+        "count": 66,
+        "value": "higher_timeframe_context_unavailable"
+      },
+      {
+        "count": 49,
+        "value": "volatility_expansion_no_recent_high_breakout"
+      },
+      {
+        "count": 12,
+        "value": "blocked_low_rolling_range"
+      },
+      {
+        "count": 12,
+        "value": "volatility_expansion_blocked_low_range"
+      },
+      {
+        "count": 10,
+        "value": "avoid_low_rolling_range_20"
+      },
+      {
+        "count": 10,
+        "value": "volatility_expansion_breakout_passed"
+      },
+      {
+        "count": 10,
+        "value": "rsi_overbought_for_paper_entry"
+      },
+      {
+        "count": 2,
+        "value": "avoid_low_rolling_range_50"
+      }
+    ]
+  },
+  "generated_at_utc": "2026-05-17T11:51:26Z",
+  "go_no_go": {
+    "blockers": [],
+    "decision": "Week 1 paper observation may continue",
+    "note": "The retired pre-PT-RT1.4 runtime produced 15m opens after cutover and is excluded from active scoring; the restarted active runtime has zero 15m rows."
+  },
+  "lane_review": [
+    {
+      "closed_trades": 0,
+      "current_drawdown": "114.369708226124558665003684",
+      "current_losing_streak": 0,
+      "data_health_blocks": 0,
+      "decision_count": 89,
+      "duplicate_blocks": 0,
+      "lane_id": "money_flow_v1_2_baseline",
+      "largest_loss": "no_closed_loser",
+      "largest_win": "no_closed_winner",
+      "latest_decision_time": "2026-05-17T11:46:43Z",
+      "max_drawdown": "114.369708226124558665003684",
+      "max_losing_streak": 0,
+      "net_pnl": "-114.369708226124558665003684",
+      "open_positions": 23,
+      "realized_equity": "9885.630291773875441334996316",
+      "starting_equity": "10000",
+      "status": "active_timeframe_observed",
+      "top_reason_codes": [
+        {
+          "count": 89,
+          "value": "public_mainnet_data_connected"
+        },
+        {
+          "count": 89,
+          "value": "closed_candle_ready"
+        },
+        {
+          "count": 46,
+          "value": "baseline_alignment_passed"
+        },
+        {
+          "count": 38,
+          "value": "baseline_alignment_failed"
+        },
+        {
+          "count": 38,
+          "value": "price_below_sma20"
+        }
+      ],
+      "total_equity": "9885.630291773875441334996316",
+      "unrealized_pnl": "0",
+      "win_rate": "no_closed_trades"
+    },
+    {
+      "closed_trades": 0,
+      "current_drawdown": "64.805357053526919509012241",
+      "current_losing_streak": 0,
+      "data_health_blocks": 0,
+      "decision_count": 79,
+      "duplicate_blocks": 0,
+      "lane_id": "avoid_low_rolling_range_20",
+      "largest_loss": "no_closed_loser",
+      "largest_win": "no_closed_winner",
+      "latest_decision_time": "2026-05-17T11:46:43Z",
+      "max_drawdown": "64.805357053526919509012241",
+      "max_losing_streak": 0,
+      "net_pnl": "-64.805357053526919509012241",
+      "open_positions": 13,
+      "realized_equity": "9935.194642946473080490987759",
+      "starting_equity": "10000",
+      "status": "active_timeframe_observed",
+      "top_reason_codes": [
+        {
+          "count": 79,
+          "value": "public_mainnet_data_connected"
+        },
+        {
+          "count": 79,
+          "value": "closed_candle_ready"
+        },
+        {
+          "count": 38,
+          "value": "baseline_alignment_failed"
+        },
+        {
+          "count": 38,
+          "value": "price_below_sma20"
+        },
+        {
+          "count": 36,
+          "value": "baseline_alignment_passed"
+        }
+      ],
+      "total_equity": "9935.194642946473080490987759",
+      "unrealized_pnl": "0",
+      "win_rate": "no_closed_trades"
+    },
+    {
+      "closed_trades": 0,
+      "current_drawdown": "104.476658765725592826431909",
+      "current_losing_streak": 0,
+      "data_health_blocks": 0,
+      "decision_count": 87,
+      "duplicate_blocks": 0,
+      "lane_id": "avoid_low_rolling_range_50",
+      "largest_loss": "no_closed_loser",
+      "largest_win": "no_closed_winner",
+      "latest_decision_time": "2026-05-17T11:46:43Z",
+      "max_drawdown": "104.476658765725592826431909",
+      "max_losing_streak": 0,
+      "net_pnl": "-104.476658765725592826431909",
+      "open_positions": 21,
+      "realized_equity": "9895.523341234274407173568091",
+      "starting_equity": "10000",
+      "status": "active_timeframe_observed",
+      "top_reason_codes": [
+        {
+          "count": 87,
+          "value": "public_mainnet_data_connected"
+        },
+        {
+          "count": 87,
+          "value": "closed_candle_ready"
+        },
+        {
+          "count": 44,
+          "value": "baseline_alignment_passed"
+        },
+        {
+          "count": 38,
+          "value": "baseline_alignment_failed"
+        },
+        {
+          "count": 38,
+          "value": "price_below_sma20"
+        }
+      ],
+      "total_equity": "9895.523341234274407173568091",
+      "unrealized_pnl": "0",
+      "win_rate": "no_closed_trades"
+    },
+    {
+      "closed_trades": 0,
+      "current_drawdown": "114.369708226124558665003684",
+      "current_losing_streak": 0,
+      "data_health_blocks": 0,
+      "decision_count": 89,
+      "duplicate_blocks": 0,
+      "lane_id": "mf_orig_stage_filter_only_full_equity",
+      "largest_loss": "no_closed_loser",
+      "largest_win": "no_closed_winner",
+      "latest_decision_time": "2026-05-17T11:46:43Z",
+      "max_drawdown": "114.369708226124558665003684",
+      "max_losing_streak": 0,
+      "net_pnl": "-114.369708226124558665003684",
+      "open_positions": 23,
+      "realized_equity": "9885.630291773875441334996316",
+      "starting_equity": "10000",
+      "status": "active_timeframe_observed",
+      "top_reason_codes": [
+        {
+          "count": 89,
+          "value": "public_mainnet_data_connected"
+        },
+        {
+          "count": 89,
+          "value": "closed_candle_ready"
+        },
+        {
+          "count": 49,
+          "value": "mf_orig_stage2_context_observed"
+        },
+        {
+          "count": 46,
+          "value": "baseline_alignment_passed"
+        },
+        {
+          "count": 40,
+          "value": "mf_orig_stage2_context_not_confirmed"
+        }
+      ],
+      "total_equity": "9885.630291773875441334996316",
+      "unrealized_pnl": "0",
+      "win_rate": "no_closed_trades"
+    },
+    {
+      "closed_trades": 0,
+      "current_drawdown": "114.369708226124558665003684",
+      "current_losing_streak": 0,
+      "data_health_blocks": 0,
+      "decision_count": 89,
+      "duplicate_blocks": 0,
+      "lane_id": "mf_orig_stage2_pullback_reclaim_full_equity",
+      "largest_loss": "no_closed_loser",
+      "largest_win": "no_closed_winner",
+      "latest_decision_time": "2026-05-17T11:46:43Z",
+      "max_drawdown": "114.369708226124558665003684",
+      "max_losing_streak": 0,
+      "net_pnl": "-114.369708226124558665003684",
+      "open_positions": 23,
+      "realized_equity": "9885.630291773875441334996316",
+      "starting_equity": "10000",
+      "status": "active_timeframe_observed",
+      "top_reason_codes": [
+        {
+          "count": 89,
+          "value": "public_mainnet_data_connected"
+        },
+        {
+          "count": 89,
+          "value": "closed_candle_ready"
+        },
+        {
+          "count": 49,
+          "value": "mf_orig_stage2_context_observed"
+        },
+        {
+          "count": 46,
+          "value": "baseline_alignment_passed"
+        },
+        {
+          "count": 40,
+          "value": "mf_orig_stage2_context_not_confirmed"
+        }
+      ],
+      "total_equity": "9885.630291773875441334996316",
+      "unrealized_pnl": "0",
+      "win_rate": "no_closed_trades"
+    },
+    {
+      "closed_trades": 0,
+      "current_drawdown": "114.369708226124558665003684",
+      "current_losing_streak": 0,
+      "data_health_blocks": 0,
+      "decision_count": 89,
+      "duplicate_blocks": 0,
+      "lane_id": "mf_orig_1d_stage2_5_20_crossover_full_equity",
+      "largest_loss": "no_closed_loser",
+      "largest_win": "no_closed_winner",
+      "latest_decision_time": "2026-05-17T11:46:43Z",
+      "max_drawdown": "114.369708226124558665003684",
+      "max_losing_streak": 0,
+      "net_pnl": "-114.369708226124558665003684",
+      "open_positions": 23,
+      "realized_equity": "9885.630291773875441334996316",
+      "starting_equity": "10000",
+      "status": "active_timeframe_observed",
+      "top_reason_codes": [
+        {
+          "count": 89,
+          "value": "public_mainnet_data_connected"
+        },
+        {
+          "count": 89,
+          "value": "closed_candle_ready"
+        },
+        {
+          "count": 49,
+          "value": "mf_orig_stage2_context_observed"
+        },
+        {
+          "count": 46,
+          "value": "baseline_alignment_passed"
+        },
+        {
+          "count": 40,
+          "value": "mf_orig_stage2_context_not_confirmed"
+        }
+      ],
+      "total_equity": "9885.630291773875441334996316",
+      "unrealized_pnl": "0",
+      "win_rate": "no_closed_trades"
+    },
+    {
+      "closed_trades": 0,
+      "current_drawdown": "114.369708226124558665003684",
+      "current_losing_streak": 0,
+      "data_health_blocks": 0,
+      "decision_count": 89,
+      "duplicate_blocks": 0,
+      "lane_id": "mf_orig_1d_stage2_breakout_resistance_full_equity",
+      "largest_loss": "no_closed_loser",
+      "largest_win": "no_closed_winner",
+      "latest_decision_time": "2026-05-17T11:46:43Z",
+      "max_drawdown": "114.369708226124558665003684",
+      "max_losing_streak": 0,
+      "net_pnl": "-114.369708226124558665003684",
+      "open_positions": 23,
+      "realized_equity": "9885.630291773875441334996316",
+      "starting_equity": "10000",
+      "status": "active_timeframe_observed",
+      "top_reason_codes": [
+        {
+          "count": 89,
+          "value": "public_mainnet_data_connected"
+        },
+        {
+          "count": 89,
+          "value": "closed_candle_ready"
+        },
+        {
+          "count": 49,
+          "value": "mf_orig_stage2_context_observed"
+        },
+        {
+          "count": 46,
+          "value": "baseline_alignment_passed"
+        },
+        {
+          "count": 40,
+          "value": "mf_orig_stage2_context_not_confirmed"
+        }
+      ],
+      "total_equity": "9885.630291773875441334996316",
+      "unrealized_pnl": "0",
+      "win_rate": "no_closed_trades"
+    },
+    {
+      "closed_trades": 0,
+      "current_drawdown": "0",
+      "current_losing_streak": 0,
+      "data_health_blocks": 0,
+      "decision_count": 66,
+      "duplicate_blocks": 0,
+      "lane_id": "wildcard_btc_regime_guard",
+      "largest_loss": "no_closed_loser",
+      "largest_win": "no_closed_winner",
+      "latest_decision_time": "2026-05-17T11:43:28Z",
+      "max_drawdown": "0",
+      "max_losing_streak": 0,
+      "net_pnl": "0",
+      "open_positions": 0,
+      "realized_equity": "10000",
+      "starting_equity": "10000",
+      "status": "active_timeframe_observed",
+      "top_reason_codes": [
+        {
+          "count": 66,
+          "value": "public_mainnet_data_connected"
+        },
+        {
+          "count": 66,
+          "value": "closed_candle_ready"
+        },
+        {
+          "count": 66,
+          "value": "btc_regime_context_unavailable"
+        },
+        {
+          "count": 38,
+          "value": "baseline_alignment_failed"
+        },
+        {
+          "count": 38,
+          "value": "price_below_sma20"
+        }
+      ],
+      "total_equity": "10000",
+      "unrealized_pnl": "0",
+      "win_rate": "no_closed_trades"
+    },
+    {
+      "closed_trades": 0,
+      "current_drawdown": "0",
+      "current_losing_streak": 0,
+      "data_health_blocks": 0,
+      "decision_count": 66,
+      "duplicate_blocks": 0,
+      "lane_id": "wildcard_multi_timeframe_alignment",
+      "largest_loss": "no_closed_loser",
+      "largest_win": "no_closed_winner",
+      "latest_decision_time": "2026-05-17T11:43:28Z",
+      "max_drawdown": "0",
+      "max_losing_streak": 0,
+      "net_pnl": "0",
+      "open_positions": 0,
+      "realized_equity": "10000",
+      "starting_equity": "10000",
+      "status": "active_timeframe_observed",
+      "top_reason_codes": [
+        {
+          "count": 66,
+          "value": "public_mainnet_data_connected"
+        },
+        {
+          "count": 66,
+          "value": "closed_candle_ready"
+        },
+        {
+          "count": 66,
+          "value": "higher_timeframe_context_unavailable"
+        },
+        {
+          "count": 38,
+          "value": "baseline_alignment_failed"
+        },
+        {
+          "count": 38,
+          "value": "price_below_sma20"
+        }
+      ],
+      "total_equity": "10000",
+      "unrealized_pnl": "0",
+      "win_rate": "no_closed_trades"
+    },
+    {
+      "closed_trades": 0,
+      "current_drawdown": "24.9750124968753125",
+      "current_losing_streak": 0,
+      "data_health_blocks": 0,
+      "decision_count": 71,
+      "duplicate_blocks": 0,
+      "lane_id": "wildcard_volatility_expansion_breakout",
+      "largest_loss": "no_closed_loser",
+      "largest_win": "no_closed_winner",
+      "latest_decision_time": "2026-05-17T11:46:43Z",
+      "max_drawdown": "24.9750124968753125",
+      "max_losing_streak": 0,
+      "net_pnl": "-24.9750124968753125",
+      "open_positions": 5,
+      "realized_equity": "9975.0249875031246875",
+      "starting_equity": "10000",
+      "status": "active_timeframe_observed",
+      "top_reason_codes": [
+        {
+          "count": 71,
+          "value": "public_mainnet_data_connected"
+        },
+        {
+          "count": 71,
+          "value": "closed_candle_ready"
+        },
+        {
+          "count": 49,
+          "value": "volatility_expansion_no_recent_high_breakout"
+        },
+        {
+          "count": 38,
+          "value": "baseline_alignment_failed"
+        },
+        {
+          "count": 38,
+          "value": "price_below_sma20"
+        }
+      ],
+      "total_equity": "9975.0249875031246875",
+      "unrealized_pnl": "0",
+      "win_rate": "no_closed_trades"
+    }
+  ],
+  "open_position_review": {
+    "active_positions": [
+      {
+        "age": "11h 46m",
+        "current_price": "655.91",
+        "data_health": "not_reported",
+        "entry_price": "655.91",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed",
+        "entry_time": "2026-05-17T00:00:00Z",
+        "lane": "avoid_low_rolling_range_20",
+        "notional": "9990.0025",
+        "quantity": "15.22313655646353920507386684",
+        "status": "open",
+        "symbol": "BNB",
+        "timeframe": "1d",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+4"
+      },
+      {
+        "age": "11h 46m",
+        "current_price": "1.0609",
+        "data_health": "not_reported",
+        "entry_price": "1.0609",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed",
+        "entry_time": "2026-05-17T00:00:00Z",
+        "lane": "avoid_low_rolling_range_20",
+        "notional": "9980.014995000625",
+        "quantity": "9402.417746727424533415024979",
+        "status": "open",
+        "symbol": "SUI",
+        "timeframe": "1d",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+12"
+      },
+      {
+        "age": "11h 46m",
+        "current_price": "655.91",
+        "data_health": "not_reported",
+        "entry_price": "655.91",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed",
+        "entry_time": "2026-05-17T00:00:00Z",
+        "lane": "avoid_low_rolling_range_50",
+        "notional": "9970.03747500937312515625",
+        "quantity": "15.19271311044482998977553609",
+        "status": "open",
+        "symbol": "BNB",
+        "timeframe": "1d",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+20"
+      },
+      {
+        "age": "11h 46m",
+        "current_price": "1.0609",
+        "data_health": "not_reported",
+        "entry_price": "1.0609",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed",
+        "entry_time": "2026-05-17T00:00:00Z",
+        "lane": "avoid_low_rolling_range_50",
+        "notional": "9960.069930043732504374375039",
+        "quantity": "9383.627010159968553230453248",
+        "status": "open",
+        "symbol": "SUI",
+        "timeframe": "1d",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "11h 46m",
+        "current_price": "655.91",
+        "data_health": "not_reported",
+        "entry_price": "655.91",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T00:00:00Z",
+        "lane": "mf_orig_1d_stage2_5_20_crossover_full_equity",
+        "notional": "9970.03747500937312515625",
+        "quantity": "15.19271311044482998977553609",
+        "status": "open",
+        "symbol": "BNB",
+        "timeframe": "1d",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+20"
+      },
+      {
+        "age": "11h 46m",
+        "current_price": "1.0609",
+        "data_health": "not_reported",
+        "entry_price": "1.0609",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T00:00:00Z",
+        "lane": "mf_orig_1d_stage2_5_20_crossover_full_equity",
+        "notional": "9960.069930043732504374375039",
+        "quantity": "9383.627010159968553230453248",
+        "status": "open",
+        "symbol": "SUI",
+        "timeframe": "1d",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "11h 46m",
+        "current_price": "655.91",
+        "data_health": "not_reported",
+        "entry_price": "655.91",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T00:00:00Z",
+        "lane": "mf_orig_1d_stage2_breakout_resistance_full_equity",
+        "notional": "9970.03747500937312515625",
+        "quantity": "15.19271311044482998977553609",
+        "status": "open",
+        "symbol": "BNB",
+        "timeframe": "1d",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+20"
+      },
+      {
+        "age": "11h 46m",
+        "current_price": "1.0609",
+        "data_health": "not_reported",
+        "entry_price": "1.0609",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T00:00:00Z",
+        "lane": "mf_orig_1d_stage2_breakout_resistance_full_equity",
+        "notional": "9960.069930043732504374375039",
+        "quantity": "9383.627010159968553230453248",
+        "status": "open",
+        "symbol": "SUI",
+        "timeframe": "1d",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "11h 46m",
+        "current_price": "655.91",
+        "data_health": "not_reported",
+        "entry_price": "655.91",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T00:00:00Z",
+        "lane": "mf_orig_stage2_pullback_reclaim_full_equity",
+        "notional": "9970.03747500937312515625",
+        "quantity": "15.19271311044482998977553609",
+        "status": "open",
+        "symbol": "BNB",
+        "timeframe": "1d",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+20"
+      },
+      {
+        "age": "11h 46m",
+        "current_price": "1.0609",
+        "data_health": "not_reported",
+        "entry_price": "1.0609",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T00:00:00Z",
+        "lane": "mf_orig_stage2_pullback_reclaim_full_equity",
+        "notional": "9960.069930043732504374375039",
+        "quantity": "9383.627010159968553230453248",
+        "status": "open",
+        "symbol": "SUI",
+        "timeframe": "1d",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "11h 46m",
+        "current_price": "655.91",
+        "data_health": "not_reported",
+        "entry_price": "655.91",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T00:00:00Z",
+        "lane": "mf_orig_stage_filter_only_full_equity",
+        "notional": "9970.03747500937312515625",
+        "quantity": "15.19271311044482998977553609",
+        "status": "open",
+        "symbol": "BNB",
+        "timeframe": "1d",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+20"
+      },
+      {
+        "age": "11h 46m",
+        "current_price": "1.0609",
+        "data_health": "not_reported",
+        "entry_price": "1.0609",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T00:00:00Z",
+        "lane": "mf_orig_stage_filter_only_full_equity",
+        "notional": "9960.069930043732504374375039",
+        "quantity": "9383.627010159968553230453248",
+        "status": "open",
+        "symbol": "SUI",
+        "timeframe": "1d",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "11h 46m",
+        "current_price": "655.91",
+        "data_health": "not_reported",
+        "entry_price": "655.91",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed",
+        "entry_time": "2026-05-17T00:00:00Z",
+        "lane": "money_flow_v1_2_baseline",
+        "notional": "9970.03747500937312515625",
+        "quantity": "15.19271311044482998977553609",
+        "status": "open",
+        "symbol": "BNB",
+        "timeframe": "1d",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+20"
+      },
+      {
+        "age": "11h 46m",
+        "current_price": "1.0609",
+        "data_health": "not_reported",
+        "entry_price": "1.0609",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed",
+        "entry_time": "2026-05-17T00:00:00Z",
+        "lane": "money_flow_v1_2_baseline",
+        "notional": "9960.069930043732504374375039",
+        "quantity": "9383.627010159968553230453248",
+        "status": "open",
+        "symbol": "SUI",
+        "timeframe": "1d",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "3h 46m",
+        "current_price": "0.35428",
+        "data_health": "not_reported",
+        "entry_price": "0.35428",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T08:00:00Z",
+        "lane": "mf_orig_1d_stage2_5_20_crossover_full_equity",
+        "notional": "9945.137293956105697161725194",
+        "quantity": "28057.36910158385357432862236",
+        "status": "open",
+        "symbol": "TRX",
+        "timeframe": "4h",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "3h 46m",
+        "current_price": "0.35428",
+        "data_health": "not_reported",
+        "entry_price": "0.35428",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T08:00:00Z",
+        "lane": "mf_orig_1d_stage2_breakout_resistance_full_equity",
+        "notional": "9945.137293956105697161725194",
+        "quantity": "28057.36910158385357432862236",
+        "status": "open",
+        "symbol": "TRX",
+        "timeframe": "4h",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "3h 46m",
+        "current_price": "0.35428",
+        "data_health": "not_reported",
+        "entry_price": "0.35428",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T08:00:00Z",
+        "lane": "mf_orig_stage2_pullback_reclaim_full_equity",
+        "notional": "9945.137293956105697161725194",
+        "quantity": "28057.36910158385357432862236",
+        "status": "open",
+        "symbol": "TRX",
+        "timeframe": "4h",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "3h 46m",
+        "current_price": "0.35428",
+        "data_health": "not_reported",
+        "entry_price": "0.35428",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T08:00:00Z",
+        "lane": "mf_orig_stage_filter_only_full_equity",
+        "notional": "9945.137293956105697161725194",
+        "quantity": "28057.36910158385357432862236",
+        "status": "open",
+        "symbol": "TRX",
+        "timeframe": "4h",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "3h 46m",
+        "current_price": "0.35428",
+        "data_health": "not_reported",
+        "entry_price": "0.35428",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed",
+        "entry_time": "2026-05-17T08:00:00Z",
+        "lane": "money_flow_v1_2_baseline",
+        "notional": "9945.137293956105697161725194",
+        "quantity": "28057.36910158385357432862236",
+        "status": "open",
+        "symbol": "TRX",
+        "timeframe": "4h",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "46m",
+        "current_price": "91.086",
+        "data_health": "not_reported",
+        "entry_price": "91.086",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed",
+        "entry_time": "2026-05-17T11:00:00Z",
+        "lane": "avoid_low_rolling_range_20",
+        "notional": "9945.137293956105697161725194",
+        "quantity": "109.1294460763358545145592553",
+        "status": "open",
+        "symbol": "AAVE",
+        "timeframe": "1h",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "46m",
+        "current_price": "9.3707",
+        "data_health": "not_reported",
+        "entry_price": "9.3707",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed",
+        "entry_time": "2026-05-17T11:00:00Z",
+        "lane": "avoid_low_rolling_range_20",
+        "notional": "9975.0249875031246875",
+        "quantity": "1063.958666375977581734155399",
+        "status": "open",
+        "symbol": "AVAX",
+        "timeframe": "1h",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+16"
+      },
+      {
+        "age": "46m",
+        "current_price": "0.11164",
+        "data_health": "not_reported",
+        "entry_price": "0.11164",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed",
+        "entry_time": "2026-05-17T11:00:00Z",
+        "lane": "avoid_low_rolling_range_20",
+        "notional": "10000",
+        "quantity": "89528.84270870655678968111788",
+        "status": "open",
+        "symbol": "DOGE",
+        "timeframe": "1h",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0"
+      },
+      {
+        "age": "46m",
+        "current_price": "1.2845",
+        "data_health": "not_reported",
+        "entry_price": "1.2845",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed",
+        "entry_time": "2026-05-17T11:00:00Z",
+        "lane": "avoid_low_rolling_range_20",
+        "notional": "9950.112350131171282803126757",
+        "quantity": "7742.419068864231761122401864",
+        "status": "open",
+        "symbol": "DOT",
+        "timeframe": "1h",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "46m",
+        "current_price": "43.353",
+        "data_health": "not_reported",
+        "entry_price": "43.353",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed",
+        "entry_time": "2026-05-17T11:00:00Z",
+        "lane": "avoid_low_rolling_range_20",
+        "notional": "9995",
+        "quantity": "230.4339376744400618180979402",
+        "status": "open",
+        "symbol": "HYPE",
+        "timeframe": "1h",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0"
+      },
+      {
+        "age": "46m",
+        "current_price": "0.092018",
+        "data_health": "not_reported",
+        "entry_price": "0.092018",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed",
+        "entry_time": "2026-05-17T11:00:00Z",
+        "lane": "avoid_low_rolling_range_20",
+        "notional": "9940.164725309127644313144331",
+        "quantity": "107970.1215299884053173399526",
+        "status": "open",
+        "symbol": "POL",
+        "timeframe": "1h",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      }
+    ],
+    "active_positions_count": 154,
+    "legacy_15m_positions": [
+      {
+        "age": "23h 16m",
+        "current_price": "2.1466",
+        "data_health": "not_reported",
+        "entry_price": "2.1466",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed",
+        "entry_time": "2026-05-16T12:30:00Z",
+        "lane": "avoid_low_rolling_range_50",
+        "notional": "9915.339151485568182231574135",
+        "quantity": "4616.780714576458305292303339",
+        "status": "legacy_15m_position_visible",
+        "symbol": "TRUMP",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "23h 16m",
+        "current_price": "2.1466",
+        "data_health": "not_reported",
+        "entry_price": "2.1466",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-16T12:30:00Z",
+        "lane": "mf_orig_1d_stage2_5_20_crossover_full_equity",
+        "notional": "9910.381481909825398140458348",
+        "quantity": "4614.472324219170076139657188",
+        "status": "legacy_15m_position_visible",
+        "symbol": "TRUMP",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "23h 16m",
+        "current_price": "2.1466",
+        "data_health": "not_reported",
+        "entry_price": "2.1466",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-16T12:30:00Z",
+        "lane": "mf_orig_1d_stage2_breakout_resistance_full_equity",
+        "notional": "9910.381481909825398140458348",
+        "quantity": "4614.472324219170076139657188",
+        "status": "legacy_15m_position_visible",
+        "symbol": "TRUMP",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "23h 16m",
+        "current_price": "2.1466",
+        "data_health": "not_reported",
+        "entry_price": "2.1466",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-16T12:30:00Z",
+        "lane": "mf_orig_stage2_pullback_reclaim_full_equity",
+        "notional": "9910.381481909825398140458348",
+        "quantity": "4614.472324219170076139657188",
+        "status": "legacy_15m_position_visible",
+        "symbol": "TRUMP",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "23h 16m",
+        "current_price": "2.1466",
+        "data_health": "not_reported",
+        "entry_price": "2.1466",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-16T12:30:00Z",
+        "lane": "mf_orig_stage_filter_only_full_equity",
+        "notional": "9910.381481909825398140458348",
+        "quantity": "4614.472324219170076139657188",
+        "status": "legacy_15m_position_visible",
+        "symbol": "TRUMP",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "23h 16m",
+        "current_price": "2.1466",
+        "data_health": "not_reported",
+        "entry_price": "2.1466",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed",
+        "entry_time": "2026-05-16T12:30:00Z",
+        "lane": "money_flow_v1_2_baseline",
+        "notional": "9910.381481909825398140458348",
+        "quantity": "4614.472324219170076139657188",
+        "status": "legacy_15m_position_visible",
+        "symbol": "TRUMP",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "22h 16m",
+        "current_price": "1.9423",
+        "data_health": "not_reported",
+        "entry_price": "1.9423",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, volatility_expansion_breakout_passed",
+        "entry_time": "2026-05-16T13:30:00Z",
+        "lane": "wildcard_volatility_expansion_breakout",
+        "notional": "10000",
+        "quantity": "5145.960974102867734129640117",
+        "status": "legacy_15m_position_visible",
+        "symbol": "TON",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0"
+      },
+      {
+        "age": "21h 31m",
+        "current_price": "383.98",
+        "data_health": "not_reported",
+        "entry_price": "383.98",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, volatility_expansion_breakout_passed",
+        "entry_time": "2026-05-16T14:15:00Z",
+        "lane": "wildcard_volatility_expansion_breakout",
+        "notional": "9995",
+        "quantity": "26.01698656180009375488306683",
+        "status": "legacy_15m_position_visible",
+        "symbol": "XMR",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0"
+      },
+      {
+        "age": "21h 16m",
+        "current_price": "505.03",
+        "data_health": "not_reported",
+        "entry_price": "505.03",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, volatility_expansion_breakout_passed",
+        "entry_time": "2026-05-16T14:30:00Z",
+        "lane": "wildcard_volatility_expansion_breakout",
+        "notional": "9990.0025",
+        "quantity": "19.77111755489772884779122032",
+        "status": "legacy_15m_position_visible",
+        "symbol": "ZEC",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+4"
+      },
+      {
+        "age": "20h 46m",
+        "current_price": "0.66875",
+        "data_health": "not_reported",
+        "entry_price": "0.66875",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, volatility_expansion_breakout_passed",
+        "entry_time": "2026-05-16T15:00:00Z",
+        "lane": "wildcard_volatility_expansion_breakout",
+        "notional": "9985.00749875",
+        "quantity": "14923.38690841214953271028037",
+        "status": "legacy_15m_position_visible",
+        "symbol": "ASTER",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+8"
+      },
+      {
+        "age": "20h 31m",
+        "current_price": "1.0605",
+        "data_health": "not_reported",
+        "entry_price": "1.0605",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, volatility_expansion_breakout_passed",
+        "entry_time": "2026-05-16T15:15:00Z",
+        "lane": "wildcard_volatility_expansion_breakout",
+        "notional": "9980.014995000625",
+        "quantity": "9405.964156061409417727487034",
+        "status": "legacy_15m_position_visible",
+        "symbol": "SUI",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+12"
+      },
+      {
+        "age": "16h 31m",
+        "current_price": "41.699",
+        "data_health": "not_reported",
+        "entry_price": "41.699",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, volatility_expansion_breakout_passed",
+        "entry_time": "2026-05-16T19:15:00Z",
+        "lane": "wildcard_volatility_expansion_breakout",
+        "notional": "9970.03747500937312515625",
+        "quantity": "238.9758137190788373484657156",
+        "status": "legacy_15m_position_visible",
+        "symbol": "HYPE",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+20"
+      },
+      {
+        "age": "7h 16m",
+        "current_price": "1.4147",
+        "data_health": "not_reported",
+        "entry_price": "1.4147",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T04:30:00Z",
+        "lane": "mf_orig_1d_stage2_5_20_crossover_full_equity",
+        "notional": "9939.364252872751111958873045",
+        "quantity": "7022.262367107029572632285013",
+        "status": "legacy_15m_position_visible",
+        "symbol": "XRP",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "7h 16m",
+        "current_price": "1.4147",
+        "data_health": "not_reported",
+        "entry_price": "1.4147",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T04:30:00Z",
+        "lane": "mf_orig_1d_stage2_breakout_resistance_full_equity",
+        "notional": "9939.364252872751111958873045",
+        "quantity": "7022.262367107029572632285013",
+        "status": "legacy_15m_position_visible",
+        "symbol": "XRP",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "7h 16m",
+        "current_price": "1.4147",
+        "data_health": "not_reported",
+        "entry_price": "1.4147",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T04:30:00Z",
+        "lane": "mf_orig_stage2_pullback_reclaim_full_equity",
+        "notional": "9939.364252872751111958873045",
+        "quantity": "7022.262367107029572632285013",
+        "status": "legacy_15m_position_visible",
+        "symbol": "XRP",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "7h 16m",
+        "current_price": "1.4147",
+        "data_health": "not_reported",
+        "entry_price": "1.4147",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T04:30:00Z",
+        "lane": "mf_orig_stage_filter_only_full_equity",
+        "notional": "9939.364252872751111958873045",
+        "quantity": "7022.262367107029572632285013",
+        "status": "legacy_15m_position_visible",
+        "symbol": "XRP",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "6h 16m",
+        "current_price": "0.97385",
+        "data_health": "not_reported",
+        "entry_price": "0.97385",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T05:30:00Z",
+        "lane": "mf_orig_1d_stage2_5_20_crossover_full_equity",
+        "notional": "9970.536263087621789358877046",
+        "quantity": "10233.14781019261485697406953",
+        "status": "legacy_15m_position_visible",
+        "symbol": "FIL",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "6h 16m",
+        "current_price": "0.97385",
+        "data_health": "not_reported",
+        "entry_price": "0.97385",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T05:30:00Z",
+        "lane": "mf_orig_1d_stage2_breakout_resistance_full_equity",
+        "notional": "9970.536263087621789358877046",
+        "quantity": "10233.14781019261485697406953",
+        "status": "legacy_15m_position_visible",
+        "symbol": "FIL",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "6h 16m",
+        "current_price": "0.97385",
+        "data_health": "not_reported",
+        "entry_price": "0.97385",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T05:30:00Z",
+        "lane": "mf_orig_stage2_pullback_reclaim_full_equity",
+        "notional": "9970.536263087621789358877046",
+        "quantity": "10233.14781019261485697406953",
+        "status": "legacy_15m_position_visible",
+        "symbol": "FIL",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "6h 16m",
+        "current_price": "0.97385",
+        "data_health": "not_reported",
+        "entry_price": "0.97385",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T05:30:00Z",
+        "lane": "mf_orig_stage_filter_only_full_equity",
+        "notional": "9970.536263087621789358877046",
+        "quantity": "10233.14781019261485697406953",
+        "status": "legacy_15m_position_visible",
+        "symbol": "FIL",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "5h 16m",
+        "current_price": "86.828",
+        "data_health": "not_reported",
+        "entry_price": "86.828",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T06:30:00Z",
+        "lane": "mf_orig_1d_stage2_5_20_crossover_full_equity",
+        "notional": "9955.762279273547619186894638",
+        "quantity": "114.6034044102583365432498870",
+        "status": "legacy_15m_position_visible",
+        "symbol": "SOL",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "5h 16m",
+        "current_price": "86.828",
+        "data_health": "not_reported",
+        "entry_price": "86.828",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T06:30:00Z",
+        "lane": "mf_orig_1d_stage2_breakout_resistance_full_equity",
+        "notional": "9955.762279273547619186894638",
+        "quantity": "114.6034044102583365432498870",
+        "status": "legacy_15m_position_visible",
+        "symbol": "SOL",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "5h 16m",
+        "current_price": "86.828",
+        "data_health": "not_reported",
+        "entry_price": "86.828",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T06:30:00Z",
+        "lane": "mf_orig_stage2_pullback_reclaim_full_equity",
+        "notional": "9955.762279273547619186894638",
+        "quantity": "114.6034044102583365432498870",
+        "status": "legacy_15m_position_visible",
+        "symbol": "SOL",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "5h 16m",
+        "current_price": "86.828",
+        "data_health": "not_reported",
+        "entry_price": "86.828",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T06:30:00Z",
+        "lane": "mf_orig_stage_filter_only_full_equity",
+        "notional": "9955.762279273547619186894638",
+        "quantity": "114.6034044102583365432498870",
+        "status": "legacy_15m_position_visible",
+        "symbol": "SOL",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+24"
+      },
+      {
+        "age": "2h 31m",
+        "current_price": "519.23",
+        "data_health": "not_reported",
+        "entry_price": "519.23",
+        "entry_reason": "public_mainnet_data_connected, closed_candle_ready, baseline_alignment_passed, mf_orig_stage2_context_observed",
+        "entry_time": "2026-05-17T09:15:00Z",
+        "lane": "mf_orig_1d_stage2_5_20_crossover_full_equity",
+        "notional": "10008.97289907366178043175289",
+        "quantity": "19.26693067161782822552922021",
+        "status": "legacy_15m_position_visible",
+        "symbol": "ZEC",
+        "timeframe": "15m",
+        "unrealized_pnl": "0",
+        "unrealized_pnl_pct": "0E+23"
+      }
+    ],
+    "legacy_15m_positions_count": 82
+  },
+  "phase": "PT-RT1.4.1",
+  "runtime_artifact_scope": {
+    "active_review_label": "pt_rt1_4_active_week_runtime",
+    "active_runtime_dir": "reports/paper_runtime/pt_rt1_4_1_active_week",
+    "pre_cutover_label": "pre_pt_rt1_4_weekend_burn_in",
+    "pre_cutover_runtime_dir": "reports/paper_runtime/pt_rt1_1c_24h_dry_run"
+  },
+  "runtime_health": {
+    "data_health_summary": {
+      "candle_unavailable_blocking": 0,
+      "indicator_unavailable_blocking": 0,
+      "lane_decision_unavailable_rollup": [],
+      "lane_expanded_data_unavailable_decisions": 0,
+      "lane_expansion_note": "One blocking candle or indicator row can expand into one data_unavailable decision per strategy lane. Missing or stale mids are warning-only when closed candles are available.",
+      "market_rows_checked": 66,
+      "market_rows_unavailable": 0,
+      "market_rows_with_mid_warnings": 0,
+      "market_unavailable_rollup": [],
+      "mid_warning_non_blocking": 0,
+      "mid_warning_rollup": [],
+      "scanner_identity_blocked": 2
+    },
+    "decision_log_stats": {
+      "decisions_jsonl_size_bytes": 1023832,
+      "decisions_jsonl_warning": false,
+      "decisions_jsonl_warning_threshold_bytes": 524288000,
+      "evaluated_decisions_this_cycle": 660,
+      "mode": "compact",
+      "suppressed_decisions_this_cycle": 506,
+      "suppression_reason": "repeated_non_actionable_decisions_suppressed",
+      "written_decisions_this_cycle": 154
+    },
+    "endpoint_category": "public_read_only",
+    "jsonl_skipped_rows": {
+      "active_decisions": 0,
+      "active_runtime_audit": 0,
+      "active_testnet_transport": 0,
+      "active_trades": 0,
+      "pre_cutover_decisions": 0
+    },
+    "last_update_utc": "2026-05-17T11:46:43Z",
+    "no_api_keys": true,
+    "no_private_signed_order_endpoints": true,
+    "public_mainnet_connection": "connected"
+  },
+  "testnet_label_audit": {
+    "audit_only_shapes": "enabled",
+    "live_trading": "not approved",
+    "order_endpoint_called": false,
+    "signed_order_endpoint_called": false,
+    "signed_testnet_orders": 0,
+    "strategy_pnl_update_from_testnet": false,
+    "testnet_order_transport": "disabled",
+    "testnet_probe_label_still_ambiguous": false,
+    "transport_mode": "audit_only",
+    "transport_rows": 0,
+    "transport_status": "audit_only_not_submitted"
+  },
+  "timeframe_review": [
+    {
+      "close_count": 0,
+      "closed_trades": 0,
+      "data_health_blocks": 0,
+      "decision_count": 355,
+      "max_drawdown": "0",
+      "net_pnl": "0",
+      "open_count": 135,
+      "open_positions": 135,
+      "status": "active_week_timeframe",
+      "timeframe": "1h"
+    },
+    {
+      "close_count": 0,
+      "closed_trades": 0,
+      "data_health_blocks": 0,
+      "decision_count": 225,
+      "max_drawdown": "0",
+      "net_pnl": "0",
+      "open_count": 5,
+      "open_positions": 5,
+      "status": "active_week_timeframe",
+      "timeframe": "4h"
+    },
+    {
+      "close_count": 0,
+      "closed_trades": 0,
+      "data_health_blocks": 0,
+      "decision_count": 234,
+      "max_drawdown": "0",
+      "net_pnl": "0",
+      "open_count": 14,
+      "open_positions": 14,
+      "status": "active_week_timeframe",
+      "timeframe": "1d"
+    },
+    {
+      "close_count": 580,
+      "closed_trades": "legacy_not_active_score",
+      "data_health_blocks": 2360,
+      "decision_count": 24362,
+      "max_drawdown": "legacy_not_active_score",
+      "net_pnl": "legacy_not_active_score",
+      "open_count": 702,
+      "open_positions": 82,
+      "status": "paused_legacy_not_active_score",
+      "timeframe": "15m"
+    }
+  ]
+}
