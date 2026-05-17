@@ -3,9 +3,10 @@
 
 The server intentionally exposes only a tiny localhost API. It can start or
 stop the PT-RT1 paper-observation runtime through `caffeinate` so a Mac stays
-awake while synthetic paper observation runs. PT-RT1.5 uses candle-close signal
-evaluation and baseline-only Hyperliquid testnet lifecycle shapes capped at a
-fixed 25 USDC; testnet fills do not update synthetic paper PnL.
+awake while synthetic paper observation runs. PT-RT1.5.1 uses candle-close
+signal evaluation, warm-start fresh-signal gating, and baseline-only
+Hyperliquid testnet lifecycle transport capped at a fixed 25 USDC; testnet
+fills do not update synthetic paper PnL.
 """
 
 from __future__ import annotations
@@ -31,8 +32,9 @@ STATE_PATH = CONTROL_DIR / "state.json"
 LOCAL_HOSTS = {"127.0.0.1", "localhost"}
 SAFE_FLAGS = [
     "--pt-rt1-5-week1-active",
-    "--enable-pt-rt1-5-baseline-testnet-orders",
-    "--founder-approved-pt-rt1-5-baseline-testnet-orders-25usdc",
+    "--fresh-signal-only-after-runtime-start",
+    "--enable-baseline-testnet-transport",
+    "--founder-approved-pt-rt1-5-1-baseline-testnet-orders-25usdc",
     "--pt-rt1-5-testnet-order-notional-usdc",
     "25",
     "--pt-rt1-5-testnet-daily-order-cap",
@@ -41,7 +43,7 @@ SAFE_FLAGS = [
     "3",
     "--signal-evaluation-mode",
     "candle_close_only",
-    "--disable-testnet-probes",
+    "--disable-legacy-testnet-probes",
     "--public-mainnet-only",
 ]
 DURATION_OPTIONS = {
@@ -51,6 +53,7 @@ DURATION_OPTIONS = {
     "24h": ("--duration-hours", "24", "24 hours"),
 }
 OUTPUT_OPTIONS = {
+    "pt_rt1_5_1_smoke": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_5_1_smoke",
     "pt_rt1_5_week1_active": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_5_week1_active",
     "pt_rt1_4_1_active_week": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_4_1_active_week",
     "pt_rt1_1c_24h_dry_run": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_1c_24h_dry_run",
@@ -201,7 +204,7 @@ def start_runtime(payload: dict[str, Any]) -> tuple[int, dict[str, Any]]:
         return HTTPStatus.CONFLICT, {**status, "message": "paper_runtime_already_running"}
 
     duration = str(payload.get("duration") or "24h")
-    output = str(payload.get("output") or "pt_rt1_5_week1_active")
+    output = str(payload.get("output") or "pt_rt1_5_1_smoke")
     _duration_flag, _duration_value, duration_label = validate_duration(duration)
     output_dir = validate_output(output)
     output_dir.mkdir(parents=True, exist_ok=True)

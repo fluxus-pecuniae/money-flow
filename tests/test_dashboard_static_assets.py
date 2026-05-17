@@ -226,11 +226,14 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert ">Time<" in js
     assert "evidenceReplayStrategyId" in js
     assert "EVIDENCE_ALL_REPLAY_STRATEGIES_ID" in js
-    assert "pt_rt1_1c_24h_dry_run/summary.json" in js
+    assert "pt_rt1_5_1_smoke/summary.json" in js
+    assert "pt_rt1_5_week1_active/summary.json" not in js
+    assert "pt_rt1_1c_24h_dry_run/summary.json" not in js
     assert 'String(payload?.phase || "").startsWith("PT-RT1")' in js
     assert "Duplicate opens blocked" in js
     assert "lane-expanded decisions" in js
-    assert "Transport mode" in js
+    assert "Signed transport client" in js
+    assert "Fresh post-start opens" in js
     assert "All replay strategies" in js
     assert 'timeframe: "1d"' in js
     assert 'canonicalTimeframe(defaultReplay.timeframe || "1d")' in js
@@ -321,12 +324,12 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper-runtime-stop" in html
     assert "paper-runtime-control-status" in html
     assert "Mac caffeinate" in html
-    assert "--disable-testnet-probes" in html
+    assert "--disable-legacy-testnet-probes" in html
     assert "fixed 25 USDC baseline-only testnet lifecycle gates" in html
     assert "--public-mainnet-only" in html
     assert "candle-close signal evaluation" in html
     assert "Candidate lanes cannot send testnet orders" in html
-    assert "no signed/order endpoint is called by this runtime unless all PT-RT1.5 baseline-only testnet gates" in html
+    assert "no signed/order endpoint is called by this runtime unless all PT-RT1.5.1 fresh baseline-only testnet gates" in html
     assert "paper-observation-connection-status" in html
     assert "paper-observation-lane-filter" in html
     assert "paper-observation-scanner-table" in html
@@ -369,9 +372,16 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "DEFAULT_PT_RT1_SUMMARY_FILES" in js
     assert "DEFAULT_PT_RT1_DECISION_LOG_FILES" in js
     assert "DEFAULT_PT_RT1_TRADE_LOG_FILES" in js
-    assert "pt_rt1_1c_24h_dry_run/decisions.jsonl" in js
-    assert "pt_rt1_5_week1_active/decisions.jsonl" in js
-    assert "pt_rt1_1c_24h_dry_run/trades.jsonl" in js
+    assert "pt_rt1_5_1_smoke/decisions.jsonl" in js
+    assert "pt_rt1_5_1_smoke/trades.jsonl" in js
+    assert "pt_rt1_5_week1_active/decisions.jsonl" not in js
+    assert "pt_rt1_5_week1_active/trades.jsonl" not in js
+    assert "pt_rt1_4_1_active_week/decisions.jsonl" not in js
+    assert "pt_rt1_4_1_active_week/trades.jsonl" not in js
+    assert "pt_rt1_1c_24h_dry_run/decisions.jsonl" not in js
+    assert "pt_rt1_1c_24h_dry_run/trades.jsonl" not in js
+    assert "state.ptRt1TradeRows = rows" in js
+    assert "state.ptRt1TradeSource = path" in js
     assert "DEFAULT_PT_RT1_TESTNET_LIFECYCLE_FILES" in js
     assert "parsePaperObservationDecisionLog" in js
     assert "parsePaperObservationTradeLog" in js
@@ -398,7 +408,7 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paperObservationBytes" in js
     assert "Start/stop requires launching the local control server." in js
     assert "Static dashboard servers can still display data" in js
-    assert "enable-pt-rt1-5-baseline-testnet-orders" in Path("scripts/run_dashboard_control_server.py").read_text(encoding="utf-8")
+    assert "enable-baseline-testnet-transport" in Path("scripts/run_dashboard_control_server.py").read_text(encoding="utf-8")
     assert "pt-rt1-5-testnet-order-notional-usdc" in Path("scripts/run_dashboard_control_server.py").read_text(encoding="utf-8")
     assert "DEFAULT_SV21_BROAD_SUMMARY_FILES" in js
     assert "SV21_BROAD_HISTORICAL_REPLAY_TIMESTAMP" in js
@@ -431,9 +441,10 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "Evidence packs loaded" not in js
     assert "Local reports loaded" in js
     assert "SV2.1 founder-approved 1D period pack JSON files loaded" in js
-    assert "pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json" in js
+    assert "pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm_summary.json" in js
+    assert "pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json" not in js
     assert "renderPaperObservationConnectionStatus" in js
-    assert "pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json" in js
+    assert "pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json" not in js
     assert "renderPaperObservation" in js
     assert "renderPaperObservationLaneDetail" in js
     assert "renderStrategyWildcardDiagnostics" in js
@@ -478,7 +489,7 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "synthetic_entry" in js
     assert "Audit/order-shape rows" in js
     assert "Signed testnet orders" in js
-    assert "PT-RT1.5 allows baseline-linked Hyperliquid testnet lifecycle rows" in js
+    assert "PT-RT1.5.1 allows signed Hyperliquid testnet transport only from fresh post-start scheduled Money Flow v1.2 baseline synthetic opens" in js
     assert "renderPaperObservationScanner();" in js
     assert ".paper-observation-tick" in css
     assert ".paper-observation-watchlist-table" in css
@@ -783,6 +794,6 @@ def test_pt_rt1_4_paper_trading_command_center_active_timeframe_ui() -> None:
     assert "Data unavailable" in js
     assert "Testnet order transport" in js
     assert "Audit-only shapes" in js
-    assert "baseline-linked Hyperliquid testnet lifecycle rows" in js
+    assert "signed Hyperliquid testnet transport only from fresh post-start scheduled Money Flow v1.2 baseline synthetic opens" in js
     assert "order buttons" not in html.lower()
     assert "manual trade" not in html.lower()

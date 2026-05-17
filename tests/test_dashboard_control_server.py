@@ -8,7 +8,7 @@ from scripts import run_dashboard_control_server as control
 def test_dashboard_control_runtime_command_is_allowlisted() -> None:
     command = control.build_runtime_command(
         duration="5m",
-        output="pt_rt1_1c_24h_dry_run",
+        output="pt_rt1_5_1_smoke",
         python_executable=".venv/bin/python",
         caffeinate_path="/usr/bin/caffeinate",
     )
@@ -22,18 +22,19 @@ def test_dashboard_control_runtime_command_is_allowlisted() -> None:
     assert "--duration-minutes" in command
     assert "5" in command
     assert "--output-dir" in command
-    assert "reports/paper_runtime/pt_rt1_1c_24h_dry_run" in command
+    assert "reports/paper_runtime/pt_rt1_5_1_smoke" in command
     assert "--decision-log-mode" in command
     assert "compact" in command
     assert "--pt-rt1-5-week1-active" in command
-    assert "--enable-pt-rt1-5-baseline-testnet-orders" in command
-    assert "--founder-approved-pt-rt1-5-baseline-testnet-orders-25usdc" in command
+    assert "--fresh-signal-only-after-runtime-start" in command
+    assert "--enable-baseline-testnet-transport" in command
+    assert "--founder-approved-pt-rt1-5-1-baseline-testnet-orders-25usdc" in command
     assert "--pt-rt1-5-testnet-order-notional-usdc" in command
     assert "25" in command
     assert "--signal-evaluation-mode" in command
     assert "candle_close_only" in command
     assert "--public-mainnet-only" in command
-    assert "--disable-testnet-probes" in command
+    assert "--disable-legacy-testnet-probes" in command
     assert "exchange" not in " ".join(command).lower()
 
 
@@ -65,8 +66,9 @@ def test_dashboard_control_server_is_localhost_only() -> None:
 def test_dashboard_control_status_contract_exposes_safety_flags() -> None:
     assert control.SAFE_FLAGS == [
         "--pt-rt1-5-week1-active",
-        "--enable-pt-rt1-5-baseline-testnet-orders",
-        "--founder-approved-pt-rt1-5-baseline-testnet-orders-25usdc",
+        "--fresh-signal-only-after-runtime-start",
+        "--enable-baseline-testnet-transport",
+        "--founder-approved-pt-rt1-5-1-baseline-testnet-orders-25usdc",
         "--pt-rt1-5-testnet-order-notional-usdc",
         "25",
         "--pt-rt1-5-testnet-daily-order-cap",
@@ -75,7 +77,7 @@ def test_dashboard_control_status_contract_exposes_safety_flags() -> None:
         "3",
         "--signal-evaluation-mode",
         "candle_close_only",
-        "--disable-testnet-probes",
+        "--disable-legacy-testnet-probes",
         "--public-mainnet-only",
     ]
     assert sorted(control.DURATION_OPTIONS) == ["1h", "24h", "5m", "6h"]
@@ -83,6 +85,7 @@ def test_dashboard_control_status_contract_exposes_safety_flags() -> None:
         "pt_rt1_1b_smoke",
         "pt_rt1_1c_24h_dry_run",
         "pt_rt1_4_1_active_week",
+        "pt_rt1_5_1_smoke",
         "pt_rt1_5_week1_active",
     ]
 

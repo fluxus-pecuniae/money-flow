@@ -116,28 +116,17 @@
   ];
 
   const DEFAULT_PT_RT1_SUMMARY_FILES = [
-    "../../reports/paper_runtime/pt_rt1_5_week1_active/summary.json",
-    "../../docs/pt_rt1_5_week1_reset_baseline_testnet_orders_and_candle_scheduler_summary.json",
-    "../../reports/paper_runtime/pt_rt1_4_1_active_week/summary.json",
-    "../../reports/paper_runtime/pt_rt1_1c_24h_dry_run/summary.json",
-    "../../reports/paper_runtime/pt_rt1_1b_smoke/summary.json",
-    "../../docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json",
-    "../../docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json",
+    "../../reports/paper_runtime/pt_rt1_5_1_smoke/summary.json",
+    "../../docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm_summary.json",
   ];
   const DEFAULT_PT_RT1_DECISION_LOG_FILES = [
-    "../../reports/paper_runtime/pt_rt1_5_week1_active/decisions.jsonl",
-    "../../reports/paper_runtime/pt_rt1_4_1_active_week/decisions.jsonl",
-    "../../reports/paper_runtime/pt_rt1_1c_24h_dry_run/decisions.jsonl",
-    "../../reports/paper_runtime/pt_rt1_1b_smoke/decisions.jsonl",
+    "../../reports/paper_runtime/pt_rt1_5_1_smoke/decisions.jsonl",
   ];
   const DEFAULT_PT_RT1_TRADE_LOG_FILES = [
-    "../../reports/paper_runtime/pt_rt1_5_week1_active/trades.jsonl",
-    "../../reports/paper_runtime/pt_rt1_4_1_active_week/trades.jsonl",
-    "../../reports/paper_runtime/pt_rt1_1c_24h_dry_run/trades.jsonl",
-    "../../reports/paper_runtime/pt_rt1_1b_smoke/trades.jsonl",
+    "../../reports/paper_runtime/pt_rt1_5_1_smoke/trades.jsonl",
   ];
   const DEFAULT_PT_RT1_TESTNET_LIFECYCLE_FILES = [
-    "../../reports/paper_runtime/pt_rt1_5_week1_active/testnet_order_lifecycle.jsonl",
+    "../../reports/paper_runtime/pt_rt1_5_1_smoke/testnet_order_lifecycle.jsonl",
   ];
   const PAPER_OBSERVATION_DECISION_LOG_LIMIT = 10000;
   const PAPER_OBSERVATION_TRADE_LOG_LIMIT = 10000;
@@ -146,8 +135,8 @@
   const PAPER_OBSERVATION_PAGE_SIZE = 25;
   const PAPER_OBSERVATION_ACTIVE_TIMEFRAMES = ["1h", "4h", "1d"];
   const PAPER_OBSERVATION_DISABLED_TIMEFRAMES = ["15m"];
-  const PAPER_OBSERVATION_ACTIVE_REVIEW_START_UTC = "2026-05-17T12:54:24Z";
-  const PAPER_OBSERVATION_ACTIVE_RUNTIME_SCOPE = "pt_rt1_5_week1_active";
+  const PAPER_OBSERVATION_ACTIVE_REVIEW_START_UTC = "2026-05-17T14:34:44Z";
+  const PAPER_OBSERVATION_ACTIVE_RUNTIME_SCOPE = "pt_rt1_5_1_smoke";
   const PAPER_OBSERVATION_15M_STATUS = "disabled_for_week1_noise_reduction";
   const RUN_LEDGER_DISPLAY_FILTER_BOUNDARY = "date filters are display-only, not canonical pack regeneration";
 
@@ -10442,18 +10431,21 @@
     const plumbing = summary?.plumbing_lane || {};
     const runtime = summary?.testnet_plumbing_status || {};
     const lifecycle = summary?.testnet_order_lifecycle || {};
-    const submittedCount = runtime.transport_submitted_this_cycle ?? 0;
-    const signedCalled = Boolean(runtime.signed_order_endpoint_called || runtime.order_endpoint_called);
+    const warmStart = summary?.warm_start_gate || {};
+    const submittedCount = orderPolicy.submitted_this_cycle ?? lifecycle.status_counts?.submitted ?? 0;
+    const signedCalled = Boolean(orderPolicy.signed_order_endpoint_called || runtime.signed_order_endpoint_called || runtime.order_endpoint_called);
     const auditShapeEnabled = runtime.status === "enabled_audit_only" || Number(runtime.probe_audit_rows_this_cycle || 0) > 0;
     const orderTransportEnabled = Boolean(orderPolicy.order_transport_enabled || (runtime.transport_mode && runtime.transport_mode !== "audit_only" && signedCalled));
+    const signedClient = Boolean(orderPolicy.signed_testnet_transport_client_configured || orderPolicy.transport_submit_configured);
     elements.paperObservationProbeStatus.innerHTML = `
       <div class="market-micro-grid">
         <div><span>Lane</span><strong>testnet plumbing only</strong></div>
         <div><span>Testnet order transport</span><strong>${escapeHtml(String(orderTransportEnabled))}</strong></div>
+        <div><span>Signed transport client</span><strong>${escapeHtml(signedClient ? "configured" : "missing")}</strong></div>
         <div><span>Audit-only shapes</span><strong>${escapeHtml(String(auditShapeEnabled || policy.PT_RT1_TESTNET_PROBES_ENABLED || false))}</strong></div>
         <div><span>Kill switch</span><strong>${escapeHtml(String(runtime.kill_switch_active ?? policy.PT_RT1_TESTNET_KILL_SWITCH ?? true))}</strong></div>
         <div><span>Daily cap</span><strong>${escapeHtml(String(orderPolicy.daily_order_cap_default ?? runtime.daily_cap ?? policy.PT_RT1_TESTNET_DAILY_PROBE_CAP ?? 25))}</strong></div>
-        <div><span>Eligible trigger</span><strong>Money Flow v1.2 baseline opens only</strong></div>
+        <div><span>Eligible trigger</span><strong>Money Flow v1.2 fresh baseline opens only</strong></div>
         <div><span>Transport mode</span><strong>${escapeHtml(orderTransportEnabled ? "baseline_only_testnet" : runtime.transport_mode || "ready_but_gated")}</strong></div>
         <div><span>Audit/order-shape rows</span><strong>${escapeHtml(String(runtime.probe_audit_rows_this_cycle ?? 0))}</strong></div>
         <div><span>Signed testnet orders</span><strong>${escapeHtml(String(signedCalled ? submittedCount : 0))}</strong></div>
@@ -10465,9 +10457,13 @@
         <div><span>Unknown state</span><strong>blocked_if_present</strong></div>
         <div><span>Strategy PnL update</span><strong>${escapeHtml(String(runtime.testnet_fills_do_not_update_strategy_pnl === true ? false : plumbing.testnet_fills_update_strategy_pnl ?? false))}</strong></div>
         <div><span>Candidate transport</span><strong>blocked</strong></div>
+        <div><span>Warm-start gate</span><strong>${escapeHtml(warmStart.active ? "active" : "inactive")}</strong></div>
+        <div><span>Startup-valid blocked</span><strong>${escapeHtml(String(warmStart.startup_valid_signals_blocked_total ?? warmStart.startup_valid_signals_blocked_this_cycle ?? 0))}</strong></div>
+        <div><span>Waiting for reset</span><strong>${escapeHtml(String(warmStart.waiting_for_reset_signals_total ?? warmStart.waiting_for_reset_signals_this_cycle ?? 0))}</strong></div>
+        <div><span>Fresh post-start opens</span><strong>${escapeHtml(String(warmStart.fresh_post_start_opens_total ?? warmStart.fresh_post_start_opens_this_cycle ?? 0))}</strong></div>
       </div>
       <div class="methodology-warning compact">
-        PT-RT1.5 allows baseline-linked Hyperliquid testnet lifecycle rows only from scheduled Money Flow v1.2 baseline synthetic opens. Testnet order notional is fixed at 25 USDC, candidate lanes are synthetic-only, public mainnet candles remain strategy truth, and testnet fills do not update strategy PnL.
+        PT-RT1.5.1 allows signed Hyperliquid testnet transport only from fresh post-start scheduled Money Flow v1.2 baseline synthetic opens. Startup-valid signals and all candidate lanes are blocked from testnet transport. Testnet order notional is fixed at 25 USDC, public mainnet candles remain strategy truth, and testnet fills do not update strategy PnL.
       </div>
     `;
   }
@@ -10514,15 +10510,21 @@
             <th>Symbol</th>
             <th>Timeframe</th>
             <th>Trigger lane</th>
+            <th>Trigger reason</th>
             <th>Signal candle</th>
+            <th>Fresh signal</th>
             <th>OID</th>
             <th>Status</th>
             <th>Side</th>
             <th>Notional</th>
             <th>Limit</th>
             <th>Qty</th>
+            <th>Endpoint called</th>
+            <th>Signed called</th>
+            <th>Venue response</th>
             <th>Cancel</th>
             <th>Reconcile</th>
+            <th>Strategy PnL update</th>
             <th>Reason codes</th>
           </tr>
         </thead>
@@ -10533,15 +10535,21 @@
               <td>${escapeHtml(paperObservationText(row.symbol, "n/a"))}</td>
               <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
               <td>${escapeHtml(paperObservationText(row.trigger_lane || row.lane_id || row.strategy_id, "n/a"))}</td>
+              <td>${escapeHtml(paperObservationText(row.trigger_reason || row.trigger_reason_codes, "n/a"))}</td>
               <td>${escapeHtml(paperObservationText(row.signal_candle_close_time || row.signal_candle, "n/a"))}</td>
+              <td>${escapeHtml(String(row.fresh_signal_after_runtime_start === true))}</td>
               <td>${escapeHtml(paperObservationText(row.oid || row.venue_order_id || row.testnet_order_id, "not_submitted"))}</td>
               <td>${auditReviewPill(row.status || "created")}</td>
               <td>${escapeHtml(paperObservationText(row.side, "buy"))}</td>
               <td>${escapeHtml(paperObservationUsdc(row.notional || row.testnet_fixed_notional || 25))}</td>
               <td>${escapeHtml(paperObservationPrice(row.limit_price))}</td>
               <td>${escapeHtml(paperObservationPrice(row.quantity))}</td>
+              <td>${escapeHtml(String(row.order_endpoint_called === true))}</td>
+              <td>${escapeHtml(String(row.signed_order_endpoint_called === true))}</td>
+              <td>${escapeHtml(paperObservationText(row.venue_response || row.sanitized_response, "n/a"))}</td>
               <td>${escapeHtml(paperObservationText(row.cancel_status, "required_after_submit"))}</td>
               <td>${escapeHtml(paperObservationText(row.reconcile_status, "required_after_submit"))}</td>
+              <td>${escapeHtml(String(row.strategy_pnl_updated === true ? true : false))}</td>
               <td>${escapeHtml(paperObservationText(row.reason_codes, "n/a"))}</td>
             </tr>
           `).join("")}
@@ -10571,11 +10579,13 @@
               const entryTime = row.entry_fill_time || row.entry_signal_time || "";
               const entryMs = Date.parse(entryTime);
               const age = Number.isFinite(entryMs) ? `${Math.max(0, Math.floor((Date.now() - entryMs) / 3600000))}h` : "n/a";
-              const unrealized = decimal(row.current_unrealized_pnl, 0);
+              const mtmAvailable = row.current_price !== null && row.current_price !== undefined && row.current_unrealized_pnl !== null && row.current_unrealized_pnl !== undefined;
+              const unrealized = mtmAvailable ? decimal(row.current_unrealized_pnl, 0) : null;
               const notional = decimal(row.notional || row.equity_before, 0);
-              const unrealizedPct = notional ? `${(unrealized / notional * 100).toFixed(2)}%` : "n/a";
+              const unrealizedPct = mtmAvailable && notional ? `${(unrealized / notional * 100).toFixed(2)}%` : "MTM unavailable";
               const timeframe = paperObservationRowTimeframe(row);
               const roleBadge = paperObservationIsDisabledTimeframe(timeframe) ? "legacy_15m" : "active";
+              const mtmReason = mtmAvailable ? row.current_price_source || "public_mainnet_mid" : "MTM unavailable";
               return `
                 <tr>
                   <td>${escapeHtml(row.strategy_id || row.lane_id || "n/a")}</td>
@@ -10584,10 +10594,10 @@
                   <td>${escapeHtml(entryTime || "n/a")}</td>
                   <td>${escapeHtml(age)}</td>
                   <td>${escapeHtml(paperObservationPrice(row.entry_price))}</td>
-                  <td>${escapeHtml(paperObservationPrice(row.current_price || row.mark_price || row.entry_price))}</td>
+                  <td>${escapeHtml(mtmAvailable ? `${paperObservationPrice(row.current_price || row.mark_price)} (${mtmReason})` : "MTM unavailable")}</td>
                   <td>${escapeHtml(paperObservationPrice(row.quantity))}</td>
                   <td>${escapeHtml(paperObservationUsdc(notional))}</td>
-                  <td class="${unrealized >= 0 ? "positive" : "negative"}">${escapeHtml(paperObservationUsdc(unrealized))}</td>
+                  <td class="${mtmAvailable && unrealized >= 0 ? "positive" : mtmAvailable ? "negative" : ""}">${escapeHtml(mtmAvailable ? paperObservationUsdc(unrealized) : "MTM unavailable")}</td>
                   <td>${escapeHtml(unrealizedPct)}</td>
                   <td>${escapeHtml(paperObservationText(row.open_reason_codes, "n/a"))}</td>
                   <td>${auditReviewPill(row.data_health || "healthy_or_pending")}</td>
@@ -10750,7 +10760,11 @@
     if (payload?.phase === "EV-AUDIT1" || payload?.audit_verdict === "no_strategy_has_clean_production_or_paper_candidate_status") {
       return "ev_audit_summary";
     }
-    if (String(payload?.phase || "").startsWith("PT-RT1") || payload?.report === "pt_rt1_real_time_paper_observation_and_testnet_plumbing") {
+    if (
+      String(payload?.phase || "").startsWith("PT-RT1") ||
+      payload?.report === "pt_rt1_real_time_paper_observation_and_testnet_plumbing" ||
+      payload?.active_review_scope?.scope === PAPER_OBSERVATION_ACTIVE_RUNTIME_SCOPE
+    ) {
       return "pt_rt1_summary";
     }
     if (
@@ -11127,11 +11141,9 @@
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const text = await response.text();
         const rows = parsePaperObservationDecisionLog(text, path);
-        if (rows.length) {
-          state.ptRt1DecisionRows = rows;
-          state.ptRt1DecisionSource = path;
-          break;
-        }
+        state.ptRt1DecisionRows = rows;
+        state.ptRt1DecisionSource = path;
+        break;
       } catch (error) {
         console.warn(`Could not load ${path}`, error);
       }
@@ -11145,11 +11157,9 @@
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const text = await response.text();
         const rows = parsePaperObservationTradeLog(text, path);
-        if (rows.length) {
-          state.ptRt1TradeRows = rows;
-          state.ptRt1TradeSource = path;
-          break;
-        }
+        state.ptRt1TradeRows = rows;
+        state.ptRt1TradeSource = path;
+        break;
       } catch (error) {
         console.warn(`Could not load ${path}`, error);
       }
@@ -11163,11 +11173,9 @@
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const text = await response.text();
         const rows = parsePaperObservationTestnetLifecycleLog(text, path);
-        if (rows.length) {
-          state.ptRt1TestnetLifecycleRows = rows;
-          state.ptRt1TestnetLifecycleSource = path;
-          break;
-        }
+        state.ptRt1TestnetLifecycleRows = rows;
+        state.ptRt1TestnetLifecycleSource = path;
+        break;
       } catch (error) {
         console.warn(`Could not load ${path}`, error);
       }

@@ -39,6 +39,10 @@ from services.paper_runtime.pt_rt1 import (
     PT_RT1_5_ACTIVE_REVIEW_START_UTC,
     PT_RT1_5_ACTIVE_TIMEFRAMES,
     PT_RT1_5_ARCHIVED_RUNTIME_SCOPES,
+    PT_RT1_5_1_ACTIVE_REVIEW_START_UTC,
+    PT_RT1_5_1_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
+    PT_RT1_5_1_RUNTIME_OUTPUT_DIR,
+    PT_RT1_5_1_RUNTIME_SCOPE,
     PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
     PT_RT1_5_RUNTIME_OUTPUT_DIR,
     PT_RT1_5_RUNTIME_SCOPE,
@@ -403,6 +407,18 @@ def _dec(value: Any, default: Decimal = Decimal("0")) -> Decimal:
         return default
 
 
+def _parse_iso_utc(value: Any) -> datetime | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    try:
+        return datetime.fromisoformat(text.replace("Z", "+00:00")).astimezone(UTC)
+    except ValueError:
+        return None
+
+
 def _load_paper_runtime_state(prior_state: dict[str, Any]) -> dict[str, Any]:
     runtime = prior_state.get("paper_runtime") if isinstance(prior_state, dict) else None
     if not isinstance(runtime, dict):
@@ -416,13 +432,32 @@ def _load_paper_runtime_state(prior_state: dict[str, Any]) -> dict[str, Any]:
     realized = runtime.get("realized_equity_by_lane")
     if not isinstance(realized, dict):
         realized = {}
+    warm_start = runtime.get("warm_start_entry_context_by_key")
+    if not isinstance(warm_start, dict):
+        warm_start = {}
+    unrealized = runtime.get("unrealized_pnl_by_lane")
+    if not isinstance(unrealized, dict):
+        unrealized = {}
     return {
+        "runtime_start_utc": str(runtime.get("runtime_start_utc") or ""),
+        "fresh_signal_only_after_runtime_start": bool(runtime.get("fresh_signal_only_after_runtime_start", False)),
+        "warm_start_evaluation_completed": bool(runtime.get("warm_start_evaluation_completed", False)),
+        "warm_start_entry_context_by_key": {
+            str(key): value for key, value in warm_start.items() if isinstance(value, dict)
+        },
+        "startup_valid_signals_blocked_total": int(runtime.get("startup_valid_signals_blocked_total") or 0),
+        "waiting_for_reset_signals_total": int(runtime.get("waiting_for_reset_signals_total") or 0),
+        "fresh_post_start_opens_total": int(runtime.get("fresh_post_start_opens_total") or 0),
+        "entry_context_resets_total": int(runtime.get("entry_context_resets_total") or 0),
         "processed_signal_keys": set(str(item) for item in processed),
         "open_positions_by_key": {
             str(key): value for key, value in open_positions.items() if isinstance(value, dict)
         },
         "realized_equity_by_lane": {
             str(key): str(value) for key, value in realized.items()
+        },
+        "unrealized_pnl_by_lane": {
+            str(key): str(value) for key, value in unrealized.items()
         },
         "paper_opens_total": int(runtime.get("paper_opens_total") or 0),
         "paper_closes_total": int(runtime.get("paper_closes_total") or 0),
@@ -436,9 +471,18 @@ def _load_paper_runtime_state(prior_state: dict[str, Any]) -> dict[str, Any]:
 
 def _paper_runtime_state_payload(
     *,
+    runtime_start_utc: str,
+    fresh_signal_only_after_runtime_start: bool,
+    warm_start_evaluation_completed: bool,
+    warm_start_entry_context_by_key: dict[str, dict[str, Any]],
+    startup_valid_signals_blocked_total: int,
+    waiting_for_reset_signals_total: int,
+    fresh_post_start_opens_total: int,
+    entry_context_resets_total: int,
     processed_signal_keys: set[str],
     open_positions_by_key: dict[str, dict[str, Any]],
     realized_equity_by_lane: dict[str, str],
+    unrealized_pnl_by_lane: dict[str, str],
     last_processed_close_by_key: dict[str, str],
     paper_opens_total: int,
     paper_closes_total: int,
@@ -448,9 +492,18 @@ def _paper_runtime_state_payload(
     testnet_orders_total: int = 0,
 ) -> dict[str, Any]:
     return {
+        "runtime_start_utc": runtime_start_utc,
+        "fresh_signal_only_after_runtime_start": fresh_signal_only_after_runtime_start,
+        "warm_start_evaluation_completed": warm_start_evaluation_completed,
+        "warm_start_entry_context_by_key": warm_start_entry_context_by_key,
+        "startup_valid_signals_blocked_total": startup_valid_signals_blocked_total,
+        "waiting_for_reset_signals_total": waiting_for_reset_signals_total,
+        "fresh_post_start_opens_total": fresh_post_start_opens_total,
+        "entry_context_resets_total": entry_context_resets_total,
         "processed_signal_keys": sorted(processed_signal_keys),
         "open_positions_by_key": open_positions_by_key,
         "realized_equity_by_lane": realized_equity_by_lane,
+        "unrealized_pnl_by_lane": unrealized_pnl_by_lane,
         "last_processed_close_by_key": last_processed_close_by_key,
         "last_evaluated_closed_candle_by_timeframe": dict(last_evaluated_closed_candle_by_timeframe or {}),
         "testnet_order_keys": sorted(testnet_order_keys or set()),
@@ -499,7 +552,202 @@ def _open_position_from_decision(
         "equity_before": str(equity_before),
         "open_reason_codes": list(row.get("reason_codes") or []),
         "status": "open",
-        "current_unrealized_pnl": "0",
+        "current_price": None,
+        "current_price_source": None,
+        "current_price_time": None,
+        "current_unrealized_pnl": None,
+        "current_unrealized_pnl_pct": None,
+        "position_notional": str(equity_before),
+        "total_equity_impact": None,
+        "mtm_reason_codes": ["mtm_price_unavailable"],
+    }
+
+
+def _warm_start_context_key(row: dict[str, Any]) -> str:
+    return "|".join(
+        [
+            str(row.get("lane_id") or ""),
+            str(row.get("strategy_id") or ""),
+            str(row.get("symbol") or "").upper(),
+            str(row.get("timeframe") or ""),
+        ]
+    )
+
+
+def _block_open_for_warm_start(row: dict[str, Any], extra_reasons: Sequence[str]) -> dict[str, Any]:
+    reasons = list(row.get("reason_codes") or [])
+    reasons.extend(extra_reasons)
+    return {
+        **row,
+        "action": "no_trade",
+        "position_after": row.get("position_before") or "flat",
+        "fresh_signal_after_runtime_start": False,
+        "warm_start_signal_blocked": True,
+        "paper_state_transition": "warm_start_open_blocked",
+        "testnet_transport_blocked_reason": "testnet_order_requires_fresh_post_start_signal",
+        "reason_codes": list(dict.fromkeys(str(reason) for reason in reasons)),
+    }
+
+
+def _apply_warm_start_signal_gate(
+    *,
+    decision_rows: Sequence[dict[str, Any]],
+    warm_start_state: dict[str, dict[str, Any]],
+    runtime_start_utc: str,
+    warm_start_evaluation: bool,
+    fresh_signal_only_after_runtime_start: bool,
+) -> tuple[list[dict[str, Any]], dict[str, dict[str, Any]], dict[str, Any]]:
+    if not fresh_signal_only_after_runtime_start:
+        return list(decision_rows), warm_start_state, {
+            "enabled": False,
+            "startup_valid_signals_blocked_this_cycle": 0,
+            "waiting_for_reset_signals_this_cycle": 0,
+            "fresh_post_start_opens_this_cycle": 0,
+            "entry_context_resets_this_cycle": 0,
+        }
+
+    start_dt = _parse_iso_utc(runtime_start_utc) or _utc_now()
+    next_state = {key: dict(value) for key, value in warm_start_state.items()}
+    gated_rows: list[dict[str, Any]] = []
+    startup_blocked = 0
+    waiting_for_reset = 0
+    fresh_opens = 0
+    resets = 0
+
+    for row in decision_rows:
+        key = _warm_start_context_key(row)
+        action = str(row.get("action") or "")
+        entry_true = action == "paper_opened"
+        signal_close = _parse_iso_utc(row.get("signal_candle_close_time"))
+        context = next_state.get(
+            key,
+            {
+                "initialized": False,
+                "was_true": False,
+                "already_true_at_runtime_start": False,
+                "reset_observed": True,
+            },
+        )
+
+        if not context.get("initialized") or warm_start_evaluation:
+            context = {
+                **context,
+                "initialized": True,
+                "was_true": entry_true,
+                "already_true_at_runtime_start": entry_true,
+                "reset_observed": not entry_true,
+                "runtime_start_utc": runtime_start_utc,
+                "last_observed_signal_candle_close_time": row.get("signal_candle_close_time"),
+            }
+            next_state[key] = context
+            if entry_true:
+                startup_blocked += 1
+                gated_rows.append(
+                    _block_open_for_warm_start(
+                        row,
+                        [
+                            "warm_start_evaluation_completed",
+                            "entry_context_already_true_at_runtime_start",
+                            "signal_good_but_runtime_started_after_setup",
+                            "warm_start_blocked_late_entry",
+                        ],
+                    )
+                )
+                continue
+            reasons = list(row.get("reason_codes") or [])
+            reasons.append("warm_start_evaluation_completed")
+            gated_rows.append({**row, "reason_codes": list(dict.fromkeys(reasons))})
+            continue
+
+        if entry_true:
+            signal_is_after_start = signal_close is not None and signal_close > start_dt
+            if context.get("already_true_at_runtime_start") and not context.get("reset_observed"):
+                context["was_true"] = True
+                context["last_observed_signal_candle_close_time"] = row.get("signal_candle_close_time")
+                next_state[key] = context
+                waiting_for_reset += 1
+                gated_rows.append(
+                    _block_open_for_warm_start(
+                        row,
+                        [
+                            "entry_context_already_true_waiting_for_reset",
+                            "warm_start_blocked_late_entry",
+                        ],
+                    )
+                )
+                continue
+            if context.get("was_true"):
+                context["last_observed_signal_candle_close_time"] = row.get("signal_candle_close_time")
+                next_state[key] = context
+                waiting_for_reset += 1
+                gated_rows.append(
+                    _block_open_for_warm_start(
+                        row,
+                        [
+                            "entry_context_already_true_waiting_for_reset",
+                            "warm_start_blocked_late_entry",
+                        ],
+                    )
+                )
+                continue
+            if not signal_is_after_start:
+                context["was_true"] = True
+                context["last_observed_signal_candle_close_time"] = row.get("signal_candle_close_time")
+                next_state[key] = context
+                startup_blocked += 1
+                gated_rows.append(
+                    _block_open_for_warm_start(
+                        row,
+                        [
+                            "signal_good_but_runtime_started_after_setup",
+                            "warm_start_blocked_late_entry",
+                        ],
+                    )
+                )
+                continue
+            context["was_true"] = True
+            context["reset_observed"] = True
+            context["last_observed_signal_candle_close_time"] = row.get("signal_candle_close_time")
+            next_state[key] = context
+            reasons = list(row.get("reason_codes") or [])
+            reasons.append("fresh_entry_signal_after_runtime_start")
+            fresh_opens += 1
+            gated_rows.append(
+                {
+                    **row,
+                    "fresh_signal_after_runtime_start": True,
+                    "warm_start_signal_blocked": False,
+                    "reason_codes": list(dict.fromkeys(str(reason) for reason in reasons)),
+                }
+            )
+            continue
+
+        if context.get("was_true"):
+            resets += 1
+            reasons = list(row.get("reason_codes") or [])
+            reasons.append("entry_context_reset_observed")
+            row = {**row, "reason_codes": list(dict.fromkeys(str(reason) for reason in reasons))}
+        context["was_true"] = False
+        context["reset_observed"] = True
+        context["last_observed_signal_candle_close_time"] = row.get("signal_candle_close_time")
+        next_state[key] = context
+        gated_rows.append(row)
+
+    return gated_rows, next_state, {
+        "enabled": True,
+        "runtime_start_utc": runtime_start_utc,
+        "warm_start_evaluation_this_cycle": warm_start_evaluation,
+        "fresh_signal_only_after_runtime_start": True,
+        "startup_valid_signals_blocked_this_cycle": startup_blocked,
+        "waiting_for_reset_signals_this_cycle": waiting_for_reset,
+        "fresh_post_start_opens_this_cycle": fresh_opens,
+        "entry_context_resets_this_cycle": resets,
+        "reason_codes": [
+            "warm_start_evaluation_completed",
+            "signal_good_but_runtime_started_after_setup",
+            "entry_context_already_true_waiting_for_reset",
+            "fresh_entry_signal_after_runtime_start",
+        ],
     }
 
 
@@ -541,6 +789,88 @@ def _close_position_from_decision(
         "testnet_fills_update_strategy_pnl": False,
     }
     return trade, equity_after
+
+
+def _update_open_position_mtm(
+    *,
+    open_positions_by_key: dict[str, dict[str, Any]],
+    scanner_rows: Sequence[Any],
+    latest_closed_by_key: dict[tuple[str, str], Any],
+    now: datetime,
+) -> tuple[dict[str, str], dict[str, Any]]:
+    mids_by_symbol: dict[str, Decimal] = {}
+    for row in scanner_rows:
+        symbol = str(getattr(row, "canonical_symbol", None) or getattr(row, "requested_symbol", "")).upper()
+        mid = _dec(getattr(row, "public_mid", None), Decimal("0"))
+        if symbol and mid > 0:
+            mids_by_symbol[symbol] = mid
+
+    unrealized_by_lane: dict[str, Decimal] = {}
+    updated = 0
+    unavailable = 0
+    for position in open_positions_by_key.values():
+        lane_id = str(position.get("lane_id") or "")
+        symbol = str(position.get("symbol") or "").upper()
+        timeframe = str(position.get("timeframe") or "")
+        entry_price = _dec(position.get("entry_price"), Decimal("0"))
+        quantity = _dec(position.get("quantity"), Decimal("0"))
+        price: Decimal | None = mids_by_symbol.get(symbol)
+        source = "public_mainnet_mid"
+        source_time = _iso(now)
+        reasons = ["mtm_source_public_mainnet_mid"]
+        if price is None:
+            candle = latest_closed_by_key.get((symbol, timeframe))
+            if candle is not None:
+                price = candle.close
+                source = "latest_closed_candle"
+                source_time = _iso(candle.close_time or canonical_candle_close(candle))
+                reasons = ["mtm_source_latest_closed_candle"]
+        if price is None or price <= 0 or entry_price <= 0 or quantity <= 0:
+            unavailable += 1
+            position.update(
+                {
+                    "current_price": None,
+                    "current_price_source": None,
+                    "current_price_time": None,
+                    "current_unrealized_pnl": None,
+                    "current_unrealized_pnl_pct": None,
+                    "total_equity_impact": None,
+                    "mtm_reason_codes": ["mtm_price_unavailable"],
+                }
+            )
+            continue
+        unrealized = (price - entry_price) * quantity
+        notional = entry_price * quantity
+        unrealized_pct = (unrealized / notional * Decimal("100")) if notional else Decimal("0")
+        unrealized_by_lane[lane_id] = unrealized_by_lane.get(lane_id, Decimal("0")) + unrealized
+        position.update(
+            {
+                "current_price": str(price),
+                "current_price_source": source,
+                "current_price_time": source_time,
+                "current_unrealized_pnl": str(unrealized),
+                "current_unrealized_pnl_pct": str(unrealized_pct),
+                "position_notional": str(notional),
+                "total_equity_impact": str(unrealized),
+                "mtm_reason_codes": list(dict.fromkeys([*reasons, "mtm_unrealized_pnl_updated"])),
+            }
+        )
+        updated += 1
+
+    return {lane_id: str(value) for lane_id, value in unrealized_by_lane.items()}, {
+        "open_positions_checked": len(open_positions_by_key),
+        "open_positions_mtm_updated": updated,
+        "open_positions_mtm_unavailable": unavailable,
+        "preferred_source": "public_mainnet_allMids",
+        "fallback_source": "latest_closed_public_mainnet_candle_close",
+        "market_refresh_updates_mtm_without_signal_evaluation": True,
+        "reason_codes": [
+            "mtm_source_public_mainnet_mid",
+            "mtm_source_latest_closed_candle",
+            "mtm_price_unavailable",
+            "mtm_unrealized_pnl_updated",
+        ],
+    }
 
 
 def _summarize_data_unavailable(
@@ -956,6 +1286,8 @@ def _build_pt_rt1_5_testnet_order_lifecycle_rows(
                 timeframe=timeframe,
                 signal_candle_close_time=str(decision.get("signal_candle_close_time") or ""),
                 scheduled_closed_candle_evaluation=bool(decision.get("scheduled_closed_candle_evaluation")),
+                fresh_signal_after_runtime_start=bool(decision.get("fresh_signal_after_runtime_start")),
+                warm_start_signal_blocked=bool(decision.get("warm_start_signal_blocked")),
                 duplicate_order_key_seen=duplicate,
                 scanner_signal_eligible=bool(scanner_row and scanner_row.scanner_eligible and not scanner_row.blocked),
                 scanner_symbol_blocked=bool(scanner_row.blocked) if scanner_row else True,
@@ -985,6 +1317,8 @@ def _build_pt_rt1_5_testnet_order_lifecycle_rows(
             "testnet_order_key": order_key,
             "created_at_utc": _iso(_utc_now()),
             "transport_submit_configured": transport is not None,
+            "signed_testnet_transport_client_configured": transport is not None,
+            "trigger_reason_codes": list(decision.get("reason_codes") or []),
         }
         if result.eligible:
             submitted_keys.add(order_key)
@@ -1010,6 +1344,7 @@ def _build_pt_rt1_5_testnet_order_lifecycle_rows(
                             [
                                 "testnet_order_shape_ready",
                                 "fixed_testnet_plumbing_notional",
+                                "signed_testnet_transport_client_configured",
                                 *list(transport_result.get("reason_codes") or []),
                             ]
                         )
@@ -1023,10 +1358,18 @@ def _build_pt_rt1_5_testnet_order_lifecycle_rows(
         "policy": "pt_rt1_5_baseline_only_fixed_25usdc",
         "transport_enabled": transport_enabled,
         "transport_submit_configured": transport is not None,
+        "signed_testnet_transport_client_configured": transport is not None,
         "kill_switch_active": kill_switch,
-        "approval_captured": approval_text == PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
+        "approval_captured": approval_text
+        in {PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL, PT_RT1_5_1_EXACT_BASELINE_TESTNET_ORDER_APPROVAL},
         "fixed_notional_usdc": str(notional_usdc),
         "baseline_open_signals_this_cycle": len(baseline_open_rows),
+        "fresh_baseline_open_signals_this_cycle": sum(
+            1 for row in baseline_open_rows if row.get("fresh_signal_after_runtime_start") is True
+        ),
+        "startup_or_late_baseline_open_signals_blocked_this_cycle": sum(
+            1 for row in baseline_open_rows if row.get("fresh_signal_after_runtime_start") is not True
+        ),
         "candidate_open_signals_blocked_this_cycle": len(candidate_open_rows),
         "lifecycle_rows_this_cycle": len(lifecycle_rows),
         "eligible_order_shapes_this_cycle": sum(1 for row in lifecycle_rows if row.get("status") in {"created", "preflight_passed", "submitted", "accepted_open", "reconciled", "canceled"}),
@@ -1038,7 +1381,7 @@ def _build_pt_rt1_5_testnet_order_lifecycle_rows(
             "baseline_only_trigger",
             "candidate_lane_transport_blocked",
             "fixed_testnet_plumbing_notional",
-            *([] if transport is not None else ["signed_testnet_transport_client_not_configured"]),
+            *(["signed_testnet_transport_client_configured"] if transport is not None else ["signed_testnet_transport_client_not_configured"]),
             *(["testnet_order_transport_kill_switch_active"] if kill_switch else []),
         ],
     }
@@ -1070,6 +1413,7 @@ def run_cycle(
     baseline_testnet_order_base_url: str = PT_RT1_TESTNET_INFO_URL,
     baseline_testnet_order_kill_switch: bool = False,
     baseline_testnet_order_transport: BaselineTestnetOrderTransport | None = None,
+    fresh_signal_only_after_runtime_start: bool = False,
 ) -> dict[str, Any]:
     now = _utc_now()
     meta_result = connector.fetch_meta()
@@ -1097,6 +1441,10 @@ def run_cycle(
         "last_evaluated_closed_candle_by_timeframe"
     ]
     testnet_order_keys: set[str] = paper_state["testnet_order_keys"]
+    runtime_start_utc = paper_state["runtime_start_utc"] or _iso(now)
+    warm_start_entry_context_by_key: dict[str, dict[str, Any]] = paper_state["warm_start_entry_context_by_key"]
+    warm_start_evaluation_completed = bool(paper_state["warm_start_evaluation_completed"])
+    warm_start_evaluation_this_cycle = fresh_signal_only_after_runtime_start and not warm_start_evaluation_completed
     scheduler_status = build_pt_rt1_5_scheduler_status(
         now=now,
         last_evaluated_closed_candle_by_timeframe=last_evaluated_closed_candle_by_timeframe,
@@ -1107,6 +1455,9 @@ def run_cycle(
         if payload.get("is_due") is True
     }
     candle_close_only = signal_evaluation_mode == "candle_close_only"
+    effective_due_timeframes = set(due_timeframes)
+    if warm_start_evaluation_this_cycle:
+        effective_due_timeframes.update(PT_RT1_5_ACTIVE_TIMEFRAMES)
 
     for row in selected_rows:
         for timeframe in timeframes:
@@ -1159,7 +1510,7 @@ def run_cycle(
                         )
                     )
                 continue
-            if candle_close_only and timeframe not in due_timeframes:
+            if candle_close_only and timeframe not in effective_due_timeframes:
                 market_health.append(
                     {
                         "symbol": row.canonical_symbol,
@@ -1281,6 +1632,15 @@ def run_cycle(
                     "signal_evaluation_mode": "candle_close_only",
                     "reason_codes": list(dict.fromkeys(reasons)),
                 }
+            elif warm_start_evaluation_this_cycle and timeframe in PT_RT1_5_ACTIVE_TIMEFRAMES:
+                reasons.append("warm_start_evaluation_completed")
+                row = {
+                    **row,
+                    "scheduled_closed_candle_evaluation": False,
+                    "warm_start_evaluation": True,
+                    "signal_evaluation_mode": "candle_close_only",
+                    "reason_codes": list(dict.fromkeys(reasons)),
+                }
             elif timeframe in PT_RT1_4_DISABLED_TIMEFRAMES:
                 reasons.append("timeframe_paused_no_signal_evaluation")
                 row = {
@@ -1291,6 +1651,13 @@ def run_cycle(
                 }
             enriched_rows.append(row)
         raw_decision_rows = enriched_rows
+    raw_decision_rows, warm_start_entry_context_by_key, warm_start_gate_stats = _apply_warm_start_signal_gate(
+        decision_rows=raw_decision_rows,
+        warm_start_state=warm_start_entry_context_by_key,
+        runtime_start_utc=runtime_start_utc,
+        warm_start_evaluation=warm_start_evaluation_this_cycle,
+        fresh_signal_only_after_runtime_start=fresh_signal_only_after_runtime_start,
+    )
     decision_rows: list[dict[str, Any]] = []
     trade_rows: list[dict[str, Any]] = []
     duplicate_signal_blocks_this_cycle = 0
@@ -1359,6 +1726,17 @@ def run_cycle(
             pass
         decision_rows.append(row)
 
+    unrealized_pnl_by_lane, mtm_stats = _update_open_position_mtm(
+        open_positions_by_key=open_positions_by_key,
+        scanner_rows=selected_rows,
+        latest_closed_by_key=latest_closed_by_key,
+        now=now,
+    )
+    total_equity_by_lane = {
+        lane.lane_id: str(_dec(realized_equity_by_lane.get(lane.lane_id), lane.initial_equity) + _dec(unrealized_pnl_by_lane.get(lane.lane_id)))
+        for lane in PT_RT1_STRATEGY_LANES
+    }
+
     if candle_close_only:
         for timeframe in due_timeframes:
             closed_time = (scheduler_status.get("timeframes") or {}).get(timeframe, {}).get("closed_candle_time")
@@ -1403,7 +1781,7 @@ def run_cycle(
             kill_switch=baseline_testnet_order_kill_switch,
             transport=baseline_testnet_order_transport,
         )
-        if run_label == "PT-RT1.5"
+        if run_label in {"PT-RT1.5", "PT-RT1.5.1"}
         else ([], {}, testnet_order_keys)
     )
     data_unavailable_summary = _summarize_data_unavailable(
@@ -1418,6 +1796,16 @@ def run_cycle(
     is_pt_rt1_2 = run_label == "PT-RT1.2"
     is_pt_rt1_3 = run_label == "PT-RT1.3"
     is_pt_rt1_5 = run_label == "PT-RT1.5"
+    is_pt_rt1_5_1 = run_label == "PT-RT1.5.1"
+    active_scope = PT_RT1_5_1_RUNTIME_SCOPE if is_pt_rt1_5_1 else PT_RT1_5_RUNTIME_SCOPE if is_pt_rt1_5 else "pt_rt1_4_1_active_week"
+    active_start = (
+        PT_RT1_5_1_ACTIVE_REVIEW_START_UTC
+        if is_pt_rt1_5_1
+        else PT_RT1_5_ACTIVE_REVIEW_START_UTC
+        if is_pt_rt1_5
+        else base_summary["active_review_start_utc"]
+    )
+    active_output_dir = PT_RT1_5_1_RUNTIME_OUTPUT_DIR if is_pt_rt1_5_1 else PT_RT1_5_RUNTIME_OUTPUT_DIR
     summary = {
         **base_summary,
         "phase": run_label,
@@ -1431,6 +1819,10 @@ def run_cycle(
             if is_pt_rt1_5 and runtime_status == "verified"
             else "week1_active_candle_close_scheduler_cycle_blocked"
             if is_pt_rt1_5
+            else "signed_testnet_transport_warm_start_mtm_cycle_verified"
+            if is_pt_rt1_5_1 and runtime_status == "verified"
+            else "signed_testnet_transport_warm_start_mtm_cycle_blocked"
+            if is_pt_rt1_5_1
             else "runtime_correctness_cycle_verified"
             if is_pt_rt1_2 and runtime_status == "verified"
             else "runtime_correctness_cycle_blocked"
@@ -1471,28 +1863,53 @@ def run_cycle(
         "data_health_semantics": "candle_strategy_truth",
         "mid_health_blocks_strategy": False,
         "candle_health_blocks_strategy": True,
-        "active_review_scope": PT_RT1_5_RUNTIME_SCOPE if run_label == "PT-RT1.5" else "pt_rt1_4_1_active_week",
-        "active_review_start_utc": PT_RT1_5_ACTIVE_REVIEW_START_UTC if run_label == "PT-RT1.5" else base_summary["active_review_start_utc"],
+        "active_review_scope": active_scope,
+        "active_review_start_utc": active_start,
         "archived_runtime_scopes": list(PT_RT1_5_ARCHIVED_RUNTIME_SCOPES),
         "active_week_reset_policy": {
-            "default_scope": PT_RT1_5_RUNTIME_SCOPE,
-            "output_dir": PT_RT1_5_RUNTIME_OUTPUT_DIR,
+            "default_scope": active_scope,
+            "output_dir": active_output_dir,
             "old_runtime_rows_archived_not_deleted": True,
             "default_show_archived_rows": False,
             "reason_codes": [
-                "pre_week1_runtime_archived",
-                "archived_position_hidden_by_default",
-                "active_week_ui_reset",
-                "active_week_scoring_only",
+                *(
+                    [
+                        "pre_warm_start_gate_runtime_archived",
+                        "archived_smoke_rows_hidden_by_default",
+                        "active_week_reset_after_warm_start_hotfix",
+                    ]
+                    if is_pt_rt1_5_1
+                    else [
+                        "pre_week1_runtime_archived",
+                        "archived_position_hidden_by_default",
+                        "active_week_ui_reset",
+                        "active_week_scoring_only",
+                    ]
+                ),
             ],
         },
         "signal_evaluation_cadence": {
             "mode": signal_evaluation_mode,
             "strategy_signal_evaluation": "candle-close only" if candle_close_only else "poll",
             "market_refresh": "active",
+            "fresh_signal_only_after_runtime_start": fresh_signal_only_after_runtime_start,
             "active_timeframes": list(PT_RT1_5_ACTIVE_TIMEFRAMES),
             "disabled_timeframes": list(PT_RT1_4_DISABLED_TIMEFRAMES),
             "scheduler_status": scheduler_status,
+        },
+        "warm_start_gate": {
+            **warm_start_gate_stats,
+            "active": fresh_signal_only_after_runtime_start,
+            "warm_start_evaluation_completed": warm_start_evaluation_completed or warm_start_evaluation_this_cycle,
+            "startup_valid_signals_blocked_total": paper_state["startup_valid_signals_blocked_total"]
+            + warm_start_gate_stats.get("startup_valid_signals_blocked_this_cycle", 0),
+            "waiting_for_reset_signals_total": paper_state["waiting_for_reset_signals_total"]
+            + warm_start_gate_stats.get("waiting_for_reset_signals_this_cycle", 0),
+            "fresh_post_start_opens_total": paper_state["fresh_post_start_opens_total"]
+            + warm_start_gate_stats.get("fresh_post_start_opens_this_cycle", 0),
+            "entry_context_resets_total": paper_state["entry_context_resets_total"]
+            + warm_start_gate_stats.get("entry_context_resets_this_cycle", 0),
+            "testnet_orders_from_startup_signals_blocked": True,
         },
         "scanner_universe": scanner_payload,
         "watchlist_status": {
@@ -1551,14 +1968,23 @@ def run_cycle(
             ],
         },
         "testnet_order_policy": {
-            "policy": "pt_rt1_5_baseline_only_fixed_25usdc",
+            "policy": "pt_rt1_5_1_baseline_only_fixed_25usdc_fresh_signal_only"
+            if is_pt_rt1_5_1
+            else "pt_rt1_5_baseline_only_fixed_25usdc",
             "order_transport_enabled": baseline_testnet_order_transport_enabled,
             "transport_submit_configured": testnet_order_lifecycle_stats.get("transport_submit_configured", False),
+            "signed_testnet_transport_client_configured": testnet_order_lifecycle_stats.get(
+                "signed_testnet_transport_client_configured",
+                False,
+            ),
             "kill_switch_active": testnet_order_lifecycle_stats.get("kill_switch_active", baseline_testnet_order_kill_switch),
-            "approval_captured": baseline_testnet_order_approval_text == PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
+            "approval_captured": baseline_testnet_order_approval_text
+            in {PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL, PT_RT1_5_1_EXACT_BASELINE_TESTNET_ORDER_APPROVAL},
             "eligible_trigger": "money_flow_v1_2_baseline paper_opened only",
             "active_timeframes": list(PT_RT1_5_ACTIVE_TIMEFRAMES),
             "fixed_notional_usdc": str(baseline_testnet_order_notional_usdc),
+            "fresh_signal_after_runtime_start_required": fresh_signal_only_after_runtime_start,
+            "startup_valid_signals_can_send_testnet_orders": False,
             "candidate_lane_transport_blocked": True,
             "mf_orig_lane_transport_blocked": True,
             "wildcard_lane_transport_blocked": True,
@@ -1600,6 +2026,9 @@ def run_cycle(
             "baseline_testnet_order_endpoint_called": testnet_order_lifecycle_stats.get("order_endpoint_called", False),
             "live_orders_submitted": False,
             "baseline_testnet_order_lifecycle_rows": len(testnet_order_lifecycle_rows),
+            "fresh_signal_gate_prevents_startup_mass_opens": fresh_signal_only_after_runtime_start,
+            "startup_valid_signals_opened": False if fresh_signal_only_after_runtime_start else None,
+            "mtm_open_positions_updated": mtm_stats.get("open_positions_mtm_updated", 0),
             "testnet_probes_enabled": testnet_probes_enabled,
             "testnet_probe_notional_usdc": str(testnet_probe_notional_usdc),
             "private_signed_order_endpoints_called": bool(
@@ -1622,13 +2051,21 @@ def run_cycle(
             "duplicate_signal_blocks_total": paper_state["duplicate_signal_blocks_total"] + duplicate_signal_blocks_this_cycle,
             "open_positions_by_key": open_positions_by_key,
             "realized_equity_by_lane": realized_equity_by_lane,
+            "unrealized_pnl_by_lane": unrealized_pnl_by_lane,
+            "total_equity_by_lane": total_equity_by_lane,
             "last_evaluated_closed_candle_by_timeframe": last_evaluated_closed_candle_by_timeframe,
             "testnet_order_keys_total": len(testnet_order_keys),
             "testnet_orders_total": paper_state["testnet_orders_total"] + len(testnet_order_lifecycle_rows),
             "paper_pnl_source": "synthetic_public_mainnet_paper_ledger",
             "testnet_fills_update_strategy_pnl": False,
         },
+        "open_position_mtm": mtm_stats,
         "next_phase_decision": (
+            "PT-RT1.5.2 may continue signed testnet lifecycle observation after fresh baseline signals"
+            if is_pt_rt1_5_1 and runtime_status == "verified"
+            else "PT-RT1.5.1 blocked"
+            if is_pt_rt1_5_1
+            else
             "PT-RT1.3 may continue paper observation; missing/stale mids are warning-only when closed candles are available"
             if is_pt_rt1_3 and runtime_status == "verified"
             else "PT-RT1.3 blocked"
@@ -1669,9 +2106,22 @@ def run_cycle(
             "decision_log_mode": decision_log_mode,
             "decision_log_seen_keys": sorted(decision_log_seen_keys),
             "paper_runtime": _paper_runtime_state_payload(
+                runtime_start_utc=runtime_start_utc,
+                fresh_signal_only_after_runtime_start=fresh_signal_only_after_runtime_start,
+                warm_start_evaluation_completed=warm_start_evaluation_completed or warm_start_evaluation_this_cycle,
+                warm_start_entry_context_by_key=warm_start_entry_context_by_key,
+                startup_valid_signals_blocked_total=paper_state["startup_valid_signals_blocked_total"]
+                + warm_start_gate_stats.get("startup_valid_signals_blocked_this_cycle", 0),
+                waiting_for_reset_signals_total=paper_state["waiting_for_reset_signals_total"]
+                + warm_start_gate_stats.get("waiting_for_reset_signals_this_cycle", 0),
+                fresh_post_start_opens_total=paper_state["fresh_post_start_opens_total"]
+                + warm_start_gate_stats.get("fresh_post_start_opens_this_cycle", 0),
+                entry_context_resets_total=paper_state["entry_context_resets_total"]
+                + warm_start_gate_stats.get("entry_context_resets_this_cycle", 0),
                 processed_signal_keys=processed_signal_keys,
                 open_positions_by_key=open_positions_by_key,
                 realized_equity_by_lane=realized_equity_by_lane,
+                unrealized_pnl_by_lane=unrealized_pnl_by_lane,
                 last_processed_close_by_key=last_processed_close_by_key,
                 paper_opens_total=paper_state["paper_opens_total"] + paper_opens_this_cycle,
                 paper_closes_total=paper_state["paper_closes_total"] + paper_closes_this_cycle,
@@ -1701,6 +2151,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     probe_mode = parser.add_mutually_exclusive_group(required=True)
     probe_mode.add_argument("--disable-testnet-probes", action="store_true")
+    probe_mode.add_argument("--disable-legacy-testnet-probes", action="store_true")
     probe_mode.add_argument("--enable-testnet-probes", action="store_true")
     parser.add_argument("--founder-approved-testnet-probes-20usdc", action="store_true")
     parser.add_argument("--submit-testnet-probes", action="store_true")
@@ -1709,7 +2160,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--testnet-probe-daily-cap", type=int, default=TESTNET_PROBE_AUDIT_LIMIT)
     parser.add_argument("--pt-rt1-5-week1-active", action="store_true")
     parser.add_argument("--enable-pt-rt1-5-baseline-testnet-orders", action="store_true")
+    parser.add_argument("--enable-baseline-testnet-transport", action="store_true")
     parser.add_argument("--founder-approved-pt-rt1-5-baseline-testnet-orders-25usdc", action="store_true")
+    parser.add_argument("--founder-approved-pt-rt1-5-1-baseline-testnet-orders-25usdc", action="store_true")
     parser.add_argument(
         "--pt-rt1-5-testnet-order-notional-usdc",
         type=Decimal,
@@ -1726,6 +2179,7 @@ def parse_args() -> argparse.Namespace:
         default=PT_RT1_5_TESTNET_PER_SYMBOL_DAILY_CAP_DEFAULT,
     )
     parser.add_argument("--signal-evaluation-mode", choices=("poll", "candle_close_only"), default="poll")
+    parser.add_argument("--fresh-signal-only-after-runtime-start", action="store_true")
     parser.add_argument("--public-mainnet-only", action="store_true")
     parser.add_argument("--poll-seconds", type=Decimal, default=Decimal("60"))
     parser.add_argument("--symbol", action="append", dest="symbols")
@@ -1750,18 +2204,30 @@ def main() -> int:
         raise SystemExit("testnet_probe_notional_must_be_20usdc")
     if args.testnet_probe_daily_cap <= 0:
         raise SystemExit("positive_testnet_probe_daily_cap_required")
+    baseline_transport_requested = (
+        args.enable_pt_rt1_5_baseline_testnet_orders or args.enable_baseline_testnet_transport
+    )
+    is_pt_rt1_5_1_smoke = args.fresh_signal_only_after_runtime_start or (
+        Path(args.output_dir).as_posix() == PT_RT1_5_1_RUNTIME_OUTPUT_DIR
+    )
     if args.pt_rt1_5_week1_active:
-        if Path(args.output_dir).as_posix() != PT_RT1_5_RUNTIME_OUTPUT_DIR:
+        allowed_pt_rt15_output_dirs = {PT_RT1_5_RUNTIME_OUTPUT_DIR}
+        if is_pt_rt1_5_1_smoke:
+            allowed_pt_rt15_output_dirs.add(PT_RT1_5_1_RUNTIME_OUTPUT_DIR)
+        if Path(args.output_dir).as_posix() not in allowed_pt_rt15_output_dirs:
             raise SystemExit("pt_rt1_5_output_dir_must_be_reports_paper_runtime_pt_rt1_5_week1_active")
         if args.enable_testnet_probes:
             raise SystemExit("pt_rt1_5_uses_disable_testnet_probes_and_baseline_order_transport")
         if args.signal_evaluation_mode == "poll":
             args.signal_evaluation_mode = "candle_close_only"
-    if args.enable_pt_rt1_5_baseline_testnet_orders and not args.pt_rt1_5_week1_active:
+    if Path(args.output_dir).as_posix() == PT_RT1_5_1_RUNTIME_OUTPUT_DIR and not args.fresh_signal_only_after_runtime_start:
+        raise SystemExit("pt_rt1_5_1_smoke_requires_fresh_signal_only_after_runtime_start")
+    if baseline_transport_requested and not args.pt_rt1_5_week1_active:
         raise SystemExit("pt_rt1_5_baseline_testnet_orders_require_pt_rt1_5_week1_active")
     if (
-        args.enable_pt_rt1_5_baseline_testnet_orders
+        baseline_transport_requested
         and not args.founder_approved_pt_rt1_5_baseline_testnet_orders_25usdc
+        and not args.founder_approved_pt_rt1_5_1_baseline_testnet_orders_25usdc
     ):
         raise SystemExit("founder_approved_pt_rt1_5_baseline_testnet_orders_25usdc_required")
     if args.pt_rt1_5_testnet_order_notional_usdc != PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC:
@@ -1786,10 +2252,13 @@ def main() -> int:
         os.environ.get(PT_RT1_5_TESTNET_ORDER_TRANSPORT_KILL_SWITCH_ENV)
     )
     baseline_testnet_order_transport: BaselineTestnetOrderTransport | None = None
-    if args.enable_pt_rt1_5_baseline_testnet_orders and not baseline_testnet_order_kill_switch:
+    if baseline_transport_requested and not baseline_testnet_order_kill_switch:
         baseline_testnet_order_transport = HyperliquidPT_RT15TestnetOrderTransport.from_env()
     end_time = _utc_now() + duration
     run_label = (
+        "PT-RT1.5.1"
+        if args.pt_rt1_5_week1_active and is_pt_rt1_5_1_smoke
+        else
         "PT-RT1.5"
         if args.pt_rt1_5_week1_active
         else "PT-RT1.3"
@@ -1823,8 +2292,11 @@ def main() -> int:
                 else ""
             ),
             signal_evaluation_mode=args.signal_evaluation_mode,
-            baseline_testnet_order_transport_enabled=args.enable_pt_rt1_5_baseline_testnet_orders,
+            baseline_testnet_order_transport_enabled=baseline_transport_requested,
             baseline_testnet_order_approval_text=(
+                PT_RT1_5_1_EXACT_BASELINE_TESTNET_ORDER_APPROVAL
+                if args.founder_approved_pt_rt1_5_1_baseline_testnet_orders_25usdc
+                else
                 PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL
                 if args.founder_approved_pt_rt1_5_baseline_testnet_orders_25usdc
                 else ""
@@ -1835,6 +2307,7 @@ def main() -> int:
             baseline_testnet_order_base_url=baseline_testnet_order_base_url,
             baseline_testnet_order_kill_switch=baseline_testnet_order_kill_switch,
             baseline_testnet_order_transport=baseline_testnet_order_transport,
+            fresh_signal_only_after_runtime_start=args.fresh_signal_only_after_runtime_start,
         )
         if args.max_cycles is not None and cycle >= args.max_cycles:
             break

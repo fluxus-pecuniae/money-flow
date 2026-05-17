@@ -157,6 +157,8 @@ REQUIRED_FILES = [
     "docs/pt_rt_week1_day_summary.json",
     "docs/pt_rt1_5_week1_reset_baseline_testnet_orders_and_candle_scheduler.md",
     "docs/pt_rt1_5_week1_reset_baseline_testnet_orders_and_candle_scheduler_summary.json",
+    "docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm.md",
+    "docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm_summary.json",
     "money-flow/00 Maps/Strategy Family Map.md",
     "money-flow/00 Maps/Evidence and Backtesting Map.md",
     "money-flow/00 Maps/Data Source and Market Data Map.md",
@@ -310,7 +312,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert "Current implemented milestone | `PT-RT1.5` Week 1 reset + baseline testnet lifecycle + candle scheduler" in command_center
+    assert "Current implemented milestone | `PT-RT1.5.1` signed testnet transport + warm-start gate + open MTM hotfix" in command_center
     assert "Canonical command center" in compatibility_command_center
     assert "PT-RT1 now implements the public-mainnet Paper Trading observation substrate" in current_dashboard
     assert "SV2.0.2 canonical evidence" in current_dashboard
@@ -534,8 +536,10 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     start_summary = Path("docs/pt_rt1_1c_24h_runtime_collection_start_summary.json").read_text()
     pt_rt15_report = Path("docs/pt_rt1_5_week1_reset_baseline_testnet_orders_and_candle_scheduler.md").read_text()
     pt_rt15_summary = Path("docs/pt_rt1_5_week1_reset_baseline_testnet_orders_and_candle_scheduler_summary.json").read_text()
+    pt_rt151_report = Path("docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm.md").read_text()
+    pt_rt151_summary = Path("docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm_summary.json").read_text()
 
-    for contents in (command_center, current_phase, project_memory, paper_roadmap, report, expanded_report, runtime_report, start_report, pt_rt15_report):
+    for contents in (command_center, current_phase, project_memory, paper_roadmap, report, expanded_report, runtime_report, start_report, pt_rt15_report, pt_rt151_report):
         assert "PT-RT1" in contents
         assert "public mainnet" in contents or "Public mainnet" in contents
         assert "testnet" in contents
@@ -545,11 +549,15 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     assert "PT-RT1.3 is the current runtime data-health layer" in command_center
     assert "PT-RT1.4.1 verifies the active-week runtime cutover" in command_center
     assert "PT-RT1.5 resets the active Week 1 Paper Trading scope" in command_center
-    assert "pt_rt1_5_week1_active" in current_phase
+    assert "PT-RT1.5.1 enables signed Hyperliquid testnet transport only for fresh Money Flow v1.2 baseline open signals" in command_center
+    assert "pt_rt1_5_1_smoke" in current_phase
     assert "fixed 25 USDC" in pt_rt15_report
     assert "candle-close only" in pt_rt15_report
     assert "\"fixed_notional_usdc\": \"25\"" in pt_rt15_summary
     assert "\"signal_evaluation_mode\": \"candle_close_only\"" in pt_rt15_summary
+    assert "warm-start signal gate" in pt_rt151_report
+    assert "\"fresh_signal_only_after_runtime_start\": true" in pt_rt151_summary
+    assert "\"fixed_notional_usdc\": \"25\"" in pt_rt151_summary
     assert "PT-RT Week 1 Daily Summary" in current_phase
     assert "active_runtime_cutover_verified_after_restart" in current_phase
     assert "state persists processed signal keys" in command_center

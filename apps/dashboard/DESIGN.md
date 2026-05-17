@@ -101,6 +101,7 @@ Primary dashboard tabs are:
   - PT-RT1.1B adds public-mainnet connection status, expanded watchlist readiness, all 10 synthetic lanes, runtime candle/marker status when local ignored summaries exist, and separate disabled testnet-plumbing status.
   - PT-RT1.4 makes this the weekly command center: active timeframes are `1h`, `4h`, and `1d`; `15m` is paused/legacy for Week 1 and excluded from active scoring.
   - PT-RT1.5 resets the active Week 1 scope to `pt_rt1_5_week1_active`, keeps archived rows hidden by default, makes signal evaluation candle-close only, and adds a separate baseline-only fixed 25 USDC Hyperliquid testnet order lifecycle table.
+  - PT-RT1.5.1 defaults fresh review to `pt_rt1_5_1_smoke`, blocks startup-valid confirmations until fresh post-start transitions, shows signed testnet transport configured/missing state, adds endpoint-called lifecycle fields, and marks open synthetic positions from public mainnet data or displays `MTM unavailable`.
   - The view must keep public mainnet strategy truth, synthetic paper PnL, testnet plumbing probes, historical evidence, and display-only filters visually separated.
 
 The invalid legacy `Experiments` surface is not exposed as a primary tab. Evidence Lab is tied to SOR-EV1/SOR-EV2/SOR-EV3 committed summaries and canonical SV2.0.2 baseline context only.

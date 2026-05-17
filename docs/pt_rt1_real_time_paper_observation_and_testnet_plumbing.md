@@ -6,6 +6,8 @@ Status: implemented
 
 PT-RT1.4 makes Paper Trading the weekly founder command center and cuts active Week 1 paper-observation scoring to `1h`, `4h`, and `1d`. The `15m` timeframe is paused as `disabled_for_week1_noise_reduction`; existing 15m records remain visible as paused/legacy data but are excluded from active weekly scoring and new synthetic entries after the cutover. See `docs/pt_rt1_4_paper_trading_command_center_cleanup.md`.
 
+PT-RT1.5.1 is the current Paper Trading hotfix layer. It archives the pre-warm-start PT-RT1.5 smoke, defaults fresh review to `reports/paper_runtime/pt_rt1_5_1_smoke/`, blocks startup-valid entry confirmations until fresh post-start false-to-true signals, wires signed Hyperliquid testnet transport only for fresh Money Flow v1.2 baseline opens with fixed 25 USDC notional, and populates open-position MTM from public mainnet data. Testnet fills still do not update strategy PnL.
+
 PT-RT1.1C starts the 24-hour probes-disabled runtime collection after PT-RT1.1B public-mainnet readiness. The active collection uses the public-read-only `/info` connector, writes ignored artifacts under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/`, keeps testnet probes disabled and kill-switched, and defers evaluation to PT-RT1.1D after completion.
 
 PT-RT1.1B connected the expanded lab to Hyperliquid public mainnet market data for readiness smoke validation. The public-read-only `/info` connector uses only `https://api.hyperliquid.xyz/info` public-read payloads, the runtime command writes ignored artifacts under `reports/paper_runtime/`, and the dashboard now prefers PT-RT1.1C/PT-RT1.1B runtime summaries when present.

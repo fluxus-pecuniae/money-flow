@@ -58,10 +58,14 @@ PT_RT1_4_TIMEFRAME_REASON_CODES = (
 PT_RT1_5_RUNTIME_SCOPE = "pt_rt1_5_week1_active"
 PT_RT1_5_RUNTIME_OUTPUT_DIR = "reports/paper_runtime/pt_rt1_5_week1_active"
 PT_RT1_5_ACTIVE_REVIEW_START_UTC = "2026-05-17T12:54:24Z"
+PT_RT1_5_1_RUNTIME_SCOPE = "pt_rt1_5_1_smoke"
+PT_RT1_5_1_RUNTIME_OUTPUT_DIR = "reports/paper_runtime/pt_rt1_5_1_smoke"
+PT_RT1_5_1_ACTIVE_REVIEW_START_UTC = "2026-05-17T14:34:44Z"
 PT_RT1_5_ARCHIVED_RUNTIME_SCOPES = (
     "pre_pt_rt1_4_weekend_burn_in",
     "pt_rt1_1c_24h_dry_run",
     "pt_rt1_4_1_active_week",
+    "pt_rt1_5_smoke_pre_warm_start_gate",
     "legacy_runtime",
 )
 PT_RT1_5_ACTIVE_TIMEFRAMES = PT_RT1_4_ACTIVE_TIMEFRAMES
@@ -75,6 +79,13 @@ PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL = (
     "PER BASELINE OPEN SIGNAL. PUBLIC MAINNET DATA REMAINS STRATEGY TRUTH. "
     "TESTNET FILLS MUST NOT UPDATE SYNTHETIC STRATEGY PNL. CANDIDATE LANES "
     "MUST NOT SEND TESTNET ORDERS. LIVE TRADING IS NOT APPROVED."
+)
+PT_RT1_5_1_EXACT_BASELINE_TESTNET_ORDER_APPROVAL = (
+    "I APPROVE PT-RT1.5.1 HYPERLIQUID TESTNET ORDER TRANSPORT FOR "
+    "MONEY_FLOW_V1_2_BASELINE ONLY. TESTNET ONLY. FIXED 25 USDC NOTIONAL "
+    "PER FRESH BASELINE OPEN SIGNAL. PUBLIC MAINNET DATA REMAINS STRATEGY TRUTH. "
+    "TESTNET FILLS MUST NOT UPDATE SYNTHETIC STRATEGY PNL. CANDIDATE LANES MUST "
+    "NOT SEND TESTNET ORDERS. LIVE TRADING IS NOT APPROVED."
 )
 PT_RT1_5_CANDLE_CLOSE_GRACE_SECONDS = {
     "1h": 90,
@@ -110,6 +121,7 @@ PT_RT1_5_TESTNET_ORDER_REASON_CODES = (
     "testnet_order_blocked_non_open_action",
     "testnet_order_blocked_inactive_timeframe",
     "testnet_order_requires_scheduled_closed_candle_evaluation",
+    "testnet_order_requires_fresh_post_start_signal",
     "testnet_duplicate_order_blocked",
     "testnet_order_symbol_blocked",
     "testnet_order_unit_semantics_deferred",
@@ -122,6 +134,23 @@ PT_RT1_5_TESTNET_ORDER_REASON_CODES = (
     "vault_address_required_for_subaccount_or_vault",
     "testnet_order_shape_ready",
     "fixed_testnet_plumbing_notional",
+    "signed_testnet_transport_client_configured",
+    "signed_testnet_transport_client_not_configured",
+)
+PT_RT1_5_1_WARM_START_REASON_CODES = (
+    "warm_start_evaluation_completed",
+    "signal_good_but_runtime_started_after_setup",
+    "entry_context_already_true_at_runtime_start",
+    "entry_context_already_true_waiting_for_reset",
+    "entry_context_reset_observed",
+    "fresh_entry_signal_after_runtime_start",
+    "warm_start_blocked_late_entry",
+)
+PT_RT1_5_1_MTM_REASON_CODES = (
+    "mtm_source_public_mainnet_mid",
+    "mtm_source_latest_closed_candle",
+    "mtm_price_unavailable",
+    "mtm_unrealized_pnl_updated",
 )
 RUNTIME_STATE_PATHS = {
     "state": "reports/paper_runtime/pt_rt1_state.json",
@@ -608,6 +637,8 @@ class PT_RT15TestnetOrderCandidate:
     timeframe: str = "1h"
     signal_candle_close_time: str = "2026-05-17T13:00:00Z"
     scheduled_closed_candle_evaluation: bool = True
+    fresh_signal_after_runtime_start: bool = False
+    warm_start_signal_blocked: bool = False
     duplicate_order_key_seen: bool = False
     scanner_signal_eligible: bool = True
     scanner_symbol_blocked: bool = False
@@ -658,7 +689,10 @@ class PT_RT15BaselineTestnetOrderPolicy:
             reasons.append("testnet_order_transport_disabled")
         if candidate.kill_switch:
             reasons.append("testnet_order_transport_kill_switch_active")
-        if candidate.approval_text != PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL:
+        if candidate.approval_text not in {
+            PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
+            PT_RT1_5_1_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
+        }:
             reasons.append("pt_rt1_5_exact_approval_required")
         if candidate.base_url != PT_RT1_TESTNET_INFO_URL:
             reasons.append("testnet_endpoint_required")
@@ -672,6 +706,8 @@ class PT_RT15BaselineTestnetOrderPolicy:
             reasons.append("testnet_order_blocked_inactive_timeframe")
         if not candidate.scheduled_closed_candle_evaluation:
             reasons.append("testnet_order_requires_scheduled_closed_candle_evaluation")
+        if not candidate.fresh_signal_after_runtime_start or candidate.warm_start_signal_blocked:
+            reasons.append("testnet_order_requires_fresh_post_start_signal")
         if candidate.duplicate_order_key_seen:
             reasons.append("testnet_duplicate_order_blocked")
         if not candidate.scanner_signal_eligible or candidate.scanner_symbol_blocked:
@@ -707,6 +743,13 @@ class PT_RT15BaselineTestnetOrderPolicy:
             "symbol": candidate.symbol,
             "timeframe": candidate.timeframe,
             "signal_candle_close_time": candidate.signal_candle_close_time,
+            "fresh_signal_after_runtime_start": candidate.fresh_signal_after_runtime_start,
+            "warm_start_signal_blocked": candidate.warm_start_signal_blocked,
+            "trigger_reason": (
+                "fresh_entry_signal_after_runtime_start"
+                if candidate.fresh_signal_after_runtime_start and not candidate.warm_start_signal_blocked
+                else "warm_start_or_late_signal_blocked"
+            ),
             "status": lifecycle_status,
             "side": "buy",
             "notional": str(candidate.fixed_notional),
@@ -1818,6 +1861,9 @@ def build_pt_rt1_summary() -> dict[str, Any]:
         "latest_readiness_phase": "PT-RT1.4",
         "latest_readiness_report": "docs/pt_rt1_4_paper_trading_command_center_cleanup.md",
         "latest_readiness_summary": "docs/pt_rt1_4_paper_trading_command_center_cleanup_summary.json",
+        "latest_hotfix_phase": "PT-RT1.5.1",
+        "latest_hotfix_report": "docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm.md",
+        "latest_hotfix_summary": "docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm_summary.json",
         "strategy_truth_lane": {
             "source": "Hyperliquid public mainnet info endpoint",
             "endpoint": PT_RT1_MAINNET_INFO_URL,
@@ -1863,6 +1909,20 @@ def build_pt_rt1_summary() -> dict[str, Any]:
                 "archived_position_hidden_by_default",
                 "active_week_ui_reset",
                 "active_week_scoring_only",
+            ],
+        },
+        "pt_rt1_5_1_smoke_scope": {
+            "scope": PT_RT1_5_1_RUNTIME_SCOPE,
+            "output_dir": PT_RT1_5_1_RUNTIME_OUTPUT_DIR,
+            "active_review_start_utc": PT_RT1_5_1_ACTIVE_REVIEW_START_UTC,
+            "archived_runtime_scopes": list(PT_RT1_5_ARCHIVED_RUNTIME_SCOPES),
+            "default_show_archived_rows": False,
+            "fresh_signal_only_after_runtime_start": True,
+            "old_runtime_rows_archived_not_deleted": True,
+            "reason_codes": [
+                "pre_warm_start_gate_runtime_archived",
+                "archived_smoke_rows_hidden_by_default",
+                "active_week_reset_after_warm_start_hotfix",
             ],
         },
         "active_timeframe_policy": {
@@ -1952,6 +2012,7 @@ def build_pt_rt1_summary() -> dict[str, Any]:
         "signal_evaluation_policy": {
             "mode": "candle_close_only",
             "market_refresh_mode": "continuous_display_refresh",
+            "fresh_signal_only_after_runtime_start": True,
             "active_strategy_timeframes": list(PT_RT1_5_ACTIVE_TIMEFRAMES),
             "paused_strategy_timeframes": list(PT_RT1_5_DISABLED_TIMEFRAMES),
             "one_hour_grace_delay_seconds": PT_RT1_5_CANDLE_CLOSE_GRACE_SECONDS["1h"],
@@ -1959,7 +2020,25 @@ def build_pt_rt1_summary() -> dict[str, Any]:
             "one_day_grace_delay_seconds": PT_RT1_5_CANDLE_CLOSE_GRACE_SECONDS["1d"],
             "closed_candle_retry_policy": PT_RT1_5_CLOSED_CANDLE_RETRY_POLICY,
             "duplicate_candle_signal_policy": "duplicate_candle_signal_ignored",
-            "reason_codes": list(PT_RT1_5_SCHEDULER_REASON_CODES),
+            "reason_codes": [*PT_RT1_5_SCHEDULER_REASON_CODES, *PT_RT1_5_1_WARM_START_REASON_CODES],
+        },
+        "warm_start_gate_policy": {
+            "status": "enabled_for_pt_rt1_5_1",
+            "fresh_signal_only_after_runtime_start": True,
+            "startup_valid_signals_create_synthetic_opens": False,
+            "startup_valid_signals_create_testnet_orders": False,
+            "requires_false_then_true_transition": True,
+            "applies_to_all_synthetic_lanes": True,
+            "baseline_testnet_transport_requires_fresh_post_start_open": True,
+            "reason_codes": list(PT_RT1_5_1_WARM_START_REASON_CODES),
+        },
+        "open_position_mtm_policy": {
+            "status": "enabled_for_pt_rt1_5_1",
+            "preferred_source": "public_mainnet_allMids",
+            "fallback_source": "latest_fully_closed_public_mainnet_candle_close",
+            "missing_price_displays_zero": False,
+            "market_refresh_updates_mtm_without_signal_evaluation": True,
+            "reason_codes": list(PT_RT1_5_1_MTM_REASON_CODES),
         },
         "testnet_probe_policy": {
             "PT_RT1_TESTNET_PROBES_ENABLED": False,
@@ -1974,10 +2053,13 @@ def build_pt_rt1_summary() -> dict[str, Any]:
         "pt_rt1_5_testnet_order_policy": {
             "order_transport_scope": "Money Flow v1.2 baseline opens only",
             "approval_text_required": PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
+            "pt_rt1_5_1_approval_text_required": PT_RT1_5_1_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
             "fixed_notional_usdc": str(PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC),
             "daily_order_cap_default": PT_RT1_5_TESTNET_DAILY_ORDER_CAP_DEFAULT,
             "per_symbol_daily_cap_default": PT_RT1_5_TESTNET_PER_SYMBOL_DAILY_CAP_DEFAULT,
             "active_timeframes": list(PT_RT1_5_ACTIVE_TIMEFRAMES),
+            "fresh_signal_after_runtime_start_required": True,
+            "startup_valid_signals_can_send_testnet_orders": False,
             "candidate_lanes_can_send_testnet_orders": False,
             "mf_orig_lanes_can_send_testnet_orders": False,
             "wildcard_lanes_can_send_testnet_orders": False,
@@ -1995,6 +2077,7 @@ def build_pt_rt1_summary() -> dict[str, Any]:
             "wildcard_diagnostics_visible": True,
             "public_mainnet_connection_status_visible": True,
             "runtime_summary_preferred_paths": [
+                "reports/paper_runtime/pt_rt1_5_1_smoke/summary.json",
                 "reports/paper_runtime/pt_rt1_5_week1_active/summary.json",
                 "reports/paper_runtime/pt_rt1_1b_smoke/summary.json",
                 "reports/paper_runtime/pt_rt1_1b_24h_dry_run/summary.json",
@@ -2006,6 +2089,7 @@ def build_pt_rt1_summary() -> dict[str, Any]:
             "smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 1 --output-dir reports/paper_runtime/pt_rt1_1b_smoke --disable-testnet-probes --public-mainnet-only",
             "duration_hours_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1c_24h_dry_run --enable-testnet-probes --founder-approved-testnet-probes-20usdc --testnet-probe-notional-usdc 20 --public-mainnet-only",
             "pt_rt1_5_week1_active_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_5_week1_active --pt-rt1-5-week1-active --enable-pt-rt1-5-baseline-testnet-orders --founder-approved-pt-rt1-5-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --disable-testnet-probes --public-mainnet-only",
+            "pt_rt1_5_1_smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 1 --output-dir reports/paper_runtime/pt_rt1_5_1_smoke --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-1-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --disable-legacy-testnet-probes --public-mainnet-only",
         },
         "next_phase": {
             "decision": "Run fresh PT-RT active-week paper observation on 1h/4h/1d with 15m paused",
@@ -2014,6 +2098,7 @@ def build_pt_rt1_summary() -> dict[str, Any]:
                 "public_mainnet_strategy_truth_only",
                 "expanded_scanner_rows_remain_reason_coded",
                 "pt_rt1_4_active_timeframe_cutover_enabled",
+                "pt_rt1_5_1_warm_start_gate_enabled",
                 "fifteen_minute_timeframe_paused_for_week1",
                 "no_production_rule_changes",
             ],

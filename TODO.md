@@ -1,14 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-17T12:54:24Z`
+Last reviewed: `2026-05-17T14:51:49Z`
 
 ## Active Follow-Ups
 
 ### T-151
 
 - `priority`: `high`
-- `status`: `implemented_pending_live_cycle_review`
-- `summary`: `PT-RT1.5 resets active Week 1 to reports/paper_runtime/pt_rt1_5_week1_active/, hides archived runtime rows by default while preserving old artifacts, keeps active timeframes at 1h/4h/1d, keeps 15m paused, and separates market refresh from candle-close-only strategy evaluation. The runner now has PT-RT1.5 flags, scheduler status, duplicate closed-candle blocking, and Money Flow v1.2 baseline-only fixed 25 USDC Hyperliquid testnet lifecycle rows in testnet_order_lifecycle.jsonl. Candidate, MF-ORIG, and wildcard lanes remain synthetic-only; public mainnet candles remain strategy truth; testnet fills do not update synthetic PnL; no live trading or production approval follows. Next operator step is to start/restart Week 1 active runtime under PT-RT1.5 and review the first scheduled candle-close/lifecycle cycle.`
+- `status`: `implemented_pending_pt_rt1_5_1_smoke_review`
+- `summary`: `PT-RT1.5.1 archives the pre-warm-start PT-RT1.5 smoke rows as pt_rt1_5_smoke_pre_warm_start_gate and defaults the active Paper Trading/control-server scope to reports/paper_runtime/pt_rt1_5_1_smoke/. Startup-valid confirmations are now recorded but blocked from synthetic opens and testnet orders until the entry context resets false and a fresh post-start Money Flow v1.2 baseline open occurs. Signed Hyperliquid testnet transport is wired behind exact PT-RT1.5.1 approval, local env secrets only, testnet URL validation, account-targeting/vaultAddress rules, duplicate order keys, and fixed 25 USDC notional; candidate, MF-ORIG, and wildcard lanes remain synthetic-only. Open synthetic positions now mark to public mainnet mids or latest closed candles and show MTM unavailable when no mark exists. Public mainnet candles remain strategy truth; testnet fills do not update synthetic PnL; no live trading or production approval follows. Next operator step is to run/review pt_rt1_5_1_smoke before the Week 1 observation window.`
 
 ### T-150
 

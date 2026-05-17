@@ -1,0 +1,96 @@
+{
+  "phase": "PT-RT1.5.1",
+  "status": "implemented",
+  "signed_transport_status": {
+    "client": "configured_when_local_hyperliquid_testnet_env_is_present",
+    "missing_status": "signed_testnet_transport_client_not_configured",
+    "base_url": "https://api.hyperliquid-testnet.xyz/info",
+    "live_url_rejected": true,
+    "secrets_logged": false
+  },
+  "warm_start_gate_status": {
+    "enabled": true,
+    "applies_to_all_synthetic_lanes": true,
+    "startup_valid_signals_create_synthetic_opens": false,
+    "startup_valid_signals_create_testnet_orders": false,
+    "requires_false_then_true_transition": true,
+    "reason_codes": [
+      "warm_start_evaluation_completed",
+      "signal_good_but_runtime_started_after_setup",
+      "entry_context_already_true_at_runtime_start",
+      "entry_context_already_true_waiting_for_reset",
+      "entry_context_reset_observed",
+      "fresh_entry_signal_after_runtime_start",
+      "warm_start_blocked_late_entry"
+    ]
+  },
+  "fresh_signal_only_after_runtime_start": true,
+  "startup_valid_signal_policy": "record_and_block_until_entry_context_resets_false_then_true_after_runtime_start",
+  "testnet_order_policy": {
+    "environment": "hyperliquid_testnet_only",
+    "eligible_lane": "money_flow_v1_2_baseline",
+    "eligible_action": "paper_opened",
+    "eligible_timeframes": [
+      "1h",
+      "4h",
+      "1d"
+    ],
+    "requires_scheduled_closed_candle_evaluation": true,
+    "requires_fresh_signal_after_runtime_start": true,
+    "startup_valid_signals_can_send_testnet_orders": false,
+    "candidate_lanes_can_send_testnet_orders": false,
+    "mf_orig_lanes_can_send_testnet_orders": false,
+    "wildcard_lanes_can_send_testnet_orders": false,
+    "fifteen_minute_can_send_testnet_orders": false
+  },
+  "fixed_notional_usdc": "25",
+  "baseline_only_trigger": true,
+  "candidate_lane_transport_blocked": true,
+  "mtm_status": {
+    "enabled": true,
+    "preferred_source": "public_mainnet_allMids",
+    "fallback_source": "latest_fully_closed_public_mainnet_candle_close",
+    "mtm_unavailable_displays_zero": false,
+    "market_refresh_updates_mtm_without_signal_evaluation": true,
+    "fields": [
+      "current_price",
+      "current_price_source",
+      "current_price_time",
+      "current_unrealized_pnl",
+      "current_unrealized_pnl_pct",
+      "position_notional",
+      "total_equity_impact"
+    ]
+  },
+  "smoke_run_status": {
+    "scope": "pt_rt1_5_1_smoke",
+    "output_dir": "reports/paper_runtime/pt_rt1_5_1_smoke",
+    "operator_start_command_available": true,
+    "runtime_artifacts_committed": false,
+    "bounded_smoke_verified": true,
+    "public_mainnet_connected": true,
+    "decisions_written": 30,
+    "startup_valid_synthetic_opens": 0,
+    "fresh_post_start_opens": 0,
+    "testnet_lifecycle_rows": 0,
+    "order_endpoint_calls": 0,
+    "signed_order_endpoint_calls": 0,
+    "signed_transport_runtime_status": "signed_testnet_transport_client_not_configured"
+  },
+  "testnet_lifecycle_summary": {
+    "table": "testnet_order_lifecycle.jsonl",
+    "separate_from_synthetic_trades": true,
+    "endpoint_called_flags_visible": true,
+    "testnet_fills_update_strategy_pnl": false
+  },
+  "boundaries": {
+    "public_mainnet_candles_strategy_truth": true,
+    "testnet_prices_strategy_truth": false,
+    "testnet_fills_update_synthetic_pnl": false,
+    "production_money_flow_rules_changed": false,
+    "live_trading_approved": false,
+    "strategy_production_approved": false,
+    "candidate_lane_testnet_transport": false
+  },
+  "next_phase": "Run pt_rt1_5_1_smoke for one hour, then review warm-start, MTM, and signed-testnet lifecycle behavior before Week 1 observation."
+}

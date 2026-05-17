@@ -93,6 +93,7 @@ def test_pt_rt1_1c_boundaries_and_dashboard_handoff() -> None:
     assert boundaries["live_trading_approved"] is False
     assert summary["dashboard_url"] == "http://127.0.0.1:8765/apps/dashboard/index.html"
     assert "PT-RT1.1D may evaluate 24-hour runtime artifacts after completion" in report
-    assert "../../reports/paper_runtime/pt_rt1_1c_24h_dry_run/summary.json" in js
+    assert "../../reports/paper_runtime/pt_rt1_5_1_smoke/summary.json" in js
+    assert "../../reports/paper_runtime/pt_rt1_1c_24h_dry_run/summary.json" not in js
     assert "No strategy is production-approved." in report
     assert "Live trading is not approved." in report

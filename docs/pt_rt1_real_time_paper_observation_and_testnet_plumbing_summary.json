@@ -1,5 +1,6 @@
 {
-  "active_review_start_utc": "2026-05-17T09:47:55Z",
+  "active_review_start_utc": "2026-05-17T14:34:44Z",
+  "active_runtime_scope": "pt_rt1_5_1_smoke",
   "active_timeframe_policy": {
     "active_timeframes": [
       "1h",
@@ -24,7 +25,7 @@
     "legacy_15m_policy": "existing 15m records remain visible under paused/legacy filters; no new 15m entries after cutover",
     "not_one_combined_account": true,
     "pre_cutover_label": "weekend_burn_in_or_pre_cutover",
-    "status": "pt_rt1_4_week1_cutover"
+    "status": "pt_rt1_5_1_warm_start_hotfix"
   },
   "active_timeframes": [
     "1h",
@@ -51,7 +52,9 @@
     "paper_runtime_approved_as_production": false,
     "production_money_flow_rules_changed": false,
     "sor_fanout_cbbo_added": false,
-    "testnet_probes_submit_signed_transport": false
+    "testnet_probes_submit_signed_transport": false,
+    "baseline_testnet_order_transport_enabled_with_approval": true,
+    "candidate_lane_testnet_transport": false
   },
   "dashboard_status": {
     "blocked_symbols_visible": true,
@@ -59,11 +62,11 @@
     "expanded_scanner_universe_visible": true,
     "public_mainnet_connection_status_visible": true,
     "runtime_summary_preferred_paths": [
-      "reports/paper_runtime/pt_rt1_1b_smoke/summary.json",
-      "reports/paper_runtime/pt_rt1_1b_24h_dry_run/summary.json",
-      "docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json"
+      "reports/paper_runtime/pt_rt1_5_1_smoke/summary.json",
+      "docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm_summary.json",
+      "reports/paper_runtime/pt_rt1_5_week1_active/summary.json"
     ],
-    "status": "implemented_with_pt_rt1_1b_connection_status",
+    "status": "implemented_with_pt_rt1_5_1_signed_transport_warm_start_and_mtm",
     "strategy_lanes_visible": 10,
     "view": "Paper Observation",
     "wildcard_diagnostics_visible": true
@@ -99,9 +102,22 @@
     "default": "next_candle_open",
     "same_candle_optimistic_fills": false
   },
-  "latest_readiness_phase": "PT-RT1.4",
-  "latest_readiness_report": "docs/pt_rt1_4_paper_trading_command_center_cleanup.md",
-  "latest_readiness_summary": "docs/pt_rt1_4_paper_trading_command_center_cleanup_summary.json",
+  "latest_readiness_phase": "PT-RT1.5.1",
+  "latest_readiness_report": "docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm.md",
+  "latest_readiness_summary": "docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm_summary.json",
+  "warm_start_gate_policy": {
+    "enabled": true,
+    "fresh_signal_only_after_runtime_start": true,
+    "startup_valid_signals_create_synthetic_opens": false,
+    "startup_valid_signals_create_testnet_orders": false,
+    "requires_false_then_true_transition": true
+  },
+  "open_position_mtm_policy": {
+    "enabled": true,
+    "preferred_source": "public_mainnet_allMids",
+    "fallback_source": "latest_fully_closed_public_mainnet_candle_close",
+    "mtm_unavailable_displays_zero": false
+  },
   "market_data_health": [
     {
       "fully_closed_candle_status": "paused_legacy_timeframe",
@@ -1316,14 +1332,15 @@
   ],
   "next_phase": {
     "conditions": [
-      "testnet_probe_transport_not_submitted_by_pt_rt1_runtime",
+      "baseline_testnet_order_transport_only_after_fresh_money_flow_v1_2_signal",
       "public_mainnet_strategy_truth_only",
       "expanded_scanner_rows_remain_reason_coded",
-      "pt_rt1_4_active_timeframe_cutover_enabled",
+      "pt_rt1_5_1_warm_start_gate_enabled",
+      "open_position_mtm_uses_public_mainnet_data",
       "fifteen_minute_timeframe_paused_for_week1",
       "no_production_rule_changes"
     ],
-    "decision": "Run fresh PT-RT active-week paper observation on 1h/4h/1d with 15m paused"
+    "decision": "Run pt_rt1_5_1_smoke for one hour, then review warm-start, MTM, and signed-testnet lifecycle behavior before Week 1 observation"
   },
   "paper_equity_policy": {
     "compounds_wins_and_losses": true,

@@ -100,7 +100,7 @@ PT-RT1.5 active-week reset, candle scheduler, and baseline-only testnet lifecycl
 - Testnet lifecycle rows use fixed 25 USDC notional, independent of synthetic signal size.
 - Candidate, MF-ORIG, wildcard, 15m, duplicate, data-unavailable, hold, close, and trim rows cannot send testnet orders.
 - Public mainnet candles remain strategy truth; testnet prices are formatting-only for testnet plumbing; testnet fills never update synthetic PnL.
-- Runtime artifacts stay ignored under `reports/paper_runtime/pt_rt1_5_week1_active/`.
+- Runtime artifacts stay ignored. PT-RT1.5 artifacts remain archived under `reports/paper_runtime/pt_rt1_5_week1_active/`; PT-RT1.5.1 fresh smoke artifacts use `reports/paper_runtime/pt_rt1_5_1_smoke/`.
 
 Paper Trading dashboard live display:
 
@@ -120,7 +120,7 @@ Paper Trading dashboard live display:
 - The Testnet Order Transport widget now separates audit-only shape generation from baseline-only order transport, shows fixed 25 USDC notional, candidate-lane transport blocks, signed testnet order counts, lifecycle counts, and `strategy PnL update from testnet = false`.
 - The Testnet Order Lifecycle table is separate from Closed Synthetic Trades.
 - The dashboard shows next/last scheduled `1h`/`4h`/`1d` signal-evaluation times and labels Signal Evaluation as candle-close only.
-- The local Start Run / Stop Run panel is available only when the dashboard is served by `scripts/run_dashboard_control_server.py`; it launches allowlisted public-mainnet sessions through Mac `caffeinate` and now defaults to `pt_rt1_5_week1_active`, `--disable-testnet-probes`, `--pt-rt1-5-week1-active`, `--signal-evaluation-mode candle_close_only`, `--enable-pt-rt1-5-baseline-testnet-orders`, fixed `--pt-rt1-5-testnet-order-notional-usdc 25`, and `--public-mainnet-only`.
+- The local Start Run / Stop Run panel is available only when the dashboard is served by `scripts/run_dashboard_control_server.py`; it launches allowlisted public-mainnet sessions through Mac `caffeinate` and now defaults to `pt_rt1_5_1_smoke`, `--fresh-signal-only-after-runtime-start`, `--disable-legacy-testnet-probes`, `--pt-rt1-5-week1-active`, `--signal-evaluation-mode candle_close_only`, `--enable-baseline-testnet-transport`, fixed `--pt-rt1-5-testnet-order-notional-usdc 25`, and `--public-mainnet-only`.
 - Runtime decision logging now defaults to compact mode. It writes actionable `paper_opened`/`paper_closed` decisions, data-unavailable rows, and first-seen non-actionable audit rows while suppressing repeated identical non-actionable rows across cycles; `full_audit` remains an explicit short-diagnostic CLI mode.
 - The dashboard displays decision-log mode, log size, rows written this cycle, and repeated rows suppressed this cycle from runtime summaries.
 - Static `http.server` dashboard review still works, but runtime Start/Stop controls intentionally show unavailable there.
@@ -128,10 +128,10 @@ Paper Trading dashboard live display:
 
 Current next operational step:
 
-1. Start or restart the PT-RT1.5 active-week session scoped to `1h`, `4h`, and `1d`.
-2. Retain ignored active artifacts under `reports/paper_runtime/pt_rt1_5_week1_active/`.
+1. Start or restart the PT-RT1.5.1 smoke session scoped to `1h`, `4h`, and `1d`.
+2. Retain ignored active artifacts under `reports/paper_runtime/pt_rt1_5_1_smoke/`.
 3. Use the Paper Trading tab as the weekly command center and keep archived/weekend burn-in rows hidden by default.
-4. Review scheduler timing, duplicate closed-candle suppression, fixed-25 baseline-only testnet lifecycle rows, candidate transport blocks, and synthetic ledger isolation after the first active cycles.
+4. Review warm-start startup-signal blocks, scheduler timing, duplicate closed-candle suppression, open-position MTM, fixed-25 fresh-baseline-only signed testnet lifecycle rows, candidate transport blocks, and synthetic ledger isolation after the first active cycles.
 5. If stable, continue the 60-day public-mainnet forward-observation window.
 
 ## Required Boundaries
@@ -155,10 +155,11 @@ PT-RT1 should keep these lanes separate.
 
 ## Baseline Testnet Order Transport Policy
 
-PT-RT1.5 testnet transport remains separate from strategy truth:
+PT-RT1.5.1 testnet transport remains separate from strategy truth:
 
 - public mainnet candles remain strategy truth
-- only `money_flow_v1_2_baseline` scheduled `paper_opened` rows on `1h`/`4h`/`1d` are eligible
+- only fresh post-start `money_flow_v1_2_baseline` scheduled `paper_opened` rows on `1h`/`4h`/`1d` are eligible
+- startup-valid confirmations are blocked until the entry context resets false and a fresh true signal appears
 - candidate lanes, MF-ORIG lanes, wildcard lanes, `15m`, duplicate rows, data-unavailable rows, holds, trims, and closes cannot trigger testnet orders
 - fixed testnet notional is `25 USDC`, independent of synthetic signal notional
 - Hyperliquid testnet order shape is limit post-only `Alo`
@@ -191,5 +192,6 @@ Current PT-RT1.4 status: `implemented_paper_trading_command_center_and_active_ti
 Current PT-RT1.4.1 status: `active_runtime_cutover_verified_after_restart`.
 
 Current PT-RT1.5 status: `implemented_active_week_reset_candle_close_scheduler_and_baseline_testnet_lifecycle_gates`.
+Current PT-RT1.5.1 status: `implemented_signed_testnet_transport_warm_start_gate_and_open_mtm_hotfix`.
 
-This means the repo now has code, dashboard, public-mainnet connector, runtime command, summary JSON, tests, runbooks, and a daily founder review pack for controlled forward observation across the expanded 10-lane lab. The old local PT-RT1.1C artifact set under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` is pre-cutover burn-in for active Week 1 because it kept generating 15m opens after cutover. The PT-RT1.4.1 active-week directory is now archived by default, and the PT-RT1.5 active Week 1 artifact directory is `reports/paper_runtime/pt_rt1_5_week1_active/`. It is not an always-on hosted service: new signal generation requires starting `scripts/run_pt_rt1_paper_observation.py` with PT-RT1.5 flags and keeping that process and machine awake/networked for the chosen session. No 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading.
+This means the repo now has code, dashboard, public-mainnet connector, runtime command, summary JSON, tests, runbooks, and a daily founder review pack for controlled forward observation across the expanded 10-lane lab. The old local PT-RT1.1C artifact set under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` is pre-cutover burn-in for active Week 1 because it kept generating 15m opens after cutover. The PT-RT1.4.1 active-week directory and PT-RT1.5 pre-warm-start smoke are now archived by default, and the fresh PT-RT1.5.1 smoke directory is `reports/paper_runtime/pt_rt1_5_1_smoke/`. It is not an always-on hosted service: new signal generation requires starting `scripts/run_pt_rt1_paper_observation.py` with PT-RT1.5.1 flags and keeping that process and machine awake/networked for the chosen session. No 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading.

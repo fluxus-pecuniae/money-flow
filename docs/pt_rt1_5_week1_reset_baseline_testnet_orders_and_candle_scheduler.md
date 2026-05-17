@@ -8,6 +8,8 @@ This phase also implements baseline-linked Hyperliquid testnet order lifecycle g
 
 PT-RT1.5 does not approve production rules, paper as production, live trading, or real-capital behavior.
 
+Follow-up: PT-RT1.5.1 supersedes the fresh active smoke scope with `pt_rt1_5_1_smoke`, adds warm-start gating so startup-valid confirmations cannot create late synthetic opens/testnet orders, wires signed Hyperliquid testnet transport behind fresh Money Flow v1.2 baseline opens only, and fixes open-position mark-to-market. The PT-RT1.5 `pt_rt1_5_week1_active` rows are archived by default for PT-RT1.5.1 review.
+
 ## Active Week Reset Policy
 
 - Active runtime scope: `pt_rt1_5_week1_active`.

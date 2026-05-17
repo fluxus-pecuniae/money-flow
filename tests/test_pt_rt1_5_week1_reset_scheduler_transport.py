@@ -67,6 +67,7 @@ def test_pt_rt1_5_baseline_only_testnet_policy_builds_fixed_25usdc_shape() -> No
             synthetic_signal_notional=Decimal("10000"),
             fixed_notional=Decimal("25"),
             price=Decimal("2500"),
+            fresh_signal_after_runtime_start=True,
         )
     )
 
@@ -88,6 +89,7 @@ def test_pt_rt1_5_testnet_policy_blocks_candidates_15m_duplicates_kill_switch_an
         kill_switch=False,
         approval_text=PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
         base_url=PT_RT1_TESTNET_INFO_URL,
+        fresh_signal_after_runtime_start=True,
     )
 
     candidate = policy.evaluate(base.__class__(**{**base.__dict__, "lane_id": "avoid_low_rolling_range_50"}))
@@ -129,6 +131,7 @@ def test_pt_rt1_5_lifecycle_builder_can_call_configured_testnet_transport() -> N
                 "action": "paper_opened",
                 "signal_candle_close_time": "2026-05-17T14:00:00Z",
                 "scheduled_closed_candle_evaluation": True,
+                "fresh_signal_after_runtime_start": True,
                 "equity_before": "10000",
             }
         ],

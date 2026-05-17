@@ -13,6 +13,70 @@ Entry schema:
 
 ---
 
+## v2026.05.17.013
+
+- `recorded_at_utc`: `2026-05-17T14:51:49Z`
+- `scope`: `PT-RT1.5.1 signed testnet transport, warm-start signal gate, and open-position MTM hotfix`
+- `intent`: `Native entry. Archived the pre-warm-start PT-RT1.5 smoke rows as pt_rt1_5_smoke_pre_warm_start_gate, moved the active Paper Trading/default control-server scope to reports/paper_runtime/pt_rt1_5_1_smoke, added a warm-start signal gate so startup-valid confirmations are recorded but cannot create synthetic opens or testnet orders, and required fresh post-start Money Flow v1.2 baseline opens before fixed 25 USDC Hyperliquid testnet transport can proceed. Wired the signed testnet transport client behind exact PT-RT1.5.1 approval, local env secrets only, testnet URL validation, account-targeting/vaultAddress rules, duplicate-order keys, and endpoint-called lifecycle flags. Open synthetic positions now mark to public mainnet mids or latest closed candles and show MTM unavailable instead of misleading zero when no mark exists. Candidate, MF-ORIG, and wildcard lanes remain synthetic-only; public mainnet candles remain strategy truth; testnet fills do not update synthetic PnL; production Money Flow rules are unchanged; no live trading or production approval was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `KNOWN_ISSUES.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing.md`
+  - `docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json`
+  - `scripts/run_dashboard_control_server.py`
+  - `scripts/run_pt_rt1_paper_observation.py`
+  - `services/paper_runtime/pt_rt1.py`
+  - `docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm.md`
+  - `docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_dashboard_control_server.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_pt_rt1_1a_expanded_universe.py`
+  - `tests/test_pt_rt1_1c_runtime_start.py`
+  - `tests/test_pt_rt1_5_1_signed_transport_warm_start_mtm.py`
+  - `tests/test_pt_rt1_5_week1_reset_scheduler_transport.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m json.tool docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json`
+  - `.venv/bin/python -m json.tool docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm_summary.json`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 1 --max-cycles 1 --poll-seconds 1 --max-candle-symbols 1 --output-dir reports/paper_runtime/pt_rt1_5_1_smoke --decision-log-mode compact --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-1-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --disable-legacy-testnet-probes --public-mainnet-only`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_pt_rt1_paper_observation.py tests/test_pt_rt1_1a_expanded_universe.py tests/test_pt_rt1_1c_runtime_start.py tests/test_pt_rt1_4_1_daily_review.py tests/test_pt_rt1_5_week1_reset_scheduler_transport.py tests/test_pt_rt1_5_1_signed_transport_warm_start_mtm.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_uat33_hyperliquid_account_precision.py tests/test_uat34_sandbox_routing_pipeline.py tests/test_uat306_sandbox_submit_path_dry_run.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_control_server.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` (`1058 passed`)
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1.5.1-review.zip`
+  - `review bundle scan: 549 entries; no reports/paper_runtime artifacts, raw runtime logs, Git metadata, caches, DB files, private keys, API keys, or authorization headers; .env.example and existing sandbox/testnet documentation/test fixture path names are present as expected`
+
+## v2026.05.17.012
+
+- `recorded_at_utc`: `2026-05-17T14:02:49Z`
+- `scope`: `PT-RT1.5 Paper Trading active-runtime fallback hotfix`
+- `intent`: `Native entry. Removed default Paper Trading fallback from PT-RT1.5 active runtime files to archived PT-RT1.4.1/PT-RT1.1C logs so active Week 1 open positions, decision rows, closed trades, and testnet lifecycle rows use only reports/paper_runtime/pt_rt1_5_week1_active by default. Empty PT-RT1.5 closed-trade and lifecycle logs now stay empty instead of showing archived rows. Archived runtime data remains on disk and available through explicit archive controls; no production strategy rules changed, no orders were submitted, and no live trading approval was added.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `git diff --check`
+
 ## v2026.05.17.011
 
 - `recorded_at_utc`: `2026-05-17T12:54:24Z`

@@ -519,7 +519,8 @@
               <label>
                 <span>Output</span>
                 <select id="paper-runtime-output">
-                  <option value="pt_rt1_5_week1_active" selected>PT-RT1.5 Week 1 active</option>
+                  <option value="pt_rt1_5_1_smoke" selected>PT-RT1.5.1 smoke active</option>
+                  <option value="pt_rt1_5_week1_active">PT-RT1.5 pre-warm-start archive</option>
                   <option value="pt_rt1_4_1_active_week">PT-RT1.4.1 active week archive</option>
                   <option value="pt_rt1_1c_24h_dry_run">PT-RT1.1C 24h dry run archive</option>
                   <option value="pt_rt1_1b_smoke">PT-RT1.1B smoke</option>
@@ -531,8 +532,8 @@
               </div>
             </div>
             <div class="methodology-warning compact" role="note">
-              Runtime command is allowlisted and always forces PT-RT1.5 active scope, candle-close signal evaluation, `--disable-testnet-probes`, fixed 25 USDC baseline-only testnet lifecycle gates, and `--public-mainnet-only`.
-              Candidate lanes cannot send testnet orders, testnet fills do not update synthetic PnL, no private API keys are used for strategy truth, no signed/order endpoint is called by this runtime unless all PT-RT1.5 baseline-only testnet gates and signed transport configuration pass, and live trading is not approved.
+              Runtime command is allowlisted and always forces PT-RT1.5.1 active scope, candle-close signal evaluation, `--fresh-signal-only-after-runtime-start`, `--disable-legacy-testnet-probes`, fixed 25 USDC baseline-only testnet lifecycle gates, and `--public-mainnet-only`.
+              Candidate lanes cannot send testnet orders, testnet fills do not update synthetic PnL, no private API keys are used for strategy truth, no signed/order endpoint is called by this runtime unless all PT-RT1.5.1 fresh baseline-only testnet gates and signed transport configuration pass, and live trading is not approved.
             </div>
           </div>
           <div class="paper-runtime-control-details">
