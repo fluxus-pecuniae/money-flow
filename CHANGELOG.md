@@ -13,6 +13,49 @@ Entry schema:
 
 ---
 
+## v2026.05.17.011
+
+- `recorded_at_utc`: `2026-05-17T12:54:24Z`
+- `scope`: `PT-RT1.5 Week 1 reset, baseline-linked Hyperliquid testnet lifecycle, and candle-close scheduler`
+- `intent`: `Native entry. Reset the active Week 1 Paper Trading scope to pt_rt1_5_week1_active, archived prior runtime rows by scope instead of deleting them, kept 15m paused, and separated market refresh from strategy signal evaluation so strategy decisions are generated only after fully closed 1h/4h/1d candles plus grace delay. Added PT-RT1.5 scheduler state, retry/dedup reason codes, baseline-only fixed 25 USDC Hyperliquid testnet order lifecycle policy, a separate testnet lifecycle table, compact scrollable watchlist, and dashboard control defaults for the new active scope. Candidate, MF-ORIG, and wildcard lanes remain synthetic-only; public mainnet candles remain strategy truth; testnet fills do not update synthetic PnL; production Money Flow rules are unchanged; no strategy is production-approved; live trading is not approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `scripts/run_dashboard_control_server.py`
+  - `scripts/run_pt_rt1_paper_observation.py`
+  - `services/paper_runtime/pt_rt1.py`
+  - `docs/pt_rt1_5_week1_reset_baseline_testnet_orders_and_candle_scheduler.md`
+  - `docs/pt_rt1_5_week1_reset_baseline_testnet_orders_and_candle_scheduler_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_dashboard_control_server.py`
+  - `tests/test_operational_docs.py`
+  - `tests/test_pt_rt1_5_week1_reset_scheduler_transport.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_paper_observation.py tests/test_pt_rt1_1a_expanded_universe.py tests/test_pt_rt1_4_1_daily_review.py tests/test_pt_rt1_5_week1_reset_scheduler_transport.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py tests/test_uat33_hyperliquid_account_precision.py tests/test_uat34_sandbox_routing_pipeline.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_control_server.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1.5-review.zip`
+  - `review bundle scan: 546 entries; no runtime artifacts/generated reports/Git metadata/caches/DB files/raw secrets/private keys/API keys; .env.example placeholder file present`
+
 ## v2026.05.17.010
 
 - `recorded_at_utc`: `2026-05-17T11:51:26Z`

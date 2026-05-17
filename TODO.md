@@ -1,8 +1,14 @@
 # TODO
 
-Last reviewed: `2026-05-17T11:51:26Z`
+Last reviewed: `2026-05-17T12:54:24Z`
 
 ## Active Follow-Ups
+
+### T-151
+
+- `priority`: `high`
+- `status`: `implemented_pending_live_cycle_review`
+- `summary`: `PT-RT1.5 resets active Week 1 to reports/paper_runtime/pt_rt1_5_week1_active/, hides archived runtime rows by default while preserving old artifacts, keeps active timeframes at 1h/4h/1d, keeps 15m paused, and separates market refresh from candle-close-only strategy evaluation. The runner now has PT-RT1.5 flags, scheduler status, duplicate closed-candle blocking, and Money Flow v1.2 baseline-only fixed 25 USDC Hyperliquid testnet lifecycle rows in testnet_order_lifecycle.jsonl. Candidate, MF-ORIG, and wildcard lanes remain synthetic-only; public mainnet candles remain strategy truth; testnet fills do not update synthetic PnL; no live trading or production approval follows. Next operator step is to start/restart Week 1 active runtime under PT-RT1.5 and review the first scheduled candle-close/lifecycle cycle.`
 
 ### T-150
 

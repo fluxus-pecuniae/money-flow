@@ -1,14 +1,16 @@
 """Run PT-RT1 public-mainnet paper-observation readiness cycles.
 
 The runner writes ignored runtime artifacts under ``reports/paper_runtime/``.
-It uses only Hyperliquid public mainnet ``/info`` payloads for strategy truth
-and keeps testnet probes as plumbing-only audit/order-shape rows unless a
-later separately approved transport phase submits them.
+It uses only Hyperliquid public mainnet ``/info`` payloads for strategy truth.
+PT-RT1.5 can submit/cancel/reconcile Hyperliquid testnet orders only from
+scheduled Money Flow v1.2 baseline synthetic opens, with fixed 25 USDC notional
+and a separate lifecycle ledger that never updates synthetic strategy PnL.
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import json
 import sys
 import time
@@ -19,6 +21,10 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Iterable, Protocol, Sequence
 
+import httpx
+
+from core.security import redact_sensitive_structure, redact_sensitive_text
+from services.exchange.hyperliquid.signing import sign_l1_action
 from services.paper_runtime.hyperliquid_public_market_data import (
     HyperliquidPublicMarketDataConnector,
     candle_request_window,
@@ -30,20 +36,43 @@ from services.paper_runtime.pt_rt1 import (
     PT_RT1_4_DISABLED_TIMEFRAME_STATUS,
     PT_RT1_4_DISABLED_TIMEFRAMES,
     PT_RT1_4_TIMEFRAME_REASON_CODES,
+    PT_RT1_5_ACTIVE_REVIEW_START_UTC,
+    PT_RT1_5_ACTIVE_TIMEFRAMES,
+    PT_RT1_5_ARCHIVED_RUNTIME_SCOPES,
+    PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
+    PT_RT1_5_RUNTIME_OUTPUT_DIR,
+    PT_RT1_5_RUNTIME_SCOPE,
+    PT_RT1_5_TESTNET_DAILY_ORDER_CAP_DEFAULT,
+    PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC,
+    PT_RT1_5_TESTNET_PER_SYMBOL_DAILY_CAP_DEFAULT,
     PT_RT1_EXACT_TESTNET_PROBE_APPROVAL,
     PT_RT1_MAINNET_INFO_URL,
     PT_RT1_REQUESTED_SCANNER_SYMBOLS,
     PT_RT1_STRATEGY_LANES,
+    PT_RT1_TESTNET_INFO_URL,
     PT_RT1_TESTNET_PROBE_NOTIONAL_CAP_USDC,
     PT_RT1_TESTNET_PROBE_NOTIONAL_USDC,
     TIMEFRAME_DURATIONS,
     DataHealth,
     PaperDecisionEvent,
+    PT_RT15BaselineTestnetOrderPolicy,
+    PT_RT15TestnetOrderCandidate,
     TestnetProbeCandidate,
     TestnetProbePolicy,
+    build_pt_rt1_5_scheduler_status,
     build_pt_rt1_summary,
     canonical_candle_close,
     evaluate_paper_decision,
+)
+from services.uat.sandbox import (
+    HYPERLIQUID_UAT_SANDBOX_ACCOUNT_ENV,
+    HYPERLIQUID_UAT_SANDBOX_ACCOUNT_IS_VAULT_ENV,
+    HYPERLIQUID_UAT_SANDBOX_ACCOUNT_ROLE_ENV,
+    HYPERLIQUID_UAT_SANDBOX_BASE_URL_ENV,
+    HYPERLIQUID_UAT_SANDBOX_MASTER_ACCOUNT_ENV,
+    HYPERLIQUID_UAT_SANDBOX_PRIVATE_KEY_ENV,
+    HYPERLIQUID_UAT_SANDBOX_TARGET_ACCOUNT_ENV,
+    HYPERLIQUID_UAT_SANDBOX_VAULT_ADDRESS_ENV,
 )
 
 
@@ -58,6 +87,7 @@ PT_RT1_2_EXACT_TRANSPORT_APPROVAL = (
     "20 USDC MAX NOTIONAL. POST-ONLY ALO. SUBMIT CANCEL RECONCILE. "
     "TESTNET FILLS MUST NOT UPDATE STRATEGY PAPER PNL. LIVE TRADING IS NOT APPROVED."
 )
+PT_RT1_5_TESTNET_ORDER_TRANSPORT_KILL_SWITCH_ENV = "PT_RT_TESTNET_ORDER_TRANSPORT_KILL_SWITCH"
 
 
 class TestnetProbeTransport(Protocol):
@@ -68,6 +98,230 @@ class TestnetProbeTransport(Protocol):
         inject a fake transport to verify lifecycle accounting without touching
         private/signed/order endpoints.
         """
+
+
+class BaselineTestnetOrderTransport(Protocol):
+    def __call__(self, order_shape: dict[str, Any], lifecycle_row: dict[str, Any]) -> dict[str, Any]:
+        """Submit/cancel/reconcile one baseline-linked Hyperliquid testnet order."""
+
+
+def _env_truthy(value: str | None) -> bool:
+    return (value or "").strip().lower() in {"1", "true", "yes", "on", "enabled", "active"}
+
+
+class HyperliquidPT_RT15TestnetOrderTransport:
+    """Path-scoped PT-RT1.5 Hyperliquid testnet transport.
+
+    This is used only for baseline-linked plumbing lifecycle rows. Strategy
+    truth remains public mainnet candles and synthetic PnL is never updated from
+    the venue response.
+    """
+
+    def __init__(
+        self,
+        *,
+        base_url: str,
+        private_key: str,
+        account_id: str,
+        vault_address: str | None = None,
+        timeout_seconds: float = 20.0,
+    ) -> None:
+        self.base_url = base_url.rstrip("/")
+        self.private_key = private_key
+        self.account_id = account_id.lower()
+        self.vault_address = vault_address.lower() if vault_address else None
+        self.timeout_seconds = timeout_seconds
+
+    @classmethod
+    def from_env(cls) -> "HyperliquidPT_RT15TestnetOrderTransport | None":
+        private_key = os.environ.get(HYPERLIQUID_UAT_SANDBOX_PRIVATE_KEY_ENV, "").strip()
+        account_id = (
+            os.environ.get(HYPERLIQUID_UAT_SANDBOX_TARGET_ACCOUNT_ENV, "").strip()
+            or os.environ.get(HYPERLIQUID_UAT_SANDBOX_ACCOUNT_ENV, "").strip()
+            or os.environ.get(HYPERLIQUID_UAT_SANDBOX_MASTER_ACCOUNT_ENV, "").strip()
+        )
+        if not private_key or not account_id:
+            return None
+        base_url = os.environ.get(HYPERLIQUID_UAT_SANDBOX_BASE_URL_ENV, PT_RT1_TESTNET_INFO_URL).strip()
+        role = os.environ.get(HYPERLIQUID_UAT_SANDBOX_ACCOUNT_ROLE_ENV, "user").strip().lower()
+        is_vault = _env_truthy(os.environ.get(HYPERLIQUID_UAT_SANDBOX_ACCOUNT_IS_VAULT_ENV))
+        vault_address = None
+        if role in {"vault", "subaccount"} or is_vault:
+            vault_address = os.environ.get(HYPERLIQUID_UAT_SANDBOX_VAULT_ADDRESS_ENV, "").strip() or None
+        return cls(
+            base_url=base_url,
+            private_key=private_key,
+            account_id=account_id,
+            vault_address=vault_address,
+        )
+
+    def __call__(self, order_shape: dict[str, Any], lifecycle_row: dict[str, Any]) -> dict[str, Any]:
+        if "api.hyperliquid-testnet.xyz" not in self.base_url:
+            return {
+                "status": "blocked",
+                "order_endpoint_called": False,
+                "signed_order_endpoint_called": False,
+                "reason_codes": ["live_endpoint_forbidden"],
+            }
+
+        action = order_shape.get("action")
+        if not isinstance(action, dict):
+            return {
+                "status": "blocked",
+                "order_endpoint_called": False,
+                "signed_order_endpoint_called": False,
+                "reason_codes": ["testnet_order_shape_missing_action"],
+            }
+
+        lifecycle_path = ["created", "preflight_passed", "submitted"]
+        order_payload = self._signed_payload(action)
+        order_response: Any
+        try:
+            order_response = self._post_json("/exchange", order_payload)
+        except Exception as exc:  # noqa: BLE001
+            return {
+                "status": "unknown_state",
+                "lifecycle_status_path": lifecycle_path,
+                "order_endpoint_called": True,
+                "signed_order_endpoint_called": True,
+                "venue_order_id": None,
+                "cancel_status": "not_attempted",
+                "reconcile_status": "not_attempted",
+                "venue_response": {"error": redact_sensitive_text(str(exc))},
+                "reason_codes": ["testnet_order_transport_failed"],
+                "testnet_fills_update_strategy_pnl": False,
+            }
+
+        order_status, oid, status_reasons = self._parse_order_response(order_response)
+        if order_status == "open":
+            lifecycle_path.append("accepted_open")
+        elif order_status in {"filled", "partially_filled"}:
+            lifecycle_path.append(order_status)
+        elif order_status == "rejected":
+            lifecycle_path.append("rejected")
+
+        cancel_response: Any | None = None
+        cancel_status = "not_required"
+        cancel_called = False
+        if order_status == "open" and oid is not None:
+            lifecycle_path.append("cancel_requested")
+            cancel_called = True
+            asset_id = int(order_shape.get("asset_id") or 0)
+            cancel_payload = self._signed_payload({"type": "cancel", "cancels": [{"a": asset_id, "o": int(oid)}]})
+            try:
+                cancel_response = self._post_json("/exchange", cancel_payload)
+                cancel_status = "canceled" if self._action_ok(cancel_response) else "cancel_rejected"
+                lifecycle_path.append(cancel_status)
+            except Exception as exc:  # noqa: BLE001
+                cancel_response = {"error": redact_sensitive_text(str(exc))}
+                cancel_status = "cancel_unknown"
+                status_reasons.append("testnet_order_cancel_transport_failed")
+                lifecycle_path.append("unknown_state")
+
+        reconcile_status = "not_attempted"
+        open_order_remains = False
+        reconciliation: dict[str, Any] = {}
+        try:
+            if oid is not None:
+                reconciliation["order_status"] = self._post_json(
+                    "/info",
+                    {"type": "orderStatus", "user": self.account_id, "oid": int(oid)},
+                )
+            reconciliation["open_orders"] = self._post_json(
+                "/info",
+                {"type": "frontendOpenOrders", "user": self.account_id},
+            )
+            open_order_remains = self._open_order_remains(reconciliation.get("open_orders"), oid)
+            reconcile_status = "open_order_remaining" if open_order_remains else "reconciled"
+            lifecycle_path.append("reconciled")
+        except Exception as exc:  # noqa: BLE001
+            reconciliation["error"] = redact_sensitive_text(str(exc))
+            reconcile_status = "unknown_state"
+            status_reasons.append("testnet_order_reconcile_failed")
+            lifecycle_path.append("unknown_state")
+
+        final_status = "reconciled"
+        if order_status == "rejected":
+            final_status = "rejected"
+        elif order_status == "filled":
+            final_status = "filled"
+        elif order_status == "partially_filled":
+            final_status = "partially_filled"
+        if open_order_remains or cancel_status == "cancel_unknown" or reconcile_status == "unknown_state":
+            final_status = "unknown_state"
+
+        return {
+            "status": final_status,
+            "lifecycle_status_path": lifecycle_path,
+            "order_endpoint_called": True,
+            "signed_order_endpoint_called": True,
+            "cancel_endpoint_called": cancel_called,
+            "venue_order_id": oid,
+            "cancel_status": cancel_status,
+            "reconcile_status": reconcile_status,
+            "open_order_remains": open_order_remains,
+            "venue_response": redact_sensitive_structure(order_response),
+            "cancel_response": redact_sensitive_structure(cancel_response or {}),
+            "reconciliation": redact_sensitive_structure(reconciliation),
+            "reason_codes": list(dict.fromkeys(status_reasons or ["testnet_order_lifecycle_recorded"])),
+            "testnet_fills_update_strategy_pnl": False,
+            "strategy_pnl_updated_from_testnet": False,
+        }
+
+    def _signed_payload(self, action: dict[str, Any]) -> dict[str, Any]:
+        nonce = int(time.time() * 1000)
+        payload = {
+            "action": action,
+            "nonce": nonce,
+            "signature": sign_l1_action(
+                private_key=self.private_key,
+                action=action,
+                vault_address=self.vault_address,
+                nonce=nonce,
+                expires_after=None,
+                is_mainnet=False,
+            ),
+            "expiresAfter": None,
+        }
+        # Hyperliquid main/user mode must omit vaultAddress.
+        if self.vault_address:
+            payload["vaultAddress"] = self.vault_address
+        return payload
+
+    def _post_json(self, path: str, payload: dict[str, Any]) -> Any:
+        with httpx.Client(base_url=self.base_url, timeout=self.timeout_seconds) as client:
+            response = client.post(path, json=payload)
+            response.raise_for_status()
+            return response.json()
+
+    @staticmethod
+    def _parse_order_response(response: Any) -> tuple[str, str | None, list[str]]:
+        if not isinstance(response, dict):
+            return "unknown", None, ["testnet_order_response_shape_unknown"]
+        if response.get("status") != "ok":
+            return "rejected", None, ["testnet_order_rejected"]
+        statuses = (((response.get("response") or {}).get("data") or {}).get("statuses") or [])
+        first = statuses[0] if statuses else {}
+        if isinstance(first, dict) and first.get("error") is not None:
+            return "rejected", None, ["testnet_order_rejected", str(first.get("error"))]
+        if isinstance(first, dict) and isinstance(first.get("resting"), dict):
+            return "open", str(first["resting"].get("oid")), ["testnet_order_accepted_open"]
+        if isinstance(first, dict) and isinstance(first.get("filled"), dict):
+            return "filled", str(first["filled"].get("oid")), ["testnet_order_unexpected_fill"]
+        return "submitted", None, ["testnet_order_submitted_status_unclassified"]
+
+    @staticmethod
+    def _action_ok(response: Any) -> bool:
+        if not isinstance(response, dict) or response.get("status") != "ok":
+            return False
+        statuses = (((response.get("response") or {}).get("data") or {}).get("statuses") or [])
+        return not any(isinstance(item, dict) and item.get("error") for item in statuses)
+
+    @staticmethod
+    def _open_order_remains(open_orders_payload: Any, oid: str | None) -> bool:
+        if oid is None or not isinstance(open_orders_payload, list):
+            return False
+        return any(isinstance(item, dict) and str(item.get("oid")) == str(oid) for item in open_orders_payload)
 
 
 def _utc_now() -> datetime:
@@ -174,6 +428,9 @@ def _load_paper_runtime_state(prior_state: dict[str, Any]) -> dict[str, Any]:
         "paper_closes_total": int(runtime.get("paper_closes_total") or 0),
         "duplicate_signal_blocks_total": int(runtime.get("duplicate_signal_blocks_total") or 0),
         "last_processed_close_by_key": dict(runtime.get("last_processed_close_by_key") or {}),
+        "last_evaluated_closed_candle_by_timeframe": dict(runtime.get("last_evaluated_closed_candle_by_timeframe") or {}),
+        "testnet_order_keys": set(str(item) for item in runtime.get("testnet_order_keys") or []),
+        "testnet_orders_total": int(runtime.get("testnet_orders_total") or 0),
     }
 
 
@@ -186,12 +443,18 @@ def _paper_runtime_state_payload(
     paper_opens_total: int,
     paper_closes_total: int,
     duplicate_signal_blocks_total: int,
+    last_evaluated_closed_candle_by_timeframe: dict[str, str] | None = None,
+    testnet_order_keys: set[str] | None = None,
+    testnet_orders_total: int = 0,
 ) -> dict[str, Any]:
     return {
         "processed_signal_keys": sorted(processed_signal_keys),
         "open_positions_by_key": open_positions_by_key,
         "realized_equity_by_lane": realized_equity_by_lane,
         "last_processed_close_by_key": last_processed_close_by_key,
+        "last_evaluated_closed_candle_by_timeframe": dict(last_evaluated_closed_candle_by_timeframe or {}),
+        "testnet_order_keys": sorted(testnet_order_keys or set()),
+        "testnet_orders_total": testnet_orders_total,
         "paper_opens_total": paper_opens_total,
         "paper_closes_total": paper_closes_total,
         "duplicate_signal_blocks_total": duplicate_signal_blocks_total,
@@ -625,6 +888,163 @@ def _apply_testnet_probe_transport(
     }
 
 
+def _testnet_order_key(row: dict[str, Any]) -> str:
+    return "|".join(
+        [
+            str(row.get("lane_id") or ""),
+            str(row.get("strategy_id") or ""),
+            str(row.get("symbol") or "").upper(),
+            str(row.get("timeframe") or ""),
+            str(row.get("signal_candle_close_time") or ""),
+            "buy",
+        ]
+    )
+
+
+def _build_pt_rt1_5_testnet_order_lifecycle_rows(
+    *,
+    decision_rows: Sequence[dict[str, Any]],
+    scanner_rows: Sequence[Any],
+    latest_closed_by_key: dict[tuple[str, str], Any],
+    transport_enabled: bool,
+    approval_text: str,
+    notional_usdc: Decimal,
+    daily_cap: int,
+    per_symbol_daily_cap: int,
+    existing_order_keys: set[str],
+    base_url: str,
+    kill_switch: bool,
+    transport: BaselineTestnetOrderTransport | None,
+) -> tuple[list[dict[str, Any]], dict[str, Any], set[str]]:
+    row_by_symbol = {
+        str(row.canonical_symbol or row.requested_symbol).upper(): row
+        for row in scanner_rows
+        if row.scanner_eligible and not row.blocked
+    }
+    policy = PT_RT15BaselineTestnetOrderPolicy()
+    lifecycle_rows: list[dict[str, Any]] = []
+    submitted_keys = set(existing_order_keys)
+    per_symbol_counts: dict[str, int] = {}
+    baseline_open_rows = [
+        row
+        for row in decision_rows
+        if row.get("action") == "paper_opened"
+        and row.get("lane_id") == "money_flow_v1_2_baseline"
+        and row.get("strategy_id") == "money_flow_v1_2_baseline"
+    ]
+    candidate_open_rows = [
+        row
+        for row in decision_rows
+        if row.get("action") == "paper_opened"
+        and row.get("lane_id") != "money_flow_v1_2_baseline"
+    ]
+    for index, decision in enumerate(baseline_open_rows):
+        symbol = str(decision.get("symbol") or "").upper()
+        timeframe = str(decision.get("timeframe") or "")
+        scanner_row = row_by_symbol.get(symbol)
+        candle = latest_closed_by_key.get((symbol, timeframe))
+        order_key = _testnet_order_key(decision)
+        duplicate = order_key in submitted_keys
+        price = _testnet_probe_price(candle) if candle is not None else Decimal("0")
+        per_symbol_count = per_symbol_counts.get(symbol, 0)
+        result = policy.evaluate(
+            PT_RT15TestnetOrderCandidate(
+                lane_id=str(decision.get("lane_id") or ""),
+                strategy_id=str(decision.get("strategy_id") or ""),
+                action=str(decision.get("action") or ""),
+                symbol=symbol,
+                timeframe=timeframe,
+                signal_candle_close_time=str(decision.get("signal_candle_close_time") or ""),
+                scheduled_closed_candle_evaluation=bool(decision.get("scheduled_closed_candle_evaluation")),
+                duplicate_order_key_seen=duplicate,
+                scanner_signal_eligible=bool(scanner_row and scanner_row.scanner_eligible and not scanner_row.blocked),
+                scanner_symbol_blocked=bool(scanner_row.blocked) if scanner_row else True,
+                unit_semantics_deferred=(
+                    any("unit_semantics" in str(reason) for reason in scanner_row.reason_codes)
+                    if scanner_row
+                    else False
+                ),
+                precision_ready=bool(scanner_row.precision_ready) if scanner_row else False,
+                order_transport_enabled=transport_enabled,
+                kill_switch=kill_switch,
+                approval_text=approval_text,
+                base_url=base_url,
+                asset_id=scanner_row.asset_id if scanner_row else None,
+                sz_decimals=scanner_row.szDecimals if scanner_row else None,
+                price=price,
+                synthetic_signal_notional=_dec(decision.get("equity_before"), Decimal("10000")),
+                fixed_notional=notional_usdc,
+                daily_order_count=index,
+                daily_cap=daily_cap,
+                per_symbol_daily_count=per_symbol_count,
+                per_symbol_daily_cap=per_symbol_daily_cap,
+            )
+        )
+        lifecycle_row = {
+            **result.lifecycle_row,
+            "testnet_order_key": order_key,
+            "created_at_utc": _iso(_utc_now()),
+            "transport_submit_configured": transport is not None,
+        }
+        if result.eligible:
+            submitted_keys.add(order_key)
+            per_symbol_counts[symbol] = per_symbol_count + 1
+            if transport is None:
+                lifecycle_row = {
+                    **lifecycle_row,
+                    "status": "preflight_passed",
+                    "next_status": "submit_when_signed_transport_client_configured",
+                    "reason_codes": [
+                        "testnet_order_shape_ready",
+                        "fixed_testnet_plumbing_notional",
+                        "signed_testnet_transport_client_not_configured",
+                    ],
+                }
+            else:
+                transport_result = transport(result.order_shape or {}, lifecycle_row)
+                lifecycle_row = {
+                    **lifecycle_row,
+                    **transport_result,
+                    "reason_codes": list(
+                        dict.fromkeys(
+                            [
+                                "testnet_order_shape_ready",
+                                "fixed_testnet_plumbing_notional",
+                                *list(transport_result.get("reason_codes") or []),
+                            ]
+                        )
+                    ),
+                }
+        lifecycle_rows.append(lifecycle_row)
+
+    signed_called = any(bool(row.get("signed_order_endpoint_called")) for row in lifecycle_rows)
+    order_called = any(bool(row.get("order_endpoint_called")) for row in lifecycle_rows)
+    stats = {
+        "policy": "pt_rt1_5_baseline_only_fixed_25usdc",
+        "transport_enabled": transport_enabled,
+        "transport_submit_configured": transport is not None,
+        "kill_switch_active": kill_switch,
+        "approval_captured": approval_text == PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
+        "fixed_notional_usdc": str(notional_usdc),
+        "baseline_open_signals_this_cycle": len(baseline_open_rows),
+        "candidate_open_signals_blocked_this_cycle": len(candidate_open_rows),
+        "lifecycle_rows_this_cycle": len(lifecycle_rows),
+        "eligible_order_shapes_this_cycle": sum(1 for row in lifecycle_rows if row.get("status") in {"created", "preflight_passed", "submitted", "accepted_open", "reconciled", "canceled"}),
+        "signed_order_endpoint_called": signed_called,
+        "order_endpoint_called": order_called,
+        "testnet_fills_update_strategy_pnl": False,
+        "candidate_lane_transport_blocked": True,
+        "reason_codes": [
+            "baseline_only_trigger",
+            "candidate_lane_transport_blocked",
+            "fixed_testnet_plumbing_notional",
+            *([] if transport is not None else ["signed_testnet_transport_client_not_configured"]),
+            *(["testnet_order_transport_kill_switch_active"] if kill_switch else []),
+        ],
+    }
+    return lifecycle_rows, stats, submitted_keys
+
+
 def run_cycle(
     *,
     connector: HyperliquidPublicMarketDataConnector,
@@ -641,6 +1061,15 @@ def run_cycle(
     submit_testnet_probes: bool = False,
     testnet_probe_transport_approval_text: str = "",
     testnet_probe_transport: TestnetProbeTransport | None = None,
+    signal_evaluation_mode: str = "poll",
+    baseline_testnet_order_transport_enabled: bool = False,
+    baseline_testnet_order_approval_text: str = "",
+    baseline_testnet_order_notional_usdc: Decimal = PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC,
+    baseline_testnet_order_daily_cap: int = PT_RT1_5_TESTNET_DAILY_ORDER_CAP_DEFAULT,
+    baseline_testnet_order_per_symbol_daily_cap: int = PT_RT1_5_TESTNET_PER_SYMBOL_DAILY_CAP_DEFAULT,
+    baseline_testnet_order_base_url: str = PT_RT1_TESTNET_INFO_URL,
+    baseline_testnet_order_kill_switch: bool = False,
+    baseline_testnet_order_transport: BaselineTestnetOrderTransport | None = None,
 ) -> dict[str, Any]:
     now = _utc_now()
     meta_result = connector.fetch_meta()
@@ -664,6 +1093,20 @@ def run_cycle(
     open_positions_by_key: dict[str, dict[str, Any]] = paper_state["open_positions_by_key"]
     realized_equity_by_lane: dict[str, str] = paper_state["realized_equity_by_lane"]
     last_processed_close_by_key: dict[str, str] = paper_state["last_processed_close_by_key"]
+    last_evaluated_closed_candle_by_timeframe: dict[str, str] = paper_state[
+        "last_evaluated_closed_candle_by_timeframe"
+    ]
+    testnet_order_keys: set[str] = paper_state["testnet_order_keys"]
+    scheduler_status = build_pt_rt1_5_scheduler_status(
+        now=now,
+        last_evaluated_closed_candle_by_timeframe=last_evaluated_closed_candle_by_timeframe,
+    )
+    due_timeframes = {
+        timeframe
+        for timeframe, payload in (scheduler_status.get("timeframes") or {}).items()
+        if payload.get("is_due") is True
+    }
+    candle_close_only = signal_evaluation_mode == "candle_close_only"
 
     for row in selected_rows:
         for timeframe in timeframes:
@@ -715,6 +1158,32 @@ def run_cycle(
                             equity_after=equity_before,
                         )
                     )
+                continue
+            if candle_close_only and timeframe not in due_timeframes:
+                market_health.append(
+                    {
+                        "symbol": row.canonical_symbol,
+                        "requested_symbol": row.requested_symbol,
+                        "resolved_venue_symbol": row.resolved_venue_symbol,
+                        "timeframe": timeframe,
+                        "source": "Hyperliquid public mainnet",
+                        "endpoint_category": connector.endpoint_category,
+                        "status": "market_refresh_only",
+                        "strategy_data_status": "waiting_for_scheduled_closed_candle",
+                        "candle_strategy_ready": False,
+                        "mid_health_status": "mid_healthy" if row.data_health == DataHealth.HEALTHY else "mid_warning_non_blocking",
+                        "mid_health_blocks_strategy": False,
+                        "candle_health_blocks_strategy": True,
+                        "fully_closed_candle_status": "signal_evaluation_waiting_for_candle_close",
+                        "latest_candle_update": None,
+                        "last_update_utc": _iso(now),
+                        "reason_codes": [
+                            "signal_evaluation_waiting_for_candle_close",
+                            "market_refresh_only_no_signal_evaluation",
+                            "intrabar_signal_evaluation_blocked",
+                        ],
+                    }
+                )
                 continue
             start_time, end_time = candle_request_window(timeframe=timeframe, now=now, bars=260)
             candle_result = connector.fetch_candle_snapshot(
@@ -799,6 +1268,29 @@ def run_cycle(
     scanner_payload = [asdict(row) for row in scanner_rows] if scanner_rows else base_summary["scanner_universe"]
     lane_payload = base_summary["strategy_lanes"]
     raw_decision_rows = [event.as_json_dict() for event in decisions]
+    if candle_close_only:
+        enriched_rows: list[dict[str, Any]] = []
+        for row in raw_decision_rows:
+            reasons = list(row.get("reason_codes") or [])
+            timeframe = str(row.get("timeframe") or "")
+            if timeframe in due_timeframes and timeframe not in PT_RT1_4_DISABLED_TIMEFRAMES:
+                reasons.append("signal_evaluation_started_after_closed_candle")
+                row = {
+                    **row,
+                    "scheduled_closed_candle_evaluation": True,
+                    "signal_evaluation_mode": "candle_close_only",
+                    "reason_codes": list(dict.fromkeys(reasons)),
+                }
+            elif timeframe in PT_RT1_4_DISABLED_TIMEFRAMES:
+                reasons.append("timeframe_paused_no_signal_evaluation")
+                row = {
+                    **row,
+                    "scheduled_closed_candle_evaluation": False,
+                    "signal_evaluation_mode": "candle_close_only",
+                    "reason_codes": list(dict.fromkeys(reasons)),
+                }
+            enriched_rows.append(row)
+        raw_decision_rows = enriched_rows
     decision_rows: list[dict[str, Any]] = []
     trade_rows: list[dict[str, Any]] = []
     duplicate_signal_blocks_this_cycle = 0
@@ -867,6 +1359,12 @@ def run_cycle(
             pass
         decision_rows.append(row)
 
+    if candle_close_only:
+        for timeframe in due_timeframes:
+            closed_time = (scheduler_status.get("timeframes") or {}).get(timeframe, {}).get("closed_candle_time")
+            if closed_time:
+                last_evaluated_closed_candle_by_timeframe[timeframe] = str(closed_time)
+
     prior_seen_keys = set(prior_state.get("decision_log_seen_keys") or [])
     decision_log_rows, decision_log_seen_keys, decision_log_stats = _select_decision_log_rows(
         decision_rows,
@@ -890,6 +1388,24 @@ def run_cycle(
         notional_usdc=testnet_probe_notional_usdc,
         transport=testnet_probe_transport,
     )
+    testnet_order_lifecycle_rows, testnet_order_lifecycle_stats, testnet_order_keys = (
+        _build_pt_rt1_5_testnet_order_lifecycle_rows(
+            decision_rows=decision_rows,
+            scanner_rows=selected_rows,
+            latest_closed_by_key=latest_closed_by_key,
+            transport_enabled=baseline_testnet_order_transport_enabled,
+            approval_text=baseline_testnet_order_approval_text,
+            notional_usdc=baseline_testnet_order_notional_usdc,
+            daily_cap=baseline_testnet_order_daily_cap,
+            per_symbol_daily_cap=baseline_testnet_order_per_symbol_daily_cap,
+            existing_order_keys=testnet_order_keys,
+            base_url=baseline_testnet_order_base_url,
+            kill_switch=baseline_testnet_order_kill_switch,
+            transport=baseline_testnet_order_transport,
+        )
+        if run_label == "PT-RT1.5"
+        else ([], {}, testnet_order_keys)
+    )
     data_unavailable_summary = _summarize_data_unavailable(
         market_health=market_health,
         decision_rows=decision_rows,
@@ -901,6 +1417,7 @@ def run_cycle(
     is_pt_rt1_1c = run_label == "PT-RT1.1C"
     is_pt_rt1_2 = run_label == "PT-RT1.2"
     is_pt_rt1_3 = run_label == "PT-RT1.3"
+    is_pt_rt1_5 = run_label == "PT-RT1.5"
     summary = {
         **base_summary,
         "phase": run_label,
@@ -910,6 +1427,10 @@ def run_cycle(
             if is_pt_rt1_3 and runtime_status == "verified"
             else "candle_truth_data_health_cycle_blocked"
             if is_pt_rt1_3
+            else "week1_active_candle_close_scheduler_cycle_verified"
+            if is_pt_rt1_5 and runtime_status == "verified"
+            else "week1_active_candle_close_scheduler_cycle_blocked"
+            if is_pt_rt1_5
             else "runtime_correctness_cycle_verified"
             if is_pt_rt1_2 and runtime_status == "verified"
             else "runtime_correctness_cycle_blocked"
@@ -950,6 +1471,29 @@ def run_cycle(
         "data_health_semantics": "candle_strategy_truth",
         "mid_health_blocks_strategy": False,
         "candle_health_blocks_strategy": True,
+        "active_review_scope": PT_RT1_5_RUNTIME_SCOPE if run_label == "PT-RT1.5" else "pt_rt1_4_1_active_week",
+        "active_review_start_utc": PT_RT1_5_ACTIVE_REVIEW_START_UTC if run_label == "PT-RT1.5" else base_summary["active_review_start_utc"],
+        "archived_runtime_scopes": list(PT_RT1_5_ARCHIVED_RUNTIME_SCOPES),
+        "active_week_reset_policy": {
+            "default_scope": PT_RT1_5_RUNTIME_SCOPE,
+            "output_dir": PT_RT1_5_RUNTIME_OUTPUT_DIR,
+            "old_runtime_rows_archived_not_deleted": True,
+            "default_show_archived_rows": False,
+            "reason_codes": [
+                "pre_week1_runtime_archived",
+                "archived_position_hidden_by_default",
+                "active_week_ui_reset",
+                "active_week_scoring_only",
+            ],
+        },
+        "signal_evaluation_cadence": {
+            "mode": signal_evaluation_mode,
+            "strategy_signal_evaluation": "candle-close only" if candle_close_only else "poll",
+            "market_refresh": "active",
+            "active_timeframes": list(PT_RT1_5_ACTIVE_TIMEFRAMES),
+            "disabled_timeframes": list(PT_RT1_4_DISABLED_TIMEFRAMES),
+            "scheduler_status": scheduler_status,
+        },
         "scanner_universe": scanner_payload,
         "watchlist_status": {
             "requested_symbols": list(PT_RT1_REQUESTED_SCANNER_SYMBOLS),
@@ -1006,8 +1550,42 @@ def run_cycle(
                 *testnet_transport_stats.get("reason_codes", []),
             ],
         },
+        "testnet_order_policy": {
+            "policy": "pt_rt1_5_baseline_only_fixed_25usdc",
+            "order_transport_enabled": baseline_testnet_order_transport_enabled,
+            "transport_submit_configured": testnet_order_lifecycle_stats.get("transport_submit_configured", False),
+            "kill_switch_active": testnet_order_lifecycle_stats.get("kill_switch_active", baseline_testnet_order_kill_switch),
+            "approval_captured": baseline_testnet_order_approval_text == PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
+            "eligible_trigger": "money_flow_v1_2_baseline paper_opened only",
+            "active_timeframes": list(PT_RT1_5_ACTIVE_TIMEFRAMES),
+            "fixed_notional_usdc": str(baseline_testnet_order_notional_usdc),
+            "candidate_lane_transport_blocked": True,
+            "mf_orig_lane_transport_blocked": True,
+            "wildcard_lane_transport_blocked": True,
+            "public_mainnet_data_remains_strategy_truth": True,
+            "testnet_prices_are_strategy_truth": False,
+            "testnet_fills_update_strategy_pnl": False,
+            "lifecycle_rows_this_cycle": testnet_order_lifecycle_stats.get("lifecycle_rows_this_cycle", 0),
+            "eligible_order_shapes_this_cycle": testnet_order_lifecycle_stats.get("eligible_order_shapes_this_cycle", 0),
+            "signed_order_endpoint_called": testnet_order_lifecycle_stats.get("signed_order_endpoint_called", False),
+            "order_endpoint_called": testnet_order_lifecycle_stats.get("order_endpoint_called", False),
+            "reason_codes": testnet_order_lifecycle_stats.get(
+                "reason_codes",
+                ["baseline_only_trigger", "fixed_testnet_plumbing_notional"],
+            ),
+        },
+        "testnet_order_lifecycle": {
+            "rows_this_cycle": len(testnet_order_lifecycle_rows),
+            "status_counts": {
+                status: sum(1 for row in testnet_order_lifecycle_rows if row.get("status") == status)
+                for status in ("created", "preflight_passed", "submitted", "accepted_open", "filled", "partially_filled", "rejected", "cancel_requested", "canceled", "reconciled", "unknown_state", "blocked")
+            },
+            "rows": testnet_order_lifecycle_rows[:200],
+            "separate_from_synthetic_trades": True,
+        },
         "runtime_command": {
             "duration_hours_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1c_24h_dry_run --enable-testnet-probes --founder-approved-testnet-probes-20usdc --testnet-probe-notional-usdc 20 --public-mainnet-only",
+            "pt_rt1_5_week1_active_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_5_week1_active --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --enable-pt-rt1-5-baseline-testnet-orders --founder-approved-pt-rt1-5-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --disable-testnet-probes --public-mainnet-only",
             "smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 1 --output-dir reports/paper_runtime/pt_rt1_1b_smoke --disable-testnet-probes --public-mainnet-only",
             "output_dir": str(output_dir),
         },
@@ -1018,11 +1596,20 @@ def run_cycle(
             "decisions_recorded": len(decision_rows),
             "decisions_written": len(decision_log_rows),
             "decision_log_mode": decision_log_mode,
-            "orders_submitted": testnet_transport_stats["submitted_this_cycle"] > 0,
+            "legacy_probe_orders_submitted": testnet_transport_stats["submitted_this_cycle"] > 0,
+            "baseline_testnet_order_endpoint_called": testnet_order_lifecycle_stats.get("order_endpoint_called", False),
+            "live_orders_submitted": False,
+            "baseline_testnet_order_lifecycle_rows": len(testnet_order_lifecycle_rows),
             "testnet_probes_enabled": testnet_probes_enabled,
             "testnet_probe_notional_usdc": str(testnet_probe_notional_usdc),
-            "private_signed_order_endpoints_called": testnet_transport_stats["signed_order_endpoint_called"],
-            "testnet_order_endpoints_called": testnet_transport_stats["order_endpoint_called"],
+            "private_signed_order_endpoints_called": bool(
+                testnet_transport_stats["signed_order_endpoint_called"]
+                or testnet_order_lifecycle_stats.get("signed_order_endpoint_called", False)
+            ),
+            "testnet_order_endpoints_called": bool(
+                testnet_transport_stats["order_endpoint_called"]
+                or testnet_order_lifecycle_stats.get("order_endpoint_called", False)
+            ),
         },
         "paper_runtime_state": {
             "open_positions_count": len(open_positions_by_key),
@@ -1035,6 +1622,9 @@ def run_cycle(
             "duplicate_signal_blocks_total": paper_state["duplicate_signal_blocks_total"] + duplicate_signal_blocks_this_cycle,
             "open_positions_by_key": open_positions_by_key,
             "realized_equity_by_lane": realized_equity_by_lane,
+            "last_evaluated_closed_candle_by_timeframe": last_evaluated_closed_candle_by_timeframe,
+            "testnet_order_keys_total": len(testnet_order_keys),
+            "testnet_orders_total": paper_state["testnet_orders_total"] + len(testnet_order_lifecycle_rows),
             "paper_pnl_source": "synthetic_public_mainnet_paper_ledger",
             "testnet_fills_update_strategy_pnl": False,
         },
@@ -1043,6 +1633,10 @@ def run_cycle(
             if is_pt_rt1_3 and runtime_status == "verified"
             else "PT-RT1.3 blocked"
             if is_pt_rt1_3
+            else "PT-RT1.5 active Week 1 may continue with candle-close signal evaluation and baseline-only testnet lifecycle gates"
+            if is_pt_rt1_5 and runtime_status == "verified"
+            else "PT-RT1.5 blocked"
+            if is_pt_rt1_5
             else "PT-RT1.2 may continue paper observation; signed testnet transport remains blocked unless exact transport approval and a configured client are present"
             if is_pt_rt1_2 and runtime_status == "verified"
             else "PT-RT1.2 blocked"
@@ -1083,6 +1677,9 @@ def run_cycle(
                 paper_closes_total=paper_state["paper_closes_total"] + paper_closes_this_cycle,
                 duplicate_signal_blocks_total=paper_state["duplicate_signal_blocks_total"]
                 + duplicate_signal_blocks_this_cycle,
+                last_evaluated_closed_candle_by_timeframe=last_evaluated_closed_candle_by_timeframe,
+                testnet_order_keys=testnet_order_keys,
+                testnet_orders_total=paper_state["testnet_orders_total"] + len(testnet_order_lifecycle_rows),
             ),
         },
     )
@@ -1091,6 +1688,7 @@ def run_cycle(
     _append_jsonl(output_dir / "runtime_audit.jsonl", [summary["connection_status"], summary["testnet_plumbing_status"]])
     _append_jsonl(output_dir / "testnet_probe_audit.jsonl", testnet_probe_rows)
     _append_jsonl(output_dir / "testnet_probe_transport.jsonl", testnet_transport_rows)
+    _append_jsonl(output_dir / "testnet_order_lifecycle.jsonl", testnet_order_lifecycle_rows)
     _append_jsonl(output_dir / "trades.jsonl", trade_rows)
     return summary
 
@@ -1109,6 +1707,25 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--founder-approved-pt-rt1-2-testnet-transport-20usdc", action="store_true")
     parser.add_argument("--testnet-probe-notional-usdc", type=Decimal, default=PT_RT1_TESTNET_PROBE_NOTIONAL_USDC)
     parser.add_argument("--testnet-probe-daily-cap", type=int, default=TESTNET_PROBE_AUDIT_LIMIT)
+    parser.add_argument("--pt-rt1-5-week1-active", action="store_true")
+    parser.add_argument("--enable-pt-rt1-5-baseline-testnet-orders", action="store_true")
+    parser.add_argument("--founder-approved-pt-rt1-5-baseline-testnet-orders-25usdc", action="store_true")
+    parser.add_argument(
+        "--pt-rt1-5-testnet-order-notional-usdc",
+        type=Decimal,
+        default=PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC,
+    )
+    parser.add_argument(
+        "--pt-rt1-5-testnet-daily-order-cap",
+        type=int,
+        default=PT_RT1_5_TESTNET_DAILY_ORDER_CAP_DEFAULT,
+    )
+    parser.add_argument(
+        "--pt-rt1-5-testnet-per-symbol-daily-cap",
+        type=int,
+        default=PT_RT1_5_TESTNET_PER_SYMBOL_DAILY_CAP_DEFAULT,
+    )
+    parser.add_argument("--signal-evaluation-mode", choices=("poll", "candle_close_only"), default="poll")
     parser.add_argument("--public-mainnet-only", action="store_true")
     parser.add_argument("--poll-seconds", type=Decimal, default=Decimal("60"))
     parser.add_argument("--symbol", action="append", dest="symbols")
@@ -1133,6 +1750,26 @@ def main() -> int:
         raise SystemExit("testnet_probe_notional_must_be_20usdc")
     if args.testnet_probe_daily_cap <= 0:
         raise SystemExit("positive_testnet_probe_daily_cap_required")
+    if args.pt_rt1_5_week1_active:
+        if Path(args.output_dir).as_posix() != PT_RT1_5_RUNTIME_OUTPUT_DIR:
+            raise SystemExit("pt_rt1_5_output_dir_must_be_reports_paper_runtime_pt_rt1_5_week1_active")
+        if args.enable_testnet_probes:
+            raise SystemExit("pt_rt1_5_uses_disable_testnet_probes_and_baseline_order_transport")
+        if args.signal_evaluation_mode == "poll":
+            args.signal_evaluation_mode = "candle_close_only"
+    if args.enable_pt_rt1_5_baseline_testnet_orders and not args.pt_rt1_5_week1_active:
+        raise SystemExit("pt_rt1_5_baseline_testnet_orders_require_pt_rt1_5_week1_active")
+    if (
+        args.enable_pt_rt1_5_baseline_testnet_orders
+        and not args.founder_approved_pt_rt1_5_baseline_testnet_orders_25usdc
+    ):
+        raise SystemExit("founder_approved_pt_rt1_5_baseline_testnet_orders_25usdc_required")
+    if args.pt_rt1_5_testnet_order_notional_usdc != PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC:
+        raise SystemExit("pt_rt1_5_testnet_order_notional_must_be_25usdc")
+    if args.pt_rt1_5_testnet_daily_order_cap <= 0:
+        raise SystemExit("positive_pt_rt1_5_testnet_daily_order_cap_required")
+    if args.pt_rt1_5_testnet_per_symbol_daily_cap <= 0:
+        raise SystemExit("positive_pt_rt1_5_testnet_per_symbol_daily_cap_required")
     _ensure_ignored_output_dir(args.output_dir)
     duration = timedelta(
         hours=float(args.duration_hours or Decimal("0")),
@@ -1141,8 +1778,26 @@ def main() -> int:
     if duration <= timedelta(0):
         raise SystemExit("positive_duration_required")
     connector = HyperliquidPublicMarketDataConnector()
+    baseline_testnet_order_base_url = os.environ.get(
+        HYPERLIQUID_UAT_SANDBOX_BASE_URL_ENV,
+        PT_RT1_TESTNET_INFO_URL,
+    ).strip()
+    baseline_testnet_order_kill_switch = _env_truthy(
+        os.environ.get(PT_RT1_5_TESTNET_ORDER_TRANSPORT_KILL_SWITCH_ENV)
+    )
+    baseline_testnet_order_transport: BaselineTestnetOrderTransport | None = None
+    if args.enable_pt_rt1_5_baseline_testnet_orders and not baseline_testnet_order_kill_switch:
+        baseline_testnet_order_transport = HyperliquidPT_RT15TestnetOrderTransport.from_env()
     end_time = _utc_now() + duration
-    run_label = "PT-RT1.3" if args.enable_testnet_probes else "PT-RT1.1C" if "pt_rt1_1c" in str(args.output_dir) else "PT-RT1.1B"
+    run_label = (
+        "PT-RT1.5"
+        if args.pt_rt1_5_week1_active
+        else "PT-RT1.3"
+        if args.enable_testnet_probes
+        else "PT-RT1.1C"
+        if "pt_rt1_1c" in str(args.output_dir)
+        else "PT-RT1.1B"
+    )
     cycle = 0
     last_summary: dict[str, Any] = {}
     while True:
@@ -1167,6 +1822,19 @@ def main() -> int:
                 if args.founder_approved_pt_rt1_2_testnet_transport_20usdc
                 else ""
             ),
+            signal_evaluation_mode=args.signal_evaluation_mode,
+            baseline_testnet_order_transport_enabled=args.enable_pt_rt1_5_baseline_testnet_orders,
+            baseline_testnet_order_approval_text=(
+                PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL
+                if args.founder_approved_pt_rt1_5_baseline_testnet_orders_25usdc
+                else ""
+            ),
+            baseline_testnet_order_notional_usdc=args.pt_rt1_5_testnet_order_notional_usdc,
+            baseline_testnet_order_daily_cap=args.pt_rt1_5_testnet_daily_order_cap,
+            baseline_testnet_order_per_symbol_daily_cap=args.pt_rt1_5_testnet_per_symbol_daily_cap,
+            baseline_testnet_order_base_url=baseline_testnet_order_base_url,
+            baseline_testnet_order_kill_switch=baseline_testnet_order_kill_switch,
+            baseline_testnet_order_transport=baseline_testnet_order_transport,
         )
         if args.max_cycles is not None and cycle >= args.max_cycles:
             break

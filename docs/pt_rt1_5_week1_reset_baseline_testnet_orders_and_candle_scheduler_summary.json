@@ -1,0 +1,104 @@
+{
+  "active_review_scope": {
+    "scope": "pt_rt1_5_week1_active",
+    "output_dir": "reports/paper_runtime/pt_rt1_5_week1_active",
+    "active_review_start_utc": "2026-05-17T12:54:24Z",
+    "default_show_archived_rows": false,
+    "old_runtime_rows_archived_not_deleted": true,
+    "old_pt_rt1_4_1_process_stopped": true
+  },
+  "archived_runtime_scopes": [
+    "pre_pt_rt1_4_weekend_burn_in",
+    "pt_rt1_1c_24h_dry_run",
+    "pt_rt1_4_1_active_week",
+    "legacy_runtime"
+  ],
+  "active_timeframes": [
+    "1h",
+    "4h",
+    "1d"
+  ],
+  "disabled_timeframes": [
+    {
+      "timeframe": "15m",
+      "status": "disabled_for_week1_noise_reduction",
+      "active_scoring": false,
+      "testnet_order_trigger": false
+    }
+  ],
+  "signal_evaluation_mode": "candle_close_only",
+  "market_refresh_mode": "continuous_dashboard_display_refresh",
+  "one_hour_grace_delay_seconds": 90,
+  "four_hour_grace_delay_seconds": 120,
+  "one_day_grace_delay_seconds": 180,
+  "closed_candle_retry_policy": {
+    "1h": {
+      "retry_seconds": 60,
+      "max_retry_window_seconds": 600
+    },
+    "4h": {
+      "retry_seconds": 60,
+      "max_retry_window_seconds": 600
+    },
+    "1d": {
+      "retry_seconds": 60,
+      "max_retry_window_seconds": 1800
+    }
+  },
+  "duplicate_candle_signal_policy": "duplicate_candle_signal_ignored",
+  "testnet_order_policy": {
+    "venue": "Hyperliquid",
+    "environment": "testnet",
+    "order_transport_scope": "money_flow_v1_2_baseline paper_opened only",
+    "approval_required": true,
+    "fixed_notional_usdc": "25",
+    "sizing_source": "fixed_testnet_plumbing_notional",
+    "post_only_tif": "Alo",
+    "cancel_reconcile_required": true,
+    "public_mainnet_candles_remain_strategy_truth": true,
+    "testnet_prices_are_strategy_truth": false,
+    "testnet_fills_update_strategy_pnl": false
+  },
+  "baseline_only_trigger": {
+    "lane_id": "money_flow_v1_2_baseline",
+    "action": "paper_opened",
+    "active_timeframes": [
+      "1h",
+      "4h",
+      "1d"
+    ],
+    "scheduled_closed_candle_required": true
+  },
+  "candidate_lane_transport_blocked": true,
+  "watchlist_layout_status": {
+    "compact": true,
+    "scrollable": true,
+    "columns": [
+      "symbol",
+      "mid",
+      "health",
+      "status"
+    ]
+  },
+  "testnet_widget_status": {
+    "side_by_side_with_watchlist": true,
+    "distinguishes_audit_shapes_from_order_transport": true,
+    "notional_per_order_usdc": "25",
+    "strategy_pnl_update_from_testnet": false
+  },
+  "lifecycle_table_status": {
+    "exists": true,
+    "path": "reports/paper_runtime/pt_rt1_5_week1_active/testnet_order_lifecycle.jsonl",
+    "separate_from_synthetic_trades": true
+  },
+  "boundaries": {
+    "production_money_flow_rules_changed": false,
+    "strategy_production_approved": false,
+    "live_trading_approved": false,
+    "live_orders_submitted": false,
+    "candidate_lanes_send_testnet_orders": false,
+    "historical_evidence_packs_regenerated": false,
+    "sor_fanout_cbbo_added": false
+  },
+  "next_phase": "Run or restart Week 1 active runtime under pt_rt1_5_week1_active and review first scheduled candle-close lifecycle rows."
+}

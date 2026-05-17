@@ -2,6 +2,15 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-17T12:54:24Z - PT-RT1.5 - Reset Active Week And Gate Baseline-Only Testnet Lifecycle Rows
+
+- `decision`: Reset the active Week 1 Paper Trading scope to `pt_rt1_5_week1_active`, archive prior runtime rows by default, keep `1h`/`4h`/`1d` active, keep `15m` paused, and move strategy signal evaluation to candle-close-only scheduling.
+- `scope`: PT-RT1.5 hides archived open/closed/signal rows by default while preserving them under explicit archived review, starts fresh independent 10,000 USDC active-week ledgers, adds scheduler status for next/last `1h`/`4h`/`1d` evaluations, and keeps market refresh separate for watchlist/chart/unrealized/data-health display. The Paper Trading dashboard uses a compact scrollable watchlist beside a clarified Testnet Order Transport widget and adds a separate Testnet Order Lifecycle table.
+- `testnet_policy`: Only scheduled closed-candle `money_flow_v1_2_baseline` synthetic `paper_opened` rows on active `1h`/`4h`/`1d` timeframes may create Hyperliquid testnet lifecycle/order-shape rows. The testnet notional is fixed at 25 USDC regardless of synthetic notional. Candidate, MF-ORIG, wildcard, duplicate, data-unavailable, hold, trim, close, 15m, and intrabar rows cannot trigger testnet transport. Testnet fills never update synthetic paper PnL.
+- `why`: Founder review needed a clean Week 1 command center without old runtime clutter, less noisy 15m behavior, no continuous signal scanning, and a scoped baseline-linked testnet plumbing path that remains separate from strategy truth and candidate lanes.
+- `result`: `implemented_pt_rt1_5_active_week_reset_and_baseline_testnet_lifecycle_gates`. Public mainnet candles remain strategy truth. Production Money Flow rules are unchanged. No strategy is production-approved. Live trading is not approved.
+- `follow_up_implications`: Start or restart runtime under `reports/paper_runtime/pt_rt1_5_week1_active/` using PT-RT1.5 flags. Review the first active cycles for candle-close scheduler timing, duplicate closed-candle blocking, fixed-25 baseline-only lifecycle rows when baseline opens occur, candidate-lane transport blocks, and no-live/no-production boundaries.
+
 ## 2026-05-17T11:51:26Z - PT-RT1.4.1 - Verify Active-Week Runtime Cutover Before Daily Review
 
 - `decision`: Treat the old `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` artifact set as pre-PT-RT1.4 burn-in for active Week 1 scoring because it continued producing 15m synthetic opens after the PT-RT1.4 cutover.

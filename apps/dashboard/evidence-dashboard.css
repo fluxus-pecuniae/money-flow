@@ -1074,16 +1074,30 @@ h3 {
 }
 
 .paper-observation-watchlist-panel {
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid var(--color-line);
+  min-width: 0;
+}
+
+.paper-observation-watchlist-transport-row {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.7fr) minmax(360px, 1.3fr);
+  gap: var(--spacing-5);
+  align-items: start;
+}
+
+.paper-observation-watchlist-panel .data-table-shell {
+  max-height: 440px;
+  overflow-y: auto;
 }
 
 .paper-observation-watchlist-table th:nth-child(2),
-.paper-observation-watchlist-table td:nth-child(2),
-.paper-observation-watchlist-table th:nth-child(3),
-.paper-observation-watchlist-table td:nth-child(3) {
+.paper-observation-watchlist-table td:nth-child(2) {
   text-align: right;
+}
+
+.paper-observation-watchlist-table th,
+.paper-observation-watchlist-table td {
+  padding: 7px 9px;
+  white-space: nowrap;
 }
 
 .paper-observation-symbol-button {
@@ -3249,6 +3263,7 @@ td {
   .evidence-lab-overlay-layout,
   .evidence-lab-two-column,
   .paper-observation-primary-grid,
+  .paper-observation-watchlist-transport-row,
   .paper-observation-safety-strip,
   .audit-review-two-column {
     grid-template-columns: 1fr;

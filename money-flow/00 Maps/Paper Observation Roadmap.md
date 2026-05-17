@@ -49,7 +49,7 @@ PT-RT1.1B public-mainnet readiness:
 - Runtime command exists at `scripts/run_pt_rt1_paper_observation.py`.
 - Smoke output is ignored under `reports/paper_runtime/pt_rt1_1b_smoke/`.
 - Smoke connected to public mainnet `meta` and `allMids`, resolved the requested watchlist, loaded bounded candle data, and recorded bounded paper decisions.
-- Testnet probes now have a dashboard-started 20 USDC audit/order-shape mode. This mode does not submit signed orders and does not update paper PnL from testnet fills.
+- The older dashboard-started 20 USDC audit/order-shape mode is historical context. PT-RT1.5 supersedes the active Week 1 surface with baseline-only fixed 25 USDC testnet lifecycle gates.
 
 PT-RT1.2 runtime correctness:
 
@@ -87,6 +87,21 @@ PT-RT1.4.1 active-week runtime verification:
 - Daily founder review pack: `docs/pt_rt_week1_day_summary.md` and `docs/pt_rt_week1_day_summary.json`.
 - Current decision: `Week 1 paper observation may continue`.
 
+PT-RT1.5 active-week reset, candle scheduler, and baseline-only testnet lifecycle:
+
+- Active Week 1 default scope is now `pt_rt1_5_week1_active`.
+- Prior runtime rows are archived, not deleted, and hidden by default unless the founder enables archived/weekend burn-in review.
+- Fresh active-week ledgers start at 10,000 USDC per lane for default review.
+- Active paper timeframes remain `1h`, `4h`, and `1d`; `15m` remains paused and cannot create new active-week synthetic opens or testnet lifecycle rows.
+- Market-data refresh remains frequent for watchlist, chart, data-health, heartbeat, and unrealized-PnL display.
+- Strategy signal evaluation is candle-close only for fully closed `1h`, `4h`, and `1d` candles with grace delays of 90, 120, and 180 seconds.
+- Between scheduled candle-close evaluations the runtime records market-refresh/no-signal reasons instead of repeatedly scanning entries/exits.
+- Only scheduled `money_flow_v1_2_baseline` `paper_opened` rows on active timeframes can create baseline-linked Hyperliquid testnet lifecycle rows.
+- Testnet lifecycle rows use fixed 25 USDC notional, independent of synthetic signal size.
+- Candidate, MF-ORIG, wildcard, 15m, duplicate, data-unavailable, hold, close, and trim rows cannot send testnet orders.
+- Public mainnet candles remain strategy truth; testnet prices are formatting-only for testnet plumbing; testnet fills never update synthetic PnL.
+- Runtime artifacts stay ignored under `reports/paper_runtime/pt_rt1_5_week1_active/`.
+
 Paper Trading dashboard live display:
 
 - Browser-side health polling can still call Hyperliquid public mainnet `allMids`, but the visible Expanded Scanner Universe/watchlist is removed from the founder Paper Trading page as of PT-RT1.2.1.
@@ -101,7 +116,11 @@ Paper Trading dashboard live display:
 - Signal / Decision Stream, Open Synthetic Positions, and Closed Synthetic Trades are paginated; open-position default page size is 25 rows.
 - Wildcard Diagnostics moved to the Strategy tab and remains observation-only/non-production.
 - The adjacent Signal Generator panel lists recorded synthetic `paper_opened` intended-entry decisions from the PT-RT1 decision stream.
-- The local Start Run / Stop Run panel is available only when the dashboard is served by `scripts/run_dashboard_control_server.py`; it launches allowlisted public-mainnet sessions through Mac `caffeinate` and always forces `--enable-testnet-probes`, `--founder-approved-testnet-probes-20usdc`, `--testnet-probe-notional-usdc 20`, and `--public-mainnet-only`.
+- The compact watchlist shows symbol, mid, health, and status only. It is scrollable and sits beside the Testnet Order Transport widget.
+- The Testnet Order Transport widget now separates audit-only shape generation from baseline-only order transport, shows fixed 25 USDC notional, candidate-lane transport blocks, signed testnet order counts, lifecycle counts, and `strategy PnL update from testnet = false`.
+- The Testnet Order Lifecycle table is separate from Closed Synthetic Trades.
+- The dashboard shows next/last scheduled `1h`/`4h`/`1d` signal-evaluation times and labels Signal Evaluation as candle-close only.
+- The local Start Run / Stop Run panel is available only when the dashboard is served by `scripts/run_dashboard_control_server.py`; it launches allowlisted public-mainnet sessions through Mac `caffeinate` and now defaults to `pt_rt1_5_week1_active`, `--disable-testnet-probes`, `--pt-rt1-5-week1-active`, `--signal-evaluation-mode candle_close_only`, `--enable-pt-rt1-5-baseline-testnet-orders`, fixed `--pt-rt1-5-testnet-order-notional-usdc 25`, and `--public-mainnet-only`.
 - Runtime decision logging now defaults to compact mode. It writes actionable `paper_opened`/`paper_closed` decisions, data-unavailable rows, and first-seen non-actionable audit rows while suppressing repeated identical non-actionable rows across cycles; `full_audit` remains an explicit short-diagnostic CLI mode.
 - The dashboard displays decision-log mode, log size, rows written this cycle, and repeated rows suppressed this cycle from runtime summaries.
 - Static `http.server` dashboard review still works, but runtime Start/Stop controls intentionally show unavailable there.
@@ -109,11 +128,11 @@ Paper Trading dashboard live display:
 
 Current next operational step:
 
-1. Continue the restarted PT-RT active-week session scoped to `1h`, `4h`, and `1d`.
-2. Retain ignored active artifacts under `reports/paper_runtime/pt_rt1_4_1_active_week/`.
-3. Use `docs/pt_rt_week1_day_summary.*` for daily founder review.
-4. If stable, start the 60-day public-mainnet forward-observation window.
-5. Scope real signed testnet transport submission separately if needed; dashboard-started PT-RT runs can create probe audit/order-shape rows only.
+1. Start or restart the PT-RT1.5 active-week session scoped to `1h`, `4h`, and `1d`.
+2. Retain ignored active artifacts under `reports/paper_runtime/pt_rt1_5_week1_active/`.
+3. Use the Paper Trading tab as the weekly command center and keep archived/weekend burn-in rows hidden by default.
+4. Review scheduler timing, duplicate closed-candle suppression, fixed-25 baseline-only testnet lifecycle rows, candidate transport blocks, and synthetic ledger isolation after the first active cycles.
+5. If stable, continue the 60-day public-mainnet forward-observation window.
 
 ## Required Boundaries
 
@@ -134,21 +153,22 @@ Current next operational step:
 
 PT-RT1 should keep these lanes separate.
 
-## Testnet Plumbing Probe Policy
+## Baseline Testnet Order Transport Policy
 
-Testnet probes remain separate from strategy truth:
+PT-RT1.5 testnet transport remains separate from strategy truth:
 
-- dashboard-started PT-RT1 runtime uses `--enable-testnet-probes`
-- exact founder approval flag is required
-- daily cap defaults to `1`
-- dashboard control uses daily cap `200`
-- notional cap is `20 USDC`
-- exact approval text is required
-- post-only `Alo` shape only
-- PT-RT1 runtime writes audit/order-shape rows only and does not submit signed transport
-- signed transport requires the explicit PT-RT1.2 `--submit-testnet-probes` path, exact transport approval, 20 USDC notional, and a configured client
-- unknown/open probe state blocks future probes
+- public mainnet candles remain strategy truth
+- only `money_flow_v1_2_baseline` scheduled `paper_opened` rows on `1h`/`4h`/`1d` are eligible
+- candidate lanes, MF-ORIG lanes, wildcard lanes, `15m`, duplicate rows, data-unavailable rows, holds, trims, and closes cannot trigger testnet orders
+- fixed testnet notional is `25 USDC`, independent of synthetic signal notional
+- Hyperliquid testnet order shape is limit post-only `Alo`
+- live Hyperliquid URLs are rejected
+- main/user mode omits `vaultAddress`; subaccount/vault mode requires explicit valid `vaultAddress`
+- duplicate testnet order keys are blocked
+- unknown/open testnet state blocks new orders
+- testnet lifecycle rows are separate from synthetic paper trades
 - testnet fills never update strategy paper PnL
+- no live trading or production strategy approval follows from the lifecycle rows
 
 ## Readiness Decision
 
@@ -170,4 +190,6 @@ Current PT-RT1.4 status: `implemented_paper_trading_command_center_and_active_ti
 
 Current PT-RT1.4.1 status: `active_runtime_cutover_verified_after_restart`.
 
-This means the repo now has code, dashboard, public-mainnet connector, runtime command, summary JSON, tests, runbooks, and a daily founder review pack for controlled forward observation across the expanded 10-lane lab. The old local PT-RT1.1C artifact set under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` is pre-cutover burn-in for active Week 1 because it kept generating 15m opens after cutover. The current active Week 1 artifact directory is `reports/paper_runtime/pt_rt1_4_1_active_week/`, and the first active cycle had 0 15m rows. It is not an always-on hosted service: new signal generation requires manually starting `scripts/run_pt_rt1_paper_observation.py` and keeping that process and machine awake/networked for the chosen session. No 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading.
+Current PT-RT1.5 status: `implemented_active_week_reset_candle_close_scheduler_and_baseline_testnet_lifecycle_gates`.
+
+This means the repo now has code, dashboard, public-mainnet connector, runtime command, summary JSON, tests, runbooks, and a daily founder review pack for controlled forward observation across the expanded 10-lane lab. The old local PT-RT1.1C artifact set under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` is pre-cutover burn-in for active Week 1 because it kept generating 15m opens after cutover. The PT-RT1.4.1 active-week directory is now archived by default, and the PT-RT1.5 active Week 1 artifact directory is `reports/paper_runtime/pt_rt1_5_week1_active/`. It is not an always-on hosted service: new signal generation requires starting `scripts/run_pt_rt1_paper_observation.py` with PT-RT1.5 flags and keeping that process and machine awake/networked for the chosen session. No 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading.

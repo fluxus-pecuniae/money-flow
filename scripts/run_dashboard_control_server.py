@@ -3,8 +3,9 @@
 
 The server intentionally exposes only a tiny localhost API. It can start or
 stop the PT-RT1 paper-observation runtime through `caffeinate` so a Mac stays
-awake while synthetic paper observation runs. Testnet probes are plumbing-only
-audit/order-shape rows capped at 20 USDC per signal and do not update paper PnL.
+awake while synthetic paper observation runs. PT-RT1.5 uses candle-close signal
+evaluation and baseline-only Hyperliquid testnet lifecycle shapes capped at a
+fixed 25 USDC; testnet fills do not update synthetic paper PnL.
 """
 
 from __future__ import annotations
@@ -29,12 +30,18 @@ CONTROL_DIR = REPO_ROOT / "reports" / "paper_runtime" / "dashboard_control"
 STATE_PATH = CONTROL_DIR / "state.json"
 LOCAL_HOSTS = {"127.0.0.1", "localhost"}
 SAFE_FLAGS = [
-    "--enable-testnet-probes",
-    "--founder-approved-testnet-probes-20usdc",
-    "--testnet-probe-notional-usdc",
-    "20",
-    "--testnet-probe-daily-cap",
-    "200",
+    "--pt-rt1-5-week1-active",
+    "--enable-pt-rt1-5-baseline-testnet-orders",
+    "--founder-approved-pt-rt1-5-baseline-testnet-orders-25usdc",
+    "--pt-rt1-5-testnet-order-notional-usdc",
+    "25",
+    "--pt-rt1-5-testnet-daily-order-cap",
+    "25",
+    "--pt-rt1-5-testnet-per-symbol-daily-cap",
+    "3",
+    "--signal-evaluation-mode",
+    "candle_close_only",
+    "--disable-testnet-probes",
     "--public-mainnet-only",
 ]
 DURATION_OPTIONS = {
@@ -44,6 +51,8 @@ DURATION_OPTIONS = {
     "24h": ("--duration-hours", "24", "24 hours"),
 }
 OUTPUT_OPTIONS = {
+    "pt_rt1_5_week1_active": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_5_week1_active",
+    "pt_rt1_4_1_active_week": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_4_1_active_week",
     "pt_rt1_1c_24h_dry_run": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_1c_24h_dry_run",
     "pt_rt1_1b_smoke": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_1b_smoke",
 }
@@ -192,7 +201,7 @@ def start_runtime(payload: dict[str, Any]) -> tuple[int, dict[str, Any]]:
         return HTTPStatus.CONFLICT, {**status, "message": "paper_runtime_already_running"}
 
     duration = str(payload.get("duration") or "24h")
-    output = str(payload.get("output") or "pt_rt1_1c_24h_dry_run")
+    output = str(payload.get("output") or "pt_rt1_5_week1_active")
     _duration_flag, _duration_value, duration_label = validate_duration(duration)
     output_dir = validate_output(output)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -343,8 +352,8 @@ def main(argv: list[str] | None = None) -> int:
     server = ThreadingHTTPServer((host, args.port), DashboardControlHandler)
     print(f"Serving Money Flow dashboard with local controls at http://{host}:{args.port}/apps/dashboard/index.html")
     print(
-        "Paper runtime start always uses caffeinate, --enable-testnet-probes, "
-        "--testnet-probe-notional-usdc 20, and --public-mainnet-only."
+        "Paper runtime start always uses caffeinate, PT-RT1.5 candle-close mode, "
+        "baseline-only fixed 25 USDC testnet lifecycle gates, and --public-mainnet-only."
     )
     try:
         server.serve_forever()

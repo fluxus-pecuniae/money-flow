@@ -116,18 +116,28 @@
   ];
 
   const DEFAULT_PT_RT1_SUMMARY_FILES = [
+    "../../reports/paper_runtime/pt_rt1_5_week1_active/summary.json",
+    "../../docs/pt_rt1_5_week1_reset_baseline_testnet_orders_and_candle_scheduler_summary.json",
+    "../../reports/paper_runtime/pt_rt1_4_1_active_week/summary.json",
     "../../reports/paper_runtime/pt_rt1_1c_24h_dry_run/summary.json",
     "../../reports/paper_runtime/pt_rt1_1b_smoke/summary.json",
     "../../docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json",
     "../../docs/pt_rt1_real_time_paper_observation_and_testnet_plumbing_summary.json",
   ];
   const DEFAULT_PT_RT1_DECISION_LOG_FILES = [
+    "../../reports/paper_runtime/pt_rt1_5_week1_active/decisions.jsonl",
+    "../../reports/paper_runtime/pt_rt1_4_1_active_week/decisions.jsonl",
     "../../reports/paper_runtime/pt_rt1_1c_24h_dry_run/decisions.jsonl",
     "../../reports/paper_runtime/pt_rt1_1b_smoke/decisions.jsonl",
   ];
   const DEFAULT_PT_RT1_TRADE_LOG_FILES = [
+    "../../reports/paper_runtime/pt_rt1_5_week1_active/trades.jsonl",
+    "../../reports/paper_runtime/pt_rt1_4_1_active_week/trades.jsonl",
     "../../reports/paper_runtime/pt_rt1_1c_24h_dry_run/trades.jsonl",
     "../../reports/paper_runtime/pt_rt1_1b_smoke/trades.jsonl",
+  ];
+  const DEFAULT_PT_RT1_TESTNET_LIFECYCLE_FILES = [
+    "../../reports/paper_runtime/pt_rt1_5_week1_active/testnet_order_lifecycle.jsonl",
   ];
   const PAPER_OBSERVATION_DECISION_LOG_LIMIT = 10000;
   const PAPER_OBSERVATION_TRADE_LOG_LIMIT = 10000;
@@ -136,7 +146,8 @@
   const PAPER_OBSERVATION_PAGE_SIZE = 25;
   const PAPER_OBSERVATION_ACTIVE_TIMEFRAMES = ["1h", "4h", "1d"];
   const PAPER_OBSERVATION_DISABLED_TIMEFRAMES = ["15m"];
-  const PAPER_OBSERVATION_ACTIVE_REVIEW_START_UTC = "2026-05-17T09:47:55Z";
+  const PAPER_OBSERVATION_ACTIVE_REVIEW_START_UTC = "2026-05-17T12:54:24Z";
+  const PAPER_OBSERVATION_ACTIVE_RUNTIME_SCOPE = "pt_rt1_5_week1_active";
   const PAPER_OBSERVATION_15M_STATUS = "disabled_for_week1_noise_reduction";
   const RUN_LEDGER_DISPLAY_FILTER_BOUNDARY = "date filters are display-only, not canonical pack regeneration";
 
@@ -656,6 +667,8 @@
     ptRt1DecisionSource: "",
     ptRt1TradeRows: [],
     ptRt1TradeSource: "",
+    ptRt1TestnetLifecycleRows: [],
+    ptRt1TestnetLifecycleSource: "",
     tradingViewChart: {
       chart: null,
       mount: null,
@@ -797,13 +810,13 @@
       running: false,
       status: "checking",
       duration: "24h",
-      output: "pt_rt1_1c_24h_dry_run",
+      output: "pt_rt1_5_week1_active",
       pid: null,
       startedAtUtc: null,
       updatedAtUtc: null,
       outputDir: null,
       logPath: null,
-      safeFlags: ["--enable-testnet-probes", "--testnet-probe-notional-usdc", "20", "--public-mainnet-only"],
+      safeFlags: ["--pt-rt1-5-week1-active", "--pt-rt1-5-testnet-order-notional-usdc", "25", "--disable-testnet-probes", "--public-mainnet-only"],
       message: "checking_local_control_server",
       inFlight: false,
       timer: null,
@@ -922,6 +935,7 @@
     paperObservationLaneDetail: document.querySelector("#paper-observation-lane-detail"),
     paperObservationLiveChart: document.querySelector("#paper-observation-live-chart"),
     paperObservationProbeStatus: document.querySelector("#paper-observation-probe-status"),
+    paperObservationTestnetLifecycle: document.querySelector("#paper-observation-testnet-lifecycle"),
     paperObservationOpenPositions: document.querySelector("#paper-observation-open-positions"),
     paperObservationClosedTrades: document.querySelector("#paper-observation-closed-trades"),
     paperObservationRiskTable: document.querySelector("#paper-observation-risk-table"),
@@ -9142,7 +9156,7 @@
   function normalizePaperRuntimeControlStatus(payload, available = true) {
     const safeFlags = Array.isArray(payload?.safe_flags) && payload.safe_flags.length
       ? payload.safe_flags
-      : ["--enable-testnet-probes", "--testnet-probe-notional-usdc", "20", "--public-mainnet-only"];
+      : ["--pt-rt1-5-week1-active", "--pt-rt1-5-testnet-order-notional-usdc", "25", "--disable-testnet-probes", "--public-mainnet-only"];
     state.paperRuntimeControl = {
       ...state.paperRuntimeControl,
       available,
@@ -9188,7 +9202,7 @@
           running: false,
           status: "unavailable",
           message: "Start/stop requires launching the local control server.",
-          safe_flags: ["--enable-testnet-probes", "--testnet-probe-notional-usdc", "20", "--public-mainnet-only"],
+          safe_flags: ["--pt-rt1-5-week1-active", "--pt-rt1-5-testnet-order-notional-usdc", "25", "--disable-testnet-probes", "--public-mainnet-only"],
         },
         false,
       );
@@ -9570,8 +9584,8 @@
     ];
     const reviewWindowOptions = [
       { value: "active_week", label: "Active week only" },
+      { value: "pre_cutover", label: "Archived / weekend burn-in rows" },
       { value: "all_runtime", label: "All runtime data" },
-      { value: "pre_cutover", label: "Weekend/pre-cutover only" },
     ];
     const signalCategoryOptions = [
       { value: "entry_activity", label: "Actual opens + intended entries" },
@@ -9692,21 +9706,27 @@
     if (!elements.paperObservationHealthBanner) return;
     const summary = paperObservationSummary();
     const status = summary?.connection_status || {};
+    const cadence = summary?.signal_evaluation_cadence || summary?.signal_evaluation_policy || {};
+    const testnetPolicy = summary?.testnet_order_policy || summary?.pt_rt1_5_testnet_order_policy || {};
     const activeStart = paperObservationActiveReviewStart(summary);
     const disabled = paperObservationDisabledTimeframes(summary);
     elements.paperObservationHealthBanner.innerHTML = `
       <div class="paper-observation-command-banner">
         <div><span>Public mainnet data</span><strong>${escapeHtml(paperObservationText(status.hyperliquid_public_mainnet, "pending_runtime_refresh"))}</strong></div>
-        <div><span>Runtime state</span><strong>active paper observation</strong></div>
+        <div><span>Runtime state</span><strong>Week 1 active</strong></div>
         <div><span>Active review window</span><strong>${escapeHtml(activeStart)} to now</strong></div>
         <div><span>Active timeframes</span><strong>1h / 4h / 1D</strong></div>
         <div><span>15m</span><strong>${escapeHtml(PAPER_OBSERVATION_15M_STATUS)}</strong></div>
-        <div><span>Testnet order transport</span><strong>disabled</strong></div>
+        <div><span>Signal evaluation</span><strong>${escapeHtml(paperObservationText(cadence.strategy_signal_evaluation || cadence.mode, "candle-close only"))}</strong></div>
+        <div><span>Market refresh</span><strong>${escapeHtml(paperObservationText(cadence.market_refresh || cadence.market_refresh_mode, "active"))}</strong></div>
+        <div><span>Testnet order transport</span><strong>${escapeHtml(testnetPolicy.order_transport_enabled ? "baseline-only gates enabled" : "baseline-only gates ready")}</strong></div>
+        <div><span>Fixed notional</span><strong>${escapeHtml(paperObservationText(testnetPolicy.fixed_notional_usdc, "25"))} USDC</strong></div>
         <div><span>Live trading</span><strong>not approved</strong></div>
       </div>
       <div class="methodology-warning compact">
         Paper Trading is this week's runtime review surface. Historical Replay, Evidence, The Lab, Audit, and Strategy remain reference surfaces.
         Disabled timeframes: ${escapeHtml(disabled.join(", ") || "none")}. Existing 15m records remain visible only under the paused/legacy filter.
+        Frequent market refresh is display-only; strategy signals are evaluated only after fully closed 1h / 4h / 1d candles.
       </div>
     `;
   }
@@ -9816,6 +9836,7 @@
             <th>Symbol</th>
             <th>Mid price</th>
             <th>Health</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
@@ -9833,6 +9854,7 @@
                   </td>
                   <td><span class="paper-observation-tick ${paperObservationTickClass(row)}">${escapeHtml(paperObservationText(row.public_mid, row.blocked ? "blocked" : "pending"))}</span></td>
                   <td>${auditReviewPill(paperObservationMdHealth(row))}</td>
+                  <td>${auditReviewPill(row.blocked ? "blocked" : row.scanner_eligible ? "eligible" : "watch")}</td>
                 </tr>
               `,
             )
@@ -10416,34 +10438,115 @@
     if (!elements.paperObservationProbeStatus) return;
     const summary = paperObservationSummary();
     const policy = summary?.testnet_probe_policy || {};
+    const orderPolicy = summary?.testnet_order_policy || summary?.pt_rt1_5_testnet_order_policy || {};
     const plumbing = summary?.plumbing_lane || {};
     const runtime = summary?.testnet_plumbing_status || {};
+    const lifecycle = summary?.testnet_order_lifecycle || {};
     const submittedCount = runtime.transport_submitted_this_cycle ?? 0;
     const signedCalled = Boolean(runtime.signed_order_endpoint_called || runtime.order_endpoint_called);
     const auditShapeEnabled = runtime.status === "enabled_audit_only" || Number(runtime.probe_audit_rows_this_cycle || 0) > 0;
-    const orderTransportEnabled = Boolean(runtime.transport_mode && runtime.transport_mode !== "audit_only" && signedCalled);
+    const orderTransportEnabled = Boolean(orderPolicy.order_transport_enabled || (runtime.transport_mode && runtime.transport_mode !== "audit_only" && signedCalled));
     elements.paperObservationProbeStatus.innerHTML = `
       <div class="market-micro-grid">
         <div><span>Lane</span><strong>testnet plumbing only</strong></div>
         <div><span>Testnet order transport</span><strong>${escapeHtml(String(orderTransportEnabled))}</strong></div>
         <div><span>Audit-only shapes</span><strong>${escapeHtml(String(auditShapeEnabled || policy.PT_RT1_TESTNET_PROBES_ENABLED || false))}</strong></div>
         <div><span>Kill switch</span><strong>${escapeHtml(String(runtime.kill_switch_active ?? policy.PT_RT1_TESTNET_KILL_SWITCH ?? true))}</strong></div>
-        <div><span>Daily cap</span><strong>${escapeHtml(String(runtime.daily_cap ?? policy.PT_RT1_TESTNET_DAILY_PROBE_CAP ?? 200))}</strong></div>
-        <div><span>Eligible shapes</span><strong>${escapeHtml(String(runtime.eligible_probe_shapes_this_cycle ?? "runtime_not_started"))}</strong></div>
-        <div><span>Transport mode</span><strong>${escapeHtml(runtime.transport_mode || "audit_only")}</strong></div>
+        <div><span>Daily cap</span><strong>${escapeHtml(String(orderPolicy.daily_order_cap_default ?? runtime.daily_cap ?? policy.PT_RT1_TESTNET_DAILY_PROBE_CAP ?? 25))}</strong></div>
+        <div><span>Eligible trigger</span><strong>Money Flow v1.2 baseline opens only</strong></div>
+        <div><span>Transport mode</span><strong>${escapeHtml(orderTransportEnabled ? "baseline_only_testnet" : runtime.transport_mode || "ready_but_gated")}</strong></div>
         <div><span>Audit/order-shape rows</span><strong>${escapeHtml(String(runtime.probe_audit_rows_this_cycle ?? 0))}</strong></div>
         <div><span>Signed testnet orders</span><strong>${escapeHtml(String(signedCalled ? submittedCount : 0))}</strong></div>
         <div><span>Cancel / reconcile</span><strong>${escapeHtml(`${runtime.transport_cancel_attempted_this_cycle ?? 0} / ${runtime.transport_reconciled_this_cycle ?? 0}`)}</strong></div>
-        <div><span>Notional cap</span><strong>${escapeHtml(String(runtime.probe_notional_cap_usdc ?? policy.PT_RT1_TESTNET_PROBE_NOTIONAL_CAP ?? "20"))} USDC</strong></div>
+        <div><span>Notional per order</span><strong>${escapeHtml(String(orderPolicy.fixed_notional_usdc ?? runtime.probe_notional_cap_usdc ?? "25"))} USDC</strong></div>
+        <div><span>Lifecycle rows</span><strong>${escapeHtml(String(lifecycle.rows_this_cycle ?? orderPolicy.lifecycle_rows_this_cycle ?? 0))}</strong></div>
         <div><span>Last lifecycle</span><strong>${escapeHtml(runtime.transport_status || "runtime_not_started")}</strong></div>
         <div><span>Open after reconcile</span><strong>none</strong></div>
         <div><span>Unknown state</span><strong>blocked_if_present</strong></div>
         <div><span>Strategy PnL update</span><strong>${escapeHtml(String(runtime.testnet_fills_do_not_update_strategy_pnl === true ? false : plumbing.testnet_fills_update_strategy_pnl ?? false))}</strong></div>
-        <div><span>Reason</span><strong>audit_only_not_submitted</strong></div>
+        <div><span>Candidate transport</span><strong>blocked</strong></div>
       </div>
       <div class="methodology-warning compact">
-        Audit-shape generation can build/check simulated testnet probe shapes. Testnet order transport is disabled in PT-RT1.4: no signed testnet order is submitted, no exchange transport is used, and testnet fills do not update strategy PnL.
+        PT-RT1.5 allows baseline-linked Hyperliquid testnet lifecycle rows only from scheduled Money Flow v1.2 baseline synthetic opens. Testnet order notional is fixed at 25 USDC, candidate lanes are synthetic-only, public mainnet candles remain strategy truth, and testnet fills do not update strategy PnL.
       </div>
+    `;
+  }
+
+  function paperObservationTestnetLifecycleRows(summary) {
+    const rows = [
+      ...paperObservationRows(summary?.testnet_order_lifecycle?.rows),
+      ...paperObservationRows(state.ptRt1TestnetLifecycleRows),
+    ];
+    const seen = new Set();
+    return rows
+      .filter(Boolean)
+      .filter((row) => {
+        const key = [
+          row.testnet_order_key || row.oid || row.testnet_order_id || "",
+          row.created_at_utc || row.time || row.signal_candle_close_time || "",
+          row.symbol || "",
+          row.timeframe || "",
+          row.status || "",
+        ].join("|");
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .sort((left, right) => String(right.created_at_utc || right.time || right.signal_candle_close_time || "").localeCompare(String(left.created_at_utc || left.time || left.signal_candle_close_time || "")));
+  }
+
+  function renderPaperObservationTestnetLifecycle() {
+    if (!elements.paperObservationTestnetLifecycle) return;
+    const summary = paperObservationSummary();
+    const rows = paperObservationTestnetLifecycleRows(summary);
+    if (!rows.length) {
+      setEmpty(elements.paperObservationTestnetLifecycle, "No PT-RT1.5 testnet order lifecycle rows yet. Baseline-only lifecycle rows appear after scheduled Money Flow v1.2 synthetic opens.");
+      return;
+    }
+    elements.paperObservationTestnetLifecycle.innerHTML = `
+      <div class="methodology-warning compact">
+        Testnet lifecycle rows are plumbing-only. They are separate from synthetic closed trades and never update strategy PnL.
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Symbol</th>
+            <th>Timeframe</th>
+            <th>Trigger lane</th>
+            <th>Signal candle</th>
+            <th>OID</th>
+            <th>Status</th>
+            <th>Side</th>
+            <th>Notional</th>
+            <th>Limit</th>
+            <th>Qty</th>
+            <th>Cancel</th>
+            <th>Reconcile</th>
+            <th>Reason codes</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.slice(0, 50).map((row) => `
+            <tr>
+              <td>${escapeHtml(paperObservationText(row.created_at_utc || row.time, "n/a"))}</td>
+              <td>${escapeHtml(paperObservationText(row.symbol, "n/a"))}</td>
+              <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
+              <td>${escapeHtml(paperObservationText(row.trigger_lane || row.lane_id || row.strategy_id, "n/a"))}</td>
+              <td>${escapeHtml(paperObservationText(row.signal_candle_close_time || row.signal_candle, "n/a"))}</td>
+              <td>${escapeHtml(paperObservationText(row.oid || row.venue_order_id || row.testnet_order_id, "not_submitted"))}</td>
+              <td>${auditReviewPill(row.status || "created")}</td>
+              <td>${escapeHtml(paperObservationText(row.side, "buy"))}</td>
+              <td>${escapeHtml(paperObservationUsdc(row.notional || row.testnet_fixed_notional || 25))}</td>
+              <td>${escapeHtml(paperObservationPrice(row.limit_price))}</td>
+              <td>${escapeHtml(paperObservationPrice(row.quantity))}</td>
+              <td>${escapeHtml(paperObservationText(row.cancel_status, "required_after_submit"))}</td>
+              <td>${escapeHtml(paperObservationText(row.reconcile_status, "required_after_submit"))}</td>
+              <td>${escapeHtml(paperObservationText(row.reason_codes, "n/a"))}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
     `;
   }
 
@@ -10595,6 +10698,7 @@
     renderPaperObservationRuntimeTables();
     renderPaperObservationSignalGeneration();
     renderPaperObservationProbeStatus();
+    renderPaperObservationTestnetLifecycle();
     renderStrategyWildcardDiagnostics();
   }
 
@@ -10681,6 +10785,7 @@
     await loadDefaultPtRt1Summaries();
     await loadDefaultPtRt1DecisionRows();
     await loadDefaultPtRt1TradeRows();
+    await loadDefaultPtRt1TestnetLifecycleRows();
 
     state.review = null;
     state.batches = [];
@@ -10999,6 +11104,22 @@
       .filter(Boolean);
   }
 
+  function parsePaperObservationTestnetLifecycleLog(text, sourcePath) {
+    return String(text || "")
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .slice(-PAPER_OBSERVATION_DECISION_LOG_LIMIT)
+      .map((line) => {
+        try {
+          const row = JSON.parse(line);
+          return row && typeof row === "object" ? { ...row, __source_path: sourcePath } : null;
+        } catch (error) {
+          return null;
+        }
+      })
+      .filter(Boolean);
+  }
+
   async function loadDefaultPtRt1DecisionRows() {
     for (const path of DEFAULT_PT_RT1_DECISION_LOG_FILES) {
       try {
@@ -11027,6 +11148,24 @@
         if (rows.length) {
           state.ptRt1TradeRows = rows;
           state.ptRt1TradeSource = path;
+          break;
+        }
+      } catch (error) {
+        console.warn(`Could not load ${path}`, error);
+      }
+    }
+  }
+
+  async function loadDefaultPtRt1TestnetLifecycleRows() {
+    for (const path of DEFAULT_PT_RT1_TESTNET_LIFECYCLE_FILES) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const text = await response.text();
+        const rows = parsePaperObservationTestnetLifecycleLog(text, path);
+        if (rows.length) {
+          state.ptRt1TestnetLifecycleRows = rows;
+          state.ptRt1TestnetLifecycleSource = path;
           break;
         }
       } catch (error) {

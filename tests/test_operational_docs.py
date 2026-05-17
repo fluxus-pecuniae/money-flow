@@ -155,6 +155,8 @@ REQUIRED_FILES = [
     "docs/pt_rt1_4_paper_trading_command_center_cleanup_summary.json",
     "docs/pt_rt_week1_day_summary.md",
     "docs/pt_rt_week1_day_summary.json",
+    "docs/pt_rt1_5_week1_reset_baseline_testnet_orders_and_candle_scheduler.md",
+    "docs/pt_rt1_5_week1_reset_baseline_testnet_orders_and_candle_scheduler_summary.json",
     "money-flow/00 Maps/Strategy Family Map.md",
     "money-flow/00 Maps/Evidence and Backtesting Map.md",
     "money-flow/00 Maps/Data Source and Market Data Map.md",
@@ -261,7 +263,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "PT-RT1.1" in command_center
     assert "PT-RT1.2" in command_center
     assert "repeated same-candle" in command_center
-    assert "signed testnet transport is an explicit PT-RT1.2 gated path" in command_center
+    assert "baseline-only fixed 25 USDC Hyperliquid testnet lifecycle rows" in command_center
     assert "Evidence and Backtesting Map" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
@@ -308,7 +310,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert "Current implemented milestone | `PT-RT1.4.1` active-week runtime cutover verification" in command_center
+    assert "Current implemented milestone | `PT-RT1.5` Week 1 reset + baseline testnet lifecycle + candle scheduler" in command_center
     assert "Canonical command center" in compatibility_command_center
     assert "PT-RT1 now implements the public-mainnet Paper Trading observation substrate" in current_dashboard
     assert "SV2.0.2 canonical evidence" in current_dashboard
@@ -482,7 +484,7 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "compact-log suppression/size stats" in current_phase
     assert "duplicate same-candle open blocking" in current_phase
     assert "mid-warning rollups" in current_phase
-    assert "Signed testnet transport should remain off" in current_phase
+    assert "Signed testnet transport remains only an explicit gated path" in current_phase
     assert "SV2.0.2" in project_memory
     assert "MF-ORIG" in project_memory
     assert "EV-AUDIT1" in project_memory
@@ -530,8 +532,10 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     runtime_summary = Path("docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json").read_text()
     start_report = Path("docs/pt_rt1_1c_24h_runtime_collection_start.md").read_text()
     start_summary = Path("docs/pt_rt1_1c_24h_runtime_collection_start_summary.json").read_text()
+    pt_rt15_report = Path("docs/pt_rt1_5_week1_reset_baseline_testnet_orders_and_candle_scheduler.md").read_text()
+    pt_rt15_summary = Path("docs/pt_rt1_5_week1_reset_baseline_testnet_orders_and_candle_scheduler_summary.json").read_text()
 
-    for contents in (command_center, current_phase, project_memory, paper_roadmap, report, expanded_report, runtime_report, start_report):
+    for contents in (command_center, current_phase, project_memory, paper_roadmap, report, expanded_report, runtime_report, start_report, pt_rt15_report):
         assert "PT-RT1" in contents
         assert "public mainnet" in contents or "Public mainnet" in contents
         assert "testnet" in contents
@@ -540,10 +544,16 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     assert "strategy-truth lane is Hyperliquid public mainnet market data only" in command_center
     assert "PT-RT1.3 is the current runtime data-health layer" in command_center
     assert "PT-RT1.4.1 verifies the active-week runtime cutover" in command_center
+    assert "PT-RT1.5 resets the active Week 1 Paper Trading scope" in command_center
+    assert "pt_rt1_5_week1_active" in current_phase
+    assert "fixed 25 USDC" in pt_rt15_report
+    assert "candle-close only" in pt_rt15_report
+    assert "\"fixed_notional_usdc\": \"25\"" in pt_rt15_summary
+    assert "\"signal_evaluation_mode\": \"candle_close_only\"" in pt_rt15_summary
     assert "PT-RT Week 1 Daily Summary" in current_phase
     assert "active_runtime_cutover_verified_after_restart" in current_phase
     assert "state persists processed signal keys" in command_center
-    assert "normal dashboard-started runs remain audit/order-shape only" in command_center
+    assert "baseline-only fixed 25 USDC Hyperliquid testnet lifecycle rows" in command_center
     assert "not production approval" in report
     assert "live approval" in report
     assert "paper-runtime approval" in report
@@ -552,9 +562,9 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     assert "wildcard_btc_regime_guard" in report
     assert "TRON" in report
     assert "kPEPE" in report
-    assert "notional cap is `20 USDC`" in paper_roadmap
-    assert "dashboard-started PT-RT runs can create probe audit/order-shape rows only" in paper_roadmap
-    assert "signed transport requires the explicit PT-RT1.2" in paper_roadmap
+    assert "fixed testnet notional is `25 USDC`" in paper_roadmap
+    assert "Only scheduled `money_flow_v1_2_baseline` `paper_opened` rows" in paper_roadmap
+    assert "testnet lifecycle rows are separate from synthetic paper trades" in paper_roadmap
     assert "testnet fills never update strategy paper PnL" in paper_roadmap
     assert "runtime_collection_started" in start_summary
     assert "PT-RT1.1D may evaluate 24-hour runtime artifacts after completion" in start_report

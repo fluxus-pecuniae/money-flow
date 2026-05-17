@@ -55,6 +55,74 @@ PT_RT1_4_TIMEFRAME_REASON_CODES = (
     "legacy_15m_position_visible",
     "no_new_15m_entries",
 )
+PT_RT1_5_RUNTIME_SCOPE = "pt_rt1_5_week1_active"
+PT_RT1_5_RUNTIME_OUTPUT_DIR = "reports/paper_runtime/pt_rt1_5_week1_active"
+PT_RT1_5_ACTIVE_REVIEW_START_UTC = "2026-05-17T12:54:24Z"
+PT_RT1_5_ARCHIVED_RUNTIME_SCOPES = (
+    "pre_pt_rt1_4_weekend_burn_in",
+    "pt_rt1_1c_24h_dry_run",
+    "pt_rt1_4_1_active_week",
+    "legacy_runtime",
+)
+PT_RT1_5_ACTIVE_TIMEFRAMES = PT_RT1_4_ACTIVE_TIMEFRAMES
+PT_RT1_5_DISABLED_TIMEFRAMES = PT_RT1_4_DISABLED_TIMEFRAMES
+PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC = Decimal("25")
+PT_RT1_5_TESTNET_DAILY_ORDER_CAP_DEFAULT = 25
+PT_RT1_5_TESTNET_PER_SYMBOL_DAILY_CAP_DEFAULT = 3
+PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL = (
+    "I APPROVE PT-RT1.5 HYPERLIQUID TESTNET ORDER TRANSPORT FOR "
+    "MONEY_FLOW_V1_2_BASELINE ONLY. TESTNET ONLY. FIXED 25 USDC NOTIONAL "
+    "PER BASELINE OPEN SIGNAL. PUBLIC MAINNET DATA REMAINS STRATEGY TRUTH. "
+    "TESTNET FILLS MUST NOT UPDATE SYNTHETIC STRATEGY PNL. CANDIDATE LANES "
+    "MUST NOT SEND TESTNET ORDERS. LIVE TRADING IS NOT APPROVED."
+)
+PT_RT1_5_CANDLE_CLOSE_GRACE_SECONDS = {
+    "1h": 90,
+    "4h": 120,
+    "1d": 180,
+}
+PT_RT1_5_CLOSED_CANDLE_RETRY_POLICY = {
+    "1h": {"retry_seconds": 60, "max_retry_window_seconds": 600},
+    "4h": {"retry_seconds": 60, "max_retry_window_seconds": 600},
+    "1d": {"retry_seconds": 60, "max_retry_window_seconds": 1800},
+}
+PT_RT1_5_SCHEDULER_REASON_CODES = (
+    "signal_evaluation_waiting_for_candle_close",
+    "signal_evaluation_started_after_closed_candle",
+    "expected_closed_candle_missing",
+    "closed_candle_retry_scheduled",
+    "closed_candle_unavailable_after_retry_window",
+    "duplicate_candle_signal_ignored",
+    "market_refresh_only_no_signal_evaluation",
+    "intrabar_signal_evaluation_blocked",
+    "timeframe_paused_no_signal_evaluation",
+    "scheduler_close_time_unavailable",
+    "scheduler_clock_invalid",
+    "scheduler_candle_timestamp_invalid",
+)
+PT_RT1_5_TESTNET_ORDER_REASON_CODES = (
+    "testnet_order_transport_disabled",
+    "testnet_order_transport_kill_switch_active",
+    "pt_rt1_5_exact_approval_required",
+    "testnet_endpoint_required",
+    "live_endpoint_forbidden",
+    "testnet_order_blocked_non_baseline_lane",
+    "testnet_order_blocked_non_open_action",
+    "testnet_order_blocked_inactive_timeframe",
+    "testnet_order_requires_scheduled_closed_candle_evaluation",
+    "testnet_duplicate_order_blocked",
+    "testnet_order_symbol_blocked",
+    "testnet_order_unit_semantics_deferred",
+    "testnet_order_precision_missing",
+    "testnet_order_notional_must_be_25usdc",
+    "testnet_daily_order_cap_exceeded",
+    "testnet_per_symbol_daily_cap_exceeded",
+    "unknown_testnet_state_blocks_new_orders",
+    "vault_address_forbidden_for_main_user",
+    "vault_address_required_for_subaccount_or_vault",
+    "testnet_order_shape_ready",
+    "fixed_testnet_plumbing_notional",
+)
 RUNTIME_STATE_PATHS = {
     "state": "reports/paper_runtime/pt_rt1_state.json",
     "decisions": "reports/paper_runtime/pt_rt1_decisions.jsonl",
@@ -440,6 +508,274 @@ def evaluate_closed_candle_gate(
         canonical_close_time=_iso(close_time),
         reason_codes=tuple(reasons),
     )
+
+
+def _floor_to_timeframe_close(now: datetime, timeframe: str) -> datetime:
+    now_utc = parse_utc_timestamp(now)
+    if timeframe == "1h":
+        return now_utc.replace(minute=0, second=0, microsecond=0)
+    if timeframe == "4h":
+        return now_utc.replace(hour=(now_utc.hour // 4) * 4, minute=0, second=0, microsecond=0)
+    if timeframe == "1d":
+        return now_utc.replace(hour=0, minute=0, second=0, microsecond=0)
+    raise ValueError("scheduler_close_time_unavailable")
+
+
+def pt_rt1_5_previous_closed_candle_time(now: datetime, timeframe: str) -> datetime:
+    """Return the closed candle whose grace-delayed evaluation is due or next due.
+
+    The function is UTC-only and intentionally supports only active PT-RT1.5
+    strategy timeframes. 15m remains display/legacy only for Week 1.
+    """
+
+    if timeframe not in PT_RT1_5_ACTIVE_TIMEFRAMES:
+        raise ValueError("timeframe_paused_no_signal_evaluation")
+    close_time = _floor_to_timeframe_close(now, timeframe)
+    grace = timedelta(seconds=PT_RT1_5_CANDLE_CLOSE_GRACE_SECONDS[timeframe])
+    if parse_utc_timestamp(now) < close_time + grace:
+        close_time -= TIMEFRAME_DURATIONS[timeframe]
+    return close_time
+
+
+def pt_rt1_5_next_evaluation_time(now: datetime, timeframe: str) -> datetime:
+    if timeframe not in PT_RT1_5_ACTIVE_TIMEFRAMES:
+        raise ValueError("timeframe_paused_no_signal_evaluation")
+    now_utc = parse_utc_timestamp(now)
+    close_time = _floor_to_timeframe_close(now_utc, timeframe)
+    candidate = close_time + timedelta(seconds=PT_RT1_5_CANDLE_CLOSE_GRACE_SECONDS[timeframe])
+    if now_utc < candidate:
+        return candidate
+    return close_time + TIMEFRAME_DURATIONS[timeframe] + timedelta(
+        seconds=PT_RT1_5_CANDLE_CLOSE_GRACE_SECONDS[timeframe]
+    )
+
+
+def build_pt_rt1_5_scheduler_status(
+    *,
+    now: datetime,
+    last_evaluated_closed_candle_by_timeframe: Mapping[str, str] | None = None,
+) -> dict[str, Any]:
+    now_utc = parse_utc_timestamp(now)
+    last_evaluated = last_evaluated_closed_candle_by_timeframe or {}
+    timeframes: dict[str, dict[str, Any]] = {}
+    for timeframe in PT_RT1_5_ACTIVE_TIMEFRAMES:
+        try:
+            closed_time = pt_rt1_5_previous_closed_candle_time(now_utc, timeframe)
+            next_eval = pt_rt1_5_next_evaluation_time(now_utc, timeframe)
+        except ValueError as exc:
+            timeframes[timeframe] = {
+                "status": "blocked",
+                "reason_codes": [str(exc)],
+                "is_due": False,
+            }
+            continue
+        closed_iso = _iso(closed_time)
+        already_done = str(last_evaluated.get(timeframe) or "") == closed_iso
+        is_due = now_utc >= closed_time + timedelta(seconds=PT_RT1_5_CANDLE_CLOSE_GRACE_SECONDS[timeframe])
+        if already_done:
+            reason_codes = ["duplicate_candle_signal_ignored", "market_refresh_only_no_signal_evaluation"]
+        elif is_due:
+            reason_codes = ["signal_evaluation_started_after_closed_candle"]
+        else:
+            reason_codes = ["signal_evaluation_waiting_for_candle_close", "market_refresh_only_no_signal_evaluation"]
+        timeframes[timeframe] = {
+            "timeframe": timeframe,
+            "closed_candle_time": closed_iso,
+            "next_evaluation_time": _iso(next_eval),
+            "last_evaluated_closed_candle_time": last_evaluated.get(timeframe),
+            "grace_delay_seconds": PT_RT1_5_CANDLE_CLOSE_GRACE_SECONDS[timeframe],
+            "retry_policy": dict(PT_RT1_5_CLOSED_CANDLE_RETRY_POLICY[timeframe]),
+            "is_due": bool(is_due and not already_done),
+            "reason_codes": reason_codes,
+        }
+    return {
+        "mode": "candle_close_only",
+        "market_refresh_mode": "continuous_dashboard_refresh",
+        "active_timeframes": list(PT_RT1_5_ACTIVE_TIMEFRAMES),
+        "disabled_timeframes": list(PT_RT1_5_DISABLED_TIMEFRAMES),
+        "now_utc": _iso(now_utc),
+        "timeframes": timeframes,
+        "reason_codes": list(PT_RT1_5_SCHEDULER_REASON_CODES),
+    }
+
+
+@dataclass(frozen=True)
+class PT_RT15TestnetOrderCandidate:
+    lane_id: str = "money_flow_v1_2_baseline"
+    strategy_id: str = "money_flow_v1_2_baseline"
+    action: str = "paper_opened"
+    symbol: str = "ETH"
+    timeframe: str = "1h"
+    signal_candle_close_time: str = "2026-05-17T13:00:00Z"
+    scheduled_closed_candle_evaluation: bool = True
+    duplicate_order_key_seen: bool = False
+    scanner_signal_eligible: bool = True
+    scanner_symbol_blocked: bool = False
+    unit_semantics_deferred: bool = False
+    precision_ready: bool = True
+    order_transport_enabled: bool = False
+    kill_switch: bool = True
+    approval_text: str = ""
+    base_url: str = PT_RT1_TESTNET_INFO_URL
+    asset_id: int | None = 1
+    sz_decimals: int | None = 4
+    price: Decimal = Decimal("3000")
+    synthetic_signal_notional: Decimal = Decimal("10000")
+    fixed_notional: Decimal = PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC
+    daily_order_count: int = 0
+    daily_cap: int = PT_RT1_5_TESTNET_DAILY_ORDER_CAP_DEFAULT
+    per_symbol_daily_count: int = 0
+    per_symbol_daily_cap: int = PT_RT1_5_TESTNET_PER_SYMBOL_DAILY_CAP_DEFAULT
+    unknown_or_open_testnet_state: bool = False
+    account_mode: str = "main"
+    account_address: str | None = None
+    vault_address: str | None = None
+    selected_equity_source: str = "not_checked_runtime_transport_gate"
+    perp_margin_account_value: Decimal | None = None
+    spot_usdc_total: Decimal | None = None
+    spot_usdc_hold: Decimal | None = None
+    unified_available_usdc: Decimal | None = None
+
+
+@dataclass(frozen=True)
+class PT_RT15TestnetOrderEligibility:
+    eligible: bool
+    reason_codes: tuple[str, ...]
+    order_shape: dict[str, Any] | None
+    lifecycle_row: dict[str, Any]
+
+
+class PT_RT15BaselineTestnetOrderPolicy:
+    """PT-RT1.5 baseline-only Hyperliquid testnet transport preflight.
+
+    This policy creates a testnet-only order shape/lifecycle row. It does not
+    submit signed requests and it never updates synthetic strategy PnL.
+    """
+
+    def evaluate(self, candidate: PT_RT15TestnetOrderCandidate) -> PT_RT15TestnetOrderEligibility:
+        reasons: list[str] = []
+        if not candidate.order_transport_enabled:
+            reasons.append("testnet_order_transport_disabled")
+        if candidate.kill_switch:
+            reasons.append("testnet_order_transport_kill_switch_active")
+        if candidate.approval_text != PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL:
+            reasons.append("pt_rt1_5_exact_approval_required")
+        if candidate.base_url != PT_RT1_TESTNET_INFO_URL:
+            reasons.append("testnet_endpoint_required")
+        if candidate.base_url == PT_RT1_MAINNET_INFO_URL:
+            reasons.append("live_endpoint_forbidden")
+        if candidate.lane_id != "money_flow_v1_2_baseline" or candidate.strategy_id != "money_flow_v1_2_baseline":
+            reasons.append("testnet_order_blocked_non_baseline_lane")
+        if candidate.action != "paper_opened":
+            reasons.append("testnet_order_blocked_non_open_action")
+        if candidate.timeframe not in PT_RT1_5_ACTIVE_TIMEFRAMES:
+            reasons.append("testnet_order_blocked_inactive_timeframe")
+        if not candidate.scheduled_closed_candle_evaluation:
+            reasons.append("testnet_order_requires_scheduled_closed_candle_evaluation")
+        if candidate.duplicate_order_key_seen:
+            reasons.append("testnet_duplicate_order_blocked")
+        if not candidate.scanner_signal_eligible or candidate.scanner_symbol_blocked:
+            reasons.append("testnet_order_symbol_blocked")
+        if candidate.unit_semantics_deferred:
+            reasons.append("testnet_order_unit_semantics_deferred")
+        if not candidate.precision_ready or candidate.asset_id is None or candidate.sz_decimals is None:
+            reasons.append("testnet_order_precision_missing")
+        if candidate.fixed_notional != PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC:
+            reasons.append("testnet_order_notional_must_be_25usdc")
+        if candidate.daily_order_count >= candidate.daily_cap:
+            reasons.append("testnet_daily_order_cap_exceeded")
+        if candidate.per_symbol_daily_count >= candidate.per_symbol_daily_cap:
+            reasons.append("testnet_per_symbol_daily_cap_exceeded")
+        if candidate.unknown_or_open_testnet_state:
+            reasons.append("unknown_testnet_state_blocks_new_orders")
+        account_mode = candidate.account_mode.lower()
+        if account_mode == "main" and candidate.vault_address:
+            reasons.append("vault_address_forbidden_for_main_user")
+        if account_mode in {"subaccount", "vault"} and not candidate.vault_address:
+            reasons.append("vault_address_required_for_subaccount_or_vault")
+        if candidate.price <= 0:
+            reasons.append("testnet_order_precision_missing")
+
+        eligible = not reasons
+        order_shape = self._order_shape(candidate) if eligible else None
+        lifecycle_status = "preflight_passed" if eligible else "blocked"
+        lifecycle_row = {
+            "lane": "testnet_order_transport",
+            "environment": "hyperliquid_testnet_only",
+            "trigger_lane": candidate.lane_id,
+            "strategy_id": candidate.strategy_id,
+            "symbol": candidate.symbol,
+            "timeframe": candidate.timeframe,
+            "signal_candle_close_time": candidate.signal_candle_close_time,
+            "status": lifecycle_status,
+            "side": "buy",
+            "notional": str(candidate.fixed_notional),
+            "synthetic_signal_notional": str(candidate.synthetic_signal_notional),
+            "testnet_fixed_notional": str(candidate.fixed_notional),
+            "sizing_source": "fixed_testnet_plumbing_notional",
+            "limit_price": str(candidate.price),
+            "quantity": str(candidate.fixed_notional / candidate.price) if candidate.price > 0 else "0",
+            "venue_response": None,
+            "cancel_status": "cancel_reconcile_required_after_submit" if eligible else "not_submitted",
+            "reconcile_status": "required_after_submit" if eligible else "not_submitted",
+            "reason_codes": reasons if reasons else ["testnet_order_shape_ready", "fixed_testnet_plumbing_notional"],
+            "selected_equity_source": candidate.selected_equity_source,
+            "perp_margin_account_value": str(candidate.perp_margin_account_value) if candidate.perp_margin_account_value is not None else None,
+            "spot_usdc_total": str(candidate.spot_usdc_total) if candidate.spot_usdc_total is not None else None,
+            "spot_usdc_hold": str(candidate.spot_usdc_hold) if candidate.spot_usdc_hold is not None else None,
+            "unified_available_usdc": str(candidate.unified_available_usdc) if candidate.unified_available_usdc is not None else None,
+            "testnet_fills_update_strategy_pnl": False,
+            "strategy_pnl_updated": False,
+            "signed_order_endpoint_called": False,
+            "order_endpoint_called": False,
+            "order_shape": order_shape,
+        }
+        return PT_RT15TestnetOrderEligibility(
+            eligible=eligible,
+            reason_codes=tuple(dict.fromkeys(reasons)),
+            order_shape=order_shape,
+            lifecycle_row=lifecycle_row,
+        )
+
+    def _order_shape(self, candidate: PT_RT15TestnetOrderCandidate) -> dict[str, Any]:
+        formatter = HyperliquidPrecisionFormatter(
+            asset_id=int(candidate.asset_id or 0),
+            symbol=candidate.symbol,
+            sz_decimals=int(candidate.sz_decimals or 0),
+        )
+        quantity = candidate.fixed_notional / candidate.price
+        price = formatter.format_price_down(candidate.price).wire_value
+        size = formatter.format_size_down(quantity).wire_value
+        action: dict[str, Any] = {
+            "type": "order",
+            "orders": [
+                {
+                    "a": candidate.asset_id,
+                    "b": True,
+                    "p": price,
+                    "s": size,
+                    "r": False,
+                    "t": {"limit": {"tif": "Alo"}},
+                }
+            ],
+            "grouping": "na",
+        }
+        order: dict[str, Any] = {
+            "venue": "Hyperliquid",
+            "environment": "testnet",
+            "base_url": PT_RT1_TESTNET_INFO_URL,
+            "action": action,
+            "notional_usdc": str(candidate.fixed_notional),
+            "testnet_fixed_notional": str(candidate.fixed_notional),
+            "sizing_source": "fixed_testnet_plumbing_notional",
+            "synthetic_signal_notional": str(candidate.synthetic_signal_notional),
+            "testnet_price_is_strategy_truth": False,
+            "public_mainnet_candles_are_strategy_truth": True,
+            "testnet_fills_update_strategy_pnl": False,
+        }
+        if candidate.account_mode.lower() in {"subaccount", "vault"} and candidate.vault_address:
+            order["vaultAddress"] = candidate.vault_address
+        return order
 
 
 @dataclass(frozen=True)
@@ -1514,6 +1850,21 @@ def build_pt_rt1_summary() -> dict[str, Any]:
         "active_timeframes": list(PT_RT1_4_ACTIVE_TIMEFRAMES),
         "disabled_timeframes": list(PT_RT1_4_DISABLED_TIMEFRAMES),
         "active_review_start_utc": PT_RT1_4_ACTIVE_REVIEW_START_UTC,
+        "pt_rt1_5_active_review_scope": {
+            "scope": PT_RT1_5_RUNTIME_SCOPE,
+            "output_dir": PT_RT1_5_RUNTIME_OUTPUT_DIR,
+            "active_review_start_utc": PT_RT1_5_ACTIVE_REVIEW_START_UTC,
+            "archived_runtime_scopes": list(PT_RT1_5_ARCHIVED_RUNTIME_SCOPES),
+            "default_show_archived_rows": False,
+            "active_week_ledgers_start_at_usdc": "10000",
+            "old_runtime_rows_archived_not_deleted": True,
+            "reason_codes": [
+                "pre_week1_runtime_archived",
+                "archived_position_hidden_by_default",
+                "active_week_ui_reset",
+                "active_week_scoring_only",
+            ],
+        },
         "active_timeframe_policy": {
             "status": "pt_rt1_4_week1_cutover",
             "active_timeframes": list(PT_RT1_4_ACTIVE_TIMEFRAMES),
@@ -1598,6 +1949,18 @@ def build_pt_rt1_summary() -> dict[str, Any]:
                 "market_metadata_mismatch",
             ],
         },
+        "signal_evaluation_policy": {
+            "mode": "candle_close_only",
+            "market_refresh_mode": "continuous_display_refresh",
+            "active_strategy_timeframes": list(PT_RT1_5_ACTIVE_TIMEFRAMES),
+            "paused_strategy_timeframes": list(PT_RT1_5_DISABLED_TIMEFRAMES),
+            "one_hour_grace_delay_seconds": PT_RT1_5_CANDLE_CLOSE_GRACE_SECONDS["1h"],
+            "four_hour_grace_delay_seconds": PT_RT1_5_CANDLE_CLOSE_GRACE_SECONDS["4h"],
+            "one_day_grace_delay_seconds": PT_RT1_5_CANDLE_CLOSE_GRACE_SECONDS["1d"],
+            "closed_candle_retry_policy": PT_RT1_5_CLOSED_CANDLE_RETRY_POLICY,
+            "duplicate_candle_signal_policy": "duplicate_candle_signal_ignored",
+            "reason_codes": list(PT_RT1_5_SCHEDULER_REASON_CODES),
+        },
         "testnet_probe_policy": {
             "PT_RT1_TESTNET_PROBES_ENABLED": False,
             "PT_RT1_TESTNET_DAILY_PROBE_CAP": 1,
@@ -1608,6 +1971,21 @@ def build_pt_rt1_summary() -> dict[str, Any]:
             "order_type": "post_only_limit",
             "tif": "Alo",
         },
+        "pt_rt1_5_testnet_order_policy": {
+            "order_transport_scope": "Money Flow v1.2 baseline opens only",
+            "approval_text_required": PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
+            "fixed_notional_usdc": str(PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC),
+            "daily_order_cap_default": PT_RT1_5_TESTNET_DAILY_ORDER_CAP_DEFAULT,
+            "per_symbol_daily_cap_default": PT_RT1_5_TESTNET_PER_SYMBOL_DAILY_CAP_DEFAULT,
+            "active_timeframes": list(PT_RT1_5_ACTIVE_TIMEFRAMES),
+            "candidate_lanes_can_send_testnet_orders": False,
+            "mf_orig_lanes_can_send_testnet_orders": False,
+            "wildcard_lanes_can_send_testnet_orders": False,
+            "testnet_prices_are_strategy_truth": False,
+            "testnet_fills_update_strategy_pnl": False,
+            "lifecycle_table": "testnet_order_lifecycle.jsonl",
+            "reason_codes": list(PT_RT1_5_TESTNET_ORDER_REASON_CODES),
+        },
         "dashboard_status": {
             "view": "Paper Observation",
             "status": "implemented_with_pt_rt1_1b_connection_status",
@@ -1617,6 +1995,7 @@ def build_pt_rt1_summary() -> dict[str, Any]:
             "wildcard_diagnostics_visible": True,
             "public_mainnet_connection_status_visible": True,
             "runtime_summary_preferred_paths": [
+                "reports/paper_runtime/pt_rt1_5_week1_active/summary.json",
                 "reports/paper_runtime/pt_rt1_1b_smoke/summary.json",
                 "reports/paper_runtime/pt_rt1_1b_24h_dry_run/summary.json",
                 "docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json",
@@ -1626,6 +2005,7 @@ def build_pt_rt1_summary() -> dict[str, Any]:
         "runtime_command": {
             "smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 1 --output-dir reports/paper_runtime/pt_rt1_1b_smoke --disable-testnet-probes --public-mainnet-only",
             "duration_hours_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1c_24h_dry_run --enable-testnet-probes --founder-approved-testnet-probes-20usdc --testnet-probe-notional-usdc 20 --public-mainnet-only",
+            "pt_rt1_5_week1_active_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_5_week1_active --pt-rt1-5-week1-active --enable-pt-rt1-5-baseline-testnet-orders --founder-approved-pt-rt1-5-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --disable-testnet-probes --public-mainnet-only",
         },
         "next_phase": {
             "decision": "Run fresh PT-RT active-week paper observation on 1h/4h/1d with 15m paused",

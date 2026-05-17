@@ -25,14 +25,15 @@ def test_dashboard_control_runtime_command_is_allowlisted() -> None:
     assert "reports/paper_runtime/pt_rt1_1c_24h_dry_run" in command
     assert "--decision-log-mode" in command
     assert "compact" in command
-    assert "--enable-testnet-probes" in command
-    assert "--founder-approved-testnet-probes-20usdc" in command
-    assert "--testnet-probe-notional-usdc" in command
-    assert "20" in command
-    assert "--testnet-probe-daily-cap" in command
-    assert "200" in command
+    assert "--pt-rt1-5-week1-active" in command
+    assert "--enable-pt-rt1-5-baseline-testnet-orders" in command
+    assert "--founder-approved-pt-rt1-5-baseline-testnet-orders-25usdc" in command
+    assert "--pt-rt1-5-testnet-order-notional-usdc" in command
+    assert "25" in command
+    assert "--signal-evaluation-mode" in command
+    assert "candle_close_only" in command
     assert "--public-mainnet-only" in command
-    assert "--disable-testnet-probes" not in command
+    assert "--disable-testnet-probes" in command
     assert "exchange" not in " ".join(command).lower()
 
 
@@ -63,16 +64,27 @@ def test_dashboard_control_server_is_localhost_only() -> None:
 
 def test_dashboard_control_status_contract_exposes_safety_flags() -> None:
     assert control.SAFE_FLAGS == [
-        "--enable-testnet-probes",
-        "--founder-approved-testnet-probes-20usdc",
-        "--testnet-probe-notional-usdc",
-        "20",
-        "--testnet-probe-daily-cap",
-        "200",
+        "--pt-rt1-5-week1-active",
+        "--enable-pt-rt1-5-baseline-testnet-orders",
+        "--founder-approved-pt-rt1-5-baseline-testnet-orders-25usdc",
+        "--pt-rt1-5-testnet-order-notional-usdc",
+        "25",
+        "--pt-rt1-5-testnet-daily-order-cap",
+        "25",
+        "--pt-rt1-5-testnet-per-symbol-daily-cap",
+        "3",
+        "--signal-evaluation-mode",
+        "candle_close_only",
+        "--disable-testnet-probes",
         "--public-mainnet-only",
     ]
     assert sorted(control.DURATION_OPTIONS) == ["1h", "24h", "5m", "6h"]
-    assert sorted(control.OUTPUT_OPTIONS) == ["pt_rt1_1b_smoke", "pt_rt1_1c_24h_dry_run"]
+    assert sorted(control.OUTPUT_OPTIONS) == [
+        "pt_rt1_1b_smoke",
+        "pt_rt1_1c_24h_dry_run",
+        "pt_rt1_4_1_active_week",
+        "pt_rt1_5_week1_active",
+    ]
 
 
 def test_dashboard_control_runtime_log_announces_money_flow_start(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:

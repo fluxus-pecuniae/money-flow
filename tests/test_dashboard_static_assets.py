@@ -307,9 +307,9 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "Paper observation only" in html
     assert "No real capital" in html
     assert "No live trading" in html
-    assert "No exchange orders from strategy lane" in html
+    assert "Baseline-only testnet plumbing" in html
+    assert "Candidate lanes are synthetic only" in html
     assert "Public mainnet data is strategy truth" in html
-    assert "Testnet probes are plumbing only" in html
     assert "display-only filters" in html
     assert "not canonical evidence" in html
     assert "not backend replay" in html
@@ -321,12 +321,12 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper-runtime-stop" in html
     assert "paper-runtime-control-status" in html
     assert "Mac caffeinate" in html
-    assert "--enable-testnet-probes" in html
-    assert "--testnet-probe-notional-usdc 20" in html
+    assert "--disable-testnet-probes" in html
+    assert "fixed 25 USDC baseline-only testnet lifecycle gates" in html
     assert "--public-mainnet-only" in html
-    assert "audit-only testnet probe shapes can be recorded" in html
-    assert "testnet order transport remains disabled" in html
-    assert "no signed/order endpoint is called by this runtime" in html
+    assert "candle-close signal evaluation" in html
+    assert "Candidate lanes cannot send testnet orders" in html
+    assert "no signed/order endpoint is called by this runtime unless all PT-RT1.5 baseline-only testnet gates" in html
     assert "paper-observation-connection-status" in html
     assert "paper-observation-lane-filter" in html
     assert "paper-observation-scanner-table" in html
@@ -354,6 +354,8 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper-observation-closed-trades" in html
     assert "paper-observation-risk-table" in html
     assert "paper-observation-probe-status" in html
+    assert "paper-observation-testnet-lifecycle" in html
+    assert "paper-observation-watchlist-transport-row" in html
     assert ".paper-observation-view" in css
     assert "paper-observation-safety-strip" in html
     assert "paper-runtime-control-compact" in html
@@ -361,16 +363,21 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert ".paper-observation-safety-strip" in css
     assert ".paper-runtime-control-compact" in css
     assert ".paper-observation-primary-grid" in css
+    assert ".paper-observation-watchlist-transport-row" in css
     assert ".paper-observation-controls" in css
     assert ".paper-runtime-control" in css
     assert "DEFAULT_PT_RT1_SUMMARY_FILES" in js
     assert "DEFAULT_PT_RT1_DECISION_LOG_FILES" in js
     assert "DEFAULT_PT_RT1_TRADE_LOG_FILES" in js
     assert "pt_rt1_1c_24h_dry_run/decisions.jsonl" in js
+    assert "pt_rt1_5_week1_active/decisions.jsonl" in js
     assert "pt_rt1_1c_24h_dry_run/trades.jsonl" in js
+    assert "DEFAULT_PT_RT1_TESTNET_LIFECYCLE_FILES" in js
     assert "parsePaperObservationDecisionLog" in js
     assert "parsePaperObservationTradeLog" in js
+    assert "parsePaperObservationTestnetLifecycleLog" in js
     assert "loadDefaultPtRt1TradeRows" in js
+    assert "loadDefaultPtRt1TestnetLifecycleRows" in js
     assert "paperObservationClosedRowComplete" in js
     assert "paperObservationRecentSignalRows" in js
     assert "paperObservationLaneRuntimeRollup" in js
@@ -391,8 +398,8 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paperObservationBytes" in js
     assert "Start/stop requires launching the local control server." in js
     assert "Static dashboard servers can still display data" in js
-    assert "enable-testnet-probes" in js
-    assert "testnet-probe-notional-usdc" in js
+    assert "enable-pt-rt1-5-baseline-testnet-orders" in Path("scripts/run_dashboard_control_server.py").read_text(encoding="utf-8")
+    assert "pt-rt1-5-testnet-order-notional-usdc" in Path("scripts/run_dashboard_control_server.py").read_text(encoding="utf-8")
     assert "DEFAULT_SV21_BROAD_SUMMARY_FILES" in js
     assert "SV21_BROAD_HISTORICAL_REPLAY_TIMESTAMP" in js
     assert "20260516T091500Z" in js
@@ -471,7 +478,7 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "synthetic_entry" in js
     assert "Audit/order-shape rows" in js
     assert "Signed testnet orders" in js
-    assert "Audit-shape generation can build/check simulated testnet probe shapes" in js
+    assert "PT-RT1.5 allows baseline-linked Hyperliquid testnet lifecycle rows" in js
     assert "renderPaperObservationScanner();" in js
     assert ".paper-observation-tick" in css
     assert ".paper-observation-watchlist-table" in css
@@ -776,6 +783,6 @@ def test_pt_rt1_4_paper_trading_command_center_active_timeframe_ui() -> None:
     assert "Data unavailable" in js
     assert "Testnet order transport" in js
     assert "Audit-only shapes" in js
-    assert "audit_only_not_submitted" in js
+    assert "baseline-linked Hyperliquid testnet lifecycle rows" in js
     assert "order buttons" not in html.lower()
     assert "manual trade" not in html.lower()
