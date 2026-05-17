@@ -1,0 +1,100 @@
+{
+  "phase": "DOCS-OB2.1",
+  "status": "implemented_verified",
+  "updated_files": [
+    "README.md",
+    "KNOWN_ISSUES.md",
+    "TODO.md",
+    "docs/architecture.md",
+    "docs/strategy.md",
+    "apps/dashboard/README.md",
+    "apps/dashboard/DESIGN.md",
+    "money-flow/00_Money_Flow_Command_Center.md",
+    "money-flow/01_Current_Phase.md",
+    "money-flow/03_Decision_Log.md",
+    "money-flow/05_Agent_Coordination.md",
+    "money-flow/Project_Memory/money_flow_project_memory.md",
+    "money-flow/00 Maps/Current State Dashboard.md",
+    "money-flow/00 Maps/Phase Timeline.md",
+    "money-flow/00 Maps/Paper Observation Roadmap.md",
+    "money-flow/00 Maps/Dashboard and UI Map.md",
+    "money-flow/00 Maps/Data Source and Market Data Map.md",
+    "money-flow/00 Maps/Evidence and Backtesting Map.md",
+    "money-flow/00 Maps/Strategy Family Map.md",
+    "money-flow/10 Strategy/Strategy Status Register.md",
+    "tests/test_operational_docs.py"
+  ],
+  "archival_banners_added": [
+    "docs/uat0_safety_security_runtime_hardening.md",
+    "docs/uat1_public_read_only_connectivity_and_top20_universe.md",
+    "docs/uat2_shadow_strategy_top20_observation.md",
+    "docs/uat3_0_sandbox_order_design_and_readiness.md",
+    "docs/uat4_0_live_uat_dashboard_chart_cockpit.md",
+    "docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime.md",
+    "docs/pt0_0_2_historical_strategy_replay_cockpit.md",
+    "docs/pt_rt1_1_24h_probes_disabled_dry_run.md",
+    "docs/pt_rt1_2_runtime_state_and_testnet_probe_transport.md",
+    "docs/pt_rt1_3_candle_truth_data_health.md",
+    "docs/strategy_validation_sv1_7_first_evidence_review.md",
+    "docs/strategy_validation_sv1_12_2_identity_and_file_readiness.md",
+    "docs/strategy_validation_sv1_18_evidence_closeout_and_uat_candidate_freeze.md",
+    "money-flow/30 Strategy/Strategy Validation Summary.md",
+    "money-flow/40 Operations/Phase 7 Focus.md",
+    "money-flow/40 Operations/Phase 8 Focus.md"
+  ],
+  "stale_phrases_fixed": [
+    "PT-RT1.2 remains blocked in current project memory",
+    "PT-RT1.1D evaluation as current next step",
+    "20 USDC probe wording in current dashboard map",
+    "UAT-specific dashboard design title",
+    "historical PT0 paper/sandbox approval wording in current docs"
+  ],
+  "current_truth_files": [
+    "README.md",
+    "docs/architecture.md",
+    "docs/strategy.md",
+    "apps/dashboard/README.md",
+    "apps/dashboard/DESIGN.md",
+    "money-flow/00_Money_Flow_Command_Center.md",
+    "money-flow/01_Current_Phase.md",
+    "money-flow/Project_Memory/money_flow_project_memory.md",
+    "money-flow/00 Maps/Paper Observation Roadmap.md",
+    "money-flow/00 Maps/Dashboard and UI Map.md",
+    "money-flow/00 Maps/Evidence and Backtesting Map.md",
+    "money-flow/00 Maps/Strategy Family Map.md"
+  ],
+  "dashboard_tabs": [
+    "Paper Trading",
+    "Historical Replay",
+    "Evidence",
+    "The Lab",
+    "Audit",
+    "Strategy"
+  ],
+  "strategy_families": [
+    "Current Money Flow v1.2",
+    "SOR repair variants",
+    "MF-ORIG source reconstruction",
+    "Wildcard paper-observation lanes",
+    "SV2/SV2.1 historical evidence tracks",
+    "UAT/testnet plumbing"
+  ],
+  "open_docs_debt": [
+    "Older phase reports preserve original wording and should be treated as historical unless linked by current phase notes.",
+    "README, architecture, and strategy still retain deep chronology below current-first summaries.",
+    "Future PT-RT review docs should continue to keep ignored runtime artifact scope explicit."
+  ],
+    "tests_run": [
+        ".venv/bin/python -m json.tool docs/doc_ob2_1_markdown_current_truth_refresh_summary.json",
+        ".venv/bin/python -m pytest -q tests/test_operational_docs.py",
+        ".venv/bin/python -m compileall core services apps tests scripts",
+        ".venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py",
+        ".venv/bin/python -m pytest -q tests/test_uat41_exchange_dashboard_redesign.py tests/test_operational_docs.py",
+        ".venv/bin/python -m pytest -q --ignore=tests/test_migrations.py",
+        "node --check apps/dashboard/evidence-dashboard.js",
+        ".venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-docs-ob2.1-review.zip",
+        "review bundle scan: 551 entries, 0 excluded path hits, 0 private-key/Bearer-token pattern hits",
+        "git diff --check"
+    ],
+    "review_bundle": "/Users/tercirafael/money-flow-docs-ob2.1-review.zip"
+}

@@ -1,5 +1,18 @@
 # Current Phase
 
+## Current Operator Summary
+
+- Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
+- Current runtime: `PT-RT1.5.1` smoke/review scope at `reports/paper_runtime/pt_rt1_5_1_smoke/`.
+- Active timeframes: `1h`, `4h`, `1d`.
+- Paused timeframes: `15m` is paused for Week 1 noise reduction and legacy review only.
+- Strategy truth: public Hyperliquid mainnet fully closed candles and derived indicators.
+- Synthetic PnL truth: independent synthetic 10,000 USDC paper ledgers per lane.
+- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is allowed only for fresh post-start Money Flow v1.2 baseline opens when PT-RT1.5.1 gates and local signing config pass.
+- Production approval: no strategy is production-approved.
+- Live trading: not approved; no real-capital trading is approved.
+- Next recommended action: run/review the PT-RT1.5.1 smoke scope before continuing Week 1 paper observation.
+
 ## Current Implemented Milestone
 
 `PT-RT1.5.1` Signed Testnet Transport + Warm-Start Signal Gate + Open MTM Hotfix is implemented on top of `PT-RT1.5` Week 1 Reset + Baseline Testnet Lifecycle + Candle Scheduler, `PT-RT1.4.1` Active Week Runtime Cutover Verification, `PT-RT1.4` Paper Trading Command Center Cleanup, `PT-RT1.3` Candle-Truth Data Health, and the earlier `PT-RT1.1` / `PT-RT1.1A` / `PT-RT1.1B` / `PT-RT1.1C` public-mainnet paper-observation setup. PT-RT1 remains the forward-observation substrate rather than another backtest: a public-mainnet strategy-truth lane with fully closed candle gating, indicator computation, independent synthetic 10,000 USDC paper ledgers, and a separate Hyperliquid testnet plumbing lane that never updates strategy paper PnL. PT-RT1.5.1 archives the pre-warm-start PT-RT1.5 smoke as `pt_rt1_5_smoke_pre_warm_start_gate`, defaults the active smoke/review scope to `pt_rt1_5_1_smoke`, keeps active timeframes at `1h`, `4h`, and `1d`, keeps `15m` as `disabled_for_week1_noise_reduction`, and separates market refresh from strategy signal evaluation. Strategy signals still evaluate only after fully closed active candles plus grace delay: 1h = 90 seconds, 4h = 120 seconds, and 1d = 180 seconds. Market refresh may continue for watchlist, chart, data-health, and open-position MTM, but between candle-close evaluations it records `market_refresh_only_no_signal_evaluation` and does not scan entries/exits. Startup-valid confirmations now record warm-start reasons and cannot create synthetic opens or testnet orders until the entry context resets false and a fresh post-start signal occurs. PT-RT1.5.1 also wires signed Hyperliquid testnet transport for fresh Money Flow v1.2 baseline synthetic `paper_opened` rows only, fixed at 25 USDC; candidate/MF-ORIG/wildcard lanes remain synthetic-only. Public mainnet candles remain strategy truth, testnet fills never update synthetic PnL, no live trading is approved, no strategy is production-approved, and production Money Flow rules are unchanged.

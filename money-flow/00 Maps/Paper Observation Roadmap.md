@@ -4,6 +4,20 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 This is the roadmap and current status note for PT-RT1. The founder-facing dashboard tab is `Paper Trading`; the underlying runtime and code may still use Paper Observation / `paper-observation` names. This is not production approval, strategy paper-runtime approval, or live-trading approval.
 
+## Current Operator Summary
+
+- Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
+- Current runtime: `PT-RT1.5.1` smoke/review scope at `reports/paper_runtime/pt_rt1_5_1_smoke/`.
+- Active timeframes: `1h`, `4h`, `1d`.
+- Paused timeframes: `15m` is paused for Week 1 noise reduction and legacy review only.
+- Strategy truth: public Hyperliquid mainnet fully closed candles and derived indicators.
+- Synthetic PnL truth: independent synthetic 10,000 USDC paper ledgers per lane.
+- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when PT-RT1.5.1 gates pass.
+- Production approval: no strategy is production-approved.
+- Live trading: not approved; no real-capital trading is approved.
+- Next recommended action: run/review the PT-RT1.5.1 smoke scope and keep `15m` paused unless a later founder-approved phase re-enables it.
+- Evidence context: SV2.0.2 remains the canonical historical baseline; PT-RT is forward observation, not evidence-pack regeneration.
+
 ## PT-RT1 Implemented Scope
 
 PT-RT1 is implemented as a forward-observation substrate:
@@ -136,12 +150,13 @@ Current next operational step:
 
 ## Required Boundaries
 
-- no exchange orders.
-- No private/signed endpoints.
-- No API keys.
+- No live exchange orders.
+- No private/signed endpoints for strategy truth.
+- Local API keys, if configured, are only for explicitly gated Hyperliquid testnet plumbing; never commit or document secret values.
 - No live trading.
 - No real capital.
 - No production rule change.
+- No candidate/MF-ORIG/wildcard testnet transport.
 - No SOR/fanout/CBBO/route executor behavior.
 
 ## UAT Sandbox vs Paper Observation

@@ -1,10 +1,23 @@
-# Money Flow UAT Dashboard Design
+# Money Flow Founder Dashboard Design
 
 Canonical design document for `apps/dashboard/`.
 
+## Current Operator Summary
+
+- Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
+- Current runtime: `PT-RT1.5.1` smoke/review scope at `reports/paper_runtime/pt_rt1_5_1_smoke/`.
+- Active timeframes: `1h`, `4h`, `1d`.
+- Paused timeframes: `15m` is paused for Week 1 noise reduction and legacy review only.
+- Strategy truth: public Hyperliquid mainnet fully closed candles and derived indicators.
+- Synthetic PnL truth: independent synthetic 10,000 USDC paper ledgers per lane.
+- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when PT-RT1.5.1 gates pass.
+- Production approval: no strategy is production-approved.
+- Live trading: not approved; no real-capital trading is approved.
+- Next recommended action: keep the Paper Trading page compact and current-first; keep UAT panels hidden as historical plumbing context.
+
 ## Product Purpose
 
-The dashboard is a read-only UAT cockpit for Money Flow strategy observation and sandbox/testnet lifecycle review. It helps the founder answer what market is being watched, what Money Flow observed, where shadow or sandbox lifecycle markers appeared, what happened to routed sandbox orders, and whether the system is sandbox, paper, or live.
+The dashboard is a founder workstation for Money Flow evidence review and PT-RT Paper Trading observation. It helps the founder see current synthetic paper signals, historical evidence, variant research, audit findings, strategy logic, and sandbox/testnet plumbing context without mixing those surfaces into production approval.
 
 The dashboard is not an order-entry terminal.
 
@@ -86,23 +99,23 @@ Bottom:
 ## Tab Structure
 
 Primary dashboard tabs are:
-- Strategy
+- Paper Trading
+  - Current weekly PT-RT runtime truth.
+  - Active Week 1 timeframes are `1h`, `4h`, and `1d`; `15m` is paused/legacy.
+  - Candidate/MF-ORIG/wildcard lanes are synthetic-only.
+  - Fresh Money Flow v1.2 baseline opens can trigger fixed 25 USDC testnet plumbing only under PT-RT1.5.1 gates.
 - Historical Replay
+  - Historical visual reference from generated chart/trade JSON.
 - Evidence
   - Includes a `Replay strategy` Run Ledger selector.
   - Default mode reviews canonical evidence-pack batch-report rows.
   - Generated replay modes review SV2.0.2 chart-data strategy rows such as canonical Money Flow v1.2 and SOR-EV3 rolling-range variants.
   - Generated replay rows include a `Result` badge comparing PnL and drawdown to the matching Money Flow v1.2 baseline row: green `improved_pnl_drawdown`, amber partial-improvement labels, neutral `same_result`, or red `no bueno`.
   - The selector is review/navigation only; it does not regenerate evidence or approve variants.
-- Evidence Lab
-- Audit Review
-- Paper Trading
-  - Shows PT-RT1 forward-observation state, not historical evidence regeneration.
-  - PT-RT1.1B adds public-mainnet connection status, expanded watchlist readiness, all 10 synthetic lanes, runtime candle/marker status when local ignored summaries exist, and separate disabled testnet-plumbing status.
-  - PT-RT1.4 makes this the weekly command center: active timeframes are `1h`, `4h`, and `1d`; `15m` is paused/legacy for Week 1 and excluded from active scoring.
-  - PT-RT1.5 resets the active Week 1 scope to `pt_rt1_5_week1_active`, keeps archived rows hidden by default, makes signal evaluation candle-close only, and adds a separate baseline-only fixed 25 USDC Hyperliquid testnet order lifecycle table.
-  - PT-RT1.5.1 defaults fresh review to `pt_rt1_5_1_smoke`, blocks startup-valid confirmations until fresh post-start transitions, shows signed testnet transport configured/missing state, adds endpoint-called lifecycle fields, and marks open synthetic positions from public mainnet data or displays `MTM unavailable`.
-  - The view must keep public mainnet strategy truth, synthetic paper PnL, testnet plumbing probes, historical evidence, and display-only filters visually separated.
+- The Lab
+- Audit
+- Strategy
+  - Shows rule/source context and evidence-only lane ideas without implying production approval.
 
 The invalid legacy `Experiments` surface is not exposed as a primary tab. Evidence Lab is tied to SOR-EV1/SOR-EV2/SOR-EV3 committed summaries and canonical SV2.0.2 baseline context only.
 

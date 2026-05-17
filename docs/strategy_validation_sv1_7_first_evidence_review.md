@@ -1,3 +1,8 @@
+> Historical note.
+> This report is retained for audit/history.
+> Current truth lives in [[00_Money_Flow_Command_Center]] and the latest PT-RT / SV / audit docs.
+> Do not use this file as current operating instructions unless a current-phase note links to it explicitly.
+
 # SV1.7 First Canonical Money Flow Evidence Review
 
 Recorded at UTC: `2026-05-03T08:01:12Z`

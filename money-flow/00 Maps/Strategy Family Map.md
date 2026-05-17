@@ -2,75 +2,81 @@
 
 Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
-This is the current strategy taxonomy. It separates production-derived rules, source reconstruction, repair variants, discovery ideas, and audit status so evidence-only work is not mistaken for production approval.
+This is the current strategy taxonomy. It separates production-derived baseline logic, source reconstruction, repair variants, paper-observation lanes, historical evidence tracks, and testnet plumbing so evidence-only work is not mistaken for production approval.
 
-## Current Money Flow v1.2
+## Current Operator Summary
 
-| Field | Current Truth |
-| --- | --- |
-| status | `canonical_baseline` |
-| implementation | Current derivative Money Flow implementation |
-| sleeves | `sleeve_15m`, `sleeve_1h`, `sleeve_4h`, `sleeve_1d` |
-| core logic | EMA5 / EMA10 / SMA20 alignment, RSI sleeve bands, MACD gates, entry-quality and invalidation logic |
-| canonical evidence | SV2.0.2 DB-imported Hyperliquid public-mainnet evidence, timestamp `20260512T064916Z` |
-| production status | Production-derived strategy family, but not proven profitable and not production-ready for autonomous execution |
-| paper/live status | No strategy paper runtime or live trading approval follows from evidence |
+- Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
+- Current runtime: `PT-RT1.5.1` smoke/review scope at `reports/paper_runtime/pt_rt1_5_1_smoke/`.
+- Active timeframes: `1h`, `4h`, `1d`.
+- Paused timeframes: `15m` is paused for Week 1 noise reduction and legacy review only.
+- Strategy truth: public Hyperliquid mainnet fully closed candles and derived indicators.
+- Synthetic PnL truth: independent synthetic 10,000 USDC paper ledgers per lane.
+- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when PT-RT1.5.1 gates pass.
+- Production approval: no strategy is production-approved.
+- Live trading: not approved; no real-capital trading is approved.
+- Next recommended action: review PT-RT1.5.1 smoke before making any strategy/paper-observation conclusion.
 
-Current Money Flow v1.2 is Money Flow-inspired. It is not identical to the original Gerald Peters source system.
+## Strategy Taxonomy
 
-## Original Money Flow / MF-ORIG
+### SOR Repair Variants
 
-| Field | Current Truth |
-| --- | --- |
-| status | `evidence_only` |
-| source | `money-flow/90 Reference/The Money Flow Trading System - Gerald Peters - 2019 Edition 2.pdf` |
-| source concepts | Four stages, 5 EMA trigger, 10 EMA context, 20 SMA stage line, 50/200 SMA context, RSI profit-taking, MACD/TSI warning, support/resistance, pivots, structure stops, risk-based sizing |
-| implemented track | MF-ORIG-EV1, MF-ORIG-EV1.1, MF-ORIG-EV2 |
-| accounting truth | MF-ORIG-EV1.1 event-ledger accounting and peak-to-trough drawdown supersede pre-hotpatch EV1 conclusions |
-| current outcome | No MF-ORIG hypothesis is production-approved |
+SOR Repair Variants are evidence-only or synthetic paper-observation lanes unless a later founder-approved phase promotes one. No SOR row below is production-approved.
 
-MF-ORIG-EV2 includes four source-faithful 1% risk-sizing hypotheses plus four founder-requested full-equity comparison counterparts. The full-equity rows are comparison lanes, not source-faithful risk sizing.
+### STRAT-EV Discovery
 
-## SOR Repair Variants
+STRAT-EV remains plan-only unless a committed future report and summary JSON exist. It is not current production logic and is not part of PT-RT1.5.1 transport.
 
-| Phase | Status | Current Truth |
-| --- | --- | --- |
-| SOR-EV1 | `diagnostic_only` / `evidence_only` | Loss anatomy and completed-trade overlays over canonical SV2.0.2 packs. |
-| SOR-EV2 | `true_forward_replay` / `evidence_only` | Fixed/ATR/recent-low/large-bear exits and rejected-signal variants replayed true-forward. No variant promoted. |
-| SOR-EV2.1 | `dashboard_display_only` | Evidence Lab matrix/panels for SOR bundles. |
-| SOR-EV2.2 | `dashboard_display_only` | Evidence Lab chart overlays for baseline vs variant context. |
-| SOR-EV3 | `true_forward_replay` / `candidate_for_review_only` | `avoid_low_rolling_range_50` is the strongest founder-review candidate but remains blocked by drawdown/control-pocket risk. |
+| strategy_family | lane_or_variant | status | evidence_status | paper_status | testnet_transport_status | production_status | notes |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Current Money Flow v1.2 | `money_flow_v1_2_baseline` | `production_baseline_logic` | `canonical_sv2_0_2_historical_baseline` | `synthetic_paper_only` | `baseline_only_25_usdc_when_pt_rt1_5_1_gates_pass` | `not_production_approved`, `not_live_approved` | Current derivative implementation with `sleeve_15m`, `sleeve_1h`, `sleeve_4h`, `sleeve_1d`. |
+| SOR repair variants | `avoid_low_rolling_range_20` | `synthetic_paper_only`, `evidence_only` | `SOR-EV3 true-forward replay; promising_control_pocket_risk` | `synthetic_paper_only` | `cannot_send_testnet_orders` | `not_production_approved`, `not_live_approved` | Founder-review label only. |
+| SOR repair variants | `avoid_low_rolling_range_50` | `synthetic_paper_only`, `evidence_only` | `SOR-EV3 true-forward replay; promising_high_pnl_control_risk` | `synthetic_paper_only` | `cannot_send_testnet_orders` | `not_production_approved`, `not_live_approved` | Strongest SOR review lane but still control/drawdown blocked. |
+| MF-ORIG source reconstruction | `mf_orig_stage_filter_only_full_equity` | `synthetic_paper_only`, `reference_only` | `MF-ORIG-EV2 evidence-only` | `synthetic_paper_only` | `cannot_send_testnet_orders` | `not_production_approved`, `not_live_approved` | Original Money Flow source-reference comparison lane, not source-faithful risk sizing. |
+| MF-ORIG source reconstruction | `mf_orig_stage2_pullback_reclaim_full_equity` | `synthetic_paper_only`, `reference_only` | `MF-ORIG-EV2 evidence-only` | `synthetic_paper_only` | `cannot_send_testnet_orders` | `not_production_approved`, `not_live_approved` | Founder review lane only. |
+| MF-ORIG source reconstruction | `mf_orig_1d_stage2_5_20_crossover_full_equity` | `synthetic_paper_only`, `reference_only` | `MF-ORIG-EV2 evidence-only` | `synthetic_paper_only` | `cannot_send_testnet_orders` | `not_production_approved`, `not_live_approved` | 1D source-style crossover comparison lane. |
+| MF-ORIG source reconstruction | `mf_orig_1d_stage2_breakout_resistance_full_equity` | `synthetic_paper_only`, `reference_only` | `MF-ORIG-EV2 evidence-only` | `synthetic_paper_only` | `cannot_send_testnet_orders` | `not_production_approved`, `not_live_approved` | Best MF-ORIG aggregate review lane; not production approved. |
+| Wildcard paper-observation lanes | `wildcard_btc_regime_guard` | `synthetic_paper_only` | `paper_observation_only` | `synthetic_paper_only` | `cannot_send_testnet_orders` | `not_production_approved`, `not_live_approved` | Expert-observation hypothesis, not canonical evidence. |
+| Wildcard paper-observation lanes | `wildcard_multi_timeframe_alignment` | `synthetic_paper_only` | `paper_observation_only` | `synthetic_paper_only` | `cannot_send_testnet_orders` | `not_production_approved`, `not_live_approved` | Expert-observation hypothesis, not canonical evidence. |
+| Wildcard paper-observation lanes | `wildcard_volatility_expansion_breakout` | `synthetic_paper_only` | `paper_observation_only` | `synthetic_paper_only` | `cannot_send_testnet_orders` | `not_production_approved`, `not_live_approved` | Expert-observation hypothesis, not canonical evidence. |
+| SV2/SV2.1 historical evidence tracks | SV2.0.2 canonical packs | `historical_archive`, `canonical_evidence` | `canonical historical multi-timeframe baseline` | `not_runtime` | `none` | `not_production_approved`, `not_live_approved` | Backend evidence packs from DB-imported public candles. |
+| SV2/SV2.1 historical evidence tracks | SV2.1 1D period evidence | `historical_archive`, `evidence_only` | `separate founder-review 1D track` | `not_runtime` | `none` | `not_production_approved`, `not_live_approved` | Does not supersede SV2.0.2. |
+| UAT/testnet plumbing | Hyperliquid testnet lifecycle | `testnet_plumbing_only` | `not_strategy_evidence` | `not_synthetic_pnl_truth` | `baseline_only_25_usdc_when_gated` | `not_production_approved`, `not_live_approved` | Testnet fills do not update synthetic PnL. |
 
-`promising_*` labels are founder-review labels only. They do not approve a rule change, paper runtime, or live trading.
+## Current 10 Paper Lanes
 
-## STRAT-EV Discovery
+Each lane has an independent synthetic 10,000 USDC paper ledger. These are not one combined account.
 
-| Field | Current Truth |
-| --- | --- |
-| status | `plan_only` unless a committed report/JSON appears |
-| current named idea | `regime_gated_trend` |
-| relationship to Money Flow | Separate discovery track, not production Money Flow v1.2 |
-| evidence status | Not evidence unless a committed STRAT-EV report/JSON exists |
+| lane | family | active_week_status | testnet_transport |
+| --- | --- | --- | --- |
+| `money_flow_v1_2_baseline` | Current Money Flow v1.2 | active on `1h`, `4h`, `1d` | eligible only for fresh post-start baseline opens under PT-RT1.5.1 gates |
+| `avoid_low_rolling_range_20` | SOR repair variant | active synthetic lane | cannot send testnet orders |
+| `avoid_low_rolling_range_50` | SOR repair variant | active synthetic lane | cannot send testnet orders |
+| `mf_orig_stage_filter_only_full_equity` | MF-ORIG reference | active synthetic lane | cannot send testnet orders |
+| `mf_orig_stage2_pullback_reclaim_full_equity` | MF-ORIG reference | active synthetic lane | cannot send testnet orders |
+| `mf_orig_1d_stage2_5_20_crossover_full_equity` | MF-ORIG reference | active synthetic lane | cannot send testnet orders |
+| `mf_orig_1d_stage2_breakout_resistance_full_equity` | MF-ORIG reference | active synthetic lane | cannot send testnet orders |
+| `wildcard_btc_regime_guard` | wildcard observation | active synthetic lane | cannot send testnet orders |
+| `wildcard_multi_timeframe_alignment` | wildcard observation | active synthetic lane | cannot send testnet orders |
+| `wildcard_volatility_expansion_breakout` | wildcard observation | active synthetic lane | cannot send testnet orders |
 
-## EV-AUDIT
+## Active Week Timeframes
 
-| Field | Current Truth |
-| --- | --- |
-| status | `audit_only` |
-| latest phase | EV-AUDIT1 |
-| verdict | No clean strategy candidate is production-ready or paper-runtime-approved |
-| best review candidate | `avoid_low_rolling_range_50`, still blocked by drawdown/control-pocket risk |
-| paper observation | EV-AUDIT1 supported a conditional PT-RT1 scope; PT-RT1 is now implemented as observation substrate only, not strategy approval |
+- Active: `1h`, `4h`, `1d`.
+- Paused: `15m`.
+- Reason: Week 1 noise reduction.
+- `15m` legacy rows are archived/visible only through explicit review toggles.
+- `15m` is excluded from active scoring and cannot trigger new active-week entries or testnet orders.
 
 ## Status Labels
 
 | Label | Meaning |
 | --- | --- |
-| `canonical_baseline` | Current baseline evidence source for comparison. |
+| `production_baseline_logic` | Current baseline logic exists in code but is not production-approved. |
+| `synthetic_paper_only` | Forward-observation ledger only, no real capital. |
 | `evidence_only` | Research result, not production/paper/live approval. |
-| `diagnostic_only` | Useful attribution or overlay; not candidate evidence by itself. |
-| `plan_only` | Idea exists but no committed evidence run. |
-| `not_implemented` | No implemented code/report. |
-| `rejected` | Hard rejected under current evidence gate. |
-| `candidate_for_review_only` | Worth founder review; not approved. |
-| `blocked` | Cannot proceed without explicit blocker resolution. |
+| `reference_only` | Comparison/source-reconstruction context. |
+| `historical_archive` | Retained historical evidence or phase output. |
+| `testnet_plumbing_only` | Sandbox/testnet lifecycle validation, not strategy truth. |
+| `not_production_approved` | Cannot be treated as production strategy approval. |
+| `not_live_approved` | Cannot be used for live real-capital trading. |

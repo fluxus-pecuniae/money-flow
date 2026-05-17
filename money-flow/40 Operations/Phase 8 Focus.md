@@ -1,3 +1,8 @@
+> Historical note.
+> This report is retained for audit/history.
+> Current truth lives in [[00_Money_Flow_Command_Center]] and the latest PT-RT / SV / audit docs.
+> Do not use this file as current operating instructions unless a current-phase note links to it explicitly.
+
 # Phase 8 Focus
 
 Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]

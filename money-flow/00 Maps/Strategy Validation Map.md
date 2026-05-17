@@ -97,4 +97,4 @@ Candidate id: `money_flow_hyperliquid_eth_1h_baseline_uat_candidate`
 
 Every SV/EV result remains research-only unless a later explicitly scoped phase says otherwise. A scenario can be observed, diagnostically useful, or suitable for UAT/PT observation without proving profitability or authorizing live trading.
 
-PAPER TRADING IS APPROVED. Paper trading is approved for Hyperliquid testnet/sandbox only under PT0. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED. Broader top-20 Hyperliquid-supported paper/sandbox trading is approved under metadata, precision, risk, lease, label, and no-live gates. Live trading is not approved. Live exchange order submission is not approved.
+Historical PT0 sandbox/testnet paper-plumbing scope is retained for audit/context only and is not production strategy approval. Current PT-RT Paper Trading is synthetic forward observation from public mainnet data. Live trading is not approved. Live exchange order submission is not approved.

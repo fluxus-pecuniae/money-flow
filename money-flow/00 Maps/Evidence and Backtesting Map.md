@@ -4,6 +4,20 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 This map defines which evidence is canonical, which evidence is true-forward research, and which dashboard views are display-only.
 
+## Current Operator Summary
+
+- Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
+- Current runtime: `PT-RT1.5.1` smoke/review scope at `reports/paper_runtime/pt_rt1_5_1_smoke/`.
+- Active timeframes: `1h`, `4h`, `1d`.
+- Paused timeframes: `15m` is paused for Week 1 noise reduction and legacy review only.
+- Strategy truth: public Hyperliquid mainnet fully closed candles and derived indicators.
+- Synthetic PnL truth: independent synthetic 10,000 USDC paper ledgers per lane.
+- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when PT-RT1.5.1 gates pass.
+- Testnet fills never update synthetic PnL and are not canonical evidence.
+- Production approval: no strategy is production-approved.
+- Live trading: not approved; no real-capital trading is approved.
+- Next recommended action: do not mix PT-RT display/runtime rows with canonical SV2 evidence.
+
 ## Canonical Evidence Packs
 
 Current canonical baseline:
@@ -50,12 +64,13 @@ Diagnostic overlays are useful for hypothesis triage. They are not production ca
 
 Dashboard surfaces use committed summary JSON and ignored local chart/trade JSON for founder review.
 
-- Historical Replay chart JSON is display-only.
-- Evidence Lab overlays are display-only.
-- Audit Review reads committed EV-AUDIT1 summary JSON.
-- Dashboard date filters are display-only recalculations and are not canonical evidence-pack regeneration.
-- Date filters are browser/display recalculations from loaded data.
-- Date filters are not canonical evidence-pack regeneration.
+- Historical Replay = dashboard visualization from generated chart/trade JSON.
+- Evidence = canonical evidence summaries and generated replay rows.
+- The Lab / Evidence Lab = research variants and overlays.
+- Audit = EV-AUDIT1 review summaries.
+- Paper Trading = forward observation, not historical evidence.
+- Dashboard date filters are display-only recalculations from loaded data.
+- Dashboard date filters do not regenerate evidence packs, rerun backend Strategy Validation, or mutate runtime state.
 
 ## Data Limitations
 

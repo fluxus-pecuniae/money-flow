@@ -1,8 +1,33 @@
 # TODO
 
-Last reviewed: `2026-05-17T14:51:49Z`
+Last reviewed: `2026-05-17T15:17:31Z`
 
-## Active Follow-Ups
+## Active
+
+- Review/start `PT-RT1.5.1` smoke scope under `reports/paper_runtime/pt_rt1_5_1_smoke/`.
+- Confirm `1h`/`4h`/`1d` candle-close scheduling, warm-start fresh-signal gating, open-position MTM, and baseline-only fixed 25 USDC Hyperliquid testnet lifecycle separation.
+- Keep `15m` paused for Week 1 scoring unless a later founder-approved phase explicitly re-enables it.
+- Keep documentation current-truth cleanup in DOCS-OB2.1 limited to Markdown/Obsidian/test-governance only.
+
+## Next
+
+- Produce the first PT-RT1.5.1 smoke review once fresh runtime artifacts exist.
+- Continue Week 1 forward observation only after smoke behavior is reviewed.
+- Keep candidate/MF-ORIG/wildcard lanes synthetic-only; do not route them to testnet.
+- Keep SV2.0.2 canonical evidence, SV2.1 1D evidence, Historical Replay display, and PT-RT forward observation separated in future docs.
+
+## Done Recently
+
+- PT-RT1.5.1 signed testnet transport, warm-start signal gate, and open-position MTM hotfix.
+- PT-RT1.5 active Week 1 reset, candle-close scheduler, and baseline-only fixed 25 USDC testnet lifecycle gates.
+- PT-RT1.4.1 active-week runtime cutover verification and daily founder review pack.
+- Obsidian current-truth cleanup with Active Work / Finished Work coordination sections.
+
+## Archived Done
+
+Older completed tasks remain below as the detailed historical follow-up log. Treat those rows as audit/history unless they are linked from the current phase.
+
+## Archived Detailed Follow-Up Log
 
 ### T-151
 

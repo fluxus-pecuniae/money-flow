@@ -569,15 +569,6 @@
             <span>Signal category</span>
             <select id="paper-observation-signal-category-filter"></select>
           </label>
-          <label>
-            <span>Start date</span>
-            <input id="paper-observation-date-start" type="date" />
-          </label>
-          <label>
-            <span>End date</span>
-            <input id="paper-observation-date-end" type="date" />
-          </label>
-          <button id="paper-observation-date-clear" class="segment-button" type="button">Clear dates</button>
         </section>
 
         <section id="paper-observation-health-banner" class="paper-observation-health-banner" aria-label="Paper Trading top health banner"></section>
@@ -635,7 +626,7 @@
             <div id="paper-observation-scanner-table" class="data-table-shell"></div>
           </article>
 
-          <article class="table-panel audit-review-panel" aria-labelledby="paper-observation-lifecycle-title">
+          <article class="table-panel audit-review-panel paper-observation-lifecycle-panel" aria-labelledby="paper-observation-lifecycle-title">
             <div class="section-heading compact-heading">
               <div>
                 <h3 id="paper-observation-lifecycle-title">Testnet Order Lifecycle</h3>
@@ -674,7 +665,7 @@
 
         <section id="paper-observation-summary-cards" class="metric-grid audit-review-verdict" aria-label="Paper observation summary"></section>
 
-        <section class="table-panel audit-review-panel" aria-labelledby="paper-observation-connection-title">
+        <section class="table-panel audit-review-panel paper-observation-connection-panel" aria-labelledby="paper-observation-connection-title">
           <div class="section-heading">
             <h2 id="paper-observation-connection-title">Connection Status</h2>
             <p>Hyperliquid public mainnet connection status, endpoint category, last update, and no private/signed/order/API-key boundary.</p>

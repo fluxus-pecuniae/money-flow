@@ -2,6 +2,19 @@
 
 This is the canonical Obsidian command center for Money Flow agents and founder review.
 
+## Current Operator Summary
+
+- Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
+- Current runtime: `PT-RT1.5.1` smoke/review scope at `reports/paper_runtime/pt_rt1_5_1_smoke/`.
+- Active timeframes: `1h`, `4h`, `1d`.
+- Paused timeframes: `15m` is paused for Week 1 noise reduction and legacy review only.
+- Strategy truth: public Hyperliquid mainnet fully closed candles and derived indicators.
+- Synthetic PnL truth: independent synthetic 10,000 USDC paper ledgers per lane.
+- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is allowed only for fresh post-start Money Flow v1.2 baseline opens when PT-RT1.5.1 gates and local signing config pass.
+- Production approval: no strategy is production-approved.
+- Live trading: not approved; no real-capital trading is approved.
+- Next recommended action: start/review `pt_rt1_5_1_smoke`, confirm warm-start gating, candle-close scheduler behavior, open-position MTM, and baseline-only testnet lifecycle separation.
+
 ## Current Truth
 
 | Field | Current State |
@@ -11,7 +24,7 @@ This is the canonical Obsidian command center for Money Flow agents and founder 
 | Next recommended phase | Start/review the `pt_rt1_5_1_smoke` session before Week 1; keep `1h`/`4h`/`1d` active, keep `15m` paused/legacy, confirm startup-valid signals are blocked until fresh post-start transitions, and review signed baseline-only fixed 25 USDC Hyperliquid testnet lifecycle rows |
 | UAT/PT status | UAT2 no-order shadow observation, UAT2.1 dashboard visualization, UAT3.0 sandbox-order design, UAT3.0.1 fixture/readiness hardening, UAT3.0.2 dry-run gate hardening, UAT3.0.3 dry-run executable gate wiring / label enforcement, UAT3.0.4 private read-only sandbox drawdown readiness, UAT3.0.5 sandbox/testnet private read-only drawdown verification, UAT3.0.6 sandbox submit path dry-run wiring, UAT3.1 first sandbox/testnet lifecycle probe, UAT3.2 fixed-key readiness preflight, UAT3.3 Hyperliquid account-targeting / precision hardening, UAT3.4 fixed-target sandbox routing ledger, UAT4.0 read-only chart cockpit, UAT4.1 exchange-style dashboard redesign, UAT4.2 live-market/paper-equity monitoring plus browser-side public testnet chart polling, PT0 TradingView charts / top-20 paper-sandbox runtime foundation, PT0.0.1 chart stability hotfix, PT0.0.2 historical replay cockpit, and PT0.0.3 historical data horizon / 1D replay support are complete |
 | Paper trading | PT-RT1/PT-RT1.1A/PT-RT1.1B/PT-RT1.1C/PT-RT1.4/PT-RT1.4.1/PT-RT1.5/PT-RT1.5.1 add synthetic paper-observation ledgers and runtime collection/review UI only. Active Week 1 paper review uses `1h`/`4h`/`1d`; `15m` is paused for noise reduction. PT-RT1.5.1 archives the pre-warm-start smoke, defaults fresh review to `pt_rt1_5_1_smoke`, blocks startup-valid confirmations until fresh post-start false-to-true signals, permits signed baseline-only fixed 25 USDC Hyperliquid testnet transport, and fixes open-position MTM from public mainnet data. No strategy paper runtime is production-approved from EV-AUDIT1 or PT-RT1 evidence |
-| Broader top-20 paper/sandbox | PT0 broader top-20 Hyperliquid-supported paper/sandbox scope is risk-gated and metadata-gated only. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED. It is not production strategy approval |
+| Broader top-20 paper/sandbox | Historical PT0 broader top-20 Hyperliquid-supported paper/sandbox scope is risk-gated and metadata-gated context only. It is not production strategy approval and is separate from current PT-RT1.5.1 Paper Trading review |
 | Live trading | Not approved |
 | Additional exchange order submission | Live exchange order submission is not approved; sandbox/testnet routing remains risk-gated and default-disabled |
 | Routing / SOR expansion | Deferred |

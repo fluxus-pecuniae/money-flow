@@ -20,6 +20,9 @@ def _has_paper_boundary(note: str) -> bool:
         "PAPER TRADING IS APPROVED." in note
         or "Paper trading is approved for Hyperliquid testnet/sandbox only" in note
         or "PT-RT1 synthetic paper observation" in note
+        or "synthetic forward observation" in note
+        or "Synthetic PnL truth" in note
+        or "Historical PT0 sandbox/testnet paper-plumbing scope" in note
         or "PT0 separately approves" in note
     )
 
@@ -30,6 +33,8 @@ def _has_top20_boundary(note: str) -> bool:
         or "broader top-20 Hyperliquid-supported paper/sandbox trading is approved" in note
         or ("top-20" in note and "PT-RT1" in note)
         or ("top 20" in note and "UAT" in note)
+        or "Broader top-20 Hyperliquid-supported sandbox/plumbing history" in note
+        or "Historical PT0 sandbox/testnet paper-plumbing scope" in note
     )
 
 
@@ -159,6 +164,8 @@ REQUIRED_FILES = [
     "docs/pt_rt1_5_week1_reset_baseline_testnet_orders_and_candle_scheduler_summary.json",
     "docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm.md",
     "docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm_summary.json",
+    "docs/doc_ob2_1_markdown_current_truth_refresh.md",
+    "docs/doc_ob2_1_markdown_current_truth_refresh_summary.json",
     "money-flow/00 Maps/Strategy Family Map.md",
     "money-flow/00 Maps/Evidence and Backtesting Map.md",
     "money-flow/00 Maps/Data Source and Market Data Map.md",
@@ -174,6 +181,80 @@ REQUIRED_FILES = [
 def test_required_operational_docs_exist() -> None:
     for relative_path in REQUIRED_FILES:
         assert Path(relative_path).exists(), f"Missing required operational doc: {relative_path}"
+
+
+def test_docs_ob21_current_truth_docs_are_current_first() -> None:
+    current_truth_files = [
+        "README.md",
+        "docs/architecture.md",
+        "docs/strategy.md",
+        "apps/dashboard/README.md",
+        "apps/dashboard/DESIGN.md",
+        "money-flow/00_Money_Flow_Command_Center.md",
+        "money-flow/01_Current_Phase.md",
+        "money-flow/Project_Memory/money_flow_project_memory.md",
+        "money-flow/00 Maps/Paper Observation Roadmap.md",
+        "money-flow/00 Maps/Dashboard and UI Map.md",
+        "money-flow/00 Maps/Evidence and Backtesting Map.md",
+        "money-flow/00 Maps/Strategy Family Map.md",
+    ]
+    stale_current_truth_phrases = [
+        "phase-7.6",
+        "SV1.7 current",
+        "next proposed phase is Phase 8.0",
+        "PT-RT1.3 is current",
+        "Experiments tab current",
+        "live trading approved",
+        "production ready",
+        "20 USDC probe as current PT-RT1.5 policy",
+    ]
+
+    for relative_path in current_truth_files:
+        contents = Path(relative_path).read_text()
+        assert "Current Operator Summary" in contents, f"{relative_path} lacks a current summary"
+        assert "PT-RT1.5.1" in contents, f"{relative_path} lacks PT-RT current state"
+        assert "1h" in contents and "4h" in contents and "1d" in contents
+        assert "15m" in contents and "paused" in contents.lower()
+        assert "public Hyperliquid mainnet" in contents or "public mainnet" in contents
+        lowered = contents.lower()
+        assert "testnet fills" in lowered and "synthetic pnl" in lowered
+        assert "no strategy is production-approved" in contents.lower() or "not_production_approved" in contents
+        assert "live trading" in contents.lower() and "not approved" in contents.lower()
+        assert "SV2.0.2" in contents
+        for stale_phrase in stale_current_truth_phrases:
+            assert stale_phrase not in contents, f"{relative_path} contains stale phrase {stale_phrase!r}"
+
+
+def test_docs_ob21_dashboard_and_strategy_taxonomies_are_explicit() -> None:
+    readme = Path("README.md").read_text()
+    dashboard_map = Path("money-flow/00 Maps/Dashboard and UI Map.md").read_text()
+    strategy_map = Path("money-flow/00 Maps/Strategy Family Map.md").read_text()
+    strategy_register = Path("money-flow/10 Strategy/Strategy Status Register.md").read_text()
+
+    for tab in ["Paper Trading", "Historical Replay", "Evidence", "The Lab", "Audit", "Strategy"]:
+        assert tab in readme
+        assert tab in dashboard_map
+    assert "Experiments" in dashboard_map and "must not be promoted as current truth" in dashboard_map
+
+    for lane in [
+        "money_flow_v1_2_baseline",
+        "avoid_low_rolling_range_20",
+        "avoid_low_rolling_range_50",
+        "mf_orig_stage_filter_only_full_equity",
+        "mf_orig_stage2_pullback_reclaim_full_equity",
+        "mf_orig_1d_stage2_5_20_crossover_full_equity",
+        "mf_orig_1d_stage2_breakout_resistance_full_equity",
+        "wildcard_btc_regime_guard",
+        "wildcard_multi_timeframe_alignment",
+        "wildcard_volatility_expansion_breakout",
+    ]:
+        assert lane in strategy_map
+        assert lane in strategy_register
+
+    assert "baseline_only_25_usdc_when_pt_rt1_5_1_gates_pass" in strategy_map
+    assert "cannot_send_testnet_orders" in strategy_map
+    assert "testnet fills do not update synthetic pnl" in strategy_register.lower()
+    assert "Dashboard date filters do not regenerate evidence packs" in Path("money-flow/00 Maps/Evidence and Backtesting Map.md").read_text()
 
 
 def test_agents_references_required_operational_docs() -> None:
@@ -272,8 +353,8 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "Strategy Validation" in moved_memory
     assert "SV1.18-SV1.18.1" in moved_memory
     assert "money_flow_hyperliquid_eth_1h_baseline_uat_candidate" in moved_memory
-    assert "PAPER TRADING IS APPROVED." in moved_memory
-    assert "BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED." in moved_memory
+    assert "Historical PT0 sandbox/testnet paper-plumbing scope remains audit context" in moved_memory
+    assert "Broader top-20 Hyperliquid-supported sandbox/plumbing history remains audit context" in moved_memory
     assert "UAT1 public read-only connectivity is complete" in moved_memory
     assert "UAT2 bounded no-order shadow observation is complete" in moved_memory
     assert "UAT2.1 dashboard visualization is complete" in moved_memory
@@ -314,7 +395,7 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
 
     assert "Current implemented milestone | `PT-RT1.5.1` signed testnet transport + warm-start gate + open MTM hotfix" in command_center
     assert "Canonical command center" in compatibility_command_center
-    assert "PT-RT1 now implements the public-mainnet Paper Trading observation substrate" in current_dashboard
+    assert "PT-RT1.5.1 is the current Paper Trading forward-observation runtime" in current_dashboard
     assert "SV2.0.2 canonical evidence" in current_dashboard
     assert "EV-AUDIT1" in current_dashboard
     assert "PT-RT1" in current_dashboard
@@ -475,7 +556,7 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     ob_report = Path("docs/ob2_0_obsidian_strategy_brain_refresh.md").read_text()
 
     assert "OB2.0" in command_center
-    assert "not production-ready" in strategy_register
+    assert "not_production_approved" in strategy_register
     assert "no clean strategy candidate" in strategy_register
     assert "No strategy is production-ready" in current_phase or "no clean strategy candidate is promoted" in current_phase
     assert "PT-RT1" in current_phase
@@ -504,7 +585,7 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "old `Experiments` tab" in dashboard_map
     assert "public" in paper_roadmap
     assert "mainnet market data" in paper_roadmap
-    assert "no exchange orders" in paper_roadmap
+    assert "No live exchange orders" in paper_roadmap
     assert "implemented_paper_trading_command_center_and_active_timeframe_cutover" in paper_roadmap
     assert "reports/paper_runtime/pt_rt1_1c_24h_dry_run/" in paper_roadmap
     assert "Gerald Peters" in original_source_note

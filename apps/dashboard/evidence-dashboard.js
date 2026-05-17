@@ -785,8 +785,6 @@
       laneId: "all",
       reviewWindow: "active_week",
       signalCategory: "entry_activity",
-      dateStart: "",
-      dateEnd: "",
       chartTarget: { symbol: "ETH", timeframe: "1h" },
       pagination: {
         signals: 1,
@@ -907,9 +905,6 @@
     paperObservationLaneFilter: document.querySelector("#paper-observation-lane-filter"),
     paperObservationReviewWindowFilter: document.querySelector("#paper-observation-review-window-filter"),
     paperObservationSignalCategoryFilter: document.querySelector("#paper-observation-signal-category-filter"),
-    paperObservationDateStart: document.querySelector("#paper-observation-date-start"),
-    paperObservationDateEnd: document.querySelector("#paper-observation-date-end"),
-    paperObservationDateClear: document.querySelector("#paper-observation-date-clear"),
     paperRuntimeDuration: document.querySelector("#paper-runtime-duration"),
     paperRuntimeOutput: document.querySelector("#paper-runtime-output"),
     paperRuntimeStart: document.querySelector("#paper-runtime-start"),
@@ -4560,6 +4555,9 @@
   const HISTORICAL_RSI_PANE = 0;
   const HISTORICAL_PRICE_PANE = 1;
   const HISTORICAL_MACD_PANE = 2;
+  const PAPER_OBSERVATION_RSI_PANE = 0;
+  const PAPER_OBSERVATION_PRICE_PANE = 1;
+  const PAPER_OBSERVATION_MACD_PANE = 2;
   const HIDDEN_HISTORICAL_REPLAY_STRATEGY_IDS = new Set([
     "baseline_current_money_flow_rules",
     "macd_removed_research_only",
@@ -9630,30 +9628,6 @@
         renderPaperObservation();
       };
     }
-    if (elements.paperObservationDateStart) {
-      elements.paperObservationDateStart.value = state.paperObservation.dateStart;
-      elements.paperObservationDateStart.onchange = () => {
-        state.paperObservation.dateStart = elements.paperObservationDateStart.value;
-        resetPaperObservationPagination();
-        renderPaperObservation();
-      };
-    }
-    if (elements.paperObservationDateEnd) {
-      elements.paperObservationDateEnd.value = state.paperObservation.dateEnd;
-      elements.paperObservationDateEnd.onchange = () => {
-        state.paperObservation.dateEnd = elements.paperObservationDateEnd.value;
-        resetPaperObservationPagination();
-        renderPaperObservation();
-      };
-    }
-    if (elements.paperObservationDateClear) {
-      elements.paperObservationDateClear.onclick = () => {
-        state.paperObservation.dateStart = "";
-        state.paperObservation.dateEnd = "";
-        resetPaperObservationPagination();
-        renderPaperObservation();
-      };
-    }
   }
 
   function renderPaperObservationSummaryCards() {
@@ -10160,6 +10134,124 @@
     `;
   }
 
+  function paperObservationEmaValues(values, period) {
+    const rows = Array(values.length).fill(NaN);
+    if (values.length < period) return rows;
+    const multiplier = 2 / (period + 1);
+    let current = values.slice(0, period).reduce((sum, value) => sum + value, 0) / period;
+    rows[period - 1] = current;
+    for (let index = period; index < values.length; index += 1) {
+      current = (values[index] - current) * multiplier + current;
+      rows[index] = current;
+    }
+    return rows;
+  }
+
+  function paperObservationRsiRows(candles, period = 14) {
+    const closes = candles.map((candle) => Number(candle.close));
+    if (closes.length <= period) return [];
+    let avgGain = 0;
+    let avgLoss = 0;
+    for (let index = 1; index <= period; index += 1) {
+      const delta = closes[index] - closes[index - 1];
+      avgGain += Math.max(delta, 0);
+      avgLoss += Math.abs(Math.min(delta, 0));
+    }
+    avgGain /= period;
+    avgLoss /= period;
+    const valueFromAverage = () => (avgLoss === 0 ? 100 : 100 - 100 / (1 + avgGain / avgLoss));
+    const rows = [{ time: candles[period].time, value: roundDisplay(valueFromAverage()) }];
+    for (let index = period + 1; index < closes.length; index += 1) {
+      const delta = closes[index] - closes[index - 1];
+      avgGain = (avgGain * (period - 1) + Math.max(delta, 0)) / period;
+      avgLoss = (avgLoss * (period - 1) + Math.abs(Math.min(delta, 0))) / period;
+      rows.push({ time: candles[index].time, value: roundDisplay(valueFromAverage()) });
+    }
+    return rows.filter((row) => Number.isFinite(row.time) && Number.isFinite(row.value));
+  }
+
+  function paperObservationMacdSeries(candles) {
+    const closes = candles.map((candle) => Number(candle.close));
+    const ema12 = paperObservationEmaValues(closes, 12);
+    const ema26 = paperObservationEmaValues(closes, 26);
+    const macdPoints = [];
+    for (let index = 0; index < candles.length; index += 1) {
+      if (Number.isFinite(ema12[index]) && Number.isFinite(ema26[index])) {
+        macdPoints.push({
+          time: candles[index].time,
+          value: ema12[index] - ema26[index],
+        });
+      }
+    }
+    const signalValues = paperObservationEmaValues(macdPoints.map((point) => point.value), 9);
+    const macdRows = [];
+    const signalRows = [];
+    const histogramRows = [];
+    macdPoints.forEach((point, index) => {
+      const macdValue = roundDisplay(point.value);
+      macdRows.push({ time: point.time, value: macdValue });
+      if (Number.isFinite(signalValues[index])) {
+        const signalValue = roundDisplay(signalValues[index]);
+        const histogramValue = roundDisplay(point.value - signalValues[index]);
+        signalRows.push({ time: point.time, value: signalValue });
+        histogramRows.push({
+          time: point.time,
+          value: histogramValue,
+          color: histogramValue >= 0 ? "rgba(37, 208, 132, 0.52)" : "rgba(255, 90, 102, 0.52)",
+        });
+      }
+    });
+    return { macdRows, signalRows, histogramRows };
+  }
+
+  function paperObservationLatestSeriesValue(rows) {
+    const row = rows.at(-1);
+    return row && Number.isFinite(row.value) ? compactNumber(row.value) : "indicator_unavailable";
+  }
+
+  function renderPaperObservationIndicatorLegend(candles) {
+    const rsiRows = paperObservationRsiRows(candles);
+    const macdRows = paperObservationMacdSeries(candles);
+    return `
+      <span><b class="legend-dot rsi"></b>RSI 14 ${escapeHtml(paperObservationLatestSeriesValue(rsiRows))}</span>
+      <span><b class="legend-dot macd"></b>MACD ${escapeHtml(paperObservationLatestSeriesValue(macdRows.macdRows))}</span>
+      <span><b class="legend-dot macd-signal"></b>Signal ${escapeHtml(paperObservationLatestSeriesValue(macdRows.signalRows))}</span>
+      <span><b class="legend-dot macd-histogram"></b>Hist ${escapeHtml(paperObservationLatestSeriesValue(macdRows.histogramRows))}</span>
+      <span>Pane order: RSI, candles, MACD. Public mainnet display only.</span>
+    `;
+  }
+
+  function setPaperObservationPaneHeights(chart, height) {
+    if (!chart || typeof chart.panes !== "function") return;
+    const panes = chart.panes();
+    if (!Array.isArray(panes) || panes.length < 3) return;
+    [
+      [PAPER_OBSERVATION_RSI_PANE, 15, Math.round(height * 0.15)],
+      [PAPER_OBSERVATION_PRICE_PANE, 70, Math.round(height * 0.7)],
+      [PAPER_OBSERVATION_MACD_PANE, 15, Math.max(1, Math.round(height * 0.15))],
+    ].forEach(([paneIndex, stretchFactor, fallbackHeight]) => {
+      if (typeof panes[paneIndex]?.setStretchFactor === "function") {
+        panes[paneIndex].setStretchFactor(stretchFactor);
+      } else if (typeof panes[paneIndex]?.setHeight === "function") {
+        panes[paneIndex].setHeight(fallbackHeight);
+      }
+    });
+  }
+
+  function applyPaperObservationPaneScale(chart, paneIndex) {
+    if (!chart || typeof chart.priceScale !== "function") return;
+    const chartColors = dashboardChartColors();
+    try {
+      chart.priceScale("right", paneIndex).applyOptions({
+        visible: true,
+        borderVisible: true,
+        borderColor: chartColors.border,
+      });
+    } catch (_error) {
+      // Lightweight Charts creates pane scales lazily; missing pane scales are non-fatal.
+    }
+  }
+
   function destroyPaperObservationChart() {
     const chartState = state.paperObservationChart;
     if (chartState.pendingResizeFrame) {
@@ -10194,6 +10286,7 @@
     if (!chartState.chart || !chartState.mount) return;
     const { width, height } = chartDimensions(chartState.mount);
     chartState.chart.resize(width, height);
+    setPaperObservationPaneHeights(chartState.chart, height);
   }
 
   function schedulePaperObservationResize() {
@@ -10251,6 +10344,13 @@
     ].forEach(([label, period]) => {
       chartState.indicatorSeries[label]?.setData(indicatorSeries(candles, label, period));
     });
+    const macdRows = paperObservationMacdSeries(candles);
+    chartState.indicatorSeries.RSI?.setData(paperObservationRsiRows(candles));
+    chartState.indicatorSeries.RSI_floor?.setData(historicalConstantRows(candles, 0));
+    chartState.indicatorSeries.RSI_ceiling?.setData(historicalConstantRows(candles, 100));
+    chartState.indicatorSeries.MACD?.setData(macdRows.macdRows);
+    chartState.indicatorSeries.MACD_signal?.setData(macdRows.signalRows);
+    chartState.indicatorSeries.MACD_histogram?.setData(macdRows.histogramRows);
     const markers = paperObservationChartMarkers(candles, rawMarkers);
     if (chartState.markerHandle && typeof chartState.markerHandle.setMarkers === "function") {
       chartState.markerHandle.setMarkers(markers);
@@ -10260,6 +10360,10 @@
     const updatedTimeScale = chartState.chart?.timeScale?.();
     if (chartState.lastVisibleRange && typeof updatedTimeScale?.setVisibleLogicalRange === "function") {
       updatedTimeScale.setVisibleLogicalRange(chartState.lastVisibleRange);
+    }
+    const legend = elements.paperObservationLiveChart?.querySelector("[data-paper-observation-indicator-legend]");
+    if (legend) {
+      legend.innerHTML = renderPaperObservationIndicatorLegend(candles);
     }
     schedulePaperObservationResize();
   }
@@ -10304,6 +10408,7 @@
           <small>C ${escapeHtml(priceStats.close)}</small>
         </aside>
       </div>
+      <div class="historical-overlay-legend paper-observation-indicator-legend" data-paper-observation-indicator-legend>${renderPaperObservationIndicatorLegend(candles)}</div>
       <div class="tradingview-attribution">
         Charts: TradingView Lightweight Charts v${TRADINGVIEW_LIGHTWEIGHT_CHARTS_VERSION}. Public mainnet allMids/candleSnapshot only; no API keys, private endpoints, signed endpoints, order endpoints, testnet strategy truth, or live trading.
         <span data-paper-chart-status>${escapeHtml(chartPayload.status || "connected")}; ${escapeHtml(chartPayload.lastUpdatedUtc || "waiting")}</span>
@@ -10340,6 +10445,44 @@
         secondsVisible: false,
       },
     });
+    const lineSeries = {};
+    const rsiSeries = chart.addSeries(tv.LineSeries, {
+      color: "#22d3ee",
+      lineWidth: 2,
+      priceScaleId: "right",
+      priceFormat: { type: "price", precision: 2, minMove: 0.01 },
+      priceLineVisible: true,
+      lastValueVisible: true,
+      title: "RSI 14",
+    }, PAPER_OBSERVATION_RSI_PANE);
+    rsiSeries.setData(paperObservationRsiRows(candles));
+    if (typeof rsiSeries.createPriceLine === "function") {
+      rsiSeries.createPriceLine({ price: 70, color: "rgba(255, 90, 102, 0.55)", lineWidth: 1, lineStyle: tv.LineStyle.Dashed, axisLabelVisible: false, title: "RSI 70" });
+      rsiSeries.createPriceLine({ price: 30, color: "rgba(37, 208, 132, 0.45)", lineWidth: 1, lineStyle: tv.LineStyle.Dashed, axisLabelVisible: false, title: "RSI 30" });
+    }
+    lineSeries.RSI = rsiSeries;
+    const rsiFloor = chart.addSeries(tv.LineSeries, {
+      color: "rgba(0, 0, 0, 0)",
+      lineWidth: 1,
+      priceScaleId: "right",
+      priceFormat: { type: "price", precision: 2, minMove: 0.01 },
+      priceLineVisible: false,
+      lastValueVisible: false,
+      title: "RSI floor",
+    }, PAPER_OBSERVATION_RSI_PANE);
+    rsiFloor.setData(historicalConstantRows(candles, 0));
+    const rsiCeiling = chart.addSeries(tv.LineSeries, {
+      color: "rgba(0, 0, 0, 0)",
+      lineWidth: 1,
+      priceScaleId: "right",
+      priceFormat: { type: "price", precision: 2, minMove: 0.01 },
+      priceLineVisible: false,
+      lastValueVisible: false,
+      title: "RSI ceiling",
+    }, PAPER_OBSERVATION_RSI_PANE);
+    rsiCeiling.setData(historicalConstantRows(candles, 100));
+    lineSeries.RSI_floor = rsiFloor;
+    lineSeries.RSI_ceiling = rsiCeiling;
     const candleSeries = chart.addSeries(tv.CandlestickSeries, {
       upColor: chartColors.candleUp,
       downColor: chartColors.candleDown,
@@ -10351,16 +10494,15 @@
       priceFormat: chartPriceFormat(candles),
       priceLineVisible: true,
       lastValueVisible: true,
-    });
+    }, PAPER_OBSERVATION_PRICE_PANE);
     candleSeries.setData(chartPriceRows(candles));
     const volumeSeries = chart.addSeries(tv.HistogramSeries, {
       priceFormat: { type: "volume" },
       priceScaleId: "volume",
       color: "rgba(107, 132, 145, 0.35)",
-    });
-    chart.priceScale("volume").applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
+    }, PAPER_OBSERVATION_PRICE_PANE);
+    chart.priceScale("volume", PAPER_OBSERVATION_PRICE_PANE).applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
     volumeSeries.setData(chartVolumeRows(candles));
-    const lineSeries = {};
     [
       ["EMA5", 5, "#26c6da"],
       ["EMA10", 10, "#f8c15c"],
@@ -10373,10 +10515,48 @@
         priceLineVisible: false,
         lastValueVisible: true,
         title: label,
-      });
+      }, PAPER_OBSERVATION_PRICE_PANE);
       line.setData(indicatorSeries(candles, label, period));
       lineSeries[label] = line;
     });
+    const macdRows = paperObservationMacdSeries(candles);
+    const macdHistogram = chart.addSeries(tv.HistogramSeries, {
+      priceScaleId: "right",
+      priceFormat: { type: "price", precision: 4, minMove: 0.0001 },
+      base: 0,
+      color: "rgba(37, 208, 132, 0.42)",
+      title: "MACD histogram",
+    }, PAPER_OBSERVATION_MACD_PANE);
+    macdHistogram.setData(macdRows.histogramRows);
+    const macdLine = chart.addSeries(tv.LineSeries, {
+      color: "#22d3ee",
+      lineWidth: 2,
+      priceScaleId: "right",
+      priceFormat: { type: "price", precision: 4, minMove: 0.0001 },
+      priceLineVisible: true,
+      lastValueVisible: true,
+      title: "MACD",
+    }, PAPER_OBSERVATION_MACD_PANE);
+    macdLine.setData(macdRows.macdRows);
+    if (typeof macdLine.createPriceLine === "function") {
+      macdLine.createPriceLine({ price: 0, color: "rgba(201, 213, 220, 0.35)", lineWidth: 1, lineStyle: tv.LineStyle.Dashed, axisLabelVisible: false, title: "MACD zero" });
+    }
+    const macdSignalLine = chart.addSeries(tv.LineSeries, {
+      color: "#f8c15c",
+      lineWidth: 2,
+      priceScaleId: "macd",
+      priceFormat: { type: "price", precision: 4, minMove: 0.0001 },
+      priceLineVisible: true,
+      lastValueVisible: true,
+      title: "MACD signal",
+    }, PAPER_OBSERVATION_MACD_PANE);
+    macdSignalLine.setData(macdRows.signalRows);
+    lineSeries.MACD = macdLine;
+    lineSeries.MACD_signal = macdSignalLine;
+    lineSeries.MACD_histogram = macdHistogram;
+    applyPaperObservationPaneScale(chart, PAPER_OBSERVATION_RSI_PANE);
+    applyPaperObservationPaneScale(chart, PAPER_OBSERVATION_PRICE_PANE);
+    applyPaperObservationPaneScale(chart, PAPER_OBSERVATION_MACD_PANE);
     const markers = paperObservationChartMarkers(candles, chartPayload.paper_markers);
     if (typeof tv.createSeriesMarkers === "function") {
       chartState.markerHandle = tv.createSeriesMarkers(candleSeries, markers);
@@ -10397,6 +10577,7 @@
       observer.observe(mount);
       chartState.resizeObserver = observer;
     }
+    setPaperObservationPaneHeights(chart, height);
     return true;
   }
 

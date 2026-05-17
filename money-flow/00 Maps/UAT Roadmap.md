@@ -4,7 +4,7 @@ Up: [[00_Money_Flow_Command_Center|Money Flow Command Center]]
 
 UAT validates plumbing and behavior. It does not prove profitability. This page is now a historical plumbing archive; current active work is tracked through Paper Trading / PT-RT, Strategy Validation SV2.x, SOR/MF-ORIG research, and dashboard founder-review notes.
 
-Current status: UAT0 through UAT4.2 and PT0 through PT0.0.3 are complete historical plumbing/context tracks as recorded in the canonical command center. SV2.0.2 canonical evidence packs are generated and current. PT-RT1.x now implements the Paper Trading forward-observation substrate, but no completed fresh observation result promotes a strategy. PAPER TRADING IS APPROVED for Hyperliquid testnet/sandbox scope under historical gates only. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED under metadata, precision, risk, lease, label, and no-live gates. Live trading and real-capital trading remain not approved.
+Current status: UAT0 through UAT4.2 and PT0 through PT0.0.3 are complete historical plumbing/context tracks as recorded in the canonical command center. SV2.0.2 canonical evidence packs are generated and current. PT-RT1.5.1 now implements the Paper Trading forward-observation substrate, but no completed fresh observation result promotes a strategy. Historical PT0 sandbox/testnet paper-plumbing scope remains audit context, not production strategy approval. Live trading and real-capital trading remain not approved.
 
 UAT1 public read-only connectivity remains complete historical plumbing context; it is not strategy evidence approval.
 
@@ -306,7 +306,7 @@ Required docs/tests: UAT4.2 dashboard/runtime monitor tests, operational-doc cur
 
 Objective: convert observation into a controlled Hyperliquid testnet/sandbox paper runtime foundation and replace the custom chart shell with TradingView Lightweight Charts.
 
-Status: complete. PAPER TRADING IS APPROVED. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED.
+Status: complete. Historical PT0 sandbox/testnet paper-plumbing scope is retained for audit/context only and is not production strategy approval.
 
 Allowed behavior: Hyperliquid testnet/sandbox only, internal 10,000 USDC paper-equity ledger, top-20 Hyperliquid-supported paper/sandbox scanning, deterministic indicators, TradingView Lightweight Charts, sandbox private-read-only balance/position polling policy, approval/risk/lease/label-gated sandbox route candidates, and current-equity sizing policy.
 
@@ -402,4 +402,4 @@ Required docs/tests: founder review report and regression suite.
 
 ## Standing UAT/PT Boundary
 
-Paper trading is approved for Hyperliquid testnet/sandbox only. PAPER TRADING IS APPROVED. Broader top-20 Hyperliquid-supported paper/sandbox trading is approved under gates. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED. Live trading is not approved. Real-capital trading is not approved. Live exchange order submission is not approved. Additional sandbox/testnet orders outside explicit risk-gated PT/UAT scope are not approved.
+Historical PT0 sandbox/testnet paper-plumbing scope is retained for audit/context only and is not production strategy approval. Live trading is not approved. Real-capital trading is not approved. Live exchange order submission is not approved. Additional sandbox/testnet orders outside explicit risk-gated PT/UAT scope are not approved.

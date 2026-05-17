@@ -34,16 +34,16 @@ def _assets() -> tuple[str, str, str, str, str]:
 def test_design_doc_is_rebuilt_and_root_design_points_to_dashboard_doc() -> None:
     _html, _js, _css, design, root_design = _assets()
 
-    assert "# Money Flow UAT Dashboard Design" in design
+    assert "# Money Flow Founder Dashboard Design" in design
     assert "The dashboard is not an order-entry terminal." in design
     assert "market list on the left" in design
     assert "central TradingView-style chart region" in design
     assert "right-side order book / market context / risk context" in design
     assert "bottom blotter" in design
     assert "The dashboard is not an order-entry terminal." in design
-    assert "Paper trading: `approved for Hyperliquid testnet/sandbox only`" in design
-    assert "Broader top-20 paper/sandbox trading: `approved under PT0 metadata, precision, risk, lease, label, and no-live gates`" in design
-    assert "Live trading: `not approved`" in design
+    assert "Current operating surface: `Paper Trading` dashboard tab" in design
+    assert "fixed 25 USDC Hyperliquid testnet transport is baseline-only" in design
+    assert "Live trading: not approved" in design
     assert "[`apps/dashboard/DESIGN.md`](apps/dashboard/DESIGN.md)" in root_design
 
 

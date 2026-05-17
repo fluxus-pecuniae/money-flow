@@ -985,10 +985,23 @@ h3 {
 .paper-observation-primary-grid {
   grid-template-columns: minmax(0, 1.85fr) minmax(300px, 0.75fr);
   gap: var(--spacing-4);
+  align-items: stretch;
 }
 
 .paper-observation-chart-first {
   margin-block-start: 0;
+}
+
+.paper-observation-primary-grid > .historical-chart-panel,
+.paper-observation-primary-grid > .paper-observation-testnet-panel {
+  height: 100%;
+  min-height: 0;
+  align-self: stretch;
+}
+
+.paper-observation-testnet-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .paper-observation-chart .tradingview-lightweight-chart,
@@ -1079,14 +1092,23 @@ h3 {
 
 .paper-observation-watchlist-transport-row {
   display: grid;
-  grid-template-columns: minmax(260px, 0.7fr) minmax(360px, 1.3fr);
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
   gap: var(--spacing-5);
-  align-items: start;
+  align-items: stretch;
 }
 
-.paper-observation-watchlist-panel .data-table-shell {
-  max-height: 440px;
-  overflow-y: auto;
+.paper-observation-watchlist-panel,
+.paper-observation-lifecycle-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+}
+
+.paper-observation-watchlist-panel .data-table-shell,
+.paper-observation-lifecycle-panel .data-table-shell {
+  height: 360px;
+  max-height: 360px;
+  overflow: auto;
 }
 
 .paper-observation-watchlist-table th:nth-child(2),
@@ -1098,6 +1120,58 @@ h3 {
 .paper-observation-watchlist-table td {
   padding: 7px 9px;
   white-space: nowrap;
+}
+
+.paper-observation-connection-panel .market-micro-panel,
+.paper-observation-testnet-panel .market-micro-panel {
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  overflow: auto;
+  border-top: 1px solid var(--color-line);
+}
+
+.paper-observation-connection-panel .market-micro-panel {
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-panel) 86%, var(--color-surface-soft));
+}
+
+.paper-observation-connection-panel .market-micro-panel > .market-micro-grid,
+.paper-observation-testnet-panel .market-micro-panel > .market-micro-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  padding: 1px;
+  background: var(--color-line-soft);
+}
+
+.paper-observation-connection-panel .market-micro-grid > div,
+.paper-observation-testnet-panel .market-micro-grid > div {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 4px;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--color-line) 82%, transparent);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-panel-2) 88%, var(--color-surface-soft));
+}
+
+.paper-observation-connection-panel .market-micro-grid span,
+.paper-observation-testnet-panel .market-micro-grid span {
+  color: var(--color-muted);
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.paper-observation-connection-panel .market-micro-grid strong,
+.paper-observation-testnet-panel .market-micro-grid strong {
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.25;
 }
 
 .paper-observation-symbol-button {

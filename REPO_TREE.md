@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-17T12:54:24Z`
+Last reviewed: `2026-05-17T15:17:31Z`
 
 ## Top-Level Structure
 
@@ -175,6 +175,15 @@ Last reviewed: `2026-05-17T12:54:24Z`
 - PT-RT1.4 makes Paper Trading the weekly command center and cuts active Week 1 scoring to `1h`, `4h`, and `1d`. `15m` is `disabled_for_week1_noise_reduction`, preserved as paused/legacy data, and excluded from default lane comparison, all-active totals, and new synthetic entries after the cutover. Strategy Lane Comparison is selected-timeframe scoped by default, All active is explicitly 1h + 4h + 1d and not one combined account, Open/Closed Synthetic Trade tables are founder-readable, Signal Generator is a categorized paper-decision stream, and the testnet panel separates audit-only shapes from disabled order transport.
 - PT-RT1.4.1 verifies the active-week cutover against ignored runtime artifacts and writes the committed daily founder review pack at `docs/pt_rt_week1_day_summary.md` and `docs/pt_rt_week1_day_summary.json`. The older `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` runtime is labeled pre-cutover burn-in because it continued producing 15m opens after cutover; the restarted active runtime writes ignored artifacts under `reports/paper_runtime/pt_rt1_4_1_active_week/` and produced 0 15m rows in its first artifact cycle.
 - PT-RT1.5 resets the active Week 1 runtime scope to `reports/paper_runtime/pt_rt1_5_week1_active/`, archives prior runtime scopes by label rather than deleting them, keeps active timeframes at `1h`/`4h`/`1d`, keeps `15m` paused, separates market refresh from strategy signal evaluation, and adds a separate `testnet_order_lifecycle.jsonl` table for Money Flow v1.2 baseline-only fixed 25 USDC Hyperliquid testnet plumbing rows. PT-RT1.5.1 adds `reports/paper_runtime/pt_rt1_5_1_smoke/` as the fresh active smoke scope, warm-start false-to-true entry gating, PT-RT1.5.1 exact approval for signed baseline testnet transport, and open-position MTM fields from public mainnet mids/latest closed candles.
+- DOCS-OB2.1 makes the Markdown/Obsidian estate current-first: README, architecture, strategy, dashboard docs, command center, current phase, project memory, maps, and strategy register now lead with PT-RT1.5.1 Paper Trading truth, active `1h`/`4h`/`1d`, paused `15m`, public-mainnet strategy truth, independent synthetic ledgers, fixed 25 USDC baseline-only testnet plumbing, and no production/live approval. Selected old phase reports have historical banners.
+
+`docs/doc_ob2_1_markdown_current_truth_refresh.md`
+- Founder/agent report for the DOCS-OB2.1 current-truth Markdown and Obsidian readability refresh.
+- Documents scope, files updated, files marked historical, strategy/evidence/dashboard taxonomy, runtime/paper/testnet boundaries, stale wording fixed, and remaining docs debt.
+
+`docs/doc_ob2_1_markdown_current_truth_refresh_summary.json`
+- Compact machine-readable summary for DOCS-OB2.1.
+- Lists updated files, archival banners, stale phrases fixed, current-truth files, dashboard tabs, strategy families, open docs debt, and validation status.
 
 `docs/pt_rt1_2_runtime_state_and_testnet_probe_transport.md`
 - Founder/operator report for PT-RT1.2 runtime state and testnet transport gates.

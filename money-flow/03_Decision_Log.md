@@ -11,6 +11,15 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `result`: `implemented_pt_rt1_5_active_week_reset_and_baseline_testnet_lifecycle_gates`. Public mainnet candles remain strategy truth. Production Money Flow rules are unchanged. No strategy is production-approved. Live trading is not approved.
 - `follow_up_implications`: Start or restart runtime under `reports/paper_runtime/pt_rt1_5_week1_active/` using PT-RT1.5 flags. Review the first active cycles for candle-close scheduler timing, duplicate closed-candle blocking, fixed-25 baseline-only lifecycle rows when baseline opens occur, candidate-lane transport blocks, and no-live/no-production boundaries.
 
+## 2026-05-17T15:17:31Z - DOCS-OB2.1 - Make Markdown Current-Truth First
+
+- `decision`: Refresh repo Markdown and Obsidian current-truth surfaces around PT-RT1.5.1 Paper Trading as the active operating surface, while preserving older UAT/PT/SV reports as audit/history.
+- `scope`: README, architecture, strategy, dashboard docs, command center, current phase, project memory, maps, strategy register, known issues, TODO, operational-doc tests, and selected old phase reports. Current visible dashboard tabs are `Paper Trading`, `Historical Replay`, `Evidence`, `The Lab`, `Audit`, and `Strategy`.
+- `current_truth`: PT-RT1.5.1 is complete; active Week 1 timeframes are `1h`, `4h`, and `1d`; `15m` is paused; public Hyperliquid mainnet candles are strategy truth; synthetic paper ledgers are independent 10,000 USDC lanes; only fresh post-start Money Flow v1.2 baseline opens can trigger fixed 25 USDC Hyperliquid testnet plumbing when gates pass; candidate/MF-ORIG/wildcard lanes are synthetic-only; testnet fills never update synthetic PnL.
+- `why`: Founder review found stale UAT/PT/SV wording and phase chronology made it hard for humans and agents to know what is current.
+- `result`: `implemented_docs_ob2_1_current_truth_refresh_pending_validation`.
+- `follow_up_implications`: Future docs should keep current summaries at the top, mark old reports historical instead of deleting them, and keep PT-RT forward observation, SV2 evidence, dashboard display filters, SOR/MF-ORIG research, and testnet plumbing separate. This decision changes no strategy/runtime/order behavior and approves no live or production trading.
+
 ## 2026-05-17T11:51:26Z - PT-RT1.4.1 - Verify Active-Week Runtime Cutover Before Daily Review
 
 - `decision`: Treat the old `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` artifact set as pre-PT-RT1.4 burn-in for active Week 1 scoring because it continued producing 15m synthetic opens after the PT-RT1.4 cutover.

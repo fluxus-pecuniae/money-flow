@@ -332,6 +332,12 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "no signed/order endpoint is called by this runtime unless all PT-RT1.5.1 fresh baseline-only testnet gates" in html
     assert "paper-observation-connection-status" in html
     assert "paper-observation-lane-filter" in html
+    assert "paper-observation-date-start" not in html
+    assert "paper-observation-date-end" not in html
+    assert "paper-observation-date-clear" not in html
+    assert "paperObservationDateStart" not in js
+    assert "paperObservationDateEnd" not in js
+    assert "paperObservationDateClear" not in js
     assert "paper-observation-scanner-table" in html
     assert "Watchlist" in html
     assert "Expanded Scanner Universe" not in html
@@ -359,6 +365,7 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper-observation-probe-status" in html
     assert "paper-observation-testnet-lifecycle" in html
     assert "paper-observation-watchlist-transport-row" in html
+    assert "paper-observation-connection-panel" in html
     assert ".paper-observation-view" in css
     assert "paper-observation-safety-strip" in html
     assert "paper-runtime-control-compact" in html
@@ -459,6 +466,17 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "synthetic public-mainnet paper PnL, not exchange fills" in js
     assert "paperObservationChartTarget" in js
     assert "paperObservationRuntimeMarkers" in js
+    assert "PAPER_OBSERVATION_RSI_PANE = 0" in js
+    assert "PAPER_OBSERVATION_PRICE_PANE = 1" in js
+    assert "PAPER_OBSERVATION_MACD_PANE = 2" in js
+    assert "paperObservationRsiRows" in js
+    assert "paperObservationMacdSeries" in js
+    assert "renderPaperObservationIndicatorLegend" in js
+    assert "data-paper-observation-indicator-legend" in js
+    assert "Pane order: RSI, candles, MACD. Public mainnet display only." in js
+    assert "title: \"RSI 14\"" in js
+    assert "title: \"MACD histogram\"" in js
+    assert "title: \"MACD signal\"" in js
     assert "paper_opened" in js
     assert "paper_closed" in js
     assert "Opened and closed synthetic markers" in html
@@ -473,6 +491,12 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper_observation_public_mainnet_connected" in js
     assert "data-paper-observation-symbol" in js
     assert "paper-observation-watchlist-table" in js
+    assert "paper-observation-lifecycle-panel" in html
+    assert ".paper-observation-lifecycle-panel .data-table-shell" in css
+    assert "height: 360px" in css
+    assert ".paper-observation-connection-panel .market-micro-grid > div" in css
+    assert ".paper-observation-testnet-panel .market-micro-grid > div" in css
+    assert "grid-template-columns: repeat(2, minmax(260px, 1fr))" in css
     assert "<th>Bid</th>" not in js
     assert "<th>Ask</th>" not in js
     assert "<th>Mid price</th>" in js

@@ -1,8 +1,29 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-05-17T12:54:24Z`
+Last reviewed: `2026-05-17T15:17:31Z`
 
-## Open Items
+## Open Issues
+
+- `K-020`: EV-AUDIT1 found no clean strategy candidate. PT-RT1.5.1 enables forward observation and baseline-only testnet plumbing, but strategy profitability is not proven and no production rule change is approved.
+- `K-015`: PT-RT1 forward observation still needs completed fresh PT-RT1.5.1 smoke/Week 1 runtime review. Active timeframes are `1h`, `4h`, and `1d`; `15m` is paused.
+- `K-001`: Execution-quality market data remains incomplete; top-of-book/order-book depth is not wired as a live execution-quality input.
+- `K-002`: Full strategy-attribution engine remains deferred.
+- `K-003`: Hyperliquid builder/HIP-3 classification still depends on venue metadata quality.
+- `K-004`: Operational docs discipline remains an open governance risk if changelog, repo memory, and Obsidian coordination updates are skipped.
+
+## Resolved Issues
+
+- MF-ORIG-EV1 accounting/drawdown issues were resolved by MF-ORIG-EV1.1.
+- SV2 canonical-evidence artifact blocker was resolved by SV2.0.2.
+- SOR-EV3 avoid-sideways/low-volatility evidence completed with no promoted variant.
+- PT-RT1.3 stale/thin `allMids` false positives were resolved by candle-truth data-health semantics.
+- PT-RT1.5.1 resolved the pre-warm-start smoke issue with fresh-signal gating and open-position MTM.
+
+## Archived Historical Issues
+
+Detailed historical issue entries remain below for audit. Do not treat a resolved historical row as current operating truth unless the current phase links to it explicitly.
+
+## Detailed Issue Log
 
 ### K-020
 

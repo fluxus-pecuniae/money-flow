@@ -1,3 +1,8 @@
+> Historical note.
+> This report is retained for audit/history.
+> Current truth lives in [[00_Money_Flow_Command_Center]] and the latest PT-RT / SV / audit docs.
+> Do not use this file as current operating instructions unless a current-phase note links to it explicitly.
+
 # SV1.12.2 Identity And Canonical Candle-File Readiness
 
 SV1.12.2 is a research-only readiness phase. It prepares the next guarded canonical candle import by checking operator-verified market identity and producing the exact canonical candle-file checklist. It does not import candles, generate evidence packs, change Money Flow rules, optimize parameters, recommend a strategy variant, create paper/live artifacts, route, submit, or call exchange adapters.

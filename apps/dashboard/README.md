@@ -2,6 +2,19 @@
 
 Static local dashboard for founder/operator review of Strategy Validation evidence packs.
 
+## Current Operator Summary
+
+- Current operating surface: `Paper Trading` is the default founder tab.
+- Current runtime: `PT-RT1.5.1` smoke/review scope at `reports/paper_runtime/pt_rt1_5_1_smoke/`.
+- Active timeframes: `1h`, `4h`, `1d`.
+- Paused timeframes: `15m` is paused for Week 1 noise reduction and legacy review only.
+- Strategy truth: public Hyperliquid mainnet fully closed candles and derived indicators.
+- Synthetic PnL truth: independent synthetic 10,000 USDC paper ledgers per lane.
+- Testnet plumbing: fresh Money Flow v1.2 baseline opens may trigger fixed 25 USDC Hyperliquid testnet transport only when PT-RT1.5.1 gates and local signing config pass.
+- Production approval: no strategy is production-approved.
+- Live trading: not approved; no real-capital trading is approved.
+- Next recommended action: use Paper Trading for PT-RT1.5.1 smoke review; use Evidence/Historical Replay/The Lab only as historical or research context.
+
 Run it from the repo root so the dashboard can read ignored local evidence-pack JSON files:
 
 ```bash
@@ -55,7 +68,7 @@ For emergency chart debugging, append either query flag:
 
 When live polling is disabled, the cockpit uses committed PT0/UAT4.2 local summary JSON and does not call Hyperliquid public endpoints.
 
-PAPER TRADING IS APPROVED for Hyperliquid testnet/sandbox only. BROADER TOP-20 HYPERLIQUID-SUPPORTED PAPER/SANDBOX TRADING IS APPROVED under PT0 metadata, precision, risk, lease, label, and no-live gates. Live trading, real-capital trading, live exchange API keys, SOR/fanout/CBBO/target reselection, cross-venue routing, production auto-submit, and dashboard order controls remain not approved.
+Historical PT0 sandbox/testnet paper-plumbing scope remains recorded for audit, but it is not production strategy approval. Current PT-RT Paper Trading is synthetic forward observation from public mainnet data, with baseline-only fixed 25 USDC testnet plumbing separated from PnL. Live trading, real-capital trading, live exchange API keys, SOR/fanout/CBBO/target reselection, cross-venue routing, production auto-submit, and dashboard order controls remain not approved.
 
 The canonical dashboard design document is `apps/dashboard/DESIGN.md`. The root `DESIGN.md` is only a pointer.
 

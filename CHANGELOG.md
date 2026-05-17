@@ -13,6 +13,82 @@ Entry schema:
 
 ---
 
+## v2026.05.17.015
+
+- `recorded_at_utc`: `2026-05-17T15:29:10Z`
+- `scope`: `Paper Trading dashboard chart and testnet-widget readability polish`
+- `intent`: `Native entry. Made the Paper Trading Testnet Order Lifecycle widget equal-width and equal-height with Watchlist, added internal scrolling for lifecycle rows, added RSI and MACD panes to the Paper Trading selected-pair TradingView chart using the same pane order as Historical Replay, tightened the Testnet Order Transport and Connection Status widgets with compact outlined grid cells, and removed the Paper Trading Global Filters Start date, End date, and Clear dates controls so active-week scoping is controlled by the review-window selector only. This is UI-only: no strategy rules, runtime signal policy, testnet transport gates, evidence generation, live trading approval, or production approval changed.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `tests/test_dashboard_static_assets.py`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `git diff --check`
+
+## v2026.05.17.014
+
+- `recorded_at_utc`: `2026-05-17T15:17:31Z`
+- `scope`: `DOCS-OB2.1 current-truth Markdown and Obsidian readability refresh`
+- `intent`: `Native entry. Made repo Markdown and Obsidian current-truth surfaces easier for humans and Codex agents to read by adding compact current operator summaries, README human/agent quick starts, dashboard/strategy/evidence/runtime taxonomies, explicit PT-RT1.5.1 active-state wording, active 1h/4h/1d plus paused 15m policy, public-mainnet strategy truth, independent synthetic paper ledgers, baseline-only fixed 25 USDC Hyperliquid testnet plumbing boundaries, and no-production/no-live approval language. Reframed selected historical UAT/PT/SV docs with archival banners instead of rewriting their audit content. No strategy rules, runtime behavior, dashboard JavaScript behavior, evidence packs, exchange endpoints, testnet transport policy, API keys, order behavior, live trading approval, production approval, SOR/fanout/CBBO behavior, or generated artifacts were changed.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `docs/doc_ob2_1_markdown_current_truth_refresh.md`
+  - `docs/doc_ob2_1_markdown_current_truth_refresh_summary.json`
+  - `docs/uat0_safety_security_runtime_hardening.md`
+  - `docs/uat1_public_read_only_connectivity_and_top20_universe.md`
+  - `docs/uat2_shadow_strategy_top20_observation.md`
+  - `docs/uat3_0_sandbox_order_design_and_readiness.md`
+  - `docs/uat4_0_live_uat_dashboard_chart_cockpit.md`
+  - `docs/pt0_tradingview_charts_and_top20_paper_sandbox_runtime.md`
+  - `docs/pt0_0_2_historical_strategy_replay_cockpit.md`
+  - `docs/pt_rt1_1_24h_probes_disabled_dry_run.md`
+  - `docs/pt_rt1_2_runtime_state_and_testnet_probe_transport.md`
+  - `docs/pt_rt1_3_candle_truth_data_health.md`
+  - `docs/strategy_validation_sv1_7_first_evidence_review.md`
+  - `docs/strategy_validation_sv1_12_2_identity_and_file_readiness.md`
+  - `docs/strategy_validation_sv1_18_evidence_closeout_and_uat_candidate_freeze.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Phase Timeline.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `money-flow/00 Maps/Data Source and Market Data Map.md`
+  - `money-flow/00 Maps/Evidence and Backtesting Map.md`
+  - `money-flow/00 Maps/Strategy Family Map.md`
+  - `money-flow/10 Strategy/Strategy Status Register.md`
+  - `money-flow/30 Strategy/Strategy Validation Summary.md`
+  - `money-flow/40 Operations/Phase 7 Focus.md`
+  - `money-flow/40 Operations/Phase 8 Focus.md`
+  - `tests/test_operational_docs.py`
+- `validation_performed`:
+  - `.venv/bin/python -m json.tool docs/doc_ob2_1_markdown_current_truth_refresh_summary.json`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_uat41_exchange_dashboard_redesign.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` (`1060 passed`)
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-docs-ob2.1-review.zip`
+  - `Review bundle scan: 551 entries, 0 excluded path hits, 0 private-key/Bearer-token pattern hits.`
+
 ## v2026.05.17.013
 
 - `recorded_at_utc`: `2026-05-17T14:51:49Z`

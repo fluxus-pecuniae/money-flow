@@ -8,7 +8,7 @@ This timeline is intentionally current-first. Older UAT and platform phases rema
 
 | Track | Current Role | Status |
 | --- | --- | --- |
-| Paper Trading / PT-RT | Forward public-mainnet paper-observation substrate with synthetic 10,000 USDC ledgers, candle-truth data health, compact logging, persisted runtime state, dashboard Start/Stop control, and 20 USDC testnet probe audit/order-shape rows. | Current operational focus; fresh runs still need review before forward-observation evidence claims. |
+| Paper Trading / PT-RT | Forward public-mainnet paper-observation substrate with synthetic 10,000 USDC ledgers, candle-truth data health, compact logging, persisted runtime state, dashboard Start/Stop control, active `1h`/`4h`/`1d`, paused `15m`, and baseline-only fixed 25 USDC Hyperliquid testnet lifecycle gates. | Current operational focus; PT-RT1.5.1 smoke review is next before forward-observation evidence claims. |
 | Strategy Validation SV2.x | Canonical historical evidence baseline plus founder-approved 1D breadth review. | SV2.0.2 is canonical multi-timeframe evidence; SV2.1 is 1D founder-review breadth only. |
 | SOR / Variant Review | Evidence-only stop, exit, entry, and low-volatility/chop diagnostics. | SOR-EV1 through SOR-EV3 complete; no variant promoted. |
 | MF-ORIG | Source-faithful Original Money Flow reconstruction and comparison lanes. | MF-ORIG-EV2 complete; no original hypothesis approved. |
@@ -22,14 +22,14 @@ This timeline is intentionally current-first. Older UAT and platform phases rema
 - `SOR-EV1` through `SOR-EV3`: evidence-only loss anatomy, true-forward variants, overlays, and avoid-sideways/low-volatility drilldown.
 - `MF-ORIG-EV2`: Original Money Flow research lanes and full-equity comparison rows for founder review.
 - `EV-AUDIT1`: audit verdict that no clean strategy candidate is promoted and evidence is for visual review/hypothesis filtering only.
-- `PT-RT1.1A` through `PT-RT1.3`: real-time public-mainnet paper-observation substrate, 10 lanes, persisted state, compact logs, candle-truth data health, and separate testnet probe audit lane.
-- `PT-RT1.2.1`: founder dashboard cleanup for chart-first Paper Trading review, paginated signals/trades, runtime ledger display, and chart markers.
+- `PT-RT1.1A` through `PT-RT1.3`: historical real-time public-mainnet paper-observation substrate, 10 lanes, persisted state, compact logs, candle-truth data health, and separate testnet probe audit lane.
+- `PT-RT1.4` through `PT-RT1.5.1`: current Week 1 Paper Trading command center, active `1h`/`4h`/`1d`, paused `15m`, candle-close scheduler, warm-start fresh-signal gate, open-position MTM, and baseline-only fixed 25 USDC Hyperliquid testnet plumbing.
 
 ## Current State
 
-Current implemented milestone: `PT-RT1.2.1` Paper Trading dashboard polish on top of completed `PT-RT1.3` candle-truth data health.
+Current implemented milestone: `PT-RT1.5.1` signed testnet transport, warm-start signal gate, and open-position MTM hotfix on top of completed `PT-RT1.5`.
 
-Current next step: run and review a fresh PT-RT observation session before treating runtime artifacts as forward-observation evidence. Review candle readiness, mid warnings, duplicate-open blocking, synthetic open/close rows, compact-log stats, and 20 USDC testnet probe audit rows.
+Current next step: run and review the `pt_rt1_5_1_smoke` session before treating runtime artifacts as forward-observation evidence. Review candle-close scheduler timing, warm-start startup-signal blocks, duplicate closed-candle suppression, synthetic open/close rows, open-position MTM, compact-log stats, candidate-lane transport blocks, and fixed 25 USDC baseline-only testnet lifecycle rows.
 
 Live trading is not approved. Live exchange order submission is not approved. Production Money Flow rule changes and variant promotions are not approved.
 
