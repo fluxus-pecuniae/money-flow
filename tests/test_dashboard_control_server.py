@@ -82,28 +82,27 @@ def test_dashboard_control_status_contract_exposes_safety_flags() -> None:
     ]
     assert sorted(control.DURATION_OPTIONS) == ["1h", "24h", "5m", "6h"]
     assert sorted(control.OUTPUT_OPTIONS) == [
-        "pt_rt1_1b_smoke",
-        "pt_rt1_1c_24h_dry_run",
-        "pt_rt1_4_1_active_week",
-        "pt_rt1_5_1_smoke",
-        "pt_rt1_5_2_transport_smoke",
         "pt_rt1_5_2_week1_active",
-        "pt_rt1_5_week1_active",
+        "pt_rt1_5_3_transport_smoke",
     ]
+    assert control.DEFAULT_OUTPUT == "pt_rt1_5_2_week1_active"
 
 
 def test_dashboard_control_transport_smoke_adds_single_smoke_flag() -> None:
     command = control.build_runtime_command(
         duration="5m",
-        output="pt_rt1_5_2_transport_smoke",
+        output="pt_rt1_5_3_transport_smoke",
         python_executable=".venv/bin/python",
         caffeinate_path="/usr/bin/caffeinate",
     )
 
-    assert "reports/paper_runtime/pt_rt1_5_2_transport_smoke" in command
-    assert "--founder-approved-pt-rt1-5-2-testnet-transport-smoke" in command
+    assert "reports/paper_runtime/pt_rt1_5_3_transport_smoke" in command
+    assert "--founder-approved-pt-rt1-5-3-testnet-size-hotfix-smoke" in command
     assert "--max-testnet-orders-this-phase" in command
     assert "1" in command
+    assert "--max-cycles" in command
+    assert "--poll-seconds" in command
+    assert "--max-candle-symbols" in command
 
 
 def test_dashboard_control_runtime_log_announces_money_flow_start(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:

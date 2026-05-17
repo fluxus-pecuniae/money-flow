@@ -9276,11 +9276,15 @@
     }
     if (!elements.paperRuntimeControlStatus) return;
     const statusLabel = control.available ? (control.running ? "running" : control.status || "idle") : "unavailable";
-    const caffeinateLabel = control.running ? "paper_runtime_started_with_caffeinate" : "waiting_for_start";
+    const caffeinateLabel = control.running ? "active" : "waiting_for_start";
+    const serverMessage =
+      control.message === "paper_runtime_started_with_caffeinate"
+        ? "runtime_started_with_mac_caffeinate"
+        : control.message || "local_control_server_ready";
     if (elements.paperRuntimeControlMessage) {
       elements.paperRuntimeControlMessage.innerHTML = `
         <span>Control server message</span>
-        <strong>${escapeHtml(control.message || "local_control_server_ready")}</strong>
+        <strong>${escapeHtml(serverMessage)}</strong>
       `;
     }
     const logStats = paperObservationSummary()?.decision_log_stats || {};

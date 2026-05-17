@@ -13,6 +13,24 @@ Entry schema:
 
 ---
 
+## v2026.05.17.018
+
+- `recorded_at_utc`: `2026-05-17T18:52:00Z`
+- `scope`: `Paper Trading Runtime Control output cleanup`
+- `intent`: `Native entry. Removed stale archive-era output targets from the Paper Trading Runtime Control dropdown so the UI only starts the current Week 1 active scope or the PT-RT1.5.3 size-hotfix smoke. Updated the local control server allowlist to match those current outputs, mapped the PT-RT1.5.3 smoke output to the exact PT-RT1.5.3 hotfix approval flag and one-cycle smoke guards, and cleared stale paper_runtime_started_with_caffeinate control-server messages when no runtime is running. This is dashboard/control ergonomics only: public mainnet remains strategy truth, testnet transport remains baseline-only/fixed-25-USDC under gates, testnet fills do not update synthetic PnL, no production rules changed, and live trading is not approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `scripts/run_dashboard_control_server.py`
+  - `tests/test_dashboard_control_server.py`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_control_server.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+
 ## v2026.05.17.017
 
 - `recorded_at_utc`: `2026-05-17T18:25:00Z`

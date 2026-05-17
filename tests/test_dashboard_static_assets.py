@@ -344,7 +344,15 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "--public-mainnet-only" in html
     assert "candle-close signal evaluation" in html
     assert "Candidate lanes cannot send testnet orders" in html
-    assert "no signed/order endpoint is called by this runtime unless all PT-RT1.5.2 fresh baseline-only testnet gates" in html
+    assert "PT-RT1.5.3 size preflight" in html
+    assert "no signed/order endpoint is called by this runtime unless all fresh baseline-only testnet gates" in html
+    assert "Week 1 active with PT-RT1.5.3 hotfix" in html
+    assert "PT-RT1.5.3 size hotfix smoke" in html
+    assert "PT-RT1.5.1 smoke archive" not in html
+    assert "PT-RT1.5 pre-warm-start archive" not in html
+    assert "PT-RT1.4.1 active week archive" not in html
+    assert "PT-RT1.1C 24h dry run archive" not in html
+    assert "PT-RT1.1B smoke" not in html
     assert "paper-observation-connection-status" in html
     assert "paper-observation-lane-filter" in html
     assert "paper-observation-date-start" not in html
@@ -442,6 +450,8 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "Start/stop requires launching the local control server." in js
     assert "Static dashboard servers can still display data" not in js
     assert "paper_runtime_started_with_caffeinate" in js
+    assert "runtime_started_with_mac_caffeinate" in js
+    assert "const caffeinateLabel = control.running ? \"active\" : \"waiting_for_start\"" in js
     assert "paper-runtime-caffeinate-detail" in js
     assert "control.message || \"local_control_server_ready\"" in js
     assert "paper-runtime-safety-flags" in js

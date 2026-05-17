@@ -3,7 +3,7 @@
 
 The server intentionally exposes only a tiny localhost API. It can start or
 stop the PT-RT1 paper-observation runtime through `caffeinate` so a Mac stays
-awake while synthetic paper observation runs. PT-RT1.5.1 uses candle-close
+awake while synthetic paper observation runs. PT-RT1.5.x uses candle-close
 signal evaluation, warm-start fresh-signal gating, and baseline-only
 Hyperliquid testnet lifecycle transport capped at a fixed 25 USDC; testnet
 fills do not update synthetic paper PnL.
@@ -54,13 +54,9 @@ DURATION_OPTIONS = {
 }
 OUTPUT_OPTIONS = {
     "pt_rt1_5_2_week1_active": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_5_2_week1_active",
-    "pt_rt1_5_2_transport_smoke": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_5_2_transport_smoke",
-    "pt_rt1_5_1_smoke": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_5_1_smoke",
-    "pt_rt1_5_week1_active": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_5_week1_active",
-    "pt_rt1_4_1_active_week": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_4_1_active_week",
-    "pt_rt1_1c_24h_dry_run": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_1c_24h_dry_run",
-    "pt_rt1_1b_smoke": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_1b_smoke",
+    "pt_rt1_5_3_transport_smoke": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_5_3_transport_smoke",
 }
+DEFAULT_OUTPUT = "pt_rt1_5_2_week1_active"
 SUPPRESSED_STATIC_LOG_PREFIXES = (
     "/reports/strategy_validation/money_flow_sv2_1",
     "/reports/strategy_validation/money_flow_sv2_0_2",
@@ -142,12 +138,18 @@ def build_runtime_command(
     caffeinate = caffeinate_path or find_caffeinate()
     python_bin = python_executable or sys.executable
     phase_flags = list(SAFE_FLAGS)
-    if output == "pt_rt1_5_2_transport_smoke":
+    if output == "pt_rt1_5_3_transport_smoke":
         phase_flags.extend(
             [
-                "--founder-approved-pt-rt1-5-2-testnet-transport-smoke",
+                "--founder-approved-pt-rt1-5-3-testnet-size-hotfix-smoke",
                 "--max-testnet-orders-this-phase",
                 "1",
+                "--max-cycles",
+                "1",
+                "--poll-seconds",
+                "1",
+                "--max-candle-symbols",
+                "2",
             ]
         )
     return [
@@ -190,8 +192,15 @@ def current_status() -> dict[str, Any]:
             "running": False,
             "status": "stopped_or_exited",
             "updated_at_utc": utc_now(),
+            "message": "paper_runtime_stopped_or_exited",
         }
         write_state(state)
+    output = state.get("output")
+    if output not in OUTPUT_OPTIONS and not running:
+        output = DEFAULT_OUTPUT if DEFAULT_OUTPUT in OUTPUT_OPTIONS else next(iter(OUTPUT_OPTIONS))
+    message = state.get("message") or "local_control_server_ready"
+    if not running and message == "paper_runtime_started_with_caffeinate":
+        message = "local_control_server_ready"
     return {
         "control_server_available": True,
         "running": running,
@@ -199,13 +208,13 @@ def current_status() -> dict[str, Any]:
         "pid": state.get("pid") if running else None,
         "duration": state.get("duration"),
         "duration_label": state.get("duration_label"),
-        "output": state.get("output"),
-        "output_dir": state.get("output_dir"),
+        "output": output,
+        "output_dir": state.get("output_dir") if state.get("output") == output else str(OUTPUT_OPTIONS[output].relative_to(REPO_ROOT)),
         "started_at_utc": state.get("started_at_utc"),
         "updated_at_utc": state.get("updated_at_utc"),
         "log_path": state.get("log_path"),
         "safe_flags": SAFE_FLAGS,
-        "message": state.get("message") or "local_control_server_ready",
+        "message": message,
     }
 
 
@@ -215,7 +224,7 @@ def start_runtime(payload: dict[str, Any]) -> tuple[int, dict[str, Any]]:
         return HTTPStatus.CONFLICT, {**status, "message": "paper_runtime_already_running"}
 
     duration = str(payload.get("duration") or "24h")
-    output = str(payload.get("output") or "pt_rt1_5_2_week1_active")
+    output = str(payload.get("output") or DEFAULT_OUTPUT)
     _duration_flag, _duration_value, duration_label = validate_duration(duration)
     output_dir = validate_output(output)
     output_dir.mkdir(parents=True, exist_ok=True)
