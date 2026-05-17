@@ -3,15 +3,15 @@
 ## Current Operator Summary
 
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
-- Current runtime: `PT-RT1.5.1` smoke/review scope at `reports/paper_runtime/pt_rt1_5_1_smoke/`.
+- Current runtime: `PT-RT1.5.2` signed-transport smoke verified; clean Week 1 active scope is `reports/paper_runtime/pt_rt1_5_2_week1_active/`.
 - Active timeframes: `1h`, `4h`, `1d`.
 - Paused timeframes: `15m` is paused for Week 1 noise reduction and kept as legacy context only.
 - Strategy truth: public Hyperliquid mainnet fully closed candles and derived indicators.
 - Synthetic PnL truth: independent synthetic 10,000 USDC ledgers per paper lane; not one combined account.
-- Testnet plumbing: only fresh post-start `money_flow_v1_2_baseline` opens can trigger fixed 25 USDC Hyperliquid testnet transport when PT-RT1.5.1 gates and local signing config pass.
+- Testnet plumbing: only fresh post-start `money_flow_v1_2_baseline` opens can trigger fixed 25 USDC Hyperliquid testnet transport when PT-RT1.5.2 gates and local signing config pass; the PT-RT1.5.2 explicit smoke reached testnet and was rejected by venue size validation without touching synthetic PnL.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
-- Next recommended action: start/review the `pt_rt1_5_1_smoke` session, confirm warm-start gating, candle-close scheduling, open-position MTM, and baseline-only testnet lifecycle rows.
+- Next recommended action: start the clean `pt_rt1_5_2_week1_active` runtime, then fix/verify the testnet size formatter before relying on accepted/open lifecycle coverage.
 
 ## Human Quick Start
 
@@ -24,7 +24,7 @@
 ## AI Agent Quick Start
 
 - Read first: `AGENTS.md`, this `README.md`, `CHANGELOG.md`, `REPO_TREE.md`, `KNOWN_ISSUES.md`, `TODO.md`, `docs/architecture.md`, `docs/strategy.md`, `money-flow/00_Money_Flow_Command_Center.md`, `money-flow/01_Current_Phase.md`, `money-flow/05_Agent_Coordination.md`, and `money-flow/Project_Memory/money_flow_project_memory.md`.
-- Current phase truth: `PT-RT1.5.1` is complete; DOCS-OB2.1 is documentation/governance only when active.
+- Current phase truth: `PT-RT1.5.2` verifies signed Hyperliquid testnet transport smoke and prepares the active Week 1 restart; DOCS-OB2.1 is documentation/governance only when active.
 - Do not touch strategy rules, runtime behavior, evidence generation, exchange endpoints, secrets, or generated runtime/evidence artifacts unless the current prompt explicitly scopes that work.
 - Add a row under `Active Work` in `money-flow/05_Agent_Coordination.md` before substantial edits, then move/update it under `Finished Work`.
 - Canonical current truth lives in `money-flow/00_Money_Flow_Command_Center.md`; do not create duplicate command centers or competing current-phase notes.
@@ -78,7 +78,7 @@ Production-minded scaffold for a modular multi-strategy trading platform targeti
 
 For a non-technical explanation of what Money Flow is today and where it is going next, start with [Money Flow For Investors](docs/investors.md).
 
-Current Paper Trading status: PT-RT1.5.1 archives the pre-warm-start PT-RT1.5 smoke rows, defaults the active review surface to `pt_rt1_5_1_smoke`, keeps 15m paused, evaluates strategy signals only after fully closed 1h / 4h / 1d candles, blocks startup-valid confirmations until a fresh false-to-true signal occurs after runtime start, and wires signed Hyperliquid testnet transport only for fresh `money_flow_v1_2_baseline` synthetic opens with a fixed 25 USDC notional. Public mainnet candles remain strategy truth, candidate lanes remain synthetic-only, testnet fills never update synthetic PnL, no strategy is production-approved, and live trading is not approved.
+Current Paper Trading status: PT-RT1.5.2 archives the PT-RT1.5.1 smoke as prior runtime context, verifies the signed Hyperliquid testnet transport path from a bounded smoke, and moves the preferred active review surface to `pt_rt1_5_2_week1_active`. The smoke used one explicit `testnet_transport_smoke_not_strategy_signal` row, reached Hyperliquid testnet, and received a sanitized venue reject `Order has invalid size.` with no open order remaining and no synthetic PnL update. Active timeframes remain 1h / 4h / 1d, 15m is paused, startup-valid confirmations remain blocked until a fresh false-to-true post-start signal, and signed testnet transport remains fixed 25 USDC for fresh `money_flow_v1_2_baseline` opens only. Public mainnet candles remain strategy truth, candidate lanes remain synthetic-only, no strategy is production-approved, and live trading is not approved.
 
 At current head, public execution capability/status surfaces report cancel and amend separately. Native amend is currently code/test-proven only for Hyperliquid perpetual limit orders, current scoped OKX limit-order paths, Coinbase Advanced Trade spot limit orders, and Kraken spot limit orders; Aster and Binance expose truthful cancel support without implying amend support. Persisted fill evidence now updates lifecycle quantities without rewriting canceled, expired, or cancel-pending submitted orders into misleading generic partial-fill state. Private order/account-state truth is now deeper and explicitly polling-first: adapter/runtime session state, private-state summary, venue-private open-order visibility, recent-fill visibility, and open-position inspection are exposed without pretending adapter-level user-stream parity where it has not actually been implemented.
 

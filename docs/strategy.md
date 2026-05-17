@@ -5,15 +5,15 @@ This is the canonical strategy document at head.
 ## Current Operator Summary
 
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
-- Current runtime: `PT-RT1.5.1` smoke/review scope at `reports/paper_runtime/pt_rt1_5_1_smoke/`.
+- Current runtime: `PT-RT1.5.2` signed-transport smoke verified; clean active Week 1 scope is `reports/paper_runtime/pt_rt1_5_2_week1_active/`.
 - Active timeframes: `1h`, `4h`, `1d`.
 - Paused timeframes: `15m` is paused for Week 1 noise reduction and kept as legacy context only.
 - Strategy truth: public Hyperliquid mainnet fully closed candles and derived indicators.
 - Synthetic PnL truth: independent synthetic 10,000 USDC paper ledgers per lane; testnet fills never update synthetic PnL.
-- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when PT-RT1.5.1 gates pass.
+- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when PT-RT1.5.2 gates pass; the PT-RT1.5.2 explicit smoke reached testnet and rejected on venue size validation without synthetic PnL impact.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
-- Next recommended action: review PT-RT1.5.1 smoke behavior before drawing any strategy conclusion from forward observation.
+- Next recommended action: start the clean PT-RT1.5.2 active scope and fix or verify the testnet size formatter before drawing any strategy conclusion from forward observation.
 
 ## Current Money Flow v1.2
 
@@ -29,7 +29,7 @@ The Gerald Peters source PDF is stored at `money-flow/90 Reference/The Money Flo
 - Paused: `15m`, because of Week 1 noise reduction.
 - Each of the 10 paper lanes has its own synthetic 10,000 USDC ledger.
 - Candidate, MF-ORIG, and wildcard lanes are synthetic-only and cannot send testnet orders.
-- Only fresh post-start Money Flow v1.2 baseline opens may trigger fixed 25 USDC Hyperliquid testnet transport under PT-RT1.5.1 gates.
+- Only fresh post-start Money Flow v1.2 baseline opens may trigger fixed 25 USDC Hyperliquid testnet transport under PT-RT1.5.2 gates.
 
 ## What Is Not Approved
 
@@ -44,7 +44,7 @@ The Gerald Peters source PDF is stored at `money-flow/90 Reference/The Money Flo
 
 OB2.0 records the current strategy taxonomy in the Obsidian brain. Money Flow v1.2 is the current derivative implementation and canonical SV2.0.2 baseline. Original Money Flow / MF-ORIG is a separate source-faithful evidence track based on the Gerald Peters PDF now stored in `money-flow/90 Reference/`. SOR repair variants and MF-ORIG hypotheses remain evidence-only; EV-AUDIT1 promotes no clean production strategy candidate.
 
-SV2.0.2 is the canonical historical baseline: DB-imported Hyperliquid public-mainnet candles, BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX, 15m/1h/4h/1d, 36 packs, 72 rows, dynamic equity, 10000 USDC per independent scenario, and next_candle_open / next_candle_close fills. SV2.1 adds a separate founder-approved 1D-only public Hyperliquid period refresh for founder review: BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, AVAX, TRX, ADA, ZEC, LINK, XMR, TON, LTC, UNI, DOT, ASTER, AAVE, POL, FIL, and TRUMP; available 1D candles back to 2024-01-01 where possible; and 90 ignored baseline packs across 2024, 2025, YTD, and ALL. PEPE/kPEPE and OKB are excluded by resolver policy, and ASTER/TRUMP lack 2024 packs because public 1D candles do not cover that period. SV2.1 also adds 1,800 ignored Historical Replay chart/trade JSON files for those 1D period sets and 810 evidence-only candidate/reference/wildcard packs covering all 10 PT-RT1 paper-observation lanes. SV2.1 does not supersede the SV2.0.2 multi-timeframe canonical baseline unless a later phase explicitly adopts it. Dashboard Historical Replay, Evidence Lab overlays, and date filters are display-only and are not canonical evidence-pack regeneration. PT-RT1.5.1 is the current forward-observation runtime layer: active timeframes are `1h`, `4h`, and `1d`; `15m` is paused for Week 1; processed signal keys, open synthetic positions, realized equity by lane, and last processed close state persist locally; repeated same-candle opens become held/blocked decisions; missing/stale public mids are warning-only when clean fully closed candles are available; candle/indicator readiness creates true `data_unavailable`; and fixed 25 USDC Hyperliquid testnet transport is baseline-only, fresh-post-start only, and separate from synthetic PnL.
+SV2.0.2 is the canonical historical baseline: DB-imported Hyperliquid public-mainnet candles, BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX, 15m/1h/4h/1d, 36 packs, 72 rows, dynamic equity, 10000 USDC per independent scenario, and next_candle_open / next_candle_close fills. SV2.1 adds a separate founder-approved 1D-only public Hyperliquid period refresh for founder review: BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, AVAX, TRX, ADA, ZEC, LINK, XMR, TON, LTC, UNI, DOT, ASTER, AAVE, POL, FIL, and TRUMP; available 1D candles back to 2024-01-01 where possible; and 90 ignored baseline packs across 2024, 2025, YTD, and ALL. PEPE/kPEPE and OKB are excluded by resolver policy, and ASTER/TRUMP lack 2024 packs because public 1D candles do not cover that period. SV2.1 also adds 1,800 ignored Historical Replay chart/trade JSON files for those 1D period sets and 810 evidence-only candidate/reference/wildcard packs covering all 10 PT-RT1 paper-observation lanes. SV2.1 does not supersede the SV2.0.2 multi-timeframe canonical baseline unless a later phase explicitly adopts it. Dashboard Historical Replay, Evidence Lab overlays, and date filters are display-only and are not canonical evidence-pack regeneration. PT-RT1.5.2 is the current forward-observation runtime handoff: active timeframes are `1h`, `4h`, and `1d`; `15m` is paused for Week 1; processed signal keys, open synthetic positions, realized equity by lane, and last processed close state persist locally; repeated same-candle opens become held/blocked decisions; missing/stale public mids are warning-only when clean fully closed candles are available; candle/indicator readiness creates true `data_unavailable`; fixed 25 USDC Hyperliquid testnet transport is baseline-only, fresh-post-start only, and separate from synthetic PnL; and the explicit PT-RT1.5.2 transport smoke reached the venue but rejected on order size.
 
 ## Current Boundary
 
@@ -730,11 +730,11 @@ PT-RT1.2 fixes the runtime-state behavior found during local review. Each output
 
 PT-RT1.3 refines that data-health truth: Hyperliquid `allMids` freshness is operator context, not the strategy-readiness gate. Missing, stale, thin, or nonpositive mids are recorded as warning-only labels when clean fully closed public-mainnet `candleSnapshot` rows are available. Candle availability, candle validity, and indicator readiness remain the blocking conditions for paper-decision evaluation.
 
-Historical 20 USDC Hyperliquid testnet transport was explicitly separate from dashboard-started audit/order-shape mode. PT-RT1.5.1 supersedes that current policy with fixed 25 USDC baseline-only testnet plumbing gated by fresh post-start Money Flow v1.2 baseline opens, exact approval, and local signing configuration. Testnet fills/prices never update synthetic paper PnL.
+Historical 20 USDC Hyperliquid testnet transport was explicitly separate from dashboard-started audit/order-shape mode. PT-RT1.5.2 supersedes that current policy with fixed 25 USDC baseline-only testnet plumbing gated by fresh post-start Money Flow v1.2 baseline opens or one explicit transport smoke, exact approval, and local signing configuration. Testnet fills/prices never update synthetic paper PnL.
 
 The Paper Observation dashboard browser also polls Hyperliquid public mainnet `allMids` every 1 second for a compact symbol / mid price / health watchlist; health is `unhealthy` when the latest market-data tick is missing or stale for more than 2 minutes. The selected pair uses public `candleSnapshot` for a live TradingView Lightweight chart, and the Signal Generation panel lists recorded synthetic `paper_opened` intended-entry decisions. This is display/runtime observation only; it does not use testnet prices as strategy truth, private/signed/order/account payloads, API keys, or order controls.
 
-PT-RT1 does not approve production Money Flow rule changes, strategy paper-runtime promotion, live trading, live orders, API-key use from the strategy lane, SOR/fanout/CBBO behavior, or testnet data as strategy truth. The current PT-RT1.5.1 testnet transport policy is fixed 25 USDC, Money Flow v1.2 baseline-only, fresh-post-start only, and separate from synthetic PnL.
+PT-RT1 does not approve production Money Flow rule changes, strategy paper-runtime promotion, live trading, live orders, API-key use from the strategy lane, SOR/fanout/CBBO behavior, or testnet data as strategy truth. The current PT-RT1.5.2 testnet transport policy is fixed 25 USDC, Money Flow v1.2 baseline-only, fresh-post-start only except for one explicit transport smoke, and separate from synthetic PnL.
 
 ## Still Deferred At Head
 

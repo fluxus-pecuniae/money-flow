@@ -8,7 +8,7 @@ from scripts import run_dashboard_control_server as control
 def test_dashboard_control_runtime_command_is_allowlisted() -> None:
     command = control.build_runtime_command(
         duration="5m",
-        output="pt_rt1_5_1_smoke",
+        output="pt_rt1_5_2_week1_active",
         python_executable=".venv/bin/python",
         caffeinate_path="/usr/bin/caffeinate",
     )
@@ -22,13 +22,13 @@ def test_dashboard_control_runtime_command_is_allowlisted() -> None:
     assert "--duration-minutes" in command
     assert "5" in command
     assert "--output-dir" in command
-    assert "reports/paper_runtime/pt_rt1_5_1_smoke" in command
+    assert "reports/paper_runtime/pt_rt1_5_2_week1_active" in command
     assert "--decision-log-mode" in command
     assert "compact" in command
     assert "--pt-rt1-5-week1-active" in command
     assert "--fresh-signal-only-after-runtime-start" in command
     assert "--enable-baseline-testnet-transport" in command
-    assert "--founder-approved-pt-rt1-5-1-baseline-testnet-orders-25usdc" in command
+    assert "--founder-approved-pt-rt1-5-2-baseline-testnet-orders-25usdc" in command
     assert "--pt-rt1-5-testnet-order-notional-usdc" in command
     assert "25" in command
     assert "--signal-evaluation-mode" in command
@@ -68,7 +68,7 @@ def test_dashboard_control_status_contract_exposes_safety_flags() -> None:
         "--pt-rt1-5-week1-active",
         "--fresh-signal-only-after-runtime-start",
         "--enable-baseline-testnet-transport",
-        "--founder-approved-pt-rt1-5-1-baseline-testnet-orders-25usdc",
+        "--founder-approved-pt-rt1-5-2-baseline-testnet-orders-25usdc",
         "--pt-rt1-5-testnet-order-notional-usdc",
         "25",
         "--pt-rt1-5-testnet-daily-order-cap",
@@ -86,8 +86,24 @@ def test_dashboard_control_status_contract_exposes_safety_flags() -> None:
         "pt_rt1_1c_24h_dry_run",
         "pt_rt1_4_1_active_week",
         "pt_rt1_5_1_smoke",
+        "pt_rt1_5_2_transport_smoke",
+        "pt_rt1_5_2_week1_active",
         "pt_rt1_5_week1_active",
     ]
+
+
+def test_dashboard_control_transport_smoke_adds_single_smoke_flag() -> None:
+    command = control.build_runtime_command(
+        duration="5m",
+        output="pt_rt1_5_2_transport_smoke",
+        python_executable=".venv/bin/python",
+        caffeinate_path="/usr/bin/caffeinate",
+    )
+
+    assert "reports/paper_runtime/pt_rt1_5_2_transport_smoke" in command
+    assert "--founder-approved-pt-rt1-5-2-testnet-transport-smoke" in command
+    assert "--max-testnet-orders-this-phase" in command
+    assert "1" in command
 
 
 def test_dashboard_control_runtime_log_announces_money_flow_start(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:

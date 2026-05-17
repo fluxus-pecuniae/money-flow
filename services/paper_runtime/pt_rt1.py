@@ -23,8 +23,10 @@ from typing import Any, Mapping, Sequence
 from services.exchange.hyperliquid.precision import HyperliquidPrecisionFormatter
 
 
-PT_RT1_MAINNET_INFO_URL = "https://api.hyperliquid.xyz/info"
-PT_RT1_TESTNET_INFO_URL = "https://api.hyperliquid-testnet.xyz/info"
+PT_RT1_MAINNET_API_URL = "https://api.hyperliquid.xyz"
+PT_RT1_TESTNET_API_URL = "https://api.hyperliquid-testnet.xyz"
+PT_RT1_MAINNET_INFO_URL = f"{PT_RT1_MAINNET_API_URL}/info"
+PT_RT1_TESTNET_INFO_URL = f"{PT_RT1_TESTNET_API_URL}/info"
 PT_RT1_TESTNET_PROBE_NOTIONAL_USDC = Decimal("20")
 PT_RT1_TESTNET_PROBE_NOTIONAL_CAP_USDC = Decimal("20")
 PT_RT1_EXACT_TESTNET_PROBE_APPROVAL = (
@@ -61,11 +63,18 @@ PT_RT1_5_ACTIVE_REVIEW_START_UTC = "2026-05-17T12:54:24Z"
 PT_RT1_5_1_RUNTIME_SCOPE = "pt_rt1_5_1_smoke"
 PT_RT1_5_1_RUNTIME_OUTPUT_DIR = "reports/paper_runtime/pt_rt1_5_1_smoke"
 PT_RT1_5_1_ACTIVE_REVIEW_START_UTC = "2026-05-17T14:34:44Z"
+PT_RT1_5_2_TRANSPORT_SMOKE_SCOPE = "pt_rt1_5_2_transport_smoke"
+PT_RT1_5_2_TRANSPORT_SMOKE_OUTPUT_DIR = "reports/paper_runtime/pt_rt1_5_2_transport_smoke"
+PT_RT1_5_2_RUNTIME_SCOPE = "pt_rt1_5_2_week1_active"
+PT_RT1_5_2_RUNTIME_OUTPUT_DIR = "reports/paper_runtime/pt_rt1_5_2_week1_active"
+PT_RT1_5_2_ACTIVE_REVIEW_START_UTC = "2026-05-17T16:24:49Z"
 PT_RT1_5_ARCHIVED_RUNTIME_SCOPES = (
     "pre_pt_rt1_4_weekend_burn_in",
     "pt_rt1_1c_24h_dry_run",
     "pt_rt1_4_1_active_week",
     "pt_rt1_5_smoke_pre_warm_start_gate",
+    "pt_rt1_5_1_smoke_archived",
+    "pre_pt_rt1_5_2_runtime",
     "legacy_runtime",
 )
 PT_RT1_5_ACTIVE_TIMEFRAMES = PT_RT1_4_ACTIVE_TIMEFRAMES
@@ -87,6 +96,14 @@ PT_RT1_5_1_EXACT_BASELINE_TESTNET_ORDER_APPROVAL = (
     "TESTNET FILLS MUST NOT UPDATE SYNTHETIC STRATEGY PNL. CANDIDATE LANES MUST "
     "NOT SEND TESTNET ORDERS. LIVE TRADING IS NOT APPROVED."
 )
+PT_RT1_5_2_EXACT_TESTNET_TRANSPORT_SMOKE_APPROVAL = (
+    "I APPROVE PT-RT1.5.2 HYPERLIQUID TESTNET ORDER TRANSPORT SMOKE FOR "
+    "MONEY_FLOW_V1_2_BASELINE ONLY. TESTNET ONLY. FIXED 25 USDC NOTIONAL. "
+    "PUBLIC MAINNET DATA REMAINS STRATEGY TRUTH. TESTNET FILLS MUST NOT UPDATE "
+    "SYNTHETIC STRATEGY PNL. CANDIDATE LANES MUST NOT SEND TESTNET ORDERS. "
+    "LIVE TRADING IS NOT APPROVED."
+)
+PT_RT1_5_2_TESTNET_SMOKE_PHASE_CAP = 1
 PT_RT1_5_CANDLE_CLOSE_GRACE_SECONDS = {
     "1h": 90,
     "4h": 120,
@@ -692,11 +709,13 @@ class PT_RT15BaselineTestnetOrderPolicy:
         if candidate.approval_text not in {
             PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
             PT_RT1_5_1_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
+            PT_RT1_5_2_EXACT_TESTNET_TRANSPORT_SMOKE_APPROVAL,
         }:
             reasons.append("pt_rt1_5_exact_approval_required")
-        if candidate.base_url != PT_RT1_TESTNET_INFO_URL:
+        base_url = candidate.base_url.rstrip("/")
+        if base_url not in {PT_RT1_TESTNET_INFO_URL, PT_RT1_TESTNET_API_URL}:
             reasons.append("testnet_endpoint_required")
-        if candidate.base_url == PT_RT1_MAINNET_INFO_URL:
+        if base_url in {PT_RT1_MAINNET_INFO_URL, PT_RT1_MAINNET_API_URL}:
             reasons.append("live_endpoint_forbidden")
         if candidate.lane_id != "money_flow_v1_2_baseline" or candidate.strategy_id != "money_flow_v1_2_baseline":
             reasons.append("testnet_order_blocked_non_baseline_lane")

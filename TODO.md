@@ -1,23 +1,24 @@
 # TODO
 
-Last reviewed: `2026-05-17T15:17:31Z`
+Last reviewed: `2026-05-17T16:36:34Z`
 
 ## Active
 
-- Review/start `PT-RT1.5.1` smoke scope under `reports/paper_runtime/pt_rt1_5_1_smoke/`.
-- Confirm `1h`/`4h`/`1d` candle-close scheduling, warm-start fresh-signal gating, open-position MTM, and baseline-only fixed 25 USDC Hyperliquid testnet lifecycle separation.
+- Start the clean `PT-RT1.5.2` active Week 1 scope under `reports/paper_runtime/pt_rt1_5_2_week1_active/`.
+- Fix or verify the Hyperliquid testnet size formatter before relying on accepted/open lifecycle coverage; PT-RT1.5.2 smoke reached testnet and was rejected with `Order has invalid size.`.
+- Continue confirming `1h`/`4h`/`1d` candle-close scheduling, warm-start fresh-signal gating, open-position MTM, and baseline-only fixed 25 USDC Hyperliquid testnet lifecycle separation.
 - Keep `15m` paused for Week 1 scoring unless a later founder-approved phase explicitly re-enables it.
 - Keep documentation current-truth cleanup in DOCS-OB2.1 limited to Markdown/Obsidian/test-governance only.
 
 ## Next
 
-- Produce the first PT-RT1.5.1 smoke review once fresh runtime artifacts exist.
-- Continue Week 1 forward observation only after smoke behavior is reviewed.
+- Review the first PT-RT1.5.2 active Week 1 runtime rows after the operator-started run begins.
 - Keep candidate/MF-ORIG/wildcard lanes synthetic-only; do not route them to testnet.
 - Keep SV2.0.2 canonical evidence, SV2.1 1D evidence, Historical Replay display, and PT-RT forward observation separated in future docs.
 
 ## Done Recently
 
+- PT-RT1.5.2 signed testnet transport smoke and active runtime restart handoff.
 - PT-RT1.5.1 signed testnet transport, warm-start signal gate, and open-position MTM hotfix.
 - PT-RT1.5 active Week 1 reset, candle-close scheduler, and baseline-only fixed 25 USDC testnet lifecycle gates.
 - PT-RT1.4.1 active-week runtime cutover verification and daily founder review pack.

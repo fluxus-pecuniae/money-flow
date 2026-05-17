@@ -1,0 +1,74 @@
+{
+  "phase": "PT-RT1.5.2",
+  "status": "verified_with_venue_reject",
+  "signed_transport_status": {
+    "status": "configured",
+    "env_source": "scoped_local_env",
+    "secrets_printed": false,
+    "base_url_is_testnet": true,
+    "live_url_rejected": true
+  },
+  "account_targeting_status": {
+    "main_user_mode_omits_vaultAddress": true,
+    "subaccount_or_vault_requires_explicit_vaultAddress": true,
+    "vault_not_registered_retry_policy": "record_and_stop"
+  },
+  "warm_start_gate_status": {
+    "active": true,
+    "fresh_signal_only_after_runtime_start": true,
+    "startup_valid_signals_create_synthetic_opens": false,
+    "startup_valid_signals_create_testnet_orders": false
+  },
+  "scheduler_status": {
+    "mode": "candle_close_only",
+    "active_timeframes": ["1h", "4h", "1d"],
+    "paused_timeframes": ["15m"],
+    "market_refresh_between_evaluations": true
+  },
+  "testnet_smoke_status": {
+    "trigger_type": "testnet_transport_smoke_not_strategy_signal",
+    "trigger_lane": "none",
+    "fixed_notional_usdc": 25,
+    "order_endpoint_called": true,
+    "signed_order_endpoint_called": true,
+    "status": "rejected",
+    "venue_response_summary": "Order has invalid size.",
+    "cancel_status": "not_required",
+    "reconcile_status": "reconciled",
+    "open_orders_after_reconcile": [],
+    "synthetic_trade_created": false,
+    "strategy_pnl_update_from_testnet": false
+  },
+  "testnet_lifecycle_summary": {
+    "separate_from_synthetic_trades": true,
+    "candidate_lane_transport_blocked": true,
+    "mf_orig_lane_transport_blocked": true,
+    "wildcard_lane_transport_blocked": true,
+    "fifteen_minute_transport_blocked": true,
+    "max_testnet_orders_this_phase": 1
+  },
+  "fixed_notional_usdc": 25,
+  "baseline_only_trigger": "money_flow_v1_2_baseline fresh paper_opened on 1h/4h/1d",
+  "candidate_lane_transport_blocked": true,
+  "mtm_status": {
+    "status": "verified_no_open_positions_in_smoke",
+    "preferred_source": "public_mainnet_allMids",
+    "fallback_source": "latest_closed_public_mainnet_candle_close",
+    "market_refresh_updates_mtm_without_signal_evaluation": true
+  },
+  "active_runtime_restart_status": {
+    "status": "operator_start_required",
+    "output_dir": "reports/paper_runtime/pt_rt1_5_2_week1_active",
+    "command": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_5_2_week1_active --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-2-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --public-mainnet-only"
+  },
+  "boundaries": {
+    "public_mainnet_data_remains_strategy_truth": true,
+    "testnet_prices_are_strategy_truth": false,
+    "testnet_fills_update_synthetic_pnl": false,
+    "live_trading_approved": false,
+    "production_strategy_approved": false,
+    "production_money_flow_rules_changed": false,
+    "runtime_artifacts_committed": false
+  },
+  "next_phase": "Start PT-RT1.5.2 Week 1 active runtime, then fix or verify the testnet size formatter before relying on accepted/open lifecycle coverage."
+}

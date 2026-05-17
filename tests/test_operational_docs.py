@@ -212,7 +212,7 @@ def test_docs_ob21_current_truth_docs_are_current_first() -> None:
     for relative_path in current_truth_files:
         contents = Path(relative_path).read_text()
         assert "Current Operator Summary" in contents, f"{relative_path} lacks a current summary"
-        assert "PT-RT1.5.1" in contents, f"{relative_path} lacks PT-RT current state"
+        assert "PT-RT1.5.2" in contents, f"{relative_path} lacks PT-RT current state"
         assert "1h" in contents and "4h" in contents and "1d" in contents
         assert "15m" in contents and "paused" in contents.lower()
         assert "public Hyperliquid mainnet" in contents or "public mainnet" in contents
@@ -251,7 +251,7 @@ def test_docs_ob21_dashboard_and_strategy_taxonomies_are_explicit() -> None:
         assert lane in strategy_map
         assert lane in strategy_register
 
-    assert "baseline_only_25_usdc_when_pt_rt1_5_1_gates_pass" in strategy_map
+    assert "baseline_only_25_usdc_when_pt_rt1_5_2_gates_pass" in strategy_map
     assert "cannot_send_testnet_orders" in strategy_map
     assert "testnet fills do not update synthetic pnl" in strategy_register.lower()
     assert "Dashboard date filters do not regenerate evidence packs" in Path("money-flow/00 Maps/Evidence and Backtesting Map.md").read_text()
@@ -300,7 +300,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "`OB2.0` Obsidian Strategy Brain + Evidence Architecture Refresh" in current_phase
     assert "EV-AUDIT1" in current_phase
     assert "PT-RT1" in current_phase
-    assert "PT-RT1.1" in current_phase
+    assert "PT-RT1.5.2" in current_phase
     assert "PT-RT1.2" in current_phase
     assert "PT-RT1.3" in current_phase
     assert (
@@ -393,9 +393,9 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert "Current implemented milestone | `PT-RT1.5.1` signed testnet transport + warm-start gate + open MTM hotfix" in command_center
+    assert "Current implemented milestone | `PT-RT1.5.2` signed testnet transport smoke + active Week 1 restart handoff" in command_center
     assert "Canonical command center" in compatibility_command_center
-    assert "PT-RT1.5.1 is the current Paper Trading forward-observation runtime" in current_dashboard
+    assert "PT-RT1.5.2 is the current Paper Trading forward-observation runtime" in current_dashboard
     assert "SV2.0.2 canonical evidence" in current_dashboard
     assert "EV-AUDIT1" in current_dashboard
     assert "PT-RT1" in current_dashboard
@@ -619,8 +619,10 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     pt_rt15_summary = Path("docs/pt_rt1_5_week1_reset_baseline_testnet_orders_and_candle_scheduler_summary.json").read_text()
     pt_rt151_report = Path("docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm.md").read_text()
     pt_rt151_summary = Path("docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm_summary.json").read_text()
+    pt_rt152_report = Path("docs/pt_rt1_5_2_signed_testnet_transport_smoke_and_active_restart.md").read_text()
+    pt_rt152_summary = Path("docs/pt_rt1_5_2_signed_testnet_transport_smoke_and_active_restart_summary.json").read_text()
 
-    for contents in (command_center, current_phase, project_memory, paper_roadmap, report, expanded_report, runtime_report, start_report, pt_rt15_report, pt_rt151_report):
+    for contents in (command_center, current_phase, project_memory, paper_roadmap, report, expanded_report, runtime_report, start_report, pt_rt15_report, pt_rt151_report, pt_rt152_report):
         assert "PT-RT1" in contents
         assert "public mainnet" in contents or "Public mainnet" in contents
         assert "testnet" in contents
@@ -631,7 +633,8 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     assert "PT-RT1.4.1 verifies the active-week runtime cutover" in command_center
     assert "PT-RT1.5 resets the active Week 1 Paper Trading scope" in command_center
     assert "PT-RT1.5.1 enables signed Hyperliquid testnet transport only for fresh Money Flow v1.2 baseline open signals" in command_center
-    assert "pt_rt1_5_1_smoke" in current_phase
+    assert "PT-RT1.5.2 verifies the signed transport path" in command_center
+    assert "pt_rt1_5_2_week1_active" in current_phase
     assert "fixed 25 USDC" in pt_rt15_report
     assert "candle-close only" in pt_rt15_report
     assert "\"fixed_notional_usdc\": \"25\"" in pt_rt15_summary
@@ -639,6 +642,9 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     assert "warm-start signal gate" in pt_rt151_report
     assert "\"fresh_signal_only_after_runtime_start\": true" in pt_rt151_summary
     assert "\"fixed_notional_usdc\": \"25\"" in pt_rt151_summary
+    assert "testnet_transport_smoke_not_strategy_signal" in pt_rt152_report
+    assert "\"venue_response_summary\": \"Order has invalid size.\"" in pt_rt152_summary
+    assert "\"strategy_pnl_update_from_testnet\": false" in pt_rt152_summary
     assert "PT-RT Week 1 Daily Summary" in current_phase
     assert "active_runtime_cutover_verified_after_restart" in current_phase
     assert "state persists processed signal keys" in command_center

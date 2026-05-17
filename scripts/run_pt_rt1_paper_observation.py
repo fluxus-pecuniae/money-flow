@@ -24,7 +24,7 @@ from typing import Any, Iterable, Protocol, Sequence
 import httpx
 
 from core.security import redact_sensitive_structure, redact_sensitive_text
-from services.exchange.hyperliquid.signing import sign_l1_action
+from services.exchange.hyperliquid.signing import sign_l1_action, signer_address
 from services.paper_runtime.hyperliquid_public_market_data import (
     HyperliquidPublicMarketDataConnector,
     candle_request_window,
@@ -43,6 +43,13 @@ from services.paper_runtime.pt_rt1 import (
     PT_RT1_5_1_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
     PT_RT1_5_1_RUNTIME_OUTPUT_DIR,
     PT_RT1_5_1_RUNTIME_SCOPE,
+    PT_RT1_5_2_ACTIVE_REVIEW_START_UTC,
+    PT_RT1_5_2_EXACT_TESTNET_TRANSPORT_SMOKE_APPROVAL,
+    PT_RT1_5_2_RUNTIME_OUTPUT_DIR,
+    PT_RT1_5_2_RUNTIME_SCOPE,
+    PT_RT1_5_2_TESTNET_SMOKE_PHASE_CAP,
+    PT_RT1_5_2_TRANSPORT_SMOKE_OUTPUT_DIR,
+    PT_RT1_5_2_TRANSPORT_SMOKE_SCOPE,
     PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
     PT_RT1_5_RUNTIME_OUTPUT_DIR,
     PT_RT1_5_RUNTIME_SCOPE,
@@ -50,9 +57,11 @@ from services.paper_runtime.pt_rt1 import (
     PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC,
     PT_RT1_5_TESTNET_PER_SYMBOL_DAILY_CAP_DEFAULT,
     PT_RT1_EXACT_TESTNET_PROBE_APPROVAL,
+    PT_RT1_MAINNET_API_URL,
     PT_RT1_MAINNET_INFO_URL,
     PT_RT1_REQUESTED_SCANNER_SYMBOLS,
     PT_RT1_STRATEGY_LANES,
+    PT_RT1_TESTNET_API_URL,
     PT_RT1_TESTNET_INFO_URL,
     PT_RT1_TESTNET_PROBE_NOTIONAL_CAP_USDC,
     PT_RT1_TESTNET_PROBE_NOTIONAL_USDC,
@@ -92,6 +101,17 @@ PT_RT1_2_EXACT_TRANSPORT_APPROVAL = (
     "TESTNET FILLS MUST NOT UPDATE STRATEGY PAPER PNL. LIVE TRADING IS NOT APPROVED."
 )
 PT_RT1_5_TESTNET_ORDER_TRANSPORT_KILL_SWITCH_ENV = "PT_RT_TESTNET_ORDER_TRANSPORT_KILL_SWITCH"
+PT_RT1_5_2_DOTENV_KEYS = {
+    HYPERLIQUID_UAT_SANDBOX_PRIVATE_KEY_ENV,
+    HYPERLIQUID_UAT_SANDBOX_ACCOUNT_ENV,
+    HYPERLIQUID_UAT_SANDBOX_TARGET_ACCOUNT_ENV,
+    HYPERLIQUID_UAT_SANDBOX_MASTER_ACCOUNT_ENV,
+    HYPERLIQUID_UAT_SANDBOX_BASE_URL_ENV,
+    HYPERLIQUID_UAT_SANDBOX_ACCOUNT_ROLE_ENV,
+    HYPERLIQUID_UAT_SANDBOX_ACCOUNT_IS_VAULT_ENV,
+    HYPERLIQUID_UAT_SANDBOX_VAULT_ADDRESS_ENV,
+    PT_RT1_5_TESTNET_ORDER_TRANSPORT_KILL_SWITCH_ENV,
+}
 
 
 class TestnetProbeTransport(Protocol):
@@ -111,6 +131,95 @@ class BaselineTestnetOrderTransport(Protocol):
 
 def _env_truthy(value: str | None) -> bool:
     return (value or "").strip().lower() in {"1", "true", "yes", "on", "enabled", "active"}
+
+
+def _abbrev_secretless(value: str | None) -> str | None:
+    text = (value or "").strip()
+    if not text:
+        return None
+    if len(text) <= 12:
+        return "***"
+    return f"{text[:6]}...{text[-4:]}"
+
+
+def _load_scoped_dotenv(path: Path) -> dict[str, str]:
+    values: dict[str, str] = {}
+    if not path.exists():
+        return values
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        if key not in PT_RT1_5_2_DOTENV_KEYS:
+            continue
+        values[key] = value.strip().strip('"').strip("'")
+    return values
+
+
+def _load_pt_rt1_5_2_env_file(path: Path) -> dict[str, Any]:
+    values = _load_scoped_dotenv(path)
+    loaded_keys: list[str] = []
+    for key, value in values.items():
+        if key not in os.environ and value:
+            os.environ[key] = value
+            loaded_keys.append(key)
+    return {
+        "env_file": str(path),
+        "env_file_present": path.exists(),
+        "loaded_key_names": sorted(loaded_keys),
+        "loaded_secret_values_printed": False,
+    }
+
+
+def pt_rt1_5_2_signed_transport_env_status() -> dict[str, Any]:
+    private_key = os.environ.get(HYPERLIQUID_UAT_SANDBOX_PRIVATE_KEY_ENV, "").strip()
+    target_account = (
+        os.environ.get(HYPERLIQUID_UAT_SANDBOX_TARGET_ACCOUNT_ENV, "").strip()
+        or os.environ.get(HYPERLIQUID_UAT_SANDBOX_ACCOUNT_ENV, "").strip()
+        or os.environ.get(HYPERLIQUID_UAT_SANDBOX_MASTER_ACCOUNT_ENV, "").strip()
+    )
+    base_url = os.environ.get(HYPERLIQUID_UAT_SANDBOX_BASE_URL_ENV, PT_RT1_TESTNET_INFO_URL).strip()
+    role = os.environ.get(HYPERLIQUID_UAT_SANDBOX_ACCOUNT_ROLE_ENV, "user").strip().lower() or "user"
+    is_vault = _env_truthy(os.environ.get(HYPERLIQUID_UAT_SANDBOX_ACCOUNT_IS_VAULT_ENV))
+    vault_address = os.environ.get(HYPERLIQUID_UAT_SANDBOX_VAULT_ADDRESS_ENV, "").strip()
+    reasons: list[str] = []
+    signer_abbrev = None
+    if not private_key:
+        reasons.append("signed_testnet_private_key_missing")
+    else:
+        try:
+            signer_abbrev = _abbrev_secretless(signer_address(private_key))
+        except Exception:  # noqa: BLE001
+            reasons.append("signed_testnet_private_key_invalid")
+    if not target_account:
+        reasons.append("signed_testnet_target_account_missing")
+    normalized_base_url = base_url.rstrip("/")
+    if normalized_base_url not in {PT_RT1_TESTNET_INFO_URL, PT_RT1_TESTNET_API_URL}:
+        reasons.append("testnet_endpoint_required")
+    if normalized_base_url in {PT_RT1_MAINNET_INFO_URL, PT_RT1_MAINNET_API_URL}:
+        reasons.append("live_endpoint_forbidden")
+    if role in {"subaccount", "vault"} or is_vault:
+        if not vault_address:
+            reasons.append("vault_address_required_for_subaccount_or_vault")
+    elif vault_address:
+        reasons.append("vault_address_forbidden_for_main_user")
+    configured = not reasons and bool(private_key and target_account)
+    return {
+        "base_url_is_testnet": normalized_base_url in {PT_RT1_TESTNET_INFO_URL, PT_RT1_TESTNET_API_URL},
+        "live_url_rejected": normalized_base_url not in {PT_RT1_MAINNET_INFO_URL, PT_RT1_MAINNET_API_URL},
+        "private_key_present": bool(private_key),
+        "private_key_printed": False,
+        "target_account_abbrev": _abbrev_secretless(target_account),
+        "signer_abbrev": signer_abbrev,
+        "account_role": role,
+        "signer_role": "local_env_signer" if private_key else "missing",
+        "vaultAddress_present": bool(vault_address),
+        "transport_client_configured": configured,
+        "signed_testnet_transport_client_configured": configured,
+        "reason_codes": reasons or ["signed_testnet_transport_client_configured"],
+    }
 
 
 class HyperliquidPT_RT15TestnetOrderTransport:
@@ -307,7 +416,14 @@ class HyperliquidPT_RT15TestnetOrderTransport:
         statuses = (((response.get("response") or {}).get("data") or {}).get("statuses") or [])
         first = statuses[0] if statuses else {}
         if isinstance(first, dict) and first.get("error") is not None:
-            return "rejected", None, ["testnet_order_rejected", str(first.get("error"))]
+            error_text = str(first.get("error"))
+            mapped_reasons = ["testnet_order_rejected", error_text]
+            lowered = error_text.lower()
+            if "tick" in lowered or "price" in lowered:
+                mapped_reasons.append("testnet_order_rejected_tick_size")
+            if "size" in lowered or "lot" in lowered:
+                mapped_reasons.append("testnet_order_rejected_lot_size")
+            return "rejected", None, list(dict.fromkeys(mapped_reasons))
         if isinstance(first, dict) and isinstance(first.get("resting"), dict):
             return "open", str(first["resting"].get("oid")), ["testnet_order_accepted_open"]
         if isinstance(first, dict) and isinstance(first.get("filled"), dict):
@@ -1361,7 +1477,11 @@ def _build_pt_rt1_5_testnet_order_lifecycle_rows(
         "signed_testnet_transport_client_configured": transport is not None,
         "kill_switch_active": kill_switch,
         "approval_captured": approval_text
-        in {PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL, PT_RT1_5_1_EXACT_BASELINE_TESTNET_ORDER_APPROVAL},
+        in {
+            PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
+            PT_RT1_5_1_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
+            PT_RT1_5_2_EXACT_TESTNET_TRANSPORT_SMOKE_APPROVAL,
+        },
         "fixed_notional_usdc": str(notional_usdc),
         "baseline_open_signals_this_cycle": len(baseline_open_rows),
         "fresh_baseline_open_signals_this_cycle": sum(
@@ -1386,6 +1506,224 @@ def _build_pt_rt1_5_testnet_order_lifecycle_rows(
         ],
     }
     return lifecycle_rows, stats, submitted_keys
+
+
+def _build_pt_rt1_5_2_transport_smoke_lifecycle_row(
+    *,
+    scanner_rows: Sequence[Any],
+    latest_closed_by_key: dict[tuple[str, str], Any],
+    enabled: bool,
+    approval_text: str,
+    notional_usdc: Decimal,
+    existing_order_keys: set[str],
+    base_url: str,
+    kill_switch: bool,
+    transport: BaselineTestnetOrderTransport | None,
+    max_testnet_orders_this_phase: int,
+) -> tuple[list[dict[str, Any]], dict[str, Any], set[str]]:
+    smoke_key = "pt_rt1_5_2|transport_smoke_not_strategy_signal|25usdc|buy"
+    if not enabled:
+        return [], {
+            "transport_smoke_enabled": False,
+            "transport_smoke_used_this_cycle": False,
+            "reason_codes": ["testnet_transport_smoke_not_requested"],
+        }, existing_order_keys
+    if max_testnet_orders_this_phase <= 0 or smoke_key in existing_order_keys:
+        return [
+            {
+                "lane": "testnet_order_transport",
+                "environment": "hyperliquid_testnet_only",
+                "trigger_type": "transport_smoke_not_strategy_signal",
+                "trigger_lane": "none",
+                "status": "blocked",
+                "notional": str(notional_usdc),
+                "synthetic_trade_created": False,
+                "strategy_pnl_update_from_testnet": False,
+                "testnet_fills_update_strategy_pnl": False,
+                "order_endpoint_called": False,
+                "signed_order_endpoint_called": False,
+                "reason_codes": ["pt_rt1_5_2_testnet_smoke_cap_reached"],
+            }
+        ], {
+            "transport_smoke_enabled": True,
+            "transport_smoke_used_this_cycle": False,
+            "transport_smoke_blocked": True,
+            "reason_codes": ["pt_rt1_5_2_testnet_smoke_cap_reached"],
+        }, existing_order_keys
+
+    selected: tuple[Any, Any, str] | None = None
+    for row in scanner_rows:
+        if not row.scanner_eligible or row.blocked or not row.precision_ready:
+            continue
+        symbol = str(row.canonical_symbol or row.requested_symbol).upper()
+        for timeframe in PT_RT1_5_ACTIVE_TIMEFRAMES:
+            candle = latest_closed_by_key.get((symbol, timeframe))
+            if candle is not None:
+                selected = (row, candle, timeframe)
+                break
+        if selected is not None:
+            break
+    if selected is None:
+        return [
+            {
+                "lane": "testnet_order_transport",
+                "environment": "hyperliquid_testnet_only",
+                "trigger_type": "transport_smoke_not_strategy_signal",
+                "trigger_lane": "none",
+                "status": "blocked",
+                "notional": str(notional_usdc),
+                "synthetic_trade_created": False,
+                "strategy_pnl_update_from_testnet": False,
+                "testnet_fills_update_strategy_pnl": False,
+                "order_endpoint_called": False,
+                "signed_order_endpoint_called": False,
+                "reason_codes": ["testnet_transport_smoke_market_context_unavailable"],
+            }
+        ], {
+            "transport_smoke_enabled": True,
+            "transport_smoke_used_this_cycle": False,
+            "transport_smoke_blocked": True,
+            "reason_codes": ["testnet_transport_smoke_market_context_unavailable"],
+        }, existing_order_keys
+
+    scanner_row, candle, timeframe = selected
+    symbol = str(scanner_row.canonical_symbol or scanner_row.requested_symbol).upper()
+    price = _testnet_probe_price(candle)
+    policy = PT_RT15BaselineTestnetOrderPolicy()
+    result = policy.evaluate(
+        PT_RT15TestnetOrderCandidate(
+            lane_id="money_flow_v1_2_baseline",
+            strategy_id="money_flow_v1_2_baseline",
+            action="paper_opened",
+            symbol=symbol,
+            timeframe=timeframe,
+            signal_candle_close_time=_iso(canonical_candle_close(candle)),
+            scheduled_closed_candle_evaluation=True,
+            fresh_signal_after_runtime_start=True,
+            warm_start_signal_blocked=False,
+            duplicate_order_key_seen=False,
+            scanner_signal_eligible=True,
+            scanner_symbol_blocked=False,
+            unit_semantics_deferred=False,
+            precision_ready=bool(scanner_row.precision_ready),
+            order_transport_enabled=True,
+            kill_switch=kill_switch,
+            approval_text=approval_text,
+            base_url=base_url,
+            asset_id=scanner_row.asset_id,
+            sz_decimals=scanner_row.szDecimals,
+            price=price,
+            synthetic_signal_notional=Decimal("0"),
+            fixed_notional=notional_usdc,
+            daily_order_count=0,
+            daily_cap=max_testnet_orders_this_phase,
+            per_symbol_daily_count=0,
+            per_symbol_daily_cap=max_testnet_orders_this_phase,
+        )
+    )
+    lifecycle_row = {
+        **result.lifecycle_row,
+        "testnet_order_key": smoke_key,
+        "created_at_utc": _iso(_utc_now()),
+        "trigger_type": "transport_smoke_not_strategy_signal",
+        "trigger_lane": "none",
+        "trigger_reason": "testnet_transport_smoke_not_strategy_signal",
+        "strategy_id": "none",
+        "lane_id": "none",
+        "synthetic_trade_created": False,
+        "strategy_pnl_update_from_testnet": False,
+        "strategy_pnl_updated_from_testnet": False,
+        "transport_submit_configured": transport is not None,
+        "signed_testnet_transport_client_configured": transport is not None,
+        "reason_codes": list(
+            dict.fromkeys(
+                [
+                    "testnet_transport_smoke_not_strategy_signal",
+                    "fixed_testnet_plumbing_notional",
+                    *list(result.reason_codes),
+                ]
+            )
+        ),
+    }
+    submitted_keys = set(existing_order_keys)
+    if result.eligible:
+        submitted_keys.add(smoke_key)
+        if transport is None:
+            lifecycle_row = {
+                **lifecycle_row,
+                "status": "preflight_passed",
+                "next_status": "submit_when_signed_transport_client_configured",
+                "reason_codes": [
+                    "testnet_transport_smoke_not_strategy_signal",
+                    "testnet_order_shape_ready",
+                    "fixed_testnet_plumbing_notional",
+                    "signed_testnet_transport_client_not_configured",
+                ],
+            }
+        else:
+            transport_result = transport(result.order_shape or {}, lifecycle_row)
+            lifecycle_row = {
+                **lifecycle_row,
+                **transport_result,
+                "reason_codes": list(
+                    dict.fromkeys(
+                        [
+                            "testnet_transport_smoke_not_strategy_signal",
+                            "testnet_order_shape_ready",
+                            "fixed_testnet_plumbing_notional",
+                            "signed_testnet_transport_client_configured",
+                            *list(transport_result.get("reason_codes") or []),
+                        ]
+                    )
+                ),
+            }
+    return [lifecycle_row], {
+        "transport_smoke_enabled": True,
+        "transport_smoke_used_this_cycle": result.eligible,
+        "transport_smoke_blocked": not result.eligible,
+        "order_endpoint_called": bool(lifecycle_row.get("order_endpoint_called")),
+        "signed_order_endpoint_called": bool(lifecycle_row.get("signed_order_endpoint_called")),
+        "status": lifecycle_row.get("status"),
+        "reason_codes": list(lifecycle_row.get("reason_codes") or []),
+    }, submitted_keys
+
+
+def _ensure_pt_rt1_5_2_transport_smoke_context(
+    *,
+    connector: HyperliquidPublicMarketDataConnector,
+    scanner_rows: Sequence[Any],
+    latest_closed_by_key: dict[tuple[str, str], Any],
+    now: datetime,
+) -> tuple[dict[tuple[str, str], Any], list[str]]:
+    """Load one public-mainnet closed candle for explicit testnet smoke shaping.
+
+    This does not evaluate strategy signals. It only supplies a recent closed
+    public-mainnet price context so a separately approved testnet transport
+    smoke can format a fixed-notional post-only order.
+    """
+
+    if latest_closed_by_key:
+        return latest_closed_by_key, ["transport_smoke_context_already_available"]
+    reasons: list[str] = []
+    for row in scanner_rows:
+        if not row.scanner_eligible or row.blocked or not row.precision_ready:
+            continue
+        symbol = str(row.canonical_symbol or row.requested_symbol).upper()
+        venue_symbol = str(row.resolved_venue_symbol or row.requested_symbol)
+        for timeframe in PT_RT1_5_ACTIVE_TIMEFRAMES:
+            start_time, end_time = candle_request_window(timeframe=timeframe, now=now, bars=20)
+            candle_result = connector.fetch_candle_snapshot(
+                symbol=venue_symbol,
+                timeframe=timeframe,
+                start_time=start_time,
+                end_time=end_time,
+            )
+            closed_candles = _closed_prefix(candle_result.candles, now)
+            if closed_candles:
+                latest_closed_by_key[(symbol, timeframe)] = closed_candles[-1]
+                return latest_closed_by_key, ["transport_smoke_public_mainnet_context_loaded"]
+            reasons.extend(candle_result.reason_codes)
+    return latest_closed_by_key, list(dict.fromkeys(reasons or ["testnet_transport_smoke_market_context_unavailable"]))
 
 
 def run_cycle(
@@ -1414,6 +1752,9 @@ def run_cycle(
     baseline_testnet_order_kill_switch: bool = False,
     baseline_testnet_order_transport: BaselineTestnetOrderTransport | None = None,
     fresh_signal_only_after_runtime_start: bool = False,
+    pt_rt1_5_2_transport_smoke_enabled: bool = False,
+    max_testnet_orders_this_phase: int = PT_RT1_5_2_TESTNET_SMOKE_PHASE_CAP,
+    signed_transport_env_status: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     now = _utc_now()
     meta_result = connector.fetch_meta()
@@ -1781,9 +2122,58 @@ def run_cycle(
             kill_switch=baseline_testnet_order_kill_switch,
             transport=baseline_testnet_order_transport,
         )
-        if run_label in {"PT-RT1.5", "PT-RT1.5.1"}
+        if run_label in {"PT-RT1.5", "PT-RT1.5.1", "PT-RT1.5.2"}
         else ([], {}, testnet_order_keys)
     )
+    transport_smoke_stats: dict[str, Any] = {"transport_smoke_enabled": False, "transport_smoke_used_this_cycle": False}
+    if (
+        run_label == "PT-RT1.5.2"
+        and pt_rt1_5_2_transport_smoke_enabled
+        and testnet_order_lifecycle_stats.get("fresh_baseline_open_signals_this_cycle", 0) == 0
+    ):
+        latest_closed_by_key, smoke_context_reasons = _ensure_pt_rt1_5_2_transport_smoke_context(
+            connector=connector,
+            scanner_rows=selected_rows,
+            latest_closed_by_key=latest_closed_by_key,
+            now=now,
+        )
+        transport_smoke_rows, transport_smoke_stats, testnet_order_keys = _build_pt_rt1_5_2_transport_smoke_lifecycle_row(
+            scanner_rows=selected_rows,
+            latest_closed_by_key=latest_closed_by_key,
+            enabled=pt_rt1_5_2_transport_smoke_enabled,
+            approval_text=baseline_testnet_order_approval_text,
+            notional_usdc=baseline_testnet_order_notional_usdc,
+            existing_order_keys=testnet_order_keys,
+            base_url=baseline_testnet_order_base_url,
+            kill_switch=baseline_testnet_order_kill_switch,
+            transport=baseline_testnet_order_transport,
+            max_testnet_orders_this_phase=max_testnet_orders_this_phase,
+        )
+        testnet_order_lifecycle_rows.extend(transport_smoke_rows)
+        testnet_order_lifecycle_stats = {
+            **testnet_order_lifecycle_stats,
+            "lifecycle_rows_this_cycle": len(testnet_order_lifecycle_rows),
+            "transport_smoke_enabled": transport_smoke_stats.get("transport_smoke_enabled", False),
+            "transport_smoke_used_this_cycle": transport_smoke_stats.get("transport_smoke_used_this_cycle", False),
+            "transport_smoke_status": transport_smoke_stats.get("status"),
+            "order_endpoint_called": bool(
+                testnet_order_lifecycle_stats.get("order_endpoint_called")
+                or transport_smoke_stats.get("order_endpoint_called")
+            ),
+            "signed_order_endpoint_called": bool(
+                testnet_order_lifecycle_stats.get("signed_order_endpoint_called")
+                or transport_smoke_stats.get("signed_order_endpoint_called")
+            ),
+            "reason_codes": list(
+                dict.fromkeys(
+                    [
+                        *list(testnet_order_lifecycle_stats.get("reason_codes") or []),
+                        *smoke_context_reasons,
+                        *list(transport_smoke_stats.get("reason_codes") or []),
+                    ]
+                )
+            ),
+        }
     data_unavailable_summary = _summarize_data_unavailable(
         market_health=market_health,
         decision_rows=decision_rows,
@@ -1797,15 +2187,32 @@ def run_cycle(
     is_pt_rt1_3 = run_label == "PT-RT1.3"
     is_pt_rt1_5 = run_label == "PT-RT1.5"
     is_pt_rt1_5_1 = run_label == "PT-RT1.5.1"
-    active_scope = PT_RT1_5_1_RUNTIME_SCOPE if is_pt_rt1_5_1 else PT_RT1_5_RUNTIME_SCOPE if is_pt_rt1_5 else "pt_rt1_4_1_active_week"
+    is_pt_rt1_5_2 = run_label == "PT-RT1.5.2"
+    active_scope = (
+        PT_RT1_5_2_RUNTIME_SCOPE
+        if is_pt_rt1_5_2
+        else PT_RT1_5_1_RUNTIME_SCOPE
+        if is_pt_rt1_5_1
+        else PT_RT1_5_RUNTIME_SCOPE
+        if is_pt_rt1_5
+        else "pt_rt1_4_1_active_week"
+    )
     active_start = (
-        PT_RT1_5_1_ACTIVE_REVIEW_START_UTC
+        PT_RT1_5_2_ACTIVE_REVIEW_START_UTC
+        if is_pt_rt1_5_2
+        else PT_RT1_5_1_ACTIVE_REVIEW_START_UTC
         if is_pt_rt1_5_1
         else PT_RT1_5_ACTIVE_REVIEW_START_UTC
         if is_pt_rt1_5
         else base_summary["active_review_start_utc"]
     )
-    active_output_dir = PT_RT1_5_1_RUNTIME_OUTPUT_DIR if is_pt_rt1_5_1 else PT_RT1_5_RUNTIME_OUTPUT_DIR
+    active_output_dir = (
+        PT_RT1_5_2_RUNTIME_OUTPUT_DIR
+        if is_pt_rt1_5_2
+        else PT_RT1_5_1_RUNTIME_OUTPUT_DIR
+        if is_pt_rt1_5_1
+        else PT_RT1_5_RUNTIME_OUTPUT_DIR
+    )
     summary = {
         **base_summary,
         "phase": run_label,
@@ -1823,6 +2230,10 @@ def run_cycle(
             if is_pt_rt1_5_1 and runtime_status == "verified"
             else "signed_testnet_transport_warm_start_mtm_cycle_blocked"
             if is_pt_rt1_5_1
+            else "signed_testnet_transport_smoke_cycle_verified"
+            if is_pt_rt1_5_2 and runtime_status == "verified"
+            else "signed_testnet_transport_smoke_cycle_blocked"
+            if is_pt_rt1_5_2
             else "runtime_correctness_cycle_verified"
             if is_pt_rt1_2 and runtime_status == "verified"
             else "runtime_correctness_cycle_blocked"
@@ -1873,6 +2284,13 @@ def run_cycle(
             "default_show_archived_rows": False,
             "reason_codes": [
                 *(
+                    [
+                        "pt_rt1_5_1_smoke_archived",
+                        "pre_pt_rt1_5_2_runtime",
+                        "active_week_reset_after_signed_transport_smoke",
+                    ]
+                    if is_pt_rt1_5_2
+                    else
                     [
                         "pre_warm_start_gate_runtime_archived",
                         "archived_smoke_rows_hidden_by_default",
@@ -1968,7 +2386,9 @@ def run_cycle(
             ],
         },
         "testnet_order_policy": {
-            "policy": "pt_rt1_5_1_baseline_only_fixed_25usdc_fresh_signal_only"
+            "policy": "pt_rt1_5_2_baseline_only_fixed_25usdc_fresh_signal_or_one_smoke"
+            if is_pt_rt1_5_2
+            else "pt_rt1_5_1_baseline_only_fixed_25usdc_fresh_signal_only"
             if is_pt_rt1_5_1
             else "pt_rt1_5_baseline_only_fixed_25usdc",
             "order_transport_enabled": baseline_testnet_order_transport_enabled,
@@ -1979,7 +2399,11 @@ def run_cycle(
             ),
             "kill_switch_active": testnet_order_lifecycle_stats.get("kill_switch_active", baseline_testnet_order_kill_switch),
             "approval_captured": baseline_testnet_order_approval_text
-            in {PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL, PT_RT1_5_1_EXACT_BASELINE_TESTNET_ORDER_APPROVAL},
+            in {
+                PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
+                PT_RT1_5_1_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
+                PT_RT1_5_2_EXACT_TESTNET_TRANSPORT_SMOKE_APPROVAL,
+            },
             "eligible_trigger": "money_flow_v1_2_baseline paper_opened only",
             "active_timeframes": list(PT_RT1_5_ACTIVE_TIMEFRAMES),
             "fixed_notional_usdc": str(baseline_testnet_order_notional_usdc),
@@ -1995,10 +2419,35 @@ def run_cycle(
             "eligible_order_shapes_this_cycle": testnet_order_lifecycle_stats.get("eligible_order_shapes_this_cycle", 0),
             "signed_order_endpoint_called": testnet_order_lifecycle_stats.get("signed_order_endpoint_called", False),
             "order_endpoint_called": testnet_order_lifecycle_stats.get("order_endpoint_called", False),
+            "transport_smoke_allowed_once": is_pt_rt1_5_2,
+            "transport_smoke_used_this_cycle": testnet_order_lifecycle_stats.get("transport_smoke_used_this_cycle", False),
+            "max_testnet_orders_this_phase": max_testnet_orders_this_phase if is_pt_rt1_5_2 else None,
             "reason_codes": testnet_order_lifecycle_stats.get(
                 "reason_codes",
                 ["baseline_only_trigger", "fixed_testnet_plumbing_notional"],
             ),
+        },
+        "signed_transport_env_status": signed_transport_env_status
+        or {"transport_client_configured": testnet_order_lifecycle_stats.get("transport_submit_configured", False)},
+        "testnet_smoke_status": {
+            "allowed_once": is_pt_rt1_5_2,
+            "trigger_type": (
+                "transport_smoke_not_strategy_signal"
+                if testnet_order_lifecycle_stats.get("transport_smoke_used_this_cycle")
+                else "baseline_fresh_signal"
+                if testnet_order_lifecycle_stats.get("fresh_baseline_open_signals_this_cycle", 0)
+                else "none"
+            ),
+            "transport_smoke_used_this_cycle": testnet_order_lifecycle_stats.get("transport_smoke_used_this_cycle", False),
+            "fresh_baseline_open_signals_this_cycle": testnet_order_lifecycle_stats.get(
+                "fresh_baseline_open_signals_this_cycle",
+                0,
+            ),
+            "max_testnet_orders_this_phase": max_testnet_orders_this_phase if is_pt_rt1_5_2 else None,
+            "order_endpoint_called": testnet_order_lifecycle_stats.get("order_endpoint_called", False),
+            "signed_order_endpoint_called": testnet_order_lifecycle_stats.get("signed_order_endpoint_called", False),
+            "strategy_pnl_update_from_testnet": False,
+            "reason_codes": testnet_order_lifecycle_stats.get("reason_codes", []),
         },
         "testnet_order_lifecycle": {
             "rows_this_cycle": len(testnet_order_lifecycle_rows),
@@ -2012,6 +2461,8 @@ def run_cycle(
         "runtime_command": {
             "duration_hours_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1c_24h_dry_run --enable-testnet-probes --founder-approved-testnet-probes-20usdc --testnet-probe-notional-usdc 20 --public-mainnet-only",
             "pt_rt1_5_week1_active_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_5_week1_active --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --enable-pt-rt1-5-baseline-testnet-orders --founder-approved-pt-rt1-5-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --disable-testnet-probes --public-mainnet-only",
+            "pt_rt1_5_2_transport_smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 15 --output-dir reports/paper_runtime/pt_rt1_5_2_transport_smoke --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-2-testnet-transport-smoke --pt-rt1-5-testnet-order-notional-usdc 25 --max-testnet-orders-this-phase 1 --public-mainnet-only",
+            "pt_rt1_5_2_week1_active_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_5_2_week1_active --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-2-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --public-mainnet-only",
             "smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 1 --output-dir reports/paper_runtime/pt_rt1_1b_smoke --disable-testnet-probes --public-mainnet-only",
             "output_dir": str(output_dir),
         },
@@ -2026,6 +2477,7 @@ def run_cycle(
             "baseline_testnet_order_endpoint_called": testnet_order_lifecycle_stats.get("order_endpoint_called", False),
             "live_orders_submitted": False,
             "baseline_testnet_order_lifecycle_rows": len(testnet_order_lifecycle_rows),
+            "pt_rt1_5_2_transport_smoke_used": testnet_order_lifecycle_stats.get("transport_smoke_used_this_cycle", False),
             "fresh_signal_gate_prevents_startup_mass_opens": fresh_signal_only_after_runtime_start,
             "startup_valid_signals_opened": False if fresh_signal_only_after_runtime_start else None,
             "mtm_open_positions_updated": mtm_stats.get("open_positions_mtm_updated", 0),
@@ -2062,6 +2514,10 @@ def run_cycle(
         "open_position_mtm": mtm_stats,
         "next_phase_decision": (
             "PT-RT1.5.2 may continue signed testnet lifecycle observation after fresh baseline signals"
+            if is_pt_rt1_5_2 and runtime_status == "verified"
+            else "PT-RT1.5.2 blocked"
+            if is_pt_rt1_5_2
+            else "PT-RT1.5.2 may continue signed testnet lifecycle observation after fresh baseline signals"
             if is_pt_rt1_5_1 and runtime_status == "verified"
             else "PT-RT1.5.1 blocked"
             if is_pt_rt1_5_1
@@ -2149,7 +2605,7 @@ def parse_args() -> argparse.Namespace:
     duration.add_argument("--duration-hours", type=Decimal)
     duration.add_argument("--duration-minutes", type=Decimal)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
-    probe_mode = parser.add_mutually_exclusive_group(required=True)
+    probe_mode = parser.add_mutually_exclusive_group(required=False)
     probe_mode.add_argument("--disable-testnet-probes", action="store_true")
     probe_mode.add_argument("--disable-legacy-testnet-probes", action="store_true")
     probe_mode.add_argument("--enable-testnet-probes", action="store_true")
@@ -2163,6 +2619,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--enable-baseline-testnet-transport", action="store_true")
     parser.add_argument("--founder-approved-pt-rt1-5-baseline-testnet-orders-25usdc", action="store_true")
     parser.add_argument("--founder-approved-pt-rt1-5-1-baseline-testnet-orders-25usdc", action="store_true")
+    parser.add_argument("--founder-approved-pt-rt1-5-2-testnet-transport-smoke", action="store_true")
+    parser.add_argument("--founder-approved-pt-rt1-5-2-baseline-testnet-orders-25usdc", action="store_true")
     parser.add_argument(
         "--pt-rt1-5-testnet-order-notional-usdc",
         type=Decimal,
@@ -2180,6 +2638,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--signal-evaluation-mode", choices=("poll", "candle_close_only"), default="poll")
     parser.add_argument("--fresh-signal-only-after-runtime-start", action="store_true")
+    parser.add_argument(
+        "--max-testnet-orders-this-phase",
+        type=int,
+        default=PT_RT1_5_2_TESTNET_SMOKE_PHASE_CAP,
+    )
+    parser.add_argument("--env-file", type=Path, default=Path(".env"))
     parser.add_argument("--public-mainnet-only", action="store_true")
     parser.add_argument("--poll-seconds", type=Decimal, default=Decimal("60"))
     parser.add_argument("--symbol", action="append", dest="symbols")
@@ -2204,30 +2668,54 @@ def main() -> int:
         raise SystemExit("testnet_probe_notional_must_be_20usdc")
     if args.testnet_probe_daily_cap <= 0:
         raise SystemExit("positive_testnet_probe_daily_cap_required")
+    output_dir_posix = Path(args.output_dir).as_posix()
+    is_pt_rt1_5_2_output = output_dir_posix in {
+        PT_RT1_5_2_TRANSPORT_SMOKE_OUTPUT_DIR,
+        PT_RT1_5_2_RUNTIME_OUTPUT_DIR,
+    }
+    is_pt_rt1_5_2_requested = (
+        is_pt_rt1_5_2_output
+        or args.founder_approved_pt_rt1_5_2_testnet_transport_smoke
+        or args.founder_approved_pt_rt1_5_2_baseline_testnet_orders_25usdc
+    )
     baseline_transport_requested = (
         args.enable_pt_rt1_5_baseline_testnet_orders or args.enable_baseline_testnet_transport
+        or args.founder_approved_pt_rt1_5_2_testnet_transport_smoke
+        or args.founder_approved_pt_rt1_5_2_baseline_testnet_orders_25usdc
     )
-    is_pt_rt1_5_1_smoke = args.fresh_signal_only_after_runtime_start or (
-        Path(args.output_dir).as_posix() == PT_RT1_5_1_RUNTIME_OUTPUT_DIR
+    is_pt_rt1_5_1_smoke = (
+        not is_pt_rt1_5_2_requested
+        and (
+            args.fresh_signal_only_after_runtime_start
+            or output_dir_posix == PT_RT1_5_1_RUNTIME_OUTPUT_DIR
+        )
     )
     if args.pt_rt1_5_week1_active:
         allowed_pt_rt15_output_dirs = {PT_RT1_5_RUNTIME_OUTPUT_DIR}
         if is_pt_rt1_5_1_smoke:
             allowed_pt_rt15_output_dirs.add(PT_RT1_5_1_RUNTIME_OUTPUT_DIR)
-        if Path(args.output_dir).as_posix() not in allowed_pt_rt15_output_dirs:
+        if is_pt_rt1_5_2_requested:
+            allowed_pt_rt15_output_dirs.update(
+                {PT_RT1_5_2_TRANSPORT_SMOKE_OUTPUT_DIR, PT_RT1_5_2_RUNTIME_OUTPUT_DIR}
+            )
+        if output_dir_posix not in allowed_pt_rt15_output_dirs:
             raise SystemExit("pt_rt1_5_output_dir_must_be_reports_paper_runtime_pt_rt1_5_week1_active")
         if args.enable_testnet_probes:
             raise SystemExit("pt_rt1_5_uses_disable_testnet_probes_and_baseline_order_transport")
         if args.signal_evaluation_mode == "poll":
             args.signal_evaluation_mode = "candle_close_only"
-    if Path(args.output_dir).as_posix() == PT_RT1_5_1_RUNTIME_OUTPUT_DIR and not args.fresh_signal_only_after_runtime_start:
+    if output_dir_posix == PT_RT1_5_1_RUNTIME_OUTPUT_DIR and not args.fresh_signal_only_after_runtime_start:
         raise SystemExit("pt_rt1_5_1_smoke_requires_fresh_signal_only_after_runtime_start")
+    if is_pt_rt1_5_2_output and not args.fresh_signal_only_after_runtime_start:
+        raise SystemExit("pt_rt1_5_2_requires_fresh_signal_only_after_runtime_start")
     if baseline_transport_requested and not args.pt_rt1_5_week1_active:
         raise SystemExit("pt_rt1_5_baseline_testnet_orders_require_pt_rt1_5_week1_active")
     if (
         baseline_transport_requested
         and not args.founder_approved_pt_rt1_5_baseline_testnet_orders_25usdc
         and not args.founder_approved_pt_rt1_5_1_baseline_testnet_orders_25usdc
+        and not args.founder_approved_pt_rt1_5_2_testnet_transport_smoke
+        and not args.founder_approved_pt_rt1_5_2_baseline_testnet_orders_25usdc
     ):
         raise SystemExit("founder_approved_pt_rt1_5_baseline_testnet_orders_25usdc_required")
     if args.pt_rt1_5_testnet_order_notional_usdc != PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC:
@@ -2236,6 +2724,12 @@ def main() -> int:
         raise SystemExit("positive_pt_rt1_5_testnet_daily_order_cap_required")
     if args.pt_rt1_5_testnet_per_symbol_daily_cap <= 0:
         raise SystemExit("positive_pt_rt1_5_testnet_per_symbol_daily_cap_required")
+    if args.max_testnet_orders_this_phase < 0:
+        raise SystemExit("nonnegative_max_testnet_orders_this_phase_required")
+    env_load_status = _load_pt_rt1_5_2_env_file(args.env_file) if is_pt_rt1_5_2_requested else {}
+    signed_transport_env_status = pt_rt1_5_2_signed_transport_env_status() if is_pt_rt1_5_2_requested else None
+    if signed_transport_env_status is not None:
+        signed_transport_env_status = {**signed_transport_env_status, "env_load_status": env_load_status}
     _ensure_ignored_output_dir(args.output_dir)
     duration = timedelta(
         hours=float(args.duration_hours or Decimal("0")),
@@ -2256,6 +2750,9 @@ def main() -> int:
         baseline_testnet_order_transport = HyperliquidPT_RT15TestnetOrderTransport.from_env()
     end_time = _utc_now() + duration
     run_label = (
+        "PT-RT1.5.2"
+        if args.pt_rt1_5_week1_active and is_pt_rt1_5_2_requested
+        else
         "PT-RT1.5.1"
         if args.pt_rt1_5_week1_active and is_pt_rt1_5_1_smoke
         else
@@ -2294,6 +2791,12 @@ def main() -> int:
             signal_evaluation_mode=args.signal_evaluation_mode,
             baseline_testnet_order_transport_enabled=baseline_transport_requested,
             baseline_testnet_order_approval_text=(
+                PT_RT1_5_2_EXACT_TESTNET_TRANSPORT_SMOKE_APPROVAL
+                if (
+                    args.founder_approved_pt_rt1_5_2_testnet_transport_smoke
+                    or args.founder_approved_pt_rt1_5_2_baseline_testnet_orders_25usdc
+                )
+                else
                 PT_RT1_5_1_EXACT_BASELINE_TESTNET_ORDER_APPROVAL
                 if args.founder_approved_pt_rt1_5_1_baseline_testnet_orders_25usdc
                 else
@@ -2308,6 +2811,9 @@ def main() -> int:
             baseline_testnet_order_kill_switch=baseline_testnet_order_kill_switch,
             baseline_testnet_order_transport=baseline_testnet_order_transport,
             fresh_signal_only_after_runtime_start=args.fresh_signal_only_after_runtime_start,
+            pt_rt1_5_2_transport_smoke_enabled=args.founder_approved_pt_rt1_5_2_testnet_transport_smoke,
+            max_testnet_orders_this_phase=args.max_testnet_orders_this_phase,
+            signed_transport_env_status=signed_transport_env_status,
         )
         if args.max_cycles is not None and cycle >= args.max_cycles:
             break

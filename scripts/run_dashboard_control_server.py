@@ -34,7 +34,7 @@ SAFE_FLAGS = [
     "--pt-rt1-5-week1-active",
     "--fresh-signal-only-after-runtime-start",
     "--enable-baseline-testnet-transport",
-    "--founder-approved-pt-rt1-5-1-baseline-testnet-orders-25usdc",
+    "--founder-approved-pt-rt1-5-2-baseline-testnet-orders-25usdc",
     "--pt-rt1-5-testnet-order-notional-usdc",
     "25",
     "--pt-rt1-5-testnet-daily-order-cap",
@@ -53,6 +53,8 @@ DURATION_OPTIONS = {
     "24h": ("--duration-hours", "24", "24 hours"),
 }
 OUTPUT_OPTIONS = {
+    "pt_rt1_5_2_week1_active": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_5_2_week1_active",
+    "pt_rt1_5_2_transport_smoke": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_5_2_transport_smoke",
     "pt_rt1_5_1_smoke": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_5_1_smoke",
     "pt_rt1_5_week1_active": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_5_week1_active",
     "pt_rt1_4_1_active_week": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_4_1_active_week",
@@ -139,6 +141,15 @@ def build_runtime_command(
     output_dir = validate_output(output)
     caffeinate = caffeinate_path or find_caffeinate()
     python_bin = python_executable or sys.executable
+    phase_flags = list(SAFE_FLAGS)
+    if output == "pt_rt1_5_2_transport_smoke":
+        phase_flags.extend(
+            [
+                "--founder-approved-pt-rt1-5-2-testnet-transport-smoke",
+                "--max-testnet-orders-this-phase",
+                "1",
+            ]
+        )
     return [
         caffeinate,
         "-dimsu",
@@ -150,7 +161,7 @@ def build_runtime_command(
         str(output_dir.relative_to(REPO_ROOT)),
         "--decision-log-mode",
         "compact",
-        *SAFE_FLAGS,
+        *phase_flags,
     ]
 
 
@@ -204,7 +215,7 @@ def start_runtime(payload: dict[str, Any]) -> tuple[int, dict[str, Any]]:
         return HTTPStatus.CONFLICT, {**status, "message": "paper_runtime_already_running"}
 
     duration = str(payload.get("duration") or "24h")
-    output = str(payload.get("output") or "pt_rt1_5_1_smoke")
+    output = str(payload.get("output") or "pt_rt1_5_2_week1_active")
     _duration_flag, _duration_value, duration_label = validate_duration(duration)
     output_dir = validate_output(output)
     output_dir.mkdir(parents=True, exist_ok=True)

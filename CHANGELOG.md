@@ -13,6 +13,39 @@ Entry schema:
 
 ---
 
+## v2026.05.17.016
+
+- `recorded_at_utc`: `2026-05-17T16:36:34Z`
+- `scope`: `PT-RT1.5.2 signed testnet transport smoke and active Week 1 restart handoff`
+- `intent`: `Native entry. Added PT-RT1.5.2 signed Hyperliquid testnet transport-smoke support, scoped local env loading without printing secrets, testnet API-root URL acceptance while still rejecting live/mainnet URLs, exact PT-RT1.5.2 approvals, a one-order explicit transport-smoke cap, public-mainnet closed-candle context loading for the smoke path without strategy signal evaluation, and dashboard/control defaults for the PT-RT1.5.2 active Week 1 scope. A bounded smoke connected to public mainnet, configured the signed testnet client, called the Hyperliquid testnet signed order endpoint once with a labeled testnet_transport_smoke_not_strategy_signal 25 USDC shape, received a sanitized venue reject Order has invalid size, reconciled to no open order, and did not create synthetic trades or update synthetic PnL. Candidate, MF-ORIG, wildcard, and 15m transport remain blocked; public mainnet candles remain strategy truth; production Money Flow rules are unchanged; live trading and production approval remain not approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `scripts/run_dashboard_control_server.py`
+  - `scripts/run_pt_rt1_paper_observation.py`
+  - `services/paper_runtime/pt_rt1.py`
+  - `docs/pt_rt1_5_2_signed_testnet_transport_smoke_and_active_restart.md`
+  - `docs/pt_rt1_5_2_signed_testnet_transport_smoke_and_active_restart_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `tests/test_dashboard_control_server.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_pt_rt1_5_2_transport_smoke_restart.py`
+- `validation_performed`:
+  - `PT-RT1.5.2 bounded smoke: .venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 1 --max-cycles 1 --poll-seconds 1 --max-candle-symbols 1 --output-dir reports/paper_runtime/pt_rt1_5_2_transport_smoke --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-2-testnet-transport-smoke --pt-rt1-5-testnet-order-notional-usdc 25 --max-testnet-orders-this-phase 1 --public-mainnet-only`
+  - `Smoke result: signed_testnet_transport_smoke_cycle_verified; one signed testnet order endpoint call; venue reject Order has invalid size; reconcile_status=reconciled; no synthetic trade/PnL update.`
+
 ## v2026.05.17.015
 
 - `recorded_at_utc`: `2026-05-17T15:29:10Z`

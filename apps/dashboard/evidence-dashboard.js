@@ -116,17 +116,20 @@
   ];
 
   const DEFAULT_PT_RT1_SUMMARY_FILES = [
-    "../../reports/paper_runtime/pt_rt1_5_1_smoke/summary.json",
+    "../../reports/paper_runtime/pt_rt1_5_2_week1_active/summary.json",
+    "../../reports/paper_runtime/pt_rt1_5_2_transport_smoke/summary.json",
+    "../../docs/pt_rt1_5_2_signed_testnet_transport_smoke_and_active_restart_summary.json",
     "../../docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm_summary.json",
   ];
   const DEFAULT_PT_RT1_DECISION_LOG_FILES = [
-    "../../reports/paper_runtime/pt_rt1_5_1_smoke/decisions.jsonl",
+    "../../reports/paper_runtime/pt_rt1_5_2_week1_active/decisions.jsonl",
   ];
   const DEFAULT_PT_RT1_TRADE_LOG_FILES = [
-    "../../reports/paper_runtime/pt_rt1_5_1_smoke/trades.jsonl",
+    "../../reports/paper_runtime/pt_rt1_5_2_week1_active/trades.jsonl",
   ];
   const DEFAULT_PT_RT1_TESTNET_LIFECYCLE_FILES = [
-    "../../reports/paper_runtime/pt_rt1_5_1_smoke/testnet_order_lifecycle.jsonl",
+    "../../reports/paper_runtime/pt_rt1_5_2_week1_active/testnet_order_lifecycle.jsonl",
+    "../../reports/paper_runtime/pt_rt1_5_2_transport_smoke/testnet_order_lifecycle.jsonl",
   ];
   const PAPER_OBSERVATION_DECISION_LOG_LIMIT = 10000;
   const PAPER_OBSERVATION_TRADE_LOG_LIMIT = 10000;
@@ -135,8 +138,8 @@
   const PAPER_OBSERVATION_PAGE_SIZE = 25;
   const PAPER_OBSERVATION_ACTIVE_TIMEFRAMES = ["1h", "4h", "1d"];
   const PAPER_OBSERVATION_DISABLED_TIMEFRAMES = ["15m"];
-  const PAPER_OBSERVATION_ACTIVE_REVIEW_START_UTC = "2026-05-17T14:34:44Z";
-  const PAPER_OBSERVATION_ACTIVE_RUNTIME_SCOPE = "pt_rt1_5_1_smoke";
+  const PAPER_OBSERVATION_ACTIVE_REVIEW_START_UTC = "2026-05-17T16:24:49Z";
+  const PAPER_OBSERVATION_ACTIVE_RUNTIME_SCOPE = "pt_rt1_5_2_week1_active";
   const PAPER_OBSERVATION_15M_STATUS = "disabled_for_week1_noise_reduction";
   const RUN_LEDGER_DISPLAY_FILTER_BOUNDARY = "date filters are display-only, not canonical pack regeneration";
 
@@ -10656,7 +10659,7 @@
         <div><span>Fresh post-start opens</span><strong>${escapeHtml(String(warmStart.fresh_post_start_opens_total ?? warmStart.fresh_post_start_opens_this_cycle ?? 0))}</strong></div>
       </div>
       <div class="methodology-warning compact">
-        PT-RT1.5.1 allows signed Hyperliquid testnet transport only from fresh post-start scheduled Money Flow v1.2 baseline synthetic opens. Startup-valid signals and all candidate lanes are blocked from testnet transport. Testnet order notional is fixed at 25 USDC, public mainnet candles remain strategy truth, and testnet fills do not update strategy PnL.
+        PT-RT1.5.2 allows signed Hyperliquid testnet transport only from fresh post-start scheduled Money Flow v1.2 baseline synthetic opens or one labeled transport smoke. Startup-valid signals and all candidate lanes are blocked from testnet transport. Testnet order notional is fixed at 25 USDC, public mainnet candles remain strategy truth, and testnet fills do not update strategy PnL.
       </div>
     `;
   }
