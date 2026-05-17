@@ -731,31 +731,10 @@ h3 {
 }
 
 .paper-observation-header {
-  align-items: center;
-  padding: var(--spacing-7);
   background:
     radial-gradient(circle at top right, rgba(82, 188, 255, 0.18), transparent 34%),
     linear-gradient(135deg, rgba(116, 240, 178, 0.10), var(--color-surface-strong)),
     var(--color-panel);
-}
-
-.paper-observation-header h2 {
-  margin-block: 0 var(--spacing-3);
-  font-size: clamp(32px, 4vw, 50px);
-}
-
-.paper-observation-header p {
-  max-width: 720px;
-}
-
-.paper-observation-header .evidence-lab-badges {
-  max-width: 520px;
-  gap: var(--spacing-2);
-}
-
-.paper-observation-header .evidence-lab-badges span {
-  min-height: 30px;
-  padding: 6px var(--spacing-3);
 }
 
 .paper-observation-safety-strip {
@@ -917,6 +896,16 @@ h3 {
   padding: 0;
 }
 
+.paper-runtime-card-heading {
+  display: flex;
+  min-height: 24px;
+  align-items: center;
+}
+
+.paper-runtime-card-heading .eyebrow {
+  margin: 0;
+}
+
 .paper-runtime-control-copy,
 .paper-runtime-control-compact .section-heading p {
   margin: 0;
@@ -925,17 +914,34 @@ h3 {
   line-height: var(--leading-body-sm);
 }
 
-.paper-runtime-caffeinate-pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 26px;
-  padding: 0 var(--spacing-3);
+.paper-runtime-control-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.paper-runtime-control-message {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px 12px;
   border: 1px solid color-mix(in srgb, var(--color-teal) 42%, var(--color-line));
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--color-teal) 14%, var(--color-panel-2));
-  color: var(--color-text);
-  font-size: var(--text-caption);
-  font-weight: 800;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-teal) 12%, var(--color-panel-2));
+}
+
+.paper-runtime-control-message span {
+  color: var(--color-muted);
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.paper-runtime-control-message strong {
+  overflow-wrap: anywhere;
+  color: var(--color-teal);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.25;
 }
 
 .paper-runtime-control-grid {
@@ -1816,6 +1822,58 @@ h3 {
 .historical-replay-topbar .chart-header-meta {
   flex: 1 0 100%;
   justify-content: flex-start;
+}
+
+.paper-runtime-control-details .market-micro-panel {
+  overflow: auto;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-panel) 86%, var(--color-surface-soft));
+}
+
+.paper-runtime-control-details .micro-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  padding: 1px;
+  background: var(--color-line-soft);
+}
+
+.paper-runtime-control-details .micro-grid > div {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 4px;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--color-line) 82%, transparent);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-panel-2) 88%, var(--color-surface-soft));
+}
+
+.paper-runtime-control-details .micro-grid span {
+  color: var(--color-muted);
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.paper-runtime-control-details .micro-grid strong {
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.paper-runtime-control-details .micro-grid .paper-runtime-caffeinate-detail strong.status-good {
+  color: var(--color-teal);
+}
+
+.paper-runtime-control-details .micro-grid .paper-runtime-caffeinate-detail strong.status-waiting {
+  color: var(--color-muted);
+}
+
+.paper-runtime-control-details .micro-grid > .paper-runtime-safety-flags {
+  grid-column: 1 / -1;
 }
 
 .historical-replay-controls label {

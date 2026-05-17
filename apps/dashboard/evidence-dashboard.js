@@ -909,6 +909,7 @@
     paperRuntimeOutput: document.querySelector("#paper-runtime-output"),
     paperRuntimeStart: document.querySelector("#paper-runtime-start"),
     paperRuntimeStop: document.querySelector("#paper-runtime-stop"),
+    paperRuntimeControlMessage: document.querySelector("#paper-runtime-control-message"),
     paperRuntimeControlStatus: document.querySelector("#paper-runtime-control-status"),
     paperObservationHealthBanner: document.querySelector("#paper-observation-health-banner"),
     paperObservationTimeframeBreakdown: document.querySelector("#paper-observation-timeframe-breakdown"),
@@ -9269,9 +9270,16 @@
     }
     if (!elements.paperRuntimeControlStatus) return;
     const statusLabel = control.available ? (control.running ? "running" : control.status || "idle") : "unavailable";
+    const caffeinateLabel = control.running ? "paper_runtime_started_with_caffeinate" : "waiting_for_start";
+    if (elements.paperRuntimeControlMessage) {
+      elements.paperRuntimeControlMessage.innerHTML = `
+        <span>Control server message</span>
+        <strong>${escapeHtml(control.message || "local_control_server_ready")}</strong>
+      `;
+    }
     const logStats = paperObservationSummary()?.decision_log_stats || {};
     elements.paperRuntimeControlStatus.innerHTML = `
-      <div class="micro-grid">
+      <div class="micro-grid paper-runtime-details-grid">
         <div><span>Control server</span><strong>${escapeHtml(control.available ? "available" : "unavailable")}</strong></div>
         <div><span>Runtime status</span><strong>${escapeHtml(statusLabel)}</strong></div>
         <div><span>Duration</span><strong>${escapeHtml(control.duration)}</strong></div>
@@ -9279,16 +9287,14 @@
         <div><span>PID</span><strong>${escapeHtml(control.pid || "n/a")}</strong></div>
         <div><span>Started</span><strong>${escapeHtml(control.startedAtUtc || "not_running")}</strong></div>
         <div><span>Log</span><strong>${escapeHtml(control.logPath || "not_started")}</strong></div>
-        <div><span>Caffeinate</span><strong>${escapeHtml(control.running ? "paper_runtime_started_with_caffeinate" : "waiting_for_start")}</strong></div>
-        <div><span>Safety flags</span><strong>${escapeHtml((control.safeFlags || []).join(" "))}</strong></div>
+        <div class="paper-runtime-caffeinate-detail"><span>Caffeinate</span><strong class="${control.running ? "status-good" : "status-waiting"}">${escapeHtml(caffeinateLabel)}</strong></div>
         <div><span>Decision log mode</span><strong>${escapeHtml(logStats.mode || "compact")}</strong></div>
         <div><span>Decision log size</span><strong>${escapeHtml(paperObservationBytes(logStats.decisions_jsonl_size_bytes))}</strong></div>
         <div><span>Written this cycle</span><strong>${escapeHtml(logStats.written_decisions_this_cycle ?? "n/a")}</strong></div>
         <div><span>Suppressed this cycle</span><strong>${escapeHtml(logStats.suppressed_decisions_this_cycle ?? "n/a")}</strong></div>
+        <div class="paper-runtime-safety-flags"><span>Safety flags</span><strong>${escapeHtml((control.safeFlags || []).join(" "))}</strong></div>
       </div>
       ${logStats.decisions_jsonl_warning ? '<div class="methodology-warning compact">Decision log size is above the review threshold. Stop the run or keep compact logging enabled before another long run.</div>' : ""}
-      <p class="muted-inline">${escapeHtml(control.message || "local_control_server_ready")}</p>
-      <p class="muted-inline">Static dashboard servers can still display data, but Start/Stop requires the local control server.</p>
     `;
   }
 
@@ -9587,6 +9593,9 @@
     renderSelect(elements.paperObservationSymbolFilter, symbols, state.paperObservation.symbol, "All symbols");
     renderSelectWithoutAll(elements.paperObservationTimeframeFilter, timeframeOptions, state.paperObservation.timeframe);
     renderSelect(elements.paperObservationLaneFilter, laneIds, state.paperObservation.laneId, "All lanes");
+    if (elements.paperObservationLaneFilter && elements.paperObservationLaneFilter.value !== state.paperObservation.laneId) {
+      state.paperObservation.laneId = elements.paperObservationLaneFilter.value || "all";
+    }
     renderSelectWithoutAll(elements.paperObservationReviewWindowFilter, reviewWindowOptions, state.paperObservation.reviewWindow);
     renderSelectWithoutAll(elements.paperObservationSignalCategoryFilter, signalCategoryOptions, state.paperObservation.signalCategory);
     if (elements.paperObservationSymbolFilter) {
@@ -9986,9 +9995,16 @@
   function renderPaperObservationLanes() {
     if (!elements.paperObservationLaneTable) return;
     const summary = paperObservationSummary();
-    const selectedLane = state.paperObservation.laneId;
-    const rows = paperObservationRows(summary?.strategy_lanes).filter(
-      (row) => selectedLane === "all" || row.strategy_id === selectedLane || row.lane_id === selectedLane,
+    const laneRows = paperObservationRows(summary?.strategy_lanes);
+    const selectedLane = elements.paperObservationLaneFilter?.value || state.paperObservation.laneId || "all";
+    const laneIds = laneRows.map((row) => row.strategy_id || row.lane_id).filter(Boolean);
+    const normalizedSelectedLane = selectedLane === "all" || !laneIds.includes(selectedLane) ? "all" : selectedLane;
+    if (normalizedSelectedLane !== state.paperObservation.laneId) state.paperObservation.laneId = normalizedSelectedLane;
+    if (elements.paperObservationLaneFilter && elements.paperObservationLaneFilter.value !== normalizedSelectedLane) {
+      elements.paperObservationLaneFilter.value = normalizedSelectedLane;
+    }
+    const rows = laneRows.filter(
+      (row) => normalizedSelectedLane === "all" || row.strategy_id === normalizedSelectedLane || row.lane_id === normalizedSelectedLane,
     );
     if (!rows.length) {
       setEmpty(elements.paperObservationLaneTable, "Strategy lane config not loaded.");
@@ -9997,10 +10013,6 @@
     const runtimeRollup = paperObservationLaneRuntimeRollup(summary);
     const scopeLabel = paperObservationTimeframeScopeLabel();
     elements.paperObservationLaneTable.innerHTML = `
-      <div class="methodology-warning compact">
-        Timeframe scope: <strong>${escapeHtml(scopeLabel)}</strong>. 15m is paused for Week 1 and excluded from active weekly scoring.
-        All-active mode is ${escapeHtml("sum across active paper timeframes only: 1h + 4h + 1d")} and is not one combined account.
-      </div>
       <table>
         <thead>
           <tr>

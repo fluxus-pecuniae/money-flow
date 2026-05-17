@@ -303,10 +303,11 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "Paper Trading" in nav
     assert "Paper Observation" not in nav
     assert 'data-view-panel="paper-observation"' in html
-    assert "Paper Observation" in html
+    assert '<h2 id="paper-observation-title">Paper Trading</h2>' in html
+    assert "Active-week command center for public-mainnet synthetic paper observation" in html
     assert 'activeView: "paper-observation"' in js
     assert "PT-RT1 forward observation" in html
-    assert "10 isolated 10,000 USDC synthetic paper ledgers" in html
+    assert "runtime health, lane scoreboards, and baseline-only testnet plumbing status" in html
     assert "Paper observation only" in html
     assert "No real capital" in html
     assert "No live trading" in html
@@ -324,6 +325,19 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper-runtime-stop" in html
     assert "paper-runtime-control-status" in html
     assert "Mac caffeinate" in html
+    assert '<p class="eyebrow" id="paper-runtime-control-title">Runtime Control</p>' in html
+    assert "Local Mac runtime control" not in html
+    assert "<span>Starts an allowlisted local run with Mac caffeinate.</span>" in html
+    assert "<span>Available only through `scripts/run_dashboard_control_server.py`.</span>" in html
+    assert '<h2 id="paper-runtime-control-title">Start Run</h2>' not in html
+    assert "paper-runtime-card-heading" in html
+    assert ".paper-runtime-card-heading" in css
+    assert ".paper-runtime-control-copy" in css
+    assert "paper-runtime-control-message" in html
+    assert "paperRuntimeControlMessage" in js
+    assert "Control server message" in js
+    assert "paper-runtime-caffeinate-status" not in html
+    assert "paper_runtime_started_with_caffeinate" not in html
     assert "--disable-legacy-testnet-probes" in html
     assert "fixed 25 USDC baseline-only testnet lifecycle gates" in html
     assert "--public-mainnet-only" in html
@@ -373,6 +387,14 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert ".paper-observation-safety-strip" in css
     assert ".paper-runtime-control-compact" in css
     assert ".paper-observation-primary-grid" in css
+    assert ".paper-runtime-control-details .micro-grid > div" in css
+    assert ".paper-runtime-control-details .micro-grid > .paper-runtime-safety-flags" in css
+    assert ".paper-runtime-control-details .micro-grid .paper-runtime-caffeinate-detail strong.status-good" in css
+    assert ".paper-runtime-control-message" in css
+    assert "paper-runtime-caffeinate-pill" not in css
+    assert "paper-runtime-caffeinate-status" not in css
+    assert "font-size: clamp(32px, 4vw, 50px)" not in css
+    assert ".paper-observation-header h2" not in css
     assert ".paper-observation-watchlist-transport-row" in css
     assert ".paper-observation-controls" in css
     assert ".paper-runtime-control" in css
@@ -414,7 +436,11 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "decision_log_stats" in js
     assert "paperObservationBytes" in js
     assert "Start/stop requires launching the local control server." in js
-    assert "Static dashboard servers can still display data" in js
+    assert "Static dashboard servers can still display data" not in js
+    assert "paper_runtime_started_with_caffeinate" in js
+    assert "paper-runtime-caffeinate-detail" in js
+    assert "control.message || \"local_control_server_ready\"" in js
+    assert "paper-runtime-safety-flags" in js
     assert "enable-baseline-testnet-transport" in Path("scripts/run_dashboard_control_server.py").read_text(encoding="utf-8")
     assert "pt-rt1-5-testnet-order-notional-usdc" in Path("scripts/run_dashboard_control_server.py").read_text(encoding="utf-8")
     assert "DEFAULT_SV21_BROAD_SUMMARY_FILES" in js
