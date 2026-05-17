@@ -5,15 +5,15 @@ This is the canonical architecture document at head.
 ## Current Operator Summary
 
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
-- Current runtime: `PT-RT1.5.2` signed-transport smoke verified; clean active Week 1 scope is `reports/paper_runtime/pt_rt1_5_2_week1_active/`.
+- Current runtime: `PT-RT1.5.3` size/precision hotfix verified; fixed 25 USDC smoke reached accepted/open, canceled, and reconciled.
 - Active timeframes: `1h`, `4h`, `1d`.
 - Paused timeframes: `15m` is paused for Week 1 noise reduction and kept as legacy context only.
 - Strategy truth: public Hyperliquid mainnet fully closed candles and derived indicators.
 - Synthetic PnL truth: independent synthetic 10,000 USDC paper ledgers per lane; candidate/MF-ORIG/wildcard lanes are synthetic-only.
-- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport can occur only for fresh post-start Money Flow v1.2 baseline opens after PT-RT1.5.2 gates pass; the explicit PT-RT1.5.2 smoke reached testnet and rejected on venue size validation without synthetic PnL impact.
+- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport can occur only for fresh post-start Money Flow v1.2 baseline opens after PT-RT1.5.3 gates pass; the explicit PT-RT1.5.3 smoke used testnet metadata / `szDecimals`, reached accepted/open, canceled, and reconciled without synthetic PnL impact.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
-- Next recommended action: start `pt_rt1_5_2_week1_active`, fix or verify the testnet size formatter, and keep Paper Trading review separate from canonical historical evidence.
+- Next recommended action: continue or restart active Week 1 runtime with PT-RT1.5.3 present and keep Paper Trading review separate from canonical historical evidence.
 
 ## Current System Layers
 

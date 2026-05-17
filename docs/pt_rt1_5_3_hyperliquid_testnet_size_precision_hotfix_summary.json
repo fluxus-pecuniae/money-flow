@@ -1,0 +1,77 @@
+{
+  "phase": "PT-RT1.5.3",
+  "status": "verified",
+  "invalid_size_reject_summary": {
+    "prior_phase": "PT-RT1.5.2",
+    "venue_reject": "Order has invalid size.",
+    "synthetic_pnl_updated": false,
+    "open_order_after_reconcile": false
+  },
+  "formatter_fix": {
+    "status": "implemented",
+    "metadata_source": "Hyperliquid testnet public meta",
+    "uses_asset_id": true,
+    "uses_venue_symbol": true,
+    "uses_szDecimals": true,
+    "computes_raw_quantity": true,
+    "computes_formatted_quantity": true,
+    "computes_estimated_testnet_notional": true,
+    "blocks_invalid_size_before_exchange": true,
+    "local_block_reason": "testnet_order_invalid_size_preflight",
+    "venue_reject_reason_codes": [
+      "testnet_order_rejected_invalid_size",
+      "venue_reject_order_has_invalid_size"
+    ]
+  },
+  "fixed_25_usdc_policy": {
+    "fixed_notional_usdc": 25,
+    "sizing_source": "fixed_testnet_plumbing_notional",
+    "uses_synthetic_signal_size": false,
+    "uses_account_equity_sizing": false
+  },
+  "smoke_result": {
+    "status": "verified",
+    "output_dir": "reports/paper_runtime/pt_rt1_5_3_transport_smoke",
+    "trigger_type": "transport_smoke_not_strategy_signal",
+    "symbol": "BTC",
+    "timeframe": "1h",
+    "asset_id": 3,
+    "szDecimals": 5,
+    "raw_quantity": "0.0003371657844161974442833541252",
+    "formatted_quantity": "0.00033",
+    "formatted_limit_price": "74147",
+    "estimated_testnet_notional": "24.46851",
+    "order_endpoint_called": true,
+    "signed_order_endpoint_called": true,
+    "venue_response_summary": "accepted_open",
+    "cancel_status": "canceled",
+    "reconcile_status": "reconciled",
+    "open_order_remains": false,
+    "synthetic_trade_created": false,
+    "strategy_pnl_update_from_testnet": false
+  },
+  "transport_scope": {
+    "baseline_only_trigger": "money_flow_v1_2_baseline fresh paper_opened on 1h/4h/1d",
+    "candidate_lanes_can_submit": false,
+    "mf_orig_lanes_can_submit": false,
+    "wildcard_lanes_can_submit": false,
+    "fifteen_minute_can_submit": false
+  },
+  "dashboard_status": {
+    "testnet_lifecycle_table_precision_fields": true,
+    "shows_raw_quantity": true,
+    "shows_formatted_quantity": true,
+    "shows_asset_precision": true,
+    "shows_estimated_notional": true
+  },
+  "boundaries": {
+    "public_mainnet_data_remains_strategy_truth": true,
+    "testnet_prices_are_strategy_truth": false,
+    "testnet_fills_update_synthetic_pnl": false,
+    "live_trading_approved": false,
+    "production_strategy_approved": false,
+    "production_money_flow_rules_changed": false,
+    "runtime_artifacts_committed": false
+  },
+  "next_phase": "Continue or restart active Week 1 runtime with PT-RT1.5.3 size preflight present; review the next fresh baseline-triggered lifecycle row."
+}

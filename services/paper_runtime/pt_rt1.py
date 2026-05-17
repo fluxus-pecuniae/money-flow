@@ -68,6 +68,8 @@ PT_RT1_5_2_TRANSPORT_SMOKE_OUTPUT_DIR = "reports/paper_runtime/pt_rt1_5_2_transp
 PT_RT1_5_2_RUNTIME_SCOPE = "pt_rt1_5_2_week1_active"
 PT_RT1_5_2_RUNTIME_OUTPUT_DIR = "reports/paper_runtime/pt_rt1_5_2_week1_active"
 PT_RT1_5_2_ACTIVE_REVIEW_START_UTC = "2026-05-17T16:24:49Z"
+PT_RT1_5_3_TRANSPORT_SMOKE_SCOPE = "pt_rt1_5_3_transport_smoke"
+PT_RT1_5_3_TRANSPORT_SMOKE_OUTPUT_DIR = "reports/paper_runtime/pt_rt1_5_3_transport_smoke"
 PT_RT1_5_ARCHIVED_RUNTIME_SCOPES = (
     "pre_pt_rt1_4_weekend_burn_in",
     "pt_rt1_1c_24h_dry_run",
@@ -102,6 +104,12 @@ PT_RT1_5_2_EXACT_TESTNET_TRANSPORT_SMOKE_APPROVAL = (
     "PUBLIC MAINNET DATA REMAINS STRATEGY TRUTH. TESTNET FILLS MUST NOT UPDATE "
     "SYNTHETIC STRATEGY PNL. CANDIDATE LANES MUST NOT SEND TESTNET ORDERS. "
     "LIVE TRADING IS NOT APPROVED."
+)
+PT_RT1_5_3_EXACT_TESTNET_SIZE_HOTFIX_SMOKE_APPROVAL = (
+    "I APPROVE PT-RT1.5.3 HYPERLIQUID TESTNET SIZE PRECISION HOTFIX SMOKE. "
+    "TESTNET ONLY. FIXED 25 USDC NOTIONAL. PUBLIC MAINNET DATA REMAINS "
+    "STRATEGY TRUTH. TESTNET FILLS MUST NOT UPDATE SYNTHETIC STRATEGY PNL. "
+    "CANDIDATE LANES MUST NOT SEND TESTNET ORDERS. LIVE TRADING IS NOT APPROVED."
 )
 PT_RT1_5_2_TESTNET_SMOKE_PHASE_CAP = 1
 PT_RT1_5_CANDLE_CLOSE_GRACE_SECONDS = {
@@ -143,6 +151,10 @@ PT_RT1_5_TESTNET_ORDER_REASON_CODES = (
     "testnet_order_symbol_blocked",
     "testnet_order_unit_semantics_deferred",
     "testnet_order_precision_missing",
+    "testnet_metadata_unavailable",
+    "testnet_order_invalid_size_preflight",
+    "testnet_order_rejected_invalid_size",
+    "venue_reject_order_has_invalid_size",
     "testnet_order_notional_must_be_25usdc",
     "testnet_daily_order_cap_exceeded",
     "testnet_per_symbol_daily_cap_exceeded",
@@ -667,6 +679,7 @@ class PT_RT15TestnetOrderCandidate:
     base_url: str = PT_RT1_TESTNET_INFO_URL
     asset_id: int | None = 1
     sz_decimals: int | None = 4
+    testnet_metadata_resolved: bool = True
     price: Decimal = Decimal("3000")
     synthetic_signal_notional: Decimal = Decimal("10000")
     fixed_notional: Decimal = PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC
@@ -710,6 +723,7 @@ class PT_RT15BaselineTestnetOrderPolicy:
             PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
             PT_RT1_5_1_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
             PT_RT1_5_2_EXACT_TESTNET_TRANSPORT_SMOKE_APPROVAL,
+            PT_RT1_5_3_EXACT_TESTNET_SIZE_HOTFIX_SMOKE_APPROVAL,
         }:
             reasons.append("pt_rt1_5_exact_approval_required")
         base_url = candidate.base_url.rstrip("/")
@@ -735,6 +749,8 @@ class PT_RT15BaselineTestnetOrderPolicy:
             reasons.append("testnet_order_unit_semantics_deferred")
         if not candidate.precision_ready or candidate.asset_id is None or candidate.sz_decimals is None:
             reasons.append("testnet_order_precision_missing")
+        if not candidate.testnet_metadata_resolved:
+            reasons.append("testnet_metadata_unavailable")
         if candidate.fixed_notional != PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC:
             reasons.append("testnet_order_notional_must_be_25usdc")
         if candidate.daily_order_count >= candidate.daily_cap:
@@ -751,8 +767,12 @@ class PT_RT15BaselineTestnetOrderPolicy:
         if candidate.price <= 0:
             reasons.append("testnet_order_precision_missing")
 
+        precision_details = self._precision_details(candidate)
+        if precision_details["invalid_size"] and not precision_details["precision_unavailable"]:
+            reasons.append("testnet_order_invalid_size_preflight")
+
         eligible = not reasons
-        order_shape = self._order_shape(candidate) if eligible else None
+        order_shape = self._order_shape(candidate, precision_details=precision_details) if eligible else None
         lifecycle_status = "preflight_passed" if eligible else "blocked"
         lifecycle_row = {
             "lane": "testnet_order_transport",
@@ -775,8 +795,17 @@ class PT_RT15BaselineTestnetOrderPolicy:
             "synthetic_signal_notional": str(candidate.synthetic_signal_notional),
             "testnet_fixed_notional": str(candidate.fixed_notional),
             "sizing_source": "fixed_testnet_plumbing_notional",
+            "asset_id": candidate.asset_id,
+            "szDecimals": candidate.sz_decimals,
+            "max_price_decimals": precision_details["max_price_decimals"],
             "limit_price": str(candidate.price),
-            "quantity": str(candidate.fixed_notional / candidate.price) if candidate.price > 0 else "0",
+            "formatted_limit_price": precision_details["formatted_limit_price"],
+            "raw_quantity": precision_details["raw_quantity"],
+            "formatted_quantity": precision_details["formatted_quantity"],
+            "quantity": precision_details["formatted_quantity"],
+            "estimated_testnet_notional": precision_details["estimated_testnet_notional"],
+            "price_format_reason": precision_details["price_format_reason"],
+            "size_format_reason": precision_details["size_format_reason"],
             "venue_response": None,
             "cancel_status": "cancel_reconcile_required_after_submit" if eligible else "not_submitted",
             "reconcile_status": "required_after_submit" if eligible else "not_submitted",
@@ -799,15 +828,50 @@ class PT_RT15BaselineTestnetOrderPolicy:
             lifecycle_row=lifecycle_row,
         )
 
-    def _order_shape(self, candidate: PT_RT15TestnetOrderCandidate) -> dict[str, Any]:
+    def _precision_details(self, candidate: PT_RT15TestnetOrderCandidate) -> dict[str, Any]:
+        raw_quantity = candidate.fixed_notional / candidate.price if candidate.price > 0 else Decimal("0")
+        details: dict[str, Any] = {
+            "raw_quantity": str(raw_quantity),
+            "formatted_quantity": "0",
+            "estimated_testnet_notional": "0",
+            "formatted_limit_price": "0",
+            "max_price_decimals": None,
+            "price_format_reason": "price_precision_unavailable",
+            "size_format_reason": "size_precision_unavailable",
+            "invalid_size": True,
+            "precision_unavailable": True,
+        }
+        if candidate.asset_id is None or candidate.sz_decimals is None or candidate.price <= 0:
+            return details
         formatter = HyperliquidPrecisionFormatter(
             asset_id=int(candidate.asset_id or 0),
             symbol=candidate.symbol,
             sz_decimals=int(candidate.sz_decimals or 0),
         )
-        quantity = candidate.fixed_notional / candidate.price
-        price = formatter.format_price_down(candidate.price).wire_value
-        size = formatter.format_size_down(quantity).wire_value
+        formatted_price = formatter.format_price_down(candidate.price)
+        formatted_size = formatter.format_size_down(raw_quantity)
+        estimated_notional = formatted_size.formatted_value * formatted_price.formatted_value
+        min_acceptable_notional = candidate.fixed_notional * Decimal("0.95")
+        invalid_size = (
+            formatted_size.formatted_value <= 0
+            or estimated_notional <= 0
+            or estimated_notional < min_acceptable_notional
+        )
+        return {
+            "raw_quantity": str(raw_quantity),
+            "formatted_quantity": formatted_size.wire_value,
+            "estimated_testnet_notional": str(estimated_notional),
+            "formatted_limit_price": formatted_price.wire_value,
+            "max_price_decimals": formatter.max_price_decimals,
+            "price_format_reason": formatted_price.reason,
+            "size_format_reason": formatted_size.reason,
+            "invalid_size": invalid_size,
+            "precision_unavailable": False,
+        }
+
+    def _order_shape(self, candidate: PT_RT15TestnetOrderCandidate, *, precision_details: dict[str, Any]) -> dict[str, Any]:
+        price = str(precision_details["formatted_limit_price"])
+        size = str(precision_details["formatted_quantity"])
         action: dict[str, Any] = {
             "type": "order",
             "orders": [
@@ -826,11 +890,21 @@ class PT_RT15BaselineTestnetOrderPolicy:
             "venue": "Hyperliquid",
             "environment": "testnet",
             "base_url": PT_RT1_TESTNET_INFO_URL,
+            "asset_id": candidate.asset_id,
+            "symbol": candidate.symbol,
+            "szDecimals": candidate.sz_decimals,
             "action": action,
             "notional_usdc": str(candidate.fixed_notional),
             "testnet_fixed_notional": str(candidate.fixed_notional),
             "sizing_source": "fixed_testnet_plumbing_notional",
             "synthetic_signal_notional": str(candidate.synthetic_signal_notional),
+            "raw_quantity": precision_details["raw_quantity"],
+            "formatted_quantity": precision_details["formatted_quantity"],
+            "estimated_testnet_notional": precision_details["estimated_testnet_notional"],
+            "limit_price": price,
+            "max_price_decimals": precision_details["max_price_decimals"],
+            "price_format_reason": precision_details["price_format_reason"],
+            "size_format_reason": precision_details["size_format_reason"],
             "testnet_price_is_strategy_truth": False,
             "public_mainnet_candles_are_strategy_truth": True,
             "testnet_fills_update_strategy_pnl": False,

@@ -13,6 +13,41 @@ Entry schema:
 
 ---
 
+## v2026.05.17.017
+
+- `recorded_at_utc`: `2026-05-17T18:25:00Z`
+- `scope`: `PT-RT1.5.3 Hyperliquid testnet size/precision hotfix`
+- `intent`: `Native entry. Fixed the PT-RT1.5.2 Hyperliquid testnet invalid-size reject by resolving Hyperliquid testnet public metadata before testnet order shape construction, sizing fixed 25 USDC testnet orders from testnet asset id and szDecimals, recording raw/formatted quantity and estimated notional in lifecycle rows, blocking invalid formatted sizes before /exchange, and reason-coding venue invalid-size rejects. Added the PT-RT1.5.3 exact smoke approval and ignored smoke scope, updated the Paper Trading lifecycle table to expose precision fields, and verified one labeled fixed-25-USDC testnet transport smoke accepted/open, canceled, and reconciled with no synthetic trade/PnL update. Public mainnet candles remain strategy truth; candidate/MF-ORIG/wildcard/15m transport remains blocked; production Money Flow rules are unchanged; live trading and production approval remain not approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `docs/architecture.md`
+  - `docs/strategy.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `scripts/run_pt_rt1_paper_observation.py`
+  - `services/paper_runtime/pt_rt1.py`
+  - `docs/pt_rt1_5_3_hyperliquid_testnet_size_precision_hotfix.md`
+  - `docs/pt_rt1_5_3_hyperliquid_testnet_size_precision_hotfix_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Current State Dashboard.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `money-flow/00 Maps/Evidence and Backtesting Map.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/00 Maps/Strategy Family Map.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `tests/test_pt_rt1_5_3_size_precision_hotfix.py`
+- `validation_performed`:
+  - `PT-RT1.5.3 bounded smoke: .venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 1 --output-dir reports/paper_runtime/pt_rt1_5_3_transport_smoke --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-3-testnet-size-hotfix-smoke --pt-rt1-5-testnet-order-notional-usdc 25 --max-testnet-orders-this-phase 1 --public-mainnet-only --max-cycles 1 --poll-seconds 1 --max-candle-symbols 2`
+  - `Smoke result: testnet_size_precision_hotfix_smoke_verified; one signed Hyperliquid testnet order endpoint call; BTC asset_id=3 szDecimals=5 formatted_quantity=0.00033; venue accepted/open; cancel_status=canceled; reconcile_status=reconciled; no synthetic trade/PnL update.`
+
 ## v2026.05.17.016
 
 - `recorded_at_utc`: `2026-05-17T16:36:34Z`

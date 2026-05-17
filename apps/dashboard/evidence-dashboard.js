@@ -116,8 +116,10 @@
   ];
 
   const DEFAULT_PT_RT1_SUMMARY_FILES = [
+    "../../reports/paper_runtime/pt_rt1_5_3_transport_smoke/summary.json",
     "../../reports/paper_runtime/pt_rt1_5_2_week1_active/summary.json",
     "../../reports/paper_runtime/pt_rt1_5_2_transport_smoke/summary.json",
+    "../../docs/pt_rt1_5_3_hyperliquid_testnet_size_precision_hotfix_summary.json",
     "../../docs/pt_rt1_5_2_signed_testnet_transport_smoke_and_active_restart_summary.json",
     "../../docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm_summary.json",
   ];
@@ -128,6 +130,7 @@
     "../../reports/paper_runtime/pt_rt1_5_2_week1_active/trades.jsonl",
   ];
   const DEFAULT_PT_RT1_TESTNET_LIFECYCLE_FILES = [
+    "../../reports/paper_runtime/pt_rt1_5_3_transport_smoke/testnet_order_lifecycle.jsonl",
     "../../reports/paper_runtime/pt_rt1_5_2_week1_active/testnet_order_lifecycle.jsonl",
     "../../reports/paper_runtime/pt_rt1_5_2_transport_smoke/testnet_order_lifecycle.jsonl",
   ];
@@ -10659,7 +10662,7 @@
         <div><span>Fresh post-start opens</span><strong>${escapeHtml(String(warmStart.fresh_post_start_opens_total ?? warmStart.fresh_post_start_opens_this_cycle ?? 0))}</strong></div>
       </div>
       <div class="methodology-warning compact">
-        PT-RT1.5.2 allows signed Hyperliquid testnet transport only from fresh post-start scheduled Money Flow v1.2 baseline synthetic opens or one labeled transport smoke. Startup-valid signals and all candidate lanes are blocked from testnet transport. Testnet order notional is fixed at 25 USDC, public mainnet candles remain strategy truth, and testnet fills do not update strategy PnL.
+        PT-RT1.5.3 keeps signed Hyperliquid testnet transport scoped to fresh post-start scheduled Money Flow v1.2 baseline synthetic opens or one labeled transport smoke, with metadata-based size preflight. Startup-valid signals and all candidate lanes are blocked from testnet transport. Testnet order notional is fixed at 25 USDC, public mainnet candles remain strategy truth, and testnet fills do not update strategy PnL.
       </div>
     `;
   }
@@ -10709,12 +10712,16 @@
             <th>Trigger reason</th>
             <th>Signal candle</th>
             <th>Fresh signal</th>
+            <th>Asset</th>
+            <th>szDec</th>
             <th>OID</th>
             <th>Status</th>
             <th>Side</th>
             <th>Notional</th>
             <th>Limit</th>
-            <th>Qty</th>
+            <th>Raw qty</th>
+            <th>Formatted qty</th>
+            <th>Est. notional</th>
             <th>Endpoint called</th>
             <th>Signed called</th>
             <th>Venue response</th>
@@ -10734,12 +10741,16 @@
               <td>${escapeHtml(paperObservationText(row.trigger_reason || row.trigger_reason_codes, "n/a"))}</td>
               <td>${escapeHtml(paperObservationText(row.signal_candle_close_time || row.signal_candle, "n/a"))}</td>
               <td>${escapeHtml(String(row.fresh_signal_after_runtime_start === true))}</td>
+              <td>${escapeHtml(paperObservationText(row.asset_id, "n/a"))}</td>
+              <td>${escapeHtml(paperObservationText(row.szDecimals ?? row.sz_decimals, "n/a"))}</td>
               <td>${escapeHtml(paperObservationText(row.oid || row.venue_order_id || row.testnet_order_id, "not_submitted"))}</td>
               <td>${auditReviewPill(row.status || "created")}</td>
               <td>${escapeHtml(paperObservationText(row.side, "buy"))}</td>
               <td>${escapeHtml(paperObservationUsdc(row.notional || row.testnet_fixed_notional || 25))}</td>
-              <td>${escapeHtml(paperObservationPrice(row.limit_price))}</td>
-              <td>${escapeHtml(paperObservationPrice(row.quantity))}</td>
+              <td>${escapeHtml(paperObservationPrice(row.formatted_limit_price || row.limit_price))}</td>
+              <td>${escapeHtml(paperObservationPrice(row.raw_quantity))}</td>
+              <td>${escapeHtml(paperObservationPrice(row.formatted_quantity || row.quantity))}</td>
+              <td>${escapeHtml(paperObservationUsdc(row.estimated_testnet_notional))}</td>
               <td>${escapeHtml(String(row.order_endpoint_called === true))}</td>
               <td>${escapeHtml(String(row.signed_order_endpoint_called === true))}</td>
               <td>${escapeHtml(paperObservationText(row.venue_response || row.sanitized_response, "n/a"))}</td>

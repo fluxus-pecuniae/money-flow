@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-17T18:25:00Z - PT-RT1.5.3 - Hyperliquid Testnet Size / Precision Hotfix
+
+- `decision`: Resolve fixed-25-USDC Hyperliquid testnet order sizing from Hyperliquid testnet public metadata before submit.
+- `scope`: PT-RT1.5.3 adds exact hotfix-smoke approval, testnet `asset_id` / `szDecimals` sizing, raw/formatted quantity and estimated-notional lifecycle fields, local invalid-size preflight, venue invalid-size reason codes, and dashboard lifecycle precision columns.
+- `result`: One labeled `testnet_transport_smoke_not_strategy_signal` order used BTC testnet asset id 3 / `szDecimals=5`, formatted quantity `0.00033`, reached accepted/open, was canceled, and reconciled to no open order. It created no synthetic trade and did not update synthetic PnL.
+- `boundaries`: Public mainnet remains strategy truth; candidate/MF-ORIG/wildcard/15m transport stays blocked; testnet fills do not update synthetic PnL; no production strategy or live trading approval was added.
+- `follow_up_implications`: Continue or restart Week 1 runtime with PT-RT1.5.3 present and review the next fresh Money Flow v1.2 baseline-triggered lifecycle row. Production Money Flow rules remain unchanged.
+
 ## 2026-05-17T12:54:24Z - PT-RT1.5 - Reset Active Week And Gate Baseline-Only Testnet Lifecycle Rows
 
 - `decision`: Reset the active Week 1 Paper Trading scope to `pt_rt1_5_week1_active`, archive prior runtime rows by default, keep `1h`/`4h`/`1d` active, keep `15m` paused, and move strategy signal evaluation to candle-close-only scheduling.

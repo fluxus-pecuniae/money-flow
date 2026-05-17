@@ -7,15 +7,15 @@ This note explains current founder-facing dashboard surfaces and what each surfa
 ## Current Operator Summary
 
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
-- Current runtime: `PT-RT1.5.2` signed-transport smoke verified; clean active Week 1 scope is `reports/paper_runtime/pt_rt1_5_2_week1_active/`.
+- Current runtime: `PT-RT1.5.3` size/precision hotfix verified; fixed 25 USDC smoke reached accepted/open, canceled, and reconciled.
 - Active timeframes: `1h`, `4h`, `1d`.
 - Paused timeframes: `15m` is paused for Week 1 noise reduction and legacy review only.
 - Strategy truth: public Hyperliquid mainnet fully closed candles and derived indicators.
 - Synthetic PnL truth: independent synthetic 10,000 USDC paper ledgers per lane.
-- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when PT-RT1.5.2 gates pass; the PT-RT1.5.2 explicit smoke reached testnet and rejected on venue size validation without synthetic PnL impact.
+- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when PT-RT1.5.3 gates pass; the PT-RT1.5.3 explicit smoke used testnet metadata / `szDecimals`, reached accepted/open, canceled, and reconciled without synthetic PnL impact.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
-- Next recommended action: start `pt_rt1_5_2_week1_active`, fix or verify the testnet size formatter, and keep historical/evidence/lab views as review context.
+- Next recommended action: continue or restart active Week 1 runtime with PT-RT1.5.3 present and keep historical/evidence/lab views as review context.
 
 ## Source Files
 
@@ -48,7 +48,7 @@ The old `Experiments` tab must not be promoted as current truth. Legacy UAT surf
 - Evidence Lab overlays are visualization-only.
 - Date filters are display-only. Dashboard date filters are display-only recalculations.
 - The Paper Trading view is chart-first as of PT-RT1.2.1 and has a cleaner cockpit presentation: compact safety strip, tighter Start Run command card, global filter toolbar, larger primary chart, normalized panel spacing, and consistent summary cards. The underlying view id remains `paper-observation`, but current founder-facing language is Paper Trading. The visible watchlist/scanner panel is removed; Symbol/Timeframe/Strategy filters drive the live chart context, opened/closed markers, Signal Generator, and open/closed synthetic tables; Open Synthetic Positions and Closed Synthetic Trades sit directly below Signal Generator; Closed Synthetic Trades loads ignored `trades.jsonl` for entry/exit/price/quantity/PnL/equity fields; Strategy Lane Comparison overlays `paper_runtime_state.realized_equity_by_lane` so runtime ledgers do not appear stuck at starting equity; wildcard diagnostics live in the Strategy tab as observation-only context.
-- The Paper Trading Start Run helper is local runtime ergonomics only; it forces PT-RT1.5.2 active scope, public mainnet strategy truth, compact decision logging, candle-close signal evaluation, warm-start fresh-signal gating, disabled legacy probes, and baseline-only fixed 25 USDC testnet transport gates. Candidate/MF-ORIG/wildcard lanes cannot send testnet orders, and testnet fills do not update strategy paper PnL.
+- The Paper Trading Start Run helper is local runtime ergonomics only; it forces PT-RT1.5.x active scope, public mainnet strategy truth, compact decision logging, candle-close signal evaluation, warm-start fresh-signal gating, disabled legacy probes, and baseline-only fixed 25 USDC testnet transport gates. PT-RT1.5.3 adds metadata-based size preflight for those testnet rows. Candidate/MF-ORIG/wildcard lanes cannot send testnet orders, and testnet fills do not update strategy paper PnL.
 - The sticky dashboard top bar now carries the logo, title, theme selector, and six primary tabs in founder-review order: Paper Trading, Historical Replay, Evidence, The Lab, Audit, Strategy. Paper Trading maps to the underlying Paper Observation runtime panel. Manual JSON loading and the visible evidence-pack-loaded status text are intentionally removed from the founder chrome; Codex/repo artifacts manage local report loading.
 - Paper Trading decision-log stats are operational health signals only. Compact logging suppresses repeated non-actionable rows, but dashboard log-size warnings are not strategy evidence.
 - Closed Synthetic Trades displays ledger-complete synthetic trade rows only. Sparse `paper_closed` decision rows remain useful audit context but should not be shown as n/a trade rows in the Closed Synthetic Trades table.

@@ -7,15 +7,15 @@ This is the roadmap and current status note for PT-RT1. The founder-facing dashb
 ## Current Operator Summary
 
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
-- Current runtime: `PT-RT1.5.2` signed-transport smoke verified; clean active Week 1 scope is `reports/paper_runtime/pt_rt1_5_2_week1_active/`.
+- Current runtime: `PT-RT1.5.3` testnet size/precision hotfix verified; fixed 25 USDC smoke reached accepted/open, canceled, and reconciled.
 - Active timeframes: `1h`, `4h`, `1d`.
 - Paused timeframes: `15m` is paused for Week 1 noise reduction and legacy review only.
 - Strategy truth: public Hyperliquid mainnet fully closed candles and derived indicators.
 - Synthetic PnL truth: independent synthetic 10,000 USDC paper ledgers per lane.
-- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when PT-RT1.5.2 gates pass. The PT-RT1.5.2 explicit smoke reached Hyperliquid testnet and rejected on venue size validation without synthetic PnL impact.
+- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when PT-RT1.5.3 gates pass. The PT-RT1.5.3 explicit smoke used testnet metadata / szDecimals, reached accepted/open, canceled, and reconciled without synthetic PnL impact.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
-- Next recommended action: start `pt_rt1_5_2_week1_active`, then fix or verify the testnet size formatter before relying on accepted/open lifecycle coverage.
+- Next recommended action: continue or restart active Week 1 runtime with PT-RT1.5.3 present, then review the next fresh baseline-triggered lifecycle row.
 - Evidence context: SV2.0.2 remains the canonical historical baseline; PT-RT is forward observation, not evidence-pack regeneration.
 
 ## PT-RT1 Implemented Scope
@@ -114,7 +114,7 @@ PT-RT1.5 active-week reset, candle scheduler, and baseline-only testnet lifecycl
 - Testnet lifecycle rows use fixed 25 USDC notional, independent of synthetic signal size.
 - Candidate, MF-ORIG, wildcard, 15m, duplicate, data-unavailable, hold, close, and trim rows cannot send testnet orders.
 - Public mainnet candles remain strategy truth; testnet prices are formatting-only for testnet plumbing; testnet fills never update synthetic PnL.
-- Runtime artifacts stay ignored. PT-RT1.5 artifacts remain archived under `reports/paper_runtime/pt_rt1_5_week1_active/`; PT-RT1.5.1 smoke artifacts remain archived under `reports/paper_runtime/pt_rt1_5_1_smoke/`; PT-RT1.5.2 smoke artifacts use `reports/paper_runtime/pt_rt1_5_2_transport_smoke/`; the clean active scope is `reports/paper_runtime/pt_rt1_5_2_week1_active/`.
+- Runtime artifacts stay ignored. PT-RT1.5 artifacts remain archived under `reports/paper_runtime/pt_rt1_5_week1_active/`; PT-RT1.5.1 smoke artifacts remain archived under `reports/paper_runtime/pt_rt1_5_1_smoke/`; PT-RT1.5.2 smoke artifacts use `reports/paper_runtime/pt_rt1_5_2_transport_smoke/`; PT-RT1.5.3 smoke artifacts use `reports/paper_runtime/pt_rt1_5_3_transport_smoke/`; the active Week 1 runtime should continue/restart with the PT-RT1.5.3 size hotfix present.
 
 PT-RT1.5.2 signed testnet transport smoke and active restart:
 
@@ -124,6 +124,13 @@ PT-RT1.5.2 signed testnet transport smoke and active restart:
 - Venue response was sanitized reject `Order has invalid size.`; cancel was not required and reconcile found no open orders.
 - The smoke created no synthetic trade and did not update synthetic PnL.
 - Follow-up: fix or verify size/min-notional formatting before relying on accepted/open lifecycle coverage.
+
+PT-RT1.5.3 Hyperliquid testnet size/precision hotfix:
+
+- The fixed 25 USDC testnet order path now resolves Hyperliquid testnet public metadata before submit and formats quantity from testnet `asset_id` / `szDecimals`.
+- Lifecycle rows record raw quantity, formatted quantity, formatted limit price, estimated testnet notional, asset id, and `szDecimals`.
+- Invalid formatted size blocks before `/exchange` with `testnet_order_invalid_size_preflight`; venue invalid-size rejects are reason-coded.
+- Bounded smoke result: BTC testnet asset id 3, `szDecimals=5`, formatted quantity `0.00033`, accepted/open -> canceled -> reconciled, no synthetic trade, no synthetic PnL update.
 
 Paper Trading dashboard live display:
 
@@ -143,7 +150,7 @@ Paper Trading dashboard live display:
 - The Testnet Order Transport widget now separates audit-only shape generation from baseline-only order transport, shows fixed 25 USDC notional, candidate-lane transport blocks, signed testnet order counts, lifecycle counts, and `strategy PnL update from testnet = false`.
 - The Testnet Order Lifecycle table is separate from Closed Synthetic Trades.
 - The dashboard shows next/last scheduled `1h`/`4h`/`1d` signal-evaluation times and labels Signal Evaluation as candle-close only.
-- The local Start Run / Stop Run panel is available only when the dashboard is served by `scripts/run_dashboard_control_server.py`; it launches allowlisted public-mainnet sessions through Mac `caffeinate` and now defaults to `pt_rt1_5_2_week1_active`, `--fresh-signal-only-after-runtime-start`, `--disable-legacy-testnet-probes`, `--pt-rt1-5-week1-active`, `--signal-evaluation-mode candle_close_only`, `--enable-baseline-testnet-transport`, fixed `--pt-rt1-5-testnet-order-notional-usdc 25`, and `--public-mainnet-only`.
+- The local Start Run / Stop Run panel is available only when the dashboard is served by `scripts/run_dashboard_control_server.py`; it launches allowlisted public-mainnet sessions through Mac `caffeinate` and the active PT-RT1.5.x path uses `pt_rt1_5_2_week1_active`, `--fresh-signal-only-after-runtime-start`, `--disable-legacy-testnet-probes`, `--pt-rt1-5-week1-active`, `--signal-evaluation-mode candle_close_only`, `--enable-baseline-testnet-transport`, fixed `--pt-rt1-5-testnet-order-notional-usdc 25`, and `--public-mainnet-only`. PT-RT1.5.3 adds the metadata-based fixed-25-USDC size hotfix for that transport path.
 - Runtime decision logging now defaults to compact mode. It writes actionable `paper_opened`/`paper_closed` decisions, data-unavailable rows, and first-seen non-actionable audit rows while suppressing repeated identical non-actionable rows across cycles; `full_audit` remains an explicit short-diagnostic CLI mode.
 - The dashboard displays decision-log mode, log size, rows written this cycle, and repeated rows suppressed this cycle from runtime summaries.
 - Static `http.server` dashboard review still works, but runtime Start/Stop controls intentionally show unavailable there.
@@ -151,8 +158,8 @@ Paper Trading dashboard live display:
 
 Current next operational step:
 
-1. Start or restart the PT-RT1.5.2 active Week 1 session scoped to `1h`, `4h`, and `1d`.
-2. Retain ignored active artifacts under `reports/paper_runtime/pt_rt1_5_2_week1_active/`.
+1. Start or restart the PT-RT1.5.3 hotfix-era active Week 1 session scoped to `1h`, `4h`, and `1d`.
+2. Retain ignored active artifacts under `reports/paper_runtime/`.
 3. Use the Paper Trading tab as the weekly command center and keep archived/weekend burn-in rows hidden by default.
 4. Review warm-start startup-signal blocks, scheduler timing, duplicate closed-candle suppression, open-position MTM, fixed-25 fresh-baseline-only signed testnet lifecycle rows, candidate transport blocks, synthetic ledger isolation, and the testnet size-format follow-up after the first active cycles.
 5. If stable, continue the 60-day public-mainnet forward-observation window.
@@ -179,11 +186,11 @@ PT-RT1 should keep these lanes separate.
 
 ## Baseline Testnet Order Transport Policy
 
-PT-RT1.5.2 testnet transport remains separate from strategy truth:
+PT-RT1.5.3 testnet transport remains separate from strategy truth:
 
 - public mainnet candles remain strategy truth
 - only fresh post-start `money_flow_v1_2_baseline` scheduled `paper_opened` rows on `1h`/`4h`/`1d` are eligible during normal active runtime
-- one labeled `testnet_transport_smoke_not_strategy_signal` row is allowed for PT-RT1.5.2 transport connectivity smoke only
+- one labeled `testnet_transport_smoke_not_strategy_signal` row is allowed for PT-RT1.5.3 size/precision transport smoke only
 - startup-valid confirmations are blocked until the entry context resets false and a fresh true signal appears
 - candidate lanes, MF-ORIG lanes, wildcard lanes, `15m`, duplicate rows, data-unavailable rows, holds, trims, and closes cannot trigger testnet orders
 - fixed testnet notional is `25 USDC`, independent of synthetic signal notional
@@ -219,5 +226,6 @@ Current PT-RT1.4.1 status: `active_runtime_cutover_verified_after_restart`.
 Current PT-RT1.5 status: `implemented_active_week_reset_candle_close_scheduler_and_baseline_testnet_lifecycle_gates`.
 Current PT-RT1.5.1 status: `implemented_signed_testnet_transport_warm_start_gate_and_open_mtm_hotfix`.
 Current PT-RT1.5.2 status: `signed_transport_smoke_reached_testnet_operator_start_required`.
+Current PT-RT1.5.3 status: `testnet_size_precision_hotfix_verified`.
 
-This means the repo now has code, dashboard, public-mainnet connector, runtime command, summary JSON, tests, runbooks, and a daily founder review pack for controlled forward observation across the expanded 10-lane lab. The old local PT-RT1.1C artifact set under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` is pre-cutover burn-in for active Week 1 because it kept generating 15m opens after cutover. The PT-RT1.4.1 active-week directory, PT-RT1.5 pre-warm-start smoke, and PT-RT1.5.1 smoke are archived by default. PT-RT1.5.2 verified a signed testnet transport smoke that reached Hyperliquid testnet and rejected with `Order has invalid size.` without synthetic PnL impact; the clean active Week 1 scope is `reports/paper_runtime/pt_rt1_5_2_week1_active/`. It is not an always-on hosted service: new signal generation requires starting `scripts/run_pt_rt1_paper_observation.py` with PT-RT1.5.2 flags and keeping that process and machine awake/networked for the chosen session. No 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading.
+This means the repo now has code, dashboard, public-mainnet connector, runtime command, summary JSON, tests, runbooks, and a daily founder review pack for controlled forward observation across the expanded 10-lane lab. The old local PT-RT1.1C artifact set under `reports/paper_runtime/pt_rt1_1c_24h_dry_run/` is pre-cutover burn-in for active Week 1 because it kept generating 15m opens after cutover. The PT-RT1.4.1 active-week directory, PT-RT1.5 pre-warm-start smoke, PT-RT1.5.1 smoke, and PT-RT1.5.2 smoke are archived by default. PT-RT1.5.3 verified the Hyperliquid testnet size/precision hotfix with one fixed-25-USDC smoke that reached accepted/open, canceled, and reconciled without synthetic PnL impact. It is not an always-on hosted service: new signal generation requires starting `scripts/run_pt_rt1_paper_observation.py` with PT-RT1.5.x flags and keeping that process and machine awake/networked for the chosen session. No 60-day observation result exists. It is not enough to approve production rules, paper runtime strategy authority, or live trading.

@@ -212,7 +212,7 @@ def test_docs_ob21_current_truth_docs_are_current_first() -> None:
     for relative_path in current_truth_files:
         contents = Path(relative_path).read_text()
         assert "Current Operator Summary" in contents, f"{relative_path} lacks a current summary"
-        assert "PT-RT1.5.2" in contents, f"{relative_path} lacks PT-RT current state"
+        assert "PT-RT1.5.3" in contents, f"{relative_path} lacks PT-RT current state"
         assert "1h" in contents and "4h" in contents and "1d" in contents
         assert "15m" in contents and "paused" in contents.lower()
         assert "public Hyperliquid mainnet" in contents or "public mainnet" in contents
@@ -251,7 +251,7 @@ def test_docs_ob21_dashboard_and_strategy_taxonomies_are_explicit() -> None:
         assert lane in strategy_map
         assert lane in strategy_register
 
-    assert "baseline_only_25_usdc_when_pt_rt1_5_2_gates_pass" in strategy_map
+    assert "baseline_only_25_usdc_when_pt_rt1_5_3_gates_pass" in strategy_map
     assert "cannot_send_testnet_orders" in strategy_map
     assert "testnet fills do not update synthetic pnl" in strategy_register.lower()
     assert "Dashboard date filters do not regenerate evidence packs" in Path("money-flow/00 Maps/Evidence and Backtesting Map.md").read_text()
@@ -346,7 +346,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "PT-RT1.1" in command_center
     assert "PT-RT1.2" in command_center
     assert "repeated same-candle" in command_center
-    assert "baseline-only fixed 25 USDC Hyperliquid testnet lifecycle rows" in command_center
+    assert "fixed 25 USDC Hyperliquid testnet transport" in command_center
     assert "Evidence and Backtesting Map" in command_center
     assert "Active Work" in coordination
     assert "Founder Vision" in moved_memory
@@ -393,9 +393,9 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert "Current implemented milestone | `PT-RT1.5.2` signed testnet transport smoke + active Week 1 restart handoff" in command_center
+    assert "Current implemented milestone | `PT-RT1.5.3` Hyperliquid testnet size/precision hotfix" in command_center
     assert "Canonical command center" in compatibility_command_center
-    assert "PT-RT1.5.2 is the current Paper Trading forward-observation runtime" in current_dashboard
+    assert "PT-RT1.5.3 is the current Paper Trading forward-observation hotfix" in current_dashboard
     assert "SV2.0.2 canonical evidence" in current_dashboard
     assert "EV-AUDIT1" in current_dashboard
     assert "PT-RT1" in current_dashboard
@@ -561,7 +561,8 @@ def test_ob2_0_obsidian_strategy_brain_refresh_is_current() -> None:
     assert "No strategy is production-ready" in current_phase or "no clean strategy candidate is promoted" in current_phase
     assert "PT-RT1" in current_phase
     assert (
-        "Run a fresh PT-RT active-week observation session" in current_phase
+        "Run or continue a fresh PT-RT active-week observation session" in current_phase
+        or "Run a fresh PT-RT active-week observation session" in current_phase
         or "Continue the restarted PT-RT active-week observation session" in current_phase
     )
     assert "compact-log suppression/size stats" in current_phase
@@ -634,7 +635,8 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     assert "PT-RT1.5 resets the active Week 1 Paper Trading scope" in command_center
     assert "PT-RT1.5.1 enables signed Hyperliquid testnet transport only for fresh Money Flow v1.2 baseline open signals" in command_center
     assert "PT-RT1.5.2 verifies the signed transport path" in command_center
-    assert "pt_rt1_5_2_week1_active" in current_phase
+    assert "PT-RT1.5.3" in current_phase
+    assert "hotfix-era scope" in current_phase
     assert "fixed 25 USDC" in pt_rt15_report
     assert "candle-close only" in pt_rt15_report
     assert "\"fixed_notional_usdc\": \"25\"" in pt_rt15_summary
@@ -648,7 +650,7 @@ def test_pt_rt1_operational_docs_are_current() -> None:
     assert "PT-RT Week 1 Daily Summary" in current_phase
     assert "active_runtime_cutover_verified_after_restart" in current_phase
     assert "state persists processed signal keys" in command_center
-    assert "baseline-only fixed 25 USDC Hyperliquid testnet lifecycle rows" in command_center
+    assert "fixed 25 USDC Hyperliquid testnet transport" in command_center
     assert "not production approval" in report
     assert "live approval" in report
     assert "paper-runtime approval" in report

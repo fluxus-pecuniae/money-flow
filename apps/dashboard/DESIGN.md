@@ -5,12 +5,12 @@ Canonical design document for `apps/dashboard/`.
 ## Current Operator Summary
 
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
-- Current runtime: `PT-RT1.5.2` signed-transport smoke verified; default active scope is `reports/paper_runtime/pt_rt1_5_2_week1_active/`.
+- Current runtime: `PT-RT1.5.3` testnet size/precision hotfix verified; fixed 25 USDC smoke reached accepted/open, canceled, and reconciled.
 - Active timeframes: `1h`, `4h`, `1d`.
 - Paused timeframes: `15m` is paused for Week 1 noise reduction and legacy review only.
 - Strategy truth: public Hyperliquid mainnet fully closed candles and derived indicators.
 - Synthetic PnL truth: independent synthetic 10,000 USDC paper ledgers per lane.
-- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when PT-RT1.5.2 gates pass; the PT-RT1.5.2 smoke reached testnet and rejected on venue size validation without synthetic PnL impact.
+- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when PT-RT1.5.3 gates pass; lifecycle rows show asset id, szDecimals, raw quantity, formatted quantity, and estimated notional without synthetic PnL impact.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
 - Next recommended action: keep the Paper Trading page compact and current-first; keep UAT panels hidden as historical plumbing context.
@@ -103,7 +103,7 @@ Primary dashboard tabs are:
   - Current weekly PT-RT runtime truth.
   - Active Week 1 timeframes are `1h`, `4h`, and `1d`; `15m` is paused/legacy.
   - Candidate/MF-ORIG/wildcard lanes are synthetic-only.
-  - Fresh Money Flow v1.2 baseline opens can trigger fixed 25 USDC testnet plumbing only under PT-RT1.5.2 gates.
+  - Fresh Money Flow v1.2 baseline opens can trigger fixed 25 USDC testnet plumbing only under PT-RT1.5.3 gates.
 - Historical Replay
   - Historical visual reference from generated chart/trade JSON.
 - Evidence

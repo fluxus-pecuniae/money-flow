@@ -50,6 +50,9 @@ from services.paper_runtime.pt_rt1 import (
     PT_RT1_5_2_TESTNET_SMOKE_PHASE_CAP,
     PT_RT1_5_2_TRANSPORT_SMOKE_OUTPUT_DIR,
     PT_RT1_5_2_TRANSPORT_SMOKE_SCOPE,
+    PT_RT1_5_3_EXACT_TESTNET_SIZE_HOTFIX_SMOKE_APPROVAL,
+    PT_RT1_5_3_TRANSPORT_SMOKE_OUTPUT_DIR,
+    PT_RT1_5_3_TRANSPORT_SMOKE_SCOPE,
     PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
     PT_RT1_5_RUNTIME_OUTPUT_DIR,
     PT_RT1_5_RUNTIME_SCOPE,
@@ -220,6 +223,55 @@ def pt_rt1_5_2_signed_transport_env_status() -> dict[str, Any]:
         "signed_testnet_transport_client_configured": configured,
         "reason_codes": reasons or ["signed_testnet_transport_client_configured"],
     }
+
+
+def _testnet_info_url_from_base_url(base_url: str) -> str | None:
+    normalized = (base_url or "").strip().rstrip("/")
+    if normalized == PT_RT1_TESTNET_INFO_URL:
+        return PT_RT1_TESTNET_INFO_URL
+    if normalized == PT_RT1_TESTNET_API_URL:
+        return PT_RT1_TESTNET_INFO_URL
+    return None
+
+
+def _fetch_hyperliquid_testnet_meta_by_symbol(base_url: str) -> tuple[dict[str, dict[str, Any]], list[str]]:
+    """Fetch testnet public metadata for order formatting only.
+
+    This is plumbing metadata, not strategy truth. Strategy candles/indicators
+    remain public mainnet only.
+    """
+
+    info_url = _testnet_info_url_from_base_url(base_url)
+    if info_url is None:
+        return {}, ["testnet_endpoint_required"]
+    try:
+        response = httpx.post(info_url, json={"type": "meta"}, timeout=15.0)
+        response.raise_for_status()
+        payload = response.json()
+    except Exception as exc:  # noqa: BLE001
+        return {}, ["testnet_metadata_unavailable", redact_sensitive_text(str(exc))]
+    universe = payload.get("universe") if isinstance(payload, dict) else None
+    if not isinstance(universe, list):
+        return {}, ["testnet_metadata_unavailable"]
+    rows: dict[str, dict[str, Any]] = {}
+    for asset_id, asset in enumerate(universe):
+        if not isinstance(asset, dict):
+            continue
+        symbol = str(asset.get("name") or "").upper()
+        if not symbol:
+            continue
+        try:
+            sz_decimals = int(asset["szDecimals"])
+        except (KeyError, TypeError, ValueError):
+            sz_decimals = None
+        rows[symbol] = {
+            "asset_id": asset_id,
+            "venue_symbol": symbol,
+            "szDecimals": sz_decimals,
+            "isDelisted": bool(asset.get("isDelisted", False)),
+            "metadata_source": "hyperliquid_testnet_public_meta",
+        }
+    return rows, ["testnet_metadata_resolved"]
 
 
 class HyperliquidPT_RT15TestnetOrderTransport:
@@ -419,6 +471,8 @@ class HyperliquidPT_RT15TestnetOrderTransport:
             error_text = str(first.get("error"))
             mapped_reasons = ["testnet_order_rejected", error_text]
             lowered = error_text.lower()
+            if "invalid size" in lowered or "order has invalid size" in lowered:
+                mapped_reasons.extend(["testnet_order_rejected_invalid_size", "venue_reject_order_has_invalid_size"])
             if "tick" in lowered or "price" in lowered:
                 mapped_reasons.append("testnet_order_rejected_tick_size")
             if "size" in lowered or "lot" in lowered:
@@ -1352,6 +1406,8 @@ def _build_pt_rt1_5_testnet_order_lifecycle_rows(
     decision_rows: Sequence[dict[str, Any]],
     scanner_rows: Sequence[Any],
     latest_closed_by_key: dict[tuple[str, str], Any],
+    testnet_meta_by_symbol: dict[str, dict[str, Any]] | None = None,
+    testnet_metadata_reason_codes: Sequence[str] = (),
     transport_enabled: bool,
     approval_text: str,
     notional_usdc: Decimal,
@@ -1388,6 +1444,25 @@ def _build_pt_rt1_5_testnet_order_lifecycle_rows(
         symbol = str(decision.get("symbol") or "").upper()
         timeframe = str(decision.get("timeframe") or "")
         scanner_row = row_by_symbol.get(symbol)
+        testnet_meta = (testnet_meta_by_symbol or {}).get(symbol)
+        if testnet_meta_by_symbol is None and scanner_row is not None:
+            testnet_meta = {
+                "asset_id": scanner_row.asset_id,
+                "szDecimals": scanner_row.szDecimals,
+                "venue_symbol": (
+                    getattr(scanner_row, "resolved_venue_symbol", None)
+                    or getattr(scanner_row, "canonical_symbol", None)
+                    or getattr(scanner_row, "requested_symbol", None)
+                ),
+                "metadata_source": "scanner_row_legacy_fallback",
+                "isDelisted": False,
+            }
+        testnet_metadata_resolved = (
+            testnet_meta is not None
+            and testnet_meta.get("asset_id") is not None
+            and testnet_meta.get("szDecimals") is not None
+            and not bool(testnet_meta.get("isDelisted"))
+        )
         candle = latest_closed_by_key.get((symbol, timeframe))
         order_key = _testnet_order_key(decision)
         duplicate = order_key in submitted_keys
@@ -1417,8 +1492,9 @@ def _build_pt_rt1_5_testnet_order_lifecycle_rows(
                 kill_switch=kill_switch,
                 approval_text=approval_text,
                 base_url=base_url,
-                asset_id=scanner_row.asset_id if scanner_row else None,
-                sz_decimals=scanner_row.szDecimals if scanner_row else None,
+                asset_id=int(testnet_meta["asset_id"]) if testnet_metadata_resolved else None,
+                sz_decimals=int(testnet_meta["szDecimals"]) if testnet_metadata_resolved else None,
+                testnet_metadata_resolved=testnet_metadata_resolved,
                 price=price,
                 synthetic_signal_notional=_dec(decision.get("equity_before"), Decimal("10000")),
                 fixed_notional=notional_usdc,
@@ -1432,6 +1508,9 @@ def _build_pt_rt1_5_testnet_order_lifecycle_rows(
             **result.lifecycle_row,
             "testnet_order_key": order_key,
             "created_at_utc": _iso(_utc_now()),
+            "venue_symbol": testnet_meta.get("venue_symbol") if testnet_meta else symbol,
+            "testnet_metadata_source": testnet_meta.get("metadata_source") if testnet_meta else None,
+            "testnet_metadata_reason_codes": list(testnet_metadata_reason_codes),
             "transport_submit_configured": transport is not None,
             "signed_testnet_transport_client_configured": transport is not None,
             "trigger_reason_codes": list(decision.get("reason_codes") or []),
@@ -1481,6 +1560,7 @@ def _build_pt_rt1_5_testnet_order_lifecycle_rows(
             PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
             PT_RT1_5_1_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
             PT_RT1_5_2_EXACT_TESTNET_TRANSPORT_SMOKE_APPROVAL,
+            PT_RT1_5_3_EXACT_TESTNET_SIZE_HOTFIX_SMOKE_APPROVAL,
         },
         "fixed_notional_usdc": str(notional_usdc),
         "baseline_open_signals_this_cycle": len(baseline_open_rows),
@@ -1497,6 +1577,7 @@ def _build_pt_rt1_5_testnet_order_lifecycle_rows(
         "order_endpoint_called": order_called,
         "testnet_fills_update_strategy_pnl": False,
         "candidate_lane_transport_blocked": True,
+        "testnet_metadata_reason_codes": list(testnet_metadata_reason_codes),
         "reason_codes": [
             "baseline_only_trigger",
             "candidate_lane_transport_blocked",
@@ -1512,6 +1593,8 @@ def _build_pt_rt1_5_2_transport_smoke_lifecycle_row(
     *,
     scanner_rows: Sequence[Any],
     latest_closed_by_key: dict[tuple[str, str], Any],
+    testnet_meta_by_symbol: dict[str, dict[str, Any]] | None = None,
+    testnet_metadata_reason_codes: Sequence[str] = (),
     enabled: bool,
     approval_text: str,
     notional_usdc: Decimal,
@@ -1521,7 +1604,13 @@ def _build_pt_rt1_5_2_transport_smoke_lifecycle_row(
     transport: BaselineTestnetOrderTransport | None,
     max_testnet_orders_this_phase: int,
 ) -> tuple[list[dict[str, Any]], dict[str, Any], set[str]]:
-    smoke_key = "pt_rt1_5_2|transport_smoke_not_strategy_signal|25usdc|buy"
+    smoke_phase = (
+        "pt_rt1_5_3"
+        if approval_text == PT_RT1_5_3_EXACT_TESTNET_SIZE_HOTFIX_SMOKE_APPROVAL
+        else "pt_rt1_5_2"
+    )
+    smoke_key = f"{smoke_phase}|transport_smoke_not_strategy_signal|25usdc|buy"
+    cap_reason = f"{smoke_phase}_testnet_smoke_cap_reached"
     if not enabled:
         return [], {
             "transport_smoke_enabled": False,
@@ -1542,27 +1631,115 @@ def _build_pt_rt1_5_2_transport_smoke_lifecycle_row(
                 "testnet_fills_update_strategy_pnl": False,
                 "order_endpoint_called": False,
                 "signed_order_endpoint_called": False,
-                "reason_codes": ["pt_rt1_5_2_testnet_smoke_cap_reached"],
+                "reason_codes": [cap_reason],
             }
         ], {
             "transport_smoke_enabled": True,
             "transport_smoke_used_this_cycle": False,
             "transport_smoke_blocked": True,
-            "reason_codes": ["pt_rt1_5_2_testnet_smoke_cap_reached"],
+            "reason_codes": [cap_reason],
         }, existing_order_keys
 
-    selected: tuple[Any, Any, str] | None = None
+    selected: tuple[Any, Any, str, dict[str, Any] | None] | None = None
+    first_invalid_preflight: dict[str, Any] | None = None
     for row in scanner_rows:
         if not row.scanner_eligible or row.blocked or not row.precision_ready:
             continue
         symbol = str(row.canonical_symbol or row.requested_symbol).upper()
+        testnet_meta = (testnet_meta_by_symbol or {}).get(symbol)
+        if testnet_meta_by_symbol is None:
+            testnet_meta = {
+                "asset_id": row.asset_id,
+                "szDecimals": row.szDecimals,
+                "venue_symbol": getattr(row, "resolved_venue_symbol", None) or row.canonical_symbol or row.requested_symbol,
+                "metadata_source": "scanner_row_legacy_fallback",
+                "isDelisted": False,
+            }
         for timeframe in PT_RT1_5_ACTIVE_TIMEFRAMES:
             candle = latest_closed_by_key.get((symbol, timeframe))
             if candle is not None:
-                selected = (row, candle, timeframe)
-                break
+                price = _testnet_probe_price(candle)
+                policy = PT_RT15BaselineTestnetOrderPolicy()
+                testnet_metadata_resolved = (
+                    testnet_meta is not None
+                    and testnet_meta.get("asset_id") is not None
+                    and testnet_meta.get("szDecimals") is not None
+                    and not bool(testnet_meta.get("isDelisted"))
+                )
+                preflight = policy.evaluate(
+                    PT_RT15TestnetOrderCandidate(
+                        lane_id="money_flow_v1_2_baseline",
+                        strategy_id="money_flow_v1_2_baseline",
+                        action="paper_opened",
+                        symbol=symbol,
+                        timeframe=timeframe,
+                        signal_candle_close_time=_iso(canonical_candle_close(candle)),
+                        scheduled_closed_candle_evaluation=True,
+                        fresh_signal_after_runtime_start=True,
+                        warm_start_signal_blocked=False,
+                        duplicate_order_key_seen=False,
+                        scanner_signal_eligible=True,
+                        scanner_symbol_blocked=False,
+                        unit_semantics_deferred=False,
+                        precision_ready=bool(row.precision_ready),
+                        order_transport_enabled=True,
+                        kill_switch=kill_switch,
+                        approval_text=approval_text,
+                        base_url=base_url,
+                        asset_id=int(testnet_meta["asset_id"]) if testnet_metadata_resolved else None,
+                        sz_decimals=int(testnet_meta["szDecimals"]) if testnet_metadata_resolved else None,
+                        testnet_metadata_resolved=testnet_metadata_resolved,
+                        price=price,
+                        synthetic_signal_notional=Decimal("0"),
+                        fixed_notional=notional_usdc,
+                        daily_order_count=0,
+                        daily_cap=max_testnet_orders_this_phase,
+                        per_symbol_daily_count=0,
+                        per_symbol_daily_cap=max_testnet_orders_this_phase,
+                    )
+                )
+                if preflight.eligible:
+                    selected = (row, candle, timeframe, testnet_meta)
+                    break
+                if first_invalid_preflight is None:
+                    first_invalid_preflight = {
+                        **preflight.lifecycle_row,
+                        "testnet_order_key": smoke_key,
+                        "created_at_utc": _iso(_utc_now()),
+                        "trigger_type": "transport_smoke_not_strategy_signal",
+                        "trigger_lane": "none",
+                        "trigger_reason": "testnet_transport_smoke_not_strategy_signal",
+                        "strategy_id": "none",
+                        "lane_id": "none",
+                        "venue_symbol": testnet_meta.get("venue_symbol") if testnet_meta else symbol,
+                        "testnet_metadata_source": testnet_meta.get("metadata_source") if testnet_meta else None,
+                        "testnet_metadata_reason_codes": list(testnet_metadata_reason_codes),
+                        "synthetic_trade_created": False,
+                        "strategy_pnl_update_from_testnet": False,
+                        "strategy_pnl_updated_from_testnet": False,
+                        "transport_submit_configured": transport is not None,
+                        "signed_testnet_transport_client_configured": transport is not None,
+                        "reason_codes": list(
+                            dict.fromkeys(
+                                [
+                                    "testnet_transport_smoke_not_strategy_signal",
+                                    *list(preflight.reason_codes),
+                                ]
+                            )
+                        ),
+                    }
         if selected is not None:
             break
+    if selected is None and first_invalid_preflight is not None:
+        return [first_invalid_preflight], {
+            "transport_smoke_enabled": True,
+            "transport_smoke_used_this_cycle": False,
+            "transport_smoke_blocked": True,
+            "order_endpoint_called": False,
+            "signed_order_endpoint_called": False,
+            "status": first_invalid_preflight.get("status"),
+            "reason_codes": list(first_invalid_preflight.get("reason_codes") or []),
+        }, existing_order_keys
     if selected is None:
         return [
             {
@@ -1586,10 +1763,16 @@ def _build_pt_rt1_5_2_transport_smoke_lifecycle_row(
             "reason_codes": ["testnet_transport_smoke_market_context_unavailable"],
         }, existing_order_keys
 
-    scanner_row, candle, timeframe = selected
+    scanner_row, candle, timeframe, testnet_meta = selected
     symbol = str(scanner_row.canonical_symbol or scanner_row.requested_symbol).upper()
     price = _testnet_probe_price(candle)
     policy = PT_RT15BaselineTestnetOrderPolicy()
+    testnet_metadata_resolved = (
+        testnet_meta is not None
+        and testnet_meta.get("asset_id") is not None
+        and testnet_meta.get("szDecimals") is not None
+        and not bool(testnet_meta.get("isDelisted"))
+    )
     result = policy.evaluate(
         PT_RT15TestnetOrderCandidate(
             lane_id="money_flow_v1_2_baseline",
@@ -1610,8 +1793,9 @@ def _build_pt_rt1_5_2_transport_smoke_lifecycle_row(
             kill_switch=kill_switch,
             approval_text=approval_text,
             base_url=base_url,
-            asset_id=scanner_row.asset_id,
-            sz_decimals=scanner_row.szDecimals,
+            asset_id=int(testnet_meta["asset_id"]) if testnet_metadata_resolved else None,
+            sz_decimals=int(testnet_meta["szDecimals"]) if testnet_metadata_resolved else None,
+            testnet_metadata_resolved=testnet_metadata_resolved,
             price=price,
             synthetic_signal_notional=Decimal("0"),
             fixed_notional=notional_usdc,
@@ -1625,6 +1809,9 @@ def _build_pt_rt1_5_2_transport_smoke_lifecycle_row(
         **result.lifecycle_row,
         "testnet_order_key": smoke_key,
         "created_at_utc": _iso(_utc_now()),
+        "venue_symbol": testnet_meta.get("venue_symbol") if testnet_meta else symbol,
+        "testnet_metadata_source": testnet_meta.get("metadata_source") if testnet_meta else None,
+        "testnet_metadata_reason_codes": list(testnet_metadata_reason_codes),
         "trigger_type": "transport_smoke_not_strategy_signal",
         "trigger_lane": "none",
         "trigger_reason": "testnet_transport_smoke_not_strategy_signal",
@@ -2107,11 +2294,19 @@ def run_cycle(
         notional_usdc=testnet_probe_notional_usdc,
         transport=testnet_probe_transport,
     )
+    testnet_meta_by_symbol: dict[str, dict[str, Any]] | None = None
+    testnet_metadata_reason_codes: list[str] = []
+    if baseline_testnet_order_transport_enabled and run_label in {"PT-RT1.5", "PT-RT1.5.1", "PT-RT1.5.2", "PT-RT1.5.3"}:
+        testnet_meta_by_symbol, testnet_metadata_reason_codes = _fetch_hyperliquid_testnet_meta_by_symbol(
+            baseline_testnet_order_base_url
+        )
     testnet_order_lifecycle_rows, testnet_order_lifecycle_stats, testnet_order_keys = (
         _build_pt_rt1_5_testnet_order_lifecycle_rows(
             decision_rows=decision_rows,
             scanner_rows=selected_rows,
             latest_closed_by_key=latest_closed_by_key,
+            testnet_meta_by_symbol=testnet_meta_by_symbol,
+            testnet_metadata_reason_codes=testnet_metadata_reason_codes,
             transport_enabled=baseline_testnet_order_transport_enabled,
             approval_text=baseline_testnet_order_approval_text,
             notional_usdc=baseline_testnet_order_notional_usdc,
@@ -2122,12 +2317,12 @@ def run_cycle(
             kill_switch=baseline_testnet_order_kill_switch,
             transport=baseline_testnet_order_transport,
         )
-        if run_label in {"PT-RT1.5", "PT-RT1.5.1", "PT-RT1.5.2"}
+        if run_label in {"PT-RT1.5", "PT-RT1.5.1", "PT-RT1.5.2", "PT-RT1.5.3"}
         else ([], {}, testnet_order_keys)
     )
     transport_smoke_stats: dict[str, Any] = {"transport_smoke_enabled": False, "transport_smoke_used_this_cycle": False}
     if (
-        run_label == "PT-RT1.5.2"
+        run_label in {"PT-RT1.5.2", "PT-RT1.5.3"}
         and pt_rt1_5_2_transport_smoke_enabled
         and testnet_order_lifecycle_stats.get("fresh_baseline_open_signals_this_cycle", 0) == 0
     ):
@@ -2140,6 +2335,8 @@ def run_cycle(
         transport_smoke_rows, transport_smoke_stats, testnet_order_keys = _build_pt_rt1_5_2_transport_smoke_lifecycle_row(
             scanner_rows=selected_rows,
             latest_closed_by_key=latest_closed_by_key,
+            testnet_meta_by_symbol=testnet_meta_by_symbol,
+            testnet_metadata_reason_codes=testnet_metadata_reason_codes,
             enabled=pt_rt1_5_2_transport_smoke_enabled,
             approval_text=baseline_testnet_order_approval_text,
             notional_usdc=baseline_testnet_order_notional_usdc,
@@ -2188,7 +2385,12 @@ def run_cycle(
     is_pt_rt1_5 = run_label == "PT-RT1.5"
     is_pt_rt1_5_1 = run_label == "PT-RT1.5.1"
     is_pt_rt1_5_2 = run_label == "PT-RT1.5.2"
+    is_pt_rt1_5_3 = run_label == "PT-RT1.5.3"
+    is_pt_rt1_5_2_or_later_smoke = is_pt_rt1_5_2 or is_pt_rt1_5_3
     active_scope = (
+        PT_RT1_5_3_TRANSPORT_SMOKE_SCOPE
+        if is_pt_rt1_5_3
+        else
         PT_RT1_5_2_RUNTIME_SCOPE
         if is_pt_rt1_5_2
         else PT_RT1_5_1_RUNTIME_SCOPE
@@ -2198,6 +2400,9 @@ def run_cycle(
         else "pt_rt1_4_1_active_week"
     )
     active_start = (
+        _iso(now)
+        if is_pt_rt1_5_3
+        else
         PT_RT1_5_2_ACTIVE_REVIEW_START_UTC
         if is_pt_rt1_5_2
         else PT_RT1_5_1_ACTIVE_REVIEW_START_UTC
@@ -2207,6 +2412,9 @@ def run_cycle(
         else base_summary["active_review_start_utc"]
     )
     active_output_dir = (
+        PT_RT1_5_3_TRANSPORT_SMOKE_OUTPUT_DIR
+        if is_pt_rt1_5_3
+        else
         PT_RT1_5_2_RUNTIME_OUTPUT_DIR
         if is_pt_rt1_5_2
         else PT_RT1_5_1_RUNTIME_OUTPUT_DIR
@@ -2234,6 +2442,10 @@ def run_cycle(
             if is_pt_rt1_5_2 and runtime_status == "verified"
             else "signed_testnet_transport_smoke_cycle_blocked"
             if is_pt_rt1_5_2
+            else "testnet_size_precision_hotfix_smoke_verified"
+            if is_pt_rt1_5_3 and runtime_status == "verified"
+            else "testnet_size_precision_hotfix_smoke_blocked"
+            if is_pt_rt1_5_3
             else "runtime_correctness_cycle_verified"
             if is_pt_rt1_2 and runtime_status == "verified"
             else "runtime_correctness_cycle_blocked"
@@ -2290,6 +2502,13 @@ def run_cycle(
                         "active_week_reset_after_signed_transport_smoke",
                     ]
                     if is_pt_rt1_5_2
+                    else
+                    [
+                        "pt_rt1_5_2_invalid_size_runtime_archived",
+                        "testnet_size_precision_hotfix_smoke_scope",
+                        "active_week_runtime_restart_after_size_hotfix_required",
+                    ]
+                    if is_pt_rt1_5_3
                     else
                     [
                         "pre_warm_start_gate_runtime_archived",
@@ -2388,6 +2607,8 @@ def run_cycle(
         "testnet_order_policy": {
             "policy": "pt_rt1_5_2_baseline_only_fixed_25usdc_fresh_signal_or_one_smoke"
             if is_pt_rt1_5_2
+            else "pt_rt1_5_3_testnet_size_precision_hotfix_fixed_25usdc_one_smoke"
+            if is_pt_rt1_5_3
             else "pt_rt1_5_1_baseline_only_fixed_25usdc_fresh_signal_only"
             if is_pt_rt1_5_1
             else "pt_rt1_5_baseline_only_fixed_25usdc",
@@ -2403,6 +2624,7 @@ def run_cycle(
                 PT_RT1_5_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
                 PT_RT1_5_1_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
                 PT_RT1_5_2_EXACT_TESTNET_TRANSPORT_SMOKE_APPROVAL,
+                PT_RT1_5_3_EXACT_TESTNET_SIZE_HOTFIX_SMOKE_APPROVAL,
             },
             "eligible_trigger": "money_flow_v1_2_baseline paper_opened only",
             "active_timeframes": list(PT_RT1_5_ACTIVE_TIMEFRAMES),
@@ -2419,9 +2641,11 @@ def run_cycle(
             "eligible_order_shapes_this_cycle": testnet_order_lifecycle_stats.get("eligible_order_shapes_this_cycle", 0),
             "signed_order_endpoint_called": testnet_order_lifecycle_stats.get("signed_order_endpoint_called", False),
             "order_endpoint_called": testnet_order_lifecycle_stats.get("order_endpoint_called", False),
-            "transport_smoke_allowed_once": is_pt_rt1_5_2,
+            "transport_smoke_allowed_once": is_pt_rt1_5_2_or_later_smoke,
             "transport_smoke_used_this_cycle": testnet_order_lifecycle_stats.get("transport_smoke_used_this_cycle", False),
-            "max_testnet_orders_this_phase": max_testnet_orders_this_phase if is_pt_rt1_5_2 else None,
+            "max_testnet_orders_this_phase": max_testnet_orders_this_phase if is_pt_rt1_5_2_or_later_smoke else None,
+            "size_precision_hotfix": is_pt_rt1_5_3,
+            "testnet_metadata_reason_codes": testnet_order_lifecycle_stats.get("testnet_metadata_reason_codes", []),
             "reason_codes": testnet_order_lifecycle_stats.get(
                 "reason_codes",
                 ["baseline_only_trigger", "fixed_testnet_plumbing_notional"],
@@ -2430,7 +2654,7 @@ def run_cycle(
         "signed_transport_env_status": signed_transport_env_status
         or {"transport_client_configured": testnet_order_lifecycle_stats.get("transport_submit_configured", False)},
         "testnet_smoke_status": {
-            "allowed_once": is_pt_rt1_5_2,
+            "allowed_once": is_pt_rt1_5_2_or_later_smoke,
             "trigger_type": (
                 "transport_smoke_not_strategy_signal"
                 if testnet_order_lifecycle_stats.get("transport_smoke_used_this_cycle")
@@ -2443,7 +2667,9 @@ def run_cycle(
                 "fresh_baseline_open_signals_this_cycle",
                 0,
             ),
-            "max_testnet_orders_this_phase": max_testnet_orders_this_phase if is_pt_rt1_5_2 else None,
+            "max_testnet_orders_this_phase": max_testnet_orders_this_phase if is_pt_rt1_5_2_or_later_smoke else None,
+            "size_precision_hotfix": is_pt_rt1_5_3,
+            "testnet_metadata_reason_codes": testnet_order_lifecycle_stats.get("testnet_metadata_reason_codes", []),
             "order_endpoint_called": testnet_order_lifecycle_stats.get("order_endpoint_called", False),
             "signed_order_endpoint_called": testnet_order_lifecycle_stats.get("signed_order_endpoint_called", False),
             "strategy_pnl_update_from_testnet": False,
@@ -2463,6 +2689,7 @@ def run_cycle(
             "pt_rt1_5_week1_active_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_5_week1_active --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --enable-pt-rt1-5-baseline-testnet-orders --founder-approved-pt-rt1-5-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --disable-testnet-probes --public-mainnet-only",
             "pt_rt1_5_2_transport_smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 15 --output-dir reports/paper_runtime/pt_rt1_5_2_transport_smoke --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-2-testnet-transport-smoke --pt-rt1-5-testnet-order-notional-usdc 25 --max-testnet-orders-this-phase 1 --public-mainnet-only",
             "pt_rt1_5_2_week1_active_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_5_2_week1_active --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-2-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --public-mainnet-only",
+            "pt_rt1_5_3_transport_smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 15 --output-dir reports/paper_runtime/pt_rt1_5_3_transport_smoke --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-3-testnet-size-hotfix-smoke --pt-rt1-5-testnet-order-notional-usdc 25 --max-testnet-orders-this-phase 1 --public-mainnet-only",
             "smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 1 --output-dir reports/paper_runtime/pt_rt1_1b_smoke --disable-testnet-probes --public-mainnet-only",
             "output_dir": str(output_dir),
         },
@@ -2621,6 +2848,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--founder-approved-pt-rt1-5-1-baseline-testnet-orders-25usdc", action="store_true")
     parser.add_argument("--founder-approved-pt-rt1-5-2-testnet-transport-smoke", action="store_true")
     parser.add_argument("--founder-approved-pt-rt1-5-2-baseline-testnet-orders-25usdc", action="store_true")
+    parser.add_argument("--founder-approved-pt-rt1-5-3-testnet-size-hotfix-smoke", action="store_true")
     parser.add_argument(
         "--pt-rt1-5-testnet-order-notional-usdc",
         type=Decimal,
@@ -2673,17 +2901,29 @@ def main() -> int:
         PT_RT1_5_2_TRANSPORT_SMOKE_OUTPUT_DIR,
         PT_RT1_5_2_RUNTIME_OUTPUT_DIR,
     }
+    is_pt_rt1_5_3_output = output_dir_posix == PT_RT1_5_3_TRANSPORT_SMOKE_OUTPUT_DIR
+    is_pt_rt1_5_3_requested = (
+        is_pt_rt1_5_3_output
+        or args.founder_approved_pt_rt1_5_3_testnet_size_hotfix_smoke
+    )
     is_pt_rt1_5_2_requested = (
-        is_pt_rt1_5_2_output
-        or args.founder_approved_pt_rt1_5_2_testnet_transport_smoke
-        or args.founder_approved_pt_rt1_5_2_baseline_testnet_orders_25usdc
+        not is_pt_rt1_5_3_requested
+        and (
+            is_pt_rt1_5_2_output
+            or args.founder_approved_pt_rt1_5_2_testnet_transport_smoke
+            or args.founder_approved_pt_rt1_5_2_baseline_testnet_orders_25usdc
+        )
     )
     baseline_transport_requested = (
-        args.enable_pt_rt1_5_baseline_testnet_orders or args.enable_baseline_testnet_transport
+        args.enable_pt_rt1_5_baseline_testnet_orders
+        or args.enable_baseline_testnet_transport
         or args.founder_approved_pt_rt1_5_2_testnet_transport_smoke
         or args.founder_approved_pt_rt1_5_2_baseline_testnet_orders_25usdc
+        or args.founder_approved_pt_rt1_5_3_testnet_size_hotfix_smoke
     )
     is_pt_rt1_5_1_smoke = (
+        not is_pt_rt1_5_3_requested
+        and
         not is_pt_rt1_5_2_requested
         and (
             args.fresh_signal_only_after_runtime_start
@@ -2698,6 +2938,8 @@ def main() -> int:
             allowed_pt_rt15_output_dirs.update(
                 {PT_RT1_5_2_TRANSPORT_SMOKE_OUTPUT_DIR, PT_RT1_5_2_RUNTIME_OUTPUT_DIR}
             )
+        if is_pt_rt1_5_3_requested:
+            allowed_pt_rt15_output_dirs.add(PT_RT1_5_3_TRANSPORT_SMOKE_OUTPUT_DIR)
         if output_dir_posix not in allowed_pt_rt15_output_dirs:
             raise SystemExit("pt_rt1_5_output_dir_must_be_reports_paper_runtime_pt_rt1_5_week1_active")
         if args.enable_testnet_probes:
@@ -2708,6 +2950,8 @@ def main() -> int:
         raise SystemExit("pt_rt1_5_1_smoke_requires_fresh_signal_only_after_runtime_start")
     if is_pt_rt1_5_2_output and not args.fresh_signal_only_after_runtime_start:
         raise SystemExit("pt_rt1_5_2_requires_fresh_signal_only_after_runtime_start")
+    if is_pt_rt1_5_3_output and not args.fresh_signal_only_after_runtime_start:
+        raise SystemExit("pt_rt1_5_3_requires_fresh_signal_only_after_runtime_start")
     if baseline_transport_requested and not args.pt_rt1_5_week1_active:
         raise SystemExit("pt_rt1_5_baseline_testnet_orders_require_pt_rt1_5_week1_active")
     if (
@@ -2716,6 +2960,7 @@ def main() -> int:
         and not args.founder_approved_pt_rt1_5_1_baseline_testnet_orders_25usdc
         and not args.founder_approved_pt_rt1_5_2_testnet_transport_smoke
         and not args.founder_approved_pt_rt1_5_2_baseline_testnet_orders_25usdc
+        and not args.founder_approved_pt_rt1_5_3_testnet_size_hotfix_smoke
     ):
         raise SystemExit("founder_approved_pt_rt1_5_baseline_testnet_orders_25usdc_required")
     if args.pt_rt1_5_testnet_order_notional_usdc != PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC:
@@ -2726,8 +2971,9 @@ def main() -> int:
         raise SystemExit("positive_pt_rt1_5_testnet_per_symbol_daily_cap_required")
     if args.max_testnet_orders_this_phase < 0:
         raise SystemExit("nonnegative_max_testnet_orders_this_phase_required")
-    env_load_status = _load_pt_rt1_5_2_env_file(args.env_file) if is_pt_rt1_5_2_requested else {}
-    signed_transport_env_status = pt_rt1_5_2_signed_transport_env_status() if is_pt_rt1_5_2_requested else None
+    signed_transport_phase_requested = is_pt_rt1_5_2_requested or is_pt_rt1_5_3_requested
+    env_load_status = _load_pt_rt1_5_2_env_file(args.env_file) if signed_transport_phase_requested else {}
+    signed_transport_env_status = pt_rt1_5_2_signed_transport_env_status() if signed_transport_phase_requested else None
     if signed_transport_env_status is not None:
         signed_transport_env_status = {**signed_transport_env_status, "env_load_status": env_load_status}
     _ensure_ignored_output_dir(args.output_dir)
@@ -2750,6 +2996,9 @@ def main() -> int:
         baseline_testnet_order_transport = HyperliquidPT_RT15TestnetOrderTransport.from_env()
     end_time = _utc_now() + duration
     run_label = (
+        "PT-RT1.5.3"
+        if args.pt_rt1_5_week1_active and is_pt_rt1_5_3_requested
+        else
         "PT-RT1.5.2"
         if args.pt_rt1_5_week1_active and is_pt_rt1_5_2_requested
         else
@@ -2791,6 +3040,9 @@ def main() -> int:
             signal_evaluation_mode=args.signal_evaluation_mode,
             baseline_testnet_order_transport_enabled=baseline_transport_requested,
             baseline_testnet_order_approval_text=(
+                PT_RT1_5_3_EXACT_TESTNET_SIZE_HOTFIX_SMOKE_APPROVAL
+                if args.founder_approved_pt_rt1_5_3_testnet_size_hotfix_smoke
+                else
                 PT_RT1_5_2_EXACT_TESTNET_TRANSPORT_SMOKE_APPROVAL
                 if (
                     args.founder_approved_pt_rt1_5_2_testnet_transport_smoke
@@ -2811,7 +3063,10 @@ def main() -> int:
             baseline_testnet_order_kill_switch=baseline_testnet_order_kill_switch,
             baseline_testnet_order_transport=baseline_testnet_order_transport,
             fresh_signal_only_after_runtime_start=args.fresh_signal_only_after_runtime_start,
-            pt_rt1_5_2_transport_smoke_enabled=args.founder_approved_pt_rt1_5_2_testnet_transport_smoke,
+            pt_rt1_5_2_transport_smoke_enabled=(
+                args.founder_approved_pt_rt1_5_2_testnet_transport_smoke
+                or args.founder_approved_pt_rt1_5_3_testnet_size_hotfix_smoke
+            ),
             max_testnet_orders_this_phase=args.max_testnet_orders_this_phase,
             signed_transport_env_status=signed_transport_env_status,
         )

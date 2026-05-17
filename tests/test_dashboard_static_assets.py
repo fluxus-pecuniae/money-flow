@@ -544,7 +544,7 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "synthetic_entry" in js
     assert "Audit/order-shape rows" in js
     assert "Signed testnet orders" in js
-    assert "PT-RT1.5.2 allows signed Hyperliquid testnet transport only from fresh post-start scheduled Money Flow v1.2 baseline synthetic opens or one labeled transport smoke" in js
+    assert "PT-RT1.5.3 keeps signed Hyperliquid testnet transport scoped to fresh post-start scheduled Money Flow v1.2 baseline synthetic opens or one labeled transport smoke, with metadata-based size preflight" in js
     assert "renderPaperObservationScanner();" in js
     assert ".paper-observation-tick" in css
     assert ".paper-observation-watchlist-table" in css
@@ -849,6 +849,6 @@ def test_pt_rt1_4_paper_trading_command_center_active_timeframe_ui() -> None:
     assert "Data unavailable" in js
     assert "Testnet order transport" in js
     assert "Audit-only shapes" in js
-    assert "signed Hyperliquid testnet transport only from fresh post-start scheduled Money Flow v1.2 baseline synthetic opens" in js
+    assert "signed Hyperliquid testnet transport scoped to fresh post-start scheduled Money Flow v1.2 baseline synthetic opens" in js
     assert "order buttons" not in html.lower()
     assert "manual trade" not in html.lower()

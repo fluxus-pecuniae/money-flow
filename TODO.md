@@ -1,23 +1,24 @@
 # TODO
 
-Last reviewed: `2026-05-17T16:36:34Z`
+Last reviewed: `2026-05-17T18:25:00Z`
 
 ## Active
 
-- Start the clean `PT-RT1.5.2` active Week 1 scope under `reports/paper_runtime/pt_rt1_5_2_week1_active/`.
-- Fix or verify the Hyperliquid testnet size formatter before relying on accepted/open lifecycle coverage; PT-RT1.5.2 smoke reached testnet and was rejected with `Order has invalid size.`.
+- Start or continue the active Week 1 scope with the PT-RT1.5.3 size/precision hotfix present.
+- Review the next fresh Money Flow v1.2 baseline-triggered lifecycle row to confirm it uses Hyperliquid testnet metadata-based `szDecimals` formatting outside the explicit transport-smoke path.
 - Continue confirming `1h`/`4h`/`1d` candle-close scheduling, warm-start fresh-signal gating, open-position MTM, and baseline-only fixed 25 USDC Hyperliquid testnet lifecycle separation.
 - Keep `15m` paused for Week 1 scoring unless a later founder-approved phase explicitly re-enables it.
 - Keep documentation current-truth cleanup in DOCS-OB2.1 limited to Markdown/Obsidian/test-governance only.
 
 ## Next
 
-- Review the first PT-RT1.5.2 active Week 1 runtime rows after the operator-started run begins.
+- Review the first PT-RT1.5.3 active Week 1 runtime rows after the operator-started run begins or restarts.
 - Keep candidate/MF-ORIG/wildcard lanes synthetic-only; do not route them to testnet.
 - Keep SV2.0.2 canonical evidence, SV2.1 1D evidence, Historical Replay display, and PT-RT forward observation separated in future docs.
 
 ## Done Recently
 
+- PT-RT1.5.3 Hyperliquid testnet size/precision hotfix verified one accepted/open -> canceled -> reconciled fixed-25-USDC smoke using testnet public metadata.
 - PT-RT1.5.2 signed testnet transport smoke and active runtime restart handoff.
 - PT-RT1.5.1 signed testnet transport, warm-start signal gate, and open-position MTM hotfix.
 - PT-RT1.5 active Week 1 reset, candle-close scheduler, and baseline-only fixed 25 USDC testnet lifecycle gates.
