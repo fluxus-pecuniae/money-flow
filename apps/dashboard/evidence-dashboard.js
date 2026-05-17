@@ -116,8 +116,8 @@
   ];
 
   const DEFAULT_PT_RT1_SUMMARY_FILES = [
-    "../../reports/paper_runtime/pt_rt1_5_3_transport_smoke/summary.json",
     "../../reports/paper_runtime/pt_rt1_5_2_week1_active/summary.json",
+    "../../reports/paper_runtime/pt_rt1_5_3_transport_smoke/summary.json",
     "../../reports/paper_runtime/pt_rt1_5_2_transport_smoke/summary.json",
     "../../docs/pt_rt1_5_3_hyperliquid_testnet_size_precision_hotfix_summary.json",
     "../../docs/pt_rt1_5_2_signed_testnet_transport_smoke_and_active_restart_summary.json",
@@ -130,8 +130,8 @@
     "../../reports/paper_runtime/pt_rt1_5_2_week1_active/trades.jsonl",
   ];
   const DEFAULT_PT_RT1_TESTNET_LIFECYCLE_FILES = [
-    "../../reports/paper_runtime/pt_rt1_5_3_transport_smoke/testnet_order_lifecycle.jsonl",
     "../../reports/paper_runtime/pt_rt1_5_2_week1_active/testnet_order_lifecycle.jsonl",
+    "../../reports/paper_runtime/pt_rt1_5_3_transport_smoke/testnet_order_lifecycle.jsonl",
     "../../reports/paper_runtime/pt_rt1_5_2_transport_smoke/testnet_order_lifecycle.jsonl",
   ];
   const PAPER_OBSERVATION_DECISION_LOG_LIMIT = 10000;
@@ -803,13 +803,13 @@
       running: false,
       status: "checking",
       duration: "24h",
-      output: "pt_rt1_5_week1_active",
+      output: "pt_rt1_5_2_week1_active",
       pid: null,
       startedAtUtc: null,
       updatedAtUtc: null,
       outputDir: null,
       logPath: null,
-      safeFlags: ["--pt-rt1-5-week1-active", "--pt-rt1-5-testnet-order-notional-usdc", "25", "--disable-testnet-probes", "--public-mainnet-only"],
+      safeFlags: ["--pt-rt1-5-week1-active", "--fresh-signal-only-after-runtime-start", "--enable-baseline-testnet-transport", "--pt-rt1-5-testnet-order-notional-usdc", "25", "--signal-evaluation-mode", "candle_close_only", "--disable-legacy-testnet-probes", "--public-mainnet-only"],
       message: "checking_local_control_server",
       inFlight: false,
       timer: null,
@@ -9159,6 +9159,8 @@
       pid: payload?.pid || null,
       startedAtUtc: payload?.started_at_utc || null,
       updatedAtUtc: payload?.updated_at_utc || null,
+      duration: payload?.duration || state.paperRuntimeControl.duration,
+      output: payload?.output || state.paperRuntimeControl.output,
       outputDir: payload?.output_dir || null,
       logPath: payload?.log_path || null,
       safeFlags,
@@ -9196,7 +9198,7 @@
           running: false,
           status: "unavailable",
           message: "Start/stop requires launching the local control server.",
-          safe_flags: ["--pt-rt1-5-week1-active", "--pt-rt1-5-testnet-order-notional-usdc", "25", "--disable-testnet-probes", "--public-mainnet-only"],
+          safe_flags: ["--pt-rt1-5-week1-active", "--fresh-signal-only-after-runtime-start", "--enable-baseline-testnet-transport", "--pt-rt1-5-testnet-order-notional-usdc", "25", "--signal-evaluation-mode", "candle_close_only", "--disable-legacy-testnet-probes", "--public-mainnet-only"],
         },
         false,
       );
@@ -10630,34 +10632,43 @@
     if (!elements.paperObservationProbeStatus) return;
     const summary = paperObservationSummary();
     const policy = summary?.testnet_probe_policy || {};
-    const orderPolicy = summary?.testnet_order_policy || summary?.pt_rt1_5_testnet_order_policy || {};
+    const orderPolicy = {
+      ...(summary?.pt_rt1_5_testnet_order_policy || {}),
+      ...(summary?.testnet_order_policy || {}),
+    };
     const plumbing = summary?.plumbing_lane || {};
     const runtime = summary?.testnet_plumbing_status || {};
-    const lifecycle = summary?.testnet_order_lifecycle || {};
+    const lifecycleRows = paperObservationTestnetLifecycleRows(summary);
     const warmStart = summary?.warm_start_gate || {};
-    const submittedCount = orderPolicy.submitted_this_cycle ?? lifecycle.status_counts?.submitted ?? 0;
-    const signedCalled = Boolean(orderPolicy.signed_order_endpoint_called || runtime.signed_order_endpoint_called || runtime.order_endpoint_called);
+    const signedLifecycleRows = lifecycleRows.filter((row) => row.signed_order_endpoint_called === true || row.order_endpoint_called === true);
+    const submittedCount = signedLifecycleRows.length || orderPolicy.submitted_this_cycle || 0;
+    const cancelCount = lifecycleRows.filter((row) => row.cancel_endpoint_called === true || row.cancel_status === "canceled").length;
+    const reconciledCount = lifecycleRows.filter((row) => row.reconcile_status === "reconciled" || row.status === "reconciled").length;
+    const latestLifecycle = lifecycleRows[0] || {};
+    const signedCalled = Boolean(signedLifecycleRows.length || orderPolicy.signed_order_endpoint_called || runtime.signed_order_endpoint_called || runtime.order_endpoint_called);
     const auditShapeEnabled = runtime.status === "enabled_audit_only" || Number(runtime.probe_audit_rows_this_cycle || 0) > 0;
     const orderTransportEnabled = Boolean(orderPolicy.order_transport_enabled || (runtime.transport_mode && runtime.transport_mode !== "audit_only" && signedCalled));
     const signedClient = Boolean(orderPolicy.signed_testnet_transport_client_configured || orderPolicy.transport_submit_configured);
+    const openAfterReconcile = lifecycleRows.some((row) => row.open_order_remains === true);
+    const unknownState = lifecycleRows.some((row) => row.unknown_state === true || row.status === "unknown_state");
     elements.paperObservationProbeStatus.innerHTML = `
       <div class="market-micro-grid">
         <div><span>Lane</span><strong>testnet plumbing only</strong></div>
         <div><span>Testnet order transport</span><strong>${escapeHtml(String(orderTransportEnabled))}</strong></div>
         <div><span>Signed transport client</span><strong>${escapeHtml(signedClient ? "configured" : "missing")}</strong></div>
         <div><span>Audit-only shapes</span><strong>${escapeHtml(String(auditShapeEnabled || policy.PT_RT1_TESTNET_PROBES_ENABLED || false))}</strong></div>
-        <div><span>Kill switch</span><strong>${escapeHtml(String(runtime.kill_switch_active ?? policy.PT_RT1_TESTNET_KILL_SWITCH ?? true))}</strong></div>
+        <div><span>Order kill switch</span><strong>${escapeHtml(String(orderPolicy.kill_switch_active ?? policy.PT_RT1_TESTNET_KILL_SWITCH ?? true))}</strong></div>
         <div><span>Daily cap</span><strong>${escapeHtml(String(orderPolicy.daily_order_cap_default ?? runtime.daily_cap ?? policy.PT_RT1_TESTNET_DAILY_PROBE_CAP ?? 25))}</strong></div>
         <div><span>Eligible trigger</span><strong>Money Flow v1.2 fresh baseline opens only</strong></div>
         <div><span>Transport mode</span><strong>${escapeHtml(orderTransportEnabled ? "baseline_only_testnet" : runtime.transport_mode || "ready_but_gated")}</strong></div>
         <div><span>Audit/order-shape rows</span><strong>${escapeHtml(String(runtime.probe_audit_rows_this_cycle ?? 0))}</strong></div>
         <div><span>Signed testnet orders</span><strong>${escapeHtml(String(signedCalled ? submittedCount : 0))}</strong></div>
-        <div><span>Cancel / reconcile</span><strong>${escapeHtml(`${runtime.transport_cancel_attempted_this_cycle ?? 0} / ${runtime.transport_reconciled_this_cycle ?? 0}`)}</strong></div>
+        <div><span>Cancel / reconcile</span><strong>${escapeHtml(`${cancelCount || runtime.transport_cancel_attempted_this_cycle || 0} / ${reconciledCount || runtime.transport_reconciled_this_cycle || 0}`)}</strong></div>
         <div><span>Notional per order</span><strong>${escapeHtml(String(orderPolicy.fixed_notional_usdc ?? runtime.probe_notional_cap_usdc ?? "25"))} USDC</strong></div>
-        <div><span>Lifecycle rows</span><strong>${escapeHtml(String(lifecycle.rows_this_cycle ?? orderPolicy.lifecycle_rows_this_cycle ?? 0))}</strong></div>
-        <div><span>Last lifecycle</span><strong>${escapeHtml(runtime.transport_status || "runtime_not_started")}</strong></div>
-        <div><span>Open after reconcile</span><strong>none</strong></div>
-        <div><span>Unknown state</span><strong>blocked_if_present</strong></div>
+        <div><span>Lifecycle rows</span><strong>${escapeHtml(String(lifecycleRows.length || orderPolicy.lifecycle_rows_this_cycle || 0))}</strong></div>
+        <div><span>Last lifecycle</span><strong>${escapeHtml(latestLifecycle.status ? `${latestLifecycle.symbol || "n/a"} ${displayTimeframe(latestLifecycle.timeframe)} ${latestLifecycle.status}` : runtime.transport_status || "runtime_not_started")}</strong></div>
+        <div><span>Open after reconcile</span><strong>${escapeHtml(openAfterReconcile ? "present" : "none")}</strong></div>
+        <div><span>Unknown state</span><strong>${escapeHtml(unknownState ? "present" : "none")}</strong></div>
         <div><span>Strategy PnL update</span><strong>${escapeHtml(String(runtime.testnet_fills_do_not_update_strategy_pnl === true ? false : plumbing.testnet_fills_update_strategy_pnl ?? false))}</strong></div>
         <div><span>Candidate transport</span><strong>blocked</strong></div>
         <div><span>Warm-start gate</span><strong>${escapeHtml(warmStart.active ? "active" : "inactive")}</strong></div>

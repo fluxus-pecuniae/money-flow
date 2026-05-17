@@ -13,6 +13,21 @@ Entry schema:
 
 ---
 
+## v2026.05.17.019
+
+- `recorded_at_utc`: `2026-05-17T20:15:00Z`
+- `scope`: `Paper Trading active-runtime dashboard data-source hotfix`
+- `intent`: `Native entry. Fixed the Paper Trading dashboard so active Week 1 PT-RT1.5.2 runtime artifacts are loaded before PT-RT1.5.3 transport-smoke fallback artifacts. Open Synthetic Positions now renders active runtime open positions from the current active summary, Testnet Order Lifecycle now reads the active Week 1 lifecycle stream first, and the Testnet Order Transport card derives signed order/lifecycle/cancel/reconcile counts from the active lifecycle rows instead of stale legacy probe counters. Runtime Control now syncs duration/output from the local control-server status payload. This is a dashboard display hotfix only: the active runtime was not stopped or mutated, public mainnet remains strategy truth, testnet lifecycle remains separate from synthetic PnL, production Money Flow rules are unchanged, and live trading is not approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `money-flow/05_Agent_Coordination.md`
+  - `tests/test_dashboard_static_assets.py`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `Playwright headless Chrome check against http://127.0.0.1:8767/apps/dashboard/index.html: Open Synthetic Positions rendered 35 active rows, Testnet Order Lifecycle rendered 7 active rows, Testnet Order Transport showed 5 signed testnet orders and 5/5 cancel/reconcile, Weekly Scoreboard rendered 10 lane rows, and Signal / Decision Stream rendered 25 rows.`
+
 ## v2026.05.17.018
 
 - `recorded_at_utc`: `2026-05-17T18:52:00Z`

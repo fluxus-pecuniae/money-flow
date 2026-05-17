@@ -862,3 +862,22 @@ def test_pt_rt1_4_paper_trading_command_center_active_timeframe_ui() -> None:
     assert "signed Hyperliquid testnet transport scoped to fresh post-start scheduled Money Flow v1.2 baseline synthetic opens" in js
     assert "order buttons" not in html.lower()
     assert "manual trade" not in html.lower()
+
+
+def test_paper_trading_prefers_active_week_runtime_before_smoke_artifacts() -> None:
+    js = Path("apps/dashboard/evidence-dashboard.js").read_text(encoding="utf-8")
+
+    active_summary = "../../reports/paper_runtime/pt_rt1_5_2_week1_active/summary.json"
+    smoke_summary = "../../reports/paper_runtime/pt_rt1_5_3_transport_smoke/summary.json"
+    active_lifecycle = "../../reports/paper_runtime/pt_rt1_5_2_week1_active/testnet_order_lifecycle.jsonl"
+    smoke_lifecycle = "../../reports/paper_runtime/pt_rt1_5_3_transport_smoke/testnet_order_lifecycle.jsonl"
+
+    assert js.index(active_summary) < js.index(smoke_summary)
+    assert js.index(active_lifecycle) < js.index(smoke_lifecycle)
+    assert 'output: "pt_rt1_5_2_week1_active"' in js
+    assert "duration: payload?.duration || state.paperRuntimeControl.duration" in js
+    assert "output: payload?.output || state.paperRuntimeControl.output" in js
+    assert "const lifecycleRows = paperObservationTestnetLifecycleRows(summary);" in js
+    assert "signedLifecycleRows.length" in js
+    assert "<span>Order kill switch</span>" in js
+    assert "<span>Lifecycle rows</span>" in js
