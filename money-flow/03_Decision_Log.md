@@ -2,6 +2,15 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-05-19T22:11:42Z - SUBAGENTS1 - Add Read-Only Codex Review Subagents
+
+- `decision`: Add project-scoped Codex subagents for bounded read-only runtime, dashboard, and quant review.
+- `scope`: `.codex/agents/runtime_reviewer.toml`, `.codex/agents/dashboard_reviewer.toml`, `.codex/agents/quant_reviewer.toml`, `.codex/config.toml`, workflow docs, report docs, and TOML guardrail tests.
+- `why`: Founder wants a stronger review workflow that separates PT-RT runtime safety, founder dashboard clarity, and paper-trade/quant signal quality from the main builder session.
+- `result`: `implemented_subagents1_pending_validation`. Initial subagents are read-only by default and intended for triage/summarization, not parallel write-heavy implementation.
+- `boundaries`: No production Money Flow rules changed, no runtime behavior changed, no dashboard behavior changed, no exchange endpoints were called, no orders were submitted, no evidence packs were regenerated, no live trading was approved, and no strategy was production-approved.
+- `follow_up_implications`: Use `runtime_reviewer`, `dashboard_reviewer`, and `quant_reviewer` for the next bounded PT-RT review; the parent Codex session remains responsible for coordination, edits, validation, and handoff.
+
 ## 2026-05-17T18:25:00Z - PT-RT1.5.3 - Hyperliquid Testnet Size / Precision Hotfix
 
 - `decision`: Resolve fixed-25-USDC Hyperliquid testnet order sizing from Hyperliquid testnet public metadata before submit.

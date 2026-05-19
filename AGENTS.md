@@ -74,6 +74,18 @@ For substantial work, agents must:
 5. Keep repo operational docs and Obsidian notes consistent without treating Obsidian as a substitute for the changelog.
 6. Do not create duplicate command centers or competing current-phase notes.
 
+## Codex Subagents
+
+Project-scoped Codex subagents live in `.codex/agents/`.
+
+Current subagents:
+
+- `runtime_reviewer`
+- `dashboard_reviewer`
+- `quant_reviewer`
+
+They are read-only by default and should be used for bounded review/triage, not parallel write-heavy implementation. See [`docs/codex_subagents_money_flow_workflow.md`](docs/codex_subagents_money_flow_workflow.md) for invocation examples and conflict-avoidance rules.
+
 ## Post-Task Workflow
 
 Before finishing, agents must:

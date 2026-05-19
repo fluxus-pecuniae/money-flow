@@ -1,12 +1,13 @@
 # REPO_TREE
 
-Last reviewed: `2026-05-17T18:25:00Z`
+Last reviewed: `2026-05-19T22:11:42Z`
 
 ## Top-Level Structure
 
 ```text
 .
 ├── .archiveignore
+├── .codex/
 ├── .env.example
 ├── .gitignore
 ├── AGENTS.md
@@ -38,6 +39,11 @@ Last reviewed: `2026-05-17T18:25:00Z`
 `.archiveignore`
 - Review-bundle hygiene guard consumed by `scripts/create_review_bundle.py`.
 - Excludes Git metadata, local secrets, virtualenvs, caches, generated archives, generated strategy-validation evidence packs, database/socket state, and Obsidian app state such as `money-flow/.obsidian/` from handoff ZIPs while keeping sample configs and tracked Obsidian markdown notes reviewable.
+
+`.codex/`
+- Project-scoped Codex workflow configuration.
+- SUBAGENTS1 adds `.codex/agents/runtime_reviewer.toml`, `.codex/agents/dashboard_reviewer.toml`, and `.codex/agents/quant_reviewer.toml` as read-only-by-default review agents for PT-RT runtime safety, founder dashboard clarity, and paper-trade/quant review.
+- `.codex/config.toml` sets conservative local subagent limits: `max_threads = 3` and `max_depth = 1`.
 
 `DESIGN.md`
 - Root pointer only.

@@ -1,0 +1,61 @@
+{
+  "phase": "SUBAGENTS1",
+  "status": "implemented_verified_with_full_suite_residual",
+  "agents_created": [
+    "runtime_reviewer",
+    "dashboard_reviewer",
+    "quant_reviewer"
+  ],
+  "agent_files": [
+    ".codex/agents/runtime_reviewer.toml",
+    ".codex/agents/dashboard_reviewer.toml",
+    ".codex/agents/quant_reviewer.toml"
+  ],
+  "workflow_doc": "docs/codex_subagents_money_flow_workflow.md",
+  "report": "docs/subagents1_money_flow_codex_workflow.md",
+  "config_file": ".codex/config.toml",
+  "tests_added": [
+    "tests/test_codex_subagents.py"
+  ],
+  "boundaries": {
+    "read_only_default": true,
+    "strategy_rules_changed": false,
+    "runtime_behavior_changed": false,
+    "dashboard_behavior_changed": false,
+    "exchange_endpoints_called": false,
+    "orders_submitted": false,
+    "evidence_packs_regenerated": false,
+    "live_trading_approved": false,
+    "production_strategy_approved": false
+  },
+  "validation": {
+    "status": "focused_validation_passed_full_non_migration_suite_has_preexisting_pt_rt_dashboard_assertion_residual",
+    "commands": [
+      ".venv/bin/python -m json.tool docs/subagents1_money_flow_codex_workflow_summary.json",
+      ".venv/bin/python -m pytest -q tests/test_codex_subagents.py",
+      ".venv/bin/python -m pytest -q tests/test_operational_docs.py",
+      ".venv/bin/python -m compileall core services apps tests scripts",
+      "git diff --check",
+      ".venv/bin/python -m pytest -q --ignore=tests/test_migrations.py",
+      ".venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-subagents1-review.zip",
+      "review bundle excluded-path scan",
+      "review bundle private-key/Bearer-token pattern scan"
+    ],
+    "results": {
+      "json_summary": "passed",
+      "codex_subagent_tests": "5 passed",
+      "operational_docs_tests": "19 passed",
+      "compileall": "passed",
+      "diff_check": "passed",
+      "full_non_migration_suite": "1083 passed, 1 failed: tests/test_pt_rt1_5_week1_reset_scheduler_transport.py::test_pt_rt1_5_summary_policy_and_runner_command_are_boundary_labeled expects stale pt_rt1_5_week1_active dashboard string; SUBAGENTS1 did not touch dashboard behavior",
+      "review_bundle": "created at /Users/tercirafael/money-flow-subagents1-review.zip",
+      "review_bundle_excluded_path_scan": "passed; no .env, .venv, .git directory, caches, DB files, runtime reports, generated strategy_validation reports, nested archives, or Obsidian app state paths found",
+      "review_bundle_secret_pattern_scan": "passed; no private-key or Authorization Bearer pattern hits"
+    }
+  },
+  "review_bundle": {
+    "path": "/Users/tercirafael/money-flow-subagents1-review.zip",
+    "size": "26M"
+  },
+  "next_recommended_use": "Use runtime_reviewer, dashboard_reviewer, and quant_reviewer for the next read-only PT-RT runtime/dashboard/quant triage."
+}

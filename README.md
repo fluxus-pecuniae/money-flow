@@ -28,6 +28,7 @@
 - Do not touch strategy rules, runtime behavior, evidence generation, exchange endpoints, secrets, or generated runtime/evidence artifacts unless the current prompt explicitly scopes that work.
 - Add a row under `Active Work` in `money-flow/05_Agent_Coordination.md` before substantial edits, then move/update it under `Finished Work`.
 - Canonical current truth lives in `money-flow/00_Money_Flow_Command_Center.md`; do not create duplicate command centers or competing current-phase notes.
+- For complex review tasks, spawn the project subagents defined under `.codex/agents/`: use `runtime_reviewer` for PT-RT runtime safety, `dashboard_reviewer` for founder UI clarity, and `quant_reviewer` for paper-trade quality. Workflow examples live in `docs/codex_subagents_money_flow_workflow.md`.
 
 ## Current Dashboard Surfaces
 

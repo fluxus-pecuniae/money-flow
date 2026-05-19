@@ -13,6 +13,41 @@ Entry schema:
 
 ---
 
+## v2026.05.19.001
+
+- `recorded_at_utc`: `2026-05-19T22:11:42Z`
+- `scope`: `SUBAGENTS1 Money Flow Codex subagents workflow`
+- `intent`: `Native entry. Added project-scoped Codex subagents for bounded read-only runtime, dashboard, and quant review. The new runtime_reviewer, dashboard_reviewer, and quant_reviewer TOML files live under .codex/agents/ with read-only default instructions and embedded Money Flow boundaries. Added conservative local subagent limits, workflow documentation, a founder/agent report and summary JSON, and TOML guardrail tests. This is workflow/governance only: no production Money Flow rules changed, no runtime behavior changed, no dashboard behavior changed, no exchange endpoints were called, no orders were submitted, no evidence packs were regenerated, no live trading was approved, and no strategy was production-approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `AGENTS.md`
+  - `README.md`
+  - `.codex/config.toml`
+  - `.codex/agents/runtime_reviewer.toml`
+  - `.codex/agents/dashboard_reviewer.toml`
+  - `.codex/agents/quant_reviewer.toml`
+  - `docs/codex_subagents_money_flow_workflow.md`
+  - `docs/subagents1_money_flow_codex_workflow.md`
+  - `docs/subagents1_money_flow_codex_workflow_summary.json`
+  - `docs/doc_ob2_1_markdown_current_truth_refresh.md`
+  - `tests/test_codex_subagents.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python -m json.tool docs/subagents1_money_flow_codex_workflow_summary.json`
+  - `.venv/bin/python -m pytest -q tests/test_codex_subagents.py` (`5 passed`)
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` (`19 passed`)
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `git diff --check`
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` (`1083 passed, 1 failed: stale PT-RT1.5 dashboard assertion expecting pt_rt1_5_week1_active; SUBAGENTS1 did not change dashboard behavior`)
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-subagents1-review.zip`
+  - `Review bundle scan: no excluded local/runtime/generated-report/archive/Obsidian-app-state paths; no private-key/Bearer-token pattern hits.`
+
 ## v2026.05.17.019
 
 - `recorded_at_utc`: `2026-05-17T20:15:00Z`

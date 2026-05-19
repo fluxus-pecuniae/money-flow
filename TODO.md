@@ -8,7 +8,7 @@ Last reviewed: `2026-05-17T18:25:00Z`
 - Review the next fresh Money Flow v1.2 baseline-triggered lifecycle row to confirm it uses Hyperliquid testnet metadata-based `szDecimals` formatting outside the explicit transport-smoke path.
 - Continue confirming `1h`/`4h`/`1d` candle-close scheduling, warm-start fresh-signal gating, open-position MTM, and baseline-only fixed 25 USDC Hyperliquid testnet lifecycle separation.
 - Keep `15m` paused for Week 1 scoring unless a later founder-approved phase explicitly re-enables it.
-- Keep documentation current-truth cleanup in DOCS-OB2.1 limited to Markdown/Obsidian/test-governance only.
+- Use the SUBAGENTS1 `runtime_reviewer`, `dashboard_reviewer`, and `quant_reviewer` for the next bounded read-only PT-RT runtime/dashboard/quant triage.
 
 ## Next
 
@@ -18,6 +18,7 @@ Last reviewed: `2026-05-17T18:25:00Z`
 
 ## Done Recently
 
+- SUBAGENTS1 added project-scoped read-only Codex reviewers for runtime, dashboard, and quant triage.
 - PT-RT1.5.3 Hyperliquid testnet size/precision hotfix verified one accepted/open -> canceled -> reconciled fixed-25-USDC smoke using testnet public metadata.
 - PT-RT1.5.2 signed testnet transport smoke and active runtime restart handoff.
 - PT-RT1.5.1 signed testnet transport, warm-start signal gate, and open-position MTM hotfix.

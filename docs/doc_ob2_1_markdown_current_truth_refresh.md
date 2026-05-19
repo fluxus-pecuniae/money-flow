@@ -95,6 +95,16 @@ The legacy `Experiments` tab remains absent. UAT panels are historical/regressio
 - README, architecture, and strategy still preserve deep platform chronology below current-first summaries. A future docs phase could move that chronology into dedicated archive pages.
 - Runtime artifact docs remain separate from ignored runtime artifacts; future PT-RT review docs should keep artifact paths and current scope explicit.
 
+## SUBAGENTS1 Follow-Up
+
+SUBAGENTS1 adds project-scoped Codex review agents at `.codex/agents/` for bounded read-only triage:
+
+- `runtime_reviewer` for PT-RT runtime safety and testnet lifecycle boundaries.
+- `dashboard_reviewer` for founder dashboard clarity and stale/misleading UI labels.
+- `quant_reviewer` for paper-trade quality and lane comparison.
+
+The workflow manual is `docs/codex_subagents_money_flow_workflow.md`. These subagents are read-only by default and do not change strategy, runtime, dashboard behavior, evidence, exchange connectivity, testnet transport, live trading approval, or production approval.
+
 ## Validation Status
 
 Status: `implemented_verified`.
