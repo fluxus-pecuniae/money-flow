@@ -122,7 +122,7 @@ def test_dashboard_control_runtime_log_announces_money_flow_start(monkeypatch: p
     monkeypatch.setattr(control, "OUTPUT_OPTIONS", {"test_output": output_dir})
     monkeypatch.setattr(control, "find_caffeinate", lambda: "/usr/bin/caffeinate")
     monkeypatch.setattr(control.subprocess, "Popen", fake_popen)
-    monkeypatch.setattr(control, "process_is_running", lambda pid: False)
+    monkeypatch.setattr(control, "process_is_managed_runtime", lambda pid, state=None: False)
 
     status_code, _payload = control.start_runtime({"duration": "5m", "output": "test_output"})
 
@@ -132,6 +132,116 @@ def test_dashboard_control_runtime_log_announces_money_flow_start(monkeypatch: p
     log_text = log_files[0].read_text(encoding="utf-8")
     assert "Starting money-flow" in log_text
     assert "scripts/run_pt_rt1_paper_observation.py" in log_text
+
+
+def test_dashboard_control_access_log_appends_control_message() -> None:
+    calls: list[str] = []
+    handler = control.DashboardControlHandler.__new__(control.DashboardControlHandler)
+    handler.command = "POST"
+    handler.path = "/api/paper-runtime/start"
+    handler.requestline = 'POST /api/paper-runtime/start HTTP/1.1'
+    handler._control_server_message = "{paper_runtime_started_with_caffeinate}"
+    handler.log_message = lambda fmt, *args: calls.append(fmt % args)  # type: ignore[method-assign]
+
+    handler.log_request(200, "-")
+
+    assert calls == ['"POST /api/paper-runtime/start HTTP/1.1" 200 - {paper_runtime_started_with_caffeinate}']
+
+
+def test_dashboard_control_access_log_message_is_sanitized() -> None:
+    assert control.control_access_log_message("paper_runtime_started_with_caffeinate") == "{paper_runtime_started_with_caffeinate}"
+    assert control.control_access_log_message("bad\nmessage") == "{bad message}"
+    assert control.control_access_log_message(None) == "{control_message_unavailable}"
+
+
+def test_dashboard_control_reconciles_stale_reused_pid(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+    reports_root = tmp_path / "reports" / "paper_runtime"
+    control_dir = reports_root / "dashboard_control"
+    output_dir = reports_root / "pt_rt1_5_2_week1_active"
+    output_dir.mkdir(parents=True)
+
+    monkeypatch.setattr(control, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(control, "CONTROL_DIR", control_dir)
+    monkeypatch.setattr(control, "STATE_PATH", control_dir / "state.json")
+    monkeypatch.setattr(control, "OUTPUT_OPTIONS", {"pt_rt1_5_2_week1_active": output_dir})
+    monkeypatch.setattr(control, "DEFAULT_OUTPUT", "pt_rt1_5_2_week1_active")
+    monkeypatch.setattr(control, "process_is_managed_runtime", lambda pid, state=None: False)
+    control.write_state(
+        {
+            "running": True,
+            "status": "running",
+            "pid": 76218,
+            "duration": "24h",
+            "output": "pt_rt1_5_2_week1_active",
+            "output_dir": "reports/paper_runtime/pt_rt1_5_2_week1_active",
+            "started_at_utc": "2026-05-17T18:53:29Z",
+            "log_path": "reports/paper_runtime/dashboard_control/stale.log",
+            "message": "paper_runtime_started_with_caffeinate",
+        }
+    )
+
+    status = control.current_status()
+
+    assert status["running"] is False
+    assert status["pid"] is None
+    assert status["status"] == "idle"
+    assert status["message"] == "paper_runtime_state_reconciled_not_running"
+    assert status["started_at_utc"] is None
+    assert status["log_path"] is None
+    persisted = control.read_state()
+    assert persisted["status"] == "stale_state_reconciled"
+    assert persisted["message"] == "paper_runtime_state_reconciled_not_running"
+
+
+def test_dashboard_control_stop_reconciles_stale_pid_without_forbidden(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    reports_root = tmp_path / "reports" / "paper_runtime"
+    control_dir = reports_root / "dashboard_control"
+    output_dir = reports_root / "pt_rt1_5_2_week1_active"
+    output_dir.mkdir(parents=True)
+
+    monkeypatch.setattr(control, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(control, "CONTROL_DIR", control_dir)
+    monkeypatch.setattr(control, "STATE_PATH", control_dir / "state.json")
+    monkeypatch.setattr(control, "OUTPUT_OPTIONS", {"pt_rt1_5_2_week1_active": output_dir})
+    monkeypatch.setattr(control, "DEFAULT_OUTPUT", "pt_rt1_5_2_week1_active")
+    monkeypatch.setattr(control, "process_is_managed_runtime", lambda pid, state=None: False)
+    control.write_state(
+        {
+            "running": True,
+            "status": "running",
+            "pid": 76218,
+            "duration": "24h",
+            "output": "pt_rt1_5_2_week1_active",
+            "output_dir": "reports/paper_runtime/pt_rt1_5_2_week1_active",
+            "message": "paper_runtime_started_with_caffeinate",
+        }
+    )
+
+    status_code, payload = control.stop_runtime()
+
+    assert status_code == 200
+    assert payload["running"] is False
+    assert payload["pid"] is None
+    assert payload["message"] == "paper_runtime_not_running"
+
+
+def test_dashboard_control_allowlisted_command_requires_runtime_output() -> None:
+    control_command = (
+        "/usr/bin/caffeinate -dimsu .venv/bin/python "
+        "scripts/run_pt_rt1_paper_observation.py --duration-hours 24 "
+        "--output-dir reports/paper_runtime/pt_rt1_5_2_week1_active --public-mainnet-only"
+    )
+    wrong_output_command = control_command.replace("pt_rt1_5_2_week1_active", "other_runtime")
+    unrelated_command = "/usr/bin/python scripts/unrelated.py --output-dir reports/paper_runtime/pt_rt1_5_2_week1_active"
+
+    state = {"output_dir": "reports/paper_runtime/pt_rt1_5_2_week1_active"}
+
+    assert control.command_is_allowlisted_runtime(control_command, state)
+    assert not control.command_is_allowlisted_runtime(wrong_output_command, state)
+    assert not control.command_is_allowlisted_runtime(unrelated_command, state)
 
 
 def test_dashboard_control_suppresses_noisy_static_evidence_get_logs() -> None:

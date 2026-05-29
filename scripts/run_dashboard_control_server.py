@@ -79,6 +79,11 @@ def should_suppress_access_log(method: str, request_path: str) -> bool:
     return any(parsed.path.startswith(prefix) for prefix in SUPPRESSED_STATIC_LOG_PREFIXES)
 
 
+def control_access_log_message(message: Any) -> str:
+    text = " ".join(str(message or "control_message_unavailable").replace("\r", " ").replace("\n", " ").split())
+    return "{" + text[:200] + "}"
+
+
 def read_state() -> dict[str, Any]:
     try:
         return json.loads(STATE_PATH.read_text(encoding="utf-8"))
@@ -167,7 +172,45 @@ def build_runtime_command(
     ]
 
 
-def process_is_running(pid: Any) -> bool:
+def process_command_line(pid: Any) -> str:
+    try:
+        numeric_pid = int(pid)
+    except (TypeError, ValueError):
+        return ""
+    if numeric_pid <= 0:
+        return ""
+    try:
+        result = subprocess.run(
+            ["ps", "-p", str(numeric_pid), "-o", "command="],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=2,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    if result.returncode != 0:
+        return ""
+    return result.stdout.strip()
+
+
+def command_is_allowlisted_runtime(command: str, state: dict[str, Any] | None = None) -> bool:
+    if "scripts/run_pt_rt1_paper_observation.py" not in command:
+        return False
+    if "--output-dir" not in command:
+        return False
+    state = state or {}
+    output_dir = state.get("output_dir")
+    output = state.get("output")
+    if output_dir:
+        return str(output_dir) in command
+    if output in OUTPUT_OPTIONS:
+        expected = str(OUTPUT_OPTIONS[output].relative_to(REPO_ROOT))
+        return expected in command
+    return True
+
+
+def process_is_managed_runtime(pid: Any, state: dict[str, Any] | None = None) -> bool:
     try:
         numeric_pid = int(pid)
     except (TypeError, ValueError):
@@ -179,20 +222,27 @@ def process_is_running(pid: Any) -> bool:
     except ProcessLookupError:
         return False
     except PermissionError:
-        return True
-    return True
+        return False
+    return command_is_allowlisted_runtime(process_command_line(numeric_pid), state)
+
+
+def process_is_running(pid: Any) -> bool:
+    return process_is_managed_runtime(pid, {})
 
 
 def current_status() -> dict[str, Any]:
     state = read_state()
-    running = process_is_running(state.get("pid"))
+    running = process_is_managed_runtime(state.get("pid"), state)
     if state and state.get("running") and not running:
         state = {
             **state,
             "running": False,
-            "status": "stopped_or_exited",
+            "status": "stale_state_reconciled",
+            "pid": None,
             "updated_at_utc": utc_now(),
-            "message": "paper_runtime_stopped_or_exited",
+            "message": "paper_runtime_state_reconciled_not_running",
+            "started_at_utc": None,
+            "log_path": None,
         }
         write_state(state)
     output = state.get("output")
@@ -200,19 +250,19 @@ def current_status() -> dict[str, Any]:
         output = DEFAULT_OUTPUT if DEFAULT_OUTPUT in OUTPUT_OPTIONS else next(iter(OUTPUT_OPTIONS))
     message = state.get("message") or "local_control_server_ready"
     if not running and message == "paper_runtime_started_with_caffeinate":
-        message = "local_control_server_ready"
+        message = "paper_runtime_state_reconciled_not_running"
     return {
         "control_server_available": True,
         "running": running,
-        "status": state.get("status") or ("running" if running else "idle"),
+        "status": "running" if running else "idle",
         "pid": state.get("pid") if running else None,
         "duration": state.get("duration"),
         "duration_label": state.get("duration_label"),
         "output": output,
         "output_dir": state.get("output_dir") if state.get("output") == output else str(OUTPUT_OPTIONS[output].relative_to(REPO_ROOT)),
-        "started_at_utc": state.get("started_at_utc"),
+        "started_at_utc": state.get("started_at_utc") if running else None,
         "updated_at_utc": state.get("updated_at_utc"),
-        "log_path": state.get("log_path"),
+        "log_path": state.get("log_path") if running else None,
         "safe_flags": SAFE_FLAGS,
         "message": message,
     }
@@ -266,15 +316,22 @@ def start_runtime(payload: dict[str, Any]) -> tuple[int, dict[str, Any]]:
 
 
 def stop_runtime() -> tuple[int, dict[str, Any]]:
+    status = current_status()
+    if not status["running"]:
+        return HTTPStatus.OK, {**status, "message": "paper_runtime_not_running"}
+
     state = read_state()
     pid = state.get("pid")
-    if not process_is_running(pid):
+    if not process_is_managed_runtime(pid, state):
         state = {
             **state,
             "running": False,
             "status": "stopped",
+            "pid": None,
             "updated_at_utc": utc_now(),
             "message": "paper_runtime_not_running",
+            "started_at_utc": None,
+            "log_path": None,
         }
         write_state(state)
         return HTTPStatus.OK, current_status()
@@ -307,6 +364,7 @@ class DashboardControlHandler(SimpleHTTPRequestHandler):
 
     def _send_json(self, status_code: int, payload: dict[str, Any]) -> None:
         body = json.dumps(payload, indent=2, sort_keys=True).encode("utf-8")
+        self._control_server_message = control_access_log_message(payload.get("message"))
         self.send_response(status_code)
         self.send_header("Content-Type", "application/json")
         self.send_header("Cache-Control", "no-store")
@@ -331,6 +389,16 @@ class DashboardControlHandler(SimpleHTTPRequestHandler):
         if should_suppress_access_log(self.command, self.path):
             return
         super().log_message(format, *args)
+
+    def log_request(self, code: int | str = "-", size: int | str = "-") -> None:
+        if should_suppress_access_log(self.command, self.path):
+            return
+        parsed = urlparse(self.path)
+        control_message = getattr(self, "_control_server_message", "")
+        if parsed.path.startswith("/api/paper-runtime/") and control_message:
+            self.log_message('"%s" %s %s %s', self.requestline, str(code), str(size), control_message)
+            return
+        self.log_message('"%s" %s %s', self.requestline, str(code), str(size))
 
     def do_GET(self) -> None:  # noqa: N802 - stdlib handler method name.
         parsed = urlparse(self.path)
