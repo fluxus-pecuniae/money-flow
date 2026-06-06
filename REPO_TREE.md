@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-06-06T17:35:00Z`
+Last reviewed: `2026-06-06T17:42:15Z`
 
 ## Top-Level Structure
 
@@ -504,6 +504,18 @@ Last reviewed: `2026-06-06T17:35:00Z`
 - Compact STRAT-DISC1 machine-readable summary.
 - Contains `data_inventory`, `candidate_runs`, `strategy_families_tested`, `rejected_candidates`, `passing_candidates`, `top_3_candidates`, `top_near_misses`, `candidate_gate`, `search_budget`, `search_budget_used`, `conclusion`, and no-order/no-live boundary flags without raw runtime logs or secrets.
 
+`docs/goal_strat1_strategy_discovery.md`
+- Founder/operator GOAL-STRAT1 autonomous strategy-discovery report.
+- Records the expanded research-only data inventory, 7 tested strategy families, 121 candidate configurations, strict candidate gate, top near misses, boundary flags, and final honest-exhaustion decision. GOAL-STRAT1 promoted zero strategies because every positive pocket failed drawdown, out-of-sample, concentration, profit-factor, sample-size, or market-structure gates.
+
+`docs/goal_strat1_strategy_discovery_summary.json`
+- Compact GOAL-STRAT1 machine-readable summary.
+- Contains `data_inventory`, `candidate_runs`, `strategy_families_tested`, `rejected_candidates`, `passing_candidates`, `top_3_candidates`, `top_near_misses`, `candidate_gate`, `search_budget`, `search_budget_used`, `subagent_review`, `conclusion`, and no-order/no-live boundary flags without raw runtime logs or secrets.
+
+`docs/goal_strat1_no_three_candidates_found.md`
+- Human-readable GOAL-STRAT1 failure/exhaustion report.
+- Summarizes the tested families, candidate count, best near misses, blocker counts, evidence implications, and required next research before any future promotion attempt.
+
 `apps/dashboard/vendor/`
 - PT0 vendored third-party charting bundle from the official `lightweight-charts` package.
 - Contains `lightweight-charts.standalone.production.js`, `LICENSE`, and `package.json`; the dashboard uses this local bundle instead of a hosted TradingView widget.
@@ -552,6 +564,10 @@ Last reviewed: `2026-06-06T17:35:00Z`
 - STRAT-DISC1 research-only autonomous strategy-discovery harness.
 - Loads local selected replay JSON without importing DB/session settings, inventories candle data quality, runs bounded curated hypotheses, computes dynamic-equity metrics, out-of-sample slices, symbol/timeframe/period concentration, and strict founder-review candidate gates. It creates no runtime artifacts, order intents, submitted orders, exchange calls, production-rule changes, testnet strategy truth, paper/live approvals, or active PT-RT mutations.
 
+`services/strategy_validation/goal_strat1.py`
+- GOAL-STRAT1 expanded research-only autonomous strategy-discovery harness.
+- Loads local public-mainnet selected replay JSON, validates data quality, computes indicators locally, runs bounded strategy families across Money Flow repair, source-faithful Money Flow, trend/breakout, volatility expansion, mean reversion, relative strength, and pairs/spread research, scores 121 candidate configurations with chronological and anchored out-of-sample checks, and writes Markdown/JSON research reports. It creates no runtime artifacts, order intents, submitted orders, exchange calls, production-rule changes, testnet strategy truth, paper/live approvals, or active PT-RT mutations.
+
 `scripts/run_sv20_historical_refresh.py`
 - SV2.0/SV2.0.1 public-mainnet metadata/candle refresh script.
 - Writes `docs/sv2_0_historical_data_refresh_summary.json` when run with `--fetch-public-data`; default/no-network mode can still build blocked readiness from supplied metadata or empty metadata. The script targets only `https://api.hyperliquid.xyz/info` public info, refuses non-mainnet-public URL use, and records fetched/normalized/staged rows as `db_imported=false` until the hardened importer path is used.
@@ -579,6 +595,10 @@ Last reviewed: `2026-06-06T17:35:00Z`
 `scripts/build_strat_disc1_autonomous_discovery.py`
 - STRAT-DISC1 report builder.
 - Runs the isolated research-only `strat_disc1.py` harness over local selected replay JSON and writes `docs/strat_disc1_autonomous_strategy_discovery.md` plus `docs/strat_disc1_autonomous_strategy_discovery_summary.json`. It avoids importing the broader `services.strategy_validation` package so unrelated runtime settings cannot affect discovery reporting.
+
+`scripts/run_goal_strat1_discovery.py`
+- GOAL-STRAT1 report builder.
+- Runs the isolated research-only `goal_strat1.py` harness over local selected replay JSON and writes `docs/goal_strat1_strategy_discovery.md`, `docs/goal_strat1_strategy_discovery_summary.json`, candidate reports if three pass, or `docs/goal_strat1_no_three_candidates_found.md` when the strict gate promotes fewer than three. It avoids importing the broader `services.strategy_validation` package so unrelated runtime settings cannot affect discovery reporting.
 
 `scripts/refresh_pt0_runtime_summary.py`
 - Generates the committed PT0 dashboard/runtime summary from deterministic helpers plus existing UAT3.3/UAT3.4/UAT4.2 summaries.
@@ -1194,3 +1214,6 @@ Last reviewed: `2026-06-06T17:35:00Z`
 
 `tests/test_strat_disc1_autonomous_discovery.py`
 - STRAT-DISC1 research harness checks: verifies data inventory generation, candidate gate thresholds/labels, no runtime/order boundary flags, no private/signed/order path imports, lookahead/OOS policy, summary/report artifact writing, and no-production/no-live approval semantics.
+
+`tests/test_goal_strat1_discovery.py`
+- GOAL-STRAT1 expanded research harness checks: verifies data inventory generation, candidate gate thresholds/labels, drawdown/profit-factor/concentration calculations, report/summary/failure artifact writing, no runtime/order boundary flags, no private/signed/order path imports, lookahead/OOS policy, and no-production/no-live approval semantics.

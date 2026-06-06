@@ -1,10 +1,11 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-06-06T17:35:00Z`
+Last reviewed: `2026-06-06T17:42:15Z`
 
 ## Open Issues
 
-- `K-022`: STRAT-DISC1 did not find three founder production-testing review candidates without overfitting or risk blockers. The best near misses remain research-only and no strategy should be promoted from this phase.
+- `K-023`: GOAL-STRAT1 did not find three founder production-testing review candidates after full autonomous discovery. The best near misses remain research-only and no strategy should be promoted from this goal.
+- `K-022`: STRAT-DISC1 did not find three founder production-testing review candidates without overfitting or risk blockers. It is superseded by the broader GOAL-STRAT1 exhaustion result.
 - `K-020`: EV-AUDIT1 found no clean strategy candidate. PT-RT1.5.3 enables forward observation and baseline-only testnet plumbing, but strategy profitability is not proven and no production rule change is approved.
 - `K-015`: PT-RT1 forward observation still needs completed fresh PT-RT1.5.3 Week 1 runtime review. Active timeframes are `1h`, `4h`, and `1d`; `15m` is paused.
 - `K-001`: Execution-quality market data remains incomplete; top-of-book/order-book depth is not wired as a live execution-quality input.
@@ -26,6 +27,13 @@ Last reviewed: `2026-06-06T17:35:00Z`
 Detailed historical issue entries remain below for audit. Do not treat a resolved historical row as current operating truth unless the current phase links to it explicitly.
 
 ## Detailed Issue Log
+
+### K-023
+
+- `status`: `open`
+- `area`: `GOAL-STRAT1 autonomous strategy discovery goal`
+- `summary`: `GOAL-STRAT1 expanded beyond STRAT-DISC1 and ran 121 bounded research configurations across Money Flow repair, source-faithful Money Flow, trend/breakout, volatility expansion, mean reversion, relative strength/rotation, and pairs/spread research. It accepted 49 local public-mainnet selected replay datasets, quarantined ASTER 1D for insufficient history, tested 3 exit models, 4 risk models, 3 regime filters, and 2 OOS methods. Zero strategies passed the full founder production-testing review candidate gate. The best near misses were volatility-expansion and Donchian-style trend variants with positive aggregate pockets, but they failed drawdown and/or chronological plus anchored OOS gates.`
+- `impact`: `No strategy should be promoted from GOAL-STRAT1. Further strategy discovery should add longer non-overlapping OOS windows, execution-quality modeling, and stronger control-pocket analysis before widening parameters. This issue does not affect active PT-RT runtime operation; it preserves no-production/no-live/no-order boundaries.`
 
 ### K-022
 

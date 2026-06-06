@@ -14,7 +14,7 @@ This map defines which evidence is canonical, which evidence is true-forward res
 - Synthetic PnL truth: independent synthetic 10,000 USDC paper ledgers per lane.
 - Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when PT-RT1.5.3 gates pass; the PT-RT1.5.3 explicit smoke used testnet metadata / `szDecimals`, reached accepted/open, canceled, and reconciled without synthetic PnL impact.
 - Testnet fills never update synthetic PnL and are not canonical evidence.
-- STRAT-DISC1: research-only discovery accepted 50 local selected replay datasets, ran 12 bounded hypotheses, and promoted zero candidates.
+- GOAL-STRAT1: latest research-only discovery accepted 49 local selected replay datasets, ran 121 bounded candidate configurations across 7 families, and promoted zero candidates.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
 - Next recommended action: continue or restart active Week 1 runtime with PT-RT1.5.3 present and do not mix PT-RT display/runtime rows with canonical SV2 evidence.
@@ -51,17 +51,20 @@ Examples:
 
 True-forward replay must move candle-by-candle without lookahead, use only information available at or before the decision candle, track position state, include fees/slippage, use explicit fill assumptions, and keep production-rule changes out of runtime unless a later approved phase says otherwise.
 
-## STRAT-DISC1 Discovery
+## GOAL-STRAT1 Discovery
 
-STRAT-DISC1 is a separate research-only autonomous discovery pass, not canonical evidence-pack regeneration and not active PT-RT runtime behavior.
+GOAL-STRAT1 supersedes STRAT-DISC1 as the latest separate research-only autonomous discovery pass. It is not canonical evidence-pack regeneration and not active PT-RT runtime behavior.
 
 - Data source: local selected replay JSON from public-mainnet SV2.0.2/SV2.1 artifacts.
-- Data inventory: 50 accepted datasets.
-- Candidate runs: 12 bounded curated hypotheses.
+- Data inventory: 49 accepted datasets; ASTER 1d was quarantined for insufficient history.
+- Candidate runs: 121 bounded configurations.
 - Families tested: Money Flow repair, original Money Flow/stage, trend/breakout, volatility expansion, mean reversion, relative strength, and pairs/spread research.
 - Result: zero strategies passed the strict founder production-testing review gate.
-- Decision: no strategy should be promoted from STRAT-DISC1.
+- Decision: no strategy should be promoted from GOAL-STRAT1.
+- Dominant blockers: out-of-sample collapse, drawdown, weak profit factor, period concentration, low sample, and candle-only market-structure limits for pairs/spread research.
 - Boundaries: no exchange calls, no orders, no testnet strategy truth, no PT-RT runtime mutation, no production/live approval.
+
+STRAT-DISC1 remains historical context: it accepted 50 datasets, ran 12 bounded hypotheses, and found zero candidates before GOAL-STRAT1 expanded the search loop.
 
 ## Diagnostic Overlays
 

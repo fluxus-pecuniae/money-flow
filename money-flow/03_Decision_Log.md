@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-06T17:42:15Z - GOAL-STRAT1 - Expanded Discovery Still Finds No Three Candidates
+
+- `decision`: Complete the founder-requested durable autonomous discovery goal as honest full exhaustion rather than promote weak or overfit results.
+- `scope`: Added `services/strategy_validation/goal_strat1.py`, `scripts/run_goal_strat1_discovery.py`, GOAL-STRAT1 report/summary/no-three-candidates docs, and focused tests. The run inventoried local public-mainnet selected replay JSON, accepted 49 datasets, quarantined ASTER 1d for insufficient history, tested 121 bounded candidate configurations across 7 families, and applied strict founder production-testing review gates.
+- `result`: `three_candidates_were_not_found_without_overfitting_after_full_autonomous_discovery`. Passing candidates: `0`. Top near misses were volatility-expansion and Donchian-style trend variants with positive aggregate PnL, but they failed drawdown and both chronological/anchored out-of-sample checks. Lower-risk variants reduced drawdown but still failed OOS checks.
+- `boundaries`: GOAL-STRAT1 did not mutate active PT-RT runtime artifacts, change production Money Flow rules, submit live/testnet orders, call private/signed/order endpoints, use testnet strategy truth, create execution artifacts, approve production strategy, or approve live trading.
+- `follow_up_implications`: Do not promote any GOAL-STRAT1 result. A future discovery pass should first add longer non-overlapping OOS windows, stricter control-pocket slices, and execution-quality constraints before widening candidate parameters further.
+
 ## 2026-06-06T17:35:00Z - STRAT-DISC1 - No Three Candidates Found Without Overfitting
 
 - `decision`: Complete the first autonomous research-only strategy-discovery pass without promoting any strategy.

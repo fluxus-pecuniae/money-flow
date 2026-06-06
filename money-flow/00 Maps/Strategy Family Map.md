@@ -13,7 +13,7 @@ This is the current strategy taxonomy. It separates production-derived baseline 
 - Strategy truth: public Hyperliquid mainnet fully closed candles and derived indicators.
 - Synthetic PnL truth: independent synthetic 10,000 USDC paper ledgers per lane.
 - Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when PT-RT1.5.3 gates pass; the PT-RT1.5.3 explicit smoke used testnet metadata / `szDecimals`, reached accepted/open, canceled, and reconciled without synthetic PnL impact.
-- STRAT-DISC1: research-only autonomous discovery accepted 50 datasets and ran 12 bounded hypotheses; zero strategies passed the founder production-testing review gate.
+- GOAL-STRAT1: latest research-only autonomous discovery accepted 49 datasets and ran 121 bounded candidate configurations across 7 families; zero strategies passed the founder production-testing review gate.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
 - Next recommended action: continue or restart active Week 1 runtime with PT-RT1.5.3 present before making any strategy/paper-observation conclusion.
@@ -26,7 +26,7 @@ SOR Repair Variants are evidence-only or synthetic paper-observation lanes unles
 
 ### STRAT-EV Discovery
 
-STRAT-DISC1 is the first committed autonomous strategy-discovery pass. It is research-only, not current production logic, not paper-runtime approval, and not part of PT-RT1.5.3 transport. It found zero founder production-testing review candidates without overfitting/risk blockers.
+GOAL-STRAT1 supersedes STRAT-DISC1 as the latest autonomous strategy-discovery pass. It is research-only, not current production logic, not paper-runtime approval, and not part of PT-RT1.5.3 transport. It tested 121 bounded configurations across Money Flow repair, source-faithful Money Flow/stage, trend/breakout, volatility expansion, mean reversion, relative strength, and pairs/spread research. It found zero founder production-testing review candidates without overfitting/risk blockers.
 
 | strategy_family | lane_or_variant | status | evidence_status | paper_status | testnet_transport_status | production_status | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -40,7 +40,8 @@ STRAT-DISC1 is the first committed autonomous strategy-discovery pass. It is res
 | Wildcard paper-observation lanes | `wildcard_btc_regime_guard` | `synthetic_paper_only` | `paper_observation_only` | `synthetic_paper_only` | `cannot_send_testnet_orders` | `not_production_approved`, `not_live_approved` | Expert-observation hypothesis, not canonical evidence. |
 | Wildcard paper-observation lanes | `wildcard_multi_timeframe_alignment` | `synthetic_paper_only` | `paper_observation_only` | `synthetic_paper_only` | `cannot_send_testnet_orders` | `not_production_approved`, `not_live_approved` | Expert-observation hypothesis, not canonical evidence. |
 | Wildcard paper-observation lanes | `wildcard_volatility_expansion_breakout` | `synthetic_paper_only` | `paper_observation_only` | `synthetic_paper_only` | `cannot_send_testnet_orders` | `not_production_approved`, `not_live_approved` | Expert-observation hypothesis, not canonical evidence. |
-| STRAT-DISC1 discovery | 12 curated hypotheses | `research_only`, `no_three_candidates_found_without_overfitting` | `50 accepted selected replay datasets; 0 passing candidates` | `not_runtime` | `none` | `not_production_approved`, `not_live_approved` | Near misses remain research-only; no strategy promotion. |
+| GOAL-STRAT1 discovery | 121 bounded candidate configurations | `research_only`, `three_candidates_were_not_found_without_overfitting_after_full_autonomous_discovery` | `49 accepted selected replay datasets; 0 passing candidates` | `not_runtime` | `none` | `not_production_approved`, `not_live_approved` | Positive aggregate pockets failed risk/OOS/concentration gates; no strategy promotion. |
+| STRAT-DISC1 discovery | 12 curated hypotheses | `research_only`, `superseded_by_goal_strat1` | `50 accepted selected replay datasets; 0 passing candidates` | `not_runtime` | `none` | `not_production_approved`, `not_live_approved` | Historical first pass; no strategy promotion. |
 | SV2/SV2.1 historical evidence tracks | SV2.0.2 canonical packs | `historical_archive`, `canonical_evidence` | `canonical historical multi-timeframe baseline` | `not_runtime` | `none` | `not_production_approved`, `not_live_approved` | Backend evidence packs from DB-imported public candles. |
 | SV2/SV2.1 historical evidence tracks | SV2.1 1D period evidence | `historical_archive`, `evidence_only` | `separate founder-review 1D track` | `not_runtime` | `none` | `not_production_approved`, `not_live_approved` | Does not supersede SV2.0.2. |
 | UAT/testnet plumbing | Hyperliquid testnet lifecycle | `testnet_plumbing_only` | `not_strategy_evidence` | `not_synthetic_pnl_truth` | `baseline_only_25_usdc_when_gated` | `not_production_approved`, `not_live_approved` | Testnet fills do not update synthetic PnL. |

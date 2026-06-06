@@ -16,7 +16,7 @@ This is the roadmap and current status note for PT-RT1. The founder-facing dashb
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
 - Next recommended action: continue or restart active Week 1 runtime with PT-RT1.5.3 present, then review the next fresh baseline-triggered lifecycle row.
-- Evidence context: SV2.0.2 remains the canonical historical baseline; STRAT-DISC1 found zero research candidates; PT-RT is forward observation, not evidence-pack regeneration.
+- Evidence context: SV2.0.2 remains the canonical historical baseline; GOAL-STRAT1 supersedes STRAT-DISC1 and found zero research candidates after 121 bounded configurations; PT-RT is forward observation, not evidence-pack regeneration.
 
 ## PT-RT1 Implemented Scope
 
