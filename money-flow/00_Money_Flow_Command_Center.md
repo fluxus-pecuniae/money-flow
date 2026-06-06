@@ -5,28 +5,29 @@ This is the canonical Obsidian command center for Money Flow agents and founder 
 ## Current Operator Summary
 
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
-- Current runtime: `PT-RT1.5.3` testnet size/precision hotfix verified; fixed 25 USDC smoke reached accepted/open, canceled, and reconciled.
+- Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is prepared; no active paper run is assumed unless the local control server reports one.
+- Active Week 2 default slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
 - Active timeframes: `1h`, `4h`, `1d`.
-- Paused timeframes: `15m` is paused for Week 1 noise reduction and legacy review only.
+- Paused timeframes: `15m` remains paused as diagnostic/legacy context only.
 - Strategy truth: public Hyperliquid mainnet fully closed candles and derived indicators.
 - Synthetic PnL truth: independent synthetic 10,000 USDC paper ledgers per lane.
-- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is allowed only for fresh post-start Money Flow v1.2 baseline opens when PT-RT1.5.3 gates and local signing config pass. The explicit PT-RT1.5.3 smoke used testnet metadata / szDecimals, reached accepted/open, canceled, and reconciled without synthetic PnL impact.
+- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is allowed only for fresh post-start Money Flow v1.2 baseline opens when gates and local signing config pass. Candidate/MF-ORIG lanes remain synthetic-only and testnet fills never update synthetic PnL.
 - Research discovery: `GOAL-STRAT1` supersedes `STRAT-DISC1` as the latest research-only autonomous discovery pass; it accepted 49 local public-mainnet selected replay datasets, tested 121 bounded candidate configurations across 7 strategy families, and promoted zero strategies.
 - Research candidates: `GOAL-STRAT2` identifies two non-existing strategies worth paper-testing review only: `relative_strength_rotation_top_n_trend_strength_atr_trail_equity_5pct_sma200_20_0p34` and `trend_breakout_donchian_breakout_atr_trail_equity_5pct_sma200_20`.
-- Strategy pruning: `STRAT-PRUNE1` recommends a smaller next paper slate of baseline control plus relative-strength rotation, Donchian breakout, and `avoid_low_rolling_range_20`; this is not implemented as runtime behavior yet.
+- Strategy pruning: `STRAT-PRUNE1` remains recommendation-only; the founder overrode its suggested slate for Week 2 in PT-RT1.6.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
-- Next recommended action: founder review of STRAT-PRUNE1, then scope PT-RT1.6 if accepted. Continue or restart PT-RT1.5.3 only if the current 10-lane observation lab is still desired before pruning implementation.
+- Next recommended action: after founder review, start `pt_rt1_6_week2_active` from the dashboard control server or documented command.
 
 ## Current Truth
 
 | Field | Current State |
 | --- | --- |
-| Current implemented milestone | `PT-RT1.5.3` Hyperliquid testnet size/precision hotfix on top of completed `STRAT-PRUNE1`, `GOAL-STRAT2`, `GOAL-STRAT1`, `STRAT-DISC1`, `PT-RT1.5.2`, `PT-RT1.5.1`, `PT-RT1.5`, `PT-RT1.4.1`, `PT-RT1.4`, `PT-RT1.3`, `PT-RT1.2`, `PT-RT1.1C`, `PT-RT1.1B`, `PT-RT1.1A`, `PT-RT1`, `OB2.0`, and `EV-AUDIT1`; STRAT-PRUNE1 is recommendation-only and no strategy candidate is production/live approved |
+| Current implemented milestone | `PT-RT1.6` founder-selected Week 2 three-lane paper slate readiness on top of completed `PT-RT1.5.3`, `STRAT-PRUNE1`, `GOAL-STRAT2`, `GOAL-STRAT1`, `STRAT-DISC1`, and earlier PT-RT/OB/EV work; no strategy candidate is production/live approved |
 | Current major track | Forward Paper Trading observation substrate after SV2.0.2 canonical baseline, SOR, MF-ORIG, EV-AUDIT1, and OB2.0 |
-| Next recommended phase | Founder review of the STRAT-PRUNE1 reduced slate. If accepted, scope `PT-RT1.6 - Add Selected Paper-Test Candidate Lanes`; keep `1h`/`4h`/`1d` active, keep `15m` paused/legacy, keep candidates synthetic-only, and keep testnet eligibility baseline-only. |
+| Next recommended phase | Founder review of PT-RT1.6, then start `pt_rt1_6_week2_active`; keep `1h`/`4h`/`1d` active, keep `15m` paused/legacy, keep selected candidate/MF-ORIG lanes synthetic-only, and keep testnet eligibility baseline-only. |
 | UAT/PT status | UAT2 no-order shadow observation, UAT2.1 dashboard visualization, UAT3.0 sandbox-order design, UAT3.0.1 fixture/readiness hardening, UAT3.0.2 dry-run gate hardening, UAT3.0.3 dry-run executable gate wiring / label enforcement, UAT3.0.4 private read-only sandbox drawdown readiness, UAT3.0.5 sandbox/testnet private read-only drawdown verification, UAT3.0.6 sandbox submit path dry-run wiring, UAT3.1 first sandbox/testnet lifecycle probe, UAT3.2 fixed-key readiness preflight, UAT3.3 Hyperliquid account-targeting / precision hardening, UAT3.4 fixed-target sandbox routing ledger, UAT4.0 read-only chart cockpit, UAT4.1 exchange-style dashboard redesign, UAT4.2 live-market/paper-equity monitoring plus browser-side public testnet chart polling, PT0 TradingView charts / top-20 paper-sandbox runtime foundation, PT0.0.1 chart stability hotfix, PT0.0.2 historical replay cockpit, and PT0.0.3 historical data horizon / 1D replay support are complete |
-| Paper trading | PT-RT1/PT-RT1.1A/PT-RT1.1B/PT-RT1.1C/PT-RT1.4/PT-RT1.4.1/PT-RT1.5/PT-RT1.5.1/PT-RT1.5.2/PT-RT1.5.3 add synthetic paper-observation ledgers and runtime collection/review UI only. Active Week 1 paper review uses `1h`/`4h`/`1d`; `15m` is paused for noise reduction. PT-RT1.5.3 verifies testnet size/precision with one labeled fixed-25-USDC smoke order that reached accepted/open, canceled, and reconciled, while preserving fresh-signal gating and baseline-only transport. No strategy paper runtime is production-approved from EV-AUDIT1 or PT-RT1 evidence |
+| Paper trading | PT-RT1 through PT-RT1.6 add synthetic paper-observation ledgers and runtime collection/review UI only. Active Week 2 paper review uses the three founder-selected lanes on `1h`/`4h`/`1d`; `15m` is paused for noise reduction. PT-RT1.6 keeps fresh-signal gating, baseline-only fixed-25-USDC testnet eligibility, and archived/default-inactive non-selected lanes. No strategy paper runtime is production-approved from EV-AUDIT1 or PT-RT1 evidence |
 | Broader top-20 paper/sandbox | Historical PT0 broader top-20 Hyperliquid-supported paper/sandbox scope is risk-gated and metadata-gated context only. It is not production strategy approval and is separate from current PT-RT1.5.3 Paper Trading review |
 | Live trading | Not approved |
 | Additional exchange order submission | Live exchange order submission is not approved; sandbox/testnet routing remains risk-gated and default-disabled |
@@ -35,6 +36,8 @@ This is the canonical Obsidian command center for Money Flow agents and founder 
 | Original source | Gerald Peters PDF is now present at `money-flow/90 Reference/The Money Flow Trading System - Gerald Peters - 2019 Edition 2.pdf`; current v1.2 is derivative, MF-ORIG is the source-faithful evidence track |
 
 SUBAGENTS1 adds project-scoped read-only Codex review helpers under `.codex/agents/`: `runtime_reviewer` for PT-RT runtime safety, `dashboard_reviewer` for founder dashboard clarity, and `quant_reviewer` for paper-trade quality. They are review/triage agents only; the parent session still owns coordination, edits, validation, and handoff.
+
+Historical PT-RT substrate milestones remain preserved for audit: PT-RT1.1A/1.1B/1.1C established the expanded public-mainnet paper lab, PT-RT1.2 persisted paper runtime state, PT-RT1.3 added candle-truth data-health semantics, PT-RT1.4/1.4.1 paused 15m and verified active-week cutover, and PT-RT1.5.x added candle-close scheduling, warm-start gating, MTM, and baseline-only fixed-25-USDC testnet lifecycle plumbing.
 
 EV-AUDIT1 is complete as audit-only founder review. It inventories Money Flow v1.2 canonical SV2.0.2 evidence, SOR-EV1/SOR-EV2/SOR-EV3, MF-ORIG-EV1.1/MF-ORIG-EV2, and STRAT-EV1 plan-only status; audits data integrity and methodology; explains biggest winners, biggest losers, losing streaks, regime/control-pocket attribution, and P0/P1/P2/P3 issues. The audit promotes no clean strategy candidate. `avoid_low_rolling_range_50` is the best SOR founder-review candidate but still fails drawdown/control-pocket gates, and `mf_orig_1d_stage2_breakout_resistance_full_equity` is the best MF-ORIG full-equity review lane but is not a production candidate. The backtest/evidence estate is good enough for visual review and hypothesis filtering only. EV-AUDIT1 recommended real-time paper observation under separate scope; PT-RT1 is now implemented as substrate only and still does not approve paper runtime, production rule changes, live trading, or order submission.
 

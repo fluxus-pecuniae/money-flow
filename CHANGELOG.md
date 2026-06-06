@@ -13,6 +13,47 @@ Entry schema:
 
 ---
 
+## v2026.06.06.005
+
+- `recorded_at_utc`: `2026-06-06T22:24:15Z`
+- `scope`: `PT-RT1.6 founder-selected Week 2 paper slate + dashboard cleanup`
+- `intent`: `Native entry. Implemented the founder-selected Week 2 default paper slate as exactly money_flow_v1_2_baseline, avoid_low_rolling_range_20, and mf_orig_1d_stage2_breakout_resistance_full_equity. All other prior PT-RT lanes are archived/default-inactive from active Week 2 scoring without deleting evidence or reports. The runtime default evaluation loops now use the three active lanes, the dashboard/control server prefer reports/paper_runtime/pt_rt1_6_week2_active, the Paper Trading UI labels active vs archived lanes, synthetic PnL, public-mainnet signal truth, no-active-run/stale-artifact state, and baseline-only testnet eligibility. PT-RT1.6 does not start the runtime, submit orders, approve live trading, approve production, change production Money Flow rules, or delete historical artifacts.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `services/paper_runtime/pt_rt1.py`
+  - `scripts/run_pt_rt1_paper_observation.py`
+  - `scripts/run_dashboard_control_server.py`
+  - `tests/test_pt_rt1_6_week2_slate.py`
+  - `tests/test_pt_rt1_paper_observation.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_dashboard_control_server.py`
+  - `docs/pt_rt1_6_founder_selected_week2_paper_slate.md`
+  - `docs/pt_rt1_6_founder_selected_week2_paper_slate_summary.json`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/10 Strategy/Strategy Status Register.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m json.tool docs/pt_rt1_6_founder_selected_week2_paper_slate_summary.json`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_6_week2_slate.py tests/test_dashboard_control_server.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_paper_observation.py tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py tests/test_dashboard_static_assets.py tests/test_phase3_strategy.py tests/test_strat_prune1_strategy_lane_pruning.py tests/test_pt_rt1_6_week2_slate.py tests/test_pt_rt1_paper_observation.py tests/test_dashboard_control_server.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-pt-rt1.6-review.zip`
+
 ## v2026.06.06.004
 
 - `recorded_at_utc`: `2026-06-06T19:47:41Z`

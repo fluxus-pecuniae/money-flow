@@ -3,7 +3,8 @@
 
 The server intentionally exposes only a tiny localhost API. It can start or
 stop the PT-RT1 paper-observation runtime through `caffeinate` so a Mac stays
-awake while synthetic paper observation runs. PT-RT1.5.x uses candle-close
+awake while synthetic paper observation runs. PT-RT1.6 uses the founder-selected
+Week 2 three-lane slate with candle-close
 signal evaluation, warm-start fresh-signal gating, and baseline-only
 Hyperliquid testnet lifecycle transport capped at a fixed 25 USDC; testnet
 fills do not update synthetic paper PnL.
@@ -53,10 +54,11 @@ DURATION_OPTIONS = {
     "24h": ("--duration-hours", "24", "24 hours"),
 }
 OUTPUT_OPTIONS = {
+    "pt_rt1_6_week2_active": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_6_week2_active",
     "pt_rt1_5_2_week1_active": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_5_2_week1_active",
     "pt_rt1_5_3_transport_smoke": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_5_3_transport_smoke",
 }
-DEFAULT_OUTPUT = "pt_rt1_5_2_week1_active"
+DEFAULT_OUTPUT = "pt_rt1_6_week2_active"
 SUPPRESSED_STATIC_LOG_PREFIXES = (
     "/reports/strategy_validation/money_flow_sv2_1",
     "/reports/strategy_validation/money_flow_sv2_0_2",

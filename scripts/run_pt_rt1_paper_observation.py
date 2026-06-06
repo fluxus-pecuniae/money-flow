@@ -63,6 +63,10 @@ from services.paper_runtime.pt_rt1 import (
     PT_RT1_MAINNET_API_URL,
     PT_RT1_MAINNET_INFO_URL,
     PT_RT1_REQUESTED_SCANNER_SYMBOLS,
+    PT_RT1_6_ACTIVE_REVIEW_START_UTC,
+    PT_RT1_6_ACTIVE_STRATEGY_LANES,
+    PT_RT1_6_RUNTIME_OUTPUT_DIR,
+    PT_RT1_6_RUNTIME_SCOPE,
     PT_RT1_STRATEGY_LANES,
     PT_RT1_TESTNET_API_URL,
     PT_RT1_TESTNET_INFO_URL,
@@ -2011,7 +2015,7 @@ def run_cycle(
                         "reason_codes": disabled_reasons,
                     }
                 )
-                for lane in PT_RT1_STRATEGY_LANES:
+                for lane in PT_RT1_6_ACTIVE_STRATEGY_LANES:
                     symbol = str(row.canonical_symbol or row.requested_symbol).upper()
                     equity_before = _dec(realized_equity_by_lane.get(lane.lane_id), lane.initial_equity)
                     decisions.append(
@@ -2126,7 +2130,7 @@ def run_cycle(
                     "paper_markers": [],
                     "reason_code_toggle": True,
                 }
-            for lane in PT_RT1_STRATEGY_LANES:
+            for lane in PT_RT1_6_ACTIVE_STRATEGY_LANES:
                 symbol = str(row.canonical_symbol or row.requested_symbol).upper()
                 lane_position_key = _lane_key(lane.lane_id, symbol, timeframe)
                 equity_before = _dec(realized_equity_by_lane.get(lane.lane_id), lane.initial_equity)
@@ -2145,7 +2149,7 @@ def run_cycle(
 
     base_summary = build_pt_rt1_summary()
     scanner_payload = [asdict(row) for row in scanner_rows] if scanner_rows else base_summary["scanner_universe"]
-    lane_payload = base_summary["strategy_lanes"]
+    lane_payload = base_summary["active_strategy_lanes"]
     raw_decision_rows = [event.as_json_dict() for event in decisions]
     if candle_close_only:
         enriched_rows: list[dict[str, Any]] = []
@@ -2262,7 +2266,7 @@ def run_cycle(
     )
     total_equity_by_lane = {
         lane.lane_id: str(_dec(realized_equity_by_lane.get(lane.lane_id), lane.initial_equity) + _dec(unrealized_pnl_by_lane.get(lane.lane_id)))
-        for lane in PT_RT1_STRATEGY_LANES
+        for lane in PT_RT1_6_ACTIVE_STRATEGY_LANES
     }
 
     if candle_close_only:
@@ -2296,7 +2300,7 @@ def run_cycle(
     )
     testnet_meta_by_symbol: dict[str, dict[str, Any]] | None = None
     testnet_metadata_reason_codes: list[str] = []
-    if baseline_testnet_order_transport_enabled and run_label in {"PT-RT1.5", "PT-RT1.5.1", "PT-RT1.5.2", "PT-RT1.5.3"}:
+    if baseline_testnet_order_transport_enabled and run_label in {"PT-RT1.5", "PT-RT1.5.1", "PT-RT1.5.2", "PT-RT1.5.3", "PT-RT1.6"}:
         testnet_meta_by_symbol, testnet_metadata_reason_codes = _fetch_hyperliquid_testnet_meta_by_symbol(
             baseline_testnet_order_base_url
         )
@@ -2317,7 +2321,7 @@ def run_cycle(
             kill_switch=baseline_testnet_order_kill_switch,
             transport=baseline_testnet_order_transport,
         )
-        if run_label in {"PT-RT1.5", "PT-RT1.5.1", "PT-RT1.5.2", "PT-RT1.5.3"}
+        if run_label in {"PT-RT1.5", "PT-RT1.5.1", "PT-RT1.5.2", "PT-RT1.5.3", "PT-RT1.6"}
         else ([], {}, testnet_order_keys)
     )
     transport_smoke_stats: dict[str, Any] = {"transport_smoke_enabled": False, "transport_smoke_used_this_cycle": False}
@@ -2386,8 +2390,12 @@ def run_cycle(
     is_pt_rt1_5_1 = run_label == "PT-RT1.5.1"
     is_pt_rt1_5_2 = run_label == "PT-RT1.5.2"
     is_pt_rt1_5_3 = run_label == "PT-RT1.5.3"
+    is_pt_rt1_6 = run_label == "PT-RT1.6"
     is_pt_rt1_5_2_or_later_smoke = is_pt_rt1_5_2 or is_pt_rt1_5_3
     active_scope = (
+        PT_RT1_6_RUNTIME_SCOPE
+        if is_pt_rt1_6
+        else
         PT_RT1_5_3_TRANSPORT_SMOKE_SCOPE
         if is_pt_rt1_5_3
         else
@@ -2400,6 +2408,9 @@ def run_cycle(
         else "pt_rt1_4_1_active_week"
     )
     active_start = (
+        PT_RT1_6_ACTIVE_REVIEW_START_UTC
+        if is_pt_rt1_6
+        else
         _iso(now)
         if is_pt_rt1_5_3
         else
@@ -2412,6 +2423,9 @@ def run_cycle(
         else base_summary["active_review_start_utc"]
     )
     active_output_dir = (
+        PT_RT1_6_RUNTIME_OUTPUT_DIR
+        if is_pt_rt1_6
+        else
         PT_RT1_5_3_TRANSPORT_SMOKE_OUTPUT_DIR
         if is_pt_rt1_5_3
         else
@@ -2446,6 +2460,10 @@ def run_cycle(
             if is_pt_rt1_5_3 and runtime_status == "verified"
             else "testnet_size_precision_hotfix_smoke_blocked"
             if is_pt_rt1_5_3
+            else "week2_founder_selected_slate_cycle_verified"
+            if is_pt_rt1_6 and runtime_status == "verified"
+            else "week2_founder_selected_slate_cycle_blocked"
+            if is_pt_rt1_6
             else "runtime_correctness_cycle_verified"
             if is_pt_rt1_2 and runtime_status == "verified"
             else "runtime_correctness_cycle_blocked"
@@ -2511,6 +2529,14 @@ def run_cycle(
                     if is_pt_rt1_5_3
                     else
                     [
+                        "founder_selected_week2_active_slate",
+                        "founder_archived_from_week2",
+                        "active_week_scoring_only",
+                        "archived_rows_hidden_by_default",
+                    ]
+                    if is_pt_rt1_6
+                    else
+                    [
                         "pre_warm_start_gate_runtime_archived",
                         "archived_smoke_rows_hidden_by_default",
                         "active_week_reset_after_warm_start_hotfix",
@@ -2558,6 +2584,11 @@ def run_cycle(
         "market_data_health": market_health or base_summary["market_data_health"],
         "data_unavailable_summary": data_unavailable_summary,
         "strategy_lanes": lane_payload,
+        "all_strategy_lanes": base_summary["strategy_lanes"],
+        "active_strategy_lanes": lane_payload,
+        "archived_strategy_lanes": base_summary["archived_strategy_lanes"],
+        "default_active_strategy_lane_ids": base_summary["default_active_strategy_lane_ids"],
+        "archived_default_inactive_strategy_lane_ids": base_summary["archived_default_inactive_strategy_lane_ids"],
         "intended_entry_signals": intended_entry_signals[:200],
         "closed_trades": trade_rows[:200],
         "latest_decisions": decision_rows[:200],
@@ -2690,6 +2721,7 @@ def run_cycle(
             "pt_rt1_5_2_transport_smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 15 --output-dir reports/paper_runtime/pt_rt1_5_2_transport_smoke --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-2-testnet-transport-smoke --pt-rt1-5-testnet-order-notional-usdc 25 --max-testnet-orders-this-phase 1 --public-mainnet-only",
             "pt_rt1_5_2_week1_active_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_5_2_week1_active --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-2-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --public-mainnet-only",
             "pt_rt1_5_3_transport_smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 15 --output-dir reports/paper_runtime/pt_rt1_5_3_transport_smoke --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-3-testnet-size-hotfix-smoke --pt-rt1-5-testnet-order-notional-usdc 25 --max-testnet-orders-this-phase 1 --public-mainnet-only",
+            "pt_rt1_6_week2_active_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_6_week2_active --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-2-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --public-mainnet-only",
             "smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 1 --output-dir reports/paper_runtime/pt_rt1_1b_smoke --disable-testnet-probes --public-mainnet-only",
             "output_dir": str(output_dir),
         },
@@ -2740,6 +2772,11 @@ def run_cycle(
         },
         "open_position_mtm": mtm_stats,
         "next_phase_decision": (
+            "PT-RT1.6 Week 2 paper run may continue on the founder-selected three-lane slate"
+            if is_pt_rt1_6 and runtime_status == "verified"
+            else "PT-RT1.6 blocked"
+            if is_pt_rt1_6
+            else
             "PT-RT1.5.2 may continue signed testnet lifecycle observation after fresh baseline signals"
             if is_pt_rt1_5_2 and runtime_status == "verified"
             else "PT-RT1.5.2 blocked"
@@ -2902,6 +2939,7 @@ def main() -> int:
         PT_RT1_5_2_RUNTIME_OUTPUT_DIR,
     }
     is_pt_rt1_5_3_output = output_dir_posix == PT_RT1_5_3_TRANSPORT_SMOKE_OUTPUT_DIR
+    is_pt_rt1_6_output = output_dir_posix == PT_RT1_6_RUNTIME_OUTPUT_DIR
     is_pt_rt1_5_3_requested = (
         is_pt_rt1_5_3_output
         or args.founder_approved_pt_rt1_5_3_testnet_size_hotfix_smoke
@@ -2910,6 +2948,7 @@ def main() -> int:
         not is_pt_rt1_5_3_requested
         and (
             is_pt_rt1_5_2_output
+            or is_pt_rt1_6_output
             or args.founder_approved_pt_rt1_5_2_testnet_transport_smoke
             or args.founder_approved_pt_rt1_5_2_baseline_testnet_orders_25usdc
         )
@@ -2936,7 +2975,7 @@ def main() -> int:
             allowed_pt_rt15_output_dirs.add(PT_RT1_5_1_RUNTIME_OUTPUT_DIR)
         if is_pt_rt1_5_2_requested:
             allowed_pt_rt15_output_dirs.update(
-                {PT_RT1_5_2_TRANSPORT_SMOKE_OUTPUT_DIR, PT_RT1_5_2_RUNTIME_OUTPUT_DIR}
+                {PT_RT1_5_2_TRANSPORT_SMOKE_OUTPUT_DIR, PT_RT1_5_2_RUNTIME_OUTPUT_DIR, PT_RT1_6_RUNTIME_OUTPUT_DIR}
             )
         if is_pt_rt1_5_3_requested:
             allowed_pt_rt15_output_dirs.add(PT_RT1_5_3_TRANSPORT_SMOKE_OUTPUT_DIR)
@@ -2948,7 +2987,7 @@ def main() -> int:
             args.signal_evaluation_mode = "candle_close_only"
     if output_dir_posix == PT_RT1_5_1_RUNTIME_OUTPUT_DIR and not args.fresh_signal_only_after_runtime_start:
         raise SystemExit("pt_rt1_5_1_smoke_requires_fresh_signal_only_after_runtime_start")
-    if is_pt_rt1_5_2_output and not args.fresh_signal_only_after_runtime_start:
+    if (is_pt_rt1_5_2_output or is_pt_rt1_6_output) and not args.fresh_signal_only_after_runtime_start:
         raise SystemExit("pt_rt1_5_2_requires_fresh_signal_only_after_runtime_start")
     if is_pt_rt1_5_3_output and not args.fresh_signal_only_after_runtime_start:
         raise SystemExit("pt_rt1_5_3_requires_fresh_signal_only_after_runtime_start")
@@ -2971,7 +3010,7 @@ def main() -> int:
         raise SystemExit("positive_pt_rt1_5_testnet_per_symbol_daily_cap_required")
     if args.max_testnet_orders_this_phase < 0:
         raise SystemExit("nonnegative_max_testnet_orders_this_phase_required")
-    signed_transport_phase_requested = is_pt_rt1_5_2_requested or is_pt_rt1_5_3_requested
+    signed_transport_phase_requested = is_pt_rt1_5_2_requested or is_pt_rt1_5_3_requested or is_pt_rt1_6_output
     env_load_status = _load_pt_rt1_5_2_env_file(args.env_file) if signed_transport_phase_requested else {}
     signed_transport_env_status = pt_rt1_5_2_signed_transport_env_status() if signed_transport_phase_requested else None
     if signed_transport_env_status is not None:
@@ -2998,6 +3037,9 @@ def main() -> int:
     run_label = (
         "PT-RT1.5.3"
         if args.pt_rt1_5_week1_active and is_pt_rt1_5_3_requested
+        else
+        "PT-RT1.6"
+        if args.pt_rt1_5_week1_active and is_pt_rt1_6_output
         else
         "PT-RT1.5.2"
         if args.pt_rt1_5_week1_active and is_pt_rt1_5_2_requested

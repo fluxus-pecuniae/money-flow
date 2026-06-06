@@ -1,0 +1,139 @@
+{
+  "phase": "PT-RT1.6",
+  "recorded_at_utc": "2026-06-06T22:24:15Z",
+  "objective": "Prepare the founder-selected Week 2 paper slate and dashboard defaults without starting the runtime.",
+  "active_runtime_scope": {
+    "scope": "pt_rt1_6_week2_active",
+    "output_dir": "reports/paper_runtime/pt_rt1_6_week2_active",
+    "runtime_started_by_phase": false,
+    "no_active_paper_run_assumed_unless_control_server_reports_running": true,
+    "stale_runtime_artifacts_must_be_labeled": true
+  },
+  "active_week2_paper_slate": [
+    "money_flow_v1_2_baseline",
+    "avoid_low_rolling_range_20",
+    "mf_orig_1d_stage2_breakout_resistance_full_equity"
+  ],
+  "archived_default_inactive_lanes": [
+    "avoid_low_rolling_range_50",
+    "mf_orig_stage_filter_only_full_equity",
+    "mf_orig_stage2_pullback_reclaim_full_equity",
+    "mf_orig_1d_stage2_5_20_crossover_full_equity",
+    "wildcard_btc_regime_guard",
+    "wildcard_multi_timeframe_alignment",
+    "wildcard_volatility_expansion_breakout"
+  ],
+  "active_timeframes": [
+    "1h",
+    "4h",
+    "1d"
+  ],
+  "disabled_timeframes": [
+    {
+      "timeframe": "15m",
+      "status": "paused",
+      "reason_codes": [
+        "diagnostic_only",
+        "not_active_paper_scoring",
+        "timeframe_disabled_by_founder_for_week1"
+      ]
+    }
+  ],
+  "lane_policies": [
+    {
+      "lane_id": "money_flow_v1_2_baseline",
+      "label": "Control / Baseline",
+      "default_active": true,
+      "archived_default_inactive": false,
+      "paper_eligible": true,
+      "testnet_eligible": true,
+      "production_eligible": false,
+      "live_eligible": false,
+      "pnl_source": "Synthetic Ledger",
+      "signal_truth": "Public Mainnet Candles",
+      "testnet_label": "Baseline-only gated testnet eligible",
+      "reason_codes": [
+        "founder_selected_week2_active",
+        "keep_as_control"
+      ]
+    },
+    {
+      "lane_id": "avoid_low_rolling_range_20",
+      "label": "Diagnostic Comparator",
+      "default_active": true,
+      "archived_default_inactive": false,
+      "paper_eligible": true,
+      "testnet_eligible": false,
+      "production_eligible": false,
+      "live_eligible": false,
+      "pnl_source": "Synthetic Ledger",
+      "signal_truth": "Public Mainnet Candles",
+      "testnet_label": "Synthetic-only / no testnet",
+      "reason_codes": [
+        "founder_selected_week2_active",
+        "candidate_synthetic_only"
+      ]
+    },
+    {
+      "lane_id": "mf_orig_1d_stage2_breakout_resistance_full_equity",
+      "label": "MF-ORIG Source-Faithful Candidate",
+      "default_active": true,
+      "archived_default_inactive": false,
+      "paper_eligible": true,
+      "testnet_eligible": false,
+      "production_eligible": false,
+      "live_eligible": false,
+      "pnl_source": "Synthetic Ledger",
+      "signal_truth": "Public Mainnet Candles",
+      "testnet_label": "Synthetic-only / no testnet",
+      "reason_codes": [
+        "founder_selected_week2_active",
+        "candidate_synthetic_only"
+      ]
+    }
+  ],
+  "archived_lane_policy": {
+    "default_active": false,
+    "week2_scoring_eligible": false,
+    "testnet_eligible": false,
+    "production_eligible": false,
+    "live_eligible": false,
+    "meaning": "historical_reference_only_not_deleted",
+    "reason_codes": [
+      "founder_archived_from_week2",
+      "not_default_active",
+      "historical_reference_only",
+      "synthetic_only_if_reenabled",
+      "not_testnet_eligible",
+      "not_production_eligible"
+    ]
+  },
+  "dashboard_status": {
+    "week2_active_lanes_visible_by_default": true,
+    "archived_lanes_hidden_from_default_active_scoreboard": true,
+    "archived_lanes_separate_reference": true,
+    "synthetic_pnl_label_visible": true,
+    "testnet_lifecycle_separate": true,
+    "baseline_only_testnet_eligibility_visible": true,
+    "candidate_synthetic_only_labels_visible": true,
+    "no_active_run_state_visible": true,
+    "stale_artifact_warning_visible": true
+  },
+  "runtime_command": {
+    "week2_active_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_6_week2_active --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-2-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --public-mainnet-only",
+    "runtime_started_by_phase": false
+  },
+  "boundaries": {
+    "public_mainnet_candles_strategy_truth": true,
+    "synthetic_ledgers_pnl_truth": true,
+    "testnet_fills_update_synthetic_pnl": false,
+    "candidate_lanes_testnet_eligible": false,
+    "baseline_only_testnet_eligible": true,
+    "live_trading_approved": false,
+    "strategy_production_approved": false,
+    "orders_submitted": false,
+    "runtime_started": false,
+    "production_money_flow_rules_changed": false
+  },
+  "next_phase": "Founder may start the PT-RT1.6 Week 2 paper run after reviewing the handoff."
+}

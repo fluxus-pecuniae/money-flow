@@ -7,18 +7,19 @@ This map defines which evidence is canonical, which evidence is true-forward res
 ## Current Operator Summary
 
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
-- Current runtime: `PT-RT1.5.3` size/precision hotfix verified; fixed 25 USDC smoke reached accepted/open, canceled, and reconciled.
+- Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is prepared; no active paper run is assumed unless the local control server reports one.
+- Active Week 2 default slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
 - Active timeframes: `1h`, `4h`, `1d`.
-- Paused timeframes: `15m` is paused for Week 1 noise reduction and legacy review only.
+- Paused timeframes: `15m` remains paused as diagnostic/legacy context only.
 - Strategy truth: public Hyperliquid mainnet fully closed candles and derived indicators.
 - Synthetic PnL truth: independent synthetic 10,000 USDC paper ledgers per lane.
-- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when PT-RT1.5.3 gates pass; the PT-RT1.5.3 explicit smoke used testnet metadata / `szDecimals`, reached accepted/open, canceled, and reconciled without synthetic PnL impact.
+- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when gates pass; candidate/MF-ORIG lanes remain synthetic-only and testnet fills never update synthetic PnL.
 - Testnet fills never update synthetic PnL and are not canonical evidence.
 - GOAL-STRAT1: latest research-only discovery accepted 49 local selected replay datasets, ran 121 bounded candidate configurations across 7 families, and promoted zero candidates.
 - GOAL-STRAT2: selected two non-existing research-only strategies worth founder paper-testing review from GOAL-STRAT1 evidence.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
-- Next recommended action: continue or restart active Week 1 runtime with PT-RT1.5.3 present and do not mix PT-RT display/runtime rows with canonical SV2 evidence.
+- Next recommended action: after founder review, start `pt_rt1_6_week2_active` and do not mix PT-RT display/runtime rows with canonical SV2 evidence.
 
 ## Canonical Evidence Packs
 

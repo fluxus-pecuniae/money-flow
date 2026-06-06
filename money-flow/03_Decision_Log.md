@@ -2,6 +2,13 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-06T22:24:15Z - PT-RT1.6 - Founder Overrides STRAT-PRUNE1 Slate For Week 2
+
+- `decision`: Use the founder-selected three-lane Week 2 default paper slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
+- `scope`: PT-RT1.6 configures runtime/dashboard defaults to prefer `reports/paper_runtime/pt_rt1_6_week2_active/`, hides all other prior PT-RT lanes from default active scoring, and labels archived lanes as historical/research reference only.
+- `boundaries`: `1h`/`4h`/`1d` remain active, `15m` remains paused, only the baseline can be testnet eligible, selected candidate/MF-ORIG lanes are synthetic-only, testnet lifecycle remains separate from synthetic PnL, no runtime was started, no orders were submitted, no production strategy was approved, and live trading remains not approved.
+- `follow_up_implications`: Start the Week 2 run only after founder review using the documented PT-RT1.6 command or dashboard control server. Do not reintroduce STRAT-PRUNE1 relative-strength/Donchian lanes unless a later phase explicitly scopes them.
+
 ## 2026-06-06T19:47:41Z - STRAT-PRUNE1 - Prune Next Paper Slate
 
 - `decision`: Recommend a smaller next paper-testing slate before another forward run, without implementing runtime lane changes in STRAT-PRUNE1.

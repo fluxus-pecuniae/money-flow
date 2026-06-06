@@ -70,6 +70,9 @@ PT_RT1_5_2_RUNTIME_OUTPUT_DIR = "reports/paper_runtime/pt_rt1_5_2_week1_active"
 PT_RT1_5_2_ACTIVE_REVIEW_START_UTC = "2026-05-17T16:24:49Z"
 PT_RT1_5_3_TRANSPORT_SMOKE_SCOPE = "pt_rt1_5_3_transport_smoke"
 PT_RT1_5_3_TRANSPORT_SMOKE_OUTPUT_DIR = "reports/paper_runtime/pt_rt1_5_3_transport_smoke"
+PT_RT1_6_RUNTIME_SCOPE = "pt_rt1_6_week2_active"
+PT_RT1_6_RUNTIME_OUTPUT_DIR = "reports/paper_runtime/pt_rt1_6_week2_active"
+PT_RT1_6_ACTIVE_REVIEW_START_UTC = "2026-06-07T00:00:00Z"
 PT_RT1_5_ARCHIVED_RUNTIME_SCOPES = (
     "pre_pt_rt1_4_weekend_burn_in",
     "pt_rt1_1c_24h_dry_run",
@@ -78,6 +81,30 @@ PT_RT1_5_ARCHIVED_RUNTIME_SCOPES = (
     "pt_rt1_5_1_smoke_archived",
     "pre_pt_rt1_5_2_runtime",
     "legacy_runtime",
+)
+PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS = (
+    "money_flow_v1_2_baseline",
+    "avoid_low_rolling_range_20",
+    "mf_orig_1d_stage2_breakout_resistance_full_equity",
+)
+PT_RT1_6_ARCHIVED_STRATEGY_LANE_IDS = (
+    "avoid_low_rolling_range_50",
+    "mf_orig_stage_filter_only_full_equity",
+    "mf_orig_stage2_pullback_reclaim_full_equity",
+    "mf_orig_1d_stage2_5_20_crossover_full_equity",
+    "wildcard_btc_regime_guard",
+    "wildcard_multi_timeframe_alignment",
+    "wildcard_volatility_expansion_breakout",
+)
+PT_RT1_6_ACTIVE_TIMEFRAMES = PT_RT1_4_ACTIVE_TIMEFRAMES
+PT_RT1_6_DISABLED_TIMEFRAMES = PT_RT1_4_DISABLED_TIMEFRAMES
+PT_RT1_6_ARCHIVE_REASON_CODES = (
+    "founder_archived_from_week2",
+    "not_default_active",
+    "historical_reference_only",
+    "synthetic_only_if_reenabled",
+    "not_testnet_eligible",
+    "not_production_eligible",
 )
 PT_RT1_5_ACTIVE_TIMEFRAMES = PT_RT1_4_ACTIVE_TIMEFRAMES
 PT_RT1_5_DISABLED_TIMEFRAMES = PT_RT1_4_DISABLED_TIMEFRAMES
@@ -418,6 +445,74 @@ PT_RT1_STRATEGY_LANES: tuple[StrategyLaneConfig, ...] = (
         reason_codes=(*WILDCARD_STRATEGY_DEFINITIONS["wildcard_volatility_expansion_breakout"]["reason_codes"], "wildcard_observation_only", "not_production_approved", "independent_synthetic_paper_ledger"),
     ),
 )
+
+PT_RT1_6_ACTIVE_STRATEGY_LANES: tuple[StrategyLaneConfig, ...] = tuple(
+    lane for lane in PT_RT1_STRATEGY_LANES if lane.lane_id in PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS
+)
+PT_RT1_6_ARCHIVED_STRATEGY_LANES: tuple[StrategyLaneConfig, ...] = tuple(
+    lane for lane in PT_RT1_STRATEGY_LANES if lane.lane_id in PT_RT1_6_ARCHIVED_STRATEGY_LANE_IDS
+)
+
+
+def pt_rt1_6_lane_status(lane_id: str) -> str:
+    if lane_id in PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS:
+        return "active_week2_default"
+    if lane_id in PT_RT1_6_ARCHIVED_STRATEGY_LANE_IDS:
+        return "archived_default_inactive"
+    return "not_in_week2_slate"
+
+
+def pt_rt1_6_lane_testnet_eligible(lane_id: str) -> bool:
+    return lane_id == "money_flow_v1_2_baseline"
+
+
+def strategy_lane_summary_payload(lane: StrategyLaneConfig) -> dict[str, Any]:
+    lane_status = pt_rt1_6_lane_status(lane.lane_id)
+    active_by_default = lane_status == "active_week2_default"
+    archived_by_default = lane_status == "archived_default_inactive"
+    reason_codes = list(lane.reason_codes)
+    if archived_by_default:
+        reason_codes = list(dict.fromkeys([*reason_codes, *PT_RT1_6_ARCHIVE_REASON_CODES]))
+    if active_by_default:
+        reason_codes = list(dict.fromkeys([*reason_codes, "founder_selected_week2_active", "not_production_eligible"]))
+    return {
+        **asdict(lane),
+        "initial_equity": str(lane.initial_equity),
+        "allocation_pct": str(lane.allocation_pct),
+        "role": str(lane.role),
+        "starting_equity": str(lane.initial_equity),
+        "realized_equity": str(lane.initial_equity),
+        "unrealized_pnl": "0",
+        "total_equity": str(lane.initial_equity),
+        "open_positions": 0,
+        "closed_trades": 0,
+        "drawdown": "0",
+        "max_drawdown": "0",
+        "current_losing_streak": 0,
+        "max_losing_streak": 0,
+        "data_health": "pending_runtime_refresh",
+        "last_decision_time": None,
+        "paper_only": lane.paper_only,
+        "production_approved": False,
+        "live_approved": False,
+        "live_trading_approved": False,
+        "paper_runtime_approved_as_production": False,
+        "ledger_label": "independent synthetic paper ledger",
+        "accounting_label": "not one combined account",
+        "week2_default_status": lane_status,
+        "active_by_default": active_by_default,
+        "archived_by_default": archived_by_default,
+        "week2_scoring_eligible": active_by_default,
+        "testnet_eligible": pt_rt1_6_lane_testnet_eligible(lane.lane_id),
+        "testnet_label": (
+            "Baseline-only gated testnet eligible"
+            if pt_rt1_6_lane_testnet_eligible(lane.lane_id)
+            else "Synthetic-only / no testnet"
+        ),
+        "pnl_source": "Synthetic Ledger",
+        "signal_truth": "Public Mainnet Candles",
+        "reason_codes": tuple(reason_codes),
+    }
 
 
 def _dec(value: Any, *, field_name: str = "value") -> Decimal:
@@ -1919,32 +2014,9 @@ def _configured_scanner_universe_rows() -> list[dict[str, Any]]:
 
 
 def build_pt_rt1_summary() -> dict[str, Any]:
-    lanes = [
-        {
-            **asdict(lane),
-            "initial_equity": str(lane.initial_equity),
-            "allocation_pct": str(lane.allocation_pct),
-            "role": str(lane.role),
-            "starting_equity": str(lane.initial_equity),
-            "realized_equity": str(lane.initial_equity),
-            "unrealized_pnl": "0",
-            "total_equity": str(lane.initial_equity),
-            "open_positions": 0,
-            "closed_trades": 0,
-            "drawdown": "0",
-            "max_drawdown": "0",
-            "current_losing_streak": 0,
-            "max_losing_streak": 0,
-            "data_health": "pending_runtime_refresh",
-            "last_decision_time": None,
-            "paper_only": lane.paper_only,
-            "production_approved": False,
-            "live_approved": False,
-            "ledger_label": "independent synthetic paper ledger",
-            "accounting_label": "not one combined account",
-        }
-        for lane in PT_RT1_STRATEGY_LANES
-    ]
+    lanes = [strategy_lane_summary_payload(lane) for lane in PT_RT1_STRATEGY_LANES]
+    active_week2_lanes = [strategy_lane_summary_payload(lane) for lane in PT_RT1_6_ACTIVE_STRATEGY_LANES]
+    archived_week2_lanes = [strategy_lane_summary_payload(lane) for lane in PT_RT1_6_ARCHIVED_STRATEGY_LANES]
     scanner_rows = _configured_scanner_universe_rows()
     return {
         "phase": "PT-RT1.1A",
@@ -1954,9 +2026,9 @@ def build_pt_rt1_summary() -> dict[str, Any]:
         "latest_readiness_phase": "PT-RT1.4",
         "latest_readiness_report": "docs/pt_rt1_4_paper_trading_command_center_cleanup.md",
         "latest_readiness_summary": "docs/pt_rt1_4_paper_trading_command_center_cleanup_summary.json",
-        "latest_hotfix_phase": "PT-RT1.5.1",
-        "latest_hotfix_report": "docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm.md",
-        "latest_hotfix_summary": "docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm_summary.json",
+        "latest_hotfix_phase": "PT-RT1.6",
+        "latest_hotfix_report": "docs/pt_rt1_6_founder_selected_week2_paper_slate.md",
+        "latest_hotfix_summary": "docs/pt_rt1_6_founder_selected_week2_paper_slate_summary.json",
         "strategy_truth_lane": {
             "source": "Hyperliquid public mainnet info endpoint",
             "endpoint": PT_RT1_MAINNET_INFO_URL,
@@ -1989,6 +2061,25 @@ def build_pt_rt1_summary() -> dict[str, Any]:
         "active_timeframes": list(PT_RT1_4_ACTIVE_TIMEFRAMES),
         "disabled_timeframes": list(PT_RT1_4_DISABLED_TIMEFRAMES),
         "active_review_start_utc": PT_RT1_4_ACTIVE_REVIEW_START_UTC,
+        "pt_rt1_6_week2_active_scope": {
+            "scope": PT_RT1_6_RUNTIME_SCOPE,
+            "output_dir": PT_RT1_6_RUNTIME_OUTPUT_DIR,
+            "active_review_start_utc": PT_RT1_6_ACTIVE_REVIEW_START_UTC,
+            "default_active_lane_ids": list(PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS),
+            "archived_default_inactive_lane_ids": list(PT_RT1_6_ARCHIVED_STRATEGY_LANE_IDS),
+            "active_timeframes": list(PT_RT1_6_ACTIVE_TIMEFRAMES),
+            "disabled_timeframes": list(PT_RT1_6_DISABLED_TIMEFRAMES),
+            "default_show_archived_lanes": False,
+            "default_show_archived_rows": False,
+            "runtime_started_by_pt_rt1_6": False,
+            "no_active_paper_run_assumed_without_control_server_status": True,
+            "reason_codes": [
+                "founder_selected_week2_active_slate",
+                "founder_archived_from_week2",
+                "active_week_scoring_only",
+                "not_default_active",
+            ],
+        },
         "pt_rt1_5_active_review_scope": {
             "scope": PT_RT1_5_RUNTIME_SCOPE,
             "output_dir": PT_RT1_5_RUNTIME_OUTPUT_DIR,
@@ -2076,6 +2167,12 @@ def build_pt_rt1_summary() -> dict[str, Any]:
             for timeframe in TIMEFRAME_DURATIONS
         ],
         "strategy_lanes": lanes,
+        "active_strategy_lanes": active_week2_lanes,
+        "archived_strategy_lanes": archived_week2_lanes,
+        "week2_active_strategy_lanes": active_week2_lanes,
+        "week2_archived_strategy_lanes": archived_week2_lanes,
+        "default_active_strategy_lane_ids": list(PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS),
+        "archived_default_inactive_strategy_lane_ids": list(PT_RT1_6_ARCHIVED_STRATEGY_LANE_IDS),
         "wildcard_definitions": WILDCARD_STRATEGY_DEFINITIONS,
         "paper_equity_policy": {
             "starting_equity_usdc_per_lane": "10000",
@@ -2156,6 +2253,12 @@ def build_pt_rt1_summary() -> dict[str, Any]:
             "candidate_lanes_can_send_testnet_orders": False,
             "mf_orig_lanes_can_send_testnet_orders": False,
             "wildcard_lanes_can_send_testnet_orders": False,
+            "week2_testnet_eligible_lane_ids": ["money_flow_v1_2_baseline"],
+            "week2_synthetic_only_lane_ids": [
+                "avoid_low_rolling_range_20",
+                "mf_orig_1d_stage2_breakout_resistance_full_equity",
+                *PT_RT1_6_ARCHIVED_STRATEGY_LANE_IDS,
+            ],
             "testnet_prices_are_strategy_truth": False,
             "testnet_fills_update_strategy_pnl": False,
             "lifecycle_table": "testnet_order_lifecycle.jsonl",
@@ -2163,13 +2266,20 @@ def build_pt_rt1_summary() -> dict[str, Any]:
         },
         "dashboard_status": {
             "view": "Paper Observation",
-            "status": "implemented_with_pt_rt1_1b_connection_status",
-            "strategy_lanes_visible": len(lanes),
+            "status": "implemented_with_pt_rt1_6_week2_slate",
+            "strategy_lanes_visible": len(active_week2_lanes),
+            "historical_strategy_lanes_available": len(lanes),
+            "archived_lanes_visible_as_separate_reference": True,
+            "default_active_lanes_visible": list(PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS),
+            "default_archived_lanes_hidden_from_active_scoreboard": True,
             "expanded_scanner_universe_visible": True,
             "blocked_symbols_visible": True,
-            "wildcard_diagnostics_visible": True,
+            "wildcard_diagnostics_visible": False,
             "public_mainnet_connection_status_visible": True,
             "runtime_summary_preferred_paths": [
+                "reports/paper_runtime/pt_rt1_6_week2_active/summary.json",
+                "reports/paper_runtime/pt_rt1_5_2_week1_active/summary.json",
+                "reports/paper_runtime/pt_rt1_5_3_transport_smoke/summary.json",
                 "reports/paper_runtime/pt_rt1_5_1_smoke/summary.json",
                 "reports/paper_runtime/pt_rt1_5_week1_active/summary.json",
                 "reports/paper_runtime/pt_rt1_1b_smoke/summary.json",
@@ -2177,22 +2287,25 @@ def build_pt_rt1_summary() -> dict[str, Any]:
                 "docs/pt_rt1_1b_hyperliquid_live_market_data_and_runtime_readiness_summary.json",
             ],
             "date_filters": "display-only filter; not canonical evidence; not backend replay",
+            "stale_or_no_active_run_warning": "No active paper run detected unless local control server reports running; stale runtime artifacts are labeled.",
         },
         "runtime_command": {
             "smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 1 --output-dir reports/paper_runtime/pt_rt1_1b_smoke --disable-testnet-probes --public-mainnet-only",
             "duration_hours_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_1c_24h_dry_run --enable-testnet-probes --founder-approved-testnet-probes-20usdc --testnet-probe-notional-usdc 20 --public-mainnet-only",
             "pt_rt1_5_week1_active_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_5_week1_active --pt-rt1-5-week1-active --enable-pt-rt1-5-baseline-testnet-orders --founder-approved-pt-rt1-5-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --disable-testnet-probes --public-mainnet-only",
             "pt_rt1_5_1_smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 1 --output-dir reports/paper_runtime/pt_rt1_5_1_smoke --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-1-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --disable-legacy-testnet-probes --public-mainnet-only",
+            "pt_rt1_6_week2_active_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_6_week2_active --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-2-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --public-mainnet-only",
         },
         "next_phase": {
-            "decision": "Run fresh PT-RT active-week paper observation on 1h/4h/1d with 15m paused",
+            "decision": "Founder may start the PT-RT1.6 Week 2 three-lane paper run after review",
             "conditions": [
                 "testnet_probe_transport_not_submitted_by_pt_rt1_runtime",
                 "public_mainnet_strategy_truth_only",
                 "expanded_scanner_rows_remain_reason_coded",
-                "pt_rt1_4_active_timeframe_cutover_enabled",
-                "pt_rt1_5_1_warm_start_gate_enabled",
-                "fifteen_minute_timeframe_paused_for_week1",
+                "week2_active_slate_exactly_three_lanes",
+                "archived_lanes_hidden_from_default_active_scoring",
+                "fifteen_minute_timeframe_paused_for_week2",
+                "baseline_only_testnet_eligible",
                 "no_production_rule_changes",
             ],
         },

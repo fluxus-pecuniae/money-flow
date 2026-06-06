@@ -226,6 +226,7 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert ">Time<" in js
     assert "evidenceReplayStrategyId" in js
     assert "EVIDENCE_ALL_REPLAY_STRATEGIES_ID" in js
+    assert "pt_rt1_6_week2_active/summary.json" in js
     assert "pt_rt1_5_2_week1_active/summary.json" in js
     assert "pt_rt1_5_2_transport_smoke/summary.json" in js
     assert "pt_rt1_5_week1_active/summary.json" not in js
@@ -410,8 +411,8 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "DEFAULT_PT_RT1_SUMMARY_FILES" in js
     assert "DEFAULT_PT_RT1_DECISION_LOG_FILES" in js
     assert "DEFAULT_PT_RT1_TRADE_LOG_FILES" in js
-    assert "pt_rt1_5_2_week1_active/decisions.jsonl" in js
-    assert "pt_rt1_5_2_week1_active/trades.jsonl" in js
+    assert "pt_rt1_6_week2_active/decisions.jsonl" in js
+    assert "pt_rt1_6_week2_active/trades.jsonl" in js
     assert "pt_rt1_5_2_transport_smoke/testnet_order_lifecycle.jsonl" in js
     assert "pt_rt1_5_1_smoke/decisions.jsonl" not in js
     assert "pt_rt1_5_1_smoke/trades.jsonl" not in js
@@ -867,14 +868,18 @@ def test_pt_rt1_4_paper_trading_command_center_active_timeframe_ui() -> None:
 def test_paper_trading_prefers_active_week_runtime_before_smoke_artifacts() -> None:
     js = Path("apps/dashboard/evidence-dashboard.js").read_text(encoding="utf-8")
 
-    active_summary = "../../reports/paper_runtime/pt_rt1_5_2_week1_active/summary.json"
+    active_summary = "../../reports/paper_runtime/pt_rt1_6_week2_active/summary.json"
+    legacy_active_summary = "../../reports/paper_runtime/pt_rt1_5_2_week1_active/summary.json"
     smoke_summary = "../../reports/paper_runtime/pt_rt1_5_3_transport_smoke/summary.json"
-    active_lifecycle = "../../reports/paper_runtime/pt_rt1_5_2_week1_active/testnet_order_lifecycle.jsonl"
+    active_lifecycle = "../../reports/paper_runtime/pt_rt1_6_week2_active/testnet_order_lifecycle.jsonl"
+    legacy_active_lifecycle = "../../reports/paper_runtime/pt_rt1_5_2_week1_active/testnet_order_lifecycle.jsonl"
     smoke_lifecycle = "../../reports/paper_runtime/pt_rt1_5_3_transport_smoke/testnet_order_lifecycle.jsonl"
 
+    assert js.index(active_summary) < js.index(legacy_active_summary)
     assert js.index(active_summary) < js.index(smoke_summary)
+    assert js.index(active_lifecycle) < js.index(legacy_active_lifecycle)
     assert js.index(active_lifecycle) < js.index(smoke_lifecycle)
-    assert 'output: "pt_rt1_5_2_week1_active"' in js
+    assert 'output: "pt_rt1_6_week2_active"' in js
     assert "duration: payload?.duration || state.paperRuntimeControl.duration" in js
     assert "output: payload?.output || state.paperRuntimeControl.output" in js
     assert "const lifecycleRows = paperObservationTestnetLifecycleRows(summary);" in js

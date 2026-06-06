@@ -212,7 +212,7 @@ def test_docs_ob21_current_truth_docs_are_current_first() -> None:
     for relative_path in current_truth_files:
         contents = Path(relative_path).read_text()
         assert "Current Operator Summary" in contents, f"{relative_path} lacks a current summary"
-        assert "PT-RT1.5.3" in contents, f"{relative_path} lacks PT-RT current state"
+        assert "PT-RT1.6" in contents, f"{relative_path} lacks PT-RT current state"
         assert "1h" in contents and "4h" in contents and "1d" in contents
         assert "15m" in contents and "paused" in contents.lower()
         assert "public Hyperliquid mainnet" in contents or "public mainnet" in contents
@@ -251,7 +251,7 @@ def test_docs_ob21_dashboard_and_strategy_taxonomies_are_explicit() -> None:
         assert lane in strategy_map
         assert lane in strategy_register
 
-    assert "baseline_only_25_usdc_when_pt_rt1_5_3_gates_pass" in strategy_map
+    assert "baseline_only_25_usdc_when_gates_pass" in strategy_map
     assert "cannot_send_testnet_orders" in strategy_map
     assert "testnet fills do not update synthetic pnl" in strategy_register.lower()
     assert "Dashboard date filters do not regenerate evidence packs" in Path("money-flow/00 Maps/Evidence and Backtesting Map.md").read_text()
@@ -343,7 +343,7 @@ def test_obsidian_brain_workflow_exists() -> None:
     assert "Original source" in command_center
     assert "Gerald Peters PDF is now present" in command_center
     assert "PT-RT1" in command_center
-    assert "PT-RT1.1" in command_center
+    assert "PT-RT1.6" in command_center
     assert "PT-RT1.2" in command_center
     assert "repeated same-candle" in command_center
     assert "fixed 25 USDC Hyperliquid testnet transport" in command_center
@@ -393,9 +393,9 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert "Current implemented milestone | `PT-RT1.5.3` Hyperliquid testnet size/precision hotfix" in command_center
+    assert "Current implemented milestone | `PT-RT1.6` founder-selected Week 2 three-lane paper slate readiness" in command_center
     assert "Canonical command center" in compatibility_command_center
-    assert "PT-RT1.5.3 is the current Paper Trading forward-observation hotfix" in current_dashboard
+    assert "PT-RT1.6 prepares the founder-selected Week 2 Paper Trading slate" in current_dashboard
     assert "SV2.0.2 canonical evidence" in current_dashboard
     assert "EV-AUDIT1" in current_dashboard
     assert "PT-RT1" in current_dashboard

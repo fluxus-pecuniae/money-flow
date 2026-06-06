@@ -8,7 +8,7 @@ from scripts import run_dashboard_control_server as control
 def test_dashboard_control_runtime_command_is_allowlisted() -> None:
     command = control.build_runtime_command(
         duration="5m",
-        output="pt_rt1_5_2_week1_active",
+        output="pt_rt1_6_week2_active",
         python_executable=".venv/bin/python",
         caffeinate_path="/usr/bin/caffeinate",
     )
@@ -22,7 +22,7 @@ def test_dashboard_control_runtime_command_is_allowlisted() -> None:
     assert "--duration-minutes" in command
     assert "5" in command
     assert "--output-dir" in command
-    assert "reports/paper_runtime/pt_rt1_5_2_week1_active" in command
+    assert "reports/paper_runtime/pt_rt1_6_week2_active" in command
     assert "--decision-log-mode" in command
     assert "compact" in command
     assert "--pt-rt1-5-week1-active" in command
@@ -84,8 +84,9 @@ def test_dashboard_control_status_contract_exposes_safety_flags() -> None:
     assert sorted(control.OUTPUT_OPTIONS) == [
         "pt_rt1_5_2_week1_active",
         "pt_rt1_5_3_transport_smoke",
+        "pt_rt1_6_week2_active",
     ]
-    assert control.DEFAULT_OUTPUT == "pt_rt1_5_2_week1_active"
+    assert control.DEFAULT_OUTPUT == "pt_rt1_6_week2_active"
 
 
 def test_dashboard_control_transport_smoke_adds_single_smoke_flag() -> None:

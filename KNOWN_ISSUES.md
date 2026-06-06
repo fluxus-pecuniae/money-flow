@@ -4,12 +4,12 @@ Last reviewed: `2026-06-06T19:47:41Z`
 
 ## Open Issues
 
-- `K-025`: STRAT-PRUNE1 recommends a smaller next paper slate, but the runtime still has the old 10-lane lab until a separately scoped PT-RT1.6 implementation phase changes it.
+- `K-025`: STRAT-PRUNE1 recommended a different smaller slate; founder overrode it in PT-RT1.6 with a three-lane Week 2 slate.
 - `K-024`: GOAL-STRAT2 found two non-existing strategies worth paper-testing review, but they remain research-only and require a separately scoped paper-testing lane phase before runtime use.
 - `K-023`: GOAL-STRAT1 did not find three founder production-testing review candidates after full autonomous discovery. The best near misses remain research-only and no strategy should be promoted from this goal.
 - `K-022`: STRAT-DISC1 did not find three founder production-testing review candidates without overfitting or risk blockers. It is superseded by the broader GOAL-STRAT1 exhaustion result.
 - `K-020`: EV-AUDIT1 found no clean strategy candidate. PT-RT1.5.3 enables forward observation and baseline-only testnet plumbing, but strategy profitability is not proven and no production rule change is approved.
-- `K-015`: PT-RT1 forward observation still needs completed fresh PT-RT1.5.3 Week 1 runtime review. Active timeframes are `1h`, `4h`, and `1d`; `15m` is paused.
+- `K-015`: PT-RT1 forward observation still needs a fresh Week 2 runtime after PT-RT1.6. Active timeframes are `1h`, `4h`, and `1d`; `15m` is paused.
 - `K-001`: Execution-quality market data remains incomplete; top-of-book/order-book depth is not wired as a live execution-quality input.
 - `K-002`: Full strategy-attribution engine remains deferred.
 - `K-003`: Hyperliquid builder/HIP-3 classification still depends on venue metadata quality.
@@ -40,9 +40,9 @@ Detailed historical issue entries remain below for audit. Do not treat a resolve
 ### K-025
 
 - `status`: `open`
-- `area`: `STRAT-PRUNE1 lane pruning handoff`
-- `summary`: `STRAT-PRUNE1 completed a read-only pruning review of the 10 current PT-RT lanes plus GOAL-STRAT/SOR/MF-ORIG/EV-AUDIT evidence. It recommends the next paper-testing slate be reduced to Money Flow v1.2 baseline control plus three synthetic-only candidates: relative-strength rotation with ATR trailing exit, Donchian breakout with ATR trailing exit, and avoid_low_rolling_range_20 as a diagnostic SOR carry-forward. It recommends archiving avoid_low_rolling_range_50, the MF-ORIG reference lanes, and wildcard lanes from the default active paper slate.`
-- `impact`: `The recommendation is not implemented as runtime behavior in STRAT-PRUNE1. A later PT-RT1.6 phase must explicitly add/remove runtime lanes if the founder accepts the slate. Candidate lanes remain synthetic-only, 15m remains paused, only money_flow_v1_2_baseline may be testnet eligible, and no strategy is production/live approved.`
+- `area`: `PT-RT1.6 founder-selected lane slate`
+- `summary`: `STRAT-PRUNE1 completed a read-only pruning review and recommended baseline plus relative-strength rotation, Donchian breakout, and avoid_low_rolling_range_20. The founder overrode that recommendation for Week 2. PT-RT1.6 now defaults the active paper slate to money_flow_v1_2_baseline, avoid_low_rolling_range_20, and mf_orig_1d_stage2_breakout_resistance_full_equity.`
+- `impact`: `The STRAT-PRUNE1 relative-strength and Donchian candidates remain research recommendations only, not active runtime lanes. PT-RT1.6 archives all non-selected prior PT-RT lanes from default active scoring without deleting evidence or reports. Candidate/MF-ORIG lanes remain synthetic-only, 15m remains paused, only money_flow_v1_2_baseline may be testnet eligible, and no strategy is production/live approved.`
 
 ### K-023
 
@@ -63,7 +63,7 @@ Detailed historical issue entries remain below for audit. Do not treat a resolve
 - `status`: `resolved`
 - `area`: `PT-RT1.5.2 Hyperliquid testnet size formatting`
 - `summary`: `PT-RT1.5.3 resolves the PT-RT1.5.2 invalid-size blocker. The testnet order path now fetches Hyperliquid testnet public metadata, formats fixed 25 USDC quantity using testnet asset id and szDecimals, records raw/formatted quantity and estimated notional, blocks invalid formatted sizes before /exchange, and reason-codes venue invalid-size rejects. The bounded PT-RT1.5.3 smoke submitted one BTC fixed-25-USDC post-only order with testnet asset id 3 and szDecimals 5, received accepted/open, canceled it, and reconciled to no open order.`
-- `impact`: `Accepted/open -> cancel -> reconcile lifecycle coverage is now proven for the explicit PT-RT1.5.3 testnet smoke. Continue reviewing the next fresh baseline-triggered lifecycle row under the active Week 1 runtime. Candidate, MF-ORIG, wildcard, and 15m transport remain blocked; public mainnet candles remain strategy truth; testnet fills do not update synthetic PnL; no live trading or production strategy approval follows.`
+- `impact`: `Accepted/open -> cancel -> reconcile lifecycle coverage is now proven for the explicit PT-RT1.5.3 testnet smoke. Under PT-RT1.6, continue reviewing the next fresh baseline-triggered lifecycle row after the Week 2 run starts. Candidate, MF-ORIG, wildcard, and 15m transport remain blocked; public mainnet candles remain strategy truth; testnet fills do not update synthetic PnL; no live trading or production strategy approval follows.`
 
 ### K-020
 

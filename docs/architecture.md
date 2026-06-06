@@ -5,15 +5,16 @@ This is the canonical architecture document at head.
 ## Current Operator Summary
 
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
-- Current runtime: `PT-RT1.5.3` size/precision hotfix verified; fixed 25 USDC smoke reached accepted/open, canceled, and reconciled.
+- Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is prepared; no active paper run is assumed unless the local control server reports one.
+- Active Week 2 default slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
 - Active timeframes: `1h`, `4h`, `1d`.
-- Paused timeframes: `15m` is paused for Week 1 noise reduction and kept as legacy context only.
+- Paused timeframes: `15m` remains paused as diagnostic/legacy context only.
 - Strategy truth: public Hyperliquid mainnet fully closed candles and derived indicators.
 - Synthetic PnL truth: independent synthetic 10,000 USDC paper ledgers per lane; candidate/MF-ORIG/wildcard lanes are synthetic-only.
-- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport can occur only for fresh post-start Money Flow v1.2 baseline opens after PT-RT1.5.3 gates pass; the explicit PT-RT1.5.3 smoke used testnet metadata / `szDecimals`, reached accepted/open, canceled, and reconciled without synthetic PnL impact.
+- Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport can occur only for fresh post-start Money Flow v1.2 baseline opens after gates pass; candidate/MF-ORIG lanes remain synthetic-only and testnet fills never update synthetic PnL.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
-- Next recommended action: continue or restart active Week 1 runtime with PT-RT1.5.3 present and keep Paper Trading review separate from canonical historical evidence.
+- Next recommended action: after founder review, start `pt_rt1_6_week2_active` and keep Paper Trading review separate from canonical historical evidence.
 
 ## Current System Layers
 

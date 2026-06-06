@@ -116,6 +116,8 @@
   ];
 
   const DEFAULT_PT_RT1_SUMMARY_FILES = [
+    "../../reports/paper_runtime/pt_rt1_6_week2_active/summary.json",
+    "../../docs/pt_rt1_6_founder_selected_week2_paper_slate_summary.json",
     "../../reports/paper_runtime/pt_rt1_5_2_week1_active/summary.json",
     "../../reports/paper_runtime/pt_rt1_5_3_transport_smoke/summary.json",
     "../../reports/paper_runtime/pt_rt1_5_2_transport_smoke/summary.json",
@@ -124,12 +126,15 @@
     "../../docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm_summary.json",
   ];
   const DEFAULT_PT_RT1_DECISION_LOG_FILES = [
+    "../../reports/paper_runtime/pt_rt1_6_week2_active/decisions.jsonl",
     "../../reports/paper_runtime/pt_rt1_5_2_week1_active/decisions.jsonl",
   ];
   const DEFAULT_PT_RT1_TRADE_LOG_FILES = [
+    "../../reports/paper_runtime/pt_rt1_6_week2_active/trades.jsonl",
     "../../reports/paper_runtime/pt_rt1_5_2_week1_active/trades.jsonl",
   ];
   const DEFAULT_PT_RT1_TESTNET_LIFECYCLE_FILES = [
+    "../../reports/paper_runtime/pt_rt1_6_week2_active/testnet_order_lifecycle.jsonl",
     "../../reports/paper_runtime/pt_rt1_5_2_week1_active/testnet_order_lifecycle.jsonl",
     "../../reports/paper_runtime/pt_rt1_5_3_transport_smoke/testnet_order_lifecycle.jsonl",
     "../../reports/paper_runtime/pt_rt1_5_2_transport_smoke/testnet_order_lifecycle.jsonl",
@@ -141,9 +146,28 @@
   const PAPER_OBSERVATION_PAGE_SIZE = 25;
   const PAPER_OBSERVATION_ACTIVE_TIMEFRAMES = ["1h", "4h", "1d"];
   const PAPER_OBSERVATION_DISABLED_TIMEFRAMES = ["15m"];
-  const PAPER_OBSERVATION_ACTIVE_REVIEW_START_UTC = "2026-05-17T16:24:49Z";
-  const PAPER_OBSERVATION_ACTIVE_RUNTIME_SCOPE = "pt_rt1_5_2_week1_active";
-  const PAPER_OBSERVATION_15M_STATUS = "disabled_for_week1_noise_reduction";
+  const PAPER_OBSERVATION_ACTIVE_REVIEW_START_UTC = "2026-06-07T00:00:00Z";
+  const PAPER_OBSERVATION_ACTIVE_RUNTIME_SCOPE = "pt_rt1_6_week2_active";
+  const PAPER_OBSERVATION_15M_STATUS = "disabled_for_week1_noise_reduction / diagnostic_only / not_active_paper_scoring";
+  const PAPER_OBSERVATION_WEEK2_ACTIVE_LANE_IDS = [
+    "money_flow_v1_2_baseline",
+    "avoid_low_rolling_range_20",
+    "mf_orig_1d_stage2_breakout_resistance_full_equity",
+  ];
+  const PAPER_OBSERVATION_WEEK2_ARCHIVED_LANE_IDS = [
+    "avoid_low_rolling_range_50",
+    "mf_orig_stage_filter_only_full_equity",
+    "mf_orig_stage2_pullback_reclaim_full_equity",
+    "mf_orig_1d_stage2_5_20_crossover_full_equity",
+    "wildcard_btc_regime_guard",
+    "wildcard_multi_timeframe_alignment",
+    "wildcard_volatility_expansion_breakout",
+  ];
+  const PAPER_OBSERVATION_WEEK2_LANE_LABELS = {
+    money_flow_v1_2_baseline: "Control / Baseline",
+    avoid_low_rolling_range_20: "Diagnostic Comparator",
+    mf_orig_1d_stage2_breakout_resistance_full_equity: "MF-ORIG Source-Faithful Candidate",
+  };
   const RUN_LEDGER_DISPLAY_FILTER_BOUNDARY = "date filters are display-only, not canonical pack regeneration";
 
   const HYPERLIQUID_MAINNET_PUBLIC_INFO_URL = "https://api.hyperliquid.xyz/info";
@@ -803,7 +827,7 @@
       running: false,
       status: "checking",
       duration: "24h",
-      output: "pt_rt1_5_2_week1_active",
+      output: "pt_rt1_6_week2_active",
       pid: null,
       startedAtUtc: null,
       updatedAtUtc: null,
@@ -8871,6 +8895,34 @@
     return Array.isArray(rows) ? rows : [];
   }
 
+  function paperObservationLaneId(row) {
+    return row?.strategy_id || row?.lane_id || row?.strategy || "";
+  }
+
+  function paperObservationIsWeek2ActiveLane(laneId) {
+    return PAPER_OBSERVATION_WEEK2_ACTIVE_LANE_IDS.includes(String(laneId || ""));
+  }
+
+  function paperObservationIsWeek2ArchivedLane(laneId) {
+    return PAPER_OBSERVATION_WEEK2_ARCHIVED_LANE_IDS.includes(String(laneId || ""));
+  }
+
+  function paperObservationActiveLaneRows(summary = paperObservationSummary()) {
+    const explicit = paperObservationRows(summary?.active_strategy_lanes || summary?.week2_active_strategy_lanes);
+    const source = explicit.length ? explicit : paperObservationRows(summary?.strategy_lanes);
+    return source.filter((lane) => paperObservationIsWeek2ActiveLane(paperObservationLaneId(lane)));
+  }
+
+  function paperObservationArchivedLaneRows(summary = paperObservationSummary()) {
+    const explicit = paperObservationRows(summary?.archived_strategy_lanes || summary?.week2_archived_strategy_lanes);
+    const source = explicit.length ? explicit : paperObservationRows(summary?.strategy_lanes);
+    return source.filter((lane) => paperObservationIsWeek2ArchivedLane(paperObservationLaneId(lane)));
+  }
+
+  function paperObservationWeek2LaneLabel(laneId) {
+    return PAPER_OBSERVATION_WEEK2_LANE_LABELS[laneId] || "Archived / historical reference";
+  }
+
   function paperObservationActiveTimeframes(summary = paperObservationSummary()) {
     const active = paperObservationRows(summary?.active_timeframes);
     return active.length ? active.map(canonicalTimeframe) : PAPER_OBSERVATION_ACTIVE_TIMEFRAMES;
@@ -9002,7 +9054,7 @@
   }
 
   function paperObservationRowLane(row) {
-    return row?.strategy_id || row?.lane_id || row?.strategy || "";
+    return paperObservationLaneId(row);
   }
 
   function paperObservationSymbolMatchesSelection(row, selectedSymbol) {
@@ -9028,6 +9080,10 @@
     const selectedLane = state.paperObservation.laneId;
     const rowTimeframe = paperObservationRowTimeframe(row);
     const rowLane = paperObservationRowLane(row);
+    const laneMatches =
+      selectedLane === "all"
+        ? (!rowLane || paperObservationIsWeek2ActiveLane(rowLane))
+        : rowLane === selectedLane;
     const activeTimeframes = paperObservationActiveTimeframes();
     const timeframeMatches =
       ignoreTimeframe ||
@@ -9038,7 +9094,7 @@
     return (
       (ignoreSymbol || paperObservationSymbolMatchesSelection(row, selectedSymbol)) &&
       timeframeMatches &&
-      (selectedLane === "all" || rowLane === selectedLane) &&
+      laneMatches &&
       (!includeDate || paperObservationDateFilterMatches(row))
     );
   }
@@ -9601,7 +9657,7 @@
       { value: "duplicates", label: "Duplicate ignored" },
       { value: "data_unavailable", label: "Data unavailable" },
     ];
-    const laneIds = paperObservationRows(summary?.strategy_lanes).map((lane) => lane.strategy_id || lane.lane_id).filter(Boolean);
+    const laneIds = paperObservationActiveLaneRows(summary).map((lane) => paperObservationLaneId(lane)).filter(Boolean);
     renderSelect(elements.paperObservationSymbolFilter, symbols, state.paperObservation.symbol, "All symbols");
     renderSelectWithoutAll(elements.paperObservationTimeframeFilter, timeframeOptions, state.paperObservation.timeframe);
     renderSelect(elements.paperObservationLaneFilter, laneIds, state.paperObservation.laneId, "All lanes");
@@ -9660,12 +9716,14 @@
     }
     const probe = summary.testnet_probe_policy || {};
     const truth = summary.strategy_truth_lane || {};
-    const lanes = paperObservationRows(summary.strategy_lanes);
+    const lanes = paperObservationActiveLaneRows(summary);
+    const archivedLanes = paperObservationArchivedLaneRows(summary);
     const runtimeState = summary.paper_runtime_state || {};
     const unavailable = summary.data_unavailable_summary || {};
     const cards = [
       ["Strategy truth", truth.source || "public mainnet", "no private/signed/order endpoints"],
-      ["Lanes", String(lanes.length), "independent 10,000 USDC ledgers"],
+      ["Active Week 2 lanes", String(lanes.length), "founder-selected synthetic ledgers"],
+      ["Archived lanes", String(archivedLanes.length), "hidden from default active scoring"],
       ["Scanner symbols", String(paperObservationRows(summary.scanner_universe).length), "requested/resolved/block reasons visible"],
       ["Probe default", probe.PT_RT1_TESTNET_PROBES_ENABLED === false ? "disabled" : "review", "kill switch true by default"],
       ["Runtime state", `${runtimeState.open_positions_count ?? 0} open`, "persisted local paper state"],
@@ -9694,22 +9752,33 @@
     const testnetPolicy = summary?.testnet_order_policy || summary?.pt_rt1_5_testnet_order_policy || {};
     const activeStart = paperObservationActiveReviewStart(summary);
     const disabled = paperObservationDisabledTimeframes(summary);
+    const control = state.paperRuntimeControl || {};
+    const runtimeStateLabel = control.running
+      ? `active run: ${control.output || PAPER_OBSERVATION_ACTIVE_RUNTIME_SCOPE}`
+      : "No active paper run detected";
+    const activeLanes = paperObservationActiveLaneRows(summary).map((lane) => paperObservationLaneId(lane));
     elements.paperObservationHealthBanner.innerHTML = `
       <div class="paper-observation-command-banner">
         <div><span>Public mainnet data</span><strong>${escapeHtml(paperObservationText(status.hyperliquid_public_mainnet, "pending_runtime_refresh"))}</strong></div>
-        <div><span>Runtime state</span><strong>Week 1 active</strong></div>
+        <div><span>Runtime state</span><strong>${escapeHtml(runtimeStateLabel)}</strong></div>
+        <div><span>Run scope</span><strong>${escapeHtml(control.output || summary?.active_review_scope || PAPER_OBSERVATION_ACTIVE_RUNTIME_SCOPE)}</strong></div>
         <div><span>Active review window</span><strong>${escapeHtml(activeStart)} to now</strong></div>
         <div><span>Active timeframes</span><strong>1h / 4h / 1D</strong></div>
         <div><span>15m</span><strong>${escapeHtml(PAPER_OBSERVATION_15M_STATUS)}</strong></div>
+        <div><span>Active lanes</span><strong>${escapeHtml(activeLanes.join(", "))}</strong></div>
         <div><span>Signal evaluation</span><strong>${escapeHtml(paperObservationText(cadence.strategy_signal_evaluation || cadence.mode, "candle-close only"))}</strong></div>
         <div><span>Market refresh</span><strong>${escapeHtml(paperObservationText(cadence.market_refresh || cadence.market_refresh_mode, "active"))}</strong></div>
         <div><span>Testnet order transport</span><strong>${escapeHtml(testnetPolicy.order_transport_enabled ? "baseline-only gates enabled" : "baseline-only gates ready")}</strong></div>
         <div><span>Fixed notional</span><strong>${escapeHtml(paperObservationText(testnetPolicy.fixed_notional_usdc, "25"))} USDC</strong></div>
+        <div><span>Synthetic PnL</span><strong>Synthetic Ledger</strong></div>
+        <div><span>Testnet lifecycle</span><strong>Separate from synthetic PnL</strong></div>
         <div><span>Live trading</span><strong>not approved</strong></div>
       </div>
       <div class="methodology-warning compact">
-        Paper Trading is this week's runtime review surface. Historical Replay, Evidence, The Lab, Audit, and Strategy remain reference surfaces.
+        Paper Trading is the Week 2 runtime review surface. Historical Replay, Evidence, The Lab, Audit, and Strategy remain reference surfaces.
+        Default active slate: ${escapeHtml(activeLanes.join(", "))}.
         Disabled timeframes: ${escapeHtml(disabled.join(", ") || "none")}. Existing 15m records remain visible only under the paused/legacy filter.
+        Stale runtime artifacts are not proof of an active run; the local control server must report running.
         Frequent market refresh is display-only; strategy signals are evaluated only after fully closed 1h / 4h / 1d candles.
       </div>
     `;
@@ -10007,9 +10076,10 @@
   function renderPaperObservationLanes() {
     if (!elements.paperObservationLaneTable) return;
     const summary = paperObservationSummary();
-    const laneRows = paperObservationRows(summary?.strategy_lanes);
+    const laneRows = paperObservationActiveLaneRows(summary);
+    const archivedRows = paperObservationArchivedLaneRows(summary);
     const selectedLane = elements.paperObservationLaneFilter?.value || state.paperObservation.laneId || "all";
-    const laneIds = laneRows.map((row) => row.strategy_id || row.lane_id).filter(Boolean);
+    const laneIds = laneRows.map((row) => paperObservationLaneId(row)).filter(Boolean);
     const normalizedSelectedLane = selectedLane === "all" || !laneIds.includes(selectedLane) ? "all" : selectedLane;
     if (normalizedSelectedLane !== state.paperObservation.laneId) state.paperObservation.laneId = normalizedSelectedLane;
     if (elements.paperObservationLaneFilter && elements.paperObservationLaneFilter.value !== normalizedSelectedLane) {
@@ -10051,7 +10121,7 @@
         <tbody>
           ${rows
             .map((row) => {
-              const laneId = row.strategy_id || row.lane_id;
+              const laneId = paperObservationLaneId(row);
               const runtime = runtimeRollup.get(laneId) || {};
               const startingEquity = decimal(row.initial_equity || row.starting_equity, 10000);
               const netPnl = decimal(runtime.netPnl, 0);
@@ -10064,7 +10134,7 @@
               const winRate = closedTrades ? `${((runtime.wins || 0) / closedTrades * 100).toFixed(1)}%` : "n/a";
               return `
                 <tr>
-                  <td>${escapeHtml(row.display_name || row.strategy_id)}</td>
+                  <td>${escapeHtml(`${paperObservationWeek2LaneLabel(laneId)}: ${row.display_name || laneId}`)}</td>
                   <td>${auditReviewPill(scopeLabel)}</td>
                   <td>${escapeHtml(paperObservationUsdc(startingEquity))}</td>
                   <td>${escapeHtml(paperObservationUsdc(realizedEquity))}</td>
@@ -10088,23 +10158,33 @@
             .join("")}
         </tbody>
       </table>
+      <div class="methodology-warning compact">
+        Archived/default-inactive lanes are hidden from active Week 2 scoring:
+        ${escapeHtml(archivedRows.map((lane) => paperObservationLaneId(lane)).join(", ") || "none")}.
+        Archived means historical/research reference only, not deleted.
+      </div>
     `;
   }
 
   function renderPaperObservationLaneDetail() {
     if (!elements.paperObservationLaneDetail) return;
-    const lanes = paperObservationRows(paperObservationSummary()?.strategy_lanes);
+    const lanes = paperObservationActiveLaneRows(paperObservationSummary());
     const selectedLane = state.paperObservation.laneId === "all" ? lanes[0] : lanes.find(
-      (lane) => lane.strategy_id === state.paperObservation.laneId || lane.lane_id === state.paperObservation.laneId,
+      (lane) => paperObservationLaneId(lane) === state.paperObservation.laneId,
     );
     if (!selectedLane) {
       setEmpty(elements.paperObservationLaneDetail, "Lane detail data_not_available_in_pt_rt1_bundle.");
       return;
     }
+    const laneId = paperObservationLaneId(selectedLane);
     elements.paperObservationLaneDetail.innerHTML = `
       <div class="market-micro-grid">
-        <div><span>Lane</span><strong>${escapeHtml(selectedLane.strategy_id || selectedLane.lane_id)}</strong></div>
+        <div><span>Lane</span><strong>${escapeHtml(laneId)}</strong></div>
+        <div><span>Week 2 label</span><strong>${escapeHtml(paperObservationWeek2LaneLabel(laneId))}</strong></div>
         <div><span>Family</span><strong>${escapeHtml(paperObservationText(selectedLane.strategy_family, "n/a"))}</strong></div>
+        <div><span>PNL source</span><strong>${escapeHtml(selectedLane.pnl_source || "Synthetic Ledger")}</strong></div>
+        <div><span>Signal truth</span><strong>${escapeHtml(selectedLane.signal_truth || "Public Mainnet Candles")}</strong></div>
+        <div><span>Testnet</span><strong>${escapeHtml(selectedLane.testnet_label || (laneId === "money_flow_v1_2_baseline" ? "Baseline-only gated testnet eligible" : "Synthetic-only / no testnet"))}</strong></div>
         <div><span>Paper only</span><strong>${escapeHtml(String(selectedLane.paper_only !== false))}</strong></div>
         <div><span>Production approved</span><strong>${escapeHtml(String(Boolean(selectedLane.production_approved)))}</strong></div>
         <div><span>Live approved</span><strong>${escapeHtml(String(Boolean(selectedLane.live_approved || selectedLane.live_trading_approved)))}</strong></div>
@@ -10121,6 +10201,13 @@
 
   function renderStrategyWildcardDiagnostics() {
     if (!elements.strategyWildcardDiagnostics) return;
+    elements.strategyWildcardDiagnostics.innerHTML = `
+      <div class="methodology-warning compact">
+        Wildcard lanes are archived/default-inactive for the PT-RT1.6 Week 2 paper slate.
+        They remain historical/research references only and are not active Week 2 scoring lanes.
+      </div>
+    `;
+    return;
     const definitions = paperObservationSummary()?.wildcard_definitions || {};
     const rows = Object.entries(definitions);
     if (!rows.length) {

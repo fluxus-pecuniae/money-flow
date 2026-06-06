@@ -402,9 +402,10 @@ def test_summary_and_report_files_exist_and_expose_boundaries() -> None:
     assert summary["deferred_runtime_symbols"]["TRUMP"] == "runtime_noise_deferred_by_founder"
     assert summary["alias_mappings"]["TRON"] == "TRX"
     assert summary["alias_mappings"]["PEPE"] == "kPEPE"
-    assert summary["dashboard_status"]["strategy_lanes_visible"] == 10
+    assert summary["dashboard_status"]["strategy_lanes_visible"] == 3
+    assert summary["dashboard_status"]["historical_strategy_lanes_available"] == 10
     assert summary["dashboard_status"]["public_mainnet_connection_status_visible"] is True
-    assert summary["next_phase"]["decision"] == "Run fresh PT-RT active-week paper observation on 1h/4h/1d with 15m paused"
+    assert summary["next_phase"]["decision"] == "Founder may start the PT-RT1.6 Week 2 three-lane paper run after review"
     assert "testnet_probe_transport_not_submitted_by_pt_rt1_runtime" in summary["next_phase"]["conditions"]
     assert summary["boundaries"]["testnet_probes_submit_signed_transport"] is False
 
