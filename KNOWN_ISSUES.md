@@ -1,9 +1,10 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-05-17T18:25:00Z`
+Last reviewed: `2026-06-06T17:35:00Z`
 
 ## Open Issues
 
+- `K-022`: STRAT-DISC1 did not find three founder production-testing review candidates without overfitting or risk blockers. The best near misses remain research-only and no strategy should be promoted from this phase.
 - `K-020`: EV-AUDIT1 found no clean strategy candidate. PT-RT1.5.3 enables forward observation and baseline-only testnet plumbing, but strategy profitability is not proven and no production rule change is approved.
 - `K-015`: PT-RT1 forward observation still needs completed fresh PT-RT1.5.3 Week 1 runtime review. Active timeframes are `1h`, `4h`, and `1d`; `15m` is paused.
 - `K-001`: Execution-quality market data remains incomplete; top-of-book/order-book depth is not wired as a live execution-quality input.
@@ -25,6 +26,13 @@ Last reviewed: `2026-05-17T18:25:00Z`
 Detailed historical issue entries remain below for audit. Do not treat a resolved historical row as current operating truth unless the current phase links to it explicitly.
 
 ## Detailed Issue Log
+
+### K-022
+
+- `status`: `open`
+- `area`: `STRAT-DISC1 autonomous strategy discovery`
+- `summary`: `STRAT-DISC1 accepted 50 local public-mainnet selected replay datasets and ran 12 bounded curated hypotheses across Money Flow repair, original Money Flow/stage, trend/breakout, volatility expansion, mean reversion, relative strength, and pairs/spread research families. Zero strategies passed the full founder production-testing review candidate gate. The top near misses showed positive aggregate pockets in volatility-expansion and MF-ORIG pullback-style variants, but failed strict drawdown, largest-loss, profit-factor, concentration, or market-structure gates.`
+- `impact`: `No strategy should be promoted from STRAT-DISC1. Any future discovery pass should first add longer non-overlapping out-of-sample windows, stricter control-pocket slicing, and execution-quality data limitations before widening parameter ranges. This issue does not affect active PT-RT runtime operation; it preserves no-production/no-live/no-order boundaries.`
 
 ### K-021
 

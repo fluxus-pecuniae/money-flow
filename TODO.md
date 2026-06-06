@@ -1,9 +1,10 @@
 # TODO
 
-Last reviewed: `2026-05-17T18:25:00Z`
+Last reviewed: `2026-06-06T17:35:00Z`
 
 ## Active
 
+- STRAT-DISC1 found zero founder production-testing review candidates across 12 bounded research runs; do not promote any strategy from this phase.
 - Start or continue the active Week 1 scope with the PT-RT1.5.3 size/precision hotfix present.
 - Review the next fresh Money Flow v1.2 baseline-triggered lifecycle row to confirm it uses Hyperliquid testnet metadata-based `szDecimals` formatting outside the explicit transport-smoke path.
 - Continue confirming `1h`/`4h`/`1d` candle-close scheduling, warm-start fresh-signal gating, open-position MTM, and baseline-only fixed 25 USDC Hyperliquid testnet lifecycle separation.
@@ -12,12 +13,15 @@ Last reviewed: `2026-05-17T18:25:00Z`
 
 ## Next
 
+- If the founder wants another discovery pass, add longer non-overlapping OOS candle windows and stricter control-pocket slices before widening parameter ranges.
+- Treat STRAT-DISC1 near misses as research triage only: volatility-expansion and MF-ORIG pullback variants had positive aggregate pockets but failed strict drawdown/largest-loss/profit-factor gates.
 - Review the first PT-RT1.5.3 active Week 1 runtime rows after the operator-started run begins or restarts.
 - Keep candidate/MF-ORIG/wildcard lanes synthetic-only; do not route them to testnet.
 - Keep SV2.0.2 canonical evidence, SV2.1 1D evidence, Historical Replay display, and PT-RT forward observation separated in future docs.
 
 ## Done Recently
 
+- STRAT-DISC1 added a research-only autonomous discovery harness and report; 50 datasets were accepted, 12 candidate runs were tested, and zero strategies passed the founder-review gate without overfitting/blockers.
 - SUBAGENTS1 added project-scoped read-only Codex reviewers for runtime, dashboard, and quant triage.
 - PT-RT1.5.3 Hyperliquid testnet size/precision hotfix verified one accepted/open -> canceled -> reconciled fixed-25-USDC smoke using testnet public metadata.
 - PT-RT1.5.2 signed testnet transport smoke and active runtime restart handoff.

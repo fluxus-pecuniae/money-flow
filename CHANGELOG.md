@@ -13,6 +13,43 @@ Entry schema:
 
 ---
 
+## v2026.06.06.001
+
+- `recorded_at_utc`: `2026-06-06T17:35:00Z`
+- `scope`: `STRAT-DISC1 autonomous strategy discovery`
+- `intent`: `Native entry. Added a research-only autonomous strategy-discovery harness and runner that inventories local public-mainnet selected replay evidence, validates candle data quality, tests a bounded curated set of strategy hypotheses across Money Flow repair, original Money Flow/stage, trend/breakout, volatility expansion, mean reversion, relative strength, and pairs/spread research families, and applies strict candidate gates for founder production-testing review. The run accepted 50 local selected replay datasets, executed 12 bounded candidate runs, and promoted zero strategies because no result passed the full gate without drawdown, profit-factor, concentration, or market-structure blockers. No active PT-RT runtime was mutated, no production Money Flow rules changed, no exchange endpoints were called, no orders were submitted, no testnet data was used as strategy truth, no live trading was approved, and no strategy was production-approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `services/strategy_validation/strat_disc1.py`
+  - `scripts/build_strat_disc1_autonomous_discovery.py`
+  - `tests/test_strat_disc1_autonomous_discovery.py`
+  - `docs/strat_disc1_autonomous_strategy_discovery.md`
+  - `docs/strat_disc1_autonomous_strategy_discovery_summary.json`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Strategy Family Map.md`
+  - `money-flow/00 Maps/Evidence and Backtesting Map.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/10 Strategy/Strategy Status Register.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/build_strat_disc1_autonomous_discovery.py`
+  - `.venv/bin/python -m pytest -q tests/test_strat_disc1_autonomous_discovery.py` (`7 passed`)
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` (`19 passed`)
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py` (`8 passed`)
+  - `.venv/bin/python -m pytest -q tests/test_sor_ev3_avoid_sideways_low_volatility.py tests/test_ev_audit1_full_review.py` (`14 passed`)
+  - `.venv/bin/python -m pytest -q tests/test_sv10_strategy_validation.py tests/test_sv11_strategy_validation_batch.py tests/test_sv12_strategy_validation_regimes.py` (`18 passed`)
+  - `.venv/bin/python -m pytest -q --ignore=tests/test_migrations.py` (`1095 passed, 1 failed: preexisting/stale PT-RT1.5 dashboard assertion expecting pt_rt1_5_week1_active in dashboard JS; STRAT-DISC1 did not touch dashboard/runtime code`)
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-strat-disc1-review.zip`
+  - `Review bundle scan: refined forbidden path hits 0; private-key/Bearer-token scan found only existing redaction fixture/docs examples such as abc123/api-token-123 and docs listing Authorization: Bearer ... patterns.`
+
 ## v2026.05.19.001
 
 - `recorded_at_utc`: `2026-05-19T22:11:42Z`

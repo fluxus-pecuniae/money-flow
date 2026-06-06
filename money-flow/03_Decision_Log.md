@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-06T17:35:00Z - STRAT-DISC1 - No Three Candidates Found Without Overfitting
+
+- `decision`: Complete the first autonomous research-only strategy-discovery pass without promoting any strategy.
+- `scope`: Added `services/strategy_validation/strat_disc1.py`, `scripts/build_strat_disc1_autonomous_discovery.py`, STRAT-DISC1 report/summary docs, and focused tests. The run inventoried local public-mainnet selected replay JSON, accepted 50 datasets, tested 12 bounded curated hypotheses, and applied strict founder production-testing review gates.
+- `result`: `no_three_candidates_found_without_overfitting`. Passing candidates: `0`. Top near misses remain research-only because they failed drawdown, largest-loss, profit-factor, concentration, or market-structure gates.
+- `boundaries`: STRAT-DISC1 did not mutate active PT-RT runtime artifacts, change production Money Flow rules, submit live/testnet orders, call private/signed/order endpoints, use testnet strategy truth, create execution artifacts, approve production strategy, or approve live trading.
+- `follow_up_implications`: Do not promote any STRAT-DISC1 result. A future discovery pass should first add longer non-overlapping OOS windows and stricter control-pocket slices before widening ranges or families.
+
 ## 2026-05-19T22:11:42Z - SUBAGENTS1 - Add Read-Only Codex Review Subagents
 
 - `decision`: Add project-scoped Codex subagents for bounded read-only runtime, dashboard, and quant review.
