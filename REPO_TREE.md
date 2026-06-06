@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-06-06T17:42:15Z`
+Last reviewed: `2026-06-06T18:18:30Z`
 
 ## Top-Level Structure
 
@@ -516,6 +516,18 @@ Last reviewed: `2026-06-06T17:42:15Z`
 - Human-readable GOAL-STRAT1 failure/exhaustion report.
 - Summarizes the tested families, candidate count, best near misses, blocker counts, evidence implications, and required next research before any future promotion attempt.
 
+`docs/goal_strat2_two_non_existing_strategies.md`
+- Founder/operator GOAL-STRAT2 report.
+- Selects two non-existing strategies worth paper-testing review from GOAL-STRAT1 evidence while excluding current PT runtime lanes and Money Flow/SOR/MF-ORIG/wildcard-adjacent strategy families. The selected strategies are relative-strength rotation with ATR trailing exit and Donchian breakout with ATR trailing exit; both are research-only and not production/live approved.
+
+`docs/goal_strat2_two_non_existing_strategies_summary.json`
+- Compact GOAL-STRAT2 machine-readable summary.
+- Contains source-summary reference, testing gate, excluded existing-strategy policy, selected candidates, near misses, rejection counts, and no-order/no-live boundary flags without raw runtime logs or secrets.
+
+`docs/goal_strat2_candidate_*.md`
+- Per-candidate GOAL-STRAT2 founder review notes.
+- Record strategy logic, evidence metrics, OOS checks, concentration risks, why each is worth paper testing, why each may still fail, and no-production/no-live boundaries.
+
 `apps/dashboard/vendor/`
 - PT0 vendored third-party charting bundle from the official `lightweight-charts` package.
 - Contains `lightweight-charts.standalone.production.js`, `LICENSE`, and `package.json`; the dashboard uses this local bundle instead of a hosted TradingView widget.
@@ -568,6 +580,10 @@ Last reviewed: `2026-06-06T17:42:15Z`
 - GOAL-STRAT1 expanded research-only autonomous strategy-discovery harness.
 - Loads local public-mainnet selected replay JSON, validates data quality, computes indicators locally, runs bounded strategy families across Money Flow repair, source-faithful Money Flow, trend/breakout, volatility expansion, mean reversion, relative strength, and pairs/spread research, scores 121 candidate configurations with chronological and anchored out-of-sample checks, and writes Markdown/JSON research reports. It creates no runtime artifacts, order intents, submitted orders, exchange calls, production-rule changes, testnet strategy truth, paper/live approvals, or active PT-RT mutations.
 
+`services/strategy_validation/goal_strat2.py`
+- GOAL-STRAT2 research-only selector for two non-existing strategies worth testing.
+- Consumes the committed GOAL-STRAT1 summary, excludes current PT runtime lanes and existing/adjacent Money Flow/SOR/MF-ORIG/wildcard families, applies a paper-testing gate, enforces family diversity, writes Markdown/JSON candidate reports, and creates no runtime artifacts, order intents, submitted orders, exchange calls, production-rule changes, testnet strategy truth, paper/live approvals, or active PT-RT mutations.
+
 `scripts/run_sv20_historical_refresh.py`
 - SV2.0/SV2.0.1 public-mainnet metadata/candle refresh script.
 - Writes `docs/sv2_0_historical_data_refresh_summary.json` when run with `--fetch-public-data`; default/no-network mode can still build blocked readiness from supplied metadata or empty metadata. The script targets only `https://api.hyperliquid.xyz/info` public info, refuses non-mainnet-public URL use, and records fetched/normalized/staged rows as `db_imported=false` until the hardened importer path is used.
@@ -599,6 +615,10 @@ Last reviewed: `2026-06-06T17:42:15Z`
 `scripts/run_goal_strat1_discovery.py`
 - GOAL-STRAT1 report builder.
 - Runs the isolated research-only `goal_strat1.py` harness over local selected replay JSON and writes `docs/goal_strat1_strategy_discovery.md`, `docs/goal_strat1_strategy_discovery_summary.json`, candidate reports if three pass, or `docs/goal_strat1_no_three_candidates_found.md` when the strict gate promotes fewer than three. It avoids importing the broader `services.strategy_validation` package so unrelated runtime settings cannot affect discovery reporting.
+
+`scripts/run_goal_strat2_worth_testing.py`
+- GOAL-STRAT2 report builder.
+- Runs the isolated research-only `goal_strat2.py` selector over the committed GOAL-STRAT1 summary and writes the two-strategy report, compact summary JSON, and per-candidate notes.
 
 `scripts/refresh_pt0_runtime_summary.py`
 - Generates the committed PT0 dashboard/runtime summary from deterministic helpers plus existing UAT3.3/UAT3.4/UAT4.2 summaries.
@@ -1217,3 +1237,6 @@ Last reviewed: `2026-06-06T17:42:15Z`
 
 `tests/test_goal_strat1_discovery.py`
 - GOAL-STRAT1 expanded research harness checks: verifies data inventory generation, candidate gate thresholds/labels, drawdown/profit-factor/concentration calculations, report/summary/failure artifact writing, no runtime/order boundary flags, no private/signed/order path imports, lookahead/OOS policy, and no-production/no-live approval semantics.
+
+`tests/test_goal_strat2_worth_testing.py`
+- GOAL-STRAT2 selector checks: verifies exactly two non-existing research-only candidates, family diversity, testing-gate metrics, existing-lane/family exclusions, report/summary/candidate artifact writing, no runtime/order boundary flags, and no-production/no-live approval semantics.

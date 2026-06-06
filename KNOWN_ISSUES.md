@@ -1,9 +1,10 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-06-06T17:42:15Z`
+Last reviewed: `2026-06-06T18:18:30Z`
 
 ## Open Issues
 
+- `K-024`: GOAL-STRAT2 found two non-existing strategies worth paper-testing review, but they remain research-only and require a separately scoped paper-testing lane phase before runtime use.
 - `K-023`: GOAL-STRAT1 did not find three founder production-testing review candidates after full autonomous discovery. The best near misses remain research-only and no strategy should be promoted from this goal.
 - `K-022`: STRAT-DISC1 did not find three founder production-testing review candidates without overfitting or risk blockers. It is superseded by the broader GOAL-STRAT1 exhaustion result.
 - `K-020`: EV-AUDIT1 found no clean strategy candidate. PT-RT1.5.3 enables forward observation and baseline-only testnet plumbing, but strategy profitability is not proven and no production rule change is approved.
@@ -27,6 +28,13 @@ Last reviewed: `2026-06-06T17:42:15Z`
 Detailed historical issue entries remain below for audit. Do not treat a resolved historical row as current operating truth unless the current phase links to it explicitly.
 
 ## Detailed Issue Log
+
+### K-024
+
+- `status`: `open`
+- `area`: `GOAL-STRAT2 two non-existing strategy candidates`
+- `summary`: `GOAL-STRAT2 selected two non-existing research-only strategies worth founder paper-testing review from the committed GOAL-STRAT1 evidence: relative_strength_rotation_top_n_trend_strength_atr_trail_equity_5pct_sma200_20_0p34 and trend_breakout_donchian_breakout_atr_trail_equity_5pct_sma200_20. Both exclude current PT runtime lanes and Money Flow/SOR/MF-ORIG/wildcard-adjacent strategy families. The relative-strength candidate has positive active net PnL, PF 1.3477, max drawdown 30.17%, 534 trades, and both OOS checks positive. The Donchian candidate has positive active net PnL, PF 1.5712, max drawdown 16.37%, 945 trades, and small negative OOS checks.`
+- `impact`: `Both candidates are worth paper-testing review only. They are not production-approved, not live-approved, not active PT runtime lanes, and cannot send testnet orders. Risks to monitor include ZEC/symbol contribution, timeframe and period concentration, candle-only execution assumptions, and the Donchian candidate's negative OOS checks.`
 
 ### K-023
 

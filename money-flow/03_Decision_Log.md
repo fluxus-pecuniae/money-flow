@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-06T18:18:30Z - GOAL-STRAT2 - Two Non-Existing Strategies Worth Paper Testing
+
+- `decision`: Select two non-existing strategies worth founder paper-testing review while preserving research-only boundaries.
+- `scope`: Added `services/strategy_validation/goal_strat2.py`, `scripts/run_goal_strat2_worth_testing.py`, GOAL-STRAT2 report/summary/candidate docs, and focused tests. The selector consumes GOAL-STRAT1 evidence, excludes current PT runtime lanes plus Money Flow/SOR/MF-ORIG/wildcard-adjacent families and entry models, applies a weaker paper-testing gate, and enforces family diversity.
+- `result`: Selected `relative_strength_rotation_top_n_trend_strength_atr_trail_equity_5pct_sma200_20_0p34` and `trend_breakout_donchian_breakout_atr_trail_equity_5pct_sma200_20` as `candidate_for_founder_paper_testing_review`. The relative-strength candidate has positive active net PnL, PF 1.3477, max drawdown 30.17%, 534 trades, and both OOS checks positive. The Donchian candidate has positive active net PnL, PF 1.5712, max drawdown 16.37%, 945 trades, and mild negative OOS checks.
+- `boundaries`: GOAL-STRAT2 did not mutate active PT-RT runtime artifacts, change production Money Flow rules, submit live/testnet orders, call private/signed/order endpoints, use testnet strategy truth, create execution artifacts, approve production strategy, or approve live trading.
+- `follow_up_implications`: Founder may review these for a separately scoped paper-only lane phase. Do not route either candidate to testnet/live, do not treat either as production approval, and monitor symbol/timeframe/period concentration plus candle-only execution limitations.
+
 ## 2026-06-06T17:42:15Z - GOAL-STRAT1 - Expanded Discovery Still Finds No Three Candidates
 
 - `decision`: Complete the founder-requested durable autonomous discovery goal as honest full exhaustion rather than promote weak or overfit results.

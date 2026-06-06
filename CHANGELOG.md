@@ -13,6 +13,46 @@ Entry schema:
 
 ---
 
+## v2026.06.06.003
+
+- `recorded_at_utc`: `2026-06-06T18:18:30Z`
+- `scope`: `GOAL-STRAT2 two non-existing strategies worth testing`
+- `intent`: `Native entry. Added a research-only GOAL-STRAT2 selector and runner that consumes GOAL-STRAT1 evidence, excludes current PT runtime lanes plus Money Flow/SOR/MF-ORIG/wildcard-adjacent families, applies a weaker founder paper-testing gate, enforces family diversity, and identifies two non-existing strategies worth testing: relative-strength rotation with ATR trailing exit and Donchian breakout with ATR trailing exit. These are paper-testing review candidates only, not production-testing promotions. No active PT-RT runtime was mutated, no runtime artifacts were changed, no production Money Flow rules changed, no exchange endpoints were called, no orders were submitted, no testnet data was used as strategy truth, no live trading was approved, and no strategy was production-approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `README.md`
+  - `services/strategy_validation/goal_strat2.py`
+  - `scripts/run_goal_strat2_worth_testing.py`
+  - `tests/test_goal_strat2_worth_testing.py`
+  - `docs/goal_strat2_two_non_existing_strategies.md`
+  - `docs/goal_strat2_two_non_existing_strategies_summary.json`
+  - `docs/goal_strat2_candidate_1_relative_strength_rotation_top_n_trend_strength_atr_trail_equity_5pct_sma200_20_0p34.md`
+  - `docs/goal_strat2_candidate_2_trend_breakout_donchian_breakout_atr_trail_equity_5pct_sma200_20.md`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Strategy Family Map.md`
+  - `money-flow/00 Maps/Evidence and Backtesting Map.md`
+  - `money-flow/00 Maps/Paper Observation Roadmap.md`
+  - `money-flow/10 Strategy/Strategy Status Register.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/run_goal_strat2_worth_testing.py`
+  - `.venv/bin/python -m json.tool docs/goal_strat2_two_non_existing_strategies_summary.json`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_goal_strat2_worth_testing.py` (`3 passed`)
+  - `.venv/bin/python -m pytest -q tests/test_goal_strat1_discovery.py` (`6 passed`)
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py` (`19 passed`)
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py` (`8 passed`)
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-goal-strat2-review.zip`
+  - `review bundle path scan: no forbidden runtime/cache/Git/secret path hits`
+  - `review bundle content scan: only expected empty .env.example env var name, UAT env-var name constant, and dummy 0x111... test key fixture hits`
+
 ## v2026.06.06.002
 
 - `recorded_at_utc`: `2026-06-06T17:42:15Z`

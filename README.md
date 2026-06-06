@@ -10,6 +10,7 @@
 - Synthetic PnL truth: independent synthetic 10,000 USDC ledgers per paper lane; not one combined account.
 - Testnet plumbing: only fresh post-start `money_flow_v1_2_baseline` opens can trigger fixed 25 USDC Hyperliquid testnet transport when PT-RT1.5.3 gates and local signing config pass; the PT-RT1.5.3 explicit smoke used testnet metadata/`szDecimals`, reached accepted/open, canceled, and reconciled without touching synthetic PnL.
 - Research discovery: `GOAL-STRAT1` supersedes `STRAT-DISC1`; it accepted 49 local public-mainnet selected replay datasets, tested 121 bounded candidate configurations across 7 families, and promoted zero strategies.
+- Research candidates: `GOAL-STRAT2` identifies two non-existing strategies worth paper-testing review only: relative-strength rotation with ATR trailing exit, and Donchian breakout with ATR trailing exit.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
 - Next recommended action: continue or restart the active Week 1 runtime with PT-RT1.5.3 present, then review the next fresh baseline-triggered testnet lifecycle row.
@@ -25,7 +26,7 @@
 ## AI Agent Quick Start
 
 - Read first: `AGENTS.md`, this `README.md`, `CHANGELOG.md`, `REPO_TREE.md`, `KNOWN_ISSUES.md`, `TODO.md`, `docs/architecture.md`, `docs/strategy.md`, `money-flow/00_Money_Flow_Command_Center.md`, `money-flow/01_Current_Phase.md`, `money-flow/05_Agent_Coordination.md`, and `money-flow/Project_Memory/money_flow_project_memory.md`.
-- Current phase truth: `PT-RT1.5.3` fixes Hyperliquid testnet size/precision formatting for fixed 25 USDC baseline-only plumbing orders; `GOAL-STRAT1` is research-only and found zero founder production-testing review candidates; DOCS-OB2.1 is documentation/governance only when active.
+- Current phase truth: `PT-RT1.5.3` fixes Hyperliquid testnet size/precision formatting for fixed 25 USDC baseline-only plumbing orders; `GOAL-STRAT1` is research-only and found zero founder production-testing review candidates; `GOAL-STRAT2` found two non-existing paper-testing candidates but approved no production/live behavior; DOCS-OB2.1 is documentation/governance only when active.
 - Do not touch strategy rules, runtime behavior, evidence generation, exchange endpoints, secrets, or generated runtime/evidence artifacts unless the current prompt explicitly scopes that work.
 - Add a row under `Active Work` in `money-flow/05_Agent_Coordination.md` before substantial edits, then move/update it under `Finished Work`.
 - Canonical current truth lives in `money-flow/00_Money_Flow_Command_Center.md`; do not create duplicate command centers or competing current-phase notes.

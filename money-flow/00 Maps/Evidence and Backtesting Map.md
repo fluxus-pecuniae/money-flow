@@ -15,6 +15,7 @@ This map defines which evidence is canonical, which evidence is true-forward res
 - Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when PT-RT1.5.3 gates pass; the PT-RT1.5.3 explicit smoke used testnet metadata / `szDecimals`, reached accepted/open, canceled, and reconciled without synthetic PnL impact.
 - Testnet fills never update synthetic PnL and are not canonical evidence.
 - GOAL-STRAT1: latest research-only discovery accepted 49 local selected replay datasets, ran 121 bounded candidate configurations across 7 families, and promoted zero candidates.
+- GOAL-STRAT2: selected two non-existing research-only strategies worth founder paper-testing review from GOAL-STRAT1 evidence.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
 - Next recommended action: continue or restart active Week 1 runtime with PT-RT1.5.3 present and do not mix PT-RT display/runtime rows with canonical SV2 evidence.
@@ -65,6 +66,17 @@ GOAL-STRAT1 supersedes STRAT-DISC1 as the latest separate research-only autonomo
 - Boundaries: no exchange calls, no orders, no testnet strategy truth, no PT-RT runtime mutation, no production/live approval.
 
 STRAT-DISC1 remains historical context: it accepted 50 datasets, ran 12 bounded hypotheses, and found zero candidates before GOAL-STRAT1 expanded the search loop.
+
+## GOAL-STRAT2 Paper-Testing Selection
+
+GOAL-STRAT2 is a selector over GOAL-STRAT1 evidence, not a new canonical evidence pack and not a runtime lane.
+
+- Source: `docs/goal_strat1_strategy_discovery_summary.json`.
+- Screened candidate runs: 121.
+- Gate: positive PnL, PF >= 1.30, max drawdown <= 32%, trade count >= 200, bounded OOS losses, and no current PT runtime lane / Money Flow / SOR / MF-ORIG / wildcard-adjacent strategy family.
+- Selected: relative-strength rotation with ATR trailing exit and Donchian breakout with ATR trailing exit.
+- Status: `candidate_for_founder_paper_testing_review`.
+- Boundaries: no exchange calls, no orders, no testnet strategy truth, no PT-RT runtime mutation, no production/live approval.
 
 ## Diagnostic Overlays
 
