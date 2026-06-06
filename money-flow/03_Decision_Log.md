@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-06T19:47:41Z - STRAT-PRUNE1 - Prune Next Paper Slate
+
+- `decision`: Recommend a smaller next paper-testing slate before another forward run, without implementing runtime lane changes in STRAT-PRUNE1.
+- `scope`: Added `docs/strat_prune1_strategy_lane_pruning.md`, `docs/strat_prune1_strategy_lane_pruning_summary.json`, and focused guardrail tests. The review classified all 10 existing PT-RT lanes, reviewed GOAL-STRAT, STRAT-DISC, SOR, MF-ORIG, EV-AUDIT, and PT-RT evidence, and ranked keep/archive/add candidates by evidence quality, PnL/drawdown/OOS/sample/concentration/runtime simplicity/founder readability/difference from baseline.
+- `result`: Recommended next slate: `money_flow_v1_2_baseline` as control and sole testnet-eligible lane, plus synthetic-only `relative_strength_rotation_top_n_trend_strength_atr_trail_equity_5pct_sma200_20_0p34`, `trend_breakout_donchian_breakout_atr_trail_equity_5pct_sma200_20`, and `avoid_low_rolling_range_20`. Recommended archiving `avoid_low_rolling_range_50`, MF-ORIG reference lanes, and wildcard lanes from the default active paper slate.
+- `boundaries`: STRAT-PRUNE1 did not implement new runtime lanes, mutate active runtime artifacts, change production Money Flow rules, submit live/testnet orders, call exchange/private/signed/order endpoints, use testnet strategy truth, approve production strategy, or approve live trading.
+- `follow_up_implications`: If the founder accepts the slate, scope `PT-RT1.6 - Add Selected Paper-Test Candidate Lanes`. Keep `15m` paused, candidate lanes synthetic-only, and testnet eligibility baseline-only.
+
 ## 2026-06-06T18:18:30Z - GOAL-STRAT2 - Two Non-Existing Strategies Worth Paper Testing
 
 - `decision`: Select two non-existing strategies worth founder paper-testing review while preserving research-only boundaries.

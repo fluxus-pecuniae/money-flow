@@ -13,6 +13,37 @@ Entry schema:
 
 ---
 
+## v2026.06.06.004
+
+- `recorded_at_utc`: `2026-06-06T19:47:41Z`
+- `scope`: `STRAT-PRUNE1 strategy lane pruning + candidate selection`
+- `intent`: `Native entry. Added a recommendation-only STRAT-PRUNE1 report, compact JSON summary, and focused guardrail tests that classify all 10 current PT-RT paper-observation lanes, prune the next paper-testing slate to Money Flow v1.2 baseline plus three candidates, and defer implementation to a future PT-RT1.6 lane phase. The recommended slate is baseline control, relative-strength rotation with ATR trailing exit, Donchian breakout with ATR trailing exit, and avoid_low_rolling_range_20 as a diagnostic SOR carry-forward. STRAT-PRUNE1 changes no runtime behavior, implements no new runtime lanes, mutates no active PT-RT artifacts, changes no production Money Flow rules, calls no exchange/private/signed/order endpoints, submits no orders, uses no testnet strategy truth, approves no strategy for production, and approves no live trading.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `tests/test_strat_prune1_strategy_lane_pruning.py`
+  - `docs/strat_prune1_strategy_lane_pruning.md`
+  - `docs/strat_prune1_strategy_lane_pruning_summary.json`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/10 Strategy/Strategy Status Register.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python -m json.tool docs/strat_prune1_strategy_lane_pruning_summary.json`
+  - `.venv/bin/python -m pytest -q tests/test_strat_prune1_strategy_lane_pruning.py`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-strat-prune1-review.zip`
+  - `review bundle path scan: no forbidden runtime/cache/Git/secret path hits`
+  - `review bundle content scan: only existing code/test placeholder env-var and dummy bearer token fixtures; no private-key block or real bearer/API key value found`
+
 ## v2026.06.06.003
 
 - `recorded_at_utc`: `2026-06-06T18:18:30Z`

@@ -1,9 +1,10 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-06-06T18:18:30Z`
+Last reviewed: `2026-06-06T19:47:41Z`
 
 ## Open Issues
 
+- `K-025`: STRAT-PRUNE1 recommends a smaller next paper slate, but the runtime still has the old 10-lane lab until a separately scoped PT-RT1.6 implementation phase changes it.
 - `K-024`: GOAL-STRAT2 found two non-existing strategies worth paper-testing review, but they remain research-only and require a separately scoped paper-testing lane phase before runtime use.
 - `K-023`: GOAL-STRAT1 did not find three founder production-testing review candidates after full autonomous discovery. The best near misses remain research-only and no strategy should be promoted from this goal.
 - `K-022`: STRAT-DISC1 did not find three founder production-testing review candidates without overfitting or risk blockers. It is superseded by the broader GOAL-STRAT1 exhaustion result.
@@ -35,6 +36,13 @@ Detailed historical issue entries remain below for audit. Do not treat a resolve
 - `area`: `GOAL-STRAT2 two non-existing strategy candidates`
 - `summary`: `GOAL-STRAT2 selected two non-existing research-only strategies worth founder paper-testing review from the committed GOAL-STRAT1 evidence: relative_strength_rotation_top_n_trend_strength_atr_trail_equity_5pct_sma200_20_0p34 and trend_breakout_donchian_breakout_atr_trail_equity_5pct_sma200_20. Both exclude current PT runtime lanes and Money Flow/SOR/MF-ORIG/wildcard-adjacent strategy families. The relative-strength candidate has positive active net PnL, PF 1.3477, max drawdown 30.17%, 534 trades, and both OOS checks positive. The Donchian candidate has positive active net PnL, PF 1.5712, max drawdown 16.37%, 945 trades, and small negative OOS checks.`
 - `impact`: `Both candidates are worth paper-testing review only. They are not production-approved, not live-approved, not active PT runtime lanes, and cannot send testnet orders. Risks to monitor include ZEC/symbol contribution, timeframe and period concentration, candle-only execution assumptions, and the Donchian candidate's negative OOS checks.`
+
+### K-025
+
+- `status`: `open`
+- `area`: `STRAT-PRUNE1 lane pruning handoff`
+- `summary`: `STRAT-PRUNE1 completed a read-only pruning review of the 10 current PT-RT lanes plus GOAL-STRAT/SOR/MF-ORIG/EV-AUDIT evidence. It recommends the next paper-testing slate be reduced to Money Flow v1.2 baseline control plus three synthetic-only candidates: relative-strength rotation with ATR trailing exit, Donchian breakout with ATR trailing exit, and avoid_low_rolling_range_20 as a diagnostic SOR carry-forward. It recommends archiving avoid_low_rolling_range_50, the MF-ORIG reference lanes, and wildcard lanes from the default active paper slate.`
+- `impact`: `The recommendation is not implemented as runtime behavior in STRAT-PRUNE1. A later PT-RT1.6 phase must explicitly add/remove runtime lanes if the founder accepts the slate. Candidate lanes remain synthetic-only, 15m remains paused, only money_flow_v1_2_baseline may be testnet eligible, and no strategy is production/live approved.`
 
 ### K-023
 

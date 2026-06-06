@@ -13,9 +13,10 @@ This is the roadmap and current status note for PT-RT1. The founder-facing dashb
 - Strategy truth: public Hyperliquid mainnet fully closed candles and derived indicators.
 - Synthetic PnL truth: independent synthetic 10,000 USDC paper ledgers per lane.
 - Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when PT-RT1.5.3 gates pass. The PT-RT1.5.3 explicit smoke used testnet metadata / szDecimals, reached accepted/open, canceled, and reconciled without synthetic PnL impact.
+- Strategy pruning: STRAT-PRUNE1 recommends a future smaller paper slate: baseline control plus relative-strength rotation, Donchian breakout, and `avoid_low_rolling_range_20`. This is not implemented until a later PT-RT1.6 phase.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
-- Next recommended action: continue or restart active Week 1 runtime with PT-RT1.5.3 present, then review the next fresh baseline-triggered lifecycle row.
+- Next recommended action: founder review of STRAT-PRUNE1, then scope PT-RT1.6 if accepted. Continue or restart PT-RT1.5.3 only if the current 10-lane observation lab is still desired before pruning implementation.
 - Evidence context: SV2.0.2 remains the canonical historical baseline; GOAL-STRAT1 supersedes STRAT-DISC1 and found zero strict production-testing candidates after 121 bounded configurations; GOAL-STRAT2 found two non-existing paper-testing review candidates, but they are not active PT runtime lanes; PT-RT is forward observation, not evidence-pack regeneration.
 
 ## PT-RT1 Implemented Scope
@@ -158,11 +159,11 @@ Paper Trading dashboard live display:
 
 Current next operational step:
 
-1. Start or restart the PT-RT1.5.3 hotfix-era active Week 1 session scoped to `1h`, `4h`, and `1d`.
-2. Retain ignored active artifacts under `reports/paper_runtime/`.
-3. Use the Paper Trading tab as the weekly command center and keep archived/weekend burn-in rows hidden by default.
-4. Review warm-start startup-signal blocks, scheduler timing, duplicate closed-candle suppression, open-position MTM, fixed-25 fresh-baseline-only signed testnet lifecycle rows, candidate transport blocks, synthetic ledger isolation, and the testnet size-format follow-up after the first active cycles.
-5. If stable, continue the 60-day public-mainnet forward-observation window.
+1. Review STRAT-PRUNE1 and decide whether to scope PT-RT1.6 for the smaller paper slate.
+2. If PT-RT1.6 is accepted, implement baseline control plus relative-strength rotation, Donchian breakout, and `avoid_low_rolling_range_20`; keep candidates synthetic-only and testnet eligibility baseline-only.
+3. If continuing before PT-RT1.6, start or restart the PT-RT1.5.3 hotfix-era 10-lane active Week 1 session scoped to `1h`, `4h`, and `1d`.
+4. Retain ignored active artifacts under `reports/paper_runtime/`.
+5. Review warm-start startup-signal blocks, scheduler timing, duplicate closed-candle suppression, open-position MTM, fixed-25 fresh-baseline-only signed testnet lifecycle rows, candidate transport blocks, synthetic ledger isolation, and the testnet size-format follow-up after the first active cycles.
 
 ## Required Boundaries
 

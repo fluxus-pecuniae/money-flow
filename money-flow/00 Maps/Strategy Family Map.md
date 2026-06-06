@@ -15,9 +15,10 @@ This is the current strategy taxonomy. It separates production-derived baseline 
 - Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when PT-RT1.5.3 gates pass; the PT-RT1.5.3 explicit smoke used testnet metadata / `szDecimals`, reached accepted/open, canceled, and reconciled without synthetic PnL impact.
 - GOAL-STRAT1: latest research-only autonomous discovery accepted 49 datasets and ran 121 bounded candidate configurations across 7 families; zero strategies passed the founder production-testing review gate.
 - GOAL-STRAT2: selected two non-existing paper-testing review candidates: relative-strength rotation with ATR trailing exit, and Donchian breakout with ATR trailing exit.
+- STRAT-PRUNE1: recommends the next paper slate be baseline control plus relative-strength rotation, Donchian breakout, and `avoid_low_rolling_range_20`; implementation is deferred to PT-RT1.6 if accepted.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
-- Next recommended action: continue or restart active Week 1 runtime with PT-RT1.5.3 present before making any strategy/paper-observation conclusion.
+- Next recommended action: founder review of STRAT-PRUNE1, then scope PT-RT1.6 if accepted.
 
 ## Strategy Taxonomy
 
@@ -30,6 +31,8 @@ SOR Repair Variants are evidence-only or synthetic paper-observation lanes unles
 GOAL-STRAT1 supersedes STRAT-DISC1 as the latest autonomous strategy-discovery pass. It is research-only, not current production logic, not paper-runtime approval, and not part of PT-RT1.5.3 transport. It tested 121 bounded configurations across Money Flow repair, source-faithful Money Flow/stage, trend/breakout, volatility expansion, mean reversion, relative strength, and pairs/spread research. It found zero founder production-testing review candidates without overfitting/risk blockers.
 
 GOAL-STRAT2 is a narrower paper-testing selector over GOAL-STRAT1 evidence. It excludes current PT runtime lanes plus Money Flow/SOR/MF-ORIG/wildcard-adjacent families, applies a weaker paper-testing gate, and selects two non-existing strategies for founder paper-testing review only.
+
+STRAT-PRUNE1 is the current lane-pruning recommendation. It is not an implementation phase. It recommends carrying forward the baseline control, adding the two GOAL-STRAT2 non-existing candidates in a future PT-RT1.6 paper-only phase, and retaining `avoid_low_rolling_range_20` as one diagnostic SOR candidate while archiving weaker/redundant/noisy lanes from the default active paper slate.
 
 | strategy_family | lane_or_variant | status | evidence_status | paper_status | testnet_transport_status | production_status | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -45,6 +48,7 @@ GOAL-STRAT2 is a narrower paper-testing selector over GOAL-STRAT1 evidence. It e
 | Wildcard paper-observation lanes | `wildcard_volatility_expansion_breakout` | `synthetic_paper_only` | `paper_observation_only` | `synthetic_paper_only` | `cannot_send_testnet_orders` | `not_production_approved`, `not_live_approved` | Expert-observation hypothesis, not canonical evidence. |
 | GOAL-STRAT2 candidate | `relative_strength_rotation_top_n_trend_strength_atr_trail_equity_5pct_sma200_20_0p34` | `candidate_for_founder_paper_testing_review`, `research_only` | `GOAL-STRAT1-derived selected replay evidence; active PnL positive; both OOS checks positive` | `not_runtime` | `none` | `not_production_approved`, `not_live_approved` | Non-existing strategy; monitor drawdown and ZEC/timeframe/period concentration. |
 | GOAL-STRAT2 candidate | `trend_breakout_donchian_breakout_atr_trail_equity_5pct_sma200_20` | `candidate_for_founder_paper_testing_review`, `research_only` | `GOAL-STRAT1-derived selected replay evidence; active PnL/PF/drawdown/sample positive; OOS mildly negative` | `not_runtime` | `none` | `not_production_approved`, `not_live_approved` | Non-existing strategy; forward paper test only if founder scopes it. |
+| STRAT-PRUNE1 recommended next slate | baseline + relative-strength rotation + Donchian breakout + `avoid_low_rolling_range_20` | `recommendation_only`, `pending_pt_rt1_6_if_approved` | `read-only pruning review` | `not_runtime_changed_by_strat_prune1` | `baseline_only_if_future_gates_pass` | `not_production_approved`, `not_live_approved` | Smaller paper slate for founder review; candidates remain synthetic-only. |
 | GOAL-STRAT1 discovery | 121 bounded candidate configurations | `research_only`, `three_candidates_were_not_found_without_overfitting_after_full_autonomous_discovery` | `49 accepted selected replay datasets; 0 passing candidates` | `not_runtime` | `none` | `not_production_approved`, `not_live_approved` | Positive aggregate pockets failed risk/OOS/concentration gates; no strategy promotion. |
 | STRAT-DISC1 discovery | 12 curated hypotheses | `research_only`, `superseded_by_goal_strat1` | `50 accepted selected replay datasets; 0 passing candidates` | `not_runtime` | `none` | `not_production_approved`, `not_live_approved` | Historical first pass; no strategy promotion. |
 | SV2/SV2.1 historical evidence tracks | SV2.0.2 canonical packs | `historical_archive`, `canonical_evidence` | `canonical historical multi-timeframe baseline` | `not_runtime` | `none` | `not_production_approved`, `not_live_approved` | Backend evidence packs from DB-imported public candles. |

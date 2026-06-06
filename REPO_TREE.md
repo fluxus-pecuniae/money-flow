@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-06-06T18:18:30Z`
+Last reviewed: `2026-06-06T19:47:41Z`
 
 ## Top-Level Structure
 
@@ -527,6 +527,14 @@ Last reviewed: `2026-06-06T18:18:30Z`
 `docs/goal_strat2_candidate_*.md`
 - Per-candidate GOAL-STRAT2 founder review notes.
 - Record strategy logic, evidence metrics, OOS checks, concentration risks, why each is worth paper testing, why each may still fail, and no-production/no-live boundaries.
+
+`docs/strat_prune1_strategy_lane_pruning.md`
+- Founder/operator STRAT-PRUNE1 pruning report.
+- Classifies all 10 current PT-RT paper-observation lanes, reviews GOAL-STRAT/SOR/MF-ORIG/EV-AUDIT/PT-RT evidence, and recommends a smaller next paper slate. It is recommendation-only and implements no runtime lane changes.
+
+`docs/strat_prune1_strategy_lane_pruning_summary.json`
+- Compact STRAT-PRUNE1 machine-readable summary.
+- Contains per-lane/candidate recommendations, ranks, reason codes, evidence references, paper/testnet/production eligibility flags, timeframe scope, recommended next slate, and no-order/no-live boundaries.
 
 `apps/dashboard/vendor/`
 - PT0 vendored third-party charting bundle from the official `lightweight-charts` package.
@@ -1240,3 +1248,6 @@ Last reviewed: `2026-06-06T18:18:30Z`
 
 `tests/test_goal_strat2_worth_testing.py`
 - GOAL-STRAT2 selector checks: verifies exactly two non-existing research-only candidates, family diversity, testing-gate metrics, existing-lane/family exclusions, report/summary/candidate artifact writing, no runtime/order boundary flags, and no-production/no-live approval semantics.
+
+`tests/test_strat_prune1_strategy_lane_pruning.py`
+- STRAT-PRUNE1 pruning guardrail checks: verifies the report/summary exist, all 10 current PT-RT lanes are classified, the recommended next slate has no more than four candidates plus baseline, `15m` is paused, candidate lanes are synthetic-only, only baseline is testnet-eligible, no lane is production/live eligible, and future add-candidates are recommendation-only rather than implemented runtime lanes.

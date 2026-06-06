@@ -1,11 +1,12 @@
 # TODO
 
-Last reviewed: `2026-06-06T18:18:30Z`
+Last reviewed: `2026-06-06T19:47:41Z`
 
 ## Active
 
 - GOAL-STRAT1 found zero founder production-testing review candidates after 121 bounded research configurations across 7 families; do not promote any strategy from this goal.
 - GOAL-STRAT2 identified two non-existing strategies worth founder paper-testing review: relative-strength rotation with ATR trailing exit, and Donchian breakout with ATR trailing exit. Treat both as research-only until separately scoped.
+- STRAT-PRUNE1 recommends pruning the next paper slate to Money Flow v1.2 baseline plus three synthetic-only candidates: relative-strength rotation, Donchian breakout, and `avoid_low_rolling_range_20`.
 - STRAT-DISC1 found zero founder production-testing review candidates across 12 bounded research runs and is superseded by the broader GOAL-STRAT1 exhaustion result.
 - Start or continue the active Week 1 scope with the PT-RT1.5.3 size/precision hotfix present.
 - Review the next fresh Money Flow v1.2 baseline-triggered lifecycle row to confirm it uses Hyperliquid testnet metadata-based `szDecimals` formatting outside the explicit transport-smoke path.
@@ -16,7 +17,8 @@ Last reviewed: `2026-06-06T18:18:30Z`
 ## Next
 
 - If the founder wants another discovery pass, add longer non-overlapping OOS candle windows, execution-quality modeling, and stricter control-pocket slices before widening parameter ranges.
-- If the founder wants to test GOAL-STRAT2 candidates, scope a separate paper-only lane-readiness phase; do not route either candidate to testnet or live trading.
+- If the founder accepts STRAT-PRUNE1, scope `PT-RT1.6` to implement the selected paper-testing slate. Keep candidates synthetic-only, keep `15m` paused, and keep testnet eligibility baseline-only.
+- If the founder wants to test GOAL-STRAT2 candidates, use the STRAT-PRUNE1 recommended slate as the implementation target; do not route either candidate to testnet or live trading.
 - Treat GOAL-STRAT1 near misses as research triage only: volatility-expansion and Donchian-style variants had positive aggregate pockets but failed OOS and/or drawdown gates.
 - Review the first PT-RT1.5.3 active Week 1 runtime rows after the operator-started run begins or restarts.
 - Keep candidate/MF-ORIG/wildcard lanes synthetic-only; do not route them to testnet.
@@ -25,6 +27,7 @@ Last reviewed: `2026-06-06T18:18:30Z`
 ## Done Recently
 
 - GOAL-STRAT2 selected two non-existing research-only strategies worth paper-testing review from GOAL-STRAT1 evidence and generated per-candidate reports.
+- STRAT-PRUNE1 completed read-only lane pruning and recommended a smaller next paper slate without changing runtime behavior.
 - GOAL-STRAT1 added a broader research-only autonomous discovery harness and report; 49 datasets were accepted, 121 candidate configurations were tested, and zero strategies passed the founder-review gate without overfitting/blockers.
 - STRAT-DISC1 added the first research-only autonomous discovery harness and report; 50 datasets were accepted, 12 candidate runs were tested, and zero strategies passed the founder-review gate.
 - SUBAGENTS1 added project-scoped read-only Codex reviewers for runtime, dashboard, and quant triage.
