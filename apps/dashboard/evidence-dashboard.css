@@ -730,13 +730,6 @@ h3 {
     var(--color-panel);
 }
 
-.paper-observation-header {
-  background:
-    radial-gradient(circle at top right, rgba(82, 188, 255, 0.18), transparent 34%),
-    linear-gradient(135deg, rgba(116, 240, 178, 0.10), var(--color-surface-strong)),
-    var(--color-panel);
-}
-
 .paper-observation-safety-strip {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
@@ -786,6 +779,10 @@ h3 {
   color: var(--color-text);
   font-size: var(--text-body-sm);
   line-height: var(--leading-body-sm);
+}
+
+.paper-observation-cockpit {
+  border-color: color-mix(in srgb, var(--color-teal) 32%, var(--color-line));
 }
 
 .paper-observation-controls label {
@@ -989,7 +986,7 @@ h3 {
 }
 
 .paper-observation-primary-grid {
-  grid-template-columns: minmax(0, 1.85fr) minmax(300px, 0.75fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--spacing-4);
   align-items: stretch;
 }
@@ -1012,7 +1009,7 @@ h3 {
 
 .paper-observation-chart .tradingview-lightweight-chart,
 .paper-observation-chart-stage {
-  min-height: 460px;
+  min-height: 540px;
 }
 
 .paper-observation-view .table-panel,
@@ -1112,9 +1109,21 @@ h3 {
 
 .paper-observation-watchlist-panel .data-table-shell,
 .paper-observation-lifecycle-panel .data-table-shell {
-  height: 360px;
-  max-height: 360px;
+  height: 300px;
+  max-height: 300px;
   overflow: auto;
+}
+
+.paper-observation-lower-diagnostics {
+  display: grid;
+  gap: var(--spacing-4);
+  opacity: 0.94;
+}
+
+.paper-observation-lower-diagnostics > .table-panel,
+.paper-observation-lower-diagnostics > .historical-inspector-panel,
+.paper-observation-lower-diagnostics > .metric-grid {
+  border-color: color-mix(in srgb, var(--color-muted) 18%, var(--color-line));
 }
 
 .paper-observation-watchlist-table th:nth-child(2),

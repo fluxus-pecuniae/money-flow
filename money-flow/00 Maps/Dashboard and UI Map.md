@@ -8,6 +8,7 @@ This note explains current founder-facing dashboard surfaces and what each surfa
 
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
 - Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is prepared; no active paper run is assumed unless the local control server reports one.
+- Dashboard cleanup: `DASH-PT1.1` removes the visible Audit tab and makes Paper Trading show configured Week 2 truth before runtime rows exist.
 - Active Week 2 default slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
 - Active timeframes: `1h`, `4h`, `1d`.
 - Paused timeframes: `15m` remains paused as diagnostic/legacy context only.
@@ -35,12 +36,11 @@ This note explains current founder-facing dashboard surfaces and what each surfa
 | Historical Replay | Generated local chart/trade JSON from SV2.0.2, SOR-EV3, MF-ORIG-EV2 where present | Visual candle/indicator/trade review | Do not treat date filters as canonical evidence regeneration |
 | Evidence | SV2.0.2 batch reports and generated replay rows | Run ledger and comparison tables | Do not treat aggregate sums as one-account PnL |
 | The Lab | SOR/MF-ORIG summary bundles and overlays | Variant review, loss anatomy, control-pocket review | Do not treat overlays as production candidates |
-| Audit | EV-AUDIT1 summary JSON | Audit verdict, methodology/data confidence, issues, paper-readiness status | Do not treat audit display as strategy approval |
 | Strategy | Static strategy/config summaries | Understand Money Flow v1.2 and variant ideas at a high level | Do not infer production approval |
 
 ## Current Hidden / Legacy Surfaces
 
-The old `Experiments` tab must not be promoted as current truth. Legacy UAT surfaces may remain hidden for regression and historical context, but they should not compete with current Strategy / Historical Replay / Evidence / Evidence Lab / Audit Review flows.
+The old `Experiments` tab must not be promoted as current truth. The visible `Audit` tab was removed by DASH-PT1.1; audit artifacts remain historical docs/data only. Legacy UAT surfaces may remain hidden for regression and historical context, but they should not compete with current Strategy / Historical Replay / Evidence / The Lab flows.
 
 ## Canonical vs Display-Only
 
@@ -48,9 +48,9 @@ The old `Experiments` tab must not be promoted as current truth. Legacy UAT surf
 - Historical Replay chart JSON is visualization-only.
 - Evidence Lab overlays are visualization-only.
 - Date filters are display-only. Dashboard date filters are display-only recalculations.
-- The Paper Trading view is chart-first as of PT-RT1.2.1 and has a cleaner cockpit presentation: compact safety strip, tighter Start Run command card, global filter toolbar, larger primary chart, normalized panel spacing, and consistent summary cards. The underlying view id remains `paper-observation`, but current founder-facing language is Paper Trading. The visible watchlist/scanner panel is removed; Symbol/Timeframe/Strategy filters drive the live chart context, opened/closed markers, Signal Generator, and open/closed synthetic tables; Open Synthetic Positions and Closed Synthetic Trades sit directly below Signal Generator; Closed Synthetic Trades loads ignored `trades.jsonl` for entry/exit/price/quantity/PnL/equity fields; Strategy Lane Comparison overlays `paper_runtime_state.realized_equity_by_lane` so runtime ledgers do not appear stuck at starting equity; wildcard diagnostics live in the Strategy tab as observation-only context.
+- The Paper Trading view is now Week 2 command-center first as of DASH-PT1.1: Cockpit / Global Filters, Live Public Candles + Paper Markers, Runtime Control, Watchlist | Testnet Order Lifecycle, Open Synthetic Positions | Closed Synthetic Trades, Signal / Decision Stream, then lower-priority diagnostics. The underlying view id remains `paper-observation`, but current founder-facing language is Paper Trading. Configured Week 2 truth is shown even before runtime rows exist: three active lanes, seven archived/default-inactive lanes, configured symbols AVAX/BNB/BTC/DOGE/ETH/HYPE/SOL/SUI/XRP, active `1h`/`4h`/`1d`, and `15m` paused/legacy. Strategy Lane Comparison is lower-priority and archived lanes do not clutter the default active view.
 - The Paper Trading Start Run helper is local runtime ergonomics only; it now defaults to the PT-RT1.6 Week 2 scope, public mainnet strategy truth, compact decision logging, candle-close signal evaluation, warm-start fresh-signal gating, disabled legacy probes, and baseline-only fixed 25 USDC testnet transport gates. Candidate/MF-ORIG/wildcard lanes cannot send testnet orders, and testnet fills do not update strategy paper PnL.
-- The sticky dashboard top bar now carries the logo, title, theme selector, and six primary tabs in founder-review order: Paper Trading, Historical Replay, Evidence, The Lab, Audit, Strategy. Paper Trading maps to the underlying Paper Observation runtime panel. Manual JSON loading and the visible evidence-pack-loaded status text are intentionally removed from the founder chrome; Codex/repo artifacts manage local report loading.
+- The sticky dashboard top bar carries the logo, title, theme selector, and five primary tabs in founder-review order: Paper Trading, Historical Replay, Evidence, The Lab, Strategy. Paper Trading maps to the underlying Paper Observation runtime panel. Manual JSON loading and the visible evidence-pack-loaded status text are intentionally removed from the founder chrome; Codex/repo artifacts manage local report loading.
 - Paper Trading decision-log stats are operational health signals only. Compact logging suppresses repeated non-actionable rows, but dashboard log-size warnings are not strategy evidence.
 - Closed Synthetic Trades displays ledger-complete synthetic trade rows only. Sparse `paper_closed` decision rows remain useful audit context but should not be shown as n/a trade rows in the Closed Synthetic Trades table.
 - Dashboard output does not submit orders, call private/signed/order endpoints, import candles, or regenerate evidence packs.

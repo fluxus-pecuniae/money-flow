@@ -1,6 +1,6 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-06-06T19:47:41Z`
+Last reviewed: `2026-06-06T23:19:40Z`
 
 ## Open Issues
 
@@ -17,6 +17,7 @@ Last reviewed: `2026-06-06T19:47:41Z`
 
 ## Resolved Issues
 
+- DASH-PT1.1 resolved the founder-reported pre-run Paper Trading UI truth/readability issues: the visible Audit tab is removed, the large PT-RT1 intro block is compacted into cockpit badges, configured Week 2 active/archived lanes and configured symbols display before runtime rows exist, 15m is not shown as active, the Strategy tab shows only active Week 2 strategies, and synthetic PnL remains separate from testnet lifecycle.
 - MF-ORIG-EV1 accounting/drawdown issues were resolved by MF-ORIG-EV1.1.
 - SV2 canonical-evidence artifact blocker was resolved by SV2.0.2.
 - SOR-EV3 avoid-sideways/low-volatility evidence completed with no promoted variant.

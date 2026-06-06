@@ -41,7 +41,7 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "Historical Replay" in nav
     assert 'data-view="evidence"' in nav
     assert 'data-view="evidence-lab"' in nav
-    assert 'data-view="audit-review"' in nav
+    assert 'data-view="audit-review"' not in nav
     assert 'data-view="paper-observation"' in nav
     assert 'data-view="strategy"' in nav
     assert 'data-view="uat-shadow"' not in nav
@@ -49,8 +49,7 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert nav.index('data-view="paper-observation"') < nav.index('data-view="historical-replay"')
     assert nav.index('data-view="historical-replay"') < nav.index('data-view="evidence"')
     assert nav.index('data-view="evidence"') < nav.index('data-view="evidence-lab"')
-    assert nav.index('data-view="evidence-lab"') < nav.index('data-view="audit-review"')
-    assert nav.index('data-view="audit-review"') < nav.index('data-view="strategy"')
+    assert nav.index('data-view="evidence-lab"') < nav.index('data-view="strategy"')
     assert 'data-view="paper-observation" aria-selected="true"' in nav
     assert "The Lab" in nav
     assert "Audit Review" not in nav
@@ -113,14 +112,15 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "Methodology Boundary" not in html
     assert "not true forward replays" not in html
     assert "data-view=\"strategy\"" in html
-    assert "Strategy Logic" in html
-    assert "Variant Strategy Ideas" in html
+    assert "Week 2 Active Strategy Slate" in html
+    assert "Variant Strategy Ideas" not in html
     assert "avoid_low_rolling_range_20" in html
-    assert "avoid_low_rolling_range_50" in html
-    assert "mf_orig_stage_filter_only_full_equity" in html
-    assert "mf_orig_stage2_pullback_reclaim_full_equity" in html
-    assert "mf_orig_1d_stage2_5_20_crossover_full_equity" in html
     assert "mf_orig_1d_stage2_breakout_resistance_full_equity" in html
+    strategy_view = html[html.index('data-view-panel="strategy"') : html.index("</main>")]
+    assert "avoid_low_rolling_range_50" not in strategy_view
+    assert "mf_orig_stage_filter_only_full_equity" not in strategy_view
+    assert "mf_orig_stage2_pullback_reclaim_full_equity" not in strategy_view
+    assert "mf_orig_1d_stage2_5_20_crossover_full_equity" not in strategy_view
     assert "MF_ORIG_FULL_EQUITY_STRATEGY_IDS" in js
     assert "isVisibleDashboardStrategyRow" in js
     assert "HIDDEN_DASHBOARD_SYMBOLS" in js
@@ -134,13 +134,13 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "Entry Timing Ideas" not in html
     assert "fixed_stop_loss_pct_*" not in html
     assert "macd_histogram_*" not in html
-    assert "They do not change production Money Flow v1.2" in html
+    assert "These are synthetic paper-observation lanes" in html
     assert ".variant-strategy-grid" in css
     assert "1D / sleeve_1d" not in html
-    assert "<td>1D</td>" in html
-    assert "EMA5 > EMA10 > SMA20" in html
-    assert "MACD > signal and histogram >= 0" in html
-    assert "RSI reaches the sleeve trim threshold" in html
+    assert "<td>1D</td>" not in strategy_view
+    assert "EMA5 > EMA10 > SMA20" not in strategy_view
+    assert "MACD > signal and histogram >= 0" not in strategy_view
+    assert "RSI reaches the sleeve trim threshold" not in strategy_view
     assert "Load JSON" not in html
     assert "top-load-copy" not in html
     assert "json-file-input" not in html
@@ -305,20 +305,15 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "Paper Trading" in nav
     assert "Paper Observation" not in nav
     assert 'data-view-panel="paper-observation"' in html
-    assert '<h2 id="paper-observation-title">Paper Trading</h2>' in html
-    assert "Active-week command center for public-mainnet synthetic paper observation" in html
+    assert "Cockpit / Global Filters" in html
+    assert "Week 2 configured truth plus display filters" in html
     assert 'activeView: "paper-observation"' in js
-    assert "PT-RT1 forward observation" in html
-    assert "runtime health, lane scoreboards, and baseline-only testnet plumbing status" in html
-    assert "Paper observation only" in html
-    assert "No real capital" in html
-    assert "No live trading" in html
-    assert "Baseline-only testnet plumbing" in html
-    assert "Candidate lanes are synthetic only" in html
-    assert "Public mainnet data is strategy truth" in html
-    assert "display-only filters" in html
-    assert "not canonical evidence" in html
-    assert "not backend replay" in html
+    assert "PT-RT1 forward observation" not in html
+    assert "Active-week command center for public-mainnet synthetic paper observation" not in html
+    assert "No live trading" not in html
+    assert "Public mainnet candles remain strategy truth" in html
+    assert "display-only filters" not in html
+    assert "not backend replay" not in html
     assert "paper-observation-summary-cards" in html
     assert "paper-runtime-control-title" in html
     assert "paper-runtime-duration" in html
@@ -340,13 +335,9 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "Control server message" in js
     assert "paper-runtime-caffeinate-status" not in html
     assert "paper_runtime_started_with_caffeinate" not in html
-    assert "--disable-legacy-testnet-probes" in html
-    assert "fixed 25 USDC baseline-only testnet lifecycle gates" in html
-    assert "--public-mainnet-only" in html
-    assert "candle-close signal evaluation" in html
+    assert "Baseline-only testnet lifecycle is separate from synthetic PnL" in html
+    assert "Public mainnet candles remain strategy truth" in html
     assert "Candidate lanes cannot send testnet orders" in html
-    assert "PT-RT1.5.3 size preflight" in html
-    assert "no signed/order endpoint is called by this runtime unless all fresh baseline-only testnet gates" in html
     assert "Week 1 active with PT-RT1.5.3 hotfix" in html
     assert "PT-RT1.5.3 size hotfix smoke" in html
     assert "PT-RT1.5.1 smoke archive" not in html
@@ -370,18 +361,22 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper-observation-signal-table" in html
     assert "Signal / Decision Stream" in html
     assert "Market Data Health" not in html
-    assert html.index("paper-observation-health-banner") < html.index("paper-observation-lane-table")
-    assert html.index("paper-observation-lane-table") < html.index("paper-observation-timeframe-breakdown")
-    assert html.index("paper-observation-timeframe-breakdown") < html.index("paper-observation-live-chart")
-    assert html.index("paper-observation-live-chart") < html.index("paper-observation-signal-table")
+    assert html.index("paper-observation-controls") < html.index("paper-observation-live-chart")
+    assert html.index("paper-observation-live-chart") < html.index("paper-runtime-control-title")
+    assert html.index("paper-runtime-control-title") < html.index("paper-observation-scanner-table")
+    assert html.index("paper-observation-scanner-table") < html.index("paper-observation-testnet-lifecycle")
+    assert html.index("paper-observation-testnet-lifecycle") < html.index("paper-observation-open-positions")
     assert html.index("paper-observation-open-positions") < html.index("paper-observation-closed-trades")
+    assert html.index("paper-observation-live-chart") < html.index("paper-observation-signal-table")
     assert html.index("paper-observation-closed-trades") < html.index("paper-observation-signal-table")
+    assert html.index("paper-observation-signal-table") < html.index("paper-observation-lane-table")
+    assert html.index("paper-observation-lane-table") < html.index("paper-observation-timeframe-breakdown")
     assert "paper-observation-lane-table" in html
     assert "paper-observation-lane-detail" in html
     paper_view = html[html.index('data-view-panel="paper-observation"') : html.index('data-view-panel="historical-replay"')]
     assert "paper-observation-wildcard-diagnostics" not in paper_view
-    assert "strategy-wildcard-diagnostics" in html
-    assert "Wildcard Diagnostics" in html
+    assert "strategy-wildcard-diagnostics" not in html
+    assert "Wildcard Diagnostics" not in html
     assert "paper-observation-live-chart" in html
     assert "paper-observation-open-positions" in html
     assert "paper-observation-closed-trades" in html
@@ -391,10 +386,11 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper-observation-watchlist-transport-row" in html
     assert "paper-observation-connection-panel" in html
     assert ".paper-observation-view" in css
-    assert "paper-observation-safety-strip" in html
+    assert "paper-observation-safety-strip" not in html
     assert "paper-runtime-control-compact" in html
     assert "paper-observation-primary-grid" in html
-    assert ".paper-observation-safety-strip" in css
+    assert "paper-observation-cockpit" in html
+    assert ".paper-observation-cockpit" in css
     assert ".paper-runtime-control-compact" in css
     assert ".paper-observation-primary-grid" in css
     assert ".paper-runtime-control-details .micro-grid > div" in css
@@ -405,6 +401,7 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper-runtime-caffeinate-status" not in css
     assert "font-size: clamp(32px, 4vw, 50px)" not in css
     assert ".paper-observation-header h2" not in css
+    assert ".paper-observation-lower-diagnostics" in css
     assert ".paper-observation-watchlist-transport-row" in css
     assert ".paper-observation-controls" in css
     assert ".paper-runtime-control" in css
@@ -586,35 +583,18 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "live trading approved: yes" not in html.lower()
 
 
-def test_ev_audit1_audit_review_dashboard_tab() -> None:
+def test_ev_audit1_audit_review_data_stays_loadable_but_tab_is_hidden() -> None:
     html = Path("apps/dashboard/index.html").read_text(encoding="utf-8")
     css = Path("apps/dashboard/evidence-dashboard.css").read_text(encoding="utf-8")
     js = Path("apps/dashboard/evidence-dashboard.js").read_text(encoding="utf-8")
     summary = Path("docs/ev_audit1_full_hypothesis_data_and_paper_readiness_review_summary.json").read_text(encoding="utf-8")
 
     nav = html[html.index('<nav class="view-tabs"') : html.index("</nav>", html.index('<nav class="view-tabs"'))]
-    assert 'data-view="audit-review"' in nav
-    assert nav.index('data-view="evidence-lab"') < nav.index('data-view="audit-review"')
-    assert 'data-view-panel="audit-review"' in html
-    assert "Audit</button>" in nav
-    assert "Audit Review" in html
-    assert "EV-AUDIT1 review" in html
-    assert "Scope: audit-only" in html
-    assert "Canonical baseline: SV2.0.2" in html
-    assert "Production approval: no" in html
-    assert "Paper/live approval: no" in html
-    assert "No strategy is approved for production, paper runtime, or live trading." in html
-    assert "audit-review-verdict-cards" in html
-    assert "audit-review-scorecard" in html
-    assert "audit-review-paper-readiness" in html
-    assert "audit-review-top-hypotheses" in html
-    assert "audit-review-worst-hypotheses" in html
-    assert "audit-review-winning-trades" in html
-    assert "audit-review-losing-trades" in html
-    assert "audit-review-losing-streaks" in html
-    assert "audit-review-issues" in html
-    assert "audit-review-data-integrity" in html
-    assert "audit-review-inventory" in html
+    assert 'data-view="audit-review"' not in nav
+    assert 'data-view-panel="audit-review"' not in html
+    assert "Audit</button>" not in nav
+    assert "Audit Review" not in html
+    assert "EV-AUDIT1 review" not in html
 
     assert "DEFAULT_EV_AUDIT_SUMMARY_FILES" in js
     assert "ev_audit1_full_hypothesis_data_and_paper_readiness_review_summary.json" in js
@@ -630,7 +610,7 @@ def test_ev_audit1_audit_review_dashboard_tab() -> None:
     assert "renderAuditReviewIssues" in js
     assert "renderAuditReviewDataIntegrity" in js
     assert "renderAuditReviewInventory" in js
-    assert '"audit-review"' in js
+    assert '"audit-review"' not in js
     assert "data_not_available_in_audit_bundle" in js
 
     assert ".audit-review-view" in css
@@ -794,7 +774,7 @@ def test_sor_ev21_evidence_lab_static_ui() -> None:
     assert "calls_private_exchange_endpoints" in js
     assert "calls_exchange_order_endpoints" in js
     assert "live trading approved: yes" not in html.lower()
-    assert "production-approved" not in html.lower()
+    assert "production-approved: yes" not in html.lower()
     assert "submit order" not in html.lower()
     assert "cancel order" not in html.lower()
     assert "retry button" not in html.lower()
@@ -842,10 +822,14 @@ def test_pt_rt1_4_paper_trading_command_center_active_timeframe_ui() -> None:
     assert "Signal / Decision Stream" in html
     assert "paper-observation-review-window-filter" in html
     assert "paper-observation-signal-category-filter" in html
-    assert html.index("paper-observation-health-banner") < html.index("paper-observation-lane-table")
-    assert html.index("paper-observation-lane-table") < html.index("paper-observation-live-chart")
+    assert html.index("paper-observation-controls") < html.index("paper-observation-live-chart")
+    assert html.index("paper-observation-live-chart") < html.index("paper-runtime-control-title")
+    assert html.index("paper-runtime-control-title") < html.index("paper-observation-scanner-table")
+    assert html.index("paper-observation-scanner-table") < html.index("paper-observation-testnet-lifecycle")
+    assert html.index("paper-observation-testnet-lifecycle") < html.index("paper-observation-open-positions")
     assert html.index("paper-observation-open-positions") < html.index("paper-observation-closed-trades")
     assert html.index("paper-observation-closed-trades") < html.index("paper-observation-signal-table")
+    assert html.index("paper-observation-signal-table") < html.index("paper-observation-lane-table")
     assert 'timeframe: "1h"' in js
     assert 'PAPER_OBSERVATION_ACTIVE_TIMEFRAMES = ["1h", "4h", "1d"]' in js
     assert 'PAPER_OBSERVATION_DISABLED_TIMEFRAMES = ["15m"]' in js
@@ -863,6 +847,55 @@ def test_pt_rt1_4_paper_trading_command_center_active_timeframe_ui() -> None:
     assert "signed Hyperliquid testnet transport scoped to fresh post-start scheduled Money Flow v1.2 baseline synthetic opens" in js
     assert "order buttons" not in html.lower()
     assert "manual trade" not in html.lower()
+
+
+def test_dash_pt1_1_week2_paper_trading_ui_truth() -> None:
+    html = Path("apps/dashboard/index.html").read_text(encoding="utf-8")
+    js = Path("apps/dashboard/evidence-dashboard.js").read_text(encoding="utf-8")
+
+    paper_view = html[html.index('data-view-panel="paper-observation"') : html.index('data-view-panel="historical-replay"')]
+    strategy_view = html[html.index('data-view-panel="strategy"') : html.index("</main>")]
+    nav = html[html.index('<nav class="view-tabs"') : html.index("</nav>", html.index('<nav class="view-tabs"'))]
+
+    assert "Audit</button>" not in nav
+    assert "PT-RT1 forward observation" not in paper_view
+    assert "Cockpit / Global Filters" in paper_view
+    assert "Live Public Candles + Paper Markers" in paper_view
+    assert "Runtime Control" in paper_view
+    assert "Watchlist" in paper_view
+    assert "Testnet Order Lifecycle" in paper_view
+    assert "Open Synthetic Positions" in paper_view
+    assert "Closed Synthetic Trades" in paper_view
+    assert "Signal / Decision Stream" in paper_view
+    assert paper_view.index("Cockpit / Global Filters") < paper_view.index("Live Public Candles + Paper Markers")
+    assert paper_view.index("Live Public Candles + Paper Markers") < paper_view.index("Runtime Control")
+    assert paper_view.index("Runtime Control") < paper_view.index("Watchlist")
+    assert paper_view.index("Watchlist") < paper_view.index("Testnet Order Lifecycle")
+    assert paper_view.index("Testnet Order Lifecycle") < paper_view.index("Open Synthetic Positions")
+    assert paper_view.index("Closed Synthetic Trades") < paper_view.index("Signal / Decision Stream")
+
+    assert 'PAPER_OBSERVATION_WEEK2_ACTIVE_LANE_IDS = [\n    "money_flow_v1_2_baseline",\n    "avoid_low_rolling_range_20",\n    "mf_orig_1d_stage2_breakout_resistance_full_equity"' in js
+    assert 'PAPER_OBSERVATION_WEEK2_ARCHIVED_LANE_IDS = [' in js
+    assert 'PAPER_OBSERVATION_CONFIGURED_SYMBOLS = ["AVAX", "BNB", "BTC", "DOGE", "ETH", "HYPE", "SOL", "SUI", "XRP"]' in js
+    assert "All active lanes" in js
+    assert "All configured symbols" in js
+    assert "paperObservationConfiguredLaneRow" in js
+    assert "Scanner symbols\", String(paperObservationBaseScannerRows().length)" in js
+    assert "paused_legacy_timeframe_excluded_from_active_week_scoring" in js
+    assert "15m_paused_legacy" not in js
+
+    assert "Week 2 Active Strategy Slate" in strategy_view
+    assert "money_flow_v1_2_baseline" in strategy_view
+    assert "avoid_low_rolling_range_20" in strategy_view
+    assert "mf_orig_1d_stage2_breakout_resistance_full_equity" in strategy_view
+    assert "avoid_low_rolling_range_50" not in strategy_view
+    assert "mf_orig_stage_filter_only_full_equity" not in strategy_view
+    assert "wildcard_btc_regime_guard" not in strategy_view
+    assert "Baseline-only gated testnet eligible" in strategy_view
+    assert "synthetic-only / no testnet" in strategy_view
+    assert "not production-approved" in strategy_view
+    assert "Synthetic Ledger" in strategy_view
+    assert "Public Mainnet Candles" in strategy_view
 
 
 def test_paper_trading_prefers_active_week_runtime_before_smoke_artifacts() -> None:

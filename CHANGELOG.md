@@ -13,6 +13,35 @@ Entry schema:
 
 ---
 
+## v2026.06.06.006
+
+- `recorded_at_utc`: `2026-06-06T23:19:40Z`
+- `scope`: `DASH-PT1.1 Paper Trading Week 2 UI truth and readability polish`
+- `intent`: `Native entry. Cleaned the Paper Trading dashboard before the Week 2 run without changing runtime behavior. The visible Audit tab/panel was removed, the large PT-RT1 intro block was replaced by a compact Cockpit / Global Filters first section, Paper Trading now follows cockpit, chart, runtime control, watchlist/testnet lifecycle, positions/trades, signal stream, then lower diagnostics, and the dashboard now uses PT-RT1.6 configured Week 2 metadata when runtime rows are absent. Strategy lane filters show the three active Week 2 lanes, symbol filters use the configured paper symbol universe, 15m is labeled paused/legacy instead of active, and the Strategy tab shows only the three active Week 2 strategies as active/default. No runtime behavior changed, no run was started, no orders were submitted, no live trading was approved, no strategy was production-approved, and the selected Week 2 slate was not changed.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_strat_prune1_strategy_lane_pruning.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_6_week2_slate.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-dash-pt1.1-review.zip`
+
 ## v2026.06.06.005
 
 - `recorded_at_utc`: `2026-06-06T22:24:15Z`

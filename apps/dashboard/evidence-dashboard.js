@@ -168,6 +168,33 @@
     avoid_low_rolling_range_20: "Diagnostic Comparator",
     mf_orig_1d_stage2_breakout_resistance_full_equity: "MF-ORIG Source-Faithful Candidate",
   };
+  const PAPER_OBSERVATION_CONFIGURED_SYMBOLS = ["AVAX", "BNB", "BTC", "DOGE", "ETH", "HYPE", "SOL", "SUI", "XRP"];
+  const PAPER_OBSERVATION_WEEK2_LANE_POLICIES = {
+    money_flow_v1_2_baseline: {
+      display_name: "money_flow_v1_2_baseline",
+      strategy_family: "money_flow_v1_2",
+      role: "Control / Baseline",
+      testnet_label: "Baseline-only gated testnet eligible",
+      testnet_eligible: true,
+      reason_codes: ["founder_selected_week2_active", "keep_as_control"],
+    },
+    avoid_low_rolling_range_20: {
+      display_name: "avoid_low_rolling_range_20",
+      strategy_family: "sor_ev3_diagnostic",
+      role: "Diagnostic Comparator",
+      testnet_label: "Synthetic-only / no testnet",
+      testnet_eligible: false,
+      reason_codes: ["founder_selected_week2_active", "candidate_synthetic_only"],
+    },
+    mf_orig_1d_stage2_breakout_resistance_full_equity: {
+      display_name: "mf_orig_1d_stage2_breakout_resistance_full_equity",
+      strategy_family: "mf_orig_source_faithful",
+      role: "MF-ORIG Source-Faithful Candidate",
+      testnet_label: "Synthetic-only / no testnet",
+      testnet_eligible: false,
+      reason_codes: ["founder_selected_week2_active", "candidate_synthetic_only"],
+    },
+  };
   const RUN_LEDGER_DISPLAY_FILTER_BOUNDARY = "date filters are display-only, not canonical pack regeneration";
 
   const HYPERLIQUID_MAINNET_PUBLIC_INFO_URL = "https://api.hyperliquid.xyz/info";
@@ -1579,7 +1606,7 @@
   }
 
   function setActiveView(view) {
-    state.activeView = ["evidence", "evidence-lab", "audit-review", "paper-observation", "historical-replay", "uat-cockpit", "uat-shadow", "strategy"].includes(view)
+    state.activeView = ["evidence", "evidence-lab", "paper-observation", "historical-replay", "uat-cockpit", "uat-shadow", "strategy"].includes(view)
       ? view
       : "paper-observation";
     elements.viewTabs.forEach((tab) => {
@@ -8910,17 +8937,52 @@
   function paperObservationActiveLaneRows(summary = paperObservationSummary()) {
     const explicit = paperObservationRows(summary?.active_strategy_lanes || summary?.week2_active_strategy_lanes);
     const source = explicit.length ? explicit : paperObservationRows(summary?.strategy_lanes);
-    return source.filter((lane) => paperObservationIsWeek2ActiveLane(paperObservationLaneId(lane)));
+    const rows = source.filter((lane) => paperObservationIsWeek2ActiveLane(paperObservationLaneId(lane)));
+    if (rows.length) return rows;
+    return PAPER_OBSERVATION_WEEK2_ACTIVE_LANE_IDS.map(paperObservationConfiguredLaneRow);
   }
 
   function paperObservationArchivedLaneRows(summary = paperObservationSummary()) {
     const explicit = paperObservationRows(summary?.archived_strategy_lanes || summary?.week2_archived_strategy_lanes);
     const source = explicit.length ? explicit : paperObservationRows(summary?.strategy_lanes);
-    return source.filter((lane) => paperObservationIsWeek2ArchivedLane(paperObservationLaneId(lane)));
+    const rows = source.filter((lane) => paperObservationIsWeek2ArchivedLane(paperObservationLaneId(lane)));
+    if (rows.length) return rows;
+    return PAPER_OBSERVATION_WEEK2_ARCHIVED_LANE_IDS.map((laneId) => ({
+      lane_id: laneId,
+      strategy_id: laneId,
+      display_name: laneId,
+      paper_only: true,
+      production_approved: false,
+      live_approved: false,
+      testnet_eligible: false,
+      reason_codes: ["founder_archived_from_week2", "not_default_active", "historical_reference_only"],
+    }));
   }
 
   function paperObservationWeek2LaneLabel(laneId) {
     return PAPER_OBSERVATION_WEEK2_LANE_LABELS[laneId] || "Archived / historical reference";
+  }
+
+  function paperObservationConfiguredLaneRow(laneId) {
+    const policy = PAPER_OBSERVATION_WEEK2_LANE_POLICIES[laneId] || {};
+    return {
+      lane_id: laneId,
+      strategy_id: laneId,
+      display_name: policy.display_name || laneId,
+      strategy_family: policy.strategy_family || "paper_observation",
+      paper_only: true,
+      production_approved: false,
+      live_approved: false,
+      starting_equity: 10000,
+      initial_equity: 10000,
+      pnl_source: "Synthetic Ledger",
+      signal_truth: "Public Mainnet Candles",
+      testnet_label: policy.testnet_label || "Synthetic-only / no testnet",
+      testnet_eligible: Boolean(policy.testnet_eligible),
+      role: policy.role || paperObservationWeek2LaneLabel(laneId),
+      reason_codes: policy.reason_codes || ["founder_selected_week2_active"],
+      rule_summary: "Configured Week 2 lane metadata; runtime rows appear after the paper run starts.",
+    };
   }
 
   function paperObservationActiveTimeframes(summary = paperObservationSummary()) {
@@ -9370,17 +9432,20 @@
     const summary = paperObservationSummary();
     const rows = paperObservationRows(summary?.scanner_universe);
     if (rows.length) return rows;
-    return paperObservationRows(summary?.symbols).map((symbol) => ({
+    const symbols = paperObservationRows(summary?.symbols).length
+      ? paperObservationRows(summary?.symbols)
+      : PAPER_OBSERVATION_CONFIGURED_SYMBOLS;
+    return symbols.map((symbol) => ({
       requested_symbol: symbol,
       resolved_venue_symbol: symbol,
       canonical_symbol: symbol,
-      sources: ["runtime_summary_symbol_list"],
+      sources: ["configured_paper_symbols"],
       supported_by_venue: true,
       precision_ready: true,
       data_health: "pending_runtime_refresh",
       scanner_eligible: true,
       blocked: false,
-      reason_codes: ["runtime_summary_symbol_list_only"],
+      reason_codes: ["configured_paper_symbol_universe"],
     }));
   }
 
@@ -9658,9 +9723,10 @@
       { value: "data_unavailable", label: "Data unavailable" },
     ];
     const laneIds = paperObservationActiveLaneRows(summary).map((lane) => paperObservationLaneId(lane)).filter(Boolean);
-    renderSelect(elements.paperObservationSymbolFilter, symbols, state.paperObservation.symbol, "All symbols");
+    renderSelect(elements.paperObservationSymbolFilter, symbols, state.paperObservation.symbol, "All configured symbols");
     renderSelectWithoutAll(elements.paperObservationTimeframeFilter, timeframeOptions, state.paperObservation.timeframe);
-    renderSelect(elements.paperObservationLaneFilter, laneIds, state.paperObservation.laneId, "All lanes");
+    const laneOptions = laneIds.map((laneId) => ({ value: laneId, label: `${paperObservationWeek2LaneLabel(laneId)}: ${laneId}` }));
+    renderSelect(elements.paperObservationLaneFilter, laneOptions, state.paperObservation.laneId, "All active lanes");
     if (elements.paperObservationLaneFilter && elements.paperObservationLaneFilter.value !== state.paperObservation.laneId) {
       state.paperObservation.laneId = elements.paperObservationLaneFilter.value || "all";
     }
@@ -9724,7 +9790,7 @@
       ["Strategy truth", truth.source || "public mainnet", "no private/signed/order endpoints"],
       ["Active Week 2 lanes", String(lanes.length), "founder-selected synthetic ledgers"],
       ["Archived lanes", String(archivedLanes.length), "hidden from default active scoring"],
-      ["Scanner symbols", String(paperObservationRows(summary.scanner_universe).length), "requested/resolved/block reasons visible"],
+      ["Scanner symbols", String(paperObservationBaseScannerRows().length), "configured paper symbols / runtime rows"],
       ["Probe default", probe.PT_RT1_TESTNET_PROBES_ENABLED === false ? "disabled" : "review", "kill switch true by default"],
       ["Runtime state", `${runtimeState.open_positions_count ?? 0} open`, "persisted local paper state"],
       ["Duplicate opens blocked", String(runtimeState.duplicate_signal_blocks_this_cycle ?? 0), "same-candle signals become held/blocked"],
@@ -9775,7 +9841,7 @@
         <div><span>Live trading</span><strong>not approved</strong></div>
       </div>
       <div class="methodology-warning compact">
-        Paper Trading is the Week 2 runtime review surface. Historical Replay, Evidence, The Lab, Audit, and Strategy remain reference surfaces.
+        Paper Trading is the Week 2 runtime review surface. Historical Replay, Evidence, The Lab, and Strategy remain reference surfaces.
         Default active slate: ${escapeHtml(activeLanes.join(", "))}.
         Disabled timeframes: ${escapeHtml(disabled.join(", ") || "none")}. Existing 15m records remain visible only under the paused/legacy filter.
         Stale runtime artifacts are not proof of an active run; the local control server must report running.
@@ -9813,7 +9879,7 @@
         netPnl,
         maxDrawdown: "n/a",
         dataBlocks,
-        status: isPaused ? "15m_paused_legacy" : "active_week_timeframe",
+        status: isPaused ? "paused_legacy_timeframe_excluded_from_active_week_scoring" : "active_week_timeframe",
       };
     });
     elements.paperObservationTimeframeBreakdown.innerHTML = `

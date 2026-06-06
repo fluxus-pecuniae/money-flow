@@ -6,6 +6,7 @@ Canonical design document for `apps/dashboard/`.
 
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
 - Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is prepared; no active paper run is assumed unless the local control server reports one.
+- DASH-PT1.1 layout: Paper Trading starts with Cockpit / Global Filters, then Live Public Candles + Paper Markers, Runtime Control, Watchlist | Testnet Order Lifecycle, Open/Closed Synthetic Positions, Signal / Decision Stream, then lower-priority diagnostics.
 - Active Week 2 default slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
 - Active timeframes: `1h`, `4h`, `1d`.
 - Paused timeframes: `15m` remains paused as diagnostic/legacy context only.
@@ -33,13 +34,15 @@ The dashboard is not an order-entry terminal.
 
 ## User Mental Model
 
-The founder should read the screen in this order:
+The founder should read the Paper Trading screen in this order:
 
-1. Top bar: current environment, active market, timeframe, and safety state.
-2. Left rail: watched market list and signal/coverage status.
-3. Center: chart, indicators, and green/red markers.
-4. Right rail: order-book availability, market facts, Money Flow context, and sandbox risk state.
-5. Bottom blotter: routed orders, shadow records, balances/positions, lifecycle, and sanitized audit logs.
+1. Cockpit / Global Filters: run state, configured Week 2 truth, selected symbol/timeframe/lane, and compact safety status.
+2. Live Public Candles + Paper Markers: public-mainnet chart with paper markers and indicators.
+3. Runtime Control: local control server state and manual/operator run controls.
+4. Watchlist | Testnet Order Lifecycle: configured symbols and separate testnet plumbing rows.
+5. Open Synthetic Positions | Closed Synthetic Trades: synthetic ledger state only.
+6. Signal / Decision Stream: latest paper decisions and reason codes.
+7. Lower diagnostics: scoreboard, timeframe breakdown, connection, lane detail, and risk details.
 
 ## Exchange-Like Layout References
 
@@ -56,17 +59,16 @@ The implementation uses this interaction model and information architecture only
 
 Top bar:
 - product name: `Money Flow`
-- environment badge: `sandbox/testnet`
-- paper/live status: paper approved for Hyperliquid testnet/sandbox only; live not approved
-- active market selector
-- active venue and timeframe
-- market status: public read-only
-- safety state: no live endpoint, sandbox only, order controls disabled
+- visible tabs: `Paper Trading`, `Historical Replay`, `Evidence`, `The Lab`, `Strategy`
+- `Audit` is not a visible top-level tab after DASH-PT1.1; audit artifacts remain historical reference material.
+- safety state: synthetic paper only, public mainnet candles, baseline-only testnet plumbing, candidate lanes synthetic-only, no live trading.
 
-Left rail:
-- watchlist / markets
-- filter chips: all, would-open, no-trade, active sandbox route, missing data, favorites
-- per-symbol observation-only and order-approval status
+Paper Trading cockpit:
+- configured active lanes: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, `mf_orig_1d_stage2_breakout_resistance_full_equity`
+- configured archived/default-inactive lanes: seven prior PT-RT lanes
+- configured symbols: AVAX, BNB, BTC, DOGE, ETH, HYPE, SOL, SUI, XRP
+- active timeframes: `1h`, `4h`, `1d`
+- disabled timeframe: `15m`, paused/legacy only
 
 Center:
 - chart cockpit
@@ -75,11 +77,11 @@ Center:
 - indicator dock
 - entry/exit marker dock
 
-Right rail:
-- order book placeholder / public read-only source state
-- market info / precision state
-- signal context
-- risk context
+Side and lower panels:
+- compact watchlist / markets
+- testnet order lifecycle, explicitly separate from synthetic PnL
+- runtime control and stale/no-run state
+- lower-priority connection, scoreboard, timeframe, and risk diagnostics
 
 Bottom:
 - Routed Orders
@@ -115,13 +117,13 @@ Primary dashboard tabs are:
   - Generated replay rows include a `Result` badge comparing PnL and drawdown to the matching Money Flow v1.2 baseline row: green `improved_pnl_drawdown`, amber partial-improvement labels, neutral `same_result`, or red `no bueno`.
   - The selector is review/navigation only; it does not regenerate evidence or approve variants.
 - The Lab
-- Audit
 - Strategy
-  - Shows rule/source context and evidence-only lane ideas without implying production approval.
+  - Shows only the three active Week 2 strategies as active/default UI truth.
+  - Archived/research-only variants are intentionally not prominent in the Strategy tab.
 
 The invalid legacy `Experiments` surface is not exposed as a primary tab. Evidence Lab is tied to SOR-EV1/SOR-EV2/SOR-EV3 committed summaries and canonical SV2.0.2 baseline context only.
 
-Audit Review is tied to EV-AUDIT1 committed summary JSON only. It visualizes the audit verdict, methodology scorecard, paper-observation readiness, top/worst hypotheses, biggest winning/losing trades, losing streaks, audit issues, data-integrity rows, and evidence inventory. It is display-only and must not imply canonical evidence regeneration, strategy approval, paper approval, live approval, or order capability.
+EV-AUDIT1 remains a committed historical audit artifact, but DASH-PT1.1 removes Audit Review from the visible top-level dashboard navigation to keep Week 2 startup focused.
 
 `UAT Chart Cockpit` and `UAT2 Shadow Run` remain hidden legacy panels for regression coverage and historical context, but they are no longer top-level navigation tabs.
 

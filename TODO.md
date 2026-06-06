@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-06-06T22:24:15Z`
+Last reviewed: `2026-06-06T23:19:40Z`
 
 ## Active
 
@@ -10,6 +10,7 @@ Last reviewed: `2026-06-06T22:24:15Z`
 - STRAT-PRUNE1 remains recommendation-only and was overridden by the founder for Week 2 lane selection.
 - STRAT-DISC1 found zero founder production-testing review candidates across 12 bounded research runs and is superseded by the broader GOAL-STRAT1 exhaustion result.
 - Start the Week 2 paper run only after founder review; PT-RT1.6 did not start the runtime.
+- DASH-PT1.1 cleaned the Paper Trading UI for Week 2; if the browser still looks unchanged, hard refresh because the dashboard CSS/JS cache-buster changed to `dash-pt1-1-week2-ui-20260606`.
 - Review the next fresh Money Flow v1.2 baseline-triggered lifecycle row to confirm it uses Hyperliquid testnet metadata-based `szDecimals` formatting outside the explicit transport-smoke path.
 - Continue confirming `1h`/`4h`/`1d` candle-close scheduling, warm-start fresh-signal gating, open-position MTM, and baseline-only fixed 25 USDC Hyperliquid testnet lifecycle separation.
 - Keep `15m` paused for Week 2 scoring unless a later founder-approved phase explicitly re-enables it.
@@ -30,6 +31,7 @@ Last reviewed: `2026-06-06T22:24:15Z`
 - GOAL-STRAT2 selected two non-existing research-only strategies worth paper-testing review from GOAL-STRAT1 evidence and generated per-candidate reports.
 - STRAT-PRUNE1 completed read-only lane pruning and recommended a smaller next paper slate without changing runtime behavior.
 - PT-RT1.6 implemented the founder-selected three-lane Week 2 active slate and dashboard/control defaults without starting the runtime.
+- DASH-PT1.1 removed the visible Audit tab, compacted Paper Trading into cockpit/chart/runtime/watchlist/positions/stream order, fixed configured Week 2 lane/symbol truth before runtime rows exist, and simplified the Strategy tab to the three active Week 2 lanes.
 - GOAL-STRAT1 added a broader research-only autonomous discovery harness and report; 49 datasets were accepted, 121 candidate configurations were tested, and zero strategies passed the founder-review gate without overfitting/blockers.
 - STRAT-DISC1 added the first research-only autonomous discovery harness and report; 50 datasets were accepted, 12 candidate runs were tested, and zero strategies passed the founder-review gate.
 - SUBAGENTS1 added project-scoped read-only Codex reviewers for runtime, dashboard, and quant triage.
