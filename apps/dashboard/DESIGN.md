@@ -6,8 +6,9 @@ Canonical design document for `apps/dashboard/`.
 
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
 - Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is prepared; no active paper run is assumed unless the local control server reports one.
-- DASH-PT1.1 layout: Paper Trading starts with Cockpit / Global Filters, then Live Public Candles + Paper Markers, Runtime Control, Watchlist | Testnet Order Lifecycle, Open/Closed Synthetic Positions, Signal / Decision Stream, then lower-priority diagnostics.
+- DASH-PT1.3 layout: Paper Trading is a dense exchange-style terminal with top health strip, contained left Cockpit / Global Filters plus internally scrolling three-column Watchlist rail, center Live Public Candles + Paper Markers chart, height-bounded right Runtime Control / Testnet Order Transport rail, bottom tabbed blotter, and a final full-width Daily Review / Anomaly Flags card below the blotter.
 - LOG-OBS1 observability: Runtime Control includes a compact Runtime Logs panel and the terminal helper `scripts/watch_pt_rt1_runtime.py` exposes status/latest/tail views without changing runtime state.
+- OBS-OS1 daily review: Paper Trading includes a lower-priority `Daily Review / Anomaly Flags` panel that reads the latest generated daily review pack from ignored `reports/paper_reviews/pt_rt1_6_week2_active/`.
 - Active Week 2 default slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
 - Active timeframes: `1h`, `4h`, `1d`.
 - Paused timeframes: `15m` remains paused as diagnostic/legacy context only.
@@ -37,13 +38,12 @@ The dashboard is not an order-entry terminal.
 
 The founder should read the Paper Trading screen in this order:
 
-1. Cockpit / Global Filters: run state, configured Week 2 truth, selected symbol/timeframe/lane, and compact safety status.
-2. Live Public Candles + Paper Markers: public-mainnet chart with paper markers and indicators.
-3. Runtime Control: local control server state, manual/operator run controls, and read-only log visibility.
-4. Watchlist | Testnet Order Lifecycle: configured symbols and separate testnet plumbing rows.
-5. Open Synthetic Positions | Closed Synthetic Trades: synthetic ledger state only.
-6. Signal / Decision Stream: latest paper decisions and reason codes.
-7. Lower diagnostics: scoreboard, timeframe breakdown, connection, lane detail, and risk details.
+1. Top health strip: active scope, runtime state, Week 2 lanes, timeframes, 15m paused, synthetic/testnet/no-live boundaries.
+2. Left rail: Cockpit / Global Filters plus compact internally scrolling Watchlist.
+3. Center stage: Live Public Candles + Paper Markers, the largest panel.
+4. Right rail: height-bounded Runtime Control and Testnet Order Transport.
+5. Bottom blotter: tabbed Open Positions, Closed Trades, Signal Stream, Testnet Lifecycle, Runtime Logs, Weekly Scoreboard, and Diagnostics.
+6. Final review card: Daily Review / Anomaly Flags below the blotter.
 
 ## Exchange-Like Layout References
 
@@ -70,6 +70,8 @@ Paper Trading cockpit:
 - configured symbols: AVAX, BNB, BTC, DOGE, ETH, HYPE, SOL, SUI, XRP
 - active timeframes: `1h`, `4h`, `1d`
 - Runtime Logs panel: show `runtime_audit.jsonl`, `decisions.jsonl`, `trades.jsonl`, `testnet_order_lifecycle.jsonl`, `data_health.json`, `summary.json`, and the control-server log when available, with file size, modified time, and copyable `tail -n 50 -F` commands.
+- Daily Review / Anomaly Flags panel: show generated timestamp, go/no-go label, decision/trade/lifecycle counts, synthetic/testnet boundary status, and top anomaly flags from `latest_review.json`; show an explicit generate-command empty state when absent; place as the final full-width Paper Trading card below the blotter.
+- Runtime details panel: keep compact high-signal runtime fields only so it does not consume the full right column.
 - disabled timeframe: `15m`, paused/legacy only
 
 Center:
@@ -96,7 +98,7 @@ Bottom:
 
 - The chart is the largest and highest-priority region.
 - The watchlist is compact and dense.
-- The right rail is stacked and narrow.
+- The right rail is stacked, narrow, and limited to Runtime Control plus Testnet Order Transport.
 - The bottom blotter is wide and tabbed.
 - Safety is persistent but compact: one top warning strip and short status chips.
 - Tables use dense rows, sticky headers, and monospace numbers.

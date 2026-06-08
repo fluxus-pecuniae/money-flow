@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Money Flow Evidence Dashboard</title>
-    <link rel="stylesheet" href="./evidence-dashboard.css?v=log-obs1-runtime-logs-scroll-20260608" />
+      <link rel="stylesheet" href="./evidence-dashboard.css?v=dash-pt1-2-terminal-20260608" />
   </head>
   <body>
     <header class="top-strip">
@@ -350,199 +350,243 @@
       </section>
 
       <section id="paper-observation-view" class="dashboard-view paper-observation-view" data-view-panel="paper-observation" hidden>
-        <section class="paper-observation-controls paper-observation-cockpit" aria-label="Cockpit / Global Filters">
-          <div class="paper-observation-controls-title">
-            <span class="eyebrow">Cockpit / Global Filters</span>
-            <strong>Week 2 configured truth plus display filters</strong>
-          </div>
-          <label>
-            <span>Symbol</span>
-            <select id="paper-observation-symbol-filter"></select>
-          </label>
-          <label>
-            <span>Timeframe</span>
-            <select id="paper-observation-timeframe-filter"></select>
-          </label>
-          <label>
-            <span>Strategy lane</span>
-            <select id="paper-observation-lane-filter"></select>
-          </label>
-          <label>
-            <span>Review window</span>
-            <select id="paper-observation-review-window-filter"></select>
-          </label>
-          <label>
-            <span>Signal category</span>
-            <select id="paper-observation-signal-category-filter"></select>
-          </label>
-        </section>
-
         <section id="paper-observation-health-banner" class="paper-observation-health-banner" aria-label="Paper Trading top health banner"></section>
 
-        <section class="historical-replay-grid paper-observation-grid paper-observation-primary-grid paper-observation-chart-first" aria-label="Live Public Candles + Paper Markers">
-          <section class="historical-chart-panel" aria-labelledby="paper-observation-chart-title">
-            <div class="chart-header">
-              <div>
-                <p class="eyebrow">Public mainnet display</p>
-                <h2 id="paper-observation-chart-title">Live Public Candles + Paper Markers</h2>
+        <section id="paper-observation-terminal-grid" class="paper-observation-terminal-grid" aria-label="Paper Trading exchange-style terminal">
+          <aside class="paper-observation-left-rail" aria-label="Paper Trading filters and watchlist">
+            <section class="paper-observation-controls paper-observation-cockpit" aria-label="Cockpit / Global Filters">
+              <div class="paper-observation-controls-title">
+                <span class="eyebrow">Cockpit / Global Filters</span>
+                <strong>Week 2 configured truth plus display filters</strong>
               </div>
-              <div class="chart-header-meta">
-                <span>Selected active timeframe by default</span>
-                <span>Opened and closed synthetic markers</span>
-                <span>Display-only filter</span>
-                <span>No backend replay</span>
-              </div>
-            </div>
-            <div id="paper-observation-live-chart" class="exchange-chart-shell paper-observation-chart"></div>
-          </section>
-        </section>
-
-        <section class="paper-runtime-control paper-runtime-control-compact table-panel audit-review-panel" aria-labelledby="paper-runtime-control-title">
-          <div class="paper-runtime-control-main">
-            <div class="paper-runtime-card-heading">
-              <p class="eyebrow" id="paper-runtime-control-title">Runtime Control</p>
-            </div>
-            <p class="paper-runtime-control-copy">
-              <span>Starts an allowlisted local run with Mac caffeinate.</span>
-              <span>Available only through `scripts/run_dashboard_control_server.py`.</span>
-            </p>
-            <div id="paper-runtime-control-message" class="paper-runtime-control-message" aria-live="polite"></div>
-            <div class="paper-runtime-control-grid">
               <label>
-                <span>Duration</span>
-                <select id="paper-runtime-duration">
-                  <option value="5m">5 minutes</option>
-                  <option value="1h">1 hour</option>
-                  <option value="6h">6 hours</option>
-                  <option value="24h" selected>24 hours</option>
-                </select>
+                <span>Symbol</span>
+                <select id="paper-observation-symbol-filter"></select>
               </label>
               <label>
-                <span>Output</span>
-                <select id="paper-runtime-output">
-                  <option value="pt_rt1_6_week2_active" selected>Week 2 active founder-selected slate</option>
-                  <option value="pt_rt1_5_2_week1_active">Week 1 active with PT-RT1.5.3 hotfix</option>
-                  <option value="pt_rt1_5_3_transport_smoke">PT-RT1.5.3 size hotfix smoke</option>
-                </select>
+                <span>Timeframe</span>
+                <select id="paper-observation-timeframe-filter"></select>
               </label>
-              <div class="paper-runtime-actions" aria-label="Paper runtime actions">
-                <button id="paper-runtime-start" class="primary-button" type="button">Start Run</button>
-                <button id="paper-runtime-stop" class="segment-button" type="button">Stop Run</button>
+              <label>
+                <span>Strategy lane</span>
+                <select id="paper-observation-lane-filter"></select>
+              </label>
+              <label>
+                <span>Review window</span>
+                <select id="paper-observation-review-window-filter"></select>
+              </label>
+              <label>
+                <span>Signal category</span>
+                <select id="paper-observation-signal-category-filter"></select>
+              </label>
+            </section>
+
+            <article class="table-panel audit-review-panel paper-observation-watchlist-panel" aria-labelledby="paper-observation-watchlist-title">
+              <div class="section-heading compact-heading">
+                <div>
+                  <h3 id="paper-observation-watchlist-title">Watchlist</h3>
+                  <p>Compact public mainnet mids. Health is unhealthy when market data is older than 2 minutes.</p>
+                </div>
               </div>
-            </div>
-            <div class="methodology-warning compact" role="note">
-              Manual/operator run only. Public mainnet candles remain strategy truth. Candidate/MF-ORIG lanes are synthetic-only.
-              Candidate lanes cannot send testnet orders.
-              Baseline-only testnet lifecycle is separate from synthetic PnL; live trading is not approved.
-            </div>
-          </div>
-          <div class="paper-runtime-control-details">
-            <div class="paper-runtime-card-heading">
-              <p class="eyebrow">Runtime details</p>
-            </div>
-            <div id="paper-runtime-control-status" class="market-micro-panel"></div>
-            <div id="paper-runtime-log-files" class="paper-runtime-log-files" aria-label="Runtime log files"></div>
-          </div>
+              <div id="paper-observation-scanner-table" class="data-table-shell"></div>
+            </article>
+          </aside>
+
+          <main class="paper-observation-center-stage" aria-label="Live Public Candles + Paper Markers">
+            <section class="historical-chart-panel" aria-labelledby="paper-observation-chart-title">
+              <div class="chart-header">
+                <div>
+                  <p class="eyebrow">Public mainnet display</p>
+                  <h2 id="paper-observation-chart-title">Live Public Candles + Paper Markers</h2>
+                </div>
+                <div class="chart-header-meta">
+                  <span>Selected active timeframe by default</span>
+                  <span>Opened and closed synthetic markers</span>
+                  <span>Display-only filter</span>
+                  <span>No backend replay</span>
+                </div>
+              </div>
+              <div id="paper-observation-live-chart" class="exchange-chart-shell paper-observation-chart"></div>
+            </section>
+          </main>
+
+          <aside class="paper-observation-right-rail" aria-label="Runtime and review rail">
+            <section class="paper-runtime-control paper-runtime-control-compact table-panel audit-review-panel" aria-labelledby="paper-runtime-control-title">
+              <div class="paper-runtime-control-main">
+                <div class="paper-runtime-card-heading">
+                  <p class="eyebrow" id="paper-runtime-control-title">Runtime Control</p>
+                </div>
+                <p class="paper-runtime-control-copy">
+                  <span>Starts an allowlisted local run with Mac caffeinate.</span>
+                  <span>Available only through `scripts/run_dashboard_control_server.py`.</span>
+                </p>
+                <div id="paper-runtime-control-message" class="paper-runtime-control-message" aria-live="polite"></div>
+                <div class="paper-runtime-control-grid">
+                  <label>
+                    <span>Duration</span>
+                    <select id="paper-runtime-duration">
+                      <option value="5m">5 minutes</option>
+                      <option value="1h">1 hour</option>
+                      <option value="6h">6 hours</option>
+                      <option value="24h" selected>24 hours</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Output</span>
+                    <select id="paper-runtime-output">
+                      <option value="pt_rt1_6_week2_active" selected>Week 2 active founder-selected slate</option>
+                      <option value="pt_rt1_5_2_week1_active">Week 1 active with PT-RT1.5.3 hotfix</option>
+                      <option value="pt_rt1_5_3_transport_smoke">PT-RT1.5.3 size hotfix smoke</option>
+                    </select>
+                  </label>
+                  <div class="paper-runtime-actions" aria-label="Paper runtime actions">
+                    <button id="paper-runtime-start" class="primary-button" type="button">Start Run</button>
+                    <button id="paper-runtime-stop" class="segment-button" type="button">Stop Run</button>
+                  </div>
+                </div>
+                <div class="methodology-warning compact" role="note">
+                  Manual/operator run only. Public mainnet candles remain strategy truth. Candidate/MF-ORIG lanes are synthetic-only.
+                  Candidate lanes cannot send testnet orders.
+                  Baseline-only testnet lifecycle is separate from synthetic PnL; live trading is not approved.
+                </div>
+              </div>
+              <div class="paper-runtime-control-details">
+                <div class="paper-runtime-card-heading">
+                  <p class="eyebrow">Runtime details</p>
+                </div>
+                <div id="paper-runtime-control-status" class="market-micro-panel"></div>
+              </div>
+            </section>
+
+            <section class="historical-inspector-panel paper-observation-testnet-panel" aria-labelledby="paper-observation-probe-title">
+              <div class="rail-heading">
+                <h2 id="paper-observation-probe-title">Testnet Order Transport</h2>
+                <p>Baseline-only testnet lifecycle panel. Candidate lanes remain synthetic-only.</p>
+              </div>
+              <div id="paper-observation-probe-status" class="market-micro-panel"></div>
+            </section>
+
+          </aside>
         </section>
 
-        <section class="paper-observation-watchlist-transport-row" aria-label="Compact watchlist and testnet plumbing">
-          <article class="table-panel audit-review-panel paper-observation-watchlist-panel" aria-labelledby="paper-observation-watchlist-title">
+        <section id="paper-observation-bottom-blotter" class="paper-observation-bottom-blotter" aria-label="Paper Trading bottom blotter">
+          <div class="paper-observation-blotter-tabs" role="tablist" aria-label="Paper Trading blotter tabs">
+            <button type="button" class="segment-button" role="tab" data-paper-terminal-tab="open" aria-selected="true">Open Positions</button>
+            <button type="button" class="segment-button" role="tab" data-paper-terminal-tab="closed">Closed Trades</button>
+            <button type="button" class="segment-button" role="tab" data-paper-terminal-tab="signals">Signal Stream</button>
+            <button type="button" class="segment-button" role="tab" data-paper-terminal-tab="lifecycle">Testnet Lifecycle</button>
+            <button type="button" class="segment-button" role="tab" data-paper-terminal-tab="logs">Runtime Logs</button>
+            <button type="button" class="segment-button" role="tab" data-paper-terminal-tab="scoreboard">Weekly Scoreboard</button>
+            <button type="button" class="segment-button" role="tab" data-paper-terminal-tab="diagnostics">Diagnostics</button>
+          </div>
+
+          <article class="table-panel audit-review-panel paper-observation-blotter-panel" data-paper-terminal-panel="open" role="tabpanel" aria-labelledby="paper-observation-open-title">
             <div class="section-heading compact-heading">
               <div>
-                <h3 id="paper-observation-watchlist-title">Watchlist</h3>
-                <p>Compact public mainnet mid tick, refreshed every second. Health is unhealthy when market data is older than 2 minutes.</p>
+                <h2 id="paper-observation-open-title">Open Synthetic Positions</h2>
+                <p>Default view is active timeframes only. Legacy 15m positions stay visible through the paused/legacy filter and are excluded from active scoring.</p>
               </div>
             </div>
-            <div id="paper-observation-scanner-table" class="data-table-shell"></div>
+            <div id="paper-observation-open-positions" class="data-table-shell"></div>
           </article>
 
-          <article class="table-panel audit-review-panel paper-observation-lifecycle-panel" aria-labelledby="paper-observation-lifecycle-title">
+          <article class="table-panel audit-review-panel paper-observation-blotter-panel" data-paper-terminal-panel="closed" role="tabpanel" aria-labelledby="paper-observation-closed-title" hidden>
             <div class="section-heading compact-heading">
               <div>
-                <h3 id="paper-observation-lifecycle-title">Testnet Order Lifecycle</h3>
+                <h2 id="paper-observation-closed-title">Closed Synthetic Trades</h2>
+                <p>Active review window by default. Synthetic paper trades only; no exchange order artifacts are created from the strategy lane.</p>
+              </div>
+            </div>
+            <div id="paper-observation-closed-trades" class="data-table-shell"></div>
+          </article>
+
+          <article class="table-panel audit-review-panel paper-observation-blotter-panel paper-observation-signal-panel" data-paper-terminal-panel="signals" role="tabpanel" aria-labelledby="paper-observation-signal-title" hidden>
+            <div class="section-heading compact-heading">
+              <div>
+                <h2 id="paper-observation-signal-title">Signal / Decision Stream</h2>
+                <p>Paper decisions only: intended entries, synthetic opens, no-trade/blocked rows, exits, duplicate ignored rows, and data-unavailable rows. These are not exchange orders.</p>
+              </div>
+            </div>
+            <div id="paper-observation-signal-table" class="data-table-shell"></div>
+          </article>
+
+          <article class="table-panel audit-review-panel paper-observation-blotter-panel paper-observation-lifecycle-panel" data-paper-terminal-panel="lifecycle" role="tabpanel" aria-labelledby="paper-observation-lifecycle-title" hidden>
+            <div class="section-heading compact-heading">
+              <div>
+                <h2 id="paper-observation-lifecycle-title">Testnet Order Lifecycle</h2>
                 <p>Separate from synthetic paper trades. Only Money Flow v1.2 baseline opens can create fixed 25 USDC testnet lifecycle rows.</p>
               </div>
             </div>
             <div id="paper-observation-testnet-lifecycle" class="data-table-shell"></div>
           </article>
-        </section>
 
-        <section class="evidence-lab-two-column audit-review-two-column" aria-label="Paper observation positions and trades">
-          <article class="table-panel audit-review-panel" aria-labelledby="paper-observation-open-title">
-            <div class="section-heading">
-              <h2 id="paper-observation-open-title">Open Synthetic Positions</h2>
-              <p>Default view is active timeframes only. Legacy 15m positions stay visible through the paused/legacy filter and are excluded from active scoring.</p>
-            </div>
-            <div id="paper-observation-open-positions" class="data-table-shell"></div>
+          <article class="table-panel audit-review-panel paper-observation-blotter-panel" data-paper-terminal-panel="logs" role="tabpanel" aria-label="Runtime Logs" hidden>
+            <div id="paper-runtime-log-files" class="paper-runtime-log-files" aria-label="Runtime log files"></div>
           </article>
 
-          <article class="table-panel audit-review-panel" aria-labelledby="paper-observation-closed-title">
-            <div class="section-heading">
-              <h2 id="paper-observation-closed-title">Closed Synthetic Trades</h2>
-              <p>Active review window by default. Synthetic paper trades only; no exchange order artifacts are created from the strategy lane.</p>
+          <article class="table-panel audit-review-panel paper-observation-blotter-panel paper-observation-weekly-scoreboard" data-paper-terminal-panel="scoreboard" role="tabpanel" aria-labelledby="paper-observation-lanes-title" hidden>
+            <div class="section-heading compact-heading">
+              <div>
+                <h2 id="paper-observation-lanes-title">Weekly Scoreboard</h2>
+                <p>Timeframe-scoped synthetic lane comparison. Lower priority than chart, runtime control, positions, trades, and decisions.</p>
+              </div>
             </div>
-            <div id="paper-observation-closed-trades" class="data-table-shell"></div>
+            <div id="paper-observation-lane-table" class="data-table-shell"></div>
+          </article>
+
+          <article class="paper-observation-lower-diagnostics paper-observation-blotter-panel" data-paper-terminal-panel="diagnostics" role="tabpanel" aria-label="Lower priority paper trading diagnostics" hidden>
+            <section id="paper-observation-summary-cards" class="metric-grid audit-review-verdict" aria-label="Paper observation summary"></section>
+
+            <section class="table-panel audit-review-panel" aria-labelledby="paper-observation-timeframe-breakdown-title">
+              <div class="section-heading compact-heading">
+                <div>
+                  <h2 id="paper-observation-timeframe-breakdown-title">Timeframe Breakdown</h2>
+                  <p>1h, 4h, and 1d are active. 15m is paused/legacy and excluded from active weekly scoring.</p>
+                </div>
+              </div>
+              <div id="paper-observation-timeframe-breakdown" class="data-table-shell"></div>
+            </section>
+
+            <section class="table-panel audit-review-panel paper-observation-connection-panel" aria-labelledby="paper-observation-connection-title">
+              <div class="section-heading compact-heading">
+                <div>
+                  <h2 id="paper-observation-connection-title">Connection Status</h2>
+                  <p>Hyperliquid public mainnet connection status, endpoint category, last update, and no private/signed/order/API-key boundary.</p>
+                </div>
+              </div>
+              <div id="paper-observation-connection-status" class="market-micro-panel"></div>
+            </section>
+
+            <section class="table-panel audit-review-panel" aria-labelledby="paper-observation-lane-detail-title">
+              <div class="section-heading compact-heading">
+                <div>
+                  <h2 id="paper-observation-lane-detail-title">Lane Detail</h2>
+                  <p>Selected lane rule summary, latest decisions, reason-code status, synthetic positions/trades, and equity-curve availability.</p>
+                </div>
+              </div>
+              <div id="paper-observation-lane-detail" class="data-table-shell"></div>
+            </section>
+
+            <section class="table-panel audit-review-panel" aria-labelledby="paper-observation-risk-title">
+              <div class="section-heading compact-heading">
+                <div>
+                  <h2 id="paper-observation-risk-title">Drawdown / Losing Streaks</h2>
+                  <p>Tracks max drawdown, current drawdown, consecutive losses, worst losing streak PnL, and control-pocket damage alerts per lane.</p>
+                </div>
+              </div>
+              <div id="paper-observation-risk-table" class="data-table-shell"></div>
+            </section>
           </article>
         </section>
 
-        <section class="table-panel audit-review-panel paper-observation-signal-panel" aria-labelledby="paper-observation-signal-title">
-          <div class="section-heading">
-            <h2 id="paper-observation-signal-title">Signal / Decision Stream</h2>
-            <p>Paper decisions only: intended entries, synthetic opens, no-trade/blocked rows, exits, duplicate ignored rows, and data-unavailable rows. These are not exchange orders.</p>
+        <section class="table-panel audit-review-panel paper-observation-daily-review-panel paper-observation-final-review-card" aria-labelledby="paper-observation-daily-review-title">
+          <div class="section-heading compact-heading">
+            <div>
+              <h2 id="paper-observation-daily-review-title">Daily Review / Anomaly Flags</h2>
+              <p>Read-only OBS-OS1 review pack. Generated from runtime logs; does not start/stop runtime or place exchange actions.</p>
+            </div>
           </div>
-          <div id="paper-observation-signal-table" class="data-table-shell"></div>
-        </section>
-
-        <section class="paper-observation-lower-diagnostics" aria-label="Lower priority paper trading diagnostics">
-        <section id="paper-observation-summary-cards" class="metric-grid audit-review-verdict" aria-label="Paper observation summary"></section>
-
-        <section class="historical-inspector-panel paper-observation-testnet-panel" aria-labelledby="paper-observation-probe-title">
-          <div class="rail-heading">
-            <h2 id="paper-observation-probe-title">Testnet Order Transport</h2>
-            <p>Baseline-only testnet lifecycle panel. Candidate lanes remain synthetic-only.</p>
-          </div>
-          <div id="paper-observation-probe-status" class="market-micro-panel"></div>
-        </section>
-
-        <section class="table-panel audit-review-panel paper-observation-weekly-scoreboard" aria-labelledby="paper-observation-lanes-title">
-          <div class="section-heading">
-            <h2 id="paper-observation-lanes-title">Weekly Scoreboard</h2>
-            <p>Timeframe-scoped synthetic lane comparison. Lower priority than chart, runtime control, positions, trades, and decisions.</p>
-          </div>
-          <div id="paper-observation-lane-table" class="data-table-shell"></div>
-        </section>
-
-        <section class="table-panel audit-review-panel" aria-labelledby="paper-observation-timeframe-breakdown-title">
-          <div class="section-heading">
-            <h2 id="paper-observation-timeframe-breakdown-title">Timeframe Breakdown</h2>
-            <p>1h, 4h, and 1d are active. 15m is paused/legacy and excluded from active weekly scoring.</p>
-          </div>
-          <div id="paper-observation-timeframe-breakdown" class="data-table-shell"></div>
-        </section>
-
-        <section class="table-panel audit-review-panel paper-observation-connection-panel" aria-labelledby="paper-observation-connection-title">
-          <div class="section-heading">
-            <h2 id="paper-observation-connection-title">Connection Status</h2>
-            <p>Hyperliquid public mainnet connection status, endpoint category, last update, and no private/signed/order/API-key boundary.</p>
-          </div>
-          <div id="paper-observation-connection-status" class="market-micro-panel"></div>
-        </section>
-
-        <section class="table-panel audit-review-panel" aria-labelledby="paper-observation-lane-detail-title">
-          <div class="section-heading">
-            <h2 id="paper-observation-lane-detail-title">Lane Detail</h2>
-            <p>Selected lane rule summary, latest decisions, reason-code status, synthetic positions/trades, and equity-curve availability.</p>
-          </div>
-          <div id="paper-observation-lane-detail" class="data-table-shell"></div>
-        </section>
-
-        <section class="table-panel audit-review-panel" aria-labelledby="paper-observation-risk-title">
-          <div class="section-heading">
-            <h2 id="paper-observation-risk-title">Drawdown / Losing Streaks</h2>
-            <p>Tracks max drawdown, current drawdown, consecutive losses, worst losing streak PnL, and control-pocket damage alerts per lane.</p>
-          </div>
-          <div id="paper-observation-risk-table" class="data-table-shell"></div>
-        </section>
+          <div id="paper-observation-daily-review" class="market-micro-panel"></div>
         </section>
       </section>
 
@@ -1042,6 +1086,6 @@
     </main>
 
     <script src="./vendor/lightweight-charts.standalone.production.js?v=5.2.0"></script>
-    <script src="./evidence-dashboard.js?v=log-obs1-runtime-logs-scroll-20260608"></script>
+    <script src="./evidence-dashboard.js?v=dash-pt1-2-terminal-20260608"></script>
   </body>
 </html>

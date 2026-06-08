@@ -1,6 +1,6 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-06-08T06:29:37Z`
+Last reviewed: `2026-06-08T08:45:00Z`
 
 ## Open Issues
 
@@ -10,6 +10,7 @@ Last reviewed: `2026-06-08T06:29:37Z`
 - `K-022`: STRAT-DISC1 did not find three founder production-testing review candidates without overfitting or risk blockers. It is superseded by the broader GOAL-STRAT1 exhaustion result.
 - `K-020`: EV-AUDIT1 found no clean strategy candidate. PT-RT1.5.3 enables forward observation and baseline-only testnet plumbing, but strategy profitability is not proven and no production rule change is approved.
 - `K-015`: PT-RT1 forward observation still needs a fresh Week 2 runtime after PT-RT1.6. Active timeframes are `1h`, `4h`, and `1d`; `15m` is paused.
+- `K-026`: OBS-OS1 daily anomaly flags are review guidance, not an automated go/no-go authority. The current generated local pack shows `observation_may_continue` with one informational `warm_start_block_spike`; operators should still inspect blocking flags manually before drawing conclusions.
 - `K-001`: Execution-quality market data remains incomplete; top-of-book/order-book depth is not wired as a live execution-quality input.
 - `K-002`: Full strategy-attribution engine remains deferred.
 - `K-003`: Hyperliquid builder/HIP-3 classification still depends on venue metadata quality.
@@ -18,7 +19,10 @@ Last reviewed: `2026-06-08T06:29:37Z`
 ## Resolved Issues
 
 - LOG-OBS1 resolved the operator confusion where VS Code showed existing Week 2 runtime rows while `tail -F` appeared quiet. Runtime Control now exposes log-file metadata and copyable tail commands, and `scripts/watch_pt_rt1_runtime.py` provides read-only terminal status/latest/tail modes. This changed observability only; it did not change runtime behavior, strategy rules, order behavior, or approvals.
+- OBS-OS1 resolved the lack of a repeatable daily review surface by adding `scripts/build_pt_rt_week2_daily_review.py`, ignored `reports/paper_reviews/` outputs, and a Dashboard Daily Review / Anomaly Flags panel. This is read-only reporting only; it does not change runtime behavior or trading permissions.
 - DASH-PT1.1 resolved the founder-reported pre-run Paper Trading UI truth/readability issues: the visible Audit tab is removed, the large PT-RT1 intro block is compacted into cockpit badges, configured Week 2 active/archived lanes and configured symbols display before runtime rows exist, 15m is not shown as active, the Strategy tab shows only active Week 2 strategies, and synthetic PnL remains separate from testnet lifecycle.
+- DASH-PT1.2 resolved the follow-on Paper Trading vertical-stack readability issue by reorganizing the tab into an exchange-style terminal layout with a prioritized chart, side rails, and bottom blotter tabs. This changed dashboard display only; it did not change runtime behavior or trading permissions.
+- DASH-PT1.3 resolved the UI QA regressions introduced by the first terminal layout pass: left-rail filter overflow, unbounded Watchlist height, right-rail card pushdown, overly large Runtime details, Daily Review competing with Runtime/Testnet in the right rail, the low-value Watchlist Status column, and overly verbose chart marker labels. This changed dashboard display only; it did not change runtime behavior or trading permissions.
 - MF-ORIG-EV1 accounting/drawdown issues were resolved by MF-ORIG-EV1.1.
 - SV2 canonical-evidence artifact blocker was resolved by SV2.0.2.
 - SOR-EV3 avoid-sideways/low-volatility evidence completed with no promoted variant.

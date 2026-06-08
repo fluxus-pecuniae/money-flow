@@ -6,7 +6,7 @@ This is the canonical long-horizon strategic project memory. Repo operational do
 
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
 - Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is prepared; no active paper run is assumed unless the local control server reports one.
-- Dashboard state: `DASH-PT1.1` removed the visible Audit tab, compacted Paper Trading into cockpit/chart/runtime/watchlist/positions/stream order, and made configured Week 2 lane/symbol/timeframe truth visible before runtime rows exist. `LOG-OBS1` adds read-only Runtime Logs metadata and `scripts/watch_pt_rt1_runtime.py` for operator status/latest/tail views.
+- Dashboard state: `DASH-PT1.3` makes Paper Trading a contained exchange-style terminal with top health strip, left filter/watchlist rail with internal scrolling, center public-mainnet chart with compact paper marker labels, height-bounded right runtime/testnet rail, bottom tabbed blotter, and a final full-width Daily Review / Anomaly Flags card below the blotter. `LOG-OBS1` adds read-only Runtime Logs metadata and `scripts/watch_pt_rt1_runtime.py` for operator status/latest/tail views. `OBS-OS1` adds a read-only daily review/anomaly generator plus a dashboard Daily Review / Anomaly Flags panel.
 - Active Week 2 default slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
 - Active timeframes: `1h`, `4h`, `1d`.
 - Paused timeframes: `15m` remains paused as diagnostic/legacy context only.
@@ -18,7 +18,19 @@ This is the canonical long-horizon strategic project memory. Repo operational do
 - Strategy pruning: `STRAT-PRUNE1` remains recommendation-only; the founder overrode its suggested slate for Week 2 in PT-RT1.6.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
-- Next recommended action: use Runtime Logs or `.venv/bin/python scripts/watch_pt_rt1_runtime.py --status` to inspect the active Week 2 run, then review the first daily paper results without treating testnet lifecycle as synthetic PnL.
+- Next recommended action: use Runtime Logs or `.venv/bin/python scripts/watch_pt_rt1_runtime.py --status` to inspect the active Week 2 run, and use `.venv/bin/python scripts/build_pt_rt_week2_daily_review.py --status --scope pt_rt1_6_week2_active` for daily anomaly review without treating testnet lifecycle as synthetic PnL.
+
+2026-06-08 - OBS-OS1 Week 2 Paper Observation Operating System
+
+OBS-OS1 is complete as read-only daily review/anomaly tooling for `pt_rt1_6_week2_active`. `scripts/build_pt_rt_week2_daily_review.py` reads ignored runtime logs, emits status or ignored Markdown/JSON daily packs under `reports/paper_reviews/pt_rt1_6_week2_active/`, and flags runtime/data/testnet/synthetic-boundary issues without mutating runtime artifacts. Paper Trading has a `Daily Review / Anomaly Flags` panel that loads `latest_review.json` when generated; DASH-PT1.3 places it as the final full-width card below the blotter. The current generated local status is `observation_may_continue` with one informational `warm_start_block_spike` flag. No runtime behavior changed, no runtime was started/stopped, no orders were submitted, no live trading was approved, and no strategy was production-approved.
+
+2026-06-08 - DASH-PT1.2 Paper Trading Terminal Polish
+
+DASH-PT1.2 is complete as dashboard-only UX work. Paper Trading now uses an exchange-style terminal layout: top health strip, left filter/watchlist rail, center Live Public Candles + Paper Markers chart, right Runtime Control / Testnet Order Transport rail, bottom tabbed blotter for Open Positions, Closed Trades, Signal Stream, Testnet Lifecycle, Runtime Logs, Weekly Scoreboard, and Diagnostics, and Daily Review / Anomaly Flags as the final full-width card below the blotter. The selected blotter tab persists across refresh renders. No runtime behavior changed, no runtime was started/stopped, no orders were submitted, no live trading was approved, and no strategy was production-approved.
+
+2026-06-08 - DASH-PT1.3 Paper Trading Terminal QA Hotfix
+
+DASH-PT1.3 is complete as dashboard-only UI QA work. It contains the terminal layout after screenshot QA by keeping filters inside the left rail, making Watchlist internally scrollable with only Symbol / Mid price / Health columns, bounding Runtime Control / Testnet Order Transport heights, compacting Runtime details to high-signal fields, moving the bottom blotter closer to the chart, moving Daily Review / Anomaly Flags below the blotter as the final full-width card, and compacting paper chart marker labels. No runtime behavior changed, no runtime was started/stopped, no orders were submitted, no live trading was approved, and no strategy was production-approved.
 
 2026-06-08 - LOG-OBS1 Runtime Log Visibility
 

@@ -139,6 +139,9 @@
     "../../reports/paper_runtime/pt_rt1_5_3_transport_smoke/testnet_order_lifecycle.jsonl",
     "../../reports/paper_runtime/pt_rt1_5_2_transport_smoke/testnet_order_lifecycle.jsonl",
   ];
+  const DEFAULT_PT_RT1_DAILY_REVIEW_FILES = [
+    "../../reports/paper_reviews/pt_rt1_6_week2_active/latest_review.json",
+  ];
   const PAPER_OBSERVATION_DECISION_LOG_LIMIT = 10000;
   const PAPER_OBSERVATION_TRADE_LOG_LIMIT = 10000;
   const COMPONENT_RESULTS_PAGE_SIZE = 10;
@@ -842,6 +845,7 @@
       laneId: "all",
       reviewWindow: "active_week",
       signalCategory: "entry_activity",
+      terminalTab: "open",
       chartTarget: { symbol: "ETH", timeframe: "1h" },
       pagination: {
         signals: 1,
@@ -867,6 +871,7 @@
       inFlight: false,
       timer: null,
     },
+    ptRtDailyReview: null,
     historicalReplay: {
       strategyId: "money_flow_v1_2_canonical",
       symbol: "ETH",
@@ -884,6 +889,8 @@
   const elements = {
     viewTabs: Array.from(document.querySelectorAll("[data-view]")),
     viewPanels: Array.from(document.querySelectorAll("[data-view-panel]")),
+    paperTerminalTabs: Array.from(document.querySelectorAll("[data-paper-terminal-tab]")),
+    paperTerminalPanels: Array.from(document.querySelectorAll("[data-paper-terminal-panel]")),
     status: document.querySelector("#review-status"),
     sourceLabel: document.querySelector("#data-source-label"),
     sourceDetail: document.querySelector("#data-source-detail"),
@@ -981,6 +988,7 @@
     paperObservationLiveChart: document.querySelector("#paper-observation-live-chart"),
     paperObservationProbeStatus: document.querySelector("#paper-observation-probe-status"),
     paperObservationTestnetLifecycle: document.querySelector("#paper-observation-testnet-lifecycle"),
+    paperObservationDailyReview: document.querySelector("#paper-observation-daily-review"),
     paperObservationOpenPositions: document.querySelector("#paper-observation-open-positions"),
     paperObservationClosedTrades: document.querySelector("#paper-observation-closed-trades"),
     paperObservationRiskTable: document.querySelector("#paper-observation-risk-table"),
@@ -1627,6 +1635,19 @@
     if (state.activeView === "evidence-lab") {
       scheduleEvidenceLabOverlayChartResize();
     }
+  }
+
+  function setPaperObservationTerminalTab(tabName) {
+    const allowedTabs = new Set(["open", "closed", "signals", "lifecycle", "logs", "scoreboard", "diagnostics"]);
+    state.paperObservation.terminalTab = allowedTabs.has(tabName) ? tabName : "open";
+    elements.paperTerminalTabs.forEach((tab) => {
+      const selected = tab.dataset.paperTerminalTab === state.paperObservation.terminalTab;
+      tab.setAttribute("aria-selected", String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+    });
+    elements.paperTerminalPanels.forEach((panel) => {
+      panel.hidden = panel.dataset.paperTerminalPanel !== state.paperObservation.terminalTab;
+    });
   }
 
   function renderMetrics(summaries) {
@@ -9464,6 +9485,18 @@
     if (!elements.paperRuntimeControlStatus) return;
     const statusLabel = control.available ? (control.running ? "running" : control.status || "idle") : "unavailable";
     const caffeinateLabel = control.running ? "active" : "waiting_for_start";
+    const latestRuntimeFile = (control.runtimeLogFiles || [])
+      .filter((file) => file?.modified_at_utc)
+      .sort((left, right) => String(right.modified_at_utc).localeCompare(String(left.modified_at_utc)))[0];
+    const exactSafeFlags = (control.safeFlags || []).join(" ");
+    const safeProfile = [
+      "Week 2 active scope",
+      "fresh-signal gate",
+      "candle-close only",
+      "public-mainnet truth",
+      "baseline-only 25 USDC testnet gate",
+      "legacy probes disabled",
+    ].join(" / ");
     const serverMessage =
       control.message === "paper_runtime_started_with_caffeinate"
         ? "runtime_started_with_mac_caffeinate"
@@ -9477,19 +9510,11 @@
     const logStats = paperObservationSummary()?.decision_log_stats || {};
     elements.paperRuntimeControlStatus.innerHTML = `
       <div class="micro-grid paper-runtime-details-grid">
-        <div><span>Control server</span><strong>${escapeHtml(control.available ? "available" : "unavailable")}</strong></div>
         <div><span>Runtime status</span><strong>${escapeHtml(statusLabel)}</strong></div>
-        <div><span>Duration</span><strong>${escapeHtml(control.duration)}</strong></div>
-        <div><span>Output</span><strong>${escapeHtml(control.outputDir || control.output)}</strong></div>
         <div><span>PID</span><strong>${escapeHtml(control.pid || "n/a")}</strong></div>
-        <div><span>Started</span><strong>${escapeHtml(control.startedAtUtc || "not_running")}</strong></div>
-        <div><span>Log</span><strong>${escapeHtml(control.logPath || "not_started")}</strong></div>
+        <div><span>Latest runtime artifact</span><strong>${escapeHtml(latestRuntimeFile ? `${latestRuntimeFile.label || latestRuntimeFile.key} @ ${latestRuntimeFile.modified_at_utc}` : "not_written")}</strong></div>
         <div class="paper-runtime-caffeinate-detail"><span>Caffeinate</span><strong class="${control.running ? "status-good" : "status-waiting"}">${escapeHtml(caffeinateLabel)}</strong></div>
-        <div><span>Decision log mode</span><strong>${escapeHtml(logStats.mode || "compact")}</strong></div>
-        <div><span>Decision log size</span><strong>${escapeHtml(paperObservationBytes(logStats.decisions_jsonl_size_bytes))}</strong></div>
-        <div><span>Written this cycle</span><strong>${escapeHtml(logStats.written_decisions_this_cycle ?? "n/a")}</strong></div>
-        <div><span>Suppressed this cycle</span><strong>${escapeHtml(logStats.suppressed_decisions_this_cycle ?? "n/a")}</strong></div>
-        <div class="paper-runtime-safety-flags"><span>Safety flags</span><strong>${escapeHtml((control.safeFlags || []).join(" "))}</strong></div>
+        <div class="paper-runtime-safety-flags"><span>Safety profile</span><strong title="${escapeHtml(exactSafeFlags)}">${escapeHtml(safeProfile)}</strong></div>
       </div>
       ${logStats.decisions_jsonl_warning ? '<div class="methodology-warning compact">Decision log size is above the review threshold. Stop the run or keep compact logging enabled before another long run.</div>' : ""}
     `;
@@ -9878,6 +9903,62 @@
       .join("");
   }
 
+  function renderPaperObservationDailyReview() {
+    if (!elements.paperObservationDailyReview) return;
+    const review = state.ptRtDailyReview;
+    if (!review) {
+      elements.paperObservationDailyReview.innerHTML = `
+        <div class="empty-state">
+          No generated OBS-OS1 daily review loaded yet.
+          Run <code>.venv/bin/python scripts/build_pt_rt_week2_daily_review.py --generate</code> to create a read-only founder review pack.
+        </div>
+      `;
+      return;
+    }
+    const flags = Array.isArray(review.anomaly_flags) ? review.anomaly_flags : [];
+    const criticalCount = flags.filter((flag) => flag?.severity === "critical").length;
+    const warningCount = flags.filter((flag) => flag?.severity === "warning").length;
+    const decisionSummary = review.decision_summary || {};
+    const tradeSummary = review.closed_trade_summary || {};
+    const testnetSummary = review.testnet_lifecycle_summary || {};
+    const runtime = review.runtime || {};
+    const reviewWindow = review.review_window || {};
+    const flagMarkup = flags.length
+      ? `
+        <ul class="paper-observation-anomaly-list">
+          ${flags.slice(0, 8).map((flag) => `
+            <li>
+              <span>${auditReviewPill(flag.severity || "info")}</span>
+              <strong>${escapeHtml(flag.code || "unknown_flag")}</strong>
+              <span>${escapeHtml(flag.detail || "")}</span>
+            </li>
+          `).join("")}
+        </ul>
+      `
+      : `<p class="muted-inline">No anomaly flags were raised in the latest generated daily review.</p>`;
+    elements.paperObservationDailyReview.innerHTML = `
+      <div class="paper-observation-daily-review-grid">
+        <div><span>Generated</span><strong>${escapeHtml(paperObservationText(review.generated_at_utc, "not generated"))}</strong></div>
+        <div><span>Scope</span><strong>${escapeHtml(paperObservationText(reviewWindow.scope, PAPER_OBSERVATION_ACTIVE_RUNTIME_SCOPE))}</strong></div>
+        <div><span>Go / no-go</span><strong>${escapeHtml(paperObservationText(review.go_no_go, "review_missing"))}</strong></div>
+        <div><span>Runtime process count</span><strong>${escapeHtml(String(runtime.process_count ?? "unknown"))}</strong></div>
+        <div><span>Review window</span><strong>${escapeHtml(`${paperObservationText(reviewWindow.window_start_utc, "n/a")} -> ${paperObservationText(reviewWindow.window_end_utc, "n/a")}`)}</strong></div>
+        <div><span>Decision rows</span><strong>${escapeHtml(String(decisionSummary.count ?? 0))}</strong></div>
+        <div><span>Closed synthetic trades</span><strong>${escapeHtml(String(tradeSummary.count ?? 0))}</strong></div>
+        <div><span>Testnet lifecycle rows</span><strong>${escapeHtml(String(testnetSummary.count ?? 0))}</strong></div>
+        <div><span>Critical flags</span><strong>${escapeHtml(String(criticalCount))}</strong></div>
+        <div><span>Warning flags</span><strong>${escapeHtml(String(warningCount))}</strong></div>
+        <div><span>Synthetic PnL</span><strong>Synthetic Ledger only</strong></div>
+        <div><span>Testnet PnL effect</span><strong>${escapeHtml(String(review.week2_truth?.testnet_fills_update_synthetic_pnl === true))}</strong></div>
+      </div>
+      ${flagMarkup}
+      <div class="methodology-warning secondary" role="note">
+        OBS-OS1 is read-only. It reads runtime files and generated review JSON only; it does not start/stop the runtime, submit orders, update synthetic ledgers, approve live trading, or approve production.
+        Source: ${escapeHtml(review.__source_path || "generated latest_review.json")}.
+      </div>
+    `;
+  }
+
   function renderPaperObservationHealthBanner() {
     if (!elements.paperObservationHealthBanner) return;
     const summary = paperObservationSummary();
@@ -10023,7 +10104,6 @@
             <th>Symbol</th>
             <th>Mid price</th>
             <th>Health</th>
-            <th>Status</th>
           </tr>
         </thead>
         <tbody>
@@ -10041,7 +10121,6 @@
                   </td>
                   <td><span class="paper-observation-tick ${paperObservationTickClass(row)}">${escapeHtml(paperObservationText(row.public_mid, row.blocked ? "blocked" : "pending"))}</span></td>
                   <td>${auditReviewPill(paperObservationMdHealth(row))}</td>
-                  <td>${auditReviewPill(row.blocked ? "blocked" : row.scanner_eligible ? "eligible" : "watch")}</td>
                 </tr>
               `,
             )
@@ -10551,7 +10630,7 @@
     if (!candles.length) return [];
     const firstTime = candles[0].time;
     const lastTime = candles.at(-1).time;
-    const markers = paperObservationRows(rawMarkers).slice(-80);
+    const markers = paperObservationRows(rawMarkers).slice(-60);
     return markers.map((marker) => {
       const parsed = chartTime(marker.time || marker.timestamp || marker.entry_time || marker.exit_time);
       let time = parsed;
@@ -10565,12 +10644,21 @@
       }
       const action = String(marker.action || marker.type || marker.marker_type || "").toLowerCase();
       const isExit = action.includes("exit") || action.includes("close") || action.includes("sell") || action.includes("paper_closed");
+      const lane = paperObservationRowLane(marker);
+      const laneLabel =
+        lane === "money_flow_v1_2_baseline"
+          ? "MF"
+          : lane === "avoid_low_rolling_range_20"
+          ? "RR20"
+          : lane === "mf_orig_1d_stage2_breakout_resistance_full_equity"
+          ? "MF-O"
+          : "paper";
       return {
         time,
         position: isExit ? "aboveBar" : "belowBar",
         color: isExit ? "#ff5a66" : "#25d084",
         shape: isExit ? "arrowDown" : "arrowUp",
-        text: String(marker.label || marker.text || marker.action || "paper marker"),
+        text: `${laneLabel} ${isExit ? "close" : "open"}`,
       };
     }).filter(Boolean);
   }
@@ -11143,6 +11231,7 @@
     renderPaperObservationHealthBanner();
     renderPaperObservationConnectionStatus();
     renderPaperObservationSummaryCards();
+    renderPaperObservationDailyReview();
     renderPaperObservationLanes();
     renderPaperObservationTimeframeBreakdown();
     renderPaperObservationLaneDetail();
@@ -11243,6 +11332,7 @@
     await loadDefaultPtRt1DecisionRows();
     await loadDefaultPtRt1TradeRows();
     await loadDefaultPtRt1TestnetLifecycleRows();
+    await loadDefaultPtRt1DailyReview();
 
     state.review = null;
     state.batches = [];
@@ -11625,6 +11715,22 @@
     }
   }
 
+  async function loadDefaultPtRt1DailyReview() {
+    for (const path of DEFAULT_PT_RT1_DAILY_REVIEW_FILES) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        if (payload?.report === "obs_os1_week2_paper_observation_daily_review") {
+          state.ptRtDailyReview = { ...payload, __source_path: path };
+          break;
+        }
+      } catch (error) {
+        console.warn(`Could not load ${path}`, error);
+      }
+    }
+  }
+
   async function loadDefaultPt002HistoricalReplaySummary() {
     for (const path of DEFAULT_PT002_REPLAY_SUMMARY_FILES) {
       try {
@@ -11686,8 +11792,15 @@
     });
   });
 
+  elements.paperTerminalTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      setPaperObservationTerminalTab(tab.dataset.paperTerminalTab || "open");
+    });
+  });
+
   applyDashboardTheme(state.theme);
   setActiveView(state.activeView);
+  setPaperObservationTerminalTab(state.paperObservation.terminalTab);
   render();
   refreshPaperRuntimeControlStatus();
   state.paperRuntimeControl.timer = window.setInterval(refreshPaperRuntimeControlStatus, 10000);

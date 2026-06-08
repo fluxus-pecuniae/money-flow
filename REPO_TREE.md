@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-06-08T06:29:37Z`
+Last reviewed: `2026-06-08T08:45:00Z`
 
 ## Top-Level Structure
 
@@ -35,10 +35,12 @@ Last reviewed: `2026-06-08T06:29:37Z`
 `.gitignore`
 - Source-control hygiene guard for the `master` baseline.
 - Excludes local secrets, virtualenvs, caches, local database/runtime state, logs, review bundles, handoff archives, generated strategy-validation evidence packs, Obsidian app state under `/money-flow/.obsidian/`, OS/editor files, and build artifacts while keeping `.env.example`, sample configs, and tracked Obsidian markdown notes trackable.
+- OBS-OS1 excludes generated daily paper-review packs under `reports/paper_reviews/`.
 
 `.archiveignore`
 - Review-bundle hygiene guard consumed by `scripts/create_review_bundle.py`.
 - Excludes Git metadata, local secrets, virtualenvs, caches, generated archives, generated strategy-validation evidence packs, database/socket state, and Obsidian app state such as `money-flow/.obsidian/` from handoff ZIPs while keeping sample configs and tracked Obsidian markdown notes reviewable.
+- OBS-OS1 excludes generated daily paper-review packs under `reports/paper_reviews/` from handoff ZIPs.
 
 `.codex/`
 - Project-scoped Codex workflow configuration.
@@ -144,6 +146,8 @@ Last reviewed: `2026-06-08T06:29:37Z`
 - Static local Strategy Validation evidence dashboard for founder/operator review.
 - Loads ignored local SV2.0.2 canonical evidence `batch_report.json` files plus generated dashboard chart/trade JSON from `reports/strategy_validation*` when served from the repo root, or accepts manual JSON file selection in the browser.
 - Uses the root design tokens/variables when present and keeps visualization read-only: no evidence-pack generation, candle import, paper/live approval, exchange endpoint calls, or Money Flow rule changes.
+- DASH-PT1.2 makes Paper Trading a dense exchange-style terminal: top health strip, left Cockpit / Global Filters plus Watchlist rail, center Live Public Candles + Paper Markers chart, right Runtime Control / Testnet Order Transport / Daily Review rail, and bottom tabbed blotter for Open Positions, Closed Trades, Signal Stream, Testnet Lifecycle, Runtime Logs, Weekly Scoreboard, and Diagnostics.
+- DASH-PT1.3 contains that terminal layout after UI QA: filters stay inside the left rail, Watchlist and right-rail panels scroll internally within bounded heights, Runtime details distinguish control-server status from runtime artifact freshness, and chart marker labels are compact by default.
 - SV1.14 tightens labels so component cards are clearly sums across research runs and run rows are scenario results. The Strategy tab states RSI lower-floor entry truth and that market-structure diagnostics are not entry filters.
 - SV1.15/SV1.15.1 added static controlled-hypothesis internals, but the invalid legacy Experiments surface is no longer exposed as a dashboard tab.
 - SV1.16 and SV1.17 replay internals remain historical code/data context only, separate from Evidence-tab evidence-pack/review data. The visible dashboard remains visualization-only for local evidence and replay artifacts.
@@ -949,6 +953,7 @@ Last reviewed: `2026-06-08T06:29:37Z`
 - Includes `scripts/build_pt_rt1_summary.py` for PT-RT1 committed dashboard/config summary generation. It writes configuration-only JSON and performs no market-data fetches, exchange calls, credential reads, order submissions, or runtime-state writes.
 - Includes `scripts/build_pt_rt1_1_dry_run_report.py` for PT-RT1.1 dry-run validation reporting. It reads the ignored `reports/paper_runtime/pt_rt1_1_24h_dry_run/` artifact directory when present and writes committed report/summary docs; if the 24-hour artifacts are absent or incomplete, it marks PT-RT1.2 blocked instead of fabricating runtime success.
 - Includes `scripts/build_pt_rt_week1_day_summary.py` for PT-RT1.4.1 daily founder review reporting. It reads ignored PT-RT runtime artifacts, labels pre-cutover burn-in separately from active-week runtime truth, and writes compact Markdown/JSON under `docs/` without calling exchanges, mutating runtime state, regenerating evidence packs, approving strategies, or submitting orders.
+- Includes `scripts/build_pt_rt_week2_daily_review.py` for OBS-OS1 read-only Week 2 paper observation daily reviews. It summarizes ignored PT-RT1.6 runtime logs under `reports/paper_runtime/pt_rt1_6_week2_active/`, writes ignored Markdown/JSON review packs under `reports/paper_reviews/pt_rt1_6_week2_active/`, emits anomaly flags for runtime/data/testnet/synthetic-boundary review, and does not start/stop runtime, mutate runtime artifacts, call exchanges, approve strategies, or submit orders.
 - Includes `scripts/run_pt_rt1_paper_observation.py` for PT-RT1.1B public-mainnet paper-observation runtime readiness and PT-RT1.1C collection. It writes ignored runtime artifacts only under `reports/paper_runtime/`, uses no API keys for strategy truth, calls no private/signed/order endpoints from strategy truth, labels PT-RT1.1C output directories as runtime collection cycles, supports bounded smoke or 24-hour collection runs, defaults PT-RT1.4 fresh runtime cycles to active `1h`/`4h`/`1d`, and blocks explicit `15m` evaluation with no-new-entry reason codes. PT-RT1.5 adds `--pt-rt1-5-week1-active`, candle-close-only signal scheduling, `reports/paper_runtime/pt_rt1_5_week1_active/`, and baseline-only fixed 25 USDC testnet lifecycle rows in `testnet_order_lifecycle.jsonl`. PT-RT1.5.1 adds `--fresh-signal-only-after-runtime-start`, `--enable-baseline-testnet-transport`, `--founder-approved-pt-rt1-5-1-baseline-testnet-orders-25usdc`, `reports/paper_runtime/pt_rt1_5_1_smoke/`, warm-start signal blocking, signed transport client configuration from local sandbox env, and open-position MTM updates. PT-RT1.5.2 adds `--founder-approved-pt-rt1-5-2-testnet-transport-smoke`, `--founder-approved-pt-rt1-5-2-baseline-testnet-orders-25usdc`, `--max-testnet-orders-this-phase`, scoped `.env` loading without secret printing, explicit transport-smoke context loading from public mainnet candles, and `reports/paper_runtime/pt_rt1_5_2_*` scopes. PT-RT1.5.3 adds `--founder-approved-pt-rt1-5-3-testnet-size-hotfix-smoke`, `reports/paper_runtime/pt_rt1_5_3_transport_smoke/`, Hyperliquid testnet public metadata lookup for sizing, and invalid-size local/venue reason coding; candidate lanes remain synthetic-only and testnet fills never update paper PnL.
 - Includes `scripts/watch_pt_rt1_runtime.py` for LOG-OBS1 read-only operator log visibility. It prints active-scope status, latest rows, or `tail -F` commands for `runtime_audit.jsonl`, `decisions.jsonl`, `trades.jsonl`, `testnet_order_lifecycle.jsonl`, `data_health.json`, and `summary.json` without mutating runtime files or changing paper/runtime behavior.
 - Includes `scripts/run_uat1_public_read_only.py` for UAT1 public-read-only connectivity and top-20 universe resolution. It requires both `--uat1-public-read-only` and `--allow-public-read-only-network` before network calls, uses no API keys, calls only allowlisted public read-only endpoints/source URLs, writes the UAT1 Markdown/JSON reports, and creates no strategy decisions, order intents, submitted orders, paper/live artifacts, routing artifacts, evidence packs, or Money Flow rule changes.

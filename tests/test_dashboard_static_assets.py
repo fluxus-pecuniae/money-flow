@@ -116,7 +116,7 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "Variant Strategy Ideas" not in html
     assert "avoid_low_rolling_range_20" in html
     assert "mf_orig_1d_stage2_breakout_resistance_full_equity" in html
-    strategy_view = html[html.index('data-view-panel="strategy"') : html.index("</main>")]
+    strategy_view = html[html.index('id="strategy-view"') : html.index("</main>", html.index('id="strategy-view"'))]
     assert "avoid_low_rolling_range_50" not in strategy_view
     assert "mf_orig_stage_filter_only_full_equity" not in strategy_view
     assert "mf_orig_stage2_pullback_reclaim_full_equity" not in strategy_view
@@ -322,6 +322,25 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper-runtime-stop" in html
     assert "paper-runtime-control-status" in html
     assert "paper-runtime-log-files" in html
+    assert "paper-observation-terminal-grid" in html
+    assert 'id="paper-observation-terminal-grid"' in html
+    assert "paper-observation-left-rail" in html
+    assert "paper-observation-center-stage" in html
+    assert "paper-observation-right-rail" in html
+    assert "paper-observation-bottom-blotter" in html
+    assert 'id="paper-observation-bottom-blotter"' in html
+    assert "paper-observation-blotter-tabs" in html
+    assert 'data-paper-terminal-tab="open"' in html
+    assert 'data-paper-terminal-tab="closed"' in html
+    assert 'data-paper-terminal-tab="signals"' in html
+    assert 'data-paper-terminal-tab="lifecycle"' in html
+    assert 'data-paper-terminal-tab="logs"' in html
+    assert 'data-paper-terminal-tab="scoreboard"' in html
+    assert 'data-paper-terminal-tab="diagnostics"' in html
+    assert "paper-observation-daily-review" in html
+    assert "paper-observation-final-review-card" in html
+    assert "Daily Review / Anomaly Flags" in html
+    assert "OBS-OS1 review pack" in html
     assert "Mac caffeinate" in html
     assert '<p class="eyebrow" id="paper-runtime-control-title">Runtime Control</p>' in html
     assert "Local Mac runtime control" not in html
@@ -334,6 +353,10 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper-runtime-control-message" in html
     assert "paperRuntimeControlMessage" in js
     assert "Control server message" in js
+    assert "Latest runtime artifact" in js
+    assert "Safety profile" in js
+    assert "legacy-compatible runtime switches" not in js
+    assert "Week 2 active scope" in js
     assert "Runtime Logs" in js
     assert "Read-only log files" in js
     assert "scripts/watch_pt_rt1_runtime.py --status" in js
@@ -341,6 +364,10 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "runtimeLogFilesRenderKey" in js
     assert "previousScrollTop" in js
     assert "nextLogList.scrollTop = previousScrollTop" in js
+    assert "paperTerminalTabs" in js
+    assert "paperTerminalPanels" in js
+    assert "setPaperObservationTerminalTab" in js
+    assert 'terminalTab: "open"' in js
     assert "tail -n 50 -F" in js
     assert ".paper-runtime-log-files" in css
     assert ".paper-runtime-tail-command" in css
@@ -372,16 +399,24 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper-observation-signal-table" in html
     assert "Signal / Decision Stream" in html
     assert "Market Data Health" not in html
-    assert html.index("paper-observation-controls") < html.index("paper-observation-live-chart")
-    assert html.index("paper-observation-live-chart") < html.index("paper-runtime-control-title")
-    assert html.index("paper-runtime-control-title") < html.index("paper-observation-scanner-table")
-    assert html.index("paper-observation-scanner-table") < html.index("paper-observation-testnet-lifecycle")
-    assert html.index("paper-observation-testnet-lifecycle") < html.index("paper-observation-open-positions")
+    assert html.index("paper-observation-health-banner") < html.index("paper-observation-terminal-grid")
+    terminal_grid = html[
+        html.index("paper-observation-terminal-grid") : html.index("paper-observation-bottom-blotter")
+    ]
+    assert terminal_grid.index("paper-observation-left-rail") < terminal_grid.index("paper-observation-center-stage")
+    assert terminal_grid.index("paper-observation-center-stage") < terminal_grid.index("paper-observation-right-rail")
+    assert terminal_grid.index("paper-observation-scanner-table") < terminal_grid.index("paper-observation-live-chart")
+    assert terminal_grid.index("paper-observation-live-chart") < terminal_grid.index("paper-runtime-control-title")
+    assert terminal_grid.index("paper-runtime-control-title") < terminal_grid.index("paper-observation-probe-status")
+    assert html.index("paper-observation-bottom-blotter") < html.index("paper-observation-open-positions")
+    assert html.index("paper-observation-bottom-blotter") < html.index("paper-observation-daily-review")
     assert html.index("paper-observation-open-positions") < html.index("paper-observation-closed-trades")
-    assert html.index("paper-observation-live-chart") < html.index("paper-observation-signal-table")
     assert html.index("paper-observation-closed-trades") < html.index("paper-observation-signal-table")
-    assert html.index("paper-observation-signal-table") < html.index("paper-observation-lane-table")
-    assert html.index("paper-observation-lane-table") < html.index("paper-observation-timeframe-breakdown")
+    assert html.index("paper-observation-signal-table") < html.index("paper-observation-testnet-lifecycle")
+    assert html.index("paper-observation-testnet-lifecycle") < html.index("paper-runtime-log-files")
+    assert html.index("paper-runtime-log-files") < html.index("paper-observation-lane-table")
+    assert html.index("paper-observation-lane-table") < html.index("paper-observation-summary-cards")
+    assert html.index("paper-observation-summary-cards") < html.index("paper-observation-timeframe-breakdown")
     assert "paper-observation-lane-table" in html
     assert "paper-observation-lane-detail" in html
     paper_view = html[html.index('data-view-panel="paper-observation"') : html.index('data-view-panel="historical-replay"')]
@@ -394,16 +429,30 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper-observation-risk-table" in html
     assert "paper-observation-probe-status" in html
     assert "paper-observation-testnet-lifecycle" in html
-    assert "paper-observation-watchlist-transport-row" in html
     assert "paper-observation-connection-panel" in html
     assert ".paper-observation-view" in css
     assert "paper-observation-safety-strip" not in html
     assert "paper-runtime-control-compact" in html
-    assert "paper-observation-primary-grid" in html
     assert "paper-observation-cockpit" in html
     assert ".paper-observation-cockpit" in css
     assert ".paper-runtime-control-compact" in css
-    assert ".paper-observation-primary-grid" in css
+    assert ".paper-observation-terminal-grid" in css
+    assert "grid-template-columns: minmax(240px, 0.62fr) minmax(520px, 1.75fr) minmax(310px, 0.83fr)" in css
+    assert "align-items: start" in css
+    assert ".paper-observation-left-rail .paper-observation-controls" in css
+    assert ".paper-observation-left-rail .paper-observation-watchlist-panel .data-table-shell" in css
+    assert "height: min(42vh, 420px)" in css
+    assert ".paper-observation-right-rail .paper-runtime-control" in css
+    assert "max-height: 300px" in css
+    assert "max-height: 290px" in css
+    assert ".paper-observation-left-rail" in css
+    assert ".paper-observation-center-stage" in css
+    assert ".paper-observation-right-rail" in css
+    assert ".paper-observation-bottom-blotter" in css
+    assert ".paper-observation-blotter-tabs" in css
+    assert ".paper-observation-blotter-panel[hidden]" in css
+    assert ".paper-observation-daily-review-grid" in css
+    assert ".paper-observation-anomaly-list" in css
     assert ".paper-runtime-control-details .micro-grid > div" in css
     assert ".paper-runtime-control-details .micro-grid > .paper-runtime-safety-flags" in css
     assert ".paper-runtime-control-details .micro-grid .paper-runtime-caffeinate-detail strong.status-good" in css
@@ -423,6 +472,9 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "pt_rt1_6_week2_active/trades.jsonl" in js
     assert "pt_rt1_5_2_transport_smoke/testnet_order_lifecycle.jsonl" in js
     assert "pt_rt1_5_1_smoke/decisions.jsonl" not in js
+    assert "slice(-60)" in js
+    assert "MF-O" in js
+    assert "RR20" in js
     assert "pt_rt1_5_1_smoke/trades.jsonl" not in js
     assert "pt_rt1_5_week1_active/decisions.jsonl" not in js
     assert "pt_rt1_5_week1_active/trades.jsonl" not in js
@@ -433,6 +485,12 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "state.ptRt1TradeRows = rows" in js
     assert "state.ptRt1TradeSource = path" in js
     assert "DEFAULT_PT_RT1_TESTNET_LIFECYCLE_FILES" in js
+    assert "DEFAULT_PT_RT1_DAILY_REVIEW_FILES" in js
+    assert "reports/paper_reviews/pt_rt1_6_week2_active/latest_review.json" in js
+    assert "obs_os1_week2_paper_observation_daily_review" in js
+    assert "renderPaperObservationDailyReview" in js
+    assert "No generated OBS-OS1 daily review loaded yet" in js
+    assert "Synthetic Ledger only" in js
     assert "parsePaperObservationDecisionLog" in js
     assert "parsePaperObservationTradeLog" in js
     assert "parsePaperObservationTestnetLifecycleLog" in js
@@ -450,10 +508,6 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "startPaperRuntime" in js
     assert "stopPaperRuntime" in js
     assert "elements.paperRuntimeStart.disabled = control.running || control.inFlight" in js
-    assert "Decision log mode" in js
-    assert "Decision log size" in js
-    assert "Written this cycle" in js
-    assert "Suppressed this cycle" in js
     assert "decision_log_stats" in js
     assert "paperObservationBytes" in js
     assert "Start/stop requires launching the local control server." in js
@@ -551,6 +605,8 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "<th>Ask</th>" not in js
     assert "<th>Mid price</th>" in js
     assert "<th>Health</th>" in js
+    watchlist_renderer = js[js.index("function renderPaperObservationScanner") : js.index("function paperObservationLaneRuntimeRollup")]
+    assert "<th>Status</th>" not in watchlist_renderer
     assert "paperObservationMdHealth" in js
     assert "mid_stale_or_thin_tick" in js
     assert "mid_unavailable_but_candles_available" in js
@@ -833,13 +889,15 @@ def test_pt_rt1_4_paper_trading_command_center_active_timeframe_ui() -> None:
     assert "Signal / Decision Stream" in html
     assert "paper-observation-review-window-filter" in html
     assert "paper-observation-signal-category-filter" in html
+    assert html.index("paper-observation-terminal-grid") < html.index("paper-observation-bottom-blotter")
     assert html.index("paper-observation-controls") < html.index("paper-observation-live-chart")
+    assert html.index("paper-observation-scanner-table") < html.index("paper-observation-live-chart")
     assert html.index("paper-observation-live-chart") < html.index("paper-runtime-control-title")
-    assert html.index("paper-runtime-control-title") < html.index("paper-observation-scanner-table")
-    assert html.index("paper-observation-scanner-table") < html.index("paper-observation-testnet-lifecycle")
-    assert html.index("paper-observation-testnet-lifecycle") < html.index("paper-observation-open-positions")
+    assert html.index("paper-runtime-control-title") < html.index("paper-observation-probe-status")
+    assert html.index("paper-observation-bottom-blotter") < html.index("paper-observation-open-positions")
     assert html.index("paper-observation-open-positions") < html.index("paper-observation-closed-trades")
     assert html.index("paper-observation-closed-trades") < html.index("paper-observation-signal-table")
+    assert html.index("paper-observation-signal-table") < html.index("paper-observation-testnet-lifecycle")
     assert html.index("paper-observation-signal-table") < html.index("paper-observation-lane-table")
     assert 'timeframe: "1h"' in js
     assert 'PAPER_OBSERVATION_ACTIVE_TIMEFRAMES = ["1h", "4h", "1d"]' in js
@@ -865,7 +923,7 @@ def test_dash_pt1_1_week2_paper_trading_ui_truth() -> None:
     js = Path("apps/dashboard/evidence-dashboard.js").read_text(encoding="utf-8")
 
     paper_view = html[html.index('data-view-panel="paper-observation"') : html.index('data-view-panel="historical-replay"')]
-    strategy_view = html[html.index('data-view-panel="strategy"') : html.index("</main>")]
+    strategy_view = html[html.index('id="strategy-view"') : html.index("</main>", html.index('id="strategy-view"'))]
     nav = html[html.index('<nav class="view-tabs"') : html.index("</nav>", html.index('<nav class="view-tabs"'))]
 
     assert "Audit</button>" not in nav
@@ -880,9 +938,11 @@ def test_dash_pt1_1_week2_paper_trading_ui_truth() -> None:
     assert "Signal / Decision Stream" in paper_view
     assert paper_view.index("Cockpit / Global Filters") < paper_view.index("Live Public Candles + Paper Markers")
     assert paper_view.index("Live Public Candles + Paper Markers") < paper_view.index("Runtime Control")
-    assert paper_view.index("Runtime Control") < paper_view.index("Watchlist")
-    assert paper_view.index("Watchlist") < paper_view.index("Testnet Order Lifecycle")
-    assert paper_view.index("Testnet Order Lifecycle") < paper_view.index("Open Synthetic Positions")
+    assert paper_view.index("Watchlist") < paper_view.index("Live Public Candles + Paper Markers")
+    assert paper_view.index("Runtime Control") < paper_view.index("Testnet Order Transport")
+    assert paper_view.index("Testnet Order Transport") < paper_view.index("Daily Review / Anomaly Flags")
+    assert paper_view.index("Open Synthetic Positions") < paper_view.index("Daily Review / Anomaly Flags")
+    assert paper_view.index("Open Synthetic Positions") < paper_view.index("Testnet Order Lifecycle")
     assert paper_view.index("Closed Synthetic Trades") < paper_view.index("Signal / Decision Stream")
 
     assert 'PAPER_OBSERVATION_WEEK2_ACTIVE_LANE_IDS = [\n    "money_flow_v1_2_baseline",\n    "avoid_low_rolling_range_20",\n    "mf_orig_1d_stage2_breakout_resistance_full_equity"' in js

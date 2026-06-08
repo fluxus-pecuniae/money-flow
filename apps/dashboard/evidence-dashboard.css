@@ -865,7 +865,8 @@ h3 {
 }
 
 .paper-runtime-control-compact {
-  grid-template-columns: minmax(360px, 0.95fr) minmax(360px, 1.05fr);
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
   align-items: stretch;
   padding: var(--spacing-5);
   border-radius: var(--radius-md);
@@ -882,9 +883,18 @@ h3 {
 }
 
 .paper-runtime-control-details {
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
   align-content: start;
-  padding-left: var(--spacing-4);
-  border-left: 1px solid var(--color-line);
+  padding-top: var(--spacing-3);
+  border-top: 1px solid var(--color-line);
+}
+
+.paper-runtime-log-column,
+.paper-runtime-details-column {
+  display: grid;
+  gap: var(--spacing-3);
+  min-width: 0;
+  align-content: start;
 }
 
 .paper-runtime-control-compact .section-heading {
@@ -985,8 +995,88 @@ h3 {
   align-items: stretch;
 }
 
+.paper-observation-terminal-grid {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.62fr) minmax(520px, 1.75fr) minmax(310px, 0.83fr);
+  gap: var(--spacing-4);
+  align-items: start;
+  min-height: 0;
+}
+
+.paper-observation-left-rail,
+.paper-observation-center-stage,
+.paper-observation-right-rail {
+  display: grid;
+  gap: var(--spacing-4);
+  min-width: 0;
+  min-height: 0;
+}
+
+.paper-observation-left-rail {
+  grid-template-rows: auto minmax(0, auto);
+}
+
+.paper-observation-center-stage,
+.paper-observation-center-stage > .historical-chart-panel {
+  height: 100%;
+}
+
+.paper-observation-right-rail {
+  grid-template-rows: repeat(2, minmax(0, auto));
+}
+
+.paper-observation-bottom-blotter {
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--color-teal) 20%, var(--color-line));
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-panel) 88%, var(--color-surface-soft));
+  box-shadow: var(--shadow-panel);
+}
+
+.paper-observation-blotter-tabs {
+  display: flex;
+  gap: 1px;
+  overflow-x: auto;
+  padding: 1px;
+  border-bottom: 1px solid var(--color-line);
+  background: var(--color-line-soft);
+}
+
+.paper-observation-blotter-tabs .segment-button {
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 0;
+  background: color-mix(in srgb, var(--color-panel-2) 88%, var(--color-surface-soft));
+  color: var(--color-muted);
+}
+
+.paper-observation-blotter-tabs .segment-button[aria-selected="true"] {
+  background: color-mix(in srgb, var(--color-teal) 16%, var(--color-panel-2));
+  color: var(--color-text);
+  box-shadow: inset 0 -2px 0 var(--color-teal);
+}
+
+.paper-observation-blotter-panel {
+  min-height: 360px;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.paper-observation-blotter-panel[hidden] {
+  display: none !important;
+}
+
+.paper-observation-blotter-panel > .data-table-shell,
+.paper-observation-blotter-panel > .paper-runtime-log-files {
+  max-height: 460px;
+  overflow: auto;
+}
+
 .paper-observation-primary-grid {
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.42fr) minmax(430px, 0.78fr);
   gap: var(--spacing-4);
   align-items: stretch;
 }
@@ -996,7 +1086,8 @@ h3 {
 }
 
 .paper-observation-primary-grid > .historical-chart-panel,
-.paper-observation-primary-grid > .paper-observation-testnet-panel {
+.paper-observation-primary-grid > .paper-observation-testnet-panel,
+.paper-observation-primary-grid > .paper-runtime-control {
   height: 100%;
   min-height: 0;
   align-self: stretch;
@@ -1009,7 +1100,7 @@ h3 {
 
 .paper-observation-chart .tradingview-lightweight-chart,
 .paper-observation-chart-stage {
-  min-height: 540px;
+  min-height: 610px;
 }
 
 .paper-observation-view .table-panel,
@@ -1093,6 +1184,25 @@ h3 {
   min-width: 0;
 }
 
+.paper-observation-left-rail .paper-observation-watchlist-panel {
+  min-height: 0;
+}
+
+.paper-observation-left-rail .paper-observation-controls {
+  grid-template-columns: 1fr;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.paper-observation-left-rail .paper-observation-controls-title {
+  grid-column: auto;
+}
+
+.paper-observation-left-rail .paper-observation-controls label,
+.paper-observation-left-rail .paper-observation-controls select {
+  max-width: 100%;
+}
+
 .paper-observation-watchlist-transport-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(260px, 1fr));
@@ -1114,6 +1224,17 @@ h3 {
   overflow: auto;
 }
 
+.paper-observation-left-rail .paper-observation-watchlist-panel .data-table-shell {
+  height: min(42vh, 420px);
+  max-height: 420px;
+  overflow: auto;
+}
+
+.paper-observation-blotter-panel.paper-observation-lifecycle-panel .data-table-shell {
+  height: auto;
+  max-height: 460px;
+}
+
 .paper-observation-lower-diagnostics {
   display: grid;
   gap: var(--spacing-4);
@@ -1124,6 +1245,93 @@ h3 {
 .paper-observation-lower-diagnostics > .historical-inspector-panel,
 .paper-observation-lower-diagnostics > .metric-grid {
   border-color: color-mix(in srgb, var(--color-muted) 18%, var(--color-line));
+}
+
+.paper-observation-daily-review-panel .market-micro-panel {
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-panel) 86%, var(--color-surface-soft));
+}
+
+.paper-observation-right-rail .paper-observation-testnet-panel,
+.paper-observation-right-rail .paper-runtime-control {
+  min-height: 0;
+}
+
+.paper-observation-right-rail .paper-runtime-control {
+  max-height: 260px;
+  overflow: auto;
+}
+
+.paper-observation-right-rail .paper-runtime-control-details .market-micro-panel {
+  max-height: none;
+}
+
+.paper-observation-right-rail .paper-observation-testnet-panel {
+  max-height: 360px;
+  overflow: hidden;
+}
+
+.paper-observation-right-rail .paper-observation-testnet-panel .market-micro-panel {
+  max-height: 290px;
+  overflow: auto;
+}
+
+.paper-observation-final-review-card .market-micro-panel {
+  max-height: 360px;
+  overflow: auto;
+}
+
+.paper-observation-daily-review-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  padding: 1px;
+  background: var(--color-line-soft);
+}
+
+.paper-observation-daily-review-grid > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--color-line) 82%, transparent);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-panel-2) 88%, var(--color-surface-soft));
+}
+
+.paper-observation-daily-review-grid span {
+  color: var(--color-muted);
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.paper-observation-daily-review-grid strong {
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.paper-observation-anomaly-list {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: var(--spacing-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.paper-observation-anomaly-list li {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.35fr) minmax(160px, 0.7fr) minmax(0, 1fr);
+  gap: var(--spacing-2);
+  align-items: start;
+  padding: 8px 10px;
+  border: 1px solid var(--color-line-soft);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-panel-2) 72%, transparent);
+  font-size: var(--text-caption);
 }
 
 .paper-observation-watchlist-table th:nth-child(2),
@@ -1889,7 +2097,7 @@ h3 {
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
-  margin-top: 0.85rem;
+  margin-top: 0;
 }
 
 .paper-runtime-log-heading {
@@ -1914,7 +2122,7 @@ h3 {
 .paper-runtime-log-list {
   display: grid;
   gap: 0.55rem;
-  max-height: 390px;
+  max-height: 320px;
   overflow: auto;
   padding-right: 0.2rem;
 }
@@ -3493,6 +3701,7 @@ td {
   .evidence-lab-header,
   .evidence-lab-overlay-layout,
   .evidence-lab-two-column,
+  .paper-observation-terminal-grid,
   .paper-observation-primary-grid,
   .paper-observation-watchlist-transport-row,
   .paper-observation-safety-strip,
@@ -3500,8 +3709,30 @@ td {
     grid-template-columns: 1fr;
   }
 
+  .paper-observation-terminal-grid {
+    min-height: 0;
+  }
+
+  .paper-observation-left-rail {
+    grid-template-columns: minmax(280px, 0.85fr) minmax(320px, 1fr);
+    grid-template-rows: none;
+  }
+
+  .paper-observation-right-rail {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: none;
+  }
+
   .paper-observation-controls {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .paper-observation-left-rail .paper-observation-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .paper-observation-right-rail .paper-runtime-control {
+    max-height: 520px;
   }
 
   .paper-observation-command-banner {
@@ -3530,10 +3761,11 @@ td {
   }
 
   .paper-runtime-control-details {
-    padding-left: 0;
-    padding-top: var(--spacing-3);
-    border-top: 1px solid var(--color-line);
-    border-left: 0;
+    grid-template-columns: 1fr;
+  }
+
+  .paper-observation-daily-review-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .historical-data-horizon-panel {
@@ -3576,6 +3808,9 @@ td {
   .evidence-lab-overlay-layout,
   .evidence-lab-two-column,
   .paper-observation-command-banner,
+  .paper-observation-terminal-grid,
+  .paper-observation-left-rail,
+  .paper-observation-right-rail,
   .paper-observation-controls,
   .top-strip,
   .paper-runtime-control-grid,
@@ -3583,6 +3818,18 @@ td {
   .audit-review-two-column,
   .uat-right-rail {
     grid-template-columns: 1fr;
+  }
+
+  .paper-observation-daily-review-grid,
+  .paper-observation-anomaly-list li {
+    grid-template-columns: 1fr;
+  }
+
+  .paper-observation-left-rail .paper-observation-watchlist-panel .data-table-shell,
+  .paper-observation-right-rail .paper-runtime-control,
+  .paper-observation-final-review-card .market-micro-panel,
+  .paper-observation-right-rail .paper-observation-testnet-panel .market-micro-panel {
+    max-height: 360px;
   }
 
   .top-actions {

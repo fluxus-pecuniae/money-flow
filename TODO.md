@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-06-08T06:29:37Z`
+Last reviewed: `2026-06-08T08:45:00Z`
 
 ## Active
 
@@ -11,7 +11,8 @@ Last reviewed: `2026-06-08T06:29:37Z`
 - STRAT-DISC1 found zero founder production-testing review candidates across 12 bounded research runs and is superseded by the broader GOAL-STRAT1 exhaustion result.
 - Start the Week 2 paper run only after founder review; PT-RT1.6 did not start the runtime.
 - LOG-OBS1 adds read-only runtime log visibility. Use `.venv/bin/python scripts/watch_pt_rt1_runtime.py --status` to see the active scope, file paths, file sizes, latest modification times, and exact tail commands.
-- DASH-PT1.1 cleaned the Paper Trading UI for Week 2; if the browser still looks unchanged, hard refresh because the dashboard CSS/JS cache-buster changed to `log-obs1-runtime-logs-20260608`.
+- OBS-OS1 adds the read-only daily review layer. Use `.venv/bin/python scripts/build_pt_rt_week2_daily_review.py --status --scope pt_rt1_6_week2_active` during the day and `.venv/bin/python scripts/build_pt_rt_week2_daily_review.py --generate --scope pt_rt1_6_week2_active` to write the ignored dashboard-readable daily pack.
+- DASH-PT1.3 contains the Paper Trading terminal layout after QA: filters stay inside the left rail, Watchlist scrolls internally with Symbol / Mid price / Health only, Runtime/Testnet right-rail panels are height-bounded, Daily Review / Anomaly Flags is the final full-width card below the blotter, Runtime details are compact, and chart marker labels are compact. If the browser still looks vertical/stacked, hard refresh because the dashboard CSS/JS cache-buster changed to `dash-pt1-2-terminal-20260608`.
 - Review the next fresh Money Flow v1.2 baseline-triggered lifecycle row to confirm it uses Hyperliquid testnet metadata-based `szDecimals` formatting outside the explicit transport-smoke path.
 - Continue confirming `1h`/`4h`/`1d` candle-close scheduling, warm-start fresh-signal gating, open-position MTM, and baseline-only fixed 25 USDC Hyperliquid testnet lifecycle separation.
 - Keep `15m` paused for Week 2 scoring unless a later founder-approved phase explicitly re-enables it.
@@ -34,6 +35,9 @@ Last reviewed: `2026-06-08T06:29:37Z`
 - PT-RT1.6 implemented the founder-selected three-lane Week 2 active slate and dashboard/control defaults without starting the runtime.
 - DASH-PT1.1 removed the visible Audit tab, compacted Paper Trading into cockpit/chart/runtime/watchlist/positions/stream order, fixed configured Week 2 lane/symbol truth before runtime rows exist, and simplified the Strategy tab to the three active Week 2 lanes.
 - LOG-OBS1 added a Runtime Logs panel plus a read-only terminal helper so operators can distinguish existing rows visible in VS Code from `tail -F` waiting for newly appended lines.
+- OBS-OS1 added the read-only Week 2 daily review/anomaly generator plus a Paper Trading Daily Review / Anomaly Flags panel. The current local status is `observation_may_continue` with one informational `warm_start_block_spike` flag.
+- DASH-PT1.2 reorganized Paper Trading into a top health strip, left filter/watchlist rail, center chart, right runtime/testnet/daily-review rail, and bottom tabbed blotter while preserving all Week 2 strategy/testnet/runtime boundaries.
+- DASH-PT1.3 fixed Paper Trading terminal layout QA issues by containing left-rail filters/watchlist, bounding Runtime/Testnet right-rail cards, moving the blotter closer to the chart, compacting Runtime details, removing the Watchlist Status column, moving Daily Review / Anomaly Flags below the blotter, and compacting chart marker labels.
 - GOAL-STRAT1 added a broader research-only autonomous discovery harness and report; 49 datasets were accepted, 121 candidate configurations were tested, and zero strategies passed the founder-review gate without overfitting/blockers.
 - STRAT-DISC1 added the first research-only autonomous discovery harness and report; 50 datasets were accepted, 12 candidate runs were tested, and zero strategies passed the founder-review gate.
 - SUBAGENTS1 added project-scoped read-only Codex reviewers for runtime, dashboard, and quant triage.

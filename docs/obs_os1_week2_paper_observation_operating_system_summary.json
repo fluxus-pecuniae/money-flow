@@ -1,0 +1,79 @@
+{
+  "report": "obs_os1_week2_paper_observation_operating_system_summary",
+  "phase": "OBS-OS1",
+  "scope": "pt_rt1_6_week2_active",
+  "status": "implemented",
+  "runtime_behavior_changed": false,
+  "runtime_started": false,
+  "orders_submitted": false,
+  "live_trading_approved": false,
+  "production_strategy_approved": false,
+  "active_lanes": [
+    "money_flow_v1_2_baseline",
+    "avoid_low_rolling_range_20",
+    "mf_orig_1d_stage2_breakout_resistance_full_equity"
+  ],
+  "active_timeframes": [
+    "1h",
+    "4h",
+    "1d"
+  ],
+  "disabled_timeframes": [
+    "15m"
+  ],
+  "testnet_eligible_lanes": [
+    "money_flow_v1_2_baseline"
+  ],
+  "synthetic_only_lanes": [
+    "avoid_low_rolling_range_20",
+    "mf_orig_1d_stage2_breakout_resistance_full_equity"
+  ],
+  "generator": {
+    "script": "scripts/build_pt_rt_week2_daily_review.py",
+    "default_runtime_scope": "reports/paper_runtime/pt_rt1_6_week2_active",
+    "default_output_scope": "reports/paper_reviews/pt_rt1_6_week2_active",
+    "status_command": ".venv/bin/python scripts/build_pt_rt_week2_daily_review.py --status --scope pt_rt1_6_week2_active",
+    "generate_command": ".venv/bin/python scripts/build_pt_rt_week2_daily_review.py --generate --scope pt_rt1_6_week2_active",
+    "read_only": true
+  },
+  "dashboard": {
+    "panel": "Daily Review / Anomaly Flags",
+    "default_file": "reports/paper_reviews/pt_rt1_6_week2_active/latest_review.json",
+    "empty_state_when_missing": true,
+    "separates_synthetic_pnl_from_testnet_lifecycle": true
+  },
+  "anomaly_flag_groups": [
+    "runtime_missing_or_stale",
+    "decision_stream",
+    "timeframe_boundary",
+    "testnet_boundary",
+    "synthetic_pnl_boundary",
+    "duplicate_signal_spikes",
+    "warm_start_spikes",
+    "open_position_risk",
+    "lane_drawdown_review"
+  ],
+  "generated_local_status": {
+    "go_no_go": "observation_may_continue",
+    "anomaly_flags": [
+      {
+        "severity": "info",
+        "code": "warm_start_block_spike",
+        "detail": "81"
+      }
+    ]
+  },
+  "ignored_outputs": [
+    "reports/paper_reviews/"
+  ],
+  "boundaries": [
+    "no_runtime_behavior_change",
+    "no_runtime_start",
+    "no_order_submission",
+    "no_live_trading_approval",
+    "no_production_strategy_approval",
+    "testnet_fills_do_not_update_synthetic_pnl",
+    "candidate_lanes_synthetic_only"
+  ],
+  "next_phase": "Continue Week 2 observation with daily OBS-OS1 review packs and review only blocking anomaly flags."
+}
