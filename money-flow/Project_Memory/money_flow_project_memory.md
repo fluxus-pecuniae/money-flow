@@ -6,7 +6,7 @@ This is the canonical long-horizon strategic project memory. Repo operational do
 
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
 - Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is prepared; no active paper run is assumed unless the local control server reports one.
-- Dashboard state: `DASH-PT1.1` removed the visible Audit tab, compacted Paper Trading into cockpit/chart/runtime/watchlist/positions/stream order, and made configured Week 2 lane/symbol/timeframe truth visible before runtime rows exist.
+- Dashboard state: `DASH-PT1.1` removed the visible Audit tab, compacted Paper Trading into cockpit/chart/runtime/watchlist/positions/stream order, and made configured Week 2 lane/symbol/timeframe truth visible before runtime rows exist. `LOG-OBS1` adds read-only Runtime Logs metadata and `scripts/watch_pt_rt1_runtime.py` for operator status/latest/tail views.
 - Active Week 2 default slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
 - Active timeframes: `1h`, `4h`, `1d`.
 - Paused timeframes: `15m` remains paused as diagnostic/legacy context only.
@@ -18,7 +18,11 @@ This is the canonical long-horizon strategic project memory. Repo operational do
 - Strategy pruning: `STRAT-PRUNE1` remains recommendation-only; the founder overrode its suggested slate for Week 2 in PT-RT1.6.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
-- Next recommended action: after founder review, hard-refresh the dashboard if needed and start `reports/paper_runtime/pt_rt1_6_week2_active/` from the dashboard control server or documented command.
+- Next recommended action: use Runtime Logs or `.venv/bin/python scripts/watch_pt_rt1_runtime.py --status` to inspect the active Week 2 run, then review the first daily paper results without treating testnet lifecycle as synthetic PnL.
+
+2026-06-08 - LOG-OBS1 Runtime Log Visibility
+
+LOG-OBS1 is complete as read-only operator observability. The local dashboard control status payload now exposes runtime log-file metadata for the selected output scope: file path, absolute path, size, modified timestamp, role, empty-file hint, and copyable `tail -n 50 -F` command. Paper Trading Runtime Control renders that metadata in a compact Runtime Logs panel. `scripts/watch_pt_rt1_runtime.py` adds terminal `--status`, `--latest`, and `--tail` modes for `runtime_audit.jsonl`, `decisions.jsonl`, `trades.jsonl`, `testnet_order_lifecycle.jsonl`, and related status files. This clarifies that VS Code can show existing rows while `tail -F` waits for new appended lines, and that `trades.jsonl` can stay empty until synthetic positions close. No runtime behavior, strategy rule, order behavior, production approval, or live approval changed.
 
 ## Founder Vision
 

@@ -1885,6 +1885,96 @@ h3 {
   grid-column: 1 / -1;
 }
 
+.paper-runtime-log-files {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-top: 0.85rem;
+}
+
+.paper-runtime-log-heading {
+  align-items: end;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.paper-runtime-log-heading h3 {
+  color: var(--color-text);
+  font-size: 1rem;
+  margin: 0.1rem 0 0;
+}
+
+.paper-runtime-log-heading > span {
+  color: var(--color-muted);
+  font-size: 0.72rem;
+  text-align: right;
+}
+
+.paper-runtime-log-list {
+  display: grid;
+  gap: 0.55rem;
+  max-height: 390px;
+  overflow: auto;
+  padding-right: 0.2rem;
+}
+
+.paper-runtime-log-row {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.65rem;
+}
+
+.paper-runtime-log-row strong,
+.paper-runtime-log-row span,
+.paper-runtime-log-row code,
+.paper-runtime-log-row p {
+  overflow-wrap: anywhere;
+}
+
+.paper-runtime-log-row strong {
+  color: var(--color-text);
+  display: block;
+  font-size: 0.82rem;
+}
+
+.paper-runtime-log-row span,
+.paper-runtime-log-row p {
+  color: var(--color-muted);
+  font-size: 0.72rem;
+  margin: 0;
+}
+
+.paper-runtime-log-row code {
+  color: var(--color-text-soft);
+  display: block;
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.paper-runtime-log-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.paper-runtime-log-meta span {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.2rem 0.45rem;
+}
+
+.paper-runtime-tail-command {
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
+  padding: 0.45rem;
+}
+
 .historical-replay-controls label {
   display: grid;
   gap: 4px;

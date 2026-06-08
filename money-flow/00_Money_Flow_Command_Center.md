@@ -6,6 +6,7 @@ This is the canonical Obsidian command center for Money Flow agents and founder 
 
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
 - Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is prepared; no active paper run is assumed unless the local control server reports one.
+- Runtime observability: `LOG-OBS1` adds the read-only `scripts/watch_pt_rt1_runtime.py` helper plus Runtime Logs metadata in the dashboard control status API.
 - Active Week 2 default slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
 - Active timeframes: `1h`, `4h`, `1d`.
 - Paused timeframes: `15m` remains paused as diagnostic/legacy context only.

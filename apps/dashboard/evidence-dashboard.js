@@ -860,6 +860,7 @@
       updatedAtUtc: null,
       outputDir: null,
       logPath: null,
+      runtimeLogFiles: [],
       safeFlags: ["--pt-rt1-5-week1-active", "--fresh-signal-only-after-runtime-start", "--enable-baseline-testnet-transport", "--pt-rt1-5-testnet-order-notional-usdc", "25", "--signal-evaluation-mode", "candle_close_only", "--disable-legacy-testnet-probes", "--public-mainnet-only"],
       message: "checking_local_control_server",
       inFlight: false,
@@ -968,6 +969,7 @@
     paperRuntimeStop: document.querySelector("#paper-runtime-stop"),
     paperRuntimeControlMessage: document.querySelector("#paper-runtime-control-message"),
     paperRuntimeControlStatus: document.querySelector("#paper-runtime-control-status"),
+    paperRuntimeLogFiles: document.querySelector("#paper-runtime-log-files"),
     paperObservationHealthBanner: document.querySelector("#paper-observation-health-banner"),
     paperObservationTimeframeBreakdown: document.querySelector("#paper-observation-timeframe-breakdown"),
     paperObservationConnectionStatus: document.querySelector("#paper-observation-connection-status"),
@@ -9281,6 +9283,7 @@
       output: payload?.output || state.paperRuntimeControl.output,
       outputDir: payload?.output_dir || null,
       logPath: payload?.log_path || null,
+      runtimeLogFiles: Array.isArray(payload?.runtime_log_files) ? payload.runtime_log_files : [],
       safeFlags,
       message: payload?.message || (available ? "local_control_server_ready" : "local_control_server_unavailable"),
       inFlight: false,
@@ -9368,6 +9371,54 @@
     renderPaperRuntimeControl();
   }
 
+  function renderPaperRuntimeLogFiles(control) {
+    if (!elements.paperRuntimeLogFiles) return;
+    const files = Array.isArray(control.runtimeLogFiles) ? control.runtimeLogFiles : [];
+    if (!files.length) {
+      elements.paperRuntimeLogFiles.innerHTML = `
+        <div class="methodology-warning compact">Runtime log metadata is unavailable. Start the local dashboard control server to expose log paths.</div>
+      `;
+      return;
+    }
+    const latestFile = files
+      .filter((file) => file?.modified_at_utc)
+      .sort((left, right) => String(right.modified_at_utc).localeCompare(String(left.modified_at_utc)))[0];
+    const rows = files.map((file) => {
+      const size = Number.isFinite(Number(file?.size_bytes)) ? paperObservationBytes(Number(file.size_bytes)) : "n/a";
+      const existsLabel = file?.exists ? "present" : "missing";
+      const command = file?.tail_command || (file?.absolute_path ? `tail -n 50 -F ${file.absolute_path}` : "tail command unavailable");
+      return `
+        <article class="paper-runtime-log-row">
+          <div>
+            <strong>${escapeHtml(file?.label || file?.key || "runtime log")}</strong>
+            <span>${escapeHtml(file?.role || "runtime log file")}</span>
+            <code>${escapeHtml(file?.path || "path_unavailable")}</code>
+          </div>
+          <div class="paper-runtime-log-meta">
+            <span class="${file?.exists ? "status-good" : "status-waiting"}">${escapeHtml(existsLabel)}</span>
+            <span>${escapeHtml(size)}</span>
+            <span>${escapeHtml(file?.modified_at_utc || "not_written")}</span>
+          </div>
+          <code class="paper-runtime-tail-command">${escapeHtml(command)}</code>
+          <p>${escapeHtml(file?.empty_hint || "tail -F waits for newly appended lines; use -n to show existing rows.")}</p>
+        </article>
+      `;
+    }).join("");
+    elements.paperRuntimeLogFiles.innerHTML = `
+      <div class="paper-runtime-log-heading">
+        <div>
+          <p class="eyebrow">Runtime Logs</p>
+          <h3>Read-only log files</h3>
+        </div>
+        <span>${escapeHtml(latestFile ? `latest: ${latestFile.label || latestFile.key} @ ${latestFile.modified_at_utc}` : "no modified files yet")}</span>
+      </div>
+      <div class="methodology-warning compact">
+        Use <code>.venv/bin/python scripts/watch_pt_rt1_runtime.py --status</code> for exact terminal status. Testnet lifecycle is separate from Synthetic PnL.
+      </div>
+      <div class="paper-runtime-log-list">${rows}</div>
+    `;
+  }
+
   function renderPaperRuntimeControl() {
     const control = state.paperRuntimeControl;
     if (elements.paperRuntimeDuration) {
@@ -9426,6 +9477,7 @@
       </div>
       ${logStats.decisions_jsonl_warning ? '<div class="methodology-warning compact">Decision log size is above the review threshold. Stop the run or keep compact logging enabled before another long run.</div>' : ""}
     `;
+    renderPaperRuntimeLogFiles(control);
   }
 
   function paperObservationBaseScannerRows() {

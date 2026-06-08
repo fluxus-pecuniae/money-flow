@@ -321,6 +321,7 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper-runtime-start" in html
     assert "paper-runtime-stop" in html
     assert "paper-runtime-control-status" in html
+    assert "paper-runtime-log-files" in html
     assert "Mac caffeinate" in html
     assert '<p class="eyebrow" id="paper-runtime-control-title">Runtime Control</p>' in html
     assert "Local Mac runtime control" not in html
@@ -333,6 +334,13 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper-runtime-control-message" in html
     assert "paperRuntimeControlMessage" in js
     assert "Control server message" in js
+    assert "Runtime Logs" in js
+    assert "Read-only log files" in js
+    assert "scripts/watch_pt_rt1_runtime.py --status" in js
+    assert "runtimeLogFiles: Array.isArray(payload?.runtime_log_files)" in js
+    assert "tail -n 50 -F" in js
+    assert ".paper-runtime-log-files" in css
+    assert ".paper-runtime-tail-command" in css
     assert "paper-runtime-caffeinate-status" not in html
     assert "paper_runtime_started_with_caffeinate" not in html
     assert "Baseline-only testnet lifecycle is separate from synthetic PnL" in html

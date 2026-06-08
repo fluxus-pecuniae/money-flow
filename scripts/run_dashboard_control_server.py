@@ -64,6 +64,50 @@ SUPPRESSED_STATIC_LOG_PREFIXES = (
     "/reports/strategy_validation/money_flow_sv2_0_2",
 )
 STARTING_LOG_LINE = "Starting money-flow"
+RUNTIME_LOG_SPECS = [
+    {
+        "key": "runtime_audit",
+        "filename": "runtime_audit.jsonl",
+        "label": "Runtime audit / heartbeat",
+        "role": "heartbeat and public-mainnet connection rows",
+        "empty_hint": "Should update during market refresh cycles while runtime is active.",
+    },
+    {
+        "key": "decisions",
+        "filename": "decisions.jsonl",
+        "label": "Paper decisions",
+        "role": "paper decisions, signal checks, blocked/no-trade reasons",
+        "empty_hint": "May wait for candle-close evaluation before new rows appear.",
+    },
+    {
+        "key": "trades",
+        "filename": "trades.jsonl",
+        "label": "Closed synthetic trades",
+        "role": "closed synthetic trades only",
+        "empty_hint": "Can stay empty until an open synthetic position closes.",
+    },
+    {
+        "key": "testnet_lifecycle",
+        "filename": "testnet_order_lifecycle.jsonl",
+        "label": "Testnet order lifecycle",
+        "role": "separate Hyperliquid testnet plumbing lifecycle",
+        "empty_hint": "Only baseline-eligible testnet lifecycle attempts write here.",
+    },
+    {
+        "key": "data_health",
+        "filename": "data_health.json",
+        "label": "Data health",
+        "role": "latest market-data health snapshot",
+        "empty_hint": "May be rewritten rather than appended.",
+    },
+    {
+        "key": "summary",
+        "filename": "summary.json",
+        "label": "Runtime summary",
+        "role": "latest compact runtime summary",
+        "empty_hint": "May be rewritten rather than appended.",
+    },
+]
 
 
 def utc_now() -> str:
@@ -98,6 +142,58 @@ def read_state() -> dict[str, Any]:
 def write_state(payload: dict[str, Any]) -> None:
     CONTROL_DIR.mkdir(parents=True, exist_ok=True)
     STATE_PATH.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def path_mtime_utc(path: Path) -> str | None:
+    try:
+        timestamp = path.stat().st_mtime
+    except FileNotFoundError:
+        return None
+    return datetime.fromtimestamp(timestamp, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def log_file_metadata(path: Path, *, key: str, label: str, role: str, empty_hint: str) -> dict[str, Any]:
+    relative_path = str(path.relative_to(REPO_ROOT)) if path.is_absolute() and REPO_ROOT in path.parents else str(path)
+    exists = path.exists()
+    size_bytes = path.stat().st_size if exists else 0
+    return {
+        "key": key,
+        "label": label,
+        "role": role,
+        "path": relative_path,
+        "absolute_path": str(path.resolve()),
+        "exists": exists,
+        "size_bytes": size_bytes,
+        "modified_at_utc": path_mtime_utc(path),
+        "tail_command": f"tail -n 50 -F {path.resolve()}",
+        "empty_hint": empty_hint,
+    }
+
+
+def runtime_log_files(output_dir: str | None, control_log_path: str | None = None) -> list[dict[str, Any]]:
+    runtime_dir = (REPO_ROOT / output_dir) if output_dir else (REPO_ROOT / "reports" / "paper_runtime" / DEFAULT_OUTPUT)
+    files = [
+        log_file_metadata(
+            runtime_dir / spec["filename"],
+            key=spec["key"],
+            label=spec["label"],
+            role=spec["role"],
+            empty_hint=spec["empty_hint"],
+        )
+        for spec in RUNTIME_LOG_SPECS
+    ]
+    if control_log_path:
+        control_path = REPO_ROOT / control_log_path
+        files.append(
+            log_file_metadata(
+                control_path,
+                key="control_server_log",
+                label="Control server run log",
+                role="stdout/stderr from the UI-started caffeinate runtime",
+                empty_hint="Only records control/start output, not every runtime JSONL row.",
+            )
+        )
+    return files
 
 
 def validate_local_host(host: str) -> str:
@@ -253,6 +349,8 @@ def current_status() -> dict[str, Any]:
     message = state.get("message") or "local_control_server_ready"
     if not running and message == "paper_runtime_started_with_caffeinate":
         message = "paper_runtime_state_reconciled_not_running"
+    output_dir = state.get("output_dir") if state.get("output") == output else str(OUTPUT_OPTIONS[output].relative_to(REPO_ROOT))
+    control_log_path = state.get("log_path") if running else None
     return {
         "control_server_available": True,
         "running": running,
@@ -261,10 +359,11 @@ def current_status() -> dict[str, Any]:
         "duration": state.get("duration"),
         "duration_label": state.get("duration_label"),
         "output": output,
-        "output_dir": state.get("output_dir") if state.get("output") == output else str(OUTPUT_OPTIONS[output].relative_to(REPO_ROOT)),
+        "output_dir": output_dir,
         "started_at_utc": state.get("started_at_utc") if running else None,
         "updated_at_utc": state.get("updated_at_utc"),
-        "log_path": state.get("log_path") if running else None,
+        "log_path": control_log_path,
+        "runtime_log_files": runtime_log_files(output_dir, control_log_path),
         "safe_flags": SAFE_FLAGS,
         "message": message,
     }

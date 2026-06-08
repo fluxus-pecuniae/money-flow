@@ -7,6 +7,7 @@ Canonical design document for `apps/dashboard/`.
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
 - Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is prepared; no active paper run is assumed unless the local control server reports one.
 - DASH-PT1.1 layout: Paper Trading starts with Cockpit / Global Filters, then Live Public Candles + Paper Markers, Runtime Control, Watchlist | Testnet Order Lifecycle, Open/Closed Synthetic Positions, Signal / Decision Stream, then lower-priority diagnostics.
+- LOG-OBS1 observability: Runtime Control includes a compact Runtime Logs panel and the terminal helper `scripts/watch_pt_rt1_runtime.py` exposes status/latest/tail views without changing runtime state.
 - Active Week 2 default slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
 - Active timeframes: `1h`, `4h`, `1d`.
 - Paused timeframes: `15m` remains paused as diagnostic/legacy context only.
@@ -38,7 +39,7 @@ The founder should read the Paper Trading screen in this order:
 
 1. Cockpit / Global Filters: run state, configured Week 2 truth, selected symbol/timeframe/lane, and compact safety status.
 2. Live Public Candles + Paper Markers: public-mainnet chart with paper markers and indicators.
-3. Runtime Control: local control server state and manual/operator run controls.
+3. Runtime Control: local control server state, manual/operator run controls, and read-only log visibility.
 4. Watchlist | Testnet Order Lifecycle: configured symbols and separate testnet plumbing rows.
 5. Open Synthetic Positions | Closed Synthetic Trades: synthetic ledger state only.
 6. Signal / Decision Stream: latest paper decisions and reason codes.
@@ -68,6 +69,7 @@ Paper Trading cockpit:
 - configured archived/default-inactive lanes: seven prior PT-RT lanes
 - configured symbols: AVAX, BNB, BTC, DOGE, ETH, HYPE, SOL, SUI, XRP
 - active timeframes: `1h`, `4h`, `1d`
+- Runtime Logs panel: show `runtime_audit.jsonl`, `decisions.jsonl`, `trades.jsonl`, `testnet_order_lifecycle.jsonl`, `data_health.json`, `summary.json`, and the control-server log when available, with file size, modified time, and copyable `tail -n 50 -F` commands.
 - disabled timeframe: `15m`, paused/legacy only
 
 Center:

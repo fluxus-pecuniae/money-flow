@@ -13,6 +13,38 @@ Entry schema:
 
 ---
 
+## v2026.06.08.001
+
+- `recorded_at_utc`: `2026-06-08T06:29:37Z`
+- `scope`: `LOG-OBS1 Runtime log visibility fix`
+- `intent`: `Native entry. Added read-only runtime log visibility so operators can see which PT-RT output scope is active, which log files exist, when they were last modified, and which exact tail commands to use. The local dashboard control status payload now includes runtime_log_files metadata for runtime_audit.jsonl, decisions.jsonl, trades.jsonl, testnet_order_lifecycle.jsonl, data_health.json, summary.json, and the control-server log when available. Paper Trading Runtime Control renders a compact Runtime Logs panel, and scripts/watch_pt_rt1_runtime.py provides terminal --status, --latest, and --tail modes. This is observability only: no runtime behavior changed, no runtime was started or stopped, no orders were submitted, no live trading was approved, and no strategy was production-approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `KNOWN_ISSUES.md`
+  - `TODO.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `scripts/run_dashboard_control_server.py`
+  - `scripts/watch_pt_rt1_runtime.py`
+  - `tests/test_dashboard_control_server.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_pt_rt1_runtime_log_visibility.py`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_control_server.py tests/test_pt_rt1_runtime_log_visibility.py tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `git diff --check`
+  - `.venv/bin/python scripts/create_review_bundle.py --output /Users/tercirafael/money-flow-log-obs1-review.zip`
+
 ## v2026.06.06.006
 
 - `recorded_at_utc`: `2026-06-06T23:19:40Z`

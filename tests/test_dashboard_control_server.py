@@ -89,6 +89,37 @@ def test_dashboard_control_status_contract_exposes_safety_flags() -> None:
     assert control.DEFAULT_OUTPUT == "pt_rt1_6_week2_active"
 
 
+def test_dashboard_control_status_contract_exposes_runtime_log_files(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    reports_root = tmp_path / "reports" / "paper_runtime"
+    control_dir = reports_root / "dashboard_control"
+    output_dir = reports_root / "pt_rt1_6_week2_active"
+    output_dir.mkdir(parents=True)
+    (output_dir / "runtime_audit.jsonl").write_text('{"last_update_utc":"2026-06-08T00:00:00Z"}\n', encoding="utf-8")
+    (output_dir / "trades.jsonl").write_text("", encoding="utf-8")
+
+    monkeypatch.setattr(control, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(control, "CONTROL_DIR", control_dir)
+    monkeypatch.setattr(control, "STATE_PATH", control_dir / "state.json")
+    monkeypatch.setattr(control, "OUTPUT_OPTIONS", {"pt_rt1_6_week2_active": output_dir})
+    monkeypatch.setattr(control, "DEFAULT_OUTPUT", "pt_rt1_6_week2_active")
+    monkeypatch.setattr(control, "process_is_managed_runtime", lambda pid, state=None: False)
+
+    status = control.current_status()
+
+    files = {item["key"]: item for item in status["runtime_log_files"]}
+    assert files["runtime_audit"]["exists"] is True
+    assert files["runtime_audit"]["size_bytes"] > 0
+    assert files["runtime_audit"]["role"] == "heartbeat and public-mainnet connection rows"
+    assert files["runtime_audit"]["tail_command"].startswith("tail -n 50 -F ")
+    assert files["trades"]["exists"] is True
+    assert files["trades"]["size_bytes"] == 0
+    assert files["trades"]["empty_hint"] == "Can stay empty until an open synthetic position closes."
+    assert files["testnet_lifecycle"]["role"] == "separate Hyperliquid testnet plumbing lifecycle"
+
+
 def test_dashboard_control_transport_smoke_adds_single_smoke_flag() -> None:
     command = control.build_runtime_command(
         duration="5m",

@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-08T06:29:37Z - LOG-OBS1 - Add Read-Only Runtime Log Visibility
+
+- `decision`: Add an operator log-visibility layer instead of changing runtime behavior to address Week 2 tail/log confusion.
+- `scope`: The dashboard control status API now exposes read-only `runtime_log_files` metadata, Paper Trading Runtime Control renders a Runtime Logs panel, and `scripts/watch_pt_rt1_runtime.py` provides terminal `--status`, `--latest`, and `--tail` modes.
+- `result`: Operators can identify the active output scope, see file sizes and modified timestamps, copy exact `tail -n 50 -F` commands, and understand that `tail -F` waits for new appended lines while VS Code may show existing rows.
+- `boundaries`: No runtime strategy/order behavior changed, no runtime was started or stopped by this phase, no orders were submitted, no production strategy was approved, and live trading remains not approved.
+- `follow_up_implications`: Restart the local dashboard control server to load the new status API code; the active paper runtime can continue independently.
+
 ## 2026-06-06T22:24:15Z - PT-RT1.6 - Founder Overrides STRAT-PRUNE1 Slate For Week 2
 
 - `decision`: Use the founder-selected three-lane Week 2 default paper slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
