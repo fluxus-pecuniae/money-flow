@@ -5,6 +5,7 @@ Last reviewed: `2026-06-08T08:45:00Z`
 ## Open Issues
 
 - `K-025`: STRAT-PRUNE1 recommended a different smaller slate; founder overrode it in PT-RT1.6 with a three-lane Week 2 slate.
+- `K-027`: Hyperliquid testnet metadata coverage is not guaranteed for all baseline paper symbols. PT-RT1.6.3 resolves blocked-symbol metadata when present and prepares one XRP transport-only smoke, but if XRP/LINK/DOT/LTC/UNI/TRX/ZEC are absent from testnet `meta`, they intentionally fail closed before `/exchange`.
 - `K-024`: GOAL-STRAT2 found two non-existing strategies worth paper-testing review, but they remain research-only and require a separately scoped paper-testing lane phase before runtime use.
 - `K-023`: GOAL-STRAT1 did not find three founder production-testing review candidates after full autonomous discovery. The best near misses remain research-only and no strategy should be promoted from this goal.
 - `K-022`: STRAT-DISC1 did not find three founder production-testing review candidates without overfitting or risk blockers. It is superseded by the broader GOAL-STRAT1 exhaustion result.
@@ -42,6 +43,13 @@ Detailed historical issue entries remain below for audit. Do not treat a resolve
 - `area`: `GOAL-STRAT2 two non-existing strategy candidates`
 - `summary`: `GOAL-STRAT2 selected two non-existing research-only strategies worth founder paper-testing review from the committed GOAL-STRAT1 evidence: relative_strength_rotation_top_n_trend_strength_atr_trail_equity_5pct_sma200_20_0p34 and trend_breakout_donchian_breakout_atr_trail_equity_5pct_sma200_20. Both exclude current PT runtime lanes and Money Flow/SOR/MF-ORIG/wildcard-adjacent strategy families. The relative-strength candidate has positive active net PnL, PF 1.3477, max drawdown 30.17%, 534 trades, and both OOS checks positive. The Donchian candidate has positive active net PnL, PF 1.5712, max drawdown 16.37%, 945 trades, and small negative OOS checks.`
 - `impact`: `Both candidates are worth paper-testing review only. They are not production-approved, not live-approved, not active PT runtime lanes, and cannot send testnet orders. Risks to monitor include ZEC/symbol contribution, timeframe and period concentration, candle-only execution assumptions, and the Donchian candidate's negative OOS checks.`
+
+### K-027
+
+- `status`: `open`
+- `area`: `PT-RT1.6.3 Hyperliquid testnet metadata coverage`
+- `summary`: `PT-RT1.6.2 found 12 baseline-only testnet lifecycle rows blocked by missing testnet metadata/precision for XRP, LINK, DOT, LTC, UNI, TRX, and ZEC. PT-RT1.6.3 adds blocked-symbol metadata resolution from Hyperliquid testnet public meta, explicit missing-symbol reason codes, and a separate XRP-targeted transport-only smoke scope.`
+- `impact`: `The active Week 2 runtime is not changed by this hotfix until a new process start or the separate PT-RT1.6.3 smoke command. If XRP is not present in Hyperliquid testnet meta, the smoke blocks locally and does not call /exchange. This affects testnet plumbing coverage only; public mainnet candles remain strategy truth, synthetic ledgers remain PnL truth, candidate/MF-ORIG lanes remain synthetic-only, and no live/production approval follows.`
 
 ### K-025
 

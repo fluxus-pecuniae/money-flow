@@ -1,0 +1,88 @@
+{
+  "phase": "PT-RT1.6.3",
+  "report": "pt_rt1_6_3_testnet_metadata_resolver_hotfix",
+  "recorded_at_utc": "2026-06-08T09:08:40Z",
+  "objective": "Resolve blocked-symbol Hyperliquid testnet metadata ambiguity and prepare one XRP-targeted transport-only smoke without changing Week 2 strategy/runtime behavior.",
+  "active_runtime_scope": "pt_rt1_6_week2_active",
+  "active_runtime_touched_by_phase": false,
+  "active_runtime_restart_policy": "restart_after_current_24h_window_only_after_daily_review_and_xrp_smoke_result",
+  "blocked_metadata_symbols_targeted": [
+    "XRP",
+    "LINK",
+    "DOT",
+    "LTC",
+    "UNI",
+    "TRX",
+    "ZEC"
+  ],
+  "metadata_resolver_policy": {
+    "source": "hyperliquid_testnet_public_meta",
+    "strategy_truth": false,
+    "used_for": [
+      "testnet_asset_id",
+      "venue_symbol",
+      "szDecimals",
+      "fixed_25_usdc_testnet_order_formatting"
+    ],
+    "fail_closed_when_missing": true,
+    "reason_codes": [
+      "testnet_metadata_alias_resolved",
+      "testnet_metadata_symbol_not_on_testnet",
+      "testnet_metadata_blocked_symbol_resolved",
+      "testnet_transport_smoke_xrp_targeted"
+    ]
+  },
+  "xrp_transport_smoke": {
+    "scope": "pt_rt1_6_3_xrp_transport_smoke",
+    "output_dir": "reports/paper_runtime/pt_rt1_6_3_xrp_transport_smoke",
+    "trigger_type": "testnet_transport_smoke_not_strategy_signal",
+    "target_symbol": "XRP",
+    "max_testnet_orders_this_phase": 1,
+    "fixed_notional_usdc": "25",
+    "approval_flag": "--founder-approved-pt-rt1-6-3-xrp-testnet-metadata-smoke",
+    "smoke_symbol_flag": "--pt-rt1-6-3-testnet-smoke-symbol XRP",
+    "fallback_to_btc_or_eth": false,
+    "synthetic_trade_created": false,
+    "strategy_pnl_update_from_testnet": false,
+    "acceptable_outcomes": [
+      "accepted_open_then_canceled_reconciled",
+      "sanitized_venue_reject",
+      "local_preflight_block"
+    ]
+  },
+  "active_week_policy_unchanged": {
+    "active_lanes": [
+      "money_flow_v1_2_baseline",
+      "avoid_low_rolling_range_20",
+      "mf_orig_1d_stage2_breakout_resistance_full_equity"
+    ],
+    "active_timeframes": [
+      "1h",
+      "4h",
+      "1d"
+    ],
+    "disabled_timeframes": [
+      "15m"
+    ],
+    "baseline_only_testnet_transport": true,
+    "candidate_lanes_synthetic_only": true,
+    "mf_orig_lanes_synthetic_only": true
+  },
+  "boundaries": {
+    "public_mainnet_data_is_strategy_truth": true,
+    "synthetic_ledger_is_pnl_truth": true,
+    "testnet_lifecycle_separate_from_synthetic_trades": true,
+    "testnet_fills_update_synthetic_pnl": false,
+    "candidate_lanes_testnet_eligible": false,
+    "live_trading_approved": false,
+    "production_strategy_approved": false,
+    "runtime_behavior_changed": false,
+    "manual_order_submitted_by_phase": false
+  },
+  "commands": {
+    "daily_review_before_smoke": ".venv/bin/python scripts/build_pt_rt_week2_daily_review.py --generate --scope pt_rt1_6_week2_active",
+    "xrp_transport_smoke": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-minutes 15 --output-dir reports/paper_runtime/pt_rt1_6_3_xrp_transport_smoke --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-6-3-xrp-testnet-metadata-smoke --pt-rt1-6-3-testnet-smoke-symbol XRP --pt-rt1-5-testnet-order-notional-usdc 25 --max-testnet-orders-this-phase 1 --public-mainnet-only",
+    "week2_restart_after_review": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_6_week2_active --decision-log-mode compact --pt-rt1-5-week1-active --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-2-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --pt-rt1-5-testnet-daily-order-cap 25 --pt-rt1-5-testnet-per-symbol-daily-cap 3 --signal-evaluation-mode candle_close_only --disable-legacy-testnet-probes --public-mainnet-only"
+  },
+  "next_phase": "Run the single XRP transport-only smoke after the current 24h Week 2 window, then restart Week 2 unchanged if the smoke safely resolves, rejects, or blocks locally."
+}

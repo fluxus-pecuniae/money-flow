@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-08T09:08:40Z - PT-RT1.6.3 - Target XRP For Metadata Smoke After Current 24h Window
+
+- `decision`: Add a blocked-symbol Hyperliquid testnet metadata resolver and constrain the next transport-only metadata smoke to `XRP`.
+- `scope`: PT-RT1.6.3 resolves XRP/LINK/DOT/LTC/UNI/TRX/ZEC metadata from Hyperliquid testnet public `meta` when present, records absent-symbol reason codes, adds `reports/paper_runtime/pt_rt1_6_3_xrp_transport_smoke/`, and requires exact PT-RT1.6.3 approval plus `--pt-rt1-6-3-testnet-smoke-symbol XRP`.
+- `result`: The code path is prepared and tested. The active `pt_rt1_6_week2_active` process is not restarted or mutated by this phase. The smoke should run only after the current 24h window and daily review generation.
+- `boundaries`: The smoke is `testnet_transport_smoke_not_strategy_signal`, fixed 25 USDC, baseline/testnet plumbing only, no synthetic trade, no synthetic PnL update, no candidate/MF-ORIG testnet orders, no live trading, and no production strategy approval.
+- `follow_up_implications`: If XRP is absent from testnet `meta` or fails size preflight, block locally before `/exchange`. If the smoke safely resolves/rejects/blocks, restart Week 2 unchanged with the existing three-lane slate.
+
 ## 2026-06-08T06:29:37Z - LOG-OBS1 - Add Read-Only Runtime Log Visibility
 
 - `decision`: Add an operator log-visibility layer instead of changing runtime behavior to address Week 2 tail/log confusion.

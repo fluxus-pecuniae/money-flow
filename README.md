@@ -3,7 +3,7 @@
 ## Current Operator Summary
 
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
-- Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is active under `pt_rt1_6_week2_active`; `PT-RT1.6.2` reviewed the first operating window and recommends continuing unchanged.
+- Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is active under `pt_rt1_6_week2_active`; `PT-RT1.6.2` reviewed the first operating window and recommends continuing unchanged; `PT-RT1.6.3` prepares a separate XRP testnet metadata smoke for after the current 24h window.
 - Active Week 2 default slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
 - Active timeframes: `1h`, `4h`, `1d`.
 - Paused timeframes: `15m` remains paused and kept as diagnostic/legacy context only.
@@ -14,7 +14,7 @@
 - Research candidates: `GOAL-STRAT2` identifies two non-existing strategies worth paper-testing review only: relative-strength rotation with ATR trailing exit, and Donchian breakout with ATR trailing exit.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
-- Next recommended action: continue the active `pt_rt1_6_week2_active` run unchanged, generate the daily review pack, and repeat the operating review after another 24h before adding/removing lanes.
+- Next recommended action: continue the active `pt_rt1_6_week2_active` run unchanged, generate the daily review pack at the 24h boundary, run at most one PT-RT1.6.3 XRP transport-only smoke if desired, then restart Week 2 unchanged only after the smoke safely resolves, rejects, or blocks locally.
 
 ## Human Quick Start
 
@@ -27,7 +27,7 @@
 ## AI Agent Quick Start
 
 - Read first: `AGENTS.md`, this `README.md`, `CHANGELOG.md`, `REPO_TREE.md`, `KNOWN_ISSUES.md`, `TODO.md`, `docs/architecture.md`, `docs/strategy.md`, `money-flow/00_Money_Flow_Command_Center.md`, `money-flow/01_Current_Phase.md`, `money-flow/05_Agent_Coordination.md`, and `money-flow/Project_Memory/money_flow_project_memory.md`.
-- Current phase truth: `PT-RT1.6` prepared the founder-selected Week 2 paper slate and dashboard defaults; `PT-RT1.6.2` reviewed the active `pt_rt1_6_week2_active` runtime and found observation may continue; `GOAL-STRAT1` found zero founder production-testing review candidates; `GOAL-STRAT2` candidates remain research-only and are not active Week 2 lanes.
+- Current phase truth: `PT-RT1.6` prepared the founder-selected Week 2 paper slate and dashboard defaults; `PT-RT1.6.2` reviewed the active `pt_rt1_6_week2_active` runtime and found observation may continue; `PT-RT1.6.3` adds a blocked-symbol testnet metadata resolver and an XRP-only transport smoke scope without touching the active process; `GOAL-STRAT1` found zero founder production-testing review candidates; `GOAL-STRAT2` candidates remain research-only and are not active Week 2 lanes.
 - Do not touch strategy rules, runtime behavior, evidence generation, exchange endpoints, secrets, or generated runtime/evidence artifacts unless the current prompt explicitly scopes that work.
 - Add a row under `Active Work` in `money-flow/05_Agent_Coordination.md` before substantial edits, then move/update it under `Finished Work`.
 - Canonical current truth lives in `money-flow/00_Money_Flow_Command_Center.md`; do not create duplicate command centers or competing current-phase notes.

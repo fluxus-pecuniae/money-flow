@@ -393,7 +393,8 @@ def test_obsidian_brain_overhaul_maps_exist_and_are_current() -> None:
     candidate_freeze = Path("money-flow/30 Strategy/UAT Candidate Freeze.md").read_text()
     project_memory = Path("money-flow/Project_Memory/money_flow_project_memory.md").read_text()
 
-    assert "Current implemented milestone | `PT-RT1.6` founder-selected Week 2 three-lane paper slate readiness" in command_center
+    assert "Current implemented milestone | `PT-RT1.6.3` blocked-symbol testnet metadata resolver" in command_center
+    assert "PT-RT1.6` founder-selected Week 2 slate is active under `pt_rt1_6_week2_active`" in command_center
     assert "Canonical command center" in compatibility_command_center
     assert "PT-RT1.6 prepares the founder-selected Week 2 Paper Trading slate" in current_dashboard
     assert "SV2.0.2 canonical evidence" in current_dashboard

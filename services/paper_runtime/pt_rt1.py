@@ -70,6 +70,8 @@ PT_RT1_5_2_RUNTIME_OUTPUT_DIR = "reports/paper_runtime/pt_rt1_5_2_week1_active"
 PT_RT1_5_2_ACTIVE_REVIEW_START_UTC = "2026-05-17T16:24:49Z"
 PT_RT1_5_3_TRANSPORT_SMOKE_SCOPE = "pt_rt1_5_3_transport_smoke"
 PT_RT1_5_3_TRANSPORT_SMOKE_OUTPUT_DIR = "reports/paper_runtime/pt_rt1_5_3_transport_smoke"
+PT_RT1_6_3_TRANSPORT_SMOKE_SCOPE = "pt_rt1_6_3_xrp_transport_smoke"
+PT_RT1_6_3_TRANSPORT_SMOKE_OUTPUT_DIR = "reports/paper_runtime/pt_rt1_6_3_xrp_transport_smoke"
 PT_RT1_6_RUNTIME_SCOPE = "pt_rt1_6_week2_active"
 PT_RT1_6_RUNTIME_OUTPUT_DIR = "reports/paper_runtime/pt_rt1_6_week2_active"
 PT_RT1_6_ACTIVE_REVIEW_START_UTC = "2026-06-07T00:00:00Z"
@@ -138,6 +140,12 @@ PT_RT1_5_3_EXACT_TESTNET_SIZE_HOTFIX_SMOKE_APPROVAL = (
     "STRATEGY TRUTH. TESTNET FILLS MUST NOT UPDATE SYNTHETIC STRATEGY PNL. "
     "CANDIDATE LANES MUST NOT SEND TESTNET ORDERS. LIVE TRADING IS NOT APPROVED."
 )
+PT_RT1_6_3_EXACT_XRP_TESTNET_METADATA_SMOKE_APPROVAL = (
+    "I APPROVE PT-RT1.6.3 HYPERLIQUID TESTNET METADATA RESOLVER SMOKE FOR XRP. "
+    "TESTNET ONLY. FIXED 25 USDC NOTIONAL. PUBLIC MAINNET DATA REMAINS "
+    "STRATEGY TRUTH. TESTNET FILLS MUST NOT UPDATE SYNTHETIC STRATEGY PNL. "
+    "CANDIDATE LANES MUST NOT SEND TESTNET ORDERS. LIVE TRADING IS NOT APPROVED."
+)
 PT_RT1_5_2_TESTNET_SMOKE_PHASE_CAP = 1
 PT_RT1_5_CANDLE_CLOSE_GRACE_SECONDS = {
     "1h": 90,
@@ -179,6 +187,10 @@ PT_RT1_5_TESTNET_ORDER_REASON_CODES = (
     "testnet_order_unit_semantics_deferred",
     "testnet_order_precision_missing",
     "testnet_metadata_unavailable",
+    "testnet_metadata_alias_resolved",
+    "testnet_metadata_symbol_not_on_testnet",
+    "testnet_metadata_blocked_symbol_resolved",
+    "testnet_transport_smoke_xrp_targeted",
     "testnet_order_invalid_size_preflight",
     "testnet_order_rejected_invalid_size",
     "venue_reject_order_has_invalid_size",
@@ -819,6 +831,7 @@ class PT_RT15BaselineTestnetOrderPolicy:
             PT_RT1_5_1_EXACT_BASELINE_TESTNET_ORDER_APPROVAL,
             PT_RT1_5_2_EXACT_TESTNET_TRANSPORT_SMOKE_APPROVAL,
             PT_RT1_5_3_EXACT_TESTNET_SIZE_HOTFIX_SMOKE_APPROVAL,
+            PT_RT1_6_3_EXACT_XRP_TESTNET_METADATA_SMOKE_APPROVAL,
         }:
             reasons.append("pt_rt1_5_exact_approval_required")
         base_url = candidate.base_url.rstrip("/")

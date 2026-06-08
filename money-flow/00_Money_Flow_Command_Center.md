@@ -5,7 +5,7 @@ This is the canonical Obsidian command center for Money Flow agents and founder 
 ## Current Operator Summary
 
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
-- Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is prepared; no active paper run is assumed unless the local control server reports one.
+- Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is active under `pt_rt1_6_week2_active`; `PT-RT1.6.2` reviewed the first operating window and recommends continuing unchanged; `PT-RT1.6.3` prepares a separate XRP testnet metadata smoke for after the current 24h window.
 - Runtime observability: `LOG-OBS1` adds the read-only `scripts/watch_pt_rt1_runtime.py` helper plus Runtime Logs metadata in the dashboard control status API.
 - Active Week 2 default slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
 - Active timeframes: `1h`, `4h`, `1d`.
@@ -18,15 +18,15 @@ This is the canonical Obsidian command center for Money Flow agents and founder 
 - Strategy pruning: `STRAT-PRUNE1` remains recommendation-only; the founder overrode its suggested slate for Week 2 in PT-RT1.6.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
-- Next recommended action: after founder review, start `pt_rt1_6_week2_active` from the dashboard control server or documented command.
+- Next recommended action: continue `pt_rt1_6_week2_active` unchanged until the current 24h window ends, generate the daily review pack, run at most one PT-RT1.6.3 XRP transport-only smoke if desired, then restart Week 2 unchanged only after the smoke safely resolves, rejects, or blocks locally.
 
 ## Current Truth
 
 | Field | Current State |
 | --- | --- |
-| Current implemented milestone | `PT-RT1.6` founder-selected Week 2 three-lane paper slate readiness on top of completed `PT-RT1.5.3`, `STRAT-PRUNE1`, `GOAL-STRAT2`, `GOAL-STRAT1`, `STRAT-DISC1`, and earlier PT-RT/OB/EV work; no strategy candidate is production/live approved |
+| Current implemented milestone | `PT-RT1.6.3` blocked-symbol testnet metadata resolver and XRP transport-only smoke plan on top of active `PT-RT1.6` Week 2 three-lane paper runtime and completed `PT-RT1.6.2`; no strategy candidate is production/live approved |
 | Current major track | Forward Paper Trading observation substrate after SV2.0.2 canonical baseline, SOR, MF-ORIG, EV-AUDIT1, and OB2.0 |
-| Next recommended phase | Founder review of PT-RT1.6, then start `pt_rt1_6_week2_active`; keep `1h`/`4h`/`1d` active, keep `15m` paused/legacy, keep selected candidate/MF-ORIG lanes synthetic-only, and keep testnet eligibility baseline-only. |
+| Next recommended phase | Finish the current 24h Week 2 window, generate daily review, run one PT-RT1.6.3 XRP transport-only smoke if desired, then restart `pt_rt1_6_week2_active` unchanged; keep `1h`/`4h`/`1d` active, keep `15m` paused/legacy, keep selected candidate/MF-ORIG lanes synthetic-only, and keep testnet eligibility baseline-only. |
 | UAT/PT status | UAT2 no-order shadow observation, UAT2.1 dashboard visualization, UAT3.0 sandbox-order design, UAT3.0.1 fixture/readiness hardening, UAT3.0.2 dry-run gate hardening, UAT3.0.3 dry-run executable gate wiring / label enforcement, UAT3.0.4 private read-only sandbox drawdown readiness, UAT3.0.5 sandbox/testnet private read-only drawdown verification, UAT3.0.6 sandbox submit path dry-run wiring, UAT3.1 first sandbox/testnet lifecycle probe, UAT3.2 fixed-key readiness preflight, UAT3.3 Hyperliquid account-targeting / precision hardening, UAT3.4 fixed-target sandbox routing ledger, UAT4.0 read-only chart cockpit, UAT4.1 exchange-style dashboard redesign, UAT4.2 live-market/paper-equity monitoring plus browser-side public testnet chart polling, PT0 TradingView charts / top-20 paper-sandbox runtime foundation, PT0.0.1 chart stability hotfix, PT0.0.2 historical replay cockpit, and PT0.0.3 historical data horizon / 1D replay support are complete |
 | Paper trading | PT-RT1 through PT-RT1.6 add synthetic paper-observation ledgers and runtime collection/review UI only. Active Week 2 paper review uses the three founder-selected lanes on `1h`/`4h`/`1d`; `15m` is paused for noise reduction. PT-RT1.6 keeps fresh-signal gating, baseline-only fixed-25-USDC testnet eligibility, and archived/default-inactive non-selected lanes. No strategy paper runtime is production-approved from EV-AUDIT1 or PT-RT1 evidence |
 | Broader top-20 paper/sandbox | Historical PT0 broader top-20 Hyperliquid-supported paper/sandbox scope is risk-gated and metadata-gated context only. It is not production strategy approval and is separate from current PT-RT1.5.3 Paper Trading review |

@@ -5,7 +5,7 @@ This is the canonical long-horizon strategic project memory. Repo operational do
 ## Current Operator Summary
 
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
-- Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is active under `pt_rt1_6_week2_active`; `PT-RT1.6.2` reviewed the first operating window and recommends continuing unchanged.
+- Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is active under `pt_rt1_6_week2_active`; `PT-RT1.6.2` reviewed the first operating window and recommends continuing unchanged; `PT-RT1.6.3` prepares a separate XRP testnet metadata smoke for after the current 24h window.
 - Dashboard state: `DASH-PT1.3` makes Paper Trading a contained exchange-style terminal with top health strip, left filter/watchlist rail with internal scrolling, center public-mainnet chart with compact paper marker labels, height-bounded right runtime/testnet rail, bottom tabbed blotter, and a final full-width Daily Review / Anomaly Flags card below the blotter. `LOG-OBS1` adds read-only Runtime Logs metadata and `scripts/watch_pt_rt1_runtime.py` for operator status/latest/tail views. `OBS-OS1` adds a read-only daily review/anomaly generator plus a dashboard Daily Review / Anomaly Flags panel. `PT-RT1.6.2` records the first Week 2 operating review over active ignored runtime logs and recommends continuing unchanged.
 - Active Week 2 default slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
 - Active timeframes: `1h`, `4h`, `1d`.
@@ -18,7 +18,11 @@ This is the canonical long-horizon strategic project memory. Repo operational do
 - Strategy pruning: `STRAT-PRUNE1` remains recommendation-only; the founder overrode its suggested slate for Week 2 in PT-RT1.6.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
-- Next recommended action: use Runtime Logs or `.venv/bin/python scripts/watch_pt_rt1_runtime.py --status` to inspect the active Week 2 run, and use `.venv/bin/python scripts/build_pt_rt_week2_daily_review.py --status --scope pt_rt1_6_week2_active` for daily anomaly review without treating testnet lifecycle as synthetic PnL.
+- Next recommended action: use Runtime Logs or `.venv/bin/python scripts/watch_pt_rt1_runtime.py --status` to inspect the active Week 2 run, generate the daily review at the 24h boundary, then run at most one PT-RT1.6.3 XRP transport-only smoke before restarting Week 2 unchanged.
+
+2026-06-08 - PT-RT1.6.3 Testnet Metadata Resolver Hotfix
+
+PT-RT1.6.3 is implemented as a narrow baseline-testnet plumbing hotfix. It adds blocked-symbol metadata resolution for XRP/LINK/DOT/LTC/UNI/TRX/ZEC from Hyperliquid testnet public `meta`, explicit absent-symbol reason codes, and a separate `reports/paper_runtime/pt_rt1_6_3_xrp_transport_smoke/` path requiring exact PT-RT1.6.3 approval plus `--pt-rt1-6-3-testnet-smoke-symbol XRP`. The smoke is `testnet_transport_smoke_not_strategy_signal`, fixed 25 USDC, creates no synthetic trade, does not update synthetic PnL, and blocks locally if XRP metadata or size preflight is unavailable. The active Week 2 runtime was not restarted or mutated during implementation. Candidate/MF-ORIG lanes remain synthetic-only; public mainnet candles remain strategy truth; no live trading or production strategy approval follows.
 
 2026-06-08 - OBS-OS1 Week 2 Paper Observation Operating System
 
