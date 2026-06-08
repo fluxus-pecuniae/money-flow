@@ -861,6 +861,7 @@
       outputDir: null,
       logPath: null,
       runtimeLogFiles: [],
+      runtimeLogFilesRenderKey: "",
       safeFlags: ["--pt-rt1-5-week1-active", "--fresh-signal-only-after-runtime-start", "--enable-baseline-testnet-transport", "--pt-rt1-5-testnet-order-notional-usdc", "25", "--signal-evaluation-mode", "candle_close_only", "--disable-legacy-testnet-probes", "--public-mainnet-only"],
       message: "checking_local_control_server",
       inFlight: false,
@@ -9374,6 +9375,19 @@
   function renderPaperRuntimeLogFiles(control) {
     if (!elements.paperRuntimeLogFiles) return;
     const files = Array.isArray(control.runtimeLogFiles) ? control.runtimeLogFiles : [];
+    const renderKey = JSON.stringify(files.map((file) => ({
+      key: file?.key,
+      path: file?.path,
+      exists: Boolean(file?.exists),
+      size: file?.size_bytes,
+      modified: file?.modified_at_utc,
+    })));
+    if (state.paperRuntimeControl.runtimeLogFilesRenderKey === renderKey && elements.paperRuntimeLogFiles.innerHTML) {
+      return;
+    }
+    const previousLogList = elements.paperRuntimeLogFiles.querySelector(".paper-runtime-log-list");
+    const previousScrollTop = previousLogList ? previousLogList.scrollTop : 0;
+    state.paperRuntimeControl.runtimeLogFilesRenderKey = renderKey;
     if (!files.length) {
       elements.paperRuntimeLogFiles.innerHTML = `
         <div class="methodology-warning compact">Runtime log metadata is unavailable. Start the local dashboard control server to expose log paths.</div>
@@ -9417,6 +9431,8 @@
       </div>
       <div class="paper-runtime-log-list">${rows}</div>
     `;
+    const nextLogList = elements.paperRuntimeLogFiles.querySelector(".paper-runtime-log-list");
+    if (nextLogList) nextLogList.scrollTop = previousScrollTop;
   }
 
   function renderPaperRuntimeControl() {

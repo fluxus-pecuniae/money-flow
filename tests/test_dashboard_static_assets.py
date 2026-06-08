@@ -338,6 +338,9 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "Read-only log files" in js
     assert "scripts/watch_pt_rt1_runtime.py --status" in js
     assert "runtimeLogFiles: Array.isArray(payload?.runtime_log_files)" in js
+    assert "runtimeLogFilesRenderKey" in js
+    assert "previousScrollTop" in js
+    assert "nextLogList.scrollTop = previousScrollTop" in js
     assert "tail -n 50 -F" in js
     assert ".paper-runtime-log-files" in css
     assert ".paper-runtime-tail-command" in css
