@@ -13,6 +13,34 @@ Entry schema:
 
 ---
 
+## v2026.06.08.007
+
+- `recorded_at_utc`: `2026-06-08T08:28:04Z`
+- `scope`: `PT-RT1.6.2 Week 2 operating review and risk triage`
+- `intent`: `Native entry. Added a committed Week 2 operating review over the active ignored pt_rt1_6_week2_active runtime logs. The review verifies the active three-lane slate, 1h/4h/1d-only decisions, 0 active 15m rows, closed-candle-only decision rows, open-position MTM availability, synthetic closed-trade counts from trades.jsonl, baseline-only testnet lifecycle triggers, 0 candidate-lane testnet rows, 0 unknown/open testnet state, 0 testnet PnL updates, and the current Daily Review status observation_may_continue. This is reporting/review only: no runtime behavior changed, no runtime was started or stopped, no manual orders were submitted, no live trading was approved, no strategy was production-approved, and candidate/MF-ORIG lanes remain synthetic-only.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `docs/pt_rt1_6_2_week2_operating_review.md`
+  - `docs/pt_rt1_6_2_week2_operating_review_summary.json`
+  - `tests/test_pt_rt1_6_2_operating_review.py`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/watch_pt_rt1_runtime.py --status`
+  - `.venv/bin/python scripts/build_pt_rt_week2_daily_review.py --status --scope pt_rt1_6_week2_active`
+  - `.venv/bin/python scripts/build_pt_rt_week2_daily_review.py --generate --scope pt_rt1_6_week2_active`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_6_2_operating_review.py`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_obs_os1_daily_review.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `git diff --check`
+
 ## v2026.06.08.006
 
 - `recorded_at_utc`: `2026-06-08T08:45:00Z`

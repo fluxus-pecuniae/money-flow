@@ -1,0 +1,160 @@
+{
+  "phase": "PT-RT1.6.2",
+  "report": "pt_rt1_6_2_week2_operating_review",
+  "recorded_at_utc": "2026-06-08T08:24:44Z",
+  "active_runtime_scope": "pt_rt1_6_week2_active",
+  "go_no_go": "observation_may_continue",
+  "runtime_status": {
+    "control_state_running": true,
+    "control_state_message": "paper_runtime_started_with_caffeinate",
+    "runtime_process_count": 2,
+    "first_decision_time_utc": "2026-06-07T08:07:53Z",
+    "latest_decision_time_utc": "2026-06-08T08:02:50Z",
+    "latest_runtime_audit_time_utc": "2026-06-08T08:25:41Z"
+  },
+  "active_lanes": [
+    "money_flow_v1_2_baseline",
+    "avoid_low_rolling_range_20",
+    "mf_orig_1d_stage2_breakout_resistance_full_equity"
+  ],
+  "archived_lane_count": 7,
+  "active_timeframes": [
+    "1h",
+    "4h",
+    "1d"
+  ],
+  "disabled_timeframes": [
+    "15m"
+  ],
+  "decision_summary": {
+    "total_decisions": 1056,
+    "lane_counts": {
+      "money_flow_v1_2_baseline": 352,
+      "avoid_low_rolling_range_20": 352,
+      "mf_orig_1d_stage2_breakout_resistance_full_equity": 352
+    },
+    "timeframe_counts": {
+      "1h": 594,
+      "4h": 330,
+      "1d": 132
+    },
+    "action_counts": {
+      "no_trade": 704,
+      "paper_hold": 202,
+      "paper_opened": 98,
+      "paper_closed": 40,
+      "data_unavailable": 12
+    },
+    "fifteen_minute_rows": 0,
+    "scheduled_closed_candle_decisions": 1056,
+    "scheduled_false_count": 0,
+    "warm_start_blocked_count": 87,
+    "fresh_post_start_open_count": 98
+  },
+  "lane_review": [
+    {
+      "lane_id": "money_flow_v1_2_baseline",
+      "decisions": 352,
+      "open_positions": 19,
+      "closed_trades": 14,
+      "closed_net_pnl": "-817.6449408148801309161366460",
+      "winning_closed_trades": 3,
+      "losing_closed_trades": 11,
+      "largest_win": "126.6420091695289499509322865",
+      "largest_loss": "-202.2831443335490081933875853",
+      "testnet_eligible": true,
+      "synthetic_only": false
+    },
+    {
+      "lane_id": "avoid_low_rolling_range_20",
+      "decisions": 352,
+      "open_positions": 19,
+      "closed_trades": 14,
+      "closed_net_pnl": "-817.6449408148801309161366460",
+      "winning_closed_trades": 3,
+      "losing_closed_trades": 11,
+      "largest_win": "126.6420091695289499509322865",
+      "largest_loss": "-202.2831443335490081933875853",
+      "testnet_eligible": false,
+      "synthetic_only": true
+    },
+    {
+      "lane_id": "mf_orig_1d_stage2_breakout_resistance_full_equity",
+      "decisions": 352,
+      "open_positions": 20,
+      "closed_trades": 12,
+      "closed_net_pnl": "-155.1942742746160639399457848",
+      "winning_closed_trades": 5,
+      "losing_closed_trades": 7,
+      "largest_win": "126.6420091695289499509322865",
+      "largest_loss": "-176.4429153930358258885290272",
+      "testnet_eligible": false,
+      "synthetic_only": true
+    }
+  ],
+  "position_and_trade_summary": {
+    "open_positions": 58,
+    "open_positions_by_timeframe": {
+      "4h": 48,
+      "1h": 10
+    },
+    "open_positions_mtm_updated": 58,
+    "open_positions_mtm_unavailable": 0,
+    "closed_trades": 40,
+    "closed_net_pnl": "-1790.484155904376325772219076",
+    "winning_closed_trades": 11,
+    "losing_closed_trades": 29,
+    "largest_closed_win": "126.6420091695289499509322865",
+    "largest_closed_loss": "-202.2831443335490081933875853"
+  },
+  "testnet_lifecycle_summary": {
+    "rows": 33,
+    "status_counts": {
+      "reconciled": 21,
+      "blocked": 12
+    },
+    "trigger_lanes": {
+      "money_flow_v1_2_baseline": 33
+    },
+    "order_endpoint_called_count": 21,
+    "signed_order_endpoint_called_count": 21,
+    "candidate_lane_trigger_count": 0,
+    "unknown_open_state_count": 0,
+    "testnet_pnl_update_count": 0,
+    "blocked_reason_codes": [
+      "testnet_order_precision_missing",
+      "testnet_metadata_unavailable"
+    ],
+    "blocked_symbols": [
+      "XRP",
+      "LINK",
+      "DOT",
+      "LTC",
+      "UNI",
+      "TRX",
+      "ZEC"
+    ]
+  },
+  "daily_review_status": {
+    "go_no_go": "observation_may_continue",
+    "anomaly_flags": 1,
+    "informational_flags": {
+      "warm_start_block_spike": 63
+    }
+  },
+  "boundaries": {
+    "public_mainnet_data_is_strategy_truth": true,
+    "synthetic_ledger_is_pnl_truth": true,
+    "testnet_lifecycle_separate_from_synthetic_trades": true,
+    "testnet_fills_update_synthetic_pnl": false,
+    "candidate_lanes_testnet_eligible": false,
+    "baseline_only_testnet_transport": true,
+    "fifteen_minute_active_scoring": false,
+    "live_trading_approved": false,
+    "production_strategy_approved": false,
+    "runtime_started_or_stopped_by_phase": false,
+    "runtime_behavior_changed_by_phase": false
+  },
+  "recommendation": "continue_week2_observation_unchanged_for_24h_then_repeat_operating_review",
+  "next_phase": "PT-RT1.6.3 daily runtime review or testnet metadata resolver triage if blocked-symbol plumbing becomes important"
+}

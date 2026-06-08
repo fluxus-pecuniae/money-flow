@@ -5,8 +5,8 @@ This is the canonical long-horizon strategic project memory. Repo operational do
 ## Current Operator Summary
 
 - Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
-- Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is prepared; no active paper run is assumed unless the local control server reports one.
-- Dashboard state: `DASH-PT1.3` makes Paper Trading a contained exchange-style terminal with top health strip, left filter/watchlist rail with internal scrolling, center public-mainnet chart with compact paper marker labels, height-bounded right runtime/testnet rail, bottom tabbed blotter, and a final full-width Daily Review / Anomaly Flags card below the blotter. `LOG-OBS1` adds read-only Runtime Logs metadata and `scripts/watch_pt_rt1_runtime.py` for operator status/latest/tail views. `OBS-OS1` adds a read-only daily review/anomaly generator plus a dashboard Daily Review / Anomaly Flags panel.
+- Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is active under `pt_rt1_6_week2_active`; `PT-RT1.6.2` reviewed the first operating window and recommends continuing unchanged.
+- Dashboard state: `DASH-PT1.3` makes Paper Trading a contained exchange-style terminal with top health strip, left filter/watchlist rail with internal scrolling, center public-mainnet chart with compact paper marker labels, height-bounded right runtime/testnet rail, bottom tabbed blotter, and a final full-width Daily Review / Anomaly Flags card below the blotter. `LOG-OBS1` adds read-only Runtime Logs metadata and `scripts/watch_pt_rt1_runtime.py` for operator status/latest/tail views. `OBS-OS1` adds a read-only daily review/anomaly generator plus a dashboard Daily Review / Anomaly Flags panel. `PT-RT1.6.2` records the first Week 2 operating review over active ignored runtime logs and recommends continuing unchanged.
 - Active Week 2 default slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
 - Active timeframes: `1h`, `4h`, `1d`.
 - Paused timeframes: `15m` remains paused as diagnostic/legacy context only.
@@ -31,6 +31,10 @@ DASH-PT1.2 is complete as dashboard-only UX work. Paper Trading now uses an exch
 2026-06-08 - DASH-PT1.3 Paper Trading Terminal QA Hotfix
 
 DASH-PT1.3 is complete as dashboard-only UI QA work. It contains the terminal layout after screenshot QA by keeping filters inside the left rail, making Watchlist internally scrollable with only Symbol / Mid price / Health columns, bounding Runtime Control / Testnet Order Transport heights, compacting Runtime details to high-signal fields, moving the bottom blotter closer to the chart, moving Daily Review / Anomaly Flags below the blotter as the final full-width card, and compacting paper chart marker labels. No runtime behavior changed, no runtime was started/stopped, no orders were submitted, no live trading was approved, and no strategy was production-approved.
+
+2026-06-08 - PT-RT1.6.2 Week 2 Operating Review
+
+PT-RT1.6.2 is complete as reporting/review only. It reviewed the active ignored `reports/paper_runtime/pt_rt1_6_week2_active/` logs through the `2026-06-08T08:00:00Z` closed-candle cycle. The runtime remains active under Mac `caffeinate`; decisions are split evenly across the three founder-selected lanes; `15m` active rows remain 0; all decisions reviewed were scheduled closed-candle evaluations; open-position MTM covered 58/58 reconstructed open positions; `trades.jsonl` contained 40 closed synthetic trades with early negative closed PnL; testnet lifecycle rows were baseline-only with 21 accepted/canceled/reconciled and 12 fail-closed metadata/precision blocks; candidate-lane testnet triggers, unknown/open testnet state, and testnet PnL updates were all 0. Daily Review status is `observation_may_continue` with one informational warm-start block spike. The recommendation is to continue unchanged for another 24h and triage blocked testnet metadata symbols only if transport coverage becomes important. No runtime behavior changed, no runtime was started/stopped, no manual orders were submitted, no live trading was approved, and no strategy was production-approved.
 
 2026-06-08 - LOG-OBS1 Runtime Log Visibility
 

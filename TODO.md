@@ -9,11 +9,12 @@ Last reviewed: `2026-06-08T08:45:00Z`
 - PT-RT1.6 prepares the founder-selected Week 2 paper slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
 - STRAT-PRUNE1 remains recommendation-only and was overridden by the founder for Week 2 lane selection.
 - STRAT-DISC1 found zero founder production-testing review candidates across 12 bounded research runs and is superseded by the broader GOAL-STRAT1 exhaustion result.
-- Start the Week 2 paper run only after founder review; PT-RT1.6 did not start the runtime.
+- Week 2 paper runtime is active under `pt_rt1_6_week2_active`; do not start a duplicate runtime.
 - LOG-OBS1 adds read-only runtime log visibility. Use `.venv/bin/python scripts/watch_pt_rt1_runtime.py --status` to see the active scope, file paths, file sizes, latest modification times, and exact tail commands.
 - OBS-OS1 adds the read-only daily review layer. Use `.venv/bin/python scripts/build_pt_rt_week2_daily_review.py --status --scope pt_rt1_6_week2_active` during the day and `.venv/bin/python scripts/build_pt_rt_week2_daily_review.py --generate --scope pt_rt1_6_week2_active` to write the ignored dashboard-readable daily pack.
 - DASH-PT1.3 contains the Paper Trading terminal layout after QA: filters stay inside the left rail, Watchlist scrolls internally with Symbol / Mid price / Health only, Runtime/Testnet right-rail panels are height-bounded, Daily Review / Anomaly Flags is the final full-width card below the blotter, Runtime details are compact, and chart marker labels are compact. If the browser still looks vertical/stacked, hard refresh because the dashboard CSS/JS cache-buster changed to `dash-pt1-2-terminal-20260608`.
-- Review the next fresh Money Flow v1.2 baseline-triggered lifecycle row to confirm it uses Hyperliquid testnet metadata-based `szDecimals` formatting outside the explicit transport-smoke path.
+- PT-RT1.6.2 confirms the active Week 2 runtime is operating under the selected three-lane slate, with 0 active `15m` rows, baseline-only testnet lifecycle triggers, 0 testnet PnL updates, 58 open positions with MTM updated, and Daily Review status `observation_may_continue`.
+- Review blocked testnet metadata symbols if baseline transport coverage matters for the next operating window: `XRP`, `LINK`, `DOT`, `LTC`, `UNI`, `TRX`, and `ZEC` currently fail closed with `testnet_order_precision_missing` / `testnet_metadata_unavailable`.
 - Continue confirming `1h`/`4h`/`1d` candle-close scheduling, warm-start fresh-signal gating, open-position MTM, and baseline-only fixed 25 USDC Hyperliquid testnet lifecycle separation.
 - Keep `15m` paused for Week 2 scoring unless a later founder-approved phase explicitly re-enables it.
 - Use the SUBAGENTS1 `runtime_reviewer`, `dashboard_reviewer`, and `quant_reviewer` for the next bounded read-only PT-RT runtime/dashboard/quant triage.
@@ -21,10 +22,11 @@ Last reviewed: `2026-06-08T08:45:00Z`
 ## Next
 
 - If the founder wants another discovery pass, add longer non-overlapping OOS candle windows, execution-quality modeling, and stricter control-pocket slices before widening parameter ranges.
-- After founder review, start `reports/paper_runtime/pt_rt1_6_week2_active/` using the documented PT-RT1.6 command or dashboard control server.
+- Week 2 is already running under `reports/paper_runtime/pt_rt1_6_week2_active/`; do not start a duplicate runtime.
+- Repeat the PT-RT1.6.2 operating review after another 24h of runtime, before adding or removing lanes.
 - If the founder wants to test GOAL-STRAT2 candidates, use the STRAT-PRUNE1 recommended slate as the implementation target; do not route either candidate to testnet or live trading.
 - Treat GOAL-STRAT1 near misses as research triage only: volatility-expansion and Donchian-style variants had positive aggregate pockets but failed OOS and/or drawdown gates.
-- Review the first PT-RT1.6 Week 2 runtime rows after the founder-started run begins.
+- Review the next 24h PT-RT1.6 Week 2 runtime window before adding/removing lanes.
 - Keep candidate/MF-ORIG/wildcard lanes synthetic-only; do not route them to testnet.
 - Keep SV2.0.2 canonical evidence, SV2.1 1D evidence, Historical Replay display, and PT-RT forward observation separated in future docs.
 
@@ -38,6 +40,7 @@ Last reviewed: `2026-06-08T08:45:00Z`
 - OBS-OS1 added the read-only Week 2 daily review/anomaly generator plus a Paper Trading Daily Review / Anomaly Flags panel. The current local status is `observation_may_continue` with one informational `warm_start_block_spike` flag.
 - DASH-PT1.2 reorganized Paper Trading into a top health strip, left filter/watchlist rail, center chart, right runtime/testnet/daily-review rail, and bottom tabbed blotter while preserving all Week 2 strategy/testnet/runtime boundaries.
 - DASH-PT1.3 fixed Paper Trading terminal layout QA issues by containing left-rail filters/watchlist, bounding Runtime/Testnet right-rail cards, moving the blotter closer to the chart, compacting Runtime details, removing the Watchlist Status column, moving Daily Review / Anomaly Flags below the blotter, and compacting chart marker labels.
+- PT-RT1.6.2 added the Week 2 operating review/report over active ignored runtime logs and recommended continuing the current run unchanged.
 - GOAL-STRAT1 added a broader research-only autonomous discovery harness and report; 49 datasets were accepted, 121 candidate configurations were tested, and zero strategies passed the founder-review gate without overfitting/blockers.
 - STRAT-DISC1 added the first research-only autonomous discovery harness and report; 50 datasets were accepted, 12 candidate runs were tested, and zero strategies passed the founder-review gate.
 - SUBAGENTS1 added project-scoped read-only Codex reviewers for runtime, dashboard, and quant triage.
