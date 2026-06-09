@@ -1,11 +1,13 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-06-08T08:45:00Z`
+Last reviewed: `2026-06-08T10:57:45Z`
 
 ## Open Issues
 
 - `K-025`: STRAT-PRUNE1 recommended a different smaller slate; founder overrode it in PT-RT1.6 with a three-lane Week 2 slate.
 - `K-027`: Hyperliquid testnet metadata coverage is not guaranteed for all baseline paper symbols. PT-RT1.6.3 resolves blocked-symbol metadata when present and prepares one XRP transport-only smoke, but if XRP/LINK/DOT/LTC/UNI/TRX/ZEC are absent from testnet `meta`, they intentionally fail closed before `/exchange`.
+- `K-028`: SV2.2 now refreshes public-mainnet candles and runs latest Historical Replay rows for the three founder-selected Week 2 strategies only. It does not replace canonical SV2.0.2/SV2.1 evidence, approve a strategy, or affect active PT-RT runtime state.
+- `K-029`: `scripts/check_secret_hygiene.py` is a lightweight pattern scan only — it is NOT a substitute for professional secret scanning (gitleaks, truffleHog). It catches obvious key material (PEM blocks, bearer tokens, known env-var key names with non-placeholder values) but does not scan git history, binary files, or use entropy analysis. Tests/ directory KV-pattern scanning is intentionally skipped since test fixtures are expected to reference key names.
 - `K-024`: GOAL-STRAT2 found two non-existing strategies worth paper-testing review, but they remain research-only and require a separately scoped paper-testing lane phase before runtime use.
 - `K-023`: GOAL-STRAT1 did not find three founder production-testing review candidates after full autonomous discovery. The best near misses remain research-only and no strategy should be promoted from this goal.
 - `K-022`: STRAT-DISC1 did not find three founder production-testing review candidates without overfitting or risk blockers. It is superseded by the broader GOAL-STRAT1 exhaustion result.
@@ -30,6 +32,7 @@ Last reviewed: `2026-06-08T08:45:00Z`
 - PT-RT1.3 stale/thin `allMids` false positives were resolved by candle-truth data-health semantics.
 - PT-RT1.5.1 resolved the pre-warm-start smoke issue with fresh-signal gating and open-position MTM.
 - PT-RT1.5.3 resolved the PT-RT1.5.2 `Order has invalid size` blocker by using Hyperliquid testnet public metadata / `szDecimals` for fixed 25 USDC order sizing and verifying accepted/open -> canceled -> reconciled lifecycle coverage.
+- SV2.2 resolves the stale Historical Replay data-prep blocker by refreshing 23 founder symbols across `1h`/`4h`/`1d` through 2026-06-08 and replaying the three Week 2 selected strategies over that data, while preserving canonical-evidence separation and no-production/no-live boundaries.
 
 ## Archived Historical Issues
 

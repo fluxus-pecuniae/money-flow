@@ -44,6 +44,7 @@
     ...SV202_CANONICAL_BATCH_FILES,
   ];
   const EVIDENCE_BATCH_REPORTS_STRATEGY_ID = "canonical_batch_reports";
+  const EVIDENCE_SV23_REALISTIC_ID = "sv2_3_realistic_backtest";
   const STRATEGY_COMPARISON_ALL_STRATEGIES_ID = "all_strategy_comparison_strategies";
   const DASHBOARD_THEME_STORAGE_KEY = "money-flow-dashboard-theme";
   const DASHBOARD_THEMES = new Set(["dark", "light", "red-zone"]);
@@ -83,6 +84,12 @@
   ];
   const DEFAULT_SV21_BROAD_SUMMARY_FILES = [
     "../../docs/sv2_1_broad_hyperliquid_1d_period_evidence_summary.json",
+  ];
+  const DEFAULT_SV22_RESEARCH_REFRESH_SUMMARY_FILES = [
+    "../../docs/sv2_2_hyperliquid_research_refresh_summary.json",
+  ];
+  const DEFAULT_SV23_REALISTIC_SUMMARY_FILES = [
+    "../../docs/sv2_3_realistic_backtest_summary.json",
   ];
   const SV21_BROAD_HISTORICAL_REPLAY_TIMESTAMP = "20260516T091500Z";
   const SV21_BROAD_PERIODS = ["2024", "2025", "YTD", "ALL"];
@@ -198,6 +205,10 @@
       reason_codes: ["founder_selected_week2_active", "candidate_synthetic_only"],
     },
   };
+  const SV22_REPLAY_PERIOD = "SV2.2";
+  const SV22_REPLAY_STRATEGY_IDS = new Set(PAPER_OBSERVATION_WEEK2_ACTIVE_LANE_IDS);
+  const SV22_REPLAY_TIMEFRAMES = new Set(PAPER_OBSERVATION_ACTIVE_TIMEFRAMES);
+  const SV22_REPLAY_FILL_ASSUMPTIONS = new Set(["next_candle_open", "next_candle_close"]);
   const RUN_LEDGER_DISPLAY_FILTER_BOUNDARY = "date filters are display-only, not canonical pack regeneration";
 
   const HYPERLIQUID_MAINNET_PUBLIC_INFO_URL = "https://api.hyperliquid.xyz/info";
@@ -674,8 +685,8 @@
   const state = {
     review: null,
     batches: [],
-    selectedComponent: "sleeve_1d",
-    evidenceReplayStrategyId: EVIDENCE_BATCH_REPORTS_STRATEGY_ID,
+    selectedComponent: "all",
+    evidenceReplayStrategyId: EVIDENCE_SV23_REALISTIC_ID,
     evidenceReplayFillAssumption: "next_candle_open",
     evidencePeriod: "all_periods",
     evidenceDateStart: "",
@@ -693,7 +704,7 @@
       key: "",
       direction: "desc",
     },
-    activeView: "paper-observation",
+    activeView: "historical-replay",
     experimentMode: "sv115_overlays",
     sv117FullSuiteRows: null,
     uat2Summary: null,
@@ -706,6 +717,8 @@
     loadingHistoricalChartDataPaths: new Set(),
     sv20Summary: null,
     sv21BroadSummary: null,
+    sv22RefreshSummary: null,
+    sv23RealisticSummary: null,
     sorEv1Summary: null,
     sorEv2Summary: null,
     sorEv3Summary: null,
@@ -873,10 +886,10 @@
     },
     ptRtDailyReview: null,
     historicalReplay: {
-      strategyId: "money_flow_v1_2_canonical",
-      symbol: "ETH",
-      timeframe: "1d",
-      period: "ALL",
+      strategyId: "money_flow_v1_2_baseline",
+      symbol: "BTC",
+      timeframe: "1h",
+      period: "SV2.2",
       fillAssumption: "next_candle_open",
       selectedTradeId: null,
       showArrowDescriptions: false,
@@ -1580,6 +1593,10 @@
   function evidenceReplayStrategyOptions() {
     return [
       {
+        value: EVIDENCE_SV23_REALISTIC_ID,
+        label: "Latest Evidence / SV2.3 realistic backtest",
+      },
+      {
         value: EVIDENCE_BATCH_REPORTS_STRATEGY_ID,
         label: "Canonical evidence packs / batch reports",
       },
@@ -1594,8 +1611,16 @@
   function selectedEvidenceReplayStrategyLabel() {
     return (
       evidenceReplayStrategyOptions().find((option) => option.value === state.evidenceReplayStrategyId)?.label ||
-      "Canonical evidence packs / batch reports"
+      "Latest Evidence / SV2.3 realistic backtest"
     );
+  }
+
+  function isSv23EvidenceMode() {
+    return state.evidenceReplayStrategyId === EVIDENCE_SV23_REALISTIC_ID;
+  }
+
+  function sv23ScenarioRows() {
+    return Array.isArray(state.sv23RealisticSummary?.results) ? state.sv23RealisticSummary.results : [];
   }
 
   function activeSummaries() {
@@ -1635,6 +1660,7 @@
     if (state.activeView === "evidence-lab") {
       scheduleEvidenceLabOverlayChartResize();
     }
+    syncPaperRuntimeControlPolling();
   }
 
   function setPaperObservationTerminalTab(tabName) {
@@ -1651,6 +1677,20 @@
   }
 
   function renderMetrics(summaries) {
+    if (isSv23EvidenceMode() && state.sv23RealisticSummary) {
+      const rows = sv23ScenarioRows();
+      const completed = rows.filter((row) => row.status === "completed").length;
+      if (elements.status) {
+        elements.status.textContent = state.sv23RealisticSummary.status || "SV2.3 realistic backtest";
+      }
+      elements.metricPacks.textContent = String(rows.length);
+      elements.metricPacksDetail.textContent = "SV2.3 realistic rows";
+      elements.metricRuns.textContent = String(state.sv23RealisticSummary.aggregate_results?.length || rows.length);
+      elements.metricRunsDetail.textContent = "latest Week 2 slate / next-candle-open only";
+      elements.metricCoverage.textContent = pct(rows.length ? completed / rows.length : 0);
+      elements.metricBoundary.textContent = "research-only";
+      return;
+    }
     const generatedPaths = state.review?.generated_evidence_pack_paths || [];
     const packCount =
       generatedPaths.length ||
@@ -1690,15 +1730,17 @@
   }
 
   function renderFilters(summaries) {
-    const components = [
-      "all",
-      ...Array.from(new Set(
-        summaries
-          .slice()
-          .sort((a, b) => timeframeSortRank(a.timeframe) - timeframeSortRank(b.timeframe) || a.component.localeCompare(b.component))
-          .map((summary) => summary.component),
-      )),
-    ];
+    const components = isSv23EvidenceMode()
+      ? ["all", ...((state.sv23RealisticSummary?.timeframes || ["1h", "4h", "1d"]).map((timeframe) => `sleeve_${canonicalTimeframe(timeframe)}`))]
+      : [
+          "all",
+          ...Array.from(new Set(
+            summaries
+              .slice()
+              .sort((a, b) => timeframeSortRank(a.timeframe) - timeframeSortRank(b.timeframe) || a.component.localeCompare(b.component))
+              .map((summary) => summary.component),
+          )),
+        ];
     if (!components.includes(state.selectedComponent)) {
       state.selectedComponent = defaultEvidenceComponent(summaries);
     }
@@ -1724,6 +1766,7 @@
   }
 
   function evidenceReplayFillOptions() {
+    if (isSv23EvidenceMode()) return ["next_candle_open"];
     const fills = uniqueSorted(
       (state.sv202HistoricalReplay?.replays || [])
         .map(replayFillAssumption)
@@ -1739,6 +1782,7 @@
   }
 
   function evidencePeriodOptions(summaries = allSummaries()) {
+    if (isSv23EvidenceMode()) return [{ value: "SV2.3", label: "SV2.3" }];
     const periods = new Set([
       ...summaries.map((summary) => summary.period).filter(Boolean).map((period) => String(period).toUpperCase()),
       ...(state.sv202HistoricalReplay?.replays || []).map((replay) => replay.period).filter(Boolean).map((period) => String(period).toUpperCase()),
@@ -1762,7 +1806,7 @@
     if (!elements.evidencePeriodFilter) return;
     const options = evidencePeriodOptions(summaries);
     if (!options.some((option) => option.value === state.evidencePeriod)) {
-      state.evidencePeriod = "all_periods";
+      state.evidencePeriod = isSv23EvidenceMode() ? "SV2.3" : "all_periods";
     }
     renderSelectWithoutAll(elements.evidencePeriodFilter, options, state.evidencePeriod);
     elements.evidencePeriodFilter.onchange = () => {
@@ -1776,12 +1820,17 @@
     if (!elements.evidenceReplayStrategyFilter) return;
     const options = evidenceReplayStrategyOptions();
     if (!options.some((option) => option.value === state.evidenceReplayStrategyId)) {
-      state.evidenceReplayStrategyId = EVIDENCE_BATCH_REPORTS_STRATEGY_ID;
+      state.evidenceReplayStrategyId = EVIDENCE_SV23_REALISTIC_ID;
     }
     renderSelectWithoutAll(elements.evidenceReplayStrategyFilter, options, state.evidenceReplayStrategyId);
     elements.evidenceReplayStrategyFilter.onchange = () => {
       state.evidenceReplayStrategyId =
-        elements.evidenceReplayStrategyFilter.value || EVIDENCE_BATCH_REPORTS_STRATEGY_ID;
+        elements.evidenceReplayStrategyFilter.value || EVIDENCE_SV23_REALISTIC_ID;
+      if (isSv23EvidenceMode()) {
+        state.selectedComponent = "all";
+        state.evidencePeriod = "SV2.3";
+        state.evidenceReplayFillAssumption = "next_candle_open";
+      }
       resetComponentResultsPage();
       render();
     };
@@ -2458,7 +2507,47 @@
     elements.checklist.innerHTML = criteria.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
   }
 
+  function sv23EvidenceRunLedgerRows() {
+    return sv23ScenarioRows()
+      .filter((row) => state.selectedComponent === "all" || row.component === state.selectedComponent || `sleeve_${canonicalTimeframe(row.timeframe)}` === state.selectedComponent)
+      .filter((row) => evidencePeriodMatches(row.period || "SV2.3"))
+      .filter((row) => state.evidenceReplayFillAssumption === "all" || (row.fill_assumption || "next_candle_open") === state.evidenceReplayFillAssumption)
+      .map((row) => ({
+        strategy_id: row.strategy_id,
+        strategy_label: dashboardStrategyLabel(row.strategy_label, row.strategy_id),
+        component: row.component || `sleeve_${canonicalTimeframe(row.timeframe)}`,
+        symbol: row.symbol || "unknown",
+        timeframe: canonicalTimeframe(row.timeframe),
+        period: row.period || "SV2.3",
+        fill_timing: row.fill_assumption || "next_candle_open",
+        execution_scenario: row.execution_scenario || "base_next_open",
+        fee_bps: row.fee_bps || row.execution_fee_bps || "n/a",
+        slippage_bps: row.slippage_bps || "n/a",
+        adverse_gap_penalty_bps: row.adverse_gap_penalty_bps || "n/a",
+        ending_equity: row.ending_equity,
+        net_pnl: row.net_pnl,
+        win_rate: row.win_rate,
+        trade_count: row.trade_count,
+        max_drawdown: row.max_drawdown,
+        source: "sv2_3_realistic_backtest",
+        evidence_pack_path: row.chart_data_path,
+        research_only: true,
+        production_approved: false,
+        result_label: row.gate_status || "realistic_gate_pending",
+        result_class: String(row.gate_status || "").startsWith("passes") ? "good" : "bad",
+        pnl_delta_vs_v12: null,
+        drawdown_delta_vs_v12: null,
+      }))
+      .sort((left, right) =>
+        left.strategy_label.localeCompare(right.strategy_label) ||
+        left.execution_scenario.localeCompare(right.execution_scenario) ||
+        left.symbol.localeCompare(right.symbol) ||
+        timeframeSortRank(left.timeframe) - timeframeSortRank(right.timeframe),
+      );
+  }
+
   function evidenceReplayRunLedgerRows() {
+    if (isSv23EvidenceMode()) return sv23EvidenceRunLedgerRows();
     if (state.evidenceReplayStrategyId === EVIDENCE_BATCH_REPORTS_STRATEGY_ID) return null;
     const replays = Array.isArray(state.sv202HistoricalReplay?.replays)
       ? state.sv202HistoricalReplay.replays
@@ -2671,7 +2760,11 @@
             <th>Symbol</th>
             <th>Timeframe</th>
             <th>Period</th>
+            <th>Scenario</th>
             <th>Fill</th>
+            <th>Fee</th>
+            <th>Slip</th>
+            <th>Gap Penalty</th>
             <th>${runLedgerSortButton("endingEquity", "Ending Equity")}</th>
             <th>${runLedgerSortButton("netPnl", "Scenario Net PnL")}</th>
             <th>Win</th>
@@ -2689,7 +2782,11 @@
               <td>${escapeHtml(row.symbol)}</td>
               <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
               <td>${escapeHtml(row.period)}</td>
+              <td>${escapeHtml(row.execution_scenario || "n/a")}</td>
               <td>${escapeHtml(row.fill_timing)}</td>
+              <td>${escapeHtml(row.fee_bps || "n/a")}</td>
+              <td>${escapeHtml(row.slippage_bps || "n/a")}</td>
+              <td>${escapeHtml(row.adverse_gap_penalty_bps || "n/a")}</td>
               <td>${escapeHtml(money(row.ending_equity))}</td>
               <td class="${decimal(row.net_pnl) >= 0 ? "positive" : "negative"}">${escapeHtml(money(row.net_pnl))}</td>
               <td>${escapeHtml(row.win_rate === null || row.win_rate === undefined ? "n/a" : pct(row.win_rate))}</td>
@@ -4241,15 +4338,7 @@
   }
 
   function historicalReplays() {
-    const sv202 = Array.isArray(state.sv202HistoricalReplay?.replays)
-      ? state.sv202HistoricalReplay.replays
-      : [];
-    const pt = Array.isArray(state.pt002HistoricalReplay?.replays)
-      ? state.pt002HistoricalReplay.replays
-      : [];
-    return [...sv202, ...pt]
-      .filter(isVisibleDashboardStrategyRow)
-      .filter((row) => isHistoricalReplayStrategyVisible(row.strategy_id || "money_flow_v1_2_canonical"));
+    return sv22HistoricalReplayRows();
   }
 
   function replayIdentity(row) {
@@ -4319,6 +4408,66 @@
       `hyperliquid_public_${safeReplayPathSegment(symbol)}_1d_${safeReplayPathSegment(period)}_` +
       `${safeReplayPathSegment(strategyId)}_${safeReplayPathSegment(fillAssumption)}_sv21_replay.json`,
     );
+  }
+
+  function sv22LatestReplayRows() {
+    const summary = state.sv22RefreshSummary || {};
+    if (summary.phase !== "SV2.2") return [];
+    return (summary.replay_results || [])
+      .filter((row) => row && row.status === "completed" && row.chart_data_path)
+      .map((row) => ({
+        strategy_id: row.strategy_id,
+        strategy_label: row.strategy_label || row.strategy_id,
+        component: row.component || `sleeve_${canonicalTimeframe(row.timeframe)}`,
+        symbol: row.symbol,
+        timeframe: canonicalTimeframe(row.timeframe),
+        period: row.period || "SV2.2",
+        fill_assumption: row.fill_assumption || "next_candle_open",
+        research_only: true,
+        production_approved: false,
+        data_source: "SV2.2 latest Hyperliquid public-mainnet strategy replay; selected chart data loads lazily",
+        strategy_truth_lane: "hyperliquid_public_mainnet_sv2_2_latest_replay",
+        chart_data_path: chartDataUrl(row.chart_data_path),
+        chart_data_lazy: true,
+        evidence_pack_path: row.evidence_pack_path || "",
+        summary: {
+          starting_equity: row.starting_equity,
+          ending_equity: row.ending_equity,
+          net_pnl: row.net_pnl,
+          max_drawdown: row.max_drawdown,
+          max_drawdown_pct: row.max_drawdown_pct,
+          trade_count: row.trade_count,
+          win_rate: row.win_rate,
+          profit_factor: row.profit_factor,
+          largest_loss: row.largest_loss,
+          largest_win: row.largest_win,
+        },
+        candles: [],
+        indicators: [],
+        markers: [],
+        trades: [],
+        equity_curve: [],
+      }));
+  }
+
+  function isSv22ReplayRow(row) {
+    if (!row) return false;
+    return (
+      historicalReplayPeriod(row) === SV22_REPLAY_PERIOD &&
+      SV22_REPLAY_STRATEGY_IDS.has(String(row.strategy_id || "")) &&
+      SV22_REPLAY_TIMEFRAMES.has(canonicalTimeframe(row.timeframe)) &&
+      SV22_REPLAY_FILL_ASSUMPTIONS.has(String(row.fill_assumption || ""))
+    );
+  }
+
+  function sv22HistoricalReplayRows() {
+    const summaryRows = sv22LatestReplayRows();
+    const loadedRows = Array.isArray(state.sv202HistoricalReplay?.replays)
+      ? state.sv202HistoricalReplay.replays.filter(isSv22ReplayRow)
+      : [];
+    return mergeReplayRows(summaryRows, loadedRows)
+      .filter(isSv22ReplayRow)
+      .filter(isVisibleDashboardStrategyRow);
   }
 
   function sv202SummaryReplaysFromBatches() {
@@ -4589,35 +4738,13 @@
   function selectedHistoricalReplay() {
     const periodMatches = (row) => historicalReplayPeriodMatches(row);
     const rows = historicalReplays().filter(periodMatches);
-    const exactWithExplicitPeriod = rows.find(
-      (row) =>
-        row.period &&
-        (row.strategy_id || "baseline_current_money_flow_rules") === state.historicalReplay.strategyId &&
-        row.symbol === state.historicalReplay.symbol &&
-        sameTimeframe(row.timeframe, state.historicalReplay.timeframe) &&
-        (!row.fill_assumption || row.fill_assumption === state.historicalReplay.fillAssumption),
-    );
-    if (exactWithExplicitPeriod) return exactWithExplicitPeriod;
-    const exact = rows.find(
+    return rows.find(
       (row) =>
         (row.strategy_id || "baseline_current_money_flow_rules") === state.historicalReplay.strategyId &&
         row.symbol === state.historicalReplay.symbol &&
         sameTimeframe(row.timeframe, state.historicalReplay.timeframe) &&
         (!row.fill_assumption || row.fill_assumption === state.historicalReplay.fillAssumption),
-    );
-    if (exact) return exact;
-    const sameSelection = historicalReplays().find(
-      (row) =>
-        periodMatches(row) &&
-        row.symbol === state.historicalReplay.symbol &&
-        sameTimeframe(row.timeframe, state.historicalReplay.timeframe) &&
-        (!row.fill_assumption || row.fill_assumption === state.historicalReplay.fillAssumption),
-    );
-    if (sameSelection) return sameSelection;
-    if (!state.historicalReplay.symbol && !state.historicalReplay.timeframe) {
-      return historicalReplays().find(periodMatches) || historicalReplays()[0] || null;
-    }
-    return null;
+    ) || null;
   }
 
   function historicalReplayKey() {
@@ -4789,7 +4916,7 @@
     const trade = historicalTradeForMarker(replay, marker);
     const pnlValue = trade?.net_pnl ?? marker?.net_pnl;
     if (!state.historicalReplay.showArrowDescriptions) {
-      return [historicalMarkerPnlLine(pnlValue)];
+      return [""];
     }
     const markerReasons = Array.isArray(marker?.reason_codes) ? marker.reason_codes : [];
     const markerType = String(marker?.marker_type || "");
@@ -5186,61 +5313,66 @@
   }
 
   function renderHistoricalReplayFilters() {
-    const summary = state.pt002HistoricalReplay || {};
-    const sv20 = state.sv20Summary || {};
     const replays = historicalReplays();
     const symbols = Array.from(new Set([
       ...replays.map((row) => row.symbol).filter(Boolean),
-      ...(Array.isArray(summary.symbols) ? summary.symbols : []),
-      ...(Array.isArray(sv20.symbols) ? sv20.symbols : []),
-    ].filter(isVisibleDashboardSymbol)));
+      ...PAPER_OBSERVATION_CONFIGURED_SYMBOLS,
+    ].filter(isVisibleDashboardSymbol))).sort();
     const timeframes = Array.from(new Set([
-      ...replays.map((row) => row.timeframe).filter(Boolean),
-      ...(Array.isArray(summary.timeframes) ? summary.timeframes : []),
-      ...(Array.isArray(sv20.timeframes) ? sv20.timeframes : []),
-    ].map(canonicalTimeframe)));
+      ...replays.map((row) => row.timeframe).filter(Boolean).map(canonicalTimeframe),
+      ...PAPER_OBSERVATION_ACTIVE_TIMEFRAMES,
+    ])).filter((timeframe) => SV22_REPLAY_TIMEFRAMES.has(canonicalTimeframe(timeframe)));
     const fills = Array.from(new Set([
       ...replays.map((row) => row.fill_assumption).filter(Boolean),
-      ...(Array.isArray(summary.fill_assumptions) ? summary.fill_assumptions.map((row) => row.id || row) : []),
-    ]));
-    const periods = Array.from(new Set([
-      ...SV21_BROAD_PERIODS,
-      ...replays.map((row) => row.period).filter(Boolean).map((period) => String(period).toUpperCase()),
-    ]));
-    if (!isHistoricalReplayStrategyVisible(state.historicalReplay.strategyId)) {
-      state.historicalReplay.strategyId = "money_flow_v1_2_canonical";
+      ...SV22_REPLAY_FILL_ASSUMPTIONS,
+    ])).filter((fill) => SV22_REPLAY_FILL_ASSUMPTIONS.has(String(fill || "")));
+    const periods = [SV22_REPLAY_PERIOD];
+    const strategyMap = new Map();
+    PAPER_OBSERVATION_WEEK2_ACTIVE_LANE_IDS.forEach((laneId) => {
+      strategyMap.set(laneId, {
+        value: laneId,
+        label: `${laneId} - ${PAPER_OBSERVATION_WEEK2_LANE_LABELS[laneId] || "Week 2 active"}`,
+      });
+    });
+    replays.forEach((row) => {
+      const strategyId = row.strategy_id || "";
+      if (!SV22_REPLAY_STRATEGY_IDS.has(strategyId)) return;
+      strategyMap.set(strategyId, {
+        value: strategyId,
+        label: `${strategyId} - ${PAPER_OBSERVATION_WEEK2_LANE_LABELS[strategyId] || row.strategy_label || "Week 2 active"}`,
+      });
+    });
+    const strategies = Array.from(strategyMap.values());
+    if (!SV22_REPLAY_STRATEGY_IDS.has(state.historicalReplay.strategyId)) {
+      state.historicalReplay.strategyId = PAPER_OBSERVATION_WEEK2_ACTIVE_LANE_IDS[0];
       state.historicalReplay.selectedTradeId = null;
     }
     if (!isVisibleDashboardSymbol(state.historicalReplay.symbol)) {
       state.historicalReplay.symbol = symbols[0] || "";
       state.historicalReplay.selectedTradeId = null;
     }
-    const strategies = Array.from(
-      new Map(
-        [
-          ...replays.map((row) => [
-            row.strategy_id || "baseline_current_money_flow_rules",
-            {
-              value: row.strategy_id || "baseline_current_money_flow_rules",
-              label: dashboardStrategyLabel(row.strategy_label, row.strategy_id || "baseline_current_money_flow_rules"),
-            },
-          ]),
-          ...(Array.isArray(summary.strategies)
-            ? summary.strategies.map((row) => [row.id, { value: row.id, label: dashboardStrategyLabel(row.label || row.id, row.id) }])
-            : []),
-        ].filter(([value]) => value),
-      ).values(),
-    ).filter((strategy) => isHistoricalReplayStrategyVisible(strategy.value));
-    renderSelect(
+    if (!symbols.includes(state.historicalReplay.symbol)) {
+      state.historicalReplay.symbol = symbols[0] || "";
+      state.historicalReplay.selectedTradeId = null;
+    }
+    if (!timeframes.some((timeframe) => sameTimeframe(timeframe, state.historicalReplay.timeframe))) {
+      state.historicalReplay.timeframe = timeframes[0] || "1h";
+      state.historicalReplay.selectedTradeId = null;
+    }
+    if (!fills.includes(state.historicalReplay.fillAssumption)) {
+      state.historicalReplay.fillAssumption = fills[0] || "next_candle_open";
+      state.historicalReplay.selectedTradeId = null;
+    }
+    state.historicalReplay.period = SV22_REPLAY_PERIOD;
+    renderSelectWithoutAll(
       elements.historicalReplayStrategyFilter,
       strategies,
       state.historicalReplay.strategyId,
-      "Select replay strategy",
     );
-    renderSelect(elements.historicalReplaySymbolFilter, symbols, state.historicalReplay.symbol, "Select symbol");
-    renderSelect(elements.historicalReplayTimeframeFilter, timeframes, state.historicalReplay.timeframe, "Select timeframe");
-    renderSelect(elements.historicalReplayPeriodFilter, periods, state.historicalReplay.period, "Select period");
-    renderSelect(elements.historicalReplayFillFilter, fills, state.historicalReplay.fillAssumption, "Select fill");
+    renderSelectWithoutAll(elements.historicalReplaySymbolFilter, symbols, state.historicalReplay.symbol);
+    renderSelectWithoutAll(elements.historicalReplayTimeframeFilter, timeframes, state.historicalReplay.timeframe);
+    renderSelectWithoutAll(elements.historicalReplayPeriodFilter, periods, state.historicalReplay.period);
+    renderSelectWithoutAll(elements.historicalReplayFillFilter, fills, state.historicalReplay.fillAssumption);
     if (elements.historicalReplayDateStart) {
       elements.historicalReplayDateStart.value = state.historicalReplay.dateStart || "";
       elements.historicalReplayDateStart.onchange = () => {
@@ -5277,9 +5409,7 @@
     }
     if (elements.historicalReplayStrategyFilter) {
       elements.historicalReplayStrategyFilter.onchange = () => {
-        state.historicalReplay.strategyId = elements.historicalReplayStrategyFilter.value === "all"
-          ? "money_flow_v1_2_canonical"
-          : elements.historicalReplayStrategyFilter.value;
+        state.historicalReplay.strategyId = elements.historicalReplayStrategyFilter.value;
         state.historicalReplay.selectedTradeId = null;
         resetHistoricalComparisonPage();
         renderHistoricalReplay();
@@ -5287,9 +5417,7 @@
     }
     if (elements.historicalReplaySymbolFilter) {
       elements.historicalReplaySymbolFilter.onchange = () => {
-        state.historicalReplay.symbol = elements.historicalReplaySymbolFilter.value === "all"
-          ? "ETH"
-          : elements.historicalReplaySymbolFilter.value;
+        state.historicalReplay.symbol = elements.historicalReplaySymbolFilter.value;
         state.historicalReplay.selectedTradeId = null;
         resetHistoricalComparisonPage();
         renderHistoricalReplay();
@@ -5297,9 +5425,7 @@
     }
     if (elements.historicalReplayTimeframeFilter) {
       elements.historicalReplayTimeframeFilter.onchange = () => {
-        state.historicalReplay.timeframe = elements.historicalReplayTimeframeFilter.value === "all"
-          ? "1h"
-          : canonicalTimeframe(elements.historicalReplayTimeframeFilter.value);
+        state.historicalReplay.timeframe = canonicalTimeframe(elements.historicalReplayTimeframeFilter.value);
         state.historicalReplay.selectedTradeId = null;
         resetHistoricalComparisonPage();
         renderHistoricalReplay();
@@ -5307,9 +5433,7 @@
     }
     if (elements.historicalReplayPeriodFilter) {
       elements.historicalReplayPeriodFilter.onchange = () => {
-        state.historicalReplay.period = elements.historicalReplayPeriodFilter.value === "all"
-          ? "ALL"
-          : String(elements.historicalReplayPeriodFilter.value || "ALL").toUpperCase();
+        state.historicalReplay.period = SV22_REPLAY_PERIOD;
         state.historicalReplay.selectedTradeId = null;
         resetHistoricalComparisonPage();
         renderHistoricalReplay();
@@ -5317,9 +5441,7 @@
     }
     if (elements.historicalReplayFillFilter) {
       elements.historicalReplayFillFilter.onchange = () => {
-        state.historicalReplay.fillAssumption = elements.historicalReplayFillFilter.value === "all"
-          ? "next_candle_open"
-          : elements.historicalReplayFillFilter.value;
+        state.historicalReplay.fillAssumption = elements.historicalReplayFillFilter.value;
         state.historicalReplay.selectedTradeId = null;
         resetHistoricalComparisonPage();
         renderHistoricalReplay();
@@ -5329,41 +5451,30 @@
 
   function renderHistoricalReplaySourceStatus(replay) {
     if (!elements.historicalReplaySourceStatus) return;
-    const summary = state.pt002HistoricalReplay || {};
-    const sv20Source = state.sv20Summary?.source || {};
-    const canonicalEvidence = state.sv20Summary?.canonical_evidence_status || {};
-    const replayEvidencePath = String(replay?.evidence_pack_path || "");
-    const replayDataSource = String(replay?.data_source || "");
-    const isSv21Replay =
-      replayEvidencePath.includes("money_flow_sv2_1_hyperliquid_broad_1d_") ||
-      replayDataSource.includes("SV2.1 founder-approved");
-    const sv21PackCount =
-      (state.sv21BroadSummary?.evidence_pack_paths || []).length +
-      (state.sv21BroadSummary?.candidate_evidence_status?.evidence_pack_paths || []).length;
-    const evidencePackCount = isSv21Replay ? sv21PackCount : (canonicalEvidence.evidence_pack_paths || []).length;
-    const canonicalEvidenceStatus = isSv21Replay
-      ? "sv2_1_founder_review_1d_period_evidence"
-      : canonicalEvidence.status || "not_loaded";
-    const sourceLabel = replay?.data_source || sv20Source.historical_strategy_truth || summary.source?.source_kind || "historical source not loaded";
     const dataset = historicalReadinessForSelection();
     const warnings = dataset?.reason_codes || [];
+    const summary = replay?.summary || {};
+    const sourceLabel = replay?.data_source || "SV2.2 latest Hyperliquid public-mainnet replay metadata";
+    const rangeStart = dataset?.earliest_candle || dataset?.start_time || "n/a";
+    const rangeEnd = dataset?.latest_candle || dataset?.end_time || "n/a";
     elements.historicalReplaySourceStatus.innerHTML = `
       <span>Replay strategy: ${escapeHtml(dashboardStrategyLabel(replay?.strategy_label, state.historicalReplay.strategyId))}</span>
-      <span>Period: ${escapeHtml(state.historicalReplay.period || replay?.period || "ALL")}</span>
-      <span>Money Flow version: ${escapeHtml(state.sv20Summary?.money_flow_version || "money_flow_v1_1 replay source")}</span>
-      <span>Canonical evidence: ${escapeHtml(canonicalEvidenceStatus)}</span>
-      <span>Evidence packs: ${escapeHtml(evidencePackCount)}</span>
-      <span>Compact replay canonical: ${escapeHtml(canonicalEvidence.compact_replay_rows_are_canonical_evidence === false ? "false" : "unknown")}</span>
+      <span>Replay mode: ${escapeHtml(SV22_REPLAY_PERIOD)} latest public-mainnet replay</span>
+      <span>Exact row: ${escapeHtml(replay ? "loaded" : "missing_exact_selection")}</span>
+      <span>Strategy truth: public Hyperliquid mainnet candles</span>
+      <span>Selected: ${escapeHtml(`${state.historicalReplay.symbol} / ${displayTimeframe(state.historicalReplay.timeframe)} / ${state.historicalReplay.fillAssumption}`)}</span>
       <span>Source: ${escapeHtml(sourceLabel)}</span>
-      <span>Range: ${escapeHtml(dataset?.start_time || dataset?.earliest_candle || "n/a")} -> ${escapeHtml(dataset?.end_time || dataset?.latest_candle || "n/a")}</span>
-      <span>Coverage: ${escapeHtml(dataset?.target_coverage_percent ? pct(dataset.target_coverage_percent) : dataset?.coverage_percent || "n/a")}</span>
+      <span>SV2.2 refresh: ${escapeHtml(state.sv22RefreshSummary?.status || "not_loaded")}</span>
+      <span>SV2.2 latest: ${escapeHtml(state.sv22RefreshSummary?.latest_close_by_timeframe?.[canonicalTimeframe(state.historicalReplay.timeframe)] || "n/a")}</span>
+      <span>Range: ${escapeHtml(rangeStart)} -> ${escapeHtml(rangeEnd)}</span>
       <span>Candles: ${escapeHtml(dataset?.candle_count ?? replay?.candles?.length ?? 0)}</span>
-      <span>DB imported: ${escapeHtml(dataset?.db_imported ? "yes" : "no")}</span>
-      <span>Evidence-ready: ${escapeHtml(dataset?.canonical_evidence_ready || dataset?.evidence_ready ? "yes" : "no")}</span>
-      <span>Replay-ready: ${escapeHtml(dataset?.replay_ready ? "yes" : "no")}</span>
-      <span>Aggregation: ${escapeHtml(dataset?.aggregation_used ? `from ${dataset.aggregation_source_timeframe || "lower timeframe"}` : "source candles")}</span>
+      <span>Trades: ${escapeHtml(summary.trade_count ?? replay?.trades?.length ?? 0)}</span>
+      <span>Net PnL: ${escapeHtml(summary.net_pnl === undefined ? "n/a" : money(summary.net_pnl))}</span>
+      <span>Max DD: ${escapeHtml(summary.max_drawdown === undefined ? "n/a" : money(summary.max_drawdown))}</span>
+      <span>DB import: not required for SV2.2 display replay</span>
+      <span>Canonical evidence replacement: false</span>
       <span>Warnings: ${escapeHtml(warnings.slice(0, 3).join(", ") || "none")}</span>
-      <span>Testnet strategy truth: ${escapeHtml(sv20Source.testnet_prices_used_as_strategy_truth === false || summary.source?.testnet_prices_used_as_strategy_truth === false ? "false" : "unknown")}</span>
+      <span>Testnet strategy truth: false</span>
     `;
   }
 
@@ -5381,7 +5492,21 @@
       : Array.isArray(state.sv20Summary?.datasets)
         ? state.sv20Summary.datasets
       : [];
-    return [...sv202Rows, ...sv20Rows, ...ptRows];
+    const sv22Rows = Array.isArray(state.sv22RefreshSummary?.datasets)
+      ? state.sv22RefreshSummary.datasets.map((row) => ({
+        ...row,
+        period: SV22_REPLAY_PERIOD,
+        replay_ready: row.status === "refreshed",
+        db_imported: false,
+        canonical_evidence_ready: false,
+        source_kind: "SV2.2 public Hyperliquid mainnet refresh",
+        selected_data_source: "hyperliquid_public_mainnet_candleSnapshot",
+        candle_count: row.rows,
+        earliest_candle: row.earliest_close,
+        latest_candle: row.latest_close,
+      }))
+      : [];
+    return [...sv22Rows, ...sv202Rows, ...sv20Rows, ...ptRows];
   }
 
   function historicalReadinessForSelection() {
@@ -5396,50 +5521,43 @@
   function renderHistoricalDataHorizonPanel() {
     if (!elements.historicalReplayDataHorizonPanel) return;
     const selected = historicalReadinessForSelection();
-    const canonicalEvidence = state.sv20Summary?.canonical_evidence_status || {};
     if (!selected) {
-      setEmpty(elements.historicalReplayDataHorizonPanel, "Historical data horizon is unavailable for this selection.");
+      setEmpty(elements.historicalReplayDataHorizonPanel, "SV2.2 replay data horizon is unavailable for this exact Week 2 strategy/symbol/timeframe selection.");
       return;
     }
-    const aggregationCopy = selected.aggregation_used
-      ? `1D candles aggregated from ${selected.aggregation_source_timeframe || "lower timeframe"} historical replay data.`
-      : selected.component === "sleeve_1d"
-        ? "SV2.0 treats 1D as a real Money Flow sleeve; source readiness is direct Hyperliquid public mainnet 1d candles when available."
-        : "Candles loaded from historical replay source.";
     const rangeStart = selected.actual_earliest_available || selected.start_time || selected.earliest_candle || "missing";
     const rangeEnd = selected.actual_latest_available || selected.end_time || selected.latest_candle || "missing";
     const warnings = selected.reason_codes || [];
-    const coverage = selected.target_coverage_percent ? pct(selected.target_coverage_percent) : selected.coverage_percent || "n/a";
     const source = selected.source_kind || selected.selected_data_source || selected.source || "historical source";
     elements.historicalReplayDataHorizonPanel.innerHTML = `
-      <article class="historical-data-summary-card${warnings.length || selected.aggregation_used ? " warning" : ""}">
+      <article class="historical-data-summary-card${warnings.length ? " warning" : ""}">
         <div class="historical-data-summary-heading">
           <div>
-            <span>Historical data readiness</span>
+            <span>SV2.2 latest replay readiness</span>
             <strong>${escapeHtml(state.historicalReplay.symbol || "Symbol")} ${escapeHtml(displayTimeframe(state.historicalReplay.timeframe || "timeframe"))}</strong>
           </div>
-          <small>${escapeHtml(selected.replay_ready ? "replay_ready" : "data_missing")}</small>
+          <small>${escapeHtml(selected.replay_ready ? "latest_replay_ready" : "data_missing")}</small>
         </div>
         <dl class="historical-data-summary-grid">
           <div>
             <dt>Range</dt>
             <dd>${escapeHtml(`${rangeStart} -> ${rangeEnd}`)}</dd>
-            <small>${escapeHtml(selected.component || "selected replay window")}</small>
+            <small>Latest public-mainnet candle refresh window</small>
           </div>
           <div>
-            <dt>Coverage</dt>
-            <dd>${escapeHtml(coverage)}</dd>
-            <small>${escapeHtml(selected.candle_count ?? 0)} candles / target window</small>
+            <dt>Candles</dt>
+            <dd>${escapeHtml(selected.candle_count ?? 0)}</dd>
+            <small>Used for selected SV2.2 replay chart/trade display</small>
           </div>
           <div>
             <dt>Source</dt>
             <dd>${escapeHtml(source)}</dd>
-            <small>${escapeHtml(aggregationCopy)}</small>
+            <small>Public Hyperliquid mainnet candles remain strategy truth.</small>
           </div>
           <div>
-            <dt>Canonical evidence</dt>
-            <dd>${escapeHtml(canonicalEvidence.status || "not_loaded")}</dd>
-            <small>${escapeHtml(selected.db_imported ? "DB imported through hardened candle importer" : "not DB imported")}</small>
+            <dt>Evidence boundary</dt>
+            <dd>research replay display</dd>
+            <small>Not canonical evidence regeneration and not testnet strategy truth.</small>
           </div>
           <div class="historical-data-summary-warning-row">
             <dt>Warnings</dt>
@@ -5757,7 +5875,7 @@
         elements.historicalComparisonTable,
         elements.historicalSandboxLedger,
       ].forEach((target) => {
-        if (target) setEmpty(target, "Load regenerated SV2.0.2 dashboard chart data or PT historical replay JSON.");
+        if (target) setEmpty(target, "SV2.2 latest replay metadata is not loaded yet. Historical Replay is restricted to Week 2 SV2.2 public-mainnet replay rows.");
       });
       return;
     }
@@ -5784,7 +5902,7 @@
     } else {
       setEmpty(
         elements.historicalReplayChart,
-        "No replay chart is loaded for this symbol/timeframe/period yet. Check the data horizon panel for support, import, and evidence readiness.",
+        "No exact SV2.2 replay chart is loaded for this Week 2 strategy/symbol/timeframe/fill selection.",
       );
     }
     renderHistoricalTradeInspector(replay);
@@ -5810,7 +5928,7 @@
       timeframe: replay.timeframe,
       strategy_id: replay.strategy_id,
       strategy_label: dashboardStrategyLabel(replay.strategy_label, replay.strategy_id),
-      status: "canonical_evidence_ready",
+      status: isSv22ReplayRow(replay) ? "sv2_2_latest_public_mainnet_replay" : "canonical_evidence_ready",
       ending_equity: replay.summary?.ending_equity,
       net_pnl: replay.summary?.net_pnl,
       trade_count: replay.summary?.trade_count,
@@ -5825,9 +5943,13 @@
     const mfOrigSummaryReplays = mfOrigEv2SummaryReplays();
     const sorEv3Replays = sorEv3SummaryReplays();
     const sv21BroadReplays = sv21BroadSummaryReplays();
+    const sv22RefreshReplays = sv22LatestReplayRows();
     const allReplays = mergeReplayRows(
-      mergeReplayRows(mergeReplayRows(sv202SummaryReplays, mfOrigSummaryReplays), sorEv3Replays),
-      sv21BroadReplays,
+      mergeReplayRows(
+        mergeReplayRows(mergeReplayRows(sv202SummaryReplays, mfOrigSummaryReplays), sorEv3Replays),
+        sv21BroadReplays,
+      ),
+      sv22RefreshReplays,
     );
     if (!allReplays.length) return;
     const strategies = Array.from(
@@ -5846,7 +5968,7 @@
     );
     state.sv202HistoricalReplay = {
       report: "sv2_0_2_sv2_1_and_mf_orig_ev2_dashboard_historical_replay_combined",
-      source: "SV2.0.2 canonical packs, SV2.1 founder-approved 1D period packs, and MF-ORIG-EV2 compact summaries with lazy selected-chart loading",
+      source: "SV2.2 latest public-mainnet strategy replays, SV2.0.2 canonical packs, SV2.1 founder-approved 1D period packs, and MF-ORIG-EV2 compact summaries with lazy selected-chart loading",
       symbols: Array.from(new Set(allReplays.map((row) => row.symbol).filter(Boolean))).sort(),
       timeframes: Array.from(new Set(allReplays.map((row) => canonicalTimeframe(row.timeframe)).filter(Boolean))),
       fill_assumptions: Array.from(new Set(allReplays.map((row) => row.fill_assumption).filter(Boolean))).map((id) => ({
@@ -9350,6 +9472,26 @@
     renderPaperRuntimeControl();
   }
 
+  function startPaperRuntimeControlPolling() {
+    if (state.paperRuntimeControl.timer) return;
+    refreshPaperRuntimeControlStatus();
+    state.paperRuntimeControl.timer = window.setInterval(refreshPaperRuntimeControlStatus, 10000);
+  }
+
+  function stopPaperRuntimeControlPolling() {
+    if (!state.paperRuntimeControl.timer) return;
+    window.clearInterval(state.paperRuntimeControl.timer);
+    state.paperRuntimeControl.timer = null;
+  }
+
+  function syncPaperRuntimeControlPolling() {
+    if (state.activeView === "paper-observation") {
+      startPaperRuntimeControlPolling();
+    } else {
+      stopPaperRuntimeControlPolling();
+    }
+  }
+
   async function startPaperRuntime() {
     if (state.paperRuntimeControl.inFlight) return;
     state.paperRuntimeControl.inFlight = true;
@@ -10985,9 +11127,6 @@
         <div><span>Waiting for reset</span><strong>${escapeHtml(String(warmStart.waiting_for_reset_signals_total ?? warmStart.waiting_for_reset_signals_this_cycle ?? 0))}</strong></div>
         <div><span>Fresh post-start opens</span><strong>${escapeHtml(String(warmStart.fresh_post_start_opens_total ?? warmStart.fresh_post_start_opens_this_cycle ?? 0))}</strong></div>
       </div>
-      <div class="methodology-warning compact">
-        PT-RT1.5.3 keeps signed Hyperliquid testnet transport scoped to fresh post-start scheduled Money Flow v1.2 baseline synthetic opens or one labeled transport smoke, with metadata-based size preflight. Startup-valid signals and all candidate lanes are blocked from testnet transport. Testnet order notional is fixed at 25 USDC, public mainnet candles remain strategy truth, and testnet fills do not update strategy PnL.
-      </div>
     `;
   }
 
@@ -11279,10 +11418,13 @@
     if (payload?.report === "pt0_tradingview_charts_and_top20_paper_sandbox_runtime") return "pt0_runtime_summary";
     if (payload?.report === "sv2_0_money_flow_1d_sleeve_expanded_universe_evidence_rebuild") return "sv20_summary";
     if (payload?.phase === "SV2.1" && Array.isArray(payload?.evidence_pack_paths)) return "sv21_broad_summary";
+    if (payload?.phase === "SV2.2" && payload?.report === "sv2_2_hyperliquid_research_refresh") return "sv22_refresh_summary";
+    if (payload?.phase === "SV2.3" && payload?.report === "sv2_3_realistic_backtest") return "sv23_realistic_summary";
     if (
       payload?.report === "sv2_0_2_dashboard_historical_replay_chart_data" ||
       payload?.report === "mf_orig_ev2_dashboard_chart_data" ||
-      payload?.report === "sv2_1_broad_1d_dashboard_chart_data"
+      payload?.report === "sv2_1_broad_1d_dashboard_chart_data" ||
+      payload?.report === "sv2_2_week2_replay_dashboard_chart_data"
     ) return "sv202_dashboard_chart_data";
     if (payload?.phase === "SOR-EV1") return "sor_ev1_summary";
     if (payload?.phase === "SOR-EV2") return "sor_ev2_summary";
@@ -11325,6 +11467,8 @@
     await loadDefaultPt0Summaries();
     await loadDefaultSv20Summaries();
     await loadDefaultSv21BroadEvidenceBatches(loaded);
+    await loadDefaultSv22ResearchRefreshSummary();
+    await loadDefaultSv23RealisticSummary();
     await loadDefaultSorEvSummaries();
     await loadDefaultMfOrigSummaries();
     await loadDefaultEvAuditSummaries();
@@ -11407,6 +11551,8 @@
         if (type === "pt0_runtime_summary") state.pt0Summary = payload;
         if (type === "sv20_summary") state.sv20Summary = payload;
         if (type === "sv21_broad_summary") state.sv21BroadSummary = payload;
+        if (type === "sv22_refresh_summary") state.sv22RefreshSummary = payload;
+        if (type === "sv23_realistic_summary") state.sv23RealisticSummary = payload;
         if (type === "sor_ev1_summary") state.sorEv1Summary = payload;
         if (type === "sor_ev2_summary") state.sorEv2Summary = payload;
         if (type === "sor_ev3_summary") state.sorEv3Summary = payload;
@@ -11553,6 +11699,36 @@
         }
       } catch (error) {
         console.warn(`Could not load ${summaryPath}`, error);
+      }
+    }
+  }
+
+  async function loadDefaultSv22ResearchRefreshSummary() {
+    for (const path of DEFAULT_SV22_RESEARCH_REFRESH_SUMMARY_FILES) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        if (classifyJson(payload) === "sv22_refresh_summary") {
+          state.sv22RefreshSummary = payload;
+        }
+      } catch (error) {
+        console.warn(`Could not load ${path}`, error);
+      }
+    }
+  }
+
+  async function loadDefaultSv23RealisticSummary() {
+    for (const path of DEFAULT_SV23_REALISTIC_SUMMARY_FILES) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        if (classifyJson(payload) === "sv23_realistic_summary") {
+          state.sv23RealisticSummary = payload;
+        }
+      } catch (error) {
+        console.warn(`Could not load ${path}`, error);
       }
     }
   }
@@ -11802,8 +11978,6 @@
   setActiveView(state.activeView);
   setPaperObservationTerminalTab(state.paperObservation.terminalTab);
   render();
-  refreshPaperRuntimeControlStatus();
-  state.paperRuntimeControl.timer = window.setInterval(refreshPaperRuntimeControlStatus, 10000);
   loadDefaultFiles();
   startLiveMarketPolling();
   startPaperObservationMarketPolling();

@@ -2,7 +2,7 @@
 
 ## Current Operator Summary
 
-- Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
+- Current operating surface: `Evidence` is the latest realistic strategy-testing decision layer through SV2.3; `Historical Replay` remains latest public-mainnet chart inspection; `Paper Trading` continues PT-RT forward observation.
 - Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is active under `pt_rt1_6_week2_active`; `PT-RT1.6.2` reviewed the first operating window and recommends continuing unchanged; `PT-RT1.6.3` prepares a separate XRP testnet metadata smoke for after the current 24h window.
 - Active Week 2 default slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
 - Active timeframes: `1h`, `4h`, `1d`.
@@ -10,24 +10,25 @@
 - Strategy truth: public Hyperliquid mainnet fully closed candles and derived indicators.
 - Synthetic PnL truth: independent synthetic 10,000 USDC ledgers per paper lane; not one combined account.
 - Testnet plumbing: only fresh post-start `money_flow_v1_2_baseline` opens can trigger fixed 25 USDC Hyperliquid testnet transport when gates and local signing config pass; candidate/MF-ORIG lanes remain synthetic-only and testnet fills never update synthetic PnL.
+- Latest evidence layer: SV2.3 replays the latest SV2.2 Hyperliquid public-mainnet candles with promotion-facing `next_candle_open` fills only and base/conservative/stress execution scenarios. All three Week 2 strategies currently fail the stricter realistic gate.
 - Research discovery: `GOAL-STRAT1` supersedes `STRAT-DISC1`; it accepted 49 local public-mainnet selected replay datasets, tested 121 bounded candidate configurations across 7 families, and promoted zero strategies.
 - Research candidates: `GOAL-STRAT2` identifies two non-existing strategies worth paper-testing review only: relative-strength rotation with ATR trailing exit, and Donchian breakout with ATR trailing exit.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
-- Next recommended action: continue the active `pt_rt1_6_week2_active` run unchanged, generate the daily review pack at the 24h boundary, run at most one PT-RT1.6.3 XRP transport-only smoke if desired, then restart Week 2 unchanged only after the smoke safely resolves, rejects, or blocks locally.
+- Next recommended action: continue the active `pt_rt1_6_week2_active` run unchanged, use SV2.3 Evidence for realistic promotion-facing review, use SV2.2 Historical Replay for chart inspection, and scope any canonicalization/promotion/runtime-lane work separately.
 
 ## Human Quick Start
 
 - Open `http://127.0.0.1:8767/apps/dashboard/index.html` after starting the local control server.
 - Use the `Paper Trading` tab this week; it is the forward-observation surface, not historical backtest evidence.
 - Synthetic paper means local simulated ledgers from public mainnet candles. Testnet plumbing means small Hyperliquid testnet lifecycle checks that never update synthetic PnL.
-- Use `Historical Replay`, `Evidence`, and `The Lab` to inspect prior evidence; dashboard date filters are display-only and do not regenerate canonical packs.
+- Use `Evidence` for the latest SV2.3 realistic backtest review, `Historical Replay` for chart inspection, and `The Lab` for research variants; dashboard date filters are display-only and do not regenerate canonical packs.
 - Nothing in the dashboard approves live trading, production rules, or real-capital order submission.
 
 ## AI Agent Quick Start
 
 - Read first: `AGENTS.md`, this `README.md`, `CHANGELOG.md`, `REPO_TREE.md`, `KNOWN_ISSUES.md`, `TODO.md`, `docs/architecture.md`, `docs/strategy.md`, `money-flow/00_Money_Flow_Command_Center.md`, `money-flow/01_Current_Phase.md`, `money-flow/05_Agent_Coordination.md`, and `money-flow/Project_Memory/money_flow_project_memory.md`.
-- Current phase truth: `PT-RT1.6` prepared the founder-selected Week 2 paper slate and dashboard defaults; `PT-RT1.6.2` reviewed the active `pt_rt1_6_week2_active` runtime and found observation may continue; `PT-RT1.6.3` adds a blocked-symbol testnet metadata resolver and an XRP-only transport smoke scope without touching the active process; `GOAL-STRAT1` found zero founder production-testing review candidates; `GOAL-STRAT2` candidates remain research-only and are not active Week 2 lanes.
+- Current phase truth: `PT-RT1.6` prepared the founder-selected Week 2 paper slate and dashboard defaults; `PT-RT1.6.2` reviewed the active `pt_rt1_6_week2_active` runtime and found observation may continue; `PT-RT1.6.3` adds a blocked-symbol testnet metadata resolver and an XRP-only transport smoke scope without touching the active process; `SV2.3` is the latest realistic Evidence layer and promotes no strategy; `GOAL-STRAT1` found zero founder production-testing review candidates; `GOAL-STRAT2` candidates remain research-only and are not active Week 2 lanes.
 - Do not touch strategy rules, runtime behavior, evidence generation, exchange endpoints, secrets, or generated runtime/evidence artifacts unless the current prompt explicitly scopes that work.
 - Add a row under `Active Work` in `money-flow/05_Agent_Coordination.md` before substantial edits, then move/update it under `Finished Work`.
 - Canonical current truth lives in `money-flow/00_Money_Flow_Command_Center.md`; do not create duplicate command centers or competing current-phase notes.
@@ -36,10 +37,10 @@
 ## Current Dashboard Surfaces
 
 - `Paper Trading`: current PT-RT weekly runtime truth and synthetic ledgers.
-- `Historical Replay`: historical chart/trade visualization from generated local JSON.
-- `Evidence`: canonical historical backtest summaries and generated replay rows.
+- `Historical Replay`: latest public-mainnet chart/trade visualization from generated local JSON.
+- `Evidence`: latest SV2.3 realistic backtest rows by default, with canonical historical backtest summaries and generated replay rows as reference modes.
 - `The Lab`: SOR/MF-ORIG research variants and overlays.
-- `Audit`: EV-AUDIT1 findings and readiness issues.
+- `Audit`: no visible top-level dashboard tab; EV-AUDIT1 findings remain committed historical docs/data.
 - `Strategy`: strategy/source/rule overview and evidence-only lane context.
 
 ## Current Strategy / Evidence / Runtime Boundaries
@@ -141,6 +142,8 @@ SV2.0.1 hotfixes canonical evidence truth before SOR-EV1. The compact SV2 rows n
 SV2.0.2 resolves the canonical evidence blocker and was regenerated on 2026-05-12 with fully closed timeframe boundaries. It imports normalized Hyperliquid public mainnet candles through the hardened strategy-validation candle importer, writes 36 per-symbol/per-timeframe canonical campaign configs under `configs/strategy_validation/campaigns/sv2_0_2/`, and generates ignored canonical evidence packs for Money Flow v1.2 across `15m`, `1h`, `4h`, and `1d`. Each supported pair now backtests as far back as that pair/timeframe's public DB-imported data allows instead of being clipped to a common multi-symbol window. Supported canonical evidence symbols are BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, and AVAX; SHIB is explicitly deferred as `kSHIB` because unit semantics are not clean enough for canonical evidence. Dynamic equity uses 10,000 USDC per independent scenario, open positions are force-closed at dataset end, testnet data is not strategy truth, no orders were submitted, and SOR-EV1 may proceed from this regenerated baseline. See [SV2.0.2 canonical evidence packs](docs/sv2_0_2_canonical_sv2_evidence_packs.md).
 
 SV2.1 now uses a founder-approved 1D-only public Hyperliquid period evidence refresh at [SV2.1 Broad Hyperliquid 1D Period Evidence](docs/sv2_1_broad_hyperliquid_1d_period_evidence.md). The earlier broad active-metadata run was rejected for founder review and removed from local generated outputs. The current run used public `meta` and `candleSnapshot` only, targets the founder-approved requested/resolved universe, maps TRON to TRX, excludes PEPE/kPEPE and OKB by resolver policy, imports available 1D candles back to 2024-01-01 where available, and generated ignored baseline period packs for `2024`, `2025`, `YTD`, and `ALL`: 90 baseline packs across 23 resolved symbols. ASTER and TRUMP have no 2024 packs because public 1D candles do not cover that period. Generated raw candles/configs stay under `/tmp/money-flow-sv21-broad-1d/`, and generated evidence packs stay under ignored `reports/strategy_validation/`. The follow-up Historical Replay builder now covers all 10 PT-RT1 paper-observation lanes with 1,800 ignored selected chart/trade JSON files plus 810 ignored evidence-only candidate/reference/wildcard pack directories at `20260516T091500Z`. The dashboard `Historical Replay` tab uses a Period selector for 2024 / 2025 / YTD / ALL and lazy-loads those selected replay files while hiding deferred symbols. This is founder-review research evidence only, not a production rule change, parameter optimization, paper/live approval, or order/submission path.
+
+SV2.2 refreshes Hyperliquid public-mainnet candles through 2026-06-08 for the founder 23-symbol universe across `1h`, `4h`, and `1d`, then runs latest Historical Replay rows for the current Week 2 selected strategies: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`. It produces 414 replay rows across both next-candle fill assumptions, ignored replay chart/trade payloads under `reports/strategy_validation/sv2_2_week2_replay_dashboard_chart_data/`, and ignored evidence-style pack directories under `reports/strategy_validation/sv2_2_latest_public_mainnet_week2_*_evidence_only/`. SV2.2 is not a standalone replay strategy, not canonical SV2.0.2 replacement, not active PT-RT runtime behavior, not strategy approval, and not live approval.
 
 SOR-EV1 reads those canonical SV2.0.2 packs only and produces an evidence-only loss anatomy plus variant-diagnostics report at [SOR-EV1 Money Flow Trade Loss Anatomy And Evidence-Only Variants](docs/sor_ev1_money_flow_trade_loss_anatomy_and_variants.md). It identifies large-loss patterns, late-entry classifications, fixed-stop completed-trade overlays, deferred true-replay needs, and control-pocket impact. It does not regenerate evidence packs, use dashboard date-filter numbers as canonical evidence, use testnet prices as strategy truth, change Money Flow rules, approve variants, submit orders, or add SOR behavior.
 

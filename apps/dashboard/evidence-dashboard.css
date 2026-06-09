@@ -865,6 +865,7 @@ h3 {
 }
 
 .paper-runtime-control-compact {
+  grid-template-rows: auto minmax(0, 1fr);
   grid-template-columns: minmax(0, 1fr);
   align-content: start;
   align-items: stretch;
@@ -883,7 +884,7 @@ h3 {
 }
 
 .paper-runtime-control-details {
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
   padding-top: var(--spacing-3);
   border-top: 1px solid var(--color-line);
@@ -997,9 +998,9 @@ h3 {
 
 .paper-observation-terminal-grid {
   display: grid;
-  grid-template-columns: minmax(240px, 0.62fr) minmax(520px, 1.75fr) minmax(310px, 0.83fr);
+  grid-template-columns: minmax(270px, 0.72fr) minmax(560px, 1.62fr) minmax(335px, 0.86fr);
   gap: var(--spacing-4);
-  align-items: start;
+  align-items: stretch;
   min-height: 0;
 }
 
@@ -1010,10 +1011,11 @@ h3 {
   gap: var(--spacing-4);
   min-width: 0;
   min-height: 0;
+  height: 100%;
 }
 
 .paper-observation-left-rail {
-  grid-template-rows: auto minmax(0, auto);
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .paper-observation-center-stage,
@@ -1022,7 +1024,7 @@ h3 {
 }
 
 .paper-observation-right-rail {
-  grid-template-rows: repeat(2, minmax(0, auto));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
 }
 
 .paper-observation-bottom-blotter {
@@ -1188,6 +1190,15 @@ h3 {
   min-height: 0;
 }
 
+.paper-observation-left-rail .paper-observation-controls,
+.paper-observation-left-rail .paper-observation-watchlist-panel,
+.paper-observation-right-rail .paper-runtime-control,
+.paper-observation-right-rail .paper-observation-testnet-panel {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .paper-observation-left-rail .paper-observation-controls {
   grid-template-columns: 1fr;
   align-items: stretch;
@@ -1225,8 +1236,8 @@ h3 {
 }
 
 .paper-observation-left-rail .paper-observation-watchlist-panel .data-table-shell {
-  height: min(42vh, 420px);
-  max-height: 420px;
+  height: 100%;
+  max-height: none;
   overflow: auto;
 }
 
@@ -1253,27 +1264,24 @@ h3 {
   background: color-mix(in srgb, var(--color-panel) 86%, var(--color-surface-soft));
 }
 
-.paper-observation-right-rail .paper-observation-testnet-panel,
 .paper-observation-right-rail .paper-runtime-control {
-  min-height: 0;
-}
-
-.paper-observation-right-rail .paper-runtime-control {
-  max-height: 260px;
-  overflow: auto;
-}
-
-.paper-observation-right-rail .paper-runtime-control-details .market-micro-panel {
   max-height: none;
 }
 
+.paper-observation-right-rail .paper-runtime-control-details .market-micro-panel {
+  max-height: 100%;
+}
+
+.paper-observation-right-rail .paper-runtime-control-details .micro-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .paper-observation-right-rail .paper-observation-testnet-panel {
-  max-height: 360px;
-  overflow: hidden;
+  max-height: none;
 }
 
 .paper-observation-right-rail .paper-observation-testnet-panel .market-micro-panel {
-  max-height: 290px;
+  max-height: 100%;
   overflow: auto;
 }
 
@@ -2042,6 +2050,8 @@ h3 {
 }
 
 .paper-runtime-control-details .market-micro-panel {
+  min-width: 0;
+  max-width: 100%;
   overflow: auto;
   border: 1px solid var(--color-line);
   border-radius: var(--radius-md);
@@ -2050,8 +2060,9 @@ h3 {
 
 .paper-runtime-control-details .micro-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
   gap: 1px;
+  min-width: 0;
   padding: 1px;
   background: var(--color-line-soft);
 }
@@ -2061,6 +2072,8 @@ h3 {
   grid-template-rows: auto minmax(0, 1fr);
   gap: 4px;
   min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
   padding: 8px 10px;
   border: 1px solid color-mix(in srgb, var(--color-line) 82%, transparent);
   border-radius: var(--radius-sm);
@@ -2068,6 +2081,9 @@ h3 {
 }
 
 .paper-runtime-control-details .micro-grid span {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
   color: var(--color-muted);
   font-size: 10px;
   letter-spacing: 0.03em;
@@ -2075,7 +2091,11 @@ h3 {
 }
 
 .paper-runtime-control-details .micro-grid strong {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
   overflow-wrap: anywhere;
+  word-break: break-word;
   font-family: var(--font-mono);
   font-size: 11px;
   line-height: 1.25;
@@ -2190,6 +2210,10 @@ h3 {
   color: var(--color-muted);
   font-size: 10px;
   text-transform: uppercase;
+}
+
+.historical-replay-controls label.historical-replay-period-control {
+  display: none;
 }
 
 .historical-replay-controls label.checkbox-control {

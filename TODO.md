@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-06-08T08:45:00Z`
+Last reviewed: `2026-06-09T12:00:00Z`
 
 ## Active
 
@@ -15,6 +15,9 @@ Last reviewed: `2026-06-08T08:45:00Z`
 - DASH-PT1.3 contains the Paper Trading terminal layout after QA: filters stay inside the left rail, Watchlist scrolls internally with Symbol / Mid price / Health only, Runtime/Testnet right-rail panels are height-bounded, Daily Review / Anomaly Flags is the final full-width card below the blotter, Runtime details are compact, and chart marker labels are compact. If the browser still looks vertical/stacked, hard refresh because the dashboard CSS/JS cache-buster changed to `dash-pt1-2-terminal-20260608`.
 - PT-RT1.6.2 confirms the active Week 2 runtime is operating under the selected three-lane slate, with 0 active `15m` rows, baseline-only testnet lifecycle triggers, 0 testnet PnL updates, 58 open positions with MTM updated, and Daily Review status `observation_may_continue`.
 - PT-RT1.6.3 adds a blocked-symbol testnet metadata resolver and prepares a single XRP `testnet_transport_smoke_not_strategy_signal` path under `reports/paper_runtime/pt_rt1_6_3_xrp_transport_smoke/`; do not run it until the current 24h Week 2 window ends and the daily review pack is generated.
+- SV2.2 refreshed Hyperliquid public-mainnet candle data for the founder 23-symbol universe across `1h`, `4h`, and `1d` through 2026-06-08 and now runs latest Historical Replay rows for the three founder-selected Week 2 strategies. Treat SV2.2 as research/evidence-style replay data, not canonical SV2.0.2 replacement or strategy approval.
+- SV2.3 now provides the latest Evidence decision layer over SV2.2 candles: next-candle-open promotion fills only, base/conservative/stress execution scenarios, three Week 2 strategies, `1h`/`4h`/`1d`, and `15m` disabled. The current SV2.3 gate result is `not_promoted_realistic_gate_failed` for all three Week 2 strategies; treat this as research evidence, not production rejection or approval.
+- Historical Replay now defaults to exact SV2.2 latest public-mainnet replay rows only: the three Week 2 strategies, `1h`/`4h`/`1d`, locked SV2.2 period, and next-candle fills. Archived strategies, `15m`, old periods, and unsupported same-candle research fills should stay out of the default selector.
 - Blocked testnet metadata symbols remain a plumbing coverage item, not strategy truth: `XRP`, `LINK`, `DOT`, `LTC`, `UNI`, `TRX`, and `ZEC` now resolve explicitly if present in Hyperliquid testnet `meta` or fail closed as not available on testnet.
 - Continue confirming `1h`/`4h`/`1d` candle-close scheduling, warm-start fresh-signal gating, open-position MTM, and baseline-only fixed 25 USDC Hyperliquid testnet lifecycle separation.
 - Keep `15m` paused for Week 2 scoring unless a later founder-approved phase explicitly re-enables it.
@@ -31,9 +34,13 @@ Last reviewed: `2026-06-08T08:45:00Z`
 - Review the next 24h PT-RT1.6 Week 2 runtime window before adding/removing lanes.
 - Keep candidate/MF-ORIG/wildcard lanes synthetic-only; do not route them to testnet.
 - Keep SV2.0.2 canonical evidence, SV2.1 1D evidence, Historical Replay display, and PT-RT forward observation separated in future docs.
+- Next strategy-testing work should use SV2.2 latest public-mainnet replay rows as the research-review base for the current Week 2 slate, then separately scope promotion, canonicalization, or new-lane implementation if the founder wants those outputs to affect future paper runtime.
+- Next evidence work should use SV2.3 as the promotion-facing baseline and only promote a strategy if it survives realistic next-open cost scenarios and out-of-sample review; do not use same-candle or next-close rows for promotion decisions.
 
 ## Done Recently
 
+- CI-SAFE1 added a GitHub Actions CI workflow (`.github/workflows/ci.yml`) with blocking and informational lanes, trading safety invariant tests, registry consistency guards, trading-safety text guards, secret hygiene scan, and review bundle hygiene. 123 tests passing. See `docs/ci_safe1_ci_gate_and_trading_safety_invariants.md`. No runtime behavior changed, no orders, no approvals.
+- TRUTH1 added a canonical current-truth registry: `scripts/export_current_truth.py` generates `current_truth.json` from Python anchors in `pt_rt1.py` and `settings.py`; `CURRENT_TRUTH.md` is the human-readable rendered form; `tests/test_current_truth_registry.py` asserts no drift. `AGENTS.md` and `money-flow/01_Current_Phase.md` now point implementation prompts at the registry instead of re-embedding lane/timeframe/approval truth. No runtime behavior changed, no orders submitted, no live or production approval granted.
 - GOAL-STRAT2 selected two non-existing research-only strategies worth paper-testing review from GOAL-STRAT1 evidence and generated per-candidate reports.
 - STRAT-PRUNE1 completed read-only lane pruning and recommended a smaller next paper slate without changing runtime behavior.
 - PT-RT1.6 implemented the founder-selected three-lane Week 2 active slate and dashboard/control defaults without starting the runtime.
@@ -43,6 +50,9 @@ Last reviewed: `2026-06-08T08:45:00Z`
 - DASH-PT1.2 reorganized Paper Trading into a top health strip, left filter/watchlist rail, center chart, right runtime/testnet/daily-review rail, and bottom tabbed blotter while preserving all Week 2 strategy/testnet/runtime boundaries.
 - DASH-PT1.3 fixed Paper Trading terminal layout QA issues by containing left-rail filters/watchlist, bounding Runtime/Testnet right-rail cards, moving the blotter closer to the chart, compacting Runtime details, removing the Watchlist Status column, moving Daily Review / Anomaly Flags below the blotter, and compacting chart marker labels.
 - PT-RT1.6.2 added the Week 2 operating review/report over active ignored runtime logs and recommended continuing the current run unchanged.
+- SV2.2 added a public-mainnet latest replay refresh for 23 symbols x `1h`/`4h`/`1d`, committed summary/report docs, ignored selected chart/replay payloads plus evidence-style pack artifacts, and changed the dashboard default landing tab to Historical Replay.
+- SV2.2 Historical Replay UI QA tightened the replay controls to exact SV2.2 rows, removed the archived-strategy fallback to baseline data, corrected SV2.2 readiness labels, compacted chart markers by default, and stopped Paper Runtime status polling while Historical Replay is active.
+- SV2.3 added the realistic next-candle-open Evidence layer and made Evidence default to `Latest Evidence / SV2.3 realistic backtest` with scenario/cost columns.
 - GOAL-STRAT1 added a broader research-only autonomous discovery harness and report; 49 datasets were accepted, 121 candidate configurations were tested, and zero strategies passed the founder-review gate without overfitting/blockers.
 - STRAT-DISC1 added the first research-only autonomous discovery harness and report; 50 datasets were accepted, 12 candidate runs were tested, and zero strategies passed the founder-review gate.
 - SUBAGENTS1 added project-scoped read-only Codex reviewers for runtime, dashboard, and quant triage.

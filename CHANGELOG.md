@@ -13,6 +13,201 @@ Entry schema:
 
 ---
 
+## v2026.06.09.003
+
+- `recorded_at_utc`: `2026-06-09T13:00:00Z`
+- `scope`: `CI-SAFE1.1 CI install fix + blocking-lane coverage`
+- `intent`: `CI plumbing fix only. Replaced 'pip install -r requirements.txt' with 'pip install -e ".[dev]"' in both the blocking and informational jobs so CI installs from pyproject.toml (the canonical source — there is no requirements.txt). Restored four fast guard tests (test_pt_rt1_6_week2_slate.py, test_dashboard_static_assets.py, test_operational_docs.py, test_obs_os1_daily_review.py) to the blocking lane. No safety logic, scanner, registry, runtime, strategy, order, testnet eligibility, Week 2 slate, or approval state changed.`
+- `affected_files`:
+  - `.github/workflows/ci.yml`
+  - `CHANGELOG.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `grep -rn "requirements.txt" .github/` → no matches
+  - `python -c "import yaml; yaml.safe_load(open('.github/workflows/ci.yml'))"` → YAML OK
+  - `node --check apps/dashboard/evidence-dashboard.js` → OK
+  - `python -m compileall -q core services apps tests scripts` → OK
+  - `python scripts/export_current_truth.py --check` → OK
+  - `python -m pytest -q tests/test_trading_safety_invariants.py tests/test_current_truth_consistency.py tests/test_current_truth_registry.py tests/test_pt_rt1_6_week2_slate.py tests/test_dashboard_static_assets.py tests/test_operational_docs.py tests/test_obs_os1_daily_review.py` → 96 passed
+  - `python scripts/check_trading_safety_text.py && pytest tests/test_trading_safety_text_guards.py` → 12 passed
+  - `python scripts/check_secret_hygiene.py && pytest tests/test_secret_hygiene.py` → 12 passed
+  - `python -m pytest -q tests/test_review_bundle_hygiene.py` → 39 passed
+  - `ruff check + format --check on CI-SAFE1 modules` → clean
+
+---
+
+## v2026.06.09.002
+
+- `recorded_at_utc`: `2026-06-09T12:00:00Z`
+- `scope`: `CI-SAFE1 CI Gate + Trading Safety Invariants`
+- `intent`: `Added a GitHub Actions CI workflow and interlocking safety guards that make trading-safety regression visually impossible to merge. Blocking lane: JS syntax (node --check), Python compile (compileall), registry --check, trading safety invariants, registry consistency, trading-safety text guards, secret hygiene scan, review bundle hygiene, ruff on CI-SAFE1 modules. Informational: mypy strict, full pytest. KNOWN_ISSUES K-029 added for lightweight secret scan caveat. No runtime behavior changed, no orders submitted, no private endpoints used, no strategy production-approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `.github/workflows/ci.yml`
+  - `scripts/check_trading_safety_text.py`
+  - `scripts/check_secret_hygiene.py`
+  - `tests/test_trading_safety_invariants.py`
+  - `tests/test_trading_safety_text_guards.py`
+  - `tests/test_secret_hygiene.py`
+  - `tests/test_review_bundle_hygiene.py`
+  - `tests/test_current_truth_consistency.py`
+  - `docs/ci_safe1_ci_gate_and_trading_safety_invariants.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `python -m compileall -q core services apps tests scripts`
+  - `python scripts/export_current_truth.py --check`
+  - `python scripts/check_trading_safety_text.py`
+  - `python scripts/check_secret_hygiene.py`
+  - `python -m pytest -q tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py tests/test_secret_hygiene.py tests/test_review_bundle_hygiene.py tests/test_current_truth_consistency.py tests/test_current_truth_registry.py (123 passed)`
+  - `ruff check + format --check on CI-SAFE1 modules (clean)`
+
+---
+
+## v2026.06.09.001
+
+- `recorded_at_utc`: `2026-06-09T07:45:00Z`
+- `scope`: `TRUTH1 Canonical Current-Truth Registry`
+- `intent`: `Native entry. Added a canonical generated current-truth registry so prompts, tests, and docs reference the same code-grounded source and cannot drift. scripts/export_current_truth.py reads Python anchors from services/paper_runtime/pt_rt1.py (PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS, PT_RT1_6_ARCHIVED_STRATEGY_LANE_IDS, PT_RT1_6_ACTIVE_TIMEFRAMES, PT_RT1_4_DISABLED_TIMEFRAMES, pt_rt1_6_lane_testnet_eligible, PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC, SUPPORTED_CANONICAL_SYMBOLS, PT_RT1_6_RUNTIME_SCOPE) and core/config/settings.py (RuntimeSafetyPolicy defaults) and writes current_truth.json. CURRENT_TRUTH.md is the rendered human-readable form with active-lane table, archived-lane table, timeframes, symbols, boundaries, and a verbatim Machine Block. tests/test_current_truth_registry.py asserts on-disk json equals a fresh export (drift fails CI). AGENTS.md now includes a Canonical Current-Truth Registry section directing implementation prompts to CURRENT_TRUTH.md instead of re-embedding lane/timeframe/approval truth. money-flow/01_Current_Phase.md links the registry as the canonical quick-reference. Dashboard wiring (Must 4) is deferred: wiring async JSON fetch to PAPER_OBSERVATION_WEEK2_ACTIVE_LANE_IDS would require restructuring the sync init flow; recommend as a follow-up. No runtime behavior changed, no active PT-RT runtime was started/stopped/mutated, no orders were submitted, no private/signed/order endpoints or API keys were used, no testnet data was used as strategy truth, no strategy was production-approved, and live trading remains not approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `AGENTS.md`
+  - `CURRENT_TRUTH.md`
+  - `current_truth.json`
+  - `scripts/export_current_truth.py`
+  - `tests/test_current_truth_registry.py`
+  - `money-flow/01_Current_Phase.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/export_current_truth.py`
+  - `.venv/bin/python scripts/export_current_truth.py --check`
+  - `.venv/bin/python -m pytest -q tests/test_current_truth_registry.py tests/test_pt_rt1_6_week2_slate.py` → 17 passed
+  - `.venv/bin/ruff check scripts/export_current_truth.py tests/test_current_truth_registry.py` → all checks passed
+  - `.venv/bin/ruff format --check scripts/export_current_truth.py tests/test_current_truth_registry.py` → 2 files already formatted
+
+---
+
+## v2026.06.08.012
+
+- `recorded_at_utc`: `2026-06-08T13:02:00Z`
+- `scope`: `SV2.3 Realistic Backtest + Latest Evidence Layer`
+- `intent`: `Native entry. Added a research-only SV2.3 realistic backtest layer over the latest SV2.2 Hyperliquid public-mainnet candles for the founder-selected Week 2 strategies. SV2.3 uses promotion-facing next-candle-open fills only, applies base/conservative/stress execution-cost scenarios, keeps 1h/4h/1d active and 15m disabled, and writes committed Markdown/JSON Evidence outputs. The Evidence tab now defaults to Latest Evidence / SV2.3 realistic backtest instead of mixed legacy evidence packs and shows execution scenario, fee, slippage, and adverse-gap penalty columns. No runtime behavior changed, no active PT-RT runtime was started/stopped/mutated, no orders were submitted, no private/signed/order endpoints or API keys were used, no testnet data was used as strategy truth, no strategy was production-approved, and live trading remains not approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `docs/sv2_3_realistic_backtest.md`
+  - `docs/sv2_3_realistic_backtest_summary.json`
+  - `scripts/run_sv23_realistic_backtest.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_sv23_realistic_backtest.py`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `money-flow/00 Maps/Evidence and Backtesting Map.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/run_sv23_realistic_backtest.py`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m py_compile scripts/run_sv23_realistic_backtest.py`
+  - `.venv/bin/python -m pytest -q tests/test_sv23_realistic_backtest.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+
+## v2026.06.08.011
+
+- `recorded_at_utc`: `2026-06-08T11:31:59Z`
+- `scope`: `SV2.2 Historical Replay UI QA Fix`
+- `intent`: `Native entry. Tightened Historical Replay to the SV2.2 latest public-mainnet replay contract: the visible replay controls now use only the three founder-selected Week 2 strategies, active 1h/4h/1d timeframes, SV2.2 period, and supported next-candle fill assumptions. Removed the old fallback that could show baseline replay data for archived/unsupported strategy selections, compacted default chart markers to arrows-only, corrected SV2.2 source/readiness labels, hid the locked period selector, and stopped Paper Runtime status polling while Historical Replay is the active view. No runtime behavior changed, no runtime was started/stopped, no orders were submitted, no production strategy was approved, and live trading remains not approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/index.html`
+  - `tests/test_dashboard_static_assets.py`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_sv22_research_refresh.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+  - `git diff --check`
+  - `Playwright rendered QA against http://127.0.0.1:3001/apps/dashboard/index.html`
+
+## v2026.06.08.010
+
+- `recorded_at_utc`: `2026-06-08T10:57:45Z`
+- `scope`: `SV2.2 Latest Public-Mainnet Replay Correction`
+- `intent`: `Native entry. Corrected SV2.2 from a chart/readiness-only refresh into the intended latest public-mainnet Historical Replay pass for the founder-selected Week 2 strategies: money_flow_v1_2_baseline, avoid_low_rolling_range_20, and mf_orig_1d_stage2_breakout_resistance_full_equity. The refresh still uses Hyperliquid public mainnet meta/candleSnapshot only, covers the founder 23-symbol universe across 1h/4h/1d, keeps 15m disabled, and writes ignored replay/evidence-style artifacts under reports/strategy_validation/sv2_2_week2_replay_dashboard_chart_data/ plus per-strategy evidence-style pack directories. Historical Replay no longer treats sv2_2_public_candle_refresh as a replay strategy; it defaults to Money Flow v1.2 baseline with SV2.2 latest replay rows. SV2.2 remains research/evidence-style review only, not canonical SV2.0.2 replacement, not active PT-RT runtime behavior, not strategy approval, and not live approval. No runtime was started/stopped/mutated, no orders were submitted, no private/signed/order endpoints or API keys were used, and no production/live approval was introduced.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/DESIGN.md`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `docs/sv2_2_hyperliquid_research_refresh.md`
+  - `docs/sv2_2_hyperliquid_research_refresh_summary.json`
+  - `scripts/run_sv22_hyperliquid_research_refresh.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_sv22_research_refresh.py`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `money-flow/00 Maps/Evidence and Backtesting Map.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/run_sv22_hyperliquid_research_refresh.py --fetch-public-data --timeout-seconds 30`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m py_compile scripts/run_sv22_hyperliquid_research_refresh.py`
+  - `.venv/bin/python -m pytest -q tests/test_sv22_research_refresh.py tests/test_dashboard_static_assets.py`
+
+## v2026.06.08.009
+
+- `recorded_at_utc`: `2026-06-08T10:25:19Z`
+- `scope`: `SV2.2 Research Refresh and Dashboard Refocus`
+- `intent`: `Native entry. Added a research-only Hyperliquid public-mainnet refresh for the founder 23-symbol universe across 1h/4h/1d, wrote a committed SV2.2 Markdown/JSON summary, generated ignored selected Historical Replay chart payloads under reports/strategy_validation/sv2_2_research_refresh_dashboard_chart_data/, and refocused the dashboard default landing surface to Historical Replay. SV2.2 is chart/readiness refresh data, not canonical evidence-pack regeneration, not strategy approval, and not active PT-RT runtime behavior. The active paper runtime was not started, stopped, or mutated; no orders were submitted; no private/signed/order endpoints, API keys, testnet strategy truth, live approval, or production approval were introduced.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/sv2_2_hyperliquid_research_refresh.md`
+  - `docs/sv2_2_hyperliquid_research_refresh_summary.json`
+  - `scripts/run_sv22_hyperliquid_research_refresh.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_sv22_research_refresh.py`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `money-flow/00 Maps/Evidence and Backtesting Map.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/run_sv22_hyperliquid_research_refresh.py --fetch-public-data --timeout-seconds 20`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m py_compile scripts/run_sv22_hyperliquid_research_refresh.py`
+  - `.venv/bin/python -m pytest -q tests/test_sv22_research_refresh.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+
 ## v2026.06.08.008
 
 - `recorded_at_utc`: `2026-06-08T09:08:40Z`

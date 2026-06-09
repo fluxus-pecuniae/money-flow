@@ -1,0 +1,38 @@
+{
+  "scope": "CI-SAFE1 CI Gate + Trading Safety Invariants",
+  "date": "2026-06-09",
+  "status": "complete",
+  "blocking_checks": [
+    "node --check apps/dashboard/evidence-dashboard.js",
+    "python -m compileall -q core services apps tests scripts",
+    "python scripts/export_current_truth.py --check",
+    "pytest tests/test_trading_safety_invariants.py tests/test_current_truth_consistency.py tests/test_current_truth_registry.py",
+    "python scripts/check_trading_safety_text.py && pytest tests/test_trading_safety_text_guards.py",
+    "python scripts/check_secret_hygiene.py && pytest tests/test_secret_hygiene.py",
+    "pytest tests/test_review_bundle_hygiene.py",
+    "ruff check + format --check (CI-SAFE1 modules)"
+  ],
+  "informational_checks": ["mypy .", "python -m pytest -q"],
+  "new_files": [
+    ".github/workflows/ci.yml",
+    "scripts/check_trading_safety_text.py",
+    "scripts/check_secret_hygiene.py",
+    "tests/test_trading_safety_invariants.py",
+    "tests/test_trading_safety_text_guards.py",
+    "tests/test_secret_hygiene.py",
+    "tests/test_review_bundle_hygiene.py",
+    "tests/test_current_truth_consistency.py",
+    "docs/ci_safe1_ci_gate_and_trading_safety_invariants.md",
+    "docs/ci_safe1_ci_gate_and_trading_safety_invariants_summary.json"
+  ],
+  "tests_passing": 123,
+  "known_issues": ["K-029"],
+  "boundaries": {
+    "runtime_behavior_changed": false,
+    "orders_submitted": false,
+    "private_endpoints_used": false,
+    "api_keys_loaded": false,
+    "strategy_production_approved": false,
+    "live_trading_approved": false
+  }
+}

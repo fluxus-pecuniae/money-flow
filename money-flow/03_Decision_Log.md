@@ -2,6 +2,38 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-09T13:00:00Z - CI-SAFE1.1 - Install From Pyproject And Restore Fast Guards To Blocking
+
+- `decision`: Fix the CI install step to use `pip install -e ".[dev]"` (pyproject.toml is the canonical install source — there is no `requirements.txt`) and restore four fast guard tests to the blocking lane.
+- `scope`: `.github/workflows/ci.yml` install step (both jobs) and the blocking pytest invocation. Restored `test_pt_rt1_6_week2_slate.py`, `test_dashboard_static_assets.py`, `test_operational_docs.py`, `test_obs_os1_daily_review.py` to the blocking lane.
+- `result`: CI now installs on a clean runner. Blocking lane local validation passes (159 tests across the blocking suite — 96+12+12+39).
+- `boundaries`: CI configuration only. No safety logic, scanner, registry, runtime, strategy, orders, testnet eligibility, Week 2 slate, or approval state changed.
+- `follow_up_implications`: None. The CI gate is now actually executable on first push.
+
+## 2026-06-09T12:00:00Z - CI-SAFE1 - Make Trading Safety Regression Impossible To Merge Undetected
+
+- `decision`: Add a GitHub Actions CI workflow and interlocking safety guards so any relaxation of a safety default, any positive live/production approval language, or any committed secret key material fails CI before merge.
+- `scope`: Blocking CI lane: JS syntax, Python compile, registry --check, trading safety invariant tests, registry consistency, trading-safety text guards, secret hygiene scan, bundle hygiene, ruff on CI-SAFE1 modules. Informational lane: mypy, full pytest. See `.github/workflows/ci.yml` and `docs/ci_safe1_ci_gate_and_trading_safety_invariants.md`.
+- `result`: 123 tests passing. All blocking checks clean on `master`. Pre-existing ruff debt in non-CI-SAFE1 modules tracked in KNOWN_ISSUES as tech debt.
+- `boundaries`: Governance/enforcement only. No runtime behavior changed, no orders submitted, no private/signed/order endpoints used, no API keys loaded, no strategy production-approved, live trading remains not approved.
+- `follow_up_implications`: Any change that weakens `RuntimeSafetyPolicy` defaults, adds positive approval language, commits key material, or drifts the registry will now fail CI. Full-repo ruff adoption is a separate lint-debt cleanup task.
+
+## 2026-06-09T07:45:00Z - TRUTH1 - Truth Flows One-Directionally From Code Anchors
+
+- `decision`: Make code the single source of truth for active lanes, timeframes, symbols, testnet eligibility, and approval boundaries. Truth flows: `services/paper_runtime/pt_rt1.py` + `core/config/settings.py` → `current_truth.json` (generated) → `CURRENT_TRUTH.md` (rendered) + dashboard (static copy, guarded by tests).
+- `scope`: `scripts/export_current_truth.py` reads Python anchors and writes `current_truth.json`. `CURRENT_TRUTH.md` carries a human-readable rendering and a verbatim Machine Block. `tests/test_current_truth_registry.py` asserts no drift. `AGENTS.md` directs implementation prompts to reference `CURRENT_TRUTH.md` instead of re-embedding truth inline.
+- `result`: Drift between docs and code now fails CI. The Machine Block in `CURRENT_TRUTH.md` is generated (not hand-authored) and guarded. Dashboard constants are checked against the registry by `tests/test_current_truth_consistency.py`.
+- `boundaries`: Read-only export only. No runtime behavior changed, no orders submitted, no live or production approval granted, no strategy rules changed.
+- `follow_up_implications`: Any anchor change in `pt_rt1.py` or `settings.py` requires re-running `export_current_truth.py`. Dashboard async-read wiring (TRUTH1 Must 4) is deferred — static constants are kept in sync by tests until that lands.
+
+## 2026-06-08T13:02:00Z - SV2.3 - Make Evidence The Realistic Promotion-Facing Layer
+
+- `decision`: Add SV2.3 as the latest realistic backtest layer and make Evidence default to SV2.3 rather than mixed legacy evidence packs.
+- `scope`: SV2.3 reads SV2.2 Hyperliquid public-mainnet candles for the founder 23-symbol universe, replays the three Week 2 strategies across `1h`/`4h`/`1d`, keeps `15m` disabled, and uses promotion-facing `next_candle_open` fills only under base/conservative/stress execution-cost scenarios.
+- `result`: The run completed 621 result rows. All three Week 2 strategies are `not_promoted_realistic_gate_failed` under the stricter realistic aggregate gate. Evidence now shows scenario, fee, slippage, and adverse-gap penalty columns from `docs/sv2_3_realistic_backtest_summary.json`; Historical Replay remains chart inspection.
+- `boundaries`: SV2.3 is research/evidence only. It does not mutate PT-RT runtime artifacts, start/stop runtime, submit orders, call private/signed/order endpoints, use API keys, use testnet data as strategy truth, update PnL from testnet fills, approve production, or approve live trading.
+- `follow_up_implications`: Treat SV2.3 as the promotion-facing baseline for future strategy review. Do not promote same-candle or next-close rows. Any canonicalization, new runtime lane, or production-testing phase must be separately scoped and founder-approved.
+
 ## 2026-06-08T09:08:40Z - PT-RT1.6.3 - Target XRP For Metadata Smoke After Current 24h Window
 
 - `decision`: Add a blocked-symbol Hyperliquid testnet metadata resolver and constrain the next transport-only metadata smoke to `XRP`.
@@ -9,6 +41,22 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `result`: The code path is prepared and tested. The active `pt_rt1_6_week2_active` process is not restarted or mutated by this phase. The smoke should run only after the current 24h window and daily review generation.
 - `boundaries`: The smoke is `testnet_transport_smoke_not_strategy_signal`, fixed 25 USDC, baseline/testnet plumbing only, no synthetic trade, no synthetic PnL update, no candidate/MF-ORIG testnet orders, no live trading, and no production strategy approval.
 - `follow_up_implications`: If XRP is absent from testnet `meta` or fails size preflight, block locally before `/exchange`. If the smoke safely resolves/rejects/blocks, restart Week 2 unchanged with the existing three-lane slate.
+
+## 2026-06-08T10:25:19Z - SV2.2 - Refocus Research Review On Fresh Public Mainnet Candles
+
+- `decision`: Add a new SV2.2 research-refresh layer and make Historical Replay the default dashboard landing surface while the Week 2 paper runtime continues separately.
+- `scope`: SV2.2 targets the founder 23-symbol resolved Hyperliquid universe across `1h`, `4h`, and `1d`, uses public mainnet `meta` and `candleSnapshot` only, writes committed Markdown/JSON refresh summaries, and writes ignored selected chart/readiness payloads under `reports/strategy_validation/sv2_2_research_refresh_dashboard_chart_data/`.
+- `result`: The refresh completed 69/69 datasets with latest closes `1h=2026-06-08T10:00:00Z`, `4h=2026-06-08T08:00:00Z`, and `1d=2026-06-08T00:00:00Z`.
+- `boundaries`: SV2.2 is chart/readiness refresh data, not canonical evidence-pack regeneration, not strategy approval, not active PT-RT runtime behavior, and not testnet/live behavior. No orders were submitted; no private/signed/order endpoints, API keys, testnet strategy truth, production approval, or live approval were introduced.
+- `follow_up_implications`: Use SV2.2 to review recent market context in Historical Replay/Evidence/The Lab. If updated candidate metrics/trades are required, scope a separate backend evidence/replay regeneration phase rather than treating SV2.2 chart payloads as canonical evidence.
+
+## 2026-06-08T10:57:45Z - SV2.2 - Correct Refresh Into Latest Week 2 Strategy Replay
+
+- `decision`: Correct SV2.2 so it is not represented as a standalone `sv2_2_public_candle_refresh` replay strategy.
+- `scope`: SV2.2 now refreshes Hyperliquid public-mainnet candles for the founder 23-symbol universe across `1h`, `4h`, and `1d`, then replays `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity` using `next_candle_open` and `next_candle_close` fill assumptions.
+- `result`: The corrected run completed 69 refreshed datasets and 414 replay rows, wrote ignored replay chart/trade payloads under `reports/strategy_validation/sv2_2_week2_replay_dashboard_chart_data/`, and wrote ignored evidence-style pack directories under `reports/strategy_validation/sv2_2_latest_public_mainnet_week2_*_evidence_only/`.
+- `boundaries`: SV2.2 remains research/evidence-style review only. It does not replace canonical SV2.0.2/SV2.1 evidence, mutate active PT-RT runtime artifacts, submit orders, call private/signed/order endpoints, use testnet strategy truth, approve production, or approve live trading.
+- `follow_up_implications`: Historical Replay/Evidence/The Lab can use SV2.2 as the latest data/replay review source for the current three-strategy Week 2 slate. Any new strategy promotion, canonical evidence adoption, or runtime lane addition remains separately scoped.
 
 ## 2026-06-08T06:29:37Z - LOG-OBS1 - Add Read-Only Runtime Log Visibility
 

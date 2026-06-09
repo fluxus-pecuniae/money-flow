@@ -50,7 +50,8 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert nav.index('data-view="historical-replay"') < nav.index('data-view="evidence"')
     assert nav.index('data-view="evidence"') < nav.index('data-view="evidence-lab"')
     assert nav.index('data-view="evidence-lab"') < nav.index('data-view="strategy"')
-    assert 'data-view="paper-observation" aria-selected="true"' in nav
+    assert 'data-view="historical-replay" aria-selected="true"' in nav
+    assert 'data-view="paper-observation" aria-selected="false"' in nav
     assert "The Lab" in nav
     assert "Audit Review" not in nav
     assert "Money Flow Evidence Dashboard" in html
@@ -165,8 +166,17 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert "Money Flow v1.2" in js
     assert "Money Flow v1.1" not in js
     assert "HIDDEN_DASHBOARD_STRATEGY_IDS" in js
-    assert 'selectedComponent: "sleeve_1d"' in js
+    assert 'selectedComponent: "all"' in js
     assert "defaultEvidenceComponent" in js
+    assert "EVIDENCE_SV23_REALISTIC_ID" in js
+    assert "sv2_3_realistic_backtest_summary.json" in js
+    assert "Latest Evidence / SV2.3 realistic backtest" in js
+    assert 'evidenceReplayStrategyId: EVIDENCE_SV23_REALISTIC_ID' in js
+    assert "sv23RealisticSummary" in js
+    assert "sv23EvidenceRunLedgerRows" in js
+    assert "next-candle-open only" in js
+    assert "<th>Scenario</th>" in js
+    assert "Gap Penalty" in js
     assert "dashboard-theme-selector" in html
     assert "Dark" in html
     assert "Light" in html
@@ -307,7 +317,7 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert 'data-view-panel="paper-observation"' in html
     assert "Cockpit / Global Filters" in html
     assert "Week 2 configured truth plus display filters" in html
-    assert 'activeView: "paper-observation"' in js
+    assert 'activeView: "historical-replay"' in js
     assert "PT-RT1 forward observation" not in html
     assert "Active-week command center for public-mainnet synthetic paper observation" not in html
     assert "No live trading" not in html
@@ -437,14 +447,15 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert ".paper-observation-cockpit" in css
     assert ".paper-runtime-control-compact" in css
     assert ".paper-observation-terminal-grid" in css
-    assert "grid-template-columns: minmax(240px, 0.62fr) minmax(520px, 1.75fr) minmax(310px, 0.83fr)" in css
-    assert "align-items: start" in css
+    assert "grid-template-columns: minmax(270px, 0.72fr) minmax(560px, 1.62fr) minmax(335px, 0.86fr)" in css
+    assert "align-items: stretch" in css
     assert ".paper-observation-left-rail .paper-observation-controls" in css
     assert ".paper-observation-left-rail .paper-observation-watchlist-panel .data-table-shell" in css
-    assert "height: min(42vh, 420px)" in css
+    assert "height: 100%" in css
     assert ".paper-observation-right-rail .paper-runtime-control" in css
     assert "max-height: 300px" in css
-    assert "max-height: 290px" in css
+    assert ".paper-observation-right-rail .paper-observation-testnet-panel .market-micro-panel" in css
+    assert "max-height: 100%" in css
     assert ".paper-observation-left-rail" in css
     assert ".paper-observation-center-stage" in css
     assert ".paper-observation-right-rail" in css
@@ -544,7 +555,22 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "_sv21_replay.json" in js
     assert "sv2_1_broad_1d_dashboard_chart_data" in js
     assert "historicalReplayPeriodMatches" in js
-    assert "period: \"ALL\"" in js
+    assert 'period: "SV2.2"' in js
+    assert "sv22LatestReplayRows" in js
+    assert 'const SV22_REPLAY_STRATEGY_IDS = new Set(PAPER_OBSERVATION_WEEK2_ACTIVE_LANE_IDS)' in js
+    assert 'const SV22_REPLAY_TIMEFRAMES = new Set(PAPER_OBSERVATION_ACTIVE_TIMEFRAMES)' in js
+    assert 'const SV22_REPLAY_FILL_ASSUMPTIONS = new Set(["next_candle_open", "next_candle_close"])' in js
+    assert "function sv22HistoricalReplayRows()" in js
+    assert "return sv22HistoricalReplayRows();" in js
+    assert "const sameSelection = historicalReplays().find" not in js
+    assert 'return [""];' in js
+    assert "SV2.2 latest replay readiness" in js
+    assert "Canonical evidence replacement: false" in js
+    assert "syncPaperRuntimeControlPolling" in js
+    assert "state.activeView === \"paper-observation\"" in js
+    assert "Latest Public-Mainnet Replay" in html
+    assert "historical-replay-period-control" in html
+    assert "sv2_2_public_candle_refresh" not in js
     assert "<th>Period</th>" in js
     assert "evidence_pack_paths" in js
     assert "SV2.0.2 + SV2.1 evidence packs loaded" not in js
@@ -619,7 +645,7 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "synthetic_entry" in js
     assert "Audit/order-shape rows" in js
     assert "Signed testnet orders" in js
-    assert "PT-RT1.5.3 keeps signed Hyperliquid testnet transport scoped to fresh post-start scheduled Money Flow v1.2 baseline synthetic opens or one labeled transport smoke, with metadata-based size preflight" in js
+    assert "PT-RT1.5.3 keeps signed Hyperliquid testnet transport scoped" not in js
     assert "renderPaperObservationScanner();" in js
     assert ".paper-observation-tick" in css
     assert ".paper-observation-watchlist-table" in css
@@ -913,7 +939,9 @@ def test_pt_rt1_4_paper_trading_command_center_active_timeframe_ui() -> None:
     assert "Data unavailable" in js
     assert "Testnet order transport" in js
     assert "Audit-only shapes" in js
-    assert "signed Hyperliquid testnet transport scoped to fresh post-start scheduled Money Flow v1.2 baseline synthetic opens" in js
+    assert "Money Flow v1.2 fresh baseline opens only" in js
+    assert "Candidate transport" in js
+    assert "Strategy PnL update" in js
     assert "order buttons" not in html.lower()
     assert "manual trade" not in html.lower()
 

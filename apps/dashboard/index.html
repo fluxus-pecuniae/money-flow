@@ -19,8 +19,8 @@
       </div>
 
       <nav class="view-tabs" aria-label="Dashboard sections">
-        <button class="view-tab" type="button" data-view="paper-observation" aria-selected="true">Paper Trading</button>
-        <button class="view-tab" type="button" data-view="historical-replay" aria-selected="false">Historical Replay</button>
+        <button class="view-tab" type="button" data-view="paper-observation" aria-selected="false">Paper Trading</button>
+        <button class="view-tab" type="button" data-view="historical-replay" aria-selected="true">Historical Replay</button>
         <button class="view-tab" type="button" data-view="evidence" aria-selected="false">Evidence</button>
         <button class="view-tab" type="button" data-view="evidence-lab" aria-selected="false">The Lab</button>
         <button class="view-tab" type="button" data-view="strategy" aria-selected="false">Strategy</button>
@@ -451,9 +451,6 @@
                 </div>
               </div>
               <div class="paper-runtime-control-details">
-                <div class="paper-runtime-card-heading">
-                  <p class="eyebrow">Runtime details</p>
-                </div>
                 <div id="paper-runtime-control-status" class="market-micro-panel"></div>
               </div>
             </section>
@@ -598,8 +595,8 @@
 
         <section class="historical-replay-topbar" aria-labelledby="historical-replay-title">
           <div>
-            <p class="eyebrow">Historical Strategy Truth</p>
-            <h2 id="historical-replay-title">Money Flow Historical Replay Cockpit</h2>
+            <p class="eyebrow">SV2.2 Strategy Replay</p>
+            <h2 id="historical-replay-title">Latest Public-Mainnet Replay</h2>
           </div>
           <div class="historical-replay-controls" aria-label="Historical replay controls">
             <label>
@@ -614,7 +611,7 @@
               <span>Timeframe</span>
               <select id="historical-replay-timeframe-filter"></select>
             </label>
-            <label>
+            <label class="historical-replay-period-control">
               <span>Period</span>
               <select id="historical-replay-period-filter"></select>
             </label>

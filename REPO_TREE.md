@@ -1,6 +1,6 @@
 # REPO_TREE
 
-Last reviewed: `2026-06-08T08:45:00Z`
+Last reviewed: `2026-06-09T07:45:00Z`
 
 ## Top-Level Structure
 
@@ -12,6 +12,8 @@ Last reviewed: `2026-06-08T08:45:00Z`
 ├── .gitignore
 ├── AGENTS.md
 ├── CHANGELOG.md
+├── CURRENT_TRUTH.md          ← TRUTH1: generated canonical registry (do not hand-edit machine block)
+├── current_truth.json        ← TRUTH1: generated from export_current_truth.py (do not hand-edit)
 ├── DESIGN.md
 ├── KNOWN_ISSUES.md
 ├── TODO.md
@@ -42,10 +44,26 @@ Last reviewed: `2026-06-08T08:45:00Z`
 - Excludes Git metadata, local secrets, virtualenvs, caches, generated archives, generated strategy-validation evidence packs, database/socket state, and Obsidian app state such as `money-flow/.obsidian/` from handoff ZIPs while keeping sample configs and tracked Obsidian markdown notes reviewable.
 - OBS-OS1 excludes generated daily paper-review packs under `reports/paper_reviews/` from handoff ZIPs.
 
+`.github/workflows/ci.yml`
+- CI-SAFE1: GitHub Actions CI workflow with two lanes.
+- Blocking lane: JS syntax check, Python compile check, registry --check, trading safety invariants + consistency + registry tests, trading-safety text guards, secret hygiene scan, review bundle hygiene, ruff lint/format on CI-SAFE1 modules.
+- Informational lane (continue-on-error): mypy strict, full pytest suite. Failures visible in PR but do not block merge.
+
 `.codex/`
 - Project-scoped Codex workflow configuration.
 - SUBAGENTS1 adds `.codex/agents/runtime_reviewer.toml`, `.codex/agents/dashboard_reviewer.toml`, and `.codex/agents/quant_reviewer.toml` as read-only-by-default review agents for PT-RT runtime safety, founder dashboard clarity, and paper-trade/quant review.
 - `.codex/config.toml` sets conservative local subagent limits: `max_threads = 3` and `max_depth = 1`.
+
+`CURRENT_TRUTH.md`
+- TRUTH1: Canonical current-truth registry rendered from `current_truth.json`.
+- Human-readable sections for active lanes, archived lanes, timeframes, symbols, testnet eligibility, boundaries, and a verbatim Machine Block of the generated JSON.
+- Do not hand-edit the Machine Block. Re-generate with: `python scripts/export_current_truth.py`.
+- Implementation prompts should reference this file instead of re-embedding lane/timeframe/approval truth.
+
+`current_truth.json`
+- TRUTH1: Generated registry. Source of truth for machine-checkable fields.
+- Written by `scripts/export_current_truth.py` from Python anchors in `pt_rt1.py` and `settings.py`.
+- Kept in sync by `tests/test_current_truth_registry.py`. Do not hand-edit.
 
 `DESIGN.md`
 - Root pointer only.
@@ -73,6 +91,8 @@ Last reviewed: `2026-06-08T08:45:00Z`
 - SV2.0 adds `configs/strategy_validation/campaigns/money_flow_sv2_0_hyperliquid_public_2025_expanded.json`, the Money Flow v1.2 expanded public-mainnet evidence config. It covers BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, AVAX, and SHIB across `sleeve_15m`, `sleeve_1h`, `sleeve_4h`, and `sleeve_1d`, records the Jan 2025 target start, uses `dynamic_equity_pct`, and explicitly keeps testnet data out of strategy truth.
 - SV2.0.2 adds `configs/strategy_validation/campaigns/sv2_0_2/` with 36 canonical DB-imported Money Flow v1.2 evidence configs: one per supported symbol/timeframe for BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, and AVAX across `15m`, `1h`, `4h`, and `1d`. The regenerated configs use each pair/timeframe's full available imported window, `dynamic_equity_pct` with 10000 USDC initial equity per independent scenario, explicit fee/slippage and no-testnet-strategy-truth boundaries, and exclude/defer SHIB/kSHIB from executable canonical evidence because unit semantics are not clean enough.
 - SV2.1 adds `scripts/run_sv21_broad_1d_period_evidence.py`, `scripts/build_sv21_broad_1d_historical_replay.py`, `docs/sv2_1_broad_hyperliquid_1d_period_evidence.md`, and `docs/sv2_1_broad_hyperliquid_1d_period_evidence_summary.json` for founder-approved Hyperliquid public-mainnet 1D period evidence plus dashboard Historical Replay artifacts. Generated raw candles and generated period campaign configs remain local under `/tmp/money-flow-sv21-broad-1d/`; generated baseline/candidate evidence packs and selected chart/trade JSON remain ignored under `reports/strategy_validation/`. The rejected broad active-metadata run was removed from local generated outputs and replaced by the founder-approved PT-RT1 requested/resolved universe: BTC, ETH, SOL, XRP, DOGE, HYPE, BNB, SUI, AVAX, TRX, ADA, ZEC, LINK, XMR, TON, LTC, UNI, DOT, ASTER, AAVE, POL, FIL, and TRUMP. PEPE/kPEPE and OKB are excluded by resolver policy. The 2026-05-15/16 rebuild imported public 1D candles back to 2024-01-01 where available, generated 90 baseline period packs across 2024, 2025, YTD, and ALL, then wrote 1800 selected replay chart JSON files and 810 evidence-only candidate/reference/wildcard pack directories covering all 10 PT-RT1 paper-observation lanes for founder review without changing Money Flow rules or approving paper/live. ASTER and TRUMP have no 2024 period pack because public candles do not cover that period.
+- SV2.2 adds `scripts/run_sv22_hyperliquid_research_refresh.py`, `docs/sv2_2_hyperliquid_research_refresh.md`, `docs/sv2_2_hyperliquid_research_refresh_summary.json`, and focused tests for a research-only Hyperliquid public-mainnet latest replay refresh across the founder 23-symbol universe and `1h`/`4h`/`1d`. Generated raw candles remain local under `/tmp/money-flow-sv22-research-refresh/`; generated selected replay chart/trade payloads remain ignored under `reports/strategy_validation/sv2_2_week2_replay_dashboard_chart_data/`, and generated evidence-style pack directories remain ignored under `reports/strategy_validation/`. SV2.2 replays only the three founder-selected Week 2 strategies and does not replace canonical evidence packs, import candles into the DB, change strategy rules, submit orders, or approve paper/live/production.
+- SV2.3 adds `scripts/run_sv23_realistic_backtest.py`, `docs/sv2_3_realistic_backtest.md`, `docs/sv2_3_realistic_backtest_summary.json`, and `tests/test_sv23_realistic_backtest.py` for a research-only realistic backtest layer over the latest SV2.2 public-mainnet candles. SV2.3 uses next-candle-open promotion fills only, base/conservative/stress execution-cost scenarios, active `1h`/`4h`/`1d` timeframes, disabled `15m`, and the three founder-selected Week 2 strategies. The dashboard Evidence tab defaults to this latest realistic layer while Historical Replay remains chart inspection. Generated optional SV2.3 chart payloads, if requested, remain ignored under `reports/strategy_validation/`.
 - SV1.11 adds `configs/strategy_validation/market_identity/hyperliquid_perp_usdc.example.json`, an offline/manual manifest for research-only BTC/ETH/SOL Hyperliquid perpetual USDC `instruments` and `symbols` rows required before candle imports. SV1.11.1 marks the example as requiring operator verification before non-dry-run writes, SV1.11.2 keeps the research seed non-trading by rejecting true strategy/trading eligibility, and the 2026-05-05 SV1.12.x research pass updates the manifest with public Hyperliquid `meta`-verified asset ids, size decimals, leverage, margin table ids, and derived tick/step values while leaving operator verification and trading/strategy eligibility false.
 
 `money-flow/`
@@ -148,6 +168,7 @@ Last reviewed: `2026-06-08T08:45:00Z`
 - Uses the root design tokens/variables when present and keeps visualization read-only: no evidence-pack generation, candle import, paper/live approval, exchange endpoint calls, or Money Flow rule changes.
 - DASH-PT1.2 makes Paper Trading a dense exchange-style terminal: top health strip, left Cockpit / Global Filters plus Watchlist rail, center Live Public Candles + Paper Markers chart, right Runtime Control / Testnet Order Transport / Daily Review rail, and bottom tabbed blotter for Open Positions, Closed Trades, Signal Stream, Testnet Lifecycle, Runtime Logs, Weekly Scoreboard, and Diagnostics.
 - DASH-PT1.3 contains that terminal layout after UI QA: filters stay inside the left rail, Watchlist and right-rail panels scroll internally within bounded heights, Runtime details distinguish control-server status from runtime artifact freshness, and chart marker labels are compact by default.
+- SV2.2 refocuses the dashboard default landing surface to Historical Replay and loads `docs/sv2_2_hyperliquid_research_refresh_summary.json` so refreshed public-mainnet replay rows can be selected lazily when the ignored chart files exist. Historical Replay labels SV2.2 as latest replay/evidence-style review data, not a standalone refresh pseudo-strategy and not canonical evidence replacement.
 - SV1.14 tightens labels so component cards are clearly sums across research runs and run rows are scenario results. The Strategy tab states RSI lower-floor entry truth and that market-structure diagnostics are not entry filters.
 - SV1.15/SV1.15.1 added static controlled-hypothesis internals, but the invalid legacy Experiments surface is no longer exposed as a dashboard tab.
 - SV1.16 and SV1.17 replay internals remain historical code/data context only, separate from Evidence-tab evidence-pack/review data. The visible dashboard remains visualization-only for local evidence and replay artifacts.
@@ -940,6 +961,8 @@ Last reviewed: `2026-06-08T08:45:00Z`
 
 `scripts/`
 - Local developer and review-support utilities.
+- CI-SAFE1: `scripts/check_trading_safety_text.py` scans source for positive live/production approval language; negation-aware, label-aware, forbidden-phrase-list-aware. Run by CI blocking lane.
+- CI-SAFE1: `scripts/check_secret_hygiene.py` lightweight scan for PEM private key blocks, bearer token values, and known signing-key env vars with non-placeholder values. Excludes scanner itself and its test file from scanning; skips KV-pattern check in `tests/` (fixtures expected). See KNOWN_ISSUES K-029.
 - Includes `scripts/create_review_bundle.py` for deterministic review ZIP creation based on `.archiveignore`.
 - Includes `scripts/manual_routed_flow.py` for Phase 6.5 manual routed-flow inspection from an existing desired trade key through optional existing service calls to readiness. It emits JSON, includes Phase 6.6 local `timing_ms` / per-step `elapsed_ms` fields, skips submission by default, and blocks submit attempts unless the explicit danger-confirmation flag is supplied.
 - Includes `scripts/run_money_flow_backtest.py` for SV1.0/SV1.0.1 read-only Money Flow strategy-validation reports over persisted candles with explicit assumptions, selectable fill timing, and JSON/Markdown output.
@@ -1005,6 +1028,21 @@ Last reviewed: `2026-06-08T08:45:00Z`
 - Phase 8.0 operator routed workflow summary: `GET /api/v1/operator-routed-workflows/by-desired-trade/{desired_trade_key}`
 
 ## Main Test Surfaces
+
+`tests/test_trading_safety_invariants.py`
+- CI-SAFE1 blocking: RuntimeSafetyPolicy defaults all locked, VenueIntegrationConfig defaults, evaluate_runtime_policy_for_endpoint blocking/allow per category, Hyperliquid endpoint classifiers, PT-RT1.6 slate boundaries imported from pt_rt1.py anchors.
+
+`tests/test_trading_safety_text_guards.py`
+- CI-SAFE1 blocking: unit + full-repo scan for positive live/production/order-approval language; negation-aware, label-aware, forbidden-phrase-list-aware.
+
+`tests/test_secret_hygiene.py`
+- CI-SAFE1 blocking: unit + full-repo scan for PEM blocks, bearer tokens, KV-pattern keys with non-placeholder values; verifies skip logic for tests/ and scanner self-skip.
+
+`tests/test_review_bundle_hygiene.py`
+- CI-SAFE1 blocking: ArchiveRuleSet.matches() contract for .archiveignore exclusions and inclusions; verifies directory-level pruning and file-level glob patterns.
+
+`tests/test_current_truth_consistency.py`
+- CI-SAFE1 blocking (Must 2b): CURRENT_TRUTH.md Machine Block matches current_truth.json substantive fields; Machine Block has no provenance keys; dashboard JS array constants match registry lane/timeframe order.
 
 `tests/test_config.py`
 - settings defaults and hermetic env/bootstrap behavior

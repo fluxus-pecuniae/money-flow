@@ -1,0 +1,115 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # BLOCKING: all checks here must pass before a merge is allowed
+  # ---------------------------------------------------------------------------
+  blocking:
+    name: Blocking checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      # JS syntax check (no Node version needed — uses system node)
+      - name: JS syntax check
+        run: node --check apps/dashboard/evidence-dashboard.js
+
+      # Python compile check (catches syntax errors in all modules)
+      - name: Python compile check
+        run: python -m compileall -q core services apps tests scripts
+
+      # Canonical truth registry must be up-to-date
+      - name: Registry export --check
+        run: python scripts/export_current_truth.py --check
+
+      # Trading safety invariants (cannot be weakened) + fast guard tests
+      - name: Trading safety invariants
+        run: >
+          python -m pytest -q
+          tests/test_trading_safety_invariants.py
+          tests/test_current_truth_consistency.py
+          tests/test_current_truth_registry.py
+          tests/test_pt_rt1_6_week2_slate.py
+          tests/test_dashboard_static_assets.py
+          tests/test_operational_docs.py
+          tests/test_obs_os1_daily_review.py
+
+      # Text guards (no positive live/production approval language in source)
+      - name: Trading safety text guards
+        run: |
+          python scripts/check_trading_safety_text.py
+          python -m pytest -q tests/test_trading_safety_text_guards.py
+
+      # Secret hygiene (no obvious key material committed)
+      - name: Secret hygiene
+        run: |
+          python scripts/check_secret_hygiene.py
+          python -m pytest -q tests/test_secret_hygiene.py
+
+      # Review bundle hygiene (.archiveignore contract)
+      - name: Review bundle hygiene
+        run: python -m pytest -q tests/test_review_bundle_hygiene.py
+
+      # Lint (ruff) — scoped to CI-SAFE1 authored modules; pre-existing debt tracked in KNOWN_ISSUES
+      - name: Lint (ruff — safety modules)
+        run: |
+          ruff check \
+            scripts/check_trading_safety_text.py \
+            scripts/check_secret_hygiene.py \
+            tests/test_trading_safety_invariants.py \
+            tests/test_trading_safety_text_guards.py \
+            tests/test_secret_hygiene.py \
+            tests/test_review_bundle_hygiene.py \
+            tests/test_current_truth_consistency.py \
+            tests/test_current_truth_registry.py
+          ruff format --check \
+            scripts/check_trading_safety_text.py \
+            scripts/check_secret_hygiene.py \
+            tests/test_trading_safety_invariants.py \
+            tests/test_trading_safety_text_guards.py \
+            tests/test_secret_hygiene.py \
+            tests/test_review_bundle_hygiene.py \
+            tests/test_current_truth_consistency.py \
+            tests/test_current_truth_registry.py
+
+  # ---------------------------------------------------------------------------
+  # INFORMATIONAL: failures here block nothing but are visible in the PR
+  # ---------------------------------------------------------------------------
+  informational:
+    name: Informational checks
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      # mypy strict — informational because existing debt; address incrementally
+      - name: Type check (mypy)
+        run: mypy .
+
+      # Full test suite — some test categories require optional deps or infra
+      - name: Full pytest suite
+        run: python -m pytest -q

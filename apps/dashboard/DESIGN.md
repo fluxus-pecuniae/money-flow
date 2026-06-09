@@ -4,9 +4,11 @@ Canonical design document for `apps/dashboard/`.
 
 ## Current Operator Summary
 
-- Current operating surface: `Paper Trading` dashboard tab for PT-RT forward observation.
+- Current operating surface: `Evidence` defaults to the SV2.3 realistic backtest decision layer; `Historical Replay` remains chart inspection for latest public-mainnet replay context; `Paper Trading` remains the PT-RT forward-observation surface.
 - Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is prepared; no active paper run is assumed unless the local control server reports one.
 - DASH-PT1.3 layout: Paper Trading is a dense exchange-style terminal with top health strip, contained left Cockpit / Global Filters plus internally scrolling three-column Watchlist rail, center Live Public Candles + Paper Markers chart, height-bounded right Runtime Control / Testnet Order Transport rail, bottom tabbed blotter, and a final full-width Daily Review / Anomaly Flags card below the blotter.
+- SV2.2 latest replay refresh: Historical Replay loads `docs/sv2_2_hyperliquid_research_refresh_summary.json` and can lazy-load ignored public-mainnet replay payloads for the three Week 2 selected strategies across the founder 23-symbol universe and `1h`/`4h`/`1d`.
+- SV2.3 latest Evidence layer: Evidence loads `docs/sv2_3_realistic_backtest_summary.json`, defaults to `Latest Evidence / SV2.3 realistic backtest`, and shows next-candle-open-only base/conservative/stress execution scenarios for the three Week 2 strategies. Current gate status: all three are `not_promoted_realistic_gate_failed`.
 - LOG-OBS1 observability: Runtime Control includes a compact Runtime Logs panel and the terminal helper `scripts/watch_pt_rt1_runtime.py` exposes status/latest/tail views without changing runtime state.
 - OBS-OS1 daily review: Paper Trading includes a lower-priority `Daily Review / Anomaly Flags` panel that reads the latest generated daily review pack from ignored `reports/paper_reviews/pt_rt1_6_week2_active/`.
 - Active Week 2 default slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
@@ -17,11 +19,11 @@ Canonical design document for `apps/dashboard/`.
 - Testnet plumbing: fixed 25 USDC Hyperliquid testnet transport is baseline-only and fresh-post-start only when gates pass; selected candidate/MF-ORIG lanes remain synthetic-only and lifecycle rows never update synthetic PnL.
 - Production approval: no strategy is production-approved.
 - Live trading: not approved; no real-capital trading is approved.
-- Next recommended action: after founder review, start the `pt_rt1_6_week2_active` run from the dashboard control server or documented command.
+- Next recommended action: keep Paper Trading runtime monitoring separate from Evidence/Historical Replay/The Lab research review; use SV2.3 as the realistic promotion-facing layer and SV2.2 as chart inspection/latest-data context. Separately scope any promotion, canonicalization, or runtime-lane implementation.
 
 ## Product Purpose
 
-The dashboard is a founder workstation for Money Flow evidence review and PT-RT Paper Trading observation. It helps the founder see current synthetic paper signals, historical evidence, variant research, audit findings, strategy logic, and sandbox/testnet plumbing context without mixing those surfaces into production approval.
+The dashboard is a founder workstation for Money Flow evidence review, refreshed Historical Replay research context, and PT-RT Paper Trading observation. It helps the founder see current synthetic paper signals, historical evidence, variant research, strategy logic, and sandbox/testnet plumbing context without mixing those surfaces into production approval.
 
 The dashboard is not an order-entry terminal.
 
@@ -61,6 +63,7 @@ The implementation uses this interaction model and information architecture only
 Top bar:
 - product name: `Money Flow`
 - visible tabs: `Paper Trading`, `Historical Replay`, `Evidence`, `The Lab`, `Strategy`
+- default selected tab after SV2.2: `Historical Replay`
 - `Audit` is not a visible top-level tab after DASH-PT1.1; audit artifacts remain historical reference material.
 - safety state: synthetic paper only, public mainnet candles, baseline-only testnet plumbing, candidate lanes synthetic-only, no live trading.
 
@@ -80,6 +83,12 @@ Center:
 - TradingView Lightweight Charts from the official local bundle
 - indicator dock
 - entry/exit marker dock
+
+Historical Replay:
+- default landing surface after SV2.2
+- loads SV2.2 latest public-mainnet replay rows when the committed summary and ignored selected chart files are present
+- covers BTC/ETH/SOL/XRP/DOGE/HYPE/BNB/SUI/AVAX/TRX/ADA/ZEC/LINK/XMR/TON/LTC/UNI/DOT/ASTER/AAVE/POL/FIL/TRUMP across `1h`/`4h`/`1d`
+- labels SV2.2 as latest replay/evidence-style review data for selected Week 2 strategies, not a candle-refresh pseudo-strategy, production approval, or live approval
 
 Side and lower panels:
 - compact watchlist / markets
@@ -116,7 +125,9 @@ Primary dashboard tabs are:
   - Historical visual reference from generated chart/trade JSON.
 - Evidence
   - Includes a `Replay strategy` Run Ledger selector.
-  - Default mode reviews canonical evidence-pack batch-report rows.
+  - Default mode reviews `Latest Evidence / SV2.3 realistic backtest`.
+  - SV2.3 rows are next-candle-open-only promotion-facing rows with base/conservative/stress execution-cost scenarios.
+  - Canonical evidence-pack batch-report rows remain available as a reference mode.
   - Generated replay modes review SV2.0.2 chart-data strategy rows such as canonical Money Flow v1.2 and SOR-EV3 rolling-range variants.
   - Generated replay rows include a `Result` badge comparing PnL and drawdown to the matching Money Flow v1.2 baseline row: green `improved_pnl_drawdown`, amber partial-improvement labels, neutral `same_result`, or red `no bueno`.
   - The selector is review/navigation only; it does not regenerate evidence or approve variants.

@@ -37,6 +37,18 @@ Compatibility pointer:
   - Repo-root pointer only.
   - Not the canonical full strategic memory source.
 
+## Canonical Current-Truth Registry
+
+[`CURRENT_TRUTH.md`](CURRENT_TRUTH.md) is the single source of truth for active lanes, timeframes, symbols, testnet eligibility, and approval boundaries. It is generated from Python anchors in `services/paper_runtime/pt_rt1.py` and `core/config/settings.py` and kept in sync by `tests/test_current_truth_registry.py`.
+
+**Implementation prompts must reference `CURRENT_TRUTH.md` and enforce its boundaries instead of re-embedding lane IDs, timeframes, or approval status inline.** If the on-disk registry needs updating after an anchor change, run:
+
+```bash
+python scripts/export_current_truth.py
+```
+
+Then re-render the human sections of `CURRENT_TRUTH.md` to match. Never hand-edit the Machine Block inside `CURRENT_TRUTH.md`.
+
 ## Pre-Task Workflow
 
 Before starting substantial work, agents must:
