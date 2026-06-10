@@ -25,6 +25,7 @@ dependencies = [
 dev = [
     "mypy>=1.17.0",
     "pytest>=8.4.0",
+    "pytest-playwright>=0.5.0",
     "ruff>=0.12.0",
 ]
 
@@ -44,6 +45,12 @@ select = ["E", "F", "I", "N", "UP", "B", "A", "SIM", "RUF"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# DASH-QA1 browser-smoke suite is opt-in (`-m browser`) so it does not run in
+# the default pytest discovery (no Chromium in default CI lanes).
+markers = [
+    "browser: requires Playwright + Chromium (DASH-QA1 dashboard smoke).",
+]
+addopts = "-m 'not browser'"
 
 [tool.mypy]
 python_version = "3.12"

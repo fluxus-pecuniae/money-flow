@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-06-09T12:00:00Z`
+Last reviewed: `2026-06-10T10:00:00Z`
 
 ## Active
 
@@ -39,6 +39,7 @@ Last reviewed: `2026-06-09T12:00:00Z`
 
 ## Done Recently
 
+- DASH-QA1 added a Playwright-based browser-smoke suite under `tests/dashboard_qa/` that pins documented dashboard regressions: tab routing, terminal layout, chart growth stability, tab/blotter persistence, Audit-tab absence, three-active-lane Strategy view, 15m-paused timeframe filter, and synthetic/testnet/no-live boundary labels. 9 tests across 3 consecutive green local runs (~23s each). CI gains a `dashboard-qa` job, informational until 3 consecutive green CI runs land. See `docs/dash_qa1_dashboard_browser_smoke.md`. No dashboard behavior changed, no runtime/strategy/order/approval state changed.
 - CI-SAFE1 added a GitHub Actions CI workflow (`.github/workflows/ci.yml`) with blocking and informational lanes, trading safety invariant tests, registry consistency guards, trading-safety text guards, secret hygiene scan, and review bundle hygiene. 123 tests passing. See `docs/ci_safe1_ci_gate_and_trading_safety_invariants.md`. No runtime behavior changed, no orders, no approvals.
 - TRUTH1 added a canonical current-truth registry: `scripts/export_current_truth.py` generates `current_truth.json` from Python anchors in `pt_rt1.py` and `settings.py`; `CURRENT_TRUTH.md` is the human-readable rendered form; `tests/test_current_truth_registry.py` asserts no drift. `AGENTS.md` and `money-flow/01_Current_Phase.md` now point implementation prompts at the registry instead of re-embedding lane/timeframe/approval truth. No runtime behavior changed, no orders submitted, no live or production approval granted.
 - GOAL-STRAT2 selected two non-existing research-only strategies worth paper-testing review from GOAL-STRAT1 evidence and generated per-candidate reports.

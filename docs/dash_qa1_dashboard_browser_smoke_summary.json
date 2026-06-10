@@ -1,0 +1,53 @@
+{
+  "scope": "DASH-QA1 dashboard browser smoke + chart-stability regression",
+  "date": "2026-06-10",
+  "status": "complete",
+  "harness": "pytest-playwright + Chromium (headless)",
+  "server": "Python http.server on ephemeral 127.0.0.1 port serving repo root",
+  "dashboard_url": "/apps/dashboard/index.html?disableLivePolling=true",
+  "checks": [
+    "1_paper_trading_tab_loads",
+    "2_terminal_layout_visible",
+    "3_chart_does_not_grow_page",
+    "4_tab_switching_persists_blotter_state",
+    "5_blotter_tab_does_not_reset_under_refresh",
+    "6_no_audit_tab",
+    "7_strategy_view_shows_only_active_lanes",
+    "8_timeframe_filter_15m_paused_only",
+    "9_paper_view_boundary_labels_visible"
+  ],
+  "local_stability_runs": 3,
+  "local_stability_passed": 3,
+  "tests_total": 9,
+  "test_durations_seconds_approx": [24.4, 23.0, 22.9],
+  "ci_lane": "informational",
+  "ci_lane_promotion_criterion": "3 consecutive green runs of the dashboard-qa job in CI (Ubuntu runner), no retries",
+  "new_files": [
+    "tests/dashboard_qa/__init__.py",
+    "tests/dashboard_qa/conftest.py",
+    "tests/dashboard_qa/test_dashboard_smoke.py",
+    "docs/dash_qa1_dashboard_browser_smoke.md",
+    "docs/dash_qa1_dashboard_browser_smoke_summary.json"
+  ],
+  "modified_files": [
+    "pyproject.toml",
+    ".github/workflows/ci.yml",
+    "CHANGELOG.md",
+    "KNOWN_ISSUES.md",
+    "REPO_TREE.md",
+    "TODO.md",
+    "money-flow/01_Current_Phase.md",
+    "money-flow/03_Decision_Log.md",
+    "money-flow/05_Agent_Coordination.md"
+  ],
+  "dashboard_hooks_added": "none",
+  "boundaries": {
+    "runtime_behavior_changed": false,
+    "orders_submitted": false,
+    "private_endpoints_used": false,
+    "api_keys_loaded": false,
+    "strategy_production_approved": false,
+    "live_trading_approved": false,
+    "dashboard_behavior_changed": false
+  }
+}

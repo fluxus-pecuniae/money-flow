@@ -88,6 +88,33 @@ jobs:
             tests/test_current_truth_registry.py
 
   # ---------------------------------------------------------------------------
+  # DASHBOARD-QA: Playwright browser-smoke suite for the Paper Trading dashboard.
+  # Starts as informational (continue-on-error) and is promoted to blocking only
+  # after >= 3 consecutive green runs on CI. See docs/dash_qa1_*.md.
+  # ---------------------------------------------------------------------------
+  dashboard-qa:
+    name: Dashboard browser smoke (DASH-QA1)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Install Playwright Chromium
+        run: playwright install --with-deps chromium
+
+      - name: Run dashboard browser-smoke suite
+        run: python -m pytest -m browser tests/dashboard_qa/ -q
+
+  # ---------------------------------------------------------------------------
   # INFORMATIONAL: failures here block nothing but are visible in the PR
   # ---------------------------------------------------------------------------
   informational:
