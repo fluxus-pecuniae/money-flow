@@ -1,0 +1,62 @@
+{
+  "phase": "DOC-LEAN1",
+  "report": "doc_lean1_changelog_rotation_and_lean_reading",
+  "status": "changelog_rotation_and_lean_reading_complete",
+  "scope": "docs_and_tests_only",
+  "rotation": {
+    "original_entries": 292,
+    "changelog_recent_window_entries": 20,
+    "changelog_recent_window_range": ["v2026.06.10.006", "v2026.06.08.002"],
+    "archive_entries": 272,
+    "archive_range": ["v2026.06.08.001", "v2026.04.06.017"],
+    "union_equals_original": true,
+    "entries_dropped": 0,
+    "entries_duplicated": 0,
+    "entry_text_verbatim_byte_for_byte": true,
+    "changelog_size_before": "800 KB / 9,257 lines",
+    "changelog_size_after": "45 KB / 555 lines",
+    "archive_file": "CHANGELOG_ARCHIVE.md"
+  },
+  "rotation_rule": {
+    "changelog_md": "recent rolling window; all new entries written here",
+    "changelog_archive_md": "full older history, rotated out verbatim",
+    "both_canonical": true,
+    "roll_threshold_entries": 25,
+    "ci_enforced_by": "tests/test_operational_docs.py::test_changelog_has_versioned_entries"
+  },
+  "lean_pretask_read_set": [
+    "AGENTS.md",
+    "CURRENT_TRUTH.md",
+    "money-flow/01_Current_Phase.md",
+    "CHANGELOG.md (recent rolling window)",
+    "money-flow/05_Agent_Coordination.md",
+    "task-relevant component doc(s)"
+  ],
+  "consult_on_demand": [
+    "REPO_TREE.md",
+    "KNOWN_ISSUES.md",
+    "TODO.md",
+    "CHANGELOG_ARCHIVE.md",
+    "README.md + money-flow/00 Maps/ track maps",
+    "money-flow/00_Money_Flow_Command_Center.md",
+    "money-flow/Project_Memory/money_flow_project_memory.md"
+  ],
+  "post_task_update_list_changed": false,
+  "guard_updates": {
+    "file": "tests/test_operational_docs.py",
+    "archive_added_to_existence_checks": true,
+    "archive_pointer_check_added": true,
+    "no_overlap_check_added": true,
+    "rolling_cap_entries": 25,
+    "tests_green": "20 passed"
+  },
+  "boundaries": {
+    "history_lost": false,
+    "changes_runtime_behavior": false,
+    "changes_strategy_rules": false,
+    "changes_code_behavior": false,
+    "submits_orders": false,
+    "approves_production_strategy": false,
+    "approves_live_trading": false
+  }
+}
