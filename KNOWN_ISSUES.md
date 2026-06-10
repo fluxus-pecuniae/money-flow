@@ -1,9 +1,10 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-06-10T20:00:00Z`
+Last reviewed: `2026-06-10T22:30:00Z`
 
 ## Open Issues
 
+- `K-033`: DASH-IA1 reduced the Research Log to a minimal data-driven placeholder (verdict rows from committed `docs/*_summary.json`). Until RLOG1 lands, the dashboard has no in-app deep view of retired research surfaces (Historical Replay charts, The Lab variant review, Strategy cards); the underlying artifacts remain on disk under `docs/` and `reports/` and the committed summaries stay readable from the Research Log list.
 - `K-032`: SEL-EV1 tested the cross-sectional selection hypothesis (approach b) honestly and the verdict is `no_selection_skill_demonstrated`: the train-chosen config lost out-of-sample post-conservative-friction and beat only 2 of 50 matched-cadence random-selection seeds (empirical p ≈ 0.96). In-sample selection PnL was large and did not carry out-of-sample — treat any future selection-strategy claim as unproven until it beats the SEL-EV1 random benchmark OOS post-friction. The planned GOAL-STRAT3 breadth gate is superseded by SEL-EV1 and the breadth-gate idea is deferred (the per-symbol breadth/anti-concentration gate still applies to `per_symbol` strategies only and must never judge a selection strategy — enforced by the `strategy_types` routing seam).
 - `K-025`: STRAT-PRUNE1 recommended a different smaller slate; founder overrode it in PT-RT1.6 with a three-lane Week 2 slate.
 - `K-027`: Hyperliquid testnet metadata coverage is not guaranteed for all baseline paper symbols. PT-RT1.6.3 resolves blocked-symbol metadata when present and prepares one XRP transport-only smoke, but if XRP/LINK/DOT/LTC/UNI/TRX/ZEC are absent from testnet `meta`, they intentionally fail closed before `/exchange`.

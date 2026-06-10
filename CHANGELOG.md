@@ -13,6 +13,35 @@ Entry schema:
 
 ---
 
+## v2026.06.10.006
+
+- `recorded_at_utc`: `2026-06-10T22:30:00Z`
+- `scope`: `DASH-IA1 consolidate the dashboard to 2 tabs (structural)`
+- `intent`: `Dashboard display only. The founder decision: Money Flow OS is two surfaces — Paper Trading (the live desk, now the default tab) and Research Log (institutional memory of what has been tested). DASH-IA1 is the structural cut: nav collapsed from five tabs to two; Historical Replay, The Lab (evidence-lab), and Strategy retired (tabs + panels + view-router entries + ALL render/data-loading code and CSS exclusive to those views, plus the old Evidence renderers whose markup was replaced); Evidence renamed to Research Log with a minimal data-driven placeholder (phase/date/verdict rows read from up to 12 committed docs/*_summary.json evidence summaries with graceful omission; full post-mortem view lands in RLOG1). Monolith reduction: evidence-dashboard.js 12,004 -> 6,753 lines (-5,251, -43.7%), CSS 4,448 -> 3,706, index.html 1,088 -> 620. NOTHING deleted from disk: all SOR-EV/MF-ORIG/SV2.x evidence packs, replay JSON, builder scripts, and docs remain as reference; hidden non-nav UAT legacy panels untouched. Must 1b founder layout notes implemented: Global Filters is a full-width bar directly under the status strip (no longer inside the left rail); skinnier left (Watchlist) and right (Runtime Control) rails so the center chart dominates (prototype proportions); Testnet Order Transport relocated to a full-width footer card below Daily Review with all fields/ids/safety labels preserved; product renamed to Money Flow OS (title, top-bar brand, DESIGN.md). The Paper Trading chart and its markers are untouched. Notable preservation catches during the cut: renderSelectWithoutAll, the paper chart pane constants, and historicalConstantRows were defined inside retired-view code regions but used by Paper Trading — restored next to their surviving callers. DASH-QA1 updated in lockstep (still 9 checks): default-tab check now asserts Paper Trading default; check #7 relocated to assert the 3 current_truth active lanes in the Paper Trading status strip; new retired-tabs-absent + nav-exactly-two assertions; reflow assertions (filter bar not in left rail, testnet footer not in right rail); #9 also asserts footer labels. tests/test_dashboard_static_assets.py rewritten in lockstep with the same safety intent. Verification: DASH-QA1 9/9 green (multiple runs), 96 blocking-lane tests green, all three themes exercised with zero page errors, node --check clean, cache-buster dash-ia1-two-tabs-20260610, before/after screenshots in docs/dash_ia1_screenshots/. No runtime, strategy, data-source, order, testnet, or approval change.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/DESIGN.md`
+  - `tests/dashboard_qa/test_dashboard_smoke.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `docs/dash_ia1_two_tab_consolidation.md`
+  - `docs/dash_ia1_two_tab_consolidation_summary.json`
+  - `docs/dash_ia1_screenshots/*`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -m browser tests/dashboard_qa/ -q` → 9 passed (multiple runs)
+  - blocking-lane battery (safety invariants, truth registry/consistency, week2 slate, static assets, operational docs, obs daily review) → 96 passed
+  - three-theme in-browser exercise → zero page errors
+  - `node --check apps/dashboard/evidence-dashboard.js` → OK
+  - `.venv/bin/python -m pytest -q tests/test_secret_hygiene.py tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py` → passed
+
 ## v2026.06.10.005
 
 - `recorded_at_utc`: `2026-06-10T21:00:00Z`
