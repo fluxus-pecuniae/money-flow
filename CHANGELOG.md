@@ -13,6 +13,34 @@ Entry schema:
 
 ---
 
+## v2026.06.10.001
+
+- `recorded_at_utc`: `2026-06-10T10:00:00Z`
+- `scope`: `DASH-QA1 dashboard browser smoke + chart-stability regression`
+- `intent`: `Added a deterministic Playwright-based browser-smoke suite for the Paper Trading dashboard that pins documented regressions: tab routing, terminal layout, chart growth stability (autoSize feedback-loop P0), tab-state persistence, blotter-tab refresh stability, Audit-tab absence, three-active-lane strategy view, 15m-paused timeframe filter, and synthetic/testnet/no-live boundary labels. Suite serves the repo root over a localhost HTTP server, opens index.html?disableLivePolling=true in headless Chromium, and sources expected lane/timeframe values from current_truth.json (TRUTH1). pyproject.toml adds pytest-playwright to dev extras, registers a browser marker, and sets addopts="-m 'not browser'" so the suite is opt-in. CI gains a dedicated dashboard-qa job that runs the suite; lane starts informational (continue-on-error) and will be promoted to blocking after 3 consecutive green CI runs. KNOWN_ISSUES K-030 notes the Chromium binary requirement. No dashboard behavior changed (no data-testid hooks added), no runtime/strategy/order/approval state changed.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `pyproject.toml`
+  - `.github/workflows/ci.yml`
+  - `tests/dashboard_qa/__init__.py`
+  - `tests/dashboard_qa/conftest.py`
+  - `tests/dashboard_qa/test_dashboard_smoke.py`
+  - `docs/dash_qa1_dashboard_browser_smoke.md`
+  - `docs/dash_qa1_dashboard_browser_smoke_summary.json`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `playwright install chromium`
+  - `python -m pytest -m browser tests/dashboard_qa/ -q` → 9 passed (3 consecutive runs: 24.4s, 23.0s, 22.9s)
+  - `python -m pytest --collect-only tests/dashboard_qa/` → 9 deselected (default discovery excludes browser marker)
+  - `python -m pytest -q tests/test_secret_hygiene.py tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py` → 66 passed (pre-push safety check)
+
+---
+
 ## v2026.06.09.003
 
 - `recorded_at_utc`: `2026-06-09T13:00:00Z`

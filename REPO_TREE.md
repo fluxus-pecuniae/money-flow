@@ -45,8 +45,9 @@ Last reviewed: `2026-06-09T07:45:00Z`
 - OBS-OS1 excludes generated daily paper-review packs under `reports/paper_reviews/` from handoff ZIPs.
 
 `.github/workflows/ci.yml`
-- CI-SAFE1: GitHub Actions CI workflow with two lanes.
-- Blocking lane: JS syntax check, Python compile check, registry --check, trading safety invariants + consistency + registry tests, trading-safety text guards, secret hygiene scan, review bundle hygiene, ruff lint/format on CI-SAFE1 modules.
+- CI-SAFE1: GitHub Actions CI workflow with three lanes.
+- Blocking lane: JS syntax check, Python compile check, registry --check, trading safety invariants + consistency + registry tests + four fast guard tests, trading-safety text guards, secret hygiene scan, review bundle hygiene, ruff lint/format on CI-SAFE1 modules.
+- DASH-QA1 dashboard-qa lane (continue-on-error initially; promotes to blocking after 3 consecutive green CI runs): installs Playwright Chromium and runs `tests/dashboard_qa/` browser-smoke suite.
 - Informational lane (continue-on-error): mypy strict, full pytest suite. Failures visible in PR but do not block merge.
 
 `.codex/`
@@ -1040,6 +1041,9 @@ Last reviewed: `2026-06-09T07:45:00Z`
 
 `tests/test_review_bundle_hygiene.py`
 - CI-SAFE1 blocking: ArchiveRuleSet.matches() contract for .archiveignore exclusions and inclusions; verifies directory-level pruning and file-level glob patterns.
+
+`tests/dashboard_qa/`
+- DASH-QA1 browser-smoke suite. Opt-in via the `browser` pytest marker. Serves the repo root via Python `http.server` on an ephemeral port and opens `apps/dashboard/index.html?disableLivePolling=true` in headless Chromium via `pytest-playwright`. `test_dashboard_smoke.py` runs the nine grounded checks (paper tab loads, terminal layout, chart growth stability, tab-state persistence, blotter-tab refresh stability, no Audit tab, three-active-lane strategy view, 15m-paused timeframe filter, synthetic/testnet/no-live boundary labels). `conftest.py` provides the server and `current_truth` registry fixtures.
 
 `tests/test_current_truth_consistency.py`
 - CI-SAFE1 blocking (Must 2b): CURRENT_TRUTH.md Machine Block matches current_truth.json substantive fields; Machine Block has no provenance keys; dashboard JS array constants match registry lane/timeframe order.

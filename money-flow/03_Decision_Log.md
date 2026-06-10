@@ -2,6 +2,14 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-10T10:00:00Z - DASH-QA1 - Pin Documented Dashboard Regressions With A Browser-Smoke Suite
+
+- `decision`: Add a deterministic Playwright browser-smoke suite under `tests/dashboard_qa/` that pins documented dashboard regressions (tab routing, terminal layout, chart-growth feedback loop, tab/blotter persistence, Audit-tab absence, three-active-lane Strategy view, 15m-paused timeframe filter, synthetic/testnet/no-live boundary labels). Source expected lane/timeframe values from `current_truth.json` (TRUTH1).
+- `scope`: `tests/dashboard_qa/` (conftest + 9 checks), `pyproject.toml` (pytest-playwright dev dep + `browser` marker + default deselect), `.github/workflows/ci.yml` (`dashboard-qa` job), `docs/dash_qa1_*`, `KNOWN_ISSUES.md` (K-030 Chromium binary requirement).
+- `result`: 3 consecutive green local runs (9 tests, ~23s each on macOS arm64). Default pytest discovery deselects the suite (no Chromium needed for the existing lanes). CI lane starts informational; promotes to blocking after 3 consecutive green CI runs.
+- `boundaries`: Tests + harness + CI + docs only. No `data-testid` or other dashboard hooks added — every check resolves through existing selectors/ARIA. No runtime, strategy, order, testnet, slate, or approval state changed. `?disableLivePolling=true` ensures no live Hyperliquid network is contacted.
+- `follow_up_implications`: Promotion to blocking requires 3 consecutive green CI runs (Ubuntu runner can surface flakes not seen on macOS). Any future dashboard work must keep the nine checks green or update the suite + this decision log.
+
 ## 2026-06-09T13:00:00Z - CI-SAFE1.1 - Install From Pyproject And Restore Fast Guards To Blocking
 
 - `decision`: Fix the CI install step to use `pip install -e ".[dev]"` (pyproject.toml is the canonical install source — there is no `requirements.txt`) and restore four fast guard tests to the blocking lane.
