@@ -4,9 +4,9 @@
 
 [`CURRENT_TRUTH.md`](../CURRENT_TRUTH.md) — generated from code anchors; use as the quick-reference for active lanes, timeframes, symbols, testnet eligibility, and approval status. Enforced by `tests/test_current_truth_registry.py`.
 
-## CI Gate (CI-SAFE1 / DASH-QA1)
+## CI Gate (CI-SAFE1 / DASH-QA1 / CI-CLEAN1)
 
-GitHub Actions CI workflow at `.github/workflows/ci.yml` with three lanes. Blocking enforces: JS syntax, Python compile, registry --check, trading safety invariants, registry consistency, trading-safety text guards, secret hygiene scan, bundle hygiene, ruff on CI-SAFE1 modules. DASH-QA1 `dashboard-qa` lane runs the Playwright browser-smoke suite (`tests/dashboard_qa/`); starts informational and promotes to blocking after 3 consecutive green CI runs. Informational: mypy, full pytest. See `docs/ci_safe1_ci_gate_and_trading_safety_invariants.md` and `docs/dash_qa1_dashboard_browser_smoke.md`.
+GitHub Actions CI workflow at `.github/workflows/ci.yml` with four independent jobs. **Blocking**: `blocking` (JS syntax, compile, registry --check, safety invariants, registry consistency, text guards, secret hygiene, bundle hygiene, scoped ruff) and `dashboard-qa` (Playwright browser-smoke suite — promoted to blocking by CI-CLEAN1 after consistent Ubuntu greens). **Informational** (independent jobs so failures cannot hide each other): `typecheck` (mypy strict; debt tracked in K-031) and `full-tests` (`pytest -q -m "not browser"`). All jobs install reproducibly via `pip install -r requirements-dev.lock && pip install -e . --no-deps`. See `docs/ci_safe1_ci_gate_and_trading_safety_invariants.md`, `docs/dash_qa1_dashboard_browser_smoke.md`, and `docs/ci_clean1_ci_enforcement_close_and_locked_deps.md`.
 
 ## Current Operator Summary
 

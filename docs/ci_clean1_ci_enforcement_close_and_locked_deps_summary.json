@@ -1,0 +1,54 @@
+{
+  "scope": "CI-CLEAN1 close CI enforcement loop + reproducible installs",
+  "date": "2026-06-10",
+  "status": "complete",
+  "changes": {
+    "dashboard_qa_promoted_to_blocking": true,
+    "informational_split_into_typecheck_and_full_tests": true,
+    "lockfile_added": "requirements-dev.lock",
+    "lockfile_lines": 226,
+    "pip_tools_added_to_dev_deps": true
+  },
+  "ci_jobs_after": [
+    {"name": "blocking", "gating": "blocking"},
+    {"name": "dashboard-qa", "gating": "blocking"},
+    {"name": "typecheck", "gating": "informational"},
+    {"name": "full-tests", "gating": "informational"}
+  ],
+  "install_command": "pip install -r requirements-dev.lock && pip install -e . --no-deps",
+  "lock_regeneration_command": "pip-compile --extra dev --output-file requirements-dev.lock pyproject.toml",
+  "new_files": [
+    "requirements-dev.lock",
+    "docs/ci_clean1_ci_enforcement_close_and_locked_deps.md",
+    "docs/ci_clean1_ci_enforcement_close_and_locked_deps_summary.json"
+  ],
+  "modified_files": [
+    ".github/workflows/ci.yml",
+    "pyproject.toml",
+    "CHANGELOG.md",
+    "KNOWN_ISSUES.md",
+    "REPO_TREE.md",
+    "TODO.md",
+    "money-flow/01_Current_Phase.md",
+    "money-flow/03_Decision_Log.md",
+    "money-flow/05_Agent_Coordination.md"
+  ],
+  "validation_performed": [
+    "pip-compile --extra dev --output-file requirements-dev.lock pyproject.toml",
+    "pip install -r requirements-dev.lock && pip install -e . --no-deps",
+    "pytest -q tests/test_secret_hygiene.py tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py → 66 passed",
+    "pytest -m browser tests/dashboard_qa/ -q → 9 passed",
+    "python -c \"import yaml; yaml.safe_load(open('.github/workflows/ci.yml'))\" → YAML OK"
+  ],
+  "boundaries": {
+    "runtime_behavior_changed": false,
+    "orders_submitted": false,
+    "private_endpoints_used": false,
+    "api_keys_loaded": false,
+    "strategy_production_approved": false,
+    "live_trading_approved": false,
+    "dashboard_behavior_changed": false,
+    "test_logic_changed": false,
+    "mypy_silenced": false
+  }
+}

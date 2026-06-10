@@ -42,6 +42,33 @@ Entry schema:
 
 ---
 
+## v2026.06.10.002
+
+- `recorded_at_utc`: `2026-06-10T13:00:00Z`
+- `scope`: `CI-CLEAN1 close CI enforcement loop + reproducible installs`
+- `intent`: `CI/build config only. (1) Promoted dashboard-qa to blocking by removing continue-on-error=true (lane is consistently green on Ubuntu since DASH-QA1.1). (2) Split the single informational job into two independent jobs typecheck (mypy) and full-tests (pytest -q -m "not browser"), both continue-on-error=true, so a mypy failure no longer hides the full pytest signal. (3) Added pip-tools to dev extras, generated a 226-line requirements-dev.lock, and switched every CI job to install via "pip install -r requirements-dev.lock && pip install -e . --no-deps" for reproducible dependency resolution. KNOWN_ISSUES K-031 added for the strict-mypy informational debt with explicit promotion criterion (do not silence mypy or relax strict). No runtime, strategy, order, testnet, slate, approval, dashboard-behavior, or test-logic changes. mypy strict mode not silenced. browser marker not folded into the main test run.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `pyproject.toml`
+  - `requirements-dev.lock`
+  - `.github/workflows/ci.yml`
+  - `docs/ci_clean1_ci_enforcement_close_and_locked_deps.md`
+  - `docs/ci_clean1_ci_enforcement_close_and_locked_deps_summary.json`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `pip-compile --extra dev --output-file requirements-dev.lock pyproject.toml` → 226 lines
+  - `pip install -r requirements-dev.lock && pip install -e . --no-deps` → clean
+  - `python -m pytest -q tests/test_secret_hygiene.py tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py` → 66 passed
+  - `python -m pytest -m browser tests/dashboard_qa/ -q` → 9 passed
+  - `python -c "import yaml; yaml.safe_load(open('.github/workflows/ci.yml'))"` → YAML OK
+
+---
+
 ## v2026.06.10.001
 
 - `recorded_at_utc`: `2026-06-10T10:00:00Z`

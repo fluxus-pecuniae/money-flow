@@ -17,6 +17,14 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `gating_evidence`: EXEC-EV1's entry-timing cost shows `mf_orig` (the one lane with a surviving modeled-friction edge) loses ~+15 to +37 bps when entered 1-2 candles late — the edge decays fast at the signal. Small late-entry cost would argue seeding is not worth the runtime risk; the observed large cost argues seeding would erode the edge. Either way the bar to build this is high.
 - `status`: Not started. Do not build without an explicit, separately-scoped founder decision. This entry exists only to capture the iron rules before any implementation.
 
+## 2026-06-10T13:00:00Z - CI-CLEAN1 - Promote dashboard-qa, Split Informational, Lock Deps
+
+- `decision`: (1) Promote `dashboard-qa` to a blocking CI lane now that it is consistently green on Ubuntu after DASH-QA1.1. (2) Split the single sequential `informational` job into two independent `continue-on-error` jobs `typecheck` and `full-tests` so a mypy failure cannot hide the full pytest suite's signal. (3) Add `pip-tools` to dev extras and commit `requirements-dev.lock` so every CI job installs reproducibly via `pip install -r requirements-dev.lock && pip install -e . --no-deps`.
+- `scope`: `.github/workflows/ci.yml`, `pyproject.toml`, `requirements-dev.lock` (new), `docs/ci_clean1_*`, `KNOWN_ISSUES.md` (K-031 mypy debt with explicit promotion criterion).
+- `result`: dashboard-qa now gates merges. Informational mypy + full pytest report independently. Lock pins 226 lines. Local validation: 66 safety tests + 9 browser tests green with the locked install.
+- `boundaries`: CI/build config only. No runtime, strategy, order, testnet, slate, approval, dashboard-behavior, or test-logic changes. mypy strict mode is NOT silenced. The `browser` pytest marker is NOT folded into the main test run.
+- `follow_up_implications`: Any future `pyproject.toml` dep change requires regenerating the lock: `pip-compile --extra dev --output-file requirements-dev.lock pyproject.toml`. mypy promotion to blocking is gated on K-031 being resolved through incremental typing — no silencing or relaxation.
+
 ## 2026-06-10T10:00:00Z - DASH-QA1 - Pin Documented Dashboard Regressions With A Browser-Smoke Suite
 
 - `decision`: Add a deterministic Playwright browser-smoke suite under `tests/dashboard_qa/` that pins documented dashboard regressions (tab routing, terminal layout, chart-growth feedback loop, tab/blotter persistence, Audit-tab absence, three-active-lane Strategy view, 15m-paused timeframe filter, synthetic/testnet/no-live boundary labels). Source expected lane/timeframe values from `current_truth.json` (TRUTH1).

@@ -6,9 +6,14 @@ on:
   pull_request:
     branches: ["main", "master"]
 
+# All jobs install reproducibly from requirements-dev.lock + the local package
+# without re-resolving its deps. Regenerate the lock after any pyproject.toml
+# dependency change:
+#     pip-compile --extra dev --output-file requirements-dev.lock pyproject.toml
+
 jobs:
   # ---------------------------------------------------------------------------
-  # BLOCKING: all checks here must pass before a merge is allowed
+  # BLOCKING: all checks here must pass before a merge is allowed.
   # ---------------------------------------------------------------------------
   blocking:
     name: Blocking checks
@@ -22,8 +27,10 @@ jobs:
           python-version: "3.12"
           cache: "pip"
 
-      - name: Install dependencies
-        run: pip install -e ".[dev]"
+      - name: Install dependencies (locked)
+        run: |
+          pip install -r requirements-dev.lock
+          pip install -e . --no-deps
 
       # JS syntax check (no Node version needed — uses system node)
       - name: JS syntax check
@@ -93,13 +100,13 @@ jobs:
 
   # ---------------------------------------------------------------------------
   # DASHBOARD-QA: Playwright browser-smoke suite for the Paper Trading dashboard.
-  # Starts as informational (continue-on-error) and is promoted to blocking only
-  # after >= 3 consecutive green runs on CI. See docs/dash_qa1_*.md.
+  # Promoted to BLOCKING in CI-CLEAN1 after consistent Ubuntu greens on DASH-QA1.1.
+  # Kept as a separate job because it needs `playwright install chromium`; the
+  # browser pytest marker must NOT be folded into the main full-tests run.
   # ---------------------------------------------------------------------------
   dashboard-qa:
     name: Dashboard browser smoke (DASH-QA1)
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -109,8 +116,10 @@ jobs:
           python-version: "3.12"
           cache: "pip"
 
-      - name: Install dependencies
-        run: pip install -e ".[dev]"
+      - name: Install dependencies (locked)
+        run: |
+          pip install -r requirements-dev.lock
+          pip install -e . --no-deps
 
       - name: Install Playwright Chromium
         run: playwright install --with-deps chromium
@@ -119,10 +128,13 @@ jobs:
         run: python -m pytest -m browser tests/dashboard_qa/ -q
 
   # ---------------------------------------------------------------------------
-  # INFORMATIONAL: failures here block nothing but are visible in the PR
+  # INFORMATIONAL — TYPECHECK: mypy strict, non-blocking. Address incrementally
+  # toward green; promote to blocking only when the strict-mypy debt is clean.
+  # Split from the full-tests job in CI-CLEAN1 so a mypy failure cannot hide the
+  # full pytest suite's signal.
   # ---------------------------------------------------------------------------
-  informational:
-    name: Informational checks
+  typecheck:
+    name: Type check (mypy strict, informational)
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
@@ -134,13 +146,36 @@ jobs:
           python-version: "3.12"
           cache: "pip"
 
-      - name: Install dependencies
-        run: pip install -e ".[dev]"
+      - name: Install dependencies (locked)
+        run: |
+          pip install -r requirements-dev.lock
+          pip install -e . --no-deps
 
-      # mypy strict — informational because existing debt; address incrementally
       - name: Type check (mypy)
         run: mypy .
 
-      # Full test suite — some test categories require optional deps or infra
-      - name: Full pytest suite
-        run: python -m pytest -q
+  # ---------------------------------------------------------------------------
+  # INFORMATIONAL — FULL TESTS: the full pytest suite, non-blocking. Excludes
+  # the `browser` marker (owned by dashboard-qa). Some test categories require
+  # optional deps or infra; failures here are visible but do not block.
+  # ---------------------------------------------------------------------------
+  full-tests:
+    name: Full pytest suite (informational)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies (locked)
+        run: |
+          pip install -r requirements-dev.lock
+          pip install -e . --no-deps
+
+      - name: Full pytest suite (excludes browser marker)
+        run: python -m pytest -q -m "not browser"
