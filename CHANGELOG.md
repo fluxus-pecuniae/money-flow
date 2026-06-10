@@ -13,6 +13,32 @@ Entry schema:
 
 ---
 
+## v2026.06.10.004
+
+- `recorded_at_utc`: `2026-06-10T20:00:00Z`
+- `scope`: `SEL-EV1 cross-sectional breakout selection evidence + strategy-type routing seam`
+- `intent`: `Research/evidence only. Tests the founder's pivot from approach a (one universal rule per symbol — failed via ZEC concentration) to approach b (cross-sectional selection: each period rank the 23-symbol universe on breakout/relative strength, hold the strongest name(s), rotate as leadership changes). Supersedes the planned GOAL-STRAT3 breadth gate (wrong lens for a strategy designed to concentrate; the ZEC lesson is reframed as a rotation/diversity check; the breadth-gate idea is deferred). Must 0 adds a strategy_type routing seam (services/strategy_validation/strategy_types.py): per_symbol routes to the existing goal_strat1 simulator + breadth gate, cross_sectional_selection routes to the new SEL-EV1 portfolio simulator + random-benchmark gate; the gates can never cross-apply (StrategyTypeRoutingError) and the three Week 2 lanes are tagged per_symbol with behavior/results unchanged (byte-identical golden regression test). services/strategy_validation/sel_ev1.py adds a strict point-in-time cross-sectional simulator (selection at t uses only data <= t; next-candle-open fills; ATR(14)x2.8 trail; fixed-fraction sizing top-1 50% / top-3 30% per name — never full-equity-on-one; EXEC-EV1 depth-aware friction on every fill), bounded signals (donchian_breakout_strength, vol_adjusted_relative_momentum; lookbacks 20/40; top-1/top-3; 4h/1d = 16 configs), a matched-cadence seeded random-selection benchmark, equal-weight buy-and-hold + naive past-return baselines, rotation/diversity metrics, chronological 70/30 + anchored walk-forward thirds OOS with train-only parameter choice, and late-entry (+1/+2 candle) sensitivity. VERDICT: no_selection_skill_demonstrated. The train-chosen config (vol_adjusted_relative_momentum lb40 top3 1d, train net +54292) lost -10460 OOS post-conservative-friction and beat only 2 of 50 random seeds (empirical p 0.96 — worse than random); equal-weight buy-hold OOS -2147; in-sample positivity did not carry out-of-sample. Diversity itself was healthy (23 distinct symbols, max time share 0.13, no single-name bet). Late-entry decay is severe on the full period (+0 net 43832 -> +1 17366 -> +2 12334), confirming breakout selection is acutely timing-sensitive (relevant to RT-HISTSEED1). 15 deterministic offline tests (routing seam, byte-identical per-symbol regression, no-lookahead incl. a synthetic leak that must be caught, seed reproducibility, always-one-symbol diversity flag, friction-on-fills, chronological splits) wired into the blocking CI lane. No runtime mutation, no strategy-rule change, no orders, no private/signed/testnet/live endpoints, no production or live approval.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `.github/workflows/ci.yml`
+  - `services/strategy_validation/strategy_types.py`
+  - `services/strategy_validation/sel_ev1.py`
+  - `scripts/run_sel_ev1_selection_evidence.py`
+  - `tests/test_sel_ev1_selection_evidence.py`
+  - `tests/fixtures/sel_ev1/goal_strat1_per_symbol_golden.json`
+  - `docs/sel_ev1_selection_evidence.md`
+  - `docs/sel_ev1_selection_evidence_summary.json`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/run_sel_ev1_selection_evidence.py` → 16 configs + 50 random seeds + baselines, verdict `no_selection_skill_demonstrated`
+  - `.venv/bin/python -m pytest -q tests/test_sel_ev1_selection_evidence.py` → 15 passed
+  - `.venv/bin/python -m pytest -q tests/test_secret_hygiene.py tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py` → passed
+
 ## v2026.06.10.003
 
 - `recorded_at_utc`: `2026-06-10T16:00:00Z`

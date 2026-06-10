@@ -76,6 +76,12 @@ jobs:
       - name: EXEC-EV1 execution-quality model
         run: python -m pytest -q tests/test_exec_ev1_execution_quality.py
 
+      # SEL-EV1 cross-sectional selection evidence layer: routing seam,
+      # per-symbol byte-identical regression, no-lookahead, random-benchmark
+      # reproducibility, rotation/diversity flag (deterministic, offline)
+      - name: SEL-EV1 selection evidence model
+        run: python -m pytest -q tests/test_sel_ev1_selection_evidence.py
+
       # Lint (ruff) — scoped to CI-SAFE1 authored modules; pre-existing debt tracked in KNOWN_ISSUES
       - name: Lint (ruff — safety modules)
         run: |
