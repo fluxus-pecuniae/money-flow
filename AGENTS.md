@@ -9,7 +9,8 @@ Before changing code, future agents must read the current repo memory and the Ob
 Required operational docs:
 
 - [`AGENTS.md`](AGENTS.md)
-- [`CHANGELOG.md`](CHANGELOG.md)
+- [`CHANGELOG.md`](CHANGELOG.md) (recent rolling window)
+- [`CHANGELOG_ARCHIVE.md`](CHANGELOG_ARCHIVE.md) (full older history)
 - [`REPO_TREE.md`](REPO_TREE.md)
 - [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md)
 - [`TODO.md`](TODO.md)
@@ -51,20 +52,28 @@ Then re-render the human sections of `CURRENT_TRUTH.md` to match. Never hand-edi
 
 ## Pre-Task Workflow
 
-Before starting substantial work, agents must:
+DOC-LEAN1 reading discipline: read the lean current-state set every task;
+consult the heavier logs only when the task actually needs them. This trims
+mandatory READS only — the post-task UPDATE list below is unchanged.
+
+Before starting substantial work, agents must read the **lean current-state set**:
 
 1. Read [`AGENTS.md`](AGENTS.md).
-2. Read [`CHANGELOG.md`](CHANGELOG.md).
-3. Read [`REPO_TREE.md`](REPO_TREE.md).
-4. Read [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md).
-5. Read [`TODO.md`](TODO.md).
-6. Read canonical docs that matter to the task, especially [`README.md`](README.md), [`docs/architecture.md`](docs/architecture.md), and [`docs/strategy.md`](docs/strategy.md) for platform phases.
-7. Read [`money-flow/00_Money_Flow_Command_Center.md`](money-flow/00_Money_Flow_Command_Center.md).
-8. Read [`money-flow/01_Current_Phase.md`](money-flow/01_Current_Phase.md).
-9. Read [`money-flow/Project_Memory/money_flow_project_memory.md`](money-flow/Project_Memory/money_flow_project_memory.md) as strategic context.
-10. Check [`money-flow/05_Agent_Coordination.md`](money-flow/05_Agent_Coordination.md) for active work/conflicts.
-11. Read the current track map relevant to the task, such as [`money-flow/00 Maps/UAT Roadmap.md`](money-flow/00%20Maps/UAT%20Roadmap.md) for UAT work or [`money-flow/00 Maps/Strategy Validation Map.md`](money-flow/00%20Maps/Strategy%20Validation%20Map.md) for Strategy Validation work.
-12. Confirm they understand the current repo state before changing code.
+2. Read [`CURRENT_TRUTH.md`](CURRENT_TRUTH.md) — the canonical current state (active lanes, timeframes, symbols, testnet eligibility, approval boundaries).
+3. Read [`money-flow/01_Current_Phase.md`](money-flow/01_Current_Phase.md).
+4. Read the recent [`CHANGELOG.md`](CHANGELOG.md) (a small rolling window after DOC-LEAN1).
+5. Check [`money-flow/05_Agent_Coordination.md`](money-flow/05_Agent_Coordination.md) for active work/conflicts.
+6. Read the specific component doc(s) relevant to the task (for example [`docs/architecture.md`](docs/architecture.md) / [`docs/strategy.md`](docs/strategy.md) for platform phases, [`apps/dashboard/DESIGN.md`](apps/dashboard/DESIGN.md) for dashboard work, or the relevant `docs/<phase>_*.md`).
+7. Confirm they understand the current repo state before changing code.
+
+Consult **on demand when relevant to the task** (not mandatory full reads):
+
+- [`REPO_TREE.md`](REPO_TREE.md) — structure/ownership lookups.
+- [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md) — when touching an area with known issues.
+- [`TODO.md`](TODO.md) — when picking up or deferring scoped work.
+- [`CHANGELOG_ARCHIVE.md`](CHANGELOG_ARCHIVE.md) — older history beyond the recent window.
+- [`README.md`](README.md) and the `money-flow/00 Maps/` track maps (such as [`money-flow/00 Maps/UAT Roadmap.md`](money-flow/00%20Maps/UAT%20Roadmap.md) or [`money-flow/00 Maps/Strategy Validation Map.md`](money-flow/00%20Maps/Strategy%20Validation%20Map.md)).
+- [`money-flow/00_Money_Flow_Command_Center.md`](money-flow/00_Money_Flow_Command_Center.md) and [`money-flow/Project_Memory/money_flow_project_memory.md`](money-flow/Project_Memory/money_flow_project_memory.md) — long-horizon strategic context for substantial phase work.
 
 Minimum confirmation means:
 
@@ -129,7 +138,12 @@ Minimum validation means:
 
 ## Changelog Rules
 
-Use [`CHANGELOG.md`](CHANGELOG.md) as the single canonical changelog.
+The changelog is split into a recent rolling window plus a full archive (DOC-LEAN1):
+
+- [`CHANGELOG.md`](CHANGELOG.md) holds the **recent rolling window** (newest-first). All new entries are written here.
+- [`CHANGELOG_ARCHIVE.md`](CHANGELOG_ARCHIVE.md) holds the **full older history**, rotated out verbatim (newest-first; nothing deleted).
+- **Both are canonical** — recent window + archive together are the complete changelog, not competing changelogs.
+- When `CHANGELOG.md` exceeds ~25 entries, roll the oldest entries verbatim into the top of the archive's entry list as part of the post-task update.
 
 Each entry must include:
 
@@ -159,4 +173,4 @@ If an entry was reconstructed from repo history instead of written at the time, 
 - If a task intentionally defers work, record that in [`TODO.md`](TODO.md) or [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md) when appropriate.
 - Repo docs remain the source of truth for implemented code state.
 - Obsidian is the source of truth for long-horizon project memory, founder intent, decisions, and cross-agent coordination.
-- Obsidian strategic memory is not a substitute for [`CHANGELOG.md`](CHANGELOG.md), [`REPO_TREE.md`](REPO_TREE.md), [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md), or [`TODO.md`](TODO.md).
+- Obsidian strategic memory is not a substitute for [`CHANGELOG.md`](CHANGELOG.md) / [`CHANGELOG_ARCHIVE.md`](CHANGELOG_ARCHIVE.md), [`REPO_TREE.md`](REPO_TREE.md), [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md), or [`TODO.md`](TODO.md).

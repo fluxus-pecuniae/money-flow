@@ -41,6 +41,7 @@ def _has_top20_boundary(note: str) -> bool:
 REQUIRED_FILES = [
     "AGENTS.md",
     "CHANGELOG.md",
+    "CHANGELOG_ARCHIVE.md",
     "REPO_TREE.md",
     "KNOWN_ISSUES.md",
     "TODO.md",
@@ -259,8 +260,15 @@ def test_docs_ob21_dashboard_and_strategy_taxonomies_are_explicit() -> None:
 
 def test_agents_references_required_operational_docs() -> None:
     agents = Path("AGENTS.md").read_text()
-    for required_name in ["AGENTS.md", "CHANGELOG.md", "REPO_TREE.md", "KNOWN_ISSUES.md", "TODO.md"]:
+    for required_name in ["AGENTS.md", "CHANGELOG.md", "CHANGELOG_ARCHIVE.md", "REPO_TREE.md", "KNOWN_ISSUES.md", "TODO.md"]:
         assert required_name in agents
+    # DOC-LEAN1 lean pre-task reading discipline (reads trimmed, writes unchanged).
+    assert "CURRENT_TRUTH.md" in agents
+    assert "lean current-state set" in agents
+    assert "on demand when relevant to the task" in agents
+    assert "recent rolling window" in agents
+    assert "exceeds ~25 entries" in agents
+    assert "single canonical changelog" not in agents
     assert "money_flow_project_memory.md" in agents
     assert "Obsidian" in agents
     assert "money-flow/00_Money_Flow_Command_Center.md" in agents
@@ -1087,6 +1095,34 @@ def test_changelog_has_versioned_entries() -> None:
     timestamps = re.findall(r"`\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z`", changelog)
     assert len(versions) >= 7
     assert len(timestamps) >= 7
+    # DOC-LEAN1 rotation rule: CHANGELOG.md is the recent rolling window; when
+    # it exceeds ~25 entries the oldest roll into CHANGELOG_ARCHIVE.md as part
+    # of the post-task update.
+    assert len(versions) <= 25, (
+        f"CHANGELOG.md has {len(versions)} entries; roll the oldest verbatim "
+        "into CHANGELOG_ARCHIVE.md (DOC-LEAN1 rotation rule)"
+    )
+    assert "CHANGELOG_ARCHIVE.md" in changelog, "CHANGELOG.md must carry the archive pointer"
+
+
+def test_changelog_archive_rotation_is_lossless_shape() -> None:
+    """DOC-LEAN1: recent window + archive are both canonical; no entry may
+    appear in both files, and the archive must hold the older history."""
+    changelog = Path("CHANGELOG.md").read_text()
+    archive = Path("CHANGELOG_ARCHIVE.md").read_text()
+    recent_versions = re.findall(r"## (v\d{4}\.\d{2}\.\d{2}\.\d{3})", changelog)
+    archived_versions = re.findall(r"## (v\d{4}\.\d{2}\.\d{2}\.\d{3})", archive)
+    assert len(archived_versions) >= 272, "archived history must not shrink"
+    assert len(recent_versions) == len(set(recent_versions)), "duplicate entries in CHANGELOG.md"
+    assert len(archived_versions) == len(set(archived_versions)), "duplicate entries in CHANGELOG_ARCHIVE.md"
+    overlap = set(recent_versions) & set(archived_versions)
+    assert not overlap, f"entries present in both CHANGELOG.md and the archive: {sorted(overlap)}"
+    # Newest-first continuity: every recent entry is newer than the newest archived entry.
+    if recent_versions and archived_versions:
+        assert min(recent_versions) > max(archived_versions), (
+            "rotation must move the oldest entries (newest-first ordering broken)"
+        )
+    assert "CHANGELOG.md" in archive, "archive must point back at the recent rolling window"
 
 
 def test_archiveignore_excludes_local_review_artifacts() -> None:
@@ -1147,6 +1183,7 @@ def test_canonical_docs_do_not_reference_deleted_draft_docs() -> None:
         "docs/strategy.md",
         "REPO_TREE.md",
         "CHANGELOG.md",
+        "CHANGELOG_ARCHIVE.md",
     ]
 
     for relative_path in guarded_files:
