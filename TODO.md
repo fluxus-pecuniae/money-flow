@@ -1,6 +1,6 @@
 # TODO
 
-Last reviewed: `2026-06-10T10:00:00Z`
+Last reviewed: `2026-06-10T16:00:00Z`
 
 ## Active
 
@@ -36,8 +36,12 @@ Last reviewed: `2026-06-10T10:00:00Z`
 - Keep SV2.0.2 canonical evidence, SV2.1 1D evidence, Historical Replay display, and PT-RT forward observation separated in future docs.
 - Next strategy-testing work should use SV2.2 latest public-mainnet replay rows as the research-review base for the current Week 2 slate, then separately scope promotion, canonicalization, or new-lane implementation if the founder wants those outputs to affect future paper runtime.
 - Next evidence work should use SV2.3 as the promotion-facing baseline and only promote a strategy if it survives realistic next-open cost scenarios and out-of-sample review; do not use same-candle or next-close rows for promotion decisions.
+- EXEC-EV1 follow-up: treat the depth-aware friction numbers as modeled assumptions, not real depth. A clearly-optional, one-shot, read-only public `l2Book` calibration could refine the tier half-spreads/impact coefficients in a later phase, but must never be part of any deterministic evidence run and must not call private/signed endpoints.
+- **RT-HISTSEED1 (FUTURE PHASE — not yet built)**: startup historical-position reconstruction. Status `position_live_in_historical`. Iron rules (non-negotiable): (1) reconstructed historical positions live in a SEPARATE bucket; (2) they are NEVER blended into forward synthetic PnL; (3) they are NEVER eligible for testnet or live transport. EXEC-EV1's late-entry/entry-timing evidence informs whether this is worth building: `mf_orig` entry-timing cost rises sharply with lateness (~+1.2 → +15 → +37 bps), meaning its edge sits at the signal and decays fast when entered late — a red flag that historical seeding would erode the only lane with a surviving edge. Do not build RT-HISTSEED1 without an explicit separately-scoped founder decision.
 
 ## Done Recently
+
+- EXEC-EV1 added a depth-aware modeled execution-friction evidence layer (`services/execution_quality/exec_ev1.py`, `scripts/run_exec_ev1_execution_quality.py`) and re-scored the three Week 2 lanes: spread-tier half-spread + size-aware square-root market impact + fill-probability, on top of SV2.3's terms. EXEC-EV1 cost >= SV2.3 cost so net PnL <= SV2.3 (0 violations / 621 rows). `mf_orig_1d_stage2_breakout_resistance_full_equity` survives base+conservative depth-aware friction but not stress; the other two fail all. Depth is MODELED from candle volume, never real order-book depth (partially addresses K-001). 14 deterministic tests gate the blocking CI lane. See `docs/exec_ev1_execution_quality_evidence.md`. No runtime/strategy/order/testnet/live/approval change.
 
 - DASH-QA1 added a Playwright-based browser-smoke suite under `tests/dashboard_qa/` that pins documented dashboard regressions: tab routing, terminal layout, chart growth stability, tab/blotter persistence, Audit-tab absence, three-active-lane Strategy view, 15m-paused timeframe filter, and synthetic/testnet/no-live boundary labels. 9 tests across 3 consecutive green local runs (~23s each). CI gains a `dashboard-qa` job, informational until 3 consecutive green CI runs land. See `docs/dash_qa1_dashboard_browser_smoke.md`. No dashboard behavior changed, no runtime/strategy/order/approval state changed.
 - CI-SAFE1 added a GitHub Actions CI workflow (`.github/workflows/ci.yml`) with blocking and informational lanes, trading safety invariant tests, registry consistency guards, trading-safety text guards, secret hygiene scan, and review bundle hygiene. 123 tests passing. See `docs/ci_safe1_ci_gate_and_trading_safety_invariants.md`. No runtime behavior changed, no orders, no approvals.

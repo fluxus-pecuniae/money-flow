@@ -2,6 +2,21 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-10T16:00:00Z - EXEC-EV1 - Judge Edges Against Modeled Size-Aware Friction, Not Flat Bps
+
+- `decision`: Add a depth-aware MODELED execution-friction layer on top of SV2.3's flat fee/slippage/adverse-gap terms and re-score the three Week 2 lanes, to test whether any edge survives realistic, size-aware friction. Keep it offline/deterministic so the model gates CI.
+- `scope`: `services/execution_quality/exec_ev1.py` (model), `scripts/run_exec_ev1_execution_quality.py` (evidence runner reading SV2.2 candles from disk), `tests/test_exec_ev1_execution_quality.py` (deterministic, blocking lane), `docs/exec_ev1_*`. Three added terms: per-symbol liquidity-tier half-spread, size-aware square-root market impact (participation = notional / candle-dollar-volume liquidity proxy), fill-probability unfilled-chase. EXEC-EV1 scenarios are parented to the SV2.3 scenarios and inherit their terms verbatim, so EXEC-EV1 cost >= SV2.3 cost and net PnL <= SV2.3 net PnL (verified 0 violations / 621 rows).
+- `result`: `mf_orig_1d_stage2_breakout_resistance_full_equity` survives base + conservative depth-aware friction (net +112k / +43k) but fails stress (net -52k); `money_flow_v1_2_baseline` and `avoid_low_rolling_range_20` fail all (already negative under SV2.3). The late-entry/entry-timing metric shows `mf_orig` cost rising with lateness (~+1.2 -> +15 -> +37 bps) — its edge sits at the signal and decays fast if entered late; the two failing lanes show negative late-entry cost (poor entries).
+- `boundaries`: **Modeled depth, not real depth.** Liquidity is derived from historical candle volume; historical order-book depth does not exist (Hyperliquid public l2Book is a current snapshot only). Every output is an assumption layer. Research/evidence only — no runtime mutation, no strategy-rule change, no orders, no private/signed/testnet/live endpoints, no production or live approval. Partially addresses K-001 (modeled, not real); the gap is not closed.
+- `follow_up_implications`: Future strategy candidates should be judged against this layer. A clearly-optional one-shot read-only public `l2Book` calibration could refine the assumed constants in a later phase but must never be part of a deterministic evidence run. The late-entry evidence directly informs RT-HISTSEED1 (below): the only lane with a surviving edge loses it fast when entered late, a red flag against historical seeding.
+
+## 2026-06-10T16:00:00Z - RT-HISTSEED1 (FUTURE PHASE) - Startup Historical-Position Reconstruction, Iron-Walled
+
+- `decision`: Record (NOT yet build) a future phase `RT-HISTSEED1` for startup historical-position reconstruction, status `position_live_in_historical`. It would reconstruct what positions a lane "would have held" entering historically, to seed a runtime view.
+- `iron_rules` (non-negotiable): (1) reconstructed historical positions live in a SEPARATE bucket; (2) they are NEVER blended into forward synthetic PnL; (3) they are NEVER eligible for testnet or live transport.
+- `gating_evidence`: EXEC-EV1's entry-timing cost shows `mf_orig` (the one lane with a surviving modeled-friction edge) loses ~+15 to +37 bps when entered 1-2 candles late — the edge decays fast at the signal. Small late-entry cost would argue seeding is not worth the runtime risk; the observed large cost argues seeding would erode the edge. Either way the bar to build this is high.
+- `status`: Not started. Do not build without an explicit, separately-scoped founder decision. This entry exists only to capture the iron rules before any implementation.
+
 ## 2026-06-10T10:00:00Z - DASH-QA1 - Pin Documented Dashboard Regressions With A Browser-Smoke Suite
 
 - `decision`: Add a deterministic Playwright browser-smoke suite under `tests/dashboard_qa/` that pins documented dashboard regressions (tab routing, terminal layout, chart-growth feedback loop, tab/blotter persistence, Audit-tab absence, three-active-lane Strategy view, 15m-paused timeframe filter, synthetic/testnet/no-live boundary labels). Source expected lane/timeframe values from `current_truth.json` (TRUTH1).

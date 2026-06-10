@@ -65,6 +65,10 @@ jobs:
       - name: Review bundle hygiene
         run: python -m pytest -q tests/test_review_bundle_hygiene.py
 
+      # EXEC-EV1 depth-aware execution-quality friction model (deterministic, offline)
+      - name: EXEC-EV1 execution-quality model
+        run: python -m pytest -q tests/test_exec_ev1_execution_quality.py
+
       # Lint (ruff) — scoped to CI-SAFE1 authored modules; pre-existing debt tracked in KNOWN_ISSUES
       - name: Lint (ruff — safety modules)
         run: |
