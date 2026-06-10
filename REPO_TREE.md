@@ -45,10 +45,16 @@ Last reviewed: `2026-06-09T07:45:00Z`
 - OBS-OS1 excludes generated daily paper-review packs under `reports/paper_reviews/` from handoff ZIPs.
 
 `.github/workflows/ci.yml`
-- CI-SAFE1: GitHub Actions CI workflow with three lanes.
-- Blocking lane: JS syntax check, Python compile check, registry --check, trading safety invariants + consistency + registry tests + four fast guard tests, trading-safety text guards, secret hygiene scan, review bundle hygiene, ruff lint/format on CI-SAFE1 modules.
-- DASH-QA1 dashboard-qa lane (continue-on-error initially; promotes to blocking after 3 consecutive green CI runs): installs Playwright Chromium and runs `tests/dashboard_qa/` browser-smoke suite.
-- Informational lane (continue-on-error): mypy strict, full pytest suite. Failures visible in PR but do not block merge.
+- CI-SAFE1 / DASH-QA1 / CI-CLEAN1: GitHub Actions CI workflow with four independent jobs.
+- `blocking` (gating): JS syntax check, Python compile check, registry --check, trading safety invariants + consistency + registry tests + four fast guard tests, trading-safety text guards, secret hygiene scan, review bundle hygiene, ruff lint/format on CI-SAFE1 modules.
+- `dashboard-qa` (gating, CI-CLEAN1 promotion): installs Playwright Chromium and runs `tests/dashboard_qa/` browser-smoke suite via the `browser` pytest marker.
+- `typecheck` (informational): mypy strict. Pre-existing debt tracked in KNOWN_ISSUES K-031; promote to blocking only when clean.
+- `full-tests` (informational): `pytest -q -m "not browser"`. Browser tests are owned by the `dashboard-qa` job.
+- All jobs install reproducibly via `pip install -r requirements-dev.lock && pip install -e . --no-deps`.
+
+`requirements-dev.lock`
+- CI-CLEAN1: 226-line fully-pinned dependency lock generated from `pyproject.toml` by `pip-compile --extra dev --output-file requirements-dev.lock pyproject.toml`.
+- Every CI job (and local dev install) reads from this lock so the dependency graph is reproducible. Regenerate after any `pyproject.toml` dependency change and commit alongside.
 
 `.codex/`
 - Project-scoped Codex workflow configuration.
