@@ -1,0 +1,72 @@
+{
+  "phase": "DASH-IA1",
+  "report": "dash_ia1_two_tab_consolidation",
+  "status": "two_tab_consolidation_complete",
+  "decision": "Money Flow OS is two surfaces: Paper Trading (live desk, default tab) and Research Log (institutional memory; placeholder until RLOG1).",
+  "retired_navigation_surfaces": ["historical-replay", "evidence-lab (The Lab)", "strategy", "evidence (renamed research-log)"],
+  "artifacts_deleted_from_disk": false,
+  "monolith_reduction": {
+    "evidence_dashboard_js_lines_before": 12004,
+    "evidence_dashboard_js_lines_after": 6753,
+    "evidence_dashboard_js_lines_delta": -5251,
+    "evidence_dashboard_css_lines_before": 4448,
+    "evidence_dashboard_css_lines_after": 3706,
+    "index_html_lines_before": 1088,
+    "index_html_lines_after": 620
+  },
+  "paper_trading_reflow": {
+    "global_filters_full_width_bar_under_status_strip": true,
+    "skinnier_rails_chart_dominant": "minmax(188px,226px) / minmax(0,1fr) / minmax(236px,262px)",
+    "testnet_transport_full_width_footer_below_daily_review": true,
+    "fields_ids_safety_labels_preserved": true,
+    "chart_and_markers_untouched": true,
+    "renamed_to": "Money Flow OS"
+  },
+  "research_log_placeholder": {
+    "data_driven": true,
+    "sources": [
+      "docs/sel_ev1_selection_evidence_summary.json",
+      "docs/exec_ev1_execution_quality_evidence_summary.json",
+      "docs/sv2_3_realistic_backtest_summary.json",
+      "docs/sv2_2_hyperliquid_research_refresh_summary.json",
+      "docs/goal_strat2_two_non_existing_strategies_summary.json",
+      "docs/goal_strat1_strategy_discovery_summary.json",
+      "docs/ev_audit1_full_hypothesis_data_and_paper_readiness_review_summary.json",
+      "docs/mf_orig_ev2_multitimeframe_evidence_summary.json",
+      "docs/mf_orig_ev1_original_money_flow_reconstruction_summary.json",
+      "docs/sor_ev3_avoid_sideways_low_volatility_summary.json",
+      "docs/sor_ev2_true_forward_stop_and_rejected_signal_replay_summary.json",
+      "docs/sor_ev1_money_flow_trade_loss_anatomy_and_variants_summary.json"
+    ],
+    "verdict_field_precedence": ["verdict", "conclusion", "audit_verdict", "gate_status", "status"],
+    "absent_summaries_omitted_gracefully": true,
+    "full_view_lands_in": "RLOG1"
+  },
+  "dash_qa1_updates": {
+    "default_tab_check_updated": "Paper Trading is default (was Historical Replay)",
+    "check_7_relocated_to": "Paper Trading status strip lane chips",
+    "retired_tabs_absent_check_added": true,
+    "reflow_checks_added": ["filter bar not in left rail", "testnet footer not in right rail"],
+    "checks_green": "9/9 (multiple runs)",
+    "static_asset_guards_rewritten_in_lockstep": "tests/test_dashboard_static_assets.py"
+  },
+  "verification": {
+    "blocking_lane_tests": "96 passed",
+    "themes_verified_no_page_errors": ["dark", "light", "red-zone"],
+    "node_check": "clean",
+    "cache_buster": "dash-ia1-two-tabs-20260610",
+    "screenshots_dir": "docs/dash_ia1_screenshots/"
+  },
+  "boundaries": {
+    "dashboard_display_only": true,
+    "changes_runtime_behavior": false,
+    "changes_strategy_rules": false,
+    "changes_data_sources": false,
+    "submits_orders": false,
+    "changes_testnet_behavior": false,
+    "approves_production_strategy": false,
+    "approves_live_trading": false,
+    "paper_trading_chart_or_markers_changed": false
+  },
+  "next_phase": "RLOG1 — full Research Log post-mortem view"
+}

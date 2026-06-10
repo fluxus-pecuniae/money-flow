@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Money Flow Evidence Dashboard</title>
-      <link rel="stylesheet" href="./evidence-dashboard.css?v=dash-pt2-bold-terminal-20260610" />
+    <title>Money Flow OS</title>
+      <link rel="stylesheet" href="./evidence-dashboard.css?v=dash-ia1-two-tabs-20260610" />
   </head>
   <body>
     <header class="top-strip">
@@ -13,17 +13,14 @@
           <img src="../../chillguy-logo.jpeg" alt="" />
         </span>
         <div>
-          <p class="eyebrow">Sandbox/testnet observability</p>
-          <h1 id="dashboard-title">Money Flow Evidence Dashboard</h1>
+          <p class="eyebrow">Operator terminal</p>
+          <h1 id="dashboard-title">Money Flow OS</h1>
         </div>
       </div>
 
       <nav class="view-tabs" aria-label="Dashboard sections">
-        <button class="view-tab" type="button" data-view="paper-observation" aria-selected="false">Paper Trading</button>
-        <button class="view-tab" type="button" data-view="historical-replay" aria-selected="true">Historical Replay</button>
-        <button class="view-tab" type="button" data-view="evidence" aria-selected="false">Evidence</button>
-        <button class="view-tab" type="button" data-view="evidence-lab" aria-selected="false">The Lab</button>
-        <button class="view-tab" type="button" data-view="strategy" aria-selected="false">Strategy</button>
+        <button class="view-tab" type="button" data-view="paper-observation" aria-selected="true">Paper Trading</button>
+        <button class="view-tab" type="button" data-view="research-log" aria-selected="false">Research Log</button>
       </nav>
 
       <div class="top-actions">
@@ -43,318 +40,30 @@
     </header>
 
     <main class="dashboard-shell" aria-labelledby="dashboard-title">
-      <section id="evidence-view" class="dashboard-view" data-view-panel="evidence" hidden>
-        <section class="metric-grid" aria-label="Evidence summary metrics">
-          <article class="metric-cell">
-            <span class="metric-label">Packs</span>
-            <strong id="metric-packs">0</strong>
-            <small id="metric-packs-detail">generated</small>
-          </article>
-          <article class="metric-cell">
-            <span class="metric-label">Runs</span>
-            <strong id="metric-runs">0</strong>
-            <small id="metric-runs-detail">completed</small>
-          </article>
-          <article class="metric-cell">
-            <span class="metric-label">Coverage</span>
-            <strong id="metric-coverage">0%</strong>
-            <small>minimum</small>
-          </article>
-          <article class="metric-cell warning-cell">
-            <span class="metric-label">Paper/live</span>
-            <strong id="metric-boundary">blocked</strong>
-            <small>manual review only</small>
-          </article>
-        </section>
-
-        <section class="toolbar-band" aria-label="Evidence filters">
-          <div class="segment-group" id="component-filter" role="tablist" aria-label="Component filter"></div>
-          <div class="evidence-strategy-group" aria-label="Evidence replay strategy filters">
-            <label>
-              <span>Replay strategy</span>
-              <select id="evidence-replay-strategy-filter"></select>
-            </label>
-            <label>
-              <span>Fill assumption</span>
-              <select id="evidence-replay-fill-filter"></select>
-            </label>
-            <label>
-              <span>Period</span>
-              <select id="evidence-period-filter"></select>
-            </label>
-          </div>
-          <div class="date-filter-group" aria-label="Evidence realized exit date filter">
-            <label>
-              <span>Start date</span>
-              <input id="evidence-date-start" type="date" />
-            </label>
-            <label>
-              <span>End date</span>
-              <input id="evidence-date-end" type="date" />
-            </label>
-            <button id="evidence-date-clear" class="segment-button" type="button">Clear dates</button>
-          </div>
-          <div class="boundary-flags" id="boundary-flags"></div>
-        </section>
-
-        <section class="table-panel" aria-labelledby="run-table-title">
-          <div class="section-heading run-ledger-heading">
+      <section id="research-log-view" class="dashboard-view research-log-view" data-view-panel="research-log" hidden>
+        <section class="table-panel audit-review-panel research-log-panel" aria-labelledby="research-log-title">
+          <div class="section-heading compact-heading">
             <div>
-              <h2 id="run-table-title">Run Ledger</h2>
-              <p id="run-table-subtitle" data-boundary-copy="dynamic equity is per scenario and not one combined account"></p>
+              <h2 id="research-log-title">Research Log</h2>
+              <p>
+                Institutional memory of what has been tested: every committed research phase with its verdict,
+                built from the committed <code>docs/*_summary.json</code> evidence summaries.
+                The three Week 2 active lanes remain visible on the Paper Trading status strip.
+              </p>
             </div>
-            <div id="run-ledger-totals" class="run-ledger-totals" aria-label="Run Ledger totals"></div>
           </div>
-          <div id="run-table" class="data-table-shell"></div>
-        </section>
-
-        <section class="table-panel strategy-comparison-panel" aria-labelledby="strategy-comparison-title">
-          <div class="section-heading">
-            <div>
-              <h2 id="strategy-comparison-title">Strategy Comparison</h2>
-              <p>Side-by-side visual comparison from loaded replay evidence. Date filters are display-only and do not regenerate canonical evidence packs.</p>
-            </div>
-            <div id="strategy-comparison-verdict" class="strategy-comparison-verdict" aria-live="polite"></div>
+          <div class="methodology-warning compact" role="note">
+            Placeholder view — the full post-mortem view lands in RLOG1. Research evidence is review material only:
+            no strategy is production-approved and live trading is not approved.
           </div>
-          <div class="strategy-comparison-controls" aria-label="Strategy comparison controls">
-            <label>
-              <span>Strategy A</span>
-              <select id="strategy-comparison-left-strategy"></select>
-            </label>
-            <label>
-              <span>Strategy B</span>
-              <select id="strategy-comparison-right-strategy"></select>
-            </label>
-            <label>
-              <span>Currency</span>
-              <select id="strategy-comparison-symbol"></select>
-            </label>
-            <label>
-              <span>Timeframe</span>
-              <select id="strategy-comparison-timeframe"></select>
-            </label>
-            <label>
-              <span>Fill assumption</span>
-              <select id="strategy-comparison-fill"></select>
-            </label>
-          </div>
-          <div id="strategy-comparison-chart" class="strategy-comparison-chart" aria-label="Strategy equity line comparison"></div>
-          <div id="strategy-comparison-metrics" class="strategy-comparison-metrics"></div>
-        </section>
-
-        <section class="split-layout">
-          <section class="component-panel" aria-labelledby="component-title">
-            <div class="section-heading">
-              <h2 id="component-title">Component Results</h2>
-              <p id="component-subtitle">Sums across research runs, not one combined account.</p>
-            </div>
-            <div id="component-cards" class="component-list"></div>
-          </section>
-
-          <section class="detail-panel" aria-labelledby="detail-title">
-            <div class="section-heading">
-              <h2 id="detail-title">Selected Evidence</h2>
-              <p id="detail-subtitle">Choose a component to inspect.</p>
-            </div>
-
-            <div class="detail-grid">
-              <div class="detail-box">
-                <h3>Timing</h3>
-                <div id="timing-chart" class="bar-list"></div>
-              </div>
-              <div class="detail-box">
-                <h3>Symbols</h3>
-                <div id="symbol-chart" class="bar-list"></div>
-              </div>
-              <div class="detail-box detail-box-wide">
-                <h3>Regimes</h3>
-                <div id="regime-table" class="data-table-shell"></div>
-              </div>
-              <div class="detail-box detail-box-wide">
-                <h3>Review Checklist</h3>
-                <ul id="review-checklist" class="check-list"></ul>
-              </div>
-            </div>
-          </section>
+          <div id="research-log-verdict-list" class="data-table-shell"></div>
         </section>
       </section>
 
-      <section id="evidence-lab-view" class="dashboard-view evidence-lab-view" data-view-panel="evidence-lab" hidden>
-        <section class="evidence-lab-header" aria-labelledby="evidence-lab-title">
-          <div>
-            <p class="eyebrow">SOR-EV1 / SOR-EV2 / SOR-EV3 review</p>
-            <h2 id="evidence-lab-title">Evidence Lab / Variant Review</h2>
-            <p>
-              Evidence Lab reviews SOR-EV1/SOR-EV2/SOR-EV3 research variants against the canonical SV2.0.2 DB-imported baseline.
-              Variants are evidence-only; no production Money Flow rule changed.
-            </p>
-          </div>
-          <div class="evidence-lab-badges" aria-label="Evidence Lab safety labels">
-            <span>Canonical baseline: SV2.0.2</span>
-            <span>Variant status: evidence-only</span>
-            <span>Live approval: no</span>
-            <span>Orders submitted: no</span>
-          </div>
-        </section>
-
-        <div class="methodology-warning" role="note">
-          Only true_forward_replay variants can become candidates for deeper evidence. Completed-trade overlays and lookahead diagnostics are not production candidates.
-          No variant is approved for production, paper runtime, or live trading.
-        </div>
-        <div class="methodology-warning secondary" role="note">
-          Dashboard date filters are display-only recalculations from loaded trades. They do not regenerate canonical evidence packs.
-          Exact arbitrary-date canonical evidence requires a backend Strategy Validation run.
-        </div>
-
-        <section id="evidence-lab-summary-cards" class="metric-grid evidence-lab-summary" aria-label="Evidence Lab summary"></section>
-
-        <section class="table-panel evidence-lab-panel" aria-labelledby="evidence-lab-founder-candidate-title">
-          <div class="section-heading">
-            <h2 id="evidence-lab-founder-candidate-title">Founder Candidate: avoid_sideways_low_volatility</h2>
-            <p>
-              SOR-EV3 true-forward replay drilldown. Blocks are evidence-only, no variant is approved, and dashboard date filters are not canonical evidence.
-            </p>
-          </div>
-          <div id="evidence-lab-founder-candidate" class="data-table-shell"></div>
-        </section>
-
-        <section class="table-panel evidence-lab-panel" aria-labelledby="evidence-lab-mf-orig-title">
-          <div class="section-heading">
-            <h2 id="evidence-lab-mf-orig-title">Original Money Flow Reconstruction</h2>
-            <p>
-              Latest MF-ORIG-EV2 multi-timeframe evidence-pack run. This is evidence-only visualization of regenerated report JSON and local dashboard chart data.
-            </p>
-          </div>
-          <div id="evidence-lab-mf-orig" class="data-table-shell"></div>
-        </section>
-
-        <section class="table-panel evidence-lab-panel" aria-labelledby="evidence-lab-overlay-title">
-          <div class="section-heading">
-            <h2 id="evidence-lab-overlay-title">Variant Chart Overlay</h2>
-            <p>Overlay mode is intentionally separate from canonical evidence and may use chart-data JSON only for visualization.</p>
-          </div>
-          <div class="evidence-lab-overlay-controls" aria-label="Evidence Lab variant overlay controls">
-            <label>
-              <span>Symbol</span>
-              <select id="evidence-lab-overlay-symbol"></select>
-            </label>
-            <label>
-              <span>Timeframe</span>
-              <select id="evidence-lab-overlay-timeframe"></select>
-            </label>
-            <label>
-              <span>Fill assumption</span>
-              <select id="evidence-lab-overlay-fill"></select>
-            </label>
-            <label>
-              <span>Variant</span>
-              <select id="evidence-lab-overlay-variant"></select>
-            </label>
-            <label>
-              <span>Overlay mode</span>
-              <select id="evidence-lab-overlay-mode">
-                <option value="both">Baseline + selected variant</option>
-                <option value="baseline">Baseline only</option>
-                <option value="variant">Variant/context only</option>
-              </select>
-            </label>
-          </div>
-          <div class="evidence-lab-overlay-toggles" aria-label="Evidence Lab overlay toggles">
-            <label><input id="evidence-lab-toggle-large-loss" type="checkbox" /> Show large-loss trades</label>
-            <label><input id="evidence-lab-toggle-stop-exits" type="checkbox" /> Show stop/context exits</label>
-            <label><input id="evidence-lab-toggle-late-extension" type="checkbox" /> Show late-extension entries</label>
-            <label><input id="evidence-lab-toggle-adverse-candles" type="checkbox" /> Show adverse candles</label>
-            <label><input id="evidence-lab-toggle-ma-breaks" type="checkbox" /> Show MA/SMA breaks</label>
-            <label><input id="evidence-lab-toggle-hide-baseline-entries" type="checkbox" /> Hide baseline entries/exits</label>
-          </div>
-          <div class="methodology-warning compact" id="evidence-lab-overlay-methodology" role="note">
-            Only true_forward_replay variants can become candidates for deeper evidence. Completed-trade overlays and lookahead diagnostics are diagnostic only.
-          </div>
-          <div class="evidence-lab-overlay-layout">
-            <div id="evidence-lab-chart-overlay" class="evidence-lab-chart-overlay" aria-label="Evidence Lab baseline versus variant chart overlay"></div>
-            <aside id="evidence-lab-overlay-inspector" class="evidence-lab-overlay-inspector" aria-label="Evidence Lab selected overlay detail"></aside>
-          </div>
-          <section class="evidence-lab-two-column evidence-lab-overlay-tables" aria-label="Evidence Lab overlay support panels">
-            <article class="table-panel evidence-lab-panel">
-              <div class="section-heading">
-                <div>
-                  <h3>Worst Trades Focus</h3>
-                  <p>Select a loss to center the chart and inspect baseline plus linkable variant context.</p>
-                </div>
-                <button id="evidence-lab-clear-focus" class="pill" type="button">Clear Focus</button>
-              </div>
-              <div id="evidence-lab-worst-focus-table" class="data-table-shell"></div>
-            </article>
-            <article class="table-panel evidence-lab-panel">
-              <div class="section-heading">
-                <h3>Control Pocket View</h3>
-                <p>Shows whether the selected variant preserved, improved, or damaged ETH 1h, positive 1D pockets, and other positive baseline pockets.</p>
-              </div>
-              <div id="evidence-lab-control-pocket-view" class="data-table-shell"></div>
-            </article>
-          </section>
-          <div id="evidence-lab-overlay-unavailable" class="empty-state"></div>
-        </section>
-
-        <section class="table-panel evidence-lab-panel" aria-labelledby="evidence-lab-variant-matrix-title">
-          <div class="section-heading">
-            <h2 id="evidence-lab-variant-matrix-title">Variant Summary Matrix</h2>
-            <p>All SOR-EV1/SOR-EV2 variants remain evidence-only; founder-review labels separate promising, mixed, deferred, and hard-rejected outcomes.</p>
-          </div>
-          <div id="evidence-lab-variant-matrix" class="data-table-shell"></div>
-        </section>
-
-        <section class="evidence-lab-two-column" aria-label="Evidence Lab analysis panels">
-          <article class="table-panel evidence-lab-panel" aria-labelledby="evidence-lab-control-title">
-            <div class="section-heading">
-              <h2 id="evidence-lab-control-title">Control Pockets</h2>
-              <p>Shows whether variants preserved, improved, or damaged strong baseline pockets such as ETH 1h and positive 1d pockets.</p>
-            </div>
-            <div id="evidence-lab-control-pockets" class="data-table-shell"></div>
-          </article>
-
-          <article class="table-panel evidence-lab-panel" aria-labelledby="evidence-lab-late-title">
-            <div class="section-heading">
-              <h2 id="evidence-lab-late-title">Late Entry Analysis</h2>
-              <p>Classifies whether losses clustered in late extensions, chop, continuation entries, or unknown contexts.</p>
-            </div>
-            <div id="evidence-lab-late-entry" class="data-table-shell"></div>
-          </article>
-        </section>
-
-        <section class="table-panel evidence-lab-panel" aria-labelledby="evidence-lab-worst-title">
-          <div class="section-heading">
-            <h2 id="evidence-lab-worst-title">Worst Trades</h2>
-            <p>Loss anatomy from SOR-EV1/SOR-EV2 bundles. Variant impact is shown only when present in the bundle.</p>
-          </div>
-          <div id="evidence-lab-worst-trades" class="data-table-shell"></div>
-        </section>
-
-        <section class="evidence-lab-two-column" aria-label="Evidence Lab diagnostic panels">
-          <article class="table-panel evidence-lab-panel" aria-labelledby="evidence-lab-adverse-title">
-            <div class="section-heading">
-              <h2 id="evidence-lab-adverse-title">Large Adverse Candle Analysis</h2>
-              <p>Makes the big red candle / adverse move issue visible without approving a stop rule.</p>
-            </div>
-            <div id="evidence-lab-adverse-candles" class="data-table-shell"></div>
-          </article>
-
-          <article class="table-panel evidence-lab-panel" aria-labelledby="evidence-lab-rsi-macd-title">
-            <div class="section-heading">
-              <h2 id="evidence-lab-rsi-macd-title">RSI / MACD Rejections</h2>
-              <p>Shows rejection counts, variant admissions, bad-trade admissions, good-trade admissions, and deferred/no-data states when available.</p>
-            </div>
-            <div id="evidence-lab-rsi-macd" class="data-table-shell"></div>
-          </article>
-        </section>
-      </section>
-
-      <section id="paper-observation-view" class="dashboard-view paper-observation-view" data-view-panel="paper-observation" hidden>
+      <section id="paper-observation-view" class="dashboard-view paper-observation-view" data-view-panel="paper-observation">
         <section id="paper-observation-health-banner" class="paper-observation-health-banner" aria-label="Paper Trading top health banner"></section>
 
-        <section id="paper-observation-terminal-grid" class="paper-observation-terminal-grid" aria-label="Paper Trading exchange-style terminal">
-          <aside class="paper-observation-left-rail" aria-label="Paper Trading filters and watchlist">
-            <section class="paper-observation-controls paper-observation-cockpit" aria-label="Cockpit / Global Filters">
+        <section class="paper-observation-controls paper-observation-cockpit paper-observation-filterbar" aria-label="Cockpit / Global Filters">
               <div class="paper-observation-controls-title">
                 <span class="eyebrow">Cockpit / Global Filters</span>
                 <strong>Week 2 configured truth plus display filters</strong>
@@ -381,6 +90,8 @@
               </label>
             </section>
 
+        <section id="paper-observation-terminal-grid" class="paper-observation-terminal-grid" aria-label="Paper Trading exchange-style terminal">
+          <aside class="paper-observation-left-rail" aria-label="Paper Trading filters and watchlist">
             <article class="table-panel audit-review-panel paper-observation-watchlist-panel" aria-labelledby="paper-observation-watchlist-title">
               <div class="section-heading compact-heading">
                 <div>
@@ -453,14 +164,6 @@
               <div class="paper-runtime-control-details">
                 <div id="paper-runtime-control-status" class="market-micro-panel"></div>
               </div>
-            </section>
-
-            <section class="historical-inspector-panel paper-observation-testnet-panel" aria-labelledby="paper-observation-probe-title">
-              <div class="rail-heading">
-                <h2 id="paper-observation-probe-title">Testnet Order Transport</h2>
-                <p>Baseline-only testnet lifecycle panel. Candidate lanes remain synthetic-only.</p>
-              </div>
-              <div id="paper-observation-probe-status" class="market-micro-panel"></div>
             </section>
 
           </aside>
@@ -585,104 +288,14 @@
           </div>
           <div id="paper-observation-daily-review" class="market-micro-panel"></div>
         </section>
-      </section>
 
-      <section id="historical-replay-view" class="dashboard-view historical-replay-workstation" data-view-panel="historical-replay">
-        <div class="historical-truth-banner">
-          Historical replay uses historical candle data. Hyperliquid testnet is used only for sandbox execution plumbing. Testnet prices are not used for strategy validation.
-          <span>No orders are submitted. No private, signed, or order endpoints are used.</span>
-        </div>
-
-        <section class="historical-replay-topbar" aria-labelledby="historical-replay-title">
-          <div>
-            <p class="eyebrow">SV2.2 Strategy Replay</p>
-            <h2 id="historical-replay-title">Latest Public-Mainnet Replay</h2>
-          </div>
-          <div class="historical-replay-controls" aria-label="Historical replay controls">
-            <label>
-              <span>Replay strategy</span>
-              <select id="historical-replay-strategy-filter"></select>
-            </label>
-            <label>
-              <span>Symbol</span>
-              <select id="historical-replay-symbol-filter"></select>
-            </label>
-            <label>
-              <span>Timeframe</span>
-              <select id="historical-replay-timeframe-filter"></select>
-            </label>
-            <label class="historical-replay-period-control">
-              <span>Period</span>
-              <select id="historical-replay-period-filter"></select>
-            </label>
-            <label>
-              <span>Fill assumption</span>
-              <select id="historical-replay-fill-filter"></select>
-            </label>
-            <label>
-              <span>Start date</span>
-              <input id="historical-replay-date-start" type="date" />
-            </label>
-            <label>
-              <span>End date</span>
-              <input id="historical-replay-date-end" type="date" />
-            </label>
-            <button id="historical-replay-date-clear" class="segment-button" type="button">Clear dates</button>
-            <label class="checkbox-control" title="Toggle entry/exit reason text on chart arrows.">
-              <input id="historical-replay-arrow-descriptions-toggle" type="checkbox">
-              <span>Show arrow descriptions</span>
-            </label>
-          </div>
-          <div id="historical-replay-source-status" class="chart-header-meta"></div>
-        </section>
-
-        <section class="historical-replay-grid" aria-label="Historical replay cockpit">
-          <section class="historical-chart-panel" aria-labelledby="historical-chart-title">
-            <div class="chart-header">
-              <div>
-                <h2 id="historical-chart-title">Historical Candles + Money Flow Markers</h2>
+        <section class="historical-inspector-panel paper-observation-testnet-panel paper-observation-testnet-footer" aria-labelledby="paper-observation-probe-title">
+              <div class="rail-heading">
+                <h2 id="paper-observation-probe-title">Testnet Order Transport</h2>
+                <p>Baseline-only testnet lifecycle panel. Candidate lanes remain synthetic-only.</p>
               </div>
-            </div>
-            <div id="historical-replay-equity-panel" class="historical-equity-panel"></div>
-            <div id="historical-replay-chart" class="exchange-chart-shell historical-replay-chart"></div>
-          </section>
-
-          <aside class="historical-inspector-panel" aria-labelledby="historical-inspector-title">
-            <div class="rail-heading">
-              <h2 id="historical-inspector-title">Trade Inspector</h2>
-              <p>Click a chart arrow or trade row to inspect entry, exit, indicators, costs, and dynamic equity.</p>
-            </div>
-            <div id="historical-trade-inspector" class="market-micro-panel"></div>
-          </aside>
-        </section>
-
-        <section class="historical-replay-bottom" aria-label="Historical replay ledgers">
-          <article class="table-panel" aria-labelledby="historical-trades-title">
-            <div class="section-heading">
-              <h2 id="historical-trades-title">Historical Replay Trades</h2>
-              <p>Dynamic 10,000 USDC paper-equity simulation; not live, not testnet orders, not real capital.</p>
-            </div>
-            <div id="historical-replay-trades-table" class="data-table-shell"></div>
-          </article>
-
-          <article class="table-panel" aria-labelledby="historical-comparison-title">
-            <div class="section-heading">
-              <h2 id="historical-comparison-title">Pair Comparison</h2>
-              <p>Each symbol/timeframe is an independent replay scenario, not one combined account.</p>
-            </div>
-            <div id="historical-comparison-table" class="data-table-shell"></div>
-          </article>
-
-          <article class="table-panel" aria-labelledby="historical-sandbox-ledger-title">
-            <div class="section-heading">
-              <h2 id="historical-sandbox-ledger-title">Sandbox Execution Plumbing</h2>
-              <p>UAT3.4 routed-order ledger remains separate from historical strategy replay equity.</p>
-            </div>
-            <div id="historical-sandbox-ledger" class="data-table-shell"></div>
-          </article>
-        </section>
-
-        <section id="historical-data-horizon-panel" class="historical-data-horizon-panel" aria-label="Historical data horizon"></section>
+              <div id="paper-observation-probe-status" class="market-micro-panel"></div>
+            </section>
       </section>
 
       <section id="uat-cockpit-view" class="dashboard-view exchange-workstation" data-view-panel="uat-cockpit" hidden>
@@ -999,90 +612,9 @@
         </section>
       </section>
 
-      <section id="strategy-view" class="dashboard-view" data-view-panel="strategy" hidden>
-        <section class="strategy-panel" aria-labelledby="strategy-map-title">
-          <div class="section-heading">
-            <h2 id="strategy-map-title">Week 2 Active Strategy Slate</h2>
-            <p>UI truth for the founder-selected PT-RT1.6 paper run. These are synthetic paper-observation lanes, not production-approved or live-approved strategies.</p>
-          </div>
-
-          <div class="strategy-flow strategy-week2-flow">
-            <article class="strategy-node">
-              <span class="node-index">01</span>
-              <h3>Control / Baseline</h3>
-              <p><strong>money_flow_v1_2_baseline</strong> is active by default, uses synthetic ledger PnL and public mainnet candles, and is the only baseline-gated testnet-eligible lane.</p>
-            </article>
-            <article class="strategy-node">
-              <span class="node-index">02</span>
-              <h3>Diagnostic Comparator</h3>
-              <p><strong>avoid_low_rolling_range_20</strong> is active by default for synthetic-only comparison against the baseline. It cannot trigger testnet transport.</p>
-            </article>
-            <article class="strategy-node">
-              <span class="node-index">03</span>
-              <h3>MF-ORIG Source-Faithful Candidate</h3>
-              <p><strong>mf_orig_1d_stage2_breakout_resistance_full_equity</strong> is active by default as a synthetic-only source-faithful candidate. It cannot trigger testnet transport.</p>
-            </article>
-          </div>
-        </section>
-
-        <section class="strategy-grid strategy-week2-grid" aria-label="Week 2 active strategy detail">
-          <article class="strategy-card">
-            <h3>Control / Baseline</h3>
-            <ol class="rule-chain">
-              <li><strong>Strategy ID</strong><span>money_flow_v1_2_baseline</span></li>
-              <li><strong>Status</strong><span>active by default for Week 2</span></li>
-              <li><strong>Role</strong><span>Control / Baseline</span></li>
-              <li><strong>Active timeframes</strong><span>1h / 4h / 1d</span></li>
-              <li><strong>PnL source</strong><span>Synthetic Ledger</span></li>
-              <li><strong>Signal truth</strong><span>Public Mainnet Candles</span></li>
-              <li><strong>Testnet eligibility</strong><span>Baseline-only gated testnet eligible</span></li>
-              <li><strong>Production eligibility</strong><span>not production-approved</span></li>
-            </ol>
-            <p class="strategy-note">Only this lane may ever touch Hyperliquid testnet plumbing, and only through the existing gated fixed-25-USDC baseline transport path.</p>
-          </article>
-
-          <article class="strategy-card">
-            <h3>Diagnostic Comparator</h3>
-            <ol class="rule-chain">
-              <li><strong>Strategy ID</strong><span>avoid_low_rolling_range_20</span></li>
-              <li><strong>Status</strong><span>active by default for Week 2</span></li>
-              <li><strong>Role</strong><span>Diagnostic Comparator</span></li>
-              <li><strong>Active timeframes</strong><span>1h / 4h / 1d</span></li>
-              <li><strong>PnL source</strong><span>Synthetic Ledger</span></li>
-              <li><strong>Signal truth</strong><span>Public Mainnet Candles</span></li>
-              <li><strong>Testnet eligibility</strong><span>synthetic-only / no testnet</span></li>
-              <li><strong>Production eligibility</strong><span>not production-approved</span></li>
-            </ol>
-            <p class="strategy-note">This lane exists to compare the baseline against a lower rolling-range filter. It is not an execution lane.</p>
-          </article>
-
-          <article class="strategy-card">
-            <h3>MF-ORIG Source-Faithful Candidate</h3>
-            <ol class="rule-chain">
-              <li><strong>Strategy ID</strong><span>mf_orig_1d_stage2_breakout_resistance_full_equity</span></li>
-              <li><strong>Status</strong><span>active by default for Week 2</span></li>
-              <li><strong>Role</strong><span>MF-ORIG Source-Faithful Candidate</span></li>
-              <li><strong>Active timeframes</strong><span>1h / 4h / 1d</span></li>
-              <li><strong>PnL source</strong><span>Synthetic Ledger</span></li>
-              <li><strong>Signal truth</strong><span>Public Mainnet Candles</span></li>
-              <li><strong>Testnet eligibility</strong><span>synthetic-only / no testnet</span></li>
-              <li><strong>Production eligibility</strong><span>not production-approved</span></li>
-            </ol>
-            <p class="strategy-note">This lane is a source-faithful forward paper candidate only. It is not production-approved and cannot send testnet orders.</p>
-          </article>
-
-          <article class="strategy-card strategy-card-wide">
-            <h3>Week 2 Boundaries</h3>
-            <p class="strategy-note">
-              Active paper timeframes are 1h / 4h / 1d. 15m is paused and excluded from active paper scoring.
-              Synthetic ledger PnL is separate from Hyperliquid testnet lifecycle rows. Live trading is not approved.
-            </p>
-          </article>
-        </section>
-      </section>
     </main>
 
     <script src="./vendor/lightweight-charts.standalone.production.js?v=5.2.0"></script>
-    <script src="./evidence-dashboard.js?v=dash-pt2-bold-terminal-20260610"></script>
+    <script src="./evidence-dashboard.js?v=dash-ia1-two-tabs-20260610"></script>
   </body>
 </html>

@@ -1,4 +1,30 @@
-# Money Flow Founder Dashboard Design
+# Money Flow OS — Founder Dashboard Design
+
+## DASH-IA1 — Two-Surface Information Architecture (current)
+
+The product is **Money Flow OS** and has exactly two navigation surfaces:
+
+1. **Paper Trading** (default tab) — the live desk: status strip, full-width
+   Cockpit / Global Filters bar, skinny Watchlist rail, dominant center chart,
+   skinny Runtime Control rail, tabbed bottom blotter, Daily Review / Anomaly
+   Flags, and a full-width Testnet Order Transport footer card.
+2. **Research Log** — institutional memory of what has been tested. Currently
+   a data-driven placeholder (phase / date / verdict rows read from the
+   committed `docs/*_summary.json` evidence summaries); the full post-mortem
+   view lands in RLOG1.
+
+**Retired navigation surfaces (DASH-IA1):** `Historical Replay`, `The Lab`
+(evidence-lab), and `Strategy` tabs — plus the old `Evidence` view (renamed and
+reduced to the Research Log placeholder). Their render code, markup, and
+exclusive CSS were removed from the dashboard monolith (~5,200 JS lines).
+**Nothing was deleted from disk**: the SOR-EV / MF-ORIG / SV2.x evidence packs,
+replay JSON, builder scripts, and docs all remain as reference, and the hidden
+non-nav UAT legacy panels are unchanged. Sections below that describe retired
+surfaces are kept as historical reference for those artifacts and are marked
+accordingly.
+
+The Paper Trading chart and its markers are intentionally untouched by
+DASH-IA1 (founder requirement).
 
 Canonical design document for `apps/dashboard/`.
 
@@ -6,7 +32,7 @@ Canonical design document for `apps/dashboard/`.
 
 - Current operating surface: `Evidence` defaults to the SV2.3 realistic backtest decision layer; `Historical Replay` remains chart inspection for latest public-mainnet replay context; `Paper Trading` remains the PT-RT forward-observation surface.
 - Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is prepared; no active paper run is assumed unless the local control server reports one.
-- DASH-PT1.3 layout: Paper Trading is a dense exchange-style terminal with top health strip, contained left Cockpit / Global Filters plus internally scrolling three-column Watchlist rail, center Live Public Candles + Paper Markers chart, height-bounded right Runtime Control / Testnet Order Transport rail, bottom tabbed blotter, and a final full-width Daily Review / Anomaly Flags card below the blotter.
+- DASH-IA1 layout: Paper Trading is a dense exchange-style terminal with top status strip, a full-width Cockpit / Global Filters bar directly under the strip, a skinny internally scrolling Watchlist left rail, the dominant center Live Public Candles + Paper Markers chart, a skinny right Runtime Control rail, the bottom tabbed blotter, the full-width Daily Review / Anomaly Flags card, and a full-width Testnet Order Transport footer card at the very bottom (relocated from the right rail with all fields/ids/safety labels preserved).
 - DASH-PT2 reskin: the Paper Trading terminal is elevated in place to a bolder, denser, color-coded exchange aesthetic — CSS-led over the DASH-PT1.3 structure (every `#paper-observation-*` id and behavior preserved). It adds a theme-aware DASH-PT2 token layer (per-lane accents: baseline blue / diagnostic violet / MF-ORIG candidate amber; `--accent-live` positive/health accent; `--accent-testnet`), a dense 1px-grid status strip, lane chips across watchlist/blotter/scoreboard/lane detail, accent-underlined blotter tabs with dense monospace tables and colored PnL columns, and an accent-gradient active nav tab. The visual reference is `docs/dash_pt2_prototype.html`; before/after screenshots live in `docs/dash_pt2_screenshots/`. Chart candle palette tokens are intentionally untouched.
 - SV2.2 latest replay refresh: Historical Replay loads `docs/sv2_2_hyperliquid_research_refresh_summary.json` and can lazy-load ignored public-mainnet replay payloads for the three Week 2 selected strategies across the founder 23-symbol universe and `1h`/`4h`/`1d`.
 - SV2.3 latest Evidence layer: Evidence loads `docs/sv2_3_realistic_backtest_summary.json`, defaults to `Latest Evidence / SV2.3 realistic backtest`, and shows next-candle-open-only base/conservative/stress execution scenarios for the three Week 2 strategies. Current gate status: all three are `not_promoted_realistic_gate_failed`.
@@ -62,10 +88,10 @@ The implementation uses this interaction model and information architecture only
 ## Information Architecture
 
 Top bar:
-- product name: `Money Flow`
-- visible tabs: `Paper Trading`, `Historical Replay`, `Evidence`, `The Lab`, `Strategy`
-- default selected tab after SV2.2: `Historical Replay`
-- `Audit` is not a visible top-level tab after DASH-PT1.1; audit artifacts remain historical reference material.
+- product name: `Money Flow OS`
+- visible tabs: `Paper Trading`, `Research Log` (DASH-IA1: exactly two)
+- default selected tab: `Paper Trading`
+- `Audit` (DASH-PT1.1) and `Historical Replay` / `The Lab` / `Strategy` (DASH-IA1) are not visible top-level tabs; their artifacts remain historical reference material on disk.
 - safety state: synthetic paper only, public mainnet candles, baseline-only testnet plumbing, candidate lanes synthetic-only, no live trading.
 
 Paper Trading cockpit:
@@ -115,16 +141,21 @@ Bottom:
 
 ## Tab Structure
 
-Primary dashboard tabs are:
+Primary dashboard tabs are exactly `Paper Trading` and `Research Log` (DASH-IA1).
+
 - Paper Trading
   - Current weekly PT-RT runtime truth.
   - Active Week 2 lanes are `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
   - Active Week 2 timeframes are `1h`, `4h`, and `1d`; `15m` is paused/legacy.
   - Candidate/MF-ORIG/wildcard lanes are synthetic-only unless the lane is the baseline control.
   - Fresh Money Flow v1.2 baseline opens can trigger fixed 25 USDC testnet plumbing only under explicit gates.
-- Historical Replay
+- Research Log
+  - Placeholder verdict list from committed `docs/*_summary.json` files (phase, date, verdict).
+  - Full post-mortem view lands in RLOG1.
+  - Research evidence is review material only: no production or live approval.
+- RETIRED (DASH-IA1) — Historical Replay
   - Historical visual reference from generated chart/trade JSON.
-- Evidence
+- RETIRED (DASH-IA1) — Evidence (renamed Research Log)
   - Includes a `Replay strategy` Run Ledger selector.
   - Default mode reviews `Latest Evidence / SV2.3 realistic backtest`.
   - SV2.3 rows are next-candle-open-only promotion-facing rows with base/conservative/stress execution-cost scenarios.
@@ -132,8 +163,8 @@ Primary dashboard tabs are:
   - Generated replay modes review SV2.0.2 chart-data strategy rows such as canonical Money Flow v1.2 and SOR-EV3 rolling-range variants.
   - Generated replay rows include a `Result` badge comparing PnL and drawdown to the matching Money Flow v1.2 baseline row: green `improved_pnl_drawdown`, amber partial-improvement labels, neutral `same_result`, or red `no bueno`.
   - The selector is review/navigation only; it does not regenerate evidence or approve variants.
-- The Lab
-- Strategy
+- RETIRED (DASH-IA1) — The Lab
+- RETIRED (DASH-IA1) — Strategy
   - Shows only the three active Week 2 strategies as active/default UI truth.
   - Archived/research-only variants are intentionally not prominent in the Strategy tab.
 

@@ -1,11 +1,13 @@
 # TODO
 
-Last reviewed: `2026-06-10T21:00:00Z`
+Last reviewed: `2026-06-10T22:30:00Z`
 
 ## Active
 
 - SEL-EV1 tested the cross-sectional selection hypothesis (approach b: rank the 23-symbol universe each period, hold the strongest name(s), rotate) and the verdict is `no_selection_skill_demonstrated`: the train-chosen config lost out-of-sample post-conservative-friction and beat only 2 of 50 matched-cadence random-selection seeds. Do not promote any selection strategy from this phase. The honest bar for any future selection claim is the SEL-EV1 gate (beat the random benchmark OOS post-friction + walk-forward positive + rotation diversity). Re-run with `.venv/bin/python scripts/run_sel_ev1_selection_evidence.py`.
 - **GOAL-STRAT3 is superseded by SEL-EV1**: the planned breadth/anti-concentration gate was the wrong lens for a strategy that is *meant* to concentrate. The breadth-gate idea is deferred, not deleted — it still applies to `per_symbol` strategies only, enforced by the `services/strategy_validation/strategy_types.py` routing seam (`per_symbol` vs `cross_sectional_selection`; gates never cross-apply; per-symbol lane behavior/results unchanged and regression-locked byte-identical).
+- DASH-IA1 consolidated the dashboard to two tabs: Paper Trading (default) + Research Log. Historical Replay / The Lab / Strategy navigation surfaces are retired (code removed, ~5,251 JS lines; artifacts all preserved on disk). The Research Log is a data-driven placeholder over committed `docs/*_summary.json` verdicts. Hard refresh if the browser shows the old five-tab chrome — cache-buster is `dash-ia1-two-tabs-20260610`.
+- **RLOG1 (queued next dashboard phase)**: build the full Research Log post-mortem view on the renamed `research-log` panel — per-phase post-mortems (hypothesis, method, verdict, what was learned, links to committed summaries/docs), reusing the DASH-PT2 tokens and the DASH-IA1 placeholder loader as the data spine. Dashboard display only; no new evidence generation.
 - DASH-PT2 reskinned the Paper Trading terminal in place to the bolder color-coded exchange aesthetic from `docs/dash_pt2_prototype.html` (theme-aware tokens, per-lane accents, dense status strip/blotter, lane chips). Display-only; all `#paper-observation-*` ids/behavior preserved and DASH-QA1 stays the blocking guard. If the browser still shows the old look, hard refresh — the cache-buster changed to `dash-pt2-bold-terminal-20260610`. Re-verify visuals anytime with `.venv/bin/python scripts/capture_dash_pt2_screenshots.py --label check`.
 - GOAL-STRAT1 found zero founder production-testing review candidates after 121 bounded research configurations across 7 families; do not promote any strategy from this goal.
 - GOAL-STRAT2 identified two non-existing strategies worth founder paper-testing review: relative-strength rotation with ATR trailing exit, and Donchian breakout with ATR trailing exit. Treat both as research-only until separately scoped.
