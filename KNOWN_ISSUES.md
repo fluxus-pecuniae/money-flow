@@ -1,9 +1,10 @@
 # KNOWN_ISSUES
 
-Last reviewed: `2026-06-08T10:57:45Z`
+Last reviewed: `2026-06-10T20:00:00Z`
 
 ## Open Issues
 
+- `K-032`: SEL-EV1 tested the cross-sectional selection hypothesis (approach b) honestly and the verdict is `no_selection_skill_demonstrated`: the train-chosen config lost out-of-sample post-conservative-friction and beat only 2 of 50 matched-cadence random-selection seeds (empirical p ≈ 0.96). In-sample selection PnL was large and did not carry out-of-sample — treat any future selection-strategy claim as unproven until it beats the SEL-EV1 random benchmark OOS post-friction. The planned GOAL-STRAT3 breadth gate is superseded by SEL-EV1 and the breadth-gate idea is deferred (the per-symbol breadth/anti-concentration gate still applies to `per_symbol` strategies only and must never judge a selection strategy — enforced by the `strategy_types` routing seam).
 - `K-025`: STRAT-PRUNE1 recommended a different smaller slate; founder overrode it in PT-RT1.6 with a three-lane Week 2 slate.
 - `K-027`: Hyperliquid testnet metadata coverage is not guaranteed for all baseline paper symbols. PT-RT1.6.3 resolves blocked-symbol metadata when present and prepares one XRP transport-only smoke, but if XRP/LINK/DOT/LTC/UNI/TRX/ZEC are absent from testnet `meta`, they intentionally fail closed before `/exchange`.
 - `K-028`: SV2.2 now refreshes public-mainnet candles and runs latest Historical Replay rows for the three founder-selected Week 2 strategies only. It does not replace canonical SV2.0.2/SV2.1 evidence, approve a strategy, or affect active PT-RT runtime state.
@@ -41,6 +42,13 @@ Last reviewed: `2026-06-08T10:57:45Z`
 Detailed historical issue entries remain below for audit. Do not treat a resolved historical row as current operating truth unless the current phase links to it explicitly.
 
 ## Detailed Issue Log
+
+### K-032
+
+- `status`: `open`
+- `area`: `SEL-EV1 cross-sectional selection hypothesis`
+- `summary`: `SEL-EV1 built a strict point-in-time cross-sectional selection simulator over the founder 23-symbol SV2.2 universe (4h/1d), with bounded breakout/relative-strength signals (Donchian breakout strength, volatility-adjusted momentum; lookbacks 20/40; top-1/top-3), fixed-fraction sizing (top-1 50%, top-3 30% per name), EXEC-EV1 depth-aware friction on every fill, train-only parameter choice under chronological 70/30 and anchored walk-forward thirds, a matched-cadence 50-seed random-selection benchmark, equal-weight buy-and-hold and naive past-return baselines, and rotation/diversity checks. The train-chosen config (vol_adjusted_relative_momentum lb40 top3 1d) had +54292 train net but -10460 OOS net post-conservative-friction, beating only 2 of 50 random seeds (empirical p 0.96). Rotation diversity itself was healthy (23 distinct symbols held, max single-symbol time share 0.13). Late-entry decay on the full period was severe (+0: 43832 -> +1: 17366 -> +2: 12334), confirming acute timing sensitivity relevant to RT-HISTSEED1.`
+- `impact`: `No selection strategy is promoted; the selection hypothesis remains unproven. The honest bar for any future selection claim is the SEL-EV1 gate: beat the random-selection distribution at its 95th percentile out-of-sample post-conservative-friction, positive walk-forward OOS, adequate OOS sample, and no single-name-bet flag. GOAL-STRAT3 (breadth gate) is superseded and the breadth-gate idea deferred. The strategy_types routing seam keeps approach a (per_symbol) and approach b (cross_sectional_selection) from cross-contaminating each other's verdicts; per-symbol lane behavior/results are unchanged and regression-locked byte-identical. Research/evidence only — no runtime, order, testnet, live, or approval change.`
 
 ### K-024
 

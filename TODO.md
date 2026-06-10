@@ -1,9 +1,11 @@
 # TODO
 
-Last reviewed: `2026-06-10T16:00:00Z`
+Last reviewed: `2026-06-10T20:00:00Z`
 
 ## Active
 
+- SEL-EV1 tested the cross-sectional selection hypothesis (approach b: rank the 23-symbol universe each period, hold the strongest name(s), rotate) and the verdict is `no_selection_skill_demonstrated`: the train-chosen config lost out-of-sample post-conservative-friction and beat only 2 of 50 matched-cadence random-selection seeds. Do not promote any selection strategy from this phase. The honest bar for any future selection claim is the SEL-EV1 gate (beat the random benchmark OOS post-friction + walk-forward positive + rotation diversity). Re-run with `.venv/bin/python scripts/run_sel_ev1_selection_evidence.py`.
+- **GOAL-STRAT3 is superseded by SEL-EV1**: the planned breadth/anti-concentration gate was the wrong lens for a strategy that is *meant* to concentrate. The breadth-gate idea is deferred, not deleted — it still applies to `per_symbol` strategies only, enforced by the `services/strategy_validation/strategy_types.py` routing seam (`per_symbol` vs `cross_sectional_selection`; gates never cross-apply; per-symbol lane behavior/results unchanged and regression-locked byte-identical).
 - GOAL-STRAT1 found zero founder production-testing review candidates after 121 bounded research configurations across 7 families; do not promote any strategy from this goal.
 - GOAL-STRAT2 identified two non-existing strategies worth founder paper-testing review: relative-strength rotation with ATR trailing exit, and Donchian breakout with ATR trailing exit. Treat both as research-only until separately scoped.
 - PT-RT1.6 prepares the founder-selected Week 2 paper slate: `money_flow_v1_2_baseline`, `avoid_low_rolling_range_20`, and `mf_orig_1d_stage2_breakout_resistance_full_equity`.
