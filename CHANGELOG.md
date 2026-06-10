@@ -13,6 +13,35 @@ Entry schema:
 
 ---
 
+## v2026.06.10.003
+
+- `recorded_at_utc`: `2026-06-10T16:00:00Z`
+- `scope`: `EXEC-EV1 depth-aware modeled execution-friction evidence layer`
+- `intent`: `Research/evidence only. Adds a depth-aware modeled friction layer on top of SV2.3's fee/slippage/adverse-gap terms and re-scores the three Week 2 lanes. New model services/execution_quality/exec_ev1.py adds three terms: per-symbol liquidity-tier half-spread, size-aware square-root market impact (participation = notional / candle-dollar-volume liquidity proxy), and a fill-probability unfilled-chase penalty. EXEC-EV1 cost is always >= the SV2.3 parent cost, so EXEC-EV1 net PnL <= SV2.3 net PnL per lane/scenario (verified: 0 violations across 621 rows). MODELED, NOT REAL, DEPTH: liquidity is derived from historical candle volume, not real historical order-book depth (which does not exist; Hyperliquid public l2Book is a current snapshot only) — every output is labeled an assumption layer. Re-score verdicts: mf_orig_1d_stage2_breakout_resistance_full_equity survives base + conservative depth-aware friction but fails stress; money_flow_v1_2_baseline and avoid_low_rolling_range_20 fail all (already negative under SV2.3). Also adds a late-entry / entry-timing cost metric (adverse move from signal candle to fills 0/1/2 candles late): mf_orig cost rises with lateness (~+1.2 -> +15 -> +37 bps), signaling its edge decays at the signal and that historical-position seeding would erode it; the two failing lanes show negative late-entry cost (poor entries). scripts/run_exec_ev1_execution_quality.py reads SV2.2 candles from disk and performs no network I/O. tests/test_exec_ev1_execution_quality.py (14 deterministic tests) wired into the blocking CI lane. K-001 noted partially addressed (modeled, not real depth). Future phase RT-HISTSEED1 recorded. No runtime mutation, no strategy-rule change, no orders, no private/signed/testnet/live endpoints, no production or live approval.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `.github/workflows/ci.yml`
+  - `services/execution_quality/__init__.py`
+  - `services/execution_quality/exec_ev1.py`
+  - `scripts/run_exec_ev1_execution_quality.py`
+  - `tests/test_exec_ev1_execution_quality.py`
+  - `docs/exec_ev1_execution_quality_evidence.md`
+  - `docs/exec_ev1_execution_quality_evidence_summary.json`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/run_exec_ev1_execution_quality.py` → 621 result rows, 0 EXEC-EV1>SV2.3 violations
+  - `.venv/bin/python -m pytest -q tests/test_exec_ev1_execution_quality.py` → 14 passed
+  - `.venv/bin/python scripts/check_trading_safety_text.py` → OK
+  - `.venv/bin/python scripts/check_secret_hygiene.py` → OK
+  - `ruff check + format --check` on EXEC-EV1 modules → clean
+
+---
+
 ## v2026.06.10.002
 
 - `recorded_at_utc`: `2026-06-10T13:00:00Z`
