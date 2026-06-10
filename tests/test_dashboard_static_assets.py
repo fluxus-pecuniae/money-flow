@@ -172,12 +172,19 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "paper-observation-signal-table" in html
     assert "Signal / Decision Stream" in html
 
-    # DASH-IA1 reflow: status strip, then the full-width Global Filters bar,
-    # then the terminal grid; Testnet transport is a full-width footer card
-    # below Daily Review (no longer inside the right rail).
+    # DASH-PT3 layout: Global Filters lead the body; the dense status strip
+    # ("H1") is the final reference band after the Testnet footer; runtime +
+    # live critical-state pills live in the header. Testnet transport remains
+    # a full-width footer card below Daily Review (not in the right rail).
     assert "paper-observation-filterbar" in html
-    assert html.index("paper-observation-health-banner") < html.index("paper-observation-filterbar")
+    assert "top-runtime-pill" in html
+    assert "top-live-pill" in html
+    assert "LIVE DISABLED" in html
+    assert "NOT APPROVED" in html
+    assert html.index("top-runtime-pill") < html.index("paper-observation-filterbar")
     assert html.index("paper-observation-filterbar") < html.index("paper-observation-terminal-grid")
+    assert html.index("paper-observation-testnet-footer") < html.index("paper-observation-health-banner")
+    assert html.index("paper-observation-daily-review") < html.index("paper-observation-health-banner")
     terminal_grid = html[
         html.index("paper-observation-terminal-grid") : html.index("paper-observation-bottom-blotter")
     ]
@@ -218,7 +225,11 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert ".paper-runtime-control-compact" in css
     assert ".paper-observation-terminal-grid" in css
     # Skinnier rails: prototype-like proportions; the chart dominates.
-    assert "grid-template-columns: minmax(188px, 226px) minmax(0, 1fr) minmax(236px, 262px)" in css
+    # DASH-PT3: rails widened (watchlist readable, Runtime Control untruncated);
+    # the center chart remains the dominant flexible panel.
+    assert "grid-template-columns: minmax(212px, 252px) minmax(0, 1fr) minmax(300px, 344px)" in css
+    assert ".top-status-pill" in css
+    assert "top-pill-blink" in css
     assert ".paper-observation-filterbar" in css
     assert ".paper-observation-testnet-footer" in css
     assert ".paper-observation-left-rail .paper-observation-watchlist-panel .data-table-shell" in css

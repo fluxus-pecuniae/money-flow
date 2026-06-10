@@ -1138,7 +1138,8 @@ h3 {
 .paper-observation-right-rail .paper-runtime-control {
   min-width: 0;
   min-height: 0;
-  overflow: hidden;
+  /* DASH-PT3: content must never truncate; the rail is sized to fit. */
+  overflow: visible;
 }
 
 .paper-observation-watchlist-transport-row {
@@ -1204,8 +1205,9 @@ h3 {
 }
 
 .paper-observation-final-review-card .market-micro-panel {
-  max-height: 360px;
-  overflow: auto;
+  /* DASH-PT3: render at full height, no nested scroll. */
+  max-height: none;
+  overflow: visible;
 }
 
 .paper-observation-daily-review-grid {
@@ -3068,9 +3070,7 @@ td {
   .paper-observation-anomaly-list li {
     grid-template-columns: 1fr;
   }
-.paper-observation-left-rail .paper-observation-watchlist-panel .data-table-shell,
-.paper-observation-right-rail .paper-runtime-control,
-.paper-observation-final-review-card .market-micro-panel {
+.paper-observation-left-rail .paper-observation-watchlist-panel .data-table-shell {
     max-height: 360px;
   }
 
@@ -3615,7 +3615,7 @@ td {
 
 /* skinnier rails; the chart is the dominant panel */
 .paper-observation-terminal-grid {
-  grid-template-columns: minmax(188px, 226px) minmax(0, 1fr) minmax(236px, 262px);
+  grid-template-columns: minmax(212px, 252px) minmax(0, 1fr) minmax(300px, 344px);
 }
 
 .paper-observation-left-rail {
@@ -3703,4 +3703,79 @@ td {
 .research-log-source {
   color: var(--color-muted);
   font-size: 10px;
+}
+
+
+/* ===========================================================================
+   DASH-PT3 — header runtime/live status pills + layout refinements.
+   The dense status strip (#paper-observation-health-banner) now renders as
+   the final reference band of the Paper Trading view; the always-visible
+   critical-state signals live here in the header. Display only.
+   =========================================================================== */
+
+.top-status-pills {
+  display: inline-flex;
+  gap: var(--spacing-3);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.top-status-pill {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 4px 10px;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: var(--terminal-chip);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.top-status-pill .pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-muted);
+  flex: 0 0 auto;
+}
+
+.top-status-pill.runtime-active {
+  color: var(--accent-live);
+  border-color: color-mix(in srgb, var(--accent-live) 36%, transparent);
+}
+
+.top-status-pill.runtime-active .pill-dot {
+  background: var(--accent-live);
+  box-shadow: 0 0 8px var(--accent-live);
+  animation: top-pill-blink 1.6s ease-in-out infinite;
+}
+
+.top-status-pill.runtime-idle {
+  color: var(--color-muted);
+}
+
+.top-status-pill.live-disabled {
+  color: var(--color-red);
+  border-color: color-mix(in srgb, var(--color-red) 34%, transparent);
+}
+
+.top-status-pill.live-disabled .pill-dot {
+  background: var(--color-red);
+  box-shadow: 0 0 8px var(--color-red);
+}
+
+@keyframes top-pill-blink {
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@media (max-width: 1180px) {
+  .top-status-pill .pill-text {
+    font-size: 9px;
+  }
 }

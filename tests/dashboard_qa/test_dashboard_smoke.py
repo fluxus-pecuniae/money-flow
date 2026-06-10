@@ -314,3 +314,20 @@ def test_paper_view_boundary_labels_visible(page: Page, dashboard_url: str) -> N
     footer_text = footer.inner_text().lower()
     assert "testnet" in footer_text
     assert "synthetic-only" in footer_text or "synthetic" in footer_text
+    # DASH-PT3: always-visible critical-state pills in the header — the live
+    # pill must surface the no-live boundary; the runtime pill must be present.
+    expect(page.locator("#top-live-pill")).to_be_visible()
+    live_pill_text = page.locator("#top-live-pill").inner_text().lower()
+    assert "live disabled" in live_pill_text and "not approved" in live_pill_text
+    expect(page.locator("#top-runtime-pill")).to_be_visible()
+    # DASH-PT3: the dense status strip is the final reference band — still
+    # inside the paper view with its lane chips and safety labels intact.
+    strip_after_footer = page.evaluate(
+        """() => {
+          const strip = document.getElementById('paper-observation-health-banner');
+          const footer = document.querySelector('.paper-observation-testnet-footer');
+          if (!strip || !footer) return false;
+          return Boolean(footer.compareDocumentPosition(strip) & Node.DOCUMENT_POSITION_FOLLOWING);
+        }"""
+    )
+    assert strip_after_footer, "status strip must render after the testnet footer"

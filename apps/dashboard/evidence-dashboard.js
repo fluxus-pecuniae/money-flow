@@ -757,6 +757,8 @@
     sourceDetail: document.querySelector("#data-source-detail"),
     fileInput: document.querySelector("#json-file-input"),
     themeSelector: document.querySelector("#dashboard-theme-selector"),
+    topRuntimePill: document.querySelector("#top-runtime-pill"),
+    topLivePill: document.querySelector("#top-live-pill"),
     researchLogVerdictList: document.querySelector("#research-log-verdict-list"),
     auditReviewVerdictCards: document.querySelector("#audit-review-verdict-cards"),
     auditReviewScorecard: document.querySelector("#audit-review-scorecard"),
@@ -4526,8 +4528,24 @@
     if (nextLogList) nextLogList.scrollTop = previousScrollTop;
   }
 
+  function renderTopStatusPills(control) {
+    // DASH-PT3 display-only header pills. Driven by the same local control
+    // server status the dashboard already polls — no new data source. The
+    // live-trading pill is static truth: live trading is disabled and not
+    // approved.
+    if (!elements.topRuntimePill) return;
+    const running = Boolean(control.running);
+    const checking = control.status === "checking";
+    elements.topRuntimePill.classList.toggle("runtime-active", running);
+    elements.topRuntimePill.classList.toggle("runtime-idle", !running);
+    const label = running ? "RUNTIME ACTIVE" : checking ? "RUNTIME — CHECKING" : "RUNTIME IDLE";
+    const textNode = elements.topRuntimePill.querySelector(".pill-text");
+    if (textNode && textNode.textContent !== label) textNode.textContent = label;
+  }
+
   function renderPaperRuntimeControl() {
     const control = state.paperRuntimeControl;
+    renderTopStatusPills(control);
     if (elements.paperRuntimeDuration) {
       elements.paperRuntimeDuration.value = control.duration;
       elements.paperRuntimeDuration.disabled = control.running || control.inFlight;
@@ -4593,11 +4611,16 @@
 
   function paperObservationBaseScannerRows() {
     const summary = paperObservationSummary();
-    const rows = paperObservationRows(summary?.scanner_universe);
+    // Display-only universe filter (DASH-PT3): hidden symbols such as OKB are
+    // excluded from the watchlist display; backend resolver policy unchanged.
+    const rows = paperObservationRows(summary?.scanner_universe).filter((row) =>
+      isVisibleDashboardSymbol(row.requested_symbol || row.resolved_venue_symbol || row.canonical_symbol),
+    );
     if (rows.length) return rows;
-    const symbols = paperObservationRows(summary?.symbols).length
+    const symbols = (paperObservationRows(summary?.symbols).length
       ? paperObservationRows(summary?.symbols)
-      : PAPER_OBSERVATION_CONFIGURED_SYMBOLS;
+      : PAPER_OBSERVATION_CONFIGURED_SYMBOLS
+    ).filter((symbol) => isVisibleDashboardSymbol(symbol));
     return symbols.map((symbol) => ({
       requested_symbol: symbol,
       resolved_venue_symbol: symbol,

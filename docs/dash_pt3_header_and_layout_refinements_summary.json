@@ -1,0 +1,42 @@
+{
+  "phase": "DASH-PT3",
+  "report": "dash_pt3_header_and_layout_refinements",
+  "status": "header_and_layout_refinements_complete",
+  "changes": {
+    "header_pills": {
+      "runtime_pill": "#top-runtime-pill \u2014 RUNTIME ACTIVE / IDLE / CHECKING from existing control-server polling",
+      "live_pill": "#top-live-pill \u2014 LIVE DISABLED \u00b7 NOT APPROVED (static red)",
+      "new_data_source": false
+    },
+    "status_strip_moved_to_end": true,
+    "global_filters_lead_body": true,
+    "right_rail_width": "minmax(300px, 344px) + overflow visible (no truncation)",
+    "left_rail_width": "minmax(212px, 252px)",
+    "okb_removed_from_display": "scanner rows + fallback now pass isVisibleDashboardSymbol; pt_rt1.py resolver untouched",
+    "daily_review_internal_scroll_removed": true,
+    "chart_and_markers_changed": false,
+    "paper_observation_ids_preserved": true
+  },
+  "verification": {
+    "dash_qa1": "9 passed (lockstep: #9 extended with pills + strip-after-footer)",
+    "static_asset_guards": "9 passed (ordering/grid/pill asserts updated)",
+    "themes_zero_page_errors": [
+      "dark",
+      "light",
+      "red-zone"
+    ],
+    "node_check": "clean",
+    "cache_buster": "dash-pt3-header-pills-20260611",
+    "screenshots_dir": "docs/dash_pt3_screenshots/"
+  },
+  "boundaries": {
+    "dashboard_display_only": true,
+    "changes_runtime_behavior": false,
+    "changes_strategy_rules": false,
+    "changes_data_sources": false,
+    "submits_orders": false,
+    "changes_testnet_behavior": false,
+    "approves_production_strategy": false,
+    "approves_live_trading": false
+  }
+}
