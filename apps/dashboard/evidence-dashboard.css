@@ -191,6 +191,54 @@ html[data-theme="red-zone"] {
   --line-b-6: #ff9f6e;
 }
 
+/* ---------------------------------------------------------------------------
+   DASH-PT2 design tokens — bolder exchange/terminal layer.
+   Translated from docs/dash_pt2_prototype.html into the existing theme-aware
+   variable system. Per-lane accents map to the current_truth.json active
+   lanes: baseline (blue), diagnostic comparator (violet), MF-ORIG candidate
+   (amber). --accent-live is the crisp positive/health accent; --accent-live-ink
+   is the text color used ON live-accent fills. Chart colors intentionally
+   keep resolving through the untouched --color-chart-* tokens.
+--------------------------------------------------------------------------- */
+:root {
+  --lane-baseline: #3d9bff;
+  --lane-diagnostic: #a981ff;
+  --lane-candidate: #ffb454;
+  --lane-neutral: #8392a5;
+  --accent-live: #2ee6a6;
+  --accent-live-deep: #15a47a;
+  --accent-live-ink: #06120d;
+  --accent-testnet: #2fb6c9;
+  --terminal-chip: #16202e;
+  --terminal-row-line: #131c28;
+}
+
+html[data-theme="light"] {
+  --lane-baseline: #1262c0;
+  --lane-diagnostic: #6b3fd1;
+  --lane-candidate: #9a5b00;
+  --lane-neutral: #596879;
+  --accent-live: #0a8a60;
+  --accent-live-deep: #076b4a;
+  --accent-live-ink: #ffffff;
+  --accent-testnet: #0e7490;
+  --terminal-chip: #e8f0f7;
+  --terminal-row-line: #dde6ee;
+}
+
+html[data-theme="red-zone"] {
+  --lane-baseline: #6ea8ff;
+  --lane-diagnostic: #c79bff;
+  --lane-candidate: #ffb454;
+  --lane-neutral: #d4a0a9;
+  --accent-live: #2ee59d;
+  --accent-live-deep: #18a86f;
+  --accent-live-ink: #07140d;
+  --accent-testnet: #ff9f6e;
+  --terminal-chip: #270c12;
+  --terminal-row-line: #3b141d;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -3947,5 +3995,454 @@ td {
 
   .market-row {
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ===========================================================================
+   DASH-PT2 — Paper Trading bolder exchange reskin (CSS-led, in place).
+   Scope: the Paper Trading view (.paper-observation-view) plus intentionally
+   restyled shared chrome (.top-strip / top nav tabs). Other tab bodies are
+   not restyled in this phase. All colors resolve through theme-aware tokens;
+   the --color-chart-* variables and chart sizing rules are untouched so the
+   TradingView palette and the DASH-QA1 chart-stability guard are preserved.
+   Visual reference: docs/dash_pt2_prototype.html.
+   =========================================================================== */
+
+/* ----- shared chrome: top bar + primary nav (intentional restyle) ----- */
+
+.top-strip {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-panel-2) 62%, transparent), transparent 72%),
+    var(--color-top-strip);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-live) 18%, var(--color-line));
+}
+
+.top-brand-mark {
+  border-color: color-mix(in srgb, var(--accent-live) 38%, var(--color-line));
+  box-shadow: 0 0 14px color-mix(in srgb, var(--accent-live) 28%, transparent);
+}
+
+.top-brand h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.top-strip > .view-tabs {
+  padding: 3px;
+  border-color: color-mix(in srgb, var(--color-line) 80%, transparent);
+  background: color-mix(in srgb, var(--terminal-chip) 72%, transparent);
+}
+
+.top-strip > .view-tabs .view-tab {
+  border-radius: 7px;
+  font-weight: 600;
+}
+
+.top-strip > .view-tabs .view-tab:hover {
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-panel-3) 80%, transparent);
+}
+
+.top-strip > .view-tabs .view-tab[aria-selected="true"] {
+  color: var(--accent-live-ink);
+  font-weight: 800;
+  background: linear-gradient(180deg, var(--accent-live), var(--accent-live-deep));
+  border-color: var(--accent-live-deep);
+}
+
+/* ----- paper view ambiance ----- */
+
+.paper-observation-view {
+  background:
+    radial-gradient(1100px 540px at 82% -8%, color-mix(in srgb, var(--accent-live) 5%, transparent), transparent 62%),
+    radial-gradient(820px 460px at 0% 0%, color-mix(in srgb, var(--lane-baseline) 5%, transparent), transparent 56%);
+}
+
+/* ----- per-lane color coding (chips render from JS, display-only) ----- */
+
+.paper-lane-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 2px 7px;
+  border: 1px solid color-mix(in srgb, var(--lane-neutral) 32%, transparent);
+  border-radius: 5px;
+  color: var(--lane-neutral);
+  background: color-mix(in srgb, var(--lane-neutral) 10%, transparent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.paper-lane-chip[data-lane-accent="baseline"] {
+  color: var(--lane-baseline);
+  border-color: color-mix(in srgb, var(--lane-baseline) 34%, transparent);
+  background: color-mix(in srgb, var(--lane-baseline) 12%, transparent);
+}
+
+.paper-lane-chip[data-lane-accent="diagnostic"] {
+  color: var(--lane-diagnostic);
+  border-color: color-mix(in srgb, var(--lane-diagnostic) 34%, transparent);
+  background: color-mix(in srgb, var(--lane-diagnostic) 12%, transparent);
+}
+
+.paper-lane-chip[data-lane-accent="candidate"] {
+  color: var(--lane-candidate);
+  border-color: color-mix(in srgb, var(--lane-candidate) 36%, transparent);
+  background: color-mix(in srgb, var(--lane-candidate) 12%, transparent);
+}
+
+.paper-lane-chip-row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.paper-lane-chip-name {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  overflow-wrap: anywhere;
+}
+
+/* ----- top status strip (health banner -> dense scannable cells) ----- */
+
+.paper-observation-view .paper-observation-command-banner {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 1px;
+  padding: 1px;
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--accent-live) 14%, var(--color-line));
+  border-radius: var(--radius-md);
+  background: var(--color-line-soft);
+}
+
+.paper-observation-view .paper-observation-command-banner div {
+  gap: 3px;
+  min-height: 46px;
+  padding: var(--spacing-3) var(--spacing-4);
+  background: color-mix(in srgb, var(--color-panel) 94%, var(--color-panel-2));
+}
+
+.paper-observation-view .paper-observation-command-banner div > span {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.paper-observation-view .paper-observation-command-banner strong {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.paper-observation-view .paper-observation-command-banner .banner-cell-ok strong {
+  color: var(--accent-live);
+}
+
+.paper-observation-view .paper-observation-command-banner .banner-cell-warn strong {
+  color: var(--color-amber);
+}
+
+.paper-observation-view .paper-observation-command-banner .banner-cell-no strong {
+  color: var(--color-red);
+}
+
+.paper-observation-view .paper-observation-command-banner .banner-cell-testnet strong {
+  color: var(--accent-testnet);
+}
+
+.paper-observation-health-banner .methodology-warning {
+  margin-block-end: 0;
+  margin-block-start: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-amber) 4%, var(--color-panel));
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+/* ----- left rail: cockpit filters + dense watchlist ----- */
+
+.paper-observation-view .paper-observation-controls label span,
+.paper-observation-view .paper-runtime-control-grid label span {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.paper-observation-view .paper-observation-controls select,
+.paper-observation-view .paper-runtime-control-grid select {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  background-color: var(--color-panel-2);
+}
+
+.paper-observation-view .paper-observation-controls-title .eyebrow {
+  color: var(--accent-live);
+  font-weight: 800;
+  letter-spacing: 0.09em;
+}
+
+.paper-observation-view .paper-observation-watchlist-table td {
+  padding: 4px var(--spacing-4);
+  border-bottom: 1px solid var(--terminal-row-line);
+  font-size: 11px;
+  vertical-align: middle;
+}
+
+.paper-observation-view .paper-observation-watchlist-table tbody tr:hover {
+  background: color-mix(in srgb, var(--color-panel-3) 64%, transparent);
+}
+
+.paper-observation-view .paper-observation-watchlist-table .link-button {
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.paper-observation-view .selected-row {
+  background: color-mix(in srgb, var(--accent-live) 8%, transparent);
+  box-shadow: inset 2px 0 0 var(--accent-live);
+}
+
+.paper-observation-view .paper-observation-tick {
+  min-width: 64px;
+  padding: 1px 6px;
+  font-size: 10.5px;
+}
+
+/* ----- center chart: the visual anchor ----- */
+
+.paper-observation-view .chart-header h2 {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.paper-observation-view .chart-header-meta span {
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.paper-observation-center-stage > .historical-chart-panel {
+  border-color: color-mix(in srgb, var(--accent-live) 16%, var(--color-line));
+}
+
+/* ----- right rail: runtime control + testnet transport ----- */
+
+.paper-observation-view .primary-button {
+  border-color: var(--accent-live-deep);
+  background: linear-gradient(180deg, var(--accent-live), var(--accent-live-deep));
+  color: var(--accent-live-ink);
+  font-weight: 800;
+}
+
+.paper-observation-view .paper-runtime-control-message {
+  border-color: color-mix(in srgb, var(--accent-live) 32%, var(--color-line));
+  background: color-mix(in srgb, var(--accent-live) 9%, var(--color-panel-2));
+}
+
+.paper-observation-view .paper-runtime-control-message strong {
+  color: var(--accent-live);
+}
+
+.paper-observation-view .market-micro-panel > div,
+.paper-observation-view .micro-row {
+  padding: var(--spacing-2) var(--spacing-4);
+  background: color-mix(in srgb, var(--color-panel) 96%, var(--color-panel-2));
+}
+
+.paper-observation-view .market-micro-panel span {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.paper-observation-testnet-panel {
+  border-color: color-mix(in srgb, var(--accent-testnet) 22%, var(--color-line));
+}
+
+.paper-observation-testnet-panel .rail-heading h2 {
+  color: var(--accent-testnet);
+}
+
+/* ----- bottom blotter: dense color-coded tables ----- */
+
+.paper-observation-blotter-tabs {
+  background: color-mix(in srgb, var(--terminal-chip) 64%, var(--color-panel));
+}
+
+.paper-observation-blotter-tabs .segment-button {
+  min-height: 34px;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.paper-observation-blotter-tabs .segment-button:hover {
+  color: var(--color-text);
+}
+
+.paper-observation-blotter-tabs .segment-button[aria-selected="true"] {
+  color: var(--accent-live);
+  background: color-mix(in srgb, var(--accent-live) 7%, transparent);
+  border-bottom-color: var(--accent-live);
+  box-shadow: none;
+}
+
+.paper-observation-blotter-panel th {
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: 9px;
+  letter-spacing: 0.07em;
+  background: color-mix(in srgb, var(--color-panel-3) 88%, var(--color-panel));
+}
+
+.paper-observation-blotter-panel td {
+  padding: 5px var(--spacing-4);
+  border-bottom: 1px solid var(--terminal-row-line);
+  font-size: 11px;
+  vertical-align: middle;
+}
+
+.paper-observation-blotter-panel tbody tr:hover td {
+  background: color-mix(in srgb, var(--color-panel-3) 56%, transparent);
+}
+
+.paper-observation-view td.positive {
+  color: var(--accent-live);
+  font-weight: 700;
+}
+
+.paper-observation-view td.negative {
+  color: var(--color-red);
+  font-weight: 700;
+}
+
+.paper-observation-view .result-pill {
+  min-height: 20px;
+  padding: 1px 8px;
+  border-radius: 5px;
+  font-size: 9.5px;
+  letter-spacing: 0.02em;
+}
+
+.paper-observation-view .result-pill.result-good {
+  color: var(--accent-live);
+  background: color-mix(in srgb, var(--accent-live) 12%, transparent);
+  border-color: color-mix(in srgb, var(--accent-live) 30%, transparent);
+}
+
+.paper-observation-view .result-pill.result-warn {
+  color: var(--color-amber);
+  background: color-mix(in srgb, var(--color-amber) 12%, transparent);
+  border-color: color-mix(in srgb, var(--color-amber) 32%, transparent);
+}
+
+.paper-observation-view .result-pill.result-bad {
+  color: var(--color-red);
+  background: color-mix(in srgb, var(--color-red) 12%, transparent);
+  border-color: color-mix(in srgb, var(--color-red) 32%, transparent);
+}
+
+.paper-observation-view .result-pill.result-unknown {
+  color: var(--color-muted);
+  background: color-mix(in srgb, var(--color-muted) 10%, transparent);
+  border-color: color-mix(in srgb, var(--color-muted) 26%, transparent);
+}
+
+.paper-observation-view .paper-observation-trade-summary-cards span {
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+/* ----- daily review / anomaly flags ----- */
+
+.paper-observation-final-review-card {
+  border-color: color-mix(in srgb, var(--accent-live) 14%, var(--color-line));
+}
+
+.paper-observation-daily-review-grid > div {
+  display: grid;
+  gap: 2px;
+  padding: var(--spacing-3) var(--spacing-4);
+  background: color-mix(in srgb, var(--color-panel) 94%, var(--color-panel-2));
+}
+
+.paper-observation-daily-review-grid span {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.paper-observation-daily-review-grid strong {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.paper-observation-view .paper-observation-anomaly-list {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: var(--spacing-3) 0 0;
+  padding: var(--spacing-3) var(--spacing-4);
+  list-style: none;
+}
+
+.paper-observation-view .paper-observation-anomaly-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  align-items: center;
+  padding: var(--spacing-2) var(--spacing-4);
+  border: 1px solid var(--color-line-soft);
+  border-radius: 7px;
+  background: var(--color-panel-2);
+  font-size: 11px;
+}
+
+.paper-observation-view .paper-observation-anomaly-list li strong {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+}
+
+/* ----- empty states + section headings inside the paper view ----- */
+
+.paper-observation-view .empty-state {
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.paper-observation-view .section-heading h2,
+.paper-observation-view .section-heading h3 {
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 11.5px;
+  font-weight: 800;
+}
+
+.paper-observation-view .section-heading p {
+  font-size: 10.5px;
+}
+
+@media (max-width: 900px) {
+  .paper-observation-view .paper-observation-command-banner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
