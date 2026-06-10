@@ -914,3 +914,9 @@ Older completed tasks remain below as the detailed historical follow-up log. Tre
 - `priority`: `low`
 - `status`: `future`
 - `summary`: `Evaluate optional external execution backends such as CoinRoutes after the native decision/risk/intent/execution path is mature enough.`
+
+### T-011
+
+- `priority`: `low`
+- `status`: `future`
+- `summary`: `Move oversized generated historical replay JSON summaries to artifact storage or Git LFS so the source repository stays lightweight.`
