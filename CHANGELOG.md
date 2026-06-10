@@ -13,6 +13,33 @@ Entry schema:
 
 ---
 
+## v2026.06.10.005
+
+- `recorded_at_utc`: `2026-06-10T21:00:00Z`
+- `scope`: `DASH-PT2 Paper Trading bolder exchange reskin`
+- `intent`: `Dashboard display only. Elevates the existing DASH-PT1.2/1.3 Paper Trading terminal in place to a bolder, denser, color-coded exchange aesthetic (systematic-fund operator terminal), CSS-led, matching the founder prototype docs/dash_pt2_prototype.html. Must 1: theme-aware DASH-PT2 token layer in evidence-dashboard.css across dark/light/red-zone — per-lane accents mapped to the current_truth.json active lanes (baseline blue --lane-baseline, diagnostic comparator violet --lane-diagnostic, MF-ORIG candidate amber --lane-candidate), crisp --accent-live positive/health accent (+ --accent-live-deep/-ink), --accent-testnet, terminal chip/row-line tokens; the --color-chart-* tokens are untouched so the TradingView palette and theme-rebuild behavior are unchanged. Must 2: reskinned the top health banner into a dense 1px-grid status strip with state-colored cells and lane chips; denser cockpit filters + watchlist with live-accent selected row; bolder chart header (chart internals/bounded heights untouched); accent-gradient Start Run + accent runtime message; testnet-accented transport panel; blotter with accent-underlined tabs, dense sticky-header monospace tables, td.positive/td.negative PnL coloring, translucent terminal status tags; restyled daily review grid + anomaly flags; shared chrome intentionally restyled (top strip edge, brand glow, accent-gradient active nav tab) — no other tab body restyled. Must 3: zero behavior change — only display-only JS markup (paperObservationLaneChip helper + four status-strip state classes); every #paper-observation-* id and DASH-QA1-selected structure preserved verbatim (no selector updates needed); all three themes verified including the chart. Must 4: DASH-QA1 9/9 browser checks green (run twice); before/after Playwright screenshots committed under docs/dash_pt2_screenshots/ (desktop+mobile dark, desktop light/red-zone) via new scripts/capture_dash_pt2_screenshots.py; cache-buster bumped to dash-pt2-bold-terminal-20260610 on CSS+JS. No runtime, strategy, data-source, order, testnet, or approval change.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/DESIGN.md`
+  - `scripts/capture_dash_pt2_screenshots.py`
+  - `docs/dash_pt2_prototype.html`
+  - `docs/dash_pt2_bolder_exchange_reskin.md`
+  - `docs/dash_pt2_bolder_exchange_reskin_summary.json`
+  - `docs/dash_pt2_screenshots/*`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js` → OK
+  - `.venv/bin/python -m pytest -m browser tests/dashboard_qa/ -q` → 9 passed (two consecutive runs)
+  - `.venv/bin/python scripts/capture_dash_pt2_screenshots.py --label before|after` → 5+5 screenshots, all three themes inspected
+  - `.venv/bin/python -m pytest -q tests/test_secret_hygiene.py tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py` → passed
+
 ## v2026.06.10.004
 
 - `recorded_at_utc`: `2026-06-10T20:00:00Z`

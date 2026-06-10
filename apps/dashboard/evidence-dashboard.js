@@ -178,6 +178,13 @@
     avoid_low_rolling_range_20: "Diagnostic Comparator",
     mf_orig_1d_stage2_breakout_resistance_full_equity: "MF-ORIG Source-Faithful Candidate",
   };
+  // DASH-PT2 display-only lane accent mapping (per-lane terminal colors).
+  // Mapped to the current_truth.json active lane ids; unknown lanes stay neutral.
+  const PAPER_OBSERVATION_LANE_ACCENTS = {
+    money_flow_v1_2_baseline: "baseline",
+    avoid_low_rolling_range_20: "diagnostic",
+    mf_orig_1d_stage2_breakout_resistance_full_equity: "candidate",
+  };
   const PAPER_OBSERVATION_CONFIGURED_SYMBOLS = ["AVAX", "BNB", "BTC", "DOGE", "ETH", "HYPE", "SOL", "SUI", "XRP"];
   const PAPER_OBSERVATION_WEEK2_LANE_POLICIES = {
     money_flow_v1_2_baseline: {
@@ -9109,6 +9116,19 @@
     return PAPER_OBSERVATION_WEEK2_LANE_LABELS[laneId] || "Archived / historical reference";
   }
 
+  function paperObservationLaneAccent(laneId) {
+    return PAPER_OBSERVATION_LANE_ACCENTS[String(laneId || "")] || "neutral";
+  }
+
+  function paperObservationLaneChip(laneId, label) {
+    // DASH-PT2 display-only lane chip: color-codes lane cells consistently
+    // across watchlist/blotter/scoreboard/lane detail. Markup/visual only —
+    // no data, filter, polling, or handler behavior changes.
+    const text = label === undefined || label === null ? laneId : label;
+    if (!text) return escapeHtml("n/a");
+    return `<span class="paper-lane-chip" data-lane-accent="${escapeHtml(paperObservationLaneAccent(laneId))}">${escapeHtml(String(text))}</span>`;
+  }
+
   function paperObservationConfiguredLaneRow(laneId) {
     const policy = PAPER_OBSERVATION_WEEK2_LANE_POLICIES[laneId] || {};
     return {
@@ -10117,19 +10137,19 @@
     elements.paperObservationHealthBanner.innerHTML = `
       <div class="paper-observation-command-banner">
         <div><span>Public mainnet data</span><strong>${escapeHtml(paperObservationText(status.hyperliquid_public_mainnet, "pending_runtime_refresh"))}</strong></div>
-        <div><span>Runtime state</span><strong>${escapeHtml(runtimeStateLabel)}</strong></div>
+        <div class="${control.running ? "banner-cell-ok" : "banner-cell-warn"}"><span>Runtime state</span><strong>${escapeHtml(runtimeStateLabel)}</strong></div>
         <div><span>Run scope</span><strong>${escapeHtml(control.output || summary?.active_review_scope || PAPER_OBSERVATION_ACTIVE_RUNTIME_SCOPE)}</strong></div>
         <div><span>Active review window</span><strong>${escapeHtml(activeStart)} to now</strong></div>
         <div><span>Active timeframes</span><strong>1h / 4h / 1D</strong></div>
-        <div><span>15m</span><strong>${escapeHtml(PAPER_OBSERVATION_15M_STATUS)}</strong></div>
-        <div><span>Active lanes</span><strong>${escapeHtml(activeLanes.join(", "))}</strong></div>
+        <div class="banner-cell-warn"><span>15m</span><strong>${escapeHtml(PAPER_OBSERVATION_15M_STATUS)}</strong></div>
+        <div><span>Active lanes</span><strong class="paper-lane-chip-row">${activeLanes.map((laneId) => paperObservationLaneChip(laneId)).join("")}</strong></div>
         <div><span>Signal evaluation</span><strong>${escapeHtml(paperObservationText(cadence.strategy_signal_evaluation || cadence.mode, "candle-close only"))}</strong></div>
         <div><span>Market refresh</span><strong>${escapeHtml(paperObservationText(cadence.market_refresh || cadence.market_refresh_mode, "active"))}</strong></div>
-        <div><span>Testnet order transport</span><strong>${escapeHtml(testnetPolicy.order_transport_enabled ? "baseline-only gates enabled" : "baseline-only gates ready")}</strong></div>
+        <div class="banner-cell-testnet"><span>Testnet order transport</span><strong>${escapeHtml(testnetPolicy.order_transport_enabled ? "baseline-only gates enabled" : "baseline-only gates ready")}</strong></div>
         <div><span>Fixed notional</span><strong>${escapeHtml(paperObservationText(testnetPolicy.fixed_notional_usdc, "25"))} USDC</strong></div>
         <div><span>Synthetic PnL</span><strong>Synthetic Ledger</strong></div>
         <div><span>Testnet lifecycle</span><strong>Separate from synthetic PnL</strong></div>
-        <div><span>Live trading</span><strong>not approved</strong></div>
+        <div class="banner-cell-no"><span>Live trading</span><strong>not approved</strong></div>
       </div>
       <div class="methodology-warning compact">
         Paper Trading is the Week 2 runtime review surface. Historical Replay, Evidence, The Lab, and Strategy remain reference surfaces.
@@ -10318,7 +10338,7 @@
               (row) => `
                 <tr>
                   <td>${escapeHtml(paperObservationText(paperObservationDecisionTime(row), "pending_runtime_refresh"))}</td>
-                  <td>${escapeHtml(paperObservationText(row.strategy_id || row.lane_id, "n/a"))}</td>
+                  <td>${paperObservationLaneChip(row.strategy_id || row.lane_id)}</td>
                   <td>${escapeHtml(paperObservationText(row.symbol, "n/a"))}</td>
                   <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
                   <td>${auditReviewPill(row.action || "paper_opened")}</td>
@@ -10489,7 +10509,7 @@
               const winRate = closedTrades ? `${((runtime.wins || 0) / closedTrades * 100).toFixed(1)}%` : "n/a";
               return `
                 <tr>
-                  <td>${escapeHtml(`${paperObservationWeek2LaneLabel(laneId)}: ${row.display_name || laneId}`)}</td>
+                  <td><span class="paper-lane-chip-row">${paperObservationLaneChip(laneId, paperObservationWeek2LaneLabel(laneId))}<span class="paper-lane-chip-name">${escapeHtml(row.display_name || laneId)}</span></span></td>
                   <td>${auditReviewPill(scopeLabel)}</td>
                   <td>${escapeHtml(paperObservationUsdc(startingEquity))}</td>
                   <td>${escapeHtml(paperObservationUsdc(realizedEquity))}</td>
@@ -10534,7 +10554,7 @@
     const laneId = paperObservationLaneId(selectedLane);
     elements.paperObservationLaneDetail.innerHTML = `
       <div class="market-micro-grid">
-        <div><span>Lane</span><strong>${escapeHtml(laneId)}</strong></div>
+        <div><span>Lane</span><strong>${paperObservationLaneChip(laneId)}</strong></div>
         <div><span>Week 2 label</span><strong>${escapeHtml(paperObservationWeek2LaneLabel(laneId))}</strong></div>
         <div><span>Family</span><strong>${escapeHtml(paperObservationText(selectedLane.strategy_family, "n/a"))}</strong></div>
         <div><span>PNL source</span><strong>${escapeHtml(selectedLane.pnl_source || "Synthetic Ledger")}</strong></div>
@@ -11200,7 +11220,7 @@
               <td>${escapeHtml(paperObservationText(row.created_at_utc || row.time, "n/a"))}</td>
               <td>${escapeHtml(paperObservationText(row.symbol, "n/a"))}</td>
               <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
-              <td>${escapeHtml(paperObservationText(row.trigger_lane || row.lane_id || row.strategy_id, "n/a"))}</td>
+              <td>${paperObservationLaneChip(row.trigger_lane || row.lane_id || row.strategy_id)}</td>
               <td>${escapeHtml(paperObservationText(row.trigger_reason || row.trigger_reason_codes, "n/a"))}</td>
               <td>${escapeHtml(paperObservationText(row.signal_candle_close_time || row.signal_candle, "n/a"))}</td>
               <td>${escapeHtml(String(row.fresh_signal_after_runtime_start === true))}</td>
@@ -11258,7 +11278,7 @@
               const mtmReason = mtmAvailable ? row.current_price_source || "public_mainnet_mid" : "MTM unavailable";
               return `
                 <tr>
-                  <td>${escapeHtml(row.strategy_id || row.lane_id || "n/a")}</td>
+                  <td>${paperObservationLaneChip(row.strategy_id || row.lane_id)}</td>
                   <td>${escapeHtml(row.symbol || "n/a")}</td>
                   <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
                   <td>${escapeHtml(entryTime || "n/a")}</td>
@@ -11324,7 +11344,7 @@
               const netPct = equityBefore ? `${(netPnl / equityBefore * 100).toFixed(2)}%` : "n/a";
               return `
                 <tr>
-                  <td>${escapeHtml(row.strategy_id || row.lane_id || "n/a")}</td>
+                  <td>${paperObservationLaneChip(row.strategy_id || row.lane_id)}</td>
                   <td>${escapeHtml(row.symbol || "n/a")}</td>
                   <td>${escapeHtml(displayTimeframe(row.timeframe))}</td>
                   <td>${escapeHtml(entryTime || "n/a")}</td>

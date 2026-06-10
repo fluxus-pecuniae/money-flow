@@ -1,0 +1,67 @@
+{
+  "phase": "DASH-PT2",
+  "report": "dash_pt2_bolder_exchange_reskin",
+  "status": "dashboard_display_reskin_complete",
+  "scope": "Paper Trading view + intentionally restyled shared top bar/nav chrome only",
+  "visual_reference": "docs/dash_pt2_prototype.html",
+  "design_doc": "apps/dashboard/DESIGN.md",
+  "tokens": {
+    "theme_aware": true,
+    "themes": ["dark", "light", "red-zone"],
+    "lane_accents": {
+      "money_flow_v1_2_baseline": "--lane-baseline",
+      "avoid_low_rolling_range_20": "--lane-diagnostic",
+      "mf_orig_1d_stage2_breakout_resistance_full_equity": "--lane-candidate"
+    },
+    "added": [
+      "--lane-baseline",
+      "--lane-diagnostic",
+      "--lane-candidate",
+      "--lane-neutral",
+      "--accent-live",
+      "--accent-live-deep",
+      "--accent-live-ink",
+      "--accent-testnet",
+      "--terminal-chip",
+      "--terminal-row-line"
+    ],
+    "chart_color_tokens_changed": false
+  },
+  "restyled": [
+    "top status strip (dense 1px-grid cells, state-colored values, lane chips)",
+    "left rail cockpit filters + watchlist density",
+    "center chart header (visual anchor; chart internals untouched)",
+    "right rail runtime control (accent Start Run) + testnet transport accent",
+    "bottom blotter tabs (accent underline) + dense monospace tables + PnL coloring",
+    "daily review / anomaly flags card",
+    "shared chrome: top strip edge + accent-gradient active nav tab"
+  ],
+  "behavior_preserved": {
+    "paper_observation_ids_preserved": true,
+    "dash_qa1_selectors_updated": false,
+    "js_behavior_changed": false,
+    "js_display_only_markup_added": [
+      "paperObservationLaneChip helper (escaped span, data-lane-accent)",
+      "status-strip cell state classes (banner-cell-ok/warn/no/testnet)"
+    ],
+    "other_tab_bodies_restyled": false
+  },
+  "verification": {
+    "dash_qa1_browser_checks": "9 passed (run twice)",
+    "themes_verified": ["dark", "light", "red-zone"],
+    "screenshots_dir": "docs/dash_pt2_screenshots/",
+    "screenshot_tool": "scripts/capture_dash_pt2_screenshots.py",
+    "cache_buster": "dash-pt2-bold-terminal-20260610",
+    "js_syntax_check": "node --check passed"
+  },
+  "boundaries": {
+    "dashboard_display_only": true,
+    "changes_runtime_behavior": false,
+    "changes_strategy_rules": false,
+    "changes_data_sources": false,
+    "submits_orders": false,
+    "changes_testnet_behavior": false,
+    "approves_production_strategy": false,
+    "approves_live_trading": false
+  }
+}

@@ -7,6 +7,7 @@ Canonical design document for `apps/dashboard/`.
 - Current operating surface: `Evidence` defaults to the SV2.3 realistic backtest decision layer; `Historical Replay` remains chart inspection for latest public-mainnet replay context; `Paper Trading` remains the PT-RT forward-observation surface.
 - Current runtime config: `PT-RT1.6` founder-selected Week 2 slate is prepared; no active paper run is assumed unless the local control server reports one.
 - DASH-PT1.3 layout: Paper Trading is a dense exchange-style terminal with top health strip, contained left Cockpit / Global Filters plus internally scrolling three-column Watchlist rail, center Live Public Candles + Paper Markers chart, height-bounded right Runtime Control / Testnet Order Transport rail, bottom tabbed blotter, and a final full-width Daily Review / Anomaly Flags card below the blotter.
+- DASH-PT2 reskin: the Paper Trading terminal is elevated in place to a bolder, denser, color-coded exchange aesthetic — CSS-led over the DASH-PT1.3 structure (every `#paper-observation-*` id and behavior preserved). It adds a theme-aware DASH-PT2 token layer (per-lane accents: baseline blue / diagnostic violet / MF-ORIG candidate amber; `--accent-live` positive/health accent; `--accent-testnet`), a dense 1px-grid status strip, lane chips across watchlist/blotter/scoreboard/lane detail, accent-underlined blotter tabs with dense monospace tables and colored PnL columns, and an accent-gradient active nav tab. The visual reference is `docs/dash_pt2_prototype.html`; before/after screenshots live in `docs/dash_pt2_screenshots/`. Chart candle palette tokens are intentionally untouched.
 - SV2.2 latest replay refresh: Historical Replay loads `docs/sv2_2_hyperliquid_research_refresh_summary.json` and can lazy-load ignored public-mainnet replay payloads for the three Week 2 selected strategies across the founder 23-symbol universe and `1h`/`4h`/`1d`.
 - SV2.3 latest Evidence layer: Evidence loads `docs/sv2_3_realistic_backtest_summary.json`, defaults to `Latest Evidence / SV2.3 realistic backtest`, and shows next-candle-open-only base/conservative/stress execution scenarios for the three Week 2 strategies. Current gate status: all three are `not_promoted_realistic_gate_failed`.
 - LOG-OBS1 observability: Runtime Control includes a compact Runtime Logs panel and the terminal helper `scripts/watch_pt_rt1_runtime.py` exposes status/latest/tail views without changing runtime state.
@@ -213,8 +214,24 @@ The dashboard uses an exchange-like dark theme.
 | Theme chart text | `--color-chart-text` | theme-specific |
 | Up candle body | `CANDLE_UP_COLOR` | `#f5f7f2` |
 | Down candle body | `CANDLE_DOWN_COLOR` | `#050607` |
+| Lane: baseline (DASH-PT2) | `--lane-baseline` | `#3d9bff` dark / theme-aware |
+| Lane: diagnostic comparator (DASH-PT2) | `--lane-diagnostic` | `#a981ff` dark / theme-aware |
+| Lane: MF-ORIG candidate (DASH-PT2) | `--lane-candidate` | `#ffb454` dark / theme-aware |
+| Live / healthy / positive accent (DASH-PT2) | `--accent-live` | `#2ee6a6` dark / theme-aware |
+| Ink on live accent (DASH-PT2) | `--accent-live-ink` | `#06120d` dark / `#ffffff` light |
+| Testnet accent (DASH-PT2) | `--accent-testnet` | `#2fb6c9` dark / theme-aware |
 
 TradingView candlesticks use a black/white palette so candle direction does not compete with green/red entry/exit markers, RSI/MACD colors, or EMA overlays. The dashboard resolves chart colors through CSS variables so dark, light, and red-zone themes stay readable; theme changes rebuild chart instances to apply the updated palette. Down candles keep light borders and wicks so they remain visible on the muted chart background.
+
+### DASH-PT2 Elevated Terminal System (Paper Trading)
+
+- Tokens are defined per theme (`:root` dark, `html[data-theme="light"]`, `html[data-theme="red-zone"]`) so every DASH-PT2 color resolves correctly in all three themes; the `--color-chart-*` tokens are untouched so the TradingView palette is unchanged.
+- Per-lane color coding maps to the `current_truth.json` active lanes and is applied through display-only `paper-lane-chip` spans (JS markup only — no data, filter, polling, or handler change): `money_flow_v1_2_baseline` -> `--lane-baseline`, `avoid_low_rolling_range_20` -> `--lane-diagnostic`, `mf_orig_1d_stage2_breakout_resistance_full_equity` -> `--lane-candidate`. Unknown/archived lanes stay neutral. Chips appear in the status strip, Signal Stream, Weekly Scoreboard, Lane Detail, Testnet Lifecycle, Open Positions, and Closed Trades.
+- The top health banner renders as a dense 1px-grid status strip: uppercase 9.5px keys, bold monospace values, and state-colored cells (`banner-cell-ok` live accent, `banner-cell-warn` amber for 15m/no-run, `banner-cell-no` red for the no-live boundary, `banner-cell-testnet` testnet accent).
+- The bottom blotter uses accent-underlined tabs (selected tab gets a 2px `--accent-live` underline), dense monospace tables with sticky uppercase 9px headers, hover rows, and `td.positive`/`td.negative` PnL coloring.
+- `result-pill` statuses inside the Paper Trading view render as translucent terminal tags (accent text on a `color-mix` tint) instead of solid fills.
+- The active top-nav tab uses an `--accent-live` gradient with `--accent-live-ink` text; the top strip and brand mark carry a subtle live-accent edge. This is the only shared chrome intentionally restyled; other tab bodies are not restyled by DASH-PT2.
+- Safety labeling stays prominent: synthetic ledger, testnet separation, baseline-only transport, and the red `not approved` live-trading cell are first-class status-strip cells (DASH-QA1 check #9 guards their visibility).
 
 The brand mark uses the small local `chillguy-logo.jpeg` asset. It is decorative and does not change dashboard evidence, runtime, or endpoint behavior.
 

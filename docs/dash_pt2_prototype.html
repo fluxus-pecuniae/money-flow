@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Money Flow · Operator Terminal</title>
+<style>
+  :root{
+    --bg:#070a0f; --bg2:#0b1018; --panel:#0e141d; --panel2:#111925;
+    --line:#1b2533; --line2:#26344a; --ink:#e8eef6; --ink2:#9fb0c4;
+    --ink3:#64758c; --mut:#3f4d61;
+    --acc:#2ee6a6;            /* live / healthy / positive */
+    --acc-d:#15a47a;
+    --warn:#f5b13d;           /* paused / caution */
+    --bad:#ff5d6c;            /* negative / blocked */
+    --blue:#3d9bff;           /* baseline lane */
+    --violet:#a981ff;         /* diagnostic lane */
+    --amber:#ffb454;          /* candidate lane */
+    --testnet:#2fb6c9;        /* testnet */
+    --chip:#16202e;
+    --mono:'SF Mono',ui-monospace,'Cascadia Code','JetBrains Mono',Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(46,230,166,.05), transparent 60%),
+      radial-gradient(900px 500px at 0% 0%, rgba(61,155,255,.05), transparent 55%),
+      var(--bg);
+    color:var(--ink); font-family:var(--sans); font-size:11.5px; line-height:1.38;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:var(--mono)}
+  .pos{color:var(--acc)} .neg{color:var(--bad)} .mut{color:var(--ink2)}
+  ::-webkit-scrollbar{height:8px;width:8px}
+  ::-webkit-scrollbar-thumb{background:#1d2937;border-radius:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+
+  /* ---------- top bar ---------- */
+  header{
+    display:flex; align-items:center; gap:14px; height:42px; padding:0 12px;
+    background:linear-gradient(180deg,#0d141d,#0a0f16);
+    border-bottom:1px solid var(--line2); position:sticky; top:0; z-index:40;
+  }
+  .brand{display:flex;align-items:center;gap:10px;min-width:230px}
+  .logo{width:26px;height:26px;border-radius:7px;
+    background:conic-gradient(from 200deg,var(--acc),var(--blue),var(--violet),var(--acc));
+    box-shadow:0 0 14px rgba(46,230,166,.35); position:relative}
+  .logo::after{content:"";position:absolute;inset:5px;border-radius:4px;background:#0a0f16}
+  .brand b{font-size:14px;letter-spacing:.3px}
+  .brand small{display:block;color:var(--ink2);font-size:10px;letter-spacing:.8px;text-transform:uppercase}
+  nav{display:flex;gap:2px;flex:1}
+  nav a{padding:5px 11px;border-radius:7px;color:var(--ink2);text-decoration:none;
+    font-size:11.5px;font-weight:500;cursor:pointer;white-space:nowrap}
+  nav a:hover{color:var(--ink);background:#121b27}
+  nav a.on{color:#06120d;background:linear-gradient(180deg,var(--acc),var(--acc-d));font-weight:700}
+  .hstat{display:flex;align-items:center;gap:14px}
+  .clk{font-family:var(--mono);font-size:12px;color:var(--ink2)}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;
+    font-size:11px;font-weight:600;border:1px solid var(--line2);background:var(--chip)}
+  .dot{width:7px;height:7px;border-radius:50%}
+  .dot.g{background:var(--acc);box-shadow:0 0 8px var(--acc)}
+  .dot.r{background:var(--bad);box-shadow:0 0 8px var(--bad)}
+  .blink{animation:bl 1.6s ease-in-out infinite}
+  @keyframes bl{50%{opacity:.35}}
+
+  /* ---------- status strip ---------- */
+  .strip{display:grid;grid-template-columns:repeat(8,1fr);gap:1px;background:var(--line);
+    border-bottom:1px solid var(--line2)}
+  .cell{background:var(--bg2);padding:6px 10px;min-height:44px}
+  .cell .k{font-size:9.5px;letter-spacing:.7px;text-transform:uppercase;color:var(--ink2)}
+  .cell .v{font-size:12.5px;font-weight:700;margin-top:3px;font-family:var(--mono);display:flex;align-items:center;gap:6px}
+  .cell .v.ok{color:var(--acc)} .cell .v.wn{color:var(--warn)} .cell .v.bd{color:var(--bad)}
+  .lanes{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+  .lane{font-family:var(--mono);font-size:9.5px;padding:2px 6px;border-radius:5px;font-weight:600}
+  .lane.b{color:var(--blue);background:rgba(61,155,255,.12);border:1px solid rgba(61,155,255,.3)}
+  .lane.d{color:var(--violet);background:rgba(169,129,255,.12);border:1px solid rgba(169,129,255,.3)}
+  .lane.c{color:var(--amber);background:rgba(255,180,84,.12);border:1px solid rgba(255,180,84,.3)}
+
+  /* ---------- full-width filter bar ---------- */
+  .filterbar{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:8px 8px 0;
+    background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);
+    border-radius:10px;padding:8px 10px}
+  .filterbar .fld{margin-bottom:0}
+  .filterbar .barlabel{grid-column:1/-1;font-size:11px;letter-spacing:.6px;text-transform:uppercase;
+    color:var(--ink2);font-weight:700;margin-bottom:-2px}
+  @media(max-width:1180px){.filterbar{grid-template-columns:repeat(2,1fr)}}
+
+  /* ---------- layout ---------- */
+  .grid{display:grid;grid-template-columns:206px 1fr 252px;gap:8px;padding:8px;
+    align-items:stretch}
+  .col{display:flex;flex-direction:column;gap:8px;min-height:0}
+  .card{background:linear-gradient(180deg,var(--panel),var(--bg2));
+    border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .card h3{font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);
+    padding:7px 10px;border-bottom:1px solid var(--line);display:flex;align-items:center;
+    justify-content:space-between;font-weight:700}
+  .card h3 .sub{font-weight:500;text-transform:none;letter-spacing:0;font-size:9.5px;color:var(--mut)}
+  .pad{padding:8px 10px}
+
+  /* filters */
+  .fld{margin-bottom:9px}
+  .fld label{font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);display:block;margin-bottom:3px}
+  .fld select{width:100%;background:var(--panel2);color:var(--ink);border:1px solid var(--line2);
+    border-radius:7px;padding:6px 8px;font-size:12px;font-family:var(--mono);cursor:pointer;appearance:none;
+    background-image:linear-gradient(45deg,transparent 50%,var(--ink2) 50%),linear-gradient(135deg,var(--ink2) 50%,transparent 50%);
+    background-position:calc(100% - 14px) 13px,calc(100% - 9px) 13px;background-size:5px 5px;background-repeat:no-repeat}
+
+  /* watchlist */
+  .wlcard{flex:1;display:flex;flex-direction:column;min-height:0}
+  .wlscroll{flex:1;overflow-y:auto;min-height:0}
+  table{width:100%;border-collapse:collapse}
+  .wl td{padding:4px 10px;font-family:var(--mono);font-size:11px;border-bottom:1px solid #131c28}
+  .wl tr{cursor:pointer}
+  .wl tr:hover{background:#101a26}
+  .wl tr.sel{background:rgba(46,230,166,.07);box-shadow:inset 2px 0 0 var(--acc)}
+  .wl .sym{font-weight:700}
+  .wl .h{font-size:9px;color:var(--ink2);text-align:right}
+  .hb{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--acc);margin-right:5px;box-shadow:0 0 6px var(--acc)}
+  .hb.stale{background:var(--warn);box-shadow:0 0 6px var(--warn)}
+
+  /* chart */
+  .chartcard{position:relative;display:flex;flex-direction:column}
+  .chartwrap{flex:1;min-height:300px;display:flex}
+  .chartwrap canvas{flex:1}
+  .chead{display:flex;align-items:flex-end;justify-content:space-between;padding:9px 12px 4px}
+  .chead .px{font-family:var(--mono)}
+  .chead .sym{font-size:17px;font-weight:800;letter-spacing:.5px}
+  .chead .meta{font-size:10px;color:var(--ink2);margin-top:2px}
+  .last{text-align:right}
+  .last .big{font-size:22px;font-weight:800;font-family:var(--mono);color:var(--acc)}
+  .ohlc{display:flex;gap:12px;font-size:10.5px;color:var(--ink2);margin-top:3px;font-family:var(--mono);justify-content:flex-end}
+  .toolbar{display:flex;gap:5px;padding:2px 12px 7px;flex-wrap:wrap}
+  .tg{font-size:10.5px;padding:4px 9px;border-radius:7px;border:1px solid var(--line2);
+    background:var(--chip);color:var(--ink2);cursor:pointer;font-weight:600}
+  .tg.on{color:var(--acc);border-color:var(--acc-d);background:rgba(46,230,166,.1)}
+  .legend{display:flex;gap:14px;padding:6px 14px 0;font-size:10.5px;font-family:var(--mono);flex-wrap:wrap}
+  .legend span b{font-weight:700}
+  canvas{display:block;width:100%}
+  .mk{font-size:10px;color:var(--ink2);padding:6px 14px 12px;font-family:var(--mono)}
+
+  /* runtime control */
+  .ctlmsg{background:rgba(46,230,166,.08);border:1px solid rgba(46,230,166,.25);border-radius:8px;
+    padding:8px 10px;font-family:var(--mono);font-size:11px;color:var(--acc);margin-bottom:10px}
+  .btn{width:100%;padding:9px;border-radius:8px;font-weight:700;font-size:12.5px;cursor:pointer;border:1px solid transparent}
+  .btn.run{background:linear-gradient(180deg,var(--acc),var(--acc-d));color:#06120d}
+  .btn.stop{background:var(--chip);color:var(--bad);border-color:rgba(255,93,108,.35)}
+  .btnrow{display:flex;gap:8px;margin-top:6px}
+  .kv{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #131c28;font-size:11px}
+  .kv:last-child{border-bottom:0}
+  .kv .k{color:var(--ink2);text-transform:uppercase;font-size:9.5px;letter-spacing:.5px}
+  .kv .v{font-family:var(--mono);font-weight:600}
+  .note{font-size:10px;color:var(--mut);margin-top:8px;line-height:1.5}
+  .safety{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+  .sf{font-size:9.5px;font-family:var(--mono);padding:2px 6px;border-radius:5px;
+    background:rgba(46,230,166,.08);color:var(--acc);border:1px solid rgba(46,230,166,.2)}
+  .sf.no{background:rgba(255,93,108,.08);color:var(--bad);border-color:rgba(255,93,108,.25)}
+
+  /* blotter */
+  .blotter{margin:0 8px 8px}
+  .btabs{display:flex;gap:2px;border-bottom:1px solid var(--line);padding:0 4px;overflow-x:auto}
+  .btab{padding:7px 11px;font-size:11px;color:var(--ink2);cursor:pointer;font-weight:600;
+    border-bottom:2px solid transparent;white-space:nowrap}
+  .btab:hover{color:var(--ink)}
+  .btab.on{color:var(--acc);border-bottom-color:var(--acc)}
+  .btab .ct{font-family:var(--mono);font-size:10px;color:var(--mut);margin-left:5px}
+  .bpane{display:none;overflow-x:auto}
+  .bpane.on{display:block}
+  .dt{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;white-space:nowrap}
+  .dt th{text-align:left;padding:6px 10px;font-size:9px;letter-spacing:.6px;text-transform:uppercase;
+    color:var(--ink2);border-bottom:1px solid var(--line);font-family:var(--sans);font-weight:700;position:sticky;top:0;background:var(--bg2)}
+  .dt td{padding:5px 10px;border-bottom:1px solid #111a26}
+  .dt tr:hover td{background:#0f1824}
+  .dt .r{text-align:right}
+  .tag{font-size:9.5px;padding:2px 7px;border-radius:5px;font-weight:600;font-family:var(--sans)}
+  .tag.open{background:rgba(46,230,166,.12);color:var(--acc)}
+  .tag.win{background:rgba(46,230,166,.12);color:var(--acc)}
+  .tag.loss{background:rgba(255,93,108,.12);color:var(--bad)}
+  .tag.health{background:rgba(46,230,166,.1);color:var(--acc);border:1px solid rgba(46,230,166,.2)}
+  .tag.syn{background:rgba(169,129,255,.12);color:var(--violet)}
+  .tag.test{background:rgba(47,182,201,.12);color:var(--testnet)}
+  .tag.paused{background:rgba(245,177,61,.12);color:var(--warn)}
+  .lpill{font-size:9.5px;font-family:var(--mono);padding:2px 7px;border-radius:5px;font-weight:600}
+  .lpill.b{color:var(--blue);background:rgba(61,155,255,.1)}
+  .lpill.d{color:var(--violet);background:rgba(169,129,255,.1)}
+  .lpill.c{color:var(--amber);background:rgba(255,180,84,.1)}
+
+  /* anomaly review */
+  .review{margin:0 8px 10px}
+  .rhead{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid var(--line)}
+  .rhead .title{display:flex;align-items:center;gap:10px;font-weight:700}
+  .badge{font-size:10px;font-family:var(--mono);padding:3px 9px;border-radius:6px;font-weight:700}
+  .badge.go{background:rgba(46,230,166,.14);color:var(--acc);border:1px solid rgba(46,230,166,.3)}
+  .rgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line)}
+  .rcell{background:var(--bg2);padding:7px 12px}
+  .rcell .k{font-size:9px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2)}
+  .rcell .v{font-family:var(--mono);font-size:13.5px;font-weight:700;margin-top:2px}
+  .rcell .v.ok{color:var(--acc)} .rcell .v.wn{color:var(--warn)}
+  .flags{padding:9px 12px;display:flex;flex-direction:column;gap:5px}
+  .flag{display:flex;align-items:center;gap:9px;padding:6px 10px;border-radius:7px;
+    background:var(--panel2);border:1px solid var(--line);font-size:11px}
+  .flag .ic{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .flag.clean .ic{background:var(--acc);box-shadow:0 0 6px var(--acc)}
+  .flag.watch .ic{background:var(--warn);box-shadow:0 0 6px var(--warn)}
+  .flag .lbl{flex:1}
+  .flag .st{font-family:var(--mono);font-size:10.5px;color:var(--ink2)}
+  .flag.watch .st{color:var(--warn)}
+  .flag.clean .st{color:var(--acc)}
+  .footline{padding:9px 14px;font-size:10px;color:var(--mut);border-top:1px solid var(--line);font-family:var(--mono)}
+
+  .disc{margin:0 8px 12px;padding:8px 12px;border:1px solid var(--line);border-radius:9px;
+    background:rgba(255,180,84,.04);font-size:10.5px;color:var(--ink2);line-height:1.6}
+  .disc b{color:var(--warn)}
+  @media(max-width:1180px){.grid{grid-template-columns:1fr}.strip{grid-template-columns:repeat(4,1fr)}.rgrid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo"></div>
+    <div><b>MONEY&nbsp;FLOW</b><small>Operator Terminal · v1.2</small></div>
+  </div>
+  <nav>
+    <a class="on">Paper Trading</a>
+    <a>Historical Replay</a>
+    <a>Evidence</a>
+    <a>The Lab</a>
+    <a>Strategy</a>
+  </nav>
+  <div class="hstat">
+    <span class="pill"><span class="dot g blink"></span>RUNTIME&nbsp;ACTIVE</span>
+    <span class="pill" style="color:var(--bad);border-color:rgba(255,93,108,.3)"><span class="dot r"></span>LIVE&nbsp;DISABLED</span>
+    <span class="clk" id="clk">--:--:-- UTC</span>
+  </div>
+</header>
+
+<!-- ===== STATUS STRIP ===== -->
+<div class="strip">
+  <div class="cell"><div class="k">Public Mainnet</div><div class="v ok"><span class="dot g"></span>CONNECTED</div></div>
+  <div class="cell"><div class="k">Run Scope</div><div class="v">pt_rt1_6_week2_active</div></div>
+  <div class="cell"><div class="k">Active Lanes (3)</div>
+    <div class="lanes"><span class="lane b">v1.2 baseline</span><span class="lane d">avoid_low_range_20</span><span class="lane c">mf_orig_1d_stage2</span></div></div>
+  <div class="cell"><div class="k">Active Timeframes</div><div class="v">1h / 4h / 1D</div></div>
+  <div class="cell"><div class="k">15m Stream</div><div class="v wn">PAUSED · legacy</div></div>
+  <div class="cell"><div class="k">PnL Source</div><div class="v">SYNTHETIC ledger</div></div>
+  <div class="cell"><div class="k">Testnet Gate</div><div class="v">baseline-only · 25 USDC</div></div>
+  <div class="cell"><div class="k">Production</div><div class="v bd">NOT APPROVED</div></div>
+</div>
+
+<!-- ===== FULL-WIDTH GLOBAL FILTERS ===== -->
+<div class="filterbar">
+  <div class="barlabel">Global Filters · Week 2 configured truth + display filters</div>
+  <div class="fld"><label>Symbol</label>
+    <select id="fSym"><option>HYPE-PERP</option><option>BTC</option><option>ETH</option><option>SOL</option><option>AAVE</option></select></div>
+  <div class="fld"><label>Timeframe</label>
+    <select id="fTf"><option>1h — selected only</option><option>4h</option><option>1D</option><option disabled>15m (paused)</option></select></div>
+  <div class="fld"><label>Strategy Lane</label>
+    <select><option>All active lanes</option><option>v1.2 baseline</option><option>avoid_low_rolling_range_20</option><option>mf_orig_1d_stage2</option></select></div>
+  <div class="fld"><label>Review Window</label>
+    <select><option>Active week only</option><option>Last 24h</option><option>Last 7d</option></select></div>
+  <div class="fld"><label>Signal Category</label>
+    <select><option>Actual opens + intended entries</option><option>Actual opens only</option><option>Intended entries only</option></select></div>
+</div>
+
+<!-- ===== MAIN GRID ===== -->
+<div class="grid">
+
+  <!-- LEFT RAIL -->
+  <div class="col">
+    <div class="card wlcard">
+      <h3>Watchlist <span class="sub">public mid</span></h3>
+      <div class="wlscroll"><table class="wl"><tbody id="wl"></tbody></table></div>
+      <div style="padding:8px 12px;font-size:9.5px;color:var(--mut);font-family:var(--mono);border-top:1px solid var(--line)">
+        <span class="hb"></span>fresh &lt;2m · <span class="hb stale"></span>stale
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER CHART -->
+  <div class="col">
+    <div class="card chartcard">
+      <div class="chead">
+        <div><div class="sym" id="cSym">HYPE-PERP</div>
+          <div class="meta">1h · latest candle 2026-06-09T05:00:00Z · Live public mainnet display only</div></div>
+        <div class="last"><div class="big" id="cLast">61.949</div>
+          <div class="ohlc"><span>O 61.64</span><span>H 65.80</span><span>L 55.48</span><span>C 61.95</span></div></div>
+      </div>
+      <div class="toolbar">
+        <span class="tg on">1h</span><span class="tg">4h</span><span class="tg">1D</span>
+        <span class="tg" style="opacity:.5">15m · paused</span>
+        <span style="flex:1"></span>
+        <span class="tg on">Paper markers</span><span class="tg on">EMA/SMA</span><span class="tg">Display-only filter</span>
+      </div>
+      <div class="legend">
+        <span style="color:var(--violet)"><b>SMA20</b> 63.22</span>
+        <span style="color:var(--amber)"><b>EMA10</b> 62.55</span>
+        <span style="color:var(--acc)"><b>EMA5</b> 62.17</span>
+        <span style="color:var(--ink2)"><b>RSI14</b> 47.24</span>
+        <span style="color:var(--blue)"><b>MACD</b> 0.2203</span>
+      </div>
+      <div class="chartwrap"><canvas id="chart"></canvas></div>
+      <div class="mk">▲ synthetic open &nbsp;·&nbsp; ▼ synthetic close &nbsp;·&nbsp; markers are paper-only — no live or testnet fills shown.</div>
+    </div>
+  </div>
+
+  <!-- RIGHT RAIL -->
+  <div class="col">
+    <div class="card">
+      <h3>Runtime Control <span class="sub">operator</span></h3>
+      <div class="pad">
+        <div class="ctlmsg">runtime_started_with_mac_caffeinate</div>
+        <div class="fld"><label>Duration</label><select><option>24 hours</option><option>12 hours</option><option>48 hours</option></select></div>
+        <div class="fld"><label>Output Slate</label><select><option>Week 2 active founder-selected slate</option></select></div>
+        <div class="btnrow"><button class="btn run">▶ Start Run</button><button class="btn stop">■ Stop</button></div>
+        <div class="note">Manual operator run only. Public mainnet candles remain strategy truth. Candidate / MF-ORIG lanes are synthetic-only and cannot send testnet orders. Live trading is not approved.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Runtime Details</h3>
+      <div class="pad" style="padding-top:4px;padding-bottom:4px">
+        <div class="kv"><span class="k">Status</span><span class="v pos">● running</span></div>
+        <div class="kv"><span class="k">PID</span><span class="v">35501</span></div>
+        <div class="kv"><span class="k">Heartbeat</span><span class="v">05:00:41Z</span></div>
+        <div class="kv"><span class="k">Caffeinate</span><span class="v pos">active</span></div>
+        <div class="kv"><span class="k">Process Count</span><span class="v">2</span></div>
+      </div>
+      <div class="pad" style="padding-top:6px">
+        <div class="k" style="font-size:9.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--ink2)">Safety Profile</div>
+        <div class="safety">
+          <span class="sf">fresh-signal gate</span><span class="sf">candle-close only</span>
+          <span class="sf">public-mainnet truth</span><span class="sf">baseline-only 25 USDC</span>
+          <span class="sf no">legacy probes disabled</span><span class="sf no">no live trading</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BLOTTER ===== -->
+<div class="card blotter">
+  <div class="btabs">
+    <div class="btab on" data-p="pos">Open Positions <span class="ct">15</span></div>
+    <div class="btab" data-p="closed">Closed Trades <span class="ct">40</span></div>
+    <div class="btab" data-p="sig">Signal / Decision Stream <span class="ct">858</span></div>
+    <div class="btab" data-p="test">Testnet Lifecycle <span class="ct">33</span></div>
+    <div class="btab" data-p="logs">Runtime Logs</div>
+    <div class="btab" data-p="score">Weekly Scoreboard</div>
+    <div class="btab" data-p="diag">Diagnostics</div>
+  </div>
+
+  <div class="bpane on" id="p-pos">
+    <table class="dt">
+      <thead><tr><th>Lane</th><th>Symbol</th><th>TF</th><th>Entry Time</th><th>Age</th><th class="r">Entry</th><th class="r">Mark</th><th class="r">Notional</th><th class="r">uPnL</th><th class="r">uPnL %</th><th>Data Health</th><th>Status</th></tr></thead>
+      <tbody id="posBody"></tbody>
+    </table>
+  </div>
+
+  <div class="bpane" id="p-closed">
+    <table class="dt">
+      <thead><tr><th>Lane</th><th>Symbol</th><th>TF</th><th>Closed</th><th class="r">Entry</th><th class="r">Exit</th><th class="r">rPnL</th><th class="r">rPnL %</th><th>Reason</th><th>Result</th></tr></thead>
+      <tbody id="closedBody"></tbody>
+    </table>
+  </div>
+
+  <div class="bpane" id="p-sig">
+    <table class="dt">
+      <thead><tr><th>Time</th><th>Lane</th><th>Symbol</th><th>TF</th><th>Decision</th><th>Gate</th><th>Detail</th></tr></thead>
+      <tbody id="sigBody"></tbody>
+    </table>
+  </div>
+
+  <div class="bpane" id="p-test">
+    <table class="dt">
+      <thead><tr><th>Time</th><th>Lane</th><th>Symbol</th><th>Action</th><th>Transport</th><th>Notional</th><th>Synthetic PnL</th></tr></thead>
+      <tbody id="testBody"></tbody>
+    </table>
+  </div>
+
+  <div class="bpane" id="p-logs">
+    <div style="padding:12px 14px;font-family:var(--mono);font-size:11px;color:var(--ink2);line-height:1.9">
+      <div><span class="pos">05:00:41Z</span> heartbeat ok · caffeinate active · pid 35501</div>
+      <div><span class="pos">05:00:00Z</span> closed 1h candle ingested · public_mainnet · 14 symbols</div>
+      <div><span class="mut">04:59:58Z</span> signal_evaluation_started_after_closed_candle</div>
+      <div><span class="mut">04:00:12Z</span> baseline_alignment_passed · mf_orig_stage2_context_observed</div>
+      <div><span style="color:var(--warn)">03:58:04Z</span> 15m stream paused — excluded from active scoring</div>
+      <div><span class="mut">03:00:09Z</span> runtime audit written · OBS-OS1 review pack generated</div>
+    </div>
+  </div>
+
+  <div class="bpane" id="p-score">
+    <table class="dt">
+      <thead><tr><th>Lane</th><th>Role</th><th class="r">Open</th><th class="r">Closed</th><th class="r">Win %</th><th class="r">Net uPnL</th><th class="r">Avg Hold</th><th>Testnet</th></tr></thead>
+      <tbody>
+        <tr><td><span class="lpill b">v1.2 baseline</span></td><td>Control / Baseline</td><td class="r">4</td><td class="r">14</td><td class="r pos">57.1%</td><td class="r neg">-312.40</td><td class="r">11h</td><td><span class="tag test">eligible · gated</span></td></tr>
+        <tr><td><span class="lpill d">avoid_low_range_20</span></td><td>Diagnostic Comparator</td><td class="r">5</td><td class="r">12</td><td class="r pos">50.0%</td><td class="r neg">-188.10</td><td class="r">9h</td><td><span class="tag syn">synthetic-only</span></td></tr>
+        <tr><td><span class="lpill c">mf_orig_1d_stage2</span></td><td>MF-ORIG Candidate</td><td class="r">6</td><td class="r">14</td><td class="r pos">42.9%</td><td class="r neg">-664.23</td><td class="r">15h</td><td><span class="tag syn">synthetic-only</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="bpane" id="p-diag">
+    <table class="dt">
+      <thead><tr><th>Check</th><th>Scope</th><th>Value</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Market data freshness</td><td>14 symbols</td><td>&lt; 2 min</td><td><span class="tag health">healthy</span></td></tr>
+        <tr><td>15m leakage into scoring</td><td>active slate</td><td>0 records</td><td><span class="tag health">clean</span></td></tr>
+        <tr><td>Candidate-lane testnet activity</td><td>mf_orig / avoid_low</td><td>0 orders</td><td><span class="tag health">clean</span></td></tr>
+        <tr><td>Synthetic PnL ← testnet suspicion</td><td>all lanes</td><td>none</td><td><span class="tag health">clean</span></td></tr>
+        <tr><td>Duplicate signal spikes</td><td>858 decisions</td><td>0</td><td><span class="tag health">clean</span></td></tr>
+        <tr><td>Large unrealized loss review</td><td>candidate lane</td><td>-664 USDC</td><td><span class="tag paused">watch</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== DAILY REVIEW ===== -->
+<div class="card review">
+  <div class="rhead">
+    <div class="title">OBS-OS1 · Daily Review / Anomaly Flags
+      <span class="badge go">GO · observation_may_continue</span></div>
+    <div style="font-family:var(--mono);font-size:10.5px;color:var(--ink2)">Read-only · generated from runtime artifacts</div>
+  </div>
+  <div class="rgrid">
+    <div class="rcell"><div class="k">Generated</div><div class="v">06-08 08:32Z</div></div>
+    <div class="rcell"><div class="k">Scope</div><div class="v">week2_active</div></div>
+    <div class="rcell"><div class="k">Decision Rows</div><div class="v">858</div></div>
+    <div class="rcell"><div class="k">Testnet Lifecycle Rows</div><div class="v">33</div></div>
+    <div class="rcell"><div class="k">Closed Synthetic Trades</div><div class="v">40</div></div>
+    <div class="rcell"><div class="k">Runtime Process Count</div><div class="v">2</div></div>
+    <div class="rcell"><div class="k">Critical Flags</div><div class="v ok">0</div></div>
+    <div class="rcell"><div class="k">Warning Flags</div><div class="v wn">1</div></div>
+  </div>
+  <div class="flags">
+    <div class="flag clean"><span class="ic"></span><span class="lbl">Runtime freshness — heartbeat &amp; artifacts current</span><span class="st">OK</span></div>
+    <div class="flag clean"><span class="ic"></span><span class="lbl">15m leakage into active scoring</span><span class="st">NONE</span></div>
+    <div class="flag clean"><span class="ic"></span><span class="lbl">Candidate-lane testnet activity</span><span class="st">NONE</span></div>
+    <div class="flag clean"><span class="ic"></span><span class="lbl">Synthetic PnL sourced from testnet fills</span><span class="st">NONE</span></div>
+    <div class="flag clean"><span class="ic"></span><span class="lbl">Duplicate signal / warm-start block spikes</span><span class="st">NONE</span></div>
+    <div class="flag watch"><span class="ic"></span><span class="lbl">Lane drawdown review — mf_orig_1d_stage2 unrealized -664 USDC</span><span class="st">REVIEW</span></div>
+  </div>
+  <div class="footline">Review window 2026-06-07T08:32:04Z → 2026-06-08T08:32:04Z · pack pt_rt1_6_week2_active · OBS-OS1 does not start/stop runtime or place exchange actions.</div>
+</div>
+
+<!-- ===== TESTNET ORDER TRANSPORT (full width, bottom) ===== -->
+<div class="card review">
+  <div class="rhead">
+    <div class="title">Testnet Order Transport
+      <span class="badge go" style="background:rgba(47,182,201,.14);color:var(--testnet);border-color:rgba(47,182,201,.3)">baseline-only · plumbing</span></div>
+    <div style="font-family:var(--mono);font-size:10.5px;color:var(--ink2)">Transport evidence only · never affects synthetic PnL</div>
+  </div>
+  <div class="rgrid">
+    <div class="rcell"><div class="k">Lane</div><div class="v">testnet plumbing only</div></div>
+    <div class="rcell"><div class="k">Transport Enabled</div><div class="v ok">true</div></div>
+    <div class="rcell"><div class="k">Signed Transport Client</div><div class="v">configured</div></div>
+    <div class="rcell"><div class="k">Audit-only Shapes</div><div class="v">false</div></div>
+    <div class="rcell"><div class="k">Eligible Lane</div><div class="v" style="color:var(--blue)">v1.2 baseline</div></div>
+    <div class="rcell"><div class="k">Order Notional</div><div class="v">25 USDC</div></div>
+    <div class="rcell"><div class="k">Lifecycle Rows</div><div class="v">33</div></div>
+    <div class="rcell"><div class="k">Affects Synthetic PnL</div><div class="v" style="color:var(--bad)">NEVER</div></div>
+  </div>
+  <div class="footline">Baseline-only testnet lifecycle is fully separated from synthetic PnL. Candidate and MF-ORIG lanes cannot send testnet orders. Testnet fills are transport / order-lifecycle evidence only.</div>
+</div>
+
+<div class="disc">
+  <b>Safety boundaries.</b> Synthetic paper PnL is not live PnL. Testnet fills never update synthetic PnL. Candidate and MF-ORIG lanes are synthetic-only and cannot send testnet orders. Only the v1.2 baseline lane is testnet-eligible under explicit gated approval. No strategy is production-approved and live trading is not enabled.
+</div>
+
+<script>
+/* ---------- clock ---------- */
+function tick(){const d=new Date();document.getElementById('clk').textContent=
+  d.toISOString().slice(11,19)+' UTC';}
+tick();setInterval(tick,1000);
+
+/* ---------- watchlist ---------- */
+const wl=[['BTC',63230.5,1],['ETH',1685.55,1],['SOL',67.013,1],['XRP',1.1657,1],
+['HYPE',61.965,1],['DOGE',0.0862,1],['BNB',602.28,1],['SUI',0.7588,1],
+['AVAX',6.746,1],['AAVE',62.62,0],['TON',1.737,1],['FIL',0.7707,1],
+['UNI',2.5114,1],['ASTER',0.6254,1]];
+document.getElementById('wl').innerHTML=wl.map((r,i)=>
+ `<tr class="${r[0]=='HYPE'?'sel':''}" onclick="selSym(this,'${r[0]}',${r[1]})">
+   <td class="sym">${r[0]}</td>
+   <td class="r">${r[1]}</td>
+   <td class="h"><span class="hb ${r[2]?'':'stale'}"></span>${r[2]?'fresh':'stale'}</td></tr>`).join('');
+function selSym(el,s,p){document.querySelectorAll('.wl tr').forEach(t=>t.classList.remove('sel'));
+ el.classList.add('sel');
+ document.getElementById('cSym').textContent=s+(s.length>4?'':'-PERP');
+ document.getElementById('cLast').textContent=p;}
+
+/* ---------- open positions ---------- */
+const pos=[
+['mf_orig_1d_stage2','c','UNI','1h','06-08T16:00Z','13h',2.5682,2.51145,9848.52,-217.52,-2.21],
+['mf_orig_1d_stage2','c','ASTER','1h','06-08T14:00Z','15h',0.63393,0.625375,9976.16,-134.56,-1.35],
+['mf_orig_1d_stage2','c','TON','1h','06-08T16:00Z','13h',1.756,1.7371,9858.38,-106.05,-1.08],
+['mf_orig_1d_stage2','c','FIL','1h','06-08T12:00Z','17h',0.77893,0.77067,9996.14,-105.95,-1.06],
+['mf_orig_1d_stage2','c','AAVE','1h','06-08T11:00Z','18h',63.253,62.6215,10036.22,-100.15,-1.00],
+['v1.2 baseline','b','HYPE','4h','06-08T20:00Z','9h',60.21,61.95,8200.00,237.40,2.89],
+['v1.2 baseline','b','SOL','1h','06-09T01:00Z','4h',66.02,67.01,7400.00,109.20,1.48],
+['v1.2 baseline','b','BTC','1D','06-08T00:00Z','29h',62980,63230,9100.00,36.10,0.40],
+['v1.2 baseline','b','ETH','4h','06-08T16:00Z','13h',1702.4,1685.55,8600.00,-85.30,-0.99],
+['avoid_low_range_20','d','AVAX','1h','06-08T22:00Z','7h',6.81,6.746,5300.00,-49.80,-0.94],
+['avoid_low_range_20','d','SUI','4h','06-08T12:00Z','17h',0.7712,0.7588,5100.00,-82.10,-1.61],
+['avoid_low_range_20','d','XRP','1h','06-09T02:00Z','3h',1.158,1.1657,5600.00,37.20,0.66],
+['avoid_low_range_20','d','DOGE','1D','06-08T00:00Z','29h',0.0849,0.0862,4900.00,75.10,1.53],
+['avoid_low_range_20','d','BNB','4h','06-08T08:00Z','21h',609.4,602.28,6100.00,-71.20,-1.17],
+['mf_orig_1d_stage2','c','UNI','4h','06-08T04:00Z','25h',2.61,2.5114,9700.00,-366.30,-3.78]];
+document.getElementById('posBody').innerHTML=pos.map(p=>{
+ const cl=p[9]>=0?'pos':'neg';
+ return `<tr><td><span class="lpill ${p[1]}">${p[0]}</span></td><td>${p[2]}</td><td>${p[3]}</td>
+ <td class="mut">${p[4]}</td><td>${p[5]}</td><td class="r">${p[6]}</td><td class="r">${p[7]}</td>
+ <td class="r">${p[8].toLocaleString()}</td><td class="r ${cl}">${p[9]>=0?'+':''}${p[9]}</td>
+ <td class="r ${cl}">${p[10]>=0?'+':''}${p[10]}%</td>
+ <td><span class="tag health">healthy</span></td><td><span class="tag open">active open</span></td></tr>`;}).join('');
+
+/* ---------- closed trades ---------- */
+const closed=[
+['v1.2 baseline','b','HYPE','1h','06-08T18:00Z',58.4,61.2,392.0,4.79,'tp_target_hit','win'],
+['mf_orig_1d_stage2','c','SOL','1h','06-08T10:00Z',68.9,66.1,-280.5,-4.06,'stop_loss','loss'],
+['avoid_low_range_20','d','BTC','4h','06-07T20:00Z',61200,62980,256.4,2.90,'trail_exit','win'],
+['v1.2 baseline','b','ETH','1D','06-07T00:00Z',1740,1702,-188.2,-2.18,'stop_loss','loss'],
+['mf_orig_1d_stage2','c','AAVE','1h','06-08T06:00Z',61.0,63.2,184.7,3.60,'tp_target_hit','win'],
+['avoid_low_range_20','d','AVAX','1h','06-08T02:00Z',7.10,6.78,-122.3,-4.51,'stop_loss','loss'],
+['v1.2 baseline','b','SUI','4h','06-07T12:00Z',0.742,0.771,210.5,3.90,'trail_exit','win']];
+document.getElementById('closedBody').innerHTML=closed.map(c=>{
+ const cl=c[7]>=0?'pos':'neg';
+ return `<tr><td><span class="lpill ${c[1]}">${c[0]}</span></td><td>${c[2]}</td><td>${c[3]}</td>
+ <td class="mut">${c[4]}</td><td class="r">${c[5]}</td><td class="r">${c[6]}</td>
+ <td class="r ${cl}">${c[7]>=0?'+':''}${c[7]}</td><td class="r ${cl}">${c[8]>=0?'+':''}${c[8]}%</td>
+ <td class="mut">${c[9]}</td><td><span class="tag ${c[10]}">${c[10]}</span></td></tr>`;}).join('');
+
+/* ---------- signal stream ---------- */
+const sig=[
+['05:00:02Z','c','UNI','1h','intended_entry','fresh_signal','breakout_resistance_full_equity context observed'],
+['05:00:01Z','b','HYPE','4h','open_executed','baseline_alignment','synthetic open · 25 USDC notional model'],
+['04:59:59Z','d','AVAX','1h','no_action','low_rolling_range_20','range below threshold — entry avoided'],
+['04:00:11Z','b','SOL','1h','open_executed','baseline_alignment','candle_close confirmed'],
+['04:00:08Z','c','TON','1h','intended_entry','fresh_signal','stage2 breakout, synthetic-only'],
+['03:00:04Z','d','XRP','4h','hold','comparator','no regime change'],
+['02:00:00Z','b','BTC','1D','warm_start_block','baseline_alignment','insufficient warmup — blocked']];
+document.getElementById('sigBody').innerHTML=sig.map(s=>
+ `<tr><td class="mut">${s[0]}</td><td><span class="lpill ${s[1]}">${s[1]=='b'?'baseline':s[1]=='c'?'mf_orig':'avoid_low'}</span></td>
+ <td>${s[2]}</td><td>${s[3]}</td><td>${s[4]}</td><td class="mut">${s[5]}</td><td class="mut">${s[6]}</td></tr>`).join('');
+
+/* ---------- testnet lifecycle ---------- */
+const test=[
+['05:00:03Z','b','HYPE','order_placed','signed_transport','25 USDC','—'],
+['05:00:04Z','b','HYPE','ack_received','signed_transport','25 USDC','—'],
+['05:00:05Z','b','HYPE','fill_observed','signed_transport','25 USDC','no effect'],
+['04:00:13Z','b','SOL','order_placed','signed_transport','25 USDC','—'],
+['04:00:14Z','b','SOL','ack_received','signed_transport','25 USDC','—']];
+document.getElementById('testBody').innerHTML=test.map(t=>
+ `<tr><td class="mut">${t[0]}</td><td><span class="lpill b">baseline</span></td><td>${t[2]}</td>
+ <td>${t[3]}</td><td><span class="tag test">${t[4]}</span></td><td class="r">${t[5]}</td>
+ <td class="neg">${t[6]}</td></tr>`).join('');
+
+/* ---------- blotter tabs ---------- */
+document.querySelectorAll('.btab').forEach(t=>t.onclick=()=>{
+ document.querySelectorAll('.btab').forEach(x=>x.classList.remove('on'));
+ document.querySelectorAll('.bpane').forEach(x=>x.classList.remove('on'));
+ t.classList.add('on');document.getElementById('p-'+t.dataset.p).classList.add('on');});
+
+/* ---------- nav (visual only) ---------- */
+document.querySelectorAll('nav a').forEach(a=>a.onclick=()=>{
+ document.querySelectorAll('nav a').forEach(x=>x.classList.remove('on'));a.classList.add('on');});
+
+/* ---------- candlestick chart ---------- */
+function drawChart(){
+ const c=document.getElementById('chart');const dpr=window.devicePixelRatio||1;
+ const W=c.clientWidth,H=Math.max(360,c.clientHeight);c.width=W*dpr;c.height=H*dpr;
+ const x=c.getContext('2d');x.scale(dpr,dpr);x.clearRect(0,0,W,H);
+ // synthetic candle series trending up then pulling back (mirrors HYPE screenshot)
+ let seed=42;const rnd=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;};
+ const N=80;let price=55;const data=[];
+ for(let i=0;i<N;i++){
+   const drift=i<55?0.18:-0.22;
+   const o=price;const ch=drift+(rnd()-0.5)*1.2;price=Math.max(50,o+ch);
+   const cl=price;const hi=Math.max(o,cl)+rnd()*0.9;const lo=Math.min(o,cl)-rnd()*0.9;
+   data.push([o,hi,lo,cl]);}
+ const padL=8,padR=58,padT=14,gap=12,botPad=16;
+ const volH=Math.round(Math.min(90,Math.max(56,H*0.16)));
+ const priceH=H-padT-gap-volH-botPad;
+ const lo=Math.min(...data.map(d=>d[2])),hi=Math.max(...data.map(d=>d[1]));
+ const cw=(W-padL-padR)/N;
+ const Y=v=>padT+priceH-((v-lo)/(hi-lo))*priceH;
+ // grid + price axis
+ x.strokeStyle='#141d29';x.lineWidth=1;x.font='10px ui-monospace,monospace';x.textBaseline='middle';
+ for(let g=0;g<=5;g++){const v=lo+(hi-lo)*g/5;const yy=Y(v);
+   x.beginPath();x.moveTo(padL,yy);x.lineTo(W-padR,yy);x.stroke();
+   x.fillStyle='#5f7286';x.fillText(v.toFixed(2),W-padR+6,yy);}
+ // moving averages
+ const ema=(p)=>{const k=2/(p+1);let e=data[0][3];return data.map(d=>{e=d[3]*k+e*(1-k);return e;});};
+ const sma=(p)=>data.map((d,i)=>{const s=data.slice(Math.max(0,i-p+1),i+1);return s.reduce((a,b)=>a+b[3],0)/s.length;});
+ const drawLine=(arr,col)=>{x.strokeStyle=col;x.lineWidth=1.5;x.beginPath();
+   arr.forEach((v,i)=>{const xx=padL+i*cw+cw/2;i?x.lineTo(xx,Y(v)):x.moveTo(xx,Y(v));});x.stroke();};
+ // candles
+ data.forEach((d,i)=>{const xx=padL+i*cw+cw/2;const up=d[3]>=d[0];
+   const col=up?'#2ee6a6':'#ff5d6c';x.strokeStyle=col;x.fillStyle=col;
+   x.beginPath();x.moveTo(xx,Y(d[1]));x.lineTo(xx,Y(d[2]));x.stroke();
+   const bw=Math.max(2,cw*0.6);const yo=Y(d[0]),yc=Y(d[3]);
+   x.globalAlpha=up?0.9:1;x.fillRect(xx-bw/2,Math.min(yo,yc),bw,Math.max(1.5,Math.abs(yc-yo)));x.globalAlpha=1;});
+ drawLine(sma(20),'#a981ff');drawLine(ema(10),'#ffb454');drawLine(ema(5),'#2ee6a6');
+ // paper markers
+ const mk=(i,type)=>{const xx=padL+i*cw+cw/2;const d=data[i];
+   if(type=='open'){const yy=Y(d[2])+14;x.fillStyle='#2ee6a6';
+     x.beginPath();x.moveTo(xx,yy);x.lineTo(xx-5,yy+9);x.lineTo(xx+5,yy+9);x.closePath();x.fill();}
+   else{const yy=Y(d[1])-14;x.fillStyle='#ff5d6c';
+     x.beginPath();x.moveTo(xx,yy);x.lineTo(xx-5,yy-9);x.lineTo(xx+5,yy-9);x.closePath();x.fill();}};
+ mk(22,'open');mk(40,'close');mk(48,'open');mk(58,'close');mk(66,'open');
+ // last price tag
+ const lastY=Y(data[N-1][3]);x.fillStyle='#2ee6a6';x.fillRect(W-padR,lastY-9,padR,18);
+ x.fillStyle='#06120d';x.font='bold 10px ui-monospace,monospace';x.textAlign='left';
+ x.fillText(data[N-1][3].toFixed(2),W-padR+5,lastY);x.textAlign='left';
+ // volume
+ const volY0=padT+priceH+gap+volH;const maxV=1;
+ data.forEach((d,i)=>{const xx=padL+i*cw;const up=d[3]>=d[0];const vh=(rnd()*0.7+0.2)*volH;
+   x.fillStyle=up?'rgba(46,230,166,.35)':'rgba(255,93,108,.35)';
+   x.fillRect(xx+1,volY0-vh,Math.max(1.5,cw-2),vh);});
+ x.fillStyle='#5f7286';x.font='10px ui-monospace,monospace';
+ x.fillText('vol',padL,volY0-volH-2);
+}
+drawChart();
+window.addEventListener('resize',drawChart);
+</script>
+</body>
+</html>
