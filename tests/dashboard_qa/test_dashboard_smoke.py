@@ -22,6 +22,7 @@ from playwright.sync_api import Page, expect
 
 pytestmark = pytest.mark.browser
 
+NAV = ".view-tabs"
 PAPER_TAB = '.view-tab[data-view="paper-observation"]'
 HISTORICAL_TAB = '.view-tab[data-view="historical-replay"]'
 STRATEGY_TAB = '.view-tab[data-view="strategy"]'
@@ -46,8 +47,23 @@ BLOTTER_OBSERVATION_MS = 3_000
 # ---------------------------------------------------------------------------
 
 
+def _goto(page: Page, url: str) -> None:
+    """Navigate without waiting for full network idle.
+
+    The dashboard's background timers (even with ?disableLivePolling=true)
+    keep the network from going idle for 500ms on slower CI runners, which
+    causes `wait_until="networkidle"` to time out after 30s. The DOM and
+    init scripts are what we actually need — wait_until="load" + an explicit
+    nav-tabs visibility check is sufficient and works on both macOS and Ubuntu.
+    """
+    page.goto(url, wait_until="load")
+    expect(page.locator(NAV)).to_be_visible()
+    # Confirm the view tabs have been rendered so click handlers are attached.
+    expect(page.locator(PAPER_TAB)).to_be_visible()
+
+
 def _open_paper(page: Page, url: str) -> None:
-    page.goto(url, wait_until="networkidle")
+    _goto(page, url)
     page.locator(PAPER_TAB).click()
     expect(page.locator(PAPER_VIEW)).to_be_visible()
 
@@ -58,7 +74,7 @@ def _open_paper(page: Page, url: str) -> None:
 
 
 def test_paper_trading_tab_loads(page: Page, dashboard_url: str) -> None:
-    page.goto(dashboard_url, wait_until="networkidle")
+    _goto(page, dashboard_url)
     # Default tab is Historical Replay; Paper view must start hidden.
     expect(page.locator(PAPER_VIEW)).to_be_hidden()
     page.locator(PAPER_TAB).click()
@@ -85,19 +101,36 @@ def test_terminal_layout_visible(page: Page, dashboard_url: str) -> None:
 # ---------------------------------------------------------------------------
 
 
+CHART_HEIGHT_JS = """
+() => {
+  const el = document.getElementById('paper-observation-live-chart');
+  return el ? el.getBoundingClientRect().height : 0;
+}
+"""
+
+
 def test_chart_does_not_grow_page(page: Page, dashboard_url: str) -> None:
+    """Guard the autoSize / ResizeObserver feedback-loop P0.
+
+    Measures the live-chart container's own bounding-box height (not the whole
+    document's scrollHeight, which moves around during deferred render of lazy
+    widgets unrelated to the chart). The documented bug had the chart resize
+    its container, the ResizeObserver fire, the chart resize again, and so on —
+    that would show up as continuous growth of the chart container itself.
+    """
     _open_paper(page, dashboard_url)
-    # Allow initial layout to settle.
+    expect(page.locator("#paper-observation-live-chart")).to_be_visible()
+    # Brief settle for the chart's initial resize.
     page.wait_for_timeout(500)
-    initial_height = page.evaluate("() => document.body.scrollHeight")
-    # Observe through refresh cycles with polling disabled.
+    initial = float(page.evaluate(CHART_HEIGHT_JS))
+    # Observe through refresh cycles.
     page.wait_for_timeout(REFRESH_OBSERVATION_MS)
-    final_height = page.evaluate("() => document.body.scrollHeight")
-    # Tight tolerance: anything > 200 px drift across 4s indicates a feedback loop.
-    drift = abs(int(final_height) - int(initial_height))
-    assert drift < 200, (
-        f"document.body.scrollHeight drifted by {drift}px "
-        f"({initial_height} -> {final_height}) — possible chart autoSize feedback loop"
+    final = float(page.evaluate(CHART_HEIGHT_JS))
+    drift = abs(final - initial)
+    # Tight tolerance: chart should not grow more than 50 px after first paint.
+    assert drift < 50, (
+        f"#paper-observation-live-chart height drifted by {drift:.0f}px "
+        f"({initial:.0f} -> {final:.0f}) — possible autoSize feedback loop"
     )
 
 
@@ -152,7 +185,7 @@ def test_blotter_tab_does_not_reset_under_refresh(page: Page, dashboard_url: str
 
 
 def test_no_audit_tab(page: Page, dashboard_url: str) -> None:
-    page.goto(dashboard_url, wait_until="networkidle")
+    _goto(page, dashboard_url)
     assert page.locator('.view-tab[data-view="audit"]').count() == 0
     # No nav tab whose visible text is exactly "Audit"
     nav_buttons = page.locator(".view-tabs .view-tab").all_text_contents()
@@ -169,7 +202,7 @@ def test_no_audit_tab(page: Page, dashboard_url: str) -> None:
 def test_strategy_view_shows_only_active_lanes(
     page: Page, dashboard_url: str, current_truth: dict
 ) -> None:
-    page.goto(dashboard_url, wait_until="networkidle")
+    _goto(page, dashboard_url)
     page.locator(STRATEGY_TAB).click()
     expect(page.locator("#strategy-view")).to_be_visible()
     body_text = page.locator("#strategy-view").inner_text()
