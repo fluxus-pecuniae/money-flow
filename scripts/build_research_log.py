@@ -244,6 +244,35 @@ def goal_strat1_stats(summary: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def tsmom_ev1_risk_adjusted_headline(summary: dict[str, Any]) -> dict[str, Any]:
+    h = summary["headline_comparison"]
+    s, b = h["strategy_oos"], h["buy_hold_oos"]
+
+    def fmt(value: Any, suffix: str = "") -> str:
+        return f"{Decimal(str(value)):.2f}{suffix}" if value is not None else "n/a"
+
+    return {
+        "kvs": [
+            {"label": "OOS Sharpe (strategy vs hold)", "value": f"{fmt(s['sharpe_annual'])} vs {fmt(b['sharpe_annual'])}", "tone": "neg"},
+            {"label": "OOS max drawdown", "value": f"{fmt(s['max_drawdown_pct'], '%')} vs {fmt(b['max_drawdown_pct'], '%')}"},
+            {"label": "OOS return", "value": f"{fmt(s['total_return_pct'], '%')} vs {fmt(b['total_return_pct'], '%')}", "tone": "neg"},
+            {"label": "Sharpe edge vs buy-hold", "value": fmt(h["oos_sharpe_edge_vs_buy_hold"])},
+        ],
+        "note": "Relative bar passed with qualifiers: absolute OOS Sharpe negative - defensive value in a bear, not profit.",
+    }
+
+
+def tsmom_ev1_leave_one_out(summary: dict[str, Any]) -> dict[str, Any]:
+    rows = [
+        [symbol, str(row["oos_strategy_sharpe"]), str(row["oos_buy_hold_sharpe"]), str(row["oos_sharpe_edge_vs_buy_hold"])]
+        for symbol, row in sorted(summary["leave_one_out"].items())
+    ]
+    return {
+        "table": {"columns": ["Dropped", "Strategy Sharpe", "Buy-hold Sharpe", "Edge"], "rows": rows},
+        "note": "Dropping any single asset (from book AND benchmark) keeps the risk-adjusted edge - not a one-name artifact.",
+    }
+
+
 COMPUTED = {
     "sel_ev1_random_benchmark": sel_ev1_random_benchmark,
     "sel_ev1_top_oos_configs": sel_ev1_top_oos_configs,
@@ -251,6 +280,8 @@ COMPUTED = {
     "sv23_aggregate_net": sv23_aggregate_net,
     "sv22_refresh_stats": sv22_refresh_stats,
     "goal_strat1_stats": goal_strat1_stats,
+    "tsmom_ev1_risk_adjusted_headline": tsmom_ev1_risk_adjusted_headline,
+    "tsmom_ev1_leave_one_out": tsmom_ev1_leave_one_out,
 }
 
 

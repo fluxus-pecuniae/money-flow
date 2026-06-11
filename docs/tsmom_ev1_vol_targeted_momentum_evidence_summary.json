@@ -1,0 +1,2332 @@
+{
+  "account_size_usdc": "10000",
+  "benchmarks": {
+    "always_long_no_vol_target": {
+      "avg_friction_bps": "13.79667981",
+      "config_id": "tsmom_ev1_benchmark_always_long_no_vol_target",
+      "full_stats": {
+        "days": 889,
+        "max_drawdown_pct": "67.43277505",
+        "sharpe_annual": "0.43874186",
+        "total_return_pct": "18.67736927",
+        "vol_annual": "0.66390412"
+      },
+      "net_pnl": "1844.16387898",
+      "oos_stats": {
+        "days": 266,
+        "max_drawdown_pct": "67.43277505",
+        "sharpe_annual": "-1.84087208",
+        "total_return_pct": "-63.62029922",
+        "vol_annual": "0.64158390"
+      },
+      "per_symbol_net_pnl": {
+        "AVAX": "-3799.80555508",
+        "BNB": "1959.36002735",
+        "BTC": "535.95263155",
+        "DOGE": "285.88870961",
+        "ETH": "-275.39161103",
+        "SOL": "-1048.75395526",
+        "SUI": "-6.42664870",
+        "XRP": "4193.34028054"
+      },
+      "trade_count": 468,
+      "train_stats": {
+        "days": 623,
+        "max_drawdown_pct": "50.98621331",
+        "sharpe_annual": "1.38324221",
+        "total_return_pct": "231.28148273",
+        "vol_annual": "0.67089407"
+      }
+    },
+    "always_long_vol_target_beta": {
+      "avg_friction_bps": "13.60842616",
+      "config_id": "tsmom_ev1_benchmark_always_long_vol_target",
+      "full_stats": {
+        "days": 889,
+        "max_drawdown_pct": "29.71444852",
+        "sharpe_annual": "0.66077775",
+        "total_return_pct": "30.05494303",
+        "vol_annual": "0.19114408"
+      },
+      "net_pnl": "3005.49430252",
+      "oos_stats": {
+        "days": 266,
+        "max_drawdown_pct": "29.71444852",
+        "sharpe_annual": "-1.88976964",
+        "total_return_pct": "-25.70770258",
+        "vol_annual": "0.20524621"
+      },
+      "per_symbol_net_pnl": {
+        "AVAX": "-343.26506777",
+        "BNB": "1038.18534924",
+        "BTC": "168.47407930",
+        "DOGE": "842.69516924",
+        "ETH": "19.46148854",
+        "SOL": "-41.88491621",
+        "SUI": "149.67339466",
+        "XRP": "1172.15480552"
+      },
+      "trade_count": 397,
+      "train_stats": {
+        "days": 623,
+        "max_drawdown_pct": "14.67159993",
+        "sharpe_annual": "1.89392416",
+        "total_return_pct": "75.78096769",
+        "vol_annual": "0.18373448"
+      }
+    },
+    "buy_hold_equal_weight": {
+      "avg_friction_bps": "13.45315860",
+      "config_id": "tsmom_ev1_benchmark_buy_hold_equal_weight",
+      "full_stats": {
+        "days": 889,
+        "max_drawdown_pct": "67.47171829",
+        "sharpe_annual": "0.36842536",
+        "total_return_pct": "6.11678376",
+        "vol_annual": "0.66200425"
+      },
+      "net_pnl": "590.60025361",
+      "oos_stats": {
+        "days": 266,
+        "max_drawdown_pct": "65.68137978",
+        "sharpe_annual": "-1.80669701",
+        "total_return_pct": "-61.69142244",
+        "vol_annual": "0.62161078"
+      },
+      "per_symbol_net_pnl": {
+        "AVAX": "-1052.35080720",
+        "BNB": "1150.90090758",
+        "BTC": "533.41900243",
+        "DOGE": "-85.25193236",
+        "ETH": "-356.64468939",
+        "SOL": "-498.98787261",
+        "SUI": "-133.11023302",
+        "XRP": "1032.62587818"
+      },
+      "trade_count": 16,
+      "train_stats": {
+        "days": 623,
+        "max_drawdown_pct": "51.07555431",
+        "sharpe_annual": "1.23883693",
+        "total_return_pct": "182.49376207",
+        "vol_annual": "0.67650508"
+      }
+    },
+    "random_long_flat": {
+      "oos_sharpe_distribution": {
+        "count": 20,
+        "max": "-1.11933938",
+        "mean": "-1.88425680",
+        "median": "-1.99941493",
+        "min": "-2.37994225",
+        "p05": "-2.37994225",
+        "p25": "-2.12149489",
+        "p75": "-1.73619850",
+        "p95": "-1.21573723"
+      },
+      "seed_count": 20
+    }
+  },
+  "boundaries": {
+    "approves_live_trading": false,
+    "approves_production_strategy": false,
+    "calls_private_signed_or_order_endpoints": false,
+    "changes_per_symbol_lane_behavior_or_results": false,
+    "changes_production_money_flow_rules": false,
+    "changes_selection_lane_behavior_or_results": false,
+    "creates_order_intent": false,
+    "creates_prepared_venue_order": false,
+    "creates_submitted_order": false,
+    "modeled_depth_not_real": true,
+    "mutates_active_pt_rt_runtime": false,
+    "mutates_runtime_artifacts": false,
+    "perp_funding_not_modeled": true,
+    "research_only": true,
+    "submits_live_orders": false,
+    "submits_testnet_orders": false,
+    "uses_testnet_data_as_strategy_truth": false
+  },
+  "chronological_split": {
+    "split_time": "2025-09-15 00:00:00+00:00",
+    "train_ratio": "0.70"
+  },
+  "data_provenance": {
+    "source": "hyperliquid_public_mainnet_candles_sv2_2_refresh",
+    "sv22_run_timestamp": null,
+    "sv22_summary": "docs/sv2_2_hyperliquid_research_refresh_summary.json"
+  },
+  "design": {
+    "config_grid_size": 12,
+    "fills": "closed-candle decisions, next-candle-open fills, EXEC-EV1 depth-aware friction at traded notional",
+    "max_gross_leverage": "1.5",
+    "max_single_asset_weight": "0.40",
+    "perp_funding_modeled": false,
+    "portfolio_vol_targets_annualized": [
+      "0.20",
+      "0.40"
+    ],
+    "rebalance_band_fraction_of_equity": "0.005",
+    "rebalance_interval_days": 7,
+    "signal": "sign of trailing lookback return (30/60/90d); exact zero = flat",
+    "vol_targeting": "equal risk budget per asset = portfolio_vol_target / N; weight = sign * min(budget / realized_vol_30d, 0.40)"
+  },
+  "headline_comparison": {
+    "buy_hold_oos": {
+      "days": 266,
+      "max_drawdown_pct": "65.68137978",
+      "sharpe_annual": "-1.80669701",
+      "total_return_pct": "-61.69142244",
+      "vol_annual": "0.62161078"
+    },
+    "buy_hold_train": {
+      "days": 623,
+      "max_drawdown_pct": "51.07555431",
+      "sharpe_annual": "1.23883693",
+      "total_return_pct": "182.49376207",
+      "vol_annual": "0.67650508"
+    },
+    "gate_scenario": "exec_ev1_conservative",
+    "oos_drawdown_delta_vs_buy_hold_pct": "-49.11794687",
+    "oos_sharpe_edge_vs_buy_hold": "0.32837634",
+    "strategy_oos": {
+      "days": 266,
+      "max_drawdown_pct": "16.56343291",
+      "sharpe_annual": "-1.47832067",
+      "total_return_pct": "-12.23482357",
+      "vol_annual": "0.11689372"
+    },
+    "strategy_train": {
+      "days": 623,
+      "max_drawdown_pct": "10.47652759",
+      "sharpe_annual": "2.21172139",
+      "total_return_pct": "53.34253211",
+      "vol_annual": "0.11652369"
+    }
+  },
+  "late_entry_sensitivity": {
+    "avg_entry_timing_cost_bps_by_lateness": {
+      "0": "-0.12720000",
+      "1": "41.35047460",
+      "2": "56.13201559"
+    },
+    "delay_1_oos_net_pnl_delta": "-506.45874715",
+    "delay_1_oos_sharpe": "-1.54841322",
+    "delay_2_oos_net_pnl_delta": "-538.35344542",
+    "delay_2_oos_sharpe": "-1.53480635"
+  },
+  "leave_one_out": {
+    "AVAX": {
+      "oos_buy_hold_sharpe": "-1.78507558",
+      "oos_sharpe_edge_vs_buy_hold": "0.33663461",
+      "oos_strategy_max_drawdown_pct": "17.15260709",
+      "oos_strategy_sharpe": "-1.44844097"
+    },
+    "BNB": {
+      "oos_buy_hold_sharpe": "-1.91902563",
+      "oos_sharpe_edge_vs_buy_hold": "0.25078516",
+      "oos_strategy_max_drawdown_pct": "16.56068860",
+      "oos_strategy_sharpe": "-1.66824047"
+    },
+    "BTC": {
+      "oos_buy_hold_sharpe": "-1.80973866",
+      "oos_sharpe_edge_vs_buy_hold": "0.29941881",
+      "oos_strategy_max_drawdown_pct": "15.63041671",
+      "oos_strategy_sharpe": "-1.51031985"
+    },
+    "DOGE": {
+      "oos_buy_hold_sharpe": "-1.78951622",
+      "oos_sharpe_edge_vs_buy_hold": "0.19803067",
+      "oos_strategy_max_drawdown_pct": "17.88533718",
+      "oos_strategy_sharpe": "-1.59148555"
+    },
+    "ETH": {
+      "oos_buy_hold_sharpe": "-1.80148933",
+      "oos_sharpe_edge_vs_buy_hold": "0.45266587",
+      "oos_strategy_max_drawdown_pct": "16.54848994",
+      "oos_strategy_sharpe": "-1.34882346"
+    },
+    "SOL": {
+      "oos_buy_hold_sharpe": "-1.76403653",
+      "oos_sharpe_edge_vs_buy_hold": "0.28530851",
+      "oos_strategy_max_drawdown_pct": "17.28714137",
+      "oos_strategy_sharpe": "-1.47872802"
+    },
+    "SUI": {
+      "oos_buy_hold_sharpe": "-1.72505178",
+      "oos_sharpe_edge_vs_buy_hold": "0.22374984",
+      "oos_strategy_max_drawdown_pct": "16.66069046",
+      "oos_strategy_sharpe": "-1.50130194"
+    },
+    "XRP": {
+      "oos_buy_hold_sharpe": "-1.80461390",
+      "oos_sharpe_edge_vs_buy_hold": "0.55922191",
+      "oos_strategy_max_drawdown_pct": "15.56644824",
+      "oos_strategy_sharpe": "-1.24539199"
+    }
+  },
+  "no_lookahead_verification": {
+    "probe_symbol": "AVAX",
+    "sampled_indices": [
+      120,
+      200,
+      400,
+      887
+    ],
+    "signal_point_in_time_ok": true,
+    "vol_point_in_time_ok": true
+  },
+  "per_config_results": {
+    "exec_ev1_base": [
+      {
+        "avg_friction_bps": "5.14999809",
+        "avg_gross_exposure": "0.15712886",
+        "avg_net_exposure": "0.15712886",
+        "config_id": "tsmom_ev1_lb30_vt20_long_only_1d",
+        "ending_equity": "13541.01590591",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "-0.12720000",
+          "1": "41.35047460",
+          "2": "56.13201559"
+        },
+        "friction_paid_quote": "68.19270576",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "16.40923693",
+          "sharpe_annual": "1.12298795",
+          "total_return_pct": "35.41015906",
+          "vol_annual": "0.11708054"
+        },
+        "lookback_days": 30,
+        "mode": "long_only",
+        "net_pnl": "3541.01590591",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "16.40923693",
+          "sharpe_annual": "-1.43929001",
+          "total_return_pct": "-11.94756531",
+          "vol_annual": "0.11693478"
+        },
+        "oos_trade_count": 109,
+        "per_symbol_net_pnl": {
+          "AVAX": "41.17609470",
+          "BNB": "658.97752672",
+          "BTC": "243.74969829",
+          "DOGE": "1179.94499377",
+          "ETH": "389.73177961",
+          "SOL": "269.53987198",
+          "SUI": "67.96799976",
+          "XRP": "689.92794108"
+        },
+        "portfolio_vol_target": "0.20",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 337,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "10.31263795",
+          "sharpe_annual": "2.23738372",
+          "total_return_pct": "54.15283194",
+          "vol_annual": "0.11657288"
+        },
+        "turnover_annual": "4.19018757",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "5.16567925",
+        "avg_gross_exposure": "0.31393867",
+        "avg_net_exposure": "0.31393867",
+        "config_id": "tsmom_ev1_lb30_vt40_long_only_1d",
+        "ending_equity": "17675.22134246",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "-0.07954026",
+          "1": "19.90990376",
+          "2": "29.82851298"
+        },
+        "friction_paid_quote": "183.63657008",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "30.55172841",
+          "sharpe_annual": "1.11842792",
+          "total_return_pct": "76.75221342",
+          "vol_annual": "0.23391064"
+        },
+        "lookback_days": 30,
+        "mode": "long_only",
+        "net_pnl": "7675.22134246",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "30.55172841",
+          "sharpe_annual": "-1.39258025",
+          "total_return_pct": "-23.00655447",
+          "vol_annual": "0.23773088"
+        },
+        "oos_trade_count": 127,
+        "per_symbol_net_pnl": {
+          "AVAX": "76.10081620",
+          "BNB": "1764.19103321",
+          "BTC": "353.66688361",
+          "DOGE": "2563.42989789",
+          "ETH": "837.25538420",
+          "SOL": "603.05816773",
+          "SUI": "-48.65685200",
+          "XRP": "1526.17601162"
+        },
+        "portfolio_vol_target": "0.40",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 409,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "20.03600402",
+          "sharpe_annual": "2.23797944",
+          "total_return_pct": "130.65305761",
+          "vol_annual": "0.23114530"
+        },
+        "turnover_annual": "8.66115499",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "5.16953789",
+        "avg_gross_exposure": "0.14953004",
+        "avg_net_exposure": "0.14953004",
+        "config_id": "tsmom_ev1_lb60_vt20_long_only_1d",
+        "ending_equity": "11036.53560409",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.14441383",
+          "1": "-12.05592616",
+          "2": "-51.98447615"
+        },
+        "friction_paid_quote": "52.07822462",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "14.41497689",
+          "sharpe_annual": "0.40373210",
+          "total_return_pct": "10.36535604",
+          "vol_annual": "0.11749340"
+        },
+        "lookback_days": 60,
+        "mode": "long_only",
+        "net_pnl": "1036.53560409",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "14.41497689",
+          "sharpe_annual": "-1.55663940",
+          "total_return_pct": "-11.29954408",
+          "vol_annual": "0.10266264"
+        },
+        "oos_trade_count": 82,
+        "per_symbol_net_pnl": {
+          "AVAX": "-181.38218063",
+          "BNB": "560.85237595",
+          "BTC": "-158.71134689",
+          "DOGE": "217.82451579",
+          "ETH": "199.88190905",
+          "SOL": "-186.80700393",
+          "SUI": "59.46147456",
+          "XRP": "525.41586019"
+        },
+        "portfolio_vol_target": "0.20",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 303,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "10.91402974",
+          "sharpe_annual": "1.12420472",
+          "total_return_pct": "24.95548335",
+          "vol_annual": "0.12302019"
+        },
+        "turnover_annual": "3.56944234",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "5.17739056",
+        "avg_gross_exposure": "0.29965921",
+        "avg_net_exposure": "0.29965921",
+        "config_id": "tsmom_ev1_lb60_vt40_long_only_1d",
+        "ending_equity": "11789.56331897",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.16041680",
+          "1": "-6.46545434",
+          "2": "-49.01702901"
+        },
+        "friction_paid_quote": "118.64714865",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "27.39549053",
+          "sharpe_annual": "0.40579983",
+          "total_return_pct": "17.89563319",
+          "vol_annual": "0.23432651"
+        },
+        "lookback_days": 60,
+        "mode": "long_only",
+        "net_pnl": "1789.56331897",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "27.39549053",
+          "sharpe_annual": "-1.53647695",
+          "total_return_pct": "-21.87051207",
+          "vol_annual": "0.20700171"
+        },
+        "oos_trade_count": 95,
+        "per_symbol_net_pnl": {
+          "AVAX": "-562.23652863",
+          "BNB": "1239.47910119",
+          "BTC": "-431.99062594",
+          "DOGE": "372.66378005",
+          "ETH": "462.22518680",
+          "SOL": "-411.59258211",
+          "SUI": "-26.90045662",
+          "XRP": "1147.91544423"
+        },
+        "portfolio_vol_target": "0.40",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 371,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "20.79124421",
+          "sharpe_annual": "1.12937052",
+          "total_return_pct": "52.17392845",
+          "vol_annual": "0.24454447"
+        },
+        "turnover_annual": "7.20699489",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "5.20060143",
+        "avg_gross_exposure": "0.14130442",
+        "avg_net_exposure": "0.14130442",
+        "config_id": "tsmom_ev1_lb90_vt20_long_only_1d",
+        "ending_equity": "10697.16131433",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.37253118",
+          "1": "-3.46081570",
+          "2": "1.01216911"
+        },
+        "friction_paid_quote": "38.35175276",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "16.70586660",
+          "sharpe_annual": "0.29985166",
+          "total_return_pct": "6.97161314",
+          "vol_annual": "0.11414365"
+        },
+        "lookback_days": 90,
+        "mode": "long_only",
+        "net_pnl": "697.16131433",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "16.70586660",
+          "sharpe_annual": "-1.65659838",
+          "total_return_pct": "-12.87991648",
+          "vol_annual": "0.11085369"
+        },
+        "oos_trade_count": 58,
+        "per_symbol_net_pnl": {
+          "AVAX": "11.65373964",
+          "BNB": "387.19340182",
+          "BTC": "-46.23005470",
+          "DOGE": "134.57455914",
+          "ETH": "-341.74785759",
+          "SOL": "-42.34873449",
+          "SUI": "-3.76786576",
+          "XRP": "597.83412627"
+        },
+        "portfolio_vol_target": "0.20",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 266,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "12.45953096",
+          "sharpe_annual": "1.12451429",
+          "total_return_pct": "23.30259908",
+          "vol_annual": "0.11521301"
+        },
+        "turnover_annual": "2.69242630",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "5.19543263",
+        "avg_gross_exposure": "0.28328604",
+        "avg_net_exposure": "0.28328604",
+        "config_id": "tsmom_ev1_lb90_vt40_long_only_1d",
+        "ending_equity": "11016.78991976",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.37060552",
+          "1": "8.63105737",
+          "2": "16.52589409"
+        },
+        "friction_paid_quote": "84.11209409",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "31.22888149",
+          "sharpe_annual": "0.28871725",
+          "total_return_pct": "10.16789920",
+          "vol_annual": "0.22929934"
+        },
+        "lookback_days": 90,
+        "mode": "long_only",
+        "net_pnl": "1016.78991976",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "31.22888149",
+          "sharpe_annual": "-1.59135219",
+          "total_return_pct": "-24.52428699",
+          "vol_annual": "0.22679732"
+        },
+        "oos_trade_count": 78,
+        "per_symbol_net_pnl": {
+          "AVAX": "-134.04499922",
+          "BNB": "838.91976136",
+          "BTC": "-169.95920000",
+          "DOGE": "201.44979180",
+          "ETH": "-674.18642074",
+          "SOL": "-104.13681540",
+          "SUI": "-140.23463186",
+          "XRP": "1198.98243382"
+        },
+        "portfolio_vol_target": "0.40",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 348,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "24.23285347",
+          "sharpe_annual": "1.10150509",
+          "total_return_pct": "47.17446810",
+          "vol_annual": "0.22977998"
+        },
+        "turnover_annual": "5.47349830",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "5.18424747",
+        "avg_gross_exposure": "0.30520841",
+        "avg_net_exposure": "0.00905166",
+        "config_id": "tsmom_ev1_lb30_vt20_long_short_1d",
+        "ending_equity": "13388.10188594",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.08606656",
+          "1": "21.26921458",
+          "2": "-9.26571912"
+        },
+        "friction_paid_quote": "129.85550380",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "17.08451570",
+          "sharpe_annual": "0.86222570",
+          "total_return_pct": "33.88101886",
+          "vol_annual": "0.15262808"
+        },
+        "lookback_days": 30,
+        "mode": "long_short",
+        "net_pnl": "3388.10188594",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "13.58697794",
+          "sharpe_annual": "0.23897869",
+          "total_return_pct": "1.91046125",
+          "vol_annual": "0.16887380"
+        },
+        "oos_trade_count": 171,
+        "per_symbol_net_pnl": {
+          "AVAX": "305.67242663",
+          "BNB": "253.50031266",
+          "BTC": "209.33587102",
+          "DOGE": "1381.60772355",
+          "ETH": "615.16466824",
+          "SOL": "435.30133005",
+          "SUI": "-59.90052725",
+          "XRP": "247.42008104"
+        },
+        "portfolio_vol_target": "0.20",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 490,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "17.08451570",
+          "sharpe_annual": "1.17837690",
+          "total_return_pct": "31.47315265",
+          "vol_annual": "0.14523354"
+        },
+        "turnover_annual": "8.63628658",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "5.19087873",
+        "avg_gross_exposure": "0.61329172",
+        "avg_net_exposure": "0.01564998",
+        "config_id": "tsmom_ev1_lb30_vt40_long_short_1d",
+        "ending_equity": "17096.52357882",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.13496349",
+          "1": "-4.26708299",
+          "2": "-32.06120045"
+        },
+        "friction_paid_quote": "313.82746911",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "32.42959489",
+          "sharpe_annual": "0.87215762",
+          "total_return_pct": "70.96523579",
+          "vol_annual": "0.30682247"
+        },
+        "lookback_days": 30,
+        "mode": "long_short",
+        "net_pnl": "7096.52357882",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "26.17661761",
+          "sharpe_annual": "0.27535620",
+          "total_return_pct": "2.61388675",
+          "vol_annual": "0.33926019"
+        },
+        "oos_trade_count": 228,
+        "per_symbol_net_pnl": {
+          "AVAX": "846.59057611",
+          "BNB": "633.01223188",
+          "BTC": "353.55909019",
+          "DOGE": "2870.66583974",
+          "ETH": "1279.05896464",
+          "SOL": "1054.23008014",
+          "SUI": "-290.78624273",
+          "XRP": "350.19303885"
+        },
+        "portfolio_vol_target": "0.40",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 682,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "32.42959489",
+          "sharpe_annual": "1.17416820",
+          "total_return_pct": "66.81261931",
+          "vol_annual": "0.29207768"
+        },
+        "turnover_annual": "17.88722775",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "5.19558817",
+        "avg_gross_exposure": "0.29261473",
+        "avg_net_exposure": "0.00636648",
+        "config_id": "tsmom_ev1_lb60_vt20_long_short_1d",
+        "ending_equity": "10739.69703194",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.31810110",
+          "1": "-22.92254324",
+          "2": "-88.66941671"
+        },
+        "friction_paid_quote": "98.22633473",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "17.10966495",
+          "sharpe_annual": "0.27339106",
+          "total_return_pct": "7.39697032",
+          "vol_annual": "0.14660707"
+        },
+        "lookback_days": 60,
+        "mode": "long_short",
+        "net_pnl": "739.69703194",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "12.01445785",
+          "sharpe_annual": "0.41103652",
+          "total_return_pct": "3.82231484",
+          "vol_annual": "0.15480557"
+        },
+        "oos_trade_count": 160,
+        "per_symbol_net_pnl": {
+          "AVAX": "-64.48493591",
+          "BNB": "409.85741280",
+          "BTC": "-205.47329883",
+          "DOGE": "303.38469497",
+          "ETH": "481.03601453",
+          "SOL": "-274.94145635",
+          "SUI": "-104.98363807",
+          "XRP": "195.30223880"
+        },
+        "portfolio_vol_target": "0.20",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 462,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "17.10966495",
+          "sharpe_annual": "0.22805877",
+          "total_return_pct": "3.88767764",
+          "vol_annual": "0.14304989"
+        },
+        "turnover_annual": "7.25862184",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "5.19120598",
+        "avg_gross_exposure": "0.58896686",
+        "avg_net_exposure": "0.01068534",
+        "config_id": "tsmom_ev1_lb60_vt40_long_short_1d",
+        "ending_equity": "10907.39816571",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.29502848",
+          "1": "-28.61107491",
+          "2": "-90.30975655"
+        },
+        "friction_paid_quote": "210.00265055",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "32.30285719",
+          "sharpe_annual": "0.26864457",
+          "total_return_pct": "9.07398166",
+          "vol_annual": "0.29435730"
+        },
+        "lookback_days": 60,
+        "mode": "long_short",
+        "net_pnl": "907.39816571",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "23.14467831",
+          "sharpe_annual": "0.38047568",
+          "total_return_pct": "5.21086597",
+          "vol_annual": "0.30933075"
+        },
+        "oos_trade_count": 222,
+        "per_symbol_net_pnl": {
+          "AVAX": "-280.98824047",
+          "BNB": "751.84527591",
+          "BTC": "-467.54065962",
+          "DOGE": "559.61031716",
+          "ETH": "982.88135646",
+          "SOL": "-579.89864039",
+          "SUI": "-427.62761465",
+          "XRP": "369.11637131"
+        },
+        "portfolio_vol_target": "0.40",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 643,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "32.30285719",
+          "sharpe_annual": "0.23576520",
+          "total_return_pct": "4.58493299",
+          "vol_annual": "0.28789809"
+        },
+        "turnover_annual": "14.94994067",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "5.20381543",
+        "avg_gross_exposure": "0.28402084",
+        "avg_net_exposure": "-0.00191137",
+        "config_id": "tsmom_ev1_lb90_vt20_long_short_1d",
+        "ending_equity": "10676.09989934",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.51375094",
+          "1": "-26.64528678",
+          "2": "-55.72499106"
+        },
+        "friction_paid_quote": "74.20369031",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "14.98753594",
+          "sharpe_annual": "0.25546237",
+          "total_return_pct": "6.76099899",
+          "vol_annual": "0.14857695"
+        },
+        "lookback_days": 90,
+        "mode": "long_short",
+        "net_pnl": "676.09989934",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "14.74254381",
+          "sharpe_annual": "0.11961230",
+          "total_return_pct": "0.37220227",
+          "vol_annual": "0.18266298"
+        },
+        "oos_trade_count": 154,
+        "per_symbol_net_pnl": {
+          "AVAX": "356.18612708",
+          "BNB": "261.50786034",
+          "BTC": "-10.64296999",
+          "DOGE": "141.06088316",
+          "ETH": "-513.11767227",
+          "SOL": "151.59359475",
+          "SUI": "-112.25275287",
+          "XRP": "401.76482914"
+        },
+        "portfolio_vol_target": "0.20",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 439,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "14.98753594",
+          "sharpe_annual": "0.36002933",
+          "total_return_pct": "6.81289250",
+          "vol_annual": "0.13148726"
+        },
+        "turnover_annual": "5.53609757",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "5.20416046",
+        "avg_gross_exposure": "0.57181428",
+        "avg_net_exposure": "-0.00567120",
+        "config_id": "tsmom_ev1_lb90_vt40_long_short_1d",
+        "ending_equity": "10751.53063688",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.36633175",
+          "1": "-27.39831064",
+          "2": "-45.43253058"
+        },
+        "friction_paid_quote": "154.51148766",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "28.64459063",
+          "sharpe_annual": "0.25003632",
+          "total_return_pct": "7.51530637",
+          "vol_annual": "0.29932254"
+        },
+        "lookback_days": 90,
+        "mode": "long_short",
+        "net_pnl": "751.53063688",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "28.20384821",
+          "sharpe_annual": "0.08482679",
+          "total_return_pct": "-2.66025463",
+          "vol_annual": "0.36845719"
+        },
+        "oos_trade_count": 230,
+        "per_symbol_net_pnl": {
+          "AVAX": "556.10893128",
+          "BNB": "484.82637332",
+          "BTC": "-99.10933268",
+          "DOGE": "201.35883362",
+          "ETH": "-978.08755594",
+          "SOL": "230.57469003",
+          "SUI": "-319.01209481",
+          "XRP": "674.87079206"
+        },
+        "portfolio_vol_target": "0.40",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 636,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "28.64459063",
+          "sharpe_annual": "0.37170993",
+          "total_return_pct": "11.37033397",
+          "vol_annual": "0.26461941"
+        },
+        "turnover_annual": "11.36853647",
+        "vol_targeting": true
+      }
+    ],
+    "exec_ev1_conservative": [
+      {
+        "avg_friction_bps": "13.58890636",
+        "avg_gross_exposure": "0.15715361",
+        "avg_net_exposure": "0.15715361",
+        "config_id": "tsmom_ev1_lb30_vt20_long_only_1d",
+        "ending_equity": "13425.76061261",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "-0.12720000",
+          "1": "41.35047460",
+          "2": "56.13201559"
+        },
+        "friction_paid_quote": "180.68359906",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "16.56343291",
+          "sharpe_annual": "1.09333342",
+          "total_return_pct": "34.25760613",
+          "vol_annual": "0.11703695"
+        },
+        "lookback_days": 30,
+        "mode": "long_only",
+        "net_pnl": "3425.76061261",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "16.56343291",
+          "sharpe_annual": "-1.47832067",
+          "total_return_pct": "-12.23482357",
+          "vol_annual": "0.11689372"
+        },
+        "oos_trade_count": 109,
+        "per_symbol_net_pnl": {
+          "AVAX": "32.69438688",
+          "BNB": "636.10464759",
+          "BTC": "221.14196571",
+          "DOGE": "1166.10362818",
+          "ETH": "377.87979217",
+          "SOL": "259.54349686",
+          "SUI": "60.56772565",
+          "XRP": "671.72496957"
+        },
+        "portfolio_vol_target": "0.20",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 337,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "10.47652759",
+          "sharpe_annual": "2.21172139",
+          "total_return_pct": "53.34253211",
+          "vol_annual": "0.11652369"
+        },
+        "turnover_annual": "4.18936774",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "13.61884842",
+        "avg_gross_exposure": "0.31401540",
+        "avg_net_exposure": "0.31401540",
+        "config_id": "tsmom_ev1_lb30_vt40_long_only_1d",
+        "ending_equity": "17366.74708448",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "-0.07954026",
+          "1": "19.90990376",
+          "2": "29.82851298"
+        },
+        "friction_paid_quote": "483.21458016",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "30.82102147",
+          "sharpe_annual": "1.08771879",
+          "total_return_pct": "73.66747084",
+          "vol_annual": "0.23384408"
+        },
+        "lookback_days": 30,
+        "mode": "long_only",
+        "net_pnl": "7366.74708448",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "30.82102147",
+          "sharpe_annual": "-1.43249234",
+          "total_return_pct": "-23.52929632",
+          "vol_annual": "0.23766202"
+        },
+        "oos_trade_count": 127,
+        "per_symbol_net_pnl": {
+          "AVAX": "54.45250470",
+          "BNB": "1696.95252313",
+          "BTC": "295.45522047",
+          "DOGE": "2523.09355251",
+          "ETH": "804.94299519",
+          "SOL": "577.15939537",
+          "SUI": "-66.03863180",
+          "XRP": "1480.72952491"
+        },
+        "portfolio_vol_target": "0.40",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 409,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "20.33705720",
+          "sharpe_annual": "2.21123502",
+          "total_return_pct": "128.18075181",
+          "vol_annual": "0.23107018"
+        },
+        "turnover_annual": "8.65701593",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "13.78643360",
+        "avg_gross_exposure": "0.14951334",
+        "avg_net_exposure": "0.14951334",
+        "config_id": "tsmom_ev1_lb60_vt20_long_only_1d",
+        "ending_equity": "10950.17705397",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.14315129",
+          "1": "-10.14997953",
+          "2": "-51.99518036"
+        },
+        "friction_paid_quote": "138.60101740",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "14.61507497",
+          "sharpe_annual": "0.37666479",
+          "total_return_pct": "9.50177054",
+          "vol_annual": "0.11730572"
+        },
+        "lookback_days": 60,
+        "mode": "long_only",
+        "net_pnl": "950.17705397",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "14.61507497",
+          "sharpe_annual": "-1.59409408",
+          "total_return_pct": "-11.53977690",
+          "vol_annual": "0.10259685"
+        },
+        "oos_trade_count": 82,
+        "per_symbol_net_pnl": {
+          "AVAX": "-186.41184998",
+          "BNB": "541.27262792",
+          "BTC": "-172.39633428",
+          "DOGE": "211.75950774",
+          "ETH": "189.04842469",
+          "SOL": "-195.65764841",
+          "SUI": "55.13461111",
+          "XRP": "507.42771518"
+        },
+        "portfolio_vol_target": "0.20",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 304,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "11.07668636",
+          "sharpe_annual": "1.10189734",
+          "total_return_pct": "24.32378330",
+          "vol_annual": "0.12278479"
+        },
+        "turnover_annual": "3.56914439",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "13.78842095",
+        "avg_gross_exposure": "0.29973636",
+        "avg_net_exposure": "0.29973636",
+        "config_id": "tsmom_ev1_lb60_vt40_long_only_1d",
+        "ending_equity": "11603.17084309",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.16041680",
+          "1": "-6.46545434",
+          "2": "-49.01702901"
+        },
+        "friction_paid_quote": "313.25549496",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "27.74801332",
+          "sharpe_annual": "0.37788619",
+          "total_return_pct": "16.03170843",
+          "vol_annual": "0.23426428"
+        },
+        "lookback_days": 60,
+        "mode": "long_only",
+        "net_pnl": "1603.17084309",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "27.74801332",
+          "sharpe_annual": "-1.57505305",
+          "total_return_pct": "-22.31123609",
+          "vol_annual": "0.20688795"
+        },
+        "oos_trade_count": 95,
+        "per_symbol_net_pnl": {
+          "AVAX": "-568.29007941",
+          "BNB": "1190.87204822",
+          "BTC": "-458.81645805",
+          "DOGE": "359.07590713",
+          "ETH": "438.11217539",
+          "SOL": "-427.72231013",
+          "SUI": "-34.69899140",
+          "XRP": "1104.63855134"
+        },
+        "portfolio_vol_target": "0.40",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 371,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "21.08666281",
+          "sharpe_annual": "1.10523191",
+          "total_return_pct": "50.64024981",
+          "vol_annual": "0.24449394"
+        },
+        "turnover_annual": "7.20519699",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "13.86102380",
+        "avg_gross_exposure": "0.14132630",
+        "avg_net_exposure": "0.14132630",
+        "config_id": "tsmom_ev1_lb90_vt20_long_only_1d",
+        "ending_equity": "10633.81783961",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.37397453",
+          "1": "-4.26394234",
+          "2": "0.89975822"
+        },
+        "friction_paid_quote": "102.00352120",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "16.82261590",
+          "sharpe_annual": "0.27846019",
+          "total_return_pct": "6.33817840",
+          "vol_annual": "0.11414677"
+        },
+        "lookback_days": 90,
+        "mode": "long_only",
+        "net_pnl": "633.81783961",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "16.82261590",
+          "sharpe_annual": "-1.67757296",
+          "total_return_pct": "-13.02738875",
+          "vol_annual": "0.11085763"
+        },
+        "oos_trade_count": 58,
+        "per_symbol_net_pnl": {
+          "AVAX": "4.02954807",
+          "BNB": "372.48884349",
+          "BTC": "-52.78385655",
+          "DOGE": "128.69592274",
+          "ETH": "-346.86260133",
+          "SOL": "-49.35186557",
+          "SUI": "-7.13958563",
+          "XRP": "584.74143439"
+        },
+        "portfolio_vol_target": "0.20",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 266,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "12.53723972",
+          "sharpe_annual": "1.10294249",
+          "total_return_pct": "22.78221419",
+          "vol_annual": "0.11521595"
+        },
+        "turnover_annual": "2.69258763",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "13.83022683",
+        "avg_gross_exposure": "0.28330767",
+        "avg_net_exposure": "0.28330767",
+        "config_id": "tsmom_ev1_lb90_vt40_long_only_1d",
+        "ending_equity": "10881.70127947",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.37168600",
+          "1": "9.82965098",
+          "2": "17.82938263"
+        },
+        "friction_paid_quote": "222.23908974",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "31.43128603",
+          "sharpe_annual": "0.26660649",
+          "total_return_pct": "8.81701279",
+          "vol_annual": "0.22928977"
+        },
+        "lookback_days": 90,
+        "mode": "long_only",
+        "net_pnl": "881.70127947",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "31.43128603",
+          "sharpe_annual": "-1.61295976",
+          "total_return_pct": "-24.79382838",
+          "vol_annual": "0.22680858"
+        },
+        "oos_trade_count": 78,
+        "per_symbol_net_pnl": {
+          "AVAX": "-148.90003110",
+          "BNB": "803.79366194",
+          "BTC": "-183.64377430",
+          "DOGE": "189.03856970",
+          "ETH": "-682.23330245",
+          "SOL": "-118.13405181",
+          "SUI": "-146.95036339",
+          "XRP": "1168.73057088"
+        },
+        "portfolio_vol_target": "0.40",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 347,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "24.37546476",
+          "sharpe_annual": "1.07931165",
+          "total_return_pct": "45.89746982",
+          "vol_annual": "0.22976138"
+        },
+        "turnover_annual": "5.47413550",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "13.70308972",
+        "avg_gross_exposure": "0.30529497",
+        "avg_net_exposure": "0.00906168",
+        "config_id": "tsmom_ev1_lb30_vt20_long_short_1d",
+        "ending_equity": "13148.18811205",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.08606656",
+          "1": "21.26921458",
+          "2": "-9.26571912"
+        },
+        "friction_paid_quote": "341.45186845",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "17.44036958",
+          "sharpe_annual": "0.81296212",
+          "total_return_pct": "31.48188112",
+          "vol_annual": "0.15275598"
+        },
+        "lookback_days": 30,
+        "mode": "long_short",
+        "net_pnl": "3148.18811205",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "13.90768226",
+          "sharpe_annual": "0.18248473",
+          "total_return_pct": "1.20725677",
+          "vol_annual": "0.16910664"
+        },
+        "oos_trade_count": 171,
+        "per_symbol_net_pnl": {
+          "AVAX": "282.04833747",
+          "BNB": "214.13693598",
+          "BTC": "164.05205870",
+          "DOGE": "1350.47050965",
+          "ETH": "587.66550100",
+          "SOL": "411.32248188",
+          "SUI": "-75.27509581",
+          "XRP": "213.76738318"
+        },
+        "portfolio_vol_target": "0.20",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 490,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "17.44036958",
+          "sharpe_annual": "1.13283781",
+          "total_return_pct": "30.01650165",
+          "vol_annual": "0.14530787"
+        },
+        "turnover_annual": "8.63285244",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "13.70671980",
+        "avg_gross_exposure": "0.61349366",
+        "avg_net_exposure": "0.01574201",
+        "config_id": "tsmom_ev1_lb30_vt40_long_short_1d",
+        "ending_equity": "16435.65924583",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.11155277",
+          "1": "-5.20674889",
+          "2": "-33.18988100"
+        },
+        "friction_paid_quote": "813.82720945",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "33.14015722",
+          "sharpe_annual": "0.81881875",
+          "total_return_pct": "64.35659246",
+          "vol_annual": "0.30712624"
+        },
+        "lookback_days": 30,
+        "mode": "long_short",
+        "net_pnl": "6435.65924583",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "26.75025287",
+          "sharpe_annual": "0.21611695",
+          "total_return_pct": "1.12264774",
+          "vol_annual": "0.33977506"
+        },
+        "oos_trade_count": 229,
+        "per_symbol_net_pnl": {
+          "AVAX": "768.72690213",
+          "BNB": "534.03081776",
+          "BTC": "237.95112499",
+          "DOGE": "2773.50819179",
+          "ETH": "1199.93780137",
+          "SOL": "984.07331411",
+          "SUI": "-341.91818260",
+          "XRP": "279.34927628"
+        },
+        "portfolio_vol_target": "0.40",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 682,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "33.14015722",
+          "sharpe_annual": "1.12387439",
+          "total_return_pct": "62.73650645",
+          "vol_annual": "0.29227452"
+        },
+        "turnover_annual": "17.87403904",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "13.85811749",
+        "avg_gross_exposure": "0.29269086",
+        "avg_net_exposure": "0.00637620",
+        "config_id": "tsmom_ev1_lb60_vt20_long_short_1d",
+        "ending_equity": "10572.58334226",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.31810110",
+          "1": "-22.92254324",
+          "2": "-88.66941671"
+        },
+        "friction_paid_quote": "259.81887770",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "17.48142809",
+          "sharpe_annual": "0.22939825",
+          "total_return_pct": "5.72583342",
+          "vol_annual": "0.14665069"
+        },
+        "lookback_days": 60,
+        "mode": "long_short",
+        "net_pnl": "572.58334226",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "12.21907449",
+          "sharpe_annual": "0.35982779",
+          "total_return_pct": "3.22675690",
+          "vol_annual": "0.15481850"
+        },
+        "oos_trade_count": 160,
+        "per_symbol_net_pnl": {
+          "AVAX": "-75.54165830",
+          "BNB": "375.90125295",
+          "BTC": "-231.10967399",
+          "DOGE": "290.69304248",
+          "ETH": "457.74803081",
+          "SOL": "-292.94455102",
+          "SUI": "-112.73270334",
+          "XRP": "160.56960267"
+        },
+        "portfolio_vol_target": "0.20",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 462,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "17.48142809",
+          "sharpe_annual": "0.18795594",
+          "total_return_pct": "2.87737202",
+          "vol_annual": "0.14310558"
+        },
+        "turnover_annual": "7.25540943",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "13.82073300",
+        "avg_gross_exposure": "0.58914114",
+        "avg_net_exposure": "0.01063085",
+        "config_id": "tsmom_ev1_lb60_vt40_long_short_1d",
+        "ending_equity": "10554.00004058",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.28645476",
+          "1": "-28.45079476",
+          "2": "-90.64682787"
+        },
+        "friction_paid_quote": "548.42875623",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "32.97507606",
+          "sharpe_annual": "0.22269691",
+          "total_return_pct": "5.54000041",
+          "vol_annual": "0.29448645"
+        },
+        "lookback_days": 60,
+        "mode": "long_short",
+        "net_pnl": "554.00004058",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "23.51773296",
+          "sharpe_annual": "0.32704600",
+          "total_return_pct": "3.95623659",
+          "vol_annual": "0.30940404"
+        },
+        "oos_trade_count": 221,
+        "per_symbol_net_pnl": {
+          "AVAX": "-297.44338759",
+          "BNB": "673.53382785",
+          "BTC": "-517.21335805",
+          "DOGE": "531.17815151",
+          "ETH": "920.44640789",
+          "SOL": "-611.92082285",
+          "SUI": "-436.29527752",
+          "XRP": "291.71449934"
+        },
+        "portfolio_vol_target": "0.40",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 643,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "32.97507606",
+          "sharpe_annual": "0.19381357",
+          "total_return_pct": "2.45084688",
+          "vol_annual": "0.28804839"
+        },
+        "turnover_annual": "14.93286775",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "13.88437313",
+        "avg_gross_exposure": "0.28400444",
+        "avg_net_exposure": "-0.00182686",
+        "config_id": "tsmom_ev1_lb90_vt20_long_short_1d",
+        "ending_equity": "10543.42596845",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.53657988",
+          "1": "-25.73806287",
+          "2": "-54.37495959"
+        },
+        "friction_paid_quote": "196.37204211",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "15.22016233",
+          "sharpe_annual": "0.22086173",
+          "total_return_pct": "5.43425968",
+          "vol_annual": "0.14858829"
+        },
+        "lookback_days": 90,
+        "mode": "long_short",
+        "net_pnl": "543.42596845",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "14.93312863",
+          "sharpe_annual": "0.09052071",
+          "total_return_pct": "-0.01482464",
+          "vol_annual": "0.18274165"
+        },
+        "oos_trade_count": 154,
+        "per_symbol_net_pnl": {
+          "AVAX": "337.14402059",
+          "BNB": "236.01661646",
+          "BTC": "-25.33852157",
+          "DOGE": "128.17906198",
+          "ETH": "-522.56848115",
+          "SOL": "134.90357016",
+          "SUI": "-120.21496173",
+          "XRP": "375.30466371"
+        },
+        "portfolio_vol_target": "0.20",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 439,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "15.22016233",
+          "sharpe_annual": "0.32157331",
+          "total_return_pct": "5.89550051",
+          "vol_annual": "0.13145890"
+        },
+        "turnover_annual": "5.53589818",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "13.84143582",
+        "avg_gross_exposure": "0.57193453",
+        "avg_net_exposure": "-0.00571517",
+        "config_id": "tsmom_ev1_lb90_vt40_long_short_1d",
+        "ending_equity": "10470.87752426",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.36668932",
+          "1": "-27.74347851",
+          "2": "-45.80359375"
+        },
+        "friction_paid_quote": "404.86566028",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "28.94001738",
+          "sharpe_annual": "0.21375653",
+          "total_return_pct": "4.70877524",
+          "vol_annual": "0.29944395"
+        },
+        "lookback_days": 90,
+        "mode": "long_short",
+        "net_pnl": "470.87752426",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "28.54751907",
+          "sharpe_annual": "0.05412497",
+          "total_return_pct": "-3.46053731",
+          "vol_annual": "0.36863562"
+        },
+        "oos_trade_count": 229,
+        "per_symbol_net_pnl": {
+          "AVAX": "511.81030607",
+          "BNB": "427.31334006",
+          "BTC": "-131.18502761",
+          "DOGE": "178.76623663",
+          "ETH": "-992.28050024",
+          "SOL": "194.25433349",
+          "SUI": "-334.09629084",
+          "XRP": "616.29512670"
+        },
+        "portfolio_vol_target": "0.40",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 634,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "28.94001738",
+          "sharpe_annual": "0.33144956",
+          "total_return_pct": "9.36737017",
+          "vol_annual": "0.26470918"
+        },
+        "turnover_annual": "11.36646355",
+        "vol_targeting": true
+      }
+    ],
+    "exec_ev1_stress": [
+      {
+        "avg_friction_bps": "27.26035812",
+        "avg_gross_exposure": "0.15719372",
+        "avg_net_exposure": "0.15719372",
+        "config_id": "tsmom_ev1_lb30_vt20_long_only_1d",
+        "ending_equity": "13240.64252073",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "-0.12720000",
+          "1": "41.35047460",
+          "2": "56.13201559"
+        },
+        "friction_paid_quote": "361.30511219",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "16.81490372",
+          "sharpe_annual": "1.04505298",
+          "total_return_pct": "32.40642521",
+          "vol_annual": "0.11697461"
+        },
+        "lookback_days": 30,
+        "mode": "long_only",
+        "net_pnl": "3240.64252073",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "16.81490372",
+          "sharpe_annual": "-1.54186186",
+          "total_return_pct": "-12.70139025",
+          "vol_annual": "0.11683967"
+        },
+        "oos_trade_count": 109,
+        "per_symbol_net_pnl": {
+          "AVAX": "19.22766731",
+          "BNB": "599.71324476",
+          "BTC": "183.99197114",
+          "DOGE": "1144.08996303",
+          "ETH": "358.37017614",
+          "SOL": "243.70564450",
+          "SUI": "48.80836949",
+          "XRP": "642.73548436"
+        },
+        "portfolio_vol_target": "0.20",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 337,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "10.74191378",
+          "sharpe_annual": "2.16999177",
+          "total_return_pct": "52.03890035",
+          "vol_annual": "0.11645034"
+        },
+        "turnover_annual": "4.18803715",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "27.32615293",
+        "avg_gross_exposure": "0.31413999",
+        "avg_net_exposure": "0.31413999",
+        "config_id": "tsmom_ev1_lb30_vt40_long_only_1d",
+        "ending_equity": "16876.38706983",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "-0.07954026",
+          "1": "19.90990376",
+          "2": "29.82851298"
+        },
+        "friction_paid_quote": "958.70001146",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "31.25959730",
+          "sharpe_annual": "1.03766445",
+          "total_return_pct": "68.76387070",
+          "vol_annual": "0.23375354"
+        },
+        "lookback_days": 30,
+        "mode": "long_only",
+        "net_pnl": "6876.38706983",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "31.25959730",
+          "sharpe_annual": "-1.49752720",
+          "total_return_pct": "-24.37542188",
+          "vol_annual": "0.23757662"
+        },
+        "oos_trade_count": 127,
+        "per_symbol_net_pnl": {
+          "AVAX": "20.48991441",
+          "BNB": "1590.83722334",
+          "BTC": "200.89719741",
+          "DOGE": "2459.43064700",
+          "ETH": "752.42724160",
+          "SOL": "536.62632762",
+          "SUI": "-93.26821899",
+          "XRP": "1408.94673744"
+        },
+        "portfolio_vol_target": "0.40",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 409,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "20.82434857",
+          "sharpe_annual": "2.16768679",
+          "total_return_pct": "124.22502894",
+          "vol_annual": "0.23096164"
+        },
+        "turnover_annual": "8.65030441",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "27.72084727",
+        "avg_gross_exposure": "0.14955114",
+        "avg_net_exposure": "0.14955114",
+        "config_id": "tsmom_ev1_lb60_vt20_long_only_1d",
+        "ending_equity": "10812.86941847",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.14315129",
+          "1": "-10.14997953",
+          "2": "-51.99518036"
+        },
+        "friction_paid_quote": "277.38036028",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "14.94001934",
+          "sharpe_annual": "0.33256714",
+          "total_return_pct": "8.12869418",
+          "vol_annual": "0.11724115"
+        },
+        "lookback_days": 60,
+        "mode": "long_only",
+        "net_pnl": "812.86941847",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "14.94001934",
+          "sharpe_annual": "-1.65503502",
+          "total_return_pct": "-11.92997872",
+          "vol_annual": "0.10250215"
+        },
+        "oos_trade_count": 82,
+        "per_symbol_net_pnl": {
+          "AVAX": "-194.43742280",
+          "BNB": "510.15742465",
+          "BTC": "-195.03193676",
+          "DOGE": "202.08515859",
+          "ETH": "172.62670269",
+          "SOL": "-209.66324665",
+          "SUI": "48.29220631",
+          "XRP": "478.84053244"
+        },
+        "portfolio_vol_target": "0.20",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 304,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "11.34026028",
+          "sharpe_annual": "1.06373669",
+          "total_return_pct": "23.32357053",
+          "vol_annual": "0.12272548"
+        },
+        "turnover_annual": "3.56871615",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "27.71725306",
+        "avg_gross_exposure": "0.29986133",
+        "avg_net_exposure": "0.29986133",
+        "config_id": "tsmom_ev1_lb60_vt40_long_only_1d",
+        "ending_equity": "11306.90631374",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.16041680",
+          "1": "-6.46545434",
+          "2": "-49.01702901"
+        },
+        "friction_paid_quote": "622.14149158",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "28.31921219",
+          "sharpe_annual": "0.33254441",
+          "total_return_pct": "13.06906314",
+          "vol_annual": "0.23417997"
+        },
+        "lookback_days": 60,
+        "mode": "long_only",
+        "net_pnl": "1306.90631374",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "28.31921219",
+          "sharpe_annual": "-1.63787417",
+          "total_return_pct": "-23.02525978",
+          "vol_annual": "0.20672840"
+        },
+        "oos_trade_count": 95,
+        "per_symbol_net_pnl": {
+          "AVAX": "-577.70523300",
+          "BNB": "1114.21799491",
+          "BTC": "-502.84287410",
+          "DOGE": "337.62304424",
+          "ETH": "398.87379856",
+          "SOL": "-452.81013119",
+          "SUI": "-46.79708203",
+          "XRP": "1036.34679635"
+        },
+        "portfolio_vol_target": "0.40",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 371,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "21.56473565",
+          "sharpe_annual": "1.06610278",
+          "total_return_pct": "48.19095910",
+          "vol_annual": "0.24442552"
+        },
+        "turnover_annual": "7.20231877",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "27.84300174",
+        "avg_gross_exposure": "0.14135856",
+        "avg_net_exposure": "0.14135856",
+        "config_id": "tsmom_ev1_lb90_vt20_long_only_1d",
+        "ending_equity": "10530.91711753",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.37397453",
+          "1": "-4.26394234",
+          "2": "0.89975822"
+        },
+        "friction_paid_quote": "204.07524143",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "17.01064539",
+          "sharpe_annual": "0.24345816",
+          "total_return_pct": "5.30917118",
+          "vol_annual": "0.11413584"
+        },
+        "lookback_days": 90,
+        "mode": "long_only",
+        "net_pnl": "530.91711753",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "17.01064539",
+          "sharpe_annual": "-1.71144544",
+          "total_return_pct": "-13.26560474",
+          "vol_annual": "0.11086889"
+        },
+        "oos_trade_count": 58,
+        "per_symbol_net_pnl": {
+          "AVAX": "-8.06868864",
+          "BNB": "349.07091254",
+          "BTC": "-65.09486692",
+          "DOGE": "119.35961437",
+          "ETH": "-355.35997386",
+          "SOL": "-60.46293235",
+          "SUI": "-12.48504962",
+          "XRP": "563.95810201"
+        },
+        "portfolio_vol_target": "0.20",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 266,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "12.66265077",
+          "sharpe_annual": "1.06767156",
+          "total_return_pct": "21.93116369",
+          "vol_annual": "0.11519625"
+        },
+        "turnover_annual": "2.69291760",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "27.77625849",
+        "avg_gross_exposure": "0.28340606",
+        "avg_net_exposure": "0.28340606",
+        "config_id": "tsmom_ev1_lb90_vt40_long_only_1d",
+        "ending_equity": "10664.92159719",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.37168600",
+          "1": "9.82965098",
+          "2": "17.82938263"
+        },
+        "friction_paid_quote": "441.94513011",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "31.75690501",
+          "sharpe_annual": "0.23054115",
+          "total_return_pct": "6.64921597",
+          "vol_annual": "0.22929189"
+        },
+        "lookback_days": 90,
+        "mode": "long_only",
+        "net_pnl": "664.92159719",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "31.75690501",
+          "sharpe_annual": "-1.64789922",
+          "total_return_pct": "-25.22867823",
+          "vol_annual": "0.22683631"
+        },
+        "oos_trade_count": 78,
+        "per_symbol_net_pnl": {
+          "AVAX": "-172.37111338",
+          "BNB": "748.15659111",
+          "BTC": "-207.57725029",
+          "DOGE": "169.41297990",
+          "ETH": "-695.67290790",
+          "SOL": "-140.20008952",
+          "SUI": "-157.52647088",
+          "XRP": "1120.69985815"
+        },
+        "portfolio_vol_target": "0.40",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 347,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "24.60555023",
+          "sharpe_annual": "1.04293954",
+          "total_return_pct": "43.83326959",
+          "vol_annual": "0.22975250"
+        },
+        "turnover_annual": "5.47520659",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "27.48040680",
+        "avg_gross_exposure": "0.30517996",
+        "avg_net_exposure": "0.00918390",
+        "config_id": "tsmom_ev1_lb30_vt20_long_short_1d",
+        "ending_equity": "12777.02772407",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.08143450",
+          "1": "21.88064679",
+          "2": "-8.17353347"
+        },
+        "friction_paid_quote": "677.16823055",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "18.02542969",
+          "sharpe_annual": "0.73552730",
+          "total_return_pct": "27.77027724",
+          "vol_annual": "0.15285142"
+        },
+        "lookback_days": 30,
+        "mode": "long_short",
+        "net_pnl": "2777.02772407",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "14.35243978",
+          "sharpe_annual": "0.09768378",
+          "total_return_pct": "0.15852934",
+          "vol_annual": "0.16919809"
+        },
+        "oos_trade_count": 172,
+        "per_symbol_net_pnl": {
+          "AVAX": "255.26916876",
+          "BNB": "152.10979652",
+          "BTC": "90.88982738",
+          "DOGE": "1300.18572705",
+          "ETH": "543.34508071",
+          "SOL": "373.78854542",
+          "SUI": "-99.37230727",
+          "XRP": "160.81188550"
+        },
+        "portfolio_vol_target": "0.20",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 491,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "18.02542969",
+          "sharpe_annual": "1.05874844",
+          "total_return_pct": "27.67268868",
+          "vol_annual": "0.14540299"
+        },
+        "turnover_annual": "8.62776930",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "27.49558442",
+        "avg_gross_exposure": "0.61379675",
+        "avg_net_exposure": "0.01585585",
+        "config_id": "tsmom_ev1_lb30_vt40_long_short_1d",
+        "ending_equity": "15427.62090532",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.11163289",
+          "1": "-5.32781644",
+          "2": "-33.19149988"
+        },
+        "friction_paid_quote": "1584.46853830",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "34.16343311",
+          "sharpe_annual": "0.73349552",
+          "total_return_pct": "54.27620905",
+          "vol_annual": "0.30755236"
+        },
+        "lookback_days": 30,
+        "mode": "long_short",
+        "net_pnl": "5427.62090532",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "27.67748353",
+          "sharpe_annual": "0.12108899",
+          "total_return_pct": "-1.23516924",
+          "vol_annual": "0.34068914"
+        },
+        "oos_trade_count": 229,
+        "per_symbol_net_pnl": {
+          "AVAX": "638.21316807",
+          "BNB": "381.35537220",
+          "BTC": "57.12703518",
+          "DOGE": "2625.55826243",
+          "ETH": "1071.21711010",
+          "SOL": "877.26228354",
+          "SUI": "-394.69370177",
+          "XRP": "171.58137557"
+        },
+        "portfolio_vol_target": "0.40",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 679,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "34.16343311",
+          "sharpe_annual": "1.04380381",
+          "total_return_pct": "56.41329138",
+          "vol_annual": "0.29245433"
+        },
+        "turnover_annual": "17.84160511",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "27.85342325",
+        "avg_gross_exposure": "0.29281431",
+        "avg_net_exposure": "0.00639173",
+        "config_id": "tsmom_ev1_lb60_vt20_long_short_1d",
+        "ending_equity": "10306.99706083",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.31810110",
+          "1": "-22.92254324",
+          "2": "-88.66941671"
+        },
+        "friction_paid_quote": "516.44507675",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "18.11290851",
+          "sharpe_annual": "0.15808663",
+          "total_return_pct": "3.06997061",
+          "vol_annual": "0.14674593"
+        },
+        "lookback_days": 60,
+        "mode": "long_short",
+        "net_pnl": "306.99706083",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "12.54992554",
+          "sharpe_annual": "0.27636792",
+          "total_return_pct": "2.26348478",
+          "vol_annual": "0.15487196"
+        },
+        "oos_trade_count": 160,
+        "per_symbol_net_pnl": {
+          "AVAX": "-92.96819465",
+          "BNB": "322.35882874",
+          "BTC": "-273.02776142",
+          "DOGE": "270.65090628",
+          "ETH": "419.98271619",
+          "SOL": "-321.10508233",
+          "SUI": "-124.76997018",
+          "XRP": "105.87561820"
+        },
+        "portfolio_vol_target": "0.20",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 462,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "18.11290851",
+          "sharpe_annual": "0.12313009",
+          "total_return_pct": "1.26321943",
+          "vol_annual": "0.14321661"
+        },
+        "turnover_annual": "7.25023099",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "27.78051011",
+        "avg_gross_exposure": "0.58947332",
+        "avg_net_exposure": "0.01058244",
+        "config_id": "tsmom_ev1_lb60_vt40_long_short_1d",
+        "ending_equity": "9990.68415536",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.28721954",
+          "1": "-28.99733849",
+          "2": "-92.48231173"
+        },
+        "friction_paid_quote": "1072.74806670",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "34.05481954",
+          "sharpe_annual": "0.14631482",
+          "total_return_pct": "-0.09315845",
+          "vol_annual": "0.29479219"
+        },
+        "lookback_days": 60,
+        "mode": "long_short",
+        "net_pnl": "-9.31584464",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "24.12641490",
+          "sharpe_annual": "0.23957824",
+          "total_return_pct": "1.93273283",
+          "vol_annual": "0.30960997"
+        },
+        "oos_trade_count": 221,
+        "per_symbol_net_pnl": {
+          "AVAX": "-322.13694090",
+          "BNB": "554.76529095",
+          "BTC": "-601.17962298",
+          "DOGE": "486.20904141",
+          "ETH": "810.87701509",
+          "SOL": "-660.72946057",
+          "SUI": "-448.63571341",
+          "XRP": "171.51454577"
+        },
+        "portfolio_vol_target": "0.40",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 643,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "34.05481954",
+          "sharpe_annual": "0.12340122",
+          "total_return_pct": "-1.04108148",
+          "vol_annual": "0.28839252"
+        },
+        "turnover_annual": "14.90062909",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "27.90020451",
+        "avg_gross_exposure": "0.28410088",
+        "avg_net_exposure": "-0.00181321",
+        "config_id": "tsmom_ev1_lb90_vt20_long_short_1d",
+        "ending_equity": "10334.27559680",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.53657988",
+          "1": "-25.73806287",
+          "2": "-54.37495959"
+        },
+        "friction_paid_quote": "390.70128679",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "15.67598698",
+          "sharpe_annual": "0.16542568",
+          "total_return_pct": "3.34275597",
+          "vol_annual": "0.14868343"
+        },
+        "lookback_days": 90,
+        "mode": "long_short",
+        "net_pnl": "334.27559680",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "15.23953596",
+          "sharpe_annual": "0.04355444",
+          "total_return_pct": "-0.63736698",
+          "vol_annual": "0.18288371"
+        },
+        "oos_trade_count": 154,
+        "per_symbol_net_pnl": {
+          "AVAX": "307.08554104",
+          "BNB": "195.83244764",
+          "BTC": "-49.44566372",
+          "DOGE": "109.52224526",
+          "ETH": "-538.25352945",
+          "SOL": "108.61145676",
+          "SUI": "-132.74822445",
+          "XRP": "333.67132372"
+        },
+        "portfolio_vol_target": "0.20",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 439,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "15.67598698",
+          "sharpe_annual": "0.26006193",
+          "total_return_pct": "4.44786284",
+          "vol_annual": "0.13152815"
+        },
+        "turnover_annual": "5.53566906",
+        "vol_targeting": true
+      },
+      {
+        "avg_friction_bps": "27.80151958",
+        "avg_gross_exposure": "0.57213856",
+        "avg_net_exposure": "-0.00555499",
+        "config_id": "tsmom_ev1_lb90_vt40_long_short_1d",
+        "ending_equity": "10031.11646174",
+        "entry_timing_cost_bps_by_lateness": {
+          "0": "0.36909675",
+          "1": "-28.18418109",
+          "2": "-45.91693564"
+        },
+        "friction_paid_quote": "795.52921711",
+        "full_stats": {
+          "days": 889,
+          "max_drawdown_pct": "29.41541799",
+          "sharpe_annual": "0.15497450",
+          "total_return_pct": "0.31116462",
+          "vol_annual": "0.29964913"
+        },
+        "lookback_days": 90,
+        "mode": "long_short",
+        "net_pnl": "31.11646174",
+        "oos_stats": {
+          "days": 266,
+          "max_drawdown_pct": "29.10507219",
+          "sharpe_annual": "0.00422352",
+          "total_return_pct": "-4.75013540",
+          "vol_annual": "0.36897282"
+        },
+        "oos_trade_count": 229,
+        "per_symbol_net_pnl": {
+          "AVAX": "442.52713266",
+          "BNB": "338.04509151",
+          "BTC": "-177.97809505",
+          "DOGE": "142.81814374",
+          "ETH": "-1019.38801138",
+          "SOL": "137.74935230",
+          "SUI": "-357.56148211",
+          "XRP": "524.90433007"
+        },
+        "portfolio_vol_target": "0.40",
+        "rebalance_count": 127,
+        "strategy_type": "time_series_momentum",
+        "trade_count": 633,
+        "train_stats": {
+          "days": 623,
+          "max_drawdown_pct": "29.41541799",
+          "sharpe_annual": "0.26632839",
+          "total_return_pct": "6.20067332",
+          "vol_annual": "0.26483971"
+        },
+        "turnover_annual": "11.36256011",
+        "vol_targeting": true
+      }
+    ]
+  },
+  "phase": "TSMOM-EV1",
+  "report": "tsmom_ev1_vol_targeted_momentum_evidence",
+  "routing": {
+    "gate_id": "tsmom_buy_hold_risk_adjusted_gate",
+    "never_judged_by": [
+      "per_symbol_breadth_friction_gate",
+      "selection_random_benchmark_gate"
+    ],
+    "strategy_type": "time_series_momentum"
+  },
+  "run_timestamp_utc": "2026-06-11T14:00:00Z",
+  "selection_gate": {
+    "gate_id": "tsmom_buy_hold_risk_adjusted_gate",
+    "leave_one_out_sharpe_edges": {
+      "AVAX": "0.33663461",
+      "BNB": "0.25078516",
+      "BTC": "0.29941881",
+      "DOGE": "0.19803067",
+      "ETH": "0.45266587",
+      "SOL": "0.28530851",
+      "SUI": "0.22374984",
+      "XRP": "0.55922191"
+    },
+    "min_oos_days_required": 120,
+    "min_oos_trades_required": 12,
+    "oos_buy_hold": {
+      "days": 266,
+      "max_drawdown_pct": "65.68137978",
+      "sharpe_annual": "-1.80669701",
+      "total_return_pct": "-61.69142244",
+      "vol_annual": "0.62161078"
+    },
+    "oos_drawdown_delta_vs_buy_hold_pct": "-49.11794687",
+    "oos_sharpe_edge_vs_buy_hold": "0.32837634",
+    "oos_strategy": {
+      "days": 266,
+      "max_drawdown_pct": "16.56343291",
+      "sharpe_annual": "-1.47832067",
+      "total_return_pct": "-12.23482357",
+      "vol_annual": "0.11689372"
+    },
+    "oos_trade_count": 109,
+    "passed": true,
+    "qualifiers": [
+      "oos_absolute_sharpe_not_positive_relative_edge_only",
+      "oos_absolute_return_negative_defensive_value_only"
+    ],
+    "reason_codes": [
+      "tsmom_gate_passed"
+    ],
+    "status": "beats_buy_hold_risk_adjusted_oos",
+    "walk_forward_sharpe_edges": [
+      "1.16299475",
+      "0.41356891"
+    ]
+  },
+  "status": "tsmom_evidence_complete",
+  "train_only_choice": {
+    "chosen_config": "tsmom_ev1_lb30_vt20_long_only_1d",
+    "criterion": "best train-window Sharpe under conservative friction"
+  },
+  "universe": {
+    "aligned_days": 889,
+    "excluded_thin_symbols": [
+      "HYPE"
+    ],
+    "liquid_subset": [
+      "AVAX",
+      "BNB",
+      "BTC",
+      "DOGE",
+      "ETH",
+      "SOL",
+      "SUI",
+      "XRP"
+    ],
+    "rationale": "All eight have full 889-candle 1d history (2024-01-02 -> 2026-06-08) and sit in the EXEC-EV1 major/large liquidity tiers, so modeled friction is benign at 10k sizing. HYPE excluded: mid-alt tier and ~550 candles only.",
+    "timeframe": "1d",
+    "window": [
+      "2024-01-02 00:00:00+00:00",
+      "2026-06-08 00:00:00+00:00"
+    ]
+  },
+  "verdict": "beats_buy_hold_risk_adjusted_oos",
+  "walk_forward": {
+    "fold_b": {
+      "chosen_config": "tsmom_ev1_lb30_vt20_long_only_1d",
+      "sharpe_edge_vs_buy_hold": "1.16299475",
+      "window": [
+        "2024-10-24 00:00:00+00:00",
+        "2025-08-16 00:00:00+00:00"
+      ]
+    },
+    "fold_c": {
+      "chosen_config": "tsmom_ev1_lb30_vt20_long_only_1d",
+      "sharpe_edge_vs_buy_hold": "0.41356891",
+      "window": [
+        "2025-08-16 00:00:00+00:00",
+        "end"
+      ]
+    }
+  }
+}

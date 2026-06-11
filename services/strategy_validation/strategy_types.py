@@ -36,15 +36,21 @@ from typing import Any, Callable
 
 STRATEGY_TYPE_PER_SYMBOL = "per_symbol"
 STRATEGY_TYPE_CROSS_SECTIONAL_SELECTION = "cross_sectional_selection"
+STRATEGY_TYPE_TIME_SERIES_MOMENTUM = "time_series_momentum"
 
 STRATEGY_TYPES = (
     STRATEGY_TYPE_PER_SYMBOL,
     STRATEGY_TYPE_CROSS_SECTIONAL_SELECTION,
+    STRATEGY_TYPE_TIME_SERIES_MOMENTUM,
 )
 
 # Gate identities. Each gate may only ever be applied to its own strategy type.
 PER_SYMBOL_GATE_ID = "per_symbol_breadth_friction_gate"
 SELECTION_GATE_ID = "selection_random_benchmark_gate"
+# TSMOM-EV1: time-series momentum is judged against BUY-AND-HOLD on a
+# risk-adjusted basis (Sharpe + max drawdown) — NOT the selection
+# random-benchmark gate and NOT the per-symbol breadth gate.
+TSMOM_GATE_ID = "tsmom_buy_hold_risk_adjusted_gate"
 
 # The existing founder Week 2 lanes are per-symbol strategies (approach a).
 # Tagging them here changes nothing about how they run; it only makes the
@@ -57,6 +63,9 @@ PER_SYMBOL_LANE_IDS = (
 
 # Cross-sectional selection configs are SEL-EV1-authored and use this prefix.
 CROSS_SECTIONAL_SELECTION_ID_PREFIX = "sel_ev1_"
+
+# Time-series momentum configs are TSMOM-EV1-authored and use this prefix.
+TIME_SERIES_MOMENTUM_ID_PREFIX = "tsmom_ev1_"
 
 
 class StrategyTypeRoutingError(RuntimeError):
@@ -89,18 +98,31 @@ _ROUTES: dict[str, StrategyTypeRoute] = {
         gate_id=SELECTION_GATE_ID,
         evaluation="selection_random_benchmark_rotation_oos_evaluation",
     ),
+    STRATEGY_TYPE_TIME_SERIES_MOMENTUM: StrategyTypeRoute(
+        strategy_type=STRATEGY_TYPE_TIME_SERIES_MOMENTUM,
+        simulator_ref=(
+            "services.strategy_validation.tsmom_ev1:simulate_tsmom_portfolio"
+        ),
+        gate_ref="services.strategy_validation.tsmom_ev1:evaluate_tsmom_gate",
+        gate_id=TSMOM_GATE_ID,
+        evaluation="tsmom_buy_hold_risk_adjusted_oos_evaluation",
+    ),
 }
 
 
 def strategy_type_for(strategy_id: str) -> str:
     """Resolve the strategy type for a strategy/lane id.
 
-    SEL-EV1 selection configs carry the ``sel_ev1_`` prefix. Everything else —
-    the three Week 2 lanes and every GOAL-STRAT1/STRAT-DISC1-era per-symbol
-    research config — is ``per_symbol``, which preserves existing behavior.
+    SEL-EV1 selection configs carry the ``sel_ev1_`` prefix; TSMOM-EV1
+    time-series momentum configs carry the ``tsmom_ev1_`` prefix. Everything
+    else — the three Week 2 lanes and every GOAL-STRAT1/STRAT-DISC1-era
+    per-symbol research config — is ``per_symbol``, which preserves existing
+    behavior.
     """
     if strategy_id.startswith(CROSS_SECTIONAL_SELECTION_ID_PREFIX):
         return STRATEGY_TYPE_CROSS_SECTIONAL_SELECTION
+    if strategy_id.startswith(TIME_SERIES_MOMENTUM_ID_PREFIX):
+        return STRATEGY_TYPE_TIME_SERIES_MOMENTUM
     return STRATEGY_TYPE_PER_SYMBOL
 
 
@@ -150,6 +172,7 @@ def routing_policy() -> dict[str, Any]:
         "strategy_types": list(STRATEGY_TYPES),
         "per_symbol_lane_ids": list(PER_SYMBOL_LANE_IDS),
         "cross_sectional_selection_id_prefix": CROSS_SECTIONAL_SELECTION_ID_PREFIX,
+        "time_series_momentum_id_prefix": TIME_SERIES_MOMENTUM_ID_PREFIX,
         "routes": {
             strategy_type: {
                 "simulator": route.simulator_ref,
