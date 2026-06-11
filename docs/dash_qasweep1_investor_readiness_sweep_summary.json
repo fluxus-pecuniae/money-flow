@@ -1,0 +1,101 @@
+{
+  "phase": "DASH-QASWEEP1",
+  "report": "dash_qasweep1_investor_readiness_sweep",
+  "status": "ui_shakedown_complete",
+  "issues": [
+    {
+      "id": 1,
+      "severity": "blocker",
+      "where": "global filters",
+      "issue": "1s refresh rebuilt selects destructively (multi-click dropdowns)",
+      "status": "fixed",
+      "fix": "render-key idempotency + never rebuild under focus + value preserved (renderSelect + renderSelectWithoutAll)"
+    },
+    {
+      "id": 2,
+      "severity": "major",
+      "where": "runtime logs",
+      "issue": "open log re-defaulted to latest on refresh",
+      "status": "fixed",
+      "fix": "expandable details rows + state.selectedLogKey; latest only when nothing selected; survives re-renders"
+    },
+    {
+      "id": 3,
+      "severity": "major",
+      "where": "console hygiene",
+      "issue": "/api/paper-runtime/status 404 console error every 10s without control server",
+      "status": "fixed",
+      "fix": "adaptive 10s/60s backoff + zero probes under ?disableLivePolling (explicit unavailable state)"
+    },
+    {
+      "id": 4,
+      "severity": "major",
+      "where": "right rail @1600",
+      "issue": "57px page overflow (output select min-content blowout)",
+      "status": "fixed",
+      "fix": "min-width:0 + width:100% on control-grid labels/selects"
+    },
+    {
+      "id": 5,
+      "severity": "major",
+      "where": "right rail <=1180",
+      "issue": "45px overflow: stale tablet 3-col rail split + rigid 160/220 control-grid override",
+      "status": "fixed",
+      "fix": "rails single-column in legacy 1180 block; stale override removed"
+    },
+    {
+      "id": 6,
+      "severity": "major",
+      "where": "responsive",
+      "issue": "tablet/mobile stacking dead since DASH-IA1 (base grid rule after legacy media blocks)",
+      "status": "fixed",
+      "fix": "stacking re-asserted after the base rule (<=1180 single column); verified 390/768/1180/1280"
+    },
+    {
+      "id": 7,
+      "severity": "minor",
+      "where": "runtime actions",
+      "issue": "inline-flex actions row ignored its grid track",
+      "status": "fixed",
+      "fix": "block-level flex"
+    },
+    {
+      "id": 8,
+      "severity": "minor",
+      "where": "console hygiene",
+      "issue": "one native 404 per 60s probe persists without the control server (not JS-suppressible)",
+      "status": "flagged",
+      "recommendation": "run the local control server during the demo (zero 404s, live pills/logs)"
+    }
+  ],
+  "console_errors_final": 0,
+  "sweep_coverage": [
+    "nav/default tab",
+    "header pills",
+    "5 filter dropdowns",
+    "7 blotter tabs",
+    "watchlist (no OKB)",
+    "chart presence (untouched)",
+    "runtime control truncation",
+    "daily review no-scroll",
+    "testnet footer + status strip order",
+    "research log 13 entries + facets + analytics + honest badges",
+    "3 themes",
+    "widths 1600/1180/1000/768/390",
+    "live 1s refresh pass with mocked endpoints"
+  ],
+  "dash_qa1": "12/12 green (new #11 refresh stability, #12 console+overflow hygiene)",
+  "chart_and_markers_touched": false,
+  "safety_labels_softened": false,
+  "cache_buster": "dash-qasweep1-20260611",
+  "screenshots_dir": "docs/dash_qasweep1_screenshots/",
+  "boundaries": {
+    "ui_display_only": true,
+    "changes_runtime_behavior": false,
+    "changes_strategy_rules": false,
+    "changes_data_sources": false,
+    "submits_orders": false,
+    "approves_production_strategy": false,
+    "approves_live_trading": false
+  }
+}

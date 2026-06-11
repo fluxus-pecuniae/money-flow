@@ -18,6 +18,12 @@ lockstep with the DASH-IA1 2-tab consolidation):
   10. Research Log renders real post-mortems with honest outcome badges from
       docs/research_log.json — a non-positive result never renders green
       (RLOG1).
+  11. Refresh stability (DASH-QASWEEP1): with the 1s market refresh active
+      (mocked endpoints, no real network), filter dropdowns are never
+      rebuilt under focus, picked values stick, and the operator's open
+      runtime log survives status re-renders.
+  12. Layout/console hygiene (DASH-QASWEEP1): zero console/page errors on a
+      deterministic load and no horizontal overflow at 1600 / 1000 / 390 px.
 
 Grounded in real selectors from apps/dashboard/index.html and expected truth
 from current_truth.json (the TRUTH1 registry).
@@ -366,3 +372,137 @@ def test_research_log_renders_honest_post_mortems(page: Page, dashboard_url: str
     # Standing strip stays honest.
     standing = page.locator("#research-log-standing").inner_text().lower()
     assert "passed gate" in standing and "not approved" in standing
+
+# ---------------------------------------------------------------------------
+# 11. Refresh stability under the live 1s market refresh (DASH-QASWEEP1)
+# ---------------------------------------------------------------------------
+
+
+MOCK_CANDLES = [
+    {
+        "t": (1765400000 + i * 3600) * 1000,
+        "T": (1765403600 + i * 3600) * 1000,
+        "o": str(100 + i * 0.2),
+        "h": str(101 + i * 0.2),
+        "l": str(99 + i * 0.2),
+        "c": str(100.5 + i * 0.2),
+        "v": "1200",
+        "s": "ETH",
+        "i": "1h",
+    }
+    for i in range(60)
+]
+
+
+def _mock_live_routes(page: Page, tick: dict) -> None:
+    """Mock the Hyperliquid public endpoints + the local control server so the
+    1s refresh loop runs deterministically with zero real network."""
+
+    def hyperliquid(route):  # type: ignore[no-untyped-def]
+        body = route.request.post_data or ""
+        if "allMids" in body:
+            route.fulfill(json={"BTC": "63000.5", "ETH": "1650.25", "SOL": "66.3"})
+        elif "candleSnapshot" in body:
+            route.fulfill(json=MOCK_CANDLES)
+        else:
+            route.fulfill(json={})
+
+    def status(route):  # type: ignore[no-untyped-def]
+        tick["n"] += 1
+        route.fulfill(
+            json={
+                "running": False,
+                "status": "idle",
+                "message": "local_control_server_ready",
+                "runtime_log_files": [
+                    {"key": "runtime_audit", "label": "runtime_audit.jsonl", "role": "runtime audit",
+                     "path": "reports/x/runtime_audit.jsonl", "absolute_path": "/tmp/x/runtime_audit.jsonl",
+                     "exists": True, "size_bytes": 1000 + tick["n"],
+                     "modified_at_utc": f"2026-06-11T07:00:{tick['n'] % 60:02d}Z",
+                     "tail_command": "tail -n 50 -F runtime_audit.jsonl"},
+                    {"key": "trades", "label": "trades.jsonl", "role": "synthetic trades",
+                     "path": "reports/x/trades.jsonl", "absolute_path": "/tmp/x/trades.jsonl",
+                     "exists": True, "size_bytes": 800, "modified_at_utc": "2026-06-11T05:00:00Z",
+                     "tail_command": "tail -n 50 -F trades.jsonl"},
+                ],
+                "safe_flags": ["--public-mainnet-only"],
+            }
+        )
+
+    page.route("**/api.hyperliquid.xyz/**", hyperliquid)
+    page.route("**/api/paper-runtime/status", status)
+
+
+def test_refresh_does_not_clobber_selects_or_open_log(
+    page: Page, dashboard_base_url: str
+) -> None:
+    tick = {"n": 0}
+    _mock_live_routes(page, tick)
+    # No disableLivePolling flag: the 1s refresh loop is ACTIVE (mocked).
+    _goto(page, f"{dashboard_base_url}/apps/dashboard/index.html")
+    expect(page.locator(PAPER_VIEW)).to_be_visible()
+    page.wait_for_timeout(2500)
+
+    # A focused dropdown is never rebuilt mid-pick.
+    sel = "#paper-observation-symbol-filter"
+    page.focus(sel)
+    before = page.evaluate(f"() => document.querySelector('{sel}').options.length")
+    page.wait_for_timeout(3000)
+    assert page.evaluate(f"() => document.activeElement === document.querySelector('{sel}')"), (
+        "refresh stole focus from an open dropdown"
+    )
+    after = page.evaluate(f"() => document.querySelector('{sel}').options.length")
+    assert before == after, f"options rebuilt under focus ({before} -> {after})"
+
+    # A picked value sticks across refreshes.
+    options = page.evaluate(
+        f"() => Array.from(document.querySelector('{sel}').options).map(o => o.value)"
+    )
+    target = options[2] if len(options) > 2 else options[-1]
+    page.select_option(sel, target)
+    page.evaluate("() => document.activeElement.blur()")
+    page.wait_for_timeout(2500)
+    assert page.evaluate(f"() => document.querySelector('{sel}').value") == target, (
+        "refresh clobbered the picked filter value"
+    )
+
+    # The operator's open (non-latest) runtime log survives status re-renders.
+    page.locator('[data-paper-terminal-tab="logs"]').click()
+    expect(page.locator('[data-runtime-log-key="trades"]')).to_be_visible()
+    page.locator('[data-runtime-log-key="trades"] summary').click()
+    page.wait_for_timeout(2500)  # several status polls with changing metadata
+    open_keys = page.evaluate(
+        """() => Array.from(document.querySelectorAll('[data-runtime-log-key]'))
+            .filter((d) => d.open).map((d) => d.dataset.runtimeLogKey)"""
+    )
+    assert open_keys == ["trades"], f"open log not preserved across refresh: {open_keys}"
+
+
+# ---------------------------------------------------------------------------
+# 12. Layout / console hygiene (DASH-QASWEEP1)
+# ---------------------------------------------------------------------------
+
+
+def test_no_console_errors_and_no_horizontal_overflow(
+    page: Page, dashboard_base_url: str
+) -> None:
+    errors: list[str] = []
+    page.on("pageerror", lambda e: errors.append(f"pageerror: {e}"))
+    page.on(
+        "console",
+        lambda m: errors.append(f"console.error: {m.text}") if m.type == "error" else None,
+    )
+    _goto(page, f"{dashboard_base_url}/apps/dashboard/index.html?disableLivePolling=true")
+    page.wait_for_timeout(2500)
+    page.locator(RESEARCH_LOG_TAB).click()
+    page.wait_for_timeout(800)
+    page.locator(PAPER_TAB).click()
+    page.wait_for_timeout(500)
+    assert not errors, f"console/page errors during deterministic load: {errors[:5]}"
+    for width in (1600, 1000, 390):
+        page.set_viewport_size({"width": width, "height": 900})
+        page.wait_for_timeout(600)
+        overflow = page.evaluate(
+            "() => document.documentElement.scrollWidth - document.documentElement.clientWidth"
+        )
+        assert overflow <= 4, f"horizontal overflow {overflow}px at {width}px"

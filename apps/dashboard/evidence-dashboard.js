@@ -738,6 +738,7 @@
       logPath: null,
       runtimeLogFiles: [],
       runtimeLogFilesRenderKey: "",
+      selectedLogKey: null,
       safeFlags: ["--pt-rt1-5-week1-active", "--fresh-signal-only-after-runtime-start", "--enable-baseline-testnet-transport", "--pt-rt1-5-testnet-order-notional-usdc", "25", "--signal-evaluation-mode", "candle_close_only", "--disable-legacy-testnet-probes", "--public-mainnet-only"],
       message: "checking_local_control_server",
       inFlight: false,
@@ -977,19 +978,26 @@
 
   function renderSelectWithoutAll(select, values, activeValue) {
     if (!select) return;
+    // DASH-QASWEEP1: idempotent + focus-safe, same contract as renderSelect.
+    if (document.activeElement === select) return;
     const normalized = values.map((value) =>
       typeof value === "object" && value !== null
         ? { value: value.value, label: value.label || value.value }
         : { value, label: displayTimeframe(value) },
     );
-    select.innerHTML = normalized
-      .map((row) => `<option value="${escapeHtml(row.value)}">${escapeHtml(row.label)}</option>`)
-      .join("");
-    if (normalized.some((row) => row.value === activeValue)) {
-      select.value = activeValue;
-    } else if (normalized[0]) {
-      select.value = normalized[0].value;
+    const renderKey = JSON.stringify(normalized);
+    if (select.dataset.renderKey !== renderKey) {
+      select.innerHTML = normalized
+        .map((row) => `<option value="${escapeHtml(row.value)}">${escapeHtml(row.label)}</option>`)
+        .join("");
+      select.dataset.renderKey = renderKey;
     }
+    const desired = normalized.some((row) => row.value === activeValue)
+      ? activeValue
+      : normalized[0]
+        ? normalized[0].value
+        : select.value;
+    if (select.value !== desired) select.value = desired;
   }
 
   function setEmpty(target, message) {
@@ -1484,16 +1492,24 @@
 
   function renderSelect(select, values, activeValue, labelAll) {
     if (!select) return;
+    // DASH-QASWEEP1: never rebuild a select the operator is interacting with —
+    // the 1s market refresh used to clobber an open dropdown mid-pick.
+    if (document.activeElement === select) return;
     const normalized = values.map((value) =>
       typeof value === "object" && value !== null
         ? { value: value.value, label: value.label || value.value }
         : { value, label: displayTimeframe(value) },
     );
-    select.innerHTML = [
-      `<option value="all">${escapeHtml(labelAll)}</option>`,
-      ...normalized.map((row) => `<option value="${escapeHtml(row.value)}">${escapeHtml(row.label)}</option>`),
-    ].join("");
-    select.value = normalized.some((row) => row.value === activeValue) ? activeValue : "all";
+    const renderKey = JSON.stringify([labelAll, normalized]);
+    if (select.dataset.renderKey !== renderKey) {
+      select.innerHTML = [
+        `<option value="all">${escapeHtml(labelAll)}</option>`,
+        ...normalized.map((row) => `<option value="${escapeHtml(row.value)}">${escapeHtml(row.label)}</option>`),
+      ].join("");
+      select.dataset.renderKey = renderKey;
+    }
+    const desired = normalized.some((row) => row.value === activeValue) ? activeValue : "all";
+    if (select.value !== desired) select.value = desired;
   }
 
   function uatFilteredRecords(records) {
@@ -4406,15 +4422,39 @@
     renderPaperRuntimeControl();
   }
 
+  function schedulePaperRuntimeControlPoll() {
+    // DASH-QASWEEP1: adaptive cadence — 10s while the local control server
+    // responds, 60s backoff while it is unavailable (each failed probe logs a
+    // browser-native 404 console error; backoff keeps the console clean
+    // without losing auto-recovery when the server starts later).
+    const interval = state.paperRuntimeControl.available ? 10000 : 60000;
+    state.paperRuntimeControl.timer = window.setTimeout(async () => {
+      await refreshPaperRuntimeControlStatus();
+      if (state.paperRuntimeControl.timer) schedulePaperRuntimeControlPoll();
+    }, interval);
+  }
+
   function startPaperRuntimeControlPolling() {
     if (state.paperRuntimeControl.timer) return;
-    refreshPaperRuntimeControlStatus();
-    state.paperRuntimeControl.timer = window.setInterval(refreshPaperRuntimeControlStatus, 10000);
+    if (livePollingDisabledByQuery()) {
+      // Deterministic/CI mode: no network probes at all — render the explicit
+      // unavailable state instead of logging a 404 for the local control server.
+      normalizePaperRuntimeControlStatus(
+        { running: false, status: "unavailable", message: "Start/stop requires launching the local control server." },
+        false,
+      );
+      renderPaperRuntimeControl();
+      return;
+    }
+    state.paperRuntimeControl.timer = -1; // sentinel until the first schedule lands
+    refreshPaperRuntimeControlStatus().then(() => {
+      if (state.paperRuntimeControl.timer === -1) schedulePaperRuntimeControlPoll();
+    });
   }
 
   function stopPaperRuntimeControlPolling() {
     if (!state.paperRuntimeControl.timer) return;
-    window.clearInterval(state.paperRuntimeControl.timer);
+    if (state.paperRuntimeControl.timer !== -1) window.clearTimeout(state.paperRuntimeControl.timer);
     state.paperRuntimeControl.timer = null;
   }
 
@@ -4494,25 +4534,33 @@
     const latestFile = files
       .filter((file) => file?.modified_at_utc)
       .sort((left, right) => String(right.modified_at_utc).localeCompare(String(left.modified_at_utc)))[0];
+    // DASH-QASWEEP1: the operator's open log survives refreshes. Default to
+    // the latest-modified log only when nothing has been selected yet.
+    const selectedKey = state.paperRuntimeControl.selectedLogKey;
+    const openKey = selectedKey && files.some((file) => file?.key === selectedKey)
+      ? selectedKey
+      : latestFile?.key;
     const rows = files.map((file) => {
       const size = Number.isFinite(Number(file?.size_bytes)) ? paperObservationBytes(Number(file.size_bytes)) : "n/a";
       const existsLabel = file?.exists ? "present" : "missing";
       const command = file?.tail_command || (file?.absolute_path ? `tail -n 50 -F ${file.absolute_path}` : "tail command unavailable");
       return `
-        <article class="paper-runtime-log-row">
-          <div>
-            <strong>${escapeHtml(file?.label || file?.key || "runtime log")}</strong>
-            <span>${escapeHtml(file?.role || "runtime log file")}</span>
-            <code>${escapeHtml(file?.path || "path_unavailable")}</code>
-          </div>
-          <div class="paper-runtime-log-meta">
-            <span class="${file?.exists ? "status-good" : "status-waiting"}">${escapeHtml(existsLabel)}</span>
-            <span>${escapeHtml(size)}</span>
-            <span>${escapeHtml(file?.modified_at_utc || "not_written")}</span>
-          </div>
+        <details class="paper-runtime-log-row" data-runtime-log-key="${escapeHtml(file?.key || "")}"${file?.key === openKey ? " open" : ""}>
+          <summary>
+            <div>
+              <strong>${escapeHtml(file?.label || file?.key || "runtime log")}</strong>
+              <span>${escapeHtml(file?.role || "runtime log file")}</span>
+              <code>${escapeHtml(file?.path || "path_unavailable")}</code>
+            </div>
+            <div class="paper-runtime-log-meta">
+              <span class="${file?.exists ? "status-good" : "status-waiting"}">${escapeHtml(existsLabel)}</span>
+              <span>${escapeHtml(size)}</span>
+              <span>${escapeHtml(file?.modified_at_utc || "not_written")}</span>
+            </div>
+          </summary>
           <code class="paper-runtime-tail-command">${escapeHtml(command)}</code>
           <p>${escapeHtml(file?.empty_hint || "tail -F waits for newly appended lines; use -n to show existing rows.")}</p>
-        </article>
+        </details>
       `;
     }).join("");
     elements.paperRuntimeLogFiles.innerHTML = `
@@ -4530,6 +4578,18 @@
     `;
     const nextLogList = elements.paperRuntimeLogFiles.querySelector(".paper-runtime-log-list");
     if (nextLogList) nextLogList.scrollTop = previousScrollTop;
+    elements.paperRuntimeLogFiles.querySelectorAll("[data-runtime-log-key]").forEach((row) => {
+      row.addEventListener("toggle", () => {
+        if (row.open) {
+          state.paperRuntimeControl.selectedLogKey = row.dataset.runtimeLogKey || null;
+          elements.paperRuntimeLogFiles.querySelectorAll("[data-runtime-log-key]").forEach((other) => {
+            if (other !== row && other.open) other.open = false;
+          });
+        } else if (state.paperRuntimeControl.selectedLogKey === row.dataset.runtimeLogKey) {
+          state.paperRuntimeControl.selectedLogKey = null;
+        }
+      });
+    });
   }
 
   function renderTopStatusPills(control) {

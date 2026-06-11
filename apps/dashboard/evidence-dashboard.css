@@ -2978,13 +2978,16 @@ td {
     min-height: 0;
   }
 
+  /* DASH-QASWEEP1: the rails hold a single card each since DASH-IA1/PT3 —
+     the legacy 2/3-column tablet split squeezed Runtime Control into a third
+     of the width and pushed its content past the viewport. */
   .paper-observation-left-rail {
-    grid-template-columns: minmax(280px, 0.85fr) minmax(320px, 1fr);
+    grid-template-columns: 1fr;
     grid-template-rows: none;
   }
 
   .paper-observation-right-rail {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     grid-template-rows: none;
   }
 
@@ -3002,10 +3005,6 @@ td {
 
   .paper-observation-controls-title {
     grid-column: 1 / -1;
-  }
-
-  .paper-runtime-control-grid {
-    grid-template-columns: minmax(160px, 0.7fr) minmax(220px, 1fr);
   }
 
   .paper-runtime-actions {
@@ -4041,4 +4040,94 @@ td {
   .research-log-entry summary { grid-template-columns: 1fr; gap: var(--spacing-3); }
   .rlog-summary-right { text-align: left; }
   .rlog-kvs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ===========================================================================
+   DASH-QASWEEP1 — refresh-stability fixes (display only).
+   Runtime log rows are now expandable <details>: the operator's open log
+   survives the 1s refresh; default-open is the latest-modified log only when
+   nothing is selected.
+   =========================================================================== */
+
+.paper-runtime-log-row > summary {
+  display: grid;
+  gap: 0.45rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.paper-runtime-log-row > summary::-webkit-details-marker {
+  display: none;
+}
+
+.paper-runtime-log-row[open] {
+  border-color: color-mix(in srgb, var(--accent-live) 26%, var(--color-line));
+}
+
+.paper-runtime-log-row > .paper-runtime-tail-command,
+.paper-runtime-log-row > p {
+  margin-top: 0.2rem;
+}
+
+/* Right-rail Runtime Control: prevent grid min-content blowout — the Output
+   slate select's long option text pushed 57px past the viewport (DASH-QASWEEP1). */
+.paper-runtime-control-grid label {
+  min-width: 0;
+}
+
+.paper-runtime-control-grid select {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Runtime Control inner grid chain: allow shrinking + wrap long command/path
+   strings so the rail can never push past its track (45px overflow @1000px). */
+.paper-runtime-control-main,
+.paper-runtime-control-details,
+.paper-runtime-control-grid,
+.paper-runtime-card-heading,
+.paper-runtime-control-copy {
+  min-width: 0;
+}
+
+.paper-runtime-control-copy,
+.paper-runtime-control-copy span,
+.paper-runtime-control-message span,
+.paper-runtime-control-message strong {
+  overflow-wrap: anywhere;
+}
+
+/* Grid min-content blowouts (DASH-QASWEEP1): every terminal-grid track and
+   blotter panel must be allowed to shrink to its track instead of pushing the
+   page wider than the viewport at narrower demo widths. */
+.paper-observation-terminal-grid > .paper-observation-left-rail,
+.paper-observation-terminal-grid > .paper-observation-center-stage,
+.paper-observation-terminal-grid > .paper-observation-right-rail,
+.paper-observation-bottom-blotter,
+.paper-observation-blotter-panel,
+.paper-runtime-actions {
+  min-width: 0;
+}
+
+/* The actions row was inline-flex (max-content box that ignores its grid
+   track and spills past the rail at narrow widths) — block flex fills the
+   track and wraps the Start/Stop buttons instead. */
+.paper-runtime-actions {
+  display: flex;
+}
+
+/* DASH-QASWEEP1 regression fix: the DASH-IA1/PT3 terminal-grid base rule sits
+   after the legacy responsive blocks in this file, so the tablet/mobile
+   stacking they declared has been silently dead since DASH-IA1 (the grid kept
+   three desktop columns at every width). Re-assert stacking here, after the
+   base rule, so narrow widths stack: filters → watchlist → chart → runtime. */
+@media (max-width: 1180px) {
+  .paper-observation-terminal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .paper-observation-left-rail .paper-observation-watchlist-panel .data-table-shell {
+    height: auto;
+    max-height: 360px;
+  }
 }
