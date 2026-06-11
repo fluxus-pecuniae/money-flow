@@ -744,7 +744,7 @@
       timer: null,
     },
     ptRtDailyReview: null,
-    researchLog: { rows: [], loaded: false },
+    researchLog: { data: null, loaded: false },
   };
 
   const elements = {
@@ -759,7 +759,11 @@
     themeSelector: document.querySelector("#dashboard-theme-selector"),
     topRuntimePill: document.querySelector("#top-runtime-pill"),
     topLivePill: document.querySelector("#top-live-pill"),
+    researchLogStanding: document.querySelector("#research-log-standing"),
+    researchLogBanner: document.querySelector("#research-log-banner"),
     researchLogVerdictList: document.querySelector("#research-log-verdict-list"),
+    researchLogRail: document.querySelector("#research-log-rail"),
+    researchLogFooter: document.querySelector("#research-log-footer"),
     auditReviewVerdictCards: document.querySelector("#audit-review-verdict-cards"),
     auditReviewScorecard: document.querySelector("#audit-review-scorecard"),
     auditReviewPaperReadiness: document.querySelector("#audit-review-paper-readiness"),
@@ -6300,98 +6304,195 @@
   }
 
   // ---------------------------------------------------------------------------
-  // DASH-IA1 Research Log placeholder — institutional memory of what has been
-  // tested. Reads the committed docs/*_summary.json evidence summaries only
-  // (no hand-coded data); absent summaries are omitted gracefully. The full
-  // post-mortem view lands in RLOG1.
+  // RLOG1 Research Log — honest post-mortems rendered from docs/research_log.json
+  // (built read-only by scripts/build_research_log.py from the Decision Log
+  // research_log blocks + committed evidence summaries). The outcome badge
+  // comes ONLY from the authored taxonomy (fail/mixed/context/pass) — it is
+  // never inferred from a summary's raw status string, so a non-positive
+  // result can never render green.
   // ---------------------------------------------------------------------------
 
-  const RESEARCH_LOG_SUMMARY_SOURCES = [
-    "../../docs/sel_ev1_selection_evidence_summary.json",
-    "../../docs/exec_ev1_execution_quality_evidence_summary.json",
-    "../../docs/sv2_3_realistic_backtest_summary.json",
-    "../../docs/sv2_2_hyperliquid_research_refresh_summary.json",
-    "../../docs/goal_strat2_two_non_existing_strategies_summary.json",
-    "../../docs/goal_strat1_strategy_discovery_summary.json",
-    "../../docs/ev_audit1_full_hypothesis_data_and_paper_readiness_review_summary.json",
-    "../../docs/mf_orig_ev2_multitimeframe_evidence_summary.json",
-    "../../docs/mf_orig_ev1_original_money_flow_reconstruction_summary.json",
-    "../../docs/sor_ev3_avoid_sideways_low_volatility_summary.json",
-    "../../docs/sor_ev2_true_forward_stop_and_rejected_signal_replay_summary.json",
-    "../../docs/sor_ev1_money_flow_trade_loss_anatomy_and_variants_summary.json",
-  ];
-
-  function researchLogVerdict(payload) {
-    return (
-      payload?.verdict ||
-      payload?.conclusion ||
-      payload?.audit_verdict ||
-      payload?.gate_status ||
-      payload?.status ||
-      "verdict_not_recorded"
-    );
-  }
-
-  function researchLogDate(payload) {
-    const value = payload?.generated_at_utc || payload?.generated_at || payload?.run_timestamp || "";
-    return value ? String(value).slice(0, 10) : "";
-  }
+  const RESEARCH_LOG_DATA_FILES = ["../../docs/research_log.json"];
+  const RESEARCH_LOG_OUTCOME_CLASSES = new Set(["fail", "mixed", "context", "pass"]);
 
   async function loadResearchLogSummaries() {
-    const rows = [];
-    for (const path of RESEARCH_LOG_SUMMARY_SOURCES) {
+    for (const path of RESEARCH_LOG_DATA_FILES) {
       try {
         const response = await fetch(path, { cache: "no-store" });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const payload = await response.json();
-        if (!payload || typeof payload !== "object") continue;
-        rows.push({
-          phase: String(payload.phase || path.split("/").pop()),
-          date: researchLogDate(payload),
-          verdict: String(researchLogVerdict(payload)),
-          source: path.replace("../../", ""),
-        });
+        if (payload && payload.report === "research_log" && Array.isArray(payload.entries)) {
+          state.researchLog = { data: payload, loaded: true };
+          return;
+        }
       } catch (error) {
-        // Absent summaries are omitted gracefully; the row list stays data-driven.
         console.warn(`Research Log: could not load ${path}`, error);
       }
     }
-    rows.sort((left, right) => String(right.date).localeCompare(String(left.date)) || left.phase.localeCompare(right.phase));
-    state.researchLog = { rows, loaded: true };
+    state.researchLog = { data: null, loaded: true };
+  }
+
+  function researchLogOutcomeClass(outcome) {
+    return RESEARCH_LOG_OUTCOME_CLASSES.has(String(outcome || "")) ? String(outcome) : "context";
+  }
+
+  function researchLogBadge(entry) {
+    const tone = researchLogOutcomeClass(entry.outcome);
+    return `<span class="rlog-badge ${tone}">${escapeHtml(entry.badge || entry.outcome)}</span>`;
+  }
+
+  function researchLogKvs(kvs) {
+    if (!Array.isArray(kvs) || !kvs.length) return "";
+    return `<div class="rlog-kvs">${kvs
+      .map(
+        (kv) => `<div class="rlog-kv"><div class="k">${escapeHtml(kv.label)}</div><div class="v ${kv.tone === "neg" ? "neg" : ""}">${escapeHtml(kv.value)}</div></div>`,
+      )
+      .join("")}</div>`;
+  }
+
+  function researchLogTable(table, note) {
+    if (!table || !Array.isArray(table.rows) || !table.rows.length) return "";
+    return `
+      <table class="rlog-table">
+        <thead><tr>${(table.columns || []).map((col) => `<th>${escapeHtml(col)}</th>`).join("")}</tr></thead>
+        <tbody>${table.rows
+          .map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(String(cell))}</td>`).join("")}</tr>`)
+          .join("")}</tbody>
+      </table>
+      ${note ? `<div class="rlog-analytics-note">${escapeHtml(note)}</div>` : ""}
+    `;
+  }
+
+  function researchLogFacets(entry) {
+    const facets = entry.facets || {};
+    const rows = [];
+    if (facets.why) rows.push(["why", entry.outcome === "context" ? "Why it matters" : "Why it failed", facets.why]);
+    if (facets.worked) rows.push(["good", "What worked", facets.worked]);
+    if (facets.didnt) rows.push(["bad", "What didn't", facets.didnt]);
+    if (facets.lesson) rows.push(["lesson", "Lesson", facets.lesson]);
+    if (facets.our_error) {
+      rows.push(["err", "Our error", facets.our_error]);
+    } else if (facets.our_error_note) {
+      rows.push(["clean", "Our error?", facets.our_error_note]);
+    } else {
+      rows.push(["clean", "Our error?", "None recorded for this phase."]);
+    }
+    if (facets.changed) rows.push(["changed", "What it changed", facets.changed]);
+    return `<div class="rlog-facets">${rows
+      .map(
+        ([tone, label, text]) =>
+          `<div class="rlog-facet ${tone}"><div class="lbl">${escapeHtml(label)}</div><div class="txt">${escapeHtml(text)}</div></div>`,
+      )
+      .join("")}</div>`;
+  }
+
+  function researchLogEntry(entry, index) {
+    const analytics = (entry.analytics || [])
+      .map((block) => `${researchLogKvs(block.kvs)}${researchLogTable(block.table, block.note)}`)
+      .join("");
+    const links = [entry.evidence_doc, entry.evidence_summary]
+      .filter(Boolean)
+      .map((href) => `<a class="rlog-link" href="../../${escapeHtml(href)}" target="_blank" rel="noopener">${escapeHtml(href)} →</a>`)
+      .join(" ");
+    return `
+      <details class="research-log-entry rlog-${researchLogOutcomeClass(entry.outcome)}"${index === 0 ? " open" : ""}>
+        <summary>
+          <div>
+            <div class="rlog-id">${escapeHtml(entry.phase)}</div>
+            <div class="rlog-date">${escapeHtml(entry.date || "")}</div>
+            <span class="rlog-class">${escapeHtml(String(entry.class || "").replace(/_/g, " "))}</span>
+          </div>
+          <div>
+            <div class="rlog-title">${escapeHtml(entry.title)}</div>
+            <div class="rlog-finding">${escapeHtml(entry.finding)}</div>
+          </div>
+          <div class="rlog-summary-right">${researchLogBadge(entry)}<div class="rlog-chev">▸</div></div>
+        </summary>
+        <div class="rlog-detail">
+          ${analytics}
+          ${researchLogFacets(entry)}
+          ${links}
+        </div>
+      </details>
+    `;
   }
 
   function renderResearchLog() {
     if (!elements.researchLogVerdictList) return;
-    const { rows, loaded } = state.researchLog || { rows: [], loaded: false };
+    const { data, loaded } = state.researchLog || {};
     if (!loaded) {
-      setEmpty(elements.researchLogVerdictList, "Loading committed research summaries from docs/ ...");
+      setEmpty(elements.researchLogVerdictList, "Loading docs/research_log.json ...");
       return;
     }
-    if (!rows.length) {
-      setEmpty(elements.researchLogVerdictList, "No committed research summaries were found under docs/.");
+    if (!data) {
+      setEmpty(
+        elements.researchLogVerdictList,
+        "docs/research_log.json not loaded. Build it with scripts/build_research_log.py (read-only over committed records).",
+      );
       return;
     }
-    elements.researchLogVerdictList.innerHTML = `
-      <table class="research-log-table">
-        <thead>
-          <tr><th>Phase</th><th>Date</th><th>Verdict</th><th>Committed summary</th></tr>
-        </thead>
-        <tbody>
-          ${rows
-            .map(
-              (row) => `
-                <tr>
-                  <td><span class="research-log-phase">${escapeHtml(row.phase)}</span></td>
-                  <td>${escapeHtml(row.date || "date_not_recorded")}</td>
-                  <td>${auditReviewPill(row.verdict)}</td>
-                  <td class="research-log-source">${escapeHtml(row.source)}</td>
-                </tr>
-              `,
-            )
-            .join("")}
-        </tbody>
-      </table>
-    `;
+    const standing = data.standing || {};
+    if (elements.researchLogStanding) {
+      elements.researchLogStanding.innerHTML = `
+        <div class="rlog-cell"><div class="k">Hypotheses Tested</div><div class="v">${escapeHtml(String(standing.hypotheses_tested ?? "n/a"))}</div></div>
+        <div class="rlog-cell"><div class="k">Strategy Families</div><div class="v">${escapeHtml(String(standing.strategy_families ?? "n/a"))}</div></div>
+        <div class="rlog-cell"><div class="k">Passed Gate</div><div class="v bad">${escapeHtml(String(standing.passed_gate ?? 0))}</div></div>
+        <div class="rlog-cell"><div class="k">Production-Approved</div><div class="v bad">${escapeHtml(String(standing.production_approved ?? "NONE"))}</div></div>
+        <div class="rlog-cell"><div class="k">Live Trading</div><div class="v bad">${escapeHtml(String(standing.live_trading ?? "NOT APPROVED"))}</div></div>
+        <div class="rlog-cell"><div class="k">Standing Verdict</div><div class="v wn">${escapeHtml(String(standing.standing_verdict ?? ""))}</div></div>
+      `;
+    }
+    if (elements.researchLogBanner) {
+      const banner = data.verdict_banner || {};
+      elements.researchLogBanner.innerHTML = `
+        <div class="rlog-verdict-banner ${researchLogOutcomeClass(banner.tone || "fail")}">
+          <span class="rlog-vdot"></span>
+          <div>
+            <div class="big">${escapeHtml(banner.headline || "")}</div>
+            <div class="sub">${escapeHtml(banner.sub || "")}</div>
+          </div>
+        </div>
+      `;
+    }
+    elements.researchLogVerdictList.innerHTML = (data.entries || [])
+      .map((entry, index) => researchLogEntry(entry, index))
+      .join("");
+    if (elements.researchLogRail) {
+      const lanes = (data.active_lanes || [])
+        .map(
+          (lane) =>
+            `<div class="rlog-lane">${paperObservationLaneChip(lane.lane_id)}<span class="role">${escapeHtml(lane.role || "")}</span></div>`,
+        )
+        .join("");
+      const glance = (data.at_a_glance || [])
+        .map((row) => `${escapeHtml(row.label)} → <b>${escapeHtml(row.result)}</b>`)
+        .join("<br>");
+      const lessons = (data.lessons_hardened_gates || [])
+        .map((row) => `${escapeHtml(row.phase)} → <b>${escapeHtml(row.gate)}</b>`)
+        .join("<br>");
+      elements.researchLogRail.innerHTML = `
+        <div class="rlog-card">
+          <h3>Active Paper Lanes · paper-only</h3>
+          ${lanes}
+          <div class="rlog-note">Synthetic ledgers · public-mainnet strategy truth · only baseline is testnet-eligible · not production-approved. These run for observation, not because an edge is proven.</div>
+        </div>
+        <div class="rlog-card">
+          <h3>Standing at a glance</h3>
+          <div class="rlog-tl">${glance}</div>
+          <div class="rlog-note">${escapeHtml(data.untested_frontier || "")}</div>
+        </div>
+        <div class="rlog-card">
+          <h3>Lessons → hardened gates</h3>
+          <div class="rlog-note" style="margin-top:0">Each failure made the method stricter. The point of the log is that these can't be un-learned:</div>
+          <div class="rlog-tl rlog-gates">${lessons}</div>
+        </div>
+      `;
+    }
+    if (elements.researchLogFooter) {
+      elements.researchLogFooter.innerHTML = `
+        <div class="methodology-warning compact" role="note"><b>Boundaries.</b> ${escapeHtml(data.boundaries || "")}</div>
+      `;
+    }
   }
 
   function render() {

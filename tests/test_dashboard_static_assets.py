@@ -53,13 +53,19 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert 'data-view-panel="research-log"' in html
     assert "research-log-verdict-list" in html
     assert "RLOG1" in html
-    assert "RESEARCH_LOG_SUMMARY_SOURCES" in js
-    assert "sel_ev1_selection_evidence_summary.json" in js
-    assert "exec_ev1_execution_quality_evidence_summary.json" in js
-    assert "sv2_3_realistic_backtest_summary.json" in js
-    assert "goal_strat1_strategy_discovery_summary.json" in js
+    # RLOG1: the Research Log renders honest post-mortems from the committed
+    # docs/research_log.json (built read-only by scripts/build_research_log.py).
+    assert "docs/research_log.json" in js
     assert "renderResearchLog" in js
     assert "loadResearchLogSummaries" in js
+    assert "RESEARCH_LOG_OUTCOME_CLASSES" in js
+    # The naive status-string coloring is gone: outcome comes only from the
+    # authored taxonomy, and the old fallback chain must not return.
+    assert "researchLogVerdict(" not in js
+    assert "payload?.verdict || payload?.conclusion" not in js
+    assert "rlog-badge" in js
+    assert "research-log-standing" in html
+    assert "research-log-rail" in html
     assert "no strategy is production-approved and live trading is not approved" in html.lower()
 
     # Hidden legacy UAT regression surfaces are preserved (non-nav).
@@ -428,12 +434,14 @@ def test_evidence_lab_retired_but_research_artifacts_preserved() -> None:
     assert 'selected_output_root = output_root / "selected"' in mf_orig_builder
     assert "No variant is approved for production" in report
 
-    # The Research Log placeholder lists these phases from committed summaries.
-    assert "sor_ev1_money_flow_trade_loss_anatomy_and_variants_summary.json" in js
-    assert "sor_ev2_true_forward_stop_and_rejected_signal_replay_summary.json" in js
-    assert "sor_ev3_avoid_sideways_low_volatility_summary.json" in js
-    assert "mf_orig_ev1_original_money_flow_reconstruction_summary.json" in js
-    assert "mf_orig_ev2_multitimeframe_evidence_summary.json" in js
+    # The Research Log lists these phases via docs/research_log.json, whose
+    # Decision-Log blocks reference the committed summaries.
+    research_log = Path("docs/research_log.json").read_text(encoding="utf-8")
+    assert "sor_ev1_money_flow_trade_loss_anatomy_and_variants_summary.json" in research_log
+    assert "sor_ev2_true_forward_stop_and_rejected_signal_replay_summary.json" in research_log
+    assert "sor_ev3_avoid_sideways_low_volatility_summary.json" in research_log
+    assert "mf_orig_ev1_original_money_flow_reconstruction_summary.json" in research_log
+    assert "mf_orig_ev2_multitimeframe_evidence_summary.json" in research_log
 
 
 def test_uat_cockpit_summary_header_only_shows_environment_card() -> None:

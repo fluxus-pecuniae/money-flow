@@ -3779,3 +3779,266 @@ td {
     font-size: 9px;
   }
 }
+
+/* ===========================================================================
+   RLOG1 — Research Log: honest post-mortems (docs/dash_rlog1_prototype.html
+   mapped onto the theme-aware token system). Outcome badge colors come from
+   the authored taxonomy only: fail=red, mixed=amber, context=blue, pass=green.
+   =========================================================================== */
+
+.research-log-standing {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1px;
+  padding: 1px;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-line-soft);
+}
+
+.rlog-cell {
+  padding: var(--spacing-3) var(--spacing-4);
+  background: color-mix(in srgb, var(--color-panel) 94%, var(--color-panel-2));
+}
+
+.rlog-cell .k {
+  color: var(--color-muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.rlog-cell .v {
+  margin-top: 3px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.rlog-cell .v.bad { color: var(--color-red); }
+.rlog-cell .v.ok { color: var(--accent-live); }
+.rlog-cell .v.wn { color: var(--color-amber); font-size: 12px; }
+
+.rlog-verdict-banner {
+  display: flex;
+  gap: var(--spacing-5);
+  align-items: center;
+  padding: var(--spacing-5) var(--spacing-7);
+  border: 1px solid color-mix(in srgb, var(--color-red) 26%, transparent);
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-red) 10%, transparent), color-mix(in srgb, var(--color-red) 2%, transparent));
+}
+
+.rlog-verdict-banner .big { font-size: 15px; font-weight: 800; }
+.rlog-verdict-banner .sub { color: var(--color-muted); font-size: 12px; margin-top: 2px; }
+
+.rlog-vdot {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--color-red);
+  box-shadow: 0 0 10px var(--color-red);
+}
+
+.research-log-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
+  gap: var(--spacing-5);
+  align-items: start;
+}
+
+.research-log-col-title {
+  margin: 2px 2px var(--spacing-3);
+  color: var(--color-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.research-log-entry {
+  margin-bottom: var(--spacing-4);
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, var(--color-panel), var(--color-surface-soft));
+}
+
+.research-log-entry summary {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr) auto;
+  gap: var(--spacing-5);
+  align-items: center;
+  padding: var(--spacing-5) var(--spacing-6);
+  cursor: pointer;
+  list-style: none;
+}
+
+.research-log-entry summary::-webkit-details-marker { display: none; }
+
+.rlog-id { font-family: var(--font-mono); font-size: 12.5px; font-weight: 700; }
+.rlog-date { margin-top: 2px; color: var(--color-dim); font-family: var(--font-mono); font-size: 10px; }
+
+.rlog-class {
+  display: inline-block;
+  margin-top: 5px;
+  padding: 2px 7px;
+  border: 1px solid var(--color-line);
+  border-radius: 5px;
+  color: var(--color-muted);
+  background: var(--color-panel-2);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+}
+
+.rlog-title { font-size: 12.5px; font-weight: 700; }
+.rlog-finding { margin-top: 3px; color: var(--color-muted); font-size: 11.5px; line-height: 1.5; }
+
+.rlog-summary-right { text-align: right; }
+.rlog-chev { color: var(--color-dim); font-size: 11px; margin-top: 4px; }
+.research-log-entry[open] .rlog-chev { transform: rotate(90deg); }
+
+.rlog-badge {
+  padding: 4px 10px;
+  border-radius: 7px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.rlog-badge.fail {
+  color: var(--color-red);
+  border: 1px solid color-mix(in srgb, var(--color-red) 32%, transparent);
+  background: color-mix(in srgb, var(--color-red) 13%, transparent);
+}
+
+.rlog-badge.mixed {
+  color: var(--color-amber);
+  border: 1px solid color-mix(in srgb, var(--color-amber) 32%, transparent);
+  background: color-mix(in srgb, var(--color-amber) 13%, transparent);
+}
+
+.rlog-badge.context {
+  color: var(--lane-baseline);
+  border: 1px solid color-mix(in srgb, var(--lane-baseline) 30%, transparent);
+  background: color-mix(in srgb, var(--lane-baseline) 12%, transparent);
+}
+
+.rlog-badge.pass {
+  color: var(--accent-live);
+  border: 1px solid color-mix(in srgb, var(--accent-live) 34%, transparent);
+  background: color-mix(in srgb, var(--accent-live) 14%, transparent);
+}
+
+.rlog-detail {
+  padding: var(--spacing-5) var(--spacing-6);
+  border-top: 1px solid var(--color-line);
+  background: var(--color-surface-soft);
+}
+
+.rlog-kvs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin-bottom: var(--spacing-4);
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--color-line-soft);
+}
+
+.rlog-kv { padding: var(--spacing-3) var(--spacing-4); background: var(--color-panel-2); }
+.rlog-kv .k { color: var(--color-muted); font-size: 9px; letter-spacing: 0.05em; text-transform: uppercase; }
+.rlog-kv .v { margin-top: 2px; font-family: var(--font-mono); font-size: 13px; font-weight: 700; }
+.rlog-kv .v.neg { color: var(--color-red); }
+
+.rlog-table { width: auto; min-width: 60%; margin-bottom: var(--spacing-4); }
+.rlog-table td { font-size: 11px; padding: 4px var(--spacing-4); }
+.rlog-analytics-note { margin: -4px 0 var(--spacing-4); color: var(--color-dim); font-size: 10px; }
+
+.rlog-facets { display: grid; gap: var(--spacing-3); margin: var(--spacing-2) 0 var(--spacing-4); }
+
+.rlog-facet {
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr);
+  gap: var(--spacing-4);
+  align-items: start;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: 1px solid var(--color-line);
+  border-radius: 7px;
+  background: var(--color-panel-2);
+}
+
+.rlog-facet .lbl { padding-top: 1px; font-size: 9px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.rlog-facet .txt { color: var(--color-muted); font-size: 11.5px; line-height: 1.55; }
+
+.rlog-facet.why .lbl { color: var(--color-red); }
+.rlog-facet.good .lbl { color: var(--accent-live); }
+.rlog-facet.bad .lbl { color: var(--color-amber); }
+.rlog-facet.lesson .lbl { color: var(--lane-baseline); }
+.rlog-facet.changed .lbl { color: var(--lane-diagnostic); }
+
+.rlog-facet.err {
+  border-color: color-mix(in srgb, var(--color-red) 26%, transparent);
+  background: color-mix(in srgb, var(--color-red) 6%, var(--color-panel-2));
+}
+.rlog-facet.err .lbl { color: var(--color-red); }
+
+.rlog-facet.clean {
+  border-color: color-mix(in srgb, var(--accent-live) 22%, transparent);
+  background: color-mix(in srgb, var(--accent-live) 5%, var(--color-panel-2));
+}
+.rlog-facet.clean .lbl { color: var(--accent-live); }
+
+.rlog-link { color: var(--accent-live); font-family: var(--font-mono); font-size: 10.5px; text-decoration: none; margin-right: var(--spacing-5); }
+.rlog-link:hover { text-decoration: underline; }
+
+.research-log-rail { display: grid; gap: var(--spacing-4); align-content: start; }
+
+.rlog-card {
+  padding: var(--spacing-5);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, var(--color-panel), var(--color-surface-soft));
+}
+
+.rlog-card h3 {
+  margin-bottom: var(--spacing-4);
+  color: var(--color-muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.rlog-lane {
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--terminal-row-line);
+  font-size: 11.5px;
+}
+
+.rlog-lane:last-of-type { border-bottom: 0; }
+.rlog-lane .role { margin-left: auto; color: var(--color-dim); font-family: var(--font-mono); font-size: 10px; }
+
+.rlog-note { margin-top: var(--spacing-3); color: var(--color-dim); font-size: 10px; line-height: 1.6; }
+
+.rlog-tl { color: var(--color-muted); font-family: var(--font-mono); font-size: 10.5px; line-height: 2; }
+.rlog-tl b { color: var(--color-red); }
+.rlog-gates b { color: var(--lane-baseline); }
+.rlog-gates { margin-top: var(--spacing-3); }
+
+.research-log-footer .methodology-warning { margin-block-end: 0; }
+
+@media (max-width: 1000px) {
+  .research-log-grid { grid-template-columns: 1fr; }
+  .research-log-standing { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .research-log-entry summary { grid-template-columns: 1fr; gap: var(--spacing-3); }
+  .rlog-summary-right { text-align: left; }
+  .rlog-kvs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

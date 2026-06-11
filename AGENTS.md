@@ -116,15 +116,16 @@ Before finishing, agents must:
 3. Update [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md) when relevant.
 4. Update [`TODO.md`](TODO.md) when relevant.
 5. Re-read the touched sections of all affected operational docs.
-6. Update relevant Obsidian notes:
+6. For research phases (anything that tests a hypothesis, variant, or evidence layer): append a fenced ```yaml `research_log:` block to the phase's [`money-flow/03_Decision_Log.md`](money-flow/03_Decision_Log.md) entry (schema: [`docs/research_log_schema.md`](docs/research_log_schema.md) — the honest `outcome` taxonomy `fail`/`mixed`/`context`/`pass` is authored here and never inferred from a status string), then run `.venv/bin/python scripts/build_research_log.py` so the phase auto-appears in the dashboard Research Log. CI runs `build_research_log.py --check` as a drift guard.
+7. Update relevant Obsidian notes:
    - [`money-flow/01_Current_Phase.md`](money-flow/01_Current_Phase.md) for phase status and next phase context.
    - [`money-flow/03_Decision_Log.md`](money-flow/03_Decision_Log.md) for lasting architecture/founder decisions.
    - [`money-flow/05_Agent_Coordination.md`](money-flow/05_Agent_Coordination.md) for status and handoff.
    - [`money-flow/Project_Memory/money_flow_project_memory.md`](money-flow/Project_Memory/money_flow_project_memory.md) when the phase changes long-term strategic context.
-7. Re-read the touched sections of affected Obsidian notes.
-8. Explicitly validate that repo docs and Obsidian context still match repo state.
-9. After each completed phase, create a clean handoff ZIP in `/Users/tercirafael/` using [`scripts/create_review_bundle.py`](scripts/create_review_bundle.py). Use `.archiveignore` as the exclusion source so `.env`, local virtualenvs, caches, generated archives, database/socket data, Obsidian app workspace state, and other non-review artifacts are not included. Do not hand-build archives that may include keys or unnecessary local files.
-10. Mark your coordination row complete by moving/updating it under `Finished Work` with status `done` or `blocked`; do not leave completed work marked active.
+8. Re-read the touched sections of affected Obsidian notes.
+9. Explicitly validate that repo docs and Obsidian context still match repo state.
+10. After each completed phase, create a clean handoff ZIP in `/Users/tercirafael/` using [`scripts/create_review_bundle.py`](scripts/create_review_bundle.py). Use `.archiveignore` as the exclusion source so `.env`, local virtualenvs, caches, generated archives, database/socket data, Obsidian app workspace state, and other non-review artifacts are not included. Do not hand-build archives that may include keys or unnecessary local files.
+11. Mark your coordination row complete by moving/updating it under `Finished Work` with status `done` or `blocked`; do not leave completed work marked active.
 
 Minimum validation means:
 

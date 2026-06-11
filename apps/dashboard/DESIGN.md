@@ -8,10 +8,17 @@ The product is **Money Flow OS** and has exactly two navigation surfaces:
    Cockpit / Global Filters bar, skinny Watchlist rail, dominant center chart,
    skinny Runtime Control rail, tabbed bottom blotter, Daily Review / Anomaly
    Flags, and a full-width Testnet Order Transport footer card.
-2. **Research Log** — institutional memory of what has been tested. Currently
-   a data-driven placeholder (phase / date / verdict rows read from the
-   committed `docs/*_summary.json` evidence summaries); the full post-mortem
-   view lands in RLOG1.
+2. **Research Log** (RLOG1) — institutional memory of what has been tested,
+   rendered from the committed `docs/research_log.json` (built read-only by
+   `scripts/build_research_log.py` from the Decision-Log `research_log`
+   post-mortem blocks + committed evidence summaries): standing strip, honest
+   verdict banner, newest-first expandable post-mortems (why / worked /
+   didn't / lesson / our-error / changed) with per-phase analytics on expand
+   (e.g. EXEC-EV1 ZEC concentration table, SEL-EV1 random benchmark),
+   "Lessons → hardened gates" rail, active-lanes card, boundaries footer.
+   Outcome badges come ONLY from the authored taxonomy (`fail`=red,
+   `mixed`=amber, `context`=blue, `pass`=green) — a non-positive result never
+   renders green. Schema: `docs/research_log_schema.md`.
 
 **Retired navigation surfaces (DASH-IA1):** `Historical Replay`, `The Lab`
 (evidence-lab), and `Strategy` tabs — plus the old `Evidence` view (renamed and
