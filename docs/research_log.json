@@ -182,6 +182,110 @@
           "kind": "computed",
           "kvs": [
             {
+              "label": "OOS net carry (after all costs)",
+              "tone": "neg",
+              "value": "-33"
+            },
+            {
+              "label": "Full-window net vs gross",
+              "value": "392 vs 560"
+            },
+            {
+              "label": "Costs ate",
+              "tone": "neg",
+              "value": "30% of gross"
+            },
+            {
+              "label": "Walk-forward folds",
+              "tone": "neg",
+              "value": "111 / -35"
+            }
+          ],
+          "label": "Net carry headline (OOS, conservative friction)",
+          "note": "Carry was real in the bull (train +4.2%) but flips negative OOS in the funding-compressed bear.",
+          "source": "fund_ev1_carry_headline"
+        },
+        {
+          "kind": "computed",
+          "kvs": [
+            {
+              "label": "Max residual delta (clean fills)",
+              "value": "0.18%"
+            },
+            {
+              "label": "Max one-leg exposure (legged)",
+              "tone": "neg",
+              "value": "48%"
+            },
+            {
+              "label": "Modeled gap loss at worst candle",
+              "tone": "neg",
+              "value": "11.3% of equity"
+            }
+          ],
+          "label": "Tail + leave-one-out",
+          "note": "Every leave-one-out drop stays negative OOS - the failure is universe-wide, not one name.",
+          "source": "fund_ev1_tail_and_loo",
+          "table": {
+            "columns": [
+              "Dropped",
+              "OOS net carry",
+              "OOS Sharpe"
+            ],
+            "rows": [
+              [
+                "BTC",
+                "-29.86234504",
+                "-1.30833039"
+              ],
+              [
+                "ETH",
+                "-39.03711734",
+                "-1.75125192"
+              ],
+              [
+                "HYPE",
+                "-49.76045628",
+                "-2.28067810"
+              ],
+              [
+                "SOL",
+                "-15.63272220",
+                "-0.71359635"
+              ]
+            ]
+          }
+        }
+      ],
+      "badge": "costs + bear eat the carry",
+      "class": "funding_carry",
+      "date": "2026-06-11",
+      "evidence_doc": "docs/fund_ev1_delta_neutral_carry_evidence.md",
+      "evidence_summary": "docs/fund_ev1_delta_neutral_carry_evidence_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "Fourth strategy-type route (funding_carry) with its own net-OOS + tail gate; funding history became a committed first-class data input with provenance; TREND-CARRY (trend short side paid by funding) queued as the synthesis hypothesis with this phase's regime caveat attached.",
+        "didnt": "The carry as a standalone OOS edge at 10k size - and legged execution is the true steamroller: one slow hedge leg leaves ~48% of equity unhedged for a day, a modeled 11.3% gap loss at the window's worst candle (23.6%).",
+        "lesson": "Funding carry is bull-regime income, not an all-weather structural edge: it dies in the same regime where the trend short side earns its keep. Judge carry net-of-costs OOS and through the tail - gross funding collected is a vanity number.",
+        "our_error": null,
+        "our_error_note": "Caught in-phase: the first leg-lag stress only re-priced the lagged fill without holding the one-leg exposure; rebuilt with a pending-fill queue before any conclusion was drawn.",
+        "why": "Funding is a bull artifact on this data: 8-14%/yr while the market rose, compressed or inverted (SOL -6%/yr) once the bear arrived - exactly when a hedged book would matter. What survives compression, conservative two-leg friction then eats: gross OOS funding was +50, net was -33.",
+        "worked": "The method - exact funding accrual against committed public daily sums, two-leg book that reconciles per symbol (K-019), tight neutrality with clean fills (max residual 0.18%), and a legged-execution stress that holds REAL one-leg exposure instead of assuming it away."
+      },
+      "finding": "Short the perp, hold the spot, collect funding. Real in the bull (train +4.2%, Sharpe 7.2) but FAILS the gate: OOS net carry -33 USDC in the funding-compressed 2026 bear, walk-forward fold C negative, and every leave-one-out drop negative. Costs ate 30% of gross at 10k size.",
+      "hardened_gates": [
+        "carry is judged net-of-costs OOS through the tail, never on gross funding"
+      ],
+      "outcome": "fail",
+      "phase": "FUND-EV1",
+      "title": "Delta-Neutral Funding Carry (HL perp + HL spot)"
+    },
+    {
+      "analytics": [
+        {
+          "kind": "computed",
+          "kvs": [
+            {
               "label": "OOS net (post-friction)",
               "tone": "neg",
               "value": "−10k"
@@ -647,7 +751,7 @@
       "title": "Original Money Flow Reconstruction (accounting correction)"
     }
   ],
-  "entry_count": 14,
+  "entry_count": 15,
   "lessons_hardened_gates": [
     {
       "gate": "PnL must reconcile to equity",
@@ -668,6 +772,10 @@
     {
       "gate": "beat random OOS, or it's nothing",
       "phase": "SEL-EV1"
+    },
+    {
+      "gate": "carry is judged net-of-costs OOS through the tail, never on gross funding",
+      "phase": "FUND-EV1"
     },
     {
       "gate": "relative passes carry absolute-performance qualifiers",

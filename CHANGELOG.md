@@ -17,6 +17,40 @@ Entry schema:
 
 ---
 
+## v2026.06.11.005
+
+- `recorded_at_utc`: `2026-06-11T16:45:00Z`
+- `scope`: `FUND-EV1 delta-neutral funding carry evidence`
+- `intent`: `Research/evidence only; no runtime, strategy-rule, order, testnet, live, or production-approval change. Tests the structural non-predictive edge: harvest Hyperliquid perp funding hedged delta-neutral on ONE venue (short perp + long HL spot equal notional; BTC/ETH/SOL via Unit spot + native HYPE; aligned window 2025-05-11 -> 2026-06-08, limited by the youngest spot listing USOL), 10k USDC basis. New committed data input: public read-only fundingHistory hourly rates aggregated to daily sums per coin with provenance + sha256 (docs/fund_ev1_funding_data_snapshot_summary.json via scripts/fetch_fund_ev1_funding_snapshot.py; raw hourly + HL spot candles are documented ignored artifacts). New fourth strategy-type route funding_carry (prefix fund_ev1_) with its OWN gate: net carry after ALL costs positive OOS (chronological 70/30 + anchored walk-forward thirds), not bull-only, leave-one-out robust, tail drawdown inside documented limits (OOS <=5%, stressed <=8%) - judged on Sharpe + max drawdown, never gross funding. Simulator: pending-fill queue (fills only enter the book when their candle closes - a lagged hedge leg holds REAL one-leg exposure), exact daily funding accrual on the perp leg (positive funding pays the short), EXEC-EV1 friction + fees on BOTH legs (spot always at the widest mid-alt tier), trailing-funding tilt (causal), rebalance band, forced final close, per-symbol reconciliation (K-019). Bounded 8-config grid (collect_only/flip_sides x cadence 7/14 x top 2/4), train-only choice. RESULT: gate verdict carry_does_not_survive_costs_and_tail_oos - train (bull, funding 8-14%/yr) +4.23% Sharpe 7.2; OOS (2026 funding-compressed bear) -33 USDC (-0.32%, Sharpe -1.55) with gross OOS funding still +50 but two-leg conservative friction eating more than all of it; full-window net +392 vs gross +560 (costs ate 30.0%); walk-forward fold C negative; ALL leave-one-out drops negative. Clean-fill neutrality is tight (max residual 0.18%, stressed DD 0.92%) - the real tail is the LEGGED FILL: one slow hedge leg leaves up to 47.9% of equity unhedged for a day, a modeled 11.3% gap loss at the window's worst candle (23.6%). Flip-side rows assume unmodeled spot borrow (upper bounds, documented); daily-close accrual approximation documented. Research Log: authored outcome FAIL (badge 'costs + bear eat the carry'); schema class list extended with funding_carry; aggregator gains fund_ev1 computed views (15 entries, --check green). TREND-CARRY synthesis hypothesis recorded in TODO (trend short side paid by funding - with the regime caveat that funding compresses exactly when the bear arrives). Tests: tests/test_fund_ev1_evidence.py (14 deterministic offline tests: routing, exact funding accrual + sign, two-leg neutrality, costs on both legs, no-lookahead + leaky-reader catch, real one-leg-exposure stress, inversion exit, reconciliation, gate semantics incl. every reason code, committed-summary/snapshot reconciliation, research-log honesty pin) wired into the blocking CI lane. Oldest changelog entry (v2026.06.08.002) rotated verbatim into CHANGELOG_ARCHIVE.md per DOC-LEAN1.`
+- `affected_files`:
+  - `services/strategy_validation/fund_ev1.py`
+  - `services/strategy_validation/strategy_types.py`
+  - `scripts/fetch_fund_ev1_funding_snapshot.py`
+  - `scripts/run_fund_ev1_evidence.py`
+  - `scripts/build_research_log.py`
+  - `docs/fund_ev1_funding_data_snapshot_summary.json`
+  - `docs/fund_ev1_delta_neutral_carry_evidence_summary.json`
+  - `docs/fund_ev1_delta_neutral_carry_evidence.md`
+  - `docs/research_log_schema.md`
+  - `docs/research_log.json`
+  - `tests/test_fund_ev1_evidence.py`
+  - `.github/workflows/ci.yml`
+  - `CHANGELOG.md`
+  - `CHANGELOG_ARCHIVE.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_fund_ev1_evidence.py`
+  - `.venv/bin/python scripts/build_research_log.py --check`
+  - `.venv/bin/python -m pytest -q tests/test_rlog1_research_log.py tests/test_tsmom_ev1_evidence.py tests/test_sel_ev1_selection_evidence.py tests/test_exec_ev1_execution_quality.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_secret_hygiene.py tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py`
+  - `python -m compileall -q services scripts tests`
+  - `git diff --check`
+
 ## v2026.06.11.004
 
 - `recorded_at_utc`: `2026-06-11T15:00:00Z`
@@ -675,21 +709,3 @@ Entry schema:
   - `node --check apps/dashboard/evidence-dashboard.js`
   - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
   - `git diff --check`
-
-## v2026.06.08.002
-
-- `recorded_at_utc`: `2026-06-08T06:50:34Z`
-- `scope`: `LOG-OBS1 Runtime Logs scroll stability hotfix`
-- `intent`: `Native entry. Fixed the Paper Trading Runtime Logs widget so the Read-only log files scroll position is preserved across dashboard refreshes. The one-second Paper Trading market-refresh path re-rendered Runtime Control, which replaced the log-list DOM and jumped the nested scroll container back to the top. The renderer now skips identical log metadata updates, restores the nested log-list scroll offset after changed metadata renders, and cache-busts dashboard assets so the browser picks up the fix. This is dashboard display only: no runtime behavior changed, no runtime was started or stopped, no orders were submitted, no live trading was approved, and no strategy was production-approved.`
-- `affected_files`:
-  - `CHANGELOG.md`
-  - `apps/dashboard/index.html`
-  - `apps/dashboard/evidence-dashboard.js`
-  - `tests/test_dashboard_static_assets.py`
-  - `money-flow/05_Agent_Coordination.md`
-- `validation_performed`:
-  - `node --check apps/dashboard/evidence-dashboard.js`
-  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_dashboard_control_server.py tests/test_pt_rt1_runtime_log_visibility.py`
-  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
-  - `git diff --check`
-

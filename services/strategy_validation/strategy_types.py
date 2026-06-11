@@ -37,11 +37,13 @@ from typing import Any, Callable
 STRATEGY_TYPE_PER_SYMBOL = "per_symbol"
 STRATEGY_TYPE_CROSS_SECTIONAL_SELECTION = "cross_sectional_selection"
 STRATEGY_TYPE_TIME_SERIES_MOMENTUM = "time_series_momentum"
+STRATEGY_TYPE_FUNDING_CARRY = "funding_carry"
 
 STRATEGY_TYPES = (
     STRATEGY_TYPE_PER_SYMBOL,
     STRATEGY_TYPE_CROSS_SECTIONAL_SELECTION,
     STRATEGY_TYPE_TIME_SERIES_MOMENTUM,
+    STRATEGY_TYPE_FUNDING_CARRY,
 )
 
 # Gate identities. Each gate may only ever be applied to its own strategy type.
@@ -51,6 +53,13 @@ SELECTION_GATE_ID = "selection_random_benchmark_gate"
 # risk-adjusted basis (Sharpe + max drawdown) — NOT the selection
 # random-benchmark gate and NOT the per-symbol breadth gate.
 TSMOM_GATE_ID = "tsmom_buy_hold_risk_adjusted_gate"
+# FUND-EV1: delta-neutral funding carry is a STRUCTURAL (non-predictive)
+# edge: it is judged on net funding AFTER ALL COSTS staying positive
+# out-of-sample, NOT regime-dependent on bull-only funding, surviving
+# leave-one-out, and keeping tail drawdown inside a documented limit. It is
+# never judged by the price-rule gates above (no price prediction is
+# claimed), and they are never judged by it.
+FUNDING_CARRY_GATE_ID = "funding_carry_net_oos_tail_gate"
 
 # The existing founder Week 2 lanes are per-symbol strategies (approach a).
 # Tagging them here changes nothing about how they run; it only makes the
@@ -66,6 +75,9 @@ CROSS_SECTIONAL_SELECTION_ID_PREFIX = "sel_ev1_"
 
 # Time-series momentum configs are TSMOM-EV1-authored and use this prefix.
 TIME_SERIES_MOMENTUM_ID_PREFIX = "tsmom_ev1_"
+
+# Funding-carry configs are FUND-EV1-authored and use this prefix.
+FUNDING_CARRY_ID_PREFIX = "fund_ev1_"
 
 
 class StrategyTypeRoutingError(RuntimeError):
@@ -107,6 +119,15 @@ _ROUTES: dict[str, StrategyTypeRoute] = {
         gate_id=TSMOM_GATE_ID,
         evaluation="tsmom_buy_hold_risk_adjusted_oos_evaluation",
     ),
+    STRATEGY_TYPE_FUNDING_CARRY: StrategyTypeRoute(
+        strategy_type=STRATEGY_TYPE_FUNDING_CARRY,
+        simulator_ref=(
+            "services.strategy_validation.fund_ev1:simulate_funding_carry_portfolio"
+        ),
+        gate_ref="services.strategy_validation.fund_ev1:evaluate_funding_carry_gate",
+        gate_id=FUNDING_CARRY_GATE_ID,
+        evaluation="funding_carry_net_cost_tail_oos_evaluation",
+    ),
 }
 
 
@@ -123,6 +144,8 @@ def strategy_type_for(strategy_id: str) -> str:
         return STRATEGY_TYPE_CROSS_SECTIONAL_SELECTION
     if strategy_id.startswith(TIME_SERIES_MOMENTUM_ID_PREFIX):
         return STRATEGY_TYPE_TIME_SERIES_MOMENTUM
+    if strategy_id.startswith(FUNDING_CARRY_ID_PREFIX):
+        return STRATEGY_TYPE_FUNDING_CARRY
     return STRATEGY_TYPE_PER_SYMBOL
 
 
@@ -173,6 +196,7 @@ def routing_policy() -> dict[str, Any]:
         "per_symbol_lane_ids": list(PER_SYMBOL_LANE_IDS),
         "cross_sectional_selection_id_prefix": CROSS_SECTIONAL_SELECTION_ID_PREFIX,
         "time_series_momentum_id_prefix": TIME_SERIES_MOMENTUM_ID_PREFIX,
+        "funding_carry_id_prefix": FUNDING_CARRY_ID_PREFIX,
         "routes": {
             strategy_type: {
                 "simulator": route.simulator_ref,

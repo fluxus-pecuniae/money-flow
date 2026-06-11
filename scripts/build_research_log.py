@@ -273,6 +273,38 @@ def tsmom_ev1_leave_one_out(summary: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def fund_ev1_carry_headline(summary: dict[str, Any]) -> dict[str, Any]:
+    h = summary["headline"]
+    wf = summary["walk_forward"]
+    return {
+        "kvs": [
+            {"label": "OOS net carry (after all costs)", "value": f"{_dec(h['oos_net_carry']):.0f}", "tone": "neg"},
+            {"label": "Full-window net vs gross", "value": f"{_dec(h['full_net_pnl']):.0f} vs {_dec(h['gross_carry_zero_cost_net']):.0f}"},
+            {"label": "Costs ate", "value": f"{_dec(h['cost_share_of_gross_pct']):.0f}% of gross", "tone": "neg"},
+            {"label": "Walk-forward folds", "value": f"{_dec(wf['fold_b']['net_carry']):.0f} / {_dec(wf['fold_c']['net_carry']):.0f}", "tone": "neg"},
+        ],
+        "note": "Carry was real in the bull (train +4.2%) but flips negative OOS in the funding-compressed bear.",
+    }
+
+
+def fund_ev1_tail_and_loo(summary: dict[str, Any]) -> dict[str, Any]:
+    tail = summary["tail_stress"]
+    lag = tail["leg_lag_only_run"]
+    rows = [
+        [symbol, str(row["oos_net_carry"]), str(row["oos_sharpe"])]
+        for symbol, row in sorted(summary["leave_one_out"].items())
+    ]
+    return {
+        "kvs": [
+            {"label": "Max residual delta (clean fills)", "value": f"{_dec(tail['max_residual_delta_fraction']) * 100:.2f}%"},
+            {"label": "Max one-leg exposure (legged)", "value": f"{_dec(lag['max_residual_delta_fraction']) * 100:.0f}%", "tone": "neg"},
+            {"label": "Modeled gap loss at worst candle", "value": f"{_dec(lag['modeled_gap_loss_at_leg_lag_residual_pct_of_equity']):.1f}% of equity", "tone": "neg"},
+        ],
+        "table": {"columns": ["Dropped", "OOS net carry", "OOS Sharpe"], "rows": rows},
+        "note": "Every leave-one-out drop stays negative OOS - the failure is universe-wide, not one name.",
+    }
+
+
 COMPUTED = {
     "sel_ev1_random_benchmark": sel_ev1_random_benchmark,
     "sel_ev1_top_oos_configs": sel_ev1_top_oos_configs,
@@ -282,6 +314,8 @@ COMPUTED = {
     "goal_strat1_stats": goal_strat1_stats,
     "tsmom_ev1_risk_adjusted_headline": tsmom_ev1_risk_adjusted_headline,
     "tsmom_ev1_leave_one_out": tsmom_ev1_leave_one_out,
+    "fund_ev1_carry_headline": fund_ev1_carry_headline,
+    "fund_ev1_tail_and_loo": fund_ev1_tail_and_loo,
 }
 
 

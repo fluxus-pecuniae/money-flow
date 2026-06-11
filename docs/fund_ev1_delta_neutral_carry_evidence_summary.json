@@ -1,0 +1,1763 @@
+{
+  "account_size_usdc": "10000",
+  "benchmarks": {
+    "always_on_carry_top4": {
+      "config_id": "fund_ev1_benchmark_always_on_top4",
+      "fees_total": "24.56871748",
+      "full_stats": {
+        "days": 394,
+        "max_drawdown_pct": "0.27870780",
+        "sharpe_annual": "5.31331149",
+        "total_return_pct": "4.29964337",
+        "vol_annual": "0.00736407"
+      },
+      "funding_collected_total": "471.55952103",
+      "net_pnl": "429.96433701",
+      "oos_net_pnl": "0.07966261",
+      "oos_stats": {
+        "days": 119,
+        "max_drawdown_pct": "0.26227409",
+        "sharpe_annual": "0.00693748",
+        "total_return_pct": "0.00076379",
+        "vol_annual": "0.00602023"
+      },
+      "per_symbol_net_pnl": {
+        "BTC": "95.43393321",
+        "ETH": "92.46768357",
+        "HYPE": "173.06236500",
+        "SOL": "69.00035523"
+      },
+      "scenario_id": "exec_ev1_conservative",
+      "trade_count": 180
+    },
+    "cash": {
+      "config_id": "hold_10000_usdc",
+      "max_drawdown_pct": "0",
+      "net_pnl": "0",
+      "note": "the do-nothing benchmark: carry must beat cash after costs to matter"
+    },
+    "gross_funding_zero_cost_same_positions": {
+      "config_id": "fund_ev1_collect_only_cad14_top4_1d",
+      "fees_total": "0E-8",
+      "full_stats": {
+        "days": 394,
+        "max_drawdown_pct": "0.18779884",
+        "sharpe_annual": "6.39721669",
+        "total_return_pct": "5.60018821",
+        "vol_annual": "0.00791633"
+      },
+      "funding_collected_total": "492.32514704",
+      "net_pnl": "560.01882147",
+      "oos_net_pnl": "49.58126210",
+      "oos_stats": {
+        "days": 119,
+        "max_drawdown_pct": "0.05767110",
+        "sharpe_annual": "4.93341300",
+        "total_return_pct": "0.47173357",
+        "vol_annual": "0.00295173"
+      },
+      "per_symbol_net_pnl": {
+        "BTC": "112.93518308",
+        "ETH": "116.06605785",
+        "HYPE": "199.52668340",
+        "SOL": "131.49089714"
+      },
+      "scenario_id": "exec_ev1_conservative_zero_cost",
+      "trade_count": 182
+    }
+  },
+  "boundaries": {
+    "approves_live_trading": false,
+    "approves_production_strategy": false,
+    "calls_private_signed_or_order_endpoints": false,
+    "changes_per_symbol_lane_behavior_or_results": false,
+    "changes_production_money_flow_rules": false,
+    "changes_selection_lane_behavior_or_results": false,
+    "changes_tsmom_lane_behavior_or_results": false,
+    "creates_order_intent": false,
+    "creates_prepared_venue_order": false,
+    "creates_submitted_order": false,
+    "daily_funding_accrual_approximation": true,
+    "funding_modeled_from_public_history": true,
+    "liquidation_mechanics_not_modeled": true,
+    "modeled_depth_not_real": true,
+    "mutates_active_pt_rt_runtime": false,
+    "mutates_runtime_artifacts": false,
+    "research_only": true,
+    "spot_borrow_not_modeled_flip_rows_upper_bound": true,
+    "submits_live_orders": false,
+    "submits_testnet_orders": false,
+    "uses_testnet_data_as_strategy_truth": false
+  },
+  "chronological_split": {
+    "split_time": "2026-02-09 00:00:00+00:00",
+    "train_ratio": "0.70"
+  },
+  "data_provenance": {
+    "access": "public_read_only_no_keys_no_private_no_signed_no_orders",
+    "funding": {
+      "daily_sums_committed": true,
+      "fetched_at_utc": "2026-06-11T15:40:13Z",
+      "snapshot_summary": "docs/fund_ev1_funding_data_snapshot_summary.json",
+      "source": "hyperliquid_public_mainnet_fundingHistory"
+    },
+    "perp_candles": {
+      "source": "hyperliquid_public_mainnet_candles_sv2_2_refresh",
+      "summary": "docs/sv2_2_hyperliquid_research_refresh_summary.json"
+    },
+    "spot_candles": {
+      "raw_dir": "/tmp/money-flow-fund-ev1/raw_spot_candles",
+      "sha256": {
+        "BTC": "037f256f12c45c380aeadcb961603185ab9710bb9bb7f2b956742791f7325dc0",
+        "ETH": "c9b5319e3ea67e74e71c80ff86a93c604858514c95b43e19d819f958e34eff6c",
+        "HYPE": "3a210fb66f26298c28ad37d5ac5e4fba8b7dafa4539c3f890191e584a0c50d3e",
+        "SOL": "7e524a8c239391f2922c5d4d0a066ebabd34754ca68595d3ea8881b2e6ff285f"
+      },
+      "source": "hyperliquid_public_mainnet_candleSnapshot_spot"
+    }
+  },
+  "design": {
+    "config_grid_size": 8,
+    "construction": "single-venue Hyperliquid delta-neutral: SHORT perp + LONG spot equal notional per asset (collect side); flip_sides variant mirrors the book when trailing funding is negative (spot borrow ASSUMED, cost NOT modeled \u2014 upper bound)",
+    "costs": "EXEC-EV1 depth-aware friction on EVERY fill of BOTH legs (perp at its tier; spot always at the widest mid-alt tier), scenario fee_bps on both legs, rebalance band, forced final close",
+    "funding_accrual": "daily slot sum of hourly public funding rates, accrued on the perp leg at the daily close mark (documented approximation); positive funding pays the short perp",
+    "modes": [
+      "collect_only",
+      "flip_sides"
+    ],
+    "rebalance_cadences_days": [
+      7,
+      14
+    ],
+    "selection_tilt": "trailing 7d mean funding (causal), rank by |funding|, hold up to top_k names on the collectable side",
+    "sizing": "leg notional = 0.5 * equity / top_k per selected asset; perp margin basis ~1x effective leverage",
+    "top_k_choices": [
+      2,
+      4
+    ]
+  },
+  "funding_carry_gate": {
+    "gate_id": "funding_carry_net_oos_tail_gate",
+    "leave_one_out_oos_net": {
+      "BTC": "-29.86234504",
+      "ETH": "-39.03711734",
+      "HYPE": "-49.76045628",
+      "SOL": "-15.63272220"
+    },
+    "max_oos_drawdown_pct_limit": "5",
+    "max_stressed_drawdown_pct_limit": "8",
+    "min_oos_days_required": 90,
+    "non_bull_net_pnl": "159.58125559",
+    "oos_net_pnl": "-33.23155156",
+    "oos_strategy": {
+      "days": 119,
+      "max_drawdown_pct": "0.43885916",
+      "sharpe_annual": "-1.55064866",
+      "total_return_pct": "-0.31876043",
+      "vol_annual": "0.00635564"
+    },
+    "passed": false,
+    "qualifiers": [],
+    "reason_codes": [
+      "oos_net_carry_not_positive_after_costs",
+      "walk_forward_net_carry_not_positive_in_every_fold",
+      "leave_one_out_breaks_oos_net_carry"
+    ],
+    "regime_pnls": {
+      "bear": {
+        "days": 177,
+        "net_pnl": "45.19234019"
+      },
+      "bull": {
+        "days": 130,
+        "net_pnl": "232.43094448"
+      },
+      "neutral": {
+        "days": 86,
+        "net_pnl": "114.38891540"
+      }
+    },
+    "status": "carry_does_not_survive_costs_and_tail_oos",
+    "stressed_max_drawdown_pct": "0.91582841",
+    "walk_forward_net_pnls": [
+      "111.30883047",
+      "-35.07111287"
+    ]
+  },
+  "headline": {
+    "cost_share_of_gross_pct": "30.00017410",
+    "costs_total_vs_zero_cost": "168.00662141",
+    "full_funding_collected": "490.39038071",
+    "full_net_pnl": "392.01220006",
+    "gate_scenario": "exec_ev1_conservative",
+    "gross_carry_zero_cost_net": "560.01882147",
+    "oos_net_carry": "-33.23155156",
+    "strategy_oos": {
+      "days": 119,
+      "max_drawdown_pct": "0.43885916",
+      "sharpe_annual": "-1.55064866",
+      "total_return_pct": "-0.31876043",
+      "vol_annual": "0.00635564"
+    },
+    "strategy_train": {
+      "days": 275,
+      "max_drawdown_pct": "0.24890460",
+      "sharpe_annual": "7.16020849",
+      "total_return_pct": "4.22936569",
+      "vol_annual": "0.00771138"
+    }
+  },
+  "leave_one_out": {
+    "BTC": {
+      "oos_max_drawdown_pct": "0.41574506",
+      "oos_net_carry": "-29.86234504",
+      "oos_sharpe": "-1.30833039"
+    },
+    "ETH": {
+      "oos_max_drawdown_pct": "0.47717531",
+      "oos_net_carry": "-39.03711734",
+      "oos_sharpe": "-1.75125192"
+    },
+    "HYPE": {
+      "oos_max_drawdown_pct": "0.56959235",
+      "oos_net_carry": "-49.76045628",
+      "oos_sharpe": "-2.28067810"
+    },
+    "SOL": {
+      "oos_max_drawdown_pct": "0.29961716",
+      "oos_net_carry": "-15.63272220",
+      "oos_sharpe": "-0.71359635"
+    }
+  },
+  "no_lookahead_verification": {
+    "leaky_probe_would_be_caught": true,
+    "sampled_times": [
+      "2025-06-20 00:00:00+00:00",
+      "2025-11-24 00:00:00+00:00",
+      "2026-05-10 00:00:00+00:00"
+    ],
+    "trailing_funding_signal_point_in_time_ok_by_symbol": {
+      "BTC": true,
+      "ETH": true,
+      "HYPE": true,
+      "SOL": true
+    }
+  },
+  "per_config_results": {
+    "exec_ev1_base": [
+      {
+        "avg_friction_bps": "6.97707514",
+        "avg_residual_delta_fraction": "0.00026682",
+        "config_id": "fund_ev1_collect_only_cad7_top2_1d",
+        "ending_equity": "10230.40919764",
+        "fees_total": "209.85216816",
+        "friction_quote_by_leg": {
+          "perp": "110.87160898",
+          "spot": "173.59112564"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "0.88250255",
+          "sharpe_annual": "1.49046932",
+          "total_return_pct": "2.30409198",
+          "vol_annual": "0.01426293"
+        },
+        "funding_by_symbol": {
+          "BTC": "120.29482194",
+          "ETH": "92.85699115",
+          "HYPE": "344.93372241",
+          "SOL": "52.31863718"
+        },
+        "funding_collected_total": "610.40417268",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00198898",
+        "mode": "collect_only",
+        "net_pnl": "230.40919764",
+        "oos_net_pnl": "-81.37211295",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "0.83220146",
+          "sharpe_annual": "-2.83079131",
+          "total_return_pct": "-0.78911791",
+          "vol_annual": "0.00864344"
+        },
+        "oos_trade_count": 78,
+        "per_symbol_net_pnl": {
+          "BTC": "-33.66187599",
+          "ETH": "-23.49377469",
+          "HYPE": "207.62479249",
+          "SOL": "79.94005583"
+        },
+        "rebalance_count": 57,
+        "rebalance_interval_days": 7,
+        "strategy_type": "funding_carry",
+        "top_k": 2,
+        "trade_count": 268,
+        "traded_notional_total": "408951.11995250",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "0.42556883",
+          "sharpe_annual": "2.53998029",
+          "total_return_pct": "3.08798722",
+          "vol_annual": "0.01600129"
+        }
+      },
+      {
+        "avg_friction_bps": "6.79862834",
+        "avg_residual_delta_fraction": "0.00039490",
+        "config_id": "fund_ev1_collect_only_cad7_top4_1d",
+        "ending_equity": "10411.70677208",
+        "fees_total": "57.97153990",
+        "friction_quote_by_leg": {
+          "perp": "30.66935702",
+          "spot": "47.81643150"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "0.35117858",
+          "sharpe_annual": "4.98560867",
+          "total_return_pct": "4.11706772",
+          "vol_annual": "0.00752193"
+        },
+        "funding_by_symbol": {
+          "BTC": "107.05355087",
+          "ETH": "113.04437602",
+          "HYPE": "194.92457158",
+          "SOL": "69.83755266"
+        },
+        "funding_collected_total": "484.86005113",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00529641",
+        "mode": "collect_only",
+        "net_pnl": "411.70677208",
+        "oos_net_pnl": "-20.30950253",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "0.35117858",
+          "sharpe_annual": "-1.13708320",
+          "total_return_pct": "-0.19468434",
+          "vol_annual": "0.00528883"
+        },
+        "oos_trade_count": 80,
+        "per_symbol_net_pnl": {
+          "BTC": "69.88103239",
+          "ETH": "88.59607617",
+          "HYPE": "165.65354582",
+          "SOL": "87.57611770"
+        },
+        "rebalance_count": 57,
+        "rebalance_interval_days": 7,
+        "strategy_type": "funding_carry",
+        "top_k": 4,
+        "trade_count": 278,
+        "traded_notional_total": "107669.83263910",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "0.21059888",
+          "sharpe_annual": "6.92055730",
+          "total_return_pct": "4.30508277",
+          "vol_annual": "0.00811868"
+        }
+      },
+      {
+        "avg_friction_bps": "6.88719035",
+        "avg_residual_delta_fraction": "0.00027760",
+        "config_id": "fund_ev1_collect_only_cad14_top2_1d",
+        "ending_equity": "10413.81084044",
+        "fees_total": "129.04937877",
+        "friction_quote_by_leg": {
+          "perp": "68.05099348",
+          "spot": "107.37876712"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "0.68061456",
+          "sharpe_annual": "2.78378509",
+          "total_return_pct": "4.13810840",
+          "vol_annual": "0.01356154"
+        },
+        "funding_by_symbol": {
+          "BTC": "118.73769529",
+          "ETH": "61.45363705",
+          "HYPE": "336.84115308",
+          "SOL": "71.51902452"
+        },
+        "funding_collected_total": "588.55150994",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00198898",
+        "mode": "collect_only",
+        "net_pnl": "413.81084044",
+        "oos_net_pnl": "-68.10840953",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "0.68061456",
+          "sharpe_annual": "-2.42802412",
+          "total_return_pct": "-0.64977041",
+          "vol_annual": "0.00829047"
+        },
+        "oos_trade_count": 52,
+        "per_symbol_net_pnl": {
+          "BTC": "29.07373599",
+          "ETH": "-19.31399540",
+          "HYPE": "256.65586471",
+          "SOL": "147.39523514"
+        },
+        "rebalance_count": 29,
+        "rebalance_interval_days": 14,
+        "strategy_type": "funding_carry",
+        "top_k": 2,
+        "trade_count": 146,
+        "traded_notional_total": "247151.54369190",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "0.18685236",
+          "sharpe_annual": "4.12541651",
+          "total_return_pct": "4.78329623",
+          "vol_annual": "0.01511631"
+        }
+      },
+      {
+        "avg_friction_bps": "6.71484869",
+        "avg_residual_delta_fraction": "0.00053620",
+        "config_id": "fund_ev1_collect_only_cad14_top4_1d",
+        "ending_equity": "10463.31643602",
+        "fees_total": "39.64563144",
+        "friction_quote_by_leg": {
+          "perp": "21.88000297",
+          "spot": "32.86883701"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "0.22179329",
+          "sharpe_annual": "5.68920089",
+          "total_return_pct": "4.63316436",
+          "vol_annual": "0.00739881"
+        },
+        "funding_by_symbol": {
+          "BTC": "110.11846080",
+          "ETH": "113.57644977",
+          "HYPE": "196.68829566",
+          "SOL": "70.75137243"
+        },
+        "funding_collected_total": "491.13457866",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00554589",
+        "mode": "collect_only",
+        "net_pnl": "463.31643602",
+        "oos_net_pnl": "2.71340004",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "0.19770119",
+          "sharpe_annual": "0.18664618",
+          "total_return_pct": "0.02593923",
+          "vol_annual": "0.00434894"
+        },
+        "oos_trade_count": 56,
+        "per_symbol_net_pnl": {
+          "BTC": "95.56549489",
+          "ETH": "95.69071189",
+          "HYPE": "174.18021040",
+          "SOL": "97.88001884"
+        },
+        "rebalance_count": 29,
+        "rebalance_interval_days": 14,
+        "strategy_type": "funding_carry",
+        "top_k": 4,
+        "trade_count": 180,
+        "traded_notional_total": "71084.72798666",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "0.22179329",
+          "sharpe_annual": "7.27045635",
+          "total_return_pct": "4.58288821",
+          "vol_annual": "0.00821550"
+        }
+      },
+      {
+        "avg_friction_bps": "6.99888136",
+        "avg_residual_delta_fraction": "0.00028611",
+        "config_id": "fund_ev1_flip_sides_cad7_top2_1d",
+        "ending_equity": "10272.99939185",
+        "fees_total": "208.75987592",
+        "friction_quote_by_leg": {
+          "perp": "111.32326670",
+          "spot": "173.00204927"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "0.69911982",
+          "sharpe_annual": "1.75100696",
+          "total_return_pct": "2.72999392",
+          "vol_annual": "0.01434509"
+        },
+        "funding_by_symbol": {
+          "BTC": "119.56907441",
+          "ETH": "80.87241977",
+          "HYPE": "341.41010177",
+          "SOL": "95.60637949"
+        },
+        "funding_collected_total": "637.45797544",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00198898",
+        "mode": "flip_sides",
+        "net_pnl": "272.99939185",
+        "oos_net_pnl": "-51.88019521",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "0.69911982",
+          "sharpe_annual": "-1.63431772",
+          "total_return_pct": "-0.50247748",
+          "vol_annual": "0.00950633"
+        },
+        "oos_trade_count": 72,
+        "per_symbol_net_pnl": {
+          "BTC": "-22.12509673",
+          "ETH": "-20.18310742",
+          "HYPE": "210.98477754",
+          "SOL": "104.32281846"
+        },
+        "rebalance_count": 57,
+        "rebalance_interval_days": 7,
+        "strategy_type": "funding_carry",
+        "top_k": 2,
+        "trade_count": 264,
+        "traded_notional_total": "406721.76836165",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "0.42556883",
+          "sharpe_annual": "2.65052489",
+          "total_return_pct": "3.20768948",
+          "vol_annual": "0.01591673"
+        }
+      },
+      {
+        "avg_friction_bps": "6.80602968",
+        "avg_residual_delta_fraction": "0.00062036",
+        "config_id": "fund_ev1_flip_sides_cad7_top4_1d",
+        "ending_equity": "10347.48320631",
+        "fees_total": "95.41052256",
+        "friction_quote_by_leg": {
+          "perp": "49.42449429",
+          "spot": "79.23003702"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "0.73522400",
+          "sharpe_annual": "3.77480528",
+          "total_return_pct": "3.47483206",
+          "vol_annual": "0.00841402"
+        },
+        "funding_by_symbol": {
+          "BTC": "103.65169367",
+          "ETH": "111.50227393",
+          "HYPE": "191.82620663",
+          "SOL": "99.74863304"
+        },
+        "funding_collected_total": "506.72880727",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00656747",
+        "mode": "flip_sides",
+        "net_pnl": "347.48320631",
+        "oos_net_pnl": "-67.72625747",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "0.72664065",
+          "sharpe_annual": "-2.48035541",
+          "total_return_pct": "-0.65026304",
+          "vol_annual": "0.00812230"
+        },
+        "oos_trade_count": 87,
+        "per_symbol_net_pnl": {
+          "BTC": "34.76394983",
+          "ETH": "76.88756084",
+          "HYPE": "156.86155486",
+          "SOL": "78.97014078"
+        },
+        "rebalance_count": 57,
+        "rebalance_interval_days": 7,
+        "strategy_type": "funding_carry",
+        "top_k": 4,
+        "trade_count": 297,
+        "traded_notional_total": "179824.28092347",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "0.17129086",
+          "sharpe_annual": "6.53047921",
+          "total_return_pct": "4.14052477",
+          "vol_annual": "0.00828171"
+        }
+      },
+      {
+        "avg_friction_bps": "6.95821853",
+        "avg_residual_delta_fraction": "0.00030735",
+        "config_id": "fund_ev1_flip_sides_cad14_top2_1d",
+        "ending_equity": "10416.27295637",
+        "fees_total": "137.85419444",
+        "friction_quote_by_leg": {
+          "perp": "74.78933423",
+          "spot": "115.05864249"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "0.54869766",
+          "sharpe_annual": "2.80211386",
+          "total_return_pct": "4.16272956",
+          "vol_annual": "0.01355114"
+        },
+        "funding_by_symbol": {
+          "BTC": "115.63202647",
+          "ETH": "49.08391182",
+          "HYPE": "328.71390832",
+          "SOL": "107.41212294"
+        },
+        "funding_collected_total": "600.84196955",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00198898",
+        "mode": "flip_sides",
+        "net_pnl": "416.27295637",
+        "oos_net_pnl": "-51.78520009",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "0.54869766",
+          "sharpe_annual": "-1.84165672",
+          "total_return_pct": "-0.49469729",
+          "vol_annual": "0.00831054"
+        },
+        "oos_trade_count": 50,
+        "per_symbol_net_pnl": {
+          "BTC": "50.89224688",
+          "ETH": "-41.93039944",
+          "HYPE": "242.63809592",
+          "SOL": "164.67301301"
+        },
+        "rebalance_count": 29,
+        "rebalance_interval_days": 14,
+        "strategy_type": "funding_carry",
+        "top_k": 2,
+        "trade_count": 148,
+        "traded_notional_total": "264758.58681638",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "0.18480068",
+          "sharpe_annual": "4.00605213",
+          "total_return_pct": "4.64473276",
+          "vol_annual": "0.01512666"
+        }
+      },
+      {
+        "avg_friction_bps": "6.70473363",
+        "avg_residual_delta_fraction": "0.00078411",
+        "config_id": "fund_ev1_flip_sides_cad14_top4_1d",
+        "ending_equity": "10436.07548159",
+        "fees_total": "61.61131916",
+        "friction_quote_by_leg": {
+          "perp": "34.02530767",
+          "spot": "51.39205636"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "0.45958168",
+          "sharpe_annual": "5.04066339",
+          "total_return_pct": "4.36075482",
+          "vol_annual": "0.00787109"
+        },
+        "funding_by_symbol": {
+          "BTC": "108.46890790",
+          "ETH": "110.80422743",
+          "HYPE": "190.92721557",
+          "SOL": "99.91511677"
+        },
+        "funding_collected_total": "510.11546767",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00554589",
+        "mode": "flip_sides",
+        "net_pnl": "436.07548159",
+        "oos_net_pnl": "-22.88290711",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "0.45958168",
+          "sharpe_annual": "-1.07376349",
+          "total_return_pct": "-0.21878763",
+          "vol_annual": "0.00629108"
+        },
+        "oos_trade_count": 68,
+        "per_symbol_net_pnl": {
+          "BTC": "89.12492012",
+          "ETH": "87.95148307",
+          "HYPE": "161.42449050",
+          "SOL": "97.57458790"
+        },
+        "rebalance_count": 29,
+        "rebalance_interval_days": 14,
+        "strategy_type": "funding_carry",
+        "top_k": 4,
+        "trade_count": 194,
+        "traded_notional_total": "112240.09304562",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "0.18209031",
+          "sharpe_annual": "7.20185197",
+          "total_return_pct": "4.56172517",
+          "vol_annual": "0.00825636"
+        }
+      }
+    ],
+    "exec_ev1_conservative": [
+      {
+        "avg_friction_bps": "16.28954217",
+        "avg_residual_delta_fraction": "0.00026702",
+        "config_id": "fund_ev1_collect_only_cad7_top2_1d",
+        "ending_equity": "9852.27397887",
+        "fees_total": "206.11397416",
+        "friction_quote_by_leg": {
+          "perp": "281.37631014",
+          "spot": "376.87772912"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "3.43061222",
+          "sharpe_annual": "-0.78966923",
+          "total_return_pct": "-1.47726021",
+          "vol_annual": "0.01731417"
+        },
+        "funding_by_symbol": {
+          "BTC": "118.98513752",
+          "ETH": "91.26875951",
+          "HYPE": "340.36006393",
+          "SOL": "51.80179420"
+        },
+        "funding_collected_total": "602.41575516",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00199102",
+        "mode": "collect_only",
+        "net_pnl": "-147.72602113",
+        "oos_net_pnl": "-198.27066886",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "1.99048112",
+          "sharpe_annual": "-4.40897265",
+          "total_return_pct": "-1.97273557",
+          "vol_annual": "0.01395524"
+        },
+        "oos_trade_count": 78,
+        "per_symbol_net_pnl": {
+          "BTC": "-158.48674339",
+          "ETH": "-111.78581841",
+          "HYPE": "102.85988430",
+          "SOL": "19.68665637"
+        },
+        "rebalance_count": 57,
+        "rebalance_interval_days": 7,
+        "strategy_type": "funding_carry",
+        "top_k": 2,
+        "trade_count": 268,
+        "traded_notional_total": "401852.89471624",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "1.51574891",
+          "sharpe_annual": "0.35146395",
+          "total_return_pct": "0.47633590",
+          "vol_annual": "0.01849723"
+        }
+      },
+      {
+        "avg_friction_bps": "15.97950664",
+        "avg_residual_delta_fraction": "0.00046185",
+        "config_id": "fund_ev1_collect_only_cad7_top4_1d",
+        "ending_equity": "10303.03295582",
+        "fees_total": "57.58312162",
+        "friction_quote_by_leg": {
+          "perp": "78.16850891",
+          "spot": "105.42506530"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "0.84103562",
+          "sharpe_annual": "3.50109538",
+          "total_return_pct": "3.03032956",
+          "vol_annual": "0.00792859"
+        },
+        "funding_by_symbol": {
+          "BTC": "106.82874920",
+          "ETH": "112.71715554",
+          "HYPE": "194.38848843",
+          "SOL": "69.67773416"
+        },
+        "funding_collected_total": "483.61212733",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00544936",
+        "mode": "collect_only",
+        "net_pnl": "303.03295582",
+        "oos_net_pnl": "-77.21758063",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "0.77559480",
+          "sharpe_annual": "-2.96168066",
+          "total_return_pct": "-0.74388937",
+          "vol_annual": "0.00778783"
+        },
+        "oos_trade_count": 77,
+        "per_symbol_net_pnl": {
+          "BTC": "35.90161807",
+          "ETH": "68.10157847",
+          "HYPE": "143.36897366",
+          "SOL": "55.66078562"
+        },
+        "rebalance_count": 57,
+        "rebalance_interval_days": 7,
+        "strategy_type": "funding_carry",
+        "top_k": 4,
+        "trade_count": 275,
+        "traded_notional_total": "106971.03232198",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "0.24080648",
+          "sharpe_annual": "6.41416018",
+          "total_return_pct": "3.78749132",
+          "vol_annual": "0.00772587"
+        }
+      },
+      {
+        "avg_friction_bps": "16.16313648",
+        "avg_residual_delta_fraction": "0.00045027",
+        "config_id": "fund_ev1_collect_only_cad14_top2_1d",
+        "ending_equity": "10180.27557417",
+        "fees_total": "127.66040349",
+        "friction_quote_by_leg": {
+          "perp": "173.48961520",
+          "spot": "235.41185508"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "1.77554260",
+          "sharpe_annual": "1.08641039",
+          "total_return_pct": "1.80275574",
+          "vol_annual": "0.01538323"
+        },
+        "funding_by_symbol": {
+          "BTC": "117.98136867",
+          "ETH": "60.66528010",
+          "HYPE": "334.79202659",
+          "SOL": "71.16192023"
+        },
+        "funding_collected_total": "584.60059559",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00534400",
+        "mode": "collect_only",
+        "net_pnl": "180.27557417",
+        "oos_net_pnl": "-163.54499090",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "1.60829868",
+          "sharpe_annual": "-3.64740634",
+          "total_return_pct": "-1.58108882",
+          "vol_annual": "0.01348982"
+        },
+        "oos_trade_count": 52,
+        "per_symbol_net_pnl": {
+          "BTC": "-45.00959454",
+          "ETH": "-78.65175463",
+          "HYPE": "189.08954657",
+          "SOL": "114.84737677"
+        },
+        "rebalance_count": 29,
+        "rebalance_interval_days": 14,
+        "strategy_type": "funding_carry",
+        "top_k": 2,
+        "trade_count": 145,
+        "traded_notional_total": "244598.73491657",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "0.30123297",
+          "sharpe_annual": "2.80683442",
+          "total_return_pct": "3.40275260",
+          "vol_annual": "0.01592672"
+        }
+      },
+      {
+        "avg_friction_bps": "15.85309968",
+        "avg_residual_delta_fraction": "0.00028573",
+        "config_id": "fund_ev1_collect_only_cad14_top4_1d",
+        "ending_equity": "10392.01220006",
+        "fees_total": "39.47129505",
+        "friction_quote_by_leg": {
+          "perp": "54.80530537",
+          "spot": "71.97883738"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "0.43885916",
+          "sharpe_annual": "4.77472907",
+          "total_return_pct": "3.92012200",
+          "vol_annual": "0.00748576"
+        },
+        "funding_by_symbol": {
+          "BTC": "110.00633923",
+          "ETH": "113.38690268",
+          "HYPE": "196.33566655",
+          "SOL": "70.66147225"
+        },
+        "funding_collected_total": "490.39038071",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00177729",
+        "mode": "collect_only",
+        "net_pnl": "392.01220006",
+        "oos_net_pnl": "-33.23155156",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "0.43885916",
+          "sharpe_annual": "-1.55064866",
+          "total_return_pct": "-0.31876043",
+          "vol_annual": "0.00635564"
+        },
+        "oos_trade_count": 56,
+        "per_symbol_net_pnl": {
+          "BTC": "84.48839119",
+          "ETH": "80.03632865",
+          "HYPE": "155.72899235",
+          "SOL": "71.75848787"
+        },
+        "rebalance_count": 29,
+        "rebalance_interval_days": 14,
+        "strategy_type": "funding_carry",
+        "top_k": 4,
+        "trade_count": 178,
+        "traded_notional_total": "70783.75874290",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "0.24890460",
+          "sharpe_annual": "7.16020849",
+          "total_return_pct": "4.22936569",
+          "vol_annual": "0.00771138"
+        }
+      },
+      {
+        "avg_friction_bps": "16.36409666",
+        "avg_residual_delta_fraction": "0.00028633",
+        "config_id": "fund_ev1_flip_sides_cad7_top2_1d",
+        "ending_equity": "9892.65190117",
+        "fees_total": "205.04414701",
+        "friction_quote_by_leg": {
+          "perp": "281.88304948",
+          "spot": "377.53456906"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "3.03483849",
+          "sharpe_annual": "-0.55989560",
+          "total_return_pct": "-1.07348099",
+          "vol_annual": "0.01762573"
+        },
+        "funding_by_symbol": {
+          "BTC": "118.27431150",
+          "ETH": "79.58252028",
+          "HYPE": "336.96886090",
+          "SOL": "93.99918433"
+        },
+        "funding_collected_total": "628.82487701",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00199102",
+        "mode": "flip_sides",
+        "net_pnl": "-107.34809883",
+        "oos_net_pnl": "-167.66512990",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "1.85536730",
+          "sharpe_annual": "-3.34661820",
+          "total_return_pct": "-1.66659887",
+          "vol_annual": "0.01549684"
+        },
+        "oos_trade_count": 72,
+        "per_symbol_net_pnl": {
+          "BTC": "-140.18184783",
+          "ETH": "-100.26183000",
+          "HYPE": "110.10886110",
+          "SOL": "22.98671790"
+        },
+        "rebalance_count": 57,
+        "rebalance_interval_days": 7,
+        "strategy_type": "funding_carry",
+        "top_k": 2,
+        "trade_count": 264,
+        "traded_notional_total": "399670.71913623",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "1.43075173",
+          "sharpe_annual": "0.41542047",
+          "total_return_pct": "0.56305234",
+          "vol_annual": "0.01841207"
+        }
+      },
+      {
+        "avg_friction_bps": "16.01212002",
+        "avg_residual_delta_fraction": "0.00050402",
+        "config_id": "fund_ev1_flip_sides_cad7_top4_1d",
+        "ending_equity": "10173.47184058",
+        "fees_total": "94.61144351",
+        "friction_quote_by_leg": {
+          "perp": "127.35641220",
+          "spot": "174.93032431"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "1.79109804",
+          "sharpe_annual": "1.55181311",
+          "total_return_pct": "1.73471841",
+          "vol_annual": "0.01032780"
+        },
+        "funding_by_symbol": {
+          "BTC": "103.38783881",
+          "ETH": "111.06362686",
+          "HYPE": "191.11332125",
+          "SOL": "99.31946749"
+        },
+        "funding_collected_total": "504.88425441",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00553263",
+        "mode": "flip_sides",
+        "net_pnl": "173.47184058",
+        "oos_net_pnl": "-166.08330966",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "1.63837835",
+          "sharpe_annual": "-3.79421113",
+          "total_return_pct": "-1.60629067",
+          "vol_annual": "0.01317773"
+        },
+        "oos_trade_count": 85,
+        "per_symbol_net_pnl": {
+          "BTC": "-19.26449142",
+          "ETH": "47.49216259",
+          "HYPE": "129.75873829",
+          "SOL": "15.48543112"
+        },
+        "rebalance_count": 57,
+        "rebalance_interval_days": 7,
+        "strategy_type": "funding_carry",
+        "top_k": 4,
+        "trade_count": 295,
+        "traded_notional_total": "178394.56800971",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "0.26389484",
+          "sharpe_annual": "5.27141961",
+          "total_return_pct": "3.38405130",
+          "vol_annual": "0.00841740"
+        }
+      },
+      {
+        "avg_friction_bps": "16.34783940",
+        "avg_residual_delta_fraction": "0.00048008",
+        "config_id": "fund_ev1_flip_sides_cad14_top2_1d",
+        "ending_equity": "10162.12039782",
+        "fees_total": "136.23896346",
+        "friction_quote_by_leg": {
+          "perp": "190.22389063",
+          "spot": "253.26659287"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "1.66142821",
+          "sharpe_annual": "0.97161612",
+          "total_return_pct": "1.62120398",
+          "vol_annual": "0.01549623"
+        },
+        "funding_by_symbol": {
+          "BTC": "114.90042767",
+          "ETH": "48.43664281",
+          "HYPE": "326.53999325",
+          "SOL": "106.49291798"
+        },
+        "funding_collected_total": "596.36998171",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00534401",
+        "mode": "flip_sides",
+        "net_pnl": "162.12039782",
+        "oos_net_pnl": "-151.27324180",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "1.49400640",
+          "sharpe_annual": "-3.36212802",
+          "total_return_pct": "-1.46676494",
+          "vol_annual": "0.01356619"
+        },
+        "oos_trade_count": 50,
+        "per_symbol_net_pnl": {
+          "BTC": "-5.28908653",
+          "ETH": "-111.39884451",
+          "HYPE": "168.22593629",
+          "SOL": "110.58239257"
+        },
+        "rebalance_count": 29,
+        "rebalance_interval_days": 14,
+        "strategy_type": "funding_carry",
+        "top_k": 2,
+        "trade_count": 147,
+        "traded_notional_total": "261774.97656182",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "0.36627459",
+          "sharpe_annual": "2.53458536",
+          "total_return_pct": "3.09858764",
+          "vol_annual": "0.01609003"
+        }
+      },
+      {
+        "avg_friction_bps": "15.87184469",
+        "avg_residual_delta_fraction": "0.00032171",
+        "config_id": "fund_ev1_flip_sides_cad14_top4_1d",
+        "ending_equity": "10323.12264293",
+        "fees_total": "61.31699206",
+        "friction_quote_by_leg": {
+          "perp": "85.75467877",
+          "spot": "112.70710743"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "1.03551197",
+          "sharpe_annual": "3.30825559",
+          "total_return_pct": "3.23122643",
+          "vol_annual": "0.00894025"
+        },
+        "funding_by_symbol": {
+          "BTC": "108.33173114",
+          "ETH": "110.59039555",
+          "HYPE": "190.50986153",
+          "SOL": "99.68720872"
+        },
+        "funding_collected_total": "509.11919694",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00177729",
+        "mode": "flip_sides",
+        "net_pnl": "323.12264293",
+        "oos_net_pnl": "-87.64826221",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "1.03551197",
+          "sharpe_annual": "-2.54210718",
+          "total_return_pct": "-0.84189983",
+          "vol_annual": "0.01026642"
+        },
+        "oos_trade_count": 70,
+        "per_symbol_net_pnl": {
+          "BTC": "72.61649158",
+          "ETH": "67.78404028",
+          "HYPE": "137.76264387",
+          "SOL": "44.95946720"
+        },
+        "rebalance_count": 29,
+        "rebalance_interval_days": 14,
+        "strategy_type": "funding_carry",
+        "top_k": 4,
+        "trade_count": 194,
+        "traded_notional_total": "111753.16428184",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "0.27001070",
+          "sharpe_annual": "6.66304877",
+          "total_return_pct": "4.07996176",
+          "vol_annual": "0.00800028"
+        }
+      }
+    ],
+    "exec_ev1_stress": [
+      {
+        "avg_friction_bps": "30.80155681",
+        "avg_residual_delta_fraction": "0.00043590",
+        "config_id": "fund_ev1_collect_only_cad7_top2_1d",
+        "ending_equity": "9290.16354219",
+        "fees_total": "200.45603032",
+        "friction_quote_by_leg": {
+          "perp": "544.49973466",
+          "spot": "675.32242860"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "8.28232793",
+          "sharpe_annual": "-2.81290903",
+          "total_return_pct": "-7.09836458",
+          "vol_annual": "0.02420387"
+        },
+        "funding_by_symbol": {
+          "BTC": "116.96552305",
+          "ETH": "88.86166131",
+          "HYPE": "333.40316160",
+          "SOL": "51.00015312"
+        },
+        "funding_collected_total": "590.23049908",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00554231",
+        "mode": "collect_only",
+        "net_pnl": "-709.83645781",
+        "oos_net_pnl": "-367.81161602",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "3.82582343",
+          "sharpe_annual": "-5.27192345",
+          "total_return_pct": "-3.80837194",
+          "vol_annual": "0.02272877"
+        },
+        "oos_trade_count": 78,
+        "per_symbol_net_pnl": {
+          "BTC": "-347.58274344",
+          "ETH": "-245.57236994",
+          "HYPE": "-43.44826550",
+          "SOL": "-73.23307893"
+        },
+        "rebalance_count": 57,
+        "rebalance_interval_days": 7,
+        "strategy_type": "funding_carry",
+        "top_k": 2,
+        "trade_count": 266,
+        "traded_notional_total": "391100.24819215",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "4.67876435",
+          "sharpe_annual": "-1.87547632",
+          "total_return_pct": "-3.44828339",
+          "vol_annual": "0.02475953"
+        }
+      },
+      {
+        "avg_friction_bps": "30.37279115",
+        "avg_residual_delta_fraction": "0.00045887",
+        "config_id": "fund_ev1_collect_only_cad7_top4_1d",
+        "ending_equity": "10138.03451870",
+        "fees_total": "57.15201854",
+        "friction_quote_by_leg": {
+          "perp": "154.08594101",
+          "spot": "193.04853134"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "1.80035303",
+          "sharpe_annual": "1.34554212",
+          "total_return_pct": "1.38034519",
+          "vol_annual": "0.00949630"
+        },
+        "funding_by_symbol": {
+          "BTC": "106.47771594",
+          "ETH": "112.20830154",
+          "HYPE": "193.55149362",
+          "SOL": "69.42769172"
+        },
+        "funding_collected_total": "481.66520282",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00535853",
+        "mode": "collect_only",
+        "net_pnl": "138.03451870",
+        "oos_net_pnl": "-161.45291984",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "1.57648954",
+          "sharpe_annual": "-3.97823096",
+          "total_return_pct": "-1.56758208",
+          "vol_annual": "0.01226531"
+        },
+        "oos_trade_count": 77,
+        "per_symbol_net_pnl": {
+          "BTC": "-12.27528268",
+          "ETH": "35.90984626",
+          "HYPE": "108.50819007",
+          "SOL": "5.89176505"
+        },
+        "rebalance_count": 57,
+        "rebalance_interval_days": 7,
+        "strategy_type": "funding_carry",
+        "top_k": 4,
+        "trade_count": 275,
+        "traded_notional_total": "106227.18436920",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "0.30530598",
+          "sharpe_annual": "5.13310092",
+          "total_return_pct": "2.97996327",
+          "vol_annual": "0.00762654"
+        }
+      },
+      {
+        "avg_friction_bps": "30.67300006",
+        "avg_residual_delta_fraction": "0.00028191",
+        "config_id": "fund_ev1_collect_only_cad14_top2_1d",
+        "ending_equity": "9816.86450326",
+        "fees_total": "125.48738007",
+        "friction_quote_by_leg": {
+          "perp": "339.31069958",
+          "spot": "426.81209455"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "3.85704606",
+          "sharpe_annual": "-0.84591932",
+          "total_return_pct": "-1.83135497",
+          "vol_annual": "0.02005475"
+        },
+        "funding_by_symbol": {
+          "BTC": "116.79372885",
+          "ETH": "59.68606401",
+          "HYPE": "331.40590085",
+          "SOL": "70.59571090"
+        },
+        "funding_collected_total": "578.48140461",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00199433",
+        "mode": "collect_only",
+        "net_pnl": "-183.13549674",
+        "oos_net_pnl": "-306.60187753",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "3.05547095",
+          "sharpe_annual": "-4.29685881",
+          "total_return_pct": "-3.02862543",
+          "vol_annual": "0.02207964"
+        },
+        "oos_trade_count": 54,
+        "per_symbol_net_pnl": {
+          "BTC": "-159.36017902",
+          "ETH": "-176.52441866",
+          "HYPE": "89.02082540",
+          "SOL": "63.72827554"
+        },
+        "rebalance_count": 29,
+        "rebalance_interval_days": 14,
+        "strategy_type": "funding_carry",
+        "top_k": 2,
+        "trade_count": 146,
+        "traded_notional_total": "240604.72260997",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "1.01958766",
+          "sharpe_annual": "0.85091757",
+          "total_return_pct": "1.19991958",
+          "vol_annual": "0.01888293"
+        }
+      },
+      {
+        "avg_friction_bps": "30.09773202",
+        "avg_residual_delta_fraction": "0.00027909",
+        "config_id": "fund_ev1_collect_only_cad14_top4_1d",
+        "ending_equity": "10277.44546721",
+        "fees_total": "39.37733133",
+        "friction_quote_by_leg": {
+          "perp": "107.60788284",
+          "spot": "132.04384695"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "0.97648169",
+          "sharpe_annual": "3.03862210",
+          "total_return_pct": "2.77445467",
+          "vol_annual": "0.00837644"
+        },
+        "funding_by_symbol": {
+          "BTC": "109.69616080",
+          "ETH": "113.06392135",
+          "HYPE": "195.74443878",
+          "SOL": "70.50395368"
+        },
+        "funding_collected_total": "489.00847461",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00177763",
+        "mode": "collect_only",
+        "net_pnl": "277.44546721",
+        "oos_net_pnl": "-90.10974471",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "0.97648169",
+          "sharpe_annual": "-2.71928497",
+          "total_return_pct": "-0.86915134",
+          "vol_annual": "0.00991146"
+        },
+        "oos_trade_count": 60,
+        "per_symbol_net_pnl": {
+          "BTC": "63.59421024",
+          "ETH": "55.32817769",
+          "HYPE": "127.65679357",
+          "SOL": "30.86628571"
+        },
+        "rebalance_count": 29,
+        "rebalance_interval_days": 14,
+        "strategy_type": "funding_carry",
+        "top_k": 4,
+        "trade_count": 182,
+        "traded_notional_total": "70672.81996868",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "0.30791426",
+          "sharpe_annual": "6.52614661",
+          "total_return_pct": "3.65259566",
+          "vol_annual": "0.00732733"
+        }
+      },
+      {
+        "avg_friction_bps": "30.95226168",
+        "avg_residual_delta_fraction": "0.00045560",
+        "config_id": "fund_ev1_flip_sides_cad7_top2_1d",
+        "ending_equity": "9327.66351552",
+        "fees_total": "199.42334859",
+        "friction_quote_by_leg": {
+          "perp": "544.76365796",
+          "spot": "677.75008299"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "7.91210729",
+          "sharpe_annual": "-2.57881805",
+          "total_return_pct": "-6.72336484",
+          "vol_annual": "0.02494333"
+        },
+        "funding_by_symbol": {
+          "BTC": "116.27780021",
+          "ETH": "77.62628028",
+          "HYPE": "330.21257097",
+          "SOL": "91.55847433"
+        },
+        "funding_collected_total": "615.67512579",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00554229",
+        "mode": "flip_sides",
+        "net_pnl": "-672.33648448",
+        "oos_net_pnl": "-335.32355396",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "3.64692029",
+          "sharpe_annual": "-4.29444437",
+          "total_return_pct": "-3.47018527",
+          "vol_annual": "0.02536025"
+        },
+        "oos_trade_count": 72,
+        "per_symbol_net_pnl": {
+          "BTC": "-319.21378441",
+          "ETH": "-221.48154046",
+          "HYPE": "-30.50560463",
+          "SOL": "-101.13555498"
+        },
+        "rebalance_count": 57,
+        "rebalance_interval_days": 7,
+        "strategy_type": "funding_carry",
+        "top_k": 2,
+        "trade_count": 262,
+        "traded_notional_total": "388995.27764482",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "4.63974617",
+          "sharpe_annual": "-1.85552382",
+          "total_return_pct": "-3.40876153",
+          "vol_annual": "0.02473236"
+        }
+      },
+      {
+        "avg_friction_bps": "30.48613648",
+        "avg_residual_delta_fraction": "0.00049801",
+        "config_id": "fund_ev1_flip_sides_cad7_top4_1d",
+        "ending_equity": "9914.11695273",
+        "fees_total": "93.48168476",
+        "friction_quote_by_leg": {
+          "perp": "250.97730418",
+          "spot": "319.76937658"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "3.47141174",
+          "sharpe_annual": "-0.54426857",
+          "total_return_pct": "-0.85883047",
+          "vol_annual": "0.01452421"
+        },
+        "funding_by_symbol": {
+          "BTC": "102.99918461",
+          "ETH": "110.38319406",
+          "HYPE": "190.00397629",
+          "SOL": "98.65144423"
+        },
+        "funding_collected_total": "502.03779919",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00491175",
+        "mode": "flip_sides",
+        "net_pnl": "-85.88304727",
+        "oos_net_pnl": "-307.64002990",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "3.04134149",
+          "sharpe_annual": "-4.41183085",
+          "total_return_pct": "-3.00965901",
+          "vol_annual": "0.02137068"
+        },
+        "oos_trade_count": 86,
+        "per_symbol_net_pnl": {
+          "BTC": "-99.56042175",
+          "ETH": "1.62777399",
+          "HYPE": "94.82064685",
+          "SOL": "-82.77104636"
+        },
+        "rebalance_count": 57,
+        "rebalance_interval_days": 7,
+        "strategy_type": "funding_carry",
+        "top_k": 4,
+        "trade_count": 296,
+        "traded_notional_total": "176385.75553255",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "0.48717254",
+          "sharpe_annual": "3.01437608",
+          "total_return_pct": "2.20617825",
+          "vol_annual": "0.00965945"
+        }
+      },
+      {
+        "avg_friction_bps": "30.96186281",
+        "avg_residual_delta_fraction": "0.00030720",
+        "config_id": "fund_ev1_flip_sides_cad14_top2_1d",
+        "ending_equity": "9767.75168151",
+        "fees_total": "133.81632647",
+        "friction_quote_by_leg": {
+          "perp": "370.70386579",
+          "spot": "459.67942408"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "4.33803995",
+          "sharpe_annual": "-1.05663381",
+          "total_return_pct": "-2.32248318",
+          "vol_annual": "0.02045594"
+        },
+        "funding_by_symbol": {
+          "BTC": "113.53833658",
+          "ETH": "47.68171767",
+          "HYPE": "322.95366424",
+          "SOL": "105.03636954"
+        },
+        "funding_collected_total": "589.21008803",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00199433",
+        "mode": "flip_sides",
+        "net_pnl": "-232.24831849",
+        "oos_net_pnl": "-299.37662854",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "3.00066434",
+          "sharpe_annual": "-4.17686122",
+          "total_return_pct": "-2.97380364",
+          "vol_annual": "0.02229438"
+        },
+        "oos_trade_count": 52,
+        "per_symbol_net_pnl": {
+          "BTC": "-93.12812333",
+          "ETH": "-224.17892431",
+          "HYPE": "58.19768661",
+          "SOL": "26.86104254"
+        },
+        "rebalance_count": 29,
+        "rebalance_interval_days": 14,
+        "strategy_type": "funding_carry",
+        "top_k": 2,
+        "trade_count": 150,
+        "traded_notional_total": "257314.49758376",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "1.50858666",
+          "sharpe_annual": "0.44496746",
+          "total_return_pct": "0.63673224",
+          "vol_annual": "0.01942598"
+        }
+      },
+      {
+        "avg_friction_bps": "30.18944768",
+        "avg_residual_delta_fraction": "0.00032195",
+        "config_id": "fund_ev1_flip_sides_cad14_top4_1d",
+        "ending_equity": "10146.42977965",
+        "fees_total": "60.84711335",
+        "friction_quote_by_leg": {
+          "perp": "167.89727051",
+          "spot": "205.93683592"
+        },
+        "full_stats": {
+          "days": 394,
+          "max_drawdown_pct": "1.97855374",
+          "sharpe_annual": "1.15061026",
+          "total_return_pct": "1.46429780",
+          "vol_annual": "0.01179464"
+        },
+        "funding_by_symbol": {
+          "BTC": "108.04722074",
+          "ETH": "110.22922427",
+          "HYPE": "189.81696463",
+          "SOL": "99.30764169"
+        },
+        "funding_collected_total": "507.40105133",
+        "funding_lookback_days": 7,
+        "max_residual_delta_fraction": "0.00177763",
+        "mode": "flip_sides",
+        "net_pnl": "146.42977965",
+        "oos_net_pnl": "-186.69277294",
+        "oos_stats": {
+          "days": 119,
+          "max_drawdown_pct": "1.97855374",
+          "sharpe_annual": "-3.34165291",
+          "total_return_pct": "-1.80674111",
+          "vol_annual": "0.01683331"
+        },
+        "oos_trade_count": 70,
+        "per_symbol_net_pnl": {
+          "BTC": "45.37659321",
+          "ETH": "36.10569941",
+          "HYPE": "101.85989012",
+          "SOL": "-36.91240309"
+        },
+        "rebalance_count": 29,
+        "rebalance_interval_days": 14,
+        "strategy_type": "funding_carry",
+        "top_k": 4,
+        "trade_count": 194,
+        "traded_notional_total": "110974.22882861",
+        "train_stats": {
+          "days": 275,
+          "max_drawdown_pct": "0.45736565",
+          "sharpe_annual": "5.20739732",
+          "total_return_pct": "3.30365889",
+          "vol_annual": "0.00832171"
+        }
+      }
+    ]
+  },
+  "phase": "FUND-EV1",
+  "regimes": {
+    "chosen_config_pnl_by_regime": {
+      "bear": {
+        "days": 177,
+        "net_pnl": "45.19234019"
+      },
+      "bull": {
+        "days": 130,
+        "net_pnl": "232.43094448"
+      },
+      "neutral": {
+        "days": 86,
+        "net_pnl": "114.38891540"
+      }
+    },
+    "classification": "BTC perp trailing 90d return, point-in-time; bear < -0.10, bull > +0.10",
+    "day_counts": {
+      "bear": 177,
+      "bull": 130,
+      "neutral": 87
+    }
+  },
+  "report": "fund_ev1_delta_neutral_carry_evidence",
+  "routing": {
+    "gate_id": "funding_carry_net_oos_tail_gate",
+    "never_judged_by": [
+      "per_symbol_breadth_friction_gate",
+      "selection_random_benchmark_gate",
+      "tsmom_buy_hold_risk_adjusted_gate"
+    ],
+    "strategy_type": "funding_carry"
+  },
+  "run_timestamp_utc": "2026-06-11T16:08:04Z",
+  "status": "funding_carry_evidence_complete",
+  "tail_stress": {
+    "avg_residual_delta_fraction": "0.00028573",
+    "funding_inversion": {
+      "funding_paid_on_negative_days_by_symbol": {
+        "BTC": "-9.44866777",
+        "ETH": "-10.04343723",
+        "HYPE": "-6.00177084",
+        "SOL": "-17.29896943"
+      },
+      "negative_funding_exposure_days_by_symbol": {
+        "BTC": 53,
+        "ETH": 53,
+        "HYPE": 23,
+        "SOL": 53
+      },
+      "note": "collect_only goes flat after the trailing signal turns; the bleed above is the funding paid during signal lag while still positioned"
+    },
+    "leg_lag_only_run": {
+      "max_drawdown_pct": "0.79866339",
+      "max_residual_delta_fraction": "0.47943451",
+      "modeled_gap_loss_at_leg_lag_residual_pct_of_equity": "11.31803158",
+      "net_pnl": "757.98472184",
+      "net_pnl_delta_vs_chosen": "365.97252178",
+      "note": "the positive net delta is fill-price PATH LUCK in this window, not an edge: a one-day-legged book held up to the residual fraction above UNHEDGED for a day \u2014 against the worst candle in this window that is the modeled gap loss, the real steamroller",
+      "scenario": "exec_ev1_conservative",
+      "spot_leg_lag_days": 1
+    },
+    "liquidation_note": "perp margin basis ~1x effective leverage (leg notional = half equity, unencumbered other half); liquidation mechanics not modeled \u2014 at 1x a short perp liquidates only near +100% adverse move, far outside the observed worst candle above",
+    "max_residual_delta_fraction": "0.00177729",
+    "modeled_gap_loss_at_max_residual_pct_of_equity": "0.04195656",
+    "stressed_run": {
+      "config": "fund_ev1_collect_only_cad14_top4_1d_stressed_leglag1",
+      "max_drawdown_pct": "0.91582841",
+      "net_pnl": "642.57787044",
+      "scenario": "exec_ev1_stress",
+      "sharpe_annual": "2.81722123",
+      "spot_leg_lag_days": 1
+    },
+    "worst_days_chosen_config": [
+      [
+        "2025-10-12 00:00:00+00:00",
+        "-17.55618239"
+      ],
+      [
+        "2026-03-16 00:00:00+00:00",
+        "-14.14415144"
+      ],
+      [
+        "2026-04-27 00:00:00+00:00",
+        "-10.69985232"
+      ],
+      [
+        "2026-05-11 00:00:00+00:00",
+        "-9.82234336"
+      ],
+      [
+        "2026-03-30 00:00:00+00:00",
+        "-9.64278663"
+      ]
+    ],
+    "worst_single_candle_move_pct_in_window": "23.60704400"
+  },
+  "train_only_choice": {
+    "chosen_config": "fund_ev1_collect_only_cad14_top4_1d",
+    "criterion": "best train-window Sharpe under conservative friction"
+  },
+  "universe": {
+    "aligned_days": 394,
+    "carry_universe": [
+      "BTC",
+      "ETH",
+      "HYPE",
+      "SOL"
+    ],
+    "rationale": "BTC/ETH/SOL via Unit spot + HYPE native spot \u2014 the liquid HL-spot-supported names; aligned window limited by the youngest spot listing (USOL 2025-05-10); UFART/UPUMP-tier listings excluded as thin",
+    "spot_pairs": {
+      "BTC": "UBTC/USDC",
+      "ETH": "UETH/USDC",
+      "HYPE": "HYPE/USDC",
+      "SOL": "USOL/USDC"
+    },
+    "timeframe": "1d",
+    "window": [
+      "2025-05-11 00:00:00+00:00",
+      "2026-06-08 00:00:00+00:00"
+    ]
+  },
+  "verdict": "carry_does_not_survive_costs_and_tail_oos",
+  "walk_forward": {
+    "fold_b": {
+      "chosen_config": "fund_ev1_collect_only_cad14_top4_1d",
+      "net_carry": "111.30883047",
+      "window": [
+        "2025-09-19 00:00:00+00:00",
+        "2026-01-28 00:00:00+00:00"
+      ]
+    },
+    "fold_c": {
+      "chosen_config": "fund_ev1_collect_only_cad14_top4_1d",
+      "net_carry": "-35.07111287",
+      "window": [
+        "2026-01-28 00:00:00+00:00",
+        "end"
+      ]
+    }
+  }
+}
