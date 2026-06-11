@@ -17,6 +17,32 @@ Entry schema:
 
 ---
 
+## v2026.06.11.003
+
+- `recorded_at_utc`: `2026-06-11T12:00:00Z`
+- `scope`: `DASH-QASWEEP1 investor-readiness UI shakedown + fix`
+- `intent`: `UI/display fixes only; chart + markers untouched; no safety label or honest verdict softened. Drove the whole dashboard like a user in two passes (deterministic + 1s-refresh-active with mocked endpoints, zero real network), recording console/page errors at every step. Fixed: (1) BLOCKER - the 1s market refresh destructively rebuilt every filter <select> (renderSelect/renderSelectWithoutAll) making dropdown picks take many clicks - now idempotent via data-render-key, never rebuilt under focus, value preserved; (2) Runtime Logs open log re-defaulted to latest each refresh - rows are now expandable details with state-tracked selection (latest only when nothing selected, survives re-renders); (3) console 404 noise from the control-server status probe - adaptive 10s/60s backoff + zero probes under ?disableLivePolling (explicit unavailable state; deterministic/CI loads are now console-clean); (4) 57px page overflow @1600 in all themes from the Output-slate select min-content blowout - min-width:0/width:100% on the control-grid fields; (5) 45px overflow <=1180 from stale tablet rules (3-col rail split + rigid 160/220 control-grid tracks) - rails single-column, override removed; (6) REGRESSION FOUND+FIXED: tablet/mobile stacking silently dead since DASH-IA1 (base terminal-grid rule appended after the legacy media blocks) - stacking re-asserted <=1180, verified 390/768/1180/1280 zero overflow; (7) inline-flex actions row spill - block flex. Flagged (not fixed): one native 404 per 60s probe persists on machines without the control server (not JS-suppressible) - run the control server for the demo. DASH-QA1 grew 10 -> 12 checks (refresh stability with mocked live endpoints; zero-console-error + no-overflow hygiene) - 12/12 green. Final sweep: zero issues, zero console errors. Demo screenshots + investor-readiness checklist in docs/dash_qasweep1_*. No runtime, strategy, data-source, order, testnet, or approval change.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `tests/dashboard_qa/test_dashboard_smoke.py`
+  - `docs/dash_qasweep1_investor_readiness_sweep.md`
+  - `docs/dash_qasweep1_investor_readiness_sweep_summary.json`
+  - `docs/dash_qasweep1_screenshots/*`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - full exploratory sweep (deterministic + mocked 1s-refresh passes) → 0 issues, 0 console/page errors
+  - CI follow-up: QA check #12 exempts only the documented gitignored optional-artifact 404s (reports/paper_runtime/, reports/paper_reviews/ — absent on CI by design); verified via CI-emulation with reports/** forced to 404 → 0 non-exempt errors
+  - `.venv/bin/python -m pytest -m browser tests/dashboard_qa/ -q` → 12 passed
+  - widths 390/768/1180/1280 → stacked/3-col as intended, zero horizontal overflow
+  - `node --check apps/dashboard/evidence-dashboard.js` → OK
+  - `.venv/bin/python -m pytest -q tests/test_secret_hygiene.py tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py` → passed
+
 ## v2026.06.11.002
 
 - `recorded_at_utc`: `2026-06-11T07:00:00Z`
