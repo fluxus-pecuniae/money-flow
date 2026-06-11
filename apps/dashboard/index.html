@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Money Flow OS</title>
-      <link rel="stylesheet" href="./evidence-dashboard.css?v=dash-ia1-two-tabs-20260610" />
+      <link rel="stylesheet" href="./evidence-dashboard.css?v=dash-pt3-header-pills-20260611" />
   </head>
   <body>
     <header class="top-strip">
@@ -24,6 +24,10 @@
       </nav>
 
       <div class="top-actions">
+        <div class="top-status-pills" aria-label="Critical runtime and live-trading state">
+          <span id="top-runtime-pill" class="top-status-pill runtime-idle"><span class="pill-dot"></span><span class="pill-text">RUNTIME — CHECKING</span></span>
+          <span id="top-live-pill" class="top-status-pill live-disabled"><span class="pill-dot"></span><span class="pill-text">LIVE DISABLED · NOT APPROVED</span></span>
+        </div>
         <div class="theme-control" aria-label="Dashboard theme selector">
           <label for="dashboard-theme-selector">Theme</label>
           <select id="dashboard-theme-selector">
@@ -61,8 +65,6 @@
       </section>
 
       <section id="paper-observation-view" class="dashboard-view paper-observation-view" data-view-panel="paper-observation">
-        <section id="paper-observation-health-banner" class="paper-observation-health-banner" aria-label="Paper Trading top health banner"></section>
-
         <section class="paper-observation-controls paper-observation-cockpit paper-observation-filterbar" aria-label="Cockpit / Global Filters">
               <div class="paper-observation-controls-title">
                 <span class="eyebrow">Cockpit / Global Filters</span>
@@ -296,6 +298,8 @@
               </div>
               <div id="paper-observation-probe-status" class="market-micro-panel"></div>
             </section>
+
+        <section id="paper-observation-health-banner" class="paper-observation-health-banner" aria-label="Paper Trading status strip (bottom reference band)"></section>
       </section>
 
       <section id="uat-cockpit-view" class="dashboard-view exchange-workstation" data-view-panel="uat-cockpit" hidden>
@@ -615,6 +619,6 @@
     </main>
 
     <script src="./vendor/lightweight-charts.standalone.production.js?v=5.2.0"></script>
-    <script src="./evidence-dashboard.js?v=dash-ia1-two-tabs-20260610"></script>
+    <script src="./evidence-dashboard.js?v=dash-pt3-header-pills-20260611"></script>
   </body>
 </html>

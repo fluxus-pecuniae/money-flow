@@ -17,6 +17,34 @@ Entry schema:
 
 ---
 
+## v2026.06.11.001
+
+- `recorded_at_utc`: `2026-06-11T00:15:00Z`
+- `scope`: `DASH-PT3 Paper Trading header + layout refinements`
+- `intent`: `Dashboard display/layout only; chart + markers untouched; every #paper-observation-* id preserved. Six founder refinements on the 2-tab Money Flow OS: (1) always-visible critical-state pills in the header — #top-runtime-pill (RUNTIME ACTIVE green/blinking when the already-polled local control-server status reports a run; IDLE muted; CHECKING while polling) and #top-live-pill (LIVE DISABLED · NOT APPROVED, static red); no new data source. (2) The dense status strip #paper-observation-health-banner relocated from the top to the final full-width reference band after the Testnet footer with all content/ids/lane chips/safety labels intact. (3) Global Filters now lead the body (filters -> watchlist/chart/runtime -> blotter -> daily review -> testnet -> status strip). (4) Runtime Control truncation fixed: right rail widened to minmax(300px,344px) and the right-rail overflow:hidden clip changed to visible — message, copy, output slate, and safety profile all fit; chart stays the dominant panel. (5) Watchlist widened to minmax(212px,252px). (6) OKB removed from the watchlist DISPLAY: scanner_universe rows from the runtime summary bypassed the HIDDEN_DASHBOARD_SYMBOLS filter, so paperObservationBaseScannerRows now applies isVisibleDashboardSymbol to summary rows + configured fallback; pt_rt1.py resolver policy untouched. (7) Daily Review / Anomaly Flags nested scroll removed (max-height/overflow dropped, incl. the mobile variant). Lockstep guard updates: DASH-QA1 #9 extended (pills visible, live pill reads live disabled + not approved, strip renders after the testnet footer) — 9/9 green; static-asset ordering/grid/pill asserts updated — green. Three themes zero page errors; node --check clean; cache-buster dash-pt3-header-pills-20260611; before/after screenshots in docs/dash_pt3_screenshots/. No runtime, strategy, data-source, order, testnet, or approval change.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/DESIGN.md`
+  - `tests/dashboard_qa/test_dashboard_smoke.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `docs/dash_pt3_header_and_layout_refinements.md`
+  - `docs/dash_pt3_header_and_layout_refinements_summary.json`
+  - `docs/dash_pt3_screenshots/*`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -m browser tests/dashboard_qa/ -q` → 9 passed
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py` → 9 passed
+  - three-theme in-browser exercise → zero page errors; OKB absent from watchlist; pills render
+  - `node --check apps/dashboard/evidence-dashboard.js` → OK
+  - `.venv/bin/python -m pytest -q tests/test_secret_hygiene.py tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py` → passed
+
 ## v2026.06.10.007
 
 - `recorded_at_utc`: `2026-06-10T23:30:00Z`
