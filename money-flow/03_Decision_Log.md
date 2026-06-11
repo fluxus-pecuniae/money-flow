@@ -2,6 +2,67 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-12T01:30:00Z - TREND-SUITE1 - The Richer Trend Suite Finds Nothing Better Than TSMOM, And Vol-Targeting Was Not The Cap
+
+- `decision`: Test the canonical trend-following suite TSMOM-EV1 never tried — Donchian channel breakout (Turtle 20/55, channel + ATR/chandelier exits), dual-MA crossover (3x3 grid), multi-timeframe confirmation (daily gated by a frozen weekly sign), the TSMOM carry-over, and a majority/average ensemble — every signal cell under BOTH vol-targeted (EV1-style) and non-vol-targeted equal-dollar sizing, judged by the SAME buy-and-hold risk-adjusted gate on the same eight liquid majors after EXEC-EV1 conservative friction at 10,000 USDC. 46-config bounded grid, parameters chosen on the train split only; new `trend_suite` routing type (prefix `trend_suite1_`) deliberately shares the TSMOM gate id; the EV1 simulator is reused verbatim through its signal-provider/rebalance-timestamps seams.
+- `result`: BOTH headline hypotheses came back negative, decisively. (1) The richer suite does NOT beat one-form TSMOM: the train-only choice across all 46 configs picked the EV1 signal again (`trend_suite1_tsmom30_signal_vt_1d`), and its OOS stats reproduce the committed EV1 numbers digit for digit (Sharpe -1.478, return -12.23%, max DD 16.56% vs buy-hold -61.69% / 65.68%) — relative gate PASS with both absolute-loss qualifiers, same as EV1. (2) Vol-targeting was NOT the cap: all 23 vt-vs-eq pairs classified `removing_vol_target_added_drawdown_without_more_return_oos`; in 16 of 23 pairs the uncapped variant DID earn a higher full-window (bull-heavy) return, but every pair gave it back out-of-sample — removing the cap was leverage on the same signal, not a new edge. No trend form clears the absolute bar (best OOS config in hindsight, `trend_suite1_mtf60w8_atr_vt_1d`, still lost -4.1%); two family champions (donchian ATR-trail VT, tsmom VT) pass the full relative gate as defensive value only; ma_cross, mtf, and ensemble champions fail it outright.
+- `scope`: `services/strategy_validation/trend_suite1.py` (causal signal state machines, sizing/exit variants, screen + VT-effect classifier), `services/strategy_validation/strategy_types.py` (trend_suite route sharing TSMOM_GATE_ID), `services/strategy_validation/tsmom_ev1.py` (target_weights accepts fractional strengths; integer ±1 path byte-identical, pinned by test), `scripts/run_trend_suite1_evidence.py`, `docs/trend_suite1_*`, `tests/test_trend_suite1_evidence.py`, CI fast lane.
+- `rejected_alternatives`: Judging the suite by a new bespoke gate (it would make results incomparable to EV1 — the shared gate is the point); long/short variants (EV1's grid already covered long_short and found no edge; the suite is long-only as the canon specifies "long on upper-channel break"); running leave-one-out for all 46 configs (full gate — walk-forward + leave-one-out + late-entry — runs for the global train-chosen config and each family champion; every config still gets the OOS screen with the same verdict vocabulary); tuning ensemble membership on this phase's data (members are fixed canonical cells, documented); treating the hindsight-best OOS config as a finding (surfaced, labeled not-a-verdict).
+- `boundaries`: Research/evidence only. No runtime, strategy-rule, order, testnet, live, or production-approval change. Modeled depth (EXEC-EV1), never real order-book depth; perp funding NOT modeled (long-only books would typically PAY funding in bulls, so absolute profits are optimistic — and they were still negative). Signals were designed from the documented canon and not tuned to the verdict.
+- `follow_up_implications`: The trend hypothesis family on this data is now closed on both sanctioned axes: signal form (TREND-SUITE1) and sizing (vol-targeting was not the cap). What survives: trend's defensive value is real and consistent (29 of 46 configs pass the relative OOS screen; the deployed TREND-OVERLAY1 posture is unchanged and needs no re-tune — the suite found nothing better to deploy). What could reopen trend: a different REGIME definition (REGIME1, queued: condition exposure on regime states rather than signal sign), longer/cross-venue history (DATA1), or carry financing the short side (TREND-CARRY, still constrained by FUND-EV2 costs). None of these is a re-tune of the present grid.
+
+```yaml
+research_log:
+  phase: TREND-SUITE1
+  date: 2026-06-12
+  class: time_series_momentum
+  outcome: mixed
+  badge: defensive only - suite adds nothing
+  title: The Canonical Trend Suite vs One-Form TSMOM
+  finding: >-
+    The full canonical suite (Donchian 20/55, MA crossover 3x3,
+    multi-timeframe confirmation, ensemble) finds nothing better than the
+    TSMOM-EV1 signal: the train-only choice across 46 configs picked the
+    EV1 config again, and no trend form is profitable OOS in absolute
+    terms (best hindsight config still -4.1%). The relative gate passes as
+    defensive value only (-12.2% vs buy-hold -61.7%).
+  why: >-
+    TSMOM-EV1 left two open hypotheses - a richer signal family might find
+    profit where return-sign momentum found only defense, and the vol
+    targeting might have capped the upside (it cuts exposure exactly in
+    outlier trends). Both deserved a real test, not an assumption.
+  worked: >-
+    The reuse discipline again - the EV1 simulator ran every new signal
+    through its provider seam, and the suite's TSMOM carry-over reproduces
+    the committed EV1 OOS numbers digit for digit (pinned by test), so the
+    comparison is apples-to-apples by construction. The pairwise
+    vt-vs-equal-dollar design made the sizing question decidable.
+  didnt: >-
+    Every new signal form, as a profit source: Donchian, MA cross, MTF,
+    and both ensembles all lose money OOS; three of five family champions
+    fail even the relative gate. Removing the vol cap raised bull-window
+    returns in 16 of 23 pairs and gave all of it back OOS in every pair -
+    leverage, not edge.
+  lesson: >-
+    A richer trend suite does not beat one-form TSMOM on this data, and
+    vol-targeting was not what kept trend from profiting - the OOS bear
+    pays trend in avoided drawdown, not in returns, regardless of signal
+    form or sizing. Trend here is a defensive overlay, not an alpha
+    source; only a new regime definition or new data could reopen it.
+  our_error: null
+  changed: >-
+    The trend family is closed on both sanctioned axes (signal form,
+    sizing); TREND-OVERLAY1 stays deployed unchanged - the suite found
+    nothing better to deploy. REGIME1 / DATA1 remain the only open doors.
+  hardened_gate: suite carry-over must reproduce committed EV1 OOS digit for digit
+  evidence_summary: docs/trend_suite1_canonical_trend_suite_evidence_summary.json
+  evidence_doc: docs/trend_suite1_canonical_trend_suite_evidence.md
+  analytics:
+    - label: Vol-cap removal effect (23 pairs)
+      kind: value
+      source: headline_answers
+```
+
 ## 2026-06-11T22:30:00Z - TREND-OVERLAY1 - The Defensive Finding Becomes A Read-Only Tool; The Honest Framing Travels With It
 
 - `decision`: (1) Operationalize the TSMOM-EV1 validated finding as a deployable READ-ONLY signal tool - a forward calculator on the latest fully-closed public-mainnet candles that reports per-asset trend state (hold / flat) and the vol-targeted target exposure for a configurable account size. This is the DEPLOYMENT of an existing finding, not a new strategy test: the tool reuses the exact TSMOM-EV1 computation under the train-chosen config (tsmom_ev1_lb30_vt20_long_only_1d) and the defaults are pinned by test to the committed evidence summary - changing them without new evidence fails CI. (2) Honest framing is structural, not optional: the drawdown-control-not-alpha disclaimer (including the absolute -12.2% OOS loss and the authored mixed outcome) is embedded in the module, the CLI stdout, every JSON output, and the docs; the trading-safety text guard enforces the posture. (3) The optional OS panel is SKIPPED, documented: it would require lockstep changes to index.html / evidence-dashboard.js / static-asset guards / DASH-QA1 plus empty-state handling for an ignored artifact - non-trivial dashboard surgery for a CLI-first tool. The deliverable is the CLI + JSON; a display-only panel can be its own phase.

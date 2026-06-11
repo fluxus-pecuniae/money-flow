@@ -38,12 +38,14 @@ STRATEGY_TYPE_PER_SYMBOL = "per_symbol"
 STRATEGY_TYPE_CROSS_SECTIONAL_SELECTION = "cross_sectional_selection"
 STRATEGY_TYPE_TIME_SERIES_MOMENTUM = "time_series_momentum"
 STRATEGY_TYPE_FUNDING_CARRY = "funding_carry"
+STRATEGY_TYPE_TREND_SUITE = "trend_suite"
 
 STRATEGY_TYPES = (
     STRATEGY_TYPE_PER_SYMBOL,
     STRATEGY_TYPE_CROSS_SECTIONAL_SELECTION,
     STRATEGY_TYPE_TIME_SERIES_MOMENTUM,
     STRATEGY_TYPE_FUNDING_CARRY,
+    STRATEGY_TYPE_TREND_SUITE,
 )
 
 # Gate identities. Each gate may only ever be applied to its own strategy type.
@@ -81,6 +83,14 @@ TIME_SERIES_MOMENTUM_ID_PREFIX = "tsmom_ev1_"
 # the realistic-cost re-test, not a new hypothesis class).
 FUNDING_CARRY_ID_PREFIX = "fund_ev1_"
 FUNDING_CARRY_V2_ID_PREFIX = "fund_ev2_"
+
+# TREND-SUITE1 configs (Donchian breakout, MA crossover, multi-timeframe
+# confirmation, TSMOM carry-over, ensemble) use this prefix. They are
+# DELIBERATELY judged by the same buy-and-hold risk-adjusted gate as
+# TSMOM-EV1 (same headline question — risk-adjusted value vs holding the
+# universe — new signals/sizing/exits), so the route shares TSMOM_GATE_ID
+# while keeping its own simulator wrapper.
+TREND_SUITE_ID_PREFIX = "trend_suite1_"
 
 
 class StrategyTypeRoutingError(RuntimeError):
@@ -131,6 +141,15 @@ _ROUTES: dict[str, StrategyTypeRoute] = {
         gate_id=FUNDING_CARRY_GATE_ID,
         evaluation="funding_carry_net_cost_tail_oos_evaluation",
     ),
+    STRATEGY_TYPE_TREND_SUITE: StrategyTypeRoute(
+        strategy_type=STRATEGY_TYPE_TREND_SUITE,
+        simulator_ref=(
+            "services.strategy_validation.trend_suite1:simulate_trend_suite_portfolio"
+        ),
+        gate_ref="services.strategy_validation.tsmom_ev1:evaluate_tsmom_gate",
+        gate_id=TSMOM_GATE_ID,
+        evaluation="tsmom_buy_hold_risk_adjusted_oos_evaluation",
+    ),
 }
 
 
@@ -151,6 +170,8 @@ def strategy_type_for(strategy_id: str) -> str:
         FUNDING_CARRY_V2_ID_PREFIX
     ):
         return STRATEGY_TYPE_FUNDING_CARRY
+    if strategy_id.startswith(TREND_SUITE_ID_PREFIX):
+        return STRATEGY_TYPE_TREND_SUITE
     return STRATEGY_TYPE_PER_SYMBOL
 
 
@@ -202,6 +223,7 @@ def routing_policy() -> dict[str, Any]:
         "cross_sectional_selection_id_prefix": CROSS_SECTIONAL_SELECTION_ID_PREFIX,
         "time_series_momentum_id_prefix": TIME_SERIES_MOMENTUM_ID_PREFIX,
         "funding_carry_id_prefix": FUNDING_CARRY_ID_PREFIX,
+        "trend_suite_id_prefix": TREND_SUITE_ID_PREFIX,
         "routes": {
             strategy_type: {
                 "simulator": route.simulator_ref,

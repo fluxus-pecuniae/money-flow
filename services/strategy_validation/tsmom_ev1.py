@@ -211,7 +211,7 @@ def realized_vol_annual(
 
 def target_weights(
     *,
-    signals: dict[str, int],
+    signals: dict[str, int | Decimal],
     vols: dict[str, Decimal | None],
     config: TsmomConfig,
 ) -> dict[str, Decimal]:
@@ -222,6 +222,11 @@ def target_weights(
     vol-targeting OFF (benchmarks), weight is ``signal / N``. If gross
     exposure exceeds MAX_GROSS_LEVERAGE everything scales down
     proportionally (the documented leverage cap).
+
+    Signals may be fractional (TREND-SUITE1 ensemble-average / trend-strength
+    scaling): the magnitude scales by ``abs(signal)``. For the integer ±1/0
+    signals every TSMOM-EV1 config emits, ``abs(signal) == 1`` and the
+    weights are exactly the ones this function always produced.
     """
     n = Decimal(len(signals)) if signals else Decimal("1")
     weights: dict[str, Decimal] = {}
@@ -232,16 +237,17 @@ def target_weights(
         if config.mode == "long_only" and signal < 0:
             weights[symbol] = Decimal("0")
             continue
+        strength = signal if isinstance(signal, Decimal) else Decimal(signal)
         if config.vol_targeting:
             vol = vols.get(symbol)
             if vol is None or vol <= 0:
                 weights[symbol] = Decimal("0")
                 continue
             budget = config.portfolio_vol_target / n
-            magnitude = min(budget / vol, MAX_SINGLE_ASSET_WEIGHT)
+            magnitude = min(budget / vol, MAX_SINGLE_ASSET_WEIGHT) * abs(strength)
         else:
-            magnitude = Decimal("1") / n
-        weights[symbol] = magnitude if signal > 0 else -magnitude
+            magnitude = abs(strength) / n
+        weights[symbol] = magnitude if strength > 0 else -magnitude
     gross = sum(abs(w) for w in weights.values())
     if gross > MAX_GROSS_LEVERAGE:
         scale = MAX_GROSS_LEVERAGE / gross
@@ -290,7 +296,7 @@ def simulate_tsmom_portfolio(
     config: TsmomConfig,
     scenario: DepthAwareScenario,
     *,
-    signal_provider: Callable[[str, int], int | None] | None = None,
+    signal_provider: Callable[[str, int], int | Decimal | None] | None = None,
     rebalance_timestamps: frozenset[datetime] | None = None,
 ) -> dict[str, Any]:
     """Simulate the vol-targeted TSMOM book with strict point-in-time rules.
@@ -409,7 +415,7 @@ def simulate_tsmom_portfolio(
         # Skip the final aligned candle as a decision point guard: execute()
         # already refuses fills past the end of data.
         if is_rebalance:
-            signals: dict[str, int] = {}
+            signals: dict[str, int | Decimal] = {}
             vols: dict[str, Decimal | None] = {}
             for s in symbols:
                 idx = index_map[s]
