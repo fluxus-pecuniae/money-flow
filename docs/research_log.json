@@ -182,6 +182,140 @@
           "kind": "computed",
           "kvs": [
             {
+              "label": "OOS net carry (cited realistic costs)",
+              "tone": "neg",
+              "value": "-6.5"
+            },
+            {
+              "label": "Same config at FUND-EV1 costs",
+              "tone": "neg",
+              "value": "OOS -161"
+            },
+            {
+              "label": "Train",
+              "value": "+4.4% (Sharpe 8.6)"
+            },
+            {
+              "label": "Cross-venue round trip (BTC)",
+              "tone": "neg",
+              "value": "115 bps vs 33 bps HL"
+            }
+          ],
+          "label": "Realistic-cost headline (OOS)",
+          "note": "Cited costs recovered most of FUND-EV1's drag - and the OOS edge still is not there.",
+          "source": "fund_ev2_realistic_headline"
+        },
+        {
+          "kind": "computed",
+          "kvs": [
+            {
+              "label": "OOS edge dies at cost scale",
+              "tone": "neg",
+              "value": "0.75"
+            },
+            {
+              "label": "Cited realistic level",
+              "value": "1.0"
+            }
+          ],
+          "label": "Cost-sensitivity sweep + breakpoint",
+          "note": "Positive OOS exists only at 0.25-0.5x the cited costs - implausibly cheap; by the discipline guard that is a fail.",
+          "source": "fund_ev2_cost_sweep",
+          "table": {
+            "columns": [
+              "Cost scale",
+              "OOS net",
+              "Full net",
+              "Trades"
+            ],
+            "rows": [
+              [
+                "0.25",
+                "40.57999381",
+                "670.02100018",
+                "122"
+              ],
+              [
+                "0.5",
+                "55.67641791",
+                "646.56727322",
+                "96"
+              ],
+              [
+                "0.75",
+                "-1.52572435",
+                "473.22926674",
+                "64"
+              ],
+              [
+                "1.0",
+                "-6.52404520",
+                "432.72101383",
+                "49"
+              ],
+              [
+                "1.25",
+                "-11.60040180",
+                "493.88220513",
+                "48"
+              ],
+              [
+                "1.5",
+                "-2.10138063",
+                "497.64241602",
+                "44"
+              ],
+              [
+                "2.0",
+                "-1.87514593",
+                "266.56201073",
+                "28"
+              ],
+              [
+                "3.0",
+                "0E-8",
+                "0E-8",
+                "0"
+              ],
+              [
+                "5.0",
+                "0E-8",
+                "0E-8",
+                "0"
+              ]
+            ]
+          }
+        }
+      ],
+      "badge": "edge dies below realistic costs",
+      "class": "funding_carry",
+      "date": "2026-06-11",
+      "evidence_doc": "docs/fund_ev2_realistic_cost_carry_evidence.md",
+      "evidence_summary": "docs/fund_ev2_realistic_cost_carry_evidence_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "Cost realism became a first-class, cited, sweep-audited input (per-venue leg cost models on the funding_carry simulator, additive and regression-safe); funding carry is recorded closed at retail; TREND- CARRY inherits the cited cost model and the \"carry cannot pay for entries it could not afford standalone\" constraint.",
+        "didnt": "The capturable edge at 10k retail. Realistic re-pricing recovered ~155 of the 161 USDC OOS drag on the same config - and the result was still negative. Retail CEX fees (Kraken 40 bps taker base tier) close the cross-venue construction before depth matters.",
+        "lesson": "Distinguish the gross edge (real: funding collected positive in every regime) from the capturable edge (absent at this size): when a re-test must cite its costs and publish the breakpoint, \"maybe cheaper costs fix it\" stops being an open question - here the answer is no, and the next cost-tweak phase is forbidden by design.",
+        "our_error": "FUND-EV1's spot-leg cost (widest mid-alt tier, 7.5 bps half-spread under conservative) overstated the measured HL spot books ~15x (UBTC 0.08 bps live) - deliberate, documented conservatism, but ours, and it overstated the cost share of the FUND-EV1 verdict. Stated plainly: correcting it does NOT flip the verdict (breakpoint 0.75 < 1.0), so FUND-EV1's fail conclusion stands as a real strategy failure at retail size.",
+        "our_error_note": "",
+        "why": "What survives realistic friction is the bull-window funding; the OOS window's compressed funding (2026 bear) leaves single-digit bps over 33-bps round trips, and the train split cannot find the rows that happened to stay positive (cad28 hindsight +16.6 OOS) - in-sample Sharpe 8.6 picked a config that lost OOS, the third time this log catches that.",
+        "worked": "The discipline - cited costs with a published sensitivity sweep made \"did we assume it cheaper?\" auditable (breakpoint 0.75x, positive only at 0.25-0.5x); selectivity fixed FUND-EV1's regime bleed (bear-regime net +91); the additive cost seams left FUND-EV1's suite byte-identical."
+      },
+      "finding": "The honest re-test of FUND-EV1's fail: cited per-venue costs (fee docs + live l2Book calibration) replace the widest-tier guess, entries turn selective (2x round-trip margin), holds lengthen. The OOS edge still is not there - it dies at 0.75x the cited cost level, below realistic, and leave-one-out breaks. Cross-venue spot is closed by retail fees alone (115 bps round trips vs 33 single-venue). Funding carry closes at retail.",
+      "hardened_gates": [
+        "cost assumptions must be cited and sweep-audited, never tuned to the verdict"
+      ],
+      "outcome": "fail",
+      "phase": "FUND-EV2",
+      "title": "Funding Carry Re-Test At Cited Realistic Costs"
+    },
+    {
+      "analytics": [
+        {
+          "kind": "computed",
+          "kvs": [
+            {
               "label": "OOS net carry (after all costs)",
               "tone": "neg",
               "value": "-33"
@@ -751,7 +885,7 @@
       "title": "Original Money Flow Reconstruction (accounting correction)"
     }
   ],
-  "entry_count": 15,
+  "entry_count": 16,
   "lessons_hardened_gates": [
     {
       "gate": "PnL must reconcile to equity",
@@ -776,6 +910,10 @@
     {
       "gate": "carry is judged net-of-costs OOS through the tail, never on gross funding",
       "phase": "FUND-EV1"
+    },
+    {
+      "gate": "cost assumptions must be cited and sweep-audited, never tuned to the verdict",
+      "phase": "FUND-EV2"
     },
     {
       "gate": "relative passes carry absolute-performance qualifiers",

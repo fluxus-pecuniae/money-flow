@@ -2,6 +2,76 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-11T19:30:00Z - FUND-EV2 - Realistic Costs Recover Most Of The Drag And The OOS Edge Still Is Not There; Funding Carry Closes At Retail
+
+- `decision`: (1) Cost assumptions in evidence phases must be CITED, never tuned to the verdict: FUND-EV2 re-prices the carry with named sources (Hyperliquid fee docs: perp taker 4.5 bps / spot taker 7 bps base tier; a one-shot public read-only l2Book calibration of all eight books, committed with provenance; Kraken Pro base tier spot taker 40 bps for the cross-venue leg, Coinbase Advanced base tier worse at 60 bps; flat 2 USDC/fill cross-venue settlement) and publishes a COST-SENSITIVITY SWEEP so "did we just assume it cheaper?" is auditable. (2) The discipline guard is binding: the OOS edge dies at cost scale 0.75 - BELOW the cited realistic level (positive only at 0.25-0.5x, implausibly cheap) - so the verdict is an honest fail and there is NO FUND-EV3 cost tweak: funding carry is CLOSED at 10k retail size. (3) Cross-venue spot (the "cheaper deeper books" intuition) is closed by retail FEES, not by depth: 115-119 bps round-trip vs 33-51 bps single-venue; the 14-day-cadence cross-venue configs never clear the entry bar even once.
+- `scope`: `services/strategy_validation/fund_ev2.py` (cited per-venue cost models with sweep scale, gate v2 wrapper with breakpoint + fragility qualifier), additive seams in `fund_ev1.py` (optional leg_cost_model, per-config band, entry-margin selectivity with hold-while-favorable hysteresis; defaults byte-identical - FUND-EV1 suite untouched and green), `strategy_types.py` (fund_ev2_ prefix routes to the same funding_carry type/gate), `scripts/fetch_fund_ev2_l2book_calibration.py`, `scripts/run_fund_ev2_evidence.py`, `docs/fund_ev2_*`, `tests/test_fund_ev2_evidence.py`, CI fast lane, aggregator views.
+- `result`: Gate verdict `carry_does_not_survive_realistic_costs_and_tail_oos` (reasons: OOS net carry negative, leave-one-out breaks). Measured books vs FUND-EV1's assumption: UBTC spot half-spread 0.08 bps vs the 7.5 bps modeled (~15x conservatism on the spot leg; USOL the thinnest at 2.37 bps). At cited costs the train-chosen config (hl_single cad14 top2; train +4.36%, Sharpe 8.6) lost -6.5 USDC OOS (Sharpe -0.60); the SAME config under FUND-EV1's model lost -161 OOS - realistic re-pricing recovered ~155 of OOS drag and still landed negative. Hindsight rows were OOS-positive (cad28: +16.6/+8.6, Sharpe ~1.1) but the train split honestly could not select them (the SEL-EV1/TSMOM overfit catch, third time). Selectivity worked as designed: cross-venue cad14 never entered (230 bps bar), regimes all positive full-window (bear +91 - the FUND-EV1 regime bleed fixed), stressed tail inside limits (DD 3.1% vs 8%; legged gap exposure 30% of equity = 7.1% modeled gap loss at the worst candle). Leave-one-out mixed: drop-ETH negative, drop-SOL +70 (SOL was the drag). Walk-forward both folds positive (+124.5/+4.7). Sweep (adaptive, trade counts visible): OOS +40.6/+55.7 at 0.25/0.5x, -1.5 at 0.75x, -6.5 at 1.0x, dead by 3x; breakpoint 0.75.
+- `boundaries`: Research/evidence only. Public read-only data (fundingHistory, candleSnapshot, l2Book); no orders, no private/signed endpoints, no testnet/live, no runtime or approval change. l2Book calibration is point-in-time, not window history (sweep covers the uncertainty); spot borrow + liquidation mechanics unmodeled.
+- `follow_up_implications`: Funding carry standalone is closed at retail size - both constructions, with the failure now demonstrated at cited realistic costs, not assumed ones. TREND-CARRY (TODO) inherits two constraints: any funding paid to the trend short side must be priced with the FUND-EV2 cited cost model (not gross funding), and the synthesis only makes sense if the trend book ALREADY holds the short for its own reason (carry cannot pay for entries it could not afford standalone). The fund_ev2 cost seams are reusable for that test. A larger account (fee tiers, maker fills) or a venue fee change would be NEW evidence - a different phase with different citations, not a re-tune of this one.
+
+```yaml
+research_log:
+  phase: FUND-EV2
+  date: 2026-06-11
+  class: funding_carry
+  outcome: fail
+  badge: edge dies below realistic costs
+  title: Funding Carry Re-Test At Cited Realistic Costs
+  finding: >-
+    The honest re-test of FUND-EV1's fail: cited per-venue costs (fee docs +
+    live l2Book calibration) replace the widest-tier guess, entries turn
+    selective (2x round-trip margin), holds lengthen. The OOS edge still is
+    not there - it dies at 0.75x the cited cost level, below realistic, and
+    leave-one-out breaks. Cross-venue spot is closed by retail fees alone
+    (115 bps round trips vs 33 single-venue). Funding carry closes at retail.
+  why: >-
+    What survives realistic friction is the bull-window funding; the OOS
+    window's compressed funding (2026 bear) leaves single-digit bps over
+    33-bps round trips, and the train split cannot find the rows that
+    happened to stay positive (cad28 hindsight +16.6 OOS) - in-sample Sharpe
+    8.6 picked a config that lost OOS, the third time this log catches that.
+  worked: >-
+    The discipline - cited costs with a published sensitivity sweep made
+    "did we assume it cheaper?" auditable (breakpoint 0.75x, positive only
+    at 0.25-0.5x); selectivity fixed FUND-EV1's regime bleed (bear-regime
+    net +91); the additive cost seams left FUND-EV1's suite byte-identical.
+  didnt: >-
+    The capturable edge at 10k retail. Realistic re-pricing recovered ~155
+    of the 161 USDC OOS drag on the same config - and the result was still
+    negative. Retail CEX fees (Kraken 40 bps taker base tier) close the
+    cross-venue construction before depth matters.
+  lesson: >-
+    Distinguish the gross edge (real: funding collected positive in every
+    regime) from the capturable edge (absent at this size): when a re-test
+    must cite its costs and publish the breakpoint, "maybe cheaper costs fix
+    it" stops being an open question - here the answer is no, and the next
+    cost-tweak phase is forbidden by design.
+  our_error: >-
+    FUND-EV1's spot-leg cost (widest mid-alt tier, 7.5 bps half-spread under
+    conservative) overstated the measured HL spot books ~15x (UBTC 0.08 bps
+    live) - deliberate, documented conservatism, but ours, and it overstated
+    the cost share of the FUND-EV1 verdict. Stated plainly: correcting it
+    does NOT flip the verdict (breakpoint 0.75 < 1.0), so FUND-EV1's fail
+    conclusion stands as a real strategy failure at retail size.
+  changed: >-
+    Cost realism became a first-class, cited, sweep-audited input
+    (per-venue leg cost models on the funding_carry simulator, additive and
+    regression-safe); funding carry is recorded closed at retail; TREND-
+    CARRY inherits the cited cost model and the "carry cannot pay for
+    entries it could not afford standalone" constraint.
+  hardened_gate: cost assumptions must be cited and sweep-audited, never tuned to the verdict
+  evidence_summary: docs/fund_ev2_realistic_cost_carry_evidence_summary.json
+  evidence_doc: docs/fund_ev2_realistic_cost_carry_evidence.md
+  analytics:
+    - label: Realistic-cost headline (OOS)
+      kind: computed
+      source: fund_ev2_realistic_headline
+    - label: Cost-sensitivity sweep + breakpoint
+      kind: computed
+      source: fund_ev2_cost_sweep
+```
+
 ## 2026-06-11T16:30:00Z - FUND-EV1 - Funding Carry Is A Bull-Regime Income Stream That Costs And The Bear Eat; The Real Tail Is The Legged Fill
 
 - `decision`: (1) Delta-neutral funding carry is its own strategy type (`funding_carry`, prefix `fund_ev1_`) with its own gate: net funding AFTER ALL COSTS positive out-of-sample (chronological 70/30 + anchored walk-forward thirds), NOT bull-only (bear+neutral net must be positive), leave-one-out robust, and tail drawdown inside documented limits (OOS <= 5%, stressed <= 8%) - judged on Sharpe + max drawdown, never on gross funding collected, and never by the price-rule gates. (2) Funding history is now a first-class committed data input: public read-only Hyperliquid `fundingHistory` hourly rates aggregated to daily sums per coin, committed with provenance + sha256 in `docs/fund_ev1_funding_data_snapshot_summary.json` (raw hourly + HL spot candles stay as documented ignored artifacts). (3) The single-venue HL construction (short perp + long HL spot: BTC/ETH/SOL via Unit + native HYPE) is the primary build; cross-venue spot and the flip-side book (long perp + short spot) remain documented extensions - flip rows assume unmodeled spot borrow and are upper bounds.

@@ -16,6 +16,22 @@ Entry schema:
 
 ---
 
+## v2026.06.08.003
+
+- `recorded_at_utc`: `2026-06-08T06:58:17Z`
+- `scope`: `LOG-OBS1 Paper Trading Runtime Control layout polish`
+- `intent`: `Native entry. Moved Paper Trading Runtime Control into the Live Public Candles + Paper Markers grid so it occupies the right-side chart whitespace, and split the Runtime Control lower area into Read-only log files on the left with Runtime details on the right. This is dashboard layout only: no runtime behavior changed, no runtime was started or stopped, no orders were submitted, no live trading was approved, and no strategy was production-approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `tests/test_dashboard_static_assets.py`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `git diff --check`
+
 ## v2026.06.08.002
 
 - `recorded_at_utc`: `2026-06-08T06:50:34Z`

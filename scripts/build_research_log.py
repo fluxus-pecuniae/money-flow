@@ -305,7 +305,40 @@ def fund_ev1_tail_and_loo(summary: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def fund_ev2_realistic_headline(summary: dict[str, Any]) -> dict[str, Any]:
+    h = summary["headline"]
+    ref = h["fund_ev1_cost_reference_same_config"]
+    return {
+        "kvs": [
+            {"label": "OOS net carry (cited realistic costs)", "value": f"{_dec(h['oos_net_carry']):.1f}", "tone": "neg"},
+            {"label": "Same config at FUND-EV1 costs", "value": f"OOS {_dec(ref['oos_net_pnl']):.0f}", "tone": "neg"},
+            {"label": "Train", "value": f"+{_dec(h['strategy_train']['total_return_pct']):.1f}% (Sharpe {_dec(h['strategy_train']['sharpe_annual']):.1f})"},
+            {"label": "Cross-venue round trip (BTC)", "value": f"{_dec(summary['design']['round_trip_cost_bps_at_2500_notional']['cross_venue']['BTC']):.0f} bps vs {_dec(summary['design']['round_trip_cost_bps_at_2500_notional']['hl_single']['BTC']):.0f} bps HL", "tone": "neg"},
+        ],
+        "note": "Cited costs recovered most of FUND-EV1's drag - and the OOS edge still is not there.",
+    }
+
+
+def fund_ev2_cost_sweep(summary: dict[str, Any]) -> dict[str, Any]:
+    sweep = summary["cost_sensitivity_sweep"]
+    rows = [
+        [row["scale"], str(row["oos_net_pnl"]), str(row["full_net_pnl"]), str(row["trade_count"])]
+        for row in sweep["rows"]
+    ]
+    bp = sweep["breakpoint_scale_where_oos_edge_dies"]
+    return {
+        "kvs": [
+            {"label": "OOS edge dies at cost scale", "value": str(bp), "tone": "neg"},
+            {"label": "Cited realistic level", "value": "1.0"},
+        ],
+        "table": {"columns": ["Cost scale", "OOS net", "Full net", "Trades"], "rows": rows},
+        "note": "Positive OOS exists only at 0.25-0.5x the cited costs - implausibly cheap; by the discipline guard that is a fail.",
+    }
+
+
 COMPUTED = {
+    "fund_ev2_realistic_headline": fund_ev2_realistic_headline,
+    "fund_ev2_cost_sweep": fund_ev2_cost_sweep,
     "sel_ev1_random_benchmark": sel_ev1_random_benchmark,
     "sel_ev1_top_oos_configs": sel_ev1_top_oos_configs,
     "exec_ev1_symbol_concentration": exec_ev1_symbol_concentration,

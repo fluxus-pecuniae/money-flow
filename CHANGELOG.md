@@ -17,6 +17,40 @@ Entry schema:
 
 ---
 
+## v2026.06.11.006
+
+- `recorded_at_utc`: `2026-06-11T19:45:00Z`
+- `scope`: `FUND-EV2 funding carry re-test at cited realistic costs`
+- `intent`: `Research/evidence only; no runtime, strategy-rule, order, testnet, live, or production-approval change. The one honest re-test of FUND-EV1's fail: was it our conservative cost model (HL spot priced at the widest mid-alt tier) or a real absence of capturable edge? DISCIPLINE GUARD: costs are CITED, never tuned to the verdict, and a cost-sensitivity sweep (0.25x-5x) publishes exactly where the OOS edge dies. Cited basis: Hyperliquid fee docs (fetched 2026-06-11, base tier: perp taker 4.5 bps, spot taker 7 bps); one-shot public read-only l2Book calibration of all eight books committed with provenance (docs/fund_ev2_l2book_calibration_summary.json via scripts/fetch_fund_ev2_l2book_calibration.py - measured half-spreads BTC perp 0.08 / UBTC spot 0.08 / USOL 2.37 bps etc., FUND-EV1's spot tier was ~15x too wide); Kraken Pro base tier spot taker 40 bps for the cross-venue leg (Coinbase Advanced base tier worse at 60 bps); flat 2 USDC/fill cross-venue settlement. Two constructions each with honest costs AND risks: hl_single (33-51 bps round trips) and cross_venue (115-119 bps - retail FEES close it before depth helps; cad14 configs never clear the entry bar). Selectivity + longer holds (Must 3): enter only when trailing-7d funding x planned hold >= 2x round-trip cost, hold-while-favorable hysteresis, 2% band, 14/28d cadences. Implemented as ADDITIVE seams on the FUND-EV1 simulator (optional leg_cost_model, per-config band, entry margin; defaults byte-identical - FUND-EV1's 14 tests untouched and green). RESULT: verdict carry_does_not_survive_realistic_costs_and_tail_oos - train-chosen hl_single cad14 top2 (train +4.36%, Sharpe 8.6) lost -6.5 USDC OOS; the SAME config under FUND-EV1's model lost -161 OOS (realistic re-pricing recovered ~155 of drag and still negative); hindsight cad28 rows were OOS-positive (+16.6/+8.6) but train choice honestly cannot find them (third overfit catch); leave-one-out mixed (drop-ETH negative); regimes all positive (bear +91 - the FUND-EV1 regime bleed fixed by selectivity); stressed tail inside limits (DD 3.1% vs 8%). THE BREAKPOINT: OOS edge dies at cost scale 0.75 - below the cited realistic level; positive only at 0.25-0.5x (implausibly cheap = fail by the guard). Conclusion stated plainly: FUND-EV1's spot-leg conservatism was ours (~15x, named in our_error) but correcting it does NOT flip the verdict - funding carry is CLOSED at 10k retail size; no FUND-EV3 cost tweak. Research Log: authored FAIL (badge 'edge dies below realistic costs'); aggregator gains fund_ev2 computed views (16 entries, --check green). TODO: TREND-CARRY inherits the cited cost model + the carry-cannot-pay-for-entries constraint. Tests: tests/test_fund_ev2_evidence.py (15 deterministic offline tests: routing, per-venue cited costs applied, sweep monotonicity on the pure-repricing path, selectivity gating + hysteresis, cross-venue legging exposure, simulator-level no-lookahead, K-019, gate v2 verdicts/breakpoint/fragility, committed-summary + calibration checks, research-log honesty pin) wired into the blocking CI lane. Oldest changelog entry (v2026.06.08.003) rotated verbatim into CHANGELOG_ARCHIVE.md per DOC-LEAN1.`
+- `affected_files`:
+  - `services/strategy_validation/fund_ev2.py`
+  - `services/strategy_validation/fund_ev1.py`
+  - `services/strategy_validation/strategy_types.py`
+  - `scripts/fetch_fund_ev2_l2book_calibration.py`
+  - `scripts/run_fund_ev2_evidence.py`
+  - `scripts/build_research_log.py`
+  - `docs/fund_ev2_l2book_calibration_summary.json`
+  - `docs/fund_ev2_realistic_cost_carry_evidence_summary.json`
+  - `docs/fund_ev2_realistic_cost_carry_evidence.md`
+  - `docs/research_log.json`
+  - `tests/test_fund_ev2_evidence.py`
+  - `.github/workflows/ci.yml`
+  - `CHANGELOG.md`
+  - `CHANGELOG_ARCHIVE.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_fund_ev2_evidence.py tests/test_fund_ev1_evidence.py`
+  - `.venv/bin/python scripts/build_research_log.py --check`
+  - `.venv/bin/python -m pytest -q tests/test_rlog1_research_log.py tests/test_tsmom_ev1_evidence.py tests/test_sel_ev1_selection_evidence.py tests/test_exec_ev1_execution_quality.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_secret_hygiene.py tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py`
+  - `python -m compileall -q services scripts tests`
+  - `git diff --check`
+
 ## v2026.06.11.005
 
 - `recorded_at_utc`: `2026-06-11T16:45:00Z`
@@ -692,20 +726,4 @@ Entry schema:
   - `.venv/bin/python scripts/build_pt_rt_week2_daily_review.py --generate --scope pt_rt1_6_week2_active`
   - `node --check apps/dashboard/evidence-dashboard.js`
   - `.venv/bin/python -m pytest -q tests/test_obs_os1_daily_review.py tests/test_dashboard_static_assets.py`
-  - `git diff --check`
-
-## v2026.06.08.003
-
-- `recorded_at_utc`: `2026-06-08T06:58:17Z`
-- `scope`: `LOG-OBS1 Paper Trading Runtime Control layout polish`
-- `intent`: `Native entry. Moved Paper Trading Runtime Control into the Live Public Candles + Paper Markers grid so it occupies the right-side chart whitespace, and split the Runtime Control lower area into Read-only log files on the left with Runtime details on the right. This is dashboard layout only: no runtime behavior changed, no runtime was started or stopped, no orders were submitted, no live trading was approved, and no strategy was production-approved.`
-- `affected_files`:
-  - `CHANGELOG.md`
-  - `apps/dashboard/index.html`
-  - `apps/dashboard/evidence-dashboard.css`
-  - `tests/test_dashboard_static_assets.py`
-  - `money-flow/05_Agent_Coordination.md`
-- `validation_performed`:
-  - `node --check apps/dashboard/evidence-dashboard.js`
-  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
   - `git diff --check`
