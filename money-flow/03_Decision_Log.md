@@ -2,6 +2,73 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-11T21:30:00Z - FUND-SCALE1 - Scale Does Not Unlock The Carry: Own Flow Never Earns The Tiers And Impact Grows Faster Than Fixed Costs Amortize
+
+- `decision`: (1) The size/fee axis FUND-EV2 sanctioned is now mapped with published, cited tier schedules (Hyperliquid 14d-weighted volume tiers T0-T6 with spot counted double; Kraken Pro 30d tiers) and both size effects modeled honestly: tier fees + amortizing fixed costs (helps) AND EXEC-EV1 square-root impact driven by the actual per-size traded notional (hurts). (2) Two honesty rules bind the map: a fee tier counts as ACHIEVED only if the strategy's OWN traded volume at that size reaches the published qualifying volume; and any cell whose single fill exceeds 10% of its candle's dollar volume is impact-implausible and cannot pass regardless of its modeled number. (3) Verdict: `carry_does_not_reach_viability_at_credible_scale` - the achieved-tier surface is negative at EVERY account size, so funding carry stays closed at every credible scale for this operator, not just at 10k retail. The retail verdict was reproduced (the 10k base-tier cell equals FUND-EV2's -6.5), never re-litigated.
+- `scope`: `services/strategy_validation/fund_scale1.py` (cited tier tables, tiered cost models that move only the fee term, own-volume tier achievement, participation plausibility, computed viability band), additive seams in `fund_ev1.py` (`starting_equity`, max-fill participation/notional tracking; defaults byte-identical - FUND-EV1/EV2 suites untouched and green), `scripts/run_fund_scale1_evidence.py`, `docs/fund_scale1_*`, `tests/test_fund_scale1_evidence.py`, CI fast lane, aggregator view.
+- `result`: The map (5 sizes x 5 tiers x 2 constructions, per-rung train-only config choice, full gate battery on achieved + candidate cells): hl_single OOS net is negative in EVERY cell - and the loss as % of equity GROWS with size (-0.065% at 10k -> -0.101% at 5M at tier 0; same shape at every tier) because impact rises while fees only fall with tiers the strategy cannot earn: at a $5M account the carry's own flow generates $1.8M weighted 14d HL volume vs $5M needed for even tier 1 (tiers 2-4 need $25M/$100M/$500M). The ONLY positive stripe in the whole map - Kraken 10 bps VIP (>$10M 30d) at sizes >=50k, +0.02-0.05% of equity - requires ~30x the strategy's own 30d spot volume AND fails impact plausibility (fills exceed 10% of thin early HL-spot-proxy candles): excluded from the band on both grounds, reported as "what it would take". The maker-bound line (all fills passive at base maker fees, zero spread paid, non-fill risk unmodeled - explicitly NON-GATEABLE) ceilings at +0.26% OOS (~0.8%/yr) falling to +0.23% at 5M: even perfect passive execution yields under 1%/yr on this OOS window. Gate battery on every achieved cell: fail (OOS net negative + leave-one-out ETH-drop negative at every size). 96 deterministic sims, fully cached and reproducible.
+- `boundaries`: Research/evidence only. Public read-only inputs reused (no new fetches); published fee schedules cited; no orders, no private/signed endpoints, no testnet/live, no runtime or approval change. Maker-volume-share rebates require market-maker flow - out of scope, noted not modeled. Institutional execution tooling (cross-venue routing) could reduce the legged gap but was not assumed.
+- `follow_up_implications`: The funding-carry hypothesis family is now closed on BOTH sanctioned axes: cost realism (FUND-EV2) and scale/fee tiers (FUND-SCALE1). What remains true and reusable: the gross funding stream is real in every regime, the cited cost machinery (fund_ev2/fund_scale1 models) and the own-volume tier-achievement rule now exist for any future phase that books funding as a component (TREND-CARRY pricing rule unchanged: carry credit at cited costs only, never gross). The only paths that could reopen carry are structural, not parametric: market-maker flow (rebate tiers), a venue fee regime change, or sub-candle atomic execution evidence - each would be a new phase with new citations, not a re-tune.
+
+```yaml
+research_log:
+  phase: FUND-SCALE1
+  date: 2026-06-11
+  class: funding_carry
+  outcome: fail
+  badge: scale does not unlock it
+  title: Funding Carry Scale & Fee-Tier Viability Map
+  finding: >-
+    The size/fee axis FUND-EV2 sanctioned, mapped with published tier
+    schedules and honest impact scaling: the achieved-tier surface is
+    negative at EVERY account size (10k-5M), and the loss as % of equity
+    GROWS with size. The viable band is empty: verdict
+    carry_does_not_reach_viability_at_credible_scale.
+  why: >-
+    Two compounding facts: the strategy's own flow never earns the fee
+    tiers (a $5M account generates $1.8M weighted 14d HL volume vs $5M
+    needed for tier 1, $500M for the tier that would matter), and impact
+    grows with size faster than the only amortizing cost (the flat
+    cross-venue settlement) shrinks. The lone positive stripe (Kraken
+    10 bps VIP at >=50k) needs ~30x the strategy's own volume AND fails
+    the 10%-participation plausibility rule.
+  worked: >-
+    The honesty rules - own-volume tier achievement and the participation
+    plausibility cap kept the map from "passing" on tiers and fills the
+    operator could never have; the 10k base-tier cell reproduced
+    FUND-EV2's retail verdict exactly (not re-litigated); fees-down /
+    impact-up monotonicity is test-pinned.
+  didnt: >-
+    Scale as the rescue. Bigger is WORSE on the achieved surface; even the
+    explicitly optimistic, non-gateable maker bound (passive fills, zero
+    spread paid) ceilings at ~0.26% OOS (~0.8%/yr) - a number that informs
+    and closes, rather than tempts.
+  lesson: >-
+    The gross edge is real but capital/fee-gated, and the gate does not
+    open with capital: carry turnover is too low to earn volume tiers, so
+    "institutional fees" are a flow privilege, not a size privilege. The
+    viable band on this data is empty; only structural changes (maker
+    flow, fee regime, atomic execution) could reopen it - each new
+    evidence, not a re-tune.
+  our_error: null
+  our_error_note: >-
+    None this run - the axis was tested exactly as FUND-EV2 sanctioned it,
+    with published schedules and the discipline guard intact; the map
+    closed the question rather than flattering it.
+  changed: >-
+    The funding-carry family is closed on both sanctioned axes (cost
+    realism, scale/fee tiers); tier-achievement-from-own-volume and
+    participation plausibility join the standing cost-honesty toolkit;
+    TREND-CARRY keeps its cited-cost pricing constraint unchanged.
+  hardened_gate: fee tiers count only if the strategy's own flow earns them
+  evidence_summary: docs/fund_scale1_size_fee_tier_viability_summary.json
+  evidence_doc: docs/fund_scale1_size_fee_tier_viability.md
+  analytics:
+    - label: Size x fee-tier viability map (hl_single)
+      kind: computed
+      source: fund_scale1_viability_map
+```
+
 ## 2026-06-11T19:30:00Z - FUND-EV2 - Realistic Costs Recover Most Of The Drag And The OOS Edge Still Is Not There; Funding Carry Closes At Retail
 
 - `decision`: (1) Cost assumptions in evidence phases must be CITED, never tuned to the verdict: FUND-EV2 re-prices the carry with named sources (Hyperliquid fee docs: perp taker 4.5 bps / spot taker 7 bps base tier; a one-shot public read-only l2Book calibration of all eight books, committed with provenance; Kraken Pro base tier spot taker 40 bps for the cross-venue leg, Coinbase Advanced base tier worse at 60 bps; flat 2 USDC/fill cross-venue settlement) and publishes a COST-SENSITIVITY SWEEP so "did we just assume it cheaper?" is auditable. (2) The discipline guard is binding: the OOS edge dies at cost scale 0.75 - BELOW the cited realistic level (positive only at 0.25-0.5x, implausibly cheap) - so the verdict is an honest fail and there is NO FUND-EV3 cost tweak: funding carry is CLOSED at 10k retail size. (3) Cross-venue spot (the "cheaper deeper books" intuition) is closed by retail FEES, not by depth: 115-119 bps round-trip vs 33-51 bps single-venue; the 14-day-cadence cross-venue configs never clear the entry bar even once.

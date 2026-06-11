@@ -336,9 +336,43 @@ def fund_ev2_cost_sweep(summary: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def fund_scale1_viability_map(summary: dict[str, Any]) -> dict[str, Any]:
+    sizes = summary["account_sizes_usdc"]
+    rows = []
+    for cell in summary["viability_map"]:
+        if cell["construction"] != "hl_single":
+            continue
+        rows.append(cell)
+    by_tier: dict[str, dict[str, str]] = {}
+    for cell in rows:
+        marker = "" if cell["tier_achieved_by_own_volume"] else "*"
+        marker += "" if cell["impact_plausible"] else "!"
+        by_tier.setdefault(cell["tier_id"], {})[cell["account_size"]] = (
+            f"{_dec(cell['oos_net_pct_of_equity']):.3f}%{marker}"
+        )
+    table_rows = [
+        [tier] + [by_tier[tier].get(size, "—") for size in sizes]
+        for tier in sorted(by_tier)
+    ]
+    maker = summary["maker_bound_line_optimistic_non_gateable"]["line"]
+    return {
+        "kvs": [
+            {"label": "Achieved-surface band", "value": "EMPTY", "tone": "neg"},
+            {"label": "Own 14d volume @ $5M account", "value": f"${_dec(next(c for c in rows if c['tier_id']=='hl_tier_0' and c['account_size']=='5000000')['own_volume_for_tier'])/1000000:.1f}M vs $5M for HL tier 1", "tone": "neg"},
+            {"label": "Maker-bound OOS ceiling", "value": f"{_dec(maker[0]['oos_net_pct_of_equity']):.2f}% (non-gateable)"},
+        ],
+        "table": {
+            "columns": ["HL tier \\ size"] + [f"{_dec(s)/1000:.0f}k" if _dec(s) < 1000000 else f"{_dec(s)/1000000:.0f}M" for s in sizes],
+            "rows": table_rows,
+        },
+        "note": "OOS net as % of equity (* = tier not achieved by own volume; ! = impact implausible). Bigger gets WORSE on the achieved surface - impact grows, fees never fall.",
+    }
+
+
 COMPUTED = {
     "fund_ev2_realistic_headline": fund_ev2_realistic_headline,
     "fund_ev2_cost_sweep": fund_ev2_cost_sweep,
+    "fund_scale1_viability_map": fund_scale1_viability_map,
     "sel_ev1_random_benchmark": sel_ev1_random_benchmark,
     "sel_ev1_top_oos_configs": sel_ev1_top_oos_configs,
     "exec_ev1_symbol_concentration": exec_ev1_symbol_concentration,
