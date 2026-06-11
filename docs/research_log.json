@@ -154,6 +154,43 @@
       "title": "Volatility-Targeted Time-Series Momentum (liquid majors)"
     },
     {
+      "analytics": [
+        {
+          "kind": "value",
+          "kvs": [
+            {
+              "label": "Live sample at deployment",
+              "value": "As of this sample (2026-06-11), all eight majors are in 30d downtrend: the overlay's target is FULLY FLAT - 0 of 10,000 USDC exposed. That is the validated defensive action in the live 2026 bear: an operator holding a long book sees the overlay calling for cash, not a prediction."
+            }
+          ],
+          "label": "Live sample at deployment",
+          "source": "sample_reading"
+        }
+      ],
+      "badge": "defensive overlay deployed - signal only",
+      "class": "time_series_momentum",
+      "date": "2026-06-11",
+      "evidence_doc": "docs/trend_overlay1_deployable_drawdown_overlay.md",
+      "evidence_summary": "docs/trend_overlay1_deployable_drawdown_overlay_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "The TSMOM-EV1 finding moved from evidence to an operator tool (scripts/run_trend_overlay.py); re-tuning the deployed signal without new evidence now fails CI by construction.",
+        "didnt": "Nothing failed; the optional OS panel was deliberately skipped (it would require non-trivial DASH-QA1 lockstep surgery for an ignored artifact) and is available as its own display-only phase.",
+        "lesson": "A defensive finding is only useful if the honest framing survives deployment: the tool states drawdown control, not alpha - including the absolute loss - on every surface, so the operator cannot mistake risk reduction for a profit signal.",
+        "our_error": null,
+        "our_error_note": "None - one disclaimer wording was rejected by the trading-safety text guard during the build and rephrased; the guard worked as designed.",
+        "why": "Deployment of an existing validated finding, not a new strategy test - no new hypothesis was evaluated and no parameter was re-tuned (the defaults are pinned by test to the committed TSMOM-EV1 train choice).",
+        "worked": "The reuse discipline - the tool imports the exact evidence-run computation rather than re-implementing it, so the signal cannot drift from what was validated; the disclaimer travels in every output and the text guard enforces the posture mechanically."
+      },
+      "finding": "The TSMOM-EV1 defensive finding (bear drawdown 66% -> 17%, authored mixed - defensive, not profitable) is now a deployable read-only calculator: current per-asset trend state + vol-targeted target exposure on the latest closed public-mainnet candles. Live sample at deployment: all eight majors in downtrend - target FULLY FLAT.",
+      "hardened_gates": [
+        "deployed signals are pinned to their evidence config - re-tuning fails CI"
+      ],
+      "outcome": "context",
+      "phase": "TREND-OVERLAY1",
+      "title": "Trend Drawdown-Control Overlay Operationalized (read-only tool)"
+    },
+    {
       "analytics": [],
       "badge": "process upgrade",
       "class": "audit",
@@ -985,7 +1022,7 @@
       "title": "Original Money Flow Reconstruction (accounting correction)"
     }
   ],
-  "entry_count": 17,
+  "entry_count": 18,
   "lessons_hardened_gates": [
     {
       "gate": "PnL must reconcile to equity",
@@ -1018,6 +1055,10 @@
     {
       "gate": "fee tiers count only if the strategy's own flow earns them",
       "phase": "FUND-SCALE1"
+    },
+    {
+      "gate": "deployed signals are pinned to their evidence config - re-tuning fails CI",
+      "phase": "TREND-OVERLAY1"
     },
     {
       "gate": "relative passes carry absolute-performance qualifiers",
