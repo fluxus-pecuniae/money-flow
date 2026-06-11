@@ -110,6 +110,14 @@ jobs:
       - name: FUND-EV2 realistic-cost carry evidence model
         run: python -m pytest -q tests/test_fund_ev2_evidence.py
 
+      # FUND-SCALE1 size/fee-tier viability: cited tier tables monotone,
+      # fee-down/impact-up with size, fixed-cost amortization, own-volume
+      # tier achievement, computed (not hard-coded) viability band,
+      # no-lookahead at size, K-019, retail-cell reproduction,
+      # research-log honesty pin (offline)
+      - name: FUND-SCALE1 scale viability evidence model
+        run: python -m pytest -q tests/test_fund_scale1_evidence.py
+
       # Lint (ruff) — scoped to CI-SAFE1 authored modules; pre-existing debt tracked in KNOWN_ISSUES
       - name: Lint (ruff — safety modules)
         run: |

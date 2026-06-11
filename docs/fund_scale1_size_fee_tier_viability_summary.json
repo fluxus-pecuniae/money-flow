@@ -1,0 +1,1773 @@
+{
+  "account_sizes_usdc": [
+    "10000",
+    "50000",
+    "250000",
+    "1000000",
+    "5000000"
+  ],
+  "band_cells": [],
+  "boundaries": {
+    "approves_live_trading": false,
+    "approves_production_strategy": false,
+    "calls_private_signed_or_order_endpoints": false,
+    "changes_per_symbol_lane_behavior_or_results": false,
+    "changes_production_money_flow_rules": false,
+    "changes_selection_lane_behavior_or_results": false,
+    "changes_tsmom_lane_behavior_or_results": false,
+    "cost_sensitivity_sweep_reported": true,
+    "costs_cited_not_tuned_to_verdict": true,
+    "creates_order_intent": false,
+    "creates_prepared_venue_order": false,
+    "creates_submitted_order": false,
+    "cross_venue_legging_modeled_at_daily_resolution": true,
+    "daily_funding_accrual_approximation": true,
+    "fee_tiers_published_schedules_cited": true,
+    "funding_modeled_from_public_history": true,
+    "impact_scaled_by_actual_traded_notional": true,
+    "implausible_participation_cells_cannot_pass": true,
+    "l2book_calibration_point_in_time_not_history": true,
+    "liquidation_mechanics_not_modeled": true,
+    "maker_bound_line_optimistic_non_gateable": true,
+    "modeled_depth_not_real": true,
+    "mutates_active_pt_rt_runtime": false,
+    "mutates_runtime_artifacts": false,
+    "research_only": true,
+    "retail_verdict_not_relitigated": true,
+    "spot_borrow_not_modeled_flip_rows_upper_bound": true,
+    "submits_live_orders": false,
+    "submits_testnet_orders": false,
+    "tier_achievement_derived_from_own_strategy_volume": true,
+    "uses_testnet_data_as_strategy_truth": false
+  },
+  "chosen_config_by_rung": {
+    "cross_venue:kraken_tier_0": "fund_ev2_cross_venue_cad28_top2_1d",
+    "cross_venue:kraken_tier_100k": "fund_ev2_cross_venue_cad28_top2_1d",
+    "cross_venue:kraken_tier_100m": "fund_ev2_cross_venue_cad14_top2_1d",
+    "cross_venue:kraken_tier_10m": "fund_ev2_cross_venue_cad28_top4_1d",
+    "cross_venue:kraken_tier_1m": "fund_ev2_cross_venue_cad28_top2_1d",
+    "hl_single:hl_tier_0": "fund_ev2_hl_single_cad14_top2_1d",
+    "hl_single:hl_tier_1": "fund_ev2_hl_single_cad14_top2_1d",
+    "hl_single:hl_tier_2": "fund_ev2_hl_single_cad14_top2_1d",
+    "hl_single:hl_tier_3": "fund_ev2_hl_single_cad14_top2_1d",
+    "hl_single:hl_tier_4": "fund_ev2_hl_single_cad14_top2_1d"
+  },
+  "chronological_split": {
+    "split_time": "2026-02-09 00:00:00+00:00",
+    "train_ratio": "0.70"
+  },
+  "data_provenance": {
+    "access": "public_read_only_no_keys_no_private_no_signed_no_orders",
+    "funding_snapshot_fetched_at": "2026-06-11T15:40:13Z",
+    "inputs": "FUND-EV1 funding snapshot + SV2.2 perp candles + FUND-EV1 spot candles + FUND-EV2 l2Book calibration"
+  },
+  "discipline_guard": {
+    "fee_tiers_published_and_cited": true,
+    "impact_plausibility_threshold_participation": "0.10",
+    "retail_verdict_not_relitigated": "the 10k @ base-tier cell reproduces FUND-EV2's fail; FUND-SCALE1 adds the size/fee axis only",
+    "sources": [
+      "Hyperliquid docs fee tiers (fetched 2026-06-11): perp T0-T6 taker 4.5/4.0/3.5/3.0/2.8/2.6/2.4 bps, spot T0-T6 taker 7.0/6.0/5.0/4.0/3.5/3.0/2.5 bps; 14d weighted volume, spot counted double; maker-volume-share rebates (-0.1/-0.2/-0.3 bps) require market-maker flow, not modeled",
+      "Kraken Pro fee schedule (fetched 2026-06-11): spot taker 40/35/24/22/20/18/16/14/12/10/8/5 bps at 30d volume 0/10k/50k/100k/250k/500k/1M/2.5M/5M/10M/100M/500M",
+      "Spreads/impact/slippage/settlement: the FUND-EV2 cited model (l2Book calibration + flat 2 USDC cross-venue settlement, amortizing with size)"
+    ],
+    "tier_achievement_from_own_volume": "a tier counts as achieved only if the strategy's own traded volume at that size reaches the published qualifying volume (HL 14d weighted, spot double; Kraken 30d)"
+  },
+  "fee_axis_breakpoints_first_positive_tier_by_size": {
+    "cross_venue": {
+      "10000": null,
+      "1000000": "kraken_tier_10m",
+      "250000": "kraken_tier_10m",
+      "50000": "kraken_tier_10m",
+      "5000000": "kraken_tier_10m"
+    },
+    "hl_single": {
+      "10000": null,
+      "1000000": null,
+      "250000": null,
+      "50000": null,
+      "5000000": null
+    }
+  },
+  "maker_bound_line_optimistic_non_gateable": {
+    "chosen_config": "fund_ev2_hl_single_cad28_top4_1d",
+    "line": [
+      {
+        "account_size": "10000",
+        "max_fill_participation": "0.06004305",
+        "oos_net_pct_of_equity": "0.26372525",
+        "oos_net_pnl": "26.37252526"
+      },
+      {
+        "account_size": "50000",
+        "max_fill_participation": "0.30021525",
+        "oos_net_pct_of_equity": "0.26172637",
+        "oos_net_pnl": "130.86318733"
+      },
+      {
+        "account_size": "250000",
+        "max_fill_participation": "1.00000000",
+        "oos_net_pct_of_equity": "0.25726824",
+        "oos_net_pnl": "643.17060510"
+      },
+      {
+        "account_size": "1000000",
+        "max_fill_participation": "1.00000000",
+        "oos_net_pct_of_equity": "0.24924194",
+        "oos_net_pnl": "2492.41940426"
+      },
+      {
+        "account_size": "5000000",
+        "max_fill_participation": "1.00000000",
+        "oos_net_pct_of_equity": "0.22940760",
+        "oos_net_pnl": "11470.38022990"
+      }
+    ],
+    "note": "all fills passive at HL base maker fees with zero half-spread paid; non-fill/chase risk NOT modeled - informs, never passes"
+  },
+  "phase": "FUND-SCALE1",
+  "report": "fund_scale1_size_fee_tier_viability",
+  "run_timestamp_utc": "2026-06-11T18:21:37Z",
+  "status": "funding_carry_scale_viability_complete",
+  "tier_ladders": {
+    "cross_venue": [
+      {
+        "basis": "Kraken Pro fee schedule (fetched 2026-06-11): 30d volume tiers",
+        "qualifying_30d_volume_usd": "0",
+        "spot_taker_bps": "40",
+        "tier_id": "kraken_tier_0"
+      },
+      {
+        "basis": "Kraken Pro fee schedule (fetched 2026-06-11): 30d volume tiers",
+        "qualifying_30d_volume_usd": "100000",
+        "spot_taker_bps": "22",
+        "tier_id": "kraken_tier_100k"
+      },
+      {
+        "basis": "Kraken Pro fee schedule (fetched 2026-06-11): 30d volume tiers",
+        "qualifying_30d_volume_usd": "1000000",
+        "spot_taker_bps": "16",
+        "tier_id": "kraken_tier_1m"
+      },
+      {
+        "basis": "Kraken Pro fee schedule (fetched 2026-06-11): 30d volume tiers",
+        "qualifying_30d_volume_usd": "10000000",
+        "spot_taker_bps": "10",
+        "tier_id": "kraken_tier_10m"
+      },
+      {
+        "basis": "Kraken Pro fee schedule (fetched 2026-06-11): 30d volume tiers",
+        "qualifying_30d_volume_usd": "100000000",
+        "spot_taker_bps": "8",
+        "tier_id": "kraken_tier_100m"
+      }
+    ],
+    "hl_single": [
+      {
+        "basis": "Hyperliquid docs fee tiers (fetched 2026-06-11): 14d weighted volume, spot counted double toward the tier",
+        "perp_taker_bps": "4.5",
+        "qualifying_weighted_14d_volume_usd": "0",
+        "spot_taker_bps": "7.0",
+        "tier_id": "hl_tier_0"
+      },
+      {
+        "basis": "Hyperliquid docs fee tiers (fetched 2026-06-11): 14d weighted volume, spot counted double toward the tier",
+        "perp_taker_bps": "4.0",
+        "qualifying_weighted_14d_volume_usd": "5000000",
+        "spot_taker_bps": "6.0",
+        "tier_id": "hl_tier_1"
+      },
+      {
+        "basis": "Hyperliquid docs fee tiers (fetched 2026-06-11): 14d weighted volume, spot counted double toward the tier",
+        "perp_taker_bps": "3.5",
+        "qualifying_weighted_14d_volume_usd": "25000000",
+        "spot_taker_bps": "5.0",
+        "tier_id": "hl_tier_2"
+      },
+      {
+        "basis": "Hyperliquid docs fee tiers (fetched 2026-06-11): 14d weighted volume, spot counted double toward the tier",
+        "perp_taker_bps": "3.0",
+        "qualifying_weighted_14d_volume_usd": "100000000",
+        "spot_taker_bps": "4.0",
+        "tier_id": "hl_tier_3"
+      },
+      {
+        "basis": "Hyperliquid docs fee tiers (fetched 2026-06-11): 14d weighted volume, spot counted double toward the tier",
+        "perp_taker_bps": "2.8",
+        "qualifying_weighted_14d_volume_usd": "500000000",
+        "spot_taker_bps": "3.5",
+        "tier_id": "hl_tier_4"
+      }
+    ]
+  },
+  "universe": {
+    "aligned_days": 394,
+    "carry_universe": [
+      "BTC",
+      "ETH",
+      "HYPE",
+      "SOL"
+    ],
+    "window": [
+      "2025-05-11 00:00:00+00:00",
+      "2026-06-08 00:00:00+00:00"
+    ]
+  },
+  "verdict": "carry_does_not_reach_viability_at_credible_scale",
+  "viability_map": [
+    {
+      "account_size": "10000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "432.72101383",
+      "funding_collected_total": "520.82373578",
+      "gate": {
+        "leave_one_out_oos_net": {
+          "BTC": "2.70590414",
+          "ETH": "-6.56960808",
+          "HYPE": "8.06350787",
+          "SOL": "70.10180900"
+        },
+        "oos_max_drawdown_pct": "0.22799259",
+        "oos_sharpe": "-0.60369958",
+        "reason_codes": [
+          "oos_net_carry_not_positive_after_costs",
+          "leave_one_out_breaks_oos_net_carry"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 177,
+            "net_pnl": "91.32159841"
+          },
+          "bull": {
+            "days": 130,
+            "net_pnl": "265.18321560"
+          },
+          "neutral": {
+            "days": 86,
+            "net_pnl": "76.21619981"
+          }
+        },
+        "status": "carry_does_not_survive_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": "3.14109964",
+        "stressed_max_fill_participation": "0.00003011",
+        "walk_forward_net_pnls": [
+          "124.53568247",
+          "4.73298031"
+        ]
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "3210.54918399",
+      "max_fill_participation": "0.00011842",
+      "oos_net_pct_of_equity": "-0.06524045",
+      "oos_net_pnl": "-6.52404520",
+      "own_volume_for_tier": "3587.94995740",
+      "tier_achieved_by_own_volume": true,
+      "tier_id": "hl_tier_0",
+      "tier_qualifying_volume": "0",
+      "trade_count": 49
+    },
+    {
+      "account_size": "50000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "2161.29239010",
+      "funding_collected_total": "2604.09374898",
+      "gate": {
+        "leave_one_out_oos_net": {
+          "BTC": "12.37565680",
+          "ETH": "-33.89496742",
+          "HYPE": "39.61541408",
+          "SOL": "349.78939961"
+        },
+        "oos_max_drawdown_pct": "0.22995146",
+        "oos_sharpe": "-0.61947693",
+        "reason_codes": [
+          "oos_net_carry_not_positive_after_costs",
+          "leave_one_out_breaks_oos_net_carry"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 177,
+            "net_pnl": "455.80354520"
+          },
+          "bull": {
+            "days": 130,
+            "net_pnl": "1325.25750719"
+          },
+          "neutral": {
+            "days": 86,
+            "net_pnl": "380.23133770"
+          }
+        },
+        "status": "carry_does_not_survive_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": "3.14156636",
+        "stressed_max_fill_participation": "0.00015056",
+        "walk_forward_net_pnls": [
+          "622.53091843",
+          "22.59079431"
+        ]
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "16052.62191781",
+      "max_fill_participation": "0.00059206",
+      "oos_net_pct_of_equity": "-0.06731192",
+      "oos_net_pnl": "-33.65595867",
+      "own_volume_for_tier": "17939.42407020",
+      "tier_achieved_by_own_volume": true,
+      "tier_id": "hl_tier_0",
+      "tier_qualifying_volume": "0",
+      "trade_count": 49
+    },
+    {
+      "account_size": "250000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "10780.60765437",
+      "funding_collected_total": "13020.19002549",
+      "gate": {
+        "leave_one_out_oos_net": {
+          "BTC": "48.97875464",
+          "ETH": "-181.17889876",
+          "HYPE": "190.22758891",
+          "SOL": "1740.90178398"
+        },
+        "oos_max_drawdown_pct": "0.23433136",
+        "oos_sharpe": "-0.65405257",
+        "reason_codes": [
+          "oos_net_carry_not_positive_after_costs",
+          "leave_one_out_breaks_oos_net_carry"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 177,
+            "net_pnl": "2270.02486115"
+          },
+          "bull": {
+            "days": 130,
+            "net_pnl": "6618.92470332"
+          },
+          "neutral": {
+            "days": 86,
+            "net_pnl": "1891.65808990"
+          }
+        },
+        "status": "carry_does_not_survive_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": "3.14260998",
+        "stressed_max_fill_participation": "0.00075280",
+        "walk_forward_net_pnls": [
+          "3111.00563133",
+          "100.94670536"
+        ]
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "80261.72320961",
+      "max_fill_participation": "0.00296015",
+      "oos_net_pct_of_equity": "-0.07194322",
+      "oos_net_pnl": "-179.85805325",
+      "own_volume_for_tier": "89693.47889998",
+      "tier_achieved_by_own_volume": true,
+      "tier_id": "hl_tier_0",
+      "tier_qualifying_volume": "0",
+      "trade_count": 49
+    },
+    {
+      "account_size": "1000000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "42935.37831110",
+      "funding_collected_total": "52078.74338113",
+      "gate": {
+        "leave_one_out_oos_net": {
+          "BTC": "102.58937531",
+          "ETH": "-809.39460506",
+          "HYPE": "704.11822634",
+          "SOL": "6905.40043637"
+        },
+        "oos_max_drawdown_pct": "0.24225379",
+        "oos_sharpe": "-0.71419330",
+        "reason_codes": [
+          "oos_net_carry_not_positive_after_costs",
+          "leave_one_out_breaks_oos_net_carry"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 177,
+            "net_pnl": "9015.04204068"
+          },
+          "bull": {
+            "days": 130,
+            "net_pnl": "26422.42331489"
+          },
+          "neutral": {
+            "days": 86,
+            "net_pnl": "7497.91295553"
+          }
+        },
+        "status": "carry_does_not_survive_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": "3.14449790",
+        "stressed_max_fill_participation": "0.00301109",
+        "walk_forward_net_pnls": [
+          "12432.09145284",
+          "316.92457298"
+        ]
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "321036.86098557",
+      "max_fill_participation": "0.01183947",
+      "oos_net_pct_of_equity": "-0.08031908",
+      "oos_net_pnl": "-803.19082650",
+      "own_volume_for_tier": "358747.56814154",
+      "tier_achieved_by_own_volume": true,
+      "tier_id": "hl_tier_0",
+      "tier_qualifying_volume": "0",
+      "trade_count": 49
+    },
+    {
+      "account_size": "5000000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "230293.44100162",
+      "funding_collected_total": "260562.84918239",
+      "gate": {
+        "leave_one_out_oos_net": {
+          "BTC": "-640.17543623",
+          "ETH": "-5093.32210246",
+          "HYPE": "2818.80222812",
+          "SOL": "33807.77983933"
+        },
+        "oos_max_drawdown_pct": "0.26189507",
+        "oos_sharpe": "-0.85076291",
+        "reason_codes": [
+          "oos_net_carry_not_positive_after_costs",
+          "leave_one_out_breaks_oos_net_carry"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 177,
+            "net_pnl": "62218.90246767"
+          },
+          "bull": {
+            "days": 130,
+            "net_pnl": "131453.66844049"
+          },
+          "neutral": {
+            "days": 86,
+            "net_pnl": "36620.87009346"
+          }
+        },
+        "status": "carry_does_not_survive_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": "3.14916509",
+        "stressed_max_fill_participation": "0.01505397",
+        "walk_forward_net_pnls": [
+          "62013.00696108",
+          "509.99757477"
+        ]
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "1605060.30566294",
+      "max_fill_participation": "0.05938686",
+      "oos_net_pct_of_equity": "-0.10142505",
+      "oos_net_pnl": "-5071.25271561",
+      "own_volume_for_tier": "1795582.61020734",
+      "tier_achieved_by_own_volume": true,
+      "tier_id": "hl_tier_0",
+      "tier_qualifying_volume": "0",
+      "trade_count": 48
+    },
+    {
+      "account_size": "10000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "490.70456925",
+      "funding_collected_total": "538.70725726",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "3210.85567075",
+      "max_fill_participation": "0.00011905",
+      "oos_net_pct_of_equity": "-0.04823891",
+      "oos_net_pnl": "-4.82389129",
+      "own_volume_for_tier": "3729.72794540",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_1",
+      "tier_qualifying_volume": "5000000",
+      "trade_count": 54
+    },
+    {
+      "account_size": "50000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "2451.22834440",
+      "funding_collected_total": "2693.50817406",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "16054.15435257",
+      "max_fill_participation": "0.00059524",
+      "oos_net_pct_of_equity": "-0.05032782",
+      "oos_net_pnl": "-25.16390798",
+      "own_volume_for_tier": "18648.32058841",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_1",
+      "tier_qualifying_volume": "5000000",
+      "trade_count": 54
+    },
+    {
+      "account_size": "250000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "12230.49067185",
+      "funding_collected_total": "13467.22657055",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "80269.38538654",
+      "max_fill_participation": "0.00297607",
+      "oos_net_pct_of_equity": "-0.05499807",
+      "oos_net_pnl": "-137.49517274",
+      "own_volume_for_tier": "93238.03501484",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_1",
+      "tier_qualifying_volume": "5000000",
+      "trade_count": 54
+    },
+    {
+      "account_size": "1000000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "48736.38052736",
+      "funding_collected_total": "53866.63212581",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "321067.50972658",
+      "max_fill_participation": "0.01190315",
+      "oos_net_pct_of_equity": "-0.06344444",
+      "oos_net_pnl": "-634.44444224",
+      "own_volume_for_tier": "372926.32454843",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_1",
+      "tier_qualifying_volume": "5000000",
+      "trade_count": 54
+    },
+    {
+      "account_size": "5000000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "241388.82935891",
+      "funding_collected_total": "269305.05392523",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "1605213.54985387",
+      "max_fill_participation": "0.05950200",
+      "oos_net_pct_of_equity": "-0.08431276",
+      "oos_net_pnl": "-4215.63775691",
+      "own_volume_for_tier": "1864312.58647807",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_1",
+      "tier_qualifying_volume": "5000000",
+      "trade_count": 54
+    },
+    {
+      "account_size": "10000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "496.01669408",
+      "funding_collected_total": "538.78158093",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "3211.16214855",
+      "max_fill_participation": "0.00011909",
+      "oos_net_pct_of_equity": "-0.03089053",
+      "oos_net_pnl": "-3.08905295",
+      "own_volume_for_tier": "3730.54723154",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_2",
+      "tier_qualifying_volume": "25000000",
+      "trade_count": 54
+    },
+    {
+      "account_size": "50000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "2477.78773226",
+      "funding_collected_total": "2693.87978635",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "16055.68674179",
+      "max_fill_participation": "0.00059544",
+      "oos_net_pct_of_equity": "-0.03298109",
+      "oos_net_pnl": "-16.49054304",
+      "own_volume_for_tier": "18652.41692287",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_2",
+      "tier_qualifying_volume": "25000000",
+      "trade_count": 54
+    },
+    {
+      "account_size": "250000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "12363.27377343",
+      "funding_collected_total": "13469.08457272",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "80277.04733862",
+      "max_fill_participation": "0.00297703",
+      "oos_net_pct_of_equity": "-0.03765506",
+      "oos_net_pnl": "-94.13765464",
+      "own_volume_for_tier": "93258.51562133",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_2",
+      "tier_qualifying_volume": "25000000",
+      "trade_count": 54
+    },
+    {
+      "account_size": "1000000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "49267.41336663",
+      "funding_collected_total": "53874.06370151",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "321098.15757062",
+      "max_fill_participation": "0.01190700",
+      "oos_net_pct_of_equity": "-0.04610815",
+      "oos_net_pnl": "-461.08146468",
+      "own_volume_for_tier": "373008.23932177",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_2",
+      "tier_qualifying_volume": "25000000",
+      "trade_count": 54
+    },
+    {
+      "account_size": "5000000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "244042.75855030",
+      "funding_collected_total": "269342.20641229",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "1605366.78949873",
+      "max_fill_participation": "0.05952126",
+      "oos_net_pct_of_equity": "-0.06699307",
+      "oos_net_pnl": "-3349.65359228",
+      "own_volume_for_tier": "1864722.06517301",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_2",
+      "tier_qualifying_volume": "25000000",
+      "trade_count": 54
+    },
+    {
+      "account_size": "10000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "482.59579912",
+      "funding_collected_total": "536.04924736",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "3214.26744121",
+      "max_fill_participation": "0.00014090",
+      "oos_net_pct_of_equity": "-0.01350329",
+      "oos_net_pnl": "-1.35032900",
+      "own_volume_for_tier": "5452.76115220",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_3",
+      "tier_qualifying_volume": "100000000",
+      "trade_count": 68
+    },
+    {
+      "account_size": "50000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "2409.17769801",
+      "funding_collected_total": "2680.17652514",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "16071.04643196",
+      "max_fill_participation": "0.00070450",
+      "oos_net_pct_of_equity": "-0.01558940",
+      "oos_net_pnl": "-7.79469937",
+      "own_volume_for_tier": "27263.04599524",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_3",
+      "tier_qualifying_volume": "100000000",
+      "trade_count": 68
+    },
+    {
+      "account_size": "250000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "12003.39432964",
+      "funding_collected_total": "13400.10326332",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "80351.98122057",
+      "max_fill_participation": "0.00352236",
+      "oos_net_pct_of_equity": "-0.02025281",
+      "oos_net_pnl": "-50.63201424",
+      "own_volume_for_tier": "136306.73607946",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_3",
+      "tier_qualifying_volume": "100000000",
+      "trade_count": 68
+    },
+    {
+      "account_size": "1000000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "47706.16697983",
+      "funding_collected_total": "53594.77412077",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "321384.40112842",
+      "max_fill_participation": "0.01408840",
+      "oos_net_pct_of_equity": "-0.02868449",
+      "oos_net_pnl": "-286.84492330",
+      "own_volume_for_tier": "545165.48977746",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_3",
+      "tier_qualifying_volume": "100000000",
+      "trade_count": 68
+    },
+    {
+      "account_size": "5000000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "234733.24675829",
+      "funding_collected_total": "267904.18542738",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "1606631.24180696",
+      "max_fill_participation": "0.07042910",
+      "oos_net_pct_of_equity": "-0.04950386",
+      "oos_net_pnl": "-2475.19305911",
+      "own_volume_for_tier": "2725068.04382830",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_3",
+      "tier_qualifying_volume": "100000000",
+      "trade_count": 68
+    },
+    {
+      "account_size": "10000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "486.23498033",
+      "funding_collected_total": "536.11458957",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "3214.52059804",
+      "max_fill_participation": "0.00014091",
+      "oos_net_pct_of_equity": "-0.00541168",
+      "oos_net_pnl": "-0.54116786",
+      "own_volume_for_tier": "5453.48122201",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_4",
+      "tier_qualifying_volume": "500000000",
+      "trade_count": 68
+    },
+    {
+      "account_size": "50000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "2427.37234458",
+      "funding_collected_total": "2680.50322752",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "16072.31221636",
+      "max_fill_participation": "0.00070456",
+      "oos_net_pct_of_equity": "-0.00749915",
+      "oos_net_pnl": "-3.74957636",
+      "own_volume_for_tier": "27266.64622540",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_4",
+      "tier_qualifying_volume": "500000000",
+      "trade_count": 68
+    },
+    {
+      "account_size": "250000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "12094.35357631",
+      "funding_collected_total": "13401.73667822",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "80358.31014440",
+      "max_fill_participation": "0.00352265",
+      "oos_net_pct_of_equity": "-0.01216559",
+      "oos_net_pnl": "-30.41396867",
+      "own_volume_for_tier": "136324.73590915",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_4",
+      "tier_qualifying_volume": "500000000",
+      "trade_count": 68
+    },
+    {
+      "account_size": "1000000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "48069.90285802",
+      "funding_collected_total": "53601.30708044",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "321409.71681828",
+      "max_fill_participation": "0.01408955",
+      "oos_net_pct_of_equity": "-0.02060274",
+      "oos_net_pnl": "-206.02740100",
+      "own_volume_for_tier": "545237.47953990",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_4",
+      "tier_qualifying_volume": "500000000",
+      "trade_count": 68
+    },
+    {
+      "account_size": "5000000",
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "full_net_pnl": "236550.67441152",
+      "funding_collected_total": "267936.84156385",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "1606757.82033578",
+      "max_fill_participation": "0.07043486",
+      "oos_net_pct_of_equity": "-0.04143566",
+      "oos_net_pnl": "-2071.78287328",
+      "own_volume_for_tier": "2725427.87444274",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "hl_tier_4",
+      "tier_qualifying_volume": "500000000",
+      "trade_count": 68
+    },
+    {
+      "account_size": "10000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "70.19501226",
+      "funding_collected_total": "117.75312850",
+      "gate": {
+        "leave_one_out_oos_net": {
+          "BTC": "-14.29558848",
+          "ETH": "-14.29558848",
+          "HYPE": "0E-8",
+          "SOL": "18.65864532"
+        },
+        "oos_max_drawdown_pct": "0.19337694",
+        "oos_sharpe": "-1.28460902",
+        "reason_codes": [
+          "oos_net_carry_not_positive_after_costs",
+          "walk_forward_net_carry_not_positive_in_every_fold",
+          "leave_one_out_breaks_oos_net_carry"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 177,
+            "net_pnl": "56.73356615"
+          },
+          "bull": {
+            "days": 130,
+            "net_pnl": "9.19176028"
+          },
+          "neutral": {
+            "days": 86,
+            "net_pnl": "4.26968583"
+          }
+        },
+        "status": "carry_does_not_survive_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": "0E-8",
+        "stressed_max_fill_participation": "0",
+        "walk_forward_net_pnls": [
+          "0E-8",
+          "-2.45982223"
+        ]
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "2996.54449738",
+      "max_fill_participation": "0.00011143",
+      "oos_net_pct_of_equity": "-0.14295588",
+      "oos_net_pnl": "-14.29558848",
+      "own_volume_for_tier": "584.56639131",
+      "tier_achieved_by_own_volume": true,
+      "tier_id": "kraken_tier_0",
+      "tier_qualifying_volume": "0",
+      "trade_count": 10
+    },
+    {
+      "account_size": "50000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "1626.49753623",
+      "funding_collected_total": "1849.76216598",
+      "gate": {
+        "leave_one_out_oos_net": {
+          "BTC": "-56.97107354",
+          "ETH": "-56.97107354",
+          "HYPE": "0E-8",
+          "SOL": "149.31607703"
+        },
+        "oos_max_drawdown_pct": "0.17776216",
+        "oos_sharpe": "-1.08639557",
+        "reason_codes": [
+          "oos_net_carry_not_positive_after_costs",
+          "walk_forward_net_carry_not_positive_in_every_fold",
+          "leave_one_out_breaks_oos_net_carry"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 177,
+            "net_pnl": "326.54432371"
+          },
+          "bull": {
+            "days": 130,
+            "net_pnl": "921.63610127"
+          },
+          "neutral": {
+            "days": 86,
+            "net_pnl": "378.31711125"
+          }
+        },
+        "status": "carry_does_not_survive_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": "0E-8",
+        "stressed_max_fill_participation": "0",
+        "walk_forward_net_pnls": [
+          "0E-8",
+          "3.67810653"
+        ]
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "15357.42520193",
+      "max_fill_participation": "0.00057109",
+      "oos_net_pct_of_equity": "-0.11394215",
+      "oos_net_pnl": "-56.97107354",
+      "own_volume_for_tier": "3483.20390605",
+      "tier_achieved_by_own_volume": true,
+      "tier_id": "kraken_tier_0",
+      "tier_qualifying_volume": "0",
+      "trade_count": 16
+    },
+    {
+      "account_size": "250000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "8193.14235177",
+      "funding_collected_total": "9249.43957582",
+      "gate": {
+        "leave_one_out_oos_net": {
+          "BTC": "-271.30618721",
+          "ETH": "-271.30618721",
+          "HYPE": "0E-8",
+          "SOL": "799.96791565"
+        },
+        "oos_max_drawdown_pct": "0.17547793",
+        "oos_sharpe": "-1.04755670",
+        "reason_codes": [
+          "oos_net_carry_not_positive_after_costs",
+          "walk_forward_net_carry_not_positive_in_every_fold",
+          "leave_one_out_breaks_oos_net_carry"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 177,
+            "net_pnl": "1662.20711670"
+          },
+          "bull": {
+            "days": 130,
+            "net_pnl": "4624.12826637"
+          },
+          "neutral": {
+            "days": 86,
+            "net_pnl": "1906.80696871"
+          }
+        },
+        "status": "carry_does_not_survive_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": "0E-8",
+        "stressed_max_fill_participation": "0",
+        "walk_forward_net_pnls": [
+          "0E-8",
+          "31.98577206"
+        ]
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "76801.12279785",
+      "max_fill_participation": "0.00285598",
+      "oos_net_pct_of_equity": "-0.10852247",
+      "oos_net_pnl": "-271.30618721",
+      "own_volume_for_tier": "17417.35161775",
+      "tier_achieved_by_own_volume": true,
+      "tier_id": "kraken_tier_0",
+      "tier_qualifying_volume": "0",
+      "trade_count": 16
+    },
+    {
+      "account_size": "1000000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "32792.60515925",
+      "funding_collected_total": "36998.01878043",
+      "gate": {
+        "leave_one_out_oos_net": {
+          "BTC": "-1090.71312852",
+          "ETH": "-1090.71312852",
+          "HYPE": "0E-8",
+          "SOL": "3221.14351922"
+        },
+        "oos_max_drawdown_pct": "0.17637124",
+        "oos_sharpe": "-1.04839670",
+        "reason_codes": [
+          "oos_net_carry_not_positive_after_costs",
+          "walk_forward_net_carry_not_positive_in_every_fold",
+          "leave_one_out_breaks_oos_net_carry"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 177,
+            "net_pnl": "6653.24787990"
+          },
+          "bull": {
+            "days": 130,
+            "net_pnl": "18506.86303285"
+          },
+          "neutral": {
+            "days": 86,
+            "net_pnl": "7632.49424650"
+          }
+        },
+        "status": "carry_does_not_survive_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": "0E-8",
+        "stressed_max_fill_participation": "0",
+        "walk_forward_net_pnls": [
+          "0E-8",
+          "122.47879964"
+        ]
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "307212.07532767",
+      "max_fill_participation": "0.01142421",
+      "oos_net_pct_of_equity": "-0.10907131",
+      "oos_net_pnl": "-1090.71312852",
+      "own_volume_for_tier": "69670.15589483",
+      "tier_achieved_by_own_volume": true,
+      "tier_id": "kraken_tier_0",
+      "tier_qualifying_volume": "0",
+      "trade_count": 16
+    },
+    {
+      "account_size": "5000000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "163676.59214855",
+      "funding_collected_total": "184987.84434959",
+      "gate": {
+        "leave_one_out_oos_net": {
+          "BTC": "-5653.40663883",
+          "ETH": "-5653.40663883",
+          "HYPE": "0E-8",
+          "SOL": "15903.20578959"
+        },
+        "oos_max_drawdown_pct": "0.17986082",
+        "oos_sharpe": "-1.06840581",
+        "reason_codes": [
+          "oos_net_carry_not_positive_after_costs",
+          "walk_forward_net_carry_not_positive_in_every_fold",
+          "leave_one_out_breaks_oos_net_carry"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 177,
+            "net_pnl": "33054.45888706"
+          },
+          "bull": {
+            "days": 130,
+            "net_pnl": "92528.29584912"
+          },
+          "neutral": {
+            "days": 86,
+            "net_pnl": "38093.83741236"
+          }
+        },
+        "status": "carry_does_not_survive_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": "0E-8",
+        "stressed_max_fill_participation": "0",
+        "walk_forward_net_pnls": [
+          "0E-8",
+          "412.45652510"
+        ]
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "1536034.64634161",
+      "max_fill_participation": "0.05712008",
+      "oos_net_pct_of_equity": "-0.11306813",
+      "oos_net_pnl": "-5653.40663883",
+      "own_volume_for_tier": "348348.70751974",
+      "tier_achieved_by_own_volume": true,
+      "tier_id": "kraken_tier_0",
+      "tier_qualifying_volume": "0",
+      "trade_count": 16
+    },
+    {
+      "account_size": "10000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "307.00505805",
+      "funding_collected_total": "370.76639352",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "3071.46500650",
+      "max_fill_participation": "0.00011422",
+      "oos_net_pct_of_equity": "-0.29621151",
+      "oos_net_pnl": "-29.62115081",
+      "own_volume_for_tier": "1101.13027974",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "kraken_tier_100k",
+      "tier_qualifying_volume": "100000",
+      "trade_count": 20
+    },
+    {
+      "account_size": "50000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "1615.02120614",
+      "funding_collected_total": "1854.49495141",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "15371.73202037",
+      "max_fill_participation": "0.00057162",
+      "oos_net_pct_of_equity": "-0.23319164",
+      "oos_net_pnl": "-116.59582145",
+      "own_volume_for_tier": "5509.53514399",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "kraken_tier_100k",
+      "tier_qualifying_volume": "100000",
+      "trade_count": 20
+    },
+    {
+      "account_size": "250000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "8149.98404688",
+      "funding_collected_total": "9273.10786299",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "76872.65808530",
+      "max_fill_participation": "0.00285864",
+      "oos_net_pct_of_equity": "-0.22208424",
+      "oos_net_pnl": "-555.21060446",
+      "own_volume_for_tier": "27551.38431453",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "kraken_tier_100k",
+      "tier_qualifying_volume": "100000",
+      "trade_count": 20
+    },
+    {
+      "account_size": "1000000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "32619.64229355",
+      "funding_collected_total": "37092.69344859",
+      "gate": {
+        "leave_one_out_oos_net": {
+          "BTC": "-2226.66344495",
+          "ETH": "-2226.66344495",
+          "HYPE": "0E-8",
+          "SOL": "5049.86757119"
+        },
+        "oos_max_drawdown_pct": "0.30033256",
+        "oos_sharpe": "-1.71402340",
+        "reason_codes": [
+          "oos_net_carry_not_positive_after_costs",
+          "walk_forward_net_carry_not_positive_in_every_fold",
+          "leave_one_out_breaks_oos_net_carry"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 177,
+            "net_pnl": "7603.95527420"
+          },
+          "bull": {
+            "days": 130,
+            "net_pnl": "18713.57815451"
+          },
+          "neutral": {
+            "days": 86,
+            "net_pnl": "6302.10886483"
+          }
+        },
+        "status": "carry_does_not_survive_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": "1.54198874",
+        "stressed_max_fill_participation": "0.00295254",
+        "walk_forward_net_pnls": [
+          "11612.22214664",
+          "-1012.45029700"
+        ]
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "307498.21736923",
+      "max_fill_participation": "0.01143485",
+      "oos_net_pct_of_equity": "-0.22266634",
+      "oos_net_pnl": "-2226.66344495",
+      "own_volume_for_tier": "110207.07112366",
+      "tier_achieved_by_own_volume": true,
+      "tier_id": "kraken_tier_100k",
+      "tier_qualifying_volume": "100000",
+      "trade_count": 20
+    },
+    {
+      "account_size": "5000000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "162676.06959315",
+      "funding_collected_total": "185461.19818948",
+      "gate": {
+        "leave_one_out_oos_net": {
+          "BTC": "-11468.87047766",
+          "ETH": "-11468.87047766",
+          "HYPE": "0E-8",
+          "SOL": "25042.64610995"
+        },
+        "oos_max_drawdown_pct": "0.30644096",
+        "oos_sharpe": "-1.73698443",
+        "reason_codes": [
+          "oos_net_carry_not_positive_after_costs",
+          "walk_forward_net_carry_not_positive_in_every_fold",
+          "leave_one_out_breaks_oos_net_carry"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 177,
+            "net_pnl": "37807.58963954"
+          },
+          "bull": {
+            "days": 130,
+            "net_pnl": "93561.94549099"
+          },
+          "neutral": {
+            "days": 86,
+            "net_pnl": "31306.53446262"
+          }
+        },
+        "status": "carry_does_not_survive_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": "1.54997516",
+        "stressed_max_fill_participation": "0.01476231",
+        "walk_forward_net_pnls": [
+          "58048.83392511",
+          "-5397.90116735"
+        ]
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "1537465.35774832",
+      "max_fill_participation": "0.05717328",
+      "oos_net_pct_of_equity": "-0.22937741",
+      "oos_net_pnl": "-11468.87047766",
+      "own_volume_for_tier": "551022.05306159",
+      "tier_achieved_by_own_volume": true,
+      "tier_id": "kraken_tier_100k",
+      "tier_qualifying_volume": "100000",
+      "trade_count": 20
+    },
+    {
+      "account_size": "10000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "315.73372058",
+      "funding_collected_total": "370.82893277",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "3072.41872800",
+      "max_fill_participation": "0.00011425",
+      "oos_net_pct_of_equity": "-0.24102159",
+      "oos_net_pnl": "-24.10215940",
+      "own_volume_for_tier": "1101.43416323",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "kraken_tier_1m",
+      "tier_qualifying_volume": "1000000",
+      "trade_count": 20
+    },
+    {
+      "account_size": "50000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "2796.85917935",
+      "funding_collected_total": "2506.25434270",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": false,
+      "max_fill_notional": "15715.23182635",
+      "max_fill_participation": "0.60043049",
+      "oos_net_pct_of_equity": "-0.18152632",
+      "oos_net_pnl": "-90.76315872",
+      "own_volume_for_tier": "7603.62551066",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "kraken_tier_1m",
+      "tier_qualifying_volume": "1000000",
+      "trade_count": 28
+    },
+    {
+      "account_size": "250000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "14083.00105306",
+      "funding_collected_total": "12532.34965623",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": false,
+      "max_fill_notional": "78597.28163021",
+      "max_fill_participation": "1.00000000",
+      "oos_net_pct_of_equity": "-0.17047872",
+      "oos_net_pnl": "-426.19680283",
+      "own_volume_for_tier": "38023.85121339",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "kraken_tier_1m",
+      "tier_qualifying_volume": "1000000",
+      "trade_count": 28
+    },
+    {
+      "account_size": "1000000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "56362.51575182",
+      "funding_collected_total": "50129.97214861",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": false,
+      "max_fill_notional": "314400.22519888",
+      "max_fill_participation": "1.00000000",
+      "oos_net_pct_of_equity": "-0.17116275",
+      "oos_net_pnl": "-1711.62754485",
+      "own_volume_for_tier": "152097.76139397",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "kraken_tier_1m",
+      "tier_qualifying_volume": "1000000",
+      "trade_count": 28
+    },
+    {
+      "account_size": "5000000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "281253.82005819",
+      "funding_collected_total": "250645.28454146",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": false,
+      "max_fill_notional": "1571938.48367920",
+      "max_fill_participation": "1.00000000",
+      "oos_net_pct_of_equity": "-0.17812162",
+      "oos_net_pnl": "-8906.08099674",
+      "own_volume_for_tier": "760461.72012408",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "kraken_tier_1m",
+      "tier_qualifying_volume": "1000000",
+      "trade_count": 28
+    },
+    {
+      "account_size": "10000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top4_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "158.70647119",
+      "funding_collected_total": "189.74618261",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "1511.15652737",
+      "max_fill_participation": "0.00005619",
+      "oos_net_pct_of_equity": "-0.13198336",
+      "oos_net_pnl": "-13.19833631",
+      "own_volume_for_tier": "546.49553048",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "kraken_tier_10m",
+      "tier_qualifying_volume": "10000000",
+      "trade_count": 18
+    },
+    {
+      "account_size": "50000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top4_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "2253.28590847",
+      "funding_collected_total": "2181.14299214",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": false,
+      "max_fill_notional": "7761.65532606",
+      "max_fill_participation": "0.30021525",
+      "oos_net_pct_of_equity": "0.02087220",
+      "oos_net_pnl": "10.43610068",
+      "own_volume_for_tier": "6869.93992926",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "kraken_tier_10m",
+      "tier_qualifying_volume": "10000000",
+      "trade_count": 50
+    },
+    {
+      "account_size": "250000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top4_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "12701.72425007",
+      "funding_collected_total": "12128.83071194",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": false,
+      "max_fill_notional": "39011.14023537",
+      "max_fill_participation": "1.00000000",
+      "oos_net_pct_of_equity": "0.04880914",
+      "oos_net_pnl": "122.02285800",
+      "own_volume_for_tier": "34302.74596352",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "kraken_tier_10m",
+      "tier_qualifying_volume": "10000000",
+      "trade_count": 50
+    },
+    {
+      "account_size": "1000000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top4_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "50921.43106484",
+      "funding_collected_total": "48516.32877150",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": false,
+      "max_fill_notional": "156056.61094954",
+      "max_fill_participation": "1.00000000",
+      "oos_net_pct_of_equity": "0.05215183",
+      "oos_net_pnl": "521.51828556",
+      "own_volume_for_tier": "137217.73280521",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "kraken_tier_10m",
+      "tier_qualifying_volume": "10000000",
+      "trade_count": 50
+    },
+    {
+      "account_size": "5000000",
+      "chosen_config": "fund_ev2_cross_venue_cad28_top4_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "254356.71349938",
+      "funding_collected_total": "242579.61517635",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": false,
+      "max_fill_notional": "780272.94905654",
+      "max_fill_participation": "1.00000000",
+      "oos_net_pct_of_equity": "0.04850338",
+      "oos_net_pnl": "2425.16891227",
+      "own_volume_for_tier": "686079.06067605",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "kraken_tier_10m",
+      "tier_qualifying_volume": "10000000",
+      "trade_count": 50
+    },
+    {
+      "account_size": "10000",
+      "chosen_config": "fund_ev2_cross_venue_cad14_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "414.21046924",
+      "funding_collected_total": "488.16130521",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "3179.10273516",
+      "max_fill_participation": "0.00011822",
+      "oos_net_pct_of_equity": "-0.03673303",
+      "oos_net_pnl": "-3.67330290",
+      "own_volume_for_tier": "1469.19553776",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "kraken_tier_100m",
+      "tier_qualifying_volume": "100000000",
+      "trade_count": 44
+    },
+    {
+      "account_size": "50000",
+      "chosen_config": "fund_ev2_cross_venue_cad14_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "2453.40059703",
+      "funding_collected_total": "2715.12786987",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "16017.80331574",
+      "max_fill_participation": "0.00059565",
+      "oos_net_pct_of_equity": "-0.10581295",
+      "oos_net_pnl": "-52.90647734",
+      "own_volume_for_tier": "9367.93886750",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "kraken_tier_100m",
+      "tier_qualifying_volume": "100000000",
+      "trade_count": 48
+    },
+    {
+      "account_size": "250000",
+      "chosen_config": "fund_ev2_cross_venue_cad14_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "10625.25642902",
+      "funding_collected_total": "13018.31992550",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "80251.71320193",
+      "max_fill_participation": "0.00295903",
+      "oos_net_pct_of_equity": "-0.09136580",
+      "oos_net_pnl": "-228.41449459",
+      "own_volume_for_tier": "64070.58992025",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "kraken_tier_100m",
+      "tier_qualifying_volume": "100000000",
+      "trade_count": 49
+    },
+    {
+      "account_size": "1000000",
+      "chosen_config": "fund_ev2_cross_venue_cad14_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "42565.21548671",
+      "funding_collected_total": "52074.01514554",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "321011.85339603",
+      "max_fill_participation": "0.01183684",
+      "oos_net_pct_of_equity": "-0.09216025",
+      "oos_net_pnl": "-921.60250686",
+      "own_volume_for_tier": "256291.41772707",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "kraken_tier_100m",
+      "tier_qualifying_volume": "100000000",
+      "trade_count": 49
+    },
+    {
+      "account_size": "5000000",
+      "chosen_config": "fund_ev2_cross_venue_cad14_top2_1d",
+      "construction": "cross_venue",
+      "full_net_pnl": "229915.28294724",
+      "funding_collected_total": "260554.89352325",
+      "gate": {
+        "reason_codes": [
+          "cell_not_a_band_candidate"
+        ],
+        "status": "not_gated_negative_oos_or_implausible"
+      },
+      "gate_passed": false,
+      "impact_plausible": true,
+      "max_fill_notional": "1605016.50407915",
+      "max_fill_participation": "0.05938311",
+      "oos_net_pct_of_equity": "-0.10108541",
+      "oos_net_pnl": "-5054.27040335",
+      "own_volume_for_tier": "1282475.46312854",
+      "tier_achieved_by_own_volume": false,
+      "tier_id": "kraken_tier_100m",
+      "tier_qualifying_volume": "100000000",
+      "trade_count": 48
+    }
+  ]
+}

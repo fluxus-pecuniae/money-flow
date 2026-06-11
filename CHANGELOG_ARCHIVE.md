@@ -16,6 +16,39 @@ Entry schema:
 
 ---
 
+## v2026.06.08.004
+
+- `recorded_at_utc`: `2026-06-08T07:35:00Z`
+- `scope`: `OBS-OS1 Week 2 Paper Observation Operating System`
+- `intent`: `Native entry. Added a read-only daily review/anomaly layer for the PT-RT1.6 Week 2 paper scope. The new generator summarizes ignored runtime logs from reports/paper_runtime/pt_rt1_6_week2_active/, writes ignored daily review packs under reports/paper_reviews/pt_rt1_6_week2_active/, and the Paper Trading dashboard now has a lower-priority Daily Review / Anomaly Flags panel that loads latest_review.json when present. This is observability/reporting only: no runtime behavior changed, no runtime was started or stopped, no orders were submitted, no live trading was approved, no strategy was production-approved, and the Week 2 slate was not changed.`
+- `affected_files`:
+  - `.archiveignore`
+  - `.gitignore`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `KNOWN_ISSUES.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `docs/obs_os1_week2_paper_observation_operating_system.md`
+  - `docs/obs_os1_week2_paper_observation_operating_system_summary.json`
+  - `scripts/build_pt_rt_week2_daily_review.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_obs_os1_daily_review.py`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/build_pt_rt_week2_daily_review.py --status --scope pt_rt1_6_week2_active`
+  - `.venv/bin/python scripts/build_pt_rt_week2_daily_review.py --generate --scope pt_rt1_6_week2_active`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_obs_os1_daily_review.py tests/test_dashboard_static_assets.py`
+  - `git diff --check`
+
 ## v2026.06.08.003
 
 - `recorded_at_utc`: `2026-06-08T06:58:17Z`

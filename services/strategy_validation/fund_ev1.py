@@ -63,6 +63,7 @@ from services.execution_quality.exec_ev1 import (
     depth_aware_execution_price,
     fill_friction_bps,
     market_impact_bps,
+    participation_rate,
 )
 
 try:  # pragma: no cover - exercised implicitly by both import contexts
@@ -341,6 +342,7 @@ def simulate_funding_carry_portfolio(
     *,
     signal_provider: Callable[[str, datetime], int] | None = None,
     leg_cost_model: Any | None = None,
+    starting_equity: Decimal = STARTING_EQUITY,
 ) -> dict[str, Any]:
     """Simulate the delta-neutral carry book with strict point-in-time rules.
 
@@ -384,7 +386,7 @@ def simulate_funding_carry_portfolio(
     symbols = universe.symbols
     timeline = universe.timeline
 
-    cash = STARTING_EQUITY
+    cash = starting_equity
     perp_pos: dict[str, Any] = {s: _Position() for s in symbols}
     spot_pos: dict[str, Any] = {s: _Position() for s in symbols}
     equity_curve: list[tuple[datetime, Decimal]] = []
@@ -397,6 +399,8 @@ def simulate_funding_carry_portfolio(
     fees_by_leg: dict[str, Decimal] = {"perp": Decimal("0"), "spot": Decimal("0")}
     friction_quote_by_leg: dict[str, Decimal] = {"perp": Decimal("0"), "spot": Decimal("0")}
     friction_bps_paid: list[Decimal] = []
+    fill_participations: list[Decimal] = []  # fill notional / interval $ volume
+    max_fill_notional = Decimal("0")
     traded_notional_total = Decimal("0")
     trade_count = 0
     trade_events: list[tuple[datetime, str, str, str, Decimal]] = []
@@ -432,7 +436,7 @@ def simulate_funding_carry_portfolio(
     def execute_leg(
         symbol: str, leg: str, signal_idx: int, fill_idx: int, delta_qty: Decimal
     ) -> None:
-        nonlocal cash, traded_notional_total, trade_count
+        nonlocal cash, traded_notional_total, trade_count, max_fill_notional
         if delta_qty == 0:
             return
         asset = universe.assets[symbol]
@@ -448,6 +452,7 @@ def simulate_funding_carry_portfolio(
         side = "buy" if delta_qty > 0 else "sell"
         notional = abs(delta_qty) * raw_fill
         liquidity_proxy = candle_dollar_volume(candle_dicts[symbol][fill_idx])
+        fill_participations.append(participation_rate(_money(notional), liquidity_proxy))
         if leg_cost_model is not None:
             # FUND-EV2 cited per-venue cost path: explicit half-spread +
             # size-aware impact + slippage; fee + flat settlement per fill.
@@ -488,6 +493,7 @@ def simulate_funding_carry_portfolio(
         fees_by_symbol[symbol] += fee
         fees_by_leg[leg] += fee
         traded_notional_total += _money(notional)
+        max_fill_notional = max(max_fill_notional, _money(notional))
         trade_count += 1
         trade_events.append(
             (dataset.candles[fill_idx].timestamp, symbol, leg, side, _money(notional))
@@ -675,6 +681,10 @@ def simulate_funding_carry_portfolio(
                 liquidity_proxy = candle_dollar_volume(
                     candle_dicts[s][index_map[s][last_t]]
                 )
+                fill_participations.append(
+                    participation_rate(_money(notional), liquidity_proxy)
+                )
+                max_fill_notional = max(max_fill_notional, _money(notional))
                 if leg_cost_model is not None:
                     spec = leg_cost_model.spec(s, leg)
                     impact = market_impact_bps(
@@ -721,16 +731,17 @@ def simulate_funding_carry_portfolio(
         s: _money(realized_by_symbol[s] + funding_by_symbol[s] - fees_by_symbol[s])
         for s in sorted(symbols)
     }
-    ending_equity = equity_curve[-1][1] if equity_curve else STARTING_EQUITY
+    ending_equity = equity_curve[-1][1] if equity_curve else starting_equity
     worst_days = sorted(daily_pnl, key=lambda row: row[1])[:5]
     return {
         "config_id": config.config_id,
         "strategy_type": config.strategy_type,
         "scenario_id": scenario.scenario_id,
         "timeframe": config.timeframe,
+        "starting_equity": starting_equity,
         "equity_curve": tuple(equity_curve),
         "ending_equity": ending_equity,
-        "net_pnl": _money(ending_equity - STARTING_EQUITY),
+        "net_pnl": _money(ending_equity - starting_equity),
         "funding_collected_total": _money(funding_collected_total),
         "funding_by_symbol": {s: _money(v) for s, v in sorted(funding_by_symbol.items())},
         "funding_paid_on_negative_days_by_symbol": {
@@ -749,6 +760,10 @@ def simulate_funding_carry_portfolio(
         "decision_timestamps": tuple(decision_timestamps),
         "per_symbol_net_pnl": per_symbol_net,
         "traded_notional_total": _money(traded_notional_total),
+        "max_fill_notional": max_fill_notional,
+        "max_fill_participation": (
+            _money(max(fill_participations)) if fill_participations else Decimal("0")
+        ),
         "max_residual_delta_fraction": (
             _money(max(residual_delta_fractions)) if residual_delta_fractions else Decimal("0")
         ),

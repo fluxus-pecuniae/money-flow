@@ -182,6 +182,106 @@
           "kind": "computed",
           "kvs": [
             {
+              "label": "Achieved-surface band",
+              "tone": "neg",
+              "value": "EMPTY"
+            },
+            {
+              "label": "Own 14d volume @ $5M account",
+              "tone": "neg",
+              "value": "$1.8M vs $5M for HL tier 1"
+            },
+            {
+              "label": "Maker-bound OOS ceiling",
+              "value": "0.26% (non-gateable)"
+            }
+          ],
+          "label": "Size x fee-tier viability map (hl_single)",
+          "note": "OOS net as % of equity (* = tier not achieved by own volume; ! = impact implausible). Bigger gets WORSE on the achieved surface - impact grows, fees never fall.",
+          "source": "fund_scale1_viability_map",
+          "table": {
+            "columns": [
+              "HL tier \\ size",
+              "10k",
+              "50k",
+              "250k",
+              "1M",
+              "5M"
+            ],
+            "rows": [
+              [
+                "hl_tier_0",
+                "-0.065%",
+                "-0.067%",
+                "-0.072%",
+                "-0.080%",
+                "-0.101%"
+              ],
+              [
+                "hl_tier_1",
+                "-0.048%*",
+                "-0.050%*",
+                "-0.055%*",
+                "-0.063%*",
+                "-0.084%*"
+              ],
+              [
+                "hl_tier_2",
+                "-0.031%*",
+                "-0.033%*",
+                "-0.038%*",
+                "-0.046%*",
+                "-0.067%*"
+              ],
+              [
+                "hl_tier_3",
+                "-0.014%*",
+                "-0.016%*",
+                "-0.020%*",
+                "-0.029%*",
+                "-0.050%*"
+              ],
+              [
+                "hl_tier_4",
+                "-0.005%*",
+                "-0.007%*",
+                "-0.012%*",
+                "-0.021%*",
+                "-0.041%*"
+              ]
+            ]
+          }
+        }
+      ],
+      "badge": "scale does not unlock it",
+      "class": "funding_carry",
+      "date": "2026-06-11",
+      "evidence_doc": "docs/fund_scale1_size_fee_tier_viability.md",
+      "evidence_summary": "docs/fund_scale1_size_fee_tier_viability_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "The funding-carry family is closed on both sanctioned axes (cost realism, scale/fee tiers); tier-achievement-from-own-volume and participation plausibility join the standing cost-honesty toolkit; TREND-CARRY keeps its cited-cost pricing constraint unchanged.",
+        "didnt": "Scale as the rescue. Bigger is WORSE on the achieved surface; even the explicitly optimistic, non-gateable maker bound (passive fills, zero spread paid) ceilings at ~0.26% OOS (~0.8%/yr) - a number that informs and closes, rather than tempts.",
+        "lesson": "The gross edge is real but capital/fee-gated, and the gate does not open with capital: carry turnover is too low to earn volume tiers, so \"institutional fees\" are a flow privilege, not a size privilege. The viable band on this data is empty; only structural changes (maker flow, fee regime, atomic execution) could reopen it - each new evidence, not a re-tune.",
+        "our_error": null,
+        "our_error_note": "None this run - the axis was tested exactly as FUND-EV2 sanctioned it, with published schedules and the discipline guard intact; the map closed the question rather than flattering it.",
+        "why": "Two compounding facts: the strategy's own flow never earns the fee tiers (a $5M account generates $1.8M weighted 14d HL volume vs $5M needed for tier 1, $500M for the tier that would matter), and impact grows with size faster than the only amortizing cost (the flat cross-venue settlement) shrinks. The lone positive stripe (Kraken 10 bps VIP at >=50k) needs ~30x the strategy's own volume AND fails the 10%-participation plausibility rule.",
+        "worked": "The honesty rules - own-volume tier achievement and the participation plausibility cap kept the map from \"passing\" on tiers and fills the operator could never have; the 10k base-tier cell reproduced FUND-EV2's retail verdict exactly (not re-litigated); fees-down / impact-up monotonicity is test-pinned."
+      },
+      "finding": "The size/fee axis FUND-EV2 sanctioned, mapped with published tier schedules and honest impact scaling: the achieved-tier surface is negative at EVERY account size (10k-5M), and the loss as % of equity GROWS with size. The viable band is empty: verdict carry_does_not_reach_viability_at_credible_scale.",
+      "hardened_gates": [
+        "fee tiers count only if the strategy's own flow earns them"
+      ],
+      "outcome": "fail",
+      "phase": "FUND-SCALE1",
+      "title": "Funding Carry Scale & Fee-Tier Viability Map"
+    },
+    {
+      "analytics": [
+        {
+          "kind": "computed",
+          "kvs": [
+            {
               "label": "OOS net carry (cited realistic costs)",
               "tone": "neg",
               "value": "-6.5"
@@ -885,7 +985,7 @@
       "title": "Original Money Flow Reconstruction (accounting correction)"
     }
   ],
-  "entry_count": 16,
+  "entry_count": 17,
   "lessons_hardened_gates": [
     {
       "gate": "PnL must reconcile to equity",
@@ -914,6 +1014,10 @@
     {
       "gate": "cost assumptions must be cited and sweep-audited, never tuned to the verdict",
       "phase": "FUND-EV2"
+    },
+    {
+      "gate": "fee tiers count only if the strategy's own flow earns them",
+      "phase": "FUND-SCALE1"
     },
     {
       "gate": "relative passes carry absolute-performance qualifiers",
