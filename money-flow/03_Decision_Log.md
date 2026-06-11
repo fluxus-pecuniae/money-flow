@@ -2,6 +2,52 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-11T07:00:00Z - RLOG1 - Post-Mortems Are Authored, Auto-Joined, And Can Never Render Green By Accident
+
+- `decision`: (1) Every research phase records a structured post-mortem as a fenced yaml `research_log` block in its Decision Log entry — verdict, why it failed, what worked / didn't, the lesson, whether the error was ours or the strategy's, and what it changed — with the honest outcome taxonomy (`fail`/`mixed`/`context`/`pass`) AUTHORED in the log, never inferred from a summary's status string. (2) A read-only deterministic aggregator (`scripts/build_research_log.py`) joins those blocks to the committed evidence summaries and `current_truth.json` and emits `docs/research_log.json`, which is the only thing the dashboard Research Log renders. (3) The naive `verdict || audit_verdict || gate_status || status` coloring is removed: a non-positive result can never render green, pinned by regression tests and a DASH-QA1 check.
+- `scope`: `scripts/build_research_log.py` (+ `--check` CI drift guard), 12 backfilled blocks in this log (additive only; the factual record above each block is untouched), `docs/research_log.json` + `docs/research_log_schema.md`, dashboard render (`research-log` panel + JS + CSS), `tests/test_rlog1_research_log.py` + DASH-QA1 check #10, AGENTS.md post-task step.
+- `result`: 13 entries (12 backfilled + this phase), newest-first, with per-phase analytics joined from the real summaries (EXEC-EV1 ZEC 132% / ex-ZEC −36k / 15-of-23 negative; SEL-EV1 2/50 random seeds + near-miss configs; SV2.3 −638k aggregate; GOAL-STRAT1 121/7/0). Lessons → hardened gates rail derives from authored `hardened_gate` fields. DASH-QA1 10/10; aggregator reproducible byte-for-byte.
+- `boundaries`: Display + docs/tooling only. Read-only over committed docs. No runtime, strategy, data-source, order, testnet, or approval change.
+- `follow_up_implications`: Research phases that skip their `research_log` block now fail CI (`build_research_log.py --check` drifts when the block lands later, and the AGENTS.md post-task step makes it explicit). When a phase ever earns `pass`, it must come from the authored field after founder review — the render will show green only then.
+
+```yaml
+research_log:
+  phase: RLOG1
+  date: 2026-06-11
+  class: audit
+  outcome: context
+  badge: process upgrade
+  title: Research Log Post-Mortems (process / tooling)
+  finding: >-
+    Not a strategy test. Turned the research history into structured,
+    auto-joined post-mortems with an authored outcome taxonomy, so the
+    institutional memory renders honestly and can never show green by
+    accident.
+  why: >-
+    Raw status strings ("ready_for_founder_review", "complete") read as
+    success even when the underlying result was a failure - the display layer
+    needed an authored verdict, not an inferred one.
+  worked: >-
+    Auto-joining from records that already existed (Decision Log, committed
+    summaries, current_truth) - no new data source and no hand-maintained
+    page.
+  didnt: >-
+    Nothing material; the placeholder's naive status coloring was the defect
+    being removed.
+  lesson: >-
+    Verdicts are editorial decisions and belong to the authored record;
+    pipelines should join and render them, never invent them.
+  our_error: >-
+    The DASH-IA1 placeholder colored entries from raw status strings - an
+    upbeat status could render green for a failed phase. Removed here and
+    pinned by regression.
+  changed: >-
+    Every research phase now authors its research_log block (AGENTS.md
+    post-task step) and CI guards docs/research_log.json against drift.
+  evidence_summary: docs/rlog1_research_log_summary.json
+  evidence_doc: docs/rlog1_research_log.md
+```
+
 ## 2026-06-11T00:15:00Z - DASH-PT3 - Critical State In The Header; The Status Strip Becomes The Bottom Reference Band
 
 - `decision`: The two always-relevant signals — is the runtime running, and is live trading off — move into the header as persistent pills (RUNTIME ACTIVE/IDLE from the existing control-server polling; LIVE DISABLED · NOT APPROVED static red). With those signals always visible, the dense status strip ("H1") stops occupying the top of the page and becomes the final full-width reference band after the Testnet footer, letting Global Filters lead the body. Rails are resized for content truth: Runtime Control must never truncate (wider right rail + overflow visible), the watchlist gets room to breathe, OKB is removed from the watchlist display (resolver policy untouched), and Daily Review loses its nested scroll.
@@ -42,6 +88,54 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `boundaries`: Research/evidence only. Modeled (EXEC-EV1) depth, not real depth. No runtime mutation, no strategy-rule change, no orders, no private/signed/testnet/live endpoints, no production or live approval. Per-symbol lane behavior and results unchanged.
 - `follow_up_implications`: Any future selection-strategy claim must clear the SEL-EV1 gate (beat random p95 OOS post-friction, positive walk-forward OOS, adequate OOS sample, no single-name-bet flag) before founder review. The large in-sample-vs-OOS gap here is the canonical local example of why in-sample selection PnL is not evidence. If a later phase revisits per-symbol strategies, the deferred breadth gate applies there — and only there.
 
+```yaml
+research_log:
+  phase: SEL-EV1
+  date: 2026-06-10
+  class: cross_sectional_selection
+  outcome: fail
+  badge: no selection skill
+  title: Cross-Sectional Breakout Selection
+  finding: >-
+    Rank the universe each candle, hold the strongest 1-3, rotate. The bar was
+    beating a matched-cadence random benchmark OOS after friction - it failed
+    at p~0.96 (beat 2 of 50 random seeds).
+  why: >-
+    The config that looked best on the train split overfit. Out-of-sample it
+    lost to a matched-cadence random benchmark - the ranking signal carries no
+    forward information about which pair runs next.
+  worked: >-
+    The method. The no-lookahead simulator + random benchmark caught the
+    overfit cleanly, and rotation diversity confirmed it genuinely rotated
+    (23 names, no single-symbol bet) - so the null is trustworthy, not an
+    artifact.
+  didnt: >-
+    The signal. Donchian breakout strength and vol-adjusted momentum rank
+    symbols no better than chance. Late-entry decay was severe (+0 to +2
+    candles, 43.8k to 12.3k) - even a real edge here would be hard to capture
+    live.
+  lesson: >-
+    In-sample selection PnL is worthless as evidence. The only honest bar for
+    "can you pick winners" is beating random selection OOS after friction.
+  our_error: null
+  our_error_note: >-
+    None this run. The test was clean and caught its own overfit before we
+    could be fooled - exactly the guardrail EXEC-EV1 taught us to build.
+  changed: >-
+    Random-benchmark + rotation-diversity are now the standard gate for any
+    selection strategy.
+  hardened_gate: beat random OOS, or it's nothing
+  evidence_summary: docs/sel_ev1_selection_evidence_summary.json
+  evidence_doc: docs/sel_ev1_selection_evidence.md
+  analytics:
+    - label: Random benchmark headline
+      kind: computed
+      source: sel_ev1_random_benchmark
+    - label: Best OOS configs (near-misses; train-choice picked none of them)
+      kind: computed
+      source: sel_ev1_top_oos_configs
+```
+
 ## 2026-06-10T16:00:00Z - EXEC-EV1 - Judge Edges Against Modeled Size-Aware Friction, Not Flat Bps
 
 - `decision`: Add a depth-aware MODELED execution-friction layer on top of SV2.3's flat fee/slippage/adverse-gap terms and re-score the three Week 2 lanes, to test whether any edge survives realistic, size-aware friction. Keep it offline/deterministic so the model gates CI.
@@ -49,6 +143,52 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `result`: `mf_orig_1d_stage2_breakout_resistance_full_equity` survives base + conservative depth-aware friction (net +112k / +43k) but fails stress (net -52k); `money_flow_v1_2_baseline` and `avoid_low_rolling_range_20` fail all (already negative under SV2.3). The late-entry/entry-timing metric shows `mf_orig` cost rising with lateness (~+1.2 -> +15 -> +37 bps) — its edge sits at the signal and decays fast if entered late; the two failing lanes show negative late-entry cost (poor entries).
 - `boundaries`: **Modeled depth, not real depth.** Liquidity is derived from historical candle volume; historical order-book depth does not exist (Hyperliquid public l2Book is a current snapshot only). Every output is an assumption layer. Research/evidence only — no runtime mutation, no strategy-rule change, no orders, no private/signed/testnet/live endpoints, no production or live approval. Partially addresses K-001 (modeled, not real); the gap is not closed.
 - `follow_up_implications`: Future strategy candidates should be judged against this layer. A clearly-optional one-shot read-only public `l2Book` calibration could refine the assumed constants in a later phase but must never be part of a deterministic evidence run. The late-entry evidence directly informs RT-HISTSEED1 (below): the only lane with a surviving edge loses it fast when entered late, a red flag against historical seeding.
+
+```yaml
+research_log:
+  phase: EXEC-EV1
+  date: 2026-06-10
+  class: friction
+  outcome: fail
+  badge: edge = ZEC artifact
+  title: Execution-Quality Evidence Layer
+  finding: >-
+    Re-scored the 3 lanes under size-aware depth friction. The one positive
+    lane (mf_orig) was 132% ZEC - remove ZEC and it is negative. Friction cuts
+    it hard and it goes negative under stress.
+  why: >-
+    The one positive lane's entire profit was ZEC (132% of total). Strip ZEC
+    and it is -36k; 15 of 23 symbols lose. It is a single-name bet, not a
+    strategy - and in a thin alt where modeled friction is least trustworthy
+    (likely understated), so the +112k is optimistic.
+  worked: >-
+    Building the friction model exposed the concentration, and a fairness
+    check held - the same engine produced sensible baseline and spread
+    numbers, so the negatives are real, not the engine crippling the strategy.
+  didnt: >-
+    Aggregate-PnL scoring. Every earlier pass that ranked lanes on total PnL
+    rewarded the ZEC concentration instead of catching it.
+  lesson: >-
+    Aggregate PnL hides single-symbol bets. Thin alts where the liquidity
+    proxy is unreliable are exactly where fake edges hide.
+  our_error: >-
+    Yes - and corrected. Earlier passes scored lanes on aggregate PnL with no
+    hard concentration gate, which is how ZEC slipped through for so long.
+    That was a measurement gap on our side, not just a bad strategy. Fixed via
+    leave-one-out + breadth gates.
+  changed: >-
+    Leave-one-out (remove the top symbol, must stay positive) + breadth are
+    now hard discovery gates. The mirage cannot recur.
+  hardened_gate:
+    - leave-one-out concentration gate
+    - size-aware friction in the gate
+  evidence_summary: docs/exec_ev1_execution_quality_evidence_summary.json
+  evidence_doc: docs/exec_ev1_execution_quality_evidence.md
+  analytics:
+    - label: mf_orig concentration (base scenario)
+      kind: computed
+      source: exec_ev1_symbol_concentration
+```
 
 ## 2026-06-10T16:00:00Z - RT-HISTSEED1 (FUTURE PHASE) - Startup Historical-Position Reconstruction, Iron-Walled
 
@@ -105,6 +245,42 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `boundaries`: SV2.3 is research/evidence only. It does not mutate PT-RT runtime artifacts, start/stop runtime, submit orders, call private/signed/order endpoints, use API keys, use testnet data as strategy truth, update PnL from testnet fills, approve production, or approve live trading.
 - `follow_up_implications`: Treat SV2.3 as the promotion-facing baseline for future strategy review. Do not promote same-candle or next-close rows. Any canonicalization, new runtime lane, or production-testing phase must be separately scoped and founder-approved.
 
+```yaml
+research_log:
+  phase: SV2.3
+  date: 2026-06-08
+  class: per_symbol_rule
+  outcome: fail
+  badge: fails realistic gate
+  title: Realistic Backtest (next-open + execution cost)
+  finding: >-
+    All three Week 2 lanes fail the realistic aggregate gate. 621 result rows;
+    deeply negative in aggregate across base/conservative/stress scenarios.
+  why: >-
+    Promotion-facing next-candle-open fills with base/conservative/stress fee,
+    slippage, and adverse-gap assumptions. No lane survives the stricter
+    realistic aggregate gate.
+  worked: >-
+    The layered-scenario design - the same lanes that look survivable under
+    optimistic fills fail consistently once any realistic cost is applied,
+    which is a clear, reproducible negative.
+  didnt: >-
+    The Week 2 lane rules themselves. None of the three produce positive
+    aggregate PnL after realistic costs.
+  lesson: >-
+    Promotion review must always use next-open fills plus execution-cost
+    scenarios; same-candle optimistic fills flatter everything.
+  our_error: null
+  changed: >-
+    Evidence review defaults to the SV2.3 realistic layer; promotion decisions
+    never use same-candle or next-close rows.
+  evidence_summary: docs/sv2_3_realistic_backtest_summary.json
+  analytics:
+    - label: Realistic gate aggregate
+      kind: computed
+      source: sv23_aggregate_net
+```
+
 ## 2026-06-08T09:08:40Z - PT-RT1.6.3 - Target XRP For Metadata Smoke After Current 24h Window
 
 - `decision`: Add a blocked-symbol Hyperliquid testnet metadata resolver and constrain the next transport-only metadata smoke to `XRP`.
@@ -128,6 +304,41 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `result`: The corrected run completed 69 refreshed datasets and 414 replay rows, wrote ignored replay chart/trade payloads under `reports/strategy_validation/sv2_2_week2_replay_dashboard_chart_data/`, and wrote ignored evidence-style pack directories under `reports/strategy_validation/sv2_2_latest_public_mainnet_week2_*_evidence_only/`.
 - `boundaries`: SV2.2 remains research/evidence-style review only. It does not replace canonical SV2.0.2/SV2.1 evidence, mutate active PT-RT runtime artifacts, submit orders, call private/signed/order endpoints, use testnet strategy truth, approve production, or approve live trading.
 - `follow_up_implications`: Historical Replay/Evidence/The Lab can use SV2.2 as the latest data/replay review source for the current three-strategy Week 2 slate. Any new strategy promotion, canonical evidence adoption, or runtime lane addition remains separately scoped.
+
+```yaml
+research_log:
+  phase: SV2.2
+  date: 2026-06-08
+  class: data_prep
+  outcome: context
+  badge: data refresh
+  title: Hyperliquid Public-Mainnet Candle Refresh
+  finding: >-
+    Refreshed the founder 23-symbol universe across 1h/4h/1d through
+    2026-06-08 and replayed the three Week 2 strategies over the latest data.
+    Research/evidence replay data only - not canonical evidence and not
+    approval.
+  why: >-
+    Not a strategy test - this is the data substrate SV2.3 / EXEC-EV1 /
+    SEL-EV1 evaluate against.
+  worked: >-
+    Apples-to-apples data for every later evidence layer; public-mainnet
+    candles stayed the single strategy truth.
+  didnt: >-
+    Nothing material; an earlier broad refresh framing was corrected the same
+    day into the Week 2 strategy replay scope.
+  lesson: >-
+    Keep the data refresh separate from the verdict layers so a data update
+    can never be mistaken for a strategy result.
+  our_error: null
+  changed: >-
+    SV2.2 became the shared candle source for SV2.3, EXEC-EV1, and SEL-EV1.
+  evidence_summary: docs/sv2_2_hyperliquid_research_refresh_summary.json
+  analytics:
+    - label: Refresh coverage
+      kind: computed
+      source: sv22_refresh_stats
+```
 
 ## 2026-06-08T06:29:37Z - LOG-OBS1 - Add Read-Only Runtime Log Visibility
 
@@ -160,6 +371,39 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `boundaries`: GOAL-STRAT2 did not mutate active PT-RT runtime artifacts, change production Money Flow rules, submit live/testnet orders, call private/signed/order endpoints, use testnet strategy truth, create execution artifacts, approve production strategy, or approve live trading.
 - `follow_up_implications`: Founder may review these for a separately scoped paper-only lane phase. Do not route either candidate to testnet/live, do not treat either as production approval, and monitor symbol/timeframe/period concentration plus candle-only execution limitations.
 
+```yaml
+research_log:
+  phase: GOAL-STRAT2
+  date: 2026-06-06
+  class: per_symbol_rule
+  outcome: mixed
+  badge: review-only candidates
+  title: Two Non-Existing Strategies Worth Testing
+  finding: >-
+    From the GOAL-STRAT1 evidence, selected exactly two family-diverse
+    candidates worth founder paper-testing review only - relative-strength
+    rotation and Donchian breakout, both with ATR trailing exits. Neither is
+    promoted.
+  why: >-
+    Both candidates carry real blockers - the relative-strength candidate has
+    drawdown near the limit plus ZEC/timeframe/period concentration; the
+    Donchian candidate has mildly negative OOS checks and concentration risk.
+  worked: >-
+    The weaker paper-testing gate surfaced reviewable ideas without
+    pretending they passed the strict production-testing gate.
+  didnt: >-
+    Neither candidate cleared OOS plus concentration cleanly; both remain
+    research-only.
+  lesson: >-
+    Candidate selection and candidate approval are different bars; labeling
+    review material honestly avoids promotion creep.
+  our_error: null
+  changed: >-
+    Established the review-only candidate tier between discovery and paper
+    testing.
+  evidence_summary: docs/goal_strat2_two_non_existing_strategies_summary.json
+```
+
 ## 2026-06-06T17:42:15Z - GOAL-STRAT1 - Expanded Discovery Still Finds No Three Candidates
 
 - `decision`: Complete the founder-requested durable autonomous discovery goal as honest full exhaustion rather than promote weak or overfit results.
@@ -167,6 +411,41 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `result`: `three_candidates_were_not_found_without_overfitting_after_full_autonomous_discovery`. Passing candidates: `0`. Top near misses were volatility-expansion and Donchian-style trend variants with positive aggregate PnL, but they failed drawdown and both chronological/anchored out-of-sample checks. Lower-risk variants reduced drawdown but still failed OOS checks.
 - `boundaries`: GOAL-STRAT1 did not mutate active PT-RT runtime artifacts, change production Money Flow rules, submit live/testnet orders, call private/signed/order endpoints, use testnet strategy truth, create execution artifacts, approve production strategy, or approve live trading.
 - `follow_up_implications`: Do not promote any GOAL-STRAT1 result. A future discovery pass should first add longer non-overlapping OOS windows, stricter control-pocket slices, and execution-quality constraints before widening candidate parameters further.
+
+```yaml
+research_log:
+  phase: GOAL-STRAT1
+  date: 2026-06-06
+  class: per_symbol_rule
+  outcome: fail
+  badge: 0 candidates
+  title: Autonomous Strategy Discovery (121 configs, 7 families)
+  finding: >-
+    Zero strategies passed the production-testing gate. Near-misses
+    (volatility-expansion, Donchian) failed drawdown and out-of-sample.
+  why: >-
+    Exit/risk/regime/OOS variations across Money Flow repair, trend/breakout,
+    volatility, mean-reversion, relative-strength, and pairs families produced
+    positive aggregate pockets, but every one failed drawdown, chronological +
+    anchored OOS, concentration, or sample-size gates.
+  worked: >-
+    The bounded-search discipline: 121 configurations with explicit gates and
+    no unbounded optimizer, so the exhaustion result is meaningful.
+  didnt: >-
+    Every per-symbol rule family tested. None survives the full gate.
+  lesson: >-
+    Widening the parameter search does not create an edge; it creates more
+    overfit pockets for the gates to reject.
+  our_error: null
+  changed: >-
+    Per-symbol discovery was de-prioritized; the selection hypothesis
+    (SEL-EV1) became the next genuinely different idea to test.
+  evidence_summary: docs/goal_strat1_strategy_discovery_summary.json
+  analytics:
+    - label: Search budget used
+      kind: computed
+      source: goal_strat1_stats
+```
 
 ## 2026-06-06T17:35:00Z - STRAT-DISC1 - No Three Candidates Found Without Overfitting
 
@@ -395,6 +674,44 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `result`: Candidate gates were re-run. The strict conclusion did not change: all original hypotheses remain `source_faithful_but_underperformed` because baseline-positive 1d control pockets were not preserved. Production Money Flow v1.2 remains unchanged, no original hypothesis is approved, and no orders/private/signed/order endpoints/testnet strategy truth/live trading/paper runtime/SOR behavior were added.
 - `follow_up_implications`: Use MF-ORIG-EV1.1 reports, not pre-hotpatch MF-ORIG-EV1 PnL/drawdown numbers, for founder review. Any MF-ORIG-EV2 still needs direct-PDF reconciliation and/or dashboard overlays before source-authority claims.
 
+```yaml
+research_log:
+  phase: MF-ORIG-EV1.1
+  date: 2026-05-12
+  class: source_reconstruction
+  outcome: mixed
+  badge: corrected; underperformed
+  title: Original Money Flow Reconstruction (accounting correction)
+  finding: >-
+    The corrected reconstruction run. After fixing the EV1 accounting bug the
+    strict conclusion did not change - all four original hypotheses remain
+    source_faithful_but_underperformed because baseline-positive 1d control
+    pockets were not preserved.
+  why: >-
+    Source-faithful original rules underperform v1.2 on the gates that
+    matter: drawdown and control-pocket preservation.
+  worked: >-
+    Event-ledger accounting with a PnL-vs-equity tolerance check - the rerun
+    proved the comparison itself was sound once measurement was fixed.
+  didnt: >-
+    The first reconstruction's bookkeeping (see our error); and the original
+    rules as a drop-in improvement.
+  lesson: >-
+    Trade net PnL must reconcile to equity delta within tolerance before any
+    conclusion is trusted. A measurement bug looks exactly like a strategy
+    result until you check.
+  our_error: >-
+    Yes - K-019, caught and fixed (EV1 -> EV1.1). The first reconstruction
+    double-counted entry fees and trim PnL and mis-stated drawdown, distorting
+    the early conclusions. Quarantined, then regenerated with event-ledger
+    accounting, fees-once, and a PnL-vs-equity tolerance check.
+  changed: >-
+    The PnL-reconciles-to-equity invariant became a permanent evidence
+    requirement.
+  hardened_gate: PnL must reconcile to equity
+  evidence_summary: docs/mf_orig_ev1_original_money_flow_reconstruction_summary.json
+```
+
 ## 2026-05-13T00:42:40Z - MF-ORIG-EV2 - Original Money Flow Multi-Timeframe Evidence Remains Evidence-Only
 
 - `decision`: Generate MF-ORIG-EV2 multi-timeframe evidence packs and dashboard replay data for founder review without changing production Money Flow v1.2 or approving any Original Money Flow hypothesis.
@@ -402,6 +719,43 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `why`: Founder review suggested the broader MF-ORIG runs needed full Historical Replay visualization and comparison against Money Flow v1.2 across the same canonical SV2.0.2 evidence substrate, rather than relying on the earlier 1d-first EV1.1 summary only.
 - `result`: Baseline parity passed for all 72 SV2.0.2 scenarios. The generated run produced 144 evidence-pack directories and 36 dashboard chart-data files. Candidate gates still do not approve an original hypothesis; 1d source-primary control-pocket damage remains a blocker even where aggregate multi-timeframe deltas improve.
 - `follow_up_implications`: Founder can review MF-ORIG-EV2 in Historical Replay and the Evidence Run Ledger. Any MF-ORIG-EV3 must remain separately scoped, and direct-PDF reconciliation is still needed before source-authority claims because the PDF was not present locally.
+
+```yaml
+research_log:
+  phase: MF-ORIG-EV2
+  date: 2026-05-13
+  class: source_reconstruction
+  outcome: mixed
+  badge: underperformed
+  title: Original Money Flow (Gerald Peters) Multi-Timeframe Evidence
+  finding: >-
+    Source-faithful reconstruction across 4 hypotheses (plus full-equity
+    counterparts), 9 symbols, 4 timeframes, both fill assumptions. All
+    "higher return but higher drawdown" vs v1.2; control pockets not
+    preserved. No original hypothesis approved.
+  why: >-
+    Source-faithful reconstruction of the original rules underperformed
+    v1.2 - higher return but worse drawdown, and positive 1d control pockets
+    were not preserved. Those are the gate blockers.
+  worked: >-
+    Having the source PDF in-repo let us reconcile rules to text; baseline
+    parity passed on all 72 scenarios, so the comparison was sound (after the
+    EV1.1 accounting fix).
+  didnt: >-
+    The original ruleset as an edge source on this data; full-equity sizing
+    only amplified the drawdown problem.
+  lesson: >-
+    Source fidelity is a reconstruction property, not a performance argument
+    - "faithful" and "better" are independent claims.
+  our_error: >-
+    Inherited from EV1 (K-019 accounting bug, fees double-counted) - corrected
+    in EV1.1 before these conclusions were drawn.
+  changed: >-
+    MF-ORIG lanes were capped at evidence-only/synthetic-only status; one
+    source-faithful candidate runs in Week 2 paper for observation, not
+    promotion.
+  evidence_summary: docs/mf_orig_ev2_multitimeframe_evidence_summary.json
+```
 
 ## 2026-05-12T22:46:40Z - MF-ORIG-EV1 - Original Money Flow Reconstruction Is Evidence-Only
 
@@ -431,6 +785,38 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `why`: The broad low-volatility/chop definitions did not produce a clean control-preserving candidate. Some variants improved aggregate PnL but damaged control pockets, raised drawdown, or overblocked; blocked open signals are not the same as canonical trade-count reduction.
 - `follow_up_implications`: No production Money Flow rule changed and no variant is approved. Any SOR-EV4 must be narrower, out-of-sample-style, and control-pocket-preserving before rule-change discussion.
 
+```yaml
+research_log:
+  phase: SOR-EV3
+  date: 2026-05-12
+  class: variant
+  outcome: mixed
+  badge: none promoted
+  title: Avoid Sideways / Low-Volatility Variants
+  finding: >-
+    The founder-selected avoid-sideways drilldown - ATR percentile, flat
+    trend, rolling-range, MACD-flat blockers - replayed true-forward with
+    blocked-entry attribution. avoid_low_rolling_range was labeled promising
+    on PnL but carried control-pocket risk; no variant promoted.
+  why: >-
+    The chop filters block losing entries but also block the control pockets
+    that make the baseline reviewable; net effect fails the preservation bar.
+  worked: >-
+    Blocked-entry attribution - knowing exactly which trades a filter removes
+    - made the trade-off visible instead of hidden in aggregates.
+  didnt: >-
+    Volatility/chop filtering as an edge source; at best it reshapes the same
+    PnL.
+  lesson: >-
+    "Promising" is a review label, not a result - a filter that improves
+    aggregate PnL while damaging control pockets is not an improvement.
+  our_error: null
+  changed: >-
+    avoid_low_rolling_range_20 was carried into Week 2 as a synthetic-only
+    diagnostic comparator, explicitly not as a promoted strategy.
+  evidence_summary: docs/sor_ev3_avoid_sideways_low_volatility_summary.json
+```
+
 ## 2026-05-12T20:37:54Z - SOR-EV3 - Founder Review Labels Separate Promising From Rejected
 
 - `decision`: Keep the strict SOR-EV3 candidate gate unchanged, but replace the founder-facing all-rejected presentation with more precise review labels.
@@ -459,12 +845,74 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `result`: No variant was clean enough for production-rule-change proposal. Some filters improved aggregate sums, but control-pocket and scenario-level damage kept them out of candidate status. Lower-RSI/MACD admission variants added many bad trades.
 - `follow_up_implications`: Any SOR-EV3 should be narrower and out-of-sample-style; production Money Flow rules remain unchanged.
 
+```yaml
+research_log:
+  phase: SOR-EV2
+  date: 2026-05-12
+  class: variant
+  outcome: mixed
+  badge: none promoted
+  title: True-Forward Stop / Rejected-Signal Variants
+  finding: >-
+    Stop-loss, exit, and entry-filter variants replayed true-forward against
+    the canonical baseline. Founder-review labels separated promising / mixed
+    / deferred / hard-rejected - no variant was promoted.
+  why: >-
+    The "promising" rows bought their PnL with damaged control pockets or
+    worse drawdown; nothing improved the baseline cleanly across gates.
+  worked: >-
+    True-forward replay semantics (no lookahead) and honest multi-level
+    review labels instead of a binary promote/reject.
+  didnt: >-
+    Stop/exit repair as a family - variants shift losses around rather than
+    remove them.
+  lesson: >-
+    A variant must preserve the baseline's control pockets, not just beat its
+    aggregate PnL.
+  our_error: null
+  changed: >-
+    Control-pocket preservation became an explicit review dimension for every
+    later variant pass.
+  evidence_summary: docs/sor_ev2_true_forward_stop_and_rejected_signal_replay_summary.json
+```
+
 ## 2026-05-12T10:20:00Z - SOR-EV1 - Loss Anatomy Uses Canonical SV2.0.2 Packs Only
 
 - `decision`: Treat canonical SV2.0.2 DB-imported evidence packs as the only SOR-EV1 baseline source and keep all stop/entry variants evidence-only until true-forward replay exists.
 - `scope`: SOR-EV1 analyzes worst losing trades, completed-trade adverse-move / late-entry classifications, aggregate RSI/MACD rejection limitations, fixed-stop overlay estimates, deferred ATR/recent-low/large-bear/entry variants, and control-pocket impact.
 - `result`: No production Money Flow rule was changed, no variant was approved, no evidence packs were regenerated, no dashboard date-filter recalculation was used as canonical evidence, no Hyperliquid testnet price was used as strategy truth, and no order/private/signed endpoint was called.
 - `follow_up_implications`: SOR-EV2 should be true-forward replay if the founder wants to test stop or entry variants seriously. Completed-trade overlays remain hypothesis triage only.
+
+```yaml
+research_log:
+  phase: SOR-EV1
+  date: 2026-05-12
+  class: variant
+  outcome: context
+  badge: loss anatomy
+  title: Money Flow Trade-Loss Anatomy
+  finding: >-
+    Evidence-only anatomy of where Money Flow v1.2 loses - largest losses,
+    losing streaks, stop/exit behavior - against canonical SV2.0.2 packs, to
+    seed the SOR variant hypotheses.
+  why: >-
+    Diagnostic, not a pass/fail test - it mapped the loss structure that
+    SOR-EV2/EV3 variants then tried (and failed) to repair.
+  worked: >-
+    Grounding variant ideas in observed loss anatomy instead of intuition;
+    canonical-pack-only inputs kept the numbers trustworthy.
+  didnt: >-
+    Early completed-trade overlays were lookahead-flattered; they were labeled
+    diagnostic-only rather than candidates.
+  lesson: >-
+    Only true-forward replays can become candidates; completed-trade overlays
+    are upper bounds, not evidence.
+  our_error: null
+  changed: >-
+    The diagnostic-only vs true-forward distinction became a permanent
+    labeling rule in variant review.
+  evidence_summary: docs/sor_ev1_money_flow_trade_loss_anatomy_and_variants_summary.json
+```
 
 ## 2026-05-12T07:59:37Z - Dashboard - SV2.0.2 Historical Replay Display Uses Canonical Chart Data
 
@@ -1109,6 +1557,36 @@ Append entries only. Do not rewrite prior decisions except to add a dated correc
 - `why`: The audit inventories canonical SV2.0.2 Money Flow v1.2, SOR-EV1/SOR-EV2/SOR-EV3, MF-ORIG-EV1.1/MF-ORIG-EV2, and pending STRAT-EV1 plan-only status. It finds useful signals, including `avoid_low_rolling_range_50` as the best SOR founder-review candidate and `mf_orig_1d_stage2_breakout_resistance_full_equity` as the best MF-ORIG full-equity review lane, but control-pocket damage, drawdown tradeoffs, sample/horizon limitations, no live paper-observation logs, and missing order-book/funding/partial-fill modeling prevent any production-rule conclusion.
 - `rejected_alternatives`: Treating aggregate PnL improvement as enough for promotion; using dashboard date-filter recalculations as canonical evidence; approving paper/live from backtests alone; ignoring 15m/1h public-data horizon limits; treating MF-ORIG source reconstruction as direct PDF-verified while the PDF remains unavailable locally; regenerating evidence packs in the audit phase.
 - `follow_up_implications`: If the founder wants live observation, scope `PT-RT1` as real-time public market data plus internal paper observation with no production rule change, no live trading, and no order submission. Any later SOR/MF-ORIG rule proposal needs stricter control-pocket preservation, out-of-sample-style slices, and paper-observation evidence.
+
+```yaml
+research_log:
+  phase: EV-AUDIT1
+  date: 2026-05-13
+  class: audit
+  outcome: context
+  badge: audit baseline
+  title: Full Hypothesis + Paper-Readiness Audit
+  finding: >-
+    No clean strategy candidate. Evidence good enough for visual review and
+    hypothesis filtering only - not for a production rule change.
+  why: >-
+    Audit, not a strategy test - it scored the whole evidence estate and
+    found no hypothesis whose support survives methodology scrutiny.
+  worked: >-
+    Establishing the discipline this whole log enforces - no promotion on
+    aggregate PnL; OOS, control-pocket, and concentration scrutiny required.
+  didnt: >-
+    The evidence estate as promotion support - horizon truncation, missing
+    forward observation, and unmodeled execution were named as P-level gaps.
+  lesson: >-
+    Audit the measurement system before trusting any result it produced.
+  our_error: null
+  changed: >-
+    Paper observation (PT-RT1) was conditionally green-lit as a separately
+    scoped phase; promotion remained blocked.
+  hardened_gate: no promotion on aggregate PnL
+  evidence_summary: docs/ev_audit1_full_hypothesis_data_and_paper_readiness_review_summary.json
+```
 
 ## 2026-05-14T01:22:49Z - PT-RT1 - Paper Observation Truth Is Public Mainnet, Testnet Is Plumbing Only
 

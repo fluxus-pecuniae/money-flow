@@ -15,6 +15,9 @@ lockstep with the DASH-IA1 2-tab consolidation):
   8. 15m is paused/legacy, never an active scoring timeframe.
   9. Synthetic / testnet / no-live boundary labels visible in the paper view,
      including the relocated full-width Testnet Order Transport footer.
+  10. Research Log renders real post-mortems with honest outcome badges from
+      docs/research_log.json — a non-positive result never renders green
+      (RLOG1).
 
 Grounded in real selectors from apps/dashboard/index.html and expected truth
 from current_truth.json (the TRUTH1 registry).
@@ -331,3 +334,35 @@ def test_paper_view_boundary_labels_visible(page: Page, dashboard_url: str) -> N
         }"""
     )
     assert strip_after_footer, "status strip must render after the testnet footer"
+
+# ---------------------------------------------------------------------------
+# 10. Research Log renders honest post-mortems (RLOG1)
+# ---------------------------------------------------------------------------
+
+
+def test_research_log_renders_honest_post_mortems(page: Page, dashboard_url: str) -> None:
+    _goto(page, dashboard_url)
+    page.locator(RESEARCH_LOG_TAB).click()
+    expect(page.locator(RESEARCH_LOG_VIEW)).to_be_visible()
+    # Data-driven timeline from docs/research_log.json — all backfilled phases.
+    entries = page.locator(".research-log-entry")
+    expect(entries.first).to_be_visible()
+    assert entries.count() >= 12, f"expected >= 12 post-mortems, saw {entries.count()}"
+    # Honest badges: nothing has passed the gate, so nothing may render green.
+    assert page.locator(".rlog-badge.pass").count() == 0, (
+        "no research phase has passed the gate; a green badge would be dishonest"
+    )
+    assert page.locator(".rlog-badge.fail").count() >= 3
+    # SEL-EV1 (summary status 'selection_evidence_complete') must render its
+    # authored fail outcome — never green from the upbeat status string.
+    sel = page.locator(".research-log-entry", has_text="SEL-EV1").first
+    expect(sel.locator(".rlog-badge.fail")).to_be_visible()
+    # Expand the SEL-EV1 post-mortem: all six facets are visible.
+    if not sel.get_attribute("open"):
+        sel.locator("summary").click()
+    sel_text = sel.inner_text().lower()
+    for facet in ("why it failed", "what worked", "what didn't", "lesson", "our error", "what it changed"):
+        assert facet in sel_text, f"missing facet: {facet}"
+    # Standing strip stays honest.
+    standing = page.locator("#research-log-standing").inner_text().lower()
+    assert "passed gate" in standing and "not approved" in standing

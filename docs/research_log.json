@@ -1,0 +1,576 @@
+{
+  "active_lanes": [
+    {
+      "lane_id": "money_flow_v1_2_baseline",
+      "role": "control_lane"
+    },
+    {
+      "lane_id": "avoid_low_rolling_range_20",
+      "role": "evidence_only_candidate_lane"
+    },
+    {
+      "lane_id": "mf_orig_1d_stage2_breakout_resistance_full_equity",
+      "role": "mf_orig_evidence_only_reference_lane"
+    }
+  ],
+  "at_a_glance": [
+    {
+      "label": "per-symbol rules",
+      "result": "no edge"
+    },
+    {
+      "label": "selection",
+      "result": "no skill"
+    },
+    {
+      "label": "variants",
+      "result": "none promoted"
+    },
+    {
+      "label": "original MF",
+      "result": "underperformed"
+    },
+    {
+      "label": "friction",
+      "result": "kills thin-alt pockets"
+    }
+  ],
+  "boundaries": "Every row is research/evidence only — no order, testnet, live, or production approval follows from anything here. Modeled friction is an assumption layer, not real historical depth. Synthetic paper PnL is not live PnL. Live trading is not approved.",
+  "entries": [
+    {
+      "analytics": [],
+      "badge": "process upgrade",
+      "class": "audit",
+      "date": "2026-06-11",
+      "evidence_doc": "docs/rlog1_research_log.md",
+      "evidence_summary": "docs/rlog1_research_log_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "Every research phase now authors its research_log block (AGENTS.md post-task step) and CI guards docs/research_log.json against drift.",
+        "didnt": "Nothing material; the placeholder's naive status coloring was the defect being removed.",
+        "lesson": "Verdicts are editorial decisions and belong to the authored record; pipelines should join and render them, never invent them.",
+        "our_error": "The DASH-IA1 placeholder colored entries from raw status strings - an upbeat status could render green for a failed phase. Removed here and pinned by regression.",
+        "our_error_note": "",
+        "why": "Raw status strings (\"ready_for_founder_review\", \"complete\") read as success even when the underlying result was a failure - the display layer needed an authored verdict, not an inferred one.",
+        "worked": "Auto-joining from records that already existed (Decision Log, committed summaries, current_truth) - no new data source and no hand-maintained page."
+      },
+      "finding": "Not a strategy test. Turned the research history into structured, auto-joined post-mortems with an authored outcome taxonomy, so the institutional memory renders honestly and can never show green by accident.",
+      "hardened_gates": [],
+      "outcome": "context",
+      "phase": "RLOG1",
+      "title": "Research Log Post-Mortems (process / tooling)"
+    },
+    {
+      "analytics": [
+        {
+          "kind": "computed",
+          "kvs": [
+            {
+              "label": "OOS net (post-friction)",
+              "tone": "neg",
+              "value": "−10k"
+            },
+            {
+              "label": "Random median OOS",
+              "value": "−5k"
+            },
+            {
+              "label": "Random seeds beaten",
+              "tone": "neg",
+              "value": "2 / 50"
+            },
+            {
+              "label": "Rotation diversity",
+              "value": "23 names"
+            }
+          ],
+          "label": "Random benchmark headline",
+          "source": "sel_ev1_random_benchmark"
+        },
+        {
+          "kind": "computed",
+          "label": "Best OOS configs (near-misses; train-choice picked none of them)",
+          "note": "Hindsight-best OOS configs; the train-only choice picked none of them — that gap is the overfit.",
+          "source": "sel_ev1_top_oos_configs",
+          "table": {
+            "columns": [
+              "Config",
+              "Train net",
+              "OOS net"
+            ],
+            "rows": [
+              [
+                "sel_ev1_vol_adjusted_relative_momentum_lb20_top1_1d",
+                "+4k",
+                "+42k"
+              ],
+              [
+                "sel_ev1_donchian_breakout_strength_lb20_top1_1d",
+                "−2k",
+                "+14k"
+              ],
+              [
+                "sel_ev1_donchian_breakout_strength_lb40_top1_1d",
+                "−3k",
+                "+10k"
+              ]
+            ]
+          }
+        }
+      ],
+      "badge": "no selection skill",
+      "class": "cross_sectional_selection",
+      "date": "2026-06-10",
+      "evidence_doc": "docs/sel_ev1_selection_evidence.md",
+      "evidence_summary": "docs/sel_ev1_selection_evidence_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "Random-benchmark + rotation-diversity are now the standard gate for any selection strategy.",
+        "didnt": "The signal. Donchian breakout strength and vol-adjusted momentum rank symbols no better than chance. Late-entry decay was severe (+0 to +2 candles, 43.8k to 12.3k) - even a real edge here would be hard to capture live.",
+        "lesson": "In-sample selection PnL is worthless as evidence. The only honest bar for \"can you pick winners\" is beating random selection OOS after friction.",
+        "our_error": null,
+        "our_error_note": "None this run. The test was clean and caught its own overfit before we could be fooled - exactly the guardrail EXEC-EV1 taught us to build.",
+        "why": "The config that looked best on the train split overfit. Out-of-sample it lost to a matched-cadence random benchmark - the ranking signal carries no forward information about which pair runs next.",
+        "worked": "The method. The no-lookahead simulator + random benchmark caught the overfit cleanly, and rotation diversity confirmed it genuinely rotated (23 names, no single-symbol bet) - so the null is trustworthy, not an artifact."
+      },
+      "finding": "Rank the universe each candle, hold the strongest 1-3, rotate. The bar was beating a matched-cadence random benchmark OOS after friction - it failed at p~0.96 (beat 2 of 50 random seeds).",
+      "hardened_gates": [
+        "beat random OOS, or it's nothing"
+      ],
+      "outcome": "fail",
+      "phase": "SEL-EV1",
+      "title": "Cross-Sectional Breakout Selection"
+    },
+    {
+      "analytics": [
+        {
+          "kind": "computed",
+          "kvs": [
+            {
+              "label": "mf_orig base",
+              "value": "+112k"
+            },
+            {
+              "label": "ZEC share of PnL",
+              "tone": "neg",
+              "value": "132%"
+            },
+            {
+              "label": "ex-ZEC",
+              "tone": "neg",
+              "value": "−36k"
+            },
+            {
+              "label": "Negative symbols",
+              "tone": "neg",
+              "value": "15 / 23"
+            }
+          ],
+          "label": "mf_orig concentration (base scenario)",
+          "note": "Per-symbol net PnL, mf_orig lane, base scenario — the whole edge is one thin alt.",
+          "source": "exec_ev1_symbol_concentration",
+          "table": {
+            "columns": [
+              "Symbol",
+              "Net PnL",
+              "Share of total"
+            ],
+            "rows": [
+              [
+                "ZEC",
+                "+148k",
+                "132%"
+              ],
+              [
+                "XRP",
+                "+36k",
+                "32%"
+              ],
+              [
+                "DOGE",
+                "+12k",
+                "10%"
+              ],
+              [
+                "HYPE",
+                "+10k",
+                "9%"
+              ],
+              [
+                "TRX",
+                "+7k",
+                "6%"
+              ]
+            ]
+          }
+        }
+      ],
+      "badge": "edge = ZEC artifact",
+      "class": "friction",
+      "date": "2026-06-10",
+      "evidence_doc": "docs/exec_ev1_execution_quality_evidence.md",
+      "evidence_summary": "docs/exec_ev1_execution_quality_evidence_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "Leave-one-out (remove the top symbol, must stay positive) + breadth are now hard discovery gates. The mirage cannot recur.",
+        "didnt": "Aggregate-PnL scoring. Every earlier pass that ranked lanes on total PnL rewarded the ZEC concentration instead of catching it.",
+        "lesson": "Aggregate PnL hides single-symbol bets. Thin alts where the liquidity proxy is unreliable are exactly where fake edges hide.",
+        "our_error": "Yes - and corrected. Earlier passes scored lanes on aggregate PnL with no hard concentration gate, which is how ZEC slipped through for so long. That was a measurement gap on our side, not just a bad strategy. Fixed via leave-one-out + breadth gates.",
+        "our_error_note": "",
+        "why": "The one positive lane's entire profit was ZEC (132% of total). Strip ZEC and it is -36k; 15 of 23 symbols lose. It is a single-name bet, not a strategy - and in a thin alt where modeled friction is least trustworthy (likely understated), so the +112k is optimistic.",
+        "worked": "Building the friction model exposed the concentration, and a fairness check held - the same engine produced sensible baseline and spread numbers, so the negatives are real, not the engine crippling the strategy."
+      },
+      "finding": "Re-scored the 3 lanes under size-aware depth friction. The one positive lane (mf_orig) was 132% ZEC - remove ZEC and it is negative. Friction cuts it hard and it goes negative under stress.",
+      "hardened_gates": [
+        "leave-one-out concentration gate",
+        "size-aware friction in the gate"
+      ],
+      "outcome": "fail",
+      "phase": "EXEC-EV1",
+      "title": "Execution-Quality Evidence Layer"
+    },
+    {
+      "analytics": [
+        {
+          "kind": "computed",
+          "kvs": [
+            {
+              "label": "Result rows",
+              "value": "621"
+            },
+            {
+              "label": "Aggregate net (all lanes/scenarios)",
+              "tone": "neg",
+              "value": "−638k"
+            },
+            {
+              "label": "Lane/scenario survivors",
+              "tone": "neg",
+              "value": "0"
+            }
+          ],
+          "label": "Realistic gate aggregate",
+          "source": "sv23_aggregate_net"
+        }
+      ],
+      "badge": "fails realistic gate",
+      "class": "per_symbol_rule",
+      "date": "2026-06-08",
+      "evidence_doc": "",
+      "evidence_summary": "docs/sv2_3_realistic_backtest_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "Evidence review defaults to the SV2.3 realistic layer; promotion decisions never use same-candle or next-close rows.",
+        "didnt": "The Week 2 lane rules themselves. None of the three produce positive aggregate PnL after realistic costs.",
+        "lesson": "Promotion review must always use next-open fills plus execution-cost scenarios; same-candle optimistic fills flatter everything.",
+        "our_error": null,
+        "our_error_note": "",
+        "why": "Promotion-facing next-candle-open fills with base/conservative/stress fee, slippage, and adverse-gap assumptions. No lane survives the stricter realistic aggregate gate.",
+        "worked": "The layered-scenario design - the same lanes that look survivable under optimistic fills fail consistently once any realistic cost is applied, which is a clear, reproducible negative."
+      },
+      "finding": "All three Week 2 lanes fail the realistic aggregate gate. 621 result rows; deeply negative in aggregate across base/conservative/stress scenarios.",
+      "hardened_gates": [],
+      "outcome": "fail",
+      "phase": "SV2.3",
+      "title": "Realistic Backtest (next-open + execution cost)"
+    },
+    {
+      "analytics": [
+        {
+          "kind": "computed",
+          "kvs": [
+            {
+              "label": "Symbols refreshed",
+              "value": "23"
+            },
+            {
+              "label": "Timeframes",
+              "value": "1d / 1h / 4h"
+            },
+            {
+              "label": "Datasets",
+              "value": "69"
+            }
+          ],
+          "label": "Refresh coverage",
+          "source": "sv22_refresh_stats"
+        }
+      ],
+      "badge": "data refresh",
+      "class": "data_prep",
+      "date": "2026-06-08",
+      "evidence_doc": "",
+      "evidence_summary": "docs/sv2_2_hyperliquid_research_refresh_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "SV2.2 became the shared candle source for SV2.3, EXEC-EV1, and SEL-EV1.",
+        "didnt": "Nothing material; an earlier broad refresh framing was corrected the same day into the Week 2 strategy replay scope.",
+        "lesson": "Keep the data refresh separate from the verdict layers so a data update can never be mistaken for a strategy result.",
+        "our_error": null,
+        "our_error_note": "",
+        "why": "Not a strategy test - this is the data substrate SV2.3 / EXEC-EV1 / SEL-EV1 evaluate against.",
+        "worked": "Apples-to-apples data for every later evidence layer; public-mainnet candles stayed the single strategy truth."
+      },
+      "finding": "Refreshed the founder 23-symbol universe across 1h/4h/1d through 2026-06-08 and replayed the three Week 2 strategies over the latest data. Research/evidence replay data only - not canonical evidence and not approval.",
+      "hardened_gates": [],
+      "outcome": "context",
+      "phase": "SV2.2",
+      "title": "Hyperliquid Public-Mainnet Candle Refresh"
+    },
+    {
+      "analytics": [],
+      "badge": "review-only candidates",
+      "class": "per_symbol_rule",
+      "date": "2026-06-06",
+      "evidence_doc": "",
+      "evidence_summary": "docs/goal_strat2_two_non_existing_strategies_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "Established the review-only candidate tier between discovery and paper testing.",
+        "didnt": "Neither candidate cleared OOS plus concentration cleanly; both remain research-only.",
+        "lesson": "Candidate selection and candidate approval are different bars; labeling review material honestly avoids promotion creep.",
+        "our_error": null,
+        "our_error_note": "",
+        "why": "Both candidates carry real blockers - the relative-strength candidate has drawdown near the limit plus ZEC/timeframe/period concentration; the Donchian candidate has mildly negative OOS checks and concentration risk.",
+        "worked": "The weaker paper-testing gate surfaced reviewable ideas without pretending they passed the strict production-testing gate."
+      },
+      "finding": "From the GOAL-STRAT1 evidence, selected exactly two family-diverse candidates worth founder paper-testing review only - relative-strength rotation and Donchian breakout, both with ATR trailing exits. Neither is promoted.",
+      "hardened_gates": [],
+      "outcome": "mixed",
+      "phase": "GOAL-STRAT2",
+      "title": "Two Non-Existing Strategies Worth Testing"
+    },
+    {
+      "analytics": [
+        {
+          "kind": "computed",
+          "kvs": [
+            {
+              "label": "Configs tested",
+              "value": "121"
+            },
+            {
+              "label": "Families",
+              "value": "7"
+            },
+            {
+              "label": "Passed gate",
+              "tone": "neg",
+              "value": "0"
+            },
+            {
+              "label": "Datasets accepted",
+              "value": "49"
+            }
+          ],
+          "label": "Search budget used",
+          "source": "goal_strat1_stats"
+        }
+      ],
+      "badge": "0 candidates",
+      "class": "per_symbol_rule",
+      "date": "2026-06-06",
+      "evidence_doc": "",
+      "evidence_summary": "docs/goal_strat1_strategy_discovery_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "Per-symbol discovery was de-prioritized; the selection hypothesis (SEL-EV1) became the next genuinely different idea to test.",
+        "didnt": "Every per-symbol rule family tested. None survives the full gate.",
+        "lesson": "Widening the parameter search does not create an edge; it creates more overfit pockets for the gates to reject.",
+        "our_error": null,
+        "our_error_note": "",
+        "why": "Exit/risk/regime/OOS variations across Money Flow repair, trend/breakout, volatility, mean-reversion, relative-strength, and pairs families produced positive aggregate pockets, but every one failed drawdown, chronological + anchored OOS, concentration, or sample-size gates.",
+        "worked": "The bounded-search discipline: 121 configurations with explicit gates and no unbounded optimizer, so the exhaustion result is meaningful."
+      },
+      "finding": "Zero strategies passed the production-testing gate. Near-misses (volatility-expansion, Donchian) failed drawdown and out-of-sample.",
+      "hardened_gates": [],
+      "outcome": "fail",
+      "phase": "GOAL-STRAT1",
+      "title": "Autonomous Strategy Discovery (121 configs, 7 families)"
+    },
+    {
+      "analytics": [],
+      "badge": "underperformed",
+      "class": "source_reconstruction",
+      "date": "2026-05-13",
+      "evidence_doc": "",
+      "evidence_summary": "docs/mf_orig_ev2_multitimeframe_evidence_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "MF-ORIG lanes were capped at evidence-only/synthetic-only status; one source-faithful candidate runs in Week 2 paper for observation, not promotion.",
+        "didnt": "The original ruleset as an edge source on this data; full-equity sizing only amplified the drawdown problem.",
+        "lesson": "Source fidelity is a reconstruction property, not a performance argument - \"faithful\" and \"better\" are independent claims.",
+        "our_error": "Inherited from EV1 (K-019 accounting bug, fees double-counted) - corrected in EV1.1 before these conclusions were drawn.",
+        "our_error_note": "",
+        "why": "Source-faithful reconstruction of the original rules underperformed v1.2 - higher return but worse drawdown, and positive 1d control pockets were not preserved. Those are the gate blockers.",
+        "worked": "Having the source PDF in-repo let us reconcile rules to text; baseline parity passed on all 72 scenarios, so the comparison was sound (after the EV1.1 accounting fix)."
+      },
+      "finding": "Source-faithful reconstruction across 4 hypotheses (plus full-equity counterparts), 9 symbols, 4 timeframes, both fill assumptions. All \"higher return but higher drawdown\" vs v1.2; control pockets not preserved. No original hypothesis approved.",
+      "hardened_gates": [],
+      "outcome": "mixed",
+      "phase": "MF-ORIG-EV2",
+      "title": "Original Money Flow (Gerald Peters) Multi-Timeframe Evidence"
+    },
+    {
+      "analytics": [],
+      "badge": "audit baseline",
+      "class": "audit",
+      "date": "2026-05-13",
+      "evidence_doc": "",
+      "evidence_summary": "docs/ev_audit1_full_hypothesis_data_and_paper_readiness_review_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "Paper observation (PT-RT1) was conditionally green-lit as a separately scoped phase; promotion remained blocked.",
+        "didnt": "The evidence estate as promotion support - horizon truncation, missing forward observation, and unmodeled execution were named as P-level gaps.",
+        "lesson": "Audit the measurement system before trusting any result it produced.",
+        "our_error": null,
+        "our_error_note": "",
+        "why": "Audit, not a strategy test - it scored the whole evidence estate and found no hypothesis whose support survives methodology scrutiny.",
+        "worked": "Establishing the discipline this whole log enforces - no promotion on aggregate PnL; OOS, control-pocket, and concentration scrutiny required."
+      },
+      "finding": "No clean strategy candidate. Evidence good enough for visual review and hypothesis filtering only - not for a production rule change.",
+      "hardened_gates": [
+        "no promotion on aggregate PnL"
+      ],
+      "outcome": "context",
+      "phase": "EV-AUDIT1",
+      "title": "Full Hypothesis + Paper-Readiness Audit"
+    },
+    {
+      "analytics": [],
+      "badge": "none promoted",
+      "class": "variant",
+      "date": "2026-05-12",
+      "evidence_doc": "",
+      "evidence_summary": "docs/sor_ev3_avoid_sideways_low_volatility_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "avoid_low_rolling_range_20 was carried into Week 2 as a synthetic-only diagnostic comparator, explicitly not as a promoted strategy.",
+        "didnt": "Volatility/chop filtering as an edge source; at best it reshapes the same PnL.",
+        "lesson": "\"Promising\" is a review label, not a result - a filter that improves aggregate PnL while damaging control pockets is not an improvement.",
+        "our_error": null,
+        "our_error_note": "",
+        "why": "The chop filters block losing entries but also block the control pockets that make the baseline reviewable; net effect fails the preservation bar.",
+        "worked": "Blocked-entry attribution - knowing exactly which trades a filter removes - made the trade-off visible instead of hidden in aggregates."
+      },
+      "finding": "The founder-selected avoid-sideways drilldown - ATR percentile, flat trend, rolling-range, MACD-flat blockers - replayed true-forward with blocked-entry attribution. avoid_low_rolling_range was labeled promising on PnL but carried control-pocket risk; no variant promoted.",
+      "hardened_gates": [],
+      "outcome": "mixed",
+      "phase": "SOR-EV3",
+      "title": "Avoid Sideways / Low-Volatility Variants"
+    },
+    {
+      "analytics": [],
+      "badge": "none promoted",
+      "class": "variant",
+      "date": "2026-05-12",
+      "evidence_doc": "",
+      "evidence_summary": "docs/sor_ev2_true_forward_stop_and_rejected_signal_replay_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "Control-pocket preservation became an explicit review dimension for every later variant pass.",
+        "didnt": "Stop/exit repair as a family - variants shift losses around rather than remove them.",
+        "lesson": "A variant must preserve the baseline's control pockets, not just beat its aggregate PnL.",
+        "our_error": null,
+        "our_error_note": "",
+        "why": "The \"promising\" rows bought their PnL with damaged control pockets or worse drawdown; nothing improved the baseline cleanly across gates.",
+        "worked": "True-forward replay semantics (no lookahead) and honest multi-level review labels instead of a binary promote/reject."
+      },
+      "finding": "Stop-loss, exit, and entry-filter variants replayed true-forward against the canonical baseline. Founder-review labels separated promising / mixed / deferred / hard-rejected - no variant was promoted.",
+      "hardened_gates": [],
+      "outcome": "mixed",
+      "phase": "SOR-EV2",
+      "title": "True-Forward Stop / Rejected-Signal Variants"
+    },
+    {
+      "analytics": [],
+      "badge": "loss anatomy",
+      "class": "variant",
+      "date": "2026-05-12",
+      "evidence_doc": "",
+      "evidence_summary": "docs/sor_ev1_money_flow_trade_loss_anatomy_and_variants_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "The diagnostic-only vs true-forward distinction became a permanent labeling rule in variant review.",
+        "didnt": "Early completed-trade overlays were lookahead-flattered; they were labeled diagnostic-only rather than candidates.",
+        "lesson": "Only true-forward replays can become candidates; completed-trade overlays are upper bounds, not evidence.",
+        "our_error": null,
+        "our_error_note": "",
+        "why": "Diagnostic, not a pass/fail test - it mapped the loss structure that SOR-EV2/EV3 variants then tried (and failed) to repair.",
+        "worked": "Grounding variant ideas in observed loss anatomy instead of intuition; canonical-pack-only inputs kept the numbers trustworthy."
+      },
+      "finding": "Evidence-only anatomy of where Money Flow v1.2 loses - largest losses, losing streaks, stop/exit behavior - against canonical SV2.0.2 packs, to seed the SOR variant hypotheses.",
+      "hardened_gates": [],
+      "outcome": "context",
+      "phase": "SOR-EV1",
+      "title": "Money Flow Trade-Loss Anatomy"
+    },
+    {
+      "analytics": [],
+      "badge": "corrected; underperformed",
+      "class": "source_reconstruction",
+      "date": "2026-05-12",
+      "evidence_doc": "",
+      "evidence_summary": "docs/mf_orig_ev1_original_money_flow_reconstruction_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "The PnL-reconciles-to-equity invariant became a permanent evidence requirement.",
+        "didnt": "The first reconstruction's bookkeeping (see our error); and the original rules as a drop-in improvement.",
+        "lesson": "Trade net PnL must reconcile to equity delta within tolerance before any conclusion is trusted. A measurement bug looks exactly like a strategy result until you check.",
+        "our_error": "Yes - K-019, caught and fixed (EV1 -> EV1.1). The first reconstruction double-counted entry fees and trim PnL and mis-stated drawdown, distorting the early conclusions. Quarantined, then regenerated with event-ledger accounting, fees-once, and a PnL-vs-equity tolerance check.",
+        "our_error_note": "",
+        "why": "Source-faithful original rules underperform v1.2 on the gates that matter: drawdown and control-pocket preservation.",
+        "worked": "Event-ledger accounting with a PnL-vs-equity tolerance check - the rerun proved the comparison itself was sound once measurement was fixed."
+      },
+      "finding": "The corrected reconstruction run. After fixing the EV1 accounting bug the strict conclusion did not change - all four original hypotheses remain source_faithful_but_underperformed because baseline-positive 1d control pockets were not preserved.",
+      "hardened_gates": [
+        "PnL must reconcile to equity"
+      ],
+      "outcome": "mixed",
+      "phase": "MF-ORIG-EV1.1",
+      "title": "Original Money Flow Reconstruction (accounting correction)"
+    }
+  ],
+  "entry_count": 13,
+  "lessons_hardened_gates": [
+    {
+      "gate": "PnL must reconcile to equity",
+      "phase": "MF-ORIG-EV1.1"
+    },
+    {
+      "gate": "no promotion on aggregate PnL",
+      "phase": "EV-AUDIT1"
+    },
+    {
+      "gate": "leave-one-out concentration gate",
+      "phase": "EXEC-EV1"
+    },
+    {
+      "gate": "size-aware friction in the gate",
+      "phase": "EXEC-EV1"
+    },
+    {
+      "gate": "beat random OOS, or it's nothing",
+      "phase": "SEL-EV1"
+    }
+  ],
+  "report": "research_log",
+  "source": {
+    "decision_log": "money-flow/03_Decision_Log.md",
+    "outcome_taxonomy": "authored in the Decision Log research_log blocks; never inferred from summary status strings"
+  },
+  "standing": {
+    "hypotheses_tested": "130+",
+    "live_trading": "NOT APPROVED",
+    "passed_gate": 0,
+    "production_approved": "NONE",
+    "standing_verdict": "no price-rule edge",
+    "strategy_families": 7
+  },
+  "untested_frontier": "Untested frontier: cross-venue microstructure (CoinRoutes) — pending data-use clearance.",
+  "verdict_banner": {
+    "headline": "No demonstrable price-rule edge to date.",
+    "sub": "Two hypothesis classes — per-symbol universal rules and cross-sectional selection — comprehensively tested under realistic friction. Neither beats baseline; selection does not beat random. Apparent positives traced to single-symbol (ZEC) concentration.",
+    "tone": "fail"
+  }
+}

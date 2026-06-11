@@ -17,6 +17,41 @@ Entry schema:
 
 ---
 
+## v2026.06.11.002
+
+- `recorded_at_utc`: `2026-06-11T07:00:00Z`
+- `scope`: `RLOG1 Research Log: honest post-mortems, auto-joined + analytics`
+- `intent`: `Display + docs/tooling only; read-only aggregation; Decision-Log backfill additive only. Must 1: machine-readable post-mortem schema — each research phase's 03_Decision_Log.md entry carries a fenced yaml research_log block (phase/date/class/outcome/why/worked/didnt/lesson/our_error/changed/evidence_summary/analytics/hardened_gate) with the honest outcome taxonomy fail|mixed|context|pass AUTHORED in the log, never inferred from a summary status string; backfilled into 12 phases (SEL-EV1, EXEC-EV1, SV2.3, SV2.2, GOAL-STRAT1/2, SOR-EV1/2/3, MF-ORIG-EV1.1, MF-ORIG-EV2, EV-AUDIT1) with honest our_error attribution (EXEC-EV1: missing concentration gate let ZEC slip through, fixed via leave-one-out; MF-ORIG-EV1.1: K-019 fee double-count corrected; SEL-EV1: null — the test caught its own overfit). Schema doc docs/research_log_schema.md. Must 2: scripts/build_research_log.py — read-only/deterministic/offline aggregator joining blocks to committed docs/*_summary.json (computed analytics: EXEC-EV1 per-symbol concentration ZEC 132%/ex-ZEC -36k/15-23 negative + top-5 table; SEL-EV1 random benchmark 2/50 + near-miss configs; SV2.3 aggregate -638k/0 survivors; GOAL-STRAT1 121/7/0; SV2.2 coverage), active lanes from current_truth.json, lessons rail from authored hardened_gate fields; emits docs/research_log.json (13 entries incl. RLOG1 itself) with a --check drift guard. Must 3: the dashboard Research Log renders the docs/dash_rlog1_prototype.html structure from research_log.json — standing strip, red verdict banner, expandable post-mortem timeline with six facets + analytics + evidence links, lessons rail, active-lanes card, boundaries footer; badges fail=red/mixed=amber/context=blue/pass=green; the naive verdict||audit_verdict||gate_status||status coloring is REMOVED so a non-positive result can never render green; theme-aware. Must 4: tests/test_rlog1_research_log.py (6 deterministic tests incl. the pinned regression that upbeat ready_for_founder_review/complete statuses keep authored non-positive outcomes) + build --check wired into the blocking CI lane; DASH-QA1 gained check #10 (>=12 post-mortems, zero green badges, SEL-EV1 renders fail, facets visible) — 10/10 green. Must 5: AGENTS.md post-task workflow now requires every research phase to author its research_log block and run the aggregator (CI drift guard enforces). Resolves K-033. No runtime, strategy, data-source, order, testnet, or approval change.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `AGENTS.md`
+  - `scripts/build_research_log.py`
+  - `docs/research_log.json`
+  - `docs/research_log_schema.md`
+  - `docs/rlog1_research_log.md`
+  - `docs/rlog1_research_log_summary.json`
+  - `docs/rlog1_screenshots/*`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/DESIGN.md`
+  - `tests/test_rlog1_research_log.py`
+  - `tests/dashboard_qa/test_dashboard_smoke.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `.github/workflows/ci.yml`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/build_research_log.py --check` → ok (deterministic rebuild byte-identical)
+  - `.venv/bin/python -m pytest -q tests/test_rlog1_research_log.py` → 6 passed
+  - `.venv/bin/python -m pytest -m browser tests/dashboard_qa/ -q` → 10 passed
+  - three-theme in-browser exercise → zero page errors
+  - `.venv/bin/python -m pytest -q tests/test_secret_hygiene.py tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py tests/test_operational_docs.py` → passed
+
 ## v2026.06.11.001
 
 - `recorded_at_utc`: `2026-06-11T00:15:00Z`

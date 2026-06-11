@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Money Flow OS</title>
-      <link rel="stylesheet" href="./evidence-dashboard.css?v=dash-pt3-header-pills-20260611" />
+      <link rel="stylesheet" href="./evidence-dashboard.css?v=rlog1-research-log-20260611" />
   </head>
   <body>
     <header class="top-strip">
@@ -45,23 +45,22 @@
 
     <main class="dashboard-shell" aria-labelledby="dashboard-title">
       <section id="research-log-view" class="dashboard-view research-log-view" data-view-panel="research-log" hidden>
-        <section class="table-panel audit-review-panel research-log-panel" aria-labelledby="research-log-title">
-          <div class="section-heading compact-heading">
-            <div>
-              <h2 id="research-log-title">Research Log</h2>
-              <p>
-                Institutional memory of what has been tested: every committed research phase with its verdict,
-                built from the committed <code>docs/*_summary.json</code> evidence summaries.
-                The three Week 2 active lanes remain visible on the Paper Trading status strip.
-              </p>
-            </div>
+        <section id="research-log-standing" class="research-log-standing" aria-label="Research standing strip"></section>
+        <section id="research-log-banner" class="research-log-banner-mount" aria-label="Standing verdict"></section>
+        <div class="research-log-grid">
+          <div class="research-log-timeline-col">
+            <h2 class="research-log-col-title">Research Timeline · newest first</h2>
+            <div id="research-log-verdict-list" class="research-log-timeline" aria-label="Research post-mortem timeline"></div>
           </div>
-          <div class="methodology-warning compact" role="note">
-            Placeholder view — the full post-mortem view lands in RLOG1. Research evidence is review material only:
-            no strategy is production-approved and live trading is not approved.
-          </div>
-          <div id="research-log-verdict-list" class="data-table-shell"></div>
-        </section>
+          <aside id="research-log-rail" class="research-log-rail" aria-label="Active lanes, standing, and hardened gates"></aside>
+        </div>
+        <div id="research-log-footer" class="research-log-footer"></div>
+        <div class="methodology-warning compact research-log-static-note" role="note">
+          Research Log (RLOG1) — honest post-mortems auto-joined from the Decision Log
+          <code>research_log</code> blocks and committed <code>docs/*_summary.json</code> evidence
+          (<code>docs/research_log.json</code>, built by <code>scripts/build_research_log.py</code>).
+          Research evidence is review material only: no strategy is production-approved and live trading is not approved.
+        </div>
       </section>
 
       <section id="paper-observation-view" class="dashboard-view paper-observation-view" data-view-panel="paper-observation">
@@ -619,6 +618,6 @@
     </main>
 
     <script src="./vendor/lightweight-charts.standalone.production.js?v=5.2.0"></script>
-    <script src="./evidence-dashboard.js?v=dash-pt3-header-pills-20260611"></script>
+    <script src="./evidence-dashboard.js?v=rlog1-research-log-20260611"></script>
   </body>
 </html>

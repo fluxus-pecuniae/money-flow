@@ -1,0 +1,76 @@
+{
+  "phase": "RLOG1",
+  "report": "rlog1_research_log",
+  "status": "research_log_post_mortems_complete",
+  "schema": {
+    "location": "money-flow/03_Decision_Log.md fenced yaml research_log blocks",
+    "doc": "docs/research_log_schema.md",
+    "outcome_taxonomy": [
+      "fail",
+      "mixed",
+      "context",
+      "pass"
+    ],
+    "outcome_authored_never_inferred": true
+  },
+  "backfilled_phases": [
+    "SEL-EV1",
+    "EXEC-EV1",
+    "SV2.3",
+    "SV2.2",
+    "GOAL-STRAT1",
+    "GOAL-STRAT2",
+    "SOR-EV1",
+    "SOR-EV2",
+    "SOR-EV3",
+    "MF-ORIG-EV1.1",
+    "MF-ORIG-EV2",
+    "EV-AUDIT1"
+  ],
+  "aggregator": {
+    "script": "scripts/build_research_log.py",
+    "output": "docs/research_log.json",
+    "read_only": true,
+    "deterministic_offline": true,
+    "drift_guard": "--check (CI blocking lane)"
+  },
+  "analytics_surfaced": {
+    "EXEC-EV1": "per-symbol concentration (ZEC 132%, ex-ZEC -36k, 15/23 negative, top-5 table)",
+    "SEL-EV1": "random benchmark (OOS -10,460; median -4,717; 2/50 beaten) + near-miss config table",
+    "SV2.3": "621 rows, aggregate -638k, 0 survivors",
+    "GOAL-STRAT1": "121 configs / 7 families / 0 passed",
+    "SV2.2": "23 symbols x 3 timeframes refresh coverage"
+  },
+  "render": {
+    "source": "docs/research_log.json",
+    "badges": {
+      "fail": "red",
+      "mixed": "amber",
+      "context": "blue",
+      "pass": "green"
+    },
+    "non_positive_never_green": true,
+    "themes": [
+      "dark",
+      "light",
+      "red-zone"
+    ]
+  },
+  "tests": {
+    "suite": "tests/test_rlog1_research_log.py (6 passed)",
+    "pinned_regression": "upbeat status strings (ready_for_founder_review/complete) keep authored non-positive outcomes",
+    "dash_qa1": "10/10 incl. new research-log honest-badges check"
+  },
+  "self_updating": "AGENTS.md post-task step 6 + CI --check drift guard",
+  "boundaries": {
+    "display_and_docs_tooling_only": true,
+    "decision_log_backfill_additive_only": true,
+    "changes_runtime_behavior": false,
+    "changes_strategy_rules": false,
+    "changes_data_sources": false,
+    "submits_orders": false,
+    "approves_production_strategy": false,
+    "approves_live_trading": false
+  },
+  "resolves_known_issue": "K-033"
+}
