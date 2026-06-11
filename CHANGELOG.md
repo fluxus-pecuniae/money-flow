@@ -1,7 +1,7 @@
 # CHANGELOG
 
 Canonical repo changelog — the recent rolling window. New entries are added
-here (newest-first). Older entries (v2026.06.08.001 and earlier) are in
+here (newest-first). Older entries (v2026.06.08.006 and earlier) are in
 [`CHANGELOG_ARCHIVE.md`](CHANGELOG_ARCHIVE.md); recent window + archive
 together are the complete, canonical history. When this file exceeds ~25
 entries, roll the oldest into the archive as part of the post-task update.
@@ -16,6 +16,35 @@ Entry schema:
 - `validation_performed`
 
 ---
+
+## v2026.06.12.001
+
+- `recorded_at_utc`: `2026-06-12T01:45:00Z`
+- `scope`: `TREND-SUITE1 canonical trend-following suite evidence`
+- `intent`: `Research/evidence only; no runtime, strategy-rule, order, testnet, live, or production-approval change. Tests the canonical trend systems TSMOM-EV1 never tried — Donchian channel breakout (Turtle 20/55, channel + ATR/chandelier 2.8xATR14 trailing exits), dual-MA crossover ({10,20,30}x{50,100,200} +ATR variant on 20x100), multi-timeframe confirmation (daily 30/60/90d sign gated by a frozen 8-week weekly sign, +ATR variant on 60d), the TSMOM carry-over (30/60/90d, weekly cadence, apples-to-apples), and a majority/average ensemble of five fixed canonical members — EVERY signal cell under BOTH vol-targeted (EV1-style 0.20/N risk budget, 0.40 weight cap) and non-vol-targeted equal-dollar sizing (strength/N, same 1.5x gross cap), the key lever since vol targeting cuts exposure exactly in outlier trends. 46-config bounded grid on the eight liquid majors (889 aligned 1d candles), train-only choice, judged by the SAME buy-and-hold risk-adjusted gate as TSMOM-EV1 (new strategy_types route trend_suite / prefix trend_suite1_ deliberately shares TSMOM_GATE_ID; per_symbol/selection/funding gates still refuse it). The EV1 simulator is reused verbatim through its signal_provider/rebalance_timestamps seams; tsmom_ev1.target_weights now accepts fractional strengths (ensemble-average sizing) with the integer ±1 path byte-identical (pinned by test; all 78 existing evidence tests green). BOTH headline hypotheses came back NEGATIVE, decisively: (1) the richer suite finds nothing better than one-form TSMOM — the train-only choice across all 46 configs picked the EV1 signal again (trend_suite1_tsmom30_signal_vt_1d), whose OOS stats reproduce the committed EV1 numbers digit for digit (Sharpe -1.478 / return -12.23% / max DD 16.56% vs buy-hold -1.807 / -61.69% / 65.68%) — relative gate PASS with both absolute-loss qualifiers (defensive value only); NO trend form clears the absolute bar (hindsight-best mtf60w8_atr_vt still lost -4.1% OOS; ma_cross/mtf/ensemble family champions fail even the relative full gate; donchian20x10_atr_vt passes it, also at an absolute loss). (2) Vol-targeting was NOT the cap: all 23 vt-vs-eq pairs classify removing_vol_target_added_drawdown_without_more_return_oos — in 16 of 23 pairs the uncapped variant earned a higher full-window (bull-heavy) return and every pair gave it back OOS (leverage on the same signal, not a new edge). 29/46 configs pass the relative OOS screen (trend's defensive value is consistent across forms); per-family no-lookahead verified (truncation + future-tampering probes incl. a caught leaky scorer); per-symbol PnL reconciles to net for every conservative row (K-019). Full gate (walk-forward thirds + leave-one-out + late-entry) for the global chosen config and each family champion; per-config OOS screen with the same verdict vocabulary, never forced positive. Research Log: authored MIXED (badge 'defensive only - suite adds nothing'); aggregator rebuilt (19 entries, --check green). Tests: tests/test_trend_suite1_evidence.py (19 deterministic offline tests) wired into the blocking CI lane. Trend family closed on both sanctioned axes (signal form, sizing); TREND-OVERLAY1 stays deployed unchanged; REGIME1 / DATA1 / FUND-VENUES1 queued in TODO. Oldest changelog entry (v2026.06.08.006) rotated verbatim into CHANGELOG_ARCHIVE.md per DOC-LEAN1.`
+- `affected_files`:
+  - `services/strategy_validation/trend_suite1.py`
+  - `services/strategy_validation/strategy_types.py`
+  - `services/strategy_validation/tsmom_ev1.py`
+  - `scripts/run_trend_suite1_evidence.py`
+  - `docs/trend_suite1_canonical_trend_suite_evidence.md`
+  - `docs/trend_suite1_canonical_trend_suite_evidence_summary.json`
+  - `docs/research_log.json`
+  - `tests/test_trend_suite1_evidence.py`
+  - `.github/workflows/ci.yml`
+  - `CHANGELOG.md`
+  - `CHANGELOG_ARCHIVE.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/run_trend_suite1_evidence.py`
+  - `.venv/bin/python scripts/build_research_log.py && .venv/bin/python scripts/build_research_log.py --check`
+  - `.venv/bin/python -m pytest -q tests/test_trend_suite1_evidence.py tests/test_rlog1_research_log.py`
+  - `.venv/bin/python -m pytest -q tests/test_tsmom_ev1_evidence.py tests/test_sel_ev1_selection_evidence.py tests/test_trend_overlay1.py tests/test_fund_ev1_evidence.py tests/test_fund_ev2_evidence.py tests/test_fund_scale1_evidence.py`
+  - `.venv/bin/python -m pytest -q tests/test_secret_hygiene.py tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py`
 
 ## v2026.06.11.008
 
@@ -706,27 +735,3 @@ Entry schema:
   - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
   - `git diff --check`
 
-## v2026.06.08.006
-
-- `recorded_at_utc`: `2026-06-08T08:45:00Z`
-- `scope`: `DASH-PT1.3 Paper Trading terminal layout QA hotfix`
-- `intent`: `Native entry. Fixed UI QA issues from the DASH-PT1.2 Paper Trading terminal layout. The Cockpit / Global Filters controls now stay inside the left rail, the Watchlist is internally scroll-contained and no longer shows the low-value Status column, Runtime Control / Testnet Order Transport are height-bounded in the right rail, Daily Review / Anomaly Flags moved to the final full-width card below the Paper Trading blotter, the bottom blotter is no longer pushed thousands of pixels below the chart, Runtime details are compacted to the high-signal runtime fields, and paper chart marker labels are compacted while preserving marker data. This is dashboard/UI-only: no runtime behavior changed, no runtime was started or stopped, no orders were submitted, no live trading was approved, no strategy was production-approved, and the Week 2 slate/testnet eligibility boundaries were not changed.`
-- `affected_files`:
-  - `CHANGELOG.md`
-  - `KNOWN_ISSUES.md`
-  - `REPO_TREE.md`
-  - `TODO.md`
-  - `apps/dashboard/index.html`
-  - `apps/dashboard/evidence-dashboard.css`
-  - `apps/dashboard/evidence-dashboard.js`
-  - `apps/dashboard/README.md`
-  - `apps/dashboard/DESIGN.md`
-  - `tests/test_dashboard_static_assets.py`
-  - `money-flow/01_Current_Phase.md`
-  - `money-flow/05_Agent_Coordination.md`
-  - `money-flow/00 Maps/Dashboard and UI Map.md`
-  - `money-flow/Project_Memory/money_flow_project_memory.md`
-- `validation_performed`:
-  - `node --check apps/dashboard/evidence-dashboard.js`
-  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
-  - `Playwright Chromium screenshot QA at 1440x1000, 390x900, and final 1440x1000 polish review`

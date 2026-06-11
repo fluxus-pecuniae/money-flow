@@ -16,6 +16,31 @@ Entry schema:
 
 ---
 
+## v2026.06.08.006
+
+- `recorded_at_utc`: `2026-06-08T08:45:00Z`
+- `scope`: `DASH-PT1.3 Paper Trading terminal layout QA hotfix`
+- `intent`: `Native entry. Fixed UI QA issues from the DASH-PT1.2 Paper Trading terminal layout. The Cockpit / Global Filters controls now stay inside the left rail, the Watchlist is internally scroll-contained and no longer shows the low-value Status column, Runtime Control / Testnet Order Transport are height-bounded in the right rail, Daily Review / Anomaly Flags moved to the final full-width card below the Paper Trading blotter, the bottom blotter is no longer pushed thousands of pixels below the chart, Runtime details are compacted to the high-signal runtime fields, and paper chart marker labels are compacted while preserving marker data. This is dashboard/UI-only: no runtime behavior changed, no runtime was started or stopped, no orders were submitted, no live trading was approved, no strategy was production-approved, and the Week 2 slate/testnet eligibility boundaries were not changed.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `Playwright Chromium screenshot QA at 1440x1000, 390x900, and final 1440x1000 polish review`
+
 ## v2026.06.08.005
 
 - `recorded_at_utc`: `2026-06-08T08:10:00Z`

@@ -40,6 +40,43 @@
     {
       "analytics": [
         {
+          "kind": "value",
+          "kvs": [
+            {
+              "label": "Vol-cap removal effect (23 pairs)",
+              "value": "{'hindsight_best_oos_config_not_a_verdict': {'config_id': 'trend_suite1_mtf60w8_atr_vt_1d', 'note': 'best OOS Sharpe across the grid IN HINDSIGHT; it was not train-chosen, so it is surfaced for honesty, never as a verdict', 'oos_stats': {'days': 266, 'max_drawdown_pct': '7.07069107', 'sharpe_annual': '-0.81968212', 'total_return_pct': '-4.11521937', 'vol_annual': '0.06780073'}}, 'per_family_absolute_bar': [{'clears_bar_in_absolute_terms': False, 'config_id': 'trend_suite1_donchian20x10_atr_vt_1d', 'family': 'donchian', 'gate_passed': True, 'profitable_in_absolute_terms': False}, {'clears_bar_in_absolute_terms': False, 'config_id': 'trend_suite1_ma10x50_signal_vt_1d', 'family': 'ma_cross', 'gate_passed': False, 'profitable_in_absolute_terms': False}, {'clears_bar_in_absolute_terms': False, 'config_id': 'trend_suite1_mtf30w8_signal_vt_1d', 'family': 'mtf', 'gate_passed': False, 'profitable_in_absolute_terms': False}, {'clears_bar_in_absolute_terms': False, 'config_id': 'trend_suite1_tsmom30_signal_vt_1d', 'family': 'tsmom', 'gate_passed': True, 'profitable_in_absolute_terms': False}, {'clears_bar_in_absolute_terms': False, 'config_id': 'trend_suite1_ens_average_vt_1d', 'family': 'ensemble', 'gate_passed': False, 'profitable_in_absolute_terms': False}], 'question_1_does_any_trend_form_beat_buy_hold_risk_adjusted_oos_in_absolute_terms': False, 'question_2_did_removing_vol_targeting_unlock_profit_or_just_risk': {'classification_counts': {'removing_vol_target_added_drawdown_without_more_return_oos': 23}, 'pair_count': 23, 'pairs_where_equal_dollar_raised_full_window_return': 16, 'reading': 'see vol_targeting_comparison: pairwise OOS effect of removing the vol cap for every signal cell; counts above aggregate the deterministic classifications. The full-window counter shows how often the uncapped variant DID capture more bull-window upside in-sample — upside the OOS bear then took back'}}"
+            }
+          ],
+          "label": "Vol-cap removal effect (23 pairs)",
+          "source": "headline_answers"
+        }
+      ],
+      "badge": "defensive only - suite adds nothing",
+      "class": "time_series_momentum",
+      "date": "2026-06-12",
+      "evidence_doc": "docs/trend_suite1_canonical_trend_suite_evidence.md",
+      "evidence_summary": "docs/trend_suite1_canonical_trend_suite_evidence_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "The trend family is closed on both sanctioned axes (signal form, sizing); TREND-OVERLAY1 stays deployed unchanged - the suite found nothing better to deploy. REGIME1 / DATA1 remain the only open doors.",
+        "didnt": "Every new signal form, as a profit source: Donchian, MA cross, MTF, and both ensembles all lose money OOS; three of five family champions fail even the relative gate. Removing the vol cap raised bull-window returns in 16 of 23 pairs and gave all of it back OOS in every pair - leverage, not edge.",
+        "lesson": "A richer trend suite does not beat one-form TSMOM on this data, and vol-targeting was not what kept trend from profiting - the OOS bear pays trend in avoided drawdown, not in returns, regardless of signal form or sizing. Trend here is a defensive overlay, not an alpha source; only a new regime definition or new data could reopen it.",
+        "our_error": null,
+        "our_error_note": "",
+        "why": "TSMOM-EV1 left two open hypotheses - a richer signal family might find profit where return-sign momentum found only defense, and the vol targeting might have capped the upside (it cuts exposure exactly in outlier trends). Both deserved a real test, not an assumption.",
+        "worked": "The reuse discipline again - the EV1 simulator ran every new signal through its provider seam, and the suite's TSMOM carry-over reproduces the committed EV1 OOS numbers digit for digit (pinned by test), so the comparison is apples-to-apples by construction. The pairwise vt-vs-equal-dollar design made the sizing question decidable."
+      },
+      "finding": "The full canonical suite (Donchian 20/55, MA crossover 3x3, multi-timeframe confirmation, ensemble) finds nothing better than the TSMOM-EV1 signal: the train-only choice across 46 configs picked the EV1 config again, and no trend form is profitable OOS in absolute terms (best hindsight config still -4.1%). The relative gate passes as defensive value only (-12.2% vs buy-hold -61.7%).",
+      "hardened_gates": [
+        "suite carry-over must reproduce committed EV1 OOS digit for digit"
+      ],
+      "outcome": "mixed",
+      "phase": "TREND-SUITE1",
+      "title": "The Canonical Trend Suite vs One-Form TSMOM"
+    },
+    {
+      "analytics": [
+        {
           "kind": "computed",
           "kvs": [
             {
@@ -1022,7 +1059,7 @@
       "title": "Original Money Flow Reconstruction (accounting correction)"
     }
   ],
-  "entry_count": 18,
+  "entry_count": 19,
   "lessons_hardened_gates": [
     {
       "gate": "PnL must reconcile to equity",
@@ -1063,6 +1100,10 @@
     {
       "gate": "relative passes carry absolute-performance qualifiers",
       "phase": "TSMOM-EV1"
+    },
+    {
+      "gate": "suite carry-over must reproduce committed EV1 OOS digit for digit",
+      "phase": "TREND-SUITE1"
     }
   ],
   "report": "research_log",

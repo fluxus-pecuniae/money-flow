@@ -126,6 +126,15 @@ jobs:
       - name: TREND-OVERLAY1 drawdown overlay signal tool
         run: python -m pytest -q tests/test_trend_overlay1.py
 
+      # TREND-SUITE1 canonical trend suite: routing seam (shared buy-hold
+      # gate), Donchian/MA-cross/MTF/ensemble signal correctness, per-family
+      # no-lookahead, fractional-strength sizing with the integer path
+      # unchanged (TSMOM cannot drift), friction, vol-targeted vs
+      # equal-dollar comparison, EV1 carry-over digit-exact reproduction,
+      # K-019, research-log honesty pin (offline)
+      - name: TREND-SUITE1 canonical trend suite evidence model
+        run: python -m pytest -q tests/test_trend_suite1_evidence.py
+
       # Lint (ruff) — scoped to CI-SAFE1 authored modules; pre-existing debt tracked in KNOWN_ISSUES
       - name: Lint (ruff — safety modules)
         run: |
