@@ -97,5 +97,10 @@
     "submits_orders": false,
     "approves_production_strategy": false,
     "approves_live_trading": false
+  },
+  "ci_nuance": {
+    "issue": "CI runners lack the gitignored runtime artifacts; optional-artifact probes 404 with browser-native console entries",
+    "fix": "QA check #12 exempts only /reports/paper_runtime/ and /reports/paper_reviews/ resource 404s; everything else remains zero-tolerance",
+    "verified": "local pass + CI-emulation with reports/** forced to 404 (0 non-exempt errors)"
   }
 }

@@ -23,7 +23,9 @@ lockstep with the DASH-IA1 2-tab consolidation):
       rebuilt under focus, picked values stick, and the operator's open
       runtime log survives status re-renders.
   12. Layout/console hygiene (DASH-QASWEEP1): zero console/page errors on a
-      deterministic load and no horizontal overflow at 1600 / 1000 / 390 px.
+      deterministic load (the documented gitignored optional runtime-artifact
+      probes are the sole exemption — absent on CI by design) and no
+      horizontal overflow at 1600 / 1000 / 390 px.
 
 Grounded in real selectors from apps/dashboard/index.html and expected truth
 from current_truth.json (the TRUTH1 registry).
@@ -483,15 +485,34 @@ def test_refresh_does_not_clobber_selects_or_open_log(
 # ---------------------------------------------------------------------------
 
 
+# Gitignored local runtime artifacts are optional by design: present on the
+# founder's machine, absent on CI. The dashboard probes them, handles the 404
+# with an explicit empty state, and the browser logs a native resource error
+# we cannot suppress from JS. ONLY those paths are exempt — any other console
+# error (including a 404 for a committed file) is a bug.
+OPTIONAL_ARTIFACT_PATH_PARTS = (
+    "/reports/paper_runtime/",
+    "/reports/paper_reviews/",
+)
+
+
 def test_no_console_errors_and_no_horizontal_overflow(
     page: Page, dashboard_base_url: str
 ) -> None:
     errors: list[str] = []
     page.on("pageerror", lambda e: errors.append(f"pageerror: {e}"))
-    page.on(
-        "console",
-        lambda m: errors.append(f"console.error: {m.text}") if m.type == "error" else None,
-    )
+
+    def on_console(message) -> None:  # type: ignore[no-untyped-def]
+        if message.type != "error":
+            return
+        url = (message.location or {}).get("url", "")
+        if "Failed to load resource" in message.text and any(
+            part in url for part in OPTIONAL_ARTIFACT_PATH_PARTS
+        ):
+            return
+        errors.append(f"console.error: {message.text} ({url})")
+
+    page.on("console", on_console)
     _goto(page, f"{dashboard_base_url}/apps/dashboard/index.html?disableLivePolling=true")
     page.wait_for_timeout(2500)
     page.locator(RESEARCH_LOG_TAB).click()

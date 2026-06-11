@@ -37,6 +37,7 @@ Entry schema:
   - `money-flow/05_Agent_Coordination.md`
 - `validation_performed`:
   - full exploratory sweep (deterministic + mocked 1s-refresh passes) → 0 issues, 0 console/page errors
+  - CI follow-up: QA check #12 exempts only the documented gitignored optional-artifact 404s (reports/paper_runtime/, reports/paper_reviews/ — absent on CI by design); verified via CI-emulation with reports/** forced to 404 → 0 non-exempt errors
   - `.venv/bin/python -m pytest -m browser tests/dashboard_qa/ -q` → 12 passed
   - widths 390/768/1180/1280 → stacked/3-col as intended, zero horizontal overflow
   - `node --check apps/dashboard/evidence-dashboard.js` → OK

@@ -35,6 +35,14 @@ driver — the app renders all facets correctly.
   open-log persistence through changing status payloads; chart height
   stability with live candles.
 - **Console/page errors recorded at every step: final result zero.**
+  CI nuance (post-merge-check fix): on runners without the gitignored local
+  runtime artifacts (`reports/paper_runtime/*`, `reports/paper_reviews/*`),
+  the dashboard's optional-artifact probes 404 by design and the browser logs
+  native resource errors that JS cannot suppress. QA check #12 exempts ONLY
+  those documented optional paths — any other console error (including a 404
+  for a committed file) still fails. Verified both ways: normal local pass
+  and a CI-emulation pass with `reports/**` forced to 404 (10 exempt 404s,
+  zero non-exempt errors, the paper view renders its explicit empty states).
 
 ## Verification
 
