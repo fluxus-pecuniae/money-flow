@@ -38,6 +38,122 @@
   "boundaries": "Every row is research/evidence only — no order, testnet, live, or production approval follows from anything here. Modeled friction is an assumption layer, not real historical depth. Synthetic paper PnL is not live PnL. Live trading is not approved.",
   "entries": [
     {
+      "analytics": [
+        {
+          "kind": "computed",
+          "kvs": [
+            {
+              "label": "OOS Sharpe (strategy vs hold)",
+              "tone": "neg",
+              "value": "-1.48 vs -1.81"
+            },
+            {
+              "label": "OOS max drawdown",
+              "value": "16.56% vs 65.68%"
+            },
+            {
+              "label": "OOS return",
+              "tone": "neg",
+              "value": "-12.23% vs -61.69%"
+            },
+            {
+              "label": "Sharpe edge vs buy-hold",
+              "value": "0.33"
+            }
+          ],
+          "label": "Risk-adjusted headline (OOS, conservative friction)",
+          "note": "Relative bar passed with qualifiers: absolute OOS Sharpe negative - defensive value in a bear, not profit.",
+          "source": "tsmom_ev1_risk_adjusted_headline"
+        },
+        {
+          "kind": "computed",
+          "label": "Leave-one-out Sharpe edges",
+          "note": "Dropping any single asset (from book AND benchmark) keeps the risk-adjusted edge - not a one-name artifact.",
+          "source": "tsmom_ev1_leave_one_out",
+          "table": {
+            "columns": [
+              "Dropped",
+              "Strategy Sharpe",
+              "Buy-hold Sharpe",
+              "Edge"
+            ],
+            "rows": [
+              [
+                "AVAX",
+                "-1.44844097",
+                "-1.78507558",
+                "0.33663461"
+              ],
+              [
+                "BNB",
+                "-1.66824047",
+                "-1.91902563",
+                "0.25078516"
+              ],
+              [
+                "BTC",
+                "-1.51031985",
+                "-1.80973866",
+                "0.29941881"
+              ],
+              [
+                "DOGE",
+                "-1.59148555",
+                "-1.78951622",
+                "0.19803067"
+              ],
+              [
+                "ETH",
+                "-1.34882346",
+                "-1.80148933",
+                "0.45266587"
+              ],
+              [
+                "SOL",
+                "-1.47872802",
+                "-1.76403653",
+                "0.28530851"
+              ],
+              [
+                "SUI",
+                "-1.50130194",
+                "-1.72505178",
+                "0.22374984"
+              ],
+              [
+                "XRP",
+                "-1.24539199",
+                "-1.80461390",
+                "0.55922191"
+              ]
+            ]
+          }
+        }
+      ],
+      "badge": "defensive, not profitable",
+      "class": "time_series_momentum",
+      "date": "2026-06-11",
+      "evidence_doc": "docs/tsmom_ev1_vol_targeted_momentum_evidence.md",
+      "evidence_summary": "docs/tsmom_ev1_vol_targeted_momentum_evidence_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "Third strategy-type route (time_series_momentum) with its own buy-hold risk-adjusted gate; standing rule that relative gates carry absolute qualifiers; trend is reframed as a defensive-overlay hypothesis, not a return source.",
+        "didnt": "Trend as a profit source on this data. Long-only TSMOM lost money OOS; the hindsight long/short rows that made money are upper bounds because perp funding is unmodeled - and the train split could not have chosen them anyway.",
+        "lesson": "A relative gate (vs buy-and-hold) can pass while the strategy loses money. Relative passes must carry absolute-performance qualifiers, and \"beats a collapsing benchmark\" must never be read as edge.",
+        "our_error": null,
+        "our_error_note": "None this run - the gate was built with the qualifiers from the start, and the authored outcome stays mixed despite the technically-green gate.",
+        "why": "The OOS window was a severe bear; the strategy's edge came mostly from being flat (vol-targeted long-only goes to cash when trends die), plus real but modest timing value over vol-targeted beta (-1.48 vs -1.89). Absolute OOS Sharpe stayed negative, and the best random long/flat seeds (max -1.12) still beat it - so the timing signal is weak, not decisive.",
+        "worked": "The risk machinery - vol targeting + equal risk budgets eliminated the ZEC-class concentration by construction (max name share ~34%, all eight leave-one-out drops keep the edge); per-symbol PnL reconciles to net; train-only choice honestly refused the hindsight-best long/short configs."
+      },
+      "finding": "Trend done right - vol targeting + risk parity on eight liquid majors, judged risk-adjusted vs buy-and-hold OOS after friction. The relative bar PASSED: Sharpe -1.48 vs -1.81 and drawdown 16.6% vs 65.7% in a -62% bear window, surviving walk-forward and all leave-one-out drops. But the strategy itself still lost 12.2% OOS - defensive value, not profit.",
+      "hardened_gates": [
+        "relative passes carry absolute-performance qualifiers"
+      ],
+      "outcome": "mixed",
+      "phase": "TSMOM-EV1",
+      "title": "Volatility-Targeted Time-Series Momentum (liquid majors)"
+    },
+    {
       "analytics": [],
       "badge": "process upgrade",
       "class": "audit",
@@ -531,7 +647,7 @@
       "title": "Original Money Flow Reconstruction (accounting correction)"
     }
   ],
-  "entry_count": 13,
+  "entry_count": 14,
   "lessons_hardened_gates": [
     {
       "gate": "PnL must reconcile to equity",
@@ -552,6 +668,10 @@
     {
       "gate": "beat random OOS, or it's nothing",
       "phase": "SEL-EV1"
+    },
+    {
+      "gate": "relative passes carry absolute-performance qualifiers",
+      "phase": "TSMOM-EV1"
     }
   ],
   "report": "research_log",

@@ -2,6 +2,69 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-11T14:00:00Z - TSMOM-EV1 - Vol-Targeted Trend Beats Holding A Falling Market, Not Zero; A Relative Pass Must Carry Absolute Qualifiers
+
+- `decision`: (1) Time-series momentum is its own strategy type (`time_series_momentum`, prefix `tsmom_ev1_`) with its own gate: risk-adjusted (Sharpe + max drawdown) versus EQUAL-WEIGHT BUY-AND-HOLD, out-of-sample, post-conservative-friction - never the selection random-benchmark gate, never the per-symbol breadth gate. (2) Volatility targeting + equal risk budgets (risk parity) on the eight liquid majors is the specific fix for the ZEC-class failure - the highest-vol name cannot dominate the book by construction. (3) A RELATIVE gate pass is not allowed to read as profit: the gate output carries non-failing honesty qualifiers, and this phase's relative pass (strategy OOS Sharpe -1.48 vs buy-hold -1.81 in a -62% bear window) is authored `mixed`, not `pass`.
+- `scope`: `services/strategy_validation/tsmom_ev1.py` (signal, vol targeting, mark-to-market simulator, benchmarks, gate), `strategy_types.py` (additive third route), `scripts/run_tsmom_ev1_evidence.py`, `docs/tsmom_ev1_*`, `tests/test_tsmom_ev1_evidence.py`, CI fast lane.
+- `result`: Gate verdict `beats_buy_hold_risk_adjusted_oos` WITH qualifiers (`oos_absolute_sharpe_not_positive_relative_edge_only`, `oos_absolute_return_negative_defensive_value_only`). Train-only choice picked lb30/vt20/long-only (train Sharpe 2.21 vs buy-hold 1.24). OOS: strategy -12.2% / Sharpe -1.48 / DD 16.6% vs buy-hold -61.7% / -1.81 / DD 65.7%. Edge survives both walk-forward folds (+1.16, +0.41) and all eight leave-one-out drops (+0.20..+0.56). Trend timing adds value over vol-targeted beta (-1.48 vs -1.89) and the random long/flat median (-2.00), but does not beat the best random seeds (max -1.12). Hindsight-best long/short configs had positive OOS Sharpe (+0.22) but train choice honestly picked long-only - and perp funding is unmodeled, so long/short rows are upper bounds. Per-symbol PnL reconciles to net (K-019 lesson); no single name dominates (max share DOGE ~34%, LOO robust).
+- `boundaries`: Research/evidence only. No runtime, strategy-rule, order, testnet, live, or production-approval change. Modeled depth, not real. Perp funding not modeled. 10,000 USDC basis.
+- `follow_up_implications`: Trend's demonstrated value on this data is DEFENSIVE (drawdown reduction in a bear), not positive return. If anything advances toward paper observation, it advances as a defensive overlay hypothesis, with funding modeled first for any long/short variant. Relative gates must always carry absolute qualifiers (now a standing rule).
+
+```yaml
+research_log:
+  phase: TSMOM-EV1
+  date: 2026-06-11
+  class: time_series_momentum
+  outcome: mixed
+  badge: defensive, not profitable
+  title: Volatility-Targeted Time-Series Momentum (liquid majors)
+  finding: >-
+    Trend done right - vol targeting + risk parity on eight liquid majors,
+    judged risk-adjusted vs buy-and-hold OOS after friction. The relative bar
+    PASSED: Sharpe -1.48 vs -1.81 and drawdown 16.6% vs 65.7% in a -62% bear
+    window, surviving walk-forward and all leave-one-out drops. But the
+    strategy itself still lost 12.2% OOS - defensive value, not profit.
+  why: >-
+    The OOS window was a severe bear; the strategy's edge came mostly from
+    being flat (vol-targeted long-only goes to cash when trends die), plus
+    real but modest timing value over vol-targeted beta (-1.48 vs -1.89).
+    Absolute OOS Sharpe stayed negative, and the best random long/flat seeds
+    (max -1.12) still beat it - so the timing signal is weak, not decisive.
+  worked: >-
+    The risk machinery - vol targeting + equal risk budgets eliminated the
+    ZEC-class concentration by construction (max name share ~34%, all eight
+    leave-one-out drops keep the edge); per-symbol PnL reconciles to net;
+    train-only choice honestly refused the hindsight-best long/short configs.
+  didnt: >-
+    Trend as a profit source on this data. Long-only TSMOM lost money OOS;
+    the hindsight long/short rows that made money are upper bounds because
+    perp funding is unmodeled - and the train split could not have chosen
+    them anyway.
+  lesson: >-
+    A relative gate (vs buy-and-hold) can pass while the strategy loses
+    money. Relative passes must carry absolute-performance qualifiers, and
+    "beats a collapsing benchmark" must never be read as edge.
+  our_error: null
+  our_error_note: >-
+    None this run - the gate was built with the qualifiers from the start,
+    and the authored outcome stays mixed despite the technically-green gate.
+  changed: >-
+    Third strategy-type route (time_series_momentum) with its own
+    buy-hold risk-adjusted gate; standing rule that relative gates carry
+    absolute qualifiers; trend is reframed as a defensive-overlay hypothesis,
+    not a return source.
+  hardened_gate: relative passes carry absolute-performance qualifiers
+  evidence_summary: docs/tsmom_ev1_vol_targeted_momentum_evidence_summary.json
+  evidence_doc: docs/tsmom_ev1_vol_targeted_momentum_evidence.md
+  analytics:
+    - label: Risk-adjusted headline (OOS, conservative friction)
+      kind: computed
+      source: tsmom_ev1_risk_adjusted_headline
+    - label: Leave-one-out Sharpe edges
+      kind: computed
+      source: tsmom_ev1_leave_one_out
+```
+
 ## 2026-06-11T12:00:00Z - DASH-QASWEEP1 - Shakedown Before The Walkthrough; Fix Clean, Flag Risky
 
 - `decision`: Before the investor walkthrough, drive the entire dashboard like a user (including with the 1-second refresh active, mocked offline), hold a zero-console-error bar, fix the clear UI bugs, and flag anything risky instead of guessing. Working and clean - never overstated: the chart/markers stay untouched and every safety label and honest verdict stays exactly as it is.

@@ -13,7 +13,7 @@ CI runs `build_research_log.py --check` as a drift guard.
 | --- | --- | --- |
 | `phase` | yes | Phase id (e.g. `SEL-EV1`). Unique across blocks. |
 | `date` | yes | `YYYY-MM-DD`. |
-| `class` | yes | One of `per_symbol_rule`, `cross_sectional_selection`, `variant`, `source_reconstruction`, `friction`, `audit`, `data_prep`. |
+| `class` | yes | One of `per_symbol_rule`, `cross_sectional_selection`, `time_series_momentum`, `variant`, `source_reconstruction`, `friction`, `audit`, `data_prep`. |
 | `outcome` | yes | **The honest taxonomy — authored here, never inferred from a summary status string.** One of `fail` (hypothesis failed), `mixed` (partial/none promoted), `context` (diagnostic/audit/data work, not a pass/fail test), `pass` (cleared the gate — none to date). Renders red / amber / blue / green. A non-positive result must never be authored `pass`. |
 | `badge` | no | Short badge text (defaults to the outcome). |
 | `title` | yes | Human title for the timeline row. |

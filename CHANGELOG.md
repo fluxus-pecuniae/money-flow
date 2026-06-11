@@ -17,6 +17,35 @@ Entry schema:
 
 ---
 
+## v2026.06.11.004
+
+- `recorded_at_utc`: `2026-06-11T15:00:00Z`
+- `scope`: `TSMOM-EV1 volatility-targeted time-series momentum evidence`
+- `intent`: `Research/evidence only; no runtime, strategy-rule, order, testnet, live, or production-approval change. Tests trend done right after the earlier trend failures: per-asset time-series momentum (sign of trailing 30/60/90d return; exact zero = flat) with VOLATILITY TARGETING + equal risk budgets (risk parity) on the eight liquid majors (BTC/ETH/SOL/XRP/DOGE/BNB/SUI/AVAX; HYPE excluded - mid-alt tier, short history), 10k USDC basis, weekly rebalance, next-open fills, EXEC-EV1 depth-aware friction at traded notional, gross leverage cap 1.5x, per-asset weight cap 0.40, bounded 12-config grid chosen on train only. New third strategy-type route time_series_momentum (prefix tsmom_ev1_) with its OWN gate: Sharpe + max drawdown vs EQUAL-WEIGHT BUY-AND-HOLD, OOS (chronological 70/30 + anchored walk-forward thirds), post-conservative-friction, leave-one-out across all eight assets, late-entry sensitivity - never the selection random-benchmark or per-symbol breadth gates. Benchmarks computed on identical machinery: buy-hold equal-weight (headline), always-long no-vol-target, always-long vol-targeted (leveraged-beta probe), seeded random long/flat (20 seeds, sanity). RESULT: gate verdict beats_buy_hold_risk_adjusted_oos WITH non-failing honesty qualifiers (oos_absolute_sharpe_not_positive_relative_edge_only, oos_absolute_return_negative_defensive_value_only): chosen lb30/vt20/long-only OOS Sharpe -1.48 / DD 16.6% / return -12.2% vs buy-hold -1.81 / 65.7% / -61.7% in a bear window; edge survives both walk-forward folds (+1.16/+0.41) and all 8 leave-one-out drops; beats vol-targeted beta (-1.89) and random median (-2.00) but not the best random seeds (max -1.12); hindsight long/short configs had positive OOS Sharpe (+0.22) but the train split honestly chose long-only and perp funding is unmodeled (documented). Per-symbol PnL reconciles to net (K-019 lesson); max name share ~34%. Research Log: authored outcome MIXED (badge 'defensive, not profitable') - a relative pass with negative absolute OOS performance must never render green; new standing rule that relative gates carry absolute qualifiers (hardened-gates rail); schema class list extended with time_series_momentum. Tests: tests/test_tsmom_ev1_evidence.py (13 deterministic offline tests incl. vol-parity risk contributions, leaky-scorer catch, friction monotonicity, gate semantics + qualifier pins, committed-summary reconciliation, research-log honesty pin) wired into the blocking CI lane. Aggregator gains tsmom computed analytics views; research_log.json now 14 entries; DASH-QA1 12/12 with zero green badges preserved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `services/strategy_validation/tsmom_ev1.py`
+  - `services/strategy_validation/strategy_types.py`
+  - `scripts/run_tsmom_ev1_evidence.py`
+  - `scripts/build_research_log.py`
+  - `docs/tsmom_ev1_vol_targeted_momentum_evidence.md`
+  - `docs/tsmom_ev1_vol_targeted_momentum_evidence_summary.json`
+  - `docs/research_log.json`
+  - `docs/research_log_schema.md`
+  - `tests/test_tsmom_ev1_evidence.py`
+  - `.github/workflows/ci.yml`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/run_tsmom_ev1_evidence.py` → deterministic evidence build (2.9s), verdict + qualifiers as documented
+  - `.venv/bin/python -m pytest -q tests/test_tsmom_ev1_evidence.py tests/test_rlog1_research_log.py tests/test_sel_ev1_selection_evidence.py` → 34 passed
+  - `.venv/bin/python scripts/build_research_log.py --check` → ok (14 entries)
+  - `.venv/bin/python -m pytest -m browser tests/dashboard_qa/ -q` → 12 passed (TSMOM renders amber mixed; zero green badges)
+  - `.venv/bin/python -m pytest -q tests/test_secret_hygiene.py tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py tests/test_operational_docs.py` → passed
+
 ## v2026.06.11.003
 
 - `recorded_at_utc`: `2026-06-11T12:00:00Z`
