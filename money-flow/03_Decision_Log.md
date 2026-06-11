@@ -2,6 +2,63 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-11T22:30:00Z - TREND-OVERLAY1 - The Defensive Finding Becomes A Read-Only Tool; The Honest Framing Travels With It
+
+- `decision`: (1) Operationalize the TSMOM-EV1 validated finding as a deployable READ-ONLY signal tool - a forward calculator on the latest fully-closed public-mainnet candles that reports per-asset trend state (hold / flat) and the vol-targeted target exposure for a configurable account size. This is the DEPLOYMENT of an existing finding, not a new strategy test: the tool reuses the exact TSMOM-EV1 computation under the train-chosen config (tsmom_ev1_lb30_vt20_long_only_1d) and the defaults are pinned by test to the committed evidence summary - changing them without new evidence fails CI. (2) Honest framing is structural, not optional: the drawdown-control-not-alpha disclaimer (including the absolute -12.2% OOS loss and the authored mixed outcome) is embedded in the module, the CLI stdout, every JSON output, and the docs; the trading-safety text guard enforces the posture. (3) The optional OS panel is SKIPPED, documented: it would require lockstep changes to index.html / evidence-dashboard.js / static-asset guards / DASH-QA1 plus empty-state handling for an ignored artifact - non-trivial dashboard surgery for a CLI-first tool. The deliverable is the CLI + JSON; a display-only panel can be its own phase.
+- `scope`: `services/strategy_validation/trend_overlay1.py` (pure calculator: closed-candle filter, reused tsmom signal/vol/weights, disclaimer, signal-only boundaries), `scripts/run_trend_overlay.py` (public read-only candleSnapshot fetch or offline --input-json replay; writes ignored `reports/trend_overlay/current_trend_overlay.json`), `docs/trend_overlay1_*`, `tests/test_trend_overlay1.py`, CI fast lane, `.gitignore`.
+- `result`: Live sample (2026-06-11, real latest candles): all eight liquid majors are in 30-day downtrend - the overlay's current target is FULLY FLAT, 0 of 10,000 USDC exposed (8 flat / 0 held). That is the validated defensive action in the live 2026 bear: an operator holding a long book sees the overlay calling for cash; it is not a prediction. Closed-candle no-lookahead verified (in-progress and future candles are dropped and cannot change the output); the text guard caught one wording during the build ("nothing here is production-approved" was not a recognized negation) and it was rephrased - the guard is green.
+- `boundaries`: Signal only. Public read-only data (the same candleSnapshot endpoint the dashboard polls); no orders, no auto-execution, no private/signed/order endpoints, no testnet/live trading, no production approval implied or granted, no runtime change; the validated signal was not re-tuned.
+- `follow_up_implications`: The operator can run `.venv/bin/python scripts/run_trend_overlay.py` any time for the current defensive posture (weekly cadence matches the evidence design; the JSON artifact is ignored runtime state). If the founder wants the overlay visible on the Money Flow OS, scope a display-only panel phase with DASH-QA1 lockstep. Any change to lookback/vol-target/mode is a RE-TUNE and requires new TSMOM evidence first (the pin test enforces this). TREND-CARRY remains a separate recorded hypothesis with its FUND-EV2 cost constraints.
+
+```yaml
+research_log:
+  phase: TREND-OVERLAY1
+  date: 2026-06-11
+  class: time_series_momentum
+  outcome: context
+  badge: defensive overlay deployed - signal only
+  title: Trend Drawdown-Control Overlay Operationalized (read-only tool)
+  finding: >-
+    The TSMOM-EV1 defensive finding (bear drawdown 66% -> 17%, authored
+    mixed - defensive, not profitable) is now a deployable read-only
+    calculator: current per-asset trend state + vol-targeted target
+    exposure on the latest closed public-mainnet candles. Live sample at
+    deployment: all eight majors in downtrend - target FULLY FLAT.
+  why: >-
+    Deployment of an existing validated finding, not a new strategy test -
+    no new hypothesis was evaluated and no parameter was re-tuned (the
+    defaults are pinned by test to the committed TSMOM-EV1 train choice).
+  worked: >-
+    The reuse discipline - the tool imports the exact evidence-run
+    computation rather than re-implementing it, so the signal cannot drift
+    from what was validated; the disclaimer travels in every output and
+    the text guard enforces the posture mechanically.
+  didnt: >-
+    Nothing failed; the optional OS panel was deliberately skipped (it
+    would require non-trivial DASH-QA1 lockstep surgery for an ignored
+    artifact) and is available as its own display-only phase.
+  lesson: >-
+    A defensive finding is only useful if the honest framing survives
+    deployment: the tool states drawdown control, not alpha - including
+    the absolute loss - on every surface, so the operator cannot mistake
+    risk reduction for a profit signal.
+  our_error: null
+  our_error_note: >-
+    None - one disclaimer wording was rejected by the trading-safety text
+    guard during the build and rephrased; the guard worked as designed.
+  changed: >-
+    The TSMOM-EV1 finding moved from evidence to an operator tool
+    (scripts/run_trend_overlay.py); re-tuning the deployed signal without
+    new evidence now fails CI by construction.
+  hardened_gate: deployed signals are pinned to their evidence config - re-tuning fails CI
+  evidence_summary: docs/trend_overlay1_deployable_drawdown_overlay_summary.json
+  evidence_doc: docs/trend_overlay1_deployable_drawdown_overlay.md
+  analytics:
+    - label: Live sample at deployment
+      kind: value
+      source: sample_reading
+```
+
 ## 2026-06-11T21:30:00Z - FUND-SCALE1 - Scale Does Not Unlock The Carry: Own Flow Never Earns The Tiers And Impact Grows Faster Than Fixed Costs Amortize
 
 - `decision`: (1) The size/fee axis FUND-EV2 sanctioned is now mapped with published, cited tier schedules (Hyperliquid 14d-weighted volume tiers T0-T6 with spot counted double; Kraken Pro 30d tiers) and both size effects modeled honestly: tier fees + amortizing fixed costs (helps) AND EXEC-EV1 square-root impact driven by the actual per-size traded notional (hurts). (2) Two honesty rules bind the map: a fee tier counts as ACHIEVED only if the strategy's OWN traded volume at that size reaches the published qualifying volume; and any cell whose single fill exceeds 10% of its candle's dollar volume is impact-implausible and cannot pass regardless of its modeled number. (3) Verdict: `carry_does_not_reach_viability_at_credible_scale` - the achieved-tier surface is negative at EVERY account size, so funding carry stays closed at every credible scale for this operator, not just at 10k retail. The retail verdict was reproduced (the 10k base-tier cell equals FUND-EV2's -6.5), never re-litigated.

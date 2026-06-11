@@ -16,6 +16,31 @@ Entry schema:
 
 ---
 
+## v2026.06.08.005
+
+- `recorded_at_utc`: `2026-06-08T08:10:00Z`
+- `scope`: `DASH-PT1.2 Paper Trading exchange-style terminal polish`
+- `intent`: `Native entry. Reorganized the Paper Trading view into a dense exchange-style terminal while preserving PT-RT1.6 Week 2 truth. The screen now uses a top health strip, left filter/watchlist rail, center Live Public Candles + Paper Markers chart, right Runtime Control / Testnet Order Transport / Daily Review rail, and a bottom tabbed blotter for Open Positions, Closed Trades, Signal Stream, Testnet Lifecycle, Runtime Logs, Weekly Scoreboard, and Diagnostics. The bottom tab state persists across the one-second market-refresh render path. This is dashboard/UI-only: no runtime behavior changed, no runtime was started or stopped, no orders were submitted, no live trading was approved, no strategy was production-approved, and the Week 2 slate/testnet eligibility boundaries were not changed.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `KNOWN_ISSUES.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.css`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/README.md`
+  - `apps/dashboard/DESIGN.md`
+  - `tests/test_dashboard_static_assets.py`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `git diff --check`
+
 ## v2026.06.08.004
 
 - `recorded_at_utc`: `2026-06-08T07:35:00Z`

@@ -17,6 +17,36 @@ Entry schema:
 
 ---
 
+## v2026.06.11.008
+
+- `recorded_at_utc`: `2026-06-11T22:45:00Z`
+- `scope`: `TREND-OVERLAY1 deployable trend drawdown-control overlay (signal only)`
+- `intent`: `Read-only signal tool; no orders, no auto-execution, no private/signed/order endpoints, no testnet/live, no production approval, no runtime change. Operationalizes the TSMOM-EV1 finding (vol-targeted trend as DRAWDOWN CONTROL: bear drawdown 66% -> 17% while losing 12.2% absolute OOS; authored mixed - defensive, not profitable) as a forward calculator on the latest fully-closed public-mainnet candles. services/strategy_validation/trend_overlay1.py REUSES the exact TSMOM-EV1 machinery (tsmom_signal / realized_vol_annual / target_weights with the 0.40 weight cap and 1.5x gross cap) under the evidence run's train-chosen config (tsmom_ev1_lb30_vt20_long_only_1d) - nothing re-derived or re-tuned; the defaults are PINNED BY TEST to the committed TSMOM-EV1 summary so a silent re-tune fails CI. scripts/run_trend_overlay.py fetches the latest daily candles for the eight liquid majors from Hyperliquid public mainnet candleSnapshot (read-only, no keys), drops the in-progress candle (closed-candle-only no-lookahead boundary, tested: future/in-progress rows cannot change the output), prints the signal table, and writes the ignored runtime artifact reports/trend_overlay/current_trend_overlay.json (.gitignore extended); --input-json replays a saved payload offline (no network, used by tests); --account-size scales target exposure (default 10,000 USDC). HONEST FRAMING carried in every surface (module docstring, CLI stdout, JSON output, docs): drawdown-control overlay NOT alpha, signal only not an order, no production approval implied or granted - the trading-safety text guard is green (it caught and rejected one wording during the build, which was rephrased to a recognized negation). Real sample run committed in docs (2026-06-11): all eight majors in 30d downtrend -> the overlay's current target is FULLY FLAT (0 of 10,000 USDC exposed) - the validated defensive action in the live bear. OS panel decision: SKIPPED, documented - a dashboard panel would touch index.html/evidence-dashboard.js/static-asset guards/DASH-QA1 in lockstep plus empty-state handling for an ignored artifact; non-trivial surgery for a CLI-first tool; DASH-QA1 untouched. Research Log: authored CONTEXT (deployment of an existing validated finding, not a new strategy test; badge 'defensive overlay deployed - signal only'); aggregator unchanged except the new block (18 entries, --check green). Tests: tests/test_trend_overlay1.py (9 deterministic offline tests: defaults pinned to the committed TSMOM-EV1 choice, trend states, risk-equal vol targeting + vol-spike reduction, weight/gross caps, closed-candle no-lookahead, insufficient-history flat, disclaimer + signal-only boundaries on every surface, offline CLI end-to-end) wired into the blocking CI lane. Oldest changelog entry (v2026.06.08.005) rotated verbatim into CHANGELOG_ARCHIVE.md per DOC-LEAN1.`
+- `affected_files`:
+  - `services/strategy_validation/trend_overlay1.py`
+  - `scripts/run_trend_overlay.py`
+  - `docs/trend_overlay1_deployable_drawdown_overlay.md`
+  - `docs/trend_overlay1_deployable_drawdown_overlay_summary.json`
+  - `docs/research_log.json`
+  - `tests/test_trend_overlay1.py`
+  - `.github/workflows/ci.yml`
+  - `.gitignore`
+  - `CHANGELOG.md`
+  - `CHANGELOG_ARCHIVE.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_trend_overlay1.py`
+  - `.venv/bin/python scripts/check_trading_safety_text.py`
+  - `.venv/bin/python scripts/build_research_log.py --check`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py tests/test_rlog1_research_log.py`
+  - `.venv/bin/python -m pytest -q tests/test_secret_hygiene.py tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py`
+  - `python -m compileall -q services scripts tests`
+  - `git diff --check`
+
 ## v2026.06.11.007
 
 - `recorded_at_utc`: `2026-06-11T21:45:00Z`
@@ -700,28 +730,3 @@ Entry schema:
   - `node --check apps/dashboard/evidence-dashboard.js`
   - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
   - `Playwright Chromium screenshot QA at 1440x1000, 390x900, and final 1440x1000 polish review`
-
-## v2026.06.08.005
-
-- `recorded_at_utc`: `2026-06-08T08:10:00Z`
-- `scope`: `DASH-PT1.2 Paper Trading exchange-style terminal polish`
-- `intent`: `Native entry. Reorganized the Paper Trading view into a dense exchange-style terminal while preserving PT-RT1.6 Week 2 truth. The screen now uses a top health strip, left filter/watchlist rail, center Live Public Candles + Paper Markers chart, right Runtime Control / Testnet Order Transport / Daily Review rail, and a bottom tabbed blotter for Open Positions, Closed Trades, Signal Stream, Testnet Lifecycle, Runtime Logs, Weekly Scoreboard, and Diagnostics. The bottom tab state persists across the one-second market-refresh render path. This is dashboard/UI-only: no runtime behavior changed, no runtime was started or stopped, no orders were submitted, no live trading was approved, no strategy was production-approved, and the Week 2 slate/testnet eligibility boundaries were not changed.`
-- `affected_files`:
-  - `CHANGELOG.md`
-  - `REPO_TREE.md`
-  - `TODO.md`
-  - `KNOWN_ISSUES.md`
-  - `apps/dashboard/index.html`
-  - `apps/dashboard/evidence-dashboard.css`
-  - `apps/dashboard/evidence-dashboard.js`
-  - `apps/dashboard/README.md`
-  - `apps/dashboard/DESIGN.md`
-  - `tests/test_dashboard_static_assets.py`
-  - `money-flow/01_Current_Phase.md`
-  - `money-flow/05_Agent_Coordination.md`
-  - `money-flow/00 Maps/Dashboard and UI Map.md`
-  - `money-flow/Project_Memory/money_flow_project_memory.md`
-- `validation_performed`:
-  - `node --check apps/dashboard/evidence-dashboard.js`
-  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
-  - `git diff --check`

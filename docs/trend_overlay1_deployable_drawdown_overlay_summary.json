@@ -1,0 +1,186 @@
+{
+  "boundaries": {
+    "approves_live_trading": false,
+    "approves_production_strategy": false,
+    "auto_execution": false,
+    "calls_private_signed_or_order_endpoints": false,
+    "closed_candles_only": true,
+    "creates_order_intent": false,
+    "creates_prepared_venue_order": false,
+    "creates_submitted_order": false,
+    "drawdown_control_not_alpha": true,
+    "public_read_only_data": true,
+    "signal_only_not_an_order": true,
+    "signal_retuned": false,
+    "submits_live_orders": false,
+    "submits_testnet_orders": false
+  },
+  "honest_framing": {
+    "carried_in": [
+      "module docstring",
+      "CLI stdout (every run)",
+      "current_trend_overlay.json (every output)",
+      "this summary + the phase report"
+    ],
+    "disclaimer": "DRAWDOWN-CONTROL OVERLAY, NOT ALPHA: this signal reduces downside on a held long crypto book by going flat / vol-targeted in downtrends (TSMOM-EV1 evidence: equal-weight buy-and-hold bear drawdown 66% vs overlay 17% - while the overlay itself LOST 12.2% absolute in that OOS window; authored outcome: mixed, defensive not profitable). It does not predict prices and does not aim to make money on its own. SIGNAL ONLY: not an order, no auto-execution, no testnet or live trading, and no production approval is implied or granted."
+  },
+  "os_panel_decision": {
+    "added": false,
+    "dash_qa1_untouched": true,
+    "rationale": "DASH-QASWEEP1 just stabilized the two-tab investor-ready dashboard behind 12 blocking browser checks; a new panel would touch index.html, evidence-dashboard.js, the static-asset guards and DASH-QA1 in lockstep, plus need empty-state handling for an ignored artifact that does not exist on fresh clones - non-trivial dashboard surgery for a CLI-first tool. Deliverable stays CLI + JSON; a panel can be its own display-only phase if the founder wants it on the OS surface."
+  },
+  "phase": "TREND-OVERLAY1",
+  "report": "trend_overlay1_deployable_drawdown_overlay",
+  "sample_reading": "As of this sample (2026-06-11), all eight majors are in 30d downtrend: the overlay's target is FULLY FLAT - 0 of 10,000 USDC exposed. That is the validated defensive action in the live 2026 bear: an operator holding a long book sees the overlay calling for cash, not a prediction.",
+  "sample_run": {
+    "account_size_usdc": "10000",
+    "as_of_utc": "2026-06-11T19:18:29Z",
+    "boundaries": {
+      "approves_live_trading": false,
+      "approves_production_strategy": false,
+      "auto_execution": false,
+      "calls_private_signed_or_order_endpoints": false,
+      "closed_candles_only": true,
+      "creates_order_intent": false,
+      "creates_prepared_venue_order": false,
+      "creates_submitted_order": false,
+      "drawdown_control_not_alpha": true,
+      "public_read_only_data": true,
+      "signal_only_not_an_order": true,
+      "signal_retuned": false,
+      "submits_live_orders": false,
+      "submits_testnet_orders": false
+    },
+    "config": {
+      "config_id": "tsmom_ev1_lb30_vt20_long_only_1d",
+      "lookback_days": 30,
+      "max_gross_leverage": "1.5",
+      "max_single_asset_weight": "0.40",
+      "mode": "long_only",
+      "not_retuned": true,
+      "portfolio_vol_target_annualized": "0.20",
+      "validated_source": "TSMOM-EV1 train-chosen config (committed evidence summary)",
+      "vol_window_days": 30
+    },
+    "data_as_of_utc": "2026-06-11T00:00:00Z",
+    "data_source": "hyperliquid_public_mainnet_candleSnapshot_read_only",
+    "disclaimer": "DRAWDOWN-CONTROL OVERLAY, NOT ALPHA: this signal reduces downside on a held long crypto book by going flat / vol-targeted in downtrends (TSMOM-EV1 evidence: equal-weight buy-and-hold bear drawdown 66% vs overlay 17% - while the overlay itself LOST 12.2% absolute in that OOS window; authored outcome: mixed, defensive not profitable). It does not predict prices and does not aim to make money on its own. SIGNAL ONLY: not an order, no auto-execution, no testnet or live trading, and no production approval is implied or granted.",
+    "dropped_not_closed_total": 8,
+    "per_asset": [
+      {
+        "closed_candles_used": 150,
+        "dropped_not_closed": 1,
+        "last_close": "6.3764",
+        "last_close_time": "2026-06-11T00:00:00Z",
+        "realized_vol_annual": "0.59346225",
+        "symbol": "AVAX",
+        "target_exposure_usdc": "0E-8",
+        "target_weight": "0E-8",
+        "trend_sign": -1,
+        "trend_state": "flat_downtrend"
+      },
+      {
+        "closed_candles_used": 150,
+        "dropped_not_closed": 1,
+        "last_close": "586.3",
+        "last_close_time": "2026-06-11T00:00:00Z",
+        "realized_vol_annual": "0.59528111",
+        "symbol": "BNB",
+        "target_exposure_usdc": "0E-8",
+        "target_weight": "0E-8",
+        "trend_sign": -1,
+        "trend_state": "flat_downtrend"
+      },
+      {
+        "closed_candles_used": 150,
+        "dropped_not_closed": 1,
+        "last_close": "61481.0",
+        "last_close_time": "2026-06-11T00:00:00Z",
+        "realized_vol_annual": "0.38302055",
+        "symbol": "BTC",
+        "target_exposure_usdc": "0E-8",
+        "target_weight": "0E-8",
+        "trend_sign": -1,
+        "trend_state": "flat_downtrend"
+      },
+      {
+        "closed_candles_used": 150,
+        "dropped_not_closed": 1,
+        "last_close": "0.082932",
+        "last_close_time": "2026-06-11T00:00:00Z",
+        "realized_vol_annual": "0.51866084",
+        "symbol": "DOGE",
+        "target_exposure_usdc": "0E-8",
+        "target_weight": "0E-8",
+        "trend_sign": -1,
+        "trend_state": "flat_downtrend"
+      },
+      {
+        "closed_candles_used": 150,
+        "dropped_not_closed": 1,
+        "last_close": "1620.9",
+        "last_close_time": "2026-06-11T00:00:00Z",
+        "realized_vol_annual": "0.56478047",
+        "symbol": "ETH",
+        "target_exposure_usdc": "0E-8",
+        "target_weight": "0E-8",
+        "trend_sign": -1,
+        "trend_state": "flat_downtrend"
+      },
+      {
+        "closed_candles_used": 150,
+        "dropped_not_closed": 1,
+        "last_close": "63.183",
+        "last_close_time": "2026-06-11T00:00:00Z",
+        "realized_vol_annual": "0.54781082",
+        "symbol": "SOL",
+        "target_exposure_usdc": "0E-8",
+        "target_weight": "0E-8",
+        "trend_sign": -1,
+        "trend_state": "flat_downtrend"
+      },
+      {
+        "closed_candles_used": 150,
+        "dropped_not_closed": 1,
+        "last_close": "0.72637",
+        "last_close_time": "2026-06-11T00:00:00Z",
+        "realized_vol_annual": "0.67484432",
+        "symbol": "SUI",
+        "target_exposure_usdc": "0E-8",
+        "target_weight": "0E-8",
+        "trend_sign": -1,
+        "trend_state": "flat_downtrend"
+      },
+      {
+        "closed_candles_used": 150,
+        "dropped_not_closed": 1,
+        "last_close": "1.0966",
+        "last_close_time": "2026-06-11T00:00:00Z",
+        "realized_vol_annual": "0.47514056",
+        "symbol": "XRP",
+        "target_exposure_usdc": "0E-8",
+        "target_weight": "0E-8",
+        "trend_sign": -1,
+        "trend_state": "flat_downtrend"
+      }
+    ],
+    "phase": "TREND-OVERLAY1",
+    "portfolio": {
+      "assets_flat": 8,
+      "assets_held": 0,
+      "gross_target_exposure_usdc": "0E-8",
+      "gross_target_weight": "0E-8",
+      "reading": "gross_target_weight is the vol-targeted fraction of the account the overlay would keep exposed; the remainder sits in cash - the drawdown-control action is the gap between this and fully long"
+    },
+    "report": "current_trend_overlay"
+  },
+  "status": "defensive_overlay_operationalized_signal_only",
+  "validated_basis": {
+    "authored_outcome": "mixed (defensive, not profitable)",
+    "chosen_config": "tsmom_ev1_lb30_vt20_long_only_1d",
+    "evidence_phase": "TSMOM-EV1",
+    "evidence_summary": "docs/tsmom_ev1_vol_targeted_momentum_evidence_summary.json",
+    "finding": "bear drawdown 66% (buy-hold) vs 17% (overlay); overlay absolute OOS return -12.2% - risk reduction, not alpha"
+  },
+  "what_this_is": "The TSMOM-EV1 finding (vol-targeted trend as DRAWDOWN CONTROL, authored mixed - defensive, not profitable) operationalized as a read-only forward calculator: services/strategy_validation/trend_overlay1.py + scripts/run_trend_overlay.py compute the current vol-targeted target exposure for the eight liquid majors on the latest fully-closed public-mainnet candles and write reports/trend_overlay/current_trend_overlay.json (ignored runtime artifact). No new strategy was tested; the validated signal was reused exactly and NOT re-tuned (defaults pinned by test to the committed TSMOM-EV1 train-chosen config)."
+}
