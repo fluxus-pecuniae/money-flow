@@ -1,0 +1,1017 @@
+{
+  "account_size_usdc": "10000",
+  "benchmarks": {
+    "always_on_carry_all_names": {
+      "config_id": "fund_ev2_benchmark_always_on_hl_single",
+      "fees_total": "23.44091047",
+      "full_stats": {
+        "days": 394,
+        "max_drawdown_pct": "0.46578114",
+        "sharpe_annual": "5.09201730",
+        "total_return_pct": "4.98714116",
+        "vol_annual": "0.00888498"
+      },
+      "funding_collected_total": "478.31979031",
+      "net_pnl": "498.71411644",
+      "oos_net_pnl": "25.68127842",
+      "oos_stats": {
+        "days": 119,
+        "max_drawdown_pct": "0.11889100",
+        "sharpe_annual": "1.73189224",
+        "total_return_pct": "0.24521339",
+        "vol_annual": "0.00437982"
+      },
+      "trade_count": 82
+    },
+    "cash": {
+      "config_id": "hold_10000_usdc",
+      "max_drawdown_pct": "0",
+      "net_pnl": "0"
+    },
+    "gross_funding_zero_cost_same_config": {
+      "config_id": "fund_ev2_hl_single_cad14_top2_1d",
+      "fees_total": "0E-8",
+      "full_stats": {
+        "days": 394,
+        "max_drawdown_pct": "0.17281950",
+        "sharpe_annual": "4.86763487",
+        "total_return_pct": "7.25515845",
+        "vol_annual": "0.01338331"
+      },
+      "funding_collected_total": "596.11662831",
+      "net_pnl": "725.51584511",
+      "oos_net_pnl": "61.03594002",
+      "oos_stats": {
+        "days": 119,
+        "max_drawdown_pct": "0.06787039",
+        "sharpe_annual": "4.29060092",
+        "total_return_pct": "0.57232927",
+        "vol_annual": "0.00411640"
+      },
+      "trade_count": 128
+    }
+  },
+  "boundaries": {
+    "approves_live_trading": false,
+    "approves_production_strategy": false,
+    "calls_private_signed_or_order_endpoints": false,
+    "changes_per_symbol_lane_behavior_or_results": false,
+    "changes_production_money_flow_rules": false,
+    "changes_selection_lane_behavior_or_results": false,
+    "changes_tsmom_lane_behavior_or_results": false,
+    "cost_sensitivity_sweep_reported": true,
+    "costs_cited_not_tuned_to_verdict": true,
+    "creates_order_intent": false,
+    "creates_prepared_venue_order": false,
+    "creates_submitted_order": false,
+    "cross_venue_legging_modeled_at_daily_resolution": true,
+    "daily_funding_accrual_approximation": true,
+    "funding_modeled_from_public_history": true,
+    "l2book_calibration_point_in_time_not_history": true,
+    "liquidation_mechanics_not_modeled": true,
+    "modeled_depth_not_real": true,
+    "mutates_active_pt_rt_runtime": false,
+    "mutates_runtime_artifacts": false,
+    "research_only": true,
+    "spot_borrow_not_modeled_flip_rows_upper_bound": true,
+    "submits_live_orders": false,
+    "submits_testnet_orders": false,
+    "uses_testnet_data_as_strategy_truth": false
+  },
+  "chronological_split": {
+    "split_time": "2026-02-09 00:00:00+00:00",
+    "train_ratio": "0.70"
+  },
+  "cost_sensitivity_sweep": {
+    "breakpoint_scale_where_oos_edge_dies": "0.75",
+    "rows": [
+      {
+        "full_net_pnl": "670.02100018",
+        "funding_collected_total": "592.51993993",
+        "oos_net_pnl": "40.57999381",
+        "scale": "0.25",
+        "trade_count": 122
+      },
+      {
+        "full_net_pnl": "646.56727322",
+        "funding_collected_total": "594.29452671",
+        "oos_net_pnl": "55.67641791",
+        "scale": "0.5",
+        "trade_count": 96
+      },
+      {
+        "full_net_pnl": "473.22926674",
+        "funding_collected_total": "521.49156789",
+        "oos_net_pnl": "-1.52572435",
+        "scale": "0.75",
+        "trade_count": 64
+      },
+      {
+        "full_net_pnl": "432.72101383",
+        "funding_collected_total": "520.82373578",
+        "oos_net_pnl": "-6.52404520",
+        "scale": "1.0",
+        "trade_count": 49
+      },
+      {
+        "full_net_pnl": "493.88220513",
+        "funding_collected_total": "543.06549895",
+        "oos_net_pnl": "-11.60040180",
+        "scale": "1.25",
+        "trade_count": 48
+      },
+      {
+        "full_net_pnl": "497.64241602",
+        "funding_collected_total": "542.16468201",
+        "oos_net_pnl": "-2.10138063",
+        "scale": "1.5",
+        "trade_count": 44
+      },
+      {
+        "full_net_pnl": "266.56201073",
+        "funding_collected_total": "306.24608294",
+        "oos_net_pnl": "-1.87514593",
+        "scale": "2.0",
+        "trade_count": 28
+      },
+      {
+        "full_net_pnl": "0E-8",
+        "funding_collected_total": "0E-8",
+        "oos_net_pnl": "0E-8",
+        "scale": "3.0",
+        "trade_count": 0
+      },
+      {
+        "full_net_pnl": "0E-8",
+        "funding_collected_total": "0E-8",
+        "oos_net_pnl": "0E-8",
+        "scale": "5.0",
+        "trade_count": 0
+      }
+    ],
+    "semantics": "adaptive sweep: the strategy re-decides entries at each cost scale; selectivity going flat at high cost reads as net 0 = edge dead"
+  },
+  "data_provenance": {
+    "access": "public_read_only_no_keys_no_private_no_signed_no_orders",
+    "funding": {
+      "fetched_at_utc": "2026-06-11T15:40:13Z",
+      "snapshot_summary": "docs/fund_ev1_funding_data_snapshot_summary.json"
+    },
+    "l2book_calibration": {
+      "fetched_at_utc": "2026-06-11T16:45:38Z",
+      "summary": "docs/fund_ev2_l2book_calibration_summary.json"
+    },
+    "perp_candles": "hyperliquid_public_mainnet_candles_sv2_2_refresh",
+    "spot_candles_raw_dir": "/tmp/money-flow-fund-ev1/raw_spot_candles"
+  },
+  "design": {
+    "config_grid_size": 8,
+    "constructions": {
+      "cross_venue": {
+        "construction": "cross_venue",
+        "legs": {
+          "BTC:perp": {
+            "basis": "Hyperliquid fee schedule (docs, fetched 2026-06-11, base tier): perp taker 4.5 bps, spot taker 7 bps; Hyperliquid public l2Book one-shot calibration 2026-06-11 (docs/fund_ev2_l2book_calibration_summary.json)",
+            "fee_bps": "4.5",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "0.5",
+            "impact_coefficient_bps": "10",
+            "slippage_bps": "2.0"
+          },
+          "BTC:spot": {
+            "basis": "Kraken Pro fee schedule (fetched 2026-06-11, base tier): spot taker 40 bps; Coinbase Advanced base tier worse (60 bps); flat 2 USDC/fill cross-venue USDC transfer/settlement amortization (documented assumption)",
+            "fee_bps": "40.0",
+            "flat_cost_quote": "2.00",
+            "half_spread_bps": "0.5",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "ETH:perp": {
+            "basis": "Hyperliquid fee schedule (docs, fetched 2026-06-11, base tier): perp taker 4.5 bps, spot taker 7 bps; Hyperliquid public l2Book one-shot calibration 2026-06-11 (docs/fund_ev2_l2book_calibration_summary.json)",
+            "fee_bps": "4.5",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "10",
+            "slippage_bps": "2.0"
+          },
+          "ETH:spot": {
+            "basis": "Kraken Pro fee schedule (fetched 2026-06-11, base tier): spot taker 40 bps; Coinbase Advanced base tier worse (60 bps); flat 2 USDC/fill cross-venue USDC transfer/settlement amortization (documented assumption)",
+            "fee_bps": "40.0",
+            "flat_cost_quote": "2.00",
+            "half_spread_bps": "0.5",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "HYPE:perp": {
+            "basis": "Hyperliquid fee schedule (docs, fetched 2026-06-11, base tier): perp taker 4.5 bps, spot taker 7 bps; Hyperliquid public l2Book one-shot calibration 2026-06-11 (docs/fund_ev2_l2book_calibration_summary.json)",
+            "fee_bps": "4.5",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "10",
+            "slippage_bps": "2.0"
+          },
+          "HYPE:spot": {
+            "basis": "Kraken Pro fee schedule (fetched 2026-06-11, base tier): spot taker 40 bps; Coinbase Advanced base tier worse (60 bps); flat 2 USDC/fill cross-venue USDC transfer/settlement amortization (documented assumption)",
+            "fee_bps": "40.0",
+            "flat_cost_quote": "2.00",
+            "half_spread_bps": "2.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "SOL:perp": {
+            "basis": "Hyperliquid fee schedule (docs, fetched 2026-06-11, base tier): perp taker 4.5 bps, spot taker 7 bps; Hyperliquid public l2Book one-shot calibration 2026-06-11 (docs/fund_ev2_l2book_calibration_summary.json)",
+            "fee_bps": "4.5",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "0.5",
+            "impact_coefficient_bps": "10",
+            "slippage_bps": "2.0"
+          },
+          "SOL:spot": {
+            "basis": "Kraken Pro fee schedule (fetched 2026-06-11, base tier): spot taker 40 bps; Coinbase Advanced base tier worse (60 bps); flat 2 USDC/fill cross-venue USDC transfer/settlement amortization (documented assumption)",
+            "fee_bps": "40.0",
+            "flat_cost_quote": "2.00",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          }
+        },
+        "scale": "1.0"
+      },
+      "hl_single": {
+        "construction": "hl_single",
+        "legs": {
+          "BTC:perp": {
+            "basis": "Hyperliquid fee schedule (docs, fetched 2026-06-11, base tier): perp taker 4.5 bps, spot taker 7 bps; Hyperliquid public l2Book one-shot calibration 2026-06-11 (docs/fund_ev2_l2book_calibration_summary.json)",
+            "fee_bps": "4.5",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "0.5",
+            "impact_coefficient_bps": "10",
+            "slippage_bps": "2.0"
+          },
+          "BTC:spot": {
+            "basis": "Hyperliquid fee schedule (docs, fetched 2026-06-11, base tier): perp taker 4.5 bps, spot taker 7 bps; Hyperliquid public l2Book one-shot calibration 2026-06-11 (docs/fund_ev2_l2book_calibration_summary.json)",
+            "fee_bps": "7.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "0.5",
+            "impact_coefficient_bps": "15",
+            "slippage_bps": "2.0"
+          },
+          "ETH:perp": {
+            "basis": "Hyperliquid fee schedule (docs, fetched 2026-06-11, base tier): perp taker 4.5 bps, spot taker 7 bps; Hyperliquid public l2Book one-shot calibration 2026-06-11 (docs/fund_ev2_l2book_calibration_summary.json)",
+            "fee_bps": "4.5",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "10",
+            "slippage_bps": "2.0"
+          },
+          "ETH:spot": {
+            "basis": "Hyperliquid fee schedule (docs, fetched 2026-06-11, base tier): perp taker 4.5 bps, spot taker 7 bps; Hyperliquid public l2Book one-shot calibration 2026-06-11 (docs/fund_ev2_l2book_calibration_summary.json)",
+            "fee_bps": "7.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "15",
+            "slippage_bps": "2.0"
+          },
+          "HYPE:perp": {
+            "basis": "Hyperliquid fee schedule (docs, fetched 2026-06-11, base tier): perp taker 4.5 bps, spot taker 7 bps; Hyperliquid public l2Book one-shot calibration 2026-06-11 (docs/fund_ev2_l2book_calibration_summary.json)",
+            "fee_bps": "4.5",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "10",
+            "slippage_bps": "2.0"
+          },
+          "HYPE:spot": {
+            "basis": "Hyperliquid fee schedule (docs, fetched 2026-06-11, base tier): perp taker 4.5 bps, spot taker 7 bps; Hyperliquid public l2Book one-shot calibration 2026-06-11 (docs/fund_ev2_l2book_calibration_summary.json)",
+            "fee_bps": "7.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "15",
+            "slippage_bps": "2.0"
+          },
+          "SOL:perp": {
+            "basis": "Hyperliquid fee schedule (docs, fetched 2026-06-11, base tier): perp taker 4.5 bps, spot taker 7 bps; Hyperliquid public l2Book one-shot calibration 2026-06-11 (docs/fund_ev2_l2book_calibration_summary.json)",
+            "fee_bps": "4.5",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "0.5",
+            "impact_coefficient_bps": "10",
+            "slippage_bps": "2.0"
+          },
+          "SOL:spot": {
+            "basis": "Hyperliquid fee schedule (docs, fetched 2026-06-11, base tier): perp taker 4.5 bps, spot taker 7 bps; Hyperliquid public l2Book one-shot calibration 2026-06-11 (docs/fund_ev2_l2book_calibration_summary.json)",
+            "fee_bps": "7.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "5.0",
+            "impact_coefficient_bps": "15",
+            "slippage_bps": "2.0"
+          }
+        },
+        "scale": "1.0"
+      }
+    },
+    "holds": "cadence [14, 28] days; rebalance band 0.02 of equity",
+    "mode": "collect_only (flip side needs unmodeled spot borrow; not leaned on)",
+    "round_trip_cost_bps_at_2500_notional": {
+      "cross_venue": {
+        "BTC": "115.00000000",
+        "ETH": "116.00000000",
+        "HYPE": "119.00000000",
+        "SOL": "116.00000000"
+      },
+      "hl_single": {
+        "BTC": "33.00000000",
+        "ETH": "35.00000000",
+        "HYPE": "35.00000000",
+        "SOL": "42.00000000"
+      }
+    },
+    "selectivity": "enter only when trailing-7d mean funding x planned hold >= 2.0x round-trip cost; hold while trailing stays favorable"
+  },
+  "discipline_guard": {
+    "costs_cited_not_tuned": true,
+    "one_honest_retest_no_fund_ev3_cost_tweak": true,
+    "sources": [
+      "Hyperliquid fee schedule (docs, fetched 2026-06-11): perp taker 4.5 bps, spot taker 7 bps (base tier)",
+      "Hyperliquid public l2Book one-shot calibration 2026-06-11: docs/fund_ev2_l2book_calibration_summary.json",
+      "Kraken Pro fee schedule (fetched 2026-06-11): spot taker 40 bps base tier (Coinbase Advanced base tier worse at 60 bps)",
+      "Cross-venue settlement: flat 2 USDC per spot fill (documented assumption)"
+    ]
+  },
+  "funding_carry_gate": {
+    "cost_sensitivity": {
+      "breakpoint_scale_where_oos_edge_dies": "0.75",
+      "fragility_threshold_scale": "1.5",
+      "realistic_scale": "1.0",
+      "sweep": [
+        {
+          "full_net_pnl": "670.02100018",
+          "funding_collected_total": "592.51993993",
+          "oos_net_pnl": "40.57999381",
+          "scale": "0.25",
+          "trade_count": 122
+        },
+        {
+          "full_net_pnl": "646.56727322",
+          "funding_collected_total": "594.29452671",
+          "oos_net_pnl": "55.67641791",
+          "scale": "0.5",
+          "trade_count": 96
+        },
+        {
+          "full_net_pnl": "473.22926674",
+          "funding_collected_total": "521.49156789",
+          "oos_net_pnl": "-1.52572435",
+          "scale": "0.75",
+          "trade_count": 64
+        },
+        {
+          "full_net_pnl": "432.72101383",
+          "funding_collected_total": "520.82373578",
+          "oos_net_pnl": "-6.52404520",
+          "scale": "1.0",
+          "trade_count": 49
+        },
+        {
+          "full_net_pnl": "493.88220513",
+          "funding_collected_total": "543.06549895",
+          "oos_net_pnl": "-11.60040180",
+          "scale": "1.25",
+          "trade_count": 48
+        },
+        {
+          "full_net_pnl": "497.64241602",
+          "funding_collected_total": "542.16468201",
+          "oos_net_pnl": "-2.10138063",
+          "scale": "1.5",
+          "trade_count": 44
+        },
+        {
+          "full_net_pnl": "266.56201073",
+          "funding_collected_total": "306.24608294",
+          "oos_net_pnl": "-1.87514593",
+          "scale": "2.0",
+          "trade_count": 28
+        },
+        {
+          "full_net_pnl": "0E-8",
+          "funding_collected_total": "0E-8",
+          "oos_net_pnl": "0E-8",
+          "scale": "3.0",
+          "trade_count": 0
+        },
+        {
+          "full_net_pnl": "0E-8",
+          "funding_collected_total": "0E-8",
+          "oos_net_pnl": "0E-8",
+          "scale": "5.0",
+          "trade_count": 0
+        }
+      ]
+    },
+    "gate_id": "funding_carry_net_oos_tail_gate",
+    "leave_one_out_oos_net": {
+      "BTC": "2.70590414",
+      "ETH": "-6.56960808",
+      "HYPE": "8.06350787",
+      "SOL": "70.10180900"
+    },
+    "max_oos_drawdown_pct_limit": "5",
+    "max_stressed_drawdown_pct_limit": "8",
+    "min_oos_days_required": 90,
+    "non_bull_net_pnl": "167.53779822",
+    "oos_net_pnl": "-6.52404520",
+    "oos_strategy": {
+      "days": 119,
+      "max_drawdown_pct": "0.22799259",
+      "sharpe_annual": "-0.60369958",
+      "total_return_pct": "-0.06249537",
+      "vol_annual": "0.00319466"
+    },
+    "passed": false,
+    "qualifiers": [],
+    "reason_codes": [
+      "oos_net_carry_not_positive_after_costs",
+      "leave_one_out_breaks_oos_net_carry"
+    ],
+    "regime_pnls": {
+      "bear": {
+        "days": 177,
+        "net_pnl": "91.32159841"
+      },
+      "bull": {
+        "days": 130,
+        "net_pnl": "265.18321560"
+      },
+      "neutral": {
+        "days": 86,
+        "net_pnl": "76.21619981"
+      }
+    },
+    "status": "carry_does_not_survive_realistic_costs_and_tail_oos",
+    "stressed_max_drawdown_pct": "3.14109964",
+    "walk_forward_net_pnls": [
+      "124.53568247",
+      "4.73298031"
+    ]
+  },
+  "headline": {
+    "cost_share_of_gross_pct": "40.35677970",
+    "costs_total_vs_zero_cost": "292.79483128",
+    "full_funding_collected": "520.82373578",
+    "full_net_pnl": "432.72101383",
+    "fund_ev1_cost_reference_same_config": {
+      "net_pnl": "182.08084115",
+      "note": "the SAME chosen config priced through FUND-EV1's widest-tier model",
+      "oos_net_pnl": "-161.08871317"
+    },
+    "gross_carry_zero_cost_net": "725.51584511",
+    "oos_net_carry": "-6.52404520",
+    "strategy_oos": {
+      "days": 119,
+      "max_drawdown_pct": "0.22799259",
+      "sharpe_annual": "-0.60369958",
+      "total_return_pct": "-0.06249537",
+      "vol_annual": "0.00319466"
+    },
+    "strategy_train": {
+      "days": 275,
+      "max_drawdown_pct": "0.22958651",
+      "sharpe_annual": "8.59419426",
+      "total_return_pct": "4.35673262",
+      "vol_annual": "0.00661311"
+    }
+  },
+  "leave_one_out": {
+    "BTC": {
+      "oos_max_drawdown_pct": "0.19055240",
+      "oos_net_carry": "2.70590414",
+      "oos_sharpe": "0.23286701"
+    },
+    "ETH": {
+      "oos_max_drawdown_pct": "0.22799803",
+      "oos_net_carry": "-6.56960808",
+      "oos_sharpe": "-0.60374365"
+    },
+    "HYPE": {
+      "oos_max_drawdown_pct": "0.09755933",
+      "oos_net_carry": "8.06350787",
+      "oos_sharpe": "0.81505650"
+    },
+    "SOL": {
+      "oos_max_drawdown_pct": "0.09109871",
+      "oos_net_carry": "70.10180900",
+      "oos_sharpe": "4.33928299"
+    }
+  },
+  "per_config_results": [
+    {
+      "avg_friction_bps": "2.90810502",
+      "config_id": "fund_ev2_hl_single_cad14_top2_1d",
+      "construction": "hl_single",
+      "entry_margin_multiple": "2.0",
+      "fees_total": "38.70496339",
+      "full_stats": {
+        "days": 394,
+        "max_drawdown_pct": "0.22958651",
+        "sharpe_annual": "6.59813800",
+        "total_return_pct": "4.32721014",
+        "vol_annual": "0.00596589"
+      },
+      "funding_by_symbol": {
+        "BTC": "190.63820100",
+        "ETH": "27.70949393",
+        "HYPE": "302.47604085",
+        "SOL": "0E-8"
+      },
+      "funding_collected_total": "520.82373578",
+      "max_residual_delta_fraction": "0.02056592",
+      "min_trade_notional_fraction": "0.02",
+      "net_pnl": "432.72101383",
+      "oos_net_pnl": "-6.52404520",
+      "oos_stats": {
+        "days": 119,
+        "max_drawdown_pct": "0.22799259",
+        "sharpe_annual": "-0.60369958",
+        "total_return_pct": "-0.06249537",
+        "vol_annual": "0.00319466"
+      },
+      "per_symbol_net_pnl": {
+        "BTC": "143.67043921",
+        "ETH": "19.38299376",
+        "HYPE": "269.66758086",
+        "SOL": "0E-8"
+      },
+      "rebalance_count": 29,
+      "rebalance_interval_days": 14,
+      "top_k": 2,
+      "trade_count": 49,
+      "train_stats": {
+        "days": 275,
+        "max_drawdown_pct": "0.22958651",
+        "sharpe_annual": "8.59419426",
+        "total_return_pct": "4.35673262",
+        "vol_annual": "0.00661311"
+      }
+    },
+    {
+      "avg_friction_bps": "3.18754854",
+      "config_id": "fund_ev2_hl_single_cad14_top4_1d",
+      "construction": "hl_single",
+      "entry_margin_multiple": "2.0",
+      "fees_total": "22.25725593",
+      "full_stats": {
+        "days": 394,
+        "max_drawdown_pct": "0.44134113",
+        "sharpe_annual": "5.20507051",
+        "total_return_pct": "3.46473813",
+        "vol_annual": "0.00608134"
+      },
+      "funding_by_symbol": {
+        "BTC": "95.24784261",
+        "ETH": "74.05269291",
+        "HYPE": "175.77884786",
+        "SOL": "33.25913662"
+      },
+      "funding_collected_total": "378.33852000",
+      "max_residual_delta_fraction": "0.02285721",
+      "min_trade_notional_fraction": "0.02",
+      "net_pnl": "346.47381263",
+      "oos_net_pnl": "0.43347702",
+      "oos_stats": {
+        "days": 119,
+        "max_drawdown_pct": "0.12064624",
+        "sharpe_annual": "0.06267665",
+        "total_return_pct": "0.00418979",
+        "vol_annual": "0.00210299"
+      },
+      "per_symbol_net_pnl": {
+        "BTC": "90.19005998",
+        "ETH": "62.96102455",
+        "HYPE": "162.29880897",
+        "SOL": "31.02391913"
+      },
+      "rebalance_count": 29,
+      "rebalance_interval_days": 14,
+      "top_k": 4,
+      "trade_count": 64,
+      "train_stats": {
+        "days": 275,
+        "max_drawdown_pct": "0.44134113",
+        "sharpe_annual": "6.40653461",
+        "total_return_pct": "3.43770939",
+        "vol_annual": "0.00703224"
+      }
+    },
+    {
+      "avg_friction_bps": "3.38878616",
+      "config_id": "fund_ev2_hl_single_cad28_top2_1d",
+      "construction": "hl_single",
+      "entry_margin_multiple": "2.0",
+      "fees_total": "56.73315079",
+      "full_stats": {
+        "days": 394,
+        "max_drawdown_pct": "0.17411386",
+        "sharpe_annual": "4.49979513",
+        "total_return_pct": "6.36763383",
+        "vol_annual": "0.01276024"
+      },
+      "funding_by_symbol": {
+        "BTC": "94.43575851",
+        "ETH": "63.73559945",
+        "HYPE": "376.09561052",
+        "SOL": "70.79965240"
+      },
+      "funding_collected_total": "605.06662088",
+      "max_residual_delta_fraction": "0.00198835",
+      "min_trade_notional_fraction": "0.02",
+      "net_pnl": "636.76338253",
+      "oos_net_pnl": "16.63479371",
+      "oos_stats": {
+        "days": 119,
+        "max_drawdown_pct": "0.15519459",
+        "sharpe_annual": "1.11167284",
+        "total_return_pct": "0.15663458",
+        "vol_annual": "0.00436353"
+      },
+      "per_symbol_net_pnl": {
+        "BTC": "75.42821533",
+        "ETH": "41.08495369",
+        "HYPE": "354.94354400",
+        "SOL": "165.30666951"
+      },
+      "rebalance_count": 15,
+      "rebalance_interval_days": 28,
+      "top_k": 2,
+      "trade_count": 56,
+      "train_stats": {
+        "days": 275,
+        "max_drawdown_pct": "0.17411386",
+        "sharpe_annual": "5.36362841",
+        "total_return_pct": "6.15336240",
+        "vol_annual": "0.01485287"
+      }
+    },
+    {
+      "avg_friction_bps": "3.31451389",
+      "config_id": "fund_ev2_hl_single_cad28_top4_1d",
+      "construction": "hl_single",
+      "entry_margin_multiple": "2.0",
+      "fees_total": "20.75342611",
+      "full_stats": {
+        "days": 394,
+        "max_drawdown_pct": "0.24416135",
+        "sharpe_annual": "6.35030911",
+        "total_return_pct": "5.15312520",
+        "vol_annual": "0.00735357"
+      },
+      "funding_by_symbol": {
+        "BTC": "108.67866003",
+        "ETH": "121.84488979",
+        "HYPE": "192.50071014",
+        "SOL": "62.19135890"
+      },
+      "funding_collected_total": "485.21561886",
+      "max_residual_delta_fraction": "0.00204504",
+      "min_trade_notional_fraction": "0.02",
+      "net_pnl": "515.31251970",
+      "oos_net_pnl": "8.61677180",
+      "oos_stats": {
+        "days": 119,
+        "max_drawdown_pct": "0.07617066",
+        "sharpe_annual": "1.02256882",
+        "total_return_pct": "0.08201219",
+        "vol_annual": "0.00248284"
+      },
+      "per_symbol_net_pnl": {
+        "BTC": "104.83552885",
+        "ETH": "115.11197671",
+        "HYPE": "182.06143323",
+        "SOL": "113.30358091"
+      },
+      "rebalance_count": 15,
+      "rebalance_interval_days": 28,
+      "top_k": 4,
+      "trade_count": 50,
+      "train_stats": {
+        "days": 275,
+        "max_drawdown_pct": "0.24416135",
+        "sharpe_annual": "7.74622717",
+        "total_return_pct": "5.04061161",
+        "vol_annual": "0.00846231"
+      }
+    },
+    {
+      "avg_friction_bps": "0E-8",
+      "config_id": "fund_ev2_cross_venue_cad14_top2_1d",
+      "construction": "cross_venue",
+      "entry_margin_multiple": "2.0",
+      "fees_total": "0E-8",
+      "full_stats": {
+        "days": 394,
+        "max_drawdown_pct": "0E-8",
+        "sharpe_annual": null,
+        "total_return_pct": "0E-8",
+        "vol_annual": "0E-8"
+      },
+      "funding_by_symbol": {
+        "BTC": "0E-8",
+        "ETH": "0E-8",
+        "HYPE": "0E-8",
+        "SOL": "0E-8"
+      },
+      "funding_collected_total": "0E-8",
+      "max_residual_delta_fraction": "0E-8",
+      "min_trade_notional_fraction": "0.02",
+      "net_pnl": "0E-8",
+      "oos_net_pnl": "0E-8",
+      "oos_stats": {
+        "days": 119,
+        "max_drawdown_pct": "0E-8",
+        "sharpe_annual": null,
+        "total_return_pct": "0E-8",
+        "vol_annual": "0E-8"
+      },
+      "per_symbol_net_pnl": {
+        "BTC": "0E-8",
+        "ETH": "0E-8",
+        "HYPE": "0E-8",
+        "SOL": "0E-8"
+      },
+      "rebalance_count": 29,
+      "rebalance_interval_days": 14,
+      "top_k": 2,
+      "trade_count": 0,
+      "train_stats": {
+        "days": 275,
+        "max_drawdown_pct": "0E-8",
+        "sharpe_annual": null,
+        "total_return_pct": "0E-8",
+        "vol_annual": "0E-8"
+      }
+    },
+    {
+      "avg_friction_bps": "0E-8",
+      "config_id": "fund_ev2_cross_venue_cad14_top4_1d",
+      "construction": "cross_venue",
+      "entry_margin_multiple": "2.0",
+      "fees_total": "0E-8",
+      "full_stats": {
+        "days": 394,
+        "max_drawdown_pct": "0E-8",
+        "sharpe_annual": null,
+        "total_return_pct": "0E-8",
+        "vol_annual": "0E-8"
+      },
+      "funding_by_symbol": {
+        "BTC": "0E-8",
+        "ETH": "0E-8",
+        "HYPE": "0E-8",
+        "SOL": "0E-8"
+      },
+      "funding_collected_total": "0E-8",
+      "max_residual_delta_fraction": "0E-8",
+      "min_trade_notional_fraction": "0.02",
+      "net_pnl": "0E-8",
+      "oos_net_pnl": "0E-8",
+      "oos_stats": {
+        "days": 119,
+        "max_drawdown_pct": "0E-8",
+        "sharpe_annual": null,
+        "total_return_pct": "0E-8",
+        "vol_annual": "0E-8"
+      },
+      "per_symbol_net_pnl": {
+        "BTC": "0E-8",
+        "ETH": "0E-8",
+        "HYPE": "0E-8",
+        "SOL": "0E-8"
+      },
+      "rebalance_count": 29,
+      "rebalance_interval_days": 14,
+      "top_k": 4,
+      "trade_count": 0,
+      "train_stats": {
+        "days": 275,
+        "max_drawdown_pct": "0E-8",
+        "sharpe_annual": null,
+        "total_return_pct": "0E-8",
+        "vol_annual": "0E-8"
+      }
+    },
+    {
+      "avg_friction_bps": "3.52596532",
+      "config_id": "fund_ev2_cross_venue_cad28_top2_1d",
+      "construction": "cross_venue",
+      "entry_margin_multiple": "2.0",
+      "fees_total": "44.16451800",
+      "full_stats": {
+        "days": 394,
+        "max_drawdown_pct": "0.19337694",
+        "sharpe_annual": "1.88594406",
+        "total_return_pct": "0.70195012",
+        "vol_annual": "0.00344794"
+      },
+      "funding_by_symbol": {
+        "BTC": "0E-8",
+        "ETH": "0E-8",
+        "HYPE": "117.75312850",
+        "SOL": "0E-8"
+      },
+      "funding_collected_total": "117.75312850",
+      "max_residual_delta_fraction": "0.00138977",
+      "min_trade_notional_fraction": "0.02",
+      "net_pnl": "70.19501226",
+      "oos_net_pnl": "-14.29558848",
+      "oos_stats": {
+        "days": 119,
+        "max_drawdown_pct": "0.19337694",
+        "sharpe_annual": "-1.28460902",
+        "total_return_pct": "-0.14175816",
+        "vol_annual": "0.00341127"
+      },
+      "per_symbol_net_pnl": {
+        "BTC": "0E-8",
+        "ETH": "0E-8",
+        "HYPE": "70.19501226",
+        "SOL": "0E-8"
+      },
+      "rebalance_count": 15,
+      "rebalance_interval_days": 28,
+      "top_k": 2,
+      "trade_count": 10,
+      "train_stats": {
+        "days": 275,
+        "max_drawdown_pct": "0.14911697",
+        "sharpe_annual": "3.13384567",
+        "total_return_pct": "0.80672218",
+        "vol_annual": "0.00341732"
+      }
+    },
+    {
+      "avg_friction_bps": "3.51833961",
+      "config_id": "fund_ev2_cross_venue_cad28_top4_1d",
+      "construction": "cross_venue",
+      "entry_margin_multiple": "2.0",
+      "fees_total": "27.04446198",
+      "full_stats": {
+        "days": 394,
+        "max_drawdown_pct": "0.10667862",
+        "sharpe_annual": "1.51262751",
+        "total_return_pct": "0.30058161",
+        "vol_annual": "0.00184393"
+      },
+      "funding_by_symbol": {
+        "BTC": "0E-8",
+        "ETH": "0E-8",
+        "HYPE": "58.79086404",
+        "SOL": "0E-8"
+      },
+      "funding_collected_total": "58.79086404",
+      "max_residual_delta_fraction": "0.00069542",
+      "min_trade_notional_fraction": "0.02",
+      "net_pnl": "30.05816124",
+      "oos_net_pnl": "-9.13555358",
+      "oos_stats": {
+        "days": 119,
+        "max_drawdown_pct": "0.10667862",
+        "sharpe_annual": "-1.48414289",
+        "total_return_pct": "-0.09099888",
+        "vol_annual": "0.00189622"
+      },
+      "per_symbol_net_pnl": {
+        "BTC": "0E-8",
+        "ETH": "0E-8",
+        "HYPE": "30.05816124",
+        "SOL": "0E-8"
+      },
+      "rebalance_count": 15,
+      "rebalance_interval_days": 28,
+      "top_k": 4,
+      "trade_count": 10,
+      "train_stats": {
+        "days": 275,
+        "max_drawdown_pct": "0.08088892",
+        "sharpe_annual": "2.75791602",
+        "total_return_pct": "0.37289130",
+        "vol_annual": "0.00179837"
+      }
+    }
+  ],
+  "phase": "FUND-EV2",
+  "regimes": {
+    "chosen_config_pnl_by_regime": {
+      "bear": {
+        "days": 177,
+        "net_pnl": "91.32159841"
+      },
+      "bull": {
+        "days": 130,
+        "net_pnl": "265.18321560"
+      },
+      "neutral": {
+        "days": 86,
+        "net_pnl": "76.21619981"
+      }
+    },
+    "classification": "BTC perp trailing 90d return, point-in-time; bear < -0.10, bull > +0.10"
+  },
+  "report": "fund_ev2_realistic_cost_carry_evidence",
+  "routing": {
+    "config_id_prefix": "fund_ev2_",
+    "gate_id": "funding_carry_net_oos_tail_gate",
+    "strategy_type": "funding_carry"
+  },
+  "run_timestamp_utc": "2026-06-11T17:14:35Z",
+  "status": "funding_carry_realistic_cost_evidence_complete",
+  "tail_stress": {
+    "legging_resolution_note": "daily-candle resolution makes the legged stress hold one-leg exposure for a full day; real cross-venue legging is typically minutes-hours, so the stress OVERSTATES duration while honestly bounding the gap exposure",
+    "max_residual_delta_fraction": "0.02056592",
+    "stressed_run_chosen": {
+      "config": "fund_ev2_hl_single_cad14_top2_1d_stressed_scale2_leglag1",
+      "construction": "hl_single",
+      "cost_scale": "2.0",
+      "max_drawdown_pct": "3.14109964",
+      "max_residual_delta_fraction": "0.30212779",
+      "modeled_gap_loss_at_max_residual_pct_of_equity": "7.13234403",
+      "net_pnl": "-187.85173263",
+      "spot_leg_lag_days": 1
+    },
+    "stressed_run_other_construction": {
+      "config": "fund_ev2_cross_venue_cad28_top2_1d_stressed_scale2_leglag1",
+      "construction": "cross_venue",
+      "max_drawdown_pct": "0E-8",
+      "max_residual_delta_fraction": "0E-8",
+      "net_pnl": "0E-8"
+    },
+    "worst_days_chosen_config": [
+      [
+        "2025-10-12 00:00:00+00:00",
+        "-14.65847020"
+      ],
+      [
+        "2026-03-16 00:00:00+00:00",
+        "-9.90123481"
+      ],
+      [
+        "2025-11-15 00:00:00+00:00",
+        "-9.73824933"
+      ],
+      [
+        "2025-11-21 00:00:00+00:00",
+        "-9.72963015"
+      ],
+      [
+        "2025-08-18 00:00:00+00:00",
+        "-8.08882412"
+      ]
+    ],
+    "worst_single_candle_move_pct_in_window": "23.60704400"
+  },
+  "train_only_choice": {
+    "best_by_construction": {
+      "cross_venue": "fund_ev2_cross_venue_cad28_top2_1d",
+      "hl_single": "fund_ev2_hl_single_cad14_top2_1d"
+    },
+    "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+    "chosen_construction": "hl_single",
+    "criterion": "best train-window Sharpe at cited realistic costs (scale 1.0)"
+  },
+  "universe": {
+    "aligned_days": 394,
+    "carry_universe": [
+      "BTC",
+      "ETH",
+      "HYPE",
+      "SOL"
+    ],
+    "spot_pairs": {
+      "BTC": "UBTC/USDC",
+      "ETH": "UETH/USDC",
+      "HYPE": "HYPE/USDC",
+      "SOL": "USOL/USDC"
+    },
+    "timeframe": "1d",
+    "window": [
+      "2025-05-11 00:00:00+00:00",
+      "2026-06-08 00:00:00+00:00"
+    ]
+  },
+  "verdict": "carry_does_not_survive_realistic_costs_and_tail_oos",
+  "walk_forward": {
+    "fold_b": {
+      "chosen_config": "fund_ev2_hl_single_cad14_top4_1d",
+      "net_carry": "124.53568247",
+      "window": [
+        "2025-09-19 00:00:00+00:00",
+        "2026-01-28 00:00:00+00:00"
+      ]
+    },
+    "fold_c": {
+      "chosen_config": "fund_ev2_hl_single_cad14_top2_1d",
+      "net_carry": "4.73298031",
+      "window": [
+        "2026-01-28 00:00:00+00:00",
+        "end"
+      ]
+    }
+  }
+}

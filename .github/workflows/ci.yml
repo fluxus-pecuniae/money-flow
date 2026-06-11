@@ -102,6 +102,14 @@ jobs:
       - name: FUND-EV1 funding carry evidence model
         run: python -m pytest -q tests/test_fund_ev1_evidence.py
 
+      # FUND-EV2 realistic-cost carry re-test: cited per-venue cost model
+      # applied, sweep monotonicity, selectivity gating + hysteresis,
+      # cross-venue legging exposure, no-lookahead, K-019, gate v2 verdicts
+      # + breakpoint + fragility, committed-summary/calibration checks,
+      # research-log honesty pin (offline)
+      - name: FUND-EV2 realistic-cost carry evidence model
+        run: python -m pytest -q tests/test_fund_ev2_evidence.py
+
       # Lint (ruff) — scoped to CI-SAFE1 authored modules; pre-existing debt tracked in KNOWN_ISSUES
       - name: Lint (ruff — safety modules)
         run: |

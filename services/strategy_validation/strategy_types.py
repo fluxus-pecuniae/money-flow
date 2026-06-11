@@ -76,8 +76,11 @@ CROSS_SECTIONAL_SELECTION_ID_PREFIX = "sel_ev1_"
 # Time-series momentum configs are TSMOM-EV1-authored and use this prefix.
 TIME_SERIES_MOMENTUM_ID_PREFIX = "tsmom_ev1_"
 
-# Funding-carry configs are FUND-EV1-authored and use this prefix.
+# Funding-carry configs are FUND-EV1/FUND-EV2-authored and use these
+# prefixes (both route to the same funding_carry type and gate; FUND-EV2 is
+# the realistic-cost re-test, not a new hypothesis class).
 FUNDING_CARRY_ID_PREFIX = "fund_ev1_"
+FUNDING_CARRY_V2_ID_PREFIX = "fund_ev2_"
 
 
 class StrategyTypeRoutingError(RuntimeError):
@@ -144,7 +147,9 @@ def strategy_type_for(strategy_id: str) -> str:
         return STRATEGY_TYPE_CROSS_SECTIONAL_SELECTION
     if strategy_id.startswith(TIME_SERIES_MOMENTUM_ID_PREFIX):
         return STRATEGY_TYPE_TIME_SERIES_MOMENTUM
-    if strategy_id.startswith(FUNDING_CARRY_ID_PREFIX):
+    if strategy_id.startswith(FUNDING_CARRY_ID_PREFIX) or strategy_id.startswith(
+        FUNDING_CARRY_V2_ID_PREFIX
+    ):
         return STRATEGY_TYPE_FUNDING_CARRY
     return STRATEGY_TYPE_PER_SYMBOL
 

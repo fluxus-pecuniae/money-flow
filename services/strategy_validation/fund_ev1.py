@@ -62,6 +62,7 @@ from services.execution_quality.exec_ev1 import (
     candle_dollar_volume,
     depth_aware_execution_price,
     fill_friction_bps,
+    market_impact_bps,
 )
 
 try:  # pragma: no cover - exercised implicitly by both import contexts
@@ -166,6 +167,16 @@ class FundingCarryConfig:
     leg_notional_fraction: Decimal = LEG_NOTIONAL_FRACTION
     spot_leg_lag_days: int = 0  # tail stress: hedge leg fills one candle late
     timeframe: str = CARRY_TIMEFRAME
+    # FUND-EV2 additive seams (defaults preserve FUND-EV1 behavior exactly):
+    # wider rebalance band (cut the rebalancing-cost component),
+    min_trade_notional_fraction: Decimal = MIN_TRADE_NOTIONAL_FRACTION
+    # selectivity: enter a NEW position only when the expected funding over
+    # the planned hold clears the round-trip cost by this multiple (requires
+    # a leg_cost_model); held positions stay while trailing funding remains
+    # favorable (hysteresis: hold while favorable, exit when it turns).
+    entry_margin_multiple: Decimal | None = None
+    planned_hold_days: int | None = None  # defaults to the rebalance cadence
+    venue_construction: str = "hl_single"  # informational label (hl_single | cross_venue)
 
 
 def generate_funding_carry_configs() -> list[FundingCarryConfig]:
@@ -329,6 +340,7 @@ def simulate_funding_carry_portfolio(
     scenario: DepthAwareScenario,
     *,
     signal_provider: Callable[[str, datetime], int] | None = None,
+    leg_cost_model: Any | None = None,
 ) -> dict[str, Any]:
     """Simulate the delta-neutral carry book with strict point-in-time rules.
 
@@ -359,6 +371,14 @@ def simulate_funding_carry_portfolio(
 
     ``signal_provider(symbol, t) -> {-1, 0, +1}`` overrides the funding side
     for benchmarks (always-on uses +1 for every asset).
+
+    ``leg_cost_model`` (FUND-EV2): when provided, replaces the EXEC-EV1
+    tier/scenario friction with a per-venue, per-asset, per-leg cited cost
+    spec — ``leg_cost_model.spec(symbol, leg)`` supplies half_spread_bps /
+    fee_bps / impact_coefficient_bps / slippage_bps / flat_cost_quote, and
+    ``leg_cost_model.round_trip_cost_bps(symbol, notional)`` feeds the
+    entry-selectivity margin. ``None`` (default) is byte-identical FUND-EV1
+    behavior.
     """
     ensure_gate_applies(config.strategy_type, FUNDING_CARRY_GATE_ID)
     symbols = universe.symbols
@@ -427,26 +447,40 @@ def simulate_funding_carry_portfolio(
             return
         side = "buy" if delta_qty > 0 else "sell"
         notional = abs(delta_qty) * raw_fill
-        signal_close = dataset.candles[signal_idx].close
-        gap = (
-            (raw_fill - signal_close) / signal_close * BPS
-            if side == "buy"
-            else (signal_close - raw_fill) / signal_close * BPS
-        ) if signal_close > 0 else Decimal("0")
-        friction_symbol = symbol if leg == "perp" else f"{symbol}{SPOT_FRICTION_SUFFIX}"
-        friction = fill_friction_bps(
-            scenario=scenario,
-            symbol=friction_symbol,
-            notional=_money(notional),
-            liquidity_proxy=candle_dollar_volume(candle_dicts[symbol][fill_idx]),
-            adverse_gap=gap,
-        )
+        liquidity_proxy = candle_dollar_volume(candle_dicts[symbol][fill_idx])
+        if leg_cost_model is not None:
+            # FUND-EV2 cited per-venue cost path: explicit half-spread +
+            # size-aware impact + slippage; fee + flat settlement per fill.
+            spec = leg_cost_model.spec(symbol, leg)
+            impact = market_impact_bps(
+                _money(notional), liquidity_proxy, spec.impact_coefficient_bps
+            )
+            total_bps = _money(spec.half_spread_bps + impact + spec.slippage_bps)
+            fee = _money(notional * spec.fee_bps / BPS + spec.flat_cost_quote)
+        else:
+            signal_close = dataset.candles[signal_idx].close
+            gap = (
+                (raw_fill - signal_close) / signal_close * BPS
+                if side == "buy"
+                else (signal_close - raw_fill) / signal_close * BPS
+            ) if signal_close > 0 else Decimal("0")
+            friction_symbol = (
+                symbol if leg == "perp" else f"{symbol}{SPOT_FRICTION_SUFFIX}"
+            )
+            friction = fill_friction_bps(
+                scenario=scenario,
+                symbol=friction_symbol,
+                notional=_money(notional),
+                liquidity_proxy=liquidity_proxy,
+                adverse_gap=gap,
+            )
+            total_bps = friction.total_bps
+            fee = _money(notional * scenario.fee_bps / BPS)
         fill_price = depth_aware_execution_price(
-            raw_price=raw_fill, side=side, friction_total_bps=friction.total_bps
+            raw_price=raw_fill, side=side, friction_total_bps=total_bps
         )
-        friction_bps_paid.append(friction.total_bps)
+        friction_bps_paid.append(total_bps)
         friction_quote_by_leg[leg] += _money(abs(fill_price - raw_fill) * abs(delta_qty))
-        fee = _money(notional * scenario.fee_bps / BPS)
         book = perp_pos if leg == "perp" else spot_pos
         book[symbol], realized = _apply_fill(book[symbol], fill_price, delta_qty)
         cash = _money(cash + realized - fee)
@@ -527,10 +561,44 @@ def simulate_funding_carry_portfolio(
                             strength = -signal
                     sides[s] = side_s
                     strengths[s] = strength
-                active = [s for s in symbols if sides[s] != 0]
                 top_k = min(config.top_k, len(symbols))
-                selected = sorted(active, key=lambda s: (-strengths[s], s))[:top_k]
                 slot_notional = equity_now * config.leg_notional_fraction / Decimal(top_k)
+                # FUND-EV2 selectivity: a NEW position is taken only when
+                # the expected funding over the planned hold clears the
+                # round-trip cost by the documented margin; positions
+                # already on the favorable side are HELD while the trailing
+                # signal stays favorable (hysteresis), so the margin gates
+                # entries without churning exits.
+                if (
+                    signal_provider is None
+                    and config.entry_margin_multiple is not None
+                    and leg_cost_model is not None
+                ):
+                    hold_days = (
+                        config.planned_hold_days or config.rebalance_interval_days
+                    )
+                    for s in symbols:
+                        if sides[s] == 0:
+                            continue
+                        pend = sum(
+                            d for sym, leg, _, d, _ in pending_fills
+                            if sym == s and leg == "perp"
+                        )
+                        held_qty = perp_pos[s].qty + pend
+                        held_side = 1 if held_qty < 0 else (-1 if held_qty > 0 else 0)
+                        if sides[s] == held_side:
+                            continue  # hold while favorable
+                        expected_funding_fraction = strengths[s] * Decimal(hold_days)
+                        round_trip_fraction = (
+                            leg_cost_model.round_trip_cost_bps(s, slot_notional) / BPS
+                        )
+                        if expected_funding_fraction < (
+                            config.entry_margin_multiple * round_trip_fraction
+                        ):
+                            sides[s] = 0
+                            strengths[s] = Decimal("0")
+                active = [s for s in symbols if sides[s] != 0]
+                selected = sorted(active, key=lambda s: (-strengths[s], s))[:top_k]
                 for s in sorted(symbols):
                     side_s = sides[s] if s in selected else 0
                     p_close = perp_close(s, t)
@@ -552,7 +620,7 @@ def simulate_funding_carry_portfolio(
                     target_spot_qty = Decimal(side_s) * slot_notional / s_close
                     perp_delta = target_perp_qty - (perp_pos[s].qty + pend_perp)
                     spot_delta = target_spot_qty - (spot_pos[s].qty + pend_spot)
-                    band = equity_now * MIN_TRADE_NOTIONAL_FRACTION
+                    band = equity_now * config.min_trade_notional_fraction
                     perp_signal_idx = universe.perp_index[s][t]
                     spot_signal_idx = universe.spot_index[s][t]
                     if abs(perp_delta) * p_close >= band:
@@ -600,26 +668,40 @@ def simulate_funding_carry_portfolio(
                     continue
                 side = "sell" if pos.qty > 0 else "buy"
                 notional = abs(pos.qty) * price
-                friction_symbol = s if leg == "perp" else f"{s}{SPOT_FRICTION_SUFFIX}"
                 candle_dicts = (
                     universe.perp_candle_dicts if leg == "perp" else universe.spot_candle_dicts
                 )
                 index_map = universe.perp_index if leg == "perp" else universe.spot_index
-                friction = fill_friction_bps(
-                    scenario=scenario,
-                    symbol=friction_symbol,
-                    notional=_money(notional),
-                    liquidity_proxy=candle_dollar_volume(
-                        candle_dicts[s][index_map[s][last_t]]
-                    ),
-                    adverse_gap=Decimal("0"),
+                liquidity_proxy = candle_dollar_volume(
+                    candle_dicts[s][index_map[s][last_t]]
                 )
+                if leg_cost_model is not None:
+                    spec = leg_cost_model.spec(s, leg)
+                    impact = market_impact_bps(
+                        _money(notional), liquidity_proxy, spec.impact_coefficient_bps
+                    )
+                    total_bps = _money(
+                        spec.half_spread_bps + impact + spec.slippage_bps
+                    )
+                    fee = _money(notional * spec.fee_bps / BPS + spec.flat_cost_quote)
+                else:
+                    friction_symbol = (
+                        s if leg == "perp" else f"{s}{SPOT_FRICTION_SUFFIX}"
+                    )
+                    friction = fill_friction_bps(
+                        scenario=scenario,
+                        symbol=friction_symbol,
+                        notional=_money(notional),
+                        liquidity_proxy=liquidity_proxy,
+                        adverse_gap=Decimal("0"),
+                    )
+                    total_bps = friction.total_bps
+                    fee = _money(notional * scenario.fee_bps / BPS)
                 fill_price = depth_aware_execution_price(
-                    raw_price=price, side=side, friction_total_bps=friction.total_bps
+                    raw_price=price, side=side, friction_total_bps=total_bps
                 )
-                friction_bps_paid.append(friction.total_bps)
+                friction_bps_paid.append(total_bps)
                 friction_quote_by_leg[leg] += _money(abs(fill_price - price) * abs(pos.qty))
-                fee = _money(notional * scenario.fee_bps / BPS)
                 book[s], realized = _apply_fill(book[s], fill_price, -pos.qty)
                 cash = _money(cash + realized - fee)
                 realized_by_symbol[s] += _money(realized)
