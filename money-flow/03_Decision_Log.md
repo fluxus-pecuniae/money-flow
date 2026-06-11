@@ -2,6 +2,69 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-11T16:30:00Z - FUND-EV1 - Funding Carry Is A Bull-Regime Income Stream That Costs And The Bear Eat; The Real Tail Is The Legged Fill
+
+- `decision`: (1) Delta-neutral funding carry is its own strategy type (`funding_carry`, prefix `fund_ev1_`) with its own gate: net funding AFTER ALL COSTS positive out-of-sample (chronological 70/30 + anchored walk-forward thirds), NOT bull-only (bear+neutral net must be positive), leave-one-out robust, and tail drawdown inside documented limits (OOS <= 5%, stressed <= 8%) - judged on Sharpe + max drawdown, never on gross funding collected, and never by the price-rule gates. (2) Funding history is now a first-class committed data input: public read-only Hyperliquid `fundingHistory` hourly rates aggregated to daily sums per coin, committed with provenance + sha256 in `docs/fund_ev1_funding_data_snapshot_summary.json` (raw hourly + HL spot candles stay as documented ignored artifacts). (3) The single-venue HL construction (short perp + long HL spot: BTC/ETH/SOL via Unit + native HYPE) is the primary build; cross-venue spot and the flip-side book (long perp + short spot) remain documented extensions - flip rows assume unmodeled spot borrow and are upper bounds.
+- `scope`: `services/strategy_validation/fund_ev1.py` (two-leg simulator with pending-fill queue, funding accrual, trailing-funding tilt, regime/tail analytics, gate), `strategy_types.py` (additive fourth route), `scripts/fetch_fund_ev1_funding_snapshot.py`, `scripts/run_fund_ev1_evidence.py`, `docs/fund_ev1_*`, `tests/test_fund_ev1_evidence.py`, CI fast lane, research-log aggregator views.
+- `result`: Gate verdict `carry_does_not_survive_costs_and_tail_oos` (reasons: OOS net carry negative, walk-forward fold C negative, every leave-one-out drop negative). Train (bull, funding 8-14%/yr): +4.23%, Sharpe 7.2, ultra-smooth. OOS (2026 funding-compressed bear): -33 USDC (-0.32%, Sharpe -1.55) - gross OOS funding was still positive (+50) but conservative two-leg friction ate more than all of it. Full window: net +392 vs gross +560; costs ate 168 (30.0% of gross) at 10k size. Non-bull regime net was actually positive (+160) and tail structure with clean fills is tight (max residual delta 0.18%, stressed-run DD 0.92% vs 8% limit) - the carry fails on OOS robustness, not on the neutral-book mechanics. The REAL tail: a one-day legged fill leaves up to 47.9% of equity unhedged, and against the window's worst candle (23.6%, HYPE) that is a modeled 11.3% equity gap loss - the steamroller is execution, not funding. Funding-inversion bleed during signal lag is bounded (worst SOL -17). PnL reconciles per symbol (K-019); no-lookahead probes pass (leaky reader caught).
+- `boundaries`: Research/evidence only. Public read-only data; no orders, no private/signed endpoints, no testnet/live, no runtime or approval change. Modeled depth; daily funding accrual approximation; spot borrow and liquidation mechanics unmodeled (documented).
+- `follow_up_implications`: TREND-CARRY synthesis hypothesis recorded (TODO): TSMOM-EV1 showed the trend short side defends drawdown in bears but loses money; funding could pay that short side - but FUND-EV1 shows funding compresses exactly when the bear arrives, so the combined book must be tested on net carry through the same regime, not on bull-window funding. Any deployable carry also needs the legged-fill gap risk engineered away (atomic or near-atomic two-leg execution) before size matters. In-phase correction recorded honestly: the first leg-lag stress implementation only re-priced the lagged leg without holding the one-leg exposure; it was caught and rebuilt (pending-fill queue) before any conclusion was drawn.
+
+```yaml
+research_log:
+  phase: FUND-EV1
+  date: 2026-06-11
+  class: funding_carry
+  outcome: fail
+  badge: costs + bear eat the carry
+  title: Delta-Neutral Funding Carry (HL perp + HL spot)
+  finding: >-
+    Short the perp, hold the spot, collect funding. Real in the bull (train
+    +4.2%, Sharpe 7.2) but FAILS the gate: OOS net carry -33 USDC in the
+    funding-compressed 2026 bear, walk-forward fold C negative, and every
+    leave-one-out drop negative. Costs ate 30% of gross at 10k size.
+  why: >-
+    Funding is a bull artifact on this data: 8-14%/yr while the market rose,
+    compressed or inverted (SOL -6%/yr) once the bear arrived - exactly when
+    a hedged book would matter. What survives compression, conservative
+    two-leg friction then eats: gross OOS funding was +50, net was -33.
+  worked: >-
+    The method - exact funding accrual against committed public daily sums,
+    two-leg book that reconciles per symbol (K-019), tight neutrality with
+    clean fills (max residual 0.18%), and a legged-execution stress that
+    holds REAL one-leg exposure instead of assuming it away.
+  didnt: >-
+    The carry as a standalone OOS edge at 10k size - and legged execution
+    is the true steamroller: one slow hedge leg leaves ~48% of equity
+    unhedged for a day, a modeled 11.3% gap loss at the window's worst
+    candle (23.6%).
+  lesson: >-
+    Funding carry is bull-regime income, not an all-weather structural
+    edge: it dies in the same regime where the trend short side earns its
+    keep. Judge carry net-of-costs OOS and through the tail - gross funding
+    collected is a vanity number.
+  our_error: null
+  our_error_note: >-
+    Caught in-phase: the first leg-lag stress only re-priced the lagged
+    fill without holding the one-leg exposure; rebuilt with a pending-fill
+    queue before any conclusion was drawn.
+  changed: >-
+    Fourth strategy-type route (funding_carry) with its own net-OOS + tail
+    gate; funding history became a committed first-class data input with
+    provenance; TREND-CARRY (trend short side paid by funding) queued as
+    the synthesis hypothesis with this phase's regime caveat attached.
+  hardened_gate: carry is judged net-of-costs OOS through the tail, never on gross funding
+  evidence_summary: docs/fund_ev1_delta_neutral_carry_evidence_summary.json
+  evidence_doc: docs/fund_ev1_delta_neutral_carry_evidence.md
+  analytics:
+    - label: Net carry headline (OOS, conservative friction)
+      kind: computed
+      source: fund_ev1_carry_headline
+    - label: Tail + leave-one-out
+      kind: computed
+      source: fund_ev1_tail_and_loo
+```
+
 ## 2026-06-11T14:00:00Z - TSMOM-EV1 - Vol-Targeted Trend Beats Holding A Falling Market, Not Zero; A Relative Pass Must Carry Absolute Qualifiers
 
 - `decision`: (1) Time-series momentum is its own strategy type (`time_series_momentum`, prefix `tsmom_ev1_`) with its own gate: risk-adjusted (Sharpe + max drawdown) versus EQUAL-WEIGHT BUY-AND-HOLD, out-of-sample, post-conservative-friction - never the selection random-benchmark gate, never the per-symbol breadth gate. (2) Volatility targeting + equal risk budgets (risk parity) on the eight liquid majors is the specific fix for the ZEC-class failure - the highest-vol name cannot dominate the book by construction. (3) A RELATIVE gate pass is not allowed to read as profit: the gate output carries non-failing honesty qualifiers, and this phase's relative pass (strategy OOS Sharpe -1.48 vs buy-hold -1.81 in a -62% bear window) is authored `mixed`, not `pass`.

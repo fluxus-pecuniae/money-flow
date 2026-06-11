@@ -16,6 +16,23 @@ Entry schema:
 
 ---
 
+## v2026.06.08.002
+
+- `recorded_at_utc`: `2026-06-08T06:50:34Z`
+- `scope`: `LOG-OBS1 Runtime Logs scroll stability hotfix`
+- `intent`: `Native entry. Fixed the Paper Trading Runtime Logs widget so the Read-only log files scroll position is preserved across dashboard refreshes. The one-second Paper Trading market-refresh path re-rendered Runtime Control, which replaced the log-list DOM and jumped the nested scroll container back to the top. The renderer now skips identical log metadata updates, restores the nested log-list scroll offset after changed metadata renders, and cache-busts dashboard assets so the browser picks up the fix. This is dashboard display only: no runtime behavior changed, no runtime was started or stopped, no orders were submitted, no live trading was approved, and no strategy was production-approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `apps/dashboard/index.html`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `tests/test_dashboard_static_assets.py`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py tests/test_dashboard_control_server.py tests/test_pt_rt1_runtime_log_visibility.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `git diff --check`
+
 ## v2026.06.08.001
 
 - `recorded_at_utc`: `2026-06-08T06:29:37Z`

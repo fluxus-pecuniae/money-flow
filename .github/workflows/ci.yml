@@ -95,6 +95,13 @@ jobs:
       - name: TSMOM-EV1 momentum evidence model
         run: python -m pytest -q tests/test_tsmom_ev1_evidence.py
 
+      # FUND-EV1 delta-neutral funding carry: routing seam, exact funding
+      # accrual + sign, two-leg neutrality, costs on both legs, no-lookahead,
+      # real one-leg-exposure tail stress, gate semantics, committed-summary
+      # + funding-snapshot reconciliation (offline)
+      - name: FUND-EV1 funding carry evidence model
+        run: python -m pytest -q tests/test_fund_ev1_evidence.py
+
       # Lint (ruff) — scoped to CI-SAFE1 authored modules; pre-existing debt tracked in KNOWN_ISSUES
       - name: Lint (ruff — safety modules)
         run: |

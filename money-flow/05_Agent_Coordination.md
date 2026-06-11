@@ -15,6 +15,7 @@ Rows in this section are work that is currently planned, active, or blocked. Whe
 
 | agent | task / phase | expected files | status | started_at_utc | updated_at_utc | notes / warnings | handoff summary |
 | ----- | ------------ | -------------- | ------ | -------------- | -------------- | ---------------- | --------------- |
+| Claude Code | FUND-EV1 delta-neutral funding carry evidence | `services/strategy_validation/fund_ev1.py`, `services/strategy_validation/strategy_types.py`, `scripts/fetch_fund_ev1_funding_snapshot.py`, `scripts/run_fund_ev1_evidence.py`, `scripts/build_research_log.py`, `docs/fund_ev1_*`, `docs/research_log.json`, `docs/research_log_schema.md`, `tests/test_fund_ev1_evidence.py`, `.github/workflows/ci.yml`, operational docs, Obsidian notes | done | 2026-06-11T15:30:00Z | 2026-06-11T17:00:00Z | Research/evidence only; public read-only data (fundingHistory + spot candleSnapshot); no orders, no private/signed endpoints, no runtime/approval change. Gate verdict honest fail: `carry_does_not_survive_costs_and_tail_oos`. | FUND-EV1 complete on branch `fund-ev1`: fourth strategy-type route (funding_carry) + its net-OOS/tail gate, committed funding snapshot with provenance, two-leg simulator (pending-fill queue; legged-fill stress shows up to 47.9% one-leg exposure = modeled 11.3% gap loss at the worst candle), evidence docs + Research Log block (authored fail), 14 blocking tests, TREND-CARRY synthesis queued in TODO. |
 
 ## Finished Work
 
