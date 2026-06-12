@@ -17,6 +17,22 @@ Entry schema:
 
 ---
 
+## v2026.06.12.004
+
+- `recorded_at_utc`: `2026-06-12T06:00:00Z`
+- `scope`: `RLOG display fix: TREND-SUITE1 vol-cap analytics rendered as a computed view`
+- `intent`: `Display/tooling only; no research result, runtime, strategy, order, or approval change. The TREND-SUITE1 research_log analytics entry "Vol-cap removal effect (23 pairs)" pointed kind=value at the summary's headline_answers node — the dashboard rendered the whole nested object as a raw JSON blob, and the node was also the wrong one (the vol-cap pair data lives in vol_targeting_comparison). Added the trend_suite1_vol_cap_effect computed view to scripts/build_research_log.py (kvs: 23/23 pairs classified drawdown-without-more-OOS-return, 16/23 higher full-window return uncapped, 0/23 kept OOS; table: the five pairs with the most OOS drawdown added), repointed the Decision Log block's analytics to it, and recorded a dated correction line in the TREND-SUITE1 entry (display metadata only; no factual content changed). Aggregator rebuilt; --check green. Numbers reproduce the committed narrative exactly. Oldest changelog entry (v2026.06.08.009) rotated verbatim into CHANGELOG_ARCHIVE.md per DOC-LEAN1.`
+- `affected_files`:
+  - `scripts/build_research_log.py`
+  - `docs/research_log.json`
+  - `money-flow/03_Decision_Log.md`
+  - `CHANGELOG.md`
+  - `CHANGELOG_ARCHIVE.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/build_research_log.py && .venv/bin/python scripts/build_research_log.py --check`
+  - `.venv/bin/python -m pytest -q tests/test_rlog1_research_log.py tests/test_trend_suite1_evidence.py tests/test_operational_docs.py tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_secret_hygiene.py tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py`
+
 ## v2026.06.12.003
 
 - `recorded_at_utc`: `2026-06-12T05:15:00Z`
@@ -704,33 +720,3 @@ Entry schema:
   - `node --check apps/dashboard/evidence-dashboard.js`
   - `.venv/bin/python -m py_compile scripts/run_sv22_hyperliquid_research_refresh.py`
   - `.venv/bin/python -m pytest -q tests/test_sv22_research_refresh.py tests/test_dashboard_static_assets.py`
-
-## v2026.06.08.009
-
-- `recorded_at_utc`: `2026-06-08T10:25:19Z`
-- `scope`: `SV2.2 Research Refresh and Dashboard Refocus`
-- `intent`: `Native entry. Added a research-only Hyperliquid public-mainnet refresh for the founder 23-symbol universe across 1h/4h/1d, wrote a committed SV2.2 Markdown/JSON summary, generated ignored selected Historical Replay chart payloads under reports/strategy_validation/sv2_2_research_refresh_dashboard_chart_data/, and refocused the dashboard default landing surface to Historical Replay. SV2.2 is chart/readiness refresh data, not canonical evidence-pack regeneration, not strategy approval, and not active PT-RT runtime behavior. The active paper runtime was not started, stopped, or mutated; no orders were submitted; no private/signed/order endpoints, API keys, testnet strategy truth, live approval, or production approval were introduced.`
-- `affected_files`:
-  - `CHANGELOG.md`
-  - `KNOWN_ISSUES.md`
-  - `REPO_TREE.md`
-  - `TODO.md`
-  - `apps/dashboard/evidence-dashboard.js`
-  - `apps/dashboard/index.html`
-  - `docs/sv2_2_hyperliquid_research_refresh.md`
-  - `docs/sv2_2_hyperliquid_research_refresh_summary.json`
-  - `scripts/run_sv22_hyperliquid_research_refresh.py`
-  - `tests/test_dashboard_static_assets.py`
-  - `tests/test_sv22_research_refresh.py`
-  - `money-flow/01_Current_Phase.md`
-  - `money-flow/03_Decision_Log.md`
-  - `money-flow/05_Agent_Coordination.md`
-  - `money-flow/Project_Memory/money_flow_project_memory.md`
-  - `money-flow/00 Maps/Evidence and Backtesting Map.md`
-  - `money-flow/00 Maps/Dashboard and UI Map.md`
-- `validation_performed`:
-  - `.venv/bin/python scripts/run_sv22_hyperliquid_research_refresh.py --fetch-public-data --timeout-seconds 20`
-  - `node --check apps/dashboard/evidence-dashboard.js`
-  - `.venv/bin/python -m py_compile scripts/run_sv22_hyperliquid_research_refresh.py`
-  - `.venv/bin/python -m pytest -q tests/test_sv22_research_refresh.py`
-  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`

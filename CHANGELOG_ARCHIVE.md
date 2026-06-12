@@ -16,6 +16,36 @@ Entry schema:
 
 ---
 
+## v2026.06.08.009
+
+- `recorded_at_utc`: `2026-06-08T10:25:19Z`
+- `scope`: `SV2.2 Research Refresh and Dashboard Refocus`
+- `intent`: `Native entry. Added a research-only Hyperliquid public-mainnet refresh for the founder 23-symbol universe across 1h/4h/1d, wrote a committed SV2.2 Markdown/JSON summary, generated ignored selected Historical Replay chart payloads under reports/strategy_validation/sv2_2_research_refresh_dashboard_chart_data/, and refocused the dashboard default landing surface to Historical Replay. SV2.2 is chart/readiness refresh data, not canonical evidence-pack regeneration, not strategy approval, and not active PT-RT runtime behavior. The active paper runtime was not started, stopped, or mutated; no orders were submitted; no private/signed/order endpoints, API keys, testnet strategy truth, live approval, or production approval were introduced.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `apps/dashboard/evidence-dashboard.js`
+  - `apps/dashboard/index.html`
+  - `docs/sv2_2_hyperliquid_research_refresh.md`
+  - `docs/sv2_2_hyperliquid_research_refresh_summary.json`
+  - `scripts/run_sv22_hyperliquid_research_refresh.py`
+  - `tests/test_dashboard_static_assets.py`
+  - `tests/test_sv22_research_refresh.py`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+  - `money-flow/00 Maps/Evidence and Backtesting Map.md`
+  - `money-flow/00 Maps/Dashboard and UI Map.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/run_sv22_hyperliquid_research_refresh.py --fetch-public-data --timeout-seconds 20`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m py_compile scripts/run_sv22_hyperliquid_research_refresh.py`
+  - `.venv/bin/python -m pytest -q tests/test_sv22_research_refresh.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+
 ## v2026.06.08.008
 
 - `recorded_at_utc`: `2026-06-08T09:08:40Z`

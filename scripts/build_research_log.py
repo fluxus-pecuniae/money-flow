@@ -305,6 +305,55 @@ def fund_ev1_tail_and_loo(summary: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def trend_suite1_vol_cap_effect(summary: dict[str, Any]) -> dict[str, Any]:
+    """The vol-targeting-removal answer over all vt-vs-equal-dollar pairs:
+    classification counts + the five pairs where removing the cap added the
+    most OOS drawdown (rendered as kvs + table instead of a raw JSON node)."""
+    pairs = summary["vol_targeting_comparison"]
+    n = len(pairs)
+    classified = sum(
+        1
+        for row in pairs.values()
+        if row["classification"]
+        == "removing_vol_target_added_drawdown_without_more_return_oos"
+    )
+    higher_full_return = sum(
+        1
+        for row in pairs.values()
+        if _dec(row["equal_dollar"]["full"]["total_return_pct"])
+        > _dec(row["vol_targeted"]["full"]["total_return_pct"])
+    )
+    oos_gain_positive = sum(
+        1
+        for row in pairs.values()
+        if _dec(row["oos_return_gain_pct_from_removing_vol_target"]) > 0
+    )
+    worst = sorted(
+        pairs.items(),
+        key=lambda kv: _dec(kv[1]["oos_drawdown_change_pct_from_removing_vol_target"]),
+        reverse=True,
+    )[:5]
+    return {
+        "kvs": [
+            {"label": "Pairs: drawdown without more OOS return", "value": f"{classified} / {n}", "tone": "neg"},
+            {"label": "Higher full-window (bull-heavy) return uncapped", "value": f"{higher_full_return} / {n}"},
+            {"label": "Kept any of it OOS", "value": f"{oos_gain_positive} / {n}", "tone": "neg"},
+        ],
+        "table": {
+            "columns": ["Pair (family)", "OOS return gain", "OOS drawdown added"],
+            "rows": [
+                [
+                    f"{key.replace('trend_suite1_', '').replace('_X_1d', '')} ({row['family']})",
+                    f"{_dec(row['oos_return_gain_pct_from_removing_vol_target']):.1f}%",
+                    f"+{_dec(row['oos_drawdown_change_pct_from_removing_vol_target']):.1f}%",
+                ]
+                for key, row in worst
+            ],
+        },
+        "note": "Removing the vol cap was leverage on the same signal, not a new edge - every pair gave the bull-window gain back out-of-sample.",
+    }
+
+
 def fund_ev2_realistic_headline(summary: dict[str, Any]) -> dict[str, Any]:
     h = summary["headline"]
     ref = h["fund_ev1_cost_reference_same_config"]
@@ -370,6 +419,7 @@ def fund_scale1_viability_map(summary: dict[str, Any]) -> dict[str, Any]:
 
 
 COMPUTED = {
+    "trend_suite1_vol_cap_effect": trend_suite1_vol_cap_effect,
     "fund_ev2_realistic_headline": fund_ev2_realistic_headline,
     "fund_ev2_cost_sweep": fund_ev2_cost_sweep,
     "fund_scale1_viability_map": fund_scale1_viability_map,
