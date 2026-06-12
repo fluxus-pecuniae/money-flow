@@ -17,6 +17,35 @@ Entry schema:
 
 ---
 
+## v2026.06.12.006
+
+- `recorded_at_utc`: `2026-06-12T09:00:00Z`
+- `scope`: `REGIME2 objective-aligned regime filter (pre-registered re-test; criterion fixed, bars held)`
+- `intent`: `Research/tool only; risk tool not alpha; signal-only — no orders, no private/signed endpoints, no testnet/live, no approval surface, no runtime change. The confirmatory re-test of REGIME1 with exactly ONE change, governed by a tightened honesty guard: the selection criterion and ALL gates were PRE-REGISTERED (regime2.PRE_REGISTRATION + a Decision Log entry committed to git BEFORE the selection ran — the branch history proves the ordering), the search space is REGIME1's exact 18-config grid UNWIDENED, and both REGIME1 bars held unchanged (30% material OOS drawdown reduction; drawdown reduced vs always-long in EVERY walk-forward fold with per-fold train-only choice — REGIME1's method, strictly stronger than chop-fold non-worsening; OOS Sharpe not worse) plus a pre-stated 25pp return-retention tolerance. The criterion fix: select on lowest gated TRAIN max drawdown (the tool's objective) with a whipsaw tie-break (ties within 2.0pp broken by fewest train flips, then config_id); selection never sees OOS. Selection chose regime1_lb90_br6_btc_required_1d (train dd 37.6% vs 52-79% for the fast filters; 60 train flips vs 116-144; alone in the tie band). VERDICT: honest FAIL — regime_filter_does_not_reduce_drawdown_oos on exactly one pre-registered gate: walk-forward SELECTION-PROCESS stability. The endpoint config cleared every endpoint bar (OOS dd reduction 33.64% >= 30%; Sharpe 0.88 vs 0.13; return +60.9% vs -19.6% — within tolerance trivially; 35 OOS flips vs REGIME1's 58; no-lookahead verified) and, held fixed, reduces drawdown in BOTH fold windows (chop: 28.2% vs 39.4%; fold C: 43.6% vs 65.7% — surfaced as labeled NOT-A-VERDICT texture); but at fold B's early-history cutoff (~1/3 of data, mostly the 2021 bull) the same pre-registered criterion picks a FAST filter (lb30_br5_required) whose chop-fold drawdown worsens (45.6% vs 39.4%) — the min-train-drawdown criterion is objective-aligned but UNSTABLE on short history. Re-reading the fold gate post-hoc (fixed-config folds would pass) was explicitly refused as the self-deception the honesty guard forbids. Per Must 3 the deployed surface updates to the REGIME2 selection with the honest verdict embedded everywhere: regime1.DEFAULT_CONFIG -> lb90/br0.6/required, COMMITTED_VERDICT_NOTE rewritten (endpoint bars cleared; process stability failed; informational risk context, not validated control), CLI live sample 2026-06-12: RISK_OFF 0/7 majors up, BTC down. 8 deterministic offline tests wired into blocking CI (criterion picks on drawdown not Sharpe; tie-break; train-only contract; grid unwidened; v2 gate reasons incl. return tolerance; deployed-default pin; committed-summary pre-registration + honesty pins); REGIME1 suite updated (default pin now follows the newest committed evidence; CLI fixture extended past the 90-candle warm-up). Research Log authored fail (our_error: the REGIME1 criterion mismatch was ours — the mechanism keeps passing endpoint bars; the selection process is what fails). Aggregator --check green.`
+- `affected_files`:
+  - `services/strategy_validation/regime2.py`
+  - `services/strategy_validation/regime1.py`
+  - `scripts/run_regime2_evidence.py`
+  - `docs/regime2_objective_aligned_regime_filter_evidence.md`
+  - `docs/regime2_objective_aligned_regime_filter_evidence_summary.json`
+  - `docs/research_log.json`
+  - `tests/test_regime2_filter.py`
+  - `tests/test_regime1_filter.py`
+  - `.github/workflows/ci.yml`
+  - `CHANGELOG.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/run_regime2_evidence.py`
+  - `.venv/bin/python scripts/run_regime_filter.py` (live public read-only sample with the updated default)
+  - `.venv/bin/python -m pytest -q tests/test_regime2_filter.py tests/test_regime1_filter.py`
+  - `.venv/bin/python scripts/build_research_log.py && .venv/bin/python scripts/build_research_log.py --check`
+  - `.venv/bin/python -m pytest -q tests/test_rlog1_research_log.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_secret_hygiene.py tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py`
+
 ## v2026.06.12.005
 
 - `recorded_at_utc`: `2026-06-12T07:30:00Z`

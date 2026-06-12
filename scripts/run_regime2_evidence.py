@@ -207,6 +207,28 @@ def main(argv: list[str] | None = None) -> int:
             }
         )
 
+    # Fixed-config fold texture (HONESTY SURFACE, NOT A VERDICT): the
+    # pre-registered fold gate evaluates the SELECTION PROCESS (per-fold
+    # train-only choice — REGIME1's method, unchanged) and that is what the
+    # verdict judges. The final chosen config's own drawdown per fold window
+    # is surfaced for consumers (MONEYFLOW-SIGNAL1) but cannot rescue the
+    # verdict — re-reading the fold gate after the result would be the
+    # self-deception the honesty guard forbids.
+    fixed_fold_texture = []
+    for label, lo, hi in (("fold_b_chop", t1, t2), ("fold_c", t2, None)):
+        gated_fixed = rg.curve_stats(chosen["equity_curve"], after=lo, up_to=hi)
+        always_fixed = rg.curve_stats(always_curve, after=lo, up_to=hi)
+        fixed_fold_texture.append(
+            {
+                "fold": label,
+                "config_id": chosen_id,
+                "gated_max_drawdown_pct": _s(gated_fixed["max_drawdown_pct"]),
+                "always_max_drawdown_pct": _s(always_fixed["max_drawdown_pct"]),
+                "gated_return_pct": _s(gated_fixed["total_return_pct"]),
+                "always_return_pct": _s(always_fixed["total_return_pct"]),
+            }
+        )
+
     sample_times = [timeline[i] for i in (WARMUP_CANDLES + 5, len(timeline) // 2, len(timeline) - 30)]
     no_lookahead = rg.verify_regime_point_in_time(universe, chosen_config, sample_times)
 
@@ -306,6 +328,15 @@ def main(argv: list[str] | None = None) -> int:
             "method": "truncation + future-tampering probes at sampled decision closes",
         },
         "per_config_results": per_config_rows,
+        "fixed_config_fold_texture_not_a_verdict": {
+            "note": (
+                "NOT A VERDICT: the pre-registered fold gate judges the SELECTION PROCESS "
+                "(per-fold train-only choice, REGIME1's method unchanged) and failed; this "
+                "block shows the final chosen config's own fold windows for consumers and "
+                "cannot rescue the verdict"
+            ),
+            "folds": fixed_fold_texture,
+        },
         "regime1_comparison": {
             "regime1_chosen": "regime1_lb30_br5_btc_vote_1d (train Sharpe criterion)",
             "regime1_verdict": "regime_filter_does_not_reduce_drawdown_oos",
@@ -386,6 +417,17 @@ def write_report(path: Path, summary: dict[str, Any]) -> None:
     for fold in summary["walk_forward"]:
         lines.append(
             f"- {fold['fold']} (`{fold['chosen_config']}`): gated maxDD {fold['gated_max_drawdown_pct']}% vs always {fold['always_max_drawdown_pct']}%; "
+            f"return {fold['gated_return_pct']}% vs {fold['always_return_pct']}%"
+        )
+    lines += [
+        "",
+        "## Fixed-config fold texture (NOT a verdict)",
+        "",
+        f"- {summary['fixed_config_fold_texture_not_a_verdict']['note']}",
+    ]
+    for fold in summary["fixed_config_fold_texture_not_a_verdict"]["folds"]:
+        lines.append(
+            f"- {fold['fold']} (`{fold['config_id']}` fixed): gated maxDD {fold['gated_max_drawdown_pct']}% vs always {fold['always_max_drawdown_pct']}%; "
             f"return {fold['gated_return_pct']}% vs {fold['always_return_pct']}%"
         )
     lines += [

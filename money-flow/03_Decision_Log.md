@@ -2,13 +2,82 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-12T09:00:00Z - REGIME2 - The Criterion Fix Cleared Every Endpoint Bar; The Selection Process Failed Its Own Walk-Forward
+
+- `decision`: Execute the pre-registered protocol (see the PRE-REGISTRATION entry below, committed to git before the selection ran): REGIME1's exact 18-config grid unwidened, selection on lowest gated TRAIN max drawdown with the whipsaw tie-break (ties within 2.0pp -> fewest train flips -> config_id), all REGIME1 bars held unchanged plus the pre-stated 25pp return-retention tolerance.
+- `result`: Honest FAIL — `regime_filter_does_not_reduce_drawdown_oos` — on exactly ONE pre-registered gate: walk-forward selection-process stability. The criterion chose `regime1_lb90_br6_btc_required_1d` (train dd 37.6% vs 52-79% for the fast filters REGIME1's Sharpe criterion loved; 60 train flips vs 116-144; alone in the tie band) and the endpoint result is strong everywhere the verdict looks at the END of history: OOS max-drawdown reduction 33.64% (bar 30%, held), OOS Sharpe 0.88 vs always-long 0.13, OOS return +60.9% vs -19.6% (tolerance trivially met), 35 OOS flips vs REGIME1's 58, 3/18 false risk-off spells, no-lookahead verified — and the SAME config held fixed reduces drawdown in BOTH fold windows (chop fold: 28.2% vs 39.4%; fold C: 43.6% vs 65.7%; surfaced as labeled NOT-A-VERDICT texture). But the pre-registered fold gate judges the SELECTION PROCESS (per-fold train-only choice — REGIME1's method, unchanged): at fold B's cutoff (~1/3 of history, essentially one violent bull) the min-train-drawdown criterion picks a FAST filter (`regime1_lb30_br5_btc_required_1d`) whose chop-fold drawdown WORSENS vs always-long (45.6% vs 39.4%). The objective-aligned criterion is right at full history and unstable on short history — that instability is the genuine, newly-learned failure mode.
+- `honesty_notes`: re-reading the fold gate post-hoc as fixed-config windows (which would pass) was considered and REFUSED — the pre-registration defines the gate as the process test and changing the reading after seeing the result is the exact self-deception the guard forbids. The search was not widened; no bar moved; the criterion was committed before selection (git history on branch `regime2` proves the ordering).
+- `scope`: `services/strategy_validation/regime2.py` (pre-registration, selection, gate v2), `scripts/run_regime2_evidence.py`, deployed-surface updates in `regime1.py` (DEFAULT_CONFIG -> the REGIME2 selection; COMMITTED_VERDICT_NOTE rewritten honestly), `docs/regime2_*`, `tests/test_regime2_filter.py` + REGIME1 test updates, CI fast lane.
+- `boundaries`: Risk tool, not alpha; signal only; no orders, no private/signed endpoints, no testnet/live, no approval surface, no runtime change.
+- `follow_up_implications`: MONEYFLOW-SIGNAL1 (next) imports the gate knowing exactly what it has: an endpoint-strong, process-unstable risk-off filter (informational risk context, not validated control; the note travels with every state). A REGIME3 would need a selection rule that is STABLE on short history — e.g., a structural always-slowest rule or a minimum-train-length guard before trusting the drawdown criterion — pre-registered like this phase, never a post-hoc re-read of this fold gate. The two regime phases together sharpen the repo's selection discipline: the criterion must match the objective AND be stable under the walk-forward it will be judged by.
+
+```yaml
+research_log:
+  phase: REGIME2
+  date: 2026-06-12
+  class: time_series_momentum
+  outcome: fail
+  badge: endpoint bars cleared; process failed walk-forward
+  title: Objective-Aligned Regime Filter (pre-registered re-test)
+  finding: >-
+    The pre-registered drawdown criterion chose the slow filter
+    (lb90/br0.6/required) and cleared every endpoint bar - OOS drawdown
+    reduction 33.64% vs the held 30% bar, Sharpe 0.88 vs 0.13, return
+    +60.9% vs -19.6%, and drawdown reduced in both fold windows held
+    fixed - but the verdict is an honest fail: at the early-history fold
+    cutoff the same criterion picks a fast filter that worsens the chop
+    fold. The selection process, not the config, failed its walk-forward.
+  why: >-
+    REGIME1 failed on a criterion mismatch (train Sharpe rewards fast
+    stay-long filters; a drawdown tool needs a slow one). The fix had to
+    be confirmatory-grade: criterion and gates pre-registered and
+    committed to git before selection, grid unwidened, REGIME1 bars held.
+  worked: >-
+    The pre-registration discipline itself (the git history proves the
+    criterion preceded the result); the objective-aligned criterion at
+    full history (picked the slow filter, fewest flips, alone in the tie
+    band); the mechanism again (the chosen filter cut OOS drawdown by a
+    third while QUADRUPLING return vs always-long, and called the live
+    bear correctly).
+  didnt: >-
+    Selection-process stability: with only ~580 train days (one violent
+    bull) the min-train-drawdown criterion prefers fast filters - small
+    drawdowns in a straight-up market - and the fast pick worsens the
+    chop fold. The fold gate judges the process and the process is not
+    yet trustworthy on short history. Re-reading the gate post-hoc was
+    refused.
+  lesson: >-
+    A drawdown tool must be selected by drawdown AND the selection rule
+    must itself survive walk-forward: criterion-objective alignment is
+    necessary but not sufficient - stability of the rule on short history
+    is the remaining gap, and only a pre-registered REGIME3 with a
+    structurally stable rule could close it.
+  our_error: >-
+    REGIME1's criterion mismatch was ours, not the mechanism's - REGIME2
+    confirms it: the same grid under the objective-aligned criterion
+    clears every endpoint bar the Sharpe choice missed. The remaining
+    fail (process instability on short history) is a genuine property of
+    the selection rule, surfaced by our own pre-registered fold gate.
+  changed: >-
+    The deployed gate/CLI now pin the REGIME2 selection with the honest
+    verdict embedded (informational risk context, not validated control).
+    MONEYFLOW-SIGNAL1 imports it knowing that. A REGIME3 needs a
+    short-history-stable selection rule, pre-registered; the fold gate is
+    never re-read after the fact.
+  hardened_gate:
+    - selection criteria are pre-registered and committed before selection runs
+    - the selection PROCESS must survive walk-forward, not just the final config
+  evidence_summary: docs/regime2_objective_aligned_regime_filter_evidence_summary.json
+  evidence_doc: docs/regime2_objective_aligned_regime_filter_evidence.md
+```
+
 ## 2026-06-12T08:15:00Z - REGIME2 - PRE-REGISTRATION: Objective-Aligned Selection, Bars Held (committed before the selection run)
 
 - `decision`: Re-test REGIME1 with exactly ONE change, pre-registered here and in `services/strategy_validation/regime2.py` BEFORE the selection runs (this entry and that module are committed to git first; the evidence run follows in a later commit). REGIME1's failure was the criterion, not the mechanism: train Sharpe rewards fast stay-long filters when a drawdown tool needs a slow one. REGIME2 selects on the OBJECTIVE — lowest gated TRAIN max drawdown (= largest train drawdown reduction vs the shared always-long book) — with a whipsaw tie-break: configs within 2.0 percentage points of the best train drawdown are ties, broken by FEWEST train state flips, then config_id. Selection never sees OOS.
 - `pre_registered_gates_all_required`: (1) OOS max-drawdown reduction >= 30% vs always-long — REGIME1's bar, unchanged; (2) drawdown reduced vs always-long in EVERY walk-forward fold — REGIME1's bar, unchanged (strictly stronger than "the chop fold must not worsen"); (3) OOS Sharpe >= always-long — unchanged; (4) OOS total return >= always-long minus 25 percentage points (return-retention tolerance, stated here in advance); (5) minimum OOS days; (6) no-lookahead probe verified. A miss on ANY gate is an honest fail and will be recorded as one.
 - `honesty_guard`: the search space is REGIME1's exact grid (3 lookbacks x 3 thresholds x 2 BTC rules = 18) — NOT widened; same universe (DATA1 Binance 7 majors), window, friction, books, common warm-up, folds, and OOS methods. The criterion is chosen on principle (the tool's objective is drawdown control); REGIME1's hindsight table is not consulted by the selection — whatever the criterion picks, the pre-registered gates judge it.
 - `boundaries`: Risk tool, not alpha; signal only; no orders, no private/signed endpoints, no testnet/live, no approval surface, no runtime change.
-- `result`: (to be appended after the run — see the REGIME2 results entry below this one once committed)
+- `result`: run complete — see the REGIME2 results entry above (2026-06-12T09:00:00Z); the selection chose `regime1_lb90_br6_btc_required_1d` and the verdict is the honest FAIL on walk-forward selection-process stability, with every endpoint bar cleared.
 
 ## 2026-06-12T07:30:00Z - REGIME1 - The Risk-Off Bell Rings True In Bears And Lies In Chop; The Honest Bar Says Not Yet
 

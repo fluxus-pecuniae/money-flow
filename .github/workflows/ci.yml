@@ -135,6 +135,15 @@ jobs:
       - name: TREND-SUITE1 canonical trend suite evidence model
         run: python -m pytest -q tests/test_trend_suite1_evidence.py
 
+      # REGIME2 objective-aligned regime filter: pre-registered selection on
+      # train drawdown (never Sharpe, never OOS), whipsaw tie-break, REGIME1
+      # bars held unchanged + return-retention tolerance, deployed default
+      # pinned to the REGIME2 selection with the honest process-stability
+      # fail on every surface, committed-summary pre-registration pin
+      # (offline)
+      - name: REGIME2 objective-aligned regime filter
+        run: python -m pytest -q tests/test_regime2_filter.py
+
       # REGIME1 market-regime risk-off filter (risk tool, not alpha): exact
       # breadth/threshold/BTC-rule state, warm-up never guessed, no-lookahead
       # probes, synthetic-crash drawdown reduction through the real simulator,
