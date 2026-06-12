@@ -172,6 +172,31 @@
     },
     {
       "analytics": [],
+      "badge": "namesake loop closed",
+      "class": "source_reconstruction",
+      "date": "2026-06-12",
+      "evidence_doc": "",
+      "evidence_summary": "docs/moneyflow_signal1_source_faithful_signal_surface_evidence_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "The namesake loop is closed; future strategy hunting points at the untested avenues (stat-arb/cointegration; institutional atomic execution for carry), not at re-tuning Money Flow.",
+        "didnt": "The naive coin-flip random benchmark at daily decisions - it burns ~half the book in friction daily and flatters anything persistent; replaced with persistence-matched randoms (recorded, both reported).",
+        "lesson": "Fidelity and trust are the deliverable when alpha is known-absent - and a characterization that LOOKS green must be traced to its mechanic before it is allowed to mean anything.",
+        "our_error": null,
+        "our_error_note": "",
+        "why": "Directional Money Flow already failed its alpha tests (MF-ORIG-EV1.1/EV2, STRAT-DISC1), so the deliverable was redefined as fidelity + trust: the founder can look at the signal and KNOW it is the documented system, see exactly what it does, and see it inside the regime risk context.",
+        "worked": "Reading the actual PDF (the prior phase never had it) - citations now quote the source and one MF-ORIG limitation (TSI deferred) turned out to be source-sanctioned; the pre-stated green-is-a-red-flag rule - it fired, caught a churn-unfair random benchmark, and forced the honest defensive-mechanic reading instead of a quiet green."
+      },
+      "finding": "The namesake ships as a trusted signal surface: rules pinned to the actual Peters PDF (sha256-pinned, page-cited, read directly this phase), MF-ORIG primitives reused unchanged, every intermediate term auditable on closed candles, regime overlay attached with its honest FAIL verdict. Characterization re-confirmed there is nothing to hunt: the exposure book's green vs buy-and-hold is the known defensive trend mechanic (cuts the bear, gives up the bull), not validated alpha; the trade-level underperformance result stands.",
+      "hardened_gates": [
+        "green results trigger re-audit, not celebration"
+      ],
+      "outcome": "context",
+      "phase": "MONEYFLOW-SIGNAL1",
+      "title": "Source-Faithful Money Flow Signal Surface + Regime Overlay"
+    },
+    {
+      "analytics": [],
       "badge": "deep venues fix costs, not the tail",
       "class": "funding_carry",
       "date": "2026-06-12",
@@ -1206,7 +1231,7 @@
       "title": "Original Money Flow Reconstruction (accounting correction)"
     }
   ],
-  "entry_count": 23,
+  "entry_count": 24,
   "lessons_hardened_gates": [
     {
       "gate": "PnL must reconcile to equity",
@@ -1259,6 +1284,10 @@
     {
       "gate": "zero liquidation events in OOS and stressed runs at the tested leverage",
       "phase": "FUND-VENUES1"
+    },
+    {
+      "gate": "green results trigger re-audit, not celebration",
+      "phase": "MONEYFLOW-SIGNAL1"
     },
     {
       "gate": "a drawdown tool must be train-chosen by a drawdown criterion, committed up front",

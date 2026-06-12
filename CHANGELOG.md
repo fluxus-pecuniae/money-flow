@@ -17,6 +17,24 @@ Entry schema:
 
 ---
 
+## v2026.06.12.007
+
+- `recorded_at_utc`: `2026-06-12T12:30:00Z`
+- `scope`: `MONEYFLOW-SIGNAL1 source-faithful Money Flow signal surface + regime overlay (namesake loop closed)`
+- `intent`: `Signal only — no orders, no private/signed endpoints, no testnet/live, no approval surface, no runtime change; NOT an alpha hunt. Delivers the trustworthy, auditable, source-faithful Money Flow signal generator: rules pinned to the actual Gerald Peters PDF (located in the repo, sha256-pinned, read directly — MF-ORIG-EV1 only had a prompt summary; p.70 even source-confirms the MACD-for-TSI substitution), MF-ORIG-EV1 primitives + production indicator implementations reused unchanged, interpretation choices recorded (never silently picked), hand-computed fidelity fixtures, every intermediate term emitted on closed candles with warm-up never guessed and no-lookahead verified. CLI scripts/run_moneyflow_signal.py prints the per-asset state (stage, 5/20 crossover buy/sell, Stage-2 confirmed entry, documented exits, RSI/MACD warnings) with the REGIME overlay attached carrying its honest-FAIL verdict (live sample 2026-06-12: all 7 majors stage_4_markdown/flat; RISK_OFF). Honest characterization (exposure books, EXEC-EV1 conservative friction, 70/30 OOS, 2087 aligned days): the pre-stated green-is-a-red-flag rule FIRED (OOS Sharpe 0.71 vs buy-and-hold 0.05) and the re-audit traced it — the coin-flip random bar was churn-unfair (replaced with persistence-matched randoms; MF ~p93/30 seeds) and the green is the KNOWN defensive trend mechanic (OOS dd 27% vs 72%; gives up the rising third +404% vs +1135%) — label defensive_trend_mechanic_not_validated_alpha, consistent with committed TSMOM-EV1/TREND-SUITE1 verdicts; the trade-level namesake result (source_faithful_but_underperformed) stands. Regime overlay cuts OOS dd a further ~6-8% at ~6pp return cost — informational, never a validated control. 22 deterministic offline tests in blocking CI; Research Log authored context (namesake loop closed); aggregator --check green.`
+- `affected_files`:
+  - `services/strategy_validation/moneyflow_signal1.py`
+  - `scripts/run_moneyflow_signal.py`
+  - `scripts/run_moneyflow_signal1_evidence.py`
+  - `docs/moneyflow_signal1_source_faithful_signal_surface_evidence.md`
+  - `docs/moneyflow_signal1_source_faithful_signal_surface_evidence_summary.json`
+  - `docs/research_log.json`
+  - `tests/test_moneyflow_signal1.py`
+  - `.github/workflows/ci.yml`
+  - `.gitignore`
+  - `CHANGELOG.md`, `REPO_TREE.md`, `TODO.md`, `money-flow/01_Current_Phase.md`, `money-flow/03_Decision_Log.md`, `money-flow/05_Agent_Coordination.md`
+- `validation_performed`: `pytest -q tests/test_moneyflow_signal1.py (22 passed); offline CLI replay + live public read-only run; evidence builder run twice (pre/post re-audit correction); build_research_log.py --check green; safety suites (secret hygiene, trading safety invariants, text guards) green; forbidden-language guard on committed outputs (word-boundary).`
+
 ## v2026.06.12.006
 
 - `recorded_at_utc`: `2026-06-12T09:00:00Z`
