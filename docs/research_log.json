@@ -76,6 +76,32 @@
     },
     {
       "analytics": [],
+      "badge": "deep venues fix costs, not the tail",
+      "class": "funding_carry",
+      "date": "2026-06-12",
+      "evidence_doc": "docs/fund_venues1_deep_venue_leverage_carry_evidence.md",
+      "evidence_summary": "docs/fund_venues1_deep_venue_leverage_carry_evidence_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "Funding carry is closed on all three sanctioned axes; only sub-candle atomic-execution evidence could reopen it as a new phase. REGIME1 is next; MONEYFLOW-SIGNAL1 stays parked.",
+        "didnt": "Leverage as a capture multiplier - it multiplied the tail first (four liquidations and a wiped account at 3x; equity negative at 5x). The cross-venue construction died again on retail spot fees (Coinbase 60 bps after Kraken 40 bps in FUND-EV2). And the tail discipline itself: the one near-miss fails exactly on the pre-committed stressed-tail limit, not on costs.",
+        "lesson": "The funding edge is real and venue-dependent capture is real - costs were the venue's fault, the tail is the strategy's. A delta-neutral book's binding risk is the legged-execution gap, and leverage turns that gap from a drawdown into a liquidation. Closing the family takes three axes: costs, scale, venues+leverage - all now tested, all fail.",
+        "our_error": null,
+        "our_error_note": "HL-only was a recorded data limitation, not a method error - and the venue-fair re-test confirms it carried the cost half of the original fail (breakpoint 0.75x -> 5.0x on Binance) while the verdict still fails on the tail and thin capture; deep venues + leverage changed the diagnosis, not the answer.",
+        "why": "FUND-EV2 closed carry at retail on HL citations with 2.5y of data; the open question was whether the venue (thin spot, fees) or the edge was the problem. DATA1's 6-7y Binance/Bybit histories with real fee schedules made the venue-fair test possible, and leverage was the untested capture lever everyone reaches for.",
+        "worked": "The reuse discipline once more - the FUND-EV1 simulator ran unchanged through its cost/margin seams (defaults byte-identical, pinned); the venue-fair window enforcement (K-036) kept shallow funding histories out of the verdict; the margin model surfaced a non-obvious truth (a nominal 1x book transiently needs ~58% of equity in financing in violent rallies) and priced the 2021 liquidations the leverage story needed."
+      },
+      "finding": "Honest fail in all nine (construction x leverage) cells. Deep venues fixed the cost half of the HL fail - binance_single 1x is OOS-positive (+179 USDC, Sharpe 3.5) in every fold, drop, regime, and cycle with a 5.0x cost breakpoint (HL died at 0.75x) - but it fails the committed legged-execution tail limit (9.68% vs 8%) and capture is ~0.76%/yr. Leverage liquidates the book: -100% at 3x in the 2021 mania.",
+      "hardened_gates": [
+        "every OOS regime bucket must be positive, not just non-bull",
+        "zero liquidation events in OOS and stressed runs at the tested leverage"
+      ],
+      "outcome": "fail",
+      "phase": "FUND-VENUES1",
+      "title": "Funding Carry on Deep Venues, with Leverage"
+    },
+    {
+      "analytics": [],
       "badge": "multi-venue data foundation",
       "class": "data_prep",
       "date": "2026-06-12",
@@ -1084,7 +1110,7 @@
       "title": "Original Money Flow Reconstruction (accounting correction)"
     }
   ],
-  "entry_count": 20,
+  "entry_count": 21,
   "lessons_hardened_gates": [
     {
       "gate": "PnL must reconcile to equity",
@@ -1129,6 +1155,14 @@
     {
       "gate": "consult coverage flags before any cross-venue comparison",
       "phase": "DATA1"
+    },
+    {
+      "gate": "every OOS regime bucket must be positive, not just non-bull",
+      "phase": "FUND-VENUES1"
+    },
+    {
+      "gate": "zero liquidation events in OOS and stressed runs at the tested leverage",
+      "phase": "FUND-VENUES1"
     },
     {
       "gate": "suite carry-over must reproduce committed EV1 OOS digit for digit",

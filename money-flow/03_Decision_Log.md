@@ -2,6 +2,75 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-12T05:15:00Z - FUND-VENUES1 - Deep Venues Fix The Costs, Not The Tail; Leverage Liquidates The Book
+
+- `decision`: Run the structural re-open FUND-EV2/FUND-SCALE1 sanctioned: the SAME delta-neutral funding-carry hypothesis on venues with materially different cited fee schedules and 6-7 years of funding history (DATA1: Binance 2019-09+, Bybit 2020-03+), with gross leverage {1x, 3x, 5x} as an explicitly modeled variable — borrow financing on the real cash shortfall (documented 0.02%/day, swept with every cost term) and an account-level intraday liquidation check (every leg marked at its worst same-day extreme; breach force-closes the whole book at stressed prices). Constructions: binance_single and bybit_single carry the verdict; binance perp + Coinbase spot is the cross-venue variant. Fees cited at the tier a 10k account's OWN flow earns (Binance VIP0 perp 2/5 bps, spot 10/10; Bybit non-VIP 2/5.5, 10/10; Coinbase 60 bps taker for the variant; OKX cited for the record only); the gateable verdict prices taker fills — maker is a non-gateable ceiling; the venue-fair window is enforced from DATA1 coverage (OKX ~92d, Kraken ~366d, HL 1126d funding excluded with recorded reasons per K-036). Gate v3 = the full FUND-EV2 bar + net positive in every OOS regime bucket + zero liquidation events (OOS and stressed). Bounded grid (cadence 14/28 x top 2/4) per (construction, leverage) cell, train-only choice, FUND-EV2 selectivity (2x entry margin, hold-while-favorable).
+- `result`: Honest FAIL in ALL NINE cells — `carry_does_not_survive_realistic_costs_and_tail_oos`. The texture is the finding. (1) THE VENUE WAS THE COST PROBLEM: binance_single 1x earns OOS net +179 USDC (Sharpe 3.5, maxDD 0.08%, 627 OOS days), positive in every walk-forward fold, every leave-one-out drop, every OOS regime bucket (bear +0.21 / neutral +26 / bull +153), and every calendar cycle (2021 bull +2845, 2022 bear +54, 2023-24 +990, 2025-26 +17); its cost-sensitivity breakpoint is 5.0x cited costs where FUND-EV2's HL book died at 0.75x. It fails ONLY the pre-committed legged-execution tail stress: 9.68% stressed max drawdown vs the documented 8% account limit (the stress holds one-leg exposure a full day on every rebalance at 2x costs — daily resolution overstates legging duration, documented since FUND-EV2, and the limit was not moved in either direction). The OOS capture is also economically thin: ~0.76%/yr at 1x — funding compressed post-2024. (2) LEVERAGE IS CATASTROPHIC, NOT A MULTIPLIER: at 3x the 2021 alt-mania (DOGE/XRP-style intraday spikes against the short perp legs) liquidates the book FOUR times and wipes the account to -100% (full net -9999.82); at 5x equity ends negative (-10788); even Bybit's calmer 2022+ window liquidates once at 5x with stressed drawdown ~90%. (3) A nominal 1x book transiently needs ~58% of equity in financing during violent rallies (max borrowed 5816 at 1x) — discrete rebalancing lets the spot leg inflate while equity stays hedged-flat; the margin model priced exactly this. (4) Cross-venue Coinbase spot is dead at every leverage (60 bps retail taker), reconfirming FUND-EV2's cross-venue conclusion on a second venue pair. Benchmarks: always-on at 1x earns less than the selective book (selectivity adds); the HL FUND-EV2 reference (-6.52 OOS) sits beside binance_single 1x (+179 OOS) — deep venues changed the cost answer, not the verdict.
+- `scope`: `services/strategy_validation/fund_venues1.py`, additive `margin_model` seam in `fund_ev1.py` (default None byte-identical; 41 existing FUND tests green unchanged), `fund_venues1_` prefix on the funding_carry route in `strategy_types.py`, `scripts/run_fund_venues1_evidence.py`, `docs/fund_venues1_*`, `tests/test_fund_venues1_evidence.py`, CI fast lane.
+- `rejected_alternatives`: Softening the 8% stressed-tail limit or the 1-day leg-lag stress for the near-miss (the bar is FUND-EV1's committed account limit and the stress is FUND-EV2's committed design — moving either to flip a verdict is exactly what the discipline guard forbids); gating on maker fills (non-fill risk unmodeled — reported as ceiling only; OOS maker ceiling +179.45 vs taker +179.18 anyway: selectivity binds OOS, not fees); assuming a reachable VIP tier (FUND-SCALE1 own-volume rule: 10k carry flow cannot earn Binance VIP1's $1M 30d volume); padding shallow funding histories (OKX/Kraken/HL excluded with recorded reasons); dropping BNB/SOL for their poor funding (kept — the universe is the venue's listing reality; selectivity must earn its keep); isolated-margin per-leg liquidation modeling (cross-margin account-level is the realistic operator setup AND the conservative same-day-adversarial-extremes marking already overstates basis risk).
+- `boundaries`: Research/evidence only — DATA1 public read-only inputs (sha256-verified loader), no orders, no private/signed/live endpoints, no approval surface, no runtime change. Fees cited, never tuned; borrow rate a documented swept assumption; no per-venue l2 calibration (modeled half-spreads with headroom, swept); maker non-fill risk unmodeled (ceiling only); liquidation model conservative (adversarial same-day extremes); daily funding accrual approximation unchanged from FUND-EV1.
+- `follow_up_implications`: The funding-carry family is now closed on its THIRD sanctioned axis (venues + leverage, after cost realism and scale/fee tiers). What survives, precisely: the gross funding edge is real on deep venues across 6 years and every regime, capture-positive at cited taker costs OOS at 1x — and the binding constraint is now the LEGGED-EXECUTION TAIL plus thin absolute capture, not fees. The only path that could reopen carry is sub-candle atomic-execution evidence (both legs filled near-simultaneously, shrinking the gap the stress prices) — a NEW phase with new evidence, never a re-tune of this grid. Leverage on a delta-neutral carry book is settled: catastrophic at the account scale tested. REGIME1 is the next research phase; MONEYFLOW-SIGNAL1 stays parked.
+
+```yaml
+research_log:
+  phase: FUND-VENUES1
+  date: 2026-06-12
+  class: funding_carry
+  outcome: fail
+  badge: deep venues fix costs, not the tail
+  title: Funding Carry on Deep Venues, with Leverage
+  finding: >-
+    Honest fail in all nine (construction x leverage) cells. Deep venues
+    fixed the cost half of the HL fail - binance_single 1x is OOS-positive
+    (+179 USDC, Sharpe 3.5) in every fold, drop, regime, and cycle with a
+    5.0x cost breakpoint (HL died at 0.75x) - but it fails the committed
+    legged-execution tail limit (9.68% vs 8%) and capture is ~0.76%/yr.
+    Leverage liquidates the book: -100% at 3x in the 2021 mania.
+  why: >-
+    FUND-EV2 closed carry at retail on HL citations with 2.5y of data; the
+    open question was whether the venue (thin spot, fees) or the edge was
+    the problem. DATA1's 6-7y Binance/Bybit histories with real fee
+    schedules made the venue-fair test possible, and leverage was the
+    untested capture lever everyone reaches for.
+  worked: >-
+    The reuse discipline once more - the FUND-EV1 simulator ran unchanged
+    through its cost/margin seams (defaults byte-identical, pinned); the
+    venue-fair window enforcement (K-036) kept shallow funding histories
+    out of the verdict; the margin model surfaced a non-obvious truth
+    (a nominal 1x book transiently needs ~58% of equity in financing in
+    violent rallies) and priced the 2021 liquidations the leverage story
+    needed.
+  didnt: >-
+    Leverage as a capture multiplier - it multiplied the tail first (four
+    liquidations and a wiped account at 3x; equity negative at 5x). The
+    cross-venue construction died again on retail spot fees (Coinbase 60
+    bps after Kraken 40 bps in FUND-EV2). And the tail discipline itself:
+    the one near-miss fails exactly on the pre-committed stressed-tail
+    limit, not on costs.
+  lesson: >-
+    The funding edge is real and venue-dependent capture is real - costs
+    were the venue's fault, the tail is the strategy's. A delta-neutral
+    book's binding risk is the legged-execution gap, and leverage turns
+    that gap from a drawdown into a liquidation. Closing the family takes
+    three axes: costs, scale, venues+leverage - all now tested, all fail.
+  our_error: null
+  our_error_note: >-
+    HL-only was a recorded data limitation, not a method error - and the
+    venue-fair re-test confirms it carried the cost half of the original
+    fail (breakpoint 0.75x -> 5.0x on Binance) while the verdict still
+    fails on the tail and thin capture; deep venues + leverage changed
+    the diagnosis, not the answer.
+  changed: >-
+    Funding carry is closed on all three sanctioned axes; only sub-candle
+    atomic-execution evidence could reopen it as a new phase. REGIME1 is
+    next; MONEYFLOW-SIGNAL1 stays parked.
+  hardened_gate:
+    - every OOS regime bucket must be positive, not just non-bull
+    - zero liquidation events in OOS and stressed runs at the tested leverage
+  evidence_summary: docs/fund_venues1_deep_venue_leverage_carry_evidence_summary.json
+  evidence_doc: docs/fund_venues1_deep_venue_leverage_carry_evidence.md
+```
+
 ## 2026-06-12T02:30:00Z - DATA1 - The HL-Only Limitation Is Fixed: A Multi-Venue, Provenance-Tracked, Honestly-Gapped Data Foundation
 
 - `decision`: Build the multi-venue public read-only dataset (perp funding history, perp daily candles, spot daily candles) for the liquid majors (BTC/ETH/SOL + XRP/DOGE/BNB/AVAX where listed) across hyperliquid, binance, bybit, okx, coinbase, kraken — data ingestion ONLY (no strategy logic, no orders, no private/signed endpoints, no keys, no runtime change), reusing the FUND-EV1 snapshot discipline: raw native payloads as ignored local artifacts, committed provenance + sha256 + coverage in `docs/data1_multi_venue_snapshot_summary.json`, and a loader (`load_data1_dataset`) that verifies integrity and exposes coverage flags instead of papering over gaps.
