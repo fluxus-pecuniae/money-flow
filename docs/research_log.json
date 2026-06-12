@@ -40,15 +40,60 @@
     {
       "analytics": [
         {
-          "kind": "value",
+          "kind": "computed",
           "kvs": [
             {
-              "label": "Vol-cap removal effect (23 pairs)",
-              "value": "{'hindsight_best_oos_config_not_a_verdict': {'config_id': 'trend_suite1_mtf60w8_atr_vt_1d', 'note': 'best OOS Sharpe across the grid IN HINDSIGHT; it was not train-chosen, so it is surfaced for honesty, never as a verdict', 'oos_stats': {'days': 266, 'max_drawdown_pct': '7.07069107', 'sharpe_annual': '-0.81968212', 'total_return_pct': '-4.11521937', 'vol_annual': '0.06780073'}}, 'per_family_absolute_bar': [{'clears_bar_in_absolute_terms': False, 'config_id': 'trend_suite1_donchian20x10_atr_vt_1d', 'family': 'donchian', 'gate_passed': True, 'profitable_in_absolute_terms': False}, {'clears_bar_in_absolute_terms': False, 'config_id': 'trend_suite1_ma10x50_signal_vt_1d', 'family': 'ma_cross', 'gate_passed': False, 'profitable_in_absolute_terms': False}, {'clears_bar_in_absolute_terms': False, 'config_id': 'trend_suite1_mtf30w8_signal_vt_1d', 'family': 'mtf', 'gate_passed': False, 'profitable_in_absolute_terms': False}, {'clears_bar_in_absolute_terms': False, 'config_id': 'trend_suite1_tsmom30_signal_vt_1d', 'family': 'tsmom', 'gate_passed': True, 'profitable_in_absolute_terms': False}, {'clears_bar_in_absolute_terms': False, 'config_id': 'trend_suite1_ens_average_vt_1d', 'family': 'ensemble', 'gate_passed': False, 'profitable_in_absolute_terms': False}], 'question_1_does_any_trend_form_beat_buy_hold_risk_adjusted_oos_in_absolute_terms': False, 'question_2_did_removing_vol_targeting_unlock_profit_or_just_risk': {'classification_counts': {'removing_vol_target_added_drawdown_without_more_return_oos': 23}, 'pair_count': 23, 'pairs_where_equal_dollar_raised_full_window_return': 16, 'reading': 'see vol_targeting_comparison: pairwise OOS effect of removing the vol cap for every signal cell; counts above aggregate the deterministic classifications. The full-window counter shows how often the uncapped variant DID capture more bull-window upside in-sample — upside the OOS bear then took back'}}"
+              "label": "Pairs: drawdown without more OOS return",
+              "tone": "neg",
+              "value": "23 / 23"
+            },
+            {
+              "label": "Higher full-window (bull-heavy) return uncapped",
+              "value": "16 / 23"
+            },
+            {
+              "label": "Kept any of it OOS",
+              "tone": "neg",
+              "value": "0 / 23"
             }
           ],
           "label": "Vol-cap removal effect (23 pairs)",
-          "source": "headline_answers"
+          "note": "Removing the vol cap was leverage on the same signal, not a new edge - every pair gave the bull-window gain back out-of-sample.",
+          "source": "trend_suite1_vol_cap_effect",
+          "table": {
+            "columns": [
+              "Pair (family)",
+              "OOS return gain",
+              "OOS drawdown added"
+            ],
+            "rows": [
+              [
+                "ma30x50_signal (ma_cross)",
+                "-29.7%",
+                "+31.3%"
+              ],
+              [
+                "ma10x50_signal (ma_cross)",
+                "-25.7%",
+                "+27.4%"
+              ],
+              [
+                "ma20x50_signal (ma_cross)",
+                "-24.7%",
+                "+25.8%"
+              ],
+              [
+                "tsmom30_signal (tsmom)",
+                "-24.1%",
+                "+24.7%"
+              ],
+              [
+                "ma30x100_signal (ma_cross)",
+                "-20.9%",
+                "+24.1%"
+              ]
+            ]
+          }
         }
       ],
       "badge": "defensive only - suite adds nothing",

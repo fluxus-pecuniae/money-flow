@@ -140,6 +140,7 @@ research_log:
 - `rejected_alternatives`: Judging the suite by a new bespoke gate (it would make results incomparable to EV1 — the shared gate is the point); long/short variants (EV1's grid already covered long_short and found no edge; the suite is long-only as the canon specifies "long on upper-channel break"); running leave-one-out for all 46 configs (full gate — walk-forward + leave-one-out + late-entry — runs for the global train-chosen config and each family champion; every config still gets the OOS screen with the same verdict vocabulary); tuning ensemble membership on this phase's data (members are fixed canonical cells, documented); treating the hindsight-best OOS config as a finding (surfaced, labeled not-a-verdict).
 - `boundaries`: Research/evidence only. No runtime, strategy-rule, order, testnet, live, or production-approval change. Modeled depth (EXEC-EV1), never real order-book depth; perp funding NOT modeled (long-only books would typically PAY funding in bulls, so absolute profits are optimistic — and they were still negative). Signals were designed from the documented canon and not tuned to the verdict.
 - `follow_up_implications`: The trend hypothesis family on this data is now closed on both sanctioned axes: signal form (TREND-SUITE1) and sizing (vol-targeting was not the cap). What survives: trend's defensive value is real and consistent (29 of 46 configs pass the relative OOS screen; the deployed TREND-OVERLAY1 posture is unchanged and needs no re-tune — the suite found nothing better to deploy). What could reopen trend: a different REGIME definition (REGIME1, queued: condition exposure on regime states rather than signal sign), longer/cross-venue history (DATA1), or carry financing the short side (TREND-CARRY, still constrained by FUND-EV2 costs). None of these is a re-tune of the present grid.
+- `correction_2026-06-12`: the research_log analytics pointer originally referenced `headline_answers` as a raw `value` (rendered as an unformatted JSON blob in the dashboard, and pointing at the wrong node — the vol-cap pair data lives in `vol_targeting_comparison`); repointed to the `trend_suite1_vol_cap_effect` computed view. Display metadata only; no factual content of this entry changed.
 
 ```yaml
 research_log:
@@ -189,8 +190,8 @@ research_log:
   evidence_doc: docs/trend_suite1_canonical_trend_suite_evidence.md
   analytics:
     - label: Vol-cap removal effect (23 pairs)
-      kind: value
-      source: headline_answers
+      kind: computed
+      source: trend_suite1_vol_cap_effect
 ```
 
 ## 2026-06-11T22:30:00Z - TREND-OVERLAY1 - The Defensive Finding Becomes A Read-Only Tool; The Honest Framing Travels With It
