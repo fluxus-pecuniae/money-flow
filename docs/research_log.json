@@ -75,6 +75,31 @@
       "title": "The Canonical Trend Suite vs One-Form TSMOM"
     },
     {
+      "analytics": [],
+      "badge": "multi-venue data foundation",
+      "class": "data_prep",
+      "date": "2026-06-12",
+      "evidence_doc": "docs/data1_multi_venue_data_foundation.md",
+      "evidence_summary": "docs/data1_multi_venue_snapshot_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "FUND-VENUES1 is unblocked (five venues' funding aligned daily); trend/regime re-tests gain >1 OOS cycle of spot history; every future consumer must read the loader's coverage flags before comparing venues (K-036).",
+        "didnt": "Public funding history is far shallower than candle history on two venues (OKX ~3 months, Kraken Futures ~1y) - the venue-fair funding window is narrower than the candle window and tests must shrink or drop venues explicitly. Hyperliquid publishes ~900+ pre-launch zero-volume candles per asset that must never be read as market history. Kraken spot caps at 720 days.",
+        "lesson": "Cross-venue data is full of silent misalignment traps - bar timezone defaults, backfilled pre-launch candles, delisting holes, uneven history depth. Recording gaps as first-class coverage (and refusing non-midnight bars outright) is what makes the dataset trustworthy enough to base a venue-fair test on.",
+        "our_error": null,
+        "our_error_note": "the probe + strict normalizers caught the traps before ingestion; nothing had to be corrected after the fact",
+        "why": "Every prior verdict stood on Hyperliquid-only data - sharpest for funding carry (HL's thin spot + fees drove the fail) and for trend (one venue, one bull-bear cycle). A venue-fair funding test and any longer-history trend/regime claim need this base first.",
+        "worked": "The FUND-EV1 snapshot discipline scaled to six venues unchanged (ignored raw artifacts + committed sha256 provenance); the probe-first approach caught the OKX UTC+8 daily-bar trap before a single byte was ingested; the midnight-UTC normalizer guard and zero-volume accounting turned two silent poisoning risks into recorded facts."
+      },
+      "finding": "101/101 expected series ingested across six venues (funding/perp/spot daily, BTC ETH SOL XRP DOGE BNB AVAX) with committed provenance + sha256; 25 real venue gaps recorded as coverage, never substituted. BTC spot history now reaches 2015-07 (~3,979 daily candles) vs the 889-candle HL-only window.",
+      "hardened_gates": [
+        "consult coverage flags before any cross-venue comparison"
+      ],
+      "outcome": "context",
+      "phase": "DATA1",
+      "title": "Multi-Venue Market & Funding Data Foundation"
+    },
+    {
       "analytics": [
         {
           "kind": "computed",
@@ -1059,7 +1084,7 @@
       "title": "Original Money Flow Reconstruction (accounting correction)"
     }
   ],
-  "entry_count": 19,
+  "entry_count": 20,
   "lessons_hardened_gates": [
     {
       "gate": "PnL must reconcile to equity",
@@ -1100,6 +1125,10 @@
     {
       "gate": "relative passes carry absolute-performance qualifiers",
       "phase": "TSMOM-EV1"
+    },
+    {
+      "gate": "consult coverage flags before any cross-venue comparison",
+      "phase": "DATA1"
     },
     {
       "gate": "suite carry-over must reproduce committed EV1 OOS digit for digit",
