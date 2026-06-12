@@ -135,6 +135,17 @@ jobs:
       - name: TREND-SUITE1 canonical trend suite evidence model
         run: python -m pytest -q tests/test_trend_suite1_evidence.py
 
+      # MONEYFLOW-SIGNAL1 source-faithful Money Flow signal surface: fidelity
+      # fixtures reproduce hand-computed indicator arithmetic and the
+      # page-cited rules (p.37 crossover, p.150 exits, p.127/140 RSI, p.146
+      # Stage-2 entry), MF-ORIG primitive reuse (no lookalike), closed-candle
+      # no-lookahead + warm-up never guessed, regime overlay through the
+      # strategy_types seam with the honest-FAIL verdict intact, disclaimer
+      # on every surface, committed defensive-mechanic (not-validated-alpha)
+      # characterization pin, offline CLI path (offline)
+      - name: MONEYFLOW-SIGNAL1 source-faithful signal surface
+        run: python -m pytest -q tests/test_moneyflow_signal1.py
+
       # REGIME2 objective-aligned regime filter: pre-registered selection on
       # train drawdown (never Sharpe, never OOS), whipsaw tie-break, REGIME1
       # bars held unchanged + return-retention tolerance, deployed default

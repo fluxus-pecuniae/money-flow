@@ -1,0 +1,557 @@
+{
+  "ambiguity_resolutions": [
+    {
+      "ambiguity_id": "indicator_formula_conventions",
+      "pdf_basis": "the book gives no formulas (p.30: 'You don't need to know the complicated mathematically calculations'); its charts are produced by StockCharts (p.11-12)",
+      "resolution": "use the repo's production indicator implementations (services/indicators/service.py): SMA-seeded EMA with multiplier 2/(n+1), Wilder-smoothed RSI(14), MACD(12,26,9) with EMA(9) signal - the same StockCharts-documented conventions; fidelity tests pin the arithmetic with hand-computed fixtures",
+      "why": "matches the charting service the source itself uses and recommends"
+    },
+    {
+      "ambiguity_id": "stage_classification_is_narrative",
+      "pdf_basis": "Chapter 10 (p.142-155) describes the four stages narratively (basing / breakout / topping / decline) with chart examples, no formula",
+      "resolution": "reuse MF-ORIG-EV1's deterministic no-lookahead stage proxy unchanged (_classify_stage: close vs SMA20 + 5/20 crosses + whipsaw count + RSI/MACD warnings + prior stage)",
+      "why": "the proxy was already founder-reviewed in MF-ORIG-EV1.1/EV2; re-deriving a new classifier would break reuse and create a second unverifiable interpretation"
+    },
+    {
+      "ambiguity_id": "trim_trigger_conjunction",
+      "pdf_basis": "p.150 sequences the warnings (RSI 70+ first, then the MACD sell crossover 'you want to take profits ... sell a fourth') without stating whether both must hold simultaneously",
+      "resolution": "the signal surface emits rsi_profit_warning and macd_sell_crossover as SEPARATE flags plus trim_context_25pct for the p.150 MACD-while-5-above-20 condition; the reused MF-ORIG trade engine keeps its stricter conjunction (RSI>70 AND MACD bearish cross while profitable) - both readings are visible, nothing is silently chosen",
+      "why": "founder sees the raw documented warnings and the engine's stricter reading"
+    },
+    {
+      "ambiguity_id": "entry_confirmation_set",
+      "pdf_basis": "p.37 calls the bare 5/20 bullish crossover 'a buy signal'; p.146 adds the Stage-2 frame and MACD confirmation",
+      "resolution": "both are emitted: basic_signal (pure p.37 crossover) and source_entry_signal (MF-ORIG primary hypothesis: Stage 2 + close above SMA20 + crossover + MACD confirm + RSI<80 extreme block); the RSI>=80 entry block is an MF-ORIG interpretation (the PDF only says to IGNORE RSI 70+ when the MA stack is aligned, p.140) and is recorded as such",
+      "why": "the founder can audit the raw signal and the confirmed entry side by side"
+    },
+    {
+      "ambiguity_id": "structure_stop_proxy",
+      "pdf_basis": "p.115/p.118: stops belong at market structure / pivot points, described visually, no algorithm",
+      "resolution": "reuse MF-ORIG's deterministic proxy: min(prior-10-candle support low, last confirmed 2/2 pivot low before the signal candle); the signal surface emits the reference value for audit only",
+      "why": "deterministic, no-lookahead, already characterized at trade level"
+    },
+    {
+      "ambiguity_id": "characterization_scope_exposure_only",
+      "pdf_basis": "n/a - scope decision for this phase's book characterization",
+      "resolution": "the MONEYFLOW-SIGNAL1 characterization books model the signal's long/flat EXPOSURE (entry/exit rules) through the EXEC-EV1 friction simulator; structure stops, 25% trims, and 1%-risk sizing are trade-level mechanics already characterized honestly in MF-ORIG-EV1.1/EV2 (no standalone edge) and are not re-modeled at book level",
+      "why": "the signal is the deliverable; trade-level results exist and are cited rather than re-derived with new assumptions"
+    }
+  ],
+  "books": {
+    "always_long": {
+      "exposure_flips": 7,
+      "full": {
+        "days": 1996,
+        "max_drawdown_pct": "78.99902735",
+        "sharpe_annual": "1.12715058",
+        "total_return_pct": "2372.31570528",
+        "vol_annual": "0.79708915"
+      },
+      "net_pnl": "201389.96120220",
+      "oos": {
+        "days": 627,
+        "max_drawdown_pct": "65.32596949",
+        "sharpe_annual": "0.12359247",
+        "total_return_pct": "-19.77179961",
+        "vol_annual": "0.64336092"
+      },
+      "trade_count": 2710,
+      "train": {
+        "days": 1369,
+        "max_drawdown_pct": "78.99902735",
+        "sharpe_annual": "1.48981937",
+        "total_return_pct": "3030.07998600",
+        "vol_annual": "0.85780222"
+      }
+    },
+    "benchmark_buy_hold": {
+      "full": {
+        "days": 1996,
+        "max_drawdown_pct": "85.36202349",
+        "sharpe_annual": "0.90964510",
+        "total_return_pct": "950.27441841",
+        "vol_annual": "0.94675506"
+      },
+      "net_pnl": "130381.45532480",
+      "oos": {
+        "days": 627,
+        "max_drawdown_pct": "72.25089323",
+        "sharpe_annual": "0.04954653",
+        "total_return_pct": "-31.44345790",
+        "vol_annual": "0.71367993"
+      },
+      "trade_count": 14,
+      "train": {
+        "days": 1369,
+        "max_drawdown_pct": "85.36202349",
+        "sharpe_annual": "1.20297966",
+        "total_return_pct": "1468.22823236",
+        "vol_annual": "1.03569378"
+      }
+    },
+    "mf_basic_5_20": {
+      "exposure_flips": 818,
+      "full": {
+        "days": 1996,
+        "max_drawdown_pct": "42.22861670",
+        "sharpe_annual": "1.49388870",
+        "total_return_pct": "1248.35629801",
+        "vol_annual": "0.36231747"
+      },
+      "net_pnl": "117984.19842301",
+      "oos": {
+        "days": 627,
+        "max_drawdown_pct": "27.59979127",
+        "sharpe_annual": "0.70539233",
+        "total_return_pct": "31.55578256",
+        "vol_annual": "0.28334765"
+      },
+      "trade_count": 1886,
+      "train": {
+        "days": 1369,
+        "max_drawdown_pct": "42.22861670",
+        "sharpe_annual": "1.78324079",
+        "total_return_pct": "936.29440221",
+        "vol_annual": "0.39299487"
+      }
+    },
+    "mf_basic_5_20_regime_gated": {
+      "exposure_flips": 560,
+      "full": {
+        "days": 1996,
+        "max_drawdown_pct": "28.82088370",
+        "sharpe_annual": "1.48986037",
+        "total_return_pct": "761.52817133",
+        "vol_annual": "0.29300430"
+      },
+      "net_pnl": "71775.11581231",
+      "oos": {
+        "days": 627,
+        "max_drawdown_pct": "25.52067258",
+        "sharpe_annual": "0.66176218",
+        "total_return_pct": "23.77219928",
+        "vol_annual": "0.22664784"
+      },
+      "trade_count": 1256,
+      "train": {
+        "days": 1369,
+        "max_drawdown_pct": "28.82088370",
+        "sharpe_annual": "1.79181006",
+        "total_return_pct": "603.65901638",
+        "vol_annual": "0.31859484"
+      }
+    },
+    "mf_source_stage2": {
+      "exposure_flips": 804,
+      "full": {
+        "days": 1996,
+        "max_drawdown_pct": "42.22783383",
+        "sharpe_annual": "1.48683465",
+        "total_return_pct": "1168.34515496",
+        "vol_annual": "0.35472844"
+      },
+      "net_pnl": "110389.64643217",
+      "oos": {
+        "days": 627,
+        "max_drawdown_pct": "27.02095320",
+        "sharpe_annual": "0.71024840",
+        "total_return_pct": "31.57146190",
+        "vol_annual": "0.28030003"
+      },
+      "trade_count": 1841,
+      "train": {
+        "days": 1369,
+        "max_drawdown_pct": "42.22783383",
+        "sharpe_annual": "1.77426186",
+        "total_return_pct": "874.68477110",
+        "vol_annual": "0.38381191"
+      }
+    },
+    "mf_source_stage2_regime_gated": {
+      "exposure_flips": 554,
+      "full": {
+        "days": 1996,
+        "max_drawdown_pct": "28.82034170",
+        "sharpe_annual": "1.47403297",
+        "total_return_pct": "695.04409467",
+        "vol_annual": "0.28458355"
+      },
+      "net_pnl": "65464.53509171",
+      "oos": {
+        "days": 627,
+        "max_drawdown_pct": "25.50704395",
+        "sharpe_annual": "0.70014325",
+        "total_return_pct": "25.39471896",
+        "vol_annual": "0.22429991"
+      },
+      "trade_count": 1231,
+      "train": {
+        "days": 1369,
+        "max_drawdown_pct": "28.82034170",
+        "sharpe_annual": "1.76172532",
+        "total_return_pct": "540.95545582",
+        "vol_annual": "0.30808917"
+      }
+    }
+  },
+  "boundaries": {
+    "approves_live_trading": false,
+    "approves_paper_trading": false,
+    "calls_private_signed_or_order_endpoints": false,
+    "changes_production_money_flow_rules": false,
+    "changes_runtime_behavior": false,
+    "enables_any_trading_mode": false,
+    "is_alpha_claim": false,
+    "predicts_or_guarantees_profit": false,
+    "regime_overlay_is_informational_risk_context": true,
+    "regime_overlay_is_validated_control": false,
+    "signal_only": true,
+    "standalone_edge_claim": false,
+    "submits_orders": false,
+    "uses_api_keys": false
+  },
+  "disclaimer": "SOURCE-FAITHFUL SIGNAL, NOT ALPHA: a faithful implementation of the documented Gerald Peters Money Flow Trading System, characterized honestly - the directional rules showed no standalone edge out-of-sample and this surface re-confirms that as characterization, not a profit claim. The regime overlay is informational risk context, not a validated control. Signal only - not an order, not trading advice; nothing here submits orders, enables any trading mode, or predicts or guarantees profit.",
+  "generated_at_utc": "2026-06-12T12:00:00Z",
+  "headline": {
+    "deliverable": "a trustworthy, auditable, source-faithful Money Flow signal surface with the regime overlay - fidelity and trust, not a profit claim",
+    "known_prior_result_reconfirmed": "no standalone out-of-sample edge for the directional Money Flow rules; this phase re-confirms that as characterization",
+    "regime_overlay": "informational risk context, not a validated control (committed REGIME2 verdict: honest FAIL - endpoint-strong, process-unstable)",
+    "standalone_characterization": "defensive_trend_mechanic_not_validated_alpha"
+  },
+  "limitations": [
+    "equal_weight_long_only_books",
+    "exposure_books_do_not_model_structure_stops_trims_or_1pct_sizing (trade-level lane characterized in MF-ORIG-EV1.1/EV2)",
+    "random_benchmarks_are_seeded_coin_flip_and_persistence_matched_long_flat",
+    "regime_overlay_carries_its_honest_fail_verdict_everywhere",
+    "seven_major_perp_universe_only",
+    "single_venue_binance_perp_daily_candles",
+    "single_window_result_window_dependent (the OOS tail is a deep bear; long/flat exit rules are mechanically flattered there)"
+  ],
+  "methodology": {
+    "books": "long/flat exposure of the signal at equal weight through tsmom_ev1.simulate_tsmom_portfolio (decisions at each aligned close, fills at next open, EXEC-EV1 friction)",
+    "data": "DATA1 binance perp_1d candles for AVAX, BNB, BTC, DOGE, ETH, SOL, XRP (closed daily, no lookahead)",
+    "friction": "exec_ev1_conservative",
+    "oos_note": "no parameter was selected in this phase (the rules are pinned by the source document), so the 70/30 split is an evaluation convention, not a selection guard; the known no-edge prior makes this characterization, not a test to pass",
+    "random_benchmarks": "30 seeded coin-flip long/flat books (transparency) + 30 persistence-matched random books (the fair bar; same machinery, same friction)",
+    "rebalance_interval_days": 1,
+    "scope_note": "the MONEYFLOW-SIGNAL1 characterization books model the signal's long/flat EXPOSURE (entry/exit rules) through the EXEC-EV1 friction simulator; structure stops, 25% trims, and 1%-risk sizing are trade-level mechanics already characterized honestly in MF-ORIG-EV1.1/EV2 (no standalone edge) and are not re-modeled at book level",
+    "windows": {
+      "aligned_days": 2087,
+      "first_close": "2020-09-24 00:00:00+00:00",
+      "last_close": "2026-06-11 00:00:00+00:00",
+      "train_oos_split_70_30": "2024-09-22 00:00:00+00:00",
+      "warmed_start": "2020-12-23 00:00:00+00:00"
+    }
+  },
+  "pdf_provenance": {
+    "path": "/Users/tercirafael/money-flow/money-flow/90 Reference/The Money Flow Trading System - Gerald Peters - 2019 Edition 2.pdf",
+    "present": true,
+    "sha256": "200c83feebc1c8d095ed4dce6f82afe0bc586ccdaaf2083c304b493e4296a616",
+    "sha256_matches_pin": true
+  },
+  "phase": "MONEYFLOW-SIGNAL1",
+  "primary_hypothesis": "mf_orig_1d_stage2_5_20_crossover",
+  "prior_evidence": {
+    "known_result": "no standalone out-of-sample edge for the directional Money Flow rules; this phase re-confirms that as characterization",
+    "mf_orig_ev1_1": "docs/mf_orig_ev1_original_money_flow_reconstruction_summary.json",
+    "mf_orig_ev2": "docs/mf_orig_ev2_multitimeframe_evidence_summary.json"
+  },
+  "random_benchmarks": {
+    "coin_flip": {
+      "note": "re-draws every (symbol, day) - at daily decisions this trades ~half the book daily, so friction destroys it; kept for transparency, replaced as a bar by the persistence-matched distribution below (the re-audit correction)",
+      "oos_sharpe_distribution": {
+        "max": "-0.18111672",
+        "median": "-0.76206806",
+        "min": "-1.40193785",
+        "p95": "-0.34213204"
+      }
+    },
+    "mf_oos_sharpe_percentile_vs_coin_flip": "1",
+    "mf_oos_sharpe_percentile_vs_persistence_matched": "0.9333333333333333333333333333",
+    "mf_source_stage2_oos_sharpe": "0.71024840",
+    "persistence_matched": {
+      "note": "Markov enter/exit rates matched to the Money Flow exposure itself (pooled), so the random books carry the SAME friction load and differ only in where the flips land - the fair 'random timing' bar",
+      "oos_sharpe_distribution": {
+        "max": "0.95753262",
+        "median": "0.08509632",
+        "min": "-0.80795208",
+        "p95": "0.60003397"
+      },
+      "p_enter_per_day": "0.03654213253340605399509135533",
+      "p_exit_per_day": "0.08281829419035846724351050680"
+    },
+    "seeds": 30
+  },
+  "regime_overlay_characterization": {
+    "committed_verdict": "regime_filter_does_not_reduce_drawdown_oos",
+    "committed_verdict_note": "evidence verdict (REGIME2, pre-registered): regime_filter_does_not_reduce_drawdown_oos \u2014 the deployed config cleared every endpoint bar (33.6% OOS drawdown reduction; Sharpe 0.88 vs 0.13; reduces drawdown in both fold windows held fixed) but the pre-registered selection process failed walk-forward stability at the early-history cutoff; the emitted state is informational risk context, not a validated control",
+    "mf_basic_5_20": {
+      "gated_oos": {
+        "days": 627,
+        "max_drawdown_pct": "25.52067258",
+        "sharpe_annual": "0.66176218",
+        "total_return_pct": "23.77219928",
+        "vol_annual": "0.22664784"
+      },
+      "label": "informational_overlay_not_validated_control",
+      "oos_drawdown_reduction_pct_of_ungated": "7.533095702284997751723939034",
+      "ungated_oos": {
+        "days": 627,
+        "max_drawdown_pct": "27.59979127",
+        "sharpe_annual": "0.70539233",
+        "total_return_pct": "31.55578256",
+        "vol_annual": "0.28334765"
+      },
+      "whipsaw_cost": {
+        "extra_flips_from_overlay": -258,
+        "gated_exposure_flips": 560,
+        "oos_return_gated_pct": "23.77219928",
+        "oos_return_ungated_pct": "31.55578256",
+        "ungated_exposure_flips": 818
+      }
+    },
+    "mf_source_stage2": {
+      "gated_oos": {
+        "days": 627,
+        "max_drawdown_pct": "25.50704395",
+        "sharpe_annual": "0.70014325",
+        "total_return_pct": "25.39471896",
+        "vol_annual": "0.22429991"
+      },
+      "label": "informational_overlay_not_validated_control",
+      "oos_drawdown_reduction_pct_of_ungated": "5.602723333979202480540175763",
+      "ungated_oos": {
+        "days": 627,
+        "max_drawdown_pct": "27.02095320",
+        "sharpe_annual": "0.71024840",
+        "total_return_pct": "31.57146190",
+        "vol_annual": "0.28030003"
+      },
+      "whipsaw_cost": {
+        "extra_flips_from_overlay": -250,
+        "gated_exposure_flips": 554,
+        "oos_return_gated_pct": "25.39471896",
+        "oos_return_ungated_pct": "31.57146190",
+        "ungated_exposure_flips": 804
+      }
+    },
+    "regime_config": "regime1_lb90_br6_btc_required_1d",
+    "regime_series_days": 1997,
+    "risk_off_days_in_regime_series": 1150
+  },
+  "report": "moneyflow_signal1_source_faithful_signal_surface_evidence",
+  "source_citations": [
+    {
+      "implementation": "indicator set is exactly EMA5, EMA10, SMA20, RSI14, MACD(12,26,9) via services.indicators.service (the production implementations); every value is emitted on the signal surface",
+      "printed_page": "10",
+      "quote": "The Basic Money Flow Trading System Check List: 1. The 5-day Exponential Moving Average 2. The 10-day Exponential Moving Average 3. The 20-day Simple Moving Average 4. RSI - Relative Strength Index set to 14 day 5. Support and Resistance Zones 6. The MACD - Moving Average Convergence Divergence / or TSI",
+      "rule_id": "checklist_indicators"
+    },
+    {
+      "implementation": "basic_signal: 'buy' on EMA5 crossing above SMA20, 'sell' on EMA5 crossing below SMA20 (mf_orig_ev1._crossed_above/_crossed_below, reused unchanged)",
+      "printed_page": "37",
+      "quote": "The foundation of The Money Flow Trading System is the 5-day EMA and 20-day SMA crossovers. These two moving averages crossing each other give us our basic buy and sell signals. ... A bullish crossover occurs when the shorter moving average crosses above the longer moving average. This is also known as a buy signal. A bearish crossover ... is known as a sell signal.",
+      "rule_id": "foundation_5_20_crossover"
+    },
+    {
+      "implementation": "close_vs_sma20 emitted on every state; the stage classifier keys on close versus SMA20 (mf_orig_ev1._classify_stage, reused)",
+      "printed_page": "30-31, 36",
+      "quote": "Price is in relation to the 20-day moving average is what identifies the current stage. (p.30) ... The most important moving average for The Money Flow Trading System is the 20 SMA. (p.31) ... if price is above the 20 SMA prices are trending up, if price is below the 20 SMA prices are trending down. (p.36)",
+      "rule_id": "sma20_trend_and_stage_line"
+    },
+    {
+      "implementation": "MACD(12,26,9) is used for confirmation/warning - now SOURCE-CONFIRMED (the PDF itself authorizes MACD in place of TSI), upgrading MF-ORIG-EV1's 'tsi_deferred_macd_substitute' limitation",
+      "printed_page": "70, 72",
+      "quote": "you can just use the MACD indicator and get the exact same results. ... The two indicators are in complete lock step 99% of the time. (p.70; TSI(25,13,7) and MACD(12,26,9) appear on every chart in the book)",
+      "rule_id": "macd_equals_tsi"
+    },
+    {
+      "implementation": "source_entry_signal = mf_orig_ev1._entry_signal('mf_orig_1d_stage2_5_20_crossover'): Stage 2 active, close above SMA20, EMA5 crosses above SMA20, MACD bullish or improving, RSI below the extreme-overbought block",
+      "printed_page": "146",
+      "quote": "Stage Two - The Breakout ... The 5 EMA will Cross the 20 SMA. The MACD will confirm with crossover signals. Often, they will signal before the 5/20 crossover. ... You want to be fully invested in the trade at this stage.",
+      "rule_id": "stage2_breakout_entry"
+    },
+    {
+      "implementation": "rsi_profit_warning (RSI14 > 70) and macd_sell_crossover (bearish signal-line cross while EMA5 > SMA20) are emitted as separate auditable flags; trim_context_25pct marks the documented quarter-trim context (the trade-level 25% trim itself lives in the reused MF-ORIG engine)",
+      "printed_page": "150",
+      "quote": "Your first sign be 70+ Reading with RSI. This is your first warning sign. ... If the MACD signals sell and has a crossover in the opposite direction and the 5 EMA is still above the 20 SMA you want to take profits. I often sell a fourth of the position.",
+      "rule_id": "stage3_warning_and_quarter_trim"
+    },
+    {
+      "implementation": "exit_signal: ema5_cross_below_sma20_exit or price_close_below_sma20_exit - the same two conditions mf_orig_ev1._original_exit_reason closes on",
+      "printed_page": "150, 152",
+      "quote": "We do not close the trade until the 5 EMA crosses and closes below the 20 SMA or price closes below the 20-day moving average. (p.150) ... The 5 EMA crossing below the 20 SMA was the death nail. (p.152)",
+      "rule_id": "full_exit_rule"
+    },
+    {
+      "implementation": "rsi_profit_warning above 70; rsi_ignore_active when the EMA5 > EMA10 > SMA20 stack holds (the p.140 override) - both emitted, neither hidden inside the other",
+      "printed_page": "127, 140",
+      "quote": "RSI is considered overbought (take profits) when above 70 and oversold when below 30. (p.127) ... Ignore RSI 70 + reading when 5 day moving average is still above the 10-day moving average and the 10-day moving average is above the 20-day moving average. All three moving averages are sloping upward. (p.140)",
+      "rule_id": "rsi_rules"
+    },
+    {
+      "implementation": "trade-level lane only (reused MF-ORIG engine: prior-10-candle support low / confirmed pivot-low proxy); the signal surface emits the current structure-stop reference for audit",
+      "printed_page": "115, 118",
+      "quote": "You want to let market structure determines your stop loss point not some arbitrary percentage of loss. (p.115) ... Pivot points help traders identify market structure and the best place to place a protective stop. (p.118)",
+      "rule_id": "structure_stops_not_fixed_pct"
+    },
+    {
+      "implementation": "trade-level lane only (reused MF-ORIG engine sizes risk budget at 1% of realized equity over stop distance); not part of the signal state itself",
+      "printed_page": "125",
+      "quote": "Ideally you want to risk 1% or less of your account balance on any one trade.",
+      "rule_id": "position_sizing_1pct_risk"
+    },
+    {
+      "implementation": "the signal surface computes on closed DAILY candles only",
+      "printed_page": "142",
+      "quote": "This cycle is fractal. ... The Money Flow trading strategy uses a daily chart.",
+      "rule_id": "daily_timeframe_fractal"
+    },
+    {
+      "implementation": "the stage classifier's whipsaw/low-progress branch labels Stage 1; the emitted stage gives the founder the documented whipsaw warning context",
+      "printed_page": "143",
+      "quote": "Stage One: Basing ... This is the stage you can be whip sawed and take many small losses if you can't identify it on a chart. The moving averages are of little help in stage one.",
+      "rule_id": "stage1_whipsaw_warning"
+    },
+    {
+      "implementation": "framing only - the system is trend-following by construction; no extra code rule",
+      "printed_page": "3",
+      "quote": "A Trend once established a Trend is more likely to continue than it is to reverse. This statement is the foundation upon which The Money Flow Trading Strategy is built.",
+      "rule_id": "trend_following_frame"
+    }
+  ],
+  "source_document": {
+    "author": "Gerald Peters",
+    "direct_pdf_available_to_agent": true,
+    "edition": "September 5, 2019 Edition #2",
+    "page_convention": "citations use the PRINTED page number (PDF page = printed page + 1)",
+    "pdf_page_count": 159,
+    "pdf_sha256": "200c83feebc1c8d095ed4dce6f82afe0bc586ccdaaf2083c304b493e4296a616",
+    "repo_path": "money-flow/90 Reference/The Money Flow Trading System - Gerald Peters - 2019 Edition 2.pdf",
+    "title": "The Money Flow Trading System",
+    "upgrade_over_mf_orig_ev1": "MF-ORIG-EV1 recorded direct_pdf_available_to_agent=false and worked from a prompt-supplied source summary; MONEYFLOW-SIGNAL1 located the PDF in the repo, read it directly, and verified every reused rule against the printed text - citations below quote the source."
+  },
+  "standalone_characterization": {
+    "buy_hold_oos": {
+      "days": 627,
+      "max_drawdown_pct": "72.25089323",
+      "sharpe_annual": "0.04954653",
+      "total_return_pct": "-31.44345790",
+      "vol_annual": "0.71367993"
+    },
+    "committed_context": {
+      "implication": "a 5/20 MA long/flat book clearing the relative bar on this universe is the KNOWN defensive trend mechanic on a refreshed window, not a new discovery; the absolute sign of OOS return is window placement (TSMOM-EV1's OOS was a -62% bear and absolutely negative)",
+      "mf_orig_trade_level": "source_faithful_but_underperformed - the namesake trade-level system (stops/trims/1% sizing vs v1.2) cleared no gate (MF-ORIG-EV1.1/EV2)",
+      "regime1_regime2": "the same bears-vs-chop defensive texture, committed as honest fails on their own bars",
+      "trend_suite1": "beats_buy_hold_risk_adjusted_oos - 'defensive only - suite adds nothing' (committed; the MA-cross family includes 5/20-style systems)",
+      "tsmom_ev1": "beats_buy_hold_risk_adjusted_oos - 'defensive, not profitable' (committed verdict, same universe/machinery)"
+    },
+    "label": "defensive_trend_mechanic_not_validated_alpha",
+    "mf_source_stage2_oos": {
+      "days": 627,
+      "max_drawdown_pct": "27.02095320",
+      "sharpe_annual": "0.71024840",
+      "total_return_pct": "31.57146190",
+      "vol_annual": "0.28030003"
+    },
+    "reading": "the long/flat exits avoid the bear windows (OOS drawdown 27% vs buy-and-hold 72%) while giving up most of the rising third's return - drawdown-avoidance, exactly the committed TSMOM-EV1/TREND-SUITE1/REGIME texture on this universe; single window, window-dependent, NOT validated alpha, and ~p95 against only 30 matched randoms is no multiplicity-aware significance claim; the trade-level namesake result (source_faithful_but_underperformed) stands",
+    "screens": {
+      "labeling_rule": "pre-stated and two-sided: no_standalone_edge_reconfirmed if any corrected bar fails; defensive_trend_mechanic_not_validated_alpha if the bars clear but MF gives up the rising third's return (drawdown-avoidance - the committed trend-family texture, not return prediction); unexpected_return_prediction_signature_re_audit only if it also beats always-long's return when the market rises - and even then it is not an alpha claim without a dedicated pre-registered confirmatory phase",
+      "stage1_raw": {
+        "beats_buy_hold_risk_adjusted_oos": true,
+        "beats_coin_flip_random_p95_oos": true,
+        "re_audit_rule_fired": true
+      },
+      "stage2_re_audit": {
+        "always_long_bull_third_return_pct": "1134.74495311",
+        "always_long_bull_third_sharpe": "1.91978110",
+        "beats_persistence_matched_random_p95_oos": true,
+        "bull_third": "first_third",
+        "metric_note": "the mechanic question uses RETURN in the rising third (a flat-heavy book's Sharpe is flattered by time in cash); both metrics are reported",
+        "mf_beats_always_long_return_in_bull_third": false,
+        "mf_bull_third_return_pct": "403.76379188",
+        "mf_bull_third_sharpe": "2.33876585"
+      }
+    }
+  },
+  "status": "source_faithful_signal_surface_delivered_characterized_honestly",
+  "sub_window_texture_thirds": {
+    "bull_third": "first_third",
+    "stats": {
+      "always_long": {
+        "final_third": {
+          "days": 695,
+          "max_drawdown_pct": "65.32596949",
+          "sharpe_annual": "0.08072726",
+          "total_return_pct": "-25.25860033",
+          "vol_annual": "0.63844965"
+        },
+        "first_third": {
+          "days": 605,
+          "max_drawdown_pct": "77.80565199",
+          "sharpe_annual": "1.91978110",
+          "total_return_pct": "1134.74495311",
+          "vol_annual": "1.09145003"
+        },
+        "middle_third": {
+          "days": 696,
+          "max_drawdown_pct": "39.79493645",
+          "sharpe_annual": "1.14118634",
+          "total_return_pct": "164.46251814",
+          "vol_annual": "0.61314672"
+        }
+      },
+      "benchmark_buy_hold": {
+        "final_third": {
+          "days": 695,
+          "max_drawdown_pct": "72.25089323",
+          "sharpe_annual": "-0.00123446",
+          "total_return_pct": "-38.08361864",
+          "vol_annual": "0.70807940"
+        },
+        "first_third": {
+          "days": 605,
+          "max_drawdown_pct": "85.32032834",
+          "sharpe_annual": "1.51128338",
+          "total_return_pct": "610.10596296",
+          "vol_annual": "1.35598667"
+        },
+        "middle_third": {
+          "days": 696,
+          "max_drawdown_pct": "46.60315746",
+          "sharpe_annual": "1.00374513",
+          "total_return_pct": "136.74508381",
+          "vol_annual": "0.68473667"
+        }
+      },
+      "mf_source_stage2": {
+        "final_third": {
+          "days": 695,
+          "max_drawdown_pct": "27.02095320",
+          "sharpe_annual": "0.60229912",
+          "total_return_pct": "28.02186878",
+          "vol_annual": "0.28098997"
+        },
+        "first_third": {
+          "days": 605,
+          "max_drawdown_pct": "34.20421432",
+          "sharpe_annual": "2.33876585",
+          "total_return_pct": "403.76379188",
+          "vol_annual": "0.46376598"
+        },
+        "middle_third": {
+          "days": 696,
+          "max_drawdown_pct": "22.98683225",
+          "sharpe_annual": "1.29490622",
+          "total_return_pct": "94.89860136",
+          "vol_annual": "0.30704189"
+        }
+      }
+    },
+    "windows": {
+      "t1": "2022-08-20 00:00:00+00:00",
+      "t2": "2024-07-16 00:00:00+00:00"
+    }
+  },
+  "warmup_note": "warm-up is never guessed: states are emitted only when every required indicator exists"
+}

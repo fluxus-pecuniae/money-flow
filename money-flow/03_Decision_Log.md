@@ -2,6 +2,61 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-12T12:30:00Z - MONEYFLOW-SIGNAL1 - The Namesake Ships As A Trusted Signal Surface, Not An Alpha Claim
+
+- `decision`: Close the loop to the project's namesake by delivering a source-faithful, auditable Money Flow signal surface — NOT an alpha hunt. Pin the rules to the actual Gerald Peters PDF (found in the repo at `money-flow/90 Reference/`, sha256-pinned, read directly — an upgrade over MF-ORIG-EV1's prompt-summary basis), reuse the MF-ORIG-EV1 reconstruction primitives and the production indicator implementations unchanged (no re-derived lookalike), emit every intermediate term on closed candles only (`scripts/run_moneyflow_signal.py`), overlay the REGIME filter as informational risk context with its honest-FAIL verdict carried on every state, and characterize the signal honestly (standalone OOS post-friction vs buy-and-hold and random; alone vs regime-gated).
+- `result`: Fidelity: every reused rule verified against the printed text with page citations (p.37 5/20 crossover = the basic buy/sell signal; p.150 exit hierarchy incl. the quarter-trim; p.127/p.140 RSI rules; p.146 Stage-2 entry; p.125 1% risk; p.142 daily/fractal; p.70 MACD-for-TSI now SOURCE-CONFIRMED, upgrading MF-ORIG's limitation); interpretation choices recorded, never silently picked; hand-computed fixtures pin the indicator arithmetic. Characterization: the pre-stated green-is-a-red-flag rule FIRED (exposure book OOS Sharpe 0.71 vs buy-and-hold 0.05) and the re-audit traced it honestly — the coin-flip random bar was churn-unfair (replaced with persistence-matched randoms, MF at ~p93 of 30 seeds) and the green is the KNOWN defensive trend mechanic (OOS dd 27% vs 72%, but MF gives up the rising third: +404% vs always-long's +1135%) — final label `defensive_trend_mechanic_not_validated_alpha`, consistent with the committed TSMOM-EV1/TREND-SUITE1 'defensive, not profitable' verdicts on this universe; the trade-level namesake result (`source_faithful_but_underperformed`, MF-ORIG-EV1.1/EV2) stands. Regime overlay: cuts OOS drawdown a further ~6-8% of the ungated book at a ~6pp OOS return cost, labeled informational, never a validated control. Live CLI sample 2026-06-12: all 7 majors stage_4_markdown / flat; regime RISK_OFF.
+- `honesty_notes`: the re-audit corrected the benchmark (a methodology artifact) and contextualized the green against committed priors — it did NOT keep adding screens until the result failed; the labeling rule is two-sided and pre-stated in the runner, with `unexpected_return_prediction_signature_re_audit` reserved for a green that survives everything (it did not: no return-prediction signature).
+- `scope`: `services/strategy_validation/moneyflow_signal1.py`, `scripts/run_moneyflow_signal.py`, `scripts/run_moneyflow_signal1_evidence.py`, `docs/moneyflow_signal1_*`, `tests/test_moneyflow_signal1.py`, CI fast lane, `.gitignore` (`reports/moneyflow_signal1/`), operational docs, Obsidian notes.
+- `boundaries`: Signal only — no orders, no private/signed endpoints, no testnet/live, no approval surface, no runtime change, no production Money Flow rule change; the regime overlay is informational risk context, not a validated control; nothing predicts or guarantees profit.
+- `follow_up_implications`: The namesake loop is CLOSED — the founder has a trusted, source-faithful Money Flow signal on real candles with the regime context attached. The remaining open strategy-hunt threads are unchanged and characterized, not started: stat-arb/cointegration (the one untested systematic-alpha avenue) and funding carry via institutional sub-candle atomic execution. Any future alpha claim from this signal family would need a dedicated pre-registered confirmatory phase; the defensive texture belongs to the risk-tool lane (REGIME/TREND-OVERLAY), not to a return-prediction claim.
+
+```yaml
+research_log:
+  phase: MONEYFLOW-SIGNAL1
+  date: 2026-06-12
+  class: source_reconstruction
+  outcome: context
+  badge: namesake loop closed
+  title: Source-Faithful Money Flow Signal Surface + Regime Overlay
+  finding: >-
+    The namesake ships as a trusted signal surface: rules pinned to the
+    actual Peters PDF (sha256-pinned, page-cited, read directly this
+    phase), MF-ORIG primitives reused unchanged, every intermediate term
+    auditable on closed candles, regime overlay attached with its honest
+    FAIL verdict. Characterization re-confirmed there is nothing to hunt:
+    the exposure book's green vs buy-and-hold is the known defensive
+    trend mechanic (cuts the bear, gives up the bull), not validated
+    alpha; the trade-level underperformance result stands.
+  why: >-
+    Directional Money Flow already failed its alpha tests
+    (MF-ORIG-EV1.1/EV2, STRAT-DISC1), so the deliverable was redefined as
+    fidelity + trust: the founder can look at the signal and KNOW it is
+    the documented system, see exactly what it does, and see it inside
+    the regime risk context.
+  worked: >-
+    Reading the actual PDF (the prior phase never had it) - citations now
+    quote the source and one MF-ORIG limitation (TSI deferred) turned out
+    to be source-sanctioned; the pre-stated green-is-a-red-flag rule -
+    it fired, caught a churn-unfair random benchmark, and forced the
+    honest defensive-mechanic reading instead of a quiet green.
+  didnt: >-
+    The naive coin-flip random benchmark at daily decisions - it burns
+    ~half the book in friction daily and flatters anything persistent;
+    replaced with persistence-matched randoms (recorded, both reported).
+  lesson: >-
+    Fidelity and trust are the deliverable when alpha is known-absent -
+    and a characterization that LOOKS green must be traced to its
+    mechanic before it is allowed to mean anything.
+  our_error: null
+  changed: >-
+    The namesake loop is closed; future strategy hunting points at the
+    untested avenues (stat-arb/cointegration; institutional atomic
+    execution for carry), not at re-tuning Money Flow.
+  hardened_gate: green results trigger re-audit, not celebration
+  evidence_summary: docs/moneyflow_signal1_source_faithful_signal_surface_evidence_summary.json
+```
+
 ## 2026-06-12T09:00:00Z - REGIME2 - The Criterion Fix Cleared Every Endpoint Bar; The Selection Process Failed Its Own Walk-Forward
 
 - `decision`: Execute the pre-registered protocol (see the PRE-REGISTRATION entry below, committed to git before the selection ran): REGIME1's exact 18-config grid unwidened, selection on lowest gated TRAIN max drawdown with the whipsaw tie-break (ties within 2.0pp -> fewest train flips -> config_id), all REGIME1 bars held unchanged plus the pre-stated 25pp return-retention tolerance.
