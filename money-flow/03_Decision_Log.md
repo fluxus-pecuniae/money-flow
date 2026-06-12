@@ -2,6 +2,67 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-12T02:30:00Z - DATA1 - The HL-Only Limitation Is Fixed: A Multi-Venue, Provenance-Tracked, Honestly-Gapped Data Foundation
+
+- `decision`: Build the multi-venue public read-only dataset (perp funding history, perp daily candles, spot daily candles) for the liquid majors (BTC/ETH/SOL + XRP/DOGE/BNB/AVAX where listed) across hyperliquid, binance, bybit, okx, coinbase, kraken — data ingestion ONLY (no strategy logic, no orders, no private/signed endpoints, no keys, no runtime change), reusing the FUND-EV1 snapshot discipline: raw native payloads as ignored local artifacts, committed provenance + sha256 + coverage in `docs/data1_multi_venue_snapshot_summary.json`, and a loader (`load_data1_dataset`) that verifies integrity and exposes coverage flags instead of papering over gaps.
+- `result`: 101 of 101 expected series fetched OK on 2026-06-11 (0 fetch failures); the 25 non-fetchable cells are real venue gaps recorded as `venue_lacks_market` (Coinbase has no public perp/funding market data and no BNB; OKX and Kraken list no BNB; HL spot exists only for BTC/ETH/SOL). History depth now: Coinbase BTC spot from 2015-07 (~3,979 daily candles) and Binance spot from 2017-08 vs the previous 889-candle HL-only window; Binance funding from 2019-09 (6.7y), Bybit from 2020-03. The probe + normalizers caught three traps that would have silently poisoned cross-venue work: (1) OKX default daily bars are UTC+8-aligned — fetched as `1Dutc`, and the normalizer REFUSES any non-midnight-UTC daily candle; (2) Hyperliquid serves ~900+ zero-volume perp candles per asset from BEFORE the venue traded (back to 2020-08) — kept as the venue serves them but counted per series (`zero_volume_rows`/`first_nonzero_volume_close`: real HL trading starts 2023-02/03 per asset); (3) public funding history is much shallower than candle history on some venues — OKX only ~3 months, Kraken Futures ~1y, recorded as venue limits (K-036). Coinbase XRP-USD carries its real 904-day delisting hole (2021-01-19 → 2023-07-13) as an explicit gap — union-calendar alignment never forward-fills, interpolates, or truncates.
+- `scope`: `services/market_data/data1_multi_venue.py` (catalog with explicit gaps, allowlisted-endpoint fetchers over an injected transport, strict normalizers, FUND-EV1-convention daily funding aggregation with declared+observed intervals, union alignment, sha256-verifying loader), `scripts/fetch_data1_multi_venue_snapshot.py` (resumable one-shot snapshot), `docs/data1_*`, `tests/test_data1_multi_venue.py` (blocking CI), `tests/test_data1_live_smoke.py` (env-gated), CI fast lane.
+- `rejected_alternatives`: Committing the bulk series (raw is 57MB — ignored artifacts + committed sha256 keep the repo lean and the data auditable/regenerable, the SV2.2 pattern); rescaling 8h funding rates to hourly equivalents (sums per day are comparable without pretending the venues are identical); forward-filling or intersection-truncating the aligned calendar (the gaps ARE the information); substituting Coinbase INTX or another source where a venue lacks a market (a wrong cross-venue assumption would poison the next funding test); hourly price candles (deep hourly needs thousands of paginated calls; funding events already carry the sub-daily resolution that matters — deferred, documented).
+- `boundaries`: Public read-only market-data endpoints only, pinned by a module-level allowlist the fetchers enforce; no API keys read, no private/signed/account/order endpoint anywhere; nothing submitted; no strategy logic or gate; no runtime artifact touched. The dataset informs FUTURE phases; it changes no current verdict.
+- `follow_up_implications`: FUND-VENUES1 is unblocked with a venue-fair funding base (five venues aligned daily) BUT any design must respect recorded depth limits (OKX ~3 months of funding; Kraken 1y). Trend/regime re-tests can now use >1 OOS cycle of spot history (2015+). The next phase consuming this data must read coverage flags from the loader — that is the contract.
+
+```yaml
+research_log:
+  phase: DATA1
+  date: 2026-06-12
+  class: data_prep
+  outcome: context
+  badge: multi-venue data foundation
+  title: Multi-Venue Market & Funding Data Foundation
+  finding: >-
+    101/101 expected series ingested across six venues (funding/perp/spot
+    daily, BTC ETH SOL XRP DOGE BNB AVAX) with committed provenance +
+    sha256; 25 real venue gaps recorded as coverage, never substituted.
+    BTC spot history now reaches 2015-07 (~3,979 daily candles) vs the
+    889-candle HL-only window.
+  why: >-
+    Every prior verdict stood on Hyperliquid-only data - sharpest for
+    funding carry (HL's thin spot + fees drove the fail) and for trend
+    (one venue, one bull-bear cycle). A venue-fair funding test and any
+    longer-history trend/regime claim need this base first.
+  worked: >-
+    The FUND-EV1 snapshot discipline scaled to six venues unchanged
+    (ignored raw artifacts + committed sha256 provenance); the probe-first
+    approach caught the OKX UTC+8 daily-bar trap before a single byte was
+    ingested; the midnight-UTC normalizer guard and zero-volume accounting
+    turned two silent poisoning risks into recorded facts.
+  didnt: >-
+    Public funding history is far shallower than candle history on two
+    venues (OKX ~3 months, Kraken Futures ~1y) - the venue-fair funding
+    window is narrower than the candle window and tests must shrink or
+    drop venues explicitly. Hyperliquid publishes ~900+ pre-launch
+    zero-volume candles per asset that must never be read as market
+    history. Kraken spot caps at 720 days.
+  lesson: >-
+    Cross-venue data is full of silent misalignment traps - bar timezone
+    defaults, backfilled pre-launch candles, delisting holes, uneven
+    history depth. Recording gaps as first-class coverage (and refusing
+    non-midnight bars outright) is what makes the dataset trustworthy
+    enough to base a venue-fair test on.
+  our_error: null
+  our_error_note: >-
+    the probe + strict normalizers caught the traps before ingestion;
+    nothing had to be corrected after the fact
+  changed: >-
+    FUND-VENUES1 is unblocked (five venues' funding aligned daily);
+    trend/regime re-tests gain >1 OOS cycle of spot history; every future
+    consumer must read the loader's coverage flags before comparing
+    venues (K-036).
+  hardened_gate: consult coverage flags before any cross-venue comparison
+  evidence_summary: docs/data1_multi_venue_snapshot_summary.json
+  evidence_doc: docs/data1_multi_venue_data_foundation.md
+```
+
 ## 2026-06-12T01:30:00Z - TREND-SUITE1 - The Richer Trend Suite Finds Nothing Better Than TSMOM, And Vol-Targeting Was Not The Cap
 
 - `decision`: Test the canonical trend-following suite TSMOM-EV1 never tried — Donchian channel breakout (Turtle 20/55, channel + ATR/chandelier exits), dual-MA crossover (3x3 grid), multi-timeframe confirmation (daily gated by a frozen weekly sign), the TSMOM carry-over, and a majority/average ensemble — every signal cell under BOTH vol-targeted (EV1-style) and non-vol-targeted equal-dollar sizing, judged by the SAME buy-and-hold risk-adjusted gate on the same eight liquid majors after EXEC-EV1 conservative friction at 10,000 USDC. 46-config bounded grid, parameters chosen on the train split only; new `trend_suite` routing type (prefix `trend_suite1_`) deliberately shares the TSMOM gate id; the EV1 simulator is reused verbatim through its signal-provider/rebalance-timestamps seams.

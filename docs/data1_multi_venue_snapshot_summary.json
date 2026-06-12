@@ -1,0 +1,5557 @@
+{
+  "alignment_overview": {
+    "AVAX": {
+      "funding": {
+        "first_close": "2020-09-23T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 2088,
+        "venue_days_present": {
+          "binance": 2088,
+          "bybit": 1730,
+          "hyperliquid": 1126,
+          "kraken": 366,
+          "okx": 92
+        }
+      },
+      "perp_1d": {
+        "first_close": "2020-09-24T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 2087,
+        "venue_days_present": {
+          "binance": 2087,
+          "bybit": 1730,
+          "hyperliquid": 2087,
+          "kraken": 1541,
+          "okx": 2086
+        }
+      },
+      "spot_1d": {
+        "first_close": "2020-09-23T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 2088,
+        "venue_days_present": {
+          "binance": 2088,
+          "bybit": 1672,
+          "coinbase": 1715,
+          "kraken": 720,
+          "okx": 2087
+        }
+      }
+    },
+    "BNB": {
+      "funding": {
+        "first_close": "2020-02-11T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 2313,
+        "venue_days_present": {
+          "binance": 2313,
+          "bybit": 1808,
+          "hyperliquid": 1126
+        }
+      },
+      "perp_1d": {
+        "first_close": "2020-02-11T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 2313,
+        "venue_days_present": {
+          "binance": 2313,
+          "bybit": 1808,
+          "hyperliquid": 2122
+        }
+      },
+      "spot_1d": {
+        "first_close": "2017-11-07T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 3139,
+        "venue_days_present": {
+          "binance": 3139,
+          "bybit": 1554
+        }
+      }
+    },
+    "BTC": {
+      "funding": {
+        "first_close": "2019-09-11T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 2466,
+        "venue_days_present": {
+          "binance": 2466,
+          "bybit": 2269,
+          "hyperliquid": 1126,
+          "kraken": 366,
+          "okx": 92
+        }
+      },
+      "perp_1d": {
+        "first_close": "2019-09-09T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 2468,
+        "venue_days_present": {
+          "binance": 2468,
+          "bybit": 2269,
+          "hyperliquid": 2122,
+          "kraken": 1541,
+          "okx": 2353
+        }
+      },
+      "spot_1d": {
+        "first_close": "2015-07-21T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 3979,
+        "venue_days_present": {
+          "binance": 3220,
+          "bybit": 1802,
+          "coinbase": 3979,
+          "hyperliquid": 493,
+          "kraken": 720,
+          "okx": 3073
+        }
+      }
+    },
+    "DOGE": {
+      "funding": {
+        "first_close": "2020-07-11T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 2162,
+        "venue_days_present": {
+          "binance": 2162,
+          "bybit": 1835,
+          "hyperliquid": 1126,
+          "kraken": 366,
+          "okx": 92
+        }
+      },
+      "perp_1d": {
+        "first_close": "2020-07-11T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 2162,
+        "venue_days_present": {
+          "binance": 2162,
+          "bybit": 1835,
+          "hyperliquid": 2122,
+          "kraken": 1452,
+          "okx": 2161
+        }
+      },
+      "spot_1d": {
+        "first_close": "2019-07-06T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 2533,
+        "venue_days_present": {
+          "binance": 2533,
+          "bybit": 1745,
+          "coinbase": 1834,
+          "kraken": 720,
+          "okx": 2353
+        }
+      }
+    },
+    "ETH": {
+      "funding": {
+        "first_close": "2019-11-28T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 2388,
+        "venue_days_present": {
+          "binance": 2388,
+          "bybit": 2059,
+          "hyperliquid": 1126,
+          "kraken": 366,
+          "okx": 92
+        }
+      },
+      "perp_1d": {
+        "first_close": "2019-11-28T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 2388,
+        "venue_days_present": {
+          "binance": 2388,
+          "bybit": 1914,
+          "hyperliquid": 2122,
+          "kraken": 1541,
+          "okx": 2353
+        }
+      },
+      "spot_1d": {
+        "first_close": "2016-05-19T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 3674,
+        "venue_days_present": {
+          "binance": 3220,
+          "bybit": 1802,
+          "coinbase": 3674,
+          "hyperliquid": 442,
+          "kraken": 720,
+          "okx": 3073
+        }
+      }
+    },
+    "SOL": {
+      "funding": {
+        "first_close": "2020-09-14T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 2097,
+        "venue_days_present": {
+          "binance": 2097,
+          "bybit": 1808,
+          "hyperliquid": 1126,
+          "kraken": 366,
+          "okx": 92
+        }
+      },
+      "perp_1d": {
+        "first_close": "2020-09-15T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 2096,
+        "venue_days_present": {
+          "binance": 2096,
+          "bybit": 1700,
+          "hyperliquid": 2096,
+          "kraken": 1541,
+          "okx": 1965
+        }
+      },
+      "spot_1d": {
+        "first_close": "2020-08-12T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 2130,
+        "venue_days_present": {
+          "binance": 2130,
+          "bybit": 1694,
+          "coinbase": 1820,
+          "hyperliquid": 397,
+          "kraken": 720,
+          "okx": 2079
+        }
+      }
+    },
+    "XRP": {
+      "funding": {
+        "first_close": "2020-01-07T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 2348,
+        "venue_days_present": {
+          "binance": 2348,
+          "bybit": 1855,
+          "hyperliquid": 1089,
+          "kraken": 366,
+          "okx": 92
+        }
+      },
+      "perp_1d": {
+        "first_close": "2020-01-02T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 2353,
+        "venue_days_present": {
+          "binance": 2348,
+          "bybit": 1855,
+          "hyperliquid": 2089,
+          "kraken": 1541,
+          "okx": 2353
+        }
+      },
+      "spot_1d": {
+        "first_close": "2018-05-05T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "union_calendar_days": 2960,
+        "venue_days_present": {
+          "binance": 2960,
+          "bybit": 1787,
+          "coinbase": 1758,
+          "kraken": 720,
+          "okx": 2353
+        }
+      }
+    }
+  },
+  "boundaries": {
+    "calls_private_signed_or_order_endpoints": false,
+    "creates_orders": false,
+    "mutates_runtime_artifacts": false,
+    "public_read_only": true,
+    "research_only": true
+  },
+  "coverage_gaps": [
+    {
+      "asset": "AVAX",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "funding",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "AVAX",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "perp_1d",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "funding",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "perp_1d",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "Coinbase does not list BNB",
+      "series": "spot_1d",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BTC",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "funding",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BTC",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "perp_1d",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "DOGE",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "funding",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "DOGE",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "perp_1d",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "ETH",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "funding",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "ETH",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "perp_1d",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "SOL",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "funding",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "SOL",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "perp_1d",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "XRP",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "funding",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "XRP",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "perp_1d",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "AVAX",
+      "error": null,
+      "note": "no Hyperliquid spot pair for this asset",
+      "series": "spot_1d",
+      "status": "venue_lacks_market",
+      "venue": "hyperliquid",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "no Hyperliquid spot pair for this asset",
+      "series": "spot_1d",
+      "status": "venue_lacks_market",
+      "venue": "hyperliquid",
+      "venue_symbol": null
+    },
+    {
+      "asset": "DOGE",
+      "error": null,
+      "note": "no Hyperliquid spot pair for this asset",
+      "series": "spot_1d",
+      "status": "venue_lacks_market",
+      "venue": "hyperliquid",
+      "venue_symbol": null
+    },
+    {
+      "asset": "XRP",
+      "error": null,
+      "note": "no Hyperliquid spot pair for this asset",
+      "series": "spot_1d",
+      "status": "venue_lacks_market",
+      "venue": "hyperliquid",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "Kraken does not list BNB",
+      "series": "funding",
+      "status": "venue_lacks_market",
+      "venue": "kraken",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "Kraken does not list BNB",
+      "series": "perp_1d",
+      "status": "venue_lacks_market",
+      "venue": "kraken",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "Kraken does not list BNB",
+      "series": "spot_1d",
+      "status": "venue_lacks_market",
+      "venue": "kraken",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "OKX does not list BNB",
+      "series": "funding",
+      "status": "venue_lacks_market",
+      "venue": "okx",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "OKX does not list BNB",
+      "series": "perp_1d",
+      "status": "venue_lacks_market",
+      "venue": "okx",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "OKX does not list BNB",
+      "series": "spot_1d",
+      "status": "venue_lacks_market",
+      "venue": "okx",
+      "venue_symbol": null
+    }
+  ],
+  "fetched_at_utc": "2026-06-11T22:26:19Z",
+  "funding_quickstats": {
+    "AVAX": {
+      "binance": {
+        "annualized_simple": "0.070545",
+        "days": 2088,
+        "mean_daily_rate": "0.00019328"
+      },
+      "bybit": {
+        "annualized_simple": "0.067800",
+        "days": 1730,
+        "mean_daily_rate": "0.00018575"
+      },
+      "hyperliquid": {
+        "annualized_simple": "0.082793",
+        "days": 1126,
+        "mean_daily_rate": "0.00022683"
+      },
+      "kraken": {
+        "annualized_simple": "-0.012592",
+        "days": 366,
+        "mean_daily_rate": "-0.00003450"
+      },
+      "okx": {
+        "annualized_simple": "0.018079",
+        "days": 92,
+        "mean_daily_rate": "0.00004953"
+      }
+    },
+    "BNB": {
+      "binance": {
+        "annualized_simple": "-0.002568",
+        "days": 2313,
+        "mean_daily_rate": "-0.00000704"
+      },
+      "bybit": {
+        "annualized_simple": "-0.026425",
+        "days": 1808,
+        "mean_daily_rate": "-0.00007240"
+      },
+      "hyperliquid": {
+        "annualized_simple": "0.030468",
+        "days": 1126,
+        "mean_daily_rate": "0.00008347"
+      }
+    },
+    "BTC": {
+      "binance": {
+        "annualized_simple": "0.117976",
+        "days": 2466,
+        "mean_daily_rate": "0.00032322"
+      },
+      "bybit": {
+        "annualized_simple": "0.131930",
+        "days": 2269,
+        "mean_daily_rate": "0.00036145"
+      },
+      "hyperliquid": {
+        "annualized_simple": "0.145214",
+        "days": 1126,
+        "mean_daily_rate": "0.00039785"
+      },
+      "kraken": {
+        "annualized_simple": "0.047284",
+        "days": 366,
+        "mean_daily_rate": "0.00012955"
+      },
+      "okx": {
+        "annualized_simple": "0.016832",
+        "days": 92,
+        "mean_daily_rate": "0.00004612"
+      }
+    },
+    "DOGE": {
+      "binance": {
+        "annualized_simple": "0.127182",
+        "days": 2162,
+        "mean_daily_rate": "0.00034844"
+      },
+      "bybit": {
+        "annualized_simple": "0.122125",
+        "days": 1835,
+        "mean_daily_rate": "0.00033459"
+      },
+      "hyperliquid": {
+        "annualized_simple": "0.174810",
+        "days": 1126,
+        "mean_daily_rate": "0.00047893"
+      },
+      "kraken": {
+        "annualized_simple": "0.026177",
+        "days": 366,
+        "mean_daily_rate": "0.00007172"
+      },
+      "okx": {
+        "annualized_simple": "0.038984",
+        "days": 92,
+        "mean_daily_rate": "0.00010681"
+      }
+    },
+    "ETH": {
+      "binance": {
+        "annualized_simple": "0.142170",
+        "days": 2388,
+        "mean_daily_rate": "0.00038951"
+      },
+      "bybit": {
+        "annualized_simple": "0.145123",
+        "days": 2059,
+        "mean_daily_rate": "0.00039760"
+      },
+      "hyperliquid": {
+        "annualized_simple": "0.146789",
+        "days": 1126,
+        "mean_daily_rate": "0.00040216"
+      },
+      "kraken": {
+        "annualized_simple": "0.035013",
+        "days": 366,
+        "mean_daily_rate": "0.00009593"
+      },
+      "okx": {
+        "annualized_simple": "0.022793",
+        "days": 92,
+        "mean_daily_rate": "0.00006245"
+      }
+    },
+    "SOL": {
+      "binance": {
+        "annualized_simple": "0.000961",
+        "days": 2097,
+        "mean_daily_rate": "0.00000263"
+      },
+      "bybit": {
+        "annualized_simple": "0.004299",
+        "days": 1808,
+        "mean_daily_rate": "0.00001178"
+      },
+      "hyperliquid": {
+        "annualized_simple": "0.126798",
+        "days": 1126,
+        "mean_daily_rate": "0.00034739"
+      },
+      "kraken": {
+        "annualized_simple": "0.008981",
+        "days": 366,
+        "mean_daily_rate": "0.00002460"
+      },
+      "okx": {
+        "annualized_simple": "-0.007121",
+        "days": 92,
+        "mean_daily_rate": "-0.00001951"
+      }
+    },
+    "XRP": {
+      "binance": {
+        "annualized_simple": "0.151665",
+        "days": 2348,
+        "mean_daily_rate": "0.00041552"
+      },
+      "bybit": {
+        "annualized_simple": "0.105330",
+        "days": 1855,
+        "mean_daily_rate": "0.00028858"
+      },
+      "hyperliquid": {
+        "annualized_simple": "0.094567",
+        "days": 1089,
+        "mean_daily_rate": "0.00025909"
+      },
+      "kraken": {
+        "annualized_simple": "0.025190",
+        "days": 366,
+        "mean_daily_rate": "0.00006901"
+      },
+      "okx": {
+        "annualized_simple": "0.024837",
+        "days": 92,
+        "mean_daily_rate": "0.00006805"
+      }
+    }
+  },
+  "phase": "DATA1",
+  "provenance": {
+    "access": "public_read_only_no_keys_no_private_no_signed_no_orders",
+    "alignment_rule": "union calendar across venues; missing venue/day stays an explicit null; no forward-fill, no interpolation, no truncation to the intersection",
+    "daily_aggregation": "daily slot closing at D 00:00Z sums funding events with time in [D-1 00:00Z, D 00:00Z) \u2014 the FUND-EV1 convention; per-day event counts recorded; partial days reported, never scaled or filled",
+    "endpoints": {
+      "binance/funding": "GET https://fapi.binance.com/fapi/v1/fundingRate (paginated 1000/page, forward)",
+      "binance/perp_1d": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
+      "binance/spot_1d": "GET https://api.binance.com/api/v3/klines interval=1d (paginated 1000/page, forward)",
+      "bybit/funding": "GET https://api.bybit.com/v5/market/funding/history category=linear (paginated 200/page, backward)",
+      "bybit/perp_1d": "GET https://api.bybit.com/v5/market/kline category=linear interval=D (paginated 1000/page, backward)",
+      "bybit/spot_1d": "GET https://api.bybit.com/v5/market/kline category=spot interval=D (paginated 1000/page, backward)",
+      "coinbase/spot_1d": "GET https://api.exchange.coinbase.com/products/{product}/candles granularity=86400 (<=300/window, backward windows)",
+      "hyperliquid/funding": "POST https://api.hyperliquid.xyz/info type=fundingHistory (paginated 500/page)",
+      "hyperliquid/perp_1d": "POST https://api.hyperliquid.xyz/info type=candleSnapshot interval=1d (<=5000 candles)",
+      "hyperliquid/spot_1d": "POST https://api.hyperliquid.xyz/info type=candleSnapshot interval=1d spot pair id (<=5000 candles)",
+      "kraken/funding": "GET https://futures.kraken.com/derivatives/api/v4/historicalfundingrates (single call; trailing window)",
+      "kraken/perp_1d": "GET https://futures.kraken.com/api/charts/v1/trade/{symbol}/1d (single call, <=5000)",
+      "kraken/spot_1d": "GET https://api.kraken.com/0/public/OHLC interval=1440 (single call; venue caps history at last 720 candles)",
+      "okx/funding": "GET https://www.okx.com/api/v5/public/funding-rate-history (paginated 100/page, backward)",
+      "okx/perp_1d": "GET https://www.okx.com/api/v5/market/history-candles bar=1Dutc (paginated 100/page, backward; UTC-aligned bar required)",
+      "okx/spot_1d": "GET https://www.okx.com/api/v5/market/history-candles bar=1Dutc (paginated 100/page, backward; UTC-aligned bar required)"
+    },
+    "funding_interval_hours_declared": {
+      "binance": 8.0,
+      "bybit": 8.0,
+      "coinbase": null,
+      "hyperliquid": 1.0,
+      "kraken": 1.0,
+      "okx": 8.0
+    },
+    "funding_sign_convention": "positive funding rate: longs pay shorts (all five funding venues; kraken uses the price-relative relativeFundingRate)",
+    "kraken_history_limits": "spot OHLC capped by the venue at the last 720 daily candles; futures funding endpoint returns a trailing ~1y window \u2014 recorded as venue history limits, not filled",
+    "okx_daily_bar_note": "OKX fetched with bar=1Dutc \u2014 the default OKX 1D bar is UTC+8-aligned and is refused by the midnight-UTC normalizer guard",
+    "okx_funding_history_limit": "the public funding-rate-history endpoint serves only a trailing ~3-month window \u2014 recorded as a venue history limit, not filled",
+    "rate_limits_cited": {
+      "binance": "2400 request weight/min (fundingRate weight 1, klines weight <=10) \u2014 fetcher paces ~4 req/s",
+      "bybit": "public market endpoints ~600 req/5s per IP \u2014 fetcher paces ~4 req/s",
+      "coinbase": "public market data ~10 req/s per IP \u2014 fetcher paces ~4 req/s",
+      "hyperliquid": "info endpoint weight budget 1200/min (fundingHistory weight 20) \u2014 fetcher paces ~1 req/s",
+      "kraken": "spot public ~1 req/s counterised; futures public charts/funding uncounted light use \u2014 fetcher paces ~1 req/s",
+      "okx": "funding-rate-history 10 req/2s, history-candles 10 req/2s per IP \u2014 fetcher paces ~3 req/s"
+    },
+    "zero_volume_backfill_note": "some venues publish price candles from before their own market traded (Hyperliquid perps: zero-volume daily candles back to 2020-08; real HL trading starts at the first nonzero-volume candle). Zero-volume rows are kept exactly as the venue serves them and counted per series in coverage.zero_volume_rows / first_nonzero_volume_close so backfill is never mistaken for market history"
+  },
+  "report": "data1_multi_venue_snapshot",
+  "series": [
+    {
+      "asset": "AVAX",
+      "coverage": {
+        "expected_days": 2088,
+        "first_close": "2020-09-23T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2088
+      },
+      "endpoint": "GET https://fapi.binance.com/fapi/v1/fundingRate (paginated 1000/page, forward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 6262,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_avax_funding_data1.json",
+      "raw_sha256": "27bc8411299844c9e910b9ea5417333a1bb7678cf042ed56360ce1dea5ef5fee",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2020-09-23T00:00:00Z",
+            "events": 1,
+            "funding_rate_sum": "0.00010000"
+          },
+          {
+            "close_time": "2020-09-24T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.00856541"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.00010782"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.00011633"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "AVAXUSDT"
+    },
+    {
+      "asset": "AVAX",
+      "coverage": {
+        "expected_days": 2087,
+        "first_close": "2020-09-24T00:00:00Z",
+        "first_nonzero_volume_close": "2020-09-24T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2087,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
+      "error": null,
+      "native_rows": 2087,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_avax_perp_1d_data1.json",
+      "raw_sha256": "ddb1099cc0c04eac2159b1d215e0810be2c05e83475894f86bfb78c9076dde23",
+      "samples": {
+        "first": [
+          {
+            "close": "3.5136",
+            "close_time": "2020-09-24T00:00:00Z"
+          },
+          {
+            "close": "4.6133",
+            "close_time": "2020-09-25T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "6.6340",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "6.3760",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "AVAXUSDT"
+    },
+    {
+      "asset": "AVAX",
+      "coverage": {
+        "expected_days": 2088,
+        "first_close": "2020-09-23T00:00:00Z",
+        "first_nonzero_volume_close": "2020-09-23T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2088,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.binance.com/api/v3/klines interval=1d (paginated 1000/page, forward)",
+      "error": null,
+      "native_rows": 2088,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_avax_spot_1d_data1.json",
+      "raw_sha256": "475a08ff3718c02999645f0a7a3b1f436460ee11cbec10ea22f57bd82408ebf4",
+      "samples": {
+        "first": [
+          {
+            "close": "5.31930000",
+            "close_time": "2020-09-23T00:00:00Z"
+          },
+          {
+            "close": "3.53500000",
+            "close_time": "2020-09-24T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "6.63900000",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "6.38300000",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "AVAXUSDT"
+    },
+    {
+      "asset": "BNB",
+      "coverage": {
+        "expected_days": 2313,
+        "first_close": "2020-02-11T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2313
+      },
+      "endpoint": "GET https://fapi.binance.com/fapi/v1/fundingRate (paginated 1000/page, forward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 6938,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_bnb_funding_data1.json",
+      "raw_sha256": "fdde3fe3abcd9df414baba79d06836eb83c80c90ef468bbfd10e17072085b541",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2020-02-11T00:00:00Z",
+            "events": 2,
+            "funding_rate_sum": "0.00304635"
+          },
+          {
+            "close_time": "2020-02-12T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00578436"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0E-8"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00000860"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "BNBUSDT"
+    },
+    {
+      "asset": "BNB",
+      "coverage": {
+        "expected_days": 2313,
+        "first_close": "2020-02-11T00:00:00Z",
+        "first_nonzero_volume_close": "2020-02-11T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2313,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
+      "error": null,
+      "native_rows": 2313,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_bnb_perp_1d_data1.json",
+      "raw_sha256": "83388a3d8f0728762eba2f77d4df5847a107a6e6153aa214d577f9a312f8e570",
+      "samples": {
+        "first": [
+          {
+            "close": "25.189",
+            "close_time": "2020-02-11T00:00:00Z"
+          },
+          {
+            "close": "25.705",
+            "close_time": "2020-02-12T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "593.830",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "586.750",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "BNBUSDT"
+    },
+    {
+      "asset": "BNB",
+      "coverage": {
+        "expected_days": 3139,
+        "first_close": "2017-11-07T00:00:00Z",
+        "first_nonzero_volume_close": "2017-11-07T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 3139,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.binance.com/api/v3/klines interval=1d (paginated 1000/page, forward)",
+      "error": null,
+      "native_rows": 3139,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_bnb_spot_1d_data1.json",
+      "raw_sha256": "f73726f8cf336968ac08bc4c00c8f6feca0207b7ba25f25ee07c479d0572da57",
+      "samples": {
+        "first": [
+          {
+            "close": "1.57100000",
+            "close_time": "2017-11-07T00:00:00Z"
+          },
+          {
+            "close": "1.80000000",
+            "close_time": "2017-11-08T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "593.44000000",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "586.53000000",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "BNBUSDT"
+    },
+    {
+      "asset": "BTC",
+      "coverage": {
+        "expected_days": 2466,
+        "first_close": "2019-09-11T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2466
+      },
+      "endpoint": "GET https://fapi.binance.com/fapi/v1/fundingRate (paginated 1000/page, forward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 7397,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_btc_funding_data1.json",
+      "raw_sha256": "4b5563ba010babd0ce090c800d2c14e5ae3b16e896e5c8f584634c22f5e6fec3",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2019-09-11T00:00:00Z",
+            "events": 2,
+            "funding_rate_sum": "0.00020000"
+          },
+          {
+            "close_time": "2019-09-12T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00030000"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00002082"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.00000478"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "BTCUSDT"
+    },
+    {
+      "asset": "BTC",
+      "coverage": {
+        "expected_days": 2468,
+        "first_close": "2019-09-09T00:00:00Z",
+        "first_nonzero_volume_close": "2019-09-09T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2468,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
+      "error": null,
+      "native_rows": 2468,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_btc_perp_1d_data1.json",
+      "raw_sha256": "28f07951c0a17f0ed997ed811e99c34713bb1b8ce968f260642bafda680b7620",
+      "samples": {
+        "first": [
+          {
+            "close": "10391.63",
+            "close_time": "2019-09-09T00:00:00Z"
+          },
+          {
+            "close": "10307",
+            "close_time": "2019-09-10T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "61695.00",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "61483.70",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "BTCUSDT"
+    },
+    {
+      "asset": "BTC",
+      "coverage": {
+        "expected_days": 3220,
+        "first_close": "2017-08-18T00:00:00Z",
+        "first_nonzero_volume_close": "2017-08-18T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 3220,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.binance.com/api/v3/klines interval=1d (paginated 1000/page, forward)",
+      "error": null,
+      "native_rows": 3220,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_btc_spot_1d_data1.json",
+      "raw_sha256": "66a0e75b66fd80ec30ebfe4c2107f811d54f386008d4876c249a7e3219a51dac",
+      "samples": {
+        "first": [
+          {
+            "close": "4285.08000000",
+            "close_time": "2017-08-18T00:00:00Z"
+          },
+          {
+            "close": "4108.37000000",
+            "close_time": "2017-08-19T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "61730.00000000",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "61510.99000000",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "BTCUSDT"
+    },
+    {
+      "asset": "DOGE",
+      "coverage": {
+        "expected_days": 2162,
+        "first_close": "2020-07-11T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2162
+      },
+      "endpoint": "GET https://fapi.binance.com/fapi/v1/fundingRate (paginated 1000/page, forward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 6485,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_doge_funding_data1.json",
+      "raw_sha256": "d6e55604c6b8f76f35a9e29b84721f267bcfbf90ea4dbd60b7e985e012db3b43",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2020-07-11T00:00:00Z",
+            "events": 2,
+            "funding_rate_sum": "-0.00291393"
+          },
+          {
+            "close_time": "2020-07-12T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00015396"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00001752"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00006262"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "DOGEUSDT"
+    },
+    {
+      "asset": "DOGE",
+      "coverage": {
+        "expected_days": 2162,
+        "first_close": "2020-07-11T00:00:00Z",
+        "first_nonzero_volume_close": "2020-07-11T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2162,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
+      "error": null,
+      "native_rows": 2162,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_doge_perp_1d_data1.json",
+      "raw_sha256": "06cb64140644e29a1915191eb582c60925c48b5a951738f9d8e461b13b88368a",
+      "samples": {
+        "first": [
+          {
+            "close": "0.003535",
+            "close_time": "2020-07-11T00:00:00Z"
+          },
+          {
+            "close": "0.003812",
+            "close_time": "2020-07-12T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "0.084760",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "0.082900",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "DOGEUSDT"
+    },
+    {
+      "asset": "DOGE",
+      "coverage": {
+        "expected_days": 2533,
+        "first_close": "2019-07-06T00:00:00Z",
+        "first_nonzero_volume_close": "2019-07-06T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2533,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.binance.com/api/v3/klines interval=1d (paginated 1000/page, forward)",
+      "error": null,
+      "native_rows": 2533,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_doge_spot_1d_data1.json",
+      "raw_sha256": "9511f4ee479f1a280186f3aeeba1ee297d0c6552e9a69af503a5013e1ff1eef3",
+      "samples": {
+        "first": [
+          {
+            "close": "0.00387010",
+            "close_time": "2019-07-06T00:00:00Z"
+          },
+          {
+            "close": "0.00350000",
+            "close_time": "2019-07-07T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "0.08479000",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "0.08294000",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "DOGEUSDT"
+    },
+    {
+      "asset": "ETH",
+      "coverage": {
+        "expected_days": 2388,
+        "first_close": "2019-11-28T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2388
+      },
+      "endpoint": "GET https://fapi.binance.com/fapi/v1/fundingRate (paginated 1000/page, forward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 7163,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_eth_funding_data1.json",
+      "raw_sha256": "59949bc2fe01f11ca139566c45ea0b30448aa16619aeb0032a80dae6f3676a12",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2019-11-28T00:00:00Z",
+            "events": 2,
+            "funding_rate_sum": "0.00020000"
+          },
+          {
+            "close_time": "2019-11-29T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00000791"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.00009652"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.00011788"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "ETHUSDT"
+    },
+    {
+      "asset": "ETH",
+      "coverage": {
+        "expected_days": 2388,
+        "first_close": "2019-11-28T00:00:00Z",
+        "first_nonzero_volume_close": "2019-11-28T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2388,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
+      "error": null,
+      "native_rows": 2388,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_eth_perp_1d_data1.json",
+      "raw_sha256": "8db81737473cf100bf63d8bd1f27539fbd9044c2a834a696acd295a500f6bf3a",
+      "samples": {
+        "first": [
+          {
+            "close": "152.52",
+            "close_time": "2019-11-28T00:00:00Z"
+          },
+          {
+            "close": "150.48",
+            "close_time": "2019-11-29T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1638.64",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1620.72",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "ETHUSDT"
+    },
+    {
+      "asset": "ETH",
+      "coverage": {
+        "expected_days": 3220,
+        "first_close": "2017-08-18T00:00:00Z",
+        "first_nonzero_volume_close": "2017-08-18T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 3220,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.binance.com/api/v3/klines interval=1d (paginated 1000/page, forward)",
+      "error": null,
+      "native_rows": 3220,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_eth_spot_1d_data1.json",
+      "raw_sha256": "c8ae3a7993baaeec87a79fb91a2e7d50b9733c6f18f289a2d6ec08d3fb8c0c05",
+      "samples": {
+        "first": [
+          {
+            "close": "302.00000000",
+            "close_time": "2017-08-18T00:00:00Z"
+          },
+          {
+            "close": "293.96000000",
+            "close_time": "2017-08-19T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1639.52000000",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1621.59000000",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "ETHUSDT"
+    },
+    {
+      "asset": "SOL",
+      "coverage": {
+        "expected_days": 2097,
+        "first_close": "2020-09-14T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2097
+      },
+      "endpoint": "GET https://fapi.binance.com/fapi/v1/fundingRate (paginated 1000/page, forward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 6364,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_sol_funding_data1.json",
+      "raw_sha256": "28e5ab4c5271d1e882697d001c1d98725eb02c7ee987d06fe6d67397d9017d16",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2020-09-14T00:00:00Z",
+            "events": 1,
+            "funding_rate_sum": "0.00010000"
+          },
+          {
+            "close_time": "2020-09-15T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00030000"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.00018575"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.00008425"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "SOLUSDT"
+    },
+    {
+      "asset": "SOL",
+      "coverage": {
+        "expected_days": 2096,
+        "first_close": "2020-09-15T00:00:00Z",
+        "first_nonzero_volume_close": "2020-09-15T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2096,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
+      "error": null,
+      "native_rows": 2096,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_sol_perp_1d_data1.json",
+      "raw_sha256": "edf23c4132e7aa96bc5dfab868480fde41a389683e4f3e1f3e1cc2cce732d316",
+      "samples": {
+        "first": [
+          {
+            "close": "3.2661",
+            "close_time": "2020-09-15T00:00:00Z"
+          },
+          {
+            "close": "2.9332",
+            "close_time": "2020-09-16T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "64.9200",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "63.1600",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "SOLUSDT"
+    },
+    {
+      "asset": "SOL",
+      "coverage": {
+        "expected_days": 2130,
+        "first_close": "2020-08-12T00:00:00Z",
+        "first_nonzero_volume_close": "2020-08-12T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2130,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.binance.com/api/v3/klines interval=1d (paginated 1000/page, forward)",
+      "error": null,
+      "native_rows": 2130,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_sol_spot_1d_data1.json",
+      "raw_sha256": "fa2c02deb12318586462174c7ddaf1cf41b06979293472dceb20fb331cef9f59",
+      "samples": {
+        "first": [
+          {
+            "close": "3.29850000",
+            "close_time": "2020-08-12T00:00:00Z"
+          },
+          {
+            "close": "3.75580000",
+            "close_time": "2020-08-13T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "64.96000000",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "63.19000000",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "SOLUSDT"
+    },
+    {
+      "asset": "XRP",
+      "coverage": {
+        "expected_days": 2348,
+        "first_close": "2020-01-07T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2348
+      },
+      "endpoint": "GET https://fapi.binance.com/fapi/v1/fundingRate (paginated 1000/page, forward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 7043,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_xrp_funding_data1.json",
+      "raw_sha256": "d1718cc5f745ceefb0e921911e960b5d134418f33b3dae34a95adb62675644d0",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2020-01-07T00:00:00Z",
+            "events": 2,
+            "funding_rate_sum": "0.00497889"
+          },
+          {
+            "close_time": "2020-01-08T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00278122"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.00012768"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.00001000"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "XRPUSDT"
+    },
+    {
+      "asset": "XRP",
+      "coverage": {
+        "expected_days": 2348,
+        "first_close": "2020-01-07T00:00:00Z",
+        "first_nonzero_volume_close": "2020-01-07T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2348,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
+      "error": null,
+      "native_rows": 2348,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_xrp_perp_1d_data1.json",
+      "raw_sha256": "1411ff23eba1849ff29fe108f4c6e4c7bab8539a86aeaf67ee4cd05bcf206e2f",
+      "samples": {
+        "first": [
+          {
+            "close": "0.2226",
+            "close_time": "2020-01-07T00:00:00Z"
+          },
+          {
+            "close": "0.2138",
+            "close_time": "2020-01-08T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1.1367",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1.0962",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "XRPUSDT"
+    },
+    {
+      "asset": "XRP",
+      "coverage": {
+        "expected_days": 2960,
+        "first_close": "2018-05-05T00:00:00Z",
+        "first_nonzero_volume_close": "2018-05-05T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2960,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.binance.com/api/v3/klines interval=1d (paginated 1000/page, forward)",
+      "error": null,
+      "native_rows": 2960,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/binance_xrp_spot_1d_data1.json",
+      "raw_sha256": "c479b2d34bd7a3b5bd700cb787da5258d9df7fee5f1f2ce8cf2f24a9b43758f1",
+      "samples": {
+        "first": [
+          {
+            "close": "0.88990000",
+            "close_time": "2018-05-05T00:00:00Z"
+          },
+          {
+            "close": "0.90280000",
+            "close_time": "2018-05-06T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1.13750000",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1.09700000",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "binance",
+      "venue_symbol": "XRPUSDT"
+    },
+    {
+      "asset": "AVAX",
+      "coverage": {
+        "expected_days": 1730,
+        "first_close": "2021-09-16T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1730
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/funding/history category=linear (paginated 200/page, backward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 5188,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_avax_funding_data1.json",
+      "raw_sha256": "cc3bd8d1c4fb699e8805a226a206a876b7653eea78ae36809d677547eecb276d",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2021-09-16T00:00:00Z",
+            "events": 1,
+            "funding_rate_sum": "0.0001"
+          },
+          {
+            "close_time": "2021-09-17T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00061887"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.00003201"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00000126"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "AVAXUSDT"
+    },
+    {
+      "asset": "AVAX",
+      "coverage": {
+        "expected_days": 1730,
+        "first_close": "2021-09-16T00:00:00Z",
+        "first_nonzero_volume_close": "2021-09-16T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1730,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/kline category=linear interval=D (paginated 1000/page, backward)",
+      "error": null,
+      "native_rows": 1730,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_avax_perp_1d_data1.json",
+      "raw_sha256": "0e8012a7dc1e7d0ad09b9fe3630c505769f9fb11d871d78e847325600004996e",
+      "samples": {
+        "first": [
+          {
+            "close": "57.945",
+            "close_time": "2021-09-16T00:00:00Z"
+          },
+          {
+            "close": "67.645",
+            "close_time": "2021-09-17T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "6.635",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "6.376",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "AVAXUSDT"
+    },
+    {
+      "asset": "AVAX",
+      "coverage": {
+        "expected_days": 1672,
+        "first_close": "2021-11-13T00:00:00Z",
+        "first_nonzero_volume_close": "2021-11-13T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1672,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/kline category=spot interval=D (paginated 1000/page, backward)",
+      "error": null,
+      "native_rows": 1672,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_avax_spot_1d_data1.json",
+      "raw_sha256": "1b7b99b35d763d1e143070b800de30b0b8b21fb64e186348d82803d39f5fbf3b",
+      "samples": {
+        "first": [
+          {
+            "close": "85.0006",
+            "close_time": "2021-11-13T00:00:00Z"
+          },
+          {
+            "close": "97.3257",
+            "close_time": "2021-11-14T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "6.639",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "6.381",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "AVAXUSDT"
+    },
+    {
+      "asset": "BNB",
+      "coverage": {
+        "expected_days": 1808,
+        "first_close": "2021-06-30T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1808
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/funding/history category=linear (paginated 200/page, backward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 5423,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_bnb_funding_data1.json",
+      "raw_sha256": "d7fcb44f13685c29936a6f43f75f17129db5eb98e8e03bb5dfa2f3b531b5c7e4",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2021-06-30T00:00:00Z",
+            "events": 2,
+            "funding_rate_sum": "0.0002"
+          },
+          {
+            "close_time": "2021-07-01T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.0003"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00012372"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00010086"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "BNBUSDT"
+    },
+    {
+      "asset": "BNB",
+      "coverage": {
+        "expected_days": 1808,
+        "first_close": "2021-06-30T00:00:00Z",
+        "first_nonzero_volume_close": "2021-06-30T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1808,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/kline category=linear interval=D (paginated 1000/page, backward)",
+      "error": null,
+      "native_rows": 1808,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_bnb_perp_1d_data1.json",
+      "raw_sha256": "a6a2991c0fe13b2910d94f2bca79623d659bda52d681cad89ee7fe615f6af5ef",
+      "samples": {
+        "first": [
+          {
+            "close": "300.95",
+            "close_time": "2021-06-30T00:00:00Z"
+          },
+          {
+            "close": "302.8",
+            "close_time": "2021-07-01T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "593",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "586.1",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "BNBUSDT"
+    },
+    {
+      "asset": "BNB",
+      "coverage": {
+        "expected_days": 1554,
+        "first_close": "2022-03-11T00:00:00Z",
+        "first_nonzero_volume_close": "2022-03-11T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1554,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/kline category=spot interval=D (paginated 1000/page, backward)",
+      "error": null,
+      "native_rows": 1554,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_bnb_spot_1d_data1.json",
+      "raw_sha256": "251feb940a5edd4a210f86108987eb01d7df4742c61506b8af933a8ac5c44f87",
+      "samples": {
+        "first": [
+          {
+            "close": "372.4981",
+            "close_time": "2022-03-11T00:00:00Z"
+          },
+          {
+            "close": "372.6154",
+            "close_time": "2022-03-12T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "593.5",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "586.7",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "BNBUSDT"
+    },
+    {
+      "asset": "BTC",
+      "coverage": {
+        "expected_days": 2269,
+        "first_close": "2020-03-26T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2269
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/funding/history category=linear (paginated 200/page, backward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 6805,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_btc_funding_data1.json",
+      "raw_sha256": "498fae1bc05707a192cb94037596c1c99b448fcbf60e3a02581295e4836930cd",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2020-03-26T00:00:00Z",
+            "events": 1,
+            "funding_rate_sum": "0.0001"
+          },
+          {
+            "close_time": "2020-03-27T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.0003"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00007070"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00003597"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "BTCUSDT"
+    },
+    {
+      "asset": "BTC",
+      "coverage": {
+        "expected_days": 2269,
+        "first_close": "2020-03-26T00:00:00Z",
+        "first_nonzero_volume_close": "2020-03-26T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2269,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/kline category=linear interval=D (paginated 1000/page, backward)",
+      "error": null,
+      "native_rows": 2269,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_btc_perp_1d_data1.json",
+      "raw_sha256": "b48210bf142ce476d43733bc84bf8bd81daa94f495fdc4fd0c0cf7cd80eac978",
+      "samples": {
+        "first": [
+          {
+            "close": "6698.5",
+            "close_time": "2020-03-26T00:00:00Z"
+          },
+          {
+            "close": "6733.5",
+            "close_time": "2020-03-27T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "61699.9",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "61476.4",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "BTCUSDT"
+    },
+    {
+      "asset": "BTC",
+      "coverage": {
+        "expected_days": 1802,
+        "first_close": "2021-07-06T00:00:00Z",
+        "first_nonzero_volume_close": "2021-07-06T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1802,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/kline category=spot interval=D (paginated 1000/page, backward)",
+      "error": null,
+      "native_rows": 1802,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_btc_spot_1d_data1.json",
+      "raw_sha256": "64b035a885bba9e24500359c9cb4f6a3ac1f287382696f9b6badf5bfb7a42074",
+      "samples": {
+        "first": [
+          {
+            "close": "33704.41",
+            "close_time": "2021-07-06T00:00:00Z"
+          },
+          {
+            "close": "34224.45",
+            "close_time": "2021-07-07T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "61730.4",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "61507.1",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "BTCUSDT"
+    },
+    {
+      "asset": "DOGE",
+      "coverage": {
+        "expected_days": 1835,
+        "first_close": "2021-06-03T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1835
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/funding/history category=linear (paginated 200/page, backward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 5503,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_doge_funding_data1.json",
+      "raw_sha256": "975f531c7361621b5c5f2052078a35004a56bd5eda09dcfe10e29aa0a91b3e43",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2021-06-03T00:00:00Z",
+            "events": 1,
+            "funding_rate_sum": "0.0001"
+          },
+          {
+            "close_time": "2021-06-04T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00040993"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00008757"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00009149"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "DOGEUSDT"
+    },
+    {
+      "asset": "DOGE",
+      "coverage": {
+        "expected_days": 1835,
+        "first_close": "2021-06-03T00:00:00Z",
+        "first_nonzero_volume_close": "2021-06-03T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1835,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/kline category=linear interval=D (paginated 1000/page, backward)",
+      "error": null,
+      "native_rows": 1835,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_doge_perp_1d_data1.json",
+      "raw_sha256": "3af181c3ea219f49180fbe70d2ef4ed420cab221907ee2a13399fe0773b99d54",
+      "samples": {
+        "first": [
+          {
+            "close": "0.424",
+            "close_time": "2021-06-03T00:00:00Z"
+          },
+          {
+            "close": "0.4008",
+            "close_time": "2021-06-04T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "0.08474",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "0.0829",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "DOGEUSDT"
+    },
+    {
+      "asset": "DOGE",
+      "coverage": {
+        "expected_days": 1745,
+        "first_close": "2021-09-01T00:00:00Z",
+        "first_nonzero_volume_close": "2021-09-01T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1745,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/kline category=spot interval=D (paginated 1000/page, backward)",
+      "error": null,
+      "native_rows": 1745,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_doge_spot_1d_data1.json",
+      "raw_sha256": "863b0f71fc7f84b28dc935b73129952efaf4861ade513f94d70f6de9b69b4a10",
+      "samples": {
+        "first": [
+          {
+            "close": "0.2782",
+            "close_time": "2021-09-01T00:00:00Z"
+          },
+          {
+            "close": "0.2942",
+            "close_time": "2021-09-02T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "0.08479",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "0.08295",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "DOGEUSDT"
+    },
+    {
+      "asset": "ETH",
+      "coverage": {
+        "expected_days": 2059,
+        "first_close": "2020-10-22T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2059
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/funding/history category=linear (paginated 200/page, backward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 6176,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_eth_funding_data1.json",
+      "raw_sha256": "1bcdb820acd7002c9362ae809d9eaa589519d4361552b063c037dd4d65cab53b",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2020-10-22T00:00:00Z",
+            "events": 2,
+            "funding_rate_sum": "0.0002"
+          },
+          {
+            "close_time": "2020-10-23T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00232663"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.00011755"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.00000419"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "ETHUSDT"
+    },
+    {
+      "asset": "ETH",
+      "coverage": {
+        "expected_days": 1914,
+        "first_close": "2021-03-16T00:00:00Z",
+        "first_nonzero_volume_close": "2021-03-16T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1914,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/kline category=linear interval=D (paginated 1000/page, backward)",
+      "error": null,
+      "native_rows": 1914,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_eth_perp_1d_data1.json",
+      "raw_sha256": "3c3dd1ddb5186beb56e3c0a032abfa5accc8d0116aa93f0dd9c509170fd32f97",
+      "samples": {
+        "first": [
+          {
+            "close": "1794.7",
+            "close_time": "2021-03-16T00:00:00Z"
+          },
+          {
+            "close": "1806.5",
+            "close_time": "2021-03-17T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1638.6",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1620.71",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "ETHUSDT"
+    },
+    {
+      "asset": "ETH",
+      "coverage": {
+        "expected_days": 1802,
+        "first_close": "2021-07-06T00:00:00Z",
+        "first_nonzero_volume_close": "2021-07-06T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1802,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/kline category=spot interval=D (paginated 1000/page, backward)",
+      "error": null,
+      "native_rows": 1802,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_eth_spot_1d_data1.json",
+      "raw_sha256": "ced2d24f38f78db420abb27528b6dbb7a479a51ae57b26925232c00f8eaa0a12",
+      "samples": {
+        "first": [
+          {
+            "close": "2196.64",
+            "close_time": "2021-07-06T00:00:00Z"
+          },
+          {
+            "close": "2322.98",
+            "close_time": "2021-07-07T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1639.49",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1621.56",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "ETHUSDT"
+    },
+    {
+      "asset": "SOL",
+      "coverage": {
+        "expected_days": 1808,
+        "first_close": "2021-06-30T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1808
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/funding/history category=linear (paginated 200/page, backward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 5783,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_sol_funding_data1.json",
+      "raw_sha256": "cf8ff43f8ef28ad321deff6df73c197b7357162c2daad50ed1b8f0a2f2020338",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2021-06-30T00:00:00Z",
+            "events": 2,
+            "funding_rate_sum": "0.0002"
+          },
+          {
+            "close_time": "2021-07-01T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.0003"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.00006760"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.00002397"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "SOLUSDT"
+    },
+    {
+      "asset": "SOL",
+      "coverage": {
+        "expected_days": 1700,
+        "first_close": "2021-10-16T00:00:00Z",
+        "first_nonzero_volume_close": "2021-10-16T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1700,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/kline category=linear interval=D (paginated 1000/page, backward)",
+      "error": null,
+      "native_rows": 1700,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_sol_perp_1d_data1.json",
+      "raw_sha256": "80d80417e8f611597705542d1484cdc92a6f03e45ee04f0e82942f3f2d0390a9",
+      "samples": {
+        "first": [
+          {
+            "close": "163.195",
+            "close_time": "2021-10-16T00:00:00Z"
+          },
+          {
+            "close": "157.72",
+            "close_time": "2021-10-17T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "64.94",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "63.15",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "SOLUSDT"
+    },
+    {
+      "asset": "SOL",
+      "coverage": {
+        "expected_days": 1694,
+        "first_close": "2021-10-22T00:00:00Z",
+        "first_nonzero_volume_close": "2021-10-22T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1694,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/kline category=spot interval=D (paginated 1000/page, backward)",
+      "error": null,
+      "native_rows": 1694,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_sol_spot_1d_data1.json",
+      "raw_sha256": "c16d62eff0d254dbb42b023df8feade54c398a65a0c52a07c7f0ae85a22b2bfe",
+      "samples": {
+        "first": [
+          {
+            "close": "190.81",
+            "close_time": "2021-10-22T00:00:00Z"
+          },
+          {
+            "close": "196.4",
+            "close_time": "2021-10-23T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "64.98",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "63.19",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "SOLUSDT"
+    },
+    {
+      "asset": "XRP",
+      "coverage": {
+        "expected_days": 1855,
+        "first_close": "2021-05-14T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1855
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/funding/history category=linear (paginated 200/page, backward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 5563,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_xrp_funding_data1.json",
+      "raw_sha256": "1476d56a5e568d77768458a9a9ba9eeb3c3a25523a187f3c372a4865a3f95fb8",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2021-05-14T00:00:00Z",
+            "events": 1,
+            "funding_rate_sum": "0.0001"
+          },
+          {
+            "close_time": "2021-05-15T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.0003"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.00018193"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.00002303"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "XRPUSDT"
+    },
+    {
+      "asset": "XRP",
+      "coverage": {
+        "expected_days": 1855,
+        "first_close": "2021-05-14T00:00:00Z",
+        "first_nonzero_volume_close": "2021-05-14T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1855,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/kline category=linear interval=D (paginated 1000/page, backward)",
+      "error": null,
+      "native_rows": 1855,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_xrp_perp_1d_data1.json",
+      "raw_sha256": "590ef331e795eddd8c4dc43d3112bb749cc939460a78f814b596238a844b2e71",
+      "samples": {
+        "first": [
+          {
+            "close": "1.3644",
+            "close_time": "2021-05-14T00:00:00Z"
+          },
+          {
+            "close": "1.4013",
+            "close_time": "2021-05-15T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1.1369",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1.0962",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "XRPUSDT"
+    },
+    {
+      "asset": "XRP",
+      "coverage": {
+        "expected_days": 1787,
+        "first_close": "2021-07-21T00:00:00Z",
+        "first_nonzero_volume_close": "2021-07-21T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1787,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.bybit.com/v5/market/kline category=spot interval=D (paginated 1000/page, backward)",
+      "error": null,
+      "native_rows": 1787,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_xrp_spot_1d_data1.json",
+      "raw_sha256": "ecee5a593a1f6c53d06b22d245b2cc924263d3398403c6d941141750d3996a9a",
+      "samples": {
+        "first": [
+          {
+            "close": "0.52861",
+            "close_time": "2021-07-21T00:00:00Z"
+          },
+          {
+            "close": "0.5715",
+            "close_time": "2021-07-22T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1.1375",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1.0971",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "bybit",
+      "venue_symbol": "XRPUSDT"
+    },
+    {
+      "asset": "AVAX",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "funding",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "AVAX",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "perp_1d",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "AVAX",
+      "coverage": {
+        "expected_days": 1715,
+        "first_close": "2021-10-01T00:00:00Z",
+        "first_nonzero_volume_close": "2021-10-01T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1715,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.exchange.coinbase.com/products/{product}/candles granularity=86400 (<=300/window, backward windows)",
+      "error": null,
+      "native_rows": 1715,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/coinbase_avax_spot_1d_data1.json",
+      "raw_sha256": "da65ebda9ca6fdb06978cf770e9ec21164a51a4c8653437f1c3b5b0851233405",
+      "samples": {
+        "first": [
+          {
+            "close": "66.73",
+            "close_time": "2021-10-01T00:00:00Z"
+          },
+          {
+            "close": "67.79",
+            "close_time": "2021-10-02T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "6.64",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "6.38",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "coinbase",
+      "venue_symbol": "AVAX-USD"
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "funding",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "perp_1d",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "Coinbase does not list BNB",
+      "series": "spot_1d",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BTC",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "funding",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BTC",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "perp_1d",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BTC",
+      "coverage": {
+        "expected_days": 3979,
+        "first_close": "2015-07-21T00:00:00Z",
+        "first_nonzero_volume_close": "2015-07-21T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 3979,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.exchange.coinbase.com/products/{product}/candles granularity=86400 (<=300/window, backward windows)",
+      "error": null,
+      "native_rows": 3979,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/coinbase_btc_spot_1d_data1.json",
+      "raw_sha256": "918f3660561fd341c7ce7ab6adbe0a5719feb31854eef069e42f3fc8ca33a5ad",
+      "samples": {
+        "first": [
+          {
+            "close": "280",
+            "close_time": "2015-07-21T00:00:00Z"
+          },
+          {
+            "close": "277.32",
+            "close_time": "2015-07-22T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "61685.8",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "61449.46",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "coinbase",
+      "venue_symbol": "BTC-USD"
+    },
+    {
+      "asset": "DOGE",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "funding",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "DOGE",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "perp_1d",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "DOGE",
+      "coverage": {
+        "expected_days": 1834,
+        "first_close": "2021-06-04T00:00:00Z",
+        "first_nonzero_volume_close": "2021-06-04T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1834,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.exchange.coinbase.com/products/{product}/candles granularity=86400 (<=300/window, backward windows)",
+      "error": null,
+      "native_rows": 1834,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/coinbase_doge_spot_1d_data1.json",
+      "raw_sha256": "b03bc1373a084cdba14864e318d33a162f0341f7511eedb39f78fae7adc59685",
+      "samples": {
+        "first": [
+          {
+            "close": "0.4015",
+            "close_time": "2021-06-04T00:00:00Z"
+          },
+          {
+            "close": "0.3769",
+            "close_time": "2021-06-05T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "0.08475",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "0.08288",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "coinbase",
+      "venue_symbol": "DOGE-USD"
+    },
+    {
+      "asset": "ETH",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "funding",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "ETH",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "perp_1d",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "ETH",
+      "coverage": {
+        "expected_days": 3676,
+        "first_close": "2016-05-19T00:00:00Z",
+        "first_nonzero_volume_close": "2016-05-19T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 2,
+        "rows": 3674,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.exchange.coinbase.com/products/{product}/candles granularity=86400 (<=300/window, backward windows)",
+      "error": null,
+      "native_rows": 3674,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/coinbase_eth_spot_1d_data1.json",
+      "raw_sha256": "e6e725301849fac869c60a697ee0b4699861b54dc37d6aaedf143ae4477b7b58",
+      "samples": {
+        "first": [
+          {
+            "close": "13.18",
+            "close_time": "2016-05-19T00:00:00Z"
+          },
+          {
+            "close": "14.9",
+            "close_time": "2016-05-20T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1638.45",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1620.03",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "coinbase",
+      "venue_symbol": "ETH-USD"
+    },
+    {
+      "asset": "SOL",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "funding",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "SOL",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "perp_1d",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "SOL",
+      "coverage": {
+        "expected_days": 1820,
+        "first_close": "2021-06-18T00:00:00Z",
+        "first_nonzero_volume_close": "2021-06-18T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1820,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.exchange.coinbase.com/products/{product}/candles granularity=86400 (<=300/window, backward windows)",
+      "error": null,
+      "native_rows": 1820,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/coinbase_sol_spot_1d_data1.json",
+      "raw_sha256": "57dd82a5f0b639b28befc80cf9306fb1a5050fc74bdbad8cc7bde5076a1656f6",
+      "samples": {
+        "first": [
+          {
+            "close": "39.25",
+            "close_time": "2021-06-18T00:00:00Z"
+          },
+          {
+            "close": "36.842",
+            "close_time": "2021-06-19T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "64.92",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "63.13",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "coinbase",
+      "venue_symbol": "SOL-USD"
+    },
+    {
+      "asset": "XRP",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "funding",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "XRP",
+      "error": null,
+      "note": "Coinbase Exchange public API has no perp/funding market data",
+      "series": "perp_1d",
+      "status": "venue_lacks_market",
+      "venue": "coinbase",
+      "venue_symbol": null
+    },
+    {
+      "asset": "XRP",
+      "coverage": {
+        "expected_days": 2662,
+        "first_close": "2019-02-27T00:00:00Z",
+        "first_nonzero_volume_close": "2019-02-27T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 904,
+        "rows": 1758,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.exchange.coinbase.com/products/{product}/candles granularity=86400 (<=300/window, backward windows)",
+      "error": null,
+      "native_rows": 1758,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/coinbase_xrp_spot_1d_data1.json",
+      "raw_sha256": "27eb67f1528f93ebffc12558493974ed5c439fac836ef26b144fc61fc5e125b6",
+      "samples": {
+        "first": [
+          {
+            "close": "0.3161",
+            "close_time": "2019-02-27T00:00:00Z"
+          },
+          {
+            "close": "0.3093",
+            "close_time": "2019-02-28T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1.1369",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1.096",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "coinbase",
+      "venue_symbol": "XRP-USD"
+    },
+    {
+      "asset": "AVAX",
+      "coverage": {
+        "expected_days": 1126,
+        "first_close": "2023-05-13T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1126
+      },
+      "endpoint": "POST https://api.hyperliquid.xyz/info type=fundingHistory (paginated 500/page)",
+      "error": null,
+      "funding_interval_hours_declared": 1.0,
+      "funding_interval_hours_observed": 1.0,
+      "native_rows": 26454,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_avax_funding_data1.json",
+      "raw_sha256": "1d9dda37369721cd1bbf992121b5a34afa47fc4b880ac6dfa0c5c5cf4e39b406",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2023-05-13T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.0013628652"
+          },
+          {
+            "close_time": "2023-05-14T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.0011793060"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "-0.0002693411"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "-0.0003860481"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "hyperliquid",
+      "venue_symbol": "AVAX"
+    },
+    {
+      "asset": "AVAX",
+      "coverage": {
+        "expected_days": 2087,
+        "first_close": "2020-09-24T00:00:00Z",
+        "first_nonzero_volume_close": "2023-03-06T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2087,
+        "zero_volume_rows": 893
+      },
+      "endpoint": "POST https://api.hyperliquid.xyz/info type=candleSnapshot interval=1d (<=5000 candles)",
+      "error": null,
+      "native_rows": 2087,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_avax_perp_1d_data1.json",
+      "raw_sha256": "a9778b39f3aa10d825244e0f794e37481232cd101492d2ab64368cd6c0f374ac",
+      "samples": {
+        "first": [
+          {
+            "close": "3.5136",
+            "close_time": "2020-09-24T00:00:00Z"
+          },
+          {
+            "close": "4.6133",
+            "close_time": "2020-09-25T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "6.6361",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "6.3764",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "hyperliquid",
+      "venue_symbol": "AVAX"
+    },
+    {
+      "asset": "AVAX",
+      "error": null,
+      "note": "no Hyperliquid spot pair for this asset",
+      "series": "spot_1d",
+      "status": "venue_lacks_market",
+      "venue": "hyperliquid",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BNB",
+      "coverage": {
+        "expected_days": 1126,
+        "first_close": "2023-05-13T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1126
+      },
+      "endpoint": "POST https://api.hyperliquid.xyz/info type=fundingHistory (paginated 500/page)",
+      "error": null,
+      "funding_interval_hours_declared": 1.0,
+      "funding_interval_hours_observed": 1.0,
+      "native_rows": 26454,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_bnb_funding_data1.json",
+      "raw_sha256": "cd2019b84e25303f7d70c1af26fc4c6ca2a12106c8eb498068f2c96ccefeecaa",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2023-05-13T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.0012386829"
+          },
+          {
+            "close_time": "2023-05-14T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.0007461162"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.0001662437"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.0002365018"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "hyperliquid",
+      "venue_symbol": "BNB"
+    },
+    {
+      "asset": "BNB",
+      "coverage": {
+        "expected_days": 2122,
+        "first_close": "2020-08-20T00:00:00Z",
+        "first_nonzero_volume_close": "2023-03-06T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2122,
+        "zero_volume_rows": 928
+      },
+      "endpoint": "POST https://api.hyperliquid.xyz/info type=candleSnapshot interval=1d (<=5000 candles)",
+      "error": null,
+      "native_rows": 2122,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_bnb_perp_1d_data1.json",
+      "raw_sha256": "369adbc15f77acdd724634a28e820db6c76c811a0d3318ec461259925d6f13b9",
+      "samples": {
+        "first": [
+          {
+            "close": "22.376",
+            "close_time": "2020-08-20T00:00:00Z"
+          },
+          {
+            "close": "23.122",
+            "close_time": "2020-08-21T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "593.24",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "586.3",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "hyperliquid",
+      "venue_symbol": "BNB"
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "no Hyperliquid spot pair for this asset",
+      "series": "spot_1d",
+      "status": "venue_lacks_market",
+      "venue": "hyperliquid",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BTC",
+      "coverage": {
+        "expected_days": 1126,
+        "first_close": "2023-05-13T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1126
+      },
+      "endpoint": "POST https://api.hyperliquid.xyz/info type=fundingHistory (paginated 500/page)",
+      "error": null,
+      "funding_interval_hours_declared": 1.0,
+      "funding_interval_hours_observed": 1.0,
+      "native_rows": 26454,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_btc_funding_data1.json",
+      "raw_sha256": "a4f728426be483da4dd5b263c93b7ec3378255992aa83541ed187a3cf039b1ce",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2023-05-13T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.0021763409"
+          },
+          {
+            "close_time": "2023-05-14T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.0006818204"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.0002343019"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.0001226338"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "hyperliquid",
+      "venue_symbol": "BTC"
+    },
+    {
+      "asset": "BTC",
+      "coverage": {
+        "expected_days": 2122,
+        "first_close": "2020-08-20T00:00:00Z",
+        "first_nonzero_volume_close": "2023-02-27T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2122,
+        "zero_volume_rows": 921
+      },
+      "endpoint": "POST https://api.hyperliquid.xyz/info type=candleSnapshot interval=1d (<=5000 candles)",
+      "error": null,
+      "native_rows": 2122,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_btc_perp_1d_data1.json",
+      "raw_sha256": "2801a4250cd8293d755d0758d366a274aeae1acea3acad927fcc870ba0cc1a13",
+      "samples": {
+        "first": [
+          {
+            "close": "11763.9",
+            "close_time": "2020-08-20T00:00:00Z"
+          },
+          {
+            "close": "11857.9",
+            "close_time": "2020-08-21T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "61695.0",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "61481.0",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "hyperliquid",
+      "venue_symbol": "BTC"
+    },
+    {
+      "asset": "BTC",
+      "coverage": {
+        "expected_days": 493,
+        "first_close": "2025-02-04T00:00:00Z",
+        "first_nonzero_volume_close": "2025-02-04T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 493,
+        "zero_volume_rows": 9
+      },
+      "endpoint": "POST https://api.hyperliquid.xyz/info type=candleSnapshot interval=1d spot pair id (<=5000 candles)",
+      "error": null,
+      "native_rows": 493,
+      "note": "UBTC/USDC",
+      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_btc_spot_1d_data1.json",
+      "raw_sha256": "29f5cc3ca3273d1731b392a0ef079abd806642b7c5739ade71a101fc4cce90f8",
+      "samples": {
+        "first": [
+          {
+            "close": "6969696.0",
+            "close_time": "2025-02-04T00:00:00Z"
+          },
+          {
+            "close": "6969696.0",
+            "close_time": "2025-02-05T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "61698.0",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "61479.0",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "hyperliquid",
+      "venue_symbol": "@142"
+    },
+    {
+      "asset": "DOGE",
+      "coverage": {
+        "expected_days": 1126,
+        "first_close": "2023-05-13T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1126
+      },
+      "endpoint": "POST https://api.hyperliquid.xyz/info type=fundingHistory (paginated 500/page)",
+      "error": null,
+      "funding_interval_hours_declared": 1.0,
+      "funding_interval_hours_observed": 1.0,
+      "native_rows": 26454,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_doge_funding_data1.json",
+      "raw_sha256": "b6bb0a279865b37b73f3ed9fc006920363a27ae347011ae9595dba9492ba9596",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2023-05-13T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.0006724080"
+          },
+          {
+            "close_time": "2023-05-14T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.0007140764"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.0002063176"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.0000443602"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "hyperliquid",
+      "venue_symbol": "DOGE"
+    },
+    {
+      "asset": "DOGE",
+      "coverage": {
+        "expected_days": 2122,
+        "first_close": "2020-08-20T00:00:00Z",
+        "first_nonzero_volume_close": "2023-04-04T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2122,
+        "zero_volume_rows": 957
+      },
+      "endpoint": "POST https://api.hyperliquid.xyz/info type=candleSnapshot interval=1d (<=5000 candles)",
+      "error": null,
+      "native_rows": 2122,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_doge_perp_1d_data1.json",
+      "raw_sha256": "b2c8f3a0dfc681dd5a1b416345324b824ad4c66904d235fea8b60a89fa4a5f34",
+      "samples": {
+        "first": [
+          {
+            "close": "0.003418",
+            "close_time": "2020-08-20T00:00:00Z"
+          },
+          {
+            "close": "0.003447",
+            "close_time": "2020-08-21T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "0.084747",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "0.082932",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "hyperliquid",
+      "venue_symbol": "DOGE"
+    },
+    {
+      "asset": "DOGE",
+      "error": null,
+      "note": "no Hyperliquid spot pair for this asset",
+      "series": "spot_1d",
+      "status": "venue_lacks_market",
+      "venue": "hyperliquid",
+      "venue_symbol": null
+    },
+    {
+      "asset": "ETH",
+      "coverage": {
+        "expected_days": 1126,
+        "first_close": "2023-05-13T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1126
+      },
+      "endpoint": "POST https://api.hyperliquid.xyz/info type=fundingHistory (paginated 500/page)",
+      "error": null,
+      "funding_interval_hours_declared": 1.0,
+      "funding_interval_hours_observed": 1.0,
+      "native_rows": 26454,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_eth_funding_data1.json",
+      "raw_sha256": "8dc8643eeb62a20bcfb1fc525caa1da8290b946ad9a97c64067cab8cd7558b49",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2023-05-13T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.0002662890"
+          },
+          {
+            "close_time": "2023-05-14T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.0003"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.0000732492"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "-0.0001120491"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "hyperliquid",
+      "venue_symbol": "ETH"
+    },
+    {
+      "asset": "ETH",
+      "coverage": {
+        "expected_days": 2122,
+        "first_close": "2020-08-20T00:00:00Z",
+        "first_nonzero_volume_close": "2023-02-27T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2122,
+        "zero_volume_rows": 921
+      },
+      "endpoint": "POST https://api.hyperliquid.xyz/info type=candleSnapshot interval=1d (<=5000 candles)",
+      "error": null,
+      "native_rows": 2122,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_eth_perp_1d_data1.json",
+      "raw_sha256": "1c66d4cb79831abcf26823f8548228a3ff97507265fc65e9ce4fd98a133ad63c",
+      "samples": {
+        "first": [
+          {
+            "close": "407.65",
+            "close_time": "2020-08-20T00:00:00Z"
+          },
+          {
+            "close": "416.29",
+            "close_time": "2020-08-21T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1638.5",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1620.9",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "hyperliquid",
+      "venue_symbol": "ETH"
+    },
+    {
+      "asset": "ETH",
+      "coverage": {
+        "expected_days": 442,
+        "first_close": "2025-03-27T00:00:00Z",
+        "first_nonzero_volume_close": "2025-03-27T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 442,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "POST https://api.hyperliquid.xyz/info type=candleSnapshot interval=1d spot pair id (<=5000 candles)",
+      "error": null,
+      "native_rows": 442,
+      "note": "UETH/USDC",
+      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_eth_spot_1d_data1.json",
+      "raw_sha256": "925e2e3ba20dd012af45d39dbedc21d3898d6a045e59e64e84ab44e14eedff4d",
+      "samples": {
+        "first": [
+          {
+            "close": "3045.0",
+            "close_time": "2025-03-27T00:00:00Z"
+          },
+          {
+            "close": "2003.0",
+            "close_time": "2025-03-28T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1639.0",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1620.2",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "hyperliquid",
+      "venue_symbol": "@151"
+    },
+    {
+      "asset": "SOL",
+      "coverage": {
+        "expected_days": 1126,
+        "first_close": "2023-05-13T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1126
+      },
+      "endpoint": "POST https://api.hyperliquid.xyz/info type=fundingHistory (paginated 500/page)",
+      "error": null,
+      "funding_interval_hours_declared": 1.0,
+      "funding_interval_hours_observed": 1.0,
+      "native_rows": 26454,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_sol_funding_data1.json",
+      "raw_sha256": "a3937f93d771b8b12f68fdbfc6070d00835c23597f6e4be8633d42e5c26fe932",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2023-05-13T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.0006586801"
+          },
+          {
+            "close_time": "2023-05-14T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.0004326823"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "-0.0002432188"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "-0.0002915194"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "hyperliquid",
+      "venue_symbol": "SOL"
+    },
+    {
+      "asset": "SOL",
+      "coverage": {
+        "expected_days": 2096,
+        "first_close": "2020-09-15T00:00:00Z",
+        "first_nonzero_volume_close": "2023-03-05T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2096,
+        "zero_volume_rows": 901
+      },
+      "endpoint": "POST https://api.hyperliquid.xyz/info type=candleSnapshot interval=1d (<=5000 candles)",
+      "error": null,
+      "native_rows": 2096,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_sol_perp_1d_data1.json",
+      "raw_sha256": "0a0491dd55cdb80d34cf8b3d75e9f0927c68da8cb0da59d24ca696dc5ffecbf2",
+      "samples": {
+        "first": [
+          {
+            "close": "3.2661",
+            "close_time": "2020-09-15T00:00:00Z"
+          },
+          {
+            "close": "2.9332",
+            "close_time": "2020-09-16T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "64.923",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "63.183",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "hyperliquid",
+      "venue_symbol": "SOL"
+    },
+    {
+      "asset": "SOL",
+      "coverage": {
+        "expected_days": 397,
+        "first_close": "2025-05-11T00:00:00Z",
+        "first_nonzero_volume_close": "2025-05-11T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 397,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "POST https://api.hyperliquid.xyz/info type=candleSnapshot interval=1d spot pair id (<=5000 candles)",
+      "error": null,
+      "native_rows": 397,
+      "note": "USOL/USDC",
+      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_sol_spot_1d_data1.json",
+      "raw_sha256": "8b9c3dfb9d55c9cb201495336219d108fe54754f4ae45322f02b02cd4b9b6b37",
+      "samples": {
+        "first": [
+          {
+            "close": "178.21",
+            "close_time": "2025-05-11T00:00:00Z"
+          },
+          {
+            "close": "173.51",
+            "close_time": "2025-05-12T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "64.92",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "63.171",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "hyperliquid",
+      "venue_symbol": "@156"
+    },
+    {
+      "asset": "XRP",
+      "coverage": {
+        "expected_days": 1089,
+        "first_close": "2023-06-19T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1089
+      },
+      "endpoint": "POST https://api.hyperliquid.xyz/info type=fundingHistory (paginated 500/page)",
+      "error": null,
+      "funding_interval_hours_declared": 1.0,
+      "funding_interval_hours_observed": 1.0,
+      "native_rows": 26133,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_xrp_funding_data1.json",
+      "raw_sha256": "b31f8471ca5c1d23ee5306ac55420f134b115075f704d758291cad20e3e7dc9f",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2023-06-19T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "-0.0021622043"
+          },
+          {
+            "close_time": "2023-06-20T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "-0.0020132196"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.0000372364"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "-0.0002426828"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "hyperliquid",
+      "venue_symbol": "XRP"
+    },
+    {
+      "asset": "XRP",
+      "coverage": {
+        "expected_days": 2089,
+        "first_close": "2020-09-22T00:00:00Z",
+        "first_nonzero_volume_close": "2023-06-18T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2089,
+        "zero_volume_rows": 999
+      },
+      "endpoint": "POST https://api.hyperliquid.xyz/info type=candleSnapshot interval=1d (<=5000 candles)",
+      "error": null,
+      "native_rows": 2089,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_xrp_perp_1d_data1.json",
+      "raw_sha256": "64b57514c817e65ecdfa9a5c9106a9e23a64914592b71c33123ccdd5b28cdcba",
+      "samples": {
+        "first": [
+          {
+            "close": "0.2308",
+            "close_time": "2020-09-22T00:00:00Z"
+          },
+          {
+            "close": "0.2329",
+            "close_time": "2020-09-23T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1.1368",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1.0966",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "hyperliquid",
+      "venue_symbol": "XRP"
+    },
+    {
+      "asset": "XRP",
+      "error": null,
+      "note": "no Hyperliquid spot pair for this asset",
+      "series": "spot_1d",
+      "status": "venue_lacks_market",
+      "venue": "hyperliquid",
+      "venue_symbol": null
+    },
+    {
+      "asset": "AVAX",
+      "coverage": {
+        "expected_days": 366,
+        "first_close": "2025-06-11T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 366
+      },
+      "endpoint": "GET https://futures.kraken.com/derivatives/api/v4/historicalfundingrates (single call; trailing window)",
+      "error": null,
+      "funding_interval_hours_declared": 1.0,
+      "funding_interval_hours_observed": 1.0,
+      "native_rows": 8761,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_avax_funding_data1.json",
+      "raw_sha256": "1f476403210b7bdaf3059fd66a74c5392096aa35325753f6ba287b29476c100a",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2025-06-11T00:00:00Z",
+            "events": 10,
+            "funding_rate_sum": "0.000174989268055557"
+          },
+          {
+            "close_time": "2025-06-12T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.000159677015277777"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "-0.000417541800000001"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "-0.000280720866522990"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "kraken",
+      "venue_symbol": "PF_AVAXUSD"
+    },
+    {
+      "asset": "AVAX",
+      "coverage": {
+        "expected_days": 1541,
+        "first_close": "2022-03-24T00:00:00Z",
+        "first_nonzero_volume_close": "2022-03-24T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1541,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://futures.kraken.com/api/charts/v1/trade/{symbol}/1d (single call, <=5000)",
+      "error": null,
+      "native_rows": 1541,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_avax_perp_1d_data1.json",
+      "raw_sha256": "692543395d0a4e44c7db3b1ef9d99e792b50ddfadc6ae456bd0799df969da847",
+      "samples": {
+        "first": [
+          {
+            "close": "86.18",
+            "close_time": "2022-03-24T00:00:00Z"
+          },
+          {
+            "close": "87.41",
+            "close_time": "2022-03-25T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "6.639",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "6.381",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "kraken",
+      "venue_symbol": "PF_AVAXUSD"
+    },
+    {
+      "asset": "AVAX",
+      "coverage": {
+        "expected_days": 720,
+        "first_close": "2024-06-22T00:00:00Z",
+        "first_nonzero_volume_close": "2024-06-22T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 720,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.kraken.com/0/public/OHLC interval=1440 (single call; venue caps history at last 720 candles)",
+      "error": null,
+      "native_rows": 720,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_avax_spot_1d_data1.json",
+      "raw_sha256": "3ee2b1cace20e13fe782a485bc99168f5e3c0600fe8927aff96fec848adacef0",
+      "samples": {
+        "first": [
+          {
+            "close": "27.470",
+            "close_time": "2024-06-22T00:00:00Z"
+          },
+          {
+            "close": "25.620",
+            "close_time": "2024-06-23T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "6.634",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "6.379",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "kraken",
+      "venue_symbol": "AVAXUSD"
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "Kraken does not list BNB",
+      "series": "funding",
+      "status": "venue_lacks_market",
+      "venue": "kraken",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "Kraken does not list BNB",
+      "series": "perp_1d",
+      "status": "venue_lacks_market",
+      "venue": "kraken",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "Kraken does not list BNB",
+      "series": "spot_1d",
+      "status": "venue_lacks_market",
+      "venue": "kraken",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BTC",
+      "coverage": {
+        "expected_days": 366,
+        "first_close": "2025-06-11T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 366
+      },
+      "endpoint": "GET https://futures.kraken.com/derivatives/api/v4/historicalfundingrates (single call; trailing window)",
+      "error": null,
+      "funding_interval_hours_declared": 1.0,
+      "funding_interval_hours_observed": 1.0,
+      "native_rows": 8760,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_btc_funding_data1.json",
+      "raw_sha256": "f32d8d035bc7b907167e541bd1938bb4e91e739874427b2236a3465a570ab784",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2025-06-11T00:00:00Z",
+            "events": 10,
+            "funding_rate_sum": "0.000036660719444445"
+          },
+          {
+            "close_time": "2025-06-12T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.000120602311111111"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.000106864491666668"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "-0.000016983697988506"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "kraken",
+      "venue_symbol": "PF_XBTUSD"
+    },
+    {
+      "asset": "BTC",
+      "coverage": {
+        "expected_days": 1541,
+        "first_close": "2022-03-24T00:00:00Z",
+        "first_nonzero_volume_close": "2022-03-24T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1541,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://futures.kraken.com/api/charts/v1/trade/{symbol}/1d (single call, <=5000)",
+      "error": null,
+      "native_rows": 1541,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_btc_perp_1d_data1.json",
+      "raw_sha256": "4c5fddb430531922967999244ee3a6d6e13fb977bdbf76b65d6995607c4539f6",
+      "samples": {
+        "first": [
+          {
+            "close": "42912",
+            "close_time": "2022-03-24T00:00:00Z"
+          },
+          {
+            "close": "43907",
+            "close_time": "2022-03-25T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "61683",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "61458",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "kraken",
+      "venue_symbol": "PF_XBTUSD"
+    },
+    {
+      "asset": "BTC",
+      "coverage": {
+        "expected_days": 720,
+        "first_close": "2024-06-22T00:00:00Z",
+        "first_nonzero_volume_close": "2024-06-22T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 720,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.kraken.com/0/public/OHLC interval=1440 (single call; venue caps history at last 720 candles)",
+      "error": null,
+      "native_rows": 720,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_btc_spot_1d_data1.json",
+      "raw_sha256": "ef91fe498676e8685f369cf0eca56530aff1a7e1061588ff5edbf2467c57b0ca",
+      "samples": {
+        "first": [
+          {
+            "close": "64087.9",
+            "close_time": "2024-06-22T00:00:00Z"
+          },
+          {
+            "close": "64253.0",
+            "close_time": "2024-06-23T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "61690.4",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "61464.4",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "kraken",
+      "venue_symbol": "XBTUSD"
+    },
+    {
+      "asset": "DOGE",
+      "coverage": {
+        "expected_days": 366,
+        "first_close": "2025-06-11T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 366
+      },
+      "endpoint": "GET https://futures.kraken.com/derivatives/api/v4/historicalfundingrates (single call; trailing window)",
+      "error": null,
+      "funding_interval_hours_declared": 1.0,
+      "funding_interval_hours_observed": 1.0,
+      "native_rows": 8761,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_doge_funding_data1.json",
+      "raw_sha256": "9d2a3e7828f2807979f9a628b716ece3ba96afeb273ef952c8e904bb999e28d2",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2025-06-11T00:00:00Z",
+            "events": 10,
+            "funding_rate_sum": "0.000121677650000000"
+          },
+          {
+            "close_time": "2025-06-12T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.000290816959722224"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "-0.000083258183333334"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.000016147281034484"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "kraken",
+      "venue_symbol": "PF_DOGEUSD"
+    },
+    {
+      "asset": "DOGE",
+      "coverage": {
+        "expected_days": 1452,
+        "first_close": "2022-06-21T00:00:00Z",
+        "first_nonzero_volume_close": "2022-06-21T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1452,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://futures.kraken.com/api/charts/v1/trade/{symbol}/1d (single call, <=5000)",
+      "error": null,
+      "native_rows": 1452,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_doge_perp_1d_data1.json",
+      "raw_sha256": "6b68a79bf6dbf5f51b1848de300c95148400382c6c50477a51dcddc12a7069bf",
+      "samples": {
+        "first": [
+          {
+            "close": "0.060532",
+            "close_time": "2022-06-21T00:00:00Z"
+          },
+          {
+            "close": "0.065375",
+            "close_time": "2022-06-22T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "0.084759",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "0.082941",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "kraken",
+      "venue_symbol": "PF_DOGEUSD"
+    },
+    {
+      "asset": "DOGE",
+      "coverage": {
+        "expected_days": 720,
+        "first_close": "2024-06-22T00:00:00Z",
+        "first_nonzero_volume_close": "2024-06-22T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 720,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.kraken.com/0/public/OHLC interval=1440 (single call; venue caps history at last 720 candles)",
+      "error": null,
+      "native_rows": 720,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_doge_spot_1d_data1.json",
+      "raw_sha256": "51f13a79f585bb4b4581fbf9bb5dc08ffd2853ddfd47c463b76217f26f18f3a3",
+      "samples": {
+        "first": [
+          {
+            "close": "0.1238708",
+            "close_time": "2024-06-22T00:00:00Z"
+          },
+          {
+            "close": "0.1236963",
+            "close_time": "2024-06-23T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "0.0847287",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "0.0828878",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "kraken",
+      "venue_symbol": "XDGUSD"
+    },
+    {
+      "asset": "ETH",
+      "coverage": {
+        "expected_days": 366,
+        "first_close": "2025-06-11T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 366
+      },
+      "endpoint": "GET https://futures.kraken.com/derivatives/api/v4/historicalfundingrates (single call; trailing window)",
+      "error": null,
+      "funding_interval_hours_declared": 1.0,
+      "funding_interval_hours_observed": 1.0,
+      "native_rows": 8760,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_eth_funding_data1.json",
+      "raw_sha256": "122a9198c0618454e8f1c50ebadb11391a0c34fc4076a7a437bc844131eca267",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2025-06-11T00:00:00Z",
+            "events": 10,
+            "funding_rate_sum": "0.000087205620833333"
+          },
+          {
+            "close_time": "2025-06-12T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.000222020888888893"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.000050402729166667"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.000114488018821837"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "kraken",
+      "venue_symbol": "PF_ETHUSD"
+    },
+    {
+      "asset": "ETH",
+      "coverage": {
+        "expected_days": 1541,
+        "first_close": "2022-03-24T00:00:00Z",
+        "first_nonzero_volume_close": "2022-03-24T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1541,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://futures.kraken.com/api/charts/v1/trade/{symbol}/1d (single call, <=5000)",
+      "error": null,
+      "native_rows": 1541,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_eth_perp_1d_data1.json",
+      "raw_sha256": "9f5b218b5d66d4f5a526cd5c4a2b79c55eb01f3c40d1b3162404d169e2d4f8a6",
+      "samples": {
+        "first": [
+          {
+            "close": "3031.6",
+            "close_time": "2022-03-24T00:00:00Z"
+          },
+          {
+            "close": "3113.9",
+            "close_time": "2022-03-25T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1638.2",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1620.2",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "kraken",
+      "venue_symbol": "PF_ETHUSD"
+    },
+    {
+      "asset": "ETH",
+      "coverage": {
+        "expected_days": 720,
+        "first_close": "2024-06-22T00:00:00Z",
+        "first_nonzero_volume_close": "2024-06-22T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 720,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.kraken.com/0/public/OHLC interval=1440 (single call; venue caps history at last 720 candles)",
+      "error": null,
+      "native_rows": 720,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_eth_spot_1d_data1.json",
+      "raw_sha256": "cc1ddee7d7f3a330ab52e68c9441d38c4d3255401e85253dbd205ffbd117cee6",
+      "samples": {
+        "first": [
+          {
+            "close": "3517.25",
+            "close_time": "2024-06-22T00:00:00Z"
+          },
+          {
+            "close": "3495.55",
+            "close_time": "2024-06-23T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1638.31",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1620.37",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "kraken",
+      "venue_symbol": "ETHUSD"
+    },
+    {
+      "asset": "SOL",
+      "coverage": {
+        "expected_days": 366,
+        "first_close": "2025-06-11T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 366
+      },
+      "endpoint": "GET https://futures.kraken.com/derivatives/api/v4/historicalfundingrates (single call; trailing window)",
+      "error": null,
+      "funding_interval_hours_declared": 1.0,
+      "funding_interval_hours_observed": 1.0,
+      "native_rows": 8761,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_sol_funding_data1.json",
+      "raw_sha256": "45b760d1031fddc48fd2d1a50bae9e9252e272eaceba88641e49d0646572e1f8",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2025-06-11T00:00:00Z",
+            "events": 10,
+            "funding_rate_sum": "0.000064362702777778"
+          },
+          {
+            "close_time": "2025-06-12T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.000306943436111112"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.000083207674999998"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "-0.000014978146839082"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "kraken",
+      "venue_symbol": "PF_SOLUSD"
+    },
+    {
+      "asset": "SOL",
+      "coverage": {
+        "expected_days": 1541,
+        "first_close": "2022-03-24T00:00:00Z",
+        "first_nonzero_volume_close": "2022-03-24T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1541,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://futures.kraken.com/api/charts/v1/trade/{symbol}/1d (single call, <=5000)",
+      "error": null,
+      "native_rows": 1541,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_sol_perp_1d_data1.json",
+      "raw_sha256": "371ce4d2cecf6b69c770efae097a831bc549d1f732434258c0cb3c288ea3c947",
+      "samples": {
+        "first": [
+          {
+            "close": "95.11",
+            "close_time": "2022-03-24T00:00:00Z"
+          },
+          {
+            "close": "102.12",
+            "close_time": "2022-03-25T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "64.94",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "63.14",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "kraken",
+      "venue_symbol": "PF_SOLUSD"
+    },
+    {
+      "asset": "SOL",
+      "coverage": {
+        "expected_days": 720,
+        "first_close": "2024-06-22T00:00:00Z",
+        "first_nonzero_volume_close": "2024-06-22T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 720,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.kraken.com/0/public/OHLC interval=1440 (single call; venue caps history at last 720 candles)",
+      "error": null,
+      "native_rows": 720,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_sol_spot_1d_data1.json",
+      "raw_sha256": "9616eadd5ae1479ea428a750c4173f9d3193fa50c31f2e6b2dad937b1b418ae6",
+      "samples": {
+        "first": [
+          {
+            "close": "134.58",
+            "close_time": "2024-06-22T00:00:00Z"
+          },
+          {
+            "close": "133.69",
+            "close_time": "2024-06-23T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "64.89",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "63.13",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "kraken",
+      "venue_symbol": "SOLUSD"
+    },
+    {
+      "asset": "XRP",
+      "coverage": {
+        "expected_days": 366,
+        "first_close": "2025-06-11T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 366
+      },
+      "endpoint": "GET https://futures.kraken.com/derivatives/api/v4/historicalfundingrates (single call; trailing window)",
+      "error": null,
+      "funding_interval_hours_declared": 1.0,
+      "funding_interval_hours_observed": 1.0,
+      "native_rows": 8761,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_xrp_funding_data1.json",
+      "raw_sha256": "ecdd7944cde2bf24466975c343b9e5238ccfbed867a56b15bcc7b38416b4ab2e",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2025-06-11T00:00:00Z",
+            "events": 10,
+            "funding_rate_sum": "0.000088049518055557"
+          },
+          {
+            "close_time": "2025-06-12T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.000316993261111110"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "-0.000080951562499999"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 24,
+            "funding_rate_sum": "0.000145553409195402"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "kraken",
+      "venue_symbol": "PF_XRPUSD"
+    },
+    {
+      "asset": "XRP",
+      "coverage": {
+        "expected_days": 1541,
+        "first_close": "2022-03-24T00:00:00Z",
+        "first_nonzero_volume_close": "2022-03-24T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1541,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://futures.kraken.com/api/charts/v1/trade/{symbol}/1d (single call, <=5000)",
+      "error": null,
+      "native_rows": 1541,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_xrp_perp_1d_data1.json",
+      "raw_sha256": "b3f3f99430c21533cb5f393f221c2255e39b2eb7956154f3724cc95e70792640",
+      "samples": {
+        "first": [
+          {
+            "close": "0.83779",
+            "close_time": "2022-03-24T00:00:00Z"
+          },
+          {
+            "close": "0.84456",
+            "close_time": "2022-03-25T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1.13668",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1.09669",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "kraken",
+      "venue_symbol": "PF_XRPUSD"
+    },
+    {
+      "asset": "XRP",
+      "coverage": {
+        "expected_days": 720,
+        "first_close": "2024-06-22T00:00:00Z",
+        "first_nonzero_volume_close": "2024-06-22T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 720,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://api.kraken.com/0/public/OHLC interval=1440 (single call; venue caps history at last 720 candles)",
+      "error": null,
+      "native_rows": 720,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_xrp_spot_1d_data1.json",
+      "raw_sha256": "8dab897a32dbe875eeb1884d1b4d7d1bea69b1969a138a0e1a6e6a4adf34dbd5",
+      "samples": {
+        "first": [
+          {
+            "close": "0.48889",
+            "close_time": "2024-06-22T00:00:00Z"
+          },
+          {
+            "close": "0.48641",
+            "close_time": "2024-06-23T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1.13660",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1.09640",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "kraken",
+      "venue_symbol": "XRPUSD"
+    },
+    {
+      "asset": "AVAX",
+      "coverage": {
+        "expected_days": 92,
+        "first_close": "2026-03-12T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 92
+      },
+      "endpoint": "GET https://www.okx.com/api/v5/public/funding-rate-history (paginated 100/page, backward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 274,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/okx_avax_funding_data1.json",
+      "raw_sha256": "9c65a071c4bfda51a8f5a18451810e3b4c76294168223b690ac61fb7290a1a4c",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2026-03-12T00:00:00Z",
+            "events": 1,
+            "funding_rate_sum": "0.0001"
+          },
+          {
+            "close_time": "2026-03-13T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.0001712447356548"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.0001638579164499"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.0002102331541547"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "okx",
+      "venue_symbol": "AVAX-USDT-SWAP"
+    },
+    {
+      "asset": "AVAX",
+      "coverage": {
+        "expected_days": 2086,
+        "first_close": "2020-09-25T00:00:00Z",
+        "first_nonzero_volume_close": "2020-09-25T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2086,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://www.okx.com/api/v5/market/history-candles bar=1Dutc (paginated 100/page, backward; UTC-aligned bar required)",
+      "error": null,
+      "native_rows": 2086,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/okx_avax_perp_1d_data1.json",
+      "raw_sha256": "3af2c93ac917a9b49d8e412be4f55340a1af2f8d959a63088c8ff113cd709d7d",
+      "samples": {
+        "first": [
+          {
+            "close": "4.637",
+            "close_time": "2020-09-25T00:00:00Z"
+          },
+          {
+            "close": "4.7",
+            "close_time": "2020-09-26T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "6.635",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "6.375",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "okx",
+      "venue_symbol": "AVAX-USDT-SWAP"
+    },
+    {
+      "asset": "AVAX",
+      "coverage": {
+        "expected_days": 2087,
+        "first_close": "2020-09-24T00:00:00Z",
+        "first_nonzero_volume_close": "2020-09-24T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2087,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://www.okx.com/api/v5/market/history-candles bar=1Dutc (paginated 100/page, backward; UTC-aligned bar required)",
+      "error": null,
+      "native_rows": 2087,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/okx_avax_spot_1d_data1.json",
+      "raw_sha256": "1e211a0aee80a0d24e42d9128aeb3898ec8c4a5e48ff41061dc5344e675a6a9f",
+      "samples": {
+        "first": [
+          {
+            "close": "3.52",
+            "close_time": "2020-09-24T00:00:00Z"
+          },
+          {
+            "close": "4.64",
+            "close_time": "2020-09-25T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "6.639",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "6.381",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "okx",
+      "venue_symbol": "AVAX-USDT"
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "OKX does not list BNB",
+      "series": "funding",
+      "status": "venue_lacks_market",
+      "venue": "okx",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "OKX does not list BNB",
+      "series": "perp_1d",
+      "status": "venue_lacks_market",
+      "venue": "okx",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BNB",
+      "error": null,
+      "note": "OKX does not list BNB",
+      "series": "spot_1d",
+      "status": "venue_lacks_market",
+      "venue": "okx",
+      "venue_symbol": null
+    },
+    {
+      "asset": "BTC",
+      "coverage": {
+        "expected_days": 92,
+        "first_close": "2026-03-12T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 92
+      },
+      "endpoint": "GET https://www.okx.com/api/v5/public/funding-rate-history (paginated 100/page, backward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 274,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/okx_btc_funding_data1.json",
+      "raw_sha256": "bc9e7d542d4257119f46e1f3c1778aeb3dbb26be1b89aa1f2ce53c819597501f",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2026-03-12T00:00:00Z",
+            "events": 1,
+            "funding_rate_sum": "-0.0000362367417498"
+          },
+          {
+            "close_time": "2026-03-13T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.0000870432582108"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.0000161312034063"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.0000229041031296"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "okx",
+      "venue_symbol": "BTC-USDT-SWAP"
+    },
+    {
+      "asset": "BTC",
+      "coverage": {
+        "expected_days": 2353,
+        "first_close": "2020-01-02T00:00:00Z",
+        "first_nonzero_volume_close": "2020-01-02T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2353,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://www.okx.com/api/v5/market/history-candles bar=1Dutc (paginated 100/page, backward; UTC-aligned bar required)",
+      "error": null,
+      "native_rows": 2353,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/okx_btc_perp_1d_data1.json",
+      "raw_sha256": "194bf6c71425e395afe2cc8969e7a6366ceae5e44ee89c4027663d12b0282cf6",
+      "samples": {
+        "first": [
+          {
+            "close": "7202",
+            "close_time": "2020-01-02T00:00:00Z"
+          },
+          {
+            "close": "6965.3",
+            "close_time": "2020-01-03T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "61698.2",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "61475.3",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "okx",
+      "venue_symbol": "BTC-USDT-SWAP"
+    },
+    {
+      "asset": "BTC",
+      "coverage": {
+        "expected_days": 3073,
+        "first_close": "2018-01-12T00:00:00Z",
+        "first_nonzero_volume_close": "2018-01-12T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 3073,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://www.okx.com/api/v5/market/history-candles bar=1Dutc (paginated 100/page, backward; UTC-aligned bar required)",
+      "error": null,
+      "native_rows": 3073,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/okx_btc_spot_1d_data1.json",
+      "raw_sha256": "2cbce8e7bc36ff10caa68f8927e408f8d808b7865bd79bff6a9846e6a846d95f",
+      "samples": {
+        "first": [
+          {
+            "close": "13288.5",
+            "close_time": "2018-01-12T00:00:00Z"
+          },
+          {
+            "close": "13739.5",
+            "close_time": "2018-01-13T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "61730",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "61506.9",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "okx",
+      "venue_symbol": "BTC-USDT"
+    },
+    {
+      "asset": "DOGE",
+      "coverage": {
+        "expected_days": 92,
+        "first_close": "2026-03-12T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 92
+      },
+      "endpoint": "GET https://www.okx.com/api/v5/public/funding-rate-history (paginated 100/page, backward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 274,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/okx_doge_funding_data1.json",
+      "raw_sha256": "37c56d886098d37ed443a4305ff88e67a0739ccd94ae58334dacbf181e65b6e5",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2026-03-12T00:00:00Z",
+            "events": 1,
+            "funding_rate_sum": "-0.0000201842486261"
+          },
+          {
+            "close_time": "2026-03-13T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.0001703219901332"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.0000301181127016"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.0001283774624776"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "okx",
+      "venue_symbol": "DOGE-USDT-SWAP"
+    },
+    {
+      "asset": "DOGE",
+      "coverage": {
+        "expected_days": 2161,
+        "first_close": "2020-07-12T00:00:00Z",
+        "first_nonzero_volume_close": "2020-07-12T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2161,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://www.okx.com/api/v5/market/history-candles bar=1Dutc (paginated 100/page, backward; UTC-aligned bar required)",
+      "error": null,
+      "native_rows": 2161,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/okx_doge_perp_1d_data1.json",
+      "raw_sha256": "e03a871b210316adeb9de74e7729e6aa0cd96f888a9379d8b88ab8f3d6e8c886",
+      "samples": {
+        "first": [
+          {
+            "close": "0.00381",
+            "close_time": "2020-07-12T00:00:00Z"
+          },
+          {
+            "close": "0.003642",
+            "close_time": "2020-07-13T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "0.08474",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "0.08289",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "okx",
+      "venue_symbol": "DOGE-USDT-SWAP"
+    },
+    {
+      "asset": "DOGE",
+      "coverage": {
+        "expected_days": 2353,
+        "first_close": "2020-01-02T00:00:00Z",
+        "first_nonzero_volume_close": "2020-01-02T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2353,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://www.okx.com/api/v5/market/history-candles bar=1Dutc (paginated 100/page, backward; UTC-aligned bar required)",
+      "error": null,
+      "native_rows": 2353,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/okx_doge_spot_1d_data1.json",
+      "raw_sha256": "ca3c170edd698cba79171343d89306bb49212ffdc908cb48315e22f52d3a7b37",
+      "samples": {
+        "first": [
+          {
+            "close": "0.00201",
+            "close_time": "2020-01-02T00:00:00Z"
+          },
+          {
+            "close": "0.002",
+            "close_time": "2020-01-03T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "0.08479",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "0.08293",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "okx",
+      "venue_symbol": "DOGE-USDT"
+    },
+    {
+      "asset": "ETH",
+      "coverage": {
+        "expected_days": 92,
+        "first_close": "2026-03-12T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 92
+      },
+      "endpoint": "GET https://www.okx.com/api/v5/public/funding-rate-history (paginated 100/page, backward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 274,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/okx_eth_funding_data1.json",
+      "raw_sha256": "13aa31e688cdd74b31558e2f154575ba8cf42d4f59b765a4df52d10a234c5b61",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2026-03-12T00:00:00Z",
+            "events": 1,
+            "funding_rate_sum": "0.0001"
+          },
+          {
+            "close_time": "2026-03-13T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.0000742268269223"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.0002388723697117"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.0000392056116184"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "okx",
+      "venue_symbol": "ETH-USDT-SWAP"
+    },
+    {
+      "asset": "ETH",
+      "coverage": {
+        "expected_days": 2353,
+        "first_close": "2020-01-02T00:00:00Z",
+        "first_nonzero_volume_close": "2020-01-02T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2353,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://www.okx.com/api/v5/market/history-candles bar=1Dutc (paginated 100/page, backward; UTC-aligned bar required)",
+      "error": null,
+      "native_rows": 2353,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/okx_eth_perp_1d_data1.json",
+      "raw_sha256": "e0f1428ec43bfce81abc6e3effcb429ec813f8c883be9975f2a5301d09fb48d1",
+      "samples": {
+        "first": [
+          {
+            "close": "130.55",
+            "close_time": "2020-01-02T00:00:00Z"
+          },
+          {
+            "close": "127.17",
+            "close_time": "2020-01-03T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1638.8",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1620.59",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "okx",
+      "venue_symbol": "ETH-USDT-SWAP"
+    },
+    {
+      "asset": "ETH",
+      "coverage": {
+        "expected_days": 3073,
+        "first_close": "2018-01-12T00:00:00Z",
+        "first_nonzero_volume_close": "2018-01-12T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 3073,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://www.okx.com/api/v5/market/history-candles bar=1Dutc (paginated 100/page, backward; UTC-aligned bar required)",
+      "error": null,
+      "native_rows": 3073,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/okx_eth_spot_1d_data1.json",
+      "raw_sha256": "563fca6b4ffb5ccc0e6eb47d7803c21ea011b8c86818860fbf72c37b08856b67",
+      "samples": {
+        "first": [
+          {
+            "close": "1143.53",
+            "close_time": "2018-01-12T00:00:00Z"
+          },
+          {
+            "close": "1252.43",
+            "close_time": "2018-01-13T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1639.53",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1621.38",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "okx",
+      "venue_symbol": "ETH-USDT"
+    },
+    {
+      "asset": "SOL",
+      "coverage": {
+        "expected_days": 92,
+        "first_close": "2026-03-12T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 92
+      },
+      "endpoint": "GET https://www.okx.com/api/v5/public/funding-rate-history (paginated 100/page, backward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 274,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/okx_sol_funding_data1.json",
+      "raw_sha256": "daf7022d3313ab228e96fc3434b2414ee15cb7c30111e046a8d331c68fecbfea",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2026-03-12T00:00:00Z",
+            "events": 1,
+            "funding_rate_sum": "-0.0000534101703917"
+          },
+          {
+            "close_time": "2026-03-13T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.0000136157178774"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.0000754416134298"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.0001180200592442"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "okx",
+      "venue_symbol": "SOL-USDT-SWAP"
+    },
+    {
+      "asset": "SOL",
+      "coverage": {
+        "expected_days": 1965,
+        "first_close": "2021-01-24T00:00:00Z",
+        "first_nonzero_volume_close": "2021-01-24T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 1965,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://www.okx.com/api/v5/market/history-candles bar=1Dutc (paginated 100/page, backward; UTC-aligned bar required)",
+      "error": null,
+      "native_rows": 1965,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/okx_sol_perp_1d_data1.json",
+      "raw_sha256": "708392595cbd51d3543577329bc430225433be5e62a03dbf377b44b522f9f03b",
+      "samples": {
+        "first": [
+          {
+            "close": "3.508",
+            "close_time": "2021-01-24T00:00:00Z"
+          },
+          {
+            "close": "3.632",
+            "close_time": "2021-01-25T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "64.92",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "63.16",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "okx",
+      "venue_symbol": "SOL-USDT-SWAP"
+    },
+    {
+      "asset": "SOL",
+      "coverage": {
+        "expected_days": 2079,
+        "first_close": "2020-10-02T00:00:00Z",
+        "first_nonzero_volume_close": "2020-10-02T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2079,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://www.okx.com/api/v5/market/history-candles bar=1Dutc (paginated 100/page, backward; UTC-aligned bar required)",
+      "error": null,
+      "native_rows": 2079,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/okx_sol_spot_1d_data1.json",
+      "raw_sha256": "c03972df58965c678d21735bbe9c16ac4747b3303118c56aa771536e93dcec5c",
+      "samples": {
+        "first": [
+          {
+            "close": "2.86",
+            "close_time": "2020-10-02T00:00:00Z"
+          },
+          {
+            "close": "2.61",
+            "close_time": "2020-10-03T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "64.98",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "63.19",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "okx",
+      "venue_symbol": "SOL-USDT"
+    },
+    {
+      "asset": "XRP",
+      "coverage": {
+        "expected_days": 92,
+        "first_close": "2026-03-12T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 92
+      },
+      "endpoint": "GET https://www.okx.com/api/v5/public/funding-rate-history (paginated 100/page, backward)",
+      "error": null,
+      "funding_interval_hours_declared": 8.0,
+      "funding_interval_hours_observed": 8.0,
+      "native_rows": 274,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/okx_xrp_funding_data1.json",
+      "raw_sha256": "f44c17f17c77e4701d7cd3867daefe2b20f2c30361a0f6268acfeba9a9a6e9e5",
+      "samples": {
+        "first": [
+          {
+            "close_time": "2026-03-12T00:00:00Z",
+            "events": 1,
+            "funding_rate_sum": "0.000004152575198"
+          },
+          {
+            "close_time": "2026-03-13T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-0.0001440412087056"
+          }
+        ],
+        "last": [
+          {
+            "close_time": "2026-06-10T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "-6.370227653E-7"
+          },
+          {
+            "close_time": "2026-06-11T00:00:00Z",
+            "events": 3,
+            "funding_rate_sum": "0.0002202635336363"
+          }
+        ]
+      },
+      "series": "funding",
+      "status": "ok",
+      "venue": "okx",
+      "venue_symbol": "XRP-USDT-SWAP"
+    },
+    {
+      "asset": "XRP",
+      "coverage": {
+        "expected_days": 2353,
+        "first_close": "2020-01-02T00:00:00Z",
+        "first_nonzero_volume_close": "2020-01-02T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2353,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://www.okx.com/api/v5/market/history-candles bar=1Dutc (paginated 100/page, backward; UTC-aligned bar required)",
+      "error": null,
+      "native_rows": 2353,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/okx_xrp_perp_1d_data1.json",
+      "raw_sha256": "e031e1d1930883582f6e93b82e24c3b92b36a8c72e4c05bc7a1e2690d778dc72",
+      "samples": {
+        "first": [
+          {
+            "close": "0.1931",
+            "close_time": "2020-01-02T00:00:00Z"
+          },
+          {
+            "close": "0.1871",
+            "close_time": "2020-01-03T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1.136",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1.096",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "perp_1d",
+      "status": "ok",
+      "venue": "okx",
+      "venue_symbol": "XRP-USDT-SWAP"
+    },
+    {
+      "asset": "XRP",
+      "coverage": {
+        "expected_days": 2353,
+        "first_close": "2020-01-02T00:00:00Z",
+        "first_nonzero_volume_close": "2020-01-02T00:00:00Z",
+        "last_close": "2026-06-11T00:00:00Z",
+        "missing_internal_days": 0,
+        "rows": 2353,
+        "zero_volume_rows": 0
+      },
+      "endpoint": "GET https://www.okx.com/api/v5/market/history-candles bar=1Dutc (paginated 100/page, backward; UTC-aligned bar required)",
+      "error": null,
+      "native_rows": 2353,
+      "note": "",
+      "raw_path": "/tmp/money-flow-data1/raw_series/okx_xrp_spot_1d_data1.json",
+      "raw_sha256": "d48590f4ae568dd379d608f9f9b72f84e22476f705c1940b59a4e866b7ff7e22",
+      "samples": {
+        "first": [
+          {
+            "close": "0.1929",
+            "close_time": "2020-01-02T00:00:00Z"
+          },
+          {
+            "close": "0.1875",
+            "close_time": "2020-01-03T00:00:00Z"
+          }
+        ],
+        "last": [
+          {
+            "close": "1.1374",
+            "close_time": "2026-06-10T00:00:00Z"
+          },
+          {
+            "close": "1.097",
+            "close_time": "2026-06-11T00:00:00Z"
+          }
+        ]
+      },
+      "series": "spot_1d",
+      "status": "ok",
+      "venue": "okx",
+      "venue_symbol": "XRP-USDT"
+    }
+  ],
+  "snapshot_dir": "/tmp/money-flow-data1/raw_series",
+  "universe": {
+    "assets": [
+      "BTC",
+      "ETH",
+      "SOL",
+      "XRP",
+      "DOGE",
+      "BNB",
+      "AVAX"
+    ],
+    "venues": [
+      "hyperliquid",
+      "binance",
+      "bybit",
+      "okx",
+      "coinbase",
+      "kraken"
+    ]
+  },
+  "window": {
+    "candles_start_floor_utc": "2015-01-01T00:00:00Z",
+    "end_rule": "last fully closed UTC day at fetch time; in-progress rows always dropped",
+    "end_utc": "2026-06-11T00:00:00Z",
+    "funding_start_floor_utc": "2019-01-01T00:00:00Z"
+  }
+}

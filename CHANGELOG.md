@@ -17,6 +17,35 @@ Entry schema:
 
 ---
 
+## v2026.06.12.002
+
+- `recorded_at_utc`: `2026-06-12T02:30:00Z`
+- `scope`: `DATA1 multi-venue market & funding data foundation`
+- `intent`: `Data ingestion only — public read-only endpoints, no keys, no private/signed/order endpoints, no strategy logic, no runtime change. Fixes the HL-only data limitation every prior phase carried: builds the multi-venue base (perp funding history, perp daily candles, spot daily candles) for BTC ETH SOL XRP DOGE BNB AVAX across hyperliquid/binance/bybit/okx/coinbase/kraken at the longest history each PUBLIC API allows, so the next funding test is venue-fair (FUND-VENUES1 unblocked) and trend/regime re-tests get >1 OOS cycle (Coinbase BTC spot from 2015-07, ~3979 daily candles, vs the 889-candle HL window). services/market_data/data1_multi_venue.py: venue x asset x series catalog with explicit venue_lacks_market gaps (25 cells: Coinbase has no public perp/funding market data + no BNB; OKX/Kraken list no BNB; HL spot only BTC/ETH/SOL), paginated fetchers over an injected transport hard-restricted to a public-endpoint allowlist, strict normalizers (midnight-UTC daily guard — the probe-caught OKX UTC+8 default bar is fetched as 1Dutc and anything non-midnight is REFUSED, not mis-aligned), FUND-EV1-convention daily funding aggregation with exact Decimal sums + per-day event counts (1h HL/KrakenF vs 8h Binance/Bybit/OKX recorded declared AND observed, summed never rescaled; partial days reported never filled), union-calendar alignment with explicit None holes (no forward-fill/interpolation/truncation — the real Coinbase XRP 904-day delisting hole survives visibly), zero-volume backfill accounting (HL serves ~900+ pre-launch zero-volume perp candles per asset; counted via coverage.zero_volume_rows/first_nonzero_volume_close so backfill is never mistaken for market history), and the load_data1_dataset loader (sha256 verification raises on tamper; missing artifacts surface as artifact_missing_rerun_fetch_script, never fabricated; coverage flags + as-of on every series). scripts/fetch_data1_multi_venue_snapshot.py: one-shot resumable snapshot (101/101 expected series fetched OK 2026-06-11; raw 57MB native payloads stay ignored under /tmp/money-flow-data1/raw_series/), committed provenance docs/data1_multi_venue_snapshot_summary.json (endpoints, cited rate limits, funding intervals, coverage, gap report, sha256 per artifact, audit samples). Honest venue limits recorded: OKX public funding history is only a trailing ~3-month window; Kraken Futures funding ~1y; Kraken spot OHLC capped at last 720 candles. 20 deterministic offline tests wired into the blocking CI lane + an env-gated live smoke (DATA1_LIVE_SMOKE=1, skipped in CI). Research Log authored context (data_prep). Oldest changelog entry (v2026.06.08.007) rotated verbatim into CHANGELOG_ARCHIVE.md per DOC-LEAN1.`
+- `affected_files`:
+  - `services/market_data/data1_multi_venue.py`
+  - `scripts/fetch_data1_multi_venue_snapshot.py`
+  - `docs/data1_multi_venue_data_foundation.md`
+  - `docs/data1_multi_venue_snapshot_summary.json`
+  - `docs/research_log.json`
+  - `tests/test_data1_multi_venue.py`
+  - `tests/test_data1_live_smoke.py`
+  - `.github/workflows/ci.yml`
+  - `CHANGELOG.md`
+  - `CHANGELOG_ARCHIVE.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `KNOWN_ISSUES.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/fetch_data1_multi_venue_snapshot.py` (live public fetch; 101 series ok, 25 venue gaps recorded, 0 fetch failures)
+  - `.venv/bin/python -m pytest -q tests/test_data1_multi_venue.py`
+  - `.venv/bin/python scripts/build_research_log.py && .venv/bin/python scripts/build_research_log.py --check`
+  - `.venv/bin/python -m pytest -q tests/test_rlog1_research_log.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_secret_hygiene.py tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py`
+
 ## v2026.06.12.001
 
 - `recorded_at_utc`: `2026-06-12T01:45:00Z`
@@ -706,32 +735,3 @@ Entry schema:
   - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
   - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
   - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
-
-## v2026.06.08.007
-
-- `recorded_at_utc`: `2026-06-08T08:28:04Z`
-- `scope`: `PT-RT1.6.2 Week 2 operating review and risk triage`
-- `intent`: `Native entry. Added a committed Week 2 operating review over the active ignored pt_rt1_6_week2_active runtime logs. The review verifies the active three-lane slate, 1h/4h/1d-only decisions, 0 active 15m rows, closed-candle-only decision rows, open-position MTM availability, synthetic closed-trade counts from trades.jsonl, baseline-only testnet lifecycle triggers, 0 candidate-lane testnet rows, 0 unknown/open testnet state, 0 testnet PnL updates, and the current Daily Review status observation_may_continue. This is reporting/review only: no runtime behavior changed, no runtime was started or stopped, no manual orders were submitted, no live trading was approved, no strategy was production-approved, and candidate/MF-ORIG lanes remain synthetic-only.`
-- `affected_files`:
-  - `CHANGELOG.md`
-  - `REPO_TREE.md`
-  - `TODO.md`
-  - `docs/pt_rt1_6_2_week2_operating_review.md`
-  - `docs/pt_rt1_6_2_week2_operating_review_summary.json`
-  - `tests/test_pt_rt1_6_2_operating_review.py`
-  - `money-flow/01_Current_Phase.md`
-  - `money-flow/05_Agent_Coordination.md`
-  - `money-flow/Project_Memory/money_flow_project_memory.md`
-- `validation_performed`:
-  - `.venv/bin/python scripts/watch_pt_rt1_runtime.py --status`
-  - `.venv/bin/python scripts/build_pt_rt_week2_daily_review.py --status --scope pt_rt1_6_week2_active`
-  - `.venv/bin/python scripts/build_pt_rt_week2_daily_review.py --generate --scope pt_rt1_6_week2_active`
-  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_6_2_operating_review.py`
-  - `node --check apps/dashboard/evidence-dashboard.js`
-  - `.venv/bin/python -m compileall core services apps tests scripts`
-  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
-  - `.venv/bin/python -m pytest -q tests/test_obs_os1_daily_review.py`
-  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
-  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
-  - `git diff --check`
-

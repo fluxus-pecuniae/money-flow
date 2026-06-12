@@ -135,6 +135,14 @@ jobs:
       - name: TREND-SUITE1 canonical trend suite evidence model
         run: python -m pytest -q tests/test_trend_suite1_evidence.py
 
+      # DATA1 multi-venue data foundation: catalog gap honesty, per-venue
+      # normalizers (incl. the OKX 1Dutc midnight-UTC guard), funding-interval
+      # handling + FUND-EV1 daily aggregation, union alignment with explicit
+      # holes (no fill/truncation), pagination, artifact sha256 round trip,
+      # committed-summary reconciliation (offline; live smoke is env-gated off)
+      - name: DATA1 multi-venue data foundation
+        run: python -m pytest -q tests/test_data1_multi_venue.py
+
       # Lint (ruff) — scoped to CI-SAFE1 authored modules; pre-existing debt tracked in KNOWN_ISSUES
       - name: Lint (ruff — safety modules)
         run: |
