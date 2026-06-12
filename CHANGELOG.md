@@ -17,6 +17,36 @@ Entry schema:
 
 ---
 
+## v2026.06.12.003
+
+- `recorded_at_utc`: `2026-06-12T05:15:00Z`
+- `scope`: `FUND-VENUES1 funding carry on deep venues with leverage`
+- `intent`: `Research/evidence only; no runtime, strategy-rule, order, testnet, live, or production-approval change. The structural re-open FUND-EV2/FUND-SCALE1 sanctioned: the same delta-neutral funding-carry hypothesis on venues with materially different cited fee schedules and 6-7 years of DATA1 funding history — Binance perp+spot and Bybit perp+spot carry the verdict (cross-venue Binance perp + Coinbase spot is the variant), with gross leverage {1x,3x,5x} as an explicitly modeled variable. New additive margin_model seam on the FUND-EV1 simulator (default None byte-identical, pinned by the 41 existing FUND tests): borrow interest on the real cash shortfall (documented 0.02%/day, swept with every cost term) and an account-level intraday liquidation check marking every leg at its worst same-day extreme; liquidation force-closes the book at stressed prices through the cited cost model. Fees cited (Binance VIP0 perp 2/5 spot 10/10 bps; Bybit non-VIP 2/5.5, 10/10; OKX Lv1 cited for the record; Coinbase 60 bps taker for the variant) at the tier a 10k account's OWN flow earns (FUND-SCALE1 rule); the gateable verdict prices taker fills only — maker is a non-gateable ceiling; the venue-fair window is enforced from DATA1 coverage (OKX ~92d / Kraken ~366d / HL 1126d funding excluded with recorded reasons, K-036). Gate v3 = FUND-EV2 full bar + every-OOS-regime positivity + zero liquidation events. VERDICT: honest FAIL in ALL NINE (construction x leverage) cells — carry_does_not_survive_realistic_costs_and_tail_oos. The texture is the finding: (1) deep venues DID fix the cost half of the HL fail — binance_single 1x has OOS net +179 (Sharpe 3.5, maxDD 0.08%), every fold/leave-one-out/OOS-regime/cycle-segment positive, cost breakpoint 5.0x cited costs (vs HL FUND-EV2 0.75x), zero liquidations — and fails ONLY the pre-committed legged-execution tail stress (9.68% vs 8% limit), with OOS capture economically thin (~0.76%/yr at 1x); (2) leverage, the hoped-for capture multiplier, is CATASTROPHIC, not thin: at 3x the 2021 alt-mania liquidates the book 4 times and wipes the account (full net -9999.82 = -100%), at 5x equity goes negative (-10788); even calm-window Bybit liquidates once at 5x with stressed DD ~90%; (3) discrete rebalancing means a nominal 1x book transiently needs ~58% of equity in financing during violent rallies (max_borrowed 5816 at 1x; the margin model priced it). Adversarial-review trigger (required before believing any POSITIVE verdict) did not fire — no cell passed; the near-miss was not softened and its positive components are attacked in the deterministic tests + report. strategy_types gains the fund_venues1_ prefix on the same funding_carry route/gate. 17 deterministic offline tests wired into blocking CI. Research Log authored fail; aggregator --check green. Oldest changelog entry (v2026.06.08.008) rotated verbatim into CHANGELOG_ARCHIVE.md per DOC-LEAN1.`
+- `affected_files`:
+  - `services/strategy_validation/fund_venues1.py`
+  - `services/strategy_validation/fund_ev1.py`
+  - `services/strategy_validation/strategy_types.py`
+  - `scripts/run_fund_venues1_evidence.py`
+  - `docs/fund_venues1_deep_venue_leverage_carry_evidence.md`
+  - `docs/fund_venues1_deep_venue_leverage_carry_evidence_summary.json`
+  - `docs/research_log.json`
+  - `tests/test_fund_venues1_evidence.py`
+  - `.github/workflows/ci.yml`
+  - `CHANGELOG.md`
+  - `CHANGELOG_ARCHIVE.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `.venv/bin/python scripts/run_fund_venues1_evidence.py`
+  - `.venv/bin/python -m pytest -q tests/test_fund_venues1_evidence.py`
+  - `.venv/bin/python -m pytest -q tests/test_fund_ev1_evidence.py tests/test_fund_ev2_evidence.py tests/test_fund_scale1_evidence.py tests/test_tsmom_ev1_evidence.py tests/test_sel_ev1_selection_evidence.py tests/test_trend_suite1_evidence.py tests/test_trend_overlay1.py tests/test_exec_ev1_execution_quality.py`
+  - `.venv/bin/python scripts/build_research_log.py && .venv/bin/python scripts/build_research_log.py --check`
+  - `.venv/bin/python -m pytest -q tests/test_rlog1_research_log.py tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_secret_hygiene.py tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py`
+
 ## v2026.06.12.002
 
 - `recorded_at_utc`: `2026-06-12T02:30:00Z`
@@ -704,34 +734,3 @@ Entry schema:
   - `.venv/bin/python -m py_compile scripts/run_sv22_hyperliquid_research_refresh.py`
   - `.venv/bin/python -m pytest -q tests/test_sv22_research_refresh.py`
   - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
-
-## v2026.06.08.008
-
-- `recorded_at_utc`: `2026-06-08T09:08:40Z`
-- `scope`: `PT-RT1.6.3 Testnet metadata resolver hotfix and XRP transport smoke plan`
-- `intent`: `Native entry. Added a narrow Hyperliquid testnet metadata resolver hotfix for the currently blocked baseline transport symbols XRP/LINK/DOT/LTC/UNI/TRX/ZEC and prepared a PT-RT1.6.3 XRP-targeted transport-only smoke path. The smoke requires exact PT-RT1.6.3 approval, targets XRP only, uses fixed 25 USDC notional, creates no synthetic trade, does not update synthetic PnL, and fails closed before /exchange if XRP metadata or size preflight is unavailable. The active Week 2 pt_rt1_6_week2_active process was not restarted, stopped, or mutated; the hotfix applies to the next process start or the separately scoped smoke after the current 24h window. Candidate/MF-ORIG lanes remain synthetic-only, public mainnet candles remain strategy truth, no live trading was approved, and no strategy was production-approved.`
-- `affected_files`:
-  - `CHANGELOG.md`
-  - `KNOWN_ISSUES.md`
-  - `README.md`
-  - `REPO_TREE.md`
-  - `TODO.md`
-  - `docs/pt_rt1_6_3_testnet_metadata_resolver_hotfix.md`
-  - `docs/pt_rt1_6_3_testnet_metadata_resolver_hotfix_summary.json`
-  - `scripts/run_pt_rt1_paper_observation.py`
-  - `services/paper_runtime/pt_rt1.py`
-  - `tests/test_pt_rt1_6_3_testnet_metadata_resolver.py`
-  - `money-flow/00_Money_Flow_Command_Center.md`
-  - `money-flow/01_Current_Phase.md`
-  - `money-flow/05_Agent_Coordination.md`
-  - `money-flow/Project_Memory/money_flow_project_memory.md`
-- `validation_performed`:
-  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_6_3_testnet_metadata_resolver.py`
-  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_5_3_size_precision_hotfix.py`
-  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_paper_observation.py`
-  - `.venv/bin/python -m pytest -q tests/test_dashboard_control_server.py`
-  - `node --check apps/dashboard/evidence-dashboard.js`
-  - `.venv/bin/python -m compileall core services apps tests scripts`
-  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
-  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
-  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`

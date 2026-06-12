@@ -1,0 +1,5381 @@
+{
+  "account_size_usdc": "10000",
+  "adversarial_review": {
+    "log": "not_required_no_positive_verdict",
+    "required_before_belief": false
+  },
+  "any_cell_passed": false,
+  "benchmarks": {
+    "always_on_binance_cross_coinbase_lev1": {
+      "full_stats": {
+        "days": 1715,
+        "max_drawdown_pct": "3.74167119",
+        "sharpe_annual": "1.20571603",
+        "total_return_pct": "6.87474950",
+        "vol_annual": "0.01180128"
+      },
+      "funding_collected_total": "1357.22237983",
+      "net_pnl": "687.47494970"
+    },
+    "always_on_binance_single_lev1": {
+      "full_stats": {
+        "days": 2087,
+        "max_drawdown_pct": "3.25168413",
+        "sharpe_annual": "3.85727899",
+        "total_return_pct": "33.68442042",
+        "vol_annual": "0.01319276"
+      },
+      "funding_collected_total": "3507.61716281",
+      "net_pnl": "3368.44204185"
+    },
+    "always_on_bybit_single_lev1": {
+      "full_stats": {
+        "days": 1554,
+        "max_drawdown_pct": "3.21771712",
+        "sharpe_annual": "2.46686497",
+        "total_return_pct": "10.49223487",
+        "vol_annual": "0.00952480"
+      },
+      "funding_collected_total": "1149.80369129",
+      "net_pnl": "1049.22348742"
+    },
+    "cash": {
+      "max_drawdown_pct": "0",
+      "net_pnl": "0"
+    },
+    "hl_fund_ev2_committed_reference": {
+      "cost_breakpoint_scale": "0.75",
+      "note": "the HL-only answer this phase re-tests on deep venues",
+      "oos_net_carry": "-6.52404520",
+      "verdict": "carry_does_not_survive_realistic_costs_and_tail_oos"
+    }
+  },
+  "boundaries": {
+    "approves_live_trading": false,
+    "approves_production_strategy": false,
+    "borrow_rate_documented_assumption_swept": true,
+    "calls_private_signed_or_order_endpoints": false,
+    "changes_per_symbol_lane_behavior_or_results": false,
+    "changes_production_money_flow_rules": false,
+    "changes_selection_lane_behavior_or_results": false,
+    "changes_tsmom_lane_behavior_or_results": false,
+    "cost_sensitivity_sweep_reported": true,
+    "costs_cited_not_tuned_to_verdict": true,
+    "creates_order_intent": false,
+    "creates_prepared_venue_order": false,
+    "creates_submitted_order": false,
+    "cross_venue_legging_modeled_at_daily_resolution": true,
+    "daily_funding_accrual_approximation": true,
+    "funding_modeled_from_public_history": true,
+    "l2book_calibration_point_in_time_not_history": true,
+    "leverage_financing_and_liquidation_modeled": true,
+    "liquidation_mechanics_not_modeled": true,
+    "maker_fills_reported_as_non_gateable_bound_only": true,
+    "modeled_depth_not_real": true,
+    "mutates_active_pt_rt_runtime": false,
+    "mutates_runtime_artifacts": false,
+    "no_per_venue_l2_calibration_spreads_modeled_with_headroom_swept": true,
+    "research_only": true,
+    "spot_borrow_not_modeled_flip_rows_upper_bound": true,
+    "submits_live_orders": false,
+    "submits_testnet_orders": false,
+    "uses_testnet_data_as_strategy_truth": false,
+    "venue_fair_window_enforced_from_data1_coverage": true
+  },
+  "cells": {
+    "binance_cross_coinbase|lev1": {
+      "aligned_days": 1715,
+      "aligned_window": [
+        "2021-10-01 00:00:00+00:00",
+        "2026-06-11 00:00:00+00:00"
+      ],
+      "construction": "binance_cross_coinbase",
+      "cost_sensitivity_sweep": [
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "1292.39545282",
+          "liquidation_count": 0,
+          "oos_net_pnl": "52.24669086",
+          "scale": "0.25",
+          "trade_count": 150
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "466.75161316",
+          "liquidation_count": 0,
+          "oos_net_pnl": "19.39755134",
+          "scale": "0.5",
+          "trade_count": 98
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "358.92470614",
+          "liquidation_count": 0,
+          "oos_net_pnl": "2.67091296",
+          "scale": "0.75",
+          "trade_count": 90
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "248.29655565",
+          "liquidation_count": 0,
+          "oos_net_pnl": "-13.84182304",
+          "scale": "1.0",
+          "trade_count": 78
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "110.21604087",
+          "liquidation_count": 0,
+          "oos_net_pnl": "-29.00610871",
+          "scale": "1.25",
+          "trade_count": 50
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "-2.55653388",
+          "liquidation_count": 0,
+          "oos_net_pnl": "0E-8",
+          "scale": "1.5",
+          "trade_count": 8
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "0E-8",
+          "liquidation_count": 0,
+          "oos_net_pnl": "0E-8",
+          "scale": "2.0",
+          "trade_count": 0
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "0E-8",
+          "liquidation_count": 0,
+          "oos_net_pnl": "0E-8",
+          "scale": "3.0",
+          "trade_count": 0
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "0E-8",
+          "liquidation_count": 0,
+          "oos_net_pnl": "0E-8",
+          "scale": "5.0",
+          "trade_count": 0
+        }
+      ],
+      "funding_carry_gate": {
+        "cost_sensitivity": {
+          "breakpoint_scale_where_oos_edge_dies": "1.0",
+          "fragility_threshold_scale": "1.5",
+          "realistic_scale": "1.0",
+          "sweep": [
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "1292.39545282",
+              "liquidation_count": 0,
+              "oos_net_pnl": "52.24669086",
+              "scale": "0.25",
+              "trade_count": 150
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "466.75161316",
+              "liquidation_count": 0,
+              "oos_net_pnl": "19.39755134",
+              "scale": "0.5",
+              "trade_count": 98
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "358.92470614",
+              "liquidation_count": 0,
+              "oos_net_pnl": "2.67091296",
+              "scale": "0.75",
+              "trade_count": 90
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "248.29655565",
+              "liquidation_count": 0,
+              "oos_net_pnl": "-13.84182304",
+              "scale": "1.0",
+              "trade_count": 78
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "110.21604087",
+              "liquidation_count": 0,
+              "oos_net_pnl": "-29.00610871",
+              "scale": "1.25",
+              "trade_count": 50
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "-2.55653388",
+              "liquidation_count": 0,
+              "oos_net_pnl": "0E-8",
+              "scale": "1.5",
+              "trade_count": 8
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "0E-8",
+              "liquidation_count": 0,
+              "oos_net_pnl": "0E-8",
+              "scale": "2.0",
+              "trade_count": 0
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "0E-8",
+              "liquidation_count": 0,
+              "oos_net_pnl": "0E-8",
+              "scale": "3.0",
+              "trade_count": 0
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "0E-8",
+              "liquidation_count": 0,
+              "oos_net_pnl": "0E-8",
+              "scale": "5.0",
+              "trade_count": 0
+            }
+          ]
+        },
+        "gate_id": "funding_carry_net_oos_tail_gate",
+        "leave_one_out_oos_net": {
+          "AVAX": "0E-8",
+          "BTC": "-13.84182304",
+          "DOGE": "-3.14335967",
+          "ETH": "-24.05250311",
+          "SOL": "-3.01222770"
+        },
+        "leverage_gross": "1",
+        "liquidation_count_oos": 0,
+        "liquidation_count_stressed": 0,
+        "max_oos_drawdown_pct_limit": "5",
+        "max_stressed_drawdown_pct_limit": "8",
+        "min_oos_days_required": 90,
+        "min_regime_days_for_gate": 30,
+        "non_bull_net_pnl": "29.24481147",
+        "oos_net_pnl": "-13.84182304",
+        "oos_regime_pnls": {
+          "bear": {
+            "days": 229,
+            "net_pnl": "-3.19060286"
+          },
+          "bull": {
+            "days": 159,
+            "net_pnl": "15.80863047"
+          },
+          "neutral": {
+            "days": 126,
+            "net_pnl": "-26.45985065"
+          }
+        },
+        "oos_strategy": {
+          "days": 515,
+          "max_drawdown_pct": "0.28758511",
+          "sharpe_annual": "-0.45169844",
+          "total_return_pct": "-0.13488244",
+          "vol_annual": "0.00211696"
+        },
+        "passed": false,
+        "qualifiers": [],
+        "reason_codes": [
+          "oos_net_carry_not_positive_after_costs",
+          "leave_one_out_breaks_oos_net_carry",
+          "oos_regime_bear_net_carry_not_positive",
+          "oos_regime_neutral_net_carry_not_positive"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 584,
+            "net_pnl": "-32.89266655"
+          },
+          "bull": {
+            "days": 674,
+            "net_pnl": "219.05174417"
+          },
+          "neutral": {
+            "days": 456,
+            "net_pnl": "62.13747802"
+          }
+        },
+        "status": "carry_does_not_survive_realistic_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": "0E-8",
+        "walk_forward_net_pnls": [
+          "161.82602617",
+          "42.90293216"
+        ]
+      },
+      "grid_rows": [
+        {
+          "borrow_cost_total": "0E-8",
+          "config_id": "fund_venues1_binance_cross_coinbase_lev1_cad14_top2_1d",
+          "construction": "binance_cross_coinbase",
+          "fees_total": "0E-8",
+          "funding_collected_total": "0E-8",
+          "leverage_gross": "1",
+          "liquidation_count": 0,
+          "max_borrowed": "0E-8",
+          "max_residual_delta_fraction": "0E-8",
+          "net_pnl": "0E-8",
+          "oos_net_pnl": "0E-8",
+          "oos_stats": {
+            "days": 515,
+            "max_drawdown_pct": "0E-8",
+            "sharpe_annual": null,
+            "total_return_pct": "0E-8",
+            "vol_annual": "0E-8"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "0E-8",
+            "BTC": "0E-8",
+            "DOGE": "0E-8",
+            "ETH": "0E-8",
+            "SOL": "0E-8"
+          },
+          "rebalance_interval_days": 14,
+          "top_k": 2,
+          "trade_count": 0,
+          "train_stats": {
+            "days": 1200,
+            "max_drawdown_pct": "0E-8",
+            "sharpe_annual": null,
+            "total_return_pct": "0E-8",
+            "vol_annual": "0E-8"
+          }
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "config_id": "fund_venues1_binance_cross_coinbase_lev1_cad14_top4_1d",
+          "construction": "binance_cross_coinbase",
+          "fees_total": "0E-8",
+          "funding_collected_total": "0E-8",
+          "leverage_gross": "1",
+          "liquidation_count": 0,
+          "max_borrowed": "0E-8",
+          "max_residual_delta_fraction": "0E-8",
+          "net_pnl": "0E-8",
+          "oos_net_pnl": "0E-8",
+          "oos_stats": {
+            "days": 515,
+            "max_drawdown_pct": "0E-8",
+            "sharpe_annual": null,
+            "total_return_pct": "0E-8",
+            "vol_annual": "0E-8"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "0E-8",
+            "BTC": "0E-8",
+            "DOGE": "0E-8",
+            "ETH": "0E-8",
+            "SOL": "0E-8"
+          },
+          "rebalance_interval_days": 14,
+          "top_k": 4,
+          "trade_count": 0,
+          "train_stats": {
+            "days": 1200,
+            "max_drawdown_pct": "0E-8",
+            "sharpe_annual": null,
+            "total_return_pct": "0E-8",
+            "vol_annual": "0E-8"
+          }
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "config_id": "fund_venues1_binance_cross_coinbase_lev1_cad28_top2_1d",
+          "construction": "binance_cross_coinbase",
+          "fees_total": "225.64425056",
+          "funding_collected_total": "456.17194724",
+          "leverage_gross": "1",
+          "liquidation_count": 0,
+          "max_borrowed": "0E-8",
+          "max_residual_delta_fraction": "0.00162048",
+          "net_pnl": "217.81208087",
+          "oos_net_pnl": "-21.16290400",
+          "oos_stats": {
+            "days": 515,
+            "max_drawdown_pct": "0.22989771",
+            "sharpe_annual": "-0.75583055",
+            "total_return_pct": "-0.20668967",
+            "vol_annual": "0.00194140"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "33.94593044",
+            "BTC": "0E-8",
+            "DOGE": "183.86615043",
+            "ETH": "0E-8",
+            "SOL": "0E-8"
+          },
+          "rebalance_interval_days": 28,
+          "top_k": 2,
+          "trade_count": 48,
+          "train_stats": {
+            "days": 1200,
+            "max_drawdown_pct": "0.59068762",
+            "sharpe_annual": "1.47755784",
+            "total_return_pct": "2.39733366",
+            "vol_annual": "0.00488908"
+          }
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "config_id": "fund_venues1_binance_cross_coinbase_lev1_cad28_top4_1d",
+          "construction": "binance_cross_coinbase",
+          "fees_total": "233.95199323",
+          "funding_collected_total": "492.02713198",
+          "leverage_gross": "1",
+          "liquidation_count": 0,
+          "max_borrowed": "0E-8",
+          "max_residual_delta_fraction": "0.00117367",
+          "net_pnl": "248.29655565",
+          "oos_net_pnl": "-13.84182304",
+          "oos_stats": {
+            "days": 515,
+            "max_drawdown_pct": "0.28758511",
+            "sharpe_annual": "-0.45169844",
+            "total_return_pct": "-0.13488244",
+            "vol_annual": "0.00211696"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "13.38180339",
+            "BTC": "0E-8",
+            "DOGE": "88.49806135",
+            "ETH": "93.87802508",
+            "SOL": "52.53866583"
+          },
+          "rebalance_interval_days": 28,
+          "top_k": 4,
+          "trade_count": 78,
+          "train_stats": {
+            "days": 1200,
+            "max_drawdown_pct": "0.51152462",
+            "sharpe_annual": "1.87368235",
+            "total_return_pct": "2.62555533",
+            "vol_annual": "0.00421554"
+          }
+        }
+      ],
+      "headline": {
+        "borrow_cost_total": "0E-8",
+        "fees_total": "233.95199323",
+        "full_net_pnl": "248.29655565",
+        "funding_collected_total": "492.02713198",
+        "gross_zero_cost_net": "1658.82373189",
+        "liquidation_count_full": 0,
+        "liquidation_count_oos": 0,
+        "maker_ceiling_net_non_gateable": "375.71362614",
+        "maker_ceiling_oos_net_non_gateable": "1.20823115",
+        "max_borrowed": "0E-8",
+        "oos_net_carry": "-13.84182304",
+        "oos_stats": {
+          "days": 515,
+          "max_drawdown_pct": "0.28758511",
+          "sharpe_annual": "-0.45169844",
+          "total_return_pct": "-0.13488244",
+          "vol_annual": "0.00211696"
+        },
+        "train_stats": {
+          "days": 1200,
+          "max_drawdown_pct": "0.51152462",
+          "sharpe_annual": "1.87368235",
+          "total_return_pct": "2.62555533",
+          "vol_annual": "0.00421554"
+        }
+      },
+      "leave_one_out": {
+        "AVAX": {
+          "liquidation_count": 0,
+          "oos_net_carry": "0E-8"
+        },
+        "BTC": {
+          "liquidation_count": 0,
+          "oos_net_carry": "-13.84182304"
+        },
+        "DOGE": {
+          "liquidation_count": 0,
+          "oos_net_carry": "-3.14335967"
+        },
+        "ETH": {
+          "liquidation_count": 0,
+          "oos_net_carry": "-24.05250311"
+        },
+        "SOL": {
+          "liquidation_count": 0,
+          "oos_net_carry": "-3.01222770"
+        }
+      },
+      "leverage_gross": "1",
+      "regimes": {
+        "cycle_segments": {
+          "2020_2021_bull": {
+            "days": 93,
+            "net_pnl": "19.63544064"
+          },
+          "2022_bear": {
+            "days": 365,
+            "net_pnl": "-6.78640875"
+          },
+          "2023_2024_recovery": {
+            "days": 731,
+            "net_pnl": "234.52093479"
+          },
+          "2025_2026_current": {
+            "days": 526,
+            "net_pnl": "-0.18785754"
+          }
+        },
+        "full_window": {
+          "bear": {
+            "days": 584,
+            "net_pnl": "-32.89266655"
+          },
+          "bull": {
+            "days": 674,
+            "net_pnl": "219.05174417"
+          },
+          "neutral": {
+            "days": 456,
+            "net_pnl": "62.13747802"
+          }
+        },
+        "oos_window": {
+          "bear": {
+            "days": 229,
+            "net_pnl": "-3.19060286"
+          },
+          "bull": {
+            "days": 159,
+            "net_pnl": "15.80863047"
+          },
+          "neutral": {
+            "days": 126,
+            "net_pnl": "-26.45985065"
+          }
+        }
+      },
+      "split_time": "2025-01-12 00:00:00+00:00",
+      "tail_stress": {
+        "borrow_cost_total": "0E-8",
+        "cost_scale": "2.0",
+        "liquidation_count": 0,
+        "max_drawdown_pct": "0E-8",
+        "max_residual_delta_fraction": "0E-8",
+        "net_pnl": "0E-8",
+        "spot_leg_lag_days": 1,
+        "stressed_config": "fund_venues1_binance_cross_coinbase_lev1_cad28_top4_1d_stressed_scale2_leglag1"
+      },
+      "train_only_choice": {
+        "chosen_config": "fund_venues1_binance_cross_coinbase_lev1_cad28_top4_1d",
+        "criterion": "best train-window Sharpe at cited taker costs (scale 1.0)"
+      },
+      "walk_forward": {
+        "fold_b": {
+          "chosen_config": "fund_venues1_binance_cross_coinbase_lev1_cad28_top2_1d",
+          "net_carry": "161.82602617",
+          "window": [
+            "2023-04-25 00:00:00+00:00",
+            "2024-11-17 00:00:00+00:00"
+          ]
+        },
+        "fold_c": {
+          "chosen_config": "fund_venues1_binance_cross_coinbase_lev1_cad28_top4_1d",
+          "net_carry": "42.90293216",
+          "window": [
+            "2024-11-17 00:00:00+00:00",
+            "end"
+          ]
+        }
+      }
+    },
+    "binance_cross_coinbase|lev3": {
+      "aligned_days": 1715,
+      "aligned_window": [
+        "2021-10-01 00:00:00+00:00",
+        "2026-06-11 00:00:00+00:00"
+      ],
+      "construction": "binance_cross_coinbase",
+      "cost_sensitivity_sweep": [
+        {
+          "borrow_cost_total": "297.08431272",
+          "full_net_pnl": "4418.73519755",
+          "liquidation_count": 0,
+          "oos_net_pnl": "253.28128809",
+          "scale": "0.25",
+          "trade_count": 246
+        },
+        {
+          "borrow_cost_total": "231.59308992",
+          "full_net_pnl": "2022.68181887",
+          "liquidation_count": 0,
+          "oos_net_pnl": "86.27997649",
+          "scale": "0.5",
+          "trade_count": 161
+        },
+        {
+          "borrow_cost_total": "330.43888339",
+          "full_net_pnl": "949.30547311",
+          "liquidation_count": 0,
+          "oos_net_pnl": "34.85131740",
+          "scale": "0.75",
+          "trade_count": 138
+        },
+        {
+          "borrow_cost_total": "276.48342947",
+          "full_net_pnl": "646.43749730",
+          "liquidation_count": 0,
+          "oos_net_pnl": "-8.43026785",
+          "scale": "1.0",
+          "trade_count": 114
+        },
+        {
+          "borrow_cost_total": "342.19146948",
+          "full_net_pnl": "368.29886006",
+          "liquidation_count": 0,
+          "oos_net_pnl": "-49.89500648",
+          "scale": "1.25",
+          "trade_count": 104
+        },
+        {
+          "borrow_cost_total": "113.20536765",
+          "full_net_pnl": "157.72075743",
+          "liquidation_count": 0,
+          "oos_net_pnl": "-96.60607601",
+          "scale": "1.5",
+          "trade_count": 56
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "0E-8",
+          "liquidation_count": 0,
+          "oos_net_pnl": "0E-8",
+          "scale": "2.0",
+          "trade_count": 0
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "0E-8",
+          "liquidation_count": 0,
+          "oos_net_pnl": "0E-8",
+          "scale": "3.0",
+          "trade_count": 0
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "0E-8",
+          "liquidation_count": 0,
+          "oos_net_pnl": "0E-8",
+          "scale": "5.0",
+          "trade_count": 0
+        }
+      ],
+      "funding_carry_gate": {
+        "cost_sensitivity": {
+          "breakpoint_scale_where_oos_edge_dies": "1.0",
+          "fragility_threshold_scale": "1.5",
+          "realistic_scale": "1.0",
+          "sweep": [
+            {
+              "borrow_cost_total": "297.08431272",
+              "full_net_pnl": "4418.73519755",
+              "liquidation_count": 0,
+              "oos_net_pnl": "253.28128809",
+              "scale": "0.25",
+              "trade_count": 246
+            },
+            {
+              "borrow_cost_total": "231.59308992",
+              "full_net_pnl": "2022.68181887",
+              "liquidation_count": 0,
+              "oos_net_pnl": "86.27997649",
+              "scale": "0.5",
+              "trade_count": 161
+            },
+            {
+              "borrow_cost_total": "330.43888339",
+              "full_net_pnl": "949.30547311",
+              "liquidation_count": 0,
+              "oos_net_pnl": "34.85131740",
+              "scale": "0.75",
+              "trade_count": 138
+            },
+            {
+              "borrow_cost_total": "276.48342947",
+              "full_net_pnl": "646.43749730",
+              "liquidation_count": 0,
+              "oos_net_pnl": "-8.43026785",
+              "scale": "1.0",
+              "trade_count": 114
+            },
+            {
+              "borrow_cost_total": "342.19146948",
+              "full_net_pnl": "368.29886006",
+              "liquidation_count": 0,
+              "oos_net_pnl": "-49.89500648",
+              "scale": "1.25",
+              "trade_count": 104
+            },
+            {
+              "borrow_cost_total": "113.20536765",
+              "full_net_pnl": "157.72075743",
+              "liquidation_count": 0,
+              "oos_net_pnl": "-96.60607601",
+              "scale": "1.5",
+              "trade_count": 56
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "0E-8",
+              "liquidation_count": 0,
+              "oos_net_pnl": "0E-8",
+              "scale": "2.0",
+              "trade_count": 0
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "0E-8",
+              "liquidation_count": 0,
+              "oos_net_pnl": "0E-8",
+              "scale": "3.0",
+              "trade_count": 0
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "0E-8",
+              "liquidation_count": 0,
+              "oos_net_pnl": "0E-8",
+              "scale": "5.0",
+              "trade_count": 0
+            }
+          ]
+        },
+        "gate_id": "funding_carry_net_oos_tail_gate",
+        "leave_one_out_oos_net": {
+          "AVAX": "0E-8",
+          "BTC": "-8.43026785",
+          "DOGE": "15.73660823",
+          "ETH": "-62.12134338",
+          "SOL": "30.22078443"
+        },
+        "leverage_gross": "3",
+        "liquidation_count_oos": 0,
+        "liquidation_count_stressed": 0,
+        "max_oos_drawdown_pct_limit": "5",
+        "max_stressed_drawdown_pct_limit": "8",
+        "min_oos_days_required": 90,
+        "min_regime_days_for_gate": 30,
+        "non_bull_net_pnl": "42.33234075",
+        "oos_net_pnl": "-8.43026785",
+        "oos_regime_pnls": {
+          "bear": {
+            "days": 229,
+            "net_pnl": "-1.45110254"
+          },
+          "bull": {
+            "days": 159,
+            "net_pnl": "51.58155695"
+          },
+          "neutral": {
+            "days": 126,
+            "net_pnl": "-58.56072226"
+          }
+        },
+        "oos_strategy": {
+          "days": 515,
+          "max_drawdown_pct": "0.64722409",
+          "sharpe_annual": "-0.10098682",
+          "total_return_pct": "-0.07912128",
+          "vol_annual": "0.00542016"
+        },
+        "passed": false,
+        "qualifiers": [],
+        "reason_codes": [
+          "oos_net_carry_not_positive_after_costs",
+          "leave_one_out_breaks_oos_net_carry",
+          "oos_regime_bear_net_carry_not_positive",
+          "oos_regime_neutral_net_carry_not_positive"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 584,
+            "net_pnl": "-106.94263135"
+          },
+          "bull": {
+            "days": 674,
+            "net_pnl": "604.10515655"
+          },
+          "neutral": {
+            "days": 456,
+            "net_pnl": "149.27497210"
+          }
+        },
+        "status": "carry_does_not_survive_realistic_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": "0E-8",
+        "walk_forward_net_pnls": [
+          "388.07048540",
+          "149.59177601"
+        ]
+      },
+      "grid_rows": [
+        {
+          "borrow_cost_total": "0E-8",
+          "config_id": "fund_venues1_binance_cross_coinbase_lev3_cad14_top2_1d",
+          "construction": "binance_cross_coinbase",
+          "fees_total": "0E-8",
+          "funding_collected_total": "0E-8",
+          "leverage_gross": "3",
+          "liquidation_count": 0,
+          "max_borrowed": "0E-8",
+          "max_residual_delta_fraction": "0E-8",
+          "net_pnl": "0E-8",
+          "oos_net_pnl": "0E-8",
+          "oos_stats": {
+            "days": 515,
+            "max_drawdown_pct": "0E-8",
+            "sharpe_annual": null,
+            "total_return_pct": "0E-8",
+            "vol_annual": "0E-8"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "0E-8",
+            "BTC": "0E-8",
+            "DOGE": "0E-8",
+            "ETH": "0E-8",
+            "SOL": "0E-8"
+          },
+          "rebalance_interval_days": 14,
+          "top_k": 2,
+          "trade_count": 0,
+          "train_stats": {
+            "days": 1200,
+            "max_drawdown_pct": "0E-8",
+            "sharpe_annual": null,
+            "total_return_pct": "0E-8",
+            "vol_annual": "0E-8"
+          }
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "config_id": "fund_venues1_binance_cross_coinbase_lev3_cad14_top4_1d",
+          "construction": "binance_cross_coinbase",
+          "fees_total": "0E-8",
+          "funding_collected_total": "0E-8",
+          "leverage_gross": "3",
+          "liquidation_count": 0,
+          "max_borrowed": "0E-8",
+          "max_residual_delta_fraction": "0E-8",
+          "net_pnl": "0E-8",
+          "oos_net_pnl": "0E-8",
+          "oos_stats": {
+            "days": 515,
+            "max_drawdown_pct": "0E-8",
+            "sharpe_annual": null,
+            "total_return_pct": "0E-8",
+            "vol_annual": "0E-8"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "0E-8",
+            "BTC": "0E-8",
+            "DOGE": "0E-8",
+            "ETH": "0E-8",
+            "SOL": "0E-8"
+          },
+          "rebalance_interval_days": 14,
+          "top_k": 4,
+          "trade_count": 0,
+          "train_stats": {
+            "days": 1200,
+            "max_drawdown_pct": "0E-8",
+            "sharpe_annual": null,
+            "total_return_pct": "0E-8",
+            "vol_annual": "0E-8"
+          }
+        },
+        {
+          "borrow_cost_total": "304.72156091",
+          "config_id": "fund_venues1_binance_cross_coinbase_lev3_cad28_top2_1d",
+          "construction": "binance_cross_coinbase",
+          "fees_total": "716.47273321",
+          "funding_collected_total": "1602.41310095",
+          "leverage_gross": "3",
+          "liquidation_count": 0,
+          "max_borrowed": "13640.53226204",
+          "max_residual_delta_fraction": "0.00685973",
+          "net_pnl": "533.81310856",
+          "oos_net_pnl": "-61.49488988",
+          "oos_stats": {
+            "days": 515,
+            "max_drawdown_pct": "0.64947719",
+            "sharpe_annual": "-0.75063773",
+            "total_return_pct": "-0.58039738",
+            "vol_annual": "0.00548649"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "122.09929027",
+            "BTC": "0E-8",
+            "DOGE": "624.47659047",
+            "ETH": "0E-8",
+            "SOL": "91.95878873"
+          },
+          "rebalance_interval_days": 28,
+          "top_k": 2,
+          "trade_count": 60,
+          "train_stats": {
+            "days": 1200,
+            "max_drawdown_pct": "2.20664789",
+            "sharpe_annual": "1.11204400",
+            "total_return_pct": "5.97661054",
+            "vol_annual": "0.01600644"
+          }
+        },
+        {
+          "borrow_cost_total": "276.48342947",
+          "config_id": "fund_venues1_binance_cross_coinbase_lev3_cad28_top4_1d",
+          "construction": "binance_cross_coinbase",
+          "fees_total": "667.00977756",
+          "funding_collected_total": "1622.46102264",
+          "leverage_gross": "3",
+          "liquidation_count": 0,
+          "max_borrowed": "13047.82571429",
+          "max_residual_delta_fraction": "0.00403033",
+          "net_pnl": "646.43749730",
+          "oos_net_pnl": "-8.43026785",
+          "oos_stats": {
+            "days": 515,
+            "max_drawdown_pct": "0.64722409",
+            "sharpe_annual": "-0.10098682",
+            "total_return_pct": "-0.07912128",
+            "vol_annual": "0.00542016"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "55.91438557",
+            "BTC": "0E-8",
+            "DOGE": "299.62189860",
+            "ETH": "343.87724262",
+            "SOL": "223.50739998"
+          },
+          "rebalance_interval_days": 28,
+          "top_k": 4,
+          "trade_count": 114,
+          "train_stats": {
+            "days": 1200,
+            "max_drawdown_pct": "1.55203205",
+            "sharpe_annual": "1.60976637",
+            "total_return_pct": "6.56682347",
+            "vol_annual": "0.01207336"
+          }
+        }
+      ],
+      "headline": {
+        "borrow_cost_total": "276.48342947",
+        "fees_total": "667.00977756",
+        "full_net_pnl": "646.43749730",
+        "funding_collected_total": "1622.46102264",
+        "gross_zero_cost_net": "5606.87130164",
+        "liquidation_count_full": 0,
+        "liquidation_count_oos": 0,
+        "maker_ceiling_net_non_gateable": "855.37748890",
+        "maker_ceiling_oos_net_non_gateable": "38.73346818",
+        "max_borrowed": "13047.82571429",
+        "oos_net_carry": "-8.43026785",
+        "oos_stats": {
+          "days": 515,
+          "max_drawdown_pct": "0.64722409",
+          "sharpe_annual": "-0.10098682",
+          "total_return_pct": "-0.07912128",
+          "vol_annual": "0.00542016"
+        },
+        "train_stats": {
+          "days": 1200,
+          "max_drawdown_pct": "1.55203205",
+          "sharpe_annual": "1.60976637",
+          "total_return_pct": "6.56682347",
+          "vol_annual": "0.01207336"
+        }
+      },
+      "leave_one_out": {
+        "AVAX": {
+          "liquidation_count": 0,
+          "oos_net_carry": "0E-8"
+        },
+        "BTC": {
+          "liquidation_count": 0,
+          "oos_net_carry": "-8.43026785"
+        },
+        "DOGE": {
+          "liquidation_count": 0,
+          "oos_net_carry": "15.73660823"
+        },
+        "ETH": {
+          "liquidation_count": 0,
+          "oos_net_carry": "-62.12134338"
+        },
+        "SOL": {
+          "liquidation_count": 0,
+          "oos_net_carry": "30.22078443"
+        }
+      },
+      "leverage_gross": "3",
+      "regimes": {
+        "cycle_segments": {
+          "2020_2021_bull": {
+            "days": 93,
+            "net_pnl": "131.96382783"
+          },
+          "2022_bear": {
+            "days": 365,
+            "net_pnl": "-33.93670336"
+          },
+          "2023_2024_recovery": {
+            "days": 731,
+            "net_pnl": "512.64898854"
+          },
+          "2025_2026_current": {
+            "days": 526,
+            "net_pnl": "26.61887234"
+          }
+        },
+        "full_window": {
+          "bear": {
+            "days": 584,
+            "net_pnl": "-106.94263135"
+          },
+          "bull": {
+            "days": 674,
+            "net_pnl": "604.10515655"
+          },
+          "neutral": {
+            "days": 456,
+            "net_pnl": "149.27497210"
+          }
+        },
+        "oos_window": {
+          "bear": {
+            "days": 229,
+            "net_pnl": "-1.45110254"
+          },
+          "bull": {
+            "days": 159,
+            "net_pnl": "51.58155695"
+          },
+          "neutral": {
+            "days": 126,
+            "net_pnl": "-58.56072226"
+          }
+        }
+      },
+      "split_time": "2025-01-12 00:00:00+00:00",
+      "tail_stress": {
+        "borrow_cost_total": "0E-8",
+        "cost_scale": "2.0",
+        "liquidation_count": 0,
+        "max_drawdown_pct": "0E-8",
+        "max_residual_delta_fraction": "0E-8",
+        "net_pnl": "0E-8",
+        "spot_leg_lag_days": 1,
+        "stressed_config": "fund_venues1_binance_cross_coinbase_lev3_cad28_top4_1d_stressed_scale2_leglag1"
+      },
+      "train_only_choice": {
+        "chosen_config": "fund_venues1_binance_cross_coinbase_lev3_cad28_top4_1d",
+        "criterion": "best train-window Sharpe at cited taker costs (scale 1.0)"
+      },
+      "walk_forward": {
+        "fold_b": {
+          "chosen_config": "fund_venues1_binance_cross_coinbase_lev3_cad28_top4_1d",
+          "net_carry": "388.07048540",
+          "window": [
+            "2023-04-25 00:00:00+00:00",
+            "2024-11-17 00:00:00+00:00"
+          ]
+        },
+        "fold_c": {
+          "chosen_config": "fund_venues1_binance_cross_coinbase_lev3_cad28_top4_1d",
+          "net_carry": "149.59177601",
+          "window": [
+            "2024-11-17 00:00:00+00:00",
+            "end"
+          ]
+        }
+      }
+    },
+    "binance_cross_coinbase|lev5": {
+      "aligned_days": 1715,
+      "aligned_window": [
+        "2021-10-01 00:00:00+00:00",
+        "2026-06-11 00:00:00+00:00"
+      ],
+      "construction": "binance_cross_coinbase",
+      "cost_sensitivity_sweep": [
+        {
+          "borrow_cost_total": "553.43037900",
+          "full_net_pnl": "-10288.45568668",
+          "liquidation_count": 1,
+          "oos_net_pnl": "-7.31868028",
+          "scale": "0.25",
+          "trade_count": 162
+        },
+        {
+          "borrow_cost_total": "804.98318814",
+          "full_net_pnl": "3104.84895059",
+          "liquidation_count": 0,
+          "oos_net_pnl": "149.14205127",
+          "scale": "0.5",
+          "trade_count": 182
+        },
+        {
+          "borrow_cost_total": "1093.70762652",
+          "full_net_pnl": "1086.86043192",
+          "liquidation_count": 0,
+          "oos_net_pnl": "48.73542530",
+          "scale": "0.75",
+          "trade_count": 152
+        },
+        {
+          "borrow_cost_total": "961.91522402",
+          "full_net_pnl": "628.64737845",
+          "liquidation_count": 0,
+          "oos_net_pnl": "-24.60729307",
+          "scale": "1.0",
+          "trade_count": 124
+        },
+        {
+          "borrow_cost_total": "1112.04466818",
+          "full_net_pnl": "118.52020794",
+          "liquidation_count": 0,
+          "oos_net_pnl": "-94.56680489",
+          "scale": "1.25",
+          "trade_count": 114
+        },
+        {
+          "borrow_cost_total": "660.31488768",
+          "full_net_pnl": "-115.86076694",
+          "liquidation_count": 0,
+          "oos_net_pnl": "-158.56474302",
+          "scale": "1.5",
+          "trade_count": 76
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "0E-8",
+          "liquidation_count": 0,
+          "oos_net_pnl": "0E-8",
+          "scale": "2.0",
+          "trade_count": 0
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "0E-8",
+          "liquidation_count": 0,
+          "oos_net_pnl": "0E-8",
+          "scale": "3.0",
+          "trade_count": 0
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "0E-8",
+          "liquidation_count": 0,
+          "oos_net_pnl": "0E-8",
+          "scale": "5.0",
+          "trade_count": 0
+        }
+      ],
+      "funding_carry_gate": {
+        "cost_sensitivity": {
+          "breakpoint_scale_where_oos_edge_dies": "0.25",
+          "fragility_threshold_scale": "1.5",
+          "realistic_scale": "1.0",
+          "sweep": [
+            {
+              "borrow_cost_total": "553.43037900",
+              "full_net_pnl": "-10288.45568668",
+              "liquidation_count": 1,
+              "oos_net_pnl": "-7.31868028",
+              "scale": "0.25",
+              "trade_count": 162
+            },
+            {
+              "borrow_cost_total": "804.98318814",
+              "full_net_pnl": "3104.84895059",
+              "liquidation_count": 0,
+              "oos_net_pnl": "149.14205127",
+              "scale": "0.5",
+              "trade_count": 182
+            },
+            {
+              "borrow_cost_total": "1093.70762652",
+              "full_net_pnl": "1086.86043192",
+              "liquidation_count": 0,
+              "oos_net_pnl": "48.73542530",
+              "scale": "0.75",
+              "trade_count": 152
+            },
+            {
+              "borrow_cost_total": "961.91522402",
+              "full_net_pnl": "628.64737845",
+              "liquidation_count": 0,
+              "oos_net_pnl": "-24.60729307",
+              "scale": "1.0",
+              "trade_count": 124
+            },
+            {
+              "borrow_cost_total": "1112.04466818",
+              "full_net_pnl": "118.52020794",
+              "liquidation_count": 0,
+              "oos_net_pnl": "-94.56680489",
+              "scale": "1.25",
+              "trade_count": 114
+            },
+            {
+              "borrow_cost_total": "660.31488768",
+              "full_net_pnl": "-115.86076694",
+              "liquidation_count": 0,
+              "oos_net_pnl": "-158.56474302",
+              "scale": "1.5",
+              "trade_count": 76
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "0E-8",
+              "liquidation_count": 0,
+              "oos_net_pnl": "0E-8",
+              "scale": "2.0",
+              "trade_count": 0
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "0E-8",
+              "liquidation_count": 0,
+              "oos_net_pnl": "0E-8",
+              "scale": "3.0",
+              "trade_count": 0
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "0E-8",
+              "liquidation_count": 0,
+              "oos_net_pnl": "0E-8",
+              "scale": "5.0",
+              "trade_count": 0
+            }
+          ]
+        },
+        "gate_id": "funding_carry_net_oos_tail_gate",
+        "leave_one_out_oos_net": {
+          "AVAX": "-40.11804428",
+          "BTC": "-24.60729307",
+          "DOGE": "-74.99922559",
+          "ETH": "-127.66844438",
+          "SOL": "-31.34315636"
+        },
+        "leverage_gross": "5",
+        "liquidation_count_oos": 0,
+        "liquidation_count_stressed": 0,
+        "max_oos_drawdown_pct_limit": "5",
+        "max_stressed_drawdown_pct_limit": "8",
+        "min_oos_days_required": 90,
+        "min_regime_days_for_gate": 30,
+        "non_bull_net_pnl": "-141.71403431",
+        "oos_net_pnl": "-24.60729307",
+        "oos_regime_pnls": {
+          "bear": {
+            "days": 229,
+            "net_pnl": "0.28950384"
+          },
+          "bull": {
+            "days": 159,
+            "net_pnl": "67.05133052"
+          },
+          "neutral": {
+            "days": 126,
+            "net_pnl": "-91.94812743"
+          }
+        },
+        "oos_strategy": {
+          "days": 515,
+          "max_drawdown_pct": "1.19765929",
+          "sharpe_annual": "-0.18391682",
+          "total_return_pct": "-0.23098381",
+          "vol_annual": "0.00872149"
+        },
+        "passed": false,
+        "qualifiers": [],
+        "reason_codes": [
+          "oos_net_carry_not_positive_after_costs",
+          "non_bull_regime_net_carry_not_positive",
+          "leave_one_out_breaks_oos_net_carry",
+          "oos_regime_neutral_net_carry_not_positive"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 584,
+            "net_pnl": "-241.97400174"
+          },
+          "bull": {
+            "days": 674,
+            "net_pnl": "770.36141275"
+          },
+          "neutral": {
+            "days": 456,
+            "net_pnl": "100.25996743"
+          }
+        },
+        "status": "carry_does_not_survive_realistic_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": "0E-8",
+        "walk_forward_net_pnls": [
+          "317.43139783",
+          "167.65500819"
+        ]
+      },
+      "grid_rows": [
+        {
+          "borrow_cost_total": "0E-8",
+          "config_id": "fund_venues1_binance_cross_coinbase_lev5_cad14_top2_1d",
+          "construction": "binance_cross_coinbase",
+          "fees_total": "0E-8",
+          "funding_collected_total": "0E-8",
+          "leverage_gross": "5",
+          "liquidation_count": 0,
+          "max_borrowed": "0E-8",
+          "max_residual_delta_fraction": "0E-8",
+          "net_pnl": "0E-8",
+          "oos_net_pnl": "0E-8",
+          "oos_stats": {
+            "days": 515,
+            "max_drawdown_pct": "0E-8",
+            "sharpe_annual": null,
+            "total_return_pct": "0E-8",
+            "vol_annual": "0E-8"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "0E-8",
+            "BTC": "0E-8",
+            "DOGE": "0E-8",
+            "ETH": "0E-8",
+            "SOL": "0E-8"
+          },
+          "rebalance_interval_days": 14,
+          "top_k": 2,
+          "trade_count": 0,
+          "train_stats": {
+            "days": 1200,
+            "max_drawdown_pct": "0E-8",
+            "sharpe_annual": null,
+            "total_return_pct": "0E-8",
+            "vol_annual": "0E-8"
+          }
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "config_id": "fund_venues1_binance_cross_coinbase_lev5_cad14_top4_1d",
+          "construction": "binance_cross_coinbase",
+          "fees_total": "0E-8",
+          "funding_collected_total": "0E-8",
+          "leverage_gross": "5",
+          "liquidation_count": 0,
+          "max_borrowed": "0E-8",
+          "max_residual_delta_fraction": "0E-8",
+          "net_pnl": "0E-8",
+          "oos_net_pnl": "0E-8",
+          "oos_stats": {
+            "days": 515,
+            "max_drawdown_pct": "0E-8",
+            "sharpe_annual": null,
+            "total_return_pct": "0E-8",
+            "vol_annual": "0E-8"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "0E-8",
+            "BTC": "0E-8",
+            "DOGE": "0E-8",
+            "ETH": "0E-8",
+            "SOL": "0E-8"
+          },
+          "rebalance_interval_days": 14,
+          "top_k": 4,
+          "trade_count": 0,
+          "train_stats": {
+            "days": 1200,
+            "max_drawdown_pct": "0E-8",
+            "sharpe_annual": null,
+            "total_return_pct": "0E-8",
+            "vol_annual": "0E-8"
+          }
+        },
+        {
+          "borrow_cost_total": "964.54016222",
+          "config_id": "fund_venues1_binance_cross_coinbase_lev5_cad28_top2_1d",
+          "construction": "binance_cross_coinbase",
+          "fees_total": "1081.91446263",
+          "funding_collected_total": "2200.79631222",
+          "leverage_gross": "5",
+          "liquidation_count": 1,
+          "max_borrowed": "27845.14544279",
+          "max_residual_delta_fraction": "0.01139400",
+          "net_pnl": "-10081.57367271",
+          "oos_net_pnl": "-7.96838628",
+          "oos_stats": {
+            "days": 515,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "194.61224443",
+            "BTC": "0E-8",
+            "DOGE": "-9472.89833410",
+            "ETH": "0E-8",
+            "SOL": "161.25257918"
+          },
+          "rebalance_interval_days": 28,
+          "top_k": 2,
+          "trade_count": 58,
+          "train_stats": {
+            "days": 1200,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          }
+        },
+        {
+          "borrow_cost_total": "961.91522402",
+          "config_id": "fund_venues1_binance_cross_coinbase_lev5_cad28_top4_1d",
+          "construction": "binance_cross_coinbase",
+          "fees_total": "1058.12184294",
+          "funding_collected_total": "2706.24499275",
+          "leverage_gross": "5",
+          "liquidation_count": 0,
+          "max_borrowed": "28537.55131701",
+          "max_residual_delta_fraction": "0.00673763",
+          "net_pnl": "628.64737845",
+          "oos_net_pnl": "-24.60729307",
+          "oos_stats": {
+            "days": 515,
+            "max_drawdown_pct": "1.19765929",
+            "sharpe_annual": "-0.18391682",
+            "total_return_pct": "-0.23098381",
+            "vol_annual": "0.00872149"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "100.14279675",
+            "BTC": "0E-8",
+            "DOGE": "513.86138647",
+            "ETH": "581.52642205",
+            "SOL": "395.03199720"
+          },
+          "rebalance_interval_days": 28,
+          "top_k": 4,
+          "trade_count": 124,
+          "train_stats": {
+            "days": 1200,
+            "max_drawdown_pct": "2.55790644",
+            "sharpe_annual": "0.99636898",
+            "total_return_pct": "6.57717185",
+            "vol_annual": "0.01965698"
+          }
+        }
+      ],
+      "headline": {
+        "borrow_cost_total": "961.91522402",
+        "fees_total": "1058.12184294",
+        "full_net_pnl": "628.64737845",
+        "funding_collected_total": "2706.24499275",
+        "gross_zero_cost_net": "-10146.29624676",
+        "liquidation_count_full": 0,
+        "liquidation_count_oos": 0,
+        "maker_ceiling_net_non_gateable": "765.23165911",
+        "maker_ceiling_oos_net_non_gateable": "53.11212792",
+        "max_borrowed": "28537.55131701",
+        "oos_net_carry": "-24.60729307",
+        "oos_stats": {
+          "days": 515,
+          "max_drawdown_pct": "1.19765929",
+          "sharpe_annual": "-0.18391682",
+          "total_return_pct": "-0.23098381",
+          "vol_annual": "0.00872149"
+        },
+        "train_stats": {
+          "days": 1200,
+          "max_drawdown_pct": "2.55790644",
+          "sharpe_annual": "0.99636898",
+          "total_return_pct": "6.57717185",
+          "vol_annual": "0.01965698"
+        }
+      },
+      "leave_one_out": {
+        "AVAX": {
+          "liquidation_count": 0,
+          "oos_net_carry": "-40.11804428"
+        },
+        "BTC": {
+          "liquidation_count": 0,
+          "oos_net_carry": "-24.60729307"
+        },
+        "DOGE": {
+          "liquidation_count": 0,
+          "oos_net_carry": "-74.99922559"
+        },
+        "ETH": {
+          "liquidation_count": 0,
+          "oos_net_carry": "-127.66844438"
+        },
+        "SOL": {
+          "liquidation_count": 0,
+          "oos_net_carry": "-31.34315636"
+        }
+      },
+      "leverage_gross": "5",
+      "regimes": {
+        "cycle_segments": {
+          "2020_2021_bull": {
+            "days": 93,
+            "net_pnl": "191.84036083"
+          },
+          "2022_bear": {
+            "days": 365,
+            "net_pnl": "-64.14060437"
+          },
+          "2023_2024_recovery": {
+            "days": 731,
+            "net_pnl": "469.44175188"
+          },
+          "2025_2026_current": {
+            "days": 526,
+            "net_pnl": "18.19270701"
+          }
+        },
+        "full_window": {
+          "bear": {
+            "days": 584,
+            "net_pnl": "-241.97400174"
+          },
+          "bull": {
+            "days": 674,
+            "net_pnl": "770.36141275"
+          },
+          "neutral": {
+            "days": 456,
+            "net_pnl": "100.25996743"
+          }
+        },
+        "oos_window": {
+          "bear": {
+            "days": 229,
+            "net_pnl": "0.28950384"
+          },
+          "bull": {
+            "days": 159,
+            "net_pnl": "67.05133052"
+          },
+          "neutral": {
+            "days": 126,
+            "net_pnl": "-91.94812743"
+          }
+        }
+      },
+      "split_time": "2025-01-12 00:00:00+00:00",
+      "tail_stress": {
+        "borrow_cost_total": "0E-8",
+        "cost_scale": "2.0",
+        "liquidation_count": 0,
+        "max_drawdown_pct": "0E-8",
+        "max_residual_delta_fraction": "0E-8",
+        "net_pnl": "0E-8",
+        "spot_leg_lag_days": 1,
+        "stressed_config": "fund_venues1_binance_cross_coinbase_lev5_cad28_top4_1d_stressed_scale2_leglag1"
+      },
+      "train_only_choice": {
+        "chosen_config": "fund_venues1_binance_cross_coinbase_lev5_cad28_top4_1d",
+        "criterion": "best train-window Sharpe at cited taker costs (scale 1.0)"
+      },
+      "walk_forward": {
+        "fold_b": {
+          "chosen_config": "fund_venues1_binance_cross_coinbase_lev5_cad28_top4_1d",
+          "net_carry": "317.43139783",
+          "window": [
+            "2023-04-25 00:00:00+00:00",
+            "2024-11-17 00:00:00+00:00"
+          ]
+        },
+        "fold_c": {
+          "chosen_config": "fund_venues1_binance_cross_coinbase_lev5_cad28_top4_1d",
+          "net_carry": "167.65500819",
+          "window": [
+            "2024-11-17 00:00:00+00:00",
+            "end"
+          ]
+        }
+      }
+    },
+    "binance_single|lev1": {
+      "aligned_days": 2087,
+      "aligned_window": [
+        "2020-09-24 00:00:00+00:00",
+        "2026-06-11 00:00:00+00:00"
+      ],
+      "construction": "binance_single",
+      "cost_sensitivity_sweep": [
+        {
+          "borrow_cost_total": "1.32089752",
+          "full_net_pnl": "5232.46763386",
+          "liquidation_count": 0,
+          "oos_net_pnl": "561.30030639",
+          "scale": "0.25",
+          "trade_count": 746
+        },
+        {
+          "borrow_cost_total": "2.63613435",
+          "full_net_pnl": "4693.09460450",
+          "liquidation_count": 0,
+          "oos_net_pnl": "380.53230522",
+          "scale": "0.5",
+          "trade_count": 502
+        },
+        {
+          "borrow_cost_total": "3.93096201",
+          "full_net_pnl": "4182.88649719",
+          "liquidation_count": 0,
+          "oos_net_pnl": "189.80735451",
+          "scale": "0.75",
+          "trade_count": 336
+        },
+        {
+          "borrow_cost_total": "5.21907880",
+          "full_net_pnl": "3910.06722582",
+          "liquidation_count": 0,
+          "oos_net_pnl": "179.18087731",
+          "scale": "1.0",
+          "trade_count": 298
+        },
+        {
+          "borrow_cost_total": "20.05900605",
+          "full_net_pnl": "3679.25948691",
+          "liquidation_count": 0,
+          "oos_net_pnl": "131.68727414",
+          "scale": "1.25",
+          "trade_count": 262
+        },
+        {
+          "borrow_cost_total": "23.52086738",
+          "full_net_pnl": "2920.16706332",
+          "liquidation_count": 0,
+          "oos_net_pnl": "118.95591809",
+          "scale": "1.5",
+          "trade_count": 241
+        },
+        {
+          "borrow_cost_total": "31.07304796",
+          "full_net_pnl": "2665.89287272",
+          "liquidation_count": 0,
+          "oos_net_pnl": "105.96584265",
+          "scale": "2.0",
+          "trade_count": 202
+        },
+        {
+          "borrow_cost_total": "14.57345718",
+          "full_net_pnl": "2021.41528495",
+          "liquidation_count": 0,
+          "oos_net_pnl": "80.30544983",
+          "scale": "3.0",
+          "trade_count": 170
+        },
+        {
+          "borrow_cost_total": "20.46220670",
+          "full_net_pnl": "1388.06125408",
+          "liquidation_count": 0,
+          "oos_net_pnl": "0E-8",
+          "scale": "5.0",
+          "trade_count": 74
+        }
+      ],
+      "funding_carry_gate": {
+        "cost_sensitivity": {
+          "breakpoint_scale_where_oos_edge_dies": "5.0",
+          "fragility_threshold_scale": "1.5",
+          "realistic_scale": "1.0",
+          "sweep": [
+            {
+              "borrow_cost_total": "1.32089752",
+              "full_net_pnl": "5232.46763386",
+              "liquidation_count": 0,
+              "oos_net_pnl": "561.30030639",
+              "scale": "0.25",
+              "trade_count": 746
+            },
+            {
+              "borrow_cost_total": "2.63613435",
+              "full_net_pnl": "4693.09460450",
+              "liquidation_count": 0,
+              "oos_net_pnl": "380.53230522",
+              "scale": "0.5",
+              "trade_count": 502
+            },
+            {
+              "borrow_cost_total": "3.93096201",
+              "full_net_pnl": "4182.88649719",
+              "liquidation_count": 0,
+              "oos_net_pnl": "189.80735451",
+              "scale": "0.75",
+              "trade_count": 336
+            },
+            {
+              "borrow_cost_total": "5.21907880",
+              "full_net_pnl": "3910.06722582",
+              "liquidation_count": 0,
+              "oos_net_pnl": "179.18087731",
+              "scale": "1.0",
+              "trade_count": 298
+            },
+            {
+              "borrow_cost_total": "20.05900605",
+              "full_net_pnl": "3679.25948691",
+              "liquidation_count": 0,
+              "oos_net_pnl": "131.68727414",
+              "scale": "1.25",
+              "trade_count": 262
+            },
+            {
+              "borrow_cost_total": "23.52086738",
+              "full_net_pnl": "2920.16706332",
+              "liquidation_count": 0,
+              "oos_net_pnl": "118.95591809",
+              "scale": "1.5",
+              "trade_count": 241
+            },
+            {
+              "borrow_cost_total": "31.07304796",
+              "full_net_pnl": "2665.89287272",
+              "liquidation_count": 0,
+              "oos_net_pnl": "105.96584265",
+              "scale": "2.0",
+              "trade_count": 202
+            },
+            {
+              "borrow_cost_total": "14.57345718",
+              "full_net_pnl": "2021.41528495",
+              "liquidation_count": 0,
+              "oos_net_pnl": "80.30544983",
+              "scale": "3.0",
+              "trade_count": 170
+            },
+            {
+              "borrow_cost_total": "20.46220670",
+              "full_net_pnl": "1388.06125408",
+              "liquidation_count": 0,
+              "oos_net_pnl": "0E-8",
+              "scale": "5.0",
+              "trade_count": 74
+            }
+          ]
+        },
+        "gate_id": "funding_carry_net_oos_tail_gate",
+        "leave_one_out_oos_net": {
+          "AVAX": "198.23249826",
+          "BNB": "187.76808499",
+          "BTC": "179.20507171",
+          "DOGE": "193.80424915",
+          "ETH": "197.84011518",
+          "SOL": "231.03170586",
+          "XRP": "177.27914782"
+        },
+        "leverage_gross": "1",
+        "liquidation_count_oos": 0,
+        "liquidation_count_stressed": 0,
+        "max_oos_drawdown_pct_limit": "5",
+        "max_stressed_drawdown_pct_limit": "8",
+        "min_oos_days_required": 90,
+        "min_regime_days_for_gate": 30,
+        "non_bull_net_pnl": "315.29734736",
+        "oos_net_pnl": "179.18087731",
+        "oos_regime_pnls": {
+          "bear": {
+            "days": 229,
+            "net_pnl": "0.21119389"
+          },
+          "bull": {
+            "days": 237,
+            "net_pnl": "152.81713559"
+          },
+          "neutral": {
+            "days": 160,
+            "net_pnl": "26.15254783"
+          }
+        },
+        "oos_strategy": {
+          "days": 627,
+          "max_drawdown_pct": "0.08323323",
+          "sharpe_annual": "3.50995605",
+          "total_return_pct": "1.30494764",
+          "vol_annual": "0.00215441"
+        },
+        "passed": false,
+        "qualifiers": [],
+        "reason_codes": [
+          "stressed_tail_drawdown_exceeds_documented_limit"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 670,
+            "net_pnl": "94.71169383"
+          },
+          "bull": {
+            "days": 949,
+            "net_pnl": "3594.76987847"
+          },
+          "neutral": {
+            "days": 467,
+            "net_pnl": "220.58565353"
+          }
+        },
+        "status": "carry_does_not_survive_realistic_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": "9.68437671",
+        "walk_forward_net_pnls": [
+          "800.70001608",
+          "203.42754046"
+        ]
+      },
+      "grid_rows": [
+        {
+          "borrow_cost_total": "1.07669443",
+          "config_id": "fund_venues1_binance_single_lev1_cad14_top2_1d",
+          "construction": "binance_single",
+          "fees_total": "352.45379760",
+          "funding_collected_total": "4691.10784886",
+          "leverage_gross": "1",
+          "liquidation_count": 0,
+          "max_borrowed": "2552.24592616",
+          "max_residual_delta_fraction": "0.01469521",
+          "net_pnl": "4196.70654529",
+          "oos_net_pnl": "116.37759669",
+          "oos_stats": {
+            "days": 627,
+            "max_drawdown_pct": "0.19381098",
+            "sharpe_annual": "1.77595826",
+            "total_return_pct": "0.82652612",
+            "vol_annual": "0.00270450"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "948.06930758",
+            "BNB": "143.56445239",
+            "BTC": "128.17401567",
+            "DOGE": "533.91217042",
+            "ETH": "494.46405853",
+            "SOL": "417.00574293",
+            "XRP": "1532.59349220"
+          },
+          "rebalance_interval_days": 14,
+          "top_k": 2,
+          "trade_count": 222,
+          "train_stats": {
+            "days": 1460,
+            "max_drawdown_pct": "1.52806190",
+            "sharpe_annual": "5.07272100",
+            "total_return_pct": "40.80015875",
+            "vol_annual": "0.01690500"
+          }
+        },
+        {
+          "borrow_cost_total": "5.21907880",
+          "config_id": "fund_venues1_binance_single_lev1_cad14_top4_1d",
+          "construction": "binance_single",
+          "fees_total": "250.39126330",
+          "funding_collected_total": "4258.27184332",
+          "leverage_gross": "1",
+          "liquidation_count": 0,
+          "max_borrowed": "5815.59143049",
+          "max_residual_delta_fraction": "0.00772259",
+          "net_pnl": "3910.06722582",
+          "oos_net_pnl": "179.18087731",
+          "oos_stats": {
+            "days": 627,
+            "max_drawdown_pct": "0.08323323",
+            "sharpe_annual": "3.50995605",
+            "total_return_pct": "1.30494764",
+            "vol_annual": "0.00215441"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "590.43508694",
+            "BNB": "242.03348806",
+            "BTC": "216.40070664",
+            "DOGE": "819.42623917",
+            "ETH": "598.55869049",
+            "SOL": "383.31118715",
+            "XRP": "1065.12090617"
+          },
+          "rebalance_interval_days": 14,
+          "top_k": 4,
+          "trade_count": 298,
+          "train_stats": {
+            "days": 1460,
+            "max_drawdown_pct": "0.76406184",
+            "sharpe_annual": "6.03912749",
+            "total_return_pct": "37.29696492",
+            "vol_annual": "0.01314647"
+          }
+        },
+        {
+          "borrow_cost_total": "8.98557632",
+          "config_id": "fund_venues1_binance_single_lev1_cad28_top2_1d",
+          "construction": "binance_single",
+          "fees_total": "501.49800651",
+          "funding_collected_total": "5706.20619482",
+          "leverage_gross": "1",
+          "liquidation_count": 0,
+          "max_borrowed": "7664.76666851",
+          "max_residual_delta_fraction": "0.03012595",
+          "net_pnl": "5018.48681754",
+          "oos_net_pnl": "389.95099371",
+          "oos_stats": {
+            "days": 627,
+            "max_drawdown_pct": "0.34519572",
+            "sharpe_annual": "3.33021631",
+            "total_return_pct": "2.66568711",
+            "vol_annual": "0.00460935"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "1088.60310362",
+            "BNB": "117.13943461",
+            "BTC": "111.06492468",
+            "DOGE": "919.88727034",
+            "ETH": "658.02972550",
+            "SOL": "601.67383103",
+            "XRP": "1531.07410408"
+          },
+          "rebalance_interval_days": 28,
+          "top_k": 2,
+          "trade_count": 262,
+          "train_stats": {
+            "days": 1460,
+            "max_drawdown_pct": "3.18647270",
+            "sharpe_annual": "3.86306506",
+            "total_return_pct": "46.26229032",
+            "vol_annual": "0.02470626"
+          }
+        },
+        {
+          "borrow_cost_total": "28.33569273",
+          "config_id": "fund_venues1_binance_single_lev1_cad28_top4_1d",
+          "construction": "binance_single",
+          "fees_total": "348.93166126",
+          "funding_collected_total": "5392.24342945",
+          "leverage_gross": "1",
+          "liquidation_count": 0,
+          "max_borrowed": "13419.88915277",
+          "max_residual_delta_fraction": "0.03024810",
+          "net_pnl": "4765.78128581",
+          "oos_net_pnl": "404.22318001",
+          "oos_stats": {
+            "days": 627,
+            "max_drawdown_pct": "0.24862837",
+            "sharpe_annual": "4.39459629",
+            "total_return_pct": "2.81461926",
+            "vol_annual": "0.00368442"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "776.96545227",
+            "BNB": "169.66618623",
+            "BTC": "363.17393778",
+            "DOGE": "1165.42466779",
+            "ETH": "719.01726435",
+            "SOL": "469.85443109",
+            "XRP": "1130.01503903"
+          },
+          "rebalance_interval_days": 28,
+          "top_k": 4,
+          "trade_count": 331,
+          "train_stats": {
+            "days": 1460,
+            "max_drawdown_pct": "1.61313055",
+            "sharpe_annual": "4.73809180",
+            "total_return_pct": "43.60160913",
+            "vol_annual": "0.01914792"
+          }
+        }
+      ],
+      "headline": {
+        "borrow_cost_total": "5.21907880",
+        "fees_total": "250.39126330",
+        "full_net_pnl": "3910.06722582",
+        "funding_collected_total": "4258.27184332",
+        "gross_zero_cost_net": "5289.66567819",
+        "liquidation_count_full": 0,
+        "liquidation_count_oos": 0,
+        "maker_ceiling_net_non_gateable": "3981.42263968",
+        "maker_ceiling_oos_net_non_gateable": "179.45143796",
+        "max_borrowed": "5815.59143049",
+        "oos_net_carry": "179.18087731",
+        "oos_stats": {
+          "days": 627,
+          "max_drawdown_pct": "0.08323323",
+          "sharpe_annual": "3.50995605",
+          "total_return_pct": "1.30494764",
+          "vol_annual": "0.00215441"
+        },
+        "train_stats": {
+          "days": 1460,
+          "max_drawdown_pct": "0.76406184",
+          "sharpe_annual": "6.03912749",
+          "total_return_pct": "37.29696492",
+          "vol_annual": "0.01314647"
+        }
+      },
+      "leave_one_out": {
+        "AVAX": {
+          "liquidation_count": 0,
+          "oos_net_carry": "198.23249826"
+        },
+        "BNB": {
+          "liquidation_count": 0,
+          "oos_net_carry": "187.76808499"
+        },
+        "BTC": {
+          "liquidation_count": 0,
+          "oos_net_carry": "179.20507171"
+        },
+        "DOGE": {
+          "liquidation_count": 0,
+          "oos_net_carry": "193.80424915"
+        },
+        "ETH": {
+          "liquidation_count": 0,
+          "oos_net_carry": "197.84011518"
+        },
+        "SOL": {
+          "liquidation_count": 0,
+          "oos_net_carry": "231.03170586"
+        },
+        "XRP": {
+          "liquidation_count": 0,
+          "oos_net_carry": "177.27914782"
+        }
+      },
+      "leverage_gross": "1",
+      "regimes": {
+        "cycle_segments": {
+          "2020_2021_bull": {
+            "days": 465,
+            "net_pnl": "2845.45475575"
+          },
+          "2022_bear": {
+            "days": 365,
+            "net_pnl": "54.00990485"
+          },
+          "2023_2024_recovery": {
+            "days": 731,
+            "net_pnl": "989.87821396"
+          },
+          "2025_2026_current": {
+            "days": 526,
+            "net_pnl": "17.03136218"
+          }
+        },
+        "full_window": {
+          "bear": {
+            "days": 670,
+            "net_pnl": "94.71169383"
+          },
+          "bull": {
+            "days": 949,
+            "net_pnl": "3594.76987847"
+          },
+          "neutral": {
+            "days": 467,
+            "net_pnl": "220.58565353"
+          }
+        },
+        "oos_window": {
+          "bear": {
+            "days": 229,
+            "net_pnl": "0.21119389"
+          },
+          "bull": {
+            "days": 237,
+            "net_pnl": "152.81713559"
+          },
+          "neutral": {
+            "days": 160,
+            "net_pnl": "26.15254783"
+          }
+        }
+      },
+      "split_time": "2024-09-22 00:00:00+00:00",
+      "tail_stress": {
+        "borrow_cost_total": "33.18717960",
+        "cost_scale": "2.0",
+        "liquidation_count": 0,
+        "max_drawdown_pct": "9.68437671",
+        "max_residual_delta_fraction": "1.37500262",
+        "net_pnl": "869.50493732",
+        "spot_leg_lag_days": 1,
+        "stressed_config": "fund_venues1_binance_single_lev1_cad14_top4_1d_stressed_scale2_leglag1"
+      },
+      "train_only_choice": {
+        "chosen_config": "fund_venues1_binance_single_lev1_cad14_top4_1d",
+        "criterion": "best train-window Sharpe at cited taker costs (scale 1.0)"
+      },
+      "walk_forward": {
+        "fold_b": {
+          "chosen_config": "fund_venues1_binance_single_lev1_cad14_top4_1d",
+          "net_carry": "800.70001608",
+          "window": [
+            "2022-08-20 00:00:00+00:00",
+            "2024-07-16 00:00:00+00:00"
+          ]
+        },
+        "fold_c": {
+          "chosen_config": "fund_venues1_binance_single_lev1_cad14_top4_1d",
+          "net_carry": "203.42754046",
+          "window": [
+            "2024-07-16 00:00:00+00:00",
+            "end"
+          ]
+        }
+      }
+    },
+    "binance_single|lev3": {
+      "aligned_days": 2087,
+      "aligned_window": [
+        "2020-09-24 00:00:00+00:00",
+        "2026-06-11 00:00:00+00:00"
+      ],
+      "construction": "binance_single",
+      "cost_sensitivity_sweep": [
+        {
+          "borrow_cost_total": "69.35561286",
+          "full_net_pnl": "-9999.47120820",
+          "liquidation_count": 4,
+          "oos_net_pnl": "0.04789894",
+          "scale": "0.25",
+          "trade_count": 446
+        },
+        {
+          "borrow_cost_total": "137.13549453",
+          "full_net_pnl": "-9999.61417548",
+          "liquidation_count": 4,
+          "oos_net_pnl": "0.02283892",
+          "scale": "0.5",
+          "trade_count": 410
+        },
+        {
+          "borrow_cost_total": "168.94761379",
+          "full_net_pnl": "-9997.19346500",
+          "liquidation_count": 3,
+          "oos_net_pnl": "0.13969465",
+          "scale": "0.75",
+          "trade_count": 328
+        },
+        {
+          "borrow_cost_total": "222.11780353",
+          "full_net_pnl": "-9999.82279120",
+          "liquidation_count": 4,
+          "oos_net_pnl": "-1.10440530",
+          "scale": "1.0",
+          "trade_count": 296
+        },
+        {
+          "borrow_cost_total": "223.83786684",
+          "full_net_pnl": "-9994.67430746",
+          "liquidation_count": 2,
+          "oos_net_pnl": "0.16744563",
+          "scale": "1.25",
+          "trade_count": 244
+        },
+        {
+          "borrow_cost_total": "265.00318408",
+          "full_net_pnl": "-10004.96333647",
+          "liquidation_count": 1,
+          "oos_net_pnl": "-0.84970450",
+          "scale": "1.5",
+          "trade_count": 24
+        },
+        {
+          "borrow_cost_total": "310.22212559",
+          "full_net_pnl": "-10164.88556408",
+          "liquidation_count": 1,
+          "oos_net_pnl": "-36.51748572",
+          "scale": "2.0",
+          "trade_count": 18
+        },
+        {
+          "borrow_cost_total": "372.21043128",
+          "full_net_pnl": "-10417.33978218",
+          "liquidation_count": 1,
+          "oos_net_pnl": "-130.64638274",
+          "scale": "3.0",
+          "trade_count": 8
+        },
+        {
+          "borrow_cost_total": "2176.31358483",
+          "full_net_pnl": "-12370.47701736",
+          "liquidation_count": 1,
+          "oos_net_pnl": "-1102.52375052",
+          "scale": "5.0",
+          "trade_count": 8
+        }
+      ],
+      "funding_carry_gate": {
+        "cost_sensitivity": {
+          "breakpoint_scale_where_oos_edge_dies": "1.0",
+          "fragility_threshold_scale": "1.5",
+          "realistic_scale": "1.0",
+          "sweep": [
+            {
+              "borrow_cost_total": "69.35561286",
+              "full_net_pnl": "-9999.47120820",
+              "liquidation_count": 4,
+              "oos_net_pnl": "0.04789894",
+              "scale": "0.25",
+              "trade_count": 446
+            },
+            {
+              "borrow_cost_total": "137.13549453",
+              "full_net_pnl": "-9999.61417548",
+              "liquidation_count": 4,
+              "oos_net_pnl": "0.02283892",
+              "scale": "0.5",
+              "trade_count": 410
+            },
+            {
+              "borrow_cost_total": "168.94761379",
+              "full_net_pnl": "-9997.19346500",
+              "liquidation_count": 3,
+              "oos_net_pnl": "0.13969465",
+              "scale": "0.75",
+              "trade_count": 328
+            },
+            {
+              "borrow_cost_total": "222.11780353",
+              "full_net_pnl": "-9999.82279120",
+              "liquidation_count": 4,
+              "oos_net_pnl": "-1.10440530",
+              "scale": "1.0",
+              "trade_count": 296
+            },
+            {
+              "borrow_cost_total": "223.83786684",
+              "full_net_pnl": "-9994.67430746",
+              "liquidation_count": 2,
+              "oos_net_pnl": "0.16744563",
+              "scale": "1.25",
+              "trade_count": 244
+            },
+            {
+              "borrow_cost_total": "265.00318408",
+              "full_net_pnl": "-10004.96333647",
+              "liquidation_count": 1,
+              "oos_net_pnl": "-0.84970450",
+              "scale": "1.5",
+              "trade_count": 24
+            },
+            {
+              "borrow_cost_total": "310.22212559",
+              "full_net_pnl": "-10164.88556408",
+              "liquidation_count": 1,
+              "oos_net_pnl": "-36.51748572",
+              "scale": "2.0",
+              "trade_count": 18
+            },
+            {
+              "borrow_cost_total": "372.21043128",
+              "full_net_pnl": "-10417.33978218",
+              "liquidation_count": 1,
+              "oos_net_pnl": "-130.64638274",
+              "scale": "3.0",
+              "trade_count": 8
+            },
+            {
+              "borrow_cost_total": "2176.31358483",
+              "full_net_pnl": "-12370.47701736",
+              "liquidation_count": 1,
+              "oos_net_pnl": "-1102.52375052",
+              "scale": "5.0",
+              "trade_count": 8
+            }
+          ]
+        },
+        "gate_id": "funding_carry_net_oos_tail_gate",
+        "leave_one_out_oos_net": {
+          "AVAX": "135.72990062",
+          "BNB": "-1.23886071",
+          "BTC": "-1.15985348",
+          "DOGE": "0.47679790",
+          "ETH": "-3.59970023",
+          "SOL": "-1.28900757",
+          "XRP": "0.16581105"
+        },
+        "leverage_gross": "3",
+        "liquidation_count_oos": 1,
+        "liquidation_count_stressed": 1,
+        "max_oos_drawdown_pct_limit": "5",
+        "max_stressed_drawdown_pct_limit": "8",
+        "min_oos_days_required": 90,
+        "min_regime_days_for_gate": 30,
+        "non_bull_net_pnl": "1.85768000",
+        "oos_net_pnl": "-1.10440530",
+        "oos_regime_pnls": {
+          "bear": {
+            "days": 229,
+            "net_pnl": "-0.00039216"
+          },
+          "bull": {
+            "days": 237,
+            "net_pnl": "-1.11426701"
+          },
+          "neutral": {
+            "days": 160,
+            "net_pnl": "0.01025388"
+          }
+        },
+        "oos_strategy": {
+          "days": 627,
+          "max_drawdown_pct": "86.59334966",
+          "sharpe_annual": "-0.74053937",
+          "total_return_pct": "-86.17299852",
+          "vol_annual": "0.66036268"
+        },
+        "passed": false,
+        "qualifiers": [],
+        "reason_codes": [
+          "oos_net_carry_not_positive_after_costs",
+          "walk_forward_net_carry_not_positive_in_every_fold",
+          "leave_one_out_breaks_oos_net_carry",
+          "oos_drawdown_exceeds_documented_limit",
+          "stressed_tail_drawdown_exceeds_documented_limit",
+          "oos_regime_bear_net_carry_not_positive",
+          "oos_regime_bull_net_carry_not_positive",
+          "liquidation_event_in_oos",
+          "liquidation_event_in_stressed_run"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 670,
+            "net_pnl": "0.35639222"
+          },
+          "bull": {
+            "days": 949,
+            "net_pnl": "-10001.68047121"
+          },
+          "neutral": {
+            "days": 467,
+            "net_pnl": "1.50128778"
+          }
+        },
+        "status": "carry_does_not_survive_realistic_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": null,
+        "walk_forward_net_pnls": [
+          "-11.76858703",
+          "-1.09910082"
+        ]
+      },
+      "grid_rows": [
+        {
+          "borrow_cost_total": "1460.24863053",
+          "config_id": "fund_venues1_binance_single_lev3_cad14_top2_1d",
+          "construction": "binance_single",
+          "fees_total": "157.67719886",
+          "funding_collected_total": "2306.51990450",
+          "leverage_gross": "3",
+          "liquidation_count": 1,
+          "max_borrowed": "19231.85428761",
+          "max_residual_delta_fraction": "0.04306474",
+          "net_pnl": "-14146.65408512",
+          "oos_net_pnl": "-487.93070677",
+          "oos_stats": {
+            "days": 627,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "0E-8",
+            "BNB": "419.48628709",
+            "BTC": "0E-8",
+            "DOGE": "0E-8",
+            "ETH": "310.98613393",
+            "SOL": "0E-8",
+            "XRP": "-13416.87787561"
+          },
+          "rebalance_interval_days": 14,
+          "top_k": 2,
+          "trade_count": 32,
+          "train_stats": {
+            "days": 1460,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          }
+        },
+        {
+          "borrow_cost_total": "7179.55467221",
+          "config_id": "fund_venues1_binance_single_lev3_cad14_top4_1d",
+          "construction": "binance_single",
+          "fees_total": "327.92371675",
+          "funding_collected_total": "7013.51628266",
+          "leverage_gross": "3",
+          "liquidation_count": 1,
+          "max_borrowed": "48623.70306067",
+          "max_residual_delta_fraction": "0.02251051",
+          "net_pnl": "-31910.14049882",
+          "oos_net_pnl": "-2578.13411002",
+          "oos_stats": {
+            "days": 627,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "34.46494468",
+            "BNB": "602.49896041",
+            "BTC": "420.29744650",
+            "DOGE": "-26224.16420900",
+            "ETH": "687.49548121",
+            "SOL": "298.21597870",
+            "XRP": "-549.39442911"
+          },
+          "rebalance_interval_days": 14,
+          "top_k": 4,
+          "trade_count": 106,
+          "train_stats": {
+            "days": 1460,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          }
+        },
+        {
+          "borrow_cost_total": "222.11780353",
+          "config_id": "fund_venues1_binance_single_lev3_cad28_top2_1d",
+          "construction": "binance_single",
+          "fees_total": "200.10193224",
+          "funding_collected_total": "2601.54939904",
+          "leverage_gross": "3",
+          "liquidation_count": 4,
+          "max_borrowed": "26436.85644213",
+          "max_residual_delta_fraction": "0.08361010",
+          "net_pnl": "-9999.82279120",
+          "oos_net_pnl": "-1.10440530",
+          "oos_stats": {
+            "days": 627,
+            "max_drawdown_pct": "86.59334966",
+            "sharpe_annual": "-0.74053937",
+            "total_return_pct": "-86.17299852",
+            "vol_annual": "0.66036268"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "81.21597615",
+            "BNB": "212.47854995",
+            "BTC": "0.26301947",
+            "DOGE": "-12.43455889",
+            "ETH": "509.80190773",
+            "SOL": "5.11353915",
+            "XRP": "-10574.14342123"
+          },
+          "rebalance_interval_days": 28,
+          "top_k": 2,
+          "trade_count": 296,
+          "train_stats": {
+            "days": 1460,
+            "max_drawdown_pct": "99.99017935",
+            "sharpe_annual": "-0.58351178",
+            "total_return_pct": "-99.98718828",
+            "vol_annual": "0.79685151"
+          }
+        },
+        {
+          "borrow_cost_total": "2498.55457084",
+          "config_id": "fund_venues1_binance_single_lev3_cad28_top4_1d",
+          "construction": "binance_single",
+          "fees_total": "144.38728089",
+          "funding_collected_total": "2188.42338969",
+          "leverage_gross": "3",
+          "liquidation_count": 1,
+          "max_borrowed": "22077.18602225",
+          "max_residual_delta_fraction": "0.04450930",
+          "net_pnl": "-17177.60619682",
+          "oos_net_pnl": "-844.57839798",
+          "oos_stats": {
+            "days": 627,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "61.87311127",
+            "BNB": "394.33667880",
+            "BTC": "-88.02236167",
+            "DOGE": "-15218.43000921",
+            "ETH": "189.42007572",
+            "SOL": "28.09197835",
+            "XRP": "-46.32109924"
+          },
+          "rebalance_interval_days": 28,
+          "top_k": 4,
+          "trade_count": 48,
+          "train_stats": {
+            "days": 1460,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          }
+        }
+      ],
+      "headline": {
+        "borrow_cost_total": "222.11780353",
+        "fees_total": "200.10193224",
+        "full_net_pnl": "-9999.82279120",
+        "funding_collected_total": "2601.54939904",
+        "gross_zero_cost_net": "-9999.17155388",
+        "liquidation_count_full": 4,
+        "liquidation_count_oos": 1,
+        "maker_ceiling_net_non_gateable": "-9998.01077929",
+        "maker_ceiling_oos_net_non_gateable": "0.07551061",
+        "max_borrowed": "26436.85644213",
+        "oos_net_carry": "-1.10440530",
+        "oos_stats": {
+          "days": 627,
+          "max_drawdown_pct": "86.59334966",
+          "sharpe_annual": "-0.74053937",
+          "total_return_pct": "-86.17299852",
+          "vol_annual": "0.66036268"
+        },
+        "train_stats": {
+          "days": 1460,
+          "max_drawdown_pct": "99.99017935",
+          "sharpe_annual": "-0.58351178",
+          "total_return_pct": "-99.98718828",
+          "vol_annual": "0.79685151"
+        }
+      },
+      "leave_one_out": {
+        "AVAX": {
+          "liquidation_count": 1,
+          "oos_net_carry": "135.72990062"
+        },
+        "BNB": {
+          "liquidation_count": 5,
+          "oos_net_carry": "-1.23886071"
+        },
+        "BTC": {
+          "liquidation_count": 4,
+          "oos_net_carry": "-1.15985348"
+        },
+        "DOGE": {
+          "liquidation_count": 2,
+          "oos_net_carry": "0.47679790"
+        },
+        "ETH": {
+          "liquidation_count": 4,
+          "oos_net_carry": "-3.59970023"
+        },
+        "SOL": {
+          "liquidation_count": 5,
+          "oos_net_carry": "-1.28900757"
+        },
+        "XRP": {
+          "liquidation_count": 3,
+          "oos_net_carry": "0.16581105"
+        }
+      },
+      "leverage_gross": "3",
+      "regimes": {
+        "cycle_segments": {
+          "2020_2021_bull": {
+            "days": 465,
+            "net_pnl": "-9987.02122370"
+          },
+          "2022_bear": {
+            "days": 365,
+            "net_pnl": "0.20951977"
+          },
+          "2023_2024_recovery": {
+            "days": 731,
+            "net_pnl": "-13.02079593"
+          },
+          "2025_2026_current": {
+            "days": 526,
+            "net_pnl": "-0.00014582"
+          }
+        },
+        "full_window": {
+          "bear": {
+            "days": 670,
+            "net_pnl": "0.35639222"
+          },
+          "bull": {
+            "days": 949,
+            "net_pnl": "-10001.68047121"
+          },
+          "neutral": {
+            "days": 467,
+            "net_pnl": "1.50128778"
+          }
+        },
+        "oos_window": {
+          "bear": {
+            "days": 229,
+            "net_pnl": "-0.00039216"
+          },
+          "bull": {
+            "days": 237,
+            "net_pnl": "-1.11426701"
+          },
+          "neutral": {
+            "days": 160,
+            "net_pnl": "0.01025388"
+          }
+        }
+      },
+      "split_time": "2024-09-22 00:00:00+00:00",
+      "tail_stress": {
+        "borrow_cost_total": "367.10615247",
+        "cost_scale": "2.0",
+        "liquidation_count": 1,
+        "max_drawdown_pct": null,
+        "max_residual_delta_fraction": "2.53353784",
+        "net_pnl": "-10266.40609618",
+        "spot_leg_lag_days": 1,
+        "stressed_config": "fund_venues1_binance_single_lev3_cad28_top2_1d_stressed_scale2_leglag1"
+      },
+      "train_only_choice": {
+        "chosen_config": "fund_venues1_binance_single_lev3_cad28_top2_1d",
+        "criterion": "best train-window Sharpe at cited taker costs (scale 1.0)"
+      },
+      "walk_forward": {
+        "fold_b": {
+          "chosen_config": "fund_venues1_binance_single_lev3_cad28_top2_1d",
+          "net_carry": "-11.76858703",
+          "window": [
+            "2022-08-20 00:00:00+00:00",
+            "2024-07-16 00:00:00+00:00"
+          ]
+        },
+        "fold_c": {
+          "chosen_config": "fund_venues1_binance_single_lev3_cad28_top2_1d",
+          "net_carry": "-1.09910082",
+          "window": [
+            "2024-07-16 00:00:00+00:00",
+            "end"
+          ]
+        }
+      }
+    },
+    "binance_single|lev5": {
+      "aligned_days": 2087,
+      "aligned_window": [
+        "2020-09-24 00:00:00+00:00",
+        "2026-06-11 00:00:00+00:00"
+      ],
+      "construction": "binance_single",
+      "cost_sensitivity_sweep": [
+        {
+          "borrow_cost_total": "131.94933650",
+          "full_net_pnl": "-10663.05006353",
+          "liquidation_count": 2,
+          "oos_net_pnl": "-20.43153476",
+          "scale": "0.25",
+          "trade_count": 60
+        },
+        {
+          "borrow_cost_total": "241.68694738",
+          "full_net_pnl": "-10697.97932598",
+          "liquidation_count": 2,
+          "oos_net_pnl": "-42.35194346",
+          "scale": "0.5",
+          "trade_count": 57
+        },
+        {
+          "borrow_cost_total": "251.98439691",
+          "full_net_pnl": "-10743.57468225",
+          "liquidation_count": 2,
+          "oos_net_pnl": "-66.63901008",
+          "scale": "0.75",
+          "trade_count": 40
+        },
+        {
+          "borrow_cost_total": "310.67994252",
+          "full_net_pnl": "-10788.23279635",
+          "liquidation_count": 2,
+          "oos_net_pnl": "-92.75019757",
+          "scale": "1.0",
+          "trade_count": 34
+        },
+        {
+          "borrow_cost_total": "396.55383731",
+          "full_net_pnl": "-10848.57875374",
+          "liquidation_count": 2,
+          "oos_net_pnl": "-122.91812301",
+          "scale": "1.25",
+          "trade_count": 34
+        },
+        {
+          "borrow_cost_total": "2874.72287933",
+          "full_net_pnl": "-16011.50240253",
+          "liquidation_count": 1,
+          "oos_net_pnl": "-1029.14643282",
+          "scale": "1.5",
+          "trade_count": 18
+        },
+        {
+          "borrow_cost_total": "4074.89210544",
+          "full_net_pnl": "-17160.13202726",
+          "liquidation_count": 1,
+          "oos_net_pnl": "-1585.76659519",
+          "scale": "2.0",
+          "trade_count": 14
+        },
+        {
+          "borrow_cost_total": "7097.75240396",
+          "full_net_pnl": "-19995.98491322",
+          "liquidation_count": 1,
+          "oos_net_pnl": "-3129.19909845",
+          "scale": "3.0",
+          "trade_count": 12
+        },
+        {
+          "borrow_cost_total": "19855.77733239",
+          "full_net_pnl": "-32752.10325385",
+          "liquidation_count": 1,
+          "oos_net_pnl": "-10582.14613681",
+          "scale": "5.0",
+          "trade_count": 12
+        }
+      ],
+      "funding_carry_gate": {
+        "cost_sensitivity": {
+          "breakpoint_scale_where_oos_edge_dies": "0.25",
+          "fragility_threshold_scale": "1.5",
+          "realistic_scale": "1.0",
+          "sweep": [
+            {
+              "borrow_cost_total": "131.94933650",
+              "full_net_pnl": "-10663.05006353",
+              "liquidation_count": 2,
+              "oos_net_pnl": "-20.43153476",
+              "scale": "0.25",
+              "trade_count": 60
+            },
+            {
+              "borrow_cost_total": "241.68694738",
+              "full_net_pnl": "-10697.97932598",
+              "liquidation_count": 2,
+              "oos_net_pnl": "-42.35194346",
+              "scale": "0.5",
+              "trade_count": 57
+            },
+            {
+              "borrow_cost_total": "251.98439691",
+              "full_net_pnl": "-10743.57468225",
+              "liquidation_count": 2,
+              "oos_net_pnl": "-66.63901008",
+              "scale": "0.75",
+              "trade_count": 40
+            },
+            {
+              "borrow_cost_total": "310.67994252",
+              "full_net_pnl": "-10788.23279635",
+              "liquidation_count": 2,
+              "oos_net_pnl": "-92.75019757",
+              "scale": "1.0",
+              "trade_count": 34
+            },
+            {
+              "borrow_cost_total": "396.55383731",
+              "full_net_pnl": "-10848.57875374",
+              "liquidation_count": 2,
+              "oos_net_pnl": "-122.91812301",
+              "scale": "1.25",
+              "trade_count": 34
+            },
+            {
+              "borrow_cost_total": "2874.72287933",
+              "full_net_pnl": "-16011.50240253",
+              "liquidation_count": 1,
+              "oos_net_pnl": "-1029.14643282",
+              "scale": "1.5",
+              "trade_count": 18
+            },
+            {
+              "borrow_cost_total": "4074.89210544",
+              "full_net_pnl": "-17160.13202726",
+              "liquidation_count": 1,
+              "oos_net_pnl": "-1585.76659519",
+              "scale": "2.0",
+              "trade_count": 14
+            },
+            {
+              "borrow_cost_total": "7097.75240396",
+              "full_net_pnl": "-19995.98491322",
+              "liquidation_count": 1,
+              "oos_net_pnl": "-3129.19909845",
+              "scale": "3.0",
+              "trade_count": 12
+            },
+            {
+              "borrow_cost_total": "19855.77733239",
+              "full_net_pnl": "-32752.10325385",
+              "liquidation_count": 1,
+              "oos_net_pnl": "-10582.14613681",
+              "scale": "5.0",
+              "trade_count": 12
+            }
+          ]
+        },
+        "gate_id": "funding_carry_net_oos_tail_gate",
+        "leave_one_out_oos_net": {
+          "AVAX": "-217.93388905",
+          "BNB": "-71.60823882",
+          "BTC": "-92.75019757",
+          "DOGE": "-92.75019757",
+          "ETH": "-91.47530531",
+          "SOL": "-92.75019757",
+          "XRP": "-548.11547600"
+        },
+        "leverage_gross": "5",
+        "liquidation_count_oos": 0,
+        "liquidation_count_stressed": 1,
+        "max_oos_drawdown_pct_limit": "5",
+        "max_stressed_drawdown_pct_limit": "8",
+        "min_oos_days_required": 90,
+        "min_regime_days_for_gate": 30,
+        "non_bull_net_pnl": "-149.36501440",
+        "oos_net_pnl": "-92.75019757",
+        "oos_regime_pnls": {
+          "bear": {
+            "days": 229,
+            "net_pnl": "-34.71580197"
+          },
+          "bull": {
+            "days": 237,
+            "net_pnl": "-34.55097616"
+          },
+          "neutral": {
+            "days": 160,
+            "net_pnl": "-23.48341944"
+          }
+        },
+        "oos_strategy": {
+          "days": 627,
+          "max_drawdown_pct": null,
+          "sharpe_annual": null,
+          "total_return_pct": null,
+          "vol_annual": null
+        },
+        "passed": false,
+        "qualifiers": [],
+        "reason_codes": [
+          "oos_net_carry_not_positive_after_costs",
+          "walk_forward_net_carry_not_positive_in_every_fold",
+          "non_bull_regime_net_carry_not_positive",
+          "leave_one_out_breaks_oos_net_carry",
+          "oos_drawdown_exceeds_documented_limit",
+          "stressed_tail_drawdown_exceeds_documented_limit",
+          "oos_regime_bear_net_carry_not_positive",
+          "oos_regime_neutral_net_carry_not_positive",
+          "oos_regime_bull_net_carry_not_positive",
+          "liquidation_event_in_stressed_run"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 670,
+            "net_pnl": "-87.26078407"
+          },
+          "bull": {
+            "days": 949,
+            "net_pnl": "-10638.86778195"
+          },
+          "neutral": {
+            "days": 467,
+            "net_pnl": "-62.10423033"
+          }
+        },
+        "status": "carry_does_not_survive_realistic_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": null,
+        "walk_forward_net_pnls": [
+          "-89.00902186",
+          "-102.14380033"
+        ]
+      },
+      "grid_rows": [
+        {
+          "borrow_cost_total": "310.67994252",
+          "config_id": "fund_venues1_binance_single_lev5_cad14_top2_1d",
+          "construction": "binance_single",
+          "fees_total": "119.33461397",
+          "funding_collected_total": "827.18076849",
+          "leverage_gross": "5",
+          "liquidation_count": 2,
+          "max_borrowed": "33713.99296196",
+          "max_residual_delta_fraction": "0.06990639",
+          "net_pnl": "-10788.23279635",
+          "oos_net_pnl": "-92.75019757",
+          "oos_stats": {
+            "days": 627,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "0E-8",
+            "BNB": "-444.65695454",
+            "BTC": "0E-8",
+            "DOGE": "0E-8",
+            "ETH": "110.00477105",
+            "SOL": "0E-8",
+            "XRP": "-10142.90067034"
+          },
+          "rebalance_interval_days": 14,
+          "top_k": 2,
+          "trade_count": 34,
+          "train_stats": {
+            "days": 1460,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          }
+        },
+        {
+          "borrow_cost_total": "2010.47267606",
+          "config_id": "fund_venues1_binance_single_lev5_cad14_top4_1d",
+          "construction": "binance_single",
+          "fees_total": "127.04621900",
+          "funding_collected_total": "1268.68203642",
+          "leverage_gross": "5",
+          "liquidation_count": 1,
+          "max_borrowed": "33000.28956790",
+          "max_residual_delta_fraction": "0.03702577",
+          "net_pnl": "-15601.25024843",
+          "oos_net_pnl": "-659.09090478",
+          "oos_stats": {
+            "days": 627,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "0E-8",
+            "BNB": "-34.47462043",
+            "BTC": "-1061.39310832",
+            "DOGE": "-12342.31682051",
+            "ETH": "-340.83697017",
+            "SOL": "0E-8",
+            "XRP": "188.24394706"
+          },
+          "rebalance_interval_days": 14,
+          "top_k": 4,
+          "trade_count": 34,
+          "train_stats": {
+            "days": 1460,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          }
+        },
+        {
+          "borrow_cost_total": "183.46345366",
+          "config_id": "fund_venues1_binance_single_lev5_cad28_top2_1d",
+          "construction": "binance_single",
+          "fees_total": "155.19341709",
+          "funding_collected_total": "1263.01695207",
+          "leverage_gross": "5",
+          "liquidation_count": 2,
+          "max_borrowed": "35263.01629864",
+          "max_residual_delta_fraction": "0.00780059",
+          "net_pnl": "-10020.45027446",
+          "oos_net_pnl": "-2.40635387",
+          "oos_stats": {
+            "days": 627,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "-1098.34926148",
+            "BNB": "-534.63111671",
+            "BTC": "0E-8",
+            "DOGE": "0E-8",
+            "ETH": "-250.27907485",
+            "SOL": "0E-8",
+            "XRP": "-7953.72736776"
+          },
+          "rebalance_interval_days": 28,
+          "top_k": 2,
+          "trade_count": 24,
+          "train_stats": {
+            "days": 1460,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          }
+        },
+        {
+          "borrow_cost_total": "1612.05853607",
+          "config_id": "fund_venues1_binance_single_lev5_cad28_top4_1d",
+          "construction": "binance_single",
+          "fees_total": "195.36355297",
+          "funding_collected_total": "3109.14155298",
+          "leverage_gross": "5",
+          "liquidation_count": 2,
+          "max_borrowed": "43883.45435480",
+          "max_residual_delta_fraction": "0.07077890",
+          "net_pnl": "-13860.92704105",
+          "oos_net_pnl": "-454.30962436",
+          "oos_stats": {
+            "days": 627,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "-2463.61035645",
+            "BNB": "-1020.06212272",
+            "BTC": "-2142.59996304",
+            "DOGE": "-4083.59176165",
+            "ETH": "-2827.84254671",
+            "SOL": "46.78304137",
+            "XRP": "242.05520422"
+          },
+          "rebalance_interval_days": 28,
+          "top_k": 4,
+          "trade_count": 52,
+          "train_stats": {
+            "days": 1460,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          }
+        }
+      ],
+      "headline": {
+        "borrow_cost_total": "310.67994252",
+        "fees_total": "119.33461397",
+        "full_net_pnl": "-10788.23279635",
+        "funding_collected_total": "827.18076849",
+        "gross_zero_cost_net": "-10627.70103289",
+        "liquidation_count_full": 2,
+        "liquidation_count_oos": 0,
+        "maker_ceiling_net_non_gateable": "-10796.10845248",
+        "maker_ceiling_oos_net_non_gateable": "-93.67691439",
+        "max_borrowed": "33713.99296196",
+        "oos_net_carry": "-92.75019757",
+        "oos_stats": {
+          "days": 627,
+          "max_drawdown_pct": null,
+          "sharpe_annual": null,
+          "total_return_pct": null,
+          "vol_annual": null
+        },
+        "train_stats": {
+          "days": 1460,
+          "max_drawdown_pct": null,
+          "sharpe_annual": null,
+          "total_return_pct": null,
+          "vol_annual": null
+        }
+      },
+      "leave_one_out": {
+        "AVAX": {
+          "liquidation_count": 1,
+          "oos_net_carry": "-217.93388905"
+        },
+        "BNB": {
+          "liquidation_count": 2,
+          "oos_net_carry": "-71.60823882"
+        },
+        "BTC": {
+          "liquidation_count": 2,
+          "oos_net_carry": "-92.75019757"
+        },
+        "DOGE": {
+          "liquidation_count": 2,
+          "oos_net_carry": "-92.75019757"
+        },
+        "ETH": {
+          "liquidation_count": 2,
+          "oos_net_carry": "-91.47530531"
+        },
+        "SOL": {
+          "liquidation_count": 2,
+          "oos_net_carry": "-92.75019757"
+        },
+        "XRP": {
+          "liquidation_count": 1,
+          "oos_net_carry": "-548.11547600"
+        }
+      },
+      "leverage_gross": "5",
+      "regimes": {
+        "cycle_segments": {
+          "2020_2021_bull": {
+            "days": 465,
+            "net_pnl": "-10569.88005490"
+          },
+          "2022_bear": {
+            "days": 365,
+            "net_pnl": "-43.03887192"
+          },
+          "2023_2024_recovery": {
+            "days": 731,
+            "net_pnl": "-96.37535093"
+          },
+          "2025_2026_current": {
+            "days": 526,
+            "net_pnl": "-78.56002984"
+          }
+        },
+        "full_window": {
+          "bear": {
+            "days": 670,
+            "net_pnl": "-87.26078407"
+          },
+          "bull": {
+            "days": 949,
+            "net_pnl": "-10638.86778195"
+          },
+          "neutral": {
+            "days": 467,
+            "net_pnl": "-62.10423033"
+          }
+        },
+        "oos_window": {
+          "bear": {
+            "days": 229,
+            "net_pnl": "-34.71580197"
+          },
+          "bull": {
+            "days": 237,
+            "net_pnl": "-34.55097616"
+          },
+          "neutral": {
+            "days": 160,
+            "net_pnl": "-23.48341944"
+          }
+        }
+      },
+      "split_time": "2024-09-22 00:00:00+00:00",
+      "tail_stress": {
+        "borrow_cost_total": "4790.13758410",
+        "cost_scale": "2.0",
+        "liquidation_count": 1,
+        "max_drawdown_pct": null,
+        "max_residual_delta_fraction": "1.57816655",
+        "net_pnl": "-18490.33720779",
+        "spot_leg_lag_days": 1,
+        "stressed_config": "fund_venues1_binance_single_lev5_cad14_top2_1d_stressed_scale2_leglag1"
+      },
+      "train_only_choice": {
+        "chosen_config": "fund_venues1_binance_single_lev5_cad14_top2_1d",
+        "criterion": "best train-window Sharpe at cited taker costs (scale 1.0)"
+      },
+      "walk_forward": {
+        "fold_b": {
+          "chosen_config": "fund_venues1_binance_single_lev5_cad14_top2_1d",
+          "net_carry": "-89.00902186",
+          "window": [
+            "2022-08-20 00:00:00+00:00",
+            "2024-07-16 00:00:00+00:00"
+          ]
+        },
+        "fold_c": {
+          "chosen_config": "fund_venues1_binance_single_lev5_cad14_top2_1d",
+          "net_carry": "-102.14380033",
+          "window": [
+            "2024-07-16 00:00:00+00:00",
+            "end"
+          ]
+        }
+      }
+    },
+    "bybit_single|lev1": {
+      "aligned_days": 1554,
+      "aligned_window": [
+        "2022-03-11 00:00:00+00:00",
+        "2026-06-11 00:00:00+00:00"
+      ],
+      "construction": "bybit_single",
+      "cost_sensitivity_sweep": [
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "1664.04510331",
+          "liquidation_count": 0,
+          "oos_net_pnl": "186.47453317",
+          "scale": "0.25",
+          "trade_count": 394
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "1503.51586529",
+          "liquidation_count": 0,
+          "oos_net_pnl": "124.60643582",
+          "scale": "0.5",
+          "trade_count": 316
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "1326.30470855",
+          "liquidation_count": 0,
+          "oos_net_pnl": "85.91519600",
+          "scale": "0.75",
+          "trade_count": 248
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "1409.05097698",
+          "liquidation_count": 0,
+          "oos_net_pnl": "67.80197531",
+          "scale": "1.0",
+          "trade_count": 166
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "1041.64988439",
+          "liquidation_count": 0,
+          "oos_net_pnl": "46.63579921",
+          "scale": "1.25",
+          "trade_count": 114
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "939.44416625",
+          "liquidation_count": 0,
+          "oos_net_pnl": "42.61312364",
+          "scale": "1.5",
+          "trade_count": 102
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "884.02389971",
+          "liquidation_count": 0,
+          "oos_net_pnl": "28.24038620",
+          "scale": "2.0",
+          "trade_count": 98
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "631.55606584",
+          "liquidation_count": 0,
+          "oos_net_pnl": "18.54882123",
+          "scale": "3.0",
+          "trade_count": 64
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "353.58412219",
+          "liquidation_count": 0,
+          "oos_net_pnl": "0.41269184",
+          "scale": "5.0",
+          "trade_count": 58
+        }
+      ],
+      "funding_carry_gate": {
+        "cost_sensitivity": {
+          "breakpoint_scale_where_oos_edge_dies": null,
+          "fragility_threshold_scale": "1.5",
+          "realistic_scale": "1.0",
+          "sweep": [
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "1664.04510331",
+              "liquidation_count": 0,
+              "oos_net_pnl": "186.47453317",
+              "scale": "0.25",
+              "trade_count": 394
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "1503.51586529",
+              "liquidation_count": 0,
+              "oos_net_pnl": "124.60643582",
+              "scale": "0.5",
+              "trade_count": 316
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "1326.30470855",
+              "liquidation_count": 0,
+              "oos_net_pnl": "85.91519600",
+              "scale": "0.75",
+              "trade_count": 248
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "1409.05097698",
+              "liquidation_count": 0,
+              "oos_net_pnl": "67.80197531",
+              "scale": "1.0",
+              "trade_count": 166
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "1041.64988439",
+              "liquidation_count": 0,
+              "oos_net_pnl": "46.63579921",
+              "scale": "1.25",
+              "trade_count": 114
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "939.44416625",
+              "liquidation_count": 0,
+              "oos_net_pnl": "42.61312364",
+              "scale": "1.5",
+              "trade_count": 102
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "884.02389971",
+              "liquidation_count": 0,
+              "oos_net_pnl": "28.24038620",
+              "scale": "2.0",
+              "trade_count": 98
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "631.55606584",
+              "liquidation_count": 0,
+              "oos_net_pnl": "18.54882123",
+              "scale": "3.0",
+              "trade_count": 64
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "353.58412219",
+              "liquidation_count": 0,
+              "oos_net_pnl": "0.41269184",
+              "scale": "5.0",
+              "trade_count": 58
+            }
+          ]
+        },
+        "gate_id": "funding_carry_net_oos_tail_gate",
+        "leave_one_out_oos_net": {
+          "AVAX": "67.61797567",
+          "BNB": "140.41182968",
+          "BTC": "67.45810794",
+          "DOGE": "30.71684581",
+          "ETH": "67.66651813",
+          "SOL": "76.13095647",
+          "XRP": "67.97650842"
+        },
+        "leverage_gross": "1",
+        "liquidation_count_oos": 0,
+        "liquidation_count_stressed": 0,
+        "max_oos_drawdown_pct_limit": "5",
+        "max_stressed_drawdown_pct_limit": "8",
+        "min_oos_days_required": 90,
+        "min_regime_days_for_gate": 30,
+        "non_bull_net_pnl": "298.37021241",
+        "oos_net_pnl": "67.80197531",
+        "oos_regime_pnls": {
+          "bear": {
+            "days": 224,
+            "net_pnl": "-2.64459029"
+          },
+          "bull": {
+            "days": 130,
+            "net_pnl": "52.11603265"
+          },
+          "neutral": {
+            "days": 112,
+            "net_pnl": "18.33053295"
+          }
+        },
+        "oos_strategy": {
+          "days": 467,
+          "max_drawdown_pct": "0.27622875",
+          "sharpe_annual": "2.49358060",
+          "total_return_pct": "0.59783517",
+          "vol_annual": "0.00187299"
+        },
+        "passed": false,
+        "qualifiers": [],
+        "reason_codes": [
+          "oos_regime_bear_net_carry_not_positive"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 517,
+            "net_pnl": "72.24432155"
+          },
+          "bull": {
+            "days": 602,
+            "net_pnl": "1110.68076457"
+          },
+          "neutral": {
+            "days": 434,
+            "net_pnl": "226.12589086"
+          }
+        },
+        "status": "carry_does_not_survive_realistic_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": "0.61409383",
+        "walk_forward_net_pnls": [
+          "1024.19104111",
+          "99.92586134"
+        ]
+      },
+      "grid_rows": [
+        {
+          "borrow_cost_total": "0E-8",
+          "config_id": "fund_venues1_bybit_single_lev1_cad14_top2_1d",
+          "construction": "bybit_single",
+          "fees_total": "109.07037768",
+          "funding_collected_total": "1149.16264968",
+          "leverage_gross": "1",
+          "liquidation_count": 0,
+          "max_borrowed": "0E-8",
+          "max_residual_delta_fraction": "0.00292042",
+          "net_pnl": "1007.51363314",
+          "oos_net_pnl": "72.39639882",
+          "oos_stats": {
+            "days": 467,
+            "max_drawdown_pct": "0.13076263",
+            "sharpe_annual": "3.57599397",
+            "total_return_pct": "0.66205416",
+            "vol_annual": "0.00144564"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "289.40919196",
+            "BNB": "14.42607910",
+            "BTC": "0E-8",
+            "DOGE": "382.82955337",
+            "ETH": "27.41983978",
+            "SOL": "63.25226391",
+            "XRP": "230.17670502"
+          },
+          "rebalance_interval_days": 14,
+          "top_k": 2,
+          "trade_count": 110,
+          "train_stats": {
+            "days": 1087,
+            "max_drawdown_pct": "0.28757342",
+            "sharpe_annual": "5.42336844",
+            "total_return_pct": "9.34257749",
+            "vol_annual": "0.00553811"
+          }
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "config_id": "fund_venues1_bybit_single_lev1_cad14_top4_1d",
+          "construction": "bybit_single",
+          "fees_total": "73.99517097",
+          "funding_collected_total": "1049.84579567",
+          "leverage_gross": "1",
+          "liquidation_count": 0,
+          "max_borrowed": "0E-8",
+          "max_residual_delta_fraction": "0.00157039",
+          "net_pnl": "953.45014996",
+          "oos_net_pnl": "36.87848524",
+          "oos_stats": {
+            "days": 467,
+            "max_drawdown_pct": "0.06539323",
+            "sharpe_annual": "3.60495055",
+            "total_return_pct": "0.33782113",
+            "vol_annual": "0.00073284"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "169.90721959",
+            "BNB": "37.70783998",
+            "BTC": "8.15101863",
+            "DOGE": "293.78274237",
+            "ETH": "36.81993823",
+            "SOL": "184.51591464",
+            "XRP": "222.56547652"
+          },
+          "rebalance_interval_days": 14,
+          "top_k": 4,
+          "trade_count": 128,
+          "train_stats": {
+            "days": 1087,
+            "max_drawdown_pct": "0.17077359",
+            "sharpe_annual": "5.75410706",
+            "total_return_pct": "9.16123457",
+            "vol_annual": "0.00512244"
+          }
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "config_id": "fund_venues1_bybit_single_lev1_cad28_top2_1d",
+          "construction": "bybit_single",
+          "fees_total": "146.36584347",
+          "funding_collected_total": "1821.40202872",
+          "leverage_gross": "1",
+          "liquidation_count": 0,
+          "max_borrowed": "0E-8",
+          "max_residual_delta_fraction": "0.00289570",
+          "net_pnl": "1614.55375688",
+          "oos_net_pnl": "105.46485174",
+          "oos_stats": {
+            "days": 467,
+            "max_drawdown_pct": "0.28522226",
+            "sharpe_annual": "2.82953711",
+            "total_return_pct": "0.91636143",
+            "vol_annual": "0.00252624"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "304.06916019",
+            "BNB": "68.25790542",
+            "BTC": "73.92360158",
+            "DOGE": "691.09373009",
+            "ETH": "0E-8",
+            "SOL": "121.76581041",
+            "XRP": "355.44354919"
+          },
+          "rebalance_interval_days": 28,
+          "top_k": 2,
+          "trade_count": 132,
+          "train_stats": {
+            "days": 1087,
+            "max_drawdown_pct": "0.29339794",
+            "sharpe_annual": "7.01930248",
+            "total_return_pct": "15.08101868",
+            "vol_annual": "0.00672941"
+          }
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "config_id": "fund_venues1_bybit_single_lev1_cad28_top4_1d",
+          "construction": "bybit_single",
+          "fees_total": "116.48271397",
+          "funding_collected_total": "1570.38047049",
+          "leverage_gross": "1",
+          "liquidation_count": 0,
+          "max_borrowed": "0E-8",
+          "max_residual_delta_fraction": "0.00144708",
+          "net_pnl": "1409.05097698",
+          "oos_net_pnl": "67.80197531",
+          "oos_stats": {
+            "days": 467,
+            "max_drawdown_pct": "0.27622875",
+            "sharpe_annual": "2.49358060",
+            "total_return_pct": "0.59783517",
+            "vol_annual": "0.00187299"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "167.60530907",
+            "BNB": "55.35475356",
+            "BTC": "133.82459680",
+            "DOGE": "445.48731108",
+            "ETH": "100.21205412",
+            "SOL": "235.74360666",
+            "XRP": "270.82334569"
+          },
+          "rebalance_interval_days": 28,
+          "top_k": 4,
+          "trade_count": 166,
+          "train_stats": {
+            "days": 1087,
+            "max_drawdown_pct": "0.22516501",
+            "sharpe_annual": "7.73824902",
+            "total_return_pct": "13.40761886",
+            "vol_annual": "0.00546692"
+          }
+        }
+      ],
+      "headline": {
+        "borrow_cost_total": "0E-8",
+        "fees_total": "116.48271397",
+        "full_net_pnl": "1409.05097698",
+        "funding_collected_total": "1570.38047049",
+        "gross_zero_cost_net": "1779.38048611",
+        "liquidation_count_full": 0,
+        "liquidation_count_oos": 0,
+        "maker_ceiling_net_non_gateable": "1296.38736020",
+        "maker_ceiling_oos_net_non_gateable": "94.81782121",
+        "max_borrowed": "0E-8",
+        "oos_net_carry": "67.80197531",
+        "oos_stats": {
+          "days": 467,
+          "max_drawdown_pct": "0.27622875",
+          "sharpe_annual": "2.49358060",
+          "total_return_pct": "0.59783517",
+          "vol_annual": "0.00187299"
+        },
+        "train_stats": {
+          "days": 1087,
+          "max_drawdown_pct": "0.22516501",
+          "sharpe_annual": "7.73824902",
+          "total_return_pct": "13.40761886",
+          "vol_annual": "0.00546692"
+        }
+      },
+      "leave_one_out": {
+        "AVAX": {
+          "liquidation_count": 0,
+          "oos_net_carry": "67.61797567"
+        },
+        "BNB": {
+          "liquidation_count": 0,
+          "oos_net_carry": "140.41182968"
+        },
+        "BTC": {
+          "liquidation_count": 0,
+          "oos_net_carry": "67.45810794"
+        },
+        "DOGE": {
+          "liquidation_count": 0,
+          "oos_net_carry": "30.71684581"
+        },
+        "ETH": {
+          "liquidation_count": 0,
+          "oos_net_carry": "67.66651813"
+        },
+        "SOL": {
+          "liquidation_count": 0,
+          "oos_net_carry": "76.13095647"
+        },
+        "XRP": {
+          "liquidation_count": 0,
+          "oos_net_carry": "67.97650842"
+        }
+      },
+      "leverage_gross": "1",
+      "regimes": {
+        "cycle_segments": {
+          "2020_2021_bull": {
+            "days": 0,
+            "net_pnl": null
+          },
+          "2022_bear": {
+            "days": 297,
+            "net_pnl": "69.70738651"
+          },
+          "2023_2024_recovery": {
+            "days": 731,
+            "net_pnl": "1234.16639379"
+          },
+          "2025_2026_current": {
+            "days": 526,
+            "net_pnl": "104.13701576"
+          }
+        },
+        "full_window": {
+          "bear": {
+            "days": 517,
+            "net_pnl": "72.24432155"
+          },
+          "bull": {
+            "days": 602,
+            "net_pnl": "1110.68076457"
+          },
+          "neutral": {
+            "days": 434,
+            "net_pnl": "226.12589086"
+          }
+        },
+        "oos_window": {
+          "bear": {
+            "days": 224,
+            "net_pnl": "-2.64459029"
+          },
+          "bull": {
+            "days": 130,
+            "net_pnl": "52.11603265"
+          },
+          "neutral": {
+            "days": 112,
+            "net_pnl": "18.33053295"
+          }
+        }
+      },
+      "split_time": "2025-03-01 00:00:00+00:00",
+      "tail_stress": {
+        "borrow_cost_total": "0E-8",
+        "cost_scale": "2.0",
+        "liquidation_count": 0,
+        "max_drawdown_pct": "0.61409383",
+        "max_residual_delta_fraction": "1.05379703",
+        "net_pnl": "1264.62128025",
+        "spot_leg_lag_days": 1,
+        "stressed_config": "fund_venues1_bybit_single_lev1_cad28_top4_1d_stressed_scale2_leglag1"
+      },
+      "train_only_choice": {
+        "chosen_config": "fund_venues1_bybit_single_lev1_cad28_top4_1d",
+        "criterion": "best train-window Sharpe at cited taker costs (scale 1.0)"
+      },
+      "walk_forward": {
+        "fold_b": {
+          "chosen_config": "fund_venues1_bybit_single_lev1_cad28_top4_1d",
+          "net_carry": "1024.19104111",
+          "window": [
+            "2023-08-11 00:00:00+00:00",
+            "2025-01-10 00:00:00+00:00"
+          ]
+        },
+        "fold_c": {
+          "chosen_config": "fund_venues1_bybit_single_lev1_cad28_top4_1d",
+          "net_carry": "99.92586134",
+          "window": [
+            "2025-01-10 00:00:00+00:00",
+            "end"
+          ]
+        }
+      }
+    },
+    "bybit_single|lev3": {
+      "aligned_days": 1554,
+      "aligned_window": [
+        "2022-03-11 00:00:00+00:00",
+        "2026-06-11 00:00:00+00:00"
+      ],
+      "construction": "bybit_single",
+      "cost_sensitivity_sweep": [
+        {
+          "borrow_cost_total": "485.55496116",
+          "full_net_pnl": "5213.75953875",
+          "liquidation_count": 0,
+          "oos_net_pnl": "601.54202818",
+          "scale": "0.25",
+          "trade_count": 472
+        },
+        {
+          "borrow_cost_total": "788.58264184",
+          "full_net_pnl": "4204.19106649",
+          "liquidation_count": 0,
+          "oos_net_pnl": "310.01752404",
+          "scale": "0.5",
+          "trade_count": 386
+        },
+        {
+          "borrow_cost_total": "874.11186280",
+          "full_net_pnl": "3438.55428299",
+          "liquidation_count": 0,
+          "oos_net_pnl": "188.38235747",
+          "scale": "0.75",
+          "trade_count": 314
+        },
+        {
+          "borrow_cost_total": "1079.07652292",
+          "full_net_pnl": "3514.31494587",
+          "liquidation_count": 0,
+          "oos_net_pnl": "89.18401796",
+          "scale": "1.0",
+          "trade_count": 236
+        },
+        {
+          "borrow_cost_total": "686.56303241",
+          "full_net_pnl": "2639.69039339",
+          "liquidation_count": 0,
+          "oos_net_pnl": "158.60746399",
+          "scale": "1.25",
+          "trade_count": 162
+        },
+        {
+          "borrow_cost_total": "801.60119233",
+          "full_net_pnl": "2142.90675509",
+          "liquidation_count": 0,
+          "oos_net_pnl": "139.61750363",
+          "scale": "1.5",
+          "trade_count": 142
+        },
+        {
+          "borrow_cost_total": "1054.22016985",
+          "full_net_pnl": "1668.55580822",
+          "liquidation_count": 0,
+          "oos_net_pnl": "87.68814162",
+          "scale": "2.0",
+          "trade_count": 132
+        },
+        {
+          "borrow_cost_total": "778.50760809",
+          "full_net_pnl": "1122.66339854",
+          "liquidation_count": 0,
+          "oos_net_pnl": "53.98979122",
+          "scale": "3.0",
+          "trade_count": 96
+        },
+        {
+          "borrow_cost_total": "1207.94209190",
+          "full_net_pnl": "-237.04208362",
+          "liquidation_count": 0,
+          "oos_net_pnl": "-5.33266762",
+          "scale": "5.0",
+          "trade_count": 86
+        }
+      ],
+      "funding_carry_gate": {
+        "cost_sensitivity": {
+          "breakpoint_scale_where_oos_edge_dies": "5.0",
+          "fragility_threshold_scale": "1.5",
+          "realistic_scale": "1.0",
+          "sweep": [
+            {
+              "borrow_cost_total": "485.55496116",
+              "full_net_pnl": "5213.75953875",
+              "liquidation_count": 0,
+              "oos_net_pnl": "601.54202818",
+              "scale": "0.25",
+              "trade_count": 472
+            },
+            {
+              "borrow_cost_total": "788.58264184",
+              "full_net_pnl": "4204.19106649",
+              "liquidation_count": 0,
+              "oos_net_pnl": "310.01752404",
+              "scale": "0.5",
+              "trade_count": 386
+            },
+            {
+              "borrow_cost_total": "874.11186280",
+              "full_net_pnl": "3438.55428299",
+              "liquidation_count": 0,
+              "oos_net_pnl": "188.38235747",
+              "scale": "0.75",
+              "trade_count": 314
+            },
+            {
+              "borrow_cost_total": "1079.07652292",
+              "full_net_pnl": "3514.31494587",
+              "liquidation_count": 0,
+              "oos_net_pnl": "89.18401796",
+              "scale": "1.0",
+              "trade_count": 236
+            },
+            {
+              "borrow_cost_total": "686.56303241",
+              "full_net_pnl": "2639.69039339",
+              "liquidation_count": 0,
+              "oos_net_pnl": "158.60746399",
+              "scale": "1.25",
+              "trade_count": 162
+            },
+            {
+              "borrow_cost_total": "801.60119233",
+              "full_net_pnl": "2142.90675509",
+              "liquidation_count": 0,
+              "oos_net_pnl": "139.61750363",
+              "scale": "1.5",
+              "trade_count": 142
+            },
+            {
+              "borrow_cost_total": "1054.22016985",
+              "full_net_pnl": "1668.55580822",
+              "liquidation_count": 0,
+              "oos_net_pnl": "87.68814162",
+              "scale": "2.0",
+              "trade_count": 132
+            },
+            {
+              "borrow_cost_total": "778.50760809",
+              "full_net_pnl": "1122.66339854",
+              "liquidation_count": 0,
+              "oos_net_pnl": "53.98979122",
+              "scale": "3.0",
+              "trade_count": 96
+            },
+            {
+              "borrow_cost_total": "1207.94209190",
+              "full_net_pnl": "-237.04208362",
+              "liquidation_count": 0,
+              "oos_net_pnl": "-5.33266762",
+              "scale": "5.0",
+              "trade_count": 86
+            }
+          ]
+        },
+        "gate_id": "funding_carry_net_oos_tail_gate",
+        "leave_one_out_oos_net": {
+          "AVAX": "88.43326876",
+          "BNB": "127.71240097",
+          "BTC": "89.80509418",
+          "DOGE": "-34.59568622",
+          "ETH": "90.10513443",
+          "SOL": "121.94109837",
+          "XRP": "88.16993303"
+        },
+        "leverage_gross": "3",
+        "liquidation_count_oos": 0,
+        "liquidation_count_stressed": 0,
+        "max_oos_drawdown_pct_limit": "5",
+        "max_stressed_drawdown_pct_limit": "8",
+        "min_oos_days_required": 90,
+        "min_regime_days_for_gate": 30,
+        "non_bull_net_pnl": "621.92608494",
+        "oos_net_pnl": "89.18401796",
+        "oos_regime_pnls": {
+          "bear": {
+            "days": 224,
+            "net_pnl": "-8.03091870"
+          },
+          "bull": {
+            "days": 130,
+            "net_pnl": "117.03728864"
+          },
+          "neutral": {
+            "days": 112,
+            "net_pnl": "-19.82235198"
+          }
+        },
+        "oos_strategy": {
+          "days": 467,
+          "max_drawdown_pct": "0.92202622",
+          "sharpe_annual": "0.94888824",
+          "total_return_pct": "0.66430650",
+          "vol_annual": "0.00548128"
+        },
+        "passed": false,
+        "qualifiers": [],
+        "reason_codes": [
+          "leave_one_out_breaks_oos_net_carry",
+          "oos_regime_bear_net_carry_not_positive",
+          "oos_regime_neutral_net_carry_not_positive"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 517,
+            "net_pnl": "188.33951694"
+          },
+          "bull": {
+            "days": 602,
+            "net_pnl": "2892.38886093"
+          },
+          "neutral": {
+            "days": 434,
+            "net_pnl": "433.58656800"
+          }
+        },
+        "status": "carry_does_not_survive_realistic_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": "2.50871790",
+        "walk_forward_net_pnls": [
+          "2742.06949465",
+          "171.76760409"
+        ]
+      },
+      "grid_rows": [
+        {
+          "borrow_cost_total": "579.40081316",
+          "config_id": "fund_venues1_bybit_single_lev3_cad14_top2_1d",
+          "construction": "bybit_single",
+          "fees_total": "368.73548450",
+          "funding_collected_total": "3691.98298531",
+          "leverage_gross": "3",
+          "liquidation_count": 0,
+          "max_borrowed": "15873.90059593",
+          "max_residual_delta_fraction": "0.00824537",
+          "net_pnl": "2632.13315819",
+          "oos_net_pnl": "221.56572516",
+          "oos_stats": {
+            "days": 467,
+            "max_drawdown_pct": "0.41796596",
+            "sharpe_annual": "3.09280387",
+            "total_return_pct": "1.78529891",
+            "vol_annual": "0.00448477"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "896.70011056",
+            "BNB": "48.20768486",
+            "BTC": "0E-8",
+            "DOGE": "1265.16851448",
+            "ETH": "92.14983147",
+            "SOL": "205.31060984",
+            "XRP": "703.99722014"
+          },
+          "rebalance_interval_days": 14,
+          "top_k": 2,
+          "trade_count": 144,
+          "train_stats": {
+            "days": 1087,
+            "max_drawdown_pct": "0.92153954",
+            "sharpe_annual": "4.57565626",
+            "total_return_pct": "24.08429956",
+            "vol_annual": "0.01587961"
+          }
+        },
+        {
+          "borrow_cost_total": "508.33660865",
+          "config_id": "fund_venues1_bybit_single_lev3_cad14_top4_1d",
+          "construction": "bybit_single",
+          "fees_total": "255.48021377",
+          "funding_collected_total": "3339.51745096",
+          "leverage_gross": "3",
+          "liquidation_count": 0,
+          "max_borrowed": "14975.00229381",
+          "max_residual_delta_fraction": "0.00438775",
+          "net_pnl": "2503.87923754",
+          "oos_net_pnl": "122.59577000",
+          "oos_stats": {
+            "days": 467,
+            "max_drawdown_pct": "0.20829332",
+            "sharpe_annual": "3.49827564",
+            "total_return_pct": "0.99017013",
+            "vol_annual": "0.00220680"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "518.16767653",
+            "BNB": "123.88906973",
+            "BTC": "27.11072617",
+            "DOGE": "936.50619264",
+            "ETH": "120.53015573",
+            "SOL": "576.86723769",
+            "XRP": "709.14478770"
+          },
+          "rebalance_interval_days": 14,
+          "top_k": 4,
+          "trade_count": 190,
+          "train_stats": {
+            "days": 1087,
+            "max_drawdown_pct": "0.52612109",
+            "sharpe_annual": "4.99118968",
+            "total_return_pct": "23.79824248",
+            "vol_annual": "0.01439761"
+          }
+        },
+        {
+          "borrow_cost_total": "1345.53433934",
+          "config_id": "fund_venues1_bybit_single_lev3_cad28_top2_1d",
+          "construction": "bybit_single",
+          "fees_total": "504.78140989",
+          "funding_collected_total": "6066.75925739",
+          "leverage_gross": "3",
+          "liquidation_count": 0,
+          "max_borrowed": "20128.43719256",
+          "max_residual_delta_fraction": "0.00942213",
+          "net_pnl": "4004.04165028",
+          "oos_net_pnl": "186.38522086",
+          "oos_stats": {
+            "days": 467,
+            "max_drawdown_pct": "0.87512487",
+            "sharpe_annual": "1.44552458",
+            "total_return_pct": "1.34889170",
+            "vol_annual": "0.00727861"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "1002.05713216",
+            "BNB": "240.92841467",
+            "BTC": "245.00903073",
+            "DOGE": "2284.48279300",
+            "ETH": "0E-8",
+            "SOL": "427.03652433",
+            "XRP": "1150.06209473"
+          },
+          "rebalance_interval_days": 28,
+          "top_k": 2,
+          "trade_count": 154,
+          "train_stats": {
+            "days": 1087,
+            "max_drawdown_pct": "0.92659643",
+            "sharpe_annual": "5.48754581",
+            "total_return_pct": "38.15513636",
+            "vol_annual": "0.01983424"
+          }
+        },
+        {
+          "borrow_cost_total": "1079.07652292",
+          "config_id": "fund_venues1_bybit_single_lev3_cad28_top4_1d",
+          "construction": "bybit_single",
+          "fees_total": "414.33668793",
+          "funding_collected_total": "5165.78612967",
+          "leverage_gross": "3",
+          "liquidation_count": 0,
+          "max_borrowed": "17807.38355427",
+          "max_residual_delta_fraction": "0.00435146",
+          "net_pnl": "3514.31494587",
+          "oos_net_pnl": "89.18401796",
+          "oos_stats": {
+            "days": 467,
+            "max_drawdown_pct": "0.92202622",
+            "sharpe_annual": "0.94888824",
+            "total_return_pct": "0.66430650",
+            "vol_annual": "0.00548128"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "542.80841325",
+            "BNB": "190.23036874",
+            "BTC": "421.71035268",
+            "DOGE": "1453.21347789",
+            "ETH": "327.09008841",
+            "SOL": "779.25887149",
+            "XRP": "879.07989633"
+          },
+          "rebalance_interval_days": 28,
+          "top_k": 4,
+          "trade_count": 236,
+          "train_stats": {
+            "days": 1087,
+            "max_drawdown_pct": "0.68343720",
+            "sharpe_annual": "6.21527730",
+            "total_return_pct": "34.23404342",
+            "vol_annual": "0.01594327"
+          }
+        }
+      ],
+      "headline": {
+        "borrow_cost_total": "1079.07652292",
+        "fees_total": "414.33668793",
+        "full_net_pnl": "3514.31494587",
+        "funding_collected_total": "5165.78612967",
+        "gross_zero_cost_net": "6300.59288822",
+        "liquidation_count_full": 0,
+        "liquidation_count_oos": 0,
+        "maker_ceiling_net_non_gateable": "3012.42901238",
+        "maker_ceiling_oos_net_non_gateable": "167.14300194",
+        "max_borrowed": "17807.38355427",
+        "oos_net_carry": "89.18401796",
+        "oos_stats": {
+          "days": 467,
+          "max_drawdown_pct": "0.92202622",
+          "sharpe_annual": "0.94888824",
+          "total_return_pct": "0.66430650",
+          "vol_annual": "0.00548128"
+        },
+        "train_stats": {
+          "days": 1087,
+          "max_drawdown_pct": "0.68343720",
+          "sharpe_annual": "6.21527730",
+          "total_return_pct": "34.23404342",
+          "vol_annual": "0.01594327"
+        }
+      },
+      "leave_one_out": {
+        "AVAX": {
+          "liquidation_count": 0,
+          "oos_net_carry": "88.43326876"
+        },
+        "BNB": {
+          "liquidation_count": 0,
+          "oos_net_carry": "127.71240097"
+        },
+        "BTC": {
+          "liquidation_count": 0,
+          "oos_net_carry": "89.80509418"
+        },
+        "DOGE": {
+          "liquidation_count": 0,
+          "oos_net_carry": "-34.59568622"
+        },
+        "ETH": {
+          "liquidation_count": 0,
+          "oos_net_carry": "90.10513443"
+        },
+        "SOL": {
+          "liquidation_count": 0,
+          "oos_net_carry": "121.94109837"
+        },
+        "XRP": {
+          "liquidation_count": 0,
+          "oos_net_carry": "88.16993303"
+        }
+      },
+      "leverage_gross": "3",
+      "regimes": {
+        "cycle_segments": {
+          "2020_2021_bull": {
+            "days": 0,
+            "net_pnl": null
+          },
+          "2022_bear": {
+            "days": 297,
+            "net_pnl": "213.01609636"
+          },
+          "2023_2024_recovery": {
+            "days": 731,
+            "net_pnl": "3126.11593141"
+          },
+          "2025_2026_current": {
+            "days": 526,
+            "net_pnl": "173.06871622"
+          }
+        },
+        "full_window": {
+          "bear": {
+            "days": 517,
+            "net_pnl": "188.33951694"
+          },
+          "bull": {
+            "days": 602,
+            "net_pnl": "2892.38886093"
+          },
+          "neutral": {
+            "days": 434,
+            "net_pnl": "433.58656800"
+          }
+        },
+        "oos_window": {
+          "bear": {
+            "days": 224,
+            "net_pnl": "-8.03091870"
+          },
+          "bull": {
+            "days": 130,
+            "net_pnl": "117.03728864"
+          },
+          "neutral": {
+            "days": 112,
+            "net_pnl": "-19.82235198"
+          }
+        }
+      },
+      "split_time": "2025-03-01 00:00:00+00:00",
+      "tail_stress": {
+        "borrow_cost_total": "1054.50206401",
+        "cost_scale": "2.0",
+        "liquidation_count": 0,
+        "max_drawdown_pct": "2.50871790",
+        "max_residual_delta_fraction": "2.95196915",
+        "net_pnl": "2780.04113047",
+        "spot_leg_lag_days": 1,
+        "stressed_config": "fund_venues1_bybit_single_lev3_cad28_top4_1d_stressed_scale2_leglag1"
+      },
+      "train_only_choice": {
+        "chosen_config": "fund_venues1_bybit_single_lev3_cad28_top4_1d",
+        "criterion": "best train-window Sharpe at cited taker costs (scale 1.0)"
+      },
+      "walk_forward": {
+        "fold_b": {
+          "chosen_config": "fund_venues1_bybit_single_lev3_cad28_top4_1d",
+          "net_carry": "2742.06949465",
+          "window": [
+            "2023-08-11 00:00:00+00:00",
+            "2025-01-10 00:00:00+00:00"
+          ]
+        },
+        "fold_c": {
+          "chosen_config": "fund_venues1_bybit_single_lev3_cad28_top4_1d",
+          "net_carry": "171.76760409",
+          "window": [
+            "2025-01-10 00:00:00+00:00",
+            "end"
+          ]
+        }
+      }
+    },
+    "bybit_single|lev5": {
+      "aligned_days": 1554,
+      "aligned_window": [
+        "2022-03-11 00:00:00+00:00",
+        "2026-06-11 00:00:00+00:00"
+      ],
+      "construction": "bybit_single",
+      "cost_sensitivity_sweep": [
+        {
+          "borrow_cost_total": "533.80616253",
+          "full_net_pnl": "-15511.54157730",
+          "liquidation_count": 1,
+          "oos_net_pnl": "-126.93125407",
+          "scale": "0.25",
+          "trade_count": 90
+        },
+        {
+          "borrow_cost_total": "1147.14551722",
+          "full_net_pnl": "-17359.37739888",
+          "liquidation_count": 1,
+          "oos_net_pnl": "-335.06264557",
+          "scale": "0.5",
+          "trade_count": 108
+        },
+        {
+          "borrow_cost_total": "1211.65562020",
+          "full_net_pnl": "-17271.33109900",
+          "liquidation_count": 1,
+          "oos_net_pnl": "-490.87336852",
+          "scale": "0.75",
+          "trade_count": 40
+        },
+        {
+          "borrow_cost_total": "1247.78563677",
+          "full_net_pnl": "-8338.72118750",
+          "liquidation_count": 1,
+          "oos_net_pnl": "17.95861881",
+          "scale": "1.0",
+          "trade_count": 156
+        },
+        {
+          "borrow_cost_total": "1520.48220219",
+          "full_net_pnl": "-8464.18110253",
+          "liquidation_count": 1,
+          "oos_net_pnl": "4.48964580",
+          "scale": "1.25",
+          "trade_count": 150
+        },
+        {
+          "borrow_cost_total": "1711.66474214",
+          "full_net_pnl": "-8602.43110962",
+          "liquidation_count": 1,
+          "oos_net_pnl": "-45.86562041",
+          "scale": "1.5",
+          "trade_count": 157
+        },
+        {
+          "borrow_cost_total": "1916.72451640",
+          "full_net_pnl": "-8790.75471211",
+          "liquidation_count": 1,
+          "oos_net_pnl": "0E-8",
+          "scale": "2.0",
+          "trade_count": 78
+        },
+        {
+          "borrow_cost_total": "1921.65985490",
+          "full_net_pnl": "-9031.65071172",
+          "liquidation_count": 1,
+          "oos_net_pnl": "0E-8",
+          "scale": "3.0",
+          "trade_count": 58
+        },
+        {
+          "borrow_cost_total": "0E-8",
+          "full_net_pnl": "0E-8",
+          "liquidation_count": 0,
+          "oos_net_pnl": "0E-8",
+          "scale": "5.0",
+          "trade_count": 0
+        }
+      ],
+      "funding_carry_gate": {
+        "cost_sensitivity": {
+          "breakpoint_scale_where_oos_edge_dies": "0.25",
+          "fragility_threshold_scale": "1.5",
+          "realistic_scale": "1.0",
+          "sweep": [
+            {
+              "borrow_cost_total": "533.80616253",
+              "full_net_pnl": "-15511.54157730",
+              "liquidation_count": 1,
+              "oos_net_pnl": "-126.93125407",
+              "scale": "0.25",
+              "trade_count": 90
+            },
+            {
+              "borrow_cost_total": "1147.14551722",
+              "full_net_pnl": "-17359.37739888",
+              "liquidation_count": 1,
+              "oos_net_pnl": "-335.06264557",
+              "scale": "0.5",
+              "trade_count": 108
+            },
+            {
+              "borrow_cost_total": "1211.65562020",
+              "full_net_pnl": "-17271.33109900",
+              "liquidation_count": 1,
+              "oos_net_pnl": "-490.87336852",
+              "scale": "0.75",
+              "trade_count": 40
+            },
+            {
+              "borrow_cost_total": "1247.78563677",
+              "full_net_pnl": "-8338.72118750",
+              "liquidation_count": 1,
+              "oos_net_pnl": "17.95861881",
+              "scale": "1.0",
+              "trade_count": 156
+            },
+            {
+              "borrow_cost_total": "1520.48220219",
+              "full_net_pnl": "-8464.18110253",
+              "liquidation_count": 1,
+              "oos_net_pnl": "4.48964580",
+              "scale": "1.25",
+              "trade_count": 150
+            },
+            {
+              "borrow_cost_total": "1711.66474214",
+              "full_net_pnl": "-8602.43110962",
+              "liquidation_count": 1,
+              "oos_net_pnl": "-45.86562041",
+              "scale": "1.5",
+              "trade_count": 157
+            },
+            {
+              "borrow_cost_total": "1916.72451640",
+              "full_net_pnl": "-8790.75471211",
+              "liquidation_count": 1,
+              "oos_net_pnl": "0E-8",
+              "scale": "2.0",
+              "trade_count": 78
+            },
+            {
+              "borrow_cost_total": "1921.65985490",
+              "full_net_pnl": "-9031.65071172",
+              "liquidation_count": 1,
+              "oos_net_pnl": "0E-8",
+              "scale": "3.0",
+              "trade_count": 58
+            },
+            {
+              "borrow_cost_total": "0E-8",
+              "full_net_pnl": "0E-8",
+              "liquidation_count": 0,
+              "oos_net_pnl": "0E-8",
+              "scale": "5.0",
+              "trade_count": 0
+            }
+          ]
+        },
+        "gate_id": "funding_carry_net_oos_tail_gate",
+        "leave_one_out_oos_net": {
+          "AVAX": "-649.78466664",
+          "BNB": "-185.14836591",
+          "BTC": "17.95861881",
+          "DOGE": "-54.36650878",
+          "ETH": "18.24472229",
+          "SOL": "17.79179486",
+          "XRP": "-720.38394126"
+        },
+        "leverage_gross": "5",
+        "liquidation_count_oos": 0,
+        "liquidation_count_stressed": 1,
+        "max_oos_drawdown_pct_limit": "5",
+        "max_stressed_drawdown_pct_limit": "8",
+        "min_oos_days_required": 90,
+        "min_regime_days_for_gate": 30,
+        "non_bull_net_pnl": "192.10540601",
+        "oos_net_pnl": "17.95861881",
+        "oos_regime_pnls": {
+          "bear": {
+            "days": 224,
+            "net_pnl": "-12.57355705"
+          },
+          "bull": {
+            "days": 130,
+            "net_pnl": "25.10120171"
+          },
+          "neutral": {
+            "days": 112,
+            "net_pnl": "5.43097415"
+          }
+        },
+        "oos_strategy": {
+          "days": 467,
+          "max_drawdown_pct": "1.05732888",
+          "sharpe_annual": "1.16838605",
+          "total_return_pct": "1.09282530",
+          "vol_annual": "0.00730929"
+        },
+        "passed": false,
+        "qualifiers": [],
+        "reason_codes": [
+          "walk_forward_net_carry_not_positive_in_every_fold",
+          "leave_one_out_breaks_oos_net_carry",
+          "stressed_tail_drawdown_exceeds_documented_limit",
+          "oos_regime_bear_net_carry_not_positive",
+          "liquidation_event_in_stressed_run"
+        ],
+        "regime_pnls": {
+          "bear": {
+            "days": 517,
+            "net_pnl": "-22.48094302"
+          },
+          "bull": {
+            "days": 602,
+            "net_pnl": "-8530.82659351"
+          },
+          "neutral": {
+            "days": 434,
+            "net_pnl": "214.58634903"
+          }
+        },
+        "status": "carry_does_not_survive_realistic_costs_and_tail_oos",
+        "stressed_max_drawdown_pct": "89.82450665",
+        "walk_forward_net_pnls": [
+          "-13516.67896596",
+          "25.61833006"
+        ]
+      },
+      "grid_rows": [
+        {
+          "borrow_cost_total": "1247.78563677",
+          "config_id": "fund_venues1_bybit_single_lev5_cad14_top2_1d",
+          "construction": "bybit_single",
+          "fees_total": "354.10196798",
+          "funding_collected_total": "4693.09567981",
+          "leverage_gross": "5",
+          "liquidation_count": 1,
+          "max_borrowed": "28803.82807468",
+          "max_residual_delta_fraction": "0.01382557",
+          "net_pnl": "-8338.72118750",
+          "oos_net_pnl": "17.95861881",
+          "oos_stats": {
+            "days": 467,
+            "max_drawdown_pct": "1.05732888",
+            "sharpe_annual": "1.16838605",
+            "total_return_pct": "1.09282530",
+            "vol_annual": "0.00730929"
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "1544.52601053",
+            "BNB": "10.52647778",
+            "BTC": "0E-8",
+            "DOGE": "-9989.09344993",
+            "ETH": "20.24654659",
+            "SOL": "281.66648494",
+            "XRP": "1041.19237936"
+          },
+          "rebalance_interval_days": 14,
+          "top_k": 2,
+          "trade_count": 156,
+          "train_stats": {
+            "days": 1087,
+            "max_drawdown_pct": "87.89254094",
+            "sharpe_annual": "-0.38290909",
+            "total_return_pct": "-83.56932466",
+            "vol_annual": "0.50946058"
+          }
+        },
+        {
+          "borrow_cost_total": "822.04449752",
+          "config_id": "fund_venues1_bybit_single_lev5_cad14_top4_1d",
+          "construction": "bybit_single",
+          "fees_total": "141.91116405",
+          "funding_collected_total": "2229.37588428",
+          "leverage_gross": "5",
+          "liquidation_count": 1,
+          "max_borrowed": "32587.30922833",
+          "max_residual_delta_fraction": "0.00550149",
+          "net_pnl": "-12533.65432149",
+          "oos_net_pnl": "-225.44514589",
+          "oos_stats": {
+            "days": 467,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "-1662.44441158",
+            "BNB": "0E-8",
+            "BTC": "0E-8",
+            "DOGE": "-6681.94696608",
+            "ETH": "33.85886698",
+            "SOL": "-2120.26324662",
+            "XRP": "-1280.81406667"
+          },
+          "rebalance_interval_days": 14,
+          "top_k": 4,
+          "trade_count": 54,
+          "train_stats": {
+            "days": 1087,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          }
+        },
+        {
+          "borrow_cost_total": "1547.03721335",
+          "config_id": "fund_venues1_bybit_single_lev5_cad28_top2_1d",
+          "construction": "bybit_single",
+          "fees_total": "104.19834466",
+          "funding_collected_total": "622.48655967",
+          "leverage_gross": "5",
+          "liquidation_count": 1,
+          "max_borrowed": "18455.71620112",
+          "max_residual_delta_fraction": "0.00488261",
+          "net_pnl": "-15882.52248881",
+          "oos_net_pnl": "-523.42820782",
+          "oos_stats": {
+            "days": 467,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "-36.41770052",
+            "BNB": "0E-8",
+            "BTC": "0E-8",
+            "DOGE": "-14299.06757494",
+            "ETH": "0E-8",
+            "SOL": "0E-8",
+            "XRP": "0E-8"
+          },
+          "rebalance_interval_days": 28,
+          "top_k": 2,
+          "trade_count": 18,
+          "train_stats": {
+            "days": 1087,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          }
+        },
+        {
+          "borrow_cost_total": "1938.76108296",
+          "config_id": "fund_venues1_bybit_single_lev5_cad28_top4_1d",
+          "construction": "bybit_single",
+          "fees_total": "306.80461797",
+          "funding_collected_total": "4598.74672982",
+          "leverage_gross": "5",
+          "liquidation_count": 1,
+          "max_borrowed": "38920.49500936",
+          "max_residual_delta_fraction": "0.03616892",
+          "net_pnl": "-13070.89746033",
+          "oos_net_pnl": "-273.24916426",
+          "oos_stats": {
+            "days": 467,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          },
+          "per_symbol_net_pnl": {
+            "AVAX": "-1842.35054727",
+            "BNB": "0E-8",
+            "BTC": "-1192.87206832",
+            "DOGE": "-6799.83732303",
+            "ETH": "288.38120647",
+            "SOL": "-2341.02210283",
+            "XRP": "755.56445761"
+          },
+          "rebalance_interval_days": 28,
+          "top_k": 4,
+          "trade_count": 119,
+          "train_stats": {
+            "days": 1087,
+            "max_drawdown_pct": null,
+            "sharpe_annual": null,
+            "total_return_pct": null,
+            "vol_annual": null
+          }
+        }
+      ],
+      "headline": {
+        "borrow_cost_total": "1247.78563677",
+        "fees_total": "354.10196798",
+        "full_net_pnl": "-8338.72118750",
+        "funding_collected_total": "4693.09567981",
+        "gross_zero_cost_net": "-15327.73159652",
+        "liquidation_count_full": 1,
+        "liquidation_count_oos": 0,
+        "maker_ceiling_net_non_gateable": "-17528.71883590",
+        "maker_ceiling_oos_net_non_gateable": "-669.90713863",
+        "max_borrowed": "28803.82807468",
+        "oos_net_carry": "17.95861881",
+        "oos_stats": {
+          "days": 467,
+          "max_drawdown_pct": "1.05732888",
+          "sharpe_annual": "1.16838605",
+          "total_return_pct": "1.09282530",
+          "vol_annual": "0.00730929"
+        },
+        "train_stats": {
+          "days": 1087,
+          "max_drawdown_pct": "87.89254094",
+          "sharpe_annual": "-0.38290909",
+          "total_return_pct": "-83.56932466",
+          "vol_annual": "0.50946058"
+        }
+      },
+      "leave_one_out": {
+        "AVAX": {
+          "liquidation_count": 1,
+          "oos_net_carry": "-649.78466664"
+        },
+        "BNB": {
+          "liquidation_count": 1,
+          "oos_net_carry": "-185.14836591"
+        },
+        "BTC": {
+          "liquidation_count": 1,
+          "oos_net_carry": "17.95861881"
+        },
+        "DOGE": {
+          "liquidation_count": 0,
+          "oos_net_carry": "-54.36650878"
+        },
+        "ETH": {
+          "liquidation_count": 1,
+          "oos_net_carry": "18.24472229"
+        },
+        "SOL": {
+          "liquidation_count": 1,
+          "oos_net_carry": "17.79179486"
+        },
+        "XRP": {
+          "liquidation_count": 1,
+          "oos_net_carry": "-720.38394126"
+        }
+      },
+      "leverage_gross": "5",
+      "regimes": {
+        "cycle_segments": {
+          "2020_2021_bull": {
+            "days": 0,
+            "net_pnl": null
+          },
+          "2022_bear": {
+            "days": 297,
+            "net_pnl": "0E-8"
+          },
+          "2023_2024_recovery": {
+            "days": 731,
+            "net_pnl": "-8368.06311599"
+          },
+          "2025_2026_current": {
+            "days": 526,
+            "net_pnl": "29.24434015"
+          }
+        },
+        "full_window": {
+          "bear": {
+            "days": 517,
+            "net_pnl": "-22.48094302"
+          },
+          "bull": {
+            "days": 602,
+            "net_pnl": "-8530.82659351"
+          },
+          "neutral": {
+            "days": 434,
+            "net_pnl": "214.58634903"
+          }
+        },
+        "oos_window": {
+          "bear": {
+            "days": 224,
+            "net_pnl": "-12.57355705"
+          },
+          "bull": {
+            "days": 130,
+            "net_pnl": "25.10120171"
+          },
+          "neutral": {
+            "days": 112,
+            "net_pnl": "5.43097415"
+          }
+        }
+      },
+      "split_time": "2025-03-01 00:00:00+00:00",
+      "tail_stress": {
+        "borrow_cost_total": "1840.35166023",
+        "cost_scale": "2.0",
+        "liquidation_count": 1,
+        "max_drawdown_pct": "89.82450665",
+        "max_residual_delta_fraction": "3.06750326",
+        "net_pnl": "-8903.34477894",
+        "spot_leg_lag_days": 1,
+        "stressed_config": "fund_venues1_bybit_single_lev5_cad14_top2_1d_stressed_scale2_leglag1"
+      },
+      "train_only_choice": {
+        "chosen_config": "fund_venues1_bybit_single_lev5_cad14_top2_1d",
+        "criterion": "best train-window Sharpe at cited taker costs (scale 1.0)"
+      },
+      "walk_forward": {
+        "fold_b": {
+          "chosen_config": "fund_venues1_bybit_single_lev5_cad28_top4_1d",
+          "net_carry": "-13516.67896596",
+          "window": [
+            "2023-08-11 00:00:00+00:00",
+            "2025-01-10 00:00:00+00:00"
+          ]
+        },
+        "fold_c": {
+          "chosen_config": "fund_venues1_bybit_single_lev5_cad14_top2_1d",
+          "net_carry": "25.61833006",
+          "window": [
+            "2025-01-10 00:00:00+00:00",
+            "end"
+          ]
+        }
+      }
+    }
+  },
+  "data_provenance": {
+    "access": "public_read_only_no_keys_no_private_no_signed_no_orders",
+    "as_of_utc": "2026-06-11T00:00:00Z",
+    "dataset": "DATA1 multi-venue snapshot (docs/data1_multi_venue_snapshot_summary.json; sha256-verified loader)"
+  },
+  "design": {
+    "constructions": {
+      "binance_cross_coinbase": {
+        "construction": "binance_cross_coinbase",
+        "legs": {
+          "AVAX:perp": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); Coinbase Advanced retail volume tier (per FUND-EV2 citation 2026-06-11): spot taker 60 bps, maker 40 bps; flat 2 USDC per cross-venue spot fill (on-chain transfer/settlement amortization, documented assumption carried over from FUND-EV2); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "5.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "AVAX:spot": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); Coinbase Advanced retail volume tier (per FUND-EV2 citation 2026-06-11): spot taker 60 bps, maker 40 bps; flat 2 USDC per cross-venue spot fill (on-chain transfer/settlement amortization, documented assumption carried over from FUND-EV2); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "60.0",
+            "flat_cost_quote": "2.00",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "BTC:perp": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); Coinbase Advanced retail volume tier (per FUND-EV2 citation 2026-06-11): spot taker 60 bps, maker 40 bps; flat 2 USDC per cross-venue spot fill (on-chain transfer/settlement amortization, documented assumption carried over from FUND-EV2); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "5.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "0.5",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "BTC:spot": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); Coinbase Advanced retail volume tier (per FUND-EV2 citation 2026-06-11): spot taker 60 bps, maker 40 bps; flat 2 USDC per cross-venue spot fill (on-chain transfer/settlement amortization, documented assumption carried over from FUND-EV2); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "60.0",
+            "flat_cost_quote": "2.00",
+            "half_spread_bps": "0.5",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "DOGE:perp": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); Coinbase Advanced retail volume tier (per FUND-EV2 citation 2026-06-11): spot taker 60 bps, maker 40 bps; flat 2 USDC per cross-venue spot fill (on-chain transfer/settlement amortization, documented assumption carried over from FUND-EV2); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "5.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "DOGE:spot": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); Coinbase Advanced retail volume tier (per FUND-EV2 citation 2026-06-11): spot taker 60 bps, maker 40 bps; flat 2 USDC per cross-venue spot fill (on-chain transfer/settlement amortization, documented assumption carried over from FUND-EV2); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "60.0",
+            "flat_cost_quote": "2.00",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "ETH:perp": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); Coinbase Advanced retail volume tier (per FUND-EV2 citation 2026-06-11): spot taker 60 bps, maker 40 bps; flat 2 USDC per cross-venue spot fill (on-chain transfer/settlement amortization, documented assumption carried over from FUND-EV2); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "5.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "0.5",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "ETH:spot": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); Coinbase Advanced retail volume tier (per FUND-EV2 citation 2026-06-11): spot taker 60 bps, maker 40 bps; flat 2 USDC per cross-venue spot fill (on-chain transfer/settlement amortization, documented assumption carried over from FUND-EV2); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "60.0",
+            "flat_cost_quote": "2.00",
+            "half_spread_bps": "0.5",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "SOL:perp": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); Coinbase Advanced retail volume tier (per FUND-EV2 citation 2026-06-11): spot taker 60 bps, maker 40 bps; flat 2 USDC per cross-venue spot fill (on-chain transfer/settlement amortization, documented assumption carried over from FUND-EV2); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "5.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "SOL:spot": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); Coinbase Advanced retail volume tier (per FUND-EV2 citation 2026-06-11): spot taker 60 bps, maker 40 bps; flat 2 USDC per cross-venue spot fill (on-chain transfer/settlement amortization, documented assumption carried over from FUND-EV2); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "60.0",
+            "flat_cost_quote": "2.00",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          }
+        },
+        "scale": "1.0"
+      },
+      "binance_single": {
+        "construction": "binance_single",
+        "legs": {
+          "AVAX:perp": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "5.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "AVAX:spot": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "10.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "BNB:perp": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "5.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "BNB:spot": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "10.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "BTC:perp": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "5.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "0.5",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "BTC:spot": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "10.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "0.5",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "DOGE:perp": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "5.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "DOGE:spot": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "10.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "ETH:perp": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "5.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "0.5",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "ETH:spot": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "10.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "0.5",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "SOL:perp": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "5.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "SOL:spot": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "10.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "XRP:perp": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "5.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "XRP:spot": {
+            "basis": "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k); modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "10.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          }
+        },
+        "scale": "1.0"
+      },
+      "bybit_single": {
+        "construction": "bybit_single",
+        "legs": {
+          "AVAX:perp": {
+            "basis": "Bybit fee schedule (public fee page, fetched 2026-06-12, non-VIP): derivatives maker 2.0 / taker 5.5 bps; spot maker 10 / taker 10 bps; modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "5.5",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "AVAX:spot": {
+            "basis": "Bybit fee schedule (public fee page, fetched 2026-06-12, non-VIP): derivatives maker 2.0 / taker 5.5 bps; spot maker 10 / taker 10 bps; modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "10.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "BNB:perp": {
+            "basis": "Bybit fee schedule (public fee page, fetched 2026-06-12, non-VIP): derivatives maker 2.0 / taker 5.5 bps; spot maker 10 / taker 10 bps; modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "5.5",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "BNB:spot": {
+            "basis": "Bybit fee schedule (public fee page, fetched 2026-06-12, non-VIP): derivatives maker 2.0 / taker 5.5 bps; spot maker 10 / taker 10 bps; modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "10.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "BTC:perp": {
+            "basis": "Bybit fee schedule (public fee page, fetched 2026-06-12, non-VIP): derivatives maker 2.0 / taker 5.5 bps; spot maker 10 / taker 10 bps; modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "5.5",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "0.5",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "BTC:spot": {
+            "basis": "Bybit fee schedule (public fee page, fetched 2026-06-12, non-VIP): derivatives maker 2.0 / taker 5.5 bps; spot maker 10 / taker 10 bps; modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "10.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "0.5",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "DOGE:perp": {
+            "basis": "Bybit fee schedule (public fee page, fetched 2026-06-12, non-VIP): derivatives maker 2.0 / taker 5.5 bps; spot maker 10 / taker 10 bps; modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "5.5",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "DOGE:spot": {
+            "basis": "Bybit fee schedule (public fee page, fetched 2026-06-12, non-VIP): derivatives maker 2.0 / taker 5.5 bps; spot maker 10 / taker 10 bps; modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "10.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "ETH:perp": {
+            "basis": "Bybit fee schedule (public fee page, fetched 2026-06-12, non-VIP): derivatives maker 2.0 / taker 5.5 bps; spot maker 10 / taker 10 bps; modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "5.5",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "0.5",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "ETH:spot": {
+            "basis": "Bybit fee schedule (public fee page, fetched 2026-06-12, non-VIP): derivatives maker 2.0 / taker 5.5 bps; spot maker 10 / taker 10 bps; modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "10.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "0.5",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "SOL:perp": {
+            "basis": "Bybit fee schedule (public fee page, fetched 2026-06-12, non-VIP): derivatives maker 2.0 / taker 5.5 bps; spot maker 10 / taker 10 bps; modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "5.5",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "SOL:spot": {
+            "basis": "Bybit fee schedule (public fee page, fetched 2026-06-12, non-VIP): derivatives maker 2.0 / taker 5.5 bps; spot maker 10 / taker 10 bps; modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "10.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "XRP:perp": {
+            "basis": "Bybit fee schedule (public fee page, fetched 2026-06-12, non-VIP): derivatives maker 2.0 / taker 5.5 bps; spot maker 10 / taker 10 bps; modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "5.5",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          },
+          "XRP:spot": {
+            "basis": "Bybit fee schedule (public fee page, fetched 2026-06-12, non-VIP): derivatives maker 2.0 / taker 5.5 bps; spot maker 10 / taker 10 bps; modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+            "fee_bps": "10.0",
+            "flat_cost_quote": "0",
+            "half_spread_bps": "1.0",
+            "impact_coefficient_bps": "5",
+            "slippage_bps": "2.0"
+          }
+        },
+        "scale": "1.0"
+      }
+    },
+    "grid_per_cell": "cadence [14, 28] x top_k [2, 4]",
+    "margin_model": {
+      "basis": "perp initial margin 10% (10x perp-side margin; venues allow far more on majors \u2014 conservative), maintenance 1.0% of gross notional (Binance USDS-M tier-1 maintenance 0.4-0.65% for majors at small notional, modeled with buffer), borrow 0.02%/day on the cash shortfall (documented assumption at the published Binance Cross Margin USDT VIP0 ballpark; swept with the cost sweep), borrow call buffer 5% of borrowed",
+      "borrow_call_buffer": "0.05",
+      "borrow_daily_rate": "0.0002",
+      "levels": [
+        "1",
+        "3",
+        "5"
+      ],
+      "maintenance_rate": "0.01",
+      "perp_initial_margin": "0.10"
+    },
+    "mode": "collect_only (flip side needs coin borrow; not leaned on)",
+    "round_trip_cost_bps_at_2500_notional": {
+      "binance_cross_coinbase": {
+        "AVAX": "158.00000000",
+        "BTC": "156.00000000",
+        "DOGE": "158.00000000",
+        "ETH": "156.00000000",
+        "SOL": "158.00000000"
+      },
+      "binance_single": {
+        "AVAX": "42.00000000",
+        "BNB": "42.00000000",
+        "BTC": "40.00000000",
+        "DOGE": "42.00000000",
+        "ETH": "40.00000000",
+        "SOL": "42.00000000",
+        "XRP": "42.00000000"
+      },
+      "bybit_single": {
+        "AVAX": "43.00000000",
+        "BNB": "43.00000000",
+        "BTC": "41.00000000",
+        "DOGE": "43.00000000",
+        "ETH": "41.00000000",
+        "SOL": "43.00000000",
+        "XRP": "43.00000000"
+      }
+    },
+    "selectivity": "enter only when trailing-7d mean funding x planned hold >= 2.0x round-trip cost; hold while trailing stays favorable"
+  },
+  "discipline_guard": {
+    "costs_cited_not_tuned": true,
+    "gateable_verdict_prices_taker_fills_only": true,
+    "maker_ceiling_non_gateable": true,
+    "sources": [
+      "Binance fee schedule (public fee page, fetched 2026-06-12, Regular user/VIP0): USDS-M perp maker 2.0 / taker 5.0 bps; spot maker 10 / taker 10 bps; BNB discount not assumed; VIP1 requires >=$1M 30d futures volume (own flow cannot earn it at 10k)",
+      "Bybit fee schedule (public fee page, fetched 2026-06-12, non-VIP): derivatives maker 2.0 / taker 5.5 bps; spot maker 10 / taker 10 bps",
+      "OKX fee schedule (public fee page, fetched 2026-06-12, regular user Lv1): perp maker 2.0 / taker 5.0 bps; spot maker 8 / taker 10 bps (cited for the record; venue excluded for funding depth)",
+      "Coinbase Advanced retail volume tier (per FUND-EV2 citation 2026-06-11): spot taker 60 bps, maker 40 bps",
+      "flat 2 USDC per cross-venue spot fill (on-chain transfer/settlement amortization, documented assumption carried over from FUND-EV2)",
+      "modeled half-spreads with headroom over typical top-of-book on the deepest books (BTC/ETH 0.5 bps, other majors 1.0 bps; Binance/Bybit/Coinbase books are far deeper than the HL books FUND-EV2 calibrated at 0.08-2.4 bps); no per-venue l2 calibration in DATA1 \u2014 the cost-sensitivity sweep covers the residual uncertainty",
+      "perp initial margin 10% (10x perp-side margin; venues allow far more on majors \u2014 conservative), maintenance 1.0% of gross notional (Binance USDS-M tier-1 maintenance 0.4-0.65% for majors at small notional, modeled with buffer), borrow 0.02%/day on the cash shortfall (documented assumption at the published Binance Cross Margin USDT VIP0 ballpark; swept with the cost sweep), borrow call buffer 5% of borrowed"
+    ],
+    "venue_fair_window_enforced": true
+  },
+  "leverage_sweep_by_construction": {
+    "binance_cross_coinbase": [
+      {
+        "borrow_cost_total": "0E-8",
+        "leverage_gross": "1",
+        "liquidation_count_full": 0,
+        "max_borrowed": "0E-8",
+        "oos_max_drawdown_pct": "0.28758511",
+        "oos_net_carry": "-13.84182304",
+        "oos_sharpe": "-0.45169844",
+        "stressed_liquidations": 0,
+        "stressed_max_drawdown_pct": "0E-8",
+        "verdict": "carry_does_not_survive_realistic_costs_and_tail_oos"
+      },
+      {
+        "borrow_cost_total": "276.48342947",
+        "leverage_gross": "3",
+        "liquidation_count_full": 0,
+        "max_borrowed": "13047.82571429",
+        "oos_max_drawdown_pct": "0.64722409",
+        "oos_net_carry": "-8.43026785",
+        "oos_sharpe": "-0.10098682",
+        "stressed_liquidations": 0,
+        "stressed_max_drawdown_pct": "0E-8",
+        "verdict": "carry_does_not_survive_realistic_costs_and_tail_oos"
+      },
+      {
+        "borrow_cost_total": "961.91522402",
+        "leverage_gross": "5",
+        "liquidation_count_full": 0,
+        "max_borrowed": "28537.55131701",
+        "oos_max_drawdown_pct": "1.19765929",
+        "oos_net_carry": "-24.60729307",
+        "oos_sharpe": "-0.18391682",
+        "stressed_liquidations": 0,
+        "stressed_max_drawdown_pct": "0E-8",
+        "verdict": "carry_does_not_survive_realistic_costs_and_tail_oos"
+      }
+    ],
+    "binance_single": [
+      {
+        "borrow_cost_total": "5.21907880",
+        "leverage_gross": "1",
+        "liquidation_count_full": 0,
+        "max_borrowed": "5815.59143049",
+        "oos_max_drawdown_pct": "0.08323323",
+        "oos_net_carry": "179.18087731",
+        "oos_sharpe": "3.50995605",
+        "stressed_liquidations": 0,
+        "stressed_max_drawdown_pct": "9.68437671",
+        "verdict": "carry_does_not_survive_realistic_costs_and_tail_oos"
+      },
+      {
+        "borrow_cost_total": "222.11780353",
+        "leverage_gross": "3",
+        "liquidation_count_full": 4,
+        "max_borrowed": "26436.85644213",
+        "oos_max_drawdown_pct": "86.59334966",
+        "oos_net_carry": "-1.10440530",
+        "oos_sharpe": "-0.74053937",
+        "stressed_liquidations": 1,
+        "stressed_max_drawdown_pct": null,
+        "verdict": "carry_does_not_survive_realistic_costs_and_tail_oos"
+      },
+      {
+        "borrow_cost_total": "310.67994252",
+        "leverage_gross": "5",
+        "liquidation_count_full": 2,
+        "max_borrowed": "33713.99296196",
+        "oos_max_drawdown_pct": null,
+        "oos_net_carry": "-92.75019757",
+        "oos_sharpe": null,
+        "stressed_liquidations": 1,
+        "stressed_max_drawdown_pct": null,
+        "verdict": "carry_does_not_survive_realistic_costs_and_tail_oos"
+      }
+    ],
+    "bybit_single": [
+      {
+        "borrow_cost_total": "0E-8",
+        "leverage_gross": "1",
+        "liquidation_count_full": 0,
+        "max_borrowed": "0E-8",
+        "oos_max_drawdown_pct": "0.27622875",
+        "oos_net_carry": "67.80197531",
+        "oos_sharpe": "2.49358060",
+        "stressed_liquidations": 0,
+        "stressed_max_drawdown_pct": "0.61409383",
+        "verdict": "carry_does_not_survive_realistic_costs_and_tail_oos"
+      },
+      {
+        "borrow_cost_total": "1079.07652292",
+        "leverage_gross": "3",
+        "liquidation_count_full": 0,
+        "max_borrowed": "17807.38355427",
+        "oos_max_drawdown_pct": "0.92202622",
+        "oos_net_carry": "89.18401796",
+        "oos_sharpe": "0.94888824",
+        "stressed_liquidations": 0,
+        "stressed_max_drawdown_pct": "2.50871790",
+        "verdict": "carry_does_not_survive_realistic_costs_and_tail_oos"
+      },
+      {
+        "borrow_cost_total": "1247.78563677",
+        "leverage_gross": "5",
+        "liquidation_count_full": 1,
+        "max_borrowed": "28803.82807468",
+        "oos_max_drawdown_pct": "1.05732888",
+        "oos_net_carry": "17.95861881",
+        "oos_sharpe": "1.16838605",
+        "stressed_liquidations": 1,
+        "stressed_max_drawdown_pct": "89.82450665",
+        "verdict": "carry_does_not_survive_realistic_costs_and_tail_oos"
+      }
+    ]
+  },
+  "phase": "FUND-VENUES1",
+  "report": "fund_venues1_deep_venue_leverage_carry_evidence",
+  "routing": {
+    "config_id_prefix": "fund_venues1_",
+    "gate_id": "funding_carry_net_oos_tail_gate",
+    "strategy_type": "funding_carry"
+  },
+  "run_timestamp_utc": "2026-06-12T04:09:17Z",
+  "status": "funding_carry_deep_venue_leverage_evidence_complete",
+  "universe_by_construction": {
+    "binance_cross_coinbase": {
+      "assets": [
+        "AVAX",
+        "BTC",
+        "DOGE",
+        "ETH",
+        "SOL"
+      ],
+      "exclusion_notes": "XRP excluded only for the real 904-day Coinbase delisting hole; BNB not listed on Coinbase",
+      "venues": {
+        "funding": "binance",
+        "perp": "binance",
+        "spot": "coinbase"
+      }
+    },
+    "binance_single": {
+      "assets": [
+        "AVAX",
+        "BNB",
+        "BTC",
+        "DOGE",
+        "ETH",
+        "SOL",
+        "XRP"
+      ],
+      "exclusion_notes": "all DATA1 assets listed on the venue (incl. negative-mean-funding BNB; selectivity must earn its keep)",
+      "venues": {
+        "funding": "binance",
+        "perp": "binance",
+        "spot": "binance"
+      }
+    },
+    "bybit_single": {
+      "assets": [
+        "AVAX",
+        "BNB",
+        "BTC",
+        "DOGE",
+        "ETH",
+        "SOL",
+        "XRP"
+      ],
+      "exclusion_notes": "all DATA1 assets listed on the venue (incl. negative-mean-funding BNB; selectivity must earn its keep)",
+      "venues": {
+        "funding": "bybit",
+        "perp": "bybit",
+        "spot": "bybit"
+      }
+    }
+  },
+  "venue_fair_windows": {
+    "binance": {
+      "eligible_for_deep_oos_verdict": true,
+      "exclusion_reason": null,
+      "funding_days": 2088
+    },
+    "bybit": {
+      "eligible_for_deep_oos_verdict": true,
+      "exclusion_reason": null,
+      "funding_days": 1730
+    },
+    "hyperliquid": {
+      "eligible_for_deep_oos_verdict": false,
+      "exclusion_reason": "funding_history_below_min_for_deep_oos (1126 days) and already answered by FUND-EV2 at cited HL costs (reference, not re-tested)",
+      "funding_days": 1089
+    },
+    "kraken": {
+      "eligible_for_deep_oos_verdict": false,
+      "exclusion_reason": "funding_history_below_min_for_deep_oos (~366 days public window)",
+      "funding_days": 366
+    },
+    "okx": {
+      "eligible_for_deep_oos_verdict": false,
+      "exclusion_reason": "funding_history_below_min_for_deep_oos (~92 days public window)",
+      "funding_days": 92
+    }
+  }
+}

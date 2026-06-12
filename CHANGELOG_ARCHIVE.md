@@ -16,6 +16,37 @@ Entry schema:
 
 ---
 
+## v2026.06.08.008
+
+- `recorded_at_utc`: `2026-06-08T09:08:40Z`
+- `scope`: `PT-RT1.6.3 Testnet metadata resolver hotfix and XRP transport smoke plan`
+- `intent`: `Native entry. Added a narrow Hyperliquid testnet metadata resolver hotfix for the currently blocked baseline transport symbols XRP/LINK/DOT/LTC/UNI/TRX/ZEC and prepared a PT-RT1.6.3 XRP-targeted transport-only smoke path. The smoke requires exact PT-RT1.6.3 approval, targets XRP only, uses fixed 25 USDC notional, creates no synthetic trade, does not update synthetic PnL, and fails closed before /exchange if XRP metadata or size preflight is unavailable. The active Week 2 pt_rt1_6_week2_active process was not restarted, stopped, or mutated; the hotfix applies to the next process start or the separately scoped smoke after the current 24h window. Candidate/MF-ORIG lanes remain synthetic-only, public mainnet candles remain strategy truth, no live trading was approved, and no strategy was production-approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `README.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `docs/pt_rt1_6_3_testnet_metadata_resolver_hotfix.md`
+  - `docs/pt_rt1_6_3_testnet_metadata_resolver_hotfix_summary.json`
+  - `scripts/run_pt_rt1_paper_observation.py`
+  - `services/paper_runtime/pt_rt1.py`
+  - `tests/test_pt_rt1_6_3_testnet_metadata_resolver.py`
+  - `money-flow/00_Money_Flow_Command_Center.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/05_Agent_Coordination.md`
+  - `money-flow/Project_Memory/money_flow_project_memory.md`
+- `validation_performed`:
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_6_3_testnet_metadata_resolver.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_5_3_size_precision_hotfix.py`
+  - `.venv/bin/python -m pytest -q tests/test_pt_rt1_paper_observation.py`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_control_server.py`
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `.venv/bin/python -m compileall core services apps tests scripts`
+  - `.venv/bin/python -m pytest -q tests/test_dashboard_static_assets.py`
+  - `.venv/bin/python -m pytest -q tests/test_operational_docs.py`
+  - `.venv/bin/python -m pytest -q tests/test_phase3_strategy.py`
+
 ## v2026.06.08.007
 
 - `recorded_at_utc`: `2026-06-08T08:28:04Z`

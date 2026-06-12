@@ -135,6 +135,16 @@ jobs:
       - name: TREND-SUITE1 canonical trend suite evidence model
         run: python -m pytest -q tests/test_trend_suite1_evidence.py
 
+      # FUND-VENUES1 deep-venue leverage carry: funding_carry routing for the
+      # fund_venues1_ prefix, per-interval funding accrual, delta-neutrality at
+      # every leverage, borrow-on-shortfall + liquidation-on-gap mechanics
+      # (margin seam byte-identical off), no-lookahead, sweep monotonicity,
+      # venue-fair-window enforcement (K-036), zero-volume refusal, K-019
+      # through liquidation, gate v3 semantics + committed-summary honesty
+      # (all cells failed; never green) (offline)
+      - name: FUND-VENUES1 deep-venue leverage carry evidence model
+        run: python -m pytest -q tests/test_fund_venues1_evidence.py
+
       # DATA1 multi-venue data foundation: catalog gap honesty, per-venue
       # normalizers (incl. the OKX 1Dutc midnight-UTC guard), funding-interval
       # handling + FUND-EV1 daily aggregation, union alignment with explicit

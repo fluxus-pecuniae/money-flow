@@ -342,6 +342,7 @@ def simulate_funding_carry_portfolio(
     *,
     signal_provider: Callable[[str, datetime], int] | None = None,
     leg_cost_model: Any | None = None,
+    margin_model: Any | None = None,
     starting_equity: Decimal = STARTING_EQUITY,
 ) -> dict[str, Any]:
     """Simulate the delta-neutral carry book with strict point-in-time rules.
@@ -381,6 +382,17 @@ def simulate_funding_carry_portfolio(
     ``leg_cost_model.round_trip_cost_bps(symbol, notional)`` feeds the
     entry-selectivity margin. ``None`` (default) is byte-identical FUND-EV1
     behavior.
+
+    ``margin_model`` (FUND-VENUES1): when provided, the book is financed —
+    daily borrow interest accrues on the cash shortfall
+    ``max(0, spot_gross + perp_initial_margin * perp_gross - equity)``, and
+    an intraday liquidation check runs every close: stressed equity (every
+    leg marked at its own worst same-day extreme — perp shorts at the HIGH,
+    spot longs at the LOW; adversarial simultaneity, documented) below
+    ``maintenance_rate * gross + borrow_call_buffer * borrowed`` force-closes
+    the WHOLE book at those stressed prices through the cost model, cancels
+    pending fills, and records a liquidation event. Requires
+    ``leg_cost_model``. ``None`` (default) is byte-identical behavior.
     """
     ensure_gate_applies(config.strategy_type, FUNDING_CARRY_GATE_ID)
     symbols = universe.symbols
@@ -498,6 +510,56 @@ def simulate_funding_carry_portfolio(
         trade_events.append(
             (dataset.candles[fill_idx].timestamp, symbol, leg, side, _money(notional))
         )
+
+    borrow_cost_total = Decimal("0")
+    max_borrowed = Decimal("0")
+    liquidation_events: list[tuple[datetime, Decimal]] = []
+    if margin_model is not None and leg_cost_model is None:
+        raise ValueError("margin_model_requires_leg_cost_model")
+
+    def _leg_extreme_prices(symbol: str, t: datetime) -> dict[str, tuple[Decimal, Decimal]]:
+        """(adverse_extreme, close) per leg for the candle closing at t."""
+        asset = universe.assets[symbol]
+        p = asset.perp.candles[universe.perp_index[symbol][t]]
+        s = asset.spot.candles[universe.spot_index[symbol][t]]
+        perp_adverse = p.high if perp_pos[symbol].qty < 0 else p.low
+        spot_adverse = s.low if spot_pos[symbol].qty > 0 else s.high
+        return {"perp": (perp_adverse, p.close), "spot": (spot_adverse, s.close)}
+
+    def _liquidate_book(t: datetime, stressed_equity: Decimal) -> None:
+        """Account-level forced close: every leg fills at its adverse
+        same-day extreme through the cited cost model (taker side), pending
+        fills cancel, the event is recorded. The damage stays in the curve."""
+        nonlocal cash, pending_fills, trade_count, traded_notional_total
+        for s in sorted(symbols):
+            extremes = _leg_extreme_prices(s, t)
+            for leg, book in (("perp", perp_pos), ("spot", spot_pos)):
+                pos = book[s]
+                if pos.qty == 0:
+                    continue
+                adverse, _close = extremes[leg]
+                if adverse <= 0:
+                    continue
+                spec = leg_cost_model.spec(s, leg)
+                notional = abs(pos.qty) * adverse
+                fee = _money(notional * spec.fee_bps / BPS + spec.flat_cost_quote)
+                side = "sell" if pos.qty > 0 else "buy"
+                total_bps = _money(spec.half_spread_bps + spec.slippage_bps)
+                fill_price = depth_aware_execution_price(
+                    raw_price=adverse, side=side, friction_total_bps=total_bps
+                )
+                friction_bps_paid.append(total_bps)
+                friction_quote_by_leg[leg] += _money(abs(fill_price - adverse) * abs(pos.qty))
+                book[s], realized = _apply_fill(book[s], fill_price, -pos.qty)
+                cash = _money(cash + realized - fee)
+                realized_by_symbol[s] += _money(realized)
+                fees_by_symbol[s] += fee
+                fees_by_leg[leg] += fee
+                traded_notional_total += _money(notional)
+                trade_count += 1
+                trade_events.append((t, s, leg, f"liquidation_{side}", _money(notional)))
+        pending_fills = []
+        liquidation_events.append((t, _money(stressed_equity)))
 
     prev_equity: Decimal | None = None
     for k, t in enumerate(timeline):
@@ -644,6 +706,44 @@ def simulate_funding_carry_portfolio(
                             )
                         )
 
+        # 2b) FUND-VENUES1 financing + liquidation (margin_model only):
+        #     borrow interest on the cash shortfall, then the intraday
+        #     liquidation check with every leg at its worst same-day extreme.
+        if margin_model is not None:
+            equity_pre = mtm_equity(t)
+            perp_gross = sum(
+                abs(perp_pos[s].qty) * perp_close(s, t) for s in symbols
+            )
+            spot_gross = sum(
+                abs(spot_pos[s].qty) * spot_close(s, t) for s in symbols
+            )
+            borrowed = max(
+                Decimal("0"),
+                spot_gross + margin_model.perp_initial_margin * perp_gross - equity_pre,
+            )
+            max_borrowed = max(max_borrowed, _money(borrowed))
+            if borrowed > 0:
+                interest = _money(borrowed * margin_model.borrow_daily_rate)
+                cash = _money(cash - interest)
+                borrow_cost_total += interest
+            if perp_gross + spot_gross > 0:
+                stressed_loss = Decimal("0")
+                for s in symbols:
+                    extremes = _leg_extreme_prices(s, t)
+                    for leg, book in (("perp", perp_pos), ("spot", spot_pos)):
+                        qty = book[s].qty
+                        if qty == 0:
+                            continue
+                        adverse, close_px = extremes[leg]
+                        stressed_loss += abs(qty) * abs(close_px - adverse)
+                stressed_equity = mtm_equity(t) - stressed_loss
+                maintenance = (
+                    margin_model.maintenance_rate * (perp_gross + spot_gross)
+                    + margin_model.borrow_call_buffer * borrowed
+                )
+                if stressed_equity < maintenance:
+                    _liquidate_book(t, stressed_equity)
+
         # 3) Mark to market + residual-delta tracking.
         equity_t = mtm_equity(t)
         equity_curve.append((t, equity_t))
@@ -733,7 +833,19 @@ def simulate_funding_carry_portfolio(
     }
     ending_equity = equity_curve[-1][1] if equity_curve else starting_equity
     worst_days = sorted(daily_pnl, key=lambda row: row[1])[:5]
+    margin_block: dict[str, Any] = {}
+    if margin_model is not None:
+        margin_block = {
+            "leverage_gross": _money(margin_model.leverage),
+            "borrow_cost_total": _money(borrow_cost_total),
+            "max_borrowed": _money(max_borrowed),
+            "liquidation_events": tuple(
+                (t, _money(v)) for t, v in liquidation_events
+            ),
+            "liquidation_count": len(liquidation_events),
+        }
     return {
+        **margin_block,
         "config_id": config.config_id,
         "strategy_type": config.strategy_type,
         "scenario_id": scenario.scenario_id,
