@@ -1,0 +1,1187 @@
+{
+  "account_size_usdc": "10000",
+  "boundaries": {
+    "approves_live_trading": false,
+    "approves_production_strategy": false,
+    "calls_private_signed_or_order_endpoints": false,
+    "changes_per_symbol_lane_behavior_or_results": false,
+    "changes_production_money_flow_rules": false,
+    "changes_selection_lane_behavior_or_results": false,
+    "changes_tsmom_lane_behavior_or_results": false,
+    "creates_order_intent": false,
+    "creates_prepared_venue_order": false,
+    "creates_submitted_order": false,
+    "criterion_and_gates_pre_registered_before_selection": true,
+    "modeled_depth_not_real": true,
+    "mutates_active_pt_rt_runtime": false,
+    "mutates_runtime_artifacts": false,
+    "regime1_bars_held_unchanged": true,
+    "research_only": true,
+    "risk_tool_not_alpha": true,
+    "search_space_not_widened_from_regime1": true,
+    "signal_only_no_orders": true,
+    "submits_live_orders": false,
+    "submits_testnet_orders": false
+  },
+  "chronological_split": {
+    "split_time": "2024-09-22 00:00:00+00:00",
+    "train_ratio": "0.70"
+  },
+  "current_state_latest_closed_candle": {
+    "as_of_close": "2026-06-11 00:00:00+00:00",
+    "breadth": "0",
+    "breadth_up_count": 0,
+    "btc_trend_up": false,
+    "config_id": "regime1_lb90_br6_btc_required_1d",
+    "disclaimer": "RISK-OFF FILTER / DRAWDOWN CONTROL, NOT ALPHA: this signal reduces downside exposure in broad downtrends; it does not predict returns and does not guarantee profit (the gated book gives up return in choppy markets - the whipsaw cost is reported, not hidden). Signal only - not an order, not trading advice; nothing here submits orders or enables any trading mode.",
+    "risk_on": false,
+    "risk_score": "0",
+    "state": "risk_off",
+    "universe_size": 7
+  },
+  "data_provenance": {
+    "access": "public_read_only_no_keys_no_private_no_signed_no_orders",
+    "as_of_utc": "2026-06-11T00:00:00Z",
+    "dataset": "DATA1 multi-venue snapshot (sha256-verified loader)"
+  },
+  "disclaimer": "RISK-OFF FILTER / DRAWDOWN CONTROL, NOT ALPHA: this signal reduces downside exposure in broad downtrends; it does not predict returns and does not guarantee profit (the gated book gives up return in choppy markets - the whipsaw cost is reported, not hidden). Signal only - not an order, not trading advice; nothing here submits orders or enables any trading mode.",
+  "fixed_config_fold_texture_not_a_verdict": {
+    "folds": [
+      {
+        "always_max_drawdown_pct": "39.39753615",
+        "always_return_pct": "174.67796677",
+        "config_id": "regime1_lb90_br6_btc_required_1d",
+        "fold": "fold_b_chop",
+        "gated_max_drawdown_pct": "28.23852064",
+        "gated_return_pct": "120.03267067"
+      },
+      {
+        "always_max_drawdown_pct": "65.72945095",
+        "always_return_pct": "-24.99149558",
+        "config_id": "regime1_lb90_br6_btc_required_1d",
+        "fold": "fold_c",
+        "gated_max_drawdown_pct": "43.62073804",
+        "gated_return_pct": "35.93093599"
+      }
+    ],
+    "note": "NOT A VERDICT: the pre-registered fold gate judges the SELECTION PROCESS (per-fold train-only choice, REGIME1's method unchanged) and failed; this block shows the final chosen config's own fold windows for consumers and cannot rescue the verdict"
+  },
+  "headline": {
+    "always_long_full_net": "250289.00808943",
+    "always_long_oos": {
+      "days": 627,
+      "max_drawdown_pct": "65.72945095",
+      "sharpe_annual": "0.12876359",
+      "total_return_pct": "-19.58917762",
+      "vol_annual": "0.64714934"
+    },
+    "always_long_train": {
+      "days": 1460,
+      "max_drawdown_pct": "78.91726695",
+      "sharpe_annual": "1.44527872",
+      "total_return_pct": "3188.17804342",
+      "vol_annual": "0.84611405"
+    },
+    "gated_full_net": "452166.11470233",
+    "gated_oos": {
+      "days": 627,
+      "max_drawdown_pct": "43.62073804",
+      "sharpe_annual": "0.88117293",
+      "total_return_pct": "60.88548524",
+      "vol_annual": "0.41140715"
+    },
+    "gated_train": {
+      "days": 1460,
+      "max_drawdown_pct": "37.57617417",
+      "sharpe_annual": "1.62970735",
+      "total_return_pct": "2772.64021378",
+      "vol_annual": "0.63130482"
+    },
+    "oos_max_drawdown_reduction_pct": "33.63593122"
+  },
+  "no_lookahead": {
+    "method": "truncation + future-tampering probes at sampled decision closes",
+    "verified": true
+  },
+  "per_config_results": [
+    {
+      "config_id": "regime1_lb30_br4_btc_vote_1d",
+      "oos_stats": {
+        "days": 627,
+        "max_drawdown_pct": "48.61186475",
+        "sharpe_annual": "0.43975144",
+        "total_return_pct": "17.86631482",
+        "vol_annual": "0.46235034"
+      },
+      "train_flips": 104,
+      "train_stats": {
+        "days": 1460,
+        "max_drawdown_pct": "61.88330219",
+        "sharpe_annual": "1.62476425",
+        "total_return_pct": "3447.32919493",
+        "vol_annual": "0.68994882"
+      }
+    },
+    {
+      "config_id": "regime1_lb30_br4_btc_required_1d",
+      "oos_stats": {
+        "days": 627,
+        "max_drawdown_pct": "49.11908993",
+        "sharpe_annual": "0.42634515",
+        "total_return_pct": "16.70093180",
+        "vol_annual": "0.45093038"
+      },
+      "train_flips": 118,
+      "train_stats": {
+        "days": 1460,
+        "max_drawdown_pct": "60.88860687",
+        "sharpe_annual": "1.77456748",
+        "total_return_pct": "4187.84195056",
+        "vol_annual": "0.63655360"
+      }
+    },
+    {
+      "config_id": "regime1_lb30_br5_btc_vote_1d",
+      "oos_stats": {
+        "days": 627,
+        "max_drawdown_pct": "46.16733474",
+        "sharpe_annual": "0.52779250",
+        "total_return_pct": "25.95265912",
+        "vol_annual": "0.43596147"
+      },
+      "train_flips": 116,
+      "train_stats": {
+        "days": 1460,
+        "max_drawdown_pct": "51.97044262",
+        "sharpe_annual": "1.96637877",
+        "total_return_pct": "7244.08816859",
+        "vol_annual": "0.64618450"
+      }
+    },
+    {
+      "config_id": "regime1_lb30_br5_btc_required_1d",
+      "oos_stats": {
+        "days": 627,
+        "max_drawdown_pct": "48.96257186",
+        "sharpe_annual": "0.34511163",
+        "total_return_pct": "9.94303603",
+        "vol_annual": "0.43189163"
+      },
+      "train_flips": 110,
+      "train_stats": {
+        "days": 1460,
+        "max_drawdown_pct": "55.53468757",
+        "sharpe_annual": "1.90277302",
+        "total_return_pct": "5437.95804702",
+        "vol_annual": "0.62286241"
+      }
+    },
+    {
+      "config_id": "regime1_lb30_br6_btc_vote_1d",
+      "oos_stats": {
+        "days": 627,
+        "max_drawdown_pct": "45.95514933",
+        "sharpe_annual": "0.70690017",
+        "total_return_pct": "42.14264469",
+        "vol_annual": "0.40878203"
+      },
+      "train_flips": 144,
+      "train_stats": {
+        "days": 1460,
+        "max_drawdown_pct": "51.96869310",
+        "sharpe_annual": "1.79336056",
+        "total_return_pct": "4189.40473187",
+        "vol_annual": "0.62652855"
+      }
+    },
+    {
+      "config_id": "regime1_lb30_br6_btc_required_1d",
+      "oos_stats": {
+        "days": 627,
+        "max_drawdown_pct": "48.75374338",
+        "sharpe_annual": "0.51412220",
+        "total_return_pct": "24.08063821",
+        "vol_annual": "0.40447104"
+      },
+      "train_flips": 132,
+      "train_stats": {
+        "days": 1460,
+        "max_drawdown_pct": "57.73272702",
+        "sharpe_annual": "1.66459627",
+        "total_return_pct": "2738.58661047",
+        "vol_annual": "0.60491078"
+      }
+    },
+    {
+      "config_id": "regime1_lb60_br4_btc_vote_1d",
+      "oos_stats": {
+        "days": 627,
+        "max_drawdown_pct": "37.70560213",
+        "sharpe_annual": "1.00412624",
+        "total_return_pct": "83.51665430",
+        "vol_annual": "0.45711854"
+      },
+      "train_flips": 91,
+      "train_stats": {
+        "days": 1460,
+        "max_drawdown_pct": "71.52307100",
+        "sharpe_annual": "1.36647603",
+        "total_return_pct": "1854.24930339",
+        "vol_annual": "0.73549649"
+      }
+    },
+    {
+      "config_id": "regime1_lb60_br4_btc_required_1d",
+      "oos_stats": {
+        "days": 627,
+        "max_drawdown_pct": "37.58847186",
+        "sharpe_annual": "0.84917747",
+        "total_return_pct": "61.18671277",
+        "vol_annual": "0.44464310"
+      },
+      "train_flips": 73,
+      "train_stats": {
+        "days": 1460,
+        "max_drawdown_pct": "68.16643371",
+        "sharpe_annual": "1.66069553",
+        "total_return_pct": "3434.38908058",
+        "vol_annual": "0.66124992"
+      }
+    },
+    {
+      "config_id": "regime1_lb60_br5_btc_vote_1d",
+      "oos_stats": {
+        "days": 627,
+        "max_drawdown_pct": "37.75040666",
+        "sharpe_annual": "0.62100528",
+        "total_return_pct": "34.37890348",
+        "vol_annual": "0.42144147"
+      },
+      "train_flips": 71,
+      "train_stats": {
+        "days": 1460,
+        "max_drawdown_pct": "70.38893928",
+        "sharpe_annual": "1.44614298",
+        "total_return_pct": "2216.46854993",
+        "vol_annual": "0.71229598"
+      }
+    },
+    {
+      "config_id": "regime1_lb60_br5_btc_required_1d",
+      "oos_stats": {
+        "days": 627,
+        "max_drawdown_pct": "39.98352915",
+        "sharpe_annual": "0.57448111",
+        "total_return_pct": "29.55777818",
+        "vol_annual": "0.41013152"
+      },
+      "train_flips": 71,
+      "train_stats": {
+        "days": 1460,
+        "max_drawdown_pct": "69.55381184",
+        "sharpe_annual": "1.60056401",
+        "total_return_pct": "2816.00193883",
+        "vol_annual": "0.65236491"
+      }
+    },
+    {
+      "config_id": "regime1_lb60_br6_btc_vote_1d",
+      "oos_stats": {
+        "days": 627,
+        "max_drawdown_pct": "33.43298511",
+        "sharpe_annual": "0.74109188",
+        "total_return_pct": "45.55843979",
+        "vol_annual": "0.40899531"
+      },
+      "train_flips": 85,
+      "train_stats": {
+        "days": 1460,
+        "max_drawdown_pct": "60.15454110",
+        "sharpe_annual": "1.36298368",
+        "total_return_pct": "1559.88794557",
+        "vol_annual": "0.67510041"
+      }
+    },
+    {
+      "config_id": "regime1_lb60_br6_btc_required_1d",
+      "oos_stats": {
+        "days": 627,
+        "max_drawdown_pct": "33.30603446",
+        "sharpe_annual": "0.69714544",
+        "total_return_pct": "40.33728301",
+        "vol_annual": "0.39733892"
+      },
+      "train_flips": 87,
+      "train_stats": {
+        "days": 1460,
+        "max_drawdown_pct": "59.28381494",
+        "sharpe_annual": "1.51795365",
+        "total_return_pct": "1976.61426959",
+        "vol_annual": "0.61643197"
+      }
+    },
+    {
+      "config_id": "regime1_lb90_br4_btc_vote_1d",
+      "oos_stats": {
+        "days": 627,
+        "max_drawdown_pct": "43.79013271",
+        "sharpe_annual": "0.56915672",
+        "total_return_pct": "30.25134289",
+        "vol_annual": "0.45077565"
+      },
+      "train_flips": 68,
+      "train_stats": {
+        "days": 1460,
+        "max_drawdown_pct": "82.68774355",
+        "sharpe_annual": "1.10922049",
+        "total_return_pct": "821.79712002",
+        "vol_annual": "0.73893827"
+      }
+    },
+    {
+      "config_id": "regime1_lb90_br4_btc_required_1d",
+      "oos_stats": {
+        "days": 627,
+        "max_drawdown_pct": "40.73098467",
+        "sharpe_annual": "0.82738901",
+        "total_return_pct": "57.84486817",
+        "vol_annual": "0.43909215"
+      },
+      "train_flips": 70,
+      "train_stats": {
+        "days": 1460,
+        "max_drawdown_pct": "71.01410964",
+        "sharpe_annual": "1.41002194",
+        "total_return_pct": "1724.16576111",
+        "vol_annual": "0.66484837"
+      }
+    },
+    {
+      "config_id": "regime1_lb90_br5_btc_vote_1d",
+      "oos_stats": {
+        "days": 627,
+        "max_drawdown_pct": "41.16159913",
+        "sharpe_annual": "0.99488709",
+        "total_return_pct": "76.03111480",
+        "vol_annual": "0.42132124"
+      },
+      "train_flips": 66,
+      "train_stats": {
+        "days": 1460,
+        "max_drawdown_pct": "66.53797962",
+        "sharpe_annual": "1.32772052",
+        "total_return_pct": "1564.36447268",
+        "vol_annual": "0.71482259"
+      }
+    },
+    {
+      "config_id": "regime1_lb90_br5_btc_required_1d",
+      "oos_stats": {
+        "days": 627,
+        "max_drawdown_pct": "41.16184182",
+        "sharpe_annual": "0.99486261",
+        "total_return_pct": "76.02807393",
+        "vol_annual": "0.42132165"
+      },
+      "train_flips": 62,
+      "train_stats": {
+        "days": 1460,
+        "max_drawdown_pct": "66.53279418",
+        "sharpe_annual": "1.44389440",
+        "total_return_pct": "1867.56537375",
+        "vol_annual": "0.66030223"
+      }
+    },
+    {
+      "config_id": "regime1_lb90_br6_btc_vote_1d",
+      "oos_stats": {
+        "days": 627,
+        "max_drawdown_pct": "43.61985899",
+        "sharpe_annual": "0.88124105",
+        "total_return_pct": "60.89309088",
+        "vol_annual": "0.41140622"
+      },
+      "train_flips": 62,
+      "train_stats": {
+        "days": 1460,
+        "max_drawdown_pct": "57.31978479",
+        "sharpe_annual": "1.45336254",
+        "total_return_pct": "2074.21985110",
+        "vol_annual": "0.68364642"
+      }
+    },
+    {
+      "config_id": "regime1_lb90_br6_btc_required_1d",
+      "oos_stats": {
+        "days": 627,
+        "max_drawdown_pct": "43.62073804",
+        "sharpe_annual": "0.88117293",
+        "total_return_pct": "60.88548524",
+        "vol_annual": "0.41140715"
+      },
+      "train_flips": 60,
+      "train_stats": {
+        "days": 1460,
+        "max_drawdown_pct": "37.57617417",
+        "sharpe_annual": "1.62970735",
+        "total_return_pct": "2772.64021378",
+        "vol_annual": "0.63130482"
+      }
+    }
+  ],
+  "phase": "REGIME2",
+  "pre_registration": {
+    "gates_all_required_pre_registered": [
+      "OOS max-drawdown reduction >= 30% vs always-long (REGIME1 bar, unchanged)",
+      "drawdown reduced vs always-long in EVERY walk-forward fold (REGIME1 bar, unchanged; strictly stronger than 'the chop fold must not worsen')",
+      "OOS Sharpe >= always-long OOS Sharpe (REGIME1 bar, unchanged)",
+      "OOS total return >= always-long OOS total return - 25pp (return-retention tolerance, pre-stated)",
+      "minimum OOS days (REGIME1 bar, unchanged)",
+      "no-lookahead probe verified (REGIME1 bar, unchanged)"
+    ],
+    "principle": "the criterion is chosen because the tool's OBJECTIVE is drawdown control (REGIME1's lesson: train Sharpe rewards fast stay-long filters), not because REGIME1's hindsight table showed a passer; a miss on any gate is an honest fail",
+    "registered_in": "services/strategy_validation/regime2.py + money-flow/03_Decision_Log.md, committed to git before the selection run",
+    "search_space": "REGIME1's exact grid, unchanged: lookback {30,60,90} x breadth threshold {0.4,0.5,0.6} x BTC rule {vote,required} = 18 configs; same universe (DATA1 Binance 7 majors), window, friction, books, warm-up, folds, and OOS methods; the search was NOT widened",
+    "selection_criterion": "train-only, objective-aligned: lowest gated train max drawdown (= largest train drawdown reduction vs the shared always-long book); configs within 2.0 percentage points of the best are ties broken by FEWEST train state flips (whipsaw penalty), then config_id; OOS is never seen by selection"
+  },
+  "pre_registration_confirmation": "the selection criterion and all gates above were fixed in regime2.py and the Decision Log and committed to git BEFORE this selection ran; the search space is REGIME1's grid unwidened; both REGIME1 bars are held unchanged",
+  "regime1_comparison": {
+    "regime1_chosen": "regime1_lb30_br5_btc_vote_1d (train Sharpe criterion)",
+    "regime1_oos_dd_reduction_pct": "29.76",
+    "regime1_verdict": "regime_filter_does_not_reduce_drawdown_oos",
+    "what_changed": "ONLY the selection criterion (objective-aligned, pre-registered); same grid, bars, books, methods"
+  },
+  "regime_filter_gate": {
+    "always_long_oos": {
+      "days": 627,
+      "max_drawdown_pct": "65.72945095",
+      "sharpe_annual": "0.12876359",
+      "total_return_pct": "-19.58917762",
+      "vol_annual": "0.64714934"
+    },
+    "disclaimer": "RISK-OFF FILTER / DRAWDOWN CONTROL, NOT ALPHA: this signal reduces downside exposure in broad downtrends; it does not predict returns and does not guarantee profit (the gated book gives up return in choppy markets - the whipsaw cost is reported, not hidden). Signal only - not an order, not trading advice; nothing here submits orders or enables any trading mode.",
+    "fold_dd_reductions": [
+      {
+        "always_max_drawdown_pct": "39.39753615",
+        "always_return_pct": "174.67796677",
+        "always_sharpe": "1.17122609",
+        "chosen_config": "regime1_lb30_br5_btc_required_1d",
+        "fold": "fold_b_chop",
+        "gated_max_drawdown_pct": "45.62452325",
+        "gated_return_pct": "51.14496317",
+        "gated_sharpe": "0.70133077",
+        "window": [
+          "2022-08-20 00:00:00+00:00",
+          "2024-07-16 00:00:00+00:00"
+        ]
+      },
+      {
+        "always_max_drawdown_pct": "65.72945095",
+        "always_return_pct": "-24.99149558",
+        "always_sharpe": "0.08700266",
+        "chosen_config": "regime1_lb90_br6_btc_required_1d",
+        "fold": "fold_c",
+        "gated_max_drawdown_pct": "43.62073804",
+        "gated_return_pct": "35.93093599",
+        "gated_sharpe": "0.60256198",
+        "window": [
+          "2024-07-16 00:00:00+00:00",
+          "end"
+        ]
+      }
+    ],
+    "gate_id": "regime2_risk_off_filter_gate",
+    "gated_oos": {
+      "days": 627,
+      "max_drawdown_pct": "43.62073804",
+      "sharpe_annual": "0.88117293",
+      "total_return_pct": "60.88548524",
+      "vol_annual": "0.41140715"
+    },
+    "min_oos_days_required": 90,
+    "min_relative_dd_reduction": "0.30",
+    "no_lookahead_verified": true,
+    "passed": false,
+    "pre_registration": {
+      "gates_all_required_pre_registered": [
+        "OOS max-drawdown reduction >= 30% vs always-long (REGIME1 bar, unchanged)",
+        "drawdown reduced vs always-long in EVERY walk-forward fold (REGIME1 bar, unchanged; strictly stronger than 'the chop fold must not worsen')",
+        "OOS Sharpe >= always-long OOS Sharpe (REGIME1 bar, unchanged)",
+        "OOS total return >= always-long OOS total return - 25pp (return-retention tolerance, pre-stated)",
+        "minimum OOS days (REGIME1 bar, unchanged)",
+        "no-lookahead probe verified (REGIME1 bar, unchanged)"
+      ],
+      "principle": "the criterion is chosen because the tool's OBJECTIVE is drawdown control (REGIME1's lesson: train Sharpe rewards fast stay-long filters), not because REGIME1's hindsight table showed a passer; a miss on any gate is an honest fail",
+      "registered_in": "services/strategy_validation/regime2.py + money-flow/03_Decision_Log.md, committed to git before the selection run",
+      "search_space": "REGIME1's exact grid, unchanged: lookback {30,60,90} x breadth threshold {0.4,0.5,0.6} x BTC rule {vote,required} = 18 configs; same universe (DATA1 Binance 7 majors), window, friction, books, warm-up, folds, and OOS methods; the search was NOT widened",
+      "selection_criterion": "train-only, objective-aligned: lowest gated train max drawdown (= largest train drawdown reduction vs the shared always-long book); configs within 2.0 percentage points of the best are ties broken by FEWEST train state flips (whipsaw penalty), then config_id; OOS is never seen by selection"
+    },
+    "qualifiers": [
+      "risk_tool_not_alpha_no_profit_claim"
+    ],
+    "reason_codes": [
+      "walk_forward_drawdown_not_reduced_in_every_fold"
+    ],
+    "return_tolerance_pp": "25",
+    "status": "regime_filter_does_not_reduce_drawdown_oos",
+    "verdict_semantics": "risk-tool pass: material OOS drawdown reduction at not-worse risk-adjusted performance \u2014 explicitly NOT an alpha claim"
+  },
+  "report": "regime2_objective_aligned_regime_filter_evidence",
+  "reusable_gate": {
+    "default_config_pinned": "regime1_lb90_br6_btc_required_1d",
+    "intended_use": "suppress LONG entries while risk_off (drawdown control for long books; MONEYFLOW-SIGNAL1 next)",
+    "seam": "strategy_types.REGIME_FILTER_REF -> regime1.build_regime_gate(datasets) -> RegimeGate.is_risk_on(as_of)"
+  },
+  "run_timestamp_utc": "2026-06-12T08:45:06Z",
+  "selection": {
+    "chosen": {
+      "config_id": "regime1_lb90_br6_btc_required_1d",
+      "train_flips": 60,
+      "train_max_drawdown_pct": "37.57617417"
+    },
+    "ranking": [
+      {
+        "config_id": "regime1_lb90_br6_btc_required_1d",
+        "train_flips": 60,
+        "train_max_drawdown_pct": "37.57617417"
+      },
+      {
+        "config_id": "regime1_lb30_br6_btc_vote_1d",
+        "train_flips": 144,
+        "train_max_drawdown_pct": "51.96869310"
+      },
+      {
+        "config_id": "regime1_lb30_br5_btc_vote_1d",
+        "train_flips": 116,
+        "train_max_drawdown_pct": "51.97044262"
+      },
+      {
+        "config_id": "regime1_lb30_br5_btc_required_1d",
+        "train_flips": 110,
+        "train_max_drawdown_pct": "55.53468757"
+      },
+      {
+        "config_id": "regime1_lb90_br6_btc_vote_1d",
+        "train_flips": 62,
+        "train_max_drawdown_pct": "57.31978479"
+      },
+      {
+        "config_id": "regime1_lb30_br6_btc_required_1d",
+        "train_flips": 132,
+        "train_max_drawdown_pct": "57.73272702"
+      },
+      {
+        "config_id": "regime1_lb60_br6_btc_required_1d",
+        "train_flips": 87,
+        "train_max_drawdown_pct": "59.28381494"
+      },
+      {
+        "config_id": "regime1_lb60_br6_btc_vote_1d",
+        "train_flips": 85,
+        "train_max_drawdown_pct": "60.15454110"
+      },
+      {
+        "config_id": "regime1_lb30_br4_btc_required_1d",
+        "train_flips": 118,
+        "train_max_drawdown_pct": "60.88860687"
+      },
+      {
+        "config_id": "regime1_lb30_br4_btc_vote_1d",
+        "train_flips": 104,
+        "train_max_drawdown_pct": "61.88330219"
+      },
+      {
+        "config_id": "regime1_lb90_br5_btc_required_1d",
+        "train_flips": 62,
+        "train_max_drawdown_pct": "66.53279418"
+      },
+      {
+        "config_id": "regime1_lb90_br5_btc_vote_1d",
+        "train_flips": 66,
+        "train_max_drawdown_pct": "66.53797962"
+      },
+      {
+        "config_id": "regime1_lb60_br4_btc_required_1d",
+        "train_flips": 73,
+        "train_max_drawdown_pct": "68.16643371"
+      },
+      {
+        "config_id": "regime1_lb60_br5_btc_required_1d",
+        "train_flips": 71,
+        "train_max_drawdown_pct": "69.55381184"
+      },
+      {
+        "config_id": "regime1_lb60_br5_btc_vote_1d",
+        "train_flips": 71,
+        "train_max_drawdown_pct": "70.38893928"
+      },
+      {
+        "config_id": "regime1_lb90_br4_btc_required_1d",
+        "train_flips": 70,
+        "train_max_drawdown_pct": "71.01410964"
+      },
+      {
+        "config_id": "regime1_lb60_br4_btc_vote_1d",
+        "train_flips": 91,
+        "train_max_drawdown_pct": "71.52307100"
+      },
+      {
+        "config_id": "regime1_lb90_br4_btc_vote_1d",
+        "train_flips": 68,
+        "train_max_drawdown_pct": "82.68774355"
+      }
+    ],
+    "tie_band_pp": "2.0",
+    "ties_considered": [
+      "regime1_lb90_br6_btc_required_1d"
+    ]
+  },
+  "status": "regime2_objective_aligned_evidence_complete",
+  "train_only_choice": {
+    "chosen_config": "regime1_lb90_br6_btc_required_1d",
+    "criterion": "train-only, objective-aligned: lowest gated train max drawdown (= largest train drawdown reduction vs the shared always-long book); configs within 2.0 percentage points of the best are ties broken by FEWEST train state flips (whipsaw penalty), then config_id; OOS is never seen by selection"
+  },
+  "universe": {
+    "aligned_days": 2087,
+    "assets": [
+      "AVAX",
+      "BNB",
+      "BTC",
+      "DOGE",
+      "ETH",
+      "SOL",
+      "XRP"
+    ],
+    "book": "equal-weight long book, 7d rebalance, EXEC-EV1 exec_ev1_conservative friction",
+    "common_warmup_cutoff": "2020-12-23 00:00:00+00:00",
+    "venue_series": "binance perp_1d (DATA1)",
+    "window": [
+      "2020-09-24 00:00:00+00:00",
+      "2026-06-11 00:00:00+00:00"
+    ]
+  },
+  "verdict": "regime_filter_does_not_reduce_drawdown_oos",
+  "walk_forward": [
+    {
+      "always_max_drawdown_pct": "39.39753615",
+      "always_return_pct": "174.67796677",
+      "always_sharpe": "1.17122609",
+      "chosen_config": "regime1_lb30_br5_btc_required_1d",
+      "fold": "fold_b_chop",
+      "gated_max_drawdown_pct": "45.62452325",
+      "gated_return_pct": "51.14496317",
+      "gated_sharpe": "0.70133077",
+      "window": [
+        "2022-08-20 00:00:00+00:00",
+        "2024-07-16 00:00:00+00:00"
+      ]
+    },
+    {
+      "always_max_drawdown_pct": "65.72945095",
+      "always_return_pct": "-24.99149558",
+      "always_sharpe": "0.08700266",
+      "chosen_config": "regime1_lb90_br6_btc_required_1d",
+      "fold": "fold_c",
+      "gated_max_drawdown_pct": "43.62073804",
+      "gated_return_pct": "35.93093599",
+      "gated_sharpe": "0.60256198",
+      "window": [
+        "2024-07-16 00:00:00+00:00",
+        "end"
+      ]
+    }
+  ],
+  "whipsaw_cost": {
+    "full_window": {
+      "days": 1997,
+      "drawdown_avoided_in_true_risk_off": "-1104880.67024257",
+      "false_risk_off_spells": 13,
+      "flips_per_year": "17.36354532",
+      "mean_spell_days": "23.95833333",
+      "return_given_up_in_false_risk_off": "101786.10433662",
+      "risk_off_days": 1150,
+      "risk_off_fraction": "0.57586380",
+      "risk_off_spells": 48,
+      "spell_detail": [
+        {
+          "always_long_net_during_spell": "206.11422892",
+          "days": 3,
+          "end": "2021-01-01 00:00:00+00:00",
+          "false_risk_off": true,
+          "start": "2020-12-30 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "2583.28686295",
+          "days": 2,
+          "end": "2021-01-04 00:00:00+00:00",
+          "false_risk_off": true,
+          "start": "2021-01-03 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-47133.42815459",
+          "days": 94,
+          "end": "2021-08-17 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2021-05-16 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-37357.59208246",
+          "days": 2,
+          "end": "2021-12-06 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2021-12-05 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-4526.30115332",
+          "days": 1,
+          "end": "2021-12-08 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2021-12-08 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-1603.41796677",
+          "days": 2,
+          "end": "2021-12-12 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2021-12-11 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-27793.54132653",
+          "days": 1,
+          "end": "2021-12-14 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2021-12-14 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "11008.38053269",
+          "days": 2,
+          "end": "2021-12-19 00:00:00+00:00",
+          "false_risk_off": true,
+          "start": "2021-12-18 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-60090.14802667",
+          "days": 112,
+          "end": "2022-04-21 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2021-12-31 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-123992.80459462",
+          "days": 136,
+          "end": "2022-09-12 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2022-04-30 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-14471.89870725",
+          "days": 3,
+          "end": "2022-09-16 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2022-09-14 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "3337.55279275",
+          "days": 12,
+          "end": "2022-09-29 00:00:00+00:00",
+          "false_risk_off": true,
+          "start": "2022-09-18 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-3974.40317689",
+          "days": 104,
+          "end": "2023-01-13 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2022-10-02 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-5614.21653580",
+          "days": 1,
+          "end": "2023-01-25 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2023-01-25 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "963.92579734",
+          "days": 12,
+          "end": "2023-02-07 00:00:00+00:00",
+          "false_risk_off": true,
+          "start": "2023-01-27 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-6119.27538766",
+          "days": 2,
+          "end": "2023-02-26 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2023-02-25 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-6356.32343646",
+          "days": 2,
+          "end": "2023-03-05 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2023-03-04 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "200.29865845",
+          "days": 1,
+          "end": "2023-03-07 00:00:00+00:00",
+          "false_risk_off": true,
+          "start": "2023-03-07 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-9541.19111811",
+          "days": 4,
+          "end": "2023-03-12 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2023-03-09 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-5144.34971889",
+          "days": 18,
+          "end": "2023-05-10 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2023-04-23 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "757.29099215",
+          "days": 2,
+          "end": "2023-05-14 00:00:00+00:00",
+          "false_risk_off": true,
+          "start": "2023-05-13 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "1917.13137880",
+          "days": 18,
+          "end": "2023-06-02 00:00:00+00:00",
+          "false_risk_off": true,
+          "start": "2023-05-16 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-3918.59723092",
+          "days": 2,
+          "end": "2023-06-07 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2023-06-06 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "17392.63351488",
+          "days": 50,
+          "end": "2023-07-29 00:00:00+00:00",
+          "false_risk_off": true,
+          "start": "2023-06-10 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-8180.20522831",
+          "days": 9,
+          "end": "2023-08-08 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2023-07-31 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "14203.10452443",
+          "days": 82,
+          "end": "2023-11-05 00:00:00+00:00",
+          "false_risk_off": true,
+          "start": "2023-08-16 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-4212.17787054",
+          "days": 1,
+          "end": "2024-06-03 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2024-06-03 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-53652.24799675",
+          "days": 41,
+          "end": "2024-07-15 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2024-06-05 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-7670.87336999",
+          "days": 9,
+          "end": "2024-07-30 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2024-07-22 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-24095.05969544",
+          "days": 51,
+          "end": "2024-09-21 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2024-08-02 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-8424.43991429",
+          "days": 1,
+          "end": "2024-09-26 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2024-09-26 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-31731.26233355",
+          "days": 2,
+          "end": "2024-10-02 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2024-10-01 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "7124.52177514",
+          "days": 2,
+          "end": "2024-10-05 00:00:00+00:00",
+          "false_risk_off": true,
+          "start": "2024-10-04 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-677.93931022",
+          "days": 1,
+          "end": "2024-10-11 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2024-10-11 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "35150.31782343",
+          "days": 17,
+          "end": "2024-10-29 00:00:00+00:00",
+          "false_risk_off": true,
+          "start": "2024-10-13 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-32034.91060898",
+          "days": 94,
+          "end": "2025-05-10 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2025-02-06 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-14816.94398929",
+          "days": 11,
+          "end": "2025-05-22 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2025-05-12 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-28288.92689460",
+          "days": 2,
+          "end": "2025-05-25 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2025-05-24 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-21939.81880657",
+          "days": 3,
+          "end": "2025-06-02 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2025-05-31 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-23359.02707762",
+          "days": 4,
+          "end": "2025-06-07 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2025-06-04 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-9645.77032765",
+          "days": 1,
+          "end": "2025-06-18 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2025-06-18 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-14453.15910688",
+          "days": 7,
+          "end": "2025-06-27 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2025-06-21 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "6941.54545470",
+          "days": 1,
+          "end": "2025-08-09 00:00:00+00:00",
+          "false_risk_off": true,
+          "start": "2025-08-09 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-15443.92248025",
+          "days": 1,
+          "end": "2025-08-12 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2025-08-12 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-375743.18447557",
+          "days": 208,
+          "end": "2026-05-06 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2025-10-11 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-3860.48292120",
+          "days": 1,
+          "end": "2026-05-18 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2026-05-18 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-9879.19784580",
+          "days": 2,
+          "end": "2026-05-28 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2026-05-27 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-59133.63137212",
+          "days": 13,
+          "end": "2026-06-11 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2026-05-30 00:00:00+00:00"
+        }
+      ],
+      "state_flips": 95
+    },
+    "oos_window": {
+      "days": 627,
+      "drawdown_avoided_in_true_risk_off": "-649432.61746459",
+      "false_risk_off_spells": 3,
+      "flips_per_year": "20.37480064",
+      "mean_spell_days": "20.61111111",
+      "return_given_up_in_false_risk_off": "49216.38505327",
+      "risk_off_days": 371,
+      "risk_off_fraction": "0.59170654",
+      "risk_off_spells": 18,
+      "spell_detail": [
+        {
+          "always_long_net_during_spell": "-8424.43991429",
+          "days": 1,
+          "end": "2024-09-26 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2024-09-26 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-31731.26233355",
+          "days": 2,
+          "end": "2024-10-02 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2024-10-01 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "7124.52177514",
+          "days": 2,
+          "end": "2024-10-05 00:00:00+00:00",
+          "false_risk_off": true,
+          "start": "2024-10-04 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-677.93931022",
+          "days": 1,
+          "end": "2024-10-11 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2024-10-11 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "35150.31782343",
+          "days": 17,
+          "end": "2024-10-29 00:00:00+00:00",
+          "false_risk_off": true,
+          "start": "2024-10-13 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-32034.91060898",
+          "days": 94,
+          "end": "2025-05-10 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2025-02-06 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-14816.94398929",
+          "days": 11,
+          "end": "2025-05-22 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2025-05-12 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-28288.92689460",
+          "days": 2,
+          "end": "2025-05-25 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2025-05-24 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-21939.81880657",
+          "days": 3,
+          "end": "2025-06-02 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2025-05-31 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-23359.02707762",
+          "days": 4,
+          "end": "2025-06-07 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2025-06-04 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-9645.77032765",
+          "days": 1,
+          "end": "2025-06-18 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2025-06-18 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-14453.15910688",
+          "days": 7,
+          "end": "2025-06-27 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2025-06-21 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "6941.54545470",
+          "days": 1,
+          "end": "2025-08-09 00:00:00+00:00",
+          "false_risk_off": true,
+          "start": "2025-08-09 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-15443.92248025",
+          "days": 1,
+          "end": "2025-08-12 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2025-08-12 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-375743.18447557",
+          "days": 208,
+          "end": "2026-05-06 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2025-10-11 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-3860.48292120",
+          "days": 1,
+          "end": "2026-05-18 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2026-05-18 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-9879.19784580",
+          "days": 2,
+          "end": "2026-05-28 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2026-05-27 00:00:00+00:00"
+        },
+        {
+          "always_long_net_during_spell": "-59133.63137212",
+          "days": 13,
+          "end": "2026-06-11 00:00:00+00:00",
+          "false_risk_off": false,
+          "start": "2026-05-30 00:00:00+00:00"
+        }
+      ],
+      "state_flips": 35
+    },
+    "semantics": "false risk-off spell = always-long gained during the spell (return given up); true risk-off = always-long lost (drawdown avoided). Reported, never hidden."
+  }
+}

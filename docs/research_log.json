@@ -121,6 +121,32 @@
     },
     {
       "analytics": [],
+      "badge": "endpoint bars cleared; process failed walk-forward",
+      "class": "time_series_momentum",
+      "date": "2026-06-12",
+      "evidence_doc": "docs/regime2_objective_aligned_regime_filter_evidence.md",
+      "evidence_summary": "docs/regime2_objective_aligned_regime_filter_evidence_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "The deployed gate/CLI now pin the REGIME2 selection with the honest verdict embedded (informational risk context, not validated control). MONEYFLOW-SIGNAL1 imports it knowing that. A REGIME3 needs a short-history-stable selection rule, pre-registered; the fold gate is never re-read after the fact.",
+        "didnt": "Selection-process stability: with only ~580 train days (one violent bull) the min-train-drawdown criterion prefers fast filters - small drawdowns in a straight-up market - and the fast pick worsens the chop fold. The fold gate judges the process and the process is not yet trustworthy on short history. Re-reading the gate post-hoc was refused.",
+        "lesson": "A drawdown tool must be selected by drawdown AND the selection rule must itself survive walk-forward: criterion-objective alignment is necessary but not sufficient - stability of the rule on short history is the remaining gap, and only a pre-registered REGIME3 with a structurally stable rule could close it.",
+        "our_error": "REGIME1's criterion mismatch was ours, not the mechanism's - REGIME2 confirms it: the same grid under the objective-aligned criterion clears every endpoint bar the Sharpe choice missed. The remaining fail (process instability on short history) is a genuine property of the selection rule, surfaced by our own pre-registered fold gate.",
+        "our_error_note": "",
+        "why": "REGIME1 failed on a criterion mismatch (train Sharpe rewards fast stay-long filters; a drawdown tool needs a slow one). The fix had to be confirmatory-grade: criterion and gates pre-registered and committed to git before selection, grid unwidened, REGIME1 bars held.",
+        "worked": "The pre-registration discipline itself (the git history proves the criterion preceded the result); the objective-aligned criterion at full history (picked the slow filter, fewest flips, alone in the tie band); the mechanism again (the chosen filter cut OOS drawdown by a third while QUADRUPLING return vs always-long, and called the live bear correctly)."
+      },
+      "finding": "The pre-registered drawdown criterion chose the slow filter (lb90/br0.6/required) and cleared every endpoint bar - OOS drawdown reduction 33.64% vs the held 30% bar, Sharpe 0.88 vs 0.13, return +60.9% vs -19.6%, and drawdown reduced in both fold windows held fixed - but the verdict is an honest fail: at the early-history fold cutoff the same criterion picks a fast filter that worsens the chop fold. The selection process, not the config, failed its walk-forward.",
+      "hardened_gates": [
+        "selection criteria are pre-registered and committed before selection runs",
+        "the selection PROCESS must survive walk-forward, not just the final config"
+      ],
+      "outcome": "fail",
+      "phase": "REGIME2",
+      "title": "Objective-Aligned Regime Filter (pre-registered re-test)"
+    },
+    {
+      "analytics": [],
       "badge": "rings true in bears, lies in chop",
       "class": "time_series_momentum",
       "date": "2026-06-12",
@@ -1180,7 +1206,7 @@
       "title": "Original Money Flow Reconstruction (accounting correction)"
     }
   ],
-  "entry_count": 22,
+  "entry_count": 23,
   "lessons_hardened_gates": [
     {
       "gate": "PnL must reconcile to equity",
@@ -1237,6 +1263,14 @@
     {
       "gate": "a drawdown tool must be train-chosen by a drawdown criterion, committed up front",
       "phase": "REGIME1"
+    },
+    {
+      "gate": "selection criteria are pre-registered and committed before selection runs",
+      "phase": "REGIME2"
+    },
+    {
+      "gate": "the selection PROCESS must survive walk-forward, not just the final config",
+      "phase": "REGIME2"
     },
     {
       "gate": "suite carry-over must reproduce committed EV1 OOS digit for digit",

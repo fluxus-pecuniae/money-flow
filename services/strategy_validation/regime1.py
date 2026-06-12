@@ -135,24 +135,31 @@ def generate_regime_configs() -> list[RegimeConfig]:
     return configs
 
 
-# The deployed default is pinned to the committed evidence summary's
-# train-only choice (test-enforced, like TREND-OVERLAY1): re-tuning the
-# deployed filter without new evidence fails CI. NOTE the committed verdict:
-# this config did NOT clear the drawdown-reduction gate (it missed the 30%
-# material bar and worsened drawdown in the chop fold) — the state it emits
-# is informational risk context, not a validated control, and every surface
+# The deployed default is pinned to the committed REGIME2 evidence
+# summary's pre-registered objective-aligned selection (test-enforced, like
+# TREND-OVERLAY1): re-tuning the deployed filter without new evidence fails
+# CI. NOTE the committed verdict: REGIME2's verdict is also an honest FAIL —
+# the endpoint config cleared every endpoint bar (33.6% OOS drawdown
+# reduction, Sharpe 0.88 vs 0.13) and reduces drawdown in both fold windows
+# held fixed, but the pre-registered SELECTION PROCESS failed walk-forward
+# stability (at the early-history cutoff the same criterion picks a fast
+# filter that worsens the chop fold). The state this filter emits is
+# informational risk context, not a validated control, and every surface
 # says so.
 DEFAULT_CONFIG = RegimeConfig(
-    config_id="regime1_lb30_br5_btc_vote_1d",
-    lookback_days=30,
-    breadth_threshold=Decimal("0.5"),
-    btc_rule="vote",
+    config_id="regime1_lb90_br6_btc_required_1d",
+    lookback_days=90,
+    breadth_threshold=Decimal("0.6"),
+    btc_rule="required",
 )
 COMMITTED_VERDICT_NOTE = (
-    "evidence verdict: regime_filter_does_not_reduce_drawdown_oos — the "
-    "train-chosen filter did not clear its pre-committed drawdown-reduction "
-    "gate (missed the 30% material bar; worsened drawdown in the chop fold); "
-    "the emitted state is informational risk context, not a validated control"
+    "evidence verdict (REGIME2, pre-registered): "
+    "regime_filter_does_not_reduce_drawdown_oos — the deployed config "
+    "cleared every endpoint bar (33.6% OOS drawdown reduction; Sharpe 0.88 "
+    "vs 0.13; reduces drawdown in both fold windows held fixed) but the "
+    "pre-registered selection process failed walk-forward stability at the "
+    "early-history cutoff; the emitted state is informational risk context, "
+    "not a validated control"
 )
 
 

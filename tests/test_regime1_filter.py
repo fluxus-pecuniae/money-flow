@@ -242,9 +242,17 @@ def test_strategy_types_seam_resolves_the_gate_builder():
 
 
 def test_default_config_is_pinned_to_the_committed_train_choice():
-    summary = json.loads(SUMMARY_PATH.read_text(encoding="utf-8"))
-    assert rg.DEFAULT_CONFIG.config_id == summary["train_only_choice"]["chosen_config"]
-    assert rg.DEFAULT_CONFIG.config_id == summary["reusable_gate"]["default_config_pinned"]
+    # The deployed default follows the NEWEST committed evidence: REGIME2's
+    # pre-registered objective-aligned selection supersedes REGIME1's
+    # train-Sharpe choice (both verdicts are honest fails; the note says so).
+    regime2_summary = json.loads(
+        (REPO_ROOT / "docs" / "regime2_objective_aligned_regime_filter_evidence_summary.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert rg.DEFAULT_CONFIG.config_id == regime2_summary["train_only_choice"]["chosen_config"]
+    assert rg.DEFAULT_CONFIG.config_id == regime2_summary["reusable_gate"]["default_config_pinned"]
+    assert "not a validated control" in rg.COMMITTED_VERDICT_NOTE
 
 
 # ---------------------------------------------------------------------------
@@ -307,7 +315,8 @@ def test_cli_offline_replay_writes_disclaimed_artifact(tmp_path):
                 "open": str(100 + i), "high": str(101 + i), "low": str(99 + i),
                 "close": str(100 + i), "volume_base": "1000",
             }
-            for i in range(40)
+            # comfortably above the deployed default's 90-candle warm-up
+            for i in range(120)
         ]
         for s in ("BTC", "ETH", "SOL")
     }
