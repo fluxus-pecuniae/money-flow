@@ -108,6 +108,90 @@ PT_RT1_6_ARCHIVE_REASON_CODES = (
     "not_testnet_eligible",
     "not_production_eligible",
 )
+# ---------------------------------------------------------------------------
+# PT-RT2 — fresh paper slate: the MONEYFLOW-SIGNAL1 source-faithful signal as
+# live baseline + a regime-gated twin. OBSERVATION OF A CHARACTERIZED SIGNAL,
+# NOT A VALIDATED STRATEGY: the committed verdicts travel on every surface
+# (drift-pinned by test against moneyflow_signal1/regime1) and watching the
+# lanes live upgrades none of them. Founder decisions recorded in the
+# Decision Log: two-lane slate; Week 2 archived not deleted; paper-only —
+# NO lane is testnet eligible (testnet for this slate is a separate future
+# founder decision).
+# ---------------------------------------------------------------------------
+PT_RT2_RUNTIME_SCOPE = "pt_rt2_mf_signal_observation"
+PT_RT2_RUNTIME_OUTPUT_DIR = "reports/paper_runtime/pt_rt2_mf_signal_observation"
+PT_RT2_ACTIVE_REVIEW_START_UTC = "2026-06-12T00:00:00Z"
+PT_RT2_ACTIVE_STRATEGY_LANE_IDS = (
+    "mf_source_faithful_baseline",
+    "mf_source_faithful_regime_gated",
+)
+# The full archived set (Week 2 actives join the 7 already archived; nothing
+# deleted, ledgers/history untouched), in lane-definition order:
+PT_RT2_ARCHIVED_STRATEGY_LANE_IDS = (
+    "money_flow_v1_2_baseline",
+    "avoid_low_rolling_range_20",
+    "avoid_low_rolling_range_50",
+    "mf_orig_stage_filter_only_full_equity",
+    "mf_orig_stage2_pullback_reclaim_full_equity",
+    "mf_orig_1d_stage2_5_20_crossover_full_equity",
+    "mf_orig_1d_stage2_breakout_resistance_full_equity",
+    "wildcard_btc_regime_guard",
+    "wildcard_multi_timeframe_alignment",
+    "wildcard_volatility_expansion_breakout",
+)
+# Founder decision: the observed universe is the 7 DATA1 majors — exactly the
+# universe the MONEYFLOW-SIGNAL1 characterization ran. HYPE and SUI remain
+# CONFIGURED symbols but no PT-RT2 lane trades them (short histories).
+PT_RT2_UNIVERSE_SYMBOLS = ("BTC", "ETH", "SOL", "XRP", "DOGE", "BNB", "AVAX")
+PT_RT2_CONFIGURED_NOT_TRADED_SYMBOLS = {
+    "HYPE": "short_history_configured_not_traded_in_pt_rt2",
+    "SUI": "short_history_configured_not_traded_in_pt_rt2",
+}
+# The committed MONEYFLOW-SIGNAL1 surface computes on closed DAILY candles
+# only (page-cited: the book's strategy uses a daily chart). Running it on
+# other timeframes would be a new rule variant — forbidden for this slate.
+PT_RT2_ACTIVE_TIMEFRAMES = ("1d",)
+PT_RT2_DISABLED_TIMEFRAMES = ("15m", "1h", "4h")
+PT_RT2_DISABLED_TIMEFRAME_STATUS = "not_in_pt_rt2_slate_mf_signal1_surface_is_daily_only"
+PT_RT2_TIMEFRAME_REASON_CODES = (
+    "mf_signal1_surface_is_daily_only",
+    "no_new_rule_variants_for_observation",
+    "timeframe_excluded_from_pt_rt2_scoring",
+)
+PT_RT2_ARCHIVE_REASON_CODES = (
+    "founder_archived_after_week2",
+    "history_and_ledgers_preserved_untouched",
+    "not_default_active",
+    "historical_reference_only",
+    "not_testnet_eligible",
+    "not_production_eligible",
+)
+# Committed verdicts the lanes carry (drift-pinned by test against the
+# moneyflow_signal1 / regime1 modules — pt_rt1 stays import-light):
+PT_RT2_CHARACTERIZATION_LABEL = "defensive_trend_mechanic_not_validated_alpha"
+PT_RT2_TRADE_LEVEL_LABEL = "source_faithful_but_underperformed"
+PT_RT2_REGIME_COMMITTED_VERDICT = "regime_filter_does_not_reduce_drawdown_oos"
+PT_RT2_REGIME_COMMITTED_VERDICT_NOTE = (
+    "evidence verdict (REGIME2, pre-registered): "
+    "regime_filter_does_not_reduce_drawdown_oos — the deployed config "
+    "cleared every endpoint bar (33.6% OOS drawdown reduction; Sharpe 0.88 "
+    "vs 0.13; reduces drawdown in both fold windows held fixed) but the "
+    "pre-registered selection process failed walk-forward stability at the "
+    "early-history cutoff; the emitted state is informational risk context, "
+    "not a validated control"
+)
+PT_RT2_REGIME_OVERLAY_LABEL = "informational risk context, not a validated control"
+PT_RT2_OBSERVATION_FRAME = (
+    "observation of a characterized signal, not a validated strategy; "
+    "watching it live does not upgrade any committed verdict"
+)
+PT_RT2_REGIME_GATE_REASON_CODES = (
+    "regime_risk_on",
+    "regime_risk_off_long_entries_suppressed",
+    "regime_risk_off_exit",
+    "regime_gate_unavailable_holding_prior_state",
+    "regime_gate_never_defaults_to_risk_on_or_risk_off",
+)
 PT_RT1_5_ACTIVE_TIMEFRAMES = PT_RT1_4_ACTIVE_TIMEFRAMES
 PT_RT1_5_DISABLED_TIMEFRAMES = PT_RT1_4_DISABLED_TIMEFRAMES
 PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC = Decimal("25")
@@ -333,6 +417,7 @@ class LaneRole(StrEnum):
     CANDIDATE = "evidence_only_candidate_lane"
     REFERENCE = "mf_orig_evidence_only_reference_lane"
     WILDCARD = "wildcard_expert_observation_lane"
+    OVERLAY = "informational_overlay_observation_lane"
 
 
 @dataclass(frozen=True)
@@ -456,6 +541,57 @@ PT_RT1_STRATEGY_LANES: tuple[StrategyLaneConfig, ...] = (
         rule_summary=WILDCARD_STRATEGY_DEFINITIONS["wildcard_volatility_expansion_breakout"]["rule_summary"],
         reason_codes=(*WILDCARD_STRATEGY_DEFINITIONS["wildcard_volatility_expansion_breakout"]["reason_codes"], "wildcard_observation_only", "not_production_approved", "independent_synthetic_paper_ledger"),
     ),
+    StrategyLaneConfig(
+        lane_id="mf_source_faithful_baseline",
+        strategy_id="mf_source_faithful_baseline",
+        role=LaneRole.CONTROL,
+        label="Source-faithful Money Flow signal baseline observation lane",
+        display_name="MF source-faithful baseline",
+        strategy_family="moneyflow_signal1_source_faithful",
+        rule_summary=(
+            "Long/flat per the MONEYFLOW-SIGNAL1 source-faithful signal states "
+            "(Stage-2 confirmed entry; documented full exits), exactly as "
+            "committed and characterized; daily closed candles only; "
+            "full-equity synthetic ledger."
+        ),
+        reason_codes=(
+            "moneyflow_signal1_surface_reused_no_lookalike",
+            "defensive_trend_mechanic_not_validated_alpha",
+            "trade_level_source_faithful_but_underperformed",
+            "observation_does_not_upgrade_any_verdict",
+            "not_production_approved",
+            "independent_synthetic_paper_ledger",
+            "paper_only_no_testnet",
+        ),
+    ),
+    StrategyLaneConfig(
+        lane_id="mf_source_faithful_regime_gated",
+        strategy_id="mf_source_faithful_regime_gated",
+        role=LaneRole.OVERLAY,
+        label="Source-faithful Money Flow signal regime-gated observation lane",
+        display_name="MF source-faithful + regime gate",
+        strategy_family="moneyflow_signal1_source_faithful",
+        rule_summary=(
+            "Identical to the baseline lane, gated by the REGIME risk filter "
+            "(strategy_types.resolve_regime_filter, committed pinned config): "
+            "risk_off suppresses new long entries and exits open positions; "
+            "an unavailable gate holds the prior state and flags it - never a "
+            "silent default. Informational risk context, not a validated "
+            "control (committed verdict: "
+            "regime_filter_does_not_reduce_drawdown_oos)."
+        ),
+        reason_codes=(
+            "moneyflow_signal1_surface_reused_no_lookalike",
+            "defensive_trend_mechanic_not_validated_alpha",
+            "trade_level_source_faithful_but_underperformed",
+            "regime_filter_does_not_reduce_drawdown_oos",
+            "informational_risk_context_not_validated_control",
+            "observation_does_not_upgrade_any_verdict",
+            "not_production_approved",
+            "independent_synthetic_paper_ledger",
+            "paper_only_no_testnet",
+        ),
+    ),
 )
 
 PT_RT1_6_ACTIVE_STRATEGY_LANES: tuple[StrategyLaneConfig, ...] = tuple(
@@ -463,6 +599,12 @@ PT_RT1_6_ACTIVE_STRATEGY_LANES: tuple[StrategyLaneConfig, ...] = tuple(
 )
 PT_RT1_6_ARCHIVED_STRATEGY_LANES: tuple[StrategyLaneConfig, ...] = tuple(
     lane for lane in PT_RT1_STRATEGY_LANES if lane.lane_id in PT_RT1_6_ARCHIVED_STRATEGY_LANE_IDS
+)
+PT_RT2_ACTIVE_STRATEGY_LANES: tuple[StrategyLaneConfig, ...] = tuple(
+    lane for lane in PT_RT1_STRATEGY_LANES if lane.lane_id in PT_RT2_ACTIVE_STRATEGY_LANE_IDS
+)
+PT_RT2_ARCHIVED_STRATEGY_LANES: tuple[StrategyLaneConfig, ...] = tuple(
+    lane for lane in PT_RT1_STRATEGY_LANES if lane.lane_id in PT_RT2_ARCHIVED_STRATEGY_LANE_IDS
 )
 
 
@@ -475,19 +617,37 @@ def pt_rt1_6_lane_status(lane_id: str) -> str:
 
 
 def pt_rt1_6_lane_testnet_eligible(lane_id: str) -> bool:
-    return lane_id == "money_flow_v1_2_baseline"
+    """Week 2 historical policy (the scope is ARCHIVED): testnet eligibility
+    ended with the old baseline's active status. Kept for archived-scope
+    reference only — PT-RT2 eligibility is pt_rt2_lane_testnet_eligible."""
+    return False
+
+
+def pt_rt2_lane_status(lane_id: str) -> str:
+    if lane_id in PT_RT2_ACTIVE_STRATEGY_LANE_IDS:
+        return "active_pt_rt2_default"
+    if lane_id in PT_RT2_ARCHIVED_STRATEGY_LANE_IDS:
+        return "archived_default_inactive"
+    return "not_in_pt_rt2_slate"
+
+
+def pt_rt2_lane_testnet_eligible(lane_id: str) -> bool:
+    """Founder decision: PT-RT2 is paper-only first — NO lane is testnet
+    eligible; testnet for the new slate is a separate future founder
+    decision."""
+    return False
 
 
 def strategy_lane_summary_payload(lane: StrategyLaneConfig) -> dict[str, Any]:
-    lane_status = pt_rt1_6_lane_status(lane.lane_id)
-    active_by_default = lane_status == "active_week2_default"
+    lane_status = pt_rt2_lane_status(lane.lane_id)
+    active_by_default = lane_status == "active_pt_rt2_default"
     archived_by_default = lane_status == "archived_default_inactive"
     reason_codes = list(lane.reason_codes)
     if archived_by_default:
-        reason_codes = list(dict.fromkeys([*reason_codes, *PT_RT1_6_ARCHIVE_REASON_CODES]))
+        reason_codes = list(dict.fromkeys([*reason_codes, *PT_RT2_ARCHIVE_REASON_CODES]))
     if active_by_default:
-        reason_codes = list(dict.fromkeys([*reason_codes, "founder_selected_week2_active", "not_production_eligible"]))
-    return {
+        reason_codes = list(dict.fromkeys([*reason_codes, "founder_selected_pt_rt2_active", "not_production_eligible"]))
+    payload = {
         **asdict(lane),
         "initial_equity": str(lane.initial_equity),
         "allocation_pct": str(lane.allocation_pct),
@@ -511,20 +671,31 @@ def strategy_lane_summary_payload(lane: StrategyLaneConfig) -> dict[str, Any]:
         "paper_runtime_approved_as_production": False,
         "ledger_label": "independent synthetic paper ledger",
         "accounting_label": "not one combined account",
-        "week2_default_status": lane_status,
+        "pt_rt2_default_status": lane_status,
+        "week2_default_status": pt_rt1_6_lane_status(lane.lane_id),
         "active_by_default": active_by_default,
         "archived_by_default": archived_by_default,
-        "week2_scoring_eligible": active_by_default,
-        "testnet_eligible": pt_rt1_6_lane_testnet_eligible(lane.lane_id),
-        "testnet_label": (
-            "Baseline-only gated testnet eligible"
-            if pt_rt1_6_lane_testnet_eligible(lane.lane_id)
-            else "Synthetic-only / no testnet"
-        ),
+        "pt_rt2_scoring_eligible": active_by_default,
+        "week2_scoring_eligible": False,
+        "testnet_eligible": pt_rt2_lane_testnet_eligible(lane.lane_id),
+        "testnet_label": "Synthetic-only / no testnet (paper-only founder decision)",
         "pnl_source": "Synthetic Ledger",
         "signal_truth": "Public Mainnet Candles",
         "reason_codes": tuple(reason_codes),
     }
+    if lane.lane_id in PT_RT2_ACTIVE_STRATEGY_LANE_IDS:
+        payload["committed_characterization"] = {
+            "standalone_label": PT_RT2_CHARACTERIZATION_LABEL,
+            "trade_level_label": PT_RT2_TRADE_LEVEL_LABEL,
+            "observation_frame": PT_RT2_OBSERVATION_FRAME,
+        }
+    if lane.lane_id == "mf_source_faithful_regime_gated":
+        payload["regime_overlay"] = {
+            "committed_verdict": PT_RT2_REGIME_COMMITTED_VERDICT,
+            "committed_verdict_note": PT_RT2_REGIME_COMMITTED_VERDICT_NOTE,
+            "label": PT_RT2_REGIME_OVERLAY_LABEL,
+        }
+    return payload
 
 
 def _dec(value: Any, *, field_name: str = "value") -> Decimal:
@@ -1195,6 +1366,274 @@ def _baseline_alignment_reasons(candle: Candle, snapshot: IndicatorSnapshot) -> 
     return not reasons, tuple(reasons)
 
 
+def _mf_signal1_module():
+    """Lazy import of the MONEYFLOW-SIGNAL1 surface (reuse, never a
+    lookalike). Lazy so that import-light consumers of pt_rt1 (the truth
+    exporter, tests that never evaluate the new lanes) do not pull the
+    strategy-validation package chain."""
+    from services.strategy_validation import moneyflow_signal1
+
+    return moneyflow_signal1
+
+
+def core_candles_for_mf_signal1(candles: Sequence[Candle]) -> list[Any]:
+    """pt_rt1 runtime candles -> the core-domain candles the
+    MONEYFLOW-SIGNAL1 surface consumes (closed daily candles, oldest-first)."""
+    ms = _mf_signal1_module()
+    rows = [
+        {
+            "venue": "hyperliquid",
+            "open_time": _iso(candle.open_time),
+            "close_time": _iso(candle.close_time or canonical_candle_close(candle)),
+            "open": str(candle.open),
+            "high": str(candle.high),
+            "low": str(candle.low),
+            "close": str(candle.close),
+            "volume_base": str(candle.volume),
+        }
+        for candle in candles
+    ]
+    symbol = candles[0].symbol if candles else "UNKNOWN"
+    return ms.core_candles_from_data1_rows(symbol, rows)
+
+
+def build_pt_rt2_regime_context(
+    candles_by_symbol: Mapping[str, Sequence[Candle]],
+) -> dict[str, Any]:
+    """The cycle's regime overlay context from the runtime's own closed daily
+    candles (the same public signal truth the lanes consume), built through
+    the committed strategy_types.resolve_regime_filter() seam.
+
+    NEVER silently defaults: on any failure (missing symbols, warm-up,
+    import or build error) the context is explicitly unavailable with the
+    reason, and the gated lane holds its prior state. The committed
+    honest-FAIL verdict travels with every state."""
+    base = {
+        "committed_verdict": PT_RT2_REGIME_COMMITTED_VERDICT,
+        "committed_verdict_note": PT_RT2_REGIME_COMMITTED_VERDICT_NOTE,
+        "label": PT_RT2_REGIME_OVERLAY_LABEL,
+        "universe": list(PT_RT2_UNIVERSE_SYMBOLS),
+    }
+    missing = [
+        symbol
+        for symbol in PT_RT2_UNIVERSE_SYMBOLS
+        if not candles_by_symbol.get(symbol)
+    ]
+    if missing:
+        return {
+            **base,
+            "available": False,
+            "risk_on": None,
+            "reason": f"regime_universe_candles_missing:{','.join(sorted(missing))}",
+        }
+    try:
+        from services.strategy_validation.goal_strat1 import Candle as GCandle
+        from services.strategy_validation.goal_strat1 import Dataset
+        from services.strategy_validation.strategy_types import resolve_regime_filter
+
+        datasets = []
+        for symbol in PT_RT2_UNIVERSE_SYMBOLS:
+            gcandles = tuple(
+                GCandle(
+                    symbol=symbol,
+                    timeframe="1d",
+                    timestamp=(candle.close_time or canonical_candle_close(candle)),
+                    open=candle.open,
+                    high=candle.high,
+                    low=candle.low,
+                    close=candle.close,
+                    volume=candle.volume,
+                    source_path="pt_rt2_runtime_public_mainnet_daily",
+                )
+                for candle in candles_by_symbol[symbol]
+            )
+            datasets.append(
+                Dataset(
+                    symbol=symbol,
+                    timeframe="1d",
+                    source_path="pt_rt2_runtime_public_mainnet_daily",
+                    source_provenance="hyperliquid_public_mainnet_candle_snapshot",
+                    canonical_evidence_status="runtime_observation_not_canonical_evidence",
+                    candles=gcandles,
+                )
+            )
+        gate = resolve_regime_filter()(datasets)  # committed pinned config
+        as_of = gate.last_state_time
+        state = gate.state_at(as_of)
+        return {
+            **base,
+            "available": True,
+            "risk_on": bool(state["risk_on"]),
+            "state": {
+                key: str(value) if isinstance(value, Decimal) else value
+                for key, value in state.items()
+            },
+            "as_of_close": _iso(as_of),
+            "config_id": str(state.get("config_id")),
+        }
+    except Exception as exc:
+        return {
+            **base,
+            "available": False,
+            "risk_on": None,
+            "reason": f"regime_gate_build_failed:{type(exc).__name__}:{exc}",
+        }
+
+
+def _pt_rt2_decision(
+    *,
+    lane: StrategyLaneConfig,
+    symbol: str,
+    timeframe: str,
+    candle: Candle,
+    gate_close_time: str,
+    decision_time: str,
+    action: str,
+    reasons: Sequence[str],
+    indicator_payload: Mapping[str, Any],
+    position_before: str,
+    position_after: str,
+    equity: Decimal,
+    candle_closed: bool = True,
+    candle_status_reason: str = "closed_candle_ready",
+) -> PaperDecisionEvent:
+    return PaperDecisionEvent(
+        lane_id=lane.lane_id,
+        strategy_id=lane.strategy_id,
+        symbol=symbol.upper(),
+        timeframe=timeframe,
+        signal_candle_open_time=_iso(candle.open_time),
+        signal_candle_close_time=gate_close_time,
+        decision_time=decision_time,
+        candle_closed=candle_closed,
+        candle_status_reason=candle_status_reason,
+        action=action,
+        reason_codes=tuple(dict.fromkeys(reasons)),
+        indicator_snapshot=dict(indicator_payload),
+        position_before=position_before,
+        position_after=position_after,
+        equity_before=equity,
+        equity_after=equity,
+    )
+
+
+def _evaluate_pt_rt2_mf_signal_decision(
+    *,
+    lane: StrategyLaneConfig,
+    symbol: str,
+    timeframe: str,
+    candles: Sequence[Candle],
+    candle: Candle,
+    gate_close_time: str,
+    decision_time: str,
+    position_open: bool,
+    equity: Decimal,
+    regime_risk_on: bool | None,
+    regime_unavailable_reason: str | None,
+) -> PaperDecisionEvent:
+    """Both PT-RT2 lanes consume the committed MONEYFLOW-SIGNAL1 surface —
+    the same exposure semantics the characterization used. No re-derivation,
+    no new rule variants."""
+    position_before = "open" if position_open else "flat"
+    common = dict(
+        lane=lane,
+        symbol=symbol,
+        timeframe=timeframe,
+        candle=candle,
+        gate_close_time=gate_close_time,
+        decision_time=decision_time,
+        equity=equity,
+        position_before=position_before,
+    )
+    if timeframe != "1d":
+        return _pt_rt2_decision(
+            **common,
+            action="no_trade",
+            reasons=("mf_signal1_surface_is_daily_only", *PT_RT2_TIMEFRAME_REASON_CODES),
+            indicator_payload={},
+            position_after=position_before,
+        )
+    try:
+        ms = _mf_signal1_module()
+        states = ms.signal_states(core_candles_for_mf_signal1(candles))
+    except Exception as exc:
+        return _pt_rt2_decision(
+            **common,
+            action="data_unavailable",
+            reasons=("mf_signal1_surface_unavailable", f"surface_error_{type(exc).__name__}"),
+            indicator_payload={},
+            position_after=position_before,
+        )
+    state = states[-1]
+    indicator_payload = {"mf_signal1_state": state}
+    if not state["warmed_up"]:
+        return _pt_rt2_decision(
+            **common,
+            action="data_unavailable",
+            reasons=("mf_signal1_warming_up", "warm_up_never_guessed", *state["missing_reasons"]),
+            indicator_payload=indicator_payload,
+            position_after=position_before,
+        )
+
+    entry_fired = bool(state["source_entry_signal"])
+    exit_reason = state["exit_signal"]
+    reasons: list[str] = ["public_mainnet_data_connected", "closed_candle_ready"]
+
+    # The signal's own decision first (identical for both lanes).
+    if position_open and exit_reason is not None:
+        action, position_after = "paper_closed", "flat"
+        reasons.append(exit_reason)
+    elif position_open:
+        action, position_after = "paper_hold", "open"
+        reasons.append("mf_signal1_holding_long")
+    elif entry_fired:
+        action, position_after = "paper_opened", "open"
+        reasons.extend(("mf_signal1_source_entry", *state["entry_reason_codes"]))
+    else:
+        action, position_after = "no_trade", "flat"
+        reasons.extend(state["entry_reason_codes"])
+
+    # The regime overlay gates the OVERLAY lane only (exposure = signal AND
+    # risk_on — the characterization's gated-twin semantics).
+    if lane.strategy_id == "mf_source_faithful_regime_gated":
+        reasons.append("informational_risk_context_not_validated_control")
+        if regime_risk_on is None:
+            # The gate is unavailable: hold the prior state in the GATE
+            # dimension and flag it — never default to risk-on or risk-off.
+            # The signal's own exit still closes (exposure needs signal=1).
+            reasons.extend(
+                (
+                    "regime_gate_unavailable_holding_prior_state",
+                    "regime_gate_never_defaults_to_risk_on_or_risk_off",
+                    regime_unavailable_reason or "regime_gate_unavailable",
+                )
+            )
+            if action == "paper_opened":
+                action, position_after = "no_trade", "flat"
+                reasons.append("mf_signal1_source_entry_blocked_gate_unavailable")
+        elif regime_risk_on is False:
+            if position_open and action != "paper_closed":
+                action, position_after = "paper_closed", "flat"
+                reasons.append("regime_risk_off_exit")
+            elif action == "paper_opened":
+                action, position_after = "no_trade", "flat"
+                reasons.extend(
+                    ("regime_risk_off_long_entries_suppressed", "mf_signal1_source_entry_suppressed_by_risk_off")
+                )
+            else:
+                reasons.append("regime_risk_off_long_entries_suppressed")
+        else:
+            reasons.append("regime_risk_on")
+
+    return _pt_rt2_decision(
+        **common,
+        action=action,
+        reasons=reasons,
+        indicator_payload=indicator_payload,
+        position_after=position_after,
+    )
+
+
 def evaluate_paper_decision(
     *,
     lane: StrategyLaneConfig,
@@ -1208,6 +1647,8 @@ def evaluate_paper_decision(
     equity_before: Decimal | None = None,
     btc_regime_constructive: bool | None = None,
     higher_timeframe_constructive: bool | None = None,
+    regime_risk_on: bool | None = None,
+    regime_unavailable_reason: str | None = None,
 ) -> PaperDecisionEvent:
     decision_time = _iso(parse_utc_timestamp(now))
     equity = equity_before or lane.initial_equity
@@ -1271,6 +1712,21 @@ def evaluate_paper_decision(
             position_after=position_before,
             equity_before=equity,
             equity_after=equity,
+        )
+
+    if lane.strategy_id in PT_RT2_ACTIVE_STRATEGY_LANE_IDS:
+        return _evaluate_pt_rt2_mf_signal_decision(
+            lane=lane,
+            symbol=symbol,
+            timeframe=timeframe,
+            candles=candles,
+            candle=candle,
+            gate_close_time=gate.canonical_close_time,
+            decision_time=decision_time,
+            position_open=position_open,
+            equity=equity,
+            regime_risk_on=regime_risk_on,
+            regime_unavailable_reason=regime_unavailable_reason,
         )
 
     snapshot = compute_indicator_snapshot(candles)
@@ -2028,20 +2484,20 @@ def _configured_scanner_universe_rows() -> list[dict[str, Any]]:
 
 def build_pt_rt1_summary() -> dict[str, Any]:
     lanes = [strategy_lane_summary_payload(lane) for lane in PT_RT1_STRATEGY_LANES]
-    active_week2_lanes = [strategy_lane_summary_payload(lane) for lane in PT_RT1_6_ACTIVE_STRATEGY_LANES]
-    archived_week2_lanes = [strategy_lane_summary_payload(lane) for lane in PT_RT1_6_ARCHIVED_STRATEGY_LANES]
+    active_pt_rt2_lanes = [strategy_lane_summary_payload(lane) for lane in PT_RT2_ACTIVE_STRATEGY_LANES]
+    archived_pt_rt2_lanes = [strategy_lane_summary_payload(lane) for lane in PT_RT2_ARCHIVED_STRATEGY_LANES]
     scanner_rows = _configured_scanner_universe_rows()
     return {
         "phase": "PT-RT1.1A",
         "report": "pt_rt1_real_time_paper_observation_and_testnet_plumbing",
         "status": "implemented_readiness_expansion",
-        "revision": "PT-RT1.1A",
-        "latest_readiness_phase": "PT-RT1.4",
-        "latest_readiness_report": "docs/pt_rt1_4_paper_trading_command_center_cleanup.md",
-        "latest_readiness_summary": "docs/pt_rt1_4_paper_trading_command_center_cleanup_summary.json",
-        "latest_hotfix_phase": "PT-RT1.6",
-        "latest_hotfix_report": "docs/pt_rt1_6_founder_selected_week2_paper_slate.md",
-        "latest_hotfix_summary": "docs/pt_rt1_6_founder_selected_week2_paper_slate_summary.json",
+        "revision": "PT-RT2",
+        "latest_readiness_phase": "PT-RT2",
+        "latest_readiness_report": "docs/pt_rt2_fresh_mf_signal_observation_slate.md",
+        "latest_readiness_summary": "docs/pt_rt2_fresh_mf_signal_observation_slate_summary.json",
+        "latest_hotfix_phase": "PT-RT2",
+        "latest_hotfix_report": "docs/pt_rt2_fresh_mf_signal_observation_slate.md",
+        "latest_hotfix_summary": "docs/pt_rt2_fresh_mf_signal_observation_slate_summary.json",
         "strategy_truth_lane": {
             "source": "Hyperliquid public mainnet info endpoint",
             "endpoint": PT_RT1_MAINNET_INFO_URL,
@@ -2071,14 +2527,48 @@ def build_pt_rt1_summary() -> dict[str, Any]:
             "TRUMP": "TRUMP is deferred from fresh PT-RT paper-observation scanner runs because it created excessive runtime noise.",
         },
         "timeframes": list(TIMEFRAME_DURATIONS),
-        "active_timeframes": list(PT_RT1_4_ACTIVE_TIMEFRAMES),
-        "disabled_timeframes": list(PT_RT1_4_DISABLED_TIMEFRAMES),
-        "active_review_start_utc": PT_RT1_4_ACTIVE_REVIEW_START_UTC,
+        "active_timeframes": list(PT_RT2_ACTIVE_TIMEFRAMES),
+        "disabled_timeframes": list(PT_RT2_DISABLED_TIMEFRAMES),
+        "active_review_start_utc": PT_RT2_ACTIVE_REVIEW_START_UTC,
+        "pt_rt2_mf_signal_observation_scope": {
+            "scope": PT_RT2_RUNTIME_SCOPE,
+            "output_dir": PT_RT2_RUNTIME_OUTPUT_DIR,
+            "active_review_start_utc": PT_RT2_ACTIVE_REVIEW_START_UTC,
+            "default_active_lane_ids": list(PT_RT2_ACTIVE_STRATEGY_LANE_IDS),
+            "archived_default_inactive_lane_ids": list(PT_RT2_ARCHIVED_STRATEGY_LANE_IDS),
+            "observed_universe_symbols": list(PT_RT2_UNIVERSE_SYMBOLS),
+            "configured_not_traded_symbols": dict(PT_RT2_CONFIGURED_NOT_TRADED_SYMBOLS),
+            "active_timeframes": list(PT_RT2_ACTIVE_TIMEFRAMES),
+            "disabled_timeframes": list(PT_RT2_DISABLED_TIMEFRAMES),
+            "fresh_ledgers_start_at_usdc": "10000",
+            "no_backfill_of_fictional_history": True,
+            "no_lane_testnet_eligible": True,
+            "observation_frame": PT_RT2_OBSERVATION_FRAME,
+            "committed_characterization": {
+                "standalone_label": PT_RT2_CHARACTERIZATION_LABEL,
+                "trade_level_label": PT_RT2_TRADE_LEVEL_LABEL,
+                "regime_overlay_verdict": PT_RT2_REGIME_COMMITTED_VERDICT,
+                "regime_overlay_verdict_note": PT_RT2_REGIME_COMMITTED_VERDICT_NOTE,
+                "regime_overlay_label": PT_RT2_REGIME_OVERLAY_LABEL,
+            },
+            "default_show_archived_lanes": False,
+            "default_show_archived_rows": False,
+            "runtime_started_by_pt_rt2": False,
+            "no_active_paper_run_assumed_without_control_server_status": True,
+            "reason_codes": [
+                "founder_selected_pt_rt2_two_lane_slate",
+                "week2_slate_archived_not_deleted",
+                "paper_only_no_testnet_for_any_lane",
+                "observation_does_not_upgrade_any_verdict",
+            ],
+        },
         "pt_rt1_6_week2_active_scope": {
             "scope": PT_RT1_6_RUNTIME_SCOPE,
             "output_dir": PT_RT1_6_RUNTIME_OUTPUT_DIR,
             "active_review_start_utc": PT_RT1_6_ACTIVE_REVIEW_START_UTC,
-            "default_active_lane_ids": list(PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS),
+            "status": "archived_by_pt_rt2_history_preserved_untouched",
+            "default_active_lane_ids": [],
+            "week2_lane_ids_now_archived": list(PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS),
             "archived_default_inactive_lane_ids": list(PT_RT1_6_ARCHIVED_STRATEGY_LANE_IDS),
             "active_timeframes": list(PT_RT1_6_ACTIVE_TIMEFRAMES),
             "disabled_timeframes": list(PT_RT1_6_DISABLED_TIMEFRAMES),
@@ -2087,9 +2577,9 @@ def build_pt_rt1_summary() -> dict[str, Any]:
             "runtime_started_by_pt_rt1_6": False,
             "no_active_paper_run_assumed_without_control_server_status": True,
             "reason_codes": [
-                "founder_selected_week2_active_slate",
-                "founder_archived_from_week2",
-                "active_week_scoring_only",
+                "founder_archived_after_week2",
+                "synthetic_ledgers_and_history_preserved_untouched",
+                "testnet_eligibility_ended_with_active_status",
                 "not_default_active",
             ],
         },
@@ -2123,22 +2613,22 @@ def build_pt_rt1_summary() -> dict[str, Any]:
             ],
         },
         "active_timeframe_policy": {
-            "status": "pt_rt1_4_week1_cutover",
-            "active_timeframes": list(PT_RT1_4_ACTIVE_TIMEFRAMES),
+            "status": "pt_rt2_daily_only_cutover",
+            "active_timeframes": list(PT_RT2_ACTIVE_TIMEFRAMES),
             "disabled_timeframes": [
                 {
                     "timeframe": timeframe,
-                    "status": PT_RT1_4_DISABLED_TIMEFRAME_STATUS,
-                    "reason_codes": list(PT_RT1_4_TIMEFRAME_REASON_CODES),
+                    "status": PT_RT2_DISABLED_TIMEFRAME_STATUS,
+                    "reason_codes": list(PT_RT2_TIMEFRAME_REASON_CODES),
                 }
-                for timeframe in PT_RT1_4_DISABLED_TIMEFRAMES
+                for timeframe in PT_RT2_DISABLED_TIMEFRAMES
             ],
             "default_lane_comparison_scope": "selected_timeframe_only",
-            "default_selected_timeframe": "1h",
-            "all_active_timeframes_label": "sum across active paper timeframes only: 1h + 4h + 1d",
+            "default_selected_timeframe": "1d",
+            "all_active_timeframes_label": "PT-RT2 active paper timeframe: 1d only (the committed MONEYFLOW-SIGNAL1 surface is daily)",
             "not_one_combined_account": True,
-            "pre_cutover_label": "weekend_burn_in_or_pre_cutover",
-            "legacy_15m_policy": "existing 15m records remain visible under paused/legacy filters; no new 15m entries after cutover",
+            "pre_cutover_label": "week2_or_earlier_archived_scope",
+            "legacy_15m_policy": "existing 15m/1h/4h records remain visible under paused/legacy filters; no new non-1d entries after the PT-RT2 cutover",
         },
         "scanner_universe": scanner_rows,
         "scanner_eligibility_rules": [
@@ -2180,12 +2670,12 @@ def build_pt_rt1_summary() -> dict[str, Any]:
             for timeframe in TIMEFRAME_DURATIONS
         ],
         "strategy_lanes": lanes,
-        "active_strategy_lanes": active_week2_lanes,
-        "archived_strategy_lanes": archived_week2_lanes,
-        "week2_active_strategy_lanes": active_week2_lanes,
-        "week2_archived_strategy_lanes": archived_week2_lanes,
-        "default_active_strategy_lane_ids": list(PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS),
-        "archived_default_inactive_strategy_lane_ids": list(PT_RT1_6_ARCHIVED_STRATEGY_LANE_IDS),
+        "active_strategy_lanes": active_pt_rt2_lanes,
+        "archived_strategy_lanes": archived_pt_rt2_lanes,
+        "pt_rt2_active_strategy_lanes": active_pt_rt2_lanes,
+        "pt_rt2_archived_strategy_lanes": archived_pt_rt2_lanes,
+        "default_active_strategy_lane_ids": list(PT_RT2_ACTIVE_STRATEGY_LANE_IDS),
+        "archived_default_inactive_strategy_lane_ids": list(PT_RT2_ARCHIVED_STRATEGY_LANE_IDS),
         "wildcard_definitions": WILDCARD_STRATEGY_DEFINITIONS,
         "paper_equity_policy": {
             "starting_equity_usdc_per_lane": "10000",
@@ -2266,10 +2756,16 @@ def build_pt_rt1_summary() -> dict[str, Any]:
             "candidate_lanes_can_send_testnet_orders": False,
             "mf_orig_lanes_can_send_testnet_orders": False,
             "wildcard_lanes_can_send_testnet_orders": False,
-            "week2_testnet_eligible_lane_ids": ["money_flow_v1_2_baseline"],
+            "pt_rt2_testnet_eligible_lane_ids": [],
+            "pt_rt2_policy": (
+                "founder decision: PT-RT2 is paper-only first - NO lane is "
+                "testnet eligible; the old baseline's eligibility ended with "
+                "its active status; testnet for the new slate is a separate "
+                "future founder decision"
+            ),
+            "week2_testnet_eligible_lane_ids": [],
             "week2_synthetic_only_lane_ids": [
-                "avoid_low_rolling_range_20",
-                "mf_orig_1d_stage2_breakout_resistance_full_equity",
+                *PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS,
                 *PT_RT1_6_ARCHIVED_STRATEGY_LANE_IDS,
             ],
             "testnet_prices_are_strategy_truth": False,
@@ -2279,17 +2775,18 @@ def build_pt_rt1_summary() -> dict[str, Any]:
         },
         "dashboard_status": {
             "view": "Paper Observation",
-            "status": "implemented_with_pt_rt1_6_week2_slate",
-            "strategy_lanes_visible": len(active_week2_lanes),
+            "status": "implemented_with_pt_rt2_mf_signal_observation_slate",
+            "strategy_lanes_visible": len(active_pt_rt2_lanes),
             "historical_strategy_lanes_available": len(lanes),
             "archived_lanes_visible_as_separate_reference": True,
-            "default_active_lanes_visible": list(PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS),
+            "default_active_lanes_visible": list(PT_RT2_ACTIVE_STRATEGY_LANE_IDS),
             "default_archived_lanes_hidden_from_active_scoreboard": True,
             "expanded_scanner_universe_visible": True,
             "blocked_symbols_visible": True,
             "wildcard_diagnostics_visible": False,
             "public_mainnet_connection_status_visible": True,
             "runtime_summary_preferred_paths": [
+                "reports/paper_runtime/pt_rt2_mf_signal_observation/summary.json",
                 "reports/paper_runtime/pt_rt1_6_week2_active/summary.json",
                 "reports/paper_runtime/pt_rt1_5_2_week1_active/summary.json",
                 "reports/paper_runtime/pt_rt1_5_3_transport_smoke/summary.json",
@@ -2308,18 +2805,20 @@ def build_pt_rt1_summary() -> dict[str, Any]:
             "pt_rt1_5_week1_active_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_5_week1_active --pt-rt1-5-week1-active --enable-pt-rt1-5-baseline-testnet-orders --founder-approved-pt-rt1-5-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --disable-testnet-probes --public-mainnet-only",
             "pt_rt1_5_1_smoke_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 1 --output-dir reports/paper_runtime/pt_rt1_5_1_smoke --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-1-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --disable-legacy-testnet-probes --public-mainnet-only",
             "pt_rt1_6_week2_active_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt1_6_week2_active --pt-rt1-5-week1-active --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --enable-baseline-testnet-transport --founder-approved-pt-rt1-5-2-baseline-testnet-orders-25usdc --pt-rt1-5-testnet-order-notional-usdc 25 --public-mainnet-only",
+            "pt_rt2_mf_signal_observation_example": ".venv/bin/python scripts/run_pt_rt1_paper_observation.py --duration-hours 24 --output-dir reports/paper_runtime/pt_rt2_mf_signal_observation --pt-rt2 --signal-evaluation-mode candle_close_only --fresh-signal-only-after-runtime-start --disable-legacy-testnet-probes --public-mainnet-only",
         },
         "next_phase": {
-            "decision": "Founder may start the PT-RT1.6 Week 2 three-lane paper run after review",
+            "decision": "Founder may start the PT-RT2 two-lane fresh observation run after review",
             "conditions": [
-                "testnet_probe_transport_not_submitted_by_pt_rt1_runtime",
+                "no_testnet_transport_for_any_pt_rt2_lane",
                 "public_mainnet_strategy_truth_only",
                 "expanded_scanner_rows_remain_reason_coded",
-                "week2_active_slate_exactly_three_lanes",
+                "pt_rt2_active_slate_exactly_two_lanes",
                 "archived_lanes_hidden_from_default_active_scoring",
-                "fifteen_minute_timeframe_paused_for_week2",
-                "baseline_only_testnet_eligible",
+                "daily_timeframe_only_for_pt_rt2",
+                "no_lane_testnet_eligible",
                 "no_production_rule_changes",
+                "observation_does_not_upgrade_any_committed_verdict",
             ],
         },
         "runbooks": {

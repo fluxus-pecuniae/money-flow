@@ -23,6 +23,16 @@ from typing import Any, Iterable, Protocol, Sequence
 
 import httpx
 
+# The PT-RT2 lanes lazily import the MONEYFLOW-SIGNAL1 surface, whose module
+# chain instantiates settings at import; the paper runtime never reads
+# AppSettings for strategy truth, so local runtime .env values must not gate
+# (or leak into) signal computation - same isolation tests/conftest.py
+# applies. Transport env loading uses the scoped dotenv loader, not this.
+from core.config.settings import AppSettings, get_settings
+
+AppSettings.model_config["env_file"] = None
+get_settings.cache_clear()
+
 from core.security import redact_sensitive_structure, redact_sensitive_text
 from services.exchange.hyperliquid.signing import sign_l1_action, signer_address
 from services.paper_runtime.hyperliquid_public_market_data import (
@@ -70,6 +80,12 @@ from services.paper_runtime.pt_rt1 import (
     PT_RT1_6_3_TRANSPORT_SMOKE_SCOPE,
     PT_RT1_6_RUNTIME_OUTPUT_DIR,
     PT_RT1_6_RUNTIME_SCOPE,
+    PT_RT2_ACTIVE_REVIEW_START_UTC,
+    PT_RT2_ACTIVE_STRATEGY_LANES,
+    PT_RT2_ACTIVE_TIMEFRAMES,
+    PT_RT2_RUNTIME_OUTPUT_DIR,
+    PT_RT2_RUNTIME_SCOPE,
+    PT_RT2_UNIVERSE_SYMBOLS,
     PT_RT1_STRATEGY_LANES,
     PT_RT1_TESTNET_API_URL,
     PT_RT1_TESTNET_INFO_URL,
@@ -84,6 +100,7 @@ from services.paper_runtime.pt_rt1 import (
     TestnetProbePolicy,
     build_pt_rt1_5_scheduler_status,
     build_pt_rt1_summary,
+    build_pt_rt2_regime_context,
     canonical_candle_close,
     evaluate_paper_decision,
 )
@@ -2045,6 +2062,32 @@ def run_cycle(
     latest_closed_by_key: dict[tuple[str, str], Any] = {}
     prior_state = _read_state(output_dir / "state.json")
     paper_state = _load_paper_runtime_state(prior_state)
+    is_pt_rt2_cycle = run_label == "PT-RT2"
+    active_lanes = PT_RT2_ACTIVE_STRATEGY_LANES if is_pt_rt2_cycle else PT_RT1_6_ACTIVE_STRATEGY_LANES
+    # PT-RT2 regime overlay pre-pass: the gated lane needs the market-wide
+    # risk state from ALL 7 universe symbols' closed daily candles BEFORE any
+    # per-symbol decision. Never defaults: failure -> explicitly unavailable
+    # and the gated lane holds its prior state.
+    pt_rt2_regime_context: dict[str, Any] | None = None
+    if is_pt_rt2_cycle:
+        regime_candles_by_symbol: dict[str, list[Any]] = {}
+        symbol_rows = {
+            str(row.canonical_symbol or row.requested_symbol).upper(): row
+            for row in selected_rows
+        }
+        for universe_symbol in PT_RT2_UNIVERSE_SYMBOLS:
+            row = symbol_rows.get(universe_symbol)
+            if row is None:
+                continue
+            start_time, end_time = candle_request_window(timeframe="1d", now=now, bars=260)
+            result = connector.fetch_candle_snapshot(
+                symbol=str(row.resolved_venue_symbol or row.requested_symbol),
+                timeframe="1d",
+                start_time=start_time,
+                end_time=end_time,
+            )
+            regime_candles_by_symbol[universe_symbol] = _closed_prefix(result.candles, now) if result.ok else []
+        pt_rt2_regime_context = build_pt_rt2_regime_context(regime_candles_by_symbol)
     processed_signal_keys: set[str] = paper_state["processed_signal_keys"]
     open_positions_by_key: dict[str, dict[str, Any]] = paper_state["open_positions_by_key"]
     realized_equity_by_lane: dict[str, str] = paper_state["realized_equity_by_lane"]
@@ -2095,7 +2138,7 @@ def run_cycle(
                         "reason_codes": disabled_reasons,
                     }
                 )
-                for lane in PT_RT1_6_ACTIVE_STRATEGY_LANES:
+                for lane in active_lanes:
                     symbol = str(row.canonical_symbol or row.requested_symbol).upper()
                     equity_before = _dec(realized_equity_by_lane.get(lane.lane_id), lane.initial_equity)
                     decisions.append(
@@ -2210,7 +2253,7 @@ def run_cycle(
                     "paper_markers": [],
                     "reason_code_toggle": True,
                 }
-            for lane in PT_RT1_6_ACTIVE_STRATEGY_LANES:
+            for lane in active_lanes:
                 symbol = str(row.canonical_symbol or row.requested_symbol).upper()
                 lane_position_key = _lane_key(lane.lane_id, symbol, timeframe)
                 equity_before = _dec(realized_equity_by_lane.get(lane.lane_id), lane.initial_equity)
@@ -2224,6 +2267,16 @@ def run_cycle(
                         data_health=DataHealth.HEALTHY if candle_strategy_ready else DataHealth.UNAVAILABLE,
                         position_open=lane_position_key in open_positions_by_key,
                         equity_before=equity_before,
+                        regime_risk_on=(
+                            pt_rt2_regime_context.get("risk_on")
+                            if pt_rt2_regime_context is not None
+                            else None
+                        ),
+                        regime_unavailable_reason=(
+                            pt_rt2_regime_context.get("reason")
+                            if pt_rt2_regime_context is not None and not pt_rt2_regime_context.get("available")
+                            else None
+                        ),
                     )
                 )
 
@@ -2346,7 +2399,7 @@ def run_cycle(
     )
     total_equity_by_lane = {
         lane.lane_id: str(_dec(realized_equity_by_lane.get(lane.lane_id), lane.initial_equity) + _dec(unrealized_pnl_by_lane.get(lane.lane_id)))
-        for lane in PT_RT1_6_ACTIVE_STRATEGY_LANES
+        for lane in active_lanes
     }
 
     if candle_close_only:
@@ -2476,6 +2529,9 @@ def run_cycle(
     is_pt_rt1_6_3 = run_label == "PT-RT1.6.3"
     is_pt_rt1_5_2_or_later_smoke = is_pt_rt1_5_2 or is_pt_rt1_5_3 or is_pt_rt1_6_3
     active_scope = (
+        PT_RT2_RUNTIME_SCOPE
+        if is_pt_rt2_cycle
+        else
         PT_RT1_6_RUNTIME_SCOPE
         if is_pt_rt1_6
         else
@@ -2494,6 +2550,9 @@ def run_cycle(
         else "pt_rt1_4_1_active_week"
     )
     active_start = (
+        PT_RT2_ACTIVE_REVIEW_START_UTC
+        if is_pt_rt2_cycle
+        else
         PT_RT1_6_ACTIVE_REVIEW_START_UTC
         if is_pt_rt1_6
         else
@@ -2689,6 +2748,7 @@ def run_cycle(
         "archived_strategy_lanes": base_summary["archived_strategy_lanes"],
         "default_active_strategy_lane_ids": base_summary["default_active_strategy_lane_ids"],
         "archived_default_inactive_strategy_lane_ids": base_summary["archived_default_inactive_strategy_lane_ids"],
+        "pt_rt2_regime_context": pt_rt2_regime_context,
         "intended_entry_signals": intended_entry_signals[:200],
         "closed_trades": trade_rows[:200],
         "latest_decisions": decision_rows[:200],
@@ -2987,6 +3047,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--testnet-probe-notional-usdc", type=Decimal, default=PT_RT1_TESTNET_PROBE_NOTIONAL_USDC)
     parser.add_argument("--testnet-probe-daily-cap", type=int, default=TESTNET_PROBE_AUDIT_LIMIT)
     parser.add_argument("--pt-rt1-5-week1-active", action="store_true")
+    parser.add_argument("--pt-rt2", action="store_true", dest="pt_rt2")
     parser.add_argument("--enable-pt-rt1-5-baseline-testnet-orders", action="store_true")
     parser.add_argument("--enable-baseline-testnet-transport", action="store_true")
     parser.add_argument("--founder-approved-pt-rt1-5-baseline-testnet-orders-25usdc", action="store_true")
@@ -3081,6 +3142,32 @@ def main() -> int:
         or args.founder_approved_pt_rt1_5_3_testnet_size_hotfix_smoke
         or args.founder_approved_pt_rt1_6_3_xrp_testnet_metadata_smoke
     )
+    is_pt_rt2_output = output_dir_posix == PT_RT2_RUNTIME_OUTPUT_DIR
+    is_pt_rt2_requested = args.pt_rt2 or is_pt_rt2_output
+    if is_pt_rt2_requested:
+        # PT-RT2: paper-only fresh observation slate. NO lane is testnet
+        # eligible (founder decision) - every testnet pathway is refused up
+        # front; daily timeframe only (the committed MONEYFLOW-SIGNAL1
+        # surface is daily); 7-major universe; fresh ledgers in the new
+        # scope directory.
+        if output_dir_posix != PT_RT2_RUNTIME_OUTPUT_DIR:
+            raise SystemExit("pt_rt2_output_dir_must_be_reports_paper_runtime_pt_rt2_mf_signal_observation")
+        if args.pt_rt1_5_week1_active:
+            raise SystemExit("pt_rt2_must_not_combine_with_archived_week_flags")
+        if (
+            args.enable_testnet_probes
+            or args.submit_testnet_probes
+            or baseline_transport_requested
+        ):
+            raise SystemExit("pt_rt2_is_paper_only_no_lane_testnet_eligible")
+        if not args.fresh_signal_only_after_runtime_start:
+            raise SystemExit("pt_rt2_requires_fresh_signal_only_after_runtime_start")
+        if args.signal_evaluation_mode == "poll":
+            args.signal_evaluation_mode = "candle_close_only"
+        if not args.timeframes:
+            args.timeframes = list(PT_RT2_ACTIVE_TIMEFRAMES)
+        if not args.symbols:
+            args.symbols = list(PT_RT2_UNIVERSE_SYMBOLS)
     is_pt_rt1_5_1_smoke = (
         not is_pt_rt1_6_3_requested
         and
@@ -3170,6 +3257,9 @@ def main() -> int:
         baseline_testnet_order_transport = HyperliquidPT_RT15TestnetOrderTransport.from_env()
     end_time = _utc_now() + duration
     run_label = (
+        "PT-RT2"
+        if is_pt_rt2_requested
+        else
         "PT-RT1.6.3"
         if args.pt_rt1_5_week1_active and is_pt_rt1_6_3_requested
         else

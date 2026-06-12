@@ -47,6 +47,16 @@ SAFE_FLAGS = [
     "--disable-legacy-testnet-probes",
     "--public-mainnet-only",
 ]
+# PT-RT2 is paper-only: NO testnet flag is permitted (the runtime refuses
+# them under the PT-RT2 scope); the safe flag set is the strict subset.
+PT_RT2_SAFE_FLAGS = [
+    "--pt-rt2",
+    "--fresh-signal-only-after-runtime-start",
+    "--signal-evaluation-mode",
+    "candle_close_only",
+    "--disable-legacy-testnet-probes",
+    "--public-mainnet-only",
+]
 DURATION_OPTIONS = {
     "5m": ("--duration-minutes", "5", "5 minutes"),
     "1h": ("--duration-hours", "1", "1 hour"),
@@ -54,11 +64,12 @@ DURATION_OPTIONS = {
     "24h": ("--duration-hours", "24", "24 hours"),
 }
 OUTPUT_OPTIONS = {
+    "pt_rt2_mf_signal_observation": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt2_mf_signal_observation",
     "pt_rt1_6_week2_active": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_6_week2_active",
     "pt_rt1_5_2_week1_active": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_5_2_week1_active",
     "pt_rt1_5_3_transport_smoke": REPO_ROOT / "reports" / "paper_runtime" / "pt_rt1_5_3_transport_smoke",
 }
-DEFAULT_OUTPUT = "pt_rt1_6_week2_active"
+DEFAULT_OUTPUT = "pt_rt2_mf_signal_observation"
 SUPPRESSED_STATIC_LOG_PREFIXES = (
     "/reports/strategy_validation/money_flow_sv2_1",
     "/reports/strategy_validation/money_flow_sv2_0_2",
@@ -240,7 +251,11 @@ def build_runtime_command(
     output_dir = validate_output(output)
     caffeinate = caffeinate_path or find_caffeinate()
     python_bin = python_executable or sys.executable
-    phase_flags = list(SAFE_FLAGS)
+    phase_flags = (
+        list(PT_RT2_SAFE_FLAGS)
+        if output == "pt_rt2_mf_signal_observation"
+        else list(SAFE_FLAGS)
+    )
     if output == "pt_rt1_5_3_transport_smoke":
         phase_flags.extend(
             [

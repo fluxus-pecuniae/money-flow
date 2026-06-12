@@ -17,6 +17,27 @@ Entry schema:
 
 ---
 
+## v2026.06.12.008
+
+- `recorded_at_utc`: `2026-06-12T14:30:00Z`
+- `scope`: `PT-RT2 fresh paper slate: source-faithful Money Flow signal baseline + regime-gated twin (Week 2 archived; paper-only)`
+- `intent`: `Observation of a characterized signal, not a validated strategy — paper only; synthetic ledgers; public closed candles as signal truth; NO testnet for any lane; no live; no approval surface; no production rule change. Executes the three founder decisions: two-lane slate (mf_source_faithful_baseline as Control/Baseline + mf_source_faithful_regime_gated as Informational Overlay Observation, both consuming the committed MONEYFLOW-SIGNAL1 surface — drift-pinned, no lookalike, no tuning); Week 2 archived not deleted (3 actives join the 7 archived = 10; ledgers/history untouched; the old baseline's testnet eligibility ended with its active status — pt_rt1_6_lane_testnet_eligible now returns False for everything); paper-only first (the runtime refuses every testnet flag under the new scope pt_rt2_mf_signal_observation). Universe = the 7 DATA1 majors (the characterization universe; HYPE/SUI configured-not-traded); timeframe = 1d ONLY (the committed surface is daily — other timeframes would be a new rule variant); fresh 10,000 USDC ledgers at the phase's first closed candle, no backfill. The regime overlay builds per cycle through strategy_types.resolve_regime_filter() from the runtime's own candles, carries REGIME2's verdict verbatim, and on unavailability HOLDS the gated lane's prior state and flags it (never a silent default; the signal's own exit still closes). Live cycle sample 2026-06-12: RISK_OFF, both lanes flat on all 7 majors — coherent with the committed picture. CURRENT_TRUTH regenerated (2 active / 10 archived / testnet table empty / 1d-only / observed universe 7); slate, invariants, registry, consistency, static-assets, browser-smoke, control-server, OBS-OS1 tests superseded at the same strictness. Reviewer fixup applied as the branch's first commit: offline-replay timestamp normalization so the regime overlay cannot silently degrade, plus the availability assertion. Research Log authored context; aggregator --check green.`
+- `affected_files`:
+  - `services/paper_runtime/pt_rt1.py`
+  - `scripts/run_pt_rt1_paper_observation.py`
+  - `scripts/run_dashboard_control_server.py`
+  - `scripts/build_pt_rt_week2_daily_review.py`
+  - `scripts/watch_pt_rt1_runtime.py`
+  - `scripts/export_current_truth.py`
+  - `scripts/run_moneyflow_signal.py` (reviewer fixup)
+  - `apps/dashboard/evidence-dashboard.js`, `apps/dashboard/index.html`
+  - `current_truth.json`, `CURRENT_TRUTH.md`
+  - `docs/pt_rt2_fresh_mf_signal_observation_slate.md`, `docs/pt_rt2_fresh_mf_signal_observation_slate_summary.json`, `docs/research_log.json`
+  - `tests/test_pt_rt2_mf_signal_slate.py` (new; supersedes tests/test_pt_rt1_6_week2_slate.py), `tests/test_trading_safety_invariants.py`, `tests/test_current_truth_registry.py`, `tests/test_dashboard_static_assets.py`, `tests/dashboard_qa/test_dashboard_smoke.py`, `tests/test_dashboard_control_server.py`, `tests/test_obs_os1_daily_review.py`, `tests/test_moneyflow_signal1.py` (fixup assertion)
+  - `.github/workflows/ci.yml`
+  - `CHANGELOG.md`, `REPO_TREE.md`, `TODO.md`, `money-flow/01_Current_Phase.md`, `money-flow/03_Decision_Log.md`, `money-flow/05_Agent_Coordination.md`
+- `validation_performed`: `blocking battery green (invariants 66 + truth consistency/registry + slate 14 + static assets 9 + operational docs + OBS-OS1 + control server 14 = 108 passed); offline decision-semantics smoke (entry/exit/gate AND/unavailable-hold/warm-up/daily-only); live one-cycle PT-RT2 run on public mainnet (RISK_OFF, coherent); export_current_truth --check; build_research_log --check green; text guard green.`
+
 ## v2026.06.12.007
 
 - `recorded_at_utc`: `2026-06-12T12:30:00Z`

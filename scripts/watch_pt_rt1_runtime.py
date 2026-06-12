@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_SCOPE = "pt_rt1_6_week2_active"
+DEFAULT_SCOPE = "pt_rt2_mf_signal_observation"
 RUNTIME_ROOT = REPO_ROOT / "reports" / "paper_runtime"
 CONTROL_STATE = RUNTIME_ROOT / "dashboard_control" / "state.json"
 LOG_SPECS = {

@@ -238,7 +238,7 @@ def test_retired_tabs_absent_and_nav_is_two(page: Page, dashboard_url: str) -> N
 
 
 # ---------------------------------------------------------------------------
-# 7. Strategy shows only the three active lanes
+# 7. Strategy shows only the two active lanes
 # ---------------------------------------------------------------------------
 
 
@@ -246,14 +246,14 @@ def test_active_lanes_visible_in_surviving_home(
     page: Page, dashboard_url: str, current_truth: dict
 ) -> None:
     """DASH-IA1 relocation of check #7: the Strategy tab is retired, so the
-    three active lanes must appear in their surviving home — the Paper Trading
-    status strip (rendered as color-coded lane chips)."""
+    PT-RT2 active lanes must appear in their surviving home — the Paper
+    Trading status strip (rendered as color-coded lane chips)."""
     _open_paper(page, dashboard_url)
     expect(page.locator(HEALTH_BANNER)).to_be_visible()
     banner_text = page.locator(HEALTH_BANNER).inner_text()
     expected_lane_ids = [lane["lane_id"] for lane in current_truth["active_lanes"]]
-    assert len(expected_lane_ids) == 3, (
-        f"current_truth.json declares {len(expected_lane_ids)} active lanes; expected 3"
+    assert len(expected_lane_ids) == 2, (
+        f"current_truth.json declares {len(expected_lane_ids)} active lanes; expected 2"
     )
     for lane_id in expected_lane_ids:
         assert lane_id in banner_text, (
@@ -281,10 +281,12 @@ def test_timeframe_filter_15m_paused_only(
 
     expected_active = current_truth["active_timeframes"]
     expected_paused = current_truth["paused_timeframes"]
-    assert expected_active == ["1h", "4h", "1d"], (
+    assert expected_active == ["1d"], (
         f"current_truth active_timeframes drifted: {expected_active}"
     )
-    assert expected_paused == ["15m"], f"current_truth paused_timeframes drifted: {expected_paused}"
+    assert expected_paused == ["15m", "1h", "4h"], (
+        f"current_truth paused_timeframes drifted: {expected_paused}"
+    )
 
     # Every active timeframe must appear as an option value.
     option_values = [o["value"] for o in options]

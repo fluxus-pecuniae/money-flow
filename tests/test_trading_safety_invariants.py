@@ -17,11 +17,12 @@ from services.exchange.safety import (
     evaluate_runtime_policy_for_endpoint,
 )
 from services.paper_runtime.pt_rt1 import (
-    PT_RT1_4_DISABLED_TIMEFRAMES,
-    PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS,
-    PT_RT1_6_ACTIVE_TIMEFRAMES,
-    PT_RT1_6_ARCHIVED_STRATEGY_LANE_IDS,
+    PT_RT2_ACTIVE_STRATEGY_LANE_IDS,
+    PT_RT2_ACTIVE_TIMEFRAMES,
+    PT_RT2_ARCHIVED_STRATEGY_LANE_IDS,
+    PT_RT2_DISABLED_TIMEFRAMES,
     pt_rt1_6_lane_testnet_eligible,
+    pt_rt2_lane_testnet_eligible,
 )
 
 # ---------------------------------------------------------------------------
@@ -235,38 +236,36 @@ def test_hyperliquid_exchange_modify_classified_amend() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_active_lanes_are_exactly_three() -> None:
-    assert len(PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS) == 3
+def test_active_lanes_are_exactly_two() -> None:
+    assert len(PT_RT2_ACTIVE_STRATEGY_LANE_IDS) == 2
 
 
-def test_archived_lanes_are_exactly_seven() -> None:
-    assert len(PT_RT1_6_ARCHIVED_STRATEGY_LANE_IDS) == 7
+def test_archived_lanes_are_exactly_ten() -> None:
+    assert len(PT_RT2_ARCHIVED_STRATEGY_LANE_IDS) == 10
 
 
-def test_active_timeframes_are_1h_4h_1d() -> None:
-    assert PT_RT1_6_ACTIVE_TIMEFRAMES == ("1h", "4h", "1d")
+def test_active_timeframe_is_1d_only() -> None:
+    assert PT_RT2_ACTIVE_TIMEFRAMES == ("1d",)
 
 
-def test_15m_is_paused() -> None:
-    assert "15m" not in PT_RT1_6_ACTIVE_TIMEFRAMES
-    assert "15m" in PT_RT1_4_DISABLED_TIMEFRAMES
+def test_non_daily_timeframes_are_paused() -> None:
+    assert PT_RT2_DISABLED_TIMEFRAMES == ("15m", "1h", "4h")
+    for timeframe in ("15m", "1h", "4h"):
+        assert timeframe not in PT_RT2_ACTIVE_TIMEFRAMES
 
 
-def test_only_baseline_testnet_eligible_among_active() -> None:
-    eligible = [
-        lid for lid in PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS if pt_rt1_6_lane_testnet_eligible(lid)
-    ]
-    assert eligible == ["money_flow_v1_2_baseline"]
-
-
-def test_non_baseline_active_lanes_not_testnet_eligible() -> None:
-    non_baseline = [
-        lid for lid in PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS if lid != "money_flow_v1_2_baseline"
-    ]
-    for lane_id in non_baseline:
-        assert pt_rt1_6_lane_testnet_eligible(lane_id) is False
+def test_no_active_lane_testnet_eligible() -> None:
+    # Paper-only founder decision: NO lane is testnet eligible.
+    for lane_id in PT_RT2_ACTIVE_STRATEGY_LANE_IDS:
+        assert pt_rt2_lane_testnet_eligible(lane_id) is False
 
 
 def test_no_archived_lane_testnet_eligible() -> None:
-    for lane_id in PT_RT1_6_ARCHIVED_STRATEGY_LANE_IDS:
+    for lane_id in PT_RT2_ARCHIVED_STRATEGY_LANE_IDS:
+        assert pt_rt2_lane_testnet_eligible(lane_id) is False
+
+
+def test_old_week2_eligibility_seam_is_fully_closed() -> None:
+    # The old baseline's testnet eligibility ended with its active status.
+    for lane_id in (*PT_RT2_ACTIVE_STRATEGY_LANE_IDS, *PT_RT2_ARCHIVED_STRATEGY_LANE_IDS):
         assert pt_rt1_6_lane_testnet_eligible(lane_id) is False

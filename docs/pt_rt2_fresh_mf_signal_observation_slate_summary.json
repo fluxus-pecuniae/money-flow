@@ -1,0 +1,77 @@
+{
+  "active_lanes": [
+    "mf_source_faithful_baseline",
+    "mf_source_faithful_regime_gated"
+  ],
+  "active_runtime_scope": "pt_rt2_mf_signal_observation",
+  "active_timeframes": [
+    "1d"
+  ],
+  "archived_lanes_count": 10,
+  "boundaries": {
+    "calls_private_signed_or_order_endpoints": false,
+    "live_trading_approved": false,
+    "observation_upgrades_any_verdict": false,
+    "paper_only": true,
+    "production_approved": false,
+    "production_money_flow_rules_changed": false,
+    "submits_orders": false,
+    "testnet_eligible_lanes": [],
+    "testnet_fills_update_synthetic_pnl": false
+  },
+  "committed_characterization": {
+    "regime_overlay_label": "informational risk context, not a validated control",
+    "regime_overlay_verdict": "regime_filter_does_not_reduce_drawdown_oos",
+    "standalone_label": "defensive_trend_mechanic_not_validated_alpha",
+    "trade_level_label": "source_faithful_but_underperformed"
+  },
+  "configured_not_traded_symbols": {
+    "HYPE": "short_history",
+    "SUI": "short_history"
+  },
+  "disabled_timeframes": [
+    "15m",
+    "1h",
+    "4h"
+  ],
+  "founder_decisions": {
+    "archive_not_delete": "the 3 Week 2 active lanes joined the 7 archived (10 archived); ledgers/history untouched",
+    "paper_only_no_testnet": "NO lane is testnet eligible; the old baseline's eligibility ended with its active status; testnet for the new slate is a separate future founder decision",
+    "two_lane_slate": [
+      "mf_source_faithful_baseline",
+      "mf_source_faithful_regime_gated"
+    ]
+  },
+  "fresh_ledgers_start_at_usdc": "10000",
+  "gate_unavailability_policy": "the gated lane holds its prior state and flags it; never a silent default to risk_on or risk_off; the signal's own exit still closes",
+  "generated_at_utc": "2026-06-12T14:30:00Z",
+  "live_cycle_sample_2026_06_12": {
+    "lanes": "both flat on all 7 majors (blocked_not_stage_2_markup) - coherent with the MONEYFLOW-SIGNAL1 CLI (7/7 stage_4_markdown, RISK_OFF)",
+    "regime_context": {
+      "as_of_close": "2026-06-12T00:00:00Z",
+      "available": true,
+      "config_id": "regime1_lb90_br6_btc_required_1d",
+      "risk_on": false
+    }
+  },
+  "no_backfill_of_fictional_history": true,
+  "observation_frame": "observation of a characterized signal, not a validated strategy; watching it live does not upgrade any committed verdict",
+  "observed_universe_symbols": [
+    "BTC",
+    "ETH",
+    "SOL",
+    "XRP",
+    "DOGE",
+    "BNB",
+    "AVAX"
+  ],
+  "phase": "PT-RT2",
+  "report": "pt_rt2_fresh_mf_signal_observation_slate",
+  "reuse_pins": {
+    "drift_tests": "tests/test_pt_rt2_mf_signal_slate.py",
+    "regime_seam": "strategy_types.resolve_regime_filter() (committed pinned config regime1_lb90_br6_btc_required_1d)",
+    "surface": "services/strategy_validation/moneyflow_signal1.py (signal_states; no lookalike)"
+  },
+  "reviewer_fixup_applied": "MONEYFLOW-SIGNAL1 offline-replay timestamp normalization + the regime_overlay availability assertion landed as the first commit of this branch (it was not on the merged PR #23)",
+  "status": "pt_rt2_fresh_observation_slate_ready_for_founder_start"
+}

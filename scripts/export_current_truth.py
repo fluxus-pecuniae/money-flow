@@ -18,14 +18,20 @@ from pathlib import Path
 
 from core.config.settings import RuntimeSafetyPolicy
 from services.paper_runtime.pt_rt1 import (
-    PT_RT1_4_DISABLED_TIMEFRAMES,
-    PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC,
-    PT_RT1_6_ACTIVE_STRATEGY_LANES,
-    PT_RT1_6_ACTIVE_TIMEFRAMES,
-    PT_RT1_6_ARCHIVED_STRATEGY_LANES,
-    PT_RT1_6_RUNTIME_SCOPE,
+    PT_RT2_ACTIVE_STRATEGY_LANES,
+    PT_RT2_ACTIVE_TIMEFRAMES,
+    PT_RT2_ARCHIVED_STRATEGY_LANES,
+    PT_RT2_CHARACTERIZATION_LABEL,
+    PT_RT2_CONFIGURED_NOT_TRADED_SYMBOLS,
+    PT_RT2_DISABLED_TIMEFRAMES,
+    PT_RT2_OBSERVATION_FRAME,
+    PT_RT2_REGIME_COMMITTED_VERDICT,
+    PT_RT2_REGIME_OVERLAY_LABEL,
+    PT_RT2_RUNTIME_SCOPE,
+    PT_RT2_TRADE_LEVEL_LABEL,
+    PT_RT2_UNIVERSE_SYMBOLS,
     SUPPORTED_CANONICAL_SYMBOLS,
-    pt_rt1_6_lane_testnet_eligible,
+    pt_rt2_lane_testnet_eligible,
 )
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -47,6 +53,7 @@ _ROLE_LABELS: dict[str, str] = {
     "evidence_only_candidate_lane": "Diagnostic Comparator",
     "mf_orig_evidence_only_reference_lane": "MF-ORIG Source-Faithful Candidate",
     "wildcard_expert_observation_lane": "Wildcard Expert Observation",
+    "informational_overlay_observation_lane": "Informational Overlay Observation",
 }
 
 
@@ -57,7 +64,7 @@ def _lane_entry(lane) -> dict:  # type: ignore[no-untyped-def]
         "display_name": lane.display_name,
         "role": role_val,
         "role_label": _ROLE_LABELS.get(role_val, role_val),
-        "testnet_eligible": pt_rt1_6_lane_testnet_eligible(lane.lane_id),
+        "testnet_eligible": pt_rt2_lane_testnet_eligible(lane.lane_id),
         "production_approved": False,
         "live_approved": False,
         "pnl_source": "Synthetic Ledger",
@@ -72,25 +79,34 @@ def build_truth() -> dict:  # type: ignore[type-arg]
     """
     policy = RuntimeSafetyPolicy()
 
-    active_lanes = [_lane_entry(lane) for lane in PT_RT1_6_ACTIVE_STRATEGY_LANES]
-    archived_lanes = [_lane_entry(lane) for lane in PT_RT1_6_ARCHIVED_STRATEGY_LANES]
+    active_lanes = [_lane_entry(lane) for lane in PT_RT2_ACTIVE_STRATEGY_LANES]
+    archived_lanes = [_lane_entry(lane) for lane in PT_RT2_ARCHIVED_STRATEGY_LANES]
 
     testnet_eligible_lanes = [lane["lane_id"] for lane in active_lanes if lane["testnet_eligible"]]
 
     return {
-        "scope": PT_RT1_6_RUNTIME_SCOPE,
-        "active_surface": "PT-RT1.6 Week 2 Paper Observation",
+        "scope": PT_RT2_RUNTIME_SCOPE,
+        "active_surface": "PT-RT2 Fresh Money Flow Signal Observation (paper only)",
         "strategy_truth": "Public Hyperliquid mainnet fully closed candles and derived indicators",
-        "pnl_truth": "Independent synthetic 10,000 USDC paper ledgers per lane",
+        "pnl_truth": "Independent synthetic 10,000 USDC paper ledgers per lane (fresh at PT-RT2 start; no backfill)",
         "production_approved": False,
         "live_trading_approved": False,
+        "observation_frame": PT_RT2_OBSERVATION_FRAME,
+        "committed_characterization": {
+            "standalone_label": PT_RT2_CHARACTERIZATION_LABEL,
+            "trade_level_label": PT_RT2_TRADE_LEVEL_LABEL,
+            "regime_overlay_verdict": PT_RT2_REGIME_COMMITTED_VERDICT,
+            "regime_overlay_label": PT_RT2_REGIME_OVERLAY_LABEL,
+        },
         "active_lanes": active_lanes,
         "archived_lanes": archived_lanes,
-        "active_timeframes": list(PT_RT1_6_ACTIVE_TIMEFRAMES),
-        "paused_timeframes": list(PT_RT1_4_DISABLED_TIMEFRAMES),
+        "active_timeframes": list(PT_RT2_ACTIVE_TIMEFRAMES),
+        "paused_timeframes": list(PT_RT2_DISABLED_TIMEFRAMES),
         "configured_symbols": list(SUPPORTED_CANONICAL_SYMBOLS),
+        "observed_universe_symbols": list(PT_RT2_UNIVERSE_SYMBOLS),
+        "configured_not_traded_symbols": dict(PT_RT2_CONFIGURED_NOT_TRADED_SYMBOLS),
         "testnet_eligible_lanes": testnet_eligible_lanes,
-        "testnet_fixed_notional_usdc": int(PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC),
+        "testnet_policy": "paper-only founder decision: NO lane is testnet eligible; testnet for the PT-RT2 slate is a separate future founder decision",
         "testnet_fills_update_synthetic_pnl": False,
         "runtime_safety_policy": {
             "live_trading_enabled": policy.live_trading_enabled,
@@ -99,22 +115,26 @@ def build_truth() -> dict:  # type: ignore[type-arg]
             "sandbox_mode_required": policy.sandbox_mode_required,
         },
         "_anchors": {
-            "scope": "pt_rt1.py::PT_RT1_6_RUNTIME_SCOPE",
+            "scope": "pt_rt1.py::PT_RT2_RUNTIME_SCOPE",
             "active_lanes": (
-                "pt_rt1.py::PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS + PT_RT1_6_ACTIVE_STRATEGY_LANES"
+                "pt_rt1.py::PT_RT2_ACTIVE_STRATEGY_LANE_IDS + PT_RT2_ACTIVE_STRATEGY_LANES"
             ),
             "archived_lanes": (
-                "pt_rt1.py::PT_RT1_6_ARCHIVED_STRATEGY_LANE_IDS + PT_RT1_6_ARCHIVED_STRATEGY_LANES"
+                "pt_rt1.py::PT_RT2_ARCHIVED_STRATEGY_LANE_IDS + PT_RT2_ARCHIVED_STRATEGY_LANES"
             ),
-            "active_timeframes": "pt_rt1.py::PT_RT1_6_ACTIVE_TIMEFRAMES",
-            "paused_timeframes": "pt_rt1.py::PT_RT1_4_DISABLED_TIMEFRAMES",
+            "active_timeframes": "pt_rt1.py::PT_RT2_ACTIVE_TIMEFRAMES",
+            "paused_timeframes": "pt_rt1.py::PT_RT2_DISABLED_TIMEFRAMES",
             "configured_symbols": "pt_rt1.py::SUPPORTED_CANONICAL_SYMBOLS",
-            "testnet_eligible_lanes": "pt_rt1.py::pt_rt1_6_lane_testnet_eligible()",
-            "testnet_fixed_notional_usdc": "pt_rt1.py::PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC",
+            "observed_universe_symbols": "pt_rt1.py::PT_RT2_UNIVERSE_SYMBOLS",
+            "testnet_eligible_lanes": "pt_rt1.py::pt_rt2_lane_testnet_eligible()",
+            "committed_characterization": (
+                "pt_rt1.py::PT_RT2_* verdict constants (drift-pinned by test "
+                "against moneyflow_signal1/regime1)"
+            ),
             "runtime_safety_policy": "settings.py::RuntimeSafetyPolicy (defaults)",
         },
         "_enforcing_tests": [
-            "tests/test_pt_rt1_6_week2_slate.py",
+            "tests/test_pt_rt2_mf_signal_slate.py",
             "tests/test_current_truth_registry.py",
             "tests/test_current_truth_consistency.py",
         ],

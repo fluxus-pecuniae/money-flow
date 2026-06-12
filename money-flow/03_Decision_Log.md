@@ -2,6 +2,55 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-12T14:30:00Z - PT-RT2 - Fresh Paper Slate: The Trusted Signal Goes Under Live Observation, Verdicts Intact
+
+- `decision`: Execute the three founder decisions: (1) a TWO-LANE fresh slate — `mf_source_faithful_baseline` (Control/Baseline) and `mf_source_faithful_regime_gated` (Informational Overlay Observation), both consuming the committed MONEYFLOW-SIGNAL1 surface with the characterization's exposure semantics (no re-implementation, no new rule variants, no tuning); (2) ARCHIVE the Week 2 slate, never delete — the 3 active lanes join the 7 archived (10 archived), synthetic ledgers and history untouched; (3) PAPER-ONLY first — NO lane is testnet eligible (the old baseline's eligibility ended with its active status; `pt_rt1_6_lane_testnet_eligible` now returns False for everything; the runtime refuses every testnet flag under the PT-RT2 scope); testnet for the new slate is a separate future founder decision. Universe is the 7 DATA1 majors (the characterization universe); HYPE/SUI stay configured but untraded (short histories). Timeframe is 1d ONLY — the committed surface is daily (page-cited); running it on other timeframes would be a new rule variant. Fresh 10,000 USDC ledgers at the phase's first closed candle in the new scope `pt_rt2_mf_signal_observation`; no backfill.
+- `result`: The lanes flow through `moneyflow_signal1.signal_states` via a dedicated decision path in `pt_rt1.py` (drift-pinned: the lane decision equals the surface's own decision); the regime overlay builds per cycle through `strategy_types.resolve_regime_filter()` from the runtime's own closed daily candles, carries REGIME2's verdict verbatim, and on unavailability the gated lane HOLDS its prior state and flags it — never a silent risk-on/risk-off default (the signal's own exit still closes; exposure = signal AND risk_on, the characterization's gated-twin semantics). Live cycle sample 2026-06-12: regime RISK_OFF (config `regime1_lb90_br6_btc_required_1d`), both lanes flat on all 7 majors (`blocked_not_stage_2_markup`) — coherent with the MONEYFLOW-SIGNAL1 CLI picture. CURRENT_TRUTH regenerated (scope, 2 active / 10 archived, testnet table empty, 1d-only, observed universe 7); the registry/slate/invariants/static-assets/browser-smoke tests were superseded at the same strictness, never weakened. The MONEYFLOW-SIGNAL1 reviewer fixup (offline-replay timestamp normalization + overlay-availability assertion) landed as the first commit of this branch.
+- `boundaries`: Paper only — synthetic ledgers, public closed candles as signal truth, no testnet orders for any lane, no live, no approval surface, no production Money Flow rule change. The committed verdicts travel on every lane surface: `defensive_trend_mechanic_not_validated_alpha` standalone, `source_faithful_but_underperformed` trade-level, `regime_filter_does_not_reduce_drawdown_oos` for the overlay (informational risk context, not a validated control). Watching it live upgrades none of them.
+- `follow_up_implications`: The founder may start the PT-RT2 run from the dashboard control surface (the safe command is pinned: `--pt-rt2`, candle-close-only, fresh-signal gate, no testnet pathway). Any testnet decision for this slate, any timeframe widening, or any re-reading of the committed characterization is a NEW founder decision/phase. The open strategy hunts are unchanged: stat-arb/cointegration; institutional sub-candle atomic execution for carry.
+
+```yaml
+research_log:
+  phase: PT-RT2
+  date: 2026-06-12
+  class: source_reconstruction
+  outcome: context
+  badge: trusted signal under live observation
+  title: Fresh Paper Slate - Source-Faithful Signal Baseline + Regime-Gated Twin
+  finding: >-
+    The trusted MONEYFLOW-SIGNAL1 surface went under live paper observation
+    as a fresh two-lane slate (baseline + regime-gated twin), with the Week 2
+    slate archived intact, fresh 10k ledgers, the 7-major characterization
+    universe, daily-only cadence, and NO testnet eligibility anywhere. Every
+    payload carries the committed verdicts; the first live cycle was
+    coherent with the committed picture (RISK_OFF, all majors stage-4,
+    both lanes flat).
+  why: >-
+    The founder wants to watch the characterized signal tick on real
+    candles. Observation is for trust and operational learning - the
+    characterization already said what the signal is (defensive trend
+    mechanic, not validated alpha) and live watching cannot upgrade that.
+  worked: >-
+    Reuse pins - the lane decision path consumes the committed surface
+    directly and tests assert it cannot drift; the honest gate-unavailability
+    semantics (hold prior state, flag it, never default) fell out naturally
+    from the characterization's AND semantics.
+  didnt: >-
+    Nothing failed in-phase; the one inherited defect (offline-replay
+    timestamps silently killing the regime overlay) was the reviewer fixup
+    applied as this branch's first commit.
+  lesson: >-
+    Observation extends trust, never upgrades a verdict - the slate's
+    payloads say so on every surface.
+  our_error: null
+  changed: >-
+    The active paper surface is now the source-faithful signal itself
+    (daily, 7 majors, paper-only); Week 2 is archived history; no lane can
+    touch testnet without a new founder decision.
+  hardened_gate: no testnet pathway exists under the PT-RT2 scope
+  evidence_summary: docs/pt_rt2_fresh_mf_signal_observation_slate_summary.json
+```
+
 ## 2026-06-12T12:30:00Z - MONEYFLOW-SIGNAL1 - The Namesake Ships As A Trusted Signal Surface, Not An Alpha Claim
 
 - `decision`: Close the loop to the project's namesake by delivering a source-faithful, auditable Money Flow signal surface — NOT an alpha hunt. Pin the rules to the actual Gerald Peters PDF (found in the repo at `money-flow/90 Reference/`, sha256-pinned, read directly — an upgrade over MF-ORIG-EV1's prompt-summary basis), reuse the MF-ORIG-EV1 reconstruction primitives and the production indicator implementations unchanged (no re-derived lookalike), emit every intermediate term on closed candles only (`scripts/run_moneyflow_signal.py`), overlay the REGIME filter as informational risk context with its honest-FAIL verdict carried on every state, and characterize the signal honestly (standalone OOS post-friction vs buy-and-hold and random; alone vs regime-gated).

@@ -1,16 +1,12 @@
 {
   "active_lanes": [
     {
-      "lane_id": "money_flow_v1_2_baseline",
+      "lane_id": "mf_source_faithful_baseline",
       "role": "control_lane"
     },
     {
-      "lane_id": "avoid_low_rolling_range_20",
-      "role": "evidence_only_candidate_lane"
-    },
-    {
-      "lane_id": "mf_orig_1d_stage2_breakout_resistance_full_equity",
-      "role": "mf_orig_evidence_only_reference_lane"
+      "lane_id": "mf_source_faithful_regime_gated",
+      "role": "informational_overlay_observation_lane"
     }
   ],
   "at_a_glance": [
@@ -169,6 +165,31 @@
       "outcome": "fail",
       "phase": "REGIME1",
       "title": "Market-Regime Risk-Off Filter (when NOT to be long)"
+    },
+    {
+      "analytics": [],
+      "badge": "trusted signal under live observation",
+      "class": "source_reconstruction",
+      "date": "2026-06-12",
+      "evidence_doc": "",
+      "evidence_summary": "docs/pt_rt2_fresh_mf_signal_observation_slate_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "The active paper surface is now the source-faithful signal itself (daily, 7 majors, paper-only); Week 2 is archived history; no lane can touch testnet without a new founder decision.",
+        "didnt": "Nothing failed in-phase; the one inherited defect (offline-replay timestamps silently killing the regime overlay) was the reviewer fixup applied as this branch's first commit.",
+        "lesson": "Observation extends trust, never upgrades a verdict - the slate's payloads say so on every surface.",
+        "our_error": null,
+        "our_error_note": "",
+        "why": "The founder wants to watch the characterized signal tick on real candles. Observation is for trust and operational learning - the characterization already said what the signal is (defensive trend mechanic, not validated alpha) and live watching cannot upgrade that.",
+        "worked": "Reuse pins - the lane decision path consumes the committed surface directly and tests assert it cannot drift; the honest gate-unavailability semantics (hold prior state, flag it, never default) fell out naturally from the characterization's AND semantics."
+      },
+      "finding": "The trusted MONEYFLOW-SIGNAL1 surface went under live paper observation as a fresh two-lane slate (baseline + regime-gated twin), with the Week 2 slate archived intact, fresh 10k ledgers, the 7-major characterization universe, daily-only cadence, and NO testnet eligibility anywhere. Every payload carries the committed verdicts; the first live cycle was coherent with the committed picture (RISK_OFF, all majors stage-4, both lanes flat).",
+      "hardened_gates": [
+        "no testnet pathway exists under the PT-RT2 scope"
+      ],
+      "outcome": "context",
+      "phase": "PT-RT2",
+      "title": "Fresh Paper Slate - Source-Faithful Signal Baseline + Regime-Gated Twin"
     },
     {
       "analytics": [],
@@ -1231,7 +1252,7 @@
       "title": "Original Money Flow Reconstruction (accounting correction)"
     }
   ],
-  "entry_count": 24,
+  "entry_count": 25,
   "lessons_hardened_gates": [
     {
       "gate": "PnL must reconcile to equity",
@@ -1288,6 +1309,10 @@
     {
       "gate": "green results trigger re-audit, not celebration",
       "phase": "MONEYFLOW-SIGNAL1"
+    },
+    {
+      "gate": "no testnet pathway exists under the PT-RT2 scope",
+      "phase": "PT-RT2"
     },
     {
       "gate": "a drawdown tool must be train-chosen by a drawdown criterion, committed up front",

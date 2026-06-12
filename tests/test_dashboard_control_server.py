@@ -8,7 +8,7 @@ from scripts import run_dashboard_control_server as control
 def test_dashboard_control_runtime_command_is_allowlisted() -> None:
     command = control.build_runtime_command(
         duration="5m",
-        output="pt_rt1_6_week2_active",
+        output="pt_rt2_mf_signal_observation",
         python_executable=".venv/bin/python",
         caffeinate_path="/usr/bin/caffeinate",
     )
@@ -22,20 +22,33 @@ def test_dashboard_control_runtime_command_is_allowlisted() -> None:
     assert "--duration-minutes" in command
     assert "5" in command
     assert "--output-dir" in command
-    assert "reports/paper_runtime/pt_rt1_6_week2_active" in command
+    assert "reports/paper_runtime/pt_rt2_mf_signal_observation" in command
     assert "--decision-log-mode" in command
     assert "compact" in command
-    assert "--pt-rt1-5-week1-active" in command
+    assert "--pt-rt2" in command
     assert "--fresh-signal-only-after-runtime-start" in command
-    assert "--enable-baseline-testnet-transport" in command
-    assert "--founder-approved-pt-rt1-5-2-baseline-testnet-orders-25usdc" in command
-    assert "--pt-rt1-5-testnet-order-notional-usdc" in command
-    assert "25" in command
     assert "--signal-evaluation-mode" in command
     assert "candle_close_only" in command
     assert "--public-mainnet-only" in command
     assert "--disable-legacy-testnet-probes" in command
-    assert "exchange" not in " ".join(command).lower()
+    # PT-RT2 is paper-only: the command must carry NO testnet pathway.
+    joined = " ".join(command)
+    assert "testnet-order" not in joined
+    assert "--enable-baseline-testnet-transport" not in command
+    assert "--enable-testnet-probes" not in command
+    assert "exchange" not in joined.lower()
+
+
+def test_dashboard_control_week2_archived_command_keeps_legacy_flags() -> None:
+    command = control.build_runtime_command(
+        duration="5m",
+        output="pt_rt1_6_week2_active",
+        python_executable=".venv/bin/python",
+        caffeinate_path="/usr/bin/caffeinate",
+    )
+    assert "reports/paper_runtime/pt_rt1_6_week2_active" in command
+    assert "--pt-rt1-5-week1-active" in command
+    assert "--enable-baseline-testnet-transport" in command
 
 
 def test_dashboard_control_rejects_unapproved_duration_and_output() -> None:
@@ -81,12 +94,21 @@ def test_dashboard_control_status_contract_exposes_safety_flags() -> None:
         "--public-mainnet-only",
     ]
     assert sorted(control.DURATION_OPTIONS) == ["1h", "24h", "5m", "6h"]
+    assert control.PT_RT2_SAFE_FLAGS == [
+        "--pt-rt2",
+        "--fresh-signal-only-after-runtime-start",
+        "--signal-evaluation-mode",
+        "candle_close_only",
+        "--disable-legacy-testnet-probes",
+        "--public-mainnet-only",
+    ]
     assert sorted(control.OUTPUT_OPTIONS) == [
         "pt_rt1_5_2_week1_active",
         "pt_rt1_5_3_transport_smoke",
         "pt_rt1_6_week2_active",
+        "pt_rt2_mf_signal_observation",
     ]
-    assert control.DEFAULT_OUTPUT == "pt_rt1_6_week2_active"
+    assert control.DEFAULT_OUTPUT == "pt_rt2_mf_signal_observation"
 
 
 def test_dashboard_control_status_contract_exposes_runtime_log_files(
