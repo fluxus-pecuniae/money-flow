@@ -205,6 +205,20 @@ def resolve_gate(strategy_type: str) -> Callable[..., Any]:
     return _resolve(route_for(strategy_type).gate_ref)
 
 
+# REGIME1 market-regime risk-off filter seam (ADDITIVE; not a strategy type,
+# not a verdict gate, no routing change). Strategies that want to suppress
+# LONG entries during a market-wide downtrend import the filter through this
+# single reference: ``build_regime_gate(datasets) -> RegimeGate`` with
+# ``gate.is_risk_on(as_of)``. Risk tool only — drawdown control, never an
+# alpha signal; the gate's disclaimer travels with every state it returns.
+REGIME_FILTER_REF = "services.strategy_validation.regime1:build_regime_gate"
+
+
+def resolve_regime_filter() -> Callable[..., Any]:
+    """Return the REGIME1 risk-off gate builder (the importable filter seam)."""
+    return _resolve(REGIME_FILTER_REF)
+
+
 def ensure_gate_applies(strategy_type: str, gate_id: str) -> None:
     """Refuse to apply a gate to the wrong strategy type.
 

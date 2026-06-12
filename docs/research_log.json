@@ -121,6 +121,31 @@
     },
     {
       "analytics": [],
+      "badge": "rings true in bears, lies in chop",
+      "class": "time_series_momentum",
+      "date": "2026-06-12",
+      "evidence_doc": "docs/regime1_market_regime_risk_off_filter_evidence.md",
+      "evidence_summary": "docs/regime1_market_regime_risk_off_filter_evidence_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "The importable risk-off gate ships (strategy_types.resolve_regime_filter, defaults pinned, failed verdict on every surface - informational risk context, not validated control). MONEYFLOW-SIGNAL1 is next and may layer it as an optional overlay knowing the verdict; a REGIME2 with a pre-committed drawdown criterion would be a new phase.",
+        "didnt": "The train criterion - train Sharpe loves fast filters, and the fast filter lies in chop: it missed the material bar and ADDED drawdown in the choppy middle fold. Hindsight configs that pass (slower lookback, stricter breadth) are surfaced and labeled not-a-verdict; believing them would be the overfit this repo exists to refuse.",
+        "lesson": "Trend's value really is regime defense and it is now reusable - but a drawdown tool must be CHOSEN by a drawdown criterion, decided up front. A risk filter chosen on Sharpe optimizes the wrong thing and whipsaws; the criterion gap, not the signal, is what failed here.",
+        "our_error": null,
+        "our_error_note": "the method held - the bar was pre-committed and not moved for a 0.24pp miss, the hindsight passes were surfaced and refused, and the criterion mismatch is recorded as the design lesson for any REGIME2",
+        "why": "Trend's only surviving validated property is drawdown defense; a breadth-based risk-off bell is the cheapest reusable form of it, and future long strategies (MONEYFLOW-SIGNAL1) need a gate that says when NOT to be long. It had to earn that role against an always-long book, not be assumed into it.",
+        "worked": "The mechanism - breadth of reused tsmom signs steps aside in real bears (train: sidestepped 2022 and EARNED more doing it; fold C and the live 2026 sample both call risk-off correctly); the no-lookahead probes, the common warm-up discipline, and the whipsaw accounting (false vs true risk-off spells) made the cost auditable."
+      },
+      "finding": "Honest fail by 0.24pp: the train-chosen fast filter (lb30) cut OOS max drawdown 29.76% vs the pre-committed 30% material bar and worsened drawdown in the 2022-24 chop fold (58 OOS flips). The defensive texture is real - OOS dd 46.2% vs 65.7%, Sharpe 0.53 vs 0.13, +26% vs -19.6% - but the committed bar held and was not moved.",
+      "hardened_gates": [
+        "a drawdown tool must be train-chosen by a drawdown criterion, committed up front"
+      ],
+      "outcome": "fail",
+      "phase": "REGIME1",
+      "title": "Market-Regime Risk-Off Filter (when NOT to be long)"
+    },
+    {
+      "analytics": [],
       "badge": "deep venues fix costs, not the tail",
       "class": "funding_carry",
       "date": "2026-06-12",
@@ -1155,7 +1180,7 @@
       "title": "Original Money Flow Reconstruction (accounting correction)"
     }
   ],
-  "entry_count": 21,
+  "entry_count": 22,
   "lessons_hardened_gates": [
     {
       "gate": "PnL must reconcile to equity",
@@ -1208,6 +1233,10 @@
     {
       "gate": "zero liquidation events in OOS and stressed runs at the tested leverage",
       "phase": "FUND-VENUES1"
+    },
+    {
+      "gate": "a drawdown tool must be train-chosen by a drawdown criterion, committed up front",
+      "phase": "REGIME1"
     },
     {
       "gate": "suite carry-over must reproduce committed EV1 OOS digit for digit",

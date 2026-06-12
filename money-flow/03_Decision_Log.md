@@ -2,6 +2,68 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-12T07:30:00Z - REGIME1 - The Risk-Off Bell Rings True In Bears And Lies In Chop; The Honest Bar Says Not Yet
+
+- `decision`: Turn trend's one durable validated property (drawdown defense, held across TSMOM-EV1/TREND-OVERLAY1/TREND-SUITE1) into a reusable market-regime risk-off filter: breadth = fraction of liquid majors whose reused `tsmom_signal` trend sign is up, combined with a BTC bellwether rule (vote|required), on closed candles only -> `risk_on`/`risk_off` (+ graded `risk_score` for display). Bounded grid (3 lookbacks x 3 thresholds x 2 BTC rules = 18), train-only choice on the gated book's train Sharpe (chronological 70/30). The filter had to EARN its use on an equal-weight long book of the 7 DATA1 Binance majors (2020-09 -> 2026-06, weekly rebalance, EXEC-EV1 conservative friction, both books idle through a common 90-candle warm-up): the risk-tool gate requires MATERIAL OOS max-drawdown reduction (>=30% relative), not-worse OOS Sharpe, drawdown reduced in EVERY walk-forward fold, enough OOS days, and a verified no-lookahead probe. Risk tool, not alpha — the disclaimer is structural on every surface.
+- `result`: Honest FAIL — `regime_filter_does_not_reduce_drawdown_oos`. The train-chosen config (lb30/br0.5/btc-vote, the fast filter train Sharpe loves) cut OOS max drawdown 46.17% vs always-long 65.73% = a 29.76% relative reduction, 0.24pp UNDER the pre-committed 30% material bar — and it WORSENED drawdown in the chop fold (2022-08 -> 2024-07: gated 45.6% vs always 39.4%) on 58 OOS state flips (53% of OOS days risk-off; 6 of 30 OOS risk-off spells were FALSE — return given up while always-long gained). The defensive texture is real and visible (OOS Sharpe 0.53 vs 0.13; OOS return +26.0% vs -19.6%; fold C dd 46% vs 66%; train dd 52% vs 79% while EARNING more, 7244% vs 3188%, by sidestepping the 2022 bear) — but the committed bar says the filter as chosen did not earn its use, and the bar was not moved. Hindsight texture surfaced and labeled NOT-A-VERDICT (TREND-SUITE1 precedent): slower/stricter configs (lb60/br0.6/required) cut OOS dd to 33.3% (~49% reduction) and a min-train-drawdown criterion would have chosen lb90/br0.6/required — the criterion gap (train Sharpe loves fast filters; drawdown control wants slow ones) is itself the phase's sharpest lesson. Live sample at ship (2026-06-12 close, real public candles): RISK_OFF — 0/7 majors trend-up, BTC down (consistent with TREND-OVERLAY1's fully-flat posture in the current bear).
+- `scope`: `services/strategy_validation/regime1.py` (state, whipsaw classification, risk-tool gate, importable `RegimeGate`), ADDITIVE `strategy_types.REGIME_FILTER_REF` + `resolve_regime_filter()` seam (no routing/type/gate changes to existing strategy types), `scripts/run_regime1_evidence.py`, `scripts/run_regime_filter.py` (read-only CLI), `docs/regime1_*`, `tests/test_regime1_filter.py`, CI fast lane, `.gitignore` (`reports/regime1/`).
+- `rejected_alternatives`: Re-choosing the config or the criterion after seeing OOS (the hindsight rows would "pass" — that is exactly the overfit the discipline forbids; they are surfaced, labeled, and not believed); softening the 30% material bar to admit the 29.76% miss (a bar that bends to admit the result is not a bar); hysteresis/dual thresholds (doubles the grid — a REGIME2 design choice if ever scoped, chosen up front); judging the filter on return (it is a drawdown tool; return giveback is its nature and is reported as the whipsaw cost instead); withholding the tool because the gate failed (Must-3 scope ships it — with the failed verdict embedded in every output so no consumer can mistake it for validated control).
+- `boundaries`: Signal only — no orders, no private/signed endpoints, no testnet/live, no approval surface, no runtime change. Public read-only data (DATA1 + the same Binance klines endpoint for the CLI). The state is informational risk context; the committed-verdict note travels with it everywhere.
+- `follow_up_implications`: The reusable gate EXISTS at `strategy_types.resolve_regime_filter()` -> `build_regime_gate(datasets)` -> `is_risk_on(as_of)`, defaults pinned by test to the committed train-only choice, intended to suppress LONG entries in market-wide downtrends — MONEYFLOW-SIGNAL1 (next) may import it as an optional overlay knowing the verdict. A REGIME2 re-test with a drawdown-purposed train criterion (e.g., min train drawdown at acceptable Sharpe, pre-committed) and/or hysteresis would be a NEW phase with this phase's lesson baked in, never a re-tune of this grid after the fact.
+
+```yaml
+research_log:
+  phase: REGIME1
+  date: 2026-06-12
+  class: time_series_momentum
+  outcome: fail
+  badge: rings true in bears, lies in chop
+  title: Market-Regime Risk-Off Filter (when NOT to be long)
+  finding: >-
+    Honest fail by 0.24pp: the train-chosen fast filter (lb30) cut OOS max
+    drawdown 29.76% vs the pre-committed 30% material bar and worsened
+    drawdown in the 2022-24 chop fold (58 OOS flips). The defensive
+    texture is real - OOS dd 46.2% vs 65.7%, Sharpe 0.53 vs 0.13, +26% vs
+    -19.6% - but the committed bar held and was not moved.
+  why: >-
+    Trend's only surviving validated property is drawdown defense; a
+    breadth-based risk-off bell is the cheapest reusable form of it, and
+    future long strategies (MONEYFLOW-SIGNAL1) need a gate that says when
+    NOT to be long. It had to earn that role against an always-long book,
+    not be assumed into it.
+  worked: >-
+    The mechanism - breadth of reused tsmom signs steps aside in real
+    bears (train: sidestepped 2022 and EARNED more doing it; fold C and
+    the live 2026 sample both call risk-off correctly); the no-lookahead
+    probes, the common warm-up discipline, and the whipsaw accounting
+    (false vs true risk-off spells) made the cost auditable.
+  didnt: >-
+    The train criterion - train Sharpe loves fast filters, and the fast
+    filter lies in chop: it missed the material bar and ADDED drawdown in
+    the choppy middle fold. Hindsight configs that pass (slower lookback,
+    stricter breadth) are surfaced and labeled not-a-verdict; believing
+    them would be the overfit this repo exists to refuse.
+  lesson: >-
+    Trend's value really is regime defense and it is now reusable - but a
+    drawdown tool must be CHOSEN by a drawdown criterion, decided up
+    front. A risk filter chosen on Sharpe optimizes the wrong thing and
+    whipsaws; the criterion gap, not the signal, is what failed here.
+  our_error: null
+  our_error_note: >-
+    the method held - the bar was pre-committed and not moved for a
+    0.24pp miss, the hindsight passes were surfaced and refused, and the
+    criterion mismatch is recorded as the design lesson for any REGIME2
+  changed: >-
+    The importable risk-off gate ships (strategy_types.resolve_regime_filter,
+    defaults pinned, failed verdict on every surface - informational risk
+    context, not validated control). MONEYFLOW-SIGNAL1 is next and may
+    layer it as an optional overlay knowing the verdict; a REGIME2 with a
+    pre-committed drawdown criterion would be a new phase.
+  hardened_gate: a drawdown tool must be train-chosen by a drawdown criterion, committed up front
+  evidence_summary: docs/regime1_market_regime_risk_off_filter_evidence_summary.json
+  evidence_doc: docs/regime1_market_regime_risk_off_filter_evidence.md
+```
+
 ## 2026-06-12T05:15:00Z - FUND-VENUES1 - Deep Venues Fix The Costs, Not The Tail; Leverage Liquidates The Book
 
 - `decision`: Run the structural re-open FUND-EV2/FUND-SCALE1 sanctioned: the SAME delta-neutral funding-carry hypothesis on venues with materially different cited fee schedules and 6-7 years of funding history (DATA1: Binance 2019-09+, Bybit 2020-03+), with gross leverage {1x, 3x, 5x} as an explicitly modeled variable — borrow financing on the real cash shortfall (documented 0.02%/day, swept with every cost term) and an account-level intraday liquidation check (every leg marked at its worst same-day extreme; breach force-closes the whole book at stressed prices). Constructions: binance_single and bybit_single carry the verdict; binance perp + Coinbase spot is the cross-venue variant. Fees cited at the tier a 10k account's OWN flow earns (Binance VIP0 perp 2/5 bps, spot 10/10; Bybit non-VIP 2/5.5, 10/10; Coinbase 60 bps taker for the variant; OKX cited for the record only); the gateable verdict prices taker fills — maker is a non-gateable ceiling; the venue-fair window is enforced from DATA1 coverage (OKX ~92d, Kraken ~366d, HL 1126d funding excluded with recorded reasons per K-036). Gate v3 = the full FUND-EV2 bar + net positive in every OOS regime bucket + zero liquidation events (OOS and stressed). Bounded grid (cadence 14/28 x top 2/4) per (construction, leverage) cell, train-only choice, FUND-EV2 selectivity (2x entry margin, hold-while-favorable).
