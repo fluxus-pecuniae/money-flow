@@ -2267,15 +2267,19 @@ def run_cycle(
                         data_health=DataHealth.HEALTHY if candle_strategy_ready else DataHealth.UNAVAILABLE,
                         position_open=lane_position_key in open_positions_by_key,
                         equity_before=equity_before,
-                        regime_risk_on=(
-                            pt_rt2_regime_context.get("risk_on")
-                            if pt_rt2_regime_context is not None
-                            else None
-                        ),
-                        regime_unavailable_reason=(
-                            pt_rt2_regime_context.get("reason")
-                            if pt_rt2_regime_context is not None and not pt_rt2_regime_context.get("available")
-                            else None
+                        # The regime kwargs are PT-RT2-only (legacy cycles and
+                        # their test stubs never see them).
+                        **(
+                            {
+                                "regime_risk_on": pt_rt2_regime_context.get("risk_on"),
+                                "regime_unavailable_reason": (
+                                    pt_rt2_regime_context.get("reason")
+                                    if not pt_rt2_regime_context.get("available")
+                                    else None
+                                ),
+                            }
+                            if is_pt_rt2_cycle and pt_rt2_regime_context is not None
+                            else {}
                         ),
                     )
                 )

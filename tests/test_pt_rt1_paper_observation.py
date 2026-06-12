@@ -207,8 +207,14 @@ def test_paper_ledger_close_trade_compounds_without_resetting_after_loss() -> No
 def test_strategy_lanes_are_independent_and_evidence_only_where_required() -> None:
     by_strategy = {lane.strategy_id: lane for lane in PT_RT1_STRATEGY_LANES}
 
-    assert tuple(by_strategy) == PT_RT1_1A_STRATEGY_LANE_IDS
-    assert len(PT_RT1_STRATEGY_LANES) == 10
+    # The historical PT-RT1.1A lanes are all still configured (archive, never
+    # delete), followed by the two PT-RT2 source-faithful lanes.
+    assert tuple(by_strategy) == (
+        *PT_RT1_1A_STRATEGY_LANE_IDS,
+        "mf_source_faithful_baseline",
+        "mf_source_faithful_regime_gated",
+    )
+    assert len(PT_RT1_STRATEGY_LANES) == 12
     assert by_strategy["avoid_low_rolling_range_50"].production_approved is False
     assert "evidence_only_candidate_lane" in by_strategy["avoid_low_rolling_range_50"].reason_codes
     assert "mf_orig_reference_lane" in by_strategy["mf_orig_1d_stage2_breakout_resistance_full_equity"].reason_codes
@@ -394,19 +400,20 @@ def test_summary_and_report_files_exist_and_expose_boundaries() -> None:
     assert summary["testnet_probe_policy"]["PT_RT1_TESTNET_PROBE_NOTIONAL_CAP"] == "20"
     assert summary["boundaries"]["live_exchange_orders_submitted"] is False
     assert summary["paper_equity_policy"]["starting_equity_usdc_per_lane"] == "10000"
-    assert summary["revision"] == "PT-RT1.1A"
-    assert summary["latest_readiness_phase"] == "PT-RT1.4"
-    assert len(summary["strategy_lanes"]) == 10
+    assert summary["revision"] == "PT-RT2"
+    assert summary["latest_readiness_phase"] == "PT-RT2"
+    assert len(summary["strategy_lanes"]) == 12
     assert "TRON" in summary["requested_symbols"]
     assert "TRUMP" not in summary["requested_symbols"]
     assert summary["deferred_runtime_symbols"]["TRUMP"] == "runtime_noise_deferred_by_founder"
     assert summary["alias_mappings"]["TRON"] == "TRX"
     assert summary["alias_mappings"]["PEPE"] == "kPEPE"
-    assert summary["dashboard_status"]["strategy_lanes_visible"] == 3
-    assert summary["dashboard_status"]["historical_strategy_lanes_available"] == 10
+    assert summary["dashboard_status"]["strategy_lanes_visible"] == 2
+    assert summary["dashboard_status"]["historical_strategy_lanes_available"] == 12
     assert summary["dashboard_status"]["public_mainnet_connection_status_visible"] is True
-    assert summary["next_phase"]["decision"] == "Founder may start the PT-RT1.6 Week 2 three-lane paper run after review"
-    assert "testnet_probe_transport_not_submitted_by_pt_rt1_runtime" in summary["next_phase"]["conditions"]
+    assert summary["next_phase"]["decision"] == "Founder may start the PT-RT2 two-lane fresh observation run after review"
+    assert "no_testnet_transport_for_any_pt_rt2_lane" in summary["next_phase"]["conditions"]
+    assert "no_lane_testnet_eligible" in summary["next_phase"]["conditions"]
     assert summary["boundaries"]["testnet_probes_submit_signed_transport"] is False
 
 
@@ -419,11 +426,13 @@ def test_pt_rt1_4_active_timeframe_cutover_policy_excludes_15m_active_scoring() 
     assert PT_RT1_4_DISABLED_TIMEFRAME_STATUS == "disabled_for_week1_noise_reduction"
     assert "timeframe_disabled_by_founder_for_week1" in PT_RT1_4_TIMEFRAME_REASON_CODES
     assert "no_new_15m_entries" in PT_RT1_4_TIMEFRAME_REASON_CODES
-    assert summary["active_timeframes"] == ["1h", "4h", "1d"]
-    assert summary["disabled_timeframes"] == ["15m"]
-    assert summary["active_timeframe_policy"]["default_selected_timeframe"] == "1h"
+    # The live summary now reflects the PT-RT2 daily-only cutover; the
+    # PT-RT1.4 constants above remain the archived Week 1/2 policy record.
+    assert summary["active_timeframes"] == ["1d"]
+    assert summary["disabled_timeframes"] == ["15m", "1h", "4h"]
+    assert summary["active_timeframe_policy"]["default_selected_timeframe"] == "1d"
     assert summary["active_timeframe_policy"]["default_lane_comparison_scope"] == "selected_timeframe_only"
-    assert summary["active_timeframe_policy"]["legacy_15m_policy"].startswith("existing 15m records remain visible")
+    assert summary["active_timeframe_policy"]["legacy_15m_policy"].startswith("existing 15m/1h/4h records remain visible")
     assert "timeframes=args.timeframes or PT_RT1_4_ACTIVE_TIMEFRAMES" in runner
     assert "PT_RT1_4_TIMEFRAME_REASON_CODES" in runner
     assert "PT_RT1_4_DISABLED_TIMEFRAME_STATUS" in runner
