@@ -69,6 +69,7 @@ reports/strategy_validation_imports/
 reports/paper_runtime/
 reports/paper_reviews/
 reports/trend_overlay/
+reports/regime1/
 data/strategy_validation/imports/
 data/strategy_validation/candles/
 

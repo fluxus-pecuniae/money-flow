@@ -135,6 +135,16 @@ jobs:
       - name: TREND-SUITE1 canonical trend suite evidence model
         run: python -m pytest -q tests/test_trend_suite1_evidence.py
 
+      # REGIME1 market-regime risk-off filter (risk tool, not alpha): exact
+      # breadth/threshold/BTC-rule state, warm-up never guessed, no-lookahead
+      # probes, synthetic-crash drawdown reduction through the real simulator,
+      # whipsaw cost surfaced, importable gate + strategy_types seam, gate
+      # semantics with the always-on not-alpha qualifier, pinned default
+      # config, disclaimer on every surface, committed honest-fail summary
+      # (offline)
+      - name: REGIME1 market-regime risk-off filter
+        run: python -m pytest -q tests/test_regime1_filter.py
+
       # FUND-VENUES1 deep-venue leverage carry: funding_carry routing for the
       # fund_venues1_ prefix, per-interval funding accrual, delta-neutrality at
       # every leverage, borrow-on-shortfall + liquidation-on-gap mechanics
