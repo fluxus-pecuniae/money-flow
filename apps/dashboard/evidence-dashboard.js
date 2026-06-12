@@ -46,6 +46,7 @@
   ];
 
   const DEFAULT_PT_RT1_SUMMARY_FILES = [
+    "../../reports/paper_runtime/pt_rt2_mf_signal_observation/summary.json",
     "../../reports/paper_runtime/pt_rt1_6_week2_active/summary.json",
     "../../docs/pt_rt1_6_founder_selected_week2_paper_slate_summary.json",
     "../../reports/paper_runtime/pt_rt1_5_2_week1_active/summary.json",
@@ -56,10 +57,12 @@
     "../../docs/pt_rt1_5_1_signed_testnet_transport_warm_start_and_mtm_summary.json",
   ];
   const DEFAULT_PT_RT1_DECISION_LOG_FILES = [
+    "../../reports/paper_runtime/pt_rt2_mf_signal_observation/decisions.jsonl",
     "../../reports/paper_runtime/pt_rt1_6_week2_active/decisions.jsonl",
     "../../reports/paper_runtime/pt_rt1_5_2_week1_active/decisions.jsonl",
   ];
   const DEFAULT_PT_RT1_TRADE_LOG_FILES = [
+    "../../reports/paper_runtime/pt_rt2_mf_signal_observation/trades.jsonl",
     "../../reports/paper_runtime/pt_rt1_6_week2_active/trades.jsonl",
     "../../reports/paper_runtime/pt_rt1_5_2_week1_active/trades.jsonl",
   ];
@@ -70,6 +73,7 @@
     "../../reports/paper_runtime/pt_rt1_5_2_transport_smoke/testnet_order_lifecycle.jsonl",
   ];
   const DEFAULT_PT_RT1_DAILY_REVIEW_FILES = [
+    "../../reports/paper_reviews/pt_rt2_mf_signal_observation/latest_review.json",
     "../../reports/paper_reviews/pt_rt1_6_week2_active/latest_review.json",
   ];
   const PAPER_OBSERVATION_DECISION_LOG_LIMIT = 10000;
@@ -77,67 +81,77 @@
   const COMPONENT_RESULTS_PAGE_SIZE = 10;
   const HISTORICAL_COMPARISON_PAGE_SIZE = 25;
   const PAPER_OBSERVATION_PAGE_SIZE = 25;
-  const PAPER_OBSERVATION_ACTIVE_TIMEFRAMES = ["1h", "4h", "1d"];
-  const PAPER_OBSERVATION_DISABLED_TIMEFRAMES = ["15m"];
-  const PAPER_OBSERVATION_ACTIVE_REVIEW_START_UTC = "2026-06-07T00:00:00Z";
-  const PAPER_OBSERVATION_ACTIVE_RUNTIME_SCOPE = "pt_rt1_6_week2_active";
-  const PAPER_OBSERVATION_15M_STATUS = "disabled_for_week1_noise_reduction / diagnostic_only / not_active_paper_scoring";
+  const PAPER_OBSERVATION_ACTIVE_TIMEFRAMES = ["1d"];
+  const PAPER_OBSERVATION_DISABLED_TIMEFRAMES = ["15m", "1h", "4h"];
+  const PAPER_OBSERVATION_ACTIVE_REVIEW_START_UTC = "2026-06-12T00:00:00Z";
+  const PAPER_OBSERVATION_ACTIVE_RUNTIME_SCOPE = "pt_rt2_mf_signal_observation";
+  const PAPER_OBSERVATION_15M_STATUS = "not_in_pt_rt2_slate_mf_signal1_surface_is_daily_only / diagnostic_only / not_active_paper_scoring";
+  // PT-RT2 fresh slate: observation of a characterized signal, not a
+  // validated strategy. Const names keep the WEEK2 prefix (wired across the
+  // render paths + the current-truth consistency tests); contents are the
+  // PT-RT2 truth from current_truth.json.
   const PAPER_OBSERVATION_WEEK2_ACTIVE_LANE_IDS = [
-    "money_flow_v1_2_baseline",
-    "avoid_low_rolling_range_20",
-    "mf_orig_1d_stage2_breakout_resistance_full_equity",
+    "mf_source_faithful_baseline",
+    "mf_source_faithful_regime_gated",
   ];
   const PAPER_OBSERVATION_WEEK2_ARCHIVED_LANE_IDS = [
+    "money_flow_v1_2_baseline",
+    "avoid_low_rolling_range_20",
     "avoid_low_rolling_range_50",
     "mf_orig_stage_filter_only_full_equity",
     "mf_orig_stage2_pullback_reclaim_full_equity",
     "mf_orig_1d_stage2_5_20_crossover_full_equity",
+    "mf_orig_1d_stage2_breakout_resistance_full_equity",
     "wildcard_btc_regime_guard",
     "wildcard_multi_timeframe_alignment",
     "wildcard_volatility_expansion_breakout",
   ];
   const PAPER_OBSERVATION_WEEK2_LANE_LABELS = {
-    money_flow_v1_2_baseline: "Control / Baseline",
-    avoid_low_rolling_range_20: "Diagnostic Comparator",
-    mf_orig_1d_stage2_breakout_resistance_full_equity: "MF-ORIG Source-Faithful Candidate",
+    mf_source_faithful_baseline: "Control / Baseline",
+    mf_source_faithful_regime_gated: "Informational Overlay Observation",
   };
   // DASH-PT2 display-only lane accent mapping (per-lane terminal colors).
   // Mapped to the current_truth.json active lane ids; unknown lanes stay neutral.
   const PAPER_OBSERVATION_LANE_ACCENTS = {
-    money_flow_v1_2_baseline: "baseline",
-    avoid_low_rolling_range_20: "diagnostic",
-    mf_orig_1d_stage2_breakout_resistance_full_equity: "candidate",
+    mf_source_faithful_baseline: "baseline",
+    mf_source_faithful_regime_gated: "diagnostic",
   };
   const PAPER_OBSERVATION_CONFIGURED_SYMBOLS = ["AVAX", "BNB", "BTC", "DOGE", "ETH", "HYPE", "SOL", "SUI", "XRP"];
   const PAPER_OBSERVATION_WEEK2_LANE_POLICIES = {
-    money_flow_v1_2_baseline: {
-      display_name: "money_flow_v1_2_baseline",
-      strategy_family: "money_flow_v1_2",
+    mf_source_faithful_baseline: {
+      display_name: "mf_source_faithful_baseline",
+      strategy_family: "moneyflow_signal1_source_faithful",
       role: "Control / Baseline",
-      testnet_label: "Baseline-only gated testnet eligible",
-      testnet_eligible: true,
-      reason_codes: ["founder_selected_week2_active", "keep_as_control"],
-    },
-    avoid_low_rolling_range_20: {
-      display_name: "avoid_low_rolling_range_20",
-      strategy_family: "sor_ev3_diagnostic",
-      role: "Diagnostic Comparator",
-      testnet_label: "Synthetic-only / no testnet",
+      testnet_label: "Synthetic-only / no testnet (paper-only founder decision)",
       testnet_eligible: false,
-      reason_codes: ["founder_selected_week2_active", "candidate_synthetic_only"],
+      reason_codes: [
+        "founder_selected_pt_rt2_active",
+        "moneyflow_signal1_surface_reused_no_lookalike",
+        "defensive_trend_mechanic_not_validated_alpha",
+      ],
     },
-    mf_orig_1d_stage2_breakout_resistance_full_equity: {
-      display_name: "mf_orig_1d_stage2_breakout_resistance_full_equity",
-      strategy_family: "mf_orig_source_faithful",
-      role: "MF-ORIG Source-Faithful Candidate",
-      testnet_label: "Synthetic-only / no testnet",
+    mf_source_faithful_regime_gated: {
+      display_name: "mf_source_faithful_regime_gated",
+      strategy_family: "moneyflow_signal1_source_faithful",
+      role: "Informational Overlay Observation",
+      testnet_label: "Synthetic-only / no testnet (paper-only founder decision)",
       testnet_eligible: false,
-      reason_codes: ["founder_selected_week2_active", "candidate_synthetic_only"],
+      reason_codes: [
+        "founder_selected_pt_rt2_active",
+        "regime_filter_does_not_reduce_drawdown_oos",
+        "informational_risk_context_not_validated_control",
+      ],
     },
   };
   const SV22_REPLAY_PERIOD = "SV2.2";
-  const SV22_REPLAY_STRATEGY_IDS = new Set(PAPER_OBSERVATION_WEEK2_ACTIVE_LANE_IDS);
-  const SV22_REPLAY_TIMEFRAMES = new Set(PAPER_OBSERVATION_ACTIVE_TIMEFRAMES);
+  // SV2.2 replay rows are committed Week 2 evidence; the replay filters stay
+  // pinned to that archived slate, decoupled from the PT-RT2 active slate.
+  const SV22_REPLAY_STRATEGY_IDS = new Set([
+    "money_flow_v1_2_baseline",
+    "avoid_low_rolling_range_20",
+    "mf_orig_1d_stage2_breakout_resistance_full_equity",
+  ]);
+  const SV22_REPLAY_TIMEFRAMES = new Set(["1h", "4h", "1d"]);
   const SV22_REPLAY_FILL_ASSUMPTIONS = new Set(["next_candle_open", "next_candle_close"]);
   const RUN_LEDGER_DISPLAY_FILTER_BOUNDARY = "date filters are display-only, not canonical pack regeneration";
 
@@ -713,12 +727,12 @@
     },
     paperObservation: {
       symbol: "all",
-      timeframe: "1h",
+      timeframe: "1d",
       laneId: "all",
       reviewWindow: "active_week",
       signalCategory: "entry_activity",
       terminalTab: "open",
-      chartTarget: { symbol: "ETH", timeframe: "1h" },
+      chartTarget: { symbol: "ETH", timeframe: "1d" },
       pagination: {
         signals: 1,
         openPositions: 1,
@@ -730,7 +744,7 @@
       running: false,
       status: "checking",
       duration: "24h",
-      output: "pt_rt1_6_week2_active",
+      output: "pt_rt2_mf_signal_observation",
       pid: null,
       startedAtUtc: null,
       updatedAtUtc: null,
@@ -4076,8 +4090,8 @@
       testnet_label: policy.testnet_label || "Synthetic-only / no testnet",
       testnet_eligible: Boolean(policy.testnet_eligible),
       role: policy.role || paperObservationWeek2LaneLabel(laneId),
-      reason_codes: policy.reason_codes || ["founder_selected_week2_active"],
-      rule_summary: "Configured Week 2 lane metadata; runtime rows appear after the paper run starts.",
+      reason_codes: policy.reason_codes || ["founder_selected_pt_rt2_active"],
+      rule_summary: "Configured PT-RT2 lane metadata; runtime rows appear after the paper run starts.",
     };
   }
 
@@ -4106,8 +4120,8 @@
   }
 
   function paperObservationTimeframeScopeLabel(value = state.paperObservation.timeframe) {
-    if (value === "all_active") return "sum across active paper timeframes only: 1h + 4h + 1d";
-    if (value === "15m_legacy") return "15m paused / legacy";
+    if (value === "all_active") return "PT-RT2 active paper timeframe: 1d only";
+    if (value === "15m_legacy") return "15m / 1h / 4h paused / legacy";
     return `${displayTimeframe(value)} selected timeframe only`;
   }
 
@@ -4642,11 +4656,11 @@
       .sort((left, right) => String(right.modified_at_utc).localeCompare(String(left.modified_at_utc)))[0];
     const exactSafeFlags = (control.safeFlags || []).join(" ");
     const safeProfile = [
-      "Week 2 active scope",
+      "PT-RT2 active scope",
       "fresh-signal gate",
       "candle-close only",
       "public-mainnet truth",
-      "baseline-only 25 USDC testnet gate",
+      "paper-only / no lane testnet eligible",
       "legacy probes disabled",
     ].join(" / ");
     const serverMessage =
@@ -4955,8 +4969,8 @@
     const activeTimeframes = paperObservationActiveTimeframes(summary);
     const timeframeOptions = [
       ...activeTimeframes.map((timeframe) => ({ value: timeframe, label: `${displayTimeframe(timeframe)} selected timeframe only` })),
-      { value: "all_active", label: "All active timeframes: 1h + 4h + 1d" },
-      { value: "15m_legacy", label: "15m paused / legacy" },
+      { value: "all_active", label: "All active timeframes: 1d only (PT-RT2)" },
+      { value: "15m_legacy", label: "15m / 1h / 4h paused / legacy" },
     ];
     const reviewWindowOptions = [
       { value: "active_week", label: "Active week only" },
@@ -5554,7 +5568,7 @@
         <div><span>Family</span><strong>${escapeHtml(paperObservationText(selectedLane.strategy_family, "n/a"))}</strong></div>
         <div><span>PNL source</span><strong>${escapeHtml(selectedLane.pnl_source || "Synthetic Ledger")}</strong></div>
         <div><span>Signal truth</span><strong>${escapeHtml(selectedLane.signal_truth || "Public Mainnet Candles")}</strong></div>
-        <div><span>Testnet</span><strong>${escapeHtml(selectedLane.testnet_label || (laneId === "money_flow_v1_2_baseline" ? "Baseline-only gated testnet eligible" : "Synthetic-only / no testnet"))}</strong></div>
+        <div><span>Testnet</span><strong>${escapeHtml(selectedLane.testnet_label || "Synthetic-only / no testnet (paper-only founder decision)")}</strong></div>
         <div><span>Paper only</span><strong>${escapeHtml(String(selectedLane.paper_only !== false))}</strong></div>
         <div><span>Production approved</span><strong>${escapeHtml(String(Boolean(selectedLane.production_approved)))}</strong></div>
         <div><span>Live approved</span><strong>${escapeHtml(String(Boolean(selectedLane.live_approved || selectedLane.live_trading_approved)))}</strong></div>
@@ -5769,7 +5783,11 @@
       const isExit = action.includes("exit") || action.includes("close") || action.includes("sell") || action.includes("paper_closed");
       const lane = paperObservationRowLane(marker);
       const laneLabel =
-        lane === "money_flow_v1_2_baseline"
+        lane === "mf_source_faithful_baseline"
+          ? "MF-SF"
+          : lane === "mf_source_faithful_regime_gated"
+          ? "MF-RG"
+          : lane === "money_flow_v1_2_baseline"
           ? "MF"
           : lane === "avoid_low_rolling_range_20"
           ? "RR20"

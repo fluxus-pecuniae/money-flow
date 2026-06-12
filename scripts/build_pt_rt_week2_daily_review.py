@@ -14,16 +14,17 @@ from typing import Any, Iterable
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_SCOPE = "pt_rt1_6_week2_active"
+DEFAULT_SCOPE = "pt_rt2_mf_signal_observation"
 RUNTIME_ROOT = Path("reports/paper_runtime")
 REVIEW_ROOT = Path("reports/paper_reviews")
-BASELINE_TESTNET_LANE = "money_flow_v1_2_baseline"
-ACTIVE_TIMEFRAMES = ["1h", "4h", "1d"]
-DISABLED_TIMEFRAMES = ["15m"]
+# PT-RT2 is paper-only: NO lane is testnet eligible; any testnet lifecycle
+# row under the PT-RT2 scope is a critical anomaly.
+BASELINE_TESTNET_LANE = "none"
+ACTIVE_TIMEFRAMES = ["1d"]
+DISABLED_TIMEFRAMES = ["15m", "1h", "4h"]
 ACTIVE_LANES = [
-    "money_flow_v1_2_baseline",
-    "avoid_low_rolling_range_20",
-    "mf_orig_1d_stage2_breakout_resistance_full_equity",
+    "mf_source_faithful_baseline",
+    "mf_source_faithful_regime_gated",
 ]
 RUNTIME_FILES = {
     "summary": "summary.json",
@@ -211,7 +212,7 @@ def summarize_lanes(summary: dict[str, Any], state: dict[str, Any]) -> list[dict
             result.append(
                 {
                     "lane_id": lane_id,
-                    "role": "configured_week2_active",
+                    "role": "configured_pt_rt2_active",
                     "realized_equity": "10000",
                     "unrealized_pnl": "0",
                     "total_equity": "10000",

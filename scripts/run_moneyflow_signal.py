@@ -98,6 +98,14 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.input_json is not None:
         candles_by_asset = json.loads(args.input_json.read_text(encoding="utf-8"))
+        # Normalize offline-replay close times to the Z form the regime
+        # dataset builder's strict parser expects (fund_venues1._parse_close);
+        # otherwise the regime overlay silently degrades to unavailable on
+        # isoformat(+00:00) fixtures.
+        candles_by_asset = {
+            asset: [{**row, "close_time": str(row["close_time"]).replace("+00:00", "Z")} for row in rows]
+            for asset, rows in candles_by_asset.items()
+        }
         source = "offline_input_json_replay"
     else:
         candles_by_asset = fetch_latest_candles()

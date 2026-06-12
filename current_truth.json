@@ -1,17 +1,48 @@
 {
-  "scope": "pt_rt1_6_week2_active",
-  "active_surface": "PT-RT1.6 Week 2 Paper Observation",
+  "scope": "pt_rt2_mf_signal_observation",
+  "active_surface": "PT-RT2 Fresh Money Flow Signal Observation (paper only)",
   "strategy_truth": "Public Hyperliquid mainnet fully closed candles and derived indicators",
-  "pnl_truth": "Independent synthetic 10,000 USDC paper ledgers per lane",
+  "pnl_truth": "Independent synthetic 10,000 USDC paper ledgers per lane (fresh at PT-RT2 start; no backfill)",
   "production_approved": false,
   "live_trading_approved": false,
+  "observation_frame": "observation of a characterized signal, not a validated strategy; watching it live does not upgrade any committed verdict",
+  "committed_characterization": {
+    "standalone_label": "defensive_trend_mechanic_not_validated_alpha",
+    "trade_level_label": "source_faithful_but_underperformed",
+    "regime_overlay_verdict": "regime_filter_does_not_reduce_drawdown_oos",
+    "regime_overlay_label": "informational risk context, not a validated control"
+  },
   "active_lanes": [
+    {
+      "lane_id": "mf_source_faithful_baseline",
+      "display_name": "MF source-faithful baseline",
+      "role": "control_lane",
+      "role_label": "Control / Baseline",
+      "testnet_eligible": false,
+      "production_approved": false,
+      "live_approved": false,
+      "pnl_source": "Synthetic Ledger",
+      "signal_truth": "Public Mainnet Candles"
+    },
+    {
+      "lane_id": "mf_source_faithful_regime_gated",
+      "display_name": "MF source-faithful + regime gate",
+      "role": "informational_overlay_observation_lane",
+      "role_label": "Informational Overlay Observation",
+      "testnet_eligible": false,
+      "production_approved": false,
+      "live_approved": false,
+      "pnl_source": "Synthetic Ledger",
+      "signal_truth": "Public Mainnet Candles"
+    }
+  ],
+  "archived_lanes": [
     {
       "lane_id": "money_flow_v1_2_baseline",
       "display_name": "Money Flow v1.2 baseline",
       "role": "control_lane",
       "role_label": "Control / Baseline",
-      "testnet_eligible": true,
+      "testnet_eligible": false,
       "production_approved": false,
       "live_approved": false,
       "pnl_source": "Synthetic Ledger",
@@ -28,19 +59,6 @@
       "pnl_source": "Synthetic Ledger",
       "signal_truth": "Public Mainnet Candles"
     },
-    {
-      "lane_id": "mf_orig_1d_stage2_breakout_resistance_full_equity",
-      "display_name": "MF-ORIG 1D Stage 2 breakout resistance full equity",
-      "role": "mf_orig_evidence_only_reference_lane",
-      "role_label": "MF-ORIG Source-Faithful Candidate",
-      "testnet_eligible": false,
-      "production_approved": false,
-      "live_approved": false,
-      "pnl_source": "Synthetic Ledger",
-      "signal_truth": "Public Mainnet Candles"
-    }
-  ],
-  "archived_lanes": [
     {
       "lane_id": "avoid_low_rolling_range_50",
       "display_name": "Avoid low rolling range 50",
@@ -86,6 +104,17 @@
       "signal_truth": "Public Mainnet Candles"
     },
     {
+      "lane_id": "mf_orig_1d_stage2_breakout_resistance_full_equity",
+      "display_name": "MF-ORIG 1D Stage 2 breakout resistance full equity",
+      "role": "mf_orig_evidence_only_reference_lane",
+      "role_label": "MF-ORIG Source-Faithful Candidate",
+      "testnet_eligible": false,
+      "production_approved": false,
+      "live_approved": false,
+      "pnl_source": "Synthetic Ledger",
+      "signal_truth": "Public Mainnet Candles"
+    },
+    {
       "lane_id": "wildcard_btc_regime_guard",
       "display_name": "Wildcard BTC regime guard",
       "role": "wildcard_expert_observation_lane",
@@ -120,12 +149,12 @@
     }
   ],
   "active_timeframes": [
-    "1h",
-    "4h",
     "1d"
   ],
   "paused_timeframes": [
-    "15m"
+    "15m",
+    "1h",
+    "4h"
   ],
   "configured_symbols": [
     "BTC",
@@ -138,10 +167,21 @@
     "SUI",
     "AVAX"
   ],
-  "testnet_eligible_lanes": [
-    "money_flow_v1_2_baseline"
+  "observed_universe_symbols": [
+    "BTC",
+    "ETH",
+    "SOL",
+    "XRP",
+    "DOGE",
+    "BNB",
+    "AVAX"
   ],
-  "testnet_fixed_notional_usdc": 25,
+  "configured_not_traded_symbols": {
+    "HYPE": "short_history_configured_not_traded_in_pt_rt2",
+    "SUI": "short_history_configured_not_traded_in_pt_rt2"
+  },
+  "testnet_eligible_lanes": [],
+  "testnet_policy": "paper-only founder decision: NO lane is testnet eligible; testnet for the PT-RT2 slate is a separate future founder decision",
   "testnet_fills_update_synthetic_pnl": false,
   "runtime_safety_policy": {
     "live_trading_enabled": false,
@@ -150,22 +190,23 @@
     "sandbox_mode_required": true
   },
   "_anchors": {
-    "scope": "pt_rt1.py::PT_RT1_6_RUNTIME_SCOPE",
-    "active_lanes": "pt_rt1.py::PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS + PT_RT1_6_ACTIVE_STRATEGY_LANES",
-    "archived_lanes": "pt_rt1.py::PT_RT1_6_ARCHIVED_STRATEGY_LANE_IDS + PT_RT1_6_ARCHIVED_STRATEGY_LANES",
-    "active_timeframes": "pt_rt1.py::PT_RT1_6_ACTIVE_TIMEFRAMES",
-    "paused_timeframes": "pt_rt1.py::PT_RT1_4_DISABLED_TIMEFRAMES",
+    "scope": "pt_rt1.py::PT_RT2_RUNTIME_SCOPE",
+    "active_lanes": "pt_rt1.py::PT_RT2_ACTIVE_STRATEGY_LANE_IDS + PT_RT2_ACTIVE_STRATEGY_LANES",
+    "archived_lanes": "pt_rt1.py::PT_RT2_ARCHIVED_STRATEGY_LANE_IDS + PT_RT2_ARCHIVED_STRATEGY_LANES",
+    "active_timeframes": "pt_rt1.py::PT_RT2_ACTIVE_TIMEFRAMES",
+    "paused_timeframes": "pt_rt1.py::PT_RT2_DISABLED_TIMEFRAMES",
     "configured_symbols": "pt_rt1.py::SUPPORTED_CANONICAL_SYMBOLS",
-    "testnet_eligible_lanes": "pt_rt1.py::pt_rt1_6_lane_testnet_eligible()",
-    "testnet_fixed_notional_usdc": "pt_rt1.py::PT_RT1_5_TESTNET_ORDER_NOTIONAL_USDC",
+    "observed_universe_symbols": "pt_rt1.py::PT_RT2_UNIVERSE_SYMBOLS",
+    "testnet_eligible_lanes": "pt_rt1.py::pt_rt2_lane_testnet_eligible()",
+    "committed_characterization": "pt_rt1.py::PT_RT2_* verdict constants (drift-pinned by test against moneyflow_signal1/regime1)",
     "runtime_safety_policy": "settings.py::RuntimeSafetyPolicy (defaults)"
   },
   "_enforcing_tests": [
-    "tests/test_pt_rt1_6_week2_slate.py",
+    "tests/test_pt_rt2_mf_signal_slate.py",
     "tests/test_current_truth_registry.py",
     "tests/test_current_truth_consistency.py"
   ],
   "_generated_by": "scripts/export_current_truth.py",
   "_do_not_hand_edit": true,
-  "_generated_at_utc": "2026-06-09T08:02:13Z"
+  "_generated_at_utc": "2026-06-12T14:52:35Z"
 }

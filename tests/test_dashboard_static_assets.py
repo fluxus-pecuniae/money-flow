@@ -152,7 +152,7 @@ def test_pt_rt1_paper_observation_dashboard_tab() -> None:
     assert "Control server message" in js
     assert "Latest runtime artifact" in js
     assert "Safety profile" in js
-    assert "Week 2 active scope" in js
+    assert "PT-RT2 active scope" in js
     assert "Runtime Logs" in js
     assert "Read-only log files" in js
     assert "scripts/watch_pt_rt1_runtime.py --status" in js
@@ -490,12 +490,12 @@ def test_pt_rt1_4_paper_trading_command_center_active_timeframe_ui() -> None:
     assert html.index("paper-observation-closed-trades") < html.index("paper-observation-signal-table")
     assert html.index("paper-observation-signal-table") < html.index("paper-observation-testnet-lifecycle")
     assert html.index("paper-observation-signal-table") < html.index("paper-observation-lane-table")
-    assert 'timeframe: "1h"' in js
-    assert 'PAPER_OBSERVATION_ACTIVE_TIMEFRAMES = ["1h", "4h", "1d"]' in js
-    assert 'PAPER_OBSERVATION_DISABLED_TIMEFRAMES = ["15m"]' in js
-    assert "disabled_for_week1_noise_reduction" in js
-    assert "sum across active paper timeframes only: 1h + 4h + 1d" in js
-    assert "15m paused / legacy" in js
+    assert 'timeframe: "1d"' in js
+    assert 'PAPER_OBSERVATION_ACTIVE_TIMEFRAMES = ["1d"]' in js
+    assert 'PAPER_OBSERVATION_DISABLED_TIMEFRAMES = ["15m", "1h", "4h"]' in js
+    assert "not_in_pt_rt2_slate_mf_signal1_surface_is_daily_only" in js
+    assert "PT-RT2 active paper timeframe: 1d only" in js
+    assert "15m / 1h / 4h paused / legacy" in js
     assert "<th>Mid price</th>" in js
     assert "<th>Health</th>" in js
     assert "no_activity_for_selected_timeframe" in js
@@ -540,7 +540,7 @@ def test_dash_pt1_1_week2_paper_trading_ui_truth() -> None:
     assert paper_view.index("Open Synthetic Positions") < paper_view.index("Testnet Order Lifecycle")
     assert paper_view.index("Closed Synthetic Trades") < paper_view.index("Signal / Decision Stream")
 
-    assert 'PAPER_OBSERVATION_WEEK2_ACTIVE_LANE_IDS = [\n    "money_flow_v1_2_baseline",\n    "avoid_low_rolling_range_20",\n    "mf_orig_1d_stage2_breakout_resistance_full_equity"' in js
+    assert 'PAPER_OBSERVATION_WEEK2_ACTIVE_LANE_IDS = [\n    "mf_source_faithful_baseline",\n    "mf_source_faithful_regime_gated"' in js
     assert 'PAPER_OBSERVATION_WEEK2_ARCHIVED_LANE_IDS = [' in js
     assert 'PAPER_OBSERVATION_CONFIGURED_SYMBOLS = ["AVAX", "BNB", "BTC", "DOGE", "ETH", "HYPE", "SOL", "SUI", "XRP"]' in js
     assert "All active lanes" in js
@@ -555,7 +555,7 @@ def test_dash_pt1_1_week2_paper_trading_ui_truth() -> None:
     # and the committed lane policies keep the Week 2 boundaries.
     assert 'id="strategy-view"' not in html
     assert "Week 2 Active Strategy Slate" not in html
-    assert "Baseline-only gated testnet eligible" in js
+    assert "Baseline-only gated testnet eligible" not in js
     assert "Synthetic-only / no testnet" in js
     assert "PAPER_OBSERVATION_WEEK2_LANE_POLICIES" in js
     assert "paperObservationLaneChip" in js
@@ -565,7 +565,7 @@ def test_dash_pt1_1_week2_paper_trading_ui_truth() -> None:
 def test_paper_trading_prefers_active_week_runtime_before_smoke_artifacts() -> None:
     js = Path("apps/dashboard/evidence-dashboard.js").read_text(encoding="utf-8")
 
-    active_summary = "../../reports/paper_runtime/pt_rt1_6_week2_active/summary.json"
+    active_summary = "../../reports/paper_runtime/pt_rt2_mf_signal_observation/summary.json"
     legacy_active_summary = "../../reports/paper_runtime/pt_rt1_5_2_week1_active/summary.json"
     smoke_summary = "../../reports/paper_runtime/pt_rt1_5_3_transport_smoke/summary.json"
     active_lifecycle = "../../reports/paper_runtime/pt_rt1_6_week2_active/testnet_order_lifecycle.jsonl"
@@ -576,7 +576,7 @@ def test_paper_trading_prefers_active_week_runtime_before_smoke_artifacts() -> N
     assert js.index(active_summary) < js.index(smoke_summary)
     assert js.index(active_lifecycle) < js.index(legacy_active_lifecycle)
     assert js.index(active_lifecycle) < js.index(smoke_lifecycle)
-    assert 'output: "pt_rt1_6_week2_active"' in js
+    assert 'output: "pt_rt2_mf_signal_observation"' in js
     assert "duration: payload?.duration || state.paperRuntimeControl.duration" in js
     assert "output: payload?.output || state.paperRuntimeControl.output" in js
     assert "const lifecycleRows = paperObservationTestnetLifecycleRows(summary);" in js

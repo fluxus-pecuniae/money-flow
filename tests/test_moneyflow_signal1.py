@@ -442,6 +442,9 @@ def test_cli_offline_emits_auditable_json(tmp_path):
     assert payload["disclaimer"] == ms.DISCLAIMER
     assert payload["boundaries"]["submits_orders"] is False
     assert payload["regime_overlay"]["committed_verdict"] == rg.VERDICT_FAIL
+    # The offline overlay must actually BUILD (timestamp normalization), not
+    # silently degrade to unavailable.
+    assert payload["regime_overlay"]["available"] is True
     for block in payload["assets"].values():
         state = block["latest_state"]
         assert state["disclaimer"] == ms.DISCLAIMER

@@ -10,11 +10,12 @@ from pathlib import Path
 
 from scripts.export_current_truth import build_truth
 from services.paper_runtime.pt_rt1 import (
-    PT_RT1_4_DISABLED_TIMEFRAMES,
-    PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS,
-    PT_RT1_6_ACTIVE_TIMEFRAMES,
-    PT_RT1_6_ARCHIVED_STRATEGY_LANE_IDS,
-    pt_rt1_6_lane_testnet_eligible,
+    PT_RT2_ACTIVE_STRATEGY_LANE_IDS,
+    PT_RT2_ACTIVE_TIMEFRAMES,
+    PT_RT2_ARCHIVED_STRATEGY_LANE_IDS,
+    PT_RT2_DISABLED_TIMEFRAMES,
+    PT_RT2_UNIVERSE_SYMBOLS,
+    pt_rt2_lane_testnet_eligible,
 )
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -46,35 +47,55 @@ def test_on_disk_matches_fresh_export() -> None:
 def test_active_lanes_match_anchor() -> None:
     truth = _fresh()
     assert [lane["lane_id"] for lane in truth["active_lanes"]] == list(
-        PT_RT1_6_ACTIVE_STRATEGY_LANE_IDS
+        PT_RT2_ACTIVE_STRATEGY_LANE_IDS
     )
 
 
 def test_archived_lanes_match_anchor() -> None:
     truth = _fresh()
     assert [lane["lane_id"] for lane in truth["archived_lanes"]] == list(
-        PT_RT1_6_ARCHIVED_STRATEGY_LANE_IDS
+        PT_RT2_ARCHIVED_STRATEGY_LANE_IDS
     )
 
 
 def test_active_timeframes_match_anchor() -> None:
     truth = _fresh()
-    assert truth["active_timeframes"] == list(PT_RT1_6_ACTIVE_TIMEFRAMES)
+    assert truth["active_timeframes"] == list(PT_RT2_ACTIVE_TIMEFRAMES)
 
 
 def test_paused_timeframes_match_anchor() -> None:
     truth = _fresh()
-    assert truth["paused_timeframes"] == list(PT_RT1_4_DISABLED_TIMEFRAMES)
-    assert "15m" in truth["paused_timeframes"]
-    assert "15m" not in truth["active_timeframes"]
+    assert truth["paused_timeframes"] == list(PT_RT2_DISABLED_TIMEFRAMES)
+    for timeframe in ("15m", "1h", "4h"):
+        assert timeframe in truth["paused_timeframes"]
+        assert timeframe not in truth["active_timeframes"]
 
 
-def test_testnet_eligible_lanes_baseline_only() -> None:
+def test_no_lane_is_testnet_eligible() -> None:
     truth = _fresh()
-    assert truth["testnet_eligible_lanes"] == ["money_flow_v1_2_baseline"]
-    for lane in truth["active_lanes"]:
-        expected = pt_rt1_6_lane_testnet_eligible(lane["lane_id"])
-        assert lane["testnet_eligible"] == expected
+    assert truth["testnet_eligible_lanes"] == []
+    for lane in [*truth["active_lanes"], *truth["archived_lanes"]]:
+        assert lane["testnet_eligible"] is False
+        assert pt_rt2_lane_testnet_eligible(lane["lane_id"]) is False
+
+
+def test_observed_universe_matches_anchor() -> None:
+    truth = _fresh()
+    assert truth["observed_universe_symbols"] == list(PT_RT2_UNIVERSE_SYMBOLS)
+    assert len(truth["observed_universe_symbols"]) == 7
+    for symbol in ("HYPE", "SUI"):
+        assert symbol in truth["configured_symbols"]
+        assert symbol not in truth["observed_universe_symbols"]
+        assert symbol in truth["configured_not_traded_symbols"]
+
+
+def test_committed_characterization_carried_in_truth() -> None:
+    truth = _fresh()
+    block = truth["committed_characterization"]
+    assert block["standalone_label"] == "defensive_trend_mechanic_not_validated_alpha"
+    assert block["trade_level_label"] == "source_faithful_but_underperformed"
+    assert block["regime_overlay_verdict"] == "regime_filter_does_not_reduce_drawdown_oos"
+    assert "not a validated control" in block["regime_overlay_label"]
 
 
 def test_production_and_live_approvals_are_false() -> None:
@@ -116,11 +137,11 @@ def test_configured_symbols_nine_canonical() -> None:
     }
 
 
-def test_testnet_notional_is_25_usdc() -> None:
+def test_testnet_policy_is_paper_only() -> None:
     truth = _fresh()
-    assert truth["testnet_fixed_notional_usdc"] == 25
+    assert "NO lane is testnet eligible" in truth["testnet_policy"]
 
 
-def test_scope_is_week2_active() -> None:
+def test_scope_is_pt_rt2_mf_signal_observation() -> None:
     truth = _fresh()
-    assert truth["scope"] == "pt_rt1_6_week2_active"
+    assert truth["scope"] == "pt_rt2_mf_signal_observation"

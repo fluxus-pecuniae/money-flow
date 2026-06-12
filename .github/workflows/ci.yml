@@ -51,7 +51,7 @@ jobs:
           tests/test_trading_safety_invariants.py
           tests/test_current_truth_consistency.py
           tests/test_current_truth_registry.py
-          tests/test_pt_rt1_6_week2_slate.py
+          tests/test_pt_rt2_mf_signal_slate.py
           tests/test_dashboard_static_assets.py
           tests/test_operational_docs.py
           tests/test_obs_os1_daily_review.py
