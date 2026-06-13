@@ -71,6 +71,8 @@ reports/paper_reviews/
 reports/trend_overlay/
 reports/regime1/
 reports/moneyflow_signal1/
+var/data1/
+reports/mf_replay1/
 data/strategy_validation/imports/
 data/strategy_validation/candles/
 

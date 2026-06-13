@@ -724,6 +724,7 @@
     },
     "zero_volume_backfill_note": "some venues publish price candles from before their own market traded (Hyperliquid perps: zero-volume daily candles back to 2020-08; real HL trading starts at the first nonzero-volume candle). Zero-volume rows are kept exactly as the venue serves them and counted per series in coverage.zero_volume_rows / first_nonzero_volume_close so backfill is never mistaken for market history"
   },
+  "refreshed_at_utc": "2026-06-13T10:06:47Z",
   "report": "data1_multi_venue_snapshot",
   "series": [
     {
@@ -741,7 +742,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 6262,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_avax_funding_data1.json",
+      "raw_path": "var/data1/raw_series/binance_avax_funding_data1.json",
       "raw_sha256": "27bc8411299844c9e910b9ea5417333a1bb7678cf042ed56360ce1dea5ef5fee",
       "samples": {
         "first": [
@@ -777,20 +778,22 @@
     {
       "asset": "AVAX",
       "coverage": {
-        "expected_days": 2087,
+        "expected_days": 2089,
         "first_close": "2020-09-24T00:00:00Z",
         "first_nonzero_volume_close": "2020-09-24T00:00:00Z",
-        "last_close": "2026-06-11T00:00:00Z",
+        "last_close": "2026-06-13T00:00:00Z",
         "missing_internal_days": 0,
-        "rows": 2087,
+        "rows": 2089,
         "zero_volume_rows": 0
       },
       "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
       "error": null,
       "native_rows": 2087,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_avax_perp_1d_data1.json",
-      "raw_sha256": "ddb1099cc0c04eac2159b1d215e0810be2c05e83475894f86bfb78c9076dde23",
+      "raw_path": "var/data1/raw_series/binance_avax_perp_1d_data1.json",
+      "raw_sha256": "53c74aaa8f86ad9f9da535cac76f9705edfade4d0b945a5027c4b4c75e8d9336",
+      "refreshed_at_utc": "2026-06-13T10:06:47Z",
+      "row_count": 2089,
       "samples": {
         "first": [
           {
@@ -833,7 +836,7 @@
       "error": null,
       "native_rows": 2088,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_avax_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/binance_avax_spot_1d_data1.json",
       "raw_sha256": "475a08ff3718c02999645f0a7a3b1f436460ee11cbec10ea22f57bd82408ebf4",
       "samples": {
         "first": [
@@ -877,7 +880,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 6938,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_bnb_funding_data1.json",
+      "raw_path": "var/data1/raw_series/binance_bnb_funding_data1.json",
       "raw_sha256": "fdde3fe3abcd9df414baba79d06836eb83c80c90ef468bbfd10e17072085b541",
       "samples": {
         "first": [
@@ -913,20 +916,22 @@
     {
       "asset": "BNB",
       "coverage": {
-        "expected_days": 2313,
+        "expected_days": 2315,
         "first_close": "2020-02-11T00:00:00Z",
         "first_nonzero_volume_close": "2020-02-11T00:00:00Z",
-        "last_close": "2026-06-11T00:00:00Z",
+        "last_close": "2026-06-13T00:00:00Z",
         "missing_internal_days": 0,
-        "rows": 2313,
+        "rows": 2315,
         "zero_volume_rows": 0
       },
       "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
       "error": null,
       "native_rows": 2313,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_bnb_perp_1d_data1.json",
-      "raw_sha256": "83388a3d8f0728762eba2f77d4df5847a107a6e6153aa214d577f9a312f8e570",
+      "raw_path": "var/data1/raw_series/binance_bnb_perp_1d_data1.json",
+      "raw_sha256": "e5511fd46369f06d06fd97394a8fc140376d439bcc25ef38c035f4cd535960cf",
+      "refreshed_at_utc": "2026-06-13T10:06:47Z",
+      "row_count": 2315,
       "samples": {
         "first": [
           {
@@ -969,7 +974,7 @@
       "error": null,
       "native_rows": 3139,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_bnb_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/binance_bnb_spot_1d_data1.json",
       "raw_sha256": "f73726f8cf336968ac08bc4c00c8f6feca0207b7ba25f25ee07c479d0572da57",
       "samples": {
         "first": [
@@ -1013,7 +1018,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 7397,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_btc_funding_data1.json",
+      "raw_path": "var/data1/raw_series/binance_btc_funding_data1.json",
       "raw_sha256": "4b5563ba010babd0ce090c800d2c14e5ae3b16e896e5c8f584634c22f5e6fec3",
       "samples": {
         "first": [
@@ -1049,20 +1054,22 @@
     {
       "asset": "BTC",
       "coverage": {
-        "expected_days": 2468,
+        "expected_days": 2470,
         "first_close": "2019-09-09T00:00:00Z",
         "first_nonzero_volume_close": "2019-09-09T00:00:00Z",
-        "last_close": "2026-06-11T00:00:00Z",
+        "last_close": "2026-06-13T00:00:00Z",
         "missing_internal_days": 0,
-        "rows": 2468,
+        "rows": 2470,
         "zero_volume_rows": 0
       },
       "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
       "error": null,
       "native_rows": 2468,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_btc_perp_1d_data1.json",
-      "raw_sha256": "28f07951c0a17f0ed997ed811e99c34713bb1b8ce968f260642bafda680b7620",
+      "raw_path": "var/data1/raw_series/binance_btc_perp_1d_data1.json",
+      "raw_sha256": "5387578edf5e9ebd175e9225ff030b8c0a040084a57a23f4d6c4504b289dda5c",
+      "refreshed_at_utc": "2026-06-13T10:06:47Z",
+      "row_count": 2470,
       "samples": {
         "first": [
           {
@@ -1105,7 +1112,7 @@
       "error": null,
       "native_rows": 3220,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_btc_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/binance_btc_spot_1d_data1.json",
       "raw_sha256": "66a0e75b66fd80ec30ebfe4c2107f811d54f386008d4876c249a7e3219a51dac",
       "samples": {
         "first": [
@@ -1149,7 +1156,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 6485,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_doge_funding_data1.json",
+      "raw_path": "var/data1/raw_series/binance_doge_funding_data1.json",
       "raw_sha256": "d6e55604c6b8f76f35a9e29b84721f267bcfbf90ea4dbd60b7e985e012db3b43",
       "samples": {
         "first": [
@@ -1185,20 +1192,22 @@
     {
       "asset": "DOGE",
       "coverage": {
-        "expected_days": 2162,
+        "expected_days": 2164,
         "first_close": "2020-07-11T00:00:00Z",
         "first_nonzero_volume_close": "2020-07-11T00:00:00Z",
-        "last_close": "2026-06-11T00:00:00Z",
+        "last_close": "2026-06-13T00:00:00Z",
         "missing_internal_days": 0,
-        "rows": 2162,
+        "rows": 2164,
         "zero_volume_rows": 0
       },
       "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
       "error": null,
       "native_rows": 2162,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_doge_perp_1d_data1.json",
-      "raw_sha256": "06cb64140644e29a1915191eb582c60925c48b5a951738f9d8e461b13b88368a",
+      "raw_path": "var/data1/raw_series/binance_doge_perp_1d_data1.json",
+      "raw_sha256": "b564ad90ae556ca21e8da3edf4cf9c68719d6b310ca9e03b5b52cb02fc0d1856",
+      "refreshed_at_utc": "2026-06-13T10:06:47Z",
+      "row_count": 2164,
       "samples": {
         "first": [
           {
@@ -1241,7 +1250,7 @@
       "error": null,
       "native_rows": 2533,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_doge_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/binance_doge_spot_1d_data1.json",
       "raw_sha256": "9511f4ee479f1a280186f3aeeba1ee297d0c6552e9a69af503a5013e1ff1eef3",
       "samples": {
         "first": [
@@ -1285,7 +1294,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 7163,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_eth_funding_data1.json",
+      "raw_path": "var/data1/raw_series/binance_eth_funding_data1.json",
       "raw_sha256": "59949bc2fe01f11ca139566c45ea0b30448aa16619aeb0032a80dae6f3676a12",
       "samples": {
         "first": [
@@ -1321,20 +1330,22 @@
     {
       "asset": "ETH",
       "coverage": {
-        "expected_days": 2388,
+        "expected_days": 2390,
         "first_close": "2019-11-28T00:00:00Z",
         "first_nonzero_volume_close": "2019-11-28T00:00:00Z",
-        "last_close": "2026-06-11T00:00:00Z",
+        "last_close": "2026-06-13T00:00:00Z",
         "missing_internal_days": 0,
-        "rows": 2388,
+        "rows": 2390,
         "zero_volume_rows": 0
       },
       "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
       "error": null,
       "native_rows": 2388,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_eth_perp_1d_data1.json",
-      "raw_sha256": "8db81737473cf100bf63d8bd1f27539fbd9044c2a834a696acd295a500f6bf3a",
+      "raw_path": "var/data1/raw_series/binance_eth_perp_1d_data1.json",
+      "raw_sha256": "d3e7ff831710c22f45afba024ddca0f4e796c0cd95064a990d6bc3828a391357",
+      "refreshed_at_utc": "2026-06-13T10:06:47Z",
+      "row_count": 2390,
       "samples": {
         "first": [
           {
@@ -1377,7 +1388,7 @@
       "error": null,
       "native_rows": 3220,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_eth_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/binance_eth_spot_1d_data1.json",
       "raw_sha256": "c8ae3a7993baaeec87a79fb91a2e7d50b9733c6f18f289a2d6ec08d3fb8c0c05",
       "samples": {
         "first": [
@@ -1421,7 +1432,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 6364,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_sol_funding_data1.json",
+      "raw_path": "var/data1/raw_series/binance_sol_funding_data1.json",
       "raw_sha256": "28e5ab4c5271d1e882697d001c1d98725eb02c7ee987d06fe6d67397d9017d16",
       "samples": {
         "first": [
@@ -1457,20 +1468,22 @@
     {
       "asset": "SOL",
       "coverage": {
-        "expected_days": 2096,
+        "expected_days": 2098,
         "first_close": "2020-09-15T00:00:00Z",
         "first_nonzero_volume_close": "2020-09-15T00:00:00Z",
-        "last_close": "2026-06-11T00:00:00Z",
+        "last_close": "2026-06-13T00:00:00Z",
         "missing_internal_days": 0,
-        "rows": 2096,
+        "rows": 2098,
         "zero_volume_rows": 0
       },
       "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
       "error": null,
       "native_rows": 2096,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_sol_perp_1d_data1.json",
-      "raw_sha256": "edf23c4132e7aa96bc5dfab868480fde41a389683e4f3e1f3e1cc2cce732d316",
+      "raw_path": "var/data1/raw_series/binance_sol_perp_1d_data1.json",
+      "raw_sha256": "6ecbd3ba5c9038238472a5cc99c50f536fae304d88229506dff0199d729bfc0e",
+      "refreshed_at_utc": "2026-06-13T10:06:47Z",
+      "row_count": 2098,
       "samples": {
         "first": [
           {
@@ -1513,7 +1526,7 @@
       "error": null,
       "native_rows": 2130,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_sol_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/binance_sol_spot_1d_data1.json",
       "raw_sha256": "fa2c02deb12318586462174c7ddaf1cf41b06979293472dceb20fb331cef9f59",
       "samples": {
         "first": [
@@ -1557,7 +1570,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 7043,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_xrp_funding_data1.json",
+      "raw_path": "var/data1/raw_series/binance_xrp_funding_data1.json",
       "raw_sha256": "d1718cc5f745ceefb0e921911e960b5d134418f33b3dae34a95adb62675644d0",
       "samples": {
         "first": [
@@ -1593,20 +1606,22 @@
     {
       "asset": "XRP",
       "coverage": {
-        "expected_days": 2348,
+        "expected_days": 2350,
         "first_close": "2020-01-07T00:00:00Z",
         "first_nonzero_volume_close": "2020-01-07T00:00:00Z",
-        "last_close": "2026-06-11T00:00:00Z",
+        "last_close": "2026-06-13T00:00:00Z",
         "missing_internal_days": 0,
-        "rows": 2348,
+        "rows": 2350,
         "zero_volume_rows": 0
       },
       "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
       "error": null,
       "native_rows": 2348,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_xrp_perp_1d_data1.json",
-      "raw_sha256": "1411ff23eba1849ff29fe108f4c6e4c7bab8539a86aeaf67ee4cd05bcf206e2f",
+      "raw_path": "var/data1/raw_series/binance_xrp_perp_1d_data1.json",
+      "raw_sha256": "31fea92d73f3b2759c822cbcf5c2d8ef71837cf262e9b8e4aed584cbd048c844",
+      "refreshed_at_utc": "2026-06-13T10:06:47Z",
+      "row_count": 2350,
       "samples": {
         "first": [
           {
@@ -1649,7 +1664,7 @@
       "error": null,
       "native_rows": 2960,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/binance_xrp_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/binance_xrp_spot_1d_data1.json",
       "raw_sha256": "c479b2d34bd7a3b5bd700cb787da5258d9df7fee5f1f2ce8cf2f24a9b43758f1",
       "samples": {
         "first": [
@@ -1693,7 +1708,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 5188,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_avax_funding_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_avax_funding_data1.json",
       "raw_sha256": "cc3bd8d1c4fb699e8805a226a206a876b7653eea78ae36809d677547eecb276d",
       "samples": {
         "first": [
@@ -1741,7 +1756,7 @@
       "error": null,
       "native_rows": 1730,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_avax_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_avax_perp_1d_data1.json",
       "raw_sha256": "0e8012a7dc1e7d0ad09b9fe3630c505769f9fb11d871d78e847325600004996e",
       "samples": {
         "first": [
@@ -1785,7 +1800,7 @@
       "error": null,
       "native_rows": 1672,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_avax_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_avax_spot_1d_data1.json",
       "raw_sha256": "1b7b99b35d763d1e143070b800de30b0b8b21fb64e186348d82803d39f5fbf3b",
       "samples": {
         "first": [
@@ -1829,7 +1844,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 5423,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_bnb_funding_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_bnb_funding_data1.json",
       "raw_sha256": "d7fcb44f13685c29936a6f43f75f17129db5eb98e8e03bb5dfa2f3b531b5c7e4",
       "samples": {
         "first": [
@@ -1877,7 +1892,7 @@
       "error": null,
       "native_rows": 1808,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_bnb_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_bnb_perp_1d_data1.json",
       "raw_sha256": "a6a2991c0fe13b2910d94f2bca79623d659bda52d681cad89ee7fe615f6af5ef",
       "samples": {
         "first": [
@@ -1921,7 +1936,7 @@
       "error": null,
       "native_rows": 1554,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_bnb_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_bnb_spot_1d_data1.json",
       "raw_sha256": "251feb940a5edd4a210f86108987eb01d7df4742c61506b8af933a8ac5c44f87",
       "samples": {
         "first": [
@@ -1965,7 +1980,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 6805,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_btc_funding_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_btc_funding_data1.json",
       "raw_sha256": "498fae1bc05707a192cb94037596c1c99b448fcbf60e3a02581295e4836930cd",
       "samples": {
         "first": [
@@ -2013,7 +2028,7 @@
       "error": null,
       "native_rows": 2269,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_btc_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_btc_perp_1d_data1.json",
       "raw_sha256": "b48210bf142ce476d43733bc84bf8bd81daa94f495fdc4fd0c0cf7cd80eac978",
       "samples": {
         "first": [
@@ -2057,7 +2072,7 @@
       "error": null,
       "native_rows": 1802,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_btc_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_btc_spot_1d_data1.json",
       "raw_sha256": "64b035a885bba9e24500359c9cb4f6a3ac1f287382696f9b6badf5bfb7a42074",
       "samples": {
         "first": [
@@ -2101,7 +2116,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 5503,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_doge_funding_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_doge_funding_data1.json",
       "raw_sha256": "975f531c7361621b5c5f2052078a35004a56bd5eda09dcfe10e29aa0a91b3e43",
       "samples": {
         "first": [
@@ -2149,7 +2164,7 @@
       "error": null,
       "native_rows": 1835,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_doge_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_doge_perp_1d_data1.json",
       "raw_sha256": "3af181c3ea219f49180fbe70d2ef4ed420cab221907ee2a13399fe0773b99d54",
       "samples": {
         "first": [
@@ -2193,7 +2208,7 @@
       "error": null,
       "native_rows": 1745,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_doge_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_doge_spot_1d_data1.json",
       "raw_sha256": "863b0f71fc7f84b28dc935b73129952efaf4861ade513f94d70f6de9b69b4a10",
       "samples": {
         "first": [
@@ -2237,7 +2252,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 6176,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_eth_funding_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_eth_funding_data1.json",
       "raw_sha256": "1bcdb820acd7002c9362ae809d9eaa589519d4361552b063c037dd4d65cab53b",
       "samples": {
         "first": [
@@ -2285,7 +2300,7 @@
       "error": null,
       "native_rows": 1914,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_eth_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_eth_perp_1d_data1.json",
       "raw_sha256": "3c3dd1ddb5186beb56e3c0a032abfa5accc8d0116aa93f0dd9c509170fd32f97",
       "samples": {
         "first": [
@@ -2329,7 +2344,7 @@
       "error": null,
       "native_rows": 1802,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_eth_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_eth_spot_1d_data1.json",
       "raw_sha256": "ced2d24f38f78db420abb27528b6dbb7a479a51ae57b26925232c00f8eaa0a12",
       "samples": {
         "first": [
@@ -2373,7 +2388,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 5783,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_sol_funding_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_sol_funding_data1.json",
       "raw_sha256": "cf8ff43f8ef28ad321deff6df73c197b7357162c2daad50ed1b8f0a2f2020338",
       "samples": {
         "first": [
@@ -2421,7 +2436,7 @@
       "error": null,
       "native_rows": 1700,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_sol_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_sol_perp_1d_data1.json",
       "raw_sha256": "80d80417e8f611597705542d1484cdc92a6f03e45ee04f0e82942f3f2d0390a9",
       "samples": {
         "first": [
@@ -2465,7 +2480,7 @@
       "error": null,
       "native_rows": 1694,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_sol_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_sol_spot_1d_data1.json",
       "raw_sha256": "c16d62eff0d254dbb42b023df8feade54c398a65a0c52a07c7f0ae85a22b2bfe",
       "samples": {
         "first": [
@@ -2509,7 +2524,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 5563,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_xrp_funding_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_xrp_funding_data1.json",
       "raw_sha256": "1476d56a5e568d77768458a9a9ba9eeb3c3a25523a187f3c372a4865a3f95fb8",
       "samples": {
         "first": [
@@ -2557,7 +2572,7 @@
       "error": null,
       "native_rows": 1855,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_xrp_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_xrp_perp_1d_data1.json",
       "raw_sha256": "590ef331e795eddd8c4dc43d3112bb749cc939460a78f814b596238a844b2e71",
       "samples": {
         "first": [
@@ -2601,7 +2616,7 @@
       "error": null,
       "native_rows": 1787,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/bybit_xrp_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/bybit_xrp_spot_1d_data1.json",
       "raw_sha256": "ecee5a593a1f6c53d06b22d245b2cc924263d3398403c6d941141750d3996a9a",
       "samples": {
         "first": [
@@ -2663,7 +2678,7 @@
       "error": null,
       "native_rows": 1715,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/coinbase_avax_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/coinbase_avax_spot_1d_data1.json",
       "raw_sha256": "da65ebda9ca6fdb06978cf770e9ec21164a51a4c8653437f1c3b5b0851233405",
       "samples": {
         "first": [
@@ -2752,7 +2767,7 @@
       "error": null,
       "native_rows": 3979,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/coinbase_btc_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/coinbase_btc_spot_1d_data1.json",
       "raw_sha256": "918f3660561fd341c7ce7ab6adbe0a5719feb31854eef069e42f3fc8ca33a5ad",
       "samples": {
         "first": [
@@ -2814,7 +2829,7 @@
       "error": null,
       "native_rows": 1834,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/coinbase_doge_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/coinbase_doge_spot_1d_data1.json",
       "raw_sha256": "b03bc1373a084cdba14864e318d33a162f0341f7511eedb39f78fae7adc59685",
       "samples": {
         "first": [
@@ -2876,7 +2891,7 @@
       "error": null,
       "native_rows": 3674,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/coinbase_eth_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/coinbase_eth_spot_1d_data1.json",
       "raw_sha256": "e6e725301849fac869c60a697ee0b4699861b54dc37d6aaedf143ae4477b7b58",
       "samples": {
         "first": [
@@ -2938,7 +2953,7 @@
       "error": null,
       "native_rows": 1820,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/coinbase_sol_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/coinbase_sol_spot_1d_data1.json",
       "raw_sha256": "57dd82a5f0b639b28befc80cf9306fb1a5050fc74bdbad8cc7bde5076a1656f6",
       "samples": {
         "first": [
@@ -3000,7 +3015,7 @@
       "error": null,
       "native_rows": 1758,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/coinbase_xrp_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/coinbase_xrp_spot_1d_data1.json",
       "raw_sha256": "27eb67f1528f93ebffc12558493974ed5c439fac836ef26b144fc61fc5e125b6",
       "samples": {
         "first": [
@@ -3044,7 +3059,7 @@
       "funding_interval_hours_observed": 1.0,
       "native_rows": 26454,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_avax_funding_data1.json",
+      "raw_path": "var/data1/raw_series/hyperliquid_avax_funding_data1.json",
       "raw_sha256": "1d9dda37369721cd1bbf992121b5a34afa47fc4b880ac6dfa0c5c5cf4e39b406",
       "samples": {
         "first": [
@@ -3092,7 +3107,7 @@
       "error": null,
       "native_rows": 2087,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_avax_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/hyperliquid_avax_perp_1d_data1.json",
       "raw_sha256": "a9778b39f3aa10d825244e0f794e37481232cd101492d2ab64368cd6c0f374ac",
       "samples": {
         "first": [
@@ -3145,7 +3160,7 @@
       "funding_interval_hours_observed": 1.0,
       "native_rows": 26454,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_bnb_funding_data1.json",
+      "raw_path": "var/data1/raw_series/hyperliquid_bnb_funding_data1.json",
       "raw_sha256": "cd2019b84e25303f7d70c1af26fc4c6ca2a12106c8eb498068f2c96ccefeecaa",
       "samples": {
         "first": [
@@ -3193,7 +3208,7 @@
       "error": null,
       "native_rows": 2122,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_bnb_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/hyperliquid_bnb_perp_1d_data1.json",
       "raw_sha256": "369adbc15f77acdd724634a28e820db6c76c811a0d3318ec461259925d6f13b9",
       "samples": {
         "first": [
@@ -3246,7 +3261,7 @@
       "funding_interval_hours_observed": 1.0,
       "native_rows": 26454,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_btc_funding_data1.json",
+      "raw_path": "var/data1/raw_series/hyperliquid_btc_funding_data1.json",
       "raw_sha256": "a4f728426be483da4dd5b263c93b7ec3378255992aa83541ed187a3cf039b1ce",
       "samples": {
         "first": [
@@ -3294,7 +3309,7 @@
       "error": null,
       "native_rows": 2122,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_btc_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/hyperliquid_btc_perp_1d_data1.json",
       "raw_sha256": "2801a4250cd8293d755d0758d366a274aeae1acea3acad927fcc870ba0cc1a13",
       "samples": {
         "first": [
@@ -3338,7 +3353,7 @@
       "error": null,
       "native_rows": 493,
       "note": "UBTC/USDC",
-      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_btc_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/hyperliquid_btc_spot_1d_data1.json",
       "raw_sha256": "29f5cc3ca3273d1731b392a0ef079abd806642b7c5739ade71a101fc4cce90f8",
       "samples": {
         "first": [
@@ -3382,7 +3397,7 @@
       "funding_interval_hours_observed": 1.0,
       "native_rows": 26454,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_doge_funding_data1.json",
+      "raw_path": "var/data1/raw_series/hyperliquid_doge_funding_data1.json",
       "raw_sha256": "b6bb0a279865b37b73f3ed9fc006920363a27ae347011ae9595dba9492ba9596",
       "samples": {
         "first": [
@@ -3430,7 +3445,7 @@
       "error": null,
       "native_rows": 2122,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_doge_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/hyperliquid_doge_perp_1d_data1.json",
       "raw_sha256": "b2c8f3a0dfc681dd5a1b416345324b824ad4c66904d235fea8b60a89fa4a5f34",
       "samples": {
         "first": [
@@ -3483,7 +3498,7 @@
       "funding_interval_hours_observed": 1.0,
       "native_rows": 26454,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_eth_funding_data1.json",
+      "raw_path": "var/data1/raw_series/hyperliquid_eth_funding_data1.json",
       "raw_sha256": "8dc8643eeb62a20bcfb1fc525caa1da8290b946ad9a97c64067cab8cd7558b49",
       "samples": {
         "first": [
@@ -3531,7 +3546,7 @@
       "error": null,
       "native_rows": 2122,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_eth_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/hyperliquid_eth_perp_1d_data1.json",
       "raw_sha256": "1c66d4cb79831abcf26823f8548228a3ff97507265fc65e9ce4fd98a133ad63c",
       "samples": {
         "first": [
@@ -3575,7 +3590,7 @@
       "error": null,
       "native_rows": 442,
       "note": "UETH/USDC",
-      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_eth_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/hyperliquid_eth_spot_1d_data1.json",
       "raw_sha256": "925e2e3ba20dd012af45d39dbedc21d3898d6a045e59e64e84ab44e14eedff4d",
       "samples": {
         "first": [
@@ -3619,7 +3634,7 @@
       "funding_interval_hours_observed": 1.0,
       "native_rows": 26454,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_sol_funding_data1.json",
+      "raw_path": "var/data1/raw_series/hyperliquid_sol_funding_data1.json",
       "raw_sha256": "a3937f93d771b8b12f68fdbfc6070d00835c23597f6e4be8633d42e5c26fe932",
       "samples": {
         "first": [
@@ -3667,7 +3682,7 @@
       "error": null,
       "native_rows": 2096,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_sol_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/hyperliquid_sol_perp_1d_data1.json",
       "raw_sha256": "0a0491dd55cdb80d34cf8b3d75e9f0927c68da8cb0da59d24ca696dc5ffecbf2",
       "samples": {
         "first": [
@@ -3711,7 +3726,7 @@
       "error": null,
       "native_rows": 397,
       "note": "USOL/USDC",
-      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_sol_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/hyperliquid_sol_spot_1d_data1.json",
       "raw_sha256": "8b9c3dfb9d55c9cb201495336219d108fe54754f4ae45322f02b02cd4b9b6b37",
       "samples": {
         "first": [
@@ -3755,7 +3770,7 @@
       "funding_interval_hours_observed": 1.0,
       "native_rows": 26133,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_xrp_funding_data1.json",
+      "raw_path": "var/data1/raw_series/hyperliquid_xrp_funding_data1.json",
       "raw_sha256": "b31f8471ca5c1d23ee5306ac55420f134b115075f704d758291cad20e3e7dc9f",
       "samples": {
         "first": [
@@ -3803,7 +3818,7 @@
       "error": null,
       "native_rows": 2089,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/hyperliquid_xrp_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/hyperliquid_xrp_perp_1d_data1.json",
       "raw_sha256": "64b57514c817e65ecdfa9a5c9106a9e23a64914592b71c33123ccdd5b28cdcba",
       "samples": {
         "first": [
@@ -3856,7 +3871,7 @@
       "funding_interval_hours_observed": 1.0,
       "native_rows": 8761,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_avax_funding_data1.json",
+      "raw_path": "var/data1/raw_series/kraken_avax_funding_data1.json",
       "raw_sha256": "1f476403210b7bdaf3059fd66a74c5392096aa35325753f6ba287b29476c100a",
       "samples": {
         "first": [
@@ -3904,7 +3919,7 @@
       "error": null,
       "native_rows": 1541,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_avax_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/kraken_avax_perp_1d_data1.json",
       "raw_sha256": "692543395d0a4e44c7db3b1ef9d99e792b50ddfadc6ae456bd0799df969da847",
       "samples": {
         "first": [
@@ -3948,7 +3963,7 @@
       "error": null,
       "native_rows": 720,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_avax_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/kraken_avax_spot_1d_data1.json",
       "raw_sha256": "3ee2b1cace20e13fe782a485bc99168f5e3c0600fe8927aff96fec848adacef0",
       "samples": {
         "first": [
@@ -4019,7 +4034,7 @@
       "funding_interval_hours_observed": 1.0,
       "native_rows": 8760,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_btc_funding_data1.json",
+      "raw_path": "var/data1/raw_series/kraken_btc_funding_data1.json",
       "raw_sha256": "f32d8d035bc7b907167e541bd1938bb4e91e739874427b2236a3465a570ab784",
       "samples": {
         "first": [
@@ -4067,7 +4082,7 @@
       "error": null,
       "native_rows": 1541,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_btc_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/kraken_btc_perp_1d_data1.json",
       "raw_sha256": "4c5fddb430531922967999244ee3a6d6e13fb977bdbf76b65d6995607c4539f6",
       "samples": {
         "first": [
@@ -4111,7 +4126,7 @@
       "error": null,
       "native_rows": 720,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_btc_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/kraken_btc_spot_1d_data1.json",
       "raw_sha256": "ef91fe498676e8685f369cf0eca56530aff1a7e1061588ff5edbf2467c57b0ca",
       "samples": {
         "first": [
@@ -4155,7 +4170,7 @@
       "funding_interval_hours_observed": 1.0,
       "native_rows": 8761,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_doge_funding_data1.json",
+      "raw_path": "var/data1/raw_series/kraken_doge_funding_data1.json",
       "raw_sha256": "9d2a3e7828f2807979f9a628b716ece3ba96afeb273ef952c8e904bb999e28d2",
       "samples": {
         "first": [
@@ -4203,7 +4218,7 @@
       "error": null,
       "native_rows": 1452,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_doge_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/kraken_doge_perp_1d_data1.json",
       "raw_sha256": "6b68a79bf6dbf5f51b1848de300c95148400382c6c50477a51dcddc12a7069bf",
       "samples": {
         "first": [
@@ -4247,7 +4262,7 @@
       "error": null,
       "native_rows": 720,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_doge_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/kraken_doge_spot_1d_data1.json",
       "raw_sha256": "51f13a79f585bb4b4581fbf9bb5dc08ffd2853ddfd47c463b76217f26f18f3a3",
       "samples": {
         "first": [
@@ -4291,7 +4306,7 @@
       "funding_interval_hours_observed": 1.0,
       "native_rows": 8760,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_eth_funding_data1.json",
+      "raw_path": "var/data1/raw_series/kraken_eth_funding_data1.json",
       "raw_sha256": "122a9198c0618454e8f1c50ebadb11391a0c34fc4076a7a437bc844131eca267",
       "samples": {
         "first": [
@@ -4339,7 +4354,7 @@
       "error": null,
       "native_rows": 1541,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_eth_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/kraken_eth_perp_1d_data1.json",
       "raw_sha256": "9f5b218b5d66d4f5a526cd5c4a2b79c55eb01f3c40d1b3162404d169e2d4f8a6",
       "samples": {
         "first": [
@@ -4383,7 +4398,7 @@
       "error": null,
       "native_rows": 720,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_eth_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/kraken_eth_spot_1d_data1.json",
       "raw_sha256": "cc1ddee7d7f3a330ab52e68c9441d38c4d3255401e85253dbd205ffbd117cee6",
       "samples": {
         "first": [
@@ -4427,7 +4442,7 @@
       "funding_interval_hours_observed": 1.0,
       "native_rows": 8761,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_sol_funding_data1.json",
+      "raw_path": "var/data1/raw_series/kraken_sol_funding_data1.json",
       "raw_sha256": "45b760d1031fddc48fd2d1a50bae9e9252e272eaceba88641e49d0646572e1f8",
       "samples": {
         "first": [
@@ -4475,7 +4490,7 @@
       "error": null,
       "native_rows": 1541,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_sol_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/kraken_sol_perp_1d_data1.json",
       "raw_sha256": "371ce4d2cecf6b69c770efae097a831bc549d1f732434258c0cb3c288ea3c947",
       "samples": {
         "first": [
@@ -4519,7 +4534,7 @@
       "error": null,
       "native_rows": 720,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_sol_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/kraken_sol_spot_1d_data1.json",
       "raw_sha256": "9616eadd5ae1479ea428a750c4173f9d3193fa50c31f2e6b2dad937b1b418ae6",
       "samples": {
         "first": [
@@ -4563,7 +4578,7 @@
       "funding_interval_hours_observed": 1.0,
       "native_rows": 8761,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_xrp_funding_data1.json",
+      "raw_path": "var/data1/raw_series/kraken_xrp_funding_data1.json",
       "raw_sha256": "ecdd7944cde2bf24466975c343b9e5238ccfbed867a56b15bcc7b38416b4ab2e",
       "samples": {
         "first": [
@@ -4611,7 +4626,7 @@
       "error": null,
       "native_rows": 1541,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_xrp_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/kraken_xrp_perp_1d_data1.json",
       "raw_sha256": "b3f3f99430c21533cb5f393f221c2255e39b2eb7956154f3724cc95e70792640",
       "samples": {
         "first": [
@@ -4655,7 +4670,7 @@
       "error": null,
       "native_rows": 720,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/kraken_xrp_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/kraken_xrp_spot_1d_data1.json",
       "raw_sha256": "8dab897a32dbe875eeb1884d1b4d7d1bea69b1969a138a0e1a6e6a4adf34dbd5",
       "samples": {
         "first": [
@@ -4699,7 +4714,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 274,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/okx_avax_funding_data1.json",
+      "raw_path": "var/data1/raw_series/okx_avax_funding_data1.json",
       "raw_sha256": "9c65a071c4bfda51a8f5a18451810e3b4c76294168223b690ac61fb7290a1a4c",
       "samples": {
         "first": [
@@ -4747,7 +4762,7 @@
       "error": null,
       "native_rows": 2086,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/okx_avax_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/okx_avax_perp_1d_data1.json",
       "raw_sha256": "3af2c93ac917a9b49d8e412be4f55340a1af2f8d959a63088c8ff113cd709d7d",
       "samples": {
         "first": [
@@ -4791,7 +4806,7 @@
       "error": null,
       "native_rows": 2087,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/okx_avax_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/okx_avax_spot_1d_data1.json",
       "raw_sha256": "1e211a0aee80a0d24e42d9128aeb3898ec8c4a5e48ff41061dc5344e675a6a9f",
       "samples": {
         "first": [
@@ -4862,7 +4877,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 274,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/okx_btc_funding_data1.json",
+      "raw_path": "var/data1/raw_series/okx_btc_funding_data1.json",
       "raw_sha256": "bc9e7d542d4257119f46e1f3c1778aeb3dbb26be1b89aa1f2ce53c819597501f",
       "samples": {
         "first": [
@@ -4910,7 +4925,7 @@
       "error": null,
       "native_rows": 2353,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/okx_btc_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/okx_btc_perp_1d_data1.json",
       "raw_sha256": "194bf6c71425e395afe2cc8969e7a6366ceae5e44ee89c4027663d12b0282cf6",
       "samples": {
         "first": [
@@ -4954,7 +4969,7 @@
       "error": null,
       "native_rows": 3073,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/okx_btc_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/okx_btc_spot_1d_data1.json",
       "raw_sha256": "2cbce8e7bc36ff10caa68f8927e408f8d808b7865bd79bff6a9846e6a846d95f",
       "samples": {
         "first": [
@@ -4998,7 +5013,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 274,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/okx_doge_funding_data1.json",
+      "raw_path": "var/data1/raw_series/okx_doge_funding_data1.json",
       "raw_sha256": "37c56d886098d37ed443a4305ff88e67a0739ccd94ae58334dacbf181e65b6e5",
       "samples": {
         "first": [
@@ -5046,7 +5061,7 @@
       "error": null,
       "native_rows": 2161,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/okx_doge_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/okx_doge_perp_1d_data1.json",
       "raw_sha256": "e03a871b210316adeb9de74e7729e6aa0cd96f888a9379d8b88ab8f3d6e8c886",
       "samples": {
         "first": [
@@ -5090,7 +5105,7 @@
       "error": null,
       "native_rows": 2353,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/okx_doge_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/okx_doge_spot_1d_data1.json",
       "raw_sha256": "ca3c170edd698cba79171343d89306bb49212ffdc908cb48315e22f52d3a7b37",
       "samples": {
         "first": [
@@ -5134,7 +5149,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 274,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/okx_eth_funding_data1.json",
+      "raw_path": "var/data1/raw_series/okx_eth_funding_data1.json",
       "raw_sha256": "13aa31e688cdd74b31558e2f154575ba8cf42d4f59b765a4df52d10a234c5b61",
       "samples": {
         "first": [
@@ -5182,7 +5197,7 @@
       "error": null,
       "native_rows": 2353,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/okx_eth_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/okx_eth_perp_1d_data1.json",
       "raw_sha256": "e0f1428ec43bfce81abc6e3effcb429ec813f8c883be9975f2a5301d09fb48d1",
       "samples": {
         "first": [
@@ -5226,7 +5241,7 @@
       "error": null,
       "native_rows": 3073,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/okx_eth_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/okx_eth_spot_1d_data1.json",
       "raw_sha256": "563fca6b4ffb5ccc0e6eb47d7803c21ea011b8c86818860fbf72c37b08856b67",
       "samples": {
         "first": [
@@ -5270,7 +5285,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 274,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/okx_sol_funding_data1.json",
+      "raw_path": "var/data1/raw_series/okx_sol_funding_data1.json",
       "raw_sha256": "daf7022d3313ab228e96fc3434b2414ee15cb7c30111e046a8d331c68fecbfea",
       "samples": {
         "first": [
@@ -5318,7 +5333,7 @@
       "error": null,
       "native_rows": 1965,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/okx_sol_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/okx_sol_perp_1d_data1.json",
       "raw_sha256": "708392595cbd51d3543577329bc430225433be5e62a03dbf377b44b522f9f03b",
       "samples": {
         "first": [
@@ -5362,7 +5377,7 @@
       "error": null,
       "native_rows": 2079,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/okx_sol_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/okx_sol_spot_1d_data1.json",
       "raw_sha256": "c03972df58965c678d21735bbe9c16ac4747b3303118c56aa771536e93dcec5c",
       "samples": {
         "first": [
@@ -5406,7 +5421,7 @@
       "funding_interval_hours_observed": 8.0,
       "native_rows": 274,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/okx_xrp_funding_data1.json",
+      "raw_path": "var/data1/raw_series/okx_xrp_funding_data1.json",
       "raw_sha256": "f44c17f17c77e4701d7cd3867daefe2b20f2c30361a0f6268acfeba9a9a6e9e5",
       "samples": {
         "first": [
@@ -5454,7 +5469,7 @@
       "error": null,
       "native_rows": 2353,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/okx_xrp_perp_1d_data1.json",
+      "raw_path": "var/data1/raw_series/okx_xrp_perp_1d_data1.json",
       "raw_sha256": "e031e1d1930883582f6e93b82e24c3b92b36a8c72e4c05bc7a1e2690d778dc72",
       "samples": {
         "first": [
@@ -5498,7 +5513,7 @@
       "error": null,
       "native_rows": 2353,
       "note": "",
-      "raw_path": "/tmp/money-flow-data1/raw_series/okx_xrp_spot_1d_data1.json",
+      "raw_path": "var/data1/raw_series/okx_xrp_spot_1d_data1.json",
       "raw_sha256": "d48590f4ae568dd379d608f9f9b72f84e22476f705c1940b59a4e866b7ff7e22",
       "samples": {
         "first": [
@@ -5528,7 +5543,8 @@
       "venue_symbol": "XRP-USDT"
     }
   ],
-  "snapshot_dir": "/tmp/money-flow-data1/raw_series",
+  "snapshot_dir": "var/data1/raw_series",
+  "snapshot_home_note": "MF-REPLAY1 moved the snapshot home from /tmp/money-flow-data1/raw_series (cleared by macOS) to the durable ignored repo path var/data1/raw_series; artifact bytes and sha256 values unchanged by the move",
   "universe": {
     "assets": [
       "BTC",

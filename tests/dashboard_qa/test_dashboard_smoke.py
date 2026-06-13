@@ -8,8 +8,8 @@ lockstep with the DASH-IA1 2-tab consolidation):
   3. Chart does not grow the page infinitely (autoSize/ResizeObserver guard).
   4. Tab switching persists state (aria-selected + prior selection retained).
   5. Bottom blotter tab does not reset across refresh cycles.
-  6. Retired tabs absent: Audit (DASH-PT1.1) and Historical Replay / The Lab /
-     Strategy (DASH-IA1); nav is exactly Paper Trading + Research Log.
+  6. Retired tabs absent: Audit (DASH-PT1.1), The Lab / Strategy (DASH-IA1);
+     nav is Paper Trading + Historical Replay (MF-REPLAY1) + Research Log.
   7. The three active lanes from current_truth.json appear in their surviving
      home: the Paper Trading status strip (the Strategy tab is retired).
   8. 15m is paused/legacy, never an active scoring timeframe.
@@ -41,7 +41,7 @@ pytestmark = pytest.mark.browser
 NAV = ".view-tabs"
 PAPER_TAB = '.view-tab[data-view="paper-observation"]'
 RESEARCH_LOG_TAB = '.view-tab[data-view="research-log"]'
-RETIRED_TAB_VIEWS = ("historical-replay", "evidence-lab", "strategy", "evidence", "audit")
+RETIRED_TAB_VIEWS = ("evidence-lab", "strategy", "evidence", "audit")
 
 PAPER_VIEW = "#paper-observation-view"
 TERMINAL_GRID = "#paper-observation-terminal-grid"
@@ -230,10 +230,12 @@ def test_retired_tabs_absent_and_nav_is_two(page: Page, dashboard_url: str) -> N
             f"Retired nav tab still present: {view}"
         )
     nav_buttons = [t.strip() for t in page.locator(".view-tabs .view-tab").all_text_contents()]
-    assert nav_buttons == ["Paper Trading", "Research Log"], (
-        f"Nav must be exactly Paper Trading + Research Log; saw: {nav_buttons}"
+    # MF-REPLAY1 re-introduces Historical Replay as the founder visual-backtesting
+    # surface between Paper Trading and Research Log.
+    assert nav_buttons == ["Paper Trading", "Historical Replay", "Research Log"], (
+        f"Nav must be Paper Trading + Historical Replay + Research Log; saw: {nav_buttons}"
     )
-    for retired_label in ("Audit", "Historical Replay", "The Lab", "Strategy", "Evidence"):
+    for retired_label in ("Audit", "The Lab", "Strategy", "Evidence"):
         assert retired_label not in nav_buttons
 
 
@@ -495,6 +497,10 @@ def test_refresh_does_not_clobber_selects_or_open_log(
 OPTIONAL_ARTIFACT_PATH_PARTS = (
     "/reports/paper_runtime/",
     "/reports/paper_reviews/",
+    # MF-REPLAY1: the precomputed replay pack is a gitignored, locally-built
+    # artifact (scripts/build_mf_replay1_dashboard_data.py); its absence on a
+    # clean checkout is expected and the surface degrades gracefully.
+    "/reports/mf_replay1/",
 )
 
 

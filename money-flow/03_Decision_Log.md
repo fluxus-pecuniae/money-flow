@@ -2,6 +2,58 @@
 
 Append entries only. Do not rewrite prior decisions except to add a dated correction.
 
+## 2026-06-13T01:00:00Z - MF-REPLAY1 - Founder Visual Backtesting: Range-Accurate Replay of the PT-RT2 Lanes (Replay ≠ Evidence)
+
+- `decision`: Give the founder visual backtesting — replay the two committed PT-RT2 lanes over the full DATA1 history with selectable ranges (all-time / calendar year / custom dates) and an accurate "started 10k → ended X" answer, on the dashboard's re-introduced Historical Replay tab. Replay is hypothetical context for founder judgment, NOT new evidence and NOT a validated strategy; it never feeds or backfills the live synthetic ledgers. Pre-registered range semantics (chosen before the UI): fresh-start FLAT at 10,000 USDC on the range's first closed candle taking only in-range entries (pre-range positions ignored until next fresh entry); indicator warm-up uses pre-range history (warm-up = data, fresh-start = position state); closed candles only; one code path (the committed `moneyflow_signal1.signal_states` surface + the PT-RT2 lane semantics, never a parallel calculator). Durable data foundation: the snapshot home moved from `/tmp` (cleared by macOS) to ignored `var/data1/raw_series/` with sha256 unchanged; append-only refresh + CSV export added. 7-major universe (the characterization universe).
+- `result`: Range-accurate, deterministic-Decimal, no-lookahead-verified replay; honest numbers reported (all-time, every calendar year, and the founder range 2021-06-19→2025-05-31 for both lanes) — the regime overlay's defensive mechanic replays exactly where REGIME2 said it would (2022 bear: gated −23% / 3.0× gross vs baseline −97% / 7.0× gross; flat in 2020 when risk-off), at a whipsaw cost in chop. Accuracy pinned by `tests/test_mf_replay1.py` incl. the live-ledger equivalence test (replay reproduces the live PT-RT2 decision path + ledger arithmetic exactly on a non-overlapping single-symbol window). Dashboard Historical Replay tab re-introduced: range picker / lane selector / equity curve + result card (with max_gross_exposure_x / max_concurrent_positions) / candle+markers chart / dashed live-observation-start separator / characterization note. Serving: precomputed pack for all-time + years, `/api/mf-replay1/range` for custom dates (same engine).
+- `honesty_notes`: A green range is window placement, not alpha — committed lesson (TSMOM-EV1's OOS window was absolutely negative; MONEYFLOW-SIGNAL1's was positive; same mechanic) rendered on the surface next to every result. The committed verdicts travel (`defensive_trend_mechanic_not_validated_alpha`; `source_faithful_but_underperformed`; regime overlay informational-not-validated-control). Re-introducing the Historical Replay tab (retired at DASH-IA1) was a deliberate supersede; the two-tab guard tests were updated at the same strictness, never weakened.
+- `k037_founder_decision_flag`: The replay revealed (K-037) that full-equity sizing PER concurrent symbol position levers the committed PT-RT2 lanes up to ~7.8× gross when all 7 majors are long (all-time book draws down ~99% in 2022); the live overlap accounting can also drop realized PnL vs the additive ledger. This is a property of the already-merged PT-RT2 lanes, SURFACED here (exposure fields on every range; equivalence pinned on non-overlapping sequences) and NOT silently fixed. Open founder decision, separately scoped: is full-equity-per-position the intended paper-lane sizing? This phase changed no live sizing or live trajectories.
+- `scope`: `services/paper_runtime/mf_replay1.py`, `scripts/refresh_data1_snapshot.py`, `scripts/export_data1_csv.py`, `scripts/build_mf_replay1_dashboard_data.py`, `scripts/run_dashboard_control_server.py` (range endpoint), `services/market_data/data1_multi_venue.py` + `scripts/fetch_data1_multi_venue_snapshot.py` + `docs/data1_*` (durable home), `apps/dashboard/*` (Historical Replay tab), `tests/test_mf_replay1.py`, dashboard guard tests, `KNOWN_ISSUES.md` (K-037), `docs/mf_replay1_*`, Obsidian notes.
+- `boundaries`: Replay-only — no live ledger writes, no orders, no private/signed endpoints, no approval surface, no production strategy change. Live synthetic ledgers never backfilled/recomputed/touched.
+- `follow_up_implications`: The founder can now visually backtest the committed lanes over any range. A K-037 sizing decision (full-equity-per-position vs fractional) is the natural next founder call — separately scoped because it changes live paper trajectories. The open strategy hunts are unchanged and characterized-not-started: stat-arb/cointegration (the one untested systematic-alpha avenue) and funding carry via institutional sub-candle atomic execution.
+
+```yaml
+research_log:
+  phase: MF-REPLAY1
+  date: 2026-06-13
+  class: source_reconstruction
+  outcome: context
+  badge: founder visual backtesting (replay != evidence)
+  title: Range-Accurate Replay of the PT-RT2 Lanes
+  finding: >-
+    The founder can replay the two committed PT-RT2 lanes over any range
+    (all-time / year / custom) with an accurate fresh-start 10k->end answer,
+    one code path through the committed signal surface, no-lookahead and
+    live-ledger-equivalence pinned. Honest numbers: the regime overlay's
+    defensive mechanic replays exactly where REGIME2 said it would (2022
+    bear gated -23% vs baseline -97%); a green range is window placement,
+    not alpha.
+  why: >-
+    Replay extends founder visibility into the committed lanes - it is
+    hypothetical context for judgment, never new evidence and never a
+    validated strategy; it cannot and does not upgrade any verdict.
+  worked: >-
+    The single-code-path design (replay consumes the same signal surface +
+    lane semantics) made the live-ledger equivalence provable; pinning it
+    on a non-overlapping sequence surfaced the K-037 overlap-accounting
+    boundary instead of hiding it.
+  didnt: >-
+    The replay exposed that full-equity-per-position sizing levers the
+    committed lanes up to ~7.8x gross (~99% drawdowns) - a real property of
+    the merged PT-RT2 lanes, surfaced as a founder decision, not patched.
+  lesson: >-
+    Replay extends visibility, never upgrades a verdict - and a faithful
+    replay surfaces the accounting truths (leverage, overlap) the live
+    summary glosses.
+  our_error: null
+  changed: >-
+    The DATA1 snapshot home is now durable (var/data1, off /tmp); the
+    dashboard has a Historical Replay tab again; K-037 sizing is flagged
+    for a founder decision.
+  hardened_gate: replay is hypothetical, never feeds the live ledgers
+  evidence_summary: docs/mf_replay1_founder_visual_backtesting_summary.json
+```
+
 ## 2026-06-12T14:30:00Z - PT-RT2 - Fresh Paper Slate: The Trusted Signal Goes Under Live Observation, Verdicts Intact
 
 - `decision`: Execute the three founder decisions: (1) a TWO-LANE fresh slate — `mf_source_faithful_baseline` (Control/Baseline) and `mf_source_faithful_regime_gated` (Informational Overlay Observation), both consuming the committed MONEYFLOW-SIGNAL1 surface with the characterization's exposure semantics (no re-implementation, no new rule variants, no tuning); (2) ARCHIVE the Week 2 slate, never delete — the 3 active lanes join the 7 archived (10 archived), synthetic ledgers and history untouched; (3) PAPER-ONLY first — NO lane is testnet eligible (the old baseline's eligibility ended with its active status; `pt_rt1_6_lane_testnet_eligible` now returns False for everything; the runtime refuses every testnet flag under the PT-RT2 scope); testnet for the new slate is a separate future founder decision. Universe is the 7 DATA1 majors (the characterization universe); HYPE/SUI stay configured but untraded (short histories). Timeframe is 1d ONLY — the committed surface is daily (page-cited); running it on other timeframes would be a new rule variant. Fresh 10,000 USDC ledgers at the phase's first closed candle in the new scope `pt_rt2_mf_signal_observation`; no backfill.

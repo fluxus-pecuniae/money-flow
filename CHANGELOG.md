@@ -17,6 +17,21 @@ Entry schema:
 
 ---
 
+## v2026.06.13.001
+
+- `recorded_at_utc`: `2026-06-13T01:00:00Z`
+- `scope`: `MF-REPLAY1 founder visual backtesting: range-accurate replay of the PT-RT2 lanes on the dashboard`
+- `intent`: `Replay-only — no live ledger writes, no orders, no private/signed endpoints, no approval surface, no production strategy change; replay is hypothetical founder context, NOT new evidence and NOT a validated strategy, and never feeds/backfills the live synthetic ledgers. Lets the founder replay the two committed PT-RT2 lanes (mf_source_faithful_baseline, mf_source_faithful_regime_gated) over the full DATA1 history with selectable ranges (all-time / calendar year / custom dates) and an accurate fresh-start "10k -> end equity" answer. One code path: the replay runs the committed moneyflow_signal1.signal_states surface + the PT-RT2 lane semantics (never a parallel calculator); pre-registered fresh-start range semantics (FLAT 10k at the range's first closed candle, only in-range entries, warm-up from pre-range history), closed candles only, deterministic Decimal, no-lookahead truncation probe. Must 1 durable data foundation: snapshot home moved from /tmp/money-flow-data1 (cleared by macOS) to ignored var/data1/raw_series/ (sha256 unchanged; loader anchors repo-relative), append-only refresh_data1_snapshot.py (idempotent), export_data1_csv.py; coverage preserved (Binance perp 1d BTC 2019-09-09 ... AVAX 2020-09-24; aligned 7-major window 2020-09-24). Honest numbers reported all-time / every year / founder range 2021-06-19->2025-05-31 both lanes — the regime overlay's defensive mechanic replays exactly where REGIME2 said (2022 gated -23% / 3.0x gross vs baseline -97% / 7.0x gross; flat in 2020 risk-off); a green range is window placement, not alpha (rendered on the surface). Dashboard Historical Replay tab re-introduced (retired at DASH-IA1; deliberate supersede, two-tab guards updated at same strictness): range picker / lane selector / equity curve + result card (start 10k -> end, return, maxDD, trades, max_gross_exposure_x, max_concurrent_positions) / candle+markers chart / dashed live-observation-start separator / characterization note. Serving: precomputed pack (reports/mf_replay1/replay_pack.json) for all-time + years, /api/mf-replay1/range on the control server for custom dates. K-037 surfaced (full-equity-per-position sizing levers the committed PT-RT2 lanes up to ~7.8x gross -> ~99% all-time drawdown; live overlap accounting can drop realized PnL) — flagged as a separately-scoped founder decision, live sizing untouched; equivalence test pinned on a non-overlapping single-symbol window. 11 deterministic offline accuracy tests (hand fixture, year boundary, fresh-start, warm-up, no-lookahead, live-ledger equivalence); safety trio + text guard green; Research Log authored context; aggregator --check green.`
+- `affected_files`:
+  - `services/paper_runtime/mf_replay1.py`
+  - `scripts/refresh_data1_snapshot.py`, `scripts/export_data1_csv.py`, `scripts/build_mf_replay1_dashboard_data.py`
+  - `scripts/run_dashboard_control_server.py`, `scripts/fetch_data1_multi_venue_snapshot.py`, `services/market_data/data1_multi_venue.py`
+  - `apps/dashboard/index.html`, `apps/dashboard/evidence-dashboard.js`, `apps/dashboard/evidence-dashboard.css`
+  - `docs/mf_replay1_founder_visual_backtesting.md`, `docs/mf_replay1_founder_visual_backtesting_summary.json`, `docs/data1_*`, `docs/research_log.json`
+  - `tests/test_mf_replay1.py`, `tests/test_dashboard_static_assets.py`, `tests/dashboard_qa/test_dashboard_smoke.py`
+  - `KNOWN_ISSUES.md` (K-037), `.gitignore`, `CHANGELOG.md`, `REPO_TREE.md`, `TODO.md`, `money-flow/01_Current_Phase.md`, `money-flow/03_Decision_Log.md`, `money-flow/05_Agent_Coordination.md`
+- `validation_performed`: `pytest tests/test_mf_replay1.py (11 passed incl. live-ledger equivalence on a non-overlapping sequence); safety trio (66) + text guard green; dashboard static-assets (9) + browser smoke (12) green with the three-tab nav; real-browser screenshot of the Historical Replay surface (result card + both charts + lane/year switching); export_current_truth --check OK (no anchor moved); build_research_log --check green; DATA1 refresh idempotent + sha256-verified load.`
+
 ## v2026.06.12.008
 
 - `recorded_at_utc`: `2026-06-12T14:30:00Z`
@@ -679,35 +694,3 @@ Entry schema:
 
 ---
 
-## v2026.06.09.002
-
-- `recorded_at_utc`: `2026-06-09T12:00:00Z`
-- `scope`: `CI-SAFE1 CI Gate + Trading Safety Invariants`
-- `intent`: `Added a GitHub Actions CI workflow and interlocking safety guards that make trading-safety regression visually impossible to merge. Blocking lane: JS syntax (node --check), Python compile (compileall), registry --check, trading safety invariants, registry consistency, trading-safety text guards, secret hygiene scan, review bundle hygiene, ruff on CI-SAFE1 modules. Informational: mypy strict, full pytest. KNOWN_ISSUES K-029 added for lightweight secret scan caveat. No runtime behavior changed, no orders submitted, no private endpoints used, no strategy production-approved.`
-- `affected_files`:
-  - `CHANGELOG.md`
-  - `KNOWN_ISSUES.md`
-  - `REPO_TREE.md`
-  - `TODO.md`
-  - `.github/workflows/ci.yml`
-  - `scripts/check_trading_safety_text.py`
-  - `scripts/check_secret_hygiene.py`
-  - `tests/test_trading_safety_invariants.py`
-  - `tests/test_trading_safety_text_guards.py`
-  - `tests/test_secret_hygiene.py`
-  - `tests/test_review_bundle_hygiene.py`
-  - `tests/test_current_truth_consistency.py`
-  - `docs/ci_safe1_ci_gate_and_trading_safety_invariants.md`
-  - `money-flow/01_Current_Phase.md`
-  - `money-flow/03_Decision_Log.md`
-  - `money-flow/05_Agent_Coordination.md`
-- `validation_performed`:
-  - `node --check apps/dashboard/evidence-dashboard.js`
-  - `python -m compileall -q core services apps tests scripts`
-  - `python scripts/export_current_truth.py --check`
-  - `python scripts/check_trading_safety_text.py`
-  - `python scripts/check_secret_hygiene.py`
-  - `python -m pytest -q tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py tests/test_secret_hygiene.py tests/test_review_bundle_hygiene.py tests/test_current_truth_consistency.py tests/test_current_truth_registry.py (123 passed)`
-  - `ruff check + format --check on CI-SAFE1 modules (clean)`
-
----

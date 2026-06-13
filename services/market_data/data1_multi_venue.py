@@ -764,7 +764,9 @@ def write_series_artifact(
 # ---------------------------------------------------------------------------
 
 DEFAULT_SUMMARY_PATH = Path("docs/data1_multi_venue_snapshot_summary.json")
-DEFAULT_SNAPSHOT_DIR = Path("/tmp/money-flow-data1/raw_series")
+# Durable ignored snapshot home INSIDE the repo (MF-REPLAY1): /tmp is
+# cleared by macOS, which silently stranded the committed provenance summary.
+DEFAULT_SNAPSHOT_DIR = Path(__file__).resolve().parents[2] / "var" / "data1" / "raw_series"
 
 
 @dataclass(frozen=True)
@@ -909,6 +911,10 @@ def load_data1_dataset(
     """Load the DATA1 multi-venue dataset for strategy-phase consumption."""
     summary = json.loads(Path(summary_path).read_text(encoding="utf-8"))
     resolved_dir = Path(snapshot_dir) if snapshot_dir is not None else Path(summary["snapshot_dir"])
+    if not resolved_dir.is_absolute():
+        # The committed summary records the durable repo-relative home;
+        # anchor it at the repo root so callers' CWD never matters.
+        resolved_dir = Path(__file__).resolve().parents[2] / resolved_dir
     series: dict[tuple[str, str, str], SeriesData] = {}
     for block in summary["series"]:
         ref_meta = {

@@ -34,6 +34,31 @@
   "boundaries": "Every row is research/evidence only — no order, testnet, live, or production approval follows from anything here. Modeled friction is an assumption layer, not real historical depth. Synthetic paper PnL is not live PnL. Live trading is not approved.",
   "entries": [
     {
+      "analytics": [],
+      "badge": "founder visual backtesting (replay != evidence)",
+      "class": "source_reconstruction",
+      "date": "2026-06-13",
+      "evidence_doc": "",
+      "evidence_summary": "docs/mf_replay1_founder_visual_backtesting_summary.json",
+      "evidence_summary_found": true,
+      "facets": {
+        "changed": "The DATA1 snapshot home is now durable (var/data1, off /tmp); the dashboard has a Historical Replay tab again; K-037 sizing is flagged for a founder decision.",
+        "didnt": "The replay exposed that full-equity-per-position sizing levers the committed lanes up to ~7.8x gross (~99% drawdowns) - a real property of the merged PT-RT2 lanes, surfaced as a founder decision, not patched.",
+        "lesson": "Replay extends visibility, never upgrades a verdict - and a faithful replay surfaces the accounting truths (leverage, overlap) the live summary glosses.",
+        "our_error": null,
+        "our_error_note": "",
+        "why": "Replay extends founder visibility into the committed lanes - it is hypothetical context for judgment, never new evidence and never a validated strategy; it cannot and does not upgrade any verdict.",
+        "worked": "The single-code-path design (replay consumes the same signal surface + lane semantics) made the live-ledger equivalence provable; pinning it on a non-overlapping sequence surfaced the K-037 overlap-accounting boundary instead of hiding it."
+      },
+      "finding": "The founder can replay the two committed PT-RT2 lanes over any range (all-time / year / custom) with an accurate fresh-start 10k->end answer, one code path through the committed signal surface, no-lookahead and live-ledger-equivalence pinned. Honest numbers: the regime overlay's defensive mechanic replays exactly where REGIME2 said it would (2022 bear gated -23% vs baseline -97%); a green range is window placement, not alpha.",
+      "hardened_gates": [
+        "replay is hypothetical, never feeds the live ledgers"
+      ],
+      "outcome": "context",
+      "phase": "MF-REPLAY1",
+      "title": "Range-Accurate Replay of the PT-RT2 Lanes"
+    },
+    {
       "analytics": [
         {
           "kind": "computed",
@@ -1252,7 +1277,7 @@
       "title": "Original Money Flow Reconstruction (accounting correction)"
     }
   ],
-  "entry_count": 25,
+  "entry_count": 26,
   "lessons_hardened_gates": [
     {
       "gate": "PnL must reconcile to equity",
@@ -1329,6 +1354,10 @@
     {
       "gate": "suite carry-over must reproduce committed EV1 OOS digit for digit",
       "phase": "TREND-SUITE1"
+    },
+    {
+      "gate": "replay is hypothetical, never feeds the live ledgers",
+      "phase": "MF-REPLAY1"
     }
   ],
   "report": "research_log",

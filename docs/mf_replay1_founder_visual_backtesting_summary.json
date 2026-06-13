@@ -1,0 +1,292 @@
+{
+  "boundaries": {
+    "approval_surface": false,
+    "feeds_live_ledgers": false,
+    "production_strategy_changed": false,
+    "replay_is_hypothetical_not_evidence": true,
+    "submits_orders": false,
+    "writes_live_ledger": false
+  },
+  "committed_characterization": {
+    "regime_overlay_label": "informational risk context, not a validated control",
+    "regime_overlay_verdict": "regime_filter_does_not_reduce_drawdown_oos",
+    "regime_overlay_verdict_note": "evidence verdict (REGIME2, pre-registered): regime_filter_does_not_reduce_drawdown_oos \u2014 the deployed config cleared every endpoint bar (33.6% OOS drawdown reduction; Sharpe 0.88 vs 0.13; reduces drawdown in both fold windows held fixed) but the pre-registered selection process failed walk-forward stability at the early-history cutoff; the emitted state is informational risk context, not a validated control",
+    "standalone_label": "defensive_trend_mechanic_not_validated_alpha",
+    "trade_level_label": "source_faithful_but_underperformed",
+    "window_placement_note": "a green range is window placement, not alpha: TSMOM-EV1's OOS window was absolutely negative, MONEYFLOW-SIGNAL1's was positive - same defensive trend mechanic, different window"
+  },
+  "coverage": {
+    "aligned_7_major_window_start": "2020-09-24",
+    "binance_perp_1d_starts": {
+      "AVAX": "2020-09-24",
+      "BNB": "2020-02-11",
+      "BTC": "2019-09-09",
+      "DOGE": "2020-07-11",
+      "ETH": "2019-11-28",
+      "SOL": "2020-09-15",
+      "XRP": "2020-01-02"
+    },
+    "last_close": "2026-06-13T00:00:00Z",
+    "per_symbol_first_close": {
+      "AVAX": "2020-09-24",
+      "BNB": "2020-02-11",
+      "BTC": "2019-09-09",
+      "DOGE": "2020-07-11",
+      "ETH": "2019-11-28",
+      "SOL": "2020-09-15",
+      "XRP": "2020-01-07"
+    }
+  },
+  "csv_export": "scripts/export_data1_csv.py -> var/data1/csv/<venue>_<asset>_<series>.csv",
+  "dashboard": {
+    "runtime_start_separator": "dashed live-observation-start line on the price chart separates hypothetical replay from the live PT-RT2 window",
+    "serving": "precomputed pack (reports/mf_replay1/replay_pack.json) for all-time + calendar years; /api/mf-replay1/range on the control server for custom dates (same engine, one code path)",
+    "surface": "Historical Replay tab (re-introduced for MF-REPLAY1)"
+  },
+  "disclaimer": "HYPOTHETICAL REPLAY, NOT EVIDENCE: range replay of the committed PT-RT2 lane semantics for founder judgment only - not a validated strategy, not new evidence, and it never feeds or backfills the live synthetic ledgers. A green range is window placement, not alpha (TSMOM-EV1's OOS window was absolutely negative; MONEYFLOW-SIGNAL1's was positive; same defensive trend mechanic). Committed labels travel: defensive_trend_mechanic_not_validated_alpha (standalone); source_faithful_but_underperformed (trade level); the regime overlay is informational risk context, not a validated control. Signal/replay only - no orders, no live, no approval surface; does not predict or guarantee profit.",
+  "durable_snapshot_home": "var/data1/raw_series/ (ignored; moved from /tmp by MF-REPLAY1)",
+  "equivalence_proof": {
+    "non_overlapping_pin_reason": "K-037: the live equity-at-entry-per-position accounting diverges from the replay's sequential-additive ledger when positions OVERLAP; equivalence is therefore pinned where they provably coincide (one symbol = at most one open position) and the divergence boundary is documented on the surface and in the test",
+    "result": "replay reproduces the live PT-RT2 decision path + ledger arithmetic exactly on a single-symbol (non-overlapping) window",
+    "test": "tests/test_mf_replay1.py::test_live_ledger_equivalence_on_non_overlapping_sequence"
+  },
+  "generated_at_utc": "2026-06-13T01:00:00Z",
+  "k037_founder_decision_flag": "full-equity sizing PER symbol position levers the committed PT-RT2 lanes up to ~7.8x gross when all 7 majors are long (all-time book draws down ~99% in 2022); is full-equity-per-position the intended paper-lane sizing? Separately scoped - this phase surfaces it (max_gross_exposure_x / max_concurrent_positions on every range) and does NOT change live sizing or live trajectories",
+  "phase": "MF-REPLAY1",
+  "pre_registered_semantics": {
+    "calendar_years": "a calendar-year book runs from the first aligned close on/after Jan 1 00:00Z to the last close before the next Jan 1; years without full coverage are labeled partial",
+    "closed_candles_no_lookahead": "closed daily candles only; the range result is provably computable from candles up to the range end (truncation probe test-pinned)",
+    "end_equity": "end equity is mark-to-market at the range's last closed candle: realized equity plus open positions valued at their last in-range close (open positions are reported open, never force-closed); the realized-only figure is also reported",
+    "fills_and_fees": "entries and exits fill at the SIGNAL candle's close with 5 bps per side - the live paper ledger's exact arithmetic (equivalence test-pinned); quantity = (equity - entry_fee) / fill_price",
+    "fresh_start": "the range book starts FLAT with 10,000 USDC at the range's first aligned closed candle and takes only entries that fire INSIDE the range; a position the signal held before the range start is ignored until its next fresh entry (this answers: 'if I had started running it on that date')",
+    "ledger": "sequential-additive full-equity lane ledger: each open is sized at the lane's CURRENT equity; each close adds its net PnL to the lane's CURRENT equity. NOTE the live runtime stores equity at entry per position and can diverge from additive accounting when positions OVERLAP across symbols (recorded in KNOWN_ISSUES K-037); the replay uses the additive ledger because it is the arithmetic that answers 'where did 10,000 USDC end'",
+    "leverage_warning": "full-equity sizing PER SYMBOL POSITION (the committed live-lane accounting) means concurrent positions LEVER the book - up to 7x gross with all majors long at once; range returns AND drawdowns include that leverage (the all-time book draws down ~99% in the 2022 bear); max_gross_exposure_x and max_concurrent_positions are reported on every range so the founder sees it",
+    "regime_gate": "the gated lane consults the committed regime filter point-in-time over the same history (REGIME2 pinned config); before the gate's first computable state the gated lane cannot enter (flagged, never guessed) - exposure = signal AND risk_on, the characterization's gated-twin semantics",
+    "warm_up": "indicator warm-up uses PRE-RANGE history (warm-up is about data; fresh-start is about position state); if the range start predates a symbol's data + warm-up, that symbol joins when its surface state is warmed and the output says so - never guessed"
+  },
+  "ranges": {
+    "mf_source_faithful_baseline": {
+      "all_time": {
+        "end": "2026-06-13",
+        "end_equity_realized_only_usdc": "581725.31977980",
+        "end_equity_usdc": "581725.31977980",
+        "flip_count": 830,
+        "max_concurrent_positions": 7,
+        "max_drawdown_pct": "99.11856645",
+        "max_gross_exposure_x": "7.83198808",
+        "return_pct": "5717.25319780",
+        "start": "2020-09-24",
+        "trade_count": 415
+      },
+      "founder_2021_06_19_to_2025_05_31": {
+        "end": "2025-05-31",
+        "end_equity_realized_only_usdc": "29702.78387884",
+        "end_equity_usdc": "29702.78387884",
+        "flip_count": 582,
+        "max_concurrent_positions": 7,
+        "max_drawdown_pct": "99.11856645",
+        "max_gross_exposure_x": "7.83198808",
+        "return_pct": "197.02783879",
+        "start": "2021-06-19",
+        "trade_count": 291
+      },
+      "year_2020": {
+        "end": "2020-12-31",
+        "end_equity_realized_only_usdc": "31562.13636179",
+        "end_equity_usdc": "63198.33541838",
+        "flip_count": 31,
+        "max_concurrent_positions": 7,
+        "max_drawdown_pct": "39.52264703",
+        "max_gross_exposure_x": "4.81107341",
+        "return_pct": "531.98335418",
+        "start": "2020-09-24",
+        "trade_count": 14
+      },
+      "year_2021": {
+        "end": "2021-12-31",
+        "end_equity_realized_only_usdc": "577703.97682153",
+        "end_equity_usdc": "577703.97682153",
+        "flip_count": 130,
+        "max_concurrent_positions": 7,
+        "max_drawdown_pct": "87.98626942",
+        "max_gross_exposure_x": "6.78652745",
+        "return_pct": "5677.03976822",
+        "start": "2021-01-01",
+        "trade_count": 65
+      },
+      "year_2022": {
+        "end": "2022-12-31",
+        "end_equity_realized_only_usdc": "285.65337237",
+        "end_equity_usdc": "285.65337237",
+        "flip_count": 152,
+        "max_concurrent_positions": 7,
+        "max_drawdown_pct": "98.05949303",
+        "max_gross_exposure_x": "6.96566059",
+        "return_pct": "-97.14346628",
+        "start": "2022-01-01",
+        "trade_count": 76
+      },
+      "year_2023": {
+        "end": "2023-12-31",
+        "end_equity_realized_only_usdc": "72948.06314685",
+        "end_equity_usdc": "84037.90101627",
+        "flip_count": 140,
+        "max_concurrent_positions": 7,
+        "max_drawdown_pct": "71.58297395",
+        "max_gross_exposure_x": "6.05390057",
+        "return_pct": "740.37901016",
+        "start": "2023-01-01",
+        "trade_count": 69
+      },
+      "year_2024": {
+        "end": "2024-12-31",
+        "end_equity_realized_only_usdc": "65710.70075585",
+        "end_equity_usdc": "65710.70075585",
+        "flip_count": 148,
+        "max_concurrent_positions": 7,
+        "max_drawdown_pct": "80.86597268",
+        "max_gross_exposure_x": "6.77829037",
+        "return_pct": "557.10700756",
+        "start": "2024-01-01",
+        "trade_count": 74
+      },
+      "year_2025": {
+        "end": "2025-12-31",
+        "end_equity_realized_only_usdc": "1881.67384366",
+        "end_equity_usdc": "1881.67384366",
+        "flip_count": 155,
+        "max_concurrent_positions": 7,
+        "max_drawdown_pct": "82.70359348",
+        "max_gross_exposure_x": "7.83198808",
+        "return_pct": "-81.18326156",
+        "start": "2025-01-01",
+        "trade_count": 77
+      },
+      "year_2026": {
+        "end": "2026-06-13",
+        "end_equity_realized_only_usdc": "6117.75429186",
+        "end_equity_usdc": "6117.75429186",
+        "flip_count": 68,
+        "max_concurrent_positions": 6,
+        "max_drawdown_pct": "59.68616940",
+        "max_gross_exposure_x": "5.65648697",
+        "return_pct": "-38.82245708",
+        "start": "2026-01-01",
+        "trade_count": 34
+      }
+    },
+    "mf_source_faithful_regime_gated": {
+      "all_time": {
+        "end": "2026-06-13",
+        "end_equity_realized_only_usdc": "417776.53120385",
+        "end_equity_usdc": "417776.53120385",
+        "flip_count": 334,
+        "max_concurrent_positions": 7,
+        "max_drawdown_pct": "82.65168964",
+        "max_gross_exposure_x": "7.83198808",
+        "return_pct": "4077.76531204",
+        "start": "2020-09-24",
+        "trade_count": 167
+      },
+      "founder_2021_06_19_to_2025_05_31": {
+        "end": "2025-05-31",
+        "end_equity_realized_only_usdc": "35877.54158369",
+        "end_equity_usdc": "35877.54158369",
+        "flip_count": 220,
+        "max_concurrent_positions": 7,
+        "max_drawdown_pct": "82.65168964",
+        "max_gross_exposure_x": "7.83198808",
+        "return_pct": "258.77541584",
+        "start": "2021-06-19",
+        "trade_count": 110
+      },
+      "year_2020": {
+        "end": "2020-12-31",
+        "end_equity_realized_only_usdc": "10000.00000000",
+        "end_equity_usdc": "10000.00000000",
+        "flip_count": 0,
+        "max_concurrent_positions": 0,
+        "max_drawdown_pct": "0E-8",
+        "max_gross_exposure_x": "0E-8",
+        "return_pct": "0E-8",
+        "start": "2020-09-24",
+        "trade_count": 0
+      },
+      "year_2021": {
+        "end": "2021-12-31",
+        "end_equity_realized_only_usdc": "97415.82663613",
+        "end_equity_usdc": "97415.82663613",
+        "flip_count": 94,
+        "max_concurrent_positions": 6,
+        "max_drawdown_pct": "64.84259703",
+        "max_gross_exposure_x": "6.13887324",
+        "return_pct": "874.15826636",
+        "start": "2021-01-01",
+        "trade_count": 47
+      },
+      "year_2022": {
+        "end": "2022-12-31",
+        "end_equity_realized_only_usdc": "7641.36711694",
+        "end_equity_usdc": "7641.36711694",
+        "flip_count": 10,
+        "max_concurrent_positions": 3,
+        "max_drawdown_pct": "23.58632883",
+        "max_gross_exposure_x": "3.00922818",
+        "return_pct": "-23.58632883",
+        "start": "2022-01-01",
+        "trade_count": 5
+      },
+      "year_2023": {
+        "end": "2023-12-31",
+        "end_equity_realized_only_usdc": "7399.49232868",
+        "end_equity_usdc": "9643.80755002",
+        "flip_count": 44,
+        "max_concurrent_positions": 7,
+        "max_drawdown_pct": "44.01784781",
+        "max_gross_exposure_x": "6.05390057",
+        "return_pct": "-3.56192450",
+        "start": "2023-01-01",
+        "trade_count": 21
+      },
+      "year_2024": {
+        "end": "2024-12-31",
+        "end_equity_realized_only_usdc": "132695.19913082",
+        "end_equity_usdc": "132695.19913082",
+        "flip_count": 92,
+        "max_concurrent_positions": 6,
+        "max_drawdown_pct": "63.92002228",
+        "max_gross_exposure_x": "5.56289884",
+        "return_pct": "1226.95199131",
+        "start": "2024-01-01",
+        "trade_count": 46
+      },
+      "year_2025": {
+        "end": "2025-12-31",
+        "end_equity_realized_only_usdc": "5227.01903173",
+        "end_equity_usdc": "5227.01903173",
+        "flip_count": 82,
+        "max_concurrent_positions": 6,
+        "max_drawdown_pct": "64.92022198",
+        "max_gross_exposure_x": "7.83198808",
+        "return_pct": "-47.72980968",
+        "start": "2025-01-01",
+        "trade_count": 41
+      },
+      "year_2026": {
+        "end": "2026-06-13",
+        "end_equity_realized_only_usdc": "9202.93159592",
+        "end_equity_usdc": "9202.93159592",
+        "flip_count": 10,
+        "max_concurrent_positions": 4,
+        "max_drawdown_pct": "24.66096964",
+        "max_gross_exposure_x": "3.88154269",
+        "return_pct": "-7.97068404",
+        "start": "2026-01-01",
+        "trade_count": 5
+      }
+    }
+  },
+  "refresh_entrypoint": "scripts/refresh_data1_snapshot.py (append-only newly-closed candles; idempotent)",
+  "report": "mf_replay1_founder_visual_backtesting",
+  "status": "founder_visual_backtesting_range_accurate_replay_not_evidence"
+}

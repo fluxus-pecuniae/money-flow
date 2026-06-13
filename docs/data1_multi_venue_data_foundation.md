@@ -19,7 +19,7 @@ the committed summary and pinned by test.
 - Fetch script: `.venv/bin/python scripts/fetch_data1_multi_venue_snapshot.py`
   (resume with `--reuse-artifacts`)
 - Committed provenance: `docs/data1_multi_venue_snapshot_summary.json`
-- Raw artifacts (ignored, regenerable): `/tmp/money-flow-data1/raw_series/`
+- Raw artifacts (ignored, regenerable): `var/data1/raw_series/` (durable repo home since MF-REPLAY1; previously `/tmp/money-flow-data1/raw_series/`, which macOS clears)
 - Tests: `tests/test_data1_multi_venue.py` (blocking CI lane);
   `tests/test_data1_live_smoke.py` (env-gated live canary:
   `DATA1_LIVE_SMOKE=1`, skipped in CI)
