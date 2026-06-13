@@ -497,6 +497,10 @@ def test_refresh_does_not_clobber_selects_or_open_log(
 OPTIONAL_ARTIFACT_PATH_PARTS = (
     "/reports/paper_runtime/",
     "/reports/paper_reviews/",
+    # MF-REPLAY1: the precomputed replay pack is a gitignored, locally-built
+    # artifact (scripts/build_mf_replay1_dashboard_data.py); its absence on a
+    # clean checkout is expected and the surface degrades gracefully.
+    "/reports/mf_replay1/",
 )
 
 
