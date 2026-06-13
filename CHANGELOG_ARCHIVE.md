@@ -16,6 +16,39 @@ Entry schema:
 
 ---
 
+## v2026.06.09.002
+
+- `recorded_at_utc`: `2026-06-09T12:00:00Z`
+- `scope`: `CI-SAFE1 CI Gate + Trading Safety Invariants`
+- `intent`: `Added a GitHub Actions CI workflow and interlocking safety guards that make trading-safety regression visually impossible to merge. Blocking lane: JS syntax (node --check), Python compile (compileall), registry --check, trading safety invariants, registry consistency, trading-safety text guards, secret hygiene scan, review bundle hygiene, ruff on CI-SAFE1 modules. Informational: mypy strict, full pytest. KNOWN_ISSUES K-029 added for lightweight secret scan caveat. No runtime behavior changed, no orders submitted, no private endpoints used, no strategy production-approved.`
+- `affected_files`:
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `REPO_TREE.md`
+  - `TODO.md`
+  - `.github/workflows/ci.yml`
+  - `scripts/check_trading_safety_text.py`
+  - `scripts/check_secret_hygiene.py`
+  - `tests/test_trading_safety_invariants.py`
+  - `tests/test_trading_safety_text_guards.py`
+  - `tests/test_secret_hygiene.py`
+  - `tests/test_review_bundle_hygiene.py`
+  - `tests/test_current_truth_consistency.py`
+  - `docs/ci_safe1_ci_gate_and_trading_safety_invariants.md`
+  - `money-flow/01_Current_Phase.md`
+  - `money-flow/03_Decision_Log.md`
+  - `money-flow/05_Agent_Coordination.md`
+- `validation_performed`:
+  - `node --check apps/dashboard/evidence-dashboard.js`
+  - `python -m compileall -q core services apps tests scripts`
+  - `python scripts/export_current_truth.py --check`
+  - `python scripts/check_trading_safety_text.py`
+  - `python scripts/check_secret_hygiene.py`
+  - `python -m pytest -q tests/test_trading_safety_invariants.py tests/test_trading_safety_text_guards.py tests/test_secret_hygiene.py tests/test_review_bundle_hygiene.py tests/test_current_truth_consistency.py tests/test_current_truth_registry.py (123 passed)`
+  - `ruff check + format --check on CI-SAFE1 modules (clean)`
+
+---
+
 ## v2026.06.09.001
 
 - `recorded_at_utc`: `2026-06-09T07:45:00Z`

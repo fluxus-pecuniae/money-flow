@@ -28,25 +28,36 @@ def test_evidence_dashboard_uses_exchange_workstation_design_and_boundaries() ->
     assert ".uat-right-rail" in css
     assert ".uat-bottom-blotter" in css
 
-    # DASH-IA1: the product is Money Flow OS with exactly two surfaces.
+    # DASH-IA1 two surfaces + MF-REPLAY1 re-introduces Historical Replay as the
+    # founder visual-backtesting surface (three tabs, in order).
     assert "Money Flow OS" in html
     assert "Money Flow Evidence Dashboard" not in html
     nav = html[html.index('<nav class="view-tabs"') : html.index("</nav>", html.index('<nav class="view-tabs"'))]
     assert 'data-view="paper-observation"' in nav
+    assert 'data-view="historical-replay"' in nav
     assert 'data-view="research-log"' in nav
     assert "Paper Trading" in nav
+    assert "Historical Replay" in nav
     assert "Research Log" in nav
-    assert nav.index('data-view="paper-observation"') < nav.index('data-view="research-log"')
+    assert nav.index('data-view="paper-observation"') < nav.index('data-view="historical-replay"')
+    assert nav.index('data-view="historical-replay"') < nav.index('data-view="research-log"')
     assert 'data-view="paper-observation" aria-selected="true"' in nav
     assert 'data-view="research-log" aria-selected="false"' in nav
-    # Retired navigation surfaces (DASH-PT1.1 + DASH-IA1).
-    for retired in ("historical-replay", "evidence-lab", "strategy", "evidence\"", "audit", "experiments"):
+    # Retired navigation surfaces (DASH-PT1.1 + DASH-IA1); MF-REPLAY1's
+    # historical-replay is the new range-replay surface, not the retired one.
+    for retired in ("evidence-lab", "strategy", "evidence\"", "audit", "experiments"):
         assert f'data-view="{retired}"' not in nav
-    assert 'data-view-panel="historical-replay"' not in html
+    # The MF-REPLAY1 replay panel exists and carries the honesty frame.
+    assert 'data-view-panel="historical-replay"' in html
+    assert "Hypothetical replay, not evidence" in html
+    assert "window placement, not" in html
+    assert "mf-replay-range-mode" in html
+    assert "mf-replay-lane" in html
     assert 'data-view-panel="evidence-lab"' not in html
     assert 'data-view-panel="strategy"' not in html
     assert 'data-view-panel="evidence"' not in html
-    for retired_label in ("Historical Replay", "The Lab", "Strategy</button>", "Audit Review"):
+    # "Historical Replay" is the MF-REPLAY1 founder visual-backtesting tab now.
+    for retired_label in ("The Lab", "Strategy</button>", "Audit Review"):
         assert retired_label not in nav
 
     # Research Log placeholder is data-driven from committed summaries.

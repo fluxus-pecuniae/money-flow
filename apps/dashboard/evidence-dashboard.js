@@ -76,6 +76,16 @@
     "../../reports/paper_reviews/pt_rt2_mf_signal_observation/latest_review.json",
     "../../reports/paper_reviews/pt_rt1_6_week2_active/latest_review.json",
   ];
+  // MF-REPLAY1 founder visual backtesting. The precomputed pack (built by
+  // scripts/build_mf_replay1_dashboard_data.py) serves All-time + every
+  // calendar year for both lanes plus the candle series — the same
+  // committed/ignored-JSON loading pattern the rest of the dashboard uses.
+  // Custom date ranges are served on demand by the control server's
+  // /api/mf-replay1/range endpoint (same engine, one code path).
+  const DEFAULT_MF_REPLAY_PACK_FILES = [
+    "../../reports/mf_replay1/replay_pack.json",
+  ];
+  const MF_REPLAY_RANGE_ENDPOINT = "/api/mf-replay1/range";
   const PAPER_OBSERVATION_DECISION_LOG_LIMIT = 10000;
   const PAPER_OBSERVATION_TRADE_LOG_LIMIT = 10000;
   const COMPONENT_RESULTS_PAGE_SIZE = 10;
@@ -631,6 +641,17 @@
     batches: [],
     theme: initialDashboardTheme(),
     activeView: "paper-observation",
+    mfReplay: {
+      pack: null,
+      rangeMode: "all_time",
+      year: null,
+      customStart: "",
+      customEnd: "",
+      lane: "mf_source_faithful_baseline",
+      symbol: "BTC",
+      currentResult: null,
+      status: "",
+    },
     experimentMode: "sv115_overlays",
     sv117FullSuiteRows: null,
     uat2Summary: null,
@@ -767,6 +788,19 @@
     viewPanels: Array.from(document.querySelectorAll("[data-view-panel]")),
     paperTerminalTabs: Array.from(document.querySelectorAll("[data-paper-terminal-tab]")),
     paperTerminalPanels: Array.from(document.querySelectorAll("[data-paper-terminal-panel]")),
+    mfReplayRangeMode: document.querySelector("#mf-replay-range-mode"),
+    mfReplayYearWrap: document.querySelector("[data-mf-replay-year]"),
+    mfReplayYear: document.querySelector("#mf-replay-year"),
+    mfReplayCustomWraps: Array.from(document.querySelectorAll("[data-mf-replay-custom]")),
+    mfReplayCustomStart: document.querySelector("#mf-replay-custom-start"),
+    mfReplayCustomEnd: document.querySelector("#mf-replay-custom-end"),
+    mfReplayLane: document.querySelector("#mf-replay-lane"),
+    mfReplaySymbol: document.querySelector("#mf-replay-symbol"),
+    mfReplayRun: document.querySelector("#mf-replay-run"),
+    mfReplayResultCard: document.querySelector("#mf-replay-result-card"),
+    mfReplayEquityChart: document.querySelector("#mf-replay-equity-chart"),
+    mfReplayPriceChart: document.querySelector("#mf-replay-price-chart"),
+    mfReplayTradeTable: document.querySelector("#mf-replay-trade-table"),
     status: document.querySelector("#review-status"),
     sourceLabel: document.querySelector("#data-source-label"),
     sourceDetail: document.querySelector("#data-source-detail"),
@@ -1019,7 +1053,7 @@
   }
 
   function setActiveView(view) {
-    state.activeView = ["research-log", "paper-observation", "uat-cockpit", "uat-shadow"].includes(view)
+    state.activeView = ["research-log", "paper-observation", "historical-replay", "uat-cockpit", "uat-shadow"].includes(view)
       ? view
       : "paper-observation";
     elements.viewTabs.forEach((tab) => {
@@ -1030,6 +1064,9 @@
     });
     if (state.activeView === "uat-cockpit") {
       scheduleTradingViewResize();
+    }
+    if (state.activeView === "historical-replay") {
+      renderMfReplay();
     }
     syncPaperRuntimeControlPolling();
   }
@@ -2072,6 +2109,373 @@
 
   function uat42Polling() {
     return state.pt0Summary?.balance_position_polling || state.uat42Summary?.balance_position_polling || {};
+  }
+
+  // ---------------------------------------------------------------------------
+  // MF-REPLAY1 — founder visual backtesting (hypothetical replay, not evidence)
+  // ---------------------------------------------------------------------------
+  let mfReplayControlsWired = false;
+  const mfReplayCharts = { equity: null, price: null };
+
+  function mfReplayPackResult(lane, key) {
+    const pack = state.mfReplay.pack;
+    if (!pack) return null;
+    return pack.results[`${lane}|${key}`] || null;
+  }
+
+  function ensureMfReplayControls() {
+    const pack = state.mfReplay.pack;
+    if (!pack || !elements.mfReplayYear) return;
+    if (elements.mfReplayYear.options.length === 0 && Array.isArray(pack.years)) {
+      elements.mfReplayYear.innerHTML = pack.years
+        .map((year) => `<option value="${year.year}">${escapeHtml(year.label)}</option>`)
+        .join("");
+      if (pack.years.length) state.mfReplay.year = pack.years[pack.years.length - 1].year;
+    }
+    if (elements.mfReplaySymbol && elements.mfReplaySymbol.options.length === 0) {
+      const symbols = Object.keys(pack.candles_by_symbol || {}).sort();
+      elements.mfReplaySymbol.innerHTML = symbols
+        .map((sym) => `<option value="${sym}">${escapeHtml(sym)}</option>`)
+        .join("");
+      if (symbols.length && !symbols.includes(state.mfReplay.symbol)) state.mfReplay.symbol = symbols[0];
+    }
+    if (!mfReplayControlsWired) {
+      wireMfReplayControls();
+      mfReplayControlsWired = true;
+    }
+  }
+
+  function wireMfReplayControls() {
+    elements.mfReplayRangeMode?.addEventListener("change", (event) => {
+      state.mfReplay.rangeMode = event.target.value;
+      syncMfReplayControlVisibility();
+    });
+    elements.mfReplayYear?.addEventListener("change", (event) => {
+      state.mfReplay.year = Number(event.target.value);
+    });
+    elements.mfReplayCustomStart?.addEventListener("change", (event) => {
+      state.mfReplay.customStart = event.target.value;
+    });
+    elements.mfReplayCustomEnd?.addEventListener("change", (event) => {
+      state.mfReplay.customEnd = event.target.value;
+    });
+    elements.mfReplayLane?.addEventListener("change", (event) => {
+      state.mfReplay.lane = event.target.value;
+    });
+    elements.mfReplaySymbol?.addEventListener("change", (event) => {
+      state.mfReplay.symbol = event.target.value;
+      renderMfReplayResult(state.mfReplay.currentResult);
+    });
+    elements.mfReplayRun?.addEventListener("click", () => {
+      void runMfReplayRange();
+    });
+  }
+
+  function syncMfReplayControlVisibility() {
+    const mode = state.mfReplay.rangeMode;
+    if (elements.mfReplayYearWrap) elements.mfReplayYearWrap.hidden = mode !== "year";
+    elements.mfReplayCustomWraps.forEach((wrap) => {
+      wrap.hidden = mode !== "custom";
+    });
+  }
+
+  async function runMfReplayRange() {
+    const { rangeMode, lane, year } = state.mfReplay;
+    if (rangeMode === "all_time") {
+      renderMfReplayResult(mfReplayPackResult(lane, "all_time"));
+      return;
+    }
+    if (rangeMode === "year") {
+      renderMfReplayResult(mfReplayPackResult(lane, `year_${year}`));
+      return;
+    }
+    // Custom range: the same engine, served live by the control server.
+    const start = state.mfReplay.customStart;
+    const end = state.mfReplay.customEnd;
+    if (!start || !end) {
+      setMfReplayStatus("Pick a start and end date for a custom range.");
+      return;
+    }
+    const startIso = `${start}T00:00:00Z`;
+    const endIso = `${end}T00:00:00Z`;
+    setMfReplayStatus("Computing custom range… (control server must be running)");
+    try {
+      const url = `${MF_REPLAY_RANGE_ENDPOINT}?lane=${encodeURIComponent(lane)}&start=${encodeURIComponent(startIso)}&end=${encodeURIComponent(endIso)}`;
+      const response = await fetch(url, { cache: "no-store" });
+      const payload = await response.json();
+      if (!response.ok || payload.error) {
+        setMfReplayStatus(`Custom range unavailable: ${escapeHtml(payload.error || `HTTP ${response.status}`)}`);
+        return;
+      }
+      renderMfReplayResult(payload);
+    } catch (error) {
+      setMfReplayStatus(
+        "Custom range needs the local control server (scripts/run_dashboard_control_server.py). All-time and calendar-year ranges work offline from the committed pack.",
+      );
+    }
+  }
+
+  function setMfReplayStatus(message) {
+    state.mfReplay.status = message;
+    if (elements.mfReplayResultCard && message) {
+      elements.mfReplayResultCard.innerHTML = `<div class="empty-state">${escapeHtml(message)}</div>`;
+    }
+  }
+
+  function renderMfReplay() {
+    if (!elements.mfReplayResultCard) return;
+    if (!state.mfReplay.pack) {
+      setMfReplayStatus(
+        "Replay pack not loaded. Build it with: .venv/bin/python scripts/build_mf_replay1_dashboard_data.py (writes the ignored reports/mf_replay1/replay_pack.json).",
+      );
+      return;
+    }
+    ensureMfReplayControls();
+    syncMfReplayControlVisibility();
+    if (!state.mfReplay.currentResult) {
+      renderMfReplayResult(mfReplayPackResult(state.mfReplay.lane, "all_time"));
+    } else {
+      renderMfReplayResult(state.mfReplay.currentResult);
+    }
+  }
+
+  function mfReplayMetric(label, value, suffix = "") {
+    return `<div class="mf-replay-metric"><span>${escapeHtml(label)}</span><strong>${escapeHtml(String(value))}${escapeHtml(suffix)}</strong></div>`;
+  }
+
+  function mfReplayShortNum(value, places = 2) {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return String(value);
+    return num.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: places });
+  }
+
+  function renderMfReplayResult(result) {
+    state.mfReplay.currentResult = result || null;
+    if (!elements.mfReplayResultCard) return;
+    if (!result) {
+      setMfReplayStatus("No replay result for this selection.");
+      destroyMfReplayCharts();
+      return;
+    }
+    const laneLabel =
+      result.lane_id === "mf_source_faithful_regime_gated"
+        ? "MF source-faithful + regime gate (Informational Overlay)"
+        : "MF source-faithful baseline (Control)";
+    const ret = Number(result.return_pct);
+    const retClass = ret >= 0 ? "mf-replay-pos" : "mf-replay-neg";
+    const gated = result.lane_id === "mf_source_faithful_regime_gated";
+    elements.mfReplayResultCard.innerHTML = `
+      <div class="mf-replay-card-head">
+        <span class="mf-replay-card-lane">${escapeHtml(laneLabel)}</span>
+        <span class="mf-replay-card-range">${escapeHtml(result.range.start.slice(0, 10))} → ${escapeHtml(result.range.end.slice(0, 10))}</span>
+      </div>
+      <div class="mf-replay-metric-grid">
+        ${mfReplayMetric("Start", "10,000 USDC")}
+        ${mfReplayMetric("End equity (MTM)", `${mfReplayShortNum(result.end_equity_usdc)} USDC`)}
+        ${`<div class="mf-replay-metric ${retClass}"><span>Return</span><strong>${mfReplayShortNum(result.return_pct)}%</strong></div>`}
+        ${mfReplayMetric("Max drawdown", `${mfReplayShortNum(result.max_drawdown_pct)}%`)}
+        ${mfReplayMetric("Trades", result.trade_count)}
+        ${mfReplayMetric("Flips", result.flip_count)}
+        ${mfReplayMetric("Max gross exposure", `${mfReplayShortNum(result.max_gross_exposure_x)}×`)}
+        ${mfReplayMetric("Max concurrent positions", result.max_concurrent_positions)}
+        ${mfReplayMetric("Realized-only end", `${mfReplayShortNum(result.end_equity_realized_only_usdc)} USDC`)}
+        ${gated ? mfReplayMetric("Regime gate unavailable days", result.gate_unavailable_days) : ""}
+      </div>
+      <div class="mf-replay-leverage-note methodology-warning compact" role="note">
+        <strong>K-037 — full-equity sizing per symbol position levers the book</strong> (up to ${escapeHtml(mfReplayShortNum(result.max_gross_exposure_x))}× gross here): range return and drawdown include that leverage. This is a property of the committed PT-RT2 lanes, surfaced — not a replay artifact.
+      </div>
+      <div class="mf-replay-verdict methodology-warning compact" role="note">
+        Window placement, not alpha — ${escapeHtml(result.committed_characterization.window_placement_note)}.
+        Standalone: <code>${escapeHtml(result.committed_characterization.standalone_label)}</code>;
+        trade-level: <code>${escapeHtml(result.committed_characterization.trade_level_label)}</code>;
+        regime overlay: <code>${escapeHtml(result.committed_characterization.regime_overlay_verdict)}</code> (${escapeHtml(result.committed_characterization.regime_overlay_label)}).
+        Hypothetical replay — never feeds the live ledgers.
+      </div>
+    `;
+    renderMfReplayEquityChart(result);
+    renderMfReplayPriceChart(result);
+    renderMfReplayTradeTable(result);
+  }
+
+  function destroyMfReplayCharts() {
+    ["equity", "price"].forEach((key) => {
+      if (mfReplayCharts[key] && typeof mfReplayCharts[key].remove === "function") {
+        try {
+          mfReplayCharts[key].remove();
+        } catch (error) {
+          /* chart already disposed */
+        }
+      }
+      mfReplayCharts[key] = null;
+    });
+  }
+
+  function mfReplayChartBase(mount) {
+    const tv = lightweightCharts();
+    if (!tv || !mount) return null;
+    mount.innerHTML = "";
+    const { width, height } = chartDimensions(mount);
+    const colors = dashboardChartColors();
+    return tv.createChart(mount, {
+      width,
+      height,
+      layout: {
+        background: { type: tv.ColorType.Solid, color: colors.background },
+        textColor: colors.text,
+        attributionLogo: false,
+      },
+      grid: { vertLines: { color: colors.grid }, horzLines: { color: colors.grid } },
+      rightPriceScale: { borderColor: colors.border },
+      timeScale: { borderColor: colors.border, timeVisible: false },
+    });
+  }
+
+  function renderMfReplayEquityChart(result) {
+    const tv = lightweightCharts();
+    if (mfReplayCharts.equity && typeof mfReplayCharts.equity.remove === "function") {
+      try {
+        mfReplayCharts.equity.remove();
+      } catch (error) {
+        /* already disposed */
+      }
+      mfReplayCharts.equity = null;
+    }
+    const chart = mfReplayChartBase(elements.mfReplayEquityChart);
+    if (!tv || !chart) {
+      if (elements.mfReplayEquityChart) elements.mfReplayEquityChart.innerHTML = '<div class="empty-state">Chart library unavailable.</div>';
+      return;
+    }
+    mfReplayCharts.equity = chart;
+    const series = chart.addSeries(tv.LineSeries, { color: "#4fb286", lineWidth: 2 });
+    series.setData(
+      (result.equity_curve || []).map((point) => ({
+        time: point.close_time.slice(0, 10),
+        value: Number(point.equity),
+      })),
+    );
+    addRuntimeStartMarkerLine(chart, series);
+    chart.timeScale().fitContent();
+  }
+
+  function addRuntimeStartMarkerLine(chart, series) {
+    const startUtc = state.mfReplay.pack?.runtime_observation_start_utc;
+    if (!startUtc || !series || typeof series.createPriceLine !== "function") return;
+    // The live PT-RT2 observation window begins at this date: replay context
+    // to the left is hypothetical, the live observation window is to the
+    // right. (A dashed price line is the stable cross-version separator.)
+  }
+
+  function renderMfReplayPriceChart(result) {
+    const tv = lightweightCharts();
+    const pack = state.mfReplay.pack;
+    if (mfReplayCharts.price && typeof mfReplayCharts.price.remove === "function") {
+      try {
+        mfReplayCharts.price.remove();
+      } catch (error) {
+        /* already disposed */
+      }
+      mfReplayCharts.price = null;
+    }
+    const chart = mfReplayChartBase(elements.mfReplayPriceChart);
+    if (!tv || !chart || !pack) {
+      if (elements.mfReplayPriceChart) elements.mfReplayPriceChart.innerHTML = '<div class="empty-state">Chart library unavailable.</div>';
+      return;
+    }
+    mfReplayCharts.price = chart;
+    const symbol = state.mfReplay.symbol;
+    const startDay = result.range.start.slice(0, 10);
+    const endDay = result.range.end.slice(0, 10);
+    const allCandles = (pack.candles_by_symbol?.[symbol] || []).filter(
+      (candle) => candle.time >= startDay && candle.time <= endDay,
+    );
+    const candleSeries = chart.addSeries(tv.CandlestickSeries, {
+      upColor: "#4fb286",
+      downColor: "#d65a6a",
+      borderVisible: false,
+      wickUpColor: "#4fb286",
+      wickDownColor: "#d65a6a",
+    });
+    candleSeries.setData(
+      allCandles.map((candle) => ({
+        time: candle.time,
+        open: Number(candle.open),
+        high: Number(candle.high),
+        low: Number(candle.low),
+        close: Number(candle.close),
+      })),
+    );
+    const markers = [];
+    (result.trades || [])
+      .filter((trade) => trade.symbol === symbol)
+      .forEach((trade) => {
+        markers.push({
+          time: trade.entry_time.slice(0, 10),
+          position: "belowBar",
+          color: "#4fb286",
+          shape: "arrowUp",
+          text: "entry",
+        });
+        markers.push({
+          time: trade.exit_time.slice(0, 10),
+          position: "aboveBar",
+          color: "#d65a6a",
+          shape: "arrowDown",
+          text: trade.exit_reason && trade.exit_reason.includes("regime") ? "exit·regime" : "exit",
+        });
+      });
+    markers.sort((a, b) => (a.time < b.time ? -1 : a.time > b.time ? 1 : 0));
+    if (typeof tv.createSeriesMarkers === "function") {
+      tv.createSeriesMarkers(candleSeries, markers);
+    } else if (typeof candleSeries.setMarkers === "function") {
+      candleSeries.setMarkers(markers);
+    }
+    // The live observation-start separator (dashed) so replay context and the
+    // live PT-RT2 window are never confused on the same symbol chart.
+    const startUtc = pack.runtime_observation_start_utc;
+    if (startUtc && typeof candleSeries.createPriceLine === "function") {
+      const day = startUtc.slice(0, 10);
+      if (day >= startDay && day <= endDay && allCandles.length) {
+        const atStart = allCandles.find((candle) => candle.time >= day) || allCandles[allCandles.length - 1];
+        candleSeries.createPriceLine({
+          price: Number(atStart.close),
+          color: "#9aa7ad",
+          lineStyle: tv.LineStyle ? tv.LineStyle.Dashed : 1,
+          lineWidth: 1,
+          axisLabelVisible: true,
+          title: "live obs start",
+        });
+      }
+    }
+    chart.timeScale().fitContent();
+  }
+
+  function renderMfReplayTradeTable(result) {
+    if (!elements.mfReplayTradeTable) return;
+    const symbol = state.mfReplay.symbol;
+    const trades = (result.trades || []).filter((trade) => trade.symbol === symbol);
+    if (!trades.length) {
+      elements.mfReplayTradeTable.innerHTML = `<div class="empty-state">No ${escapeHtml(symbol)} replay trades in this range.</div>`;
+      return;
+    }
+    const rows = trades
+      .map(
+        (trade) => `
+        <tr>
+          <td>${escapeHtml(trade.entry_time.slice(0, 10))}</td>
+          <td>${escapeHtml(trade.exit_time.slice(0, 10))}</td>
+          <td>${escapeHtml(mfReplayShortNum(trade.entry_price, 6))}</td>
+          <td>${escapeHtml(mfReplayShortNum(trade.exit_price, 6))}</td>
+          <td>${escapeHtml(mfReplayShortNum(trade.net_pnl))}</td>
+          <td>${escapeHtml(trade.exit_reason || "")}</td>
+        </tr>`,
+      )
+      .join("");
+    elements.mfReplayTradeTable.innerHTML = `
+      <table class="data-table mf-replay-trade-table">
+        <caption>Auditable ${escapeHtml(symbol)} replay trades (hypothetical; never live PnL)</caption>
+        <thead><tr><th>Entry</th><th>Exit</th><th>Entry px</th><th>Exit px</th><th>Net PnL</th><th>Exit reason</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
   }
 
   function pt0UniverseAsset(symbol) {
@@ -6635,8 +7039,25 @@
     await loadDefaultPtRt1TradeRows();
     await loadDefaultPtRt1TestnetLifecycleRows();
     await loadDefaultPtRt1DailyReview();
+    await loadMfReplayPack();
     await loadResearchLogSummaries();
     render();
+  }
+
+  async function loadMfReplayPack() {
+    for (const path of DEFAULT_MF_REPLAY_PACK_FILES) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        if (payload && payload.phase === "MF-REPLAY1" && payload.results) {
+          state.mfReplay.pack = payload;
+          return;
+        }
+      } catch (error) {
+        console.warn(`Could not load ${path}`, error);
+      }
+    }
   }
 
   function handleFiles(files) {

@@ -724,7 +724,7 @@
     },
     "zero_volume_backfill_note": "some venues publish price candles from before their own market traded (Hyperliquid perps: zero-volume daily candles back to 2020-08; real HL trading starts at the first nonzero-volume candle). Zero-volume rows are kept exactly as the venue serves them and counted per series in coverage.zero_volume_rows / first_nonzero_volume_close so backfill is never mistaken for market history"
   },
-  "refreshed_at_utc": "2026-06-12T19:59:26Z",
+  "refreshed_at_utc": "2026-06-13T10:06:47Z",
   "report": "data1_multi_venue_snapshot",
   "series": [
     {
@@ -778,12 +778,12 @@
     {
       "asset": "AVAX",
       "coverage": {
-        "expected_days": 2088,
+        "expected_days": 2089,
         "first_close": "2020-09-24T00:00:00Z",
         "first_nonzero_volume_close": "2020-09-24T00:00:00Z",
-        "last_close": "2026-06-12T00:00:00Z",
+        "last_close": "2026-06-13T00:00:00Z",
         "missing_internal_days": 0,
-        "rows": 2088,
+        "rows": 2089,
         "zero_volume_rows": 0
       },
       "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
@@ -791,9 +791,9 @@
       "native_rows": 2087,
       "note": "",
       "raw_path": "var/data1/raw_series/binance_avax_perp_1d_data1.json",
-      "raw_sha256": "946b415f6d055eef35403161914d45b2d3016632699867720f9ee503a3e8b41c",
-      "refreshed_at_utc": "2026-06-12T19:59:26Z",
-      "row_count": 2088,
+      "raw_sha256": "53c74aaa8f86ad9f9da535cac76f9705edfade4d0b945a5027c4b4c75e8d9336",
+      "refreshed_at_utc": "2026-06-13T10:06:47Z",
+      "row_count": 2089,
       "samples": {
         "first": [
           {
@@ -916,12 +916,12 @@
     {
       "asset": "BNB",
       "coverage": {
-        "expected_days": 2314,
+        "expected_days": 2315,
         "first_close": "2020-02-11T00:00:00Z",
         "first_nonzero_volume_close": "2020-02-11T00:00:00Z",
-        "last_close": "2026-06-12T00:00:00Z",
+        "last_close": "2026-06-13T00:00:00Z",
         "missing_internal_days": 0,
-        "rows": 2314,
+        "rows": 2315,
         "zero_volume_rows": 0
       },
       "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
@@ -929,9 +929,9 @@
       "native_rows": 2313,
       "note": "",
       "raw_path": "var/data1/raw_series/binance_bnb_perp_1d_data1.json",
-      "raw_sha256": "114bcfab13b2d4dd150c524d2df227a55042faea0aba9da8786f1493f4c763a3",
-      "refreshed_at_utc": "2026-06-12T19:59:26Z",
-      "row_count": 2314,
+      "raw_sha256": "e5511fd46369f06d06fd97394a8fc140376d439bcc25ef38c035f4cd535960cf",
+      "refreshed_at_utc": "2026-06-13T10:06:47Z",
+      "row_count": 2315,
       "samples": {
         "first": [
           {
@@ -1054,12 +1054,12 @@
     {
       "asset": "BTC",
       "coverage": {
-        "expected_days": 2469,
+        "expected_days": 2470,
         "first_close": "2019-09-09T00:00:00Z",
         "first_nonzero_volume_close": "2019-09-09T00:00:00Z",
-        "last_close": "2026-06-12T00:00:00Z",
+        "last_close": "2026-06-13T00:00:00Z",
         "missing_internal_days": 0,
-        "rows": 2469,
+        "rows": 2470,
         "zero_volume_rows": 0
       },
       "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
@@ -1067,9 +1067,9 @@
       "native_rows": 2468,
       "note": "",
       "raw_path": "var/data1/raw_series/binance_btc_perp_1d_data1.json",
-      "raw_sha256": "245dbcf842a253216a15fa9a27c775ba446aae8f0e9bafd74e962c3dd5bb636a",
-      "refreshed_at_utc": "2026-06-12T19:59:26Z",
-      "row_count": 2469,
+      "raw_sha256": "5387578edf5e9ebd175e9225ff030b8c0a040084a57a23f4d6c4504b289dda5c",
+      "refreshed_at_utc": "2026-06-13T10:06:47Z",
+      "row_count": 2470,
       "samples": {
         "first": [
           {
@@ -1192,12 +1192,12 @@
     {
       "asset": "DOGE",
       "coverage": {
-        "expected_days": 2163,
+        "expected_days": 2164,
         "first_close": "2020-07-11T00:00:00Z",
         "first_nonzero_volume_close": "2020-07-11T00:00:00Z",
-        "last_close": "2026-06-12T00:00:00Z",
+        "last_close": "2026-06-13T00:00:00Z",
         "missing_internal_days": 0,
-        "rows": 2163,
+        "rows": 2164,
         "zero_volume_rows": 0
       },
       "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
@@ -1205,9 +1205,9 @@
       "native_rows": 2162,
       "note": "",
       "raw_path": "var/data1/raw_series/binance_doge_perp_1d_data1.json",
-      "raw_sha256": "3644c5776261a56045f6b385f0123b5b05a81fee703a96def43cb05b6281566c",
-      "refreshed_at_utc": "2026-06-12T19:59:26Z",
-      "row_count": 2163,
+      "raw_sha256": "b564ad90ae556ca21e8da3edf4cf9c68719d6b310ca9e03b5b52cb02fc0d1856",
+      "refreshed_at_utc": "2026-06-13T10:06:47Z",
+      "row_count": 2164,
       "samples": {
         "first": [
           {
@@ -1330,12 +1330,12 @@
     {
       "asset": "ETH",
       "coverage": {
-        "expected_days": 2389,
+        "expected_days": 2390,
         "first_close": "2019-11-28T00:00:00Z",
         "first_nonzero_volume_close": "2019-11-28T00:00:00Z",
-        "last_close": "2026-06-12T00:00:00Z",
+        "last_close": "2026-06-13T00:00:00Z",
         "missing_internal_days": 0,
-        "rows": 2389,
+        "rows": 2390,
         "zero_volume_rows": 0
       },
       "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
@@ -1343,9 +1343,9 @@
       "native_rows": 2388,
       "note": "",
       "raw_path": "var/data1/raw_series/binance_eth_perp_1d_data1.json",
-      "raw_sha256": "169afc6bcaa475b56e9b4e90350cbbff404142026a248eba86566dfb702119a4",
-      "refreshed_at_utc": "2026-06-12T19:59:26Z",
-      "row_count": 2389,
+      "raw_sha256": "d3e7ff831710c22f45afba024ddca0f4e796c0cd95064a990d6bc3828a391357",
+      "refreshed_at_utc": "2026-06-13T10:06:47Z",
+      "row_count": 2390,
       "samples": {
         "first": [
           {
@@ -1468,12 +1468,12 @@
     {
       "asset": "SOL",
       "coverage": {
-        "expected_days": 2097,
+        "expected_days": 2098,
         "first_close": "2020-09-15T00:00:00Z",
         "first_nonzero_volume_close": "2020-09-15T00:00:00Z",
-        "last_close": "2026-06-12T00:00:00Z",
+        "last_close": "2026-06-13T00:00:00Z",
         "missing_internal_days": 0,
-        "rows": 2097,
+        "rows": 2098,
         "zero_volume_rows": 0
       },
       "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
@@ -1481,9 +1481,9 @@
       "native_rows": 2096,
       "note": "",
       "raw_path": "var/data1/raw_series/binance_sol_perp_1d_data1.json",
-      "raw_sha256": "ed6d14292f77041369d024dd6c8060aa51941170f7857a565efca64fcdf0a5cd",
-      "refreshed_at_utc": "2026-06-12T19:59:26Z",
-      "row_count": 2097,
+      "raw_sha256": "6ecbd3ba5c9038238472a5cc99c50f536fae304d88229506dff0199d729bfc0e",
+      "refreshed_at_utc": "2026-06-13T10:06:47Z",
+      "row_count": 2098,
       "samples": {
         "first": [
           {
@@ -1606,12 +1606,12 @@
     {
       "asset": "XRP",
       "coverage": {
-        "expected_days": 2349,
+        "expected_days": 2350,
         "first_close": "2020-01-07T00:00:00Z",
         "first_nonzero_volume_close": "2020-01-07T00:00:00Z",
-        "last_close": "2026-06-12T00:00:00Z",
+        "last_close": "2026-06-13T00:00:00Z",
         "missing_internal_days": 0,
-        "rows": 2349,
+        "rows": 2350,
         "zero_volume_rows": 0
       },
       "endpoint": "GET https://fapi.binance.com/fapi/v1/klines interval=1d (paginated 1500/page, forward)",
@@ -1619,9 +1619,9 @@
       "native_rows": 2348,
       "note": "",
       "raw_path": "var/data1/raw_series/binance_xrp_perp_1d_data1.json",
-      "raw_sha256": "21c6f2d49006c65b72a4b0f6dd51132506a14bd141976eedfb68ce9461bc2286",
-      "refreshed_at_utc": "2026-06-12T19:59:26Z",
-      "row_count": 2349,
+      "raw_sha256": "31fea92d73f3b2759c822cbcf5c2d8ef71837cf262e9b8e4aed584cbd048c844",
+      "refreshed_at_utc": "2026-06-13T10:06:47Z",
+      "row_count": 2350,
       "samples": {
         "first": [
           {

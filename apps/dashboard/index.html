@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Money Flow OS</title>
-      <link rel="stylesheet" href="./evidence-dashboard.css?v=dash-qasweep1-20260611" />
+      <link rel="stylesheet" href="./evidence-dashboard.css?v=mf-replay1-20260613" />
   </head>
   <body>
     <header class="top-strip">
@@ -20,6 +20,7 @@
 
       <nav class="view-tabs" aria-label="Dashboard sections">
         <button class="view-tab" type="button" data-view="paper-observation" aria-selected="true">Paper Trading</button>
+        <button class="view-tab" type="button" data-view="historical-replay" aria-selected="false">Historical Replay</button>
         <button class="view-tab" type="button" data-view="research-log" aria-selected="false">Research Log</button>
       </nav>
 
@@ -61,6 +62,67 @@
           (<code>docs/research_log.json</code>, built by <code>scripts/build_research_log.py</code>).
           Research evidence is review material only: no strategy is production-approved and live trading is not approved.
         </div>
+      </section>
+
+      <section id="historical-replay-view" class="dashboard-view historical-replay-view" data-view-panel="historical-replay" hidden>
+        <section class="mf-replay-honesty methodology-warning" role="note">
+          <strong>Hypothetical replay, not evidence.</strong> Range replay of the committed PT-RT2 lane
+          semantics for founder judgment only — <em>not</em> a validated strategy, <em>not</em> new evidence, and it
+          never feeds or backfills the live synthetic ledgers. A green range is <strong>window placement, not
+          alpha</strong> (TSMOM-EV1's OOS window was absolutely negative; MONEYFLOW-SIGNAL1's was positive — same
+          defensive trend mechanic). Committed verdicts travel: <code>defensive_trend_mechanic_not_validated_alpha</code>
+          (standalone); <code>source_faithful_but_underperformed</code> (trade level); the regime overlay is
+          informational risk context, not a validated control.
+        </section>
+        <div class="mf-replay-controls" aria-label="Replay range controls">
+          <label>
+            <span>Range</span>
+            <select id="mf-replay-range-mode">
+              <option value="all_time" selected>All-time (aligned 7-major window)</option>
+              <option value="year">Calendar year</option>
+              <option value="custom">Custom date range</option>
+            </select>
+          </label>
+          <label data-mf-replay-year hidden>
+            <span>Year</span>
+            <select id="mf-replay-year"></select>
+          </label>
+          <label data-mf-replay-custom hidden>
+            <span>Start</span>
+            <input id="mf-replay-custom-start" type="date" />
+          </label>
+          <label data-mf-replay-custom hidden>
+            <span>End</span>
+            <input id="mf-replay-custom-end" type="date" />
+          </label>
+          <label>
+            <span>Lane</span>
+            <select id="mf-replay-lane">
+              <option value="mf_source_faithful_baseline" selected>MF source-faithful baseline (Control)</option>
+              <option value="mf_source_faithful_regime_gated">MF source-faithful + regime gate (Overlay)</option>
+            </select>
+          </label>
+          <label data-mf-replay-symbol>
+            <span>Chart symbol</span>
+            <select id="mf-replay-symbol"></select>
+          </label>
+          <button id="mf-replay-run" type="button" class="mf-replay-run-button">Replay range</button>
+        </div>
+        <div id="mf-replay-result-card" class="mf-replay-result-card" aria-live="polite"></div>
+        <article class="table-panel audit-review-panel mf-replay-chart-panel" aria-labelledby="mf-replay-equity-title">
+          <h2 id="mf-replay-equity-title" class="panel-title">Hypothetical replay equity — start 10,000 USDC</h2>
+          <div id="mf-replay-equity-chart" class="mf-replay-chart"></div>
+        </article>
+        <article class="table-panel audit-review-panel mf-replay-chart-panel" aria-labelledby="mf-replay-price-title">
+          <h2 id="mf-replay-price-title" class="panel-title">Candles + replay entries/exits (chart symbol)</h2>
+          <div id="mf-replay-price-chart" class="mf-replay-chart"></div>
+          <p class="mf-replay-marker-note">
+            Markers are this range's hypothetical replay entries (▲) and exits (▼) for the chart symbol; the dashed
+            line marks the live PT-RT2 observation start — replay context to its left is hypothetical and separate from
+            the live observation window to its right. The live synthetic ledgers are never touched by this surface.
+          </p>
+        </article>
+        <div id="mf-replay-trade-table" class="data-table-shell" aria-label="Replay trade list"></div>
       </section>
 
       <section id="paper-observation-view" class="dashboard-view paper-observation-view" data-view-panel="paper-observation">
@@ -619,6 +681,6 @@
     </main>
 
     <script src="./vendor/lightweight-charts.standalone.production.js?v=5.2.0"></script>
-    <script src="./evidence-dashboard.js?v=pt-rt2-fresh-slate-20260612"></script>
+    <script src="./evidence-dashboard.js?v=mf-replay1-20260613"></script>
   </body>
 </html>
