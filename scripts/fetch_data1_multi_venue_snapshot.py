@@ -14,7 +14,7 @@ strategy logic, no runtime change.
 
 Outputs (FUND-EV1 snapshot conventions):
   - Raw per-venue native payload rows -> ignored local artifacts under
-    /tmp/money-flow-data1/raw_series/ (documented, NOT committed).
+    var/data1/raw_series/ (durable ignored repo path; documented, NOT committed).
   - A committed provenance summary -> docs/data1_multi_venue_snapshot_summary.json
     with the window, per-series endpoint, row counts, history depth, funding
     intervals (declared + observed), coverage gaps (venue lacks / fetch
@@ -59,7 +59,7 @@ def _load_module(relative: str, alias: str):
 
 mv = _load_module("services/market_data/data1_multi_venue.py", "data1_multi_venue_fetch_module")
 
-DEFAULT_SNAPSHOT_DIR = Path("/tmp/money-flow-data1/raw_series")
+DEFAULT_SNAPSHOT_DIR = Path(__file__).resolve().parents[1] / "var" / "data1" / "raw_series"
 DEFAULT_SUMMARY_OUTPUT = Path("docs/data1_multi_venue_snapshot_summary.json")
 
 CANDLES_START_FLOOR = datetime(2015, 1, 1, tzinfo=UTC)

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Local-only dashboard control server for PT-RT1 paper observation.
+"""Local-only dashboard control server for paper observation + MF-REPLAY1.
 
 The server intentionally exposes only a tiny localhost API. It can start or
-stop the PT-RT1 paper-observation runtime through `caffeinate` so a Mac stays
-awake while synthetic paper observation runs. PT-RT1.6 uses the founder-selected
-Week 2 three-lane slate with candle-close
-signal evaluation, warm-start fresh-signal gating, and baseline-only
-Hyperliquid testnet lifecycle transport capped at a fixed 25 USDC; testnet
-fills do not update synthetic paper PnL.
+stop the paper-observation runtime through `caffeinate` so a Mac stays awake
+while synthetic paper observation runs. The PT-RT2 default scope runs the
+two-lane source-faithful slate, paper-only (no testnet pathway). It also
+serves MF-REPLAY1 custom range-replay requests (GET /api/mf-replay1/range)
+through the committed replay engine — read-only local computation,
+hypothetical context only, never feeding the live ledgers.
 """
 
 from __future__ import annotations
@@ -24,10 +24,52 @@ from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT))
+
+# The MF-REPLAY1 engine lazily imports the MONEYFLOW-SIGNAL1 surface, whose
+# module chain instantiates settings at import; this server never reads
+# AppSettings for anything — keep the local runtime .env out of it (same
+# isolation tests/conftest.py applies).
+from core.config.settings import AppSettings, get_settings  # noqa: E402
+
+AppSettings.model_config["env_file"] = None
+get_settings.cache_clear()
+
+_MF_REPLAY_CONTEXT = None
+
+
+def _mf_replay_context():
+    """Build the replay engine context once per server process (~15s)."""
+    global _MF_REPLAY_CONTEXT
+    if _MF_REPLAY_CONTEXT is None:
+        from services.paper_runtime import mf_replay1 as mr
+
+        _MF_REPLAY_CONTEXT = mr.build_replay_context(mr.replay_candles_from_data1())
+    return _MF_REPLAY_CONTEXT
+
+
+def mf_replay_range_payload(query: dict[str, list[str]]) -> tuple[int, dict[str, Any]]:
+    """GET /api/mf-replay1/range?lane=..&start=..&end=.. — the committed
+    range-replay engine on demand. Read-only; hypothetical replay context."""
+    from services.paper_runtime import mf_replay1 as mr
+
+    lane = (query.get("lane") or [""])[0]
+    start = (query.get("start") or [""])[0]
+    end = (query.get("end") or [""])[0]
+    if not lane or not start or not end:
+        return HTTPStatus.BAD_REQUEST, {"error": "lane_start_end_query_params_required"}
+    try:
+        context = _mf_replay_context()
+        result = mr.replay_range(context, lane, start, end)
+    except ValueError as exc:
+        return HTTPStatus.BAD_REQUEST, {"error": str(exc)}
+    except Exception as exc:  # explicit, never silent
+        return HTTPStatus.SERVICE_UNAVAILABLE, {"error": f"replay_engine_unavailable:{type(exc).__name__}:{exc}"}
+    return HTTPStatus.OK, result
 CONTROL_DIR = REPO_ROOT / "reports" / "paper_runtime" / "dashboard_control"
 STATE_PATH = CONTROL_DIR / "state.json"
 LOCAL_HOSTS = {"127.0.0.1", "localhost"}
@@ -520,6 +562,10 @@ class DashboardControlHandler(SimpleHTTPRequestHandler):
         parsed = urlparse(self.path)
         if parsed.path == "/api/paper-runtime/status":
             self._send_json(HTTPStatus.OK, current_status())
+            return
+        if parsed.path == "/api/mf-replay1/range":
+            status_code, payload = mf_replay_range_payload(parse_qs(parsed.query))
+            self._send_json(status_code, payload)
             return
         super().do_GET()
 
